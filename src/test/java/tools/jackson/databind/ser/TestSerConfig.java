@@ -4,17 +4,22 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.cfg.SerializationContexts;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for checking handling of SerializationConfig.
  */
 public class TestSerConfig
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -54,6 +59,7 @@ public class TestSerConfig
      * hit the limit, need to change implementation -- this test just
      * gives low-water mark
      */
+    @Test
     public void testEnumIndexes()
     {
         int max = 0;
@@ -66,6 +72,7 @@ public class TestSerConfig
         }
     }
 
+    @Test
     public void testDefaults()
     {
         SerializationConfig cfg = MAPPER.serializationConfig();
@@ -82,6 +89,7 @@ public class TestSerConfig
         assertTrue(cfg.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION));
     }
 
+    @Test
     public void testIndentation() throws Exception
     {
         Map<String,Integer> map = new HashMap<String,Integer>();
@@ -93,6 +101,7 @@ public class TestSerConfig
         assertEquals("{"+lf+"  \"a\" : 2"+lf+"}", result);
     }
 
+    @Test
     public void testAnnotationsDisabled() throws Exception
     {
         // first: verify that annotation introspection is enabled by default
@@ -117,13 +126,14 @@ public class TestSerConfig
     /**
      * Test for verifying some aspects of serializer caching
      */
+    @Test
     public void testProviderConfig() throws Exception
     {
         TestObjectMapper mapper = new TestObjectMapper();
         SerializationContexts prov = mapper.getSerializationContexts();
         assertEquals(0, prov.cachedSerializersCount());
         // and then should get one constructed for:
-        Map<String,Object> result = this.writeAndMap(mapper, new AnnoBean());
+        Map<String,Object> result = writeAndMap(mapper, new AnnoBean());
         assertEquals(2, result.size());
         assertEquals(Integer.valueOf(1), result.get("x"));
         assertEquals(Integer.valueOf(2), result.get("y"));
@@ -139,6 +149,7 @@ public class TestSerConfig
         assertEquals(0, prov.cachedSerializersCount());
     }
 
+    @Test
     public void testIndentWithPassedGenerator() throws Exception
     {
         Indentable input = new Indentable();
@@ -161,6 +172,7 @@ public class TestSerConfig
         assertEquals(INDENTED, sw.toString());
     }
 
+    @Test
     public void testNoAccessOverrides() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -169,6 +181,7 @@ public class TestSerConfig
         assertEquals("{\"x\":1}", m.writeValueAsString(new SimpleBean()));
     }
 
+    @Test
     public void testDateFormatConfig() throws Exception
     {
         TimeZone tz1 = TimeZone.getTimeZone("America/Los_Angeles");

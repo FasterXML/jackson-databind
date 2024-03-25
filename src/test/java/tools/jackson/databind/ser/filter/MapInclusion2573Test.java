@@ -2,13 +2,18 @@ package tools.jackson.databind.ser.filter;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class MapInclusion2573Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MapInclusion2573Test extends DatabindTestUtil
 {
     @JsonPropertyOrder({ "model", "properties" })
     static class Car
@@ -38,9 +43,10 @@ public class MapInclusion2573Test extends BaseMapTest
     private final JsonInclude.Value BOTH_NON_NULL = JsonInclude.Value.construct(JsonInclude.Include.NON_NULL,
             JsonInclude.Include.NON_NULL);
 
-//    final private ObjectMapper MAPPER = objectMapper();
+//    final private ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2572]
+    @Test
     public void test2572MapDefault() throws Exception
     {
 
@@ -54,6 +60,7 @@ public class MapInclusion2573Test extends BaseMapTest
     }
 
     // [databind#2572]
+    @Test
     public void test2572MapOverrideUseDefaults() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
@@ -69,6 +76,7 @@ public class MapInclusion2573Test extends BaseMapTest
     }
 
     // [databind#2572]
+    @Test
     public void test2572MapOverrideInclAlways() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()

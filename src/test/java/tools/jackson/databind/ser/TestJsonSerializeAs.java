@@ -3,12 +3,17 @@ package tools.jackson.databind.ser;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import tools.jackson.databind.*;
+import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestJsonSerializeAs extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestJsonSerializeAs extends DatabindTestUtil
 {
     public interface Fooable {
         public int getFoo();
@@ -88,33 +93,39 @@ public class TestJsonSerializeAs extends BaseMapTest
 
     private final ObjectWriter WRITER = objectWriter();
 
+    @Test
     public void testSerializeAsInClass() throws IOException {
         assertEquals("{\"foo\":42}", WRITER.writeValueAsString(new FooImpl()));
     }
 
+    @Test
     public void testSerializeAsForArrayProp() throws IOException {
         assertEquals("{\"foos\":[{\"foo\":42}]}",
                 WRITER.writeValueAsString(new Fooables()));
     }
 
+    @Test
     public void testSerializeAsForSimpleProp() throws IOException {
         assertEquals("{\"foo\":{\"foo\":42}}",
                 WRITER.writeValueAsString(new FooableWrapper()));
     }
 
     // for [databind#1023]
+    @Test
     public void testSerializeWithFieldAnno() throws IOException {
         assertEquals("{\"foo\":{\"foo\":42}}",
                 WRITER.writeValueAsString(new FooableWithFieldWrapper()));
     }
 
     // for [databind#1178]
+    @Test
     public void testSpecializedContentAs() throws IOException {
         assertEquals(a2q("{'values':[{'a':1,'b':2}]}"),
                 WRITER.writeValueAsString(new Bean1178Wrapper(1)));
     }
 
     // for [databind#1231] (and continuation of [databind#1178])
+    @Test
     public void testSpecializedAsIntermediate() throws IOException {
         assertEquals(a2q("{'value':{'a':1,'b':2}}"),
                 WRITER.writeValueAsString(new Bean1178Holder()));

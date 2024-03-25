@@ -5,6 +5,7 @@ import java.util.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -14,22 +15,22 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import tools.jackson.core.*;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.json.JsonWriteFeature;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.jdk.CollectionSerializer;
-import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
-import tools.jackson.databind.ser.std.SimpleFilterProvider;
-import tools.jackson.databind.ser.std.StdDelegatingSerializer;
-import tools.jackson.databind.ser.std.StdScalarSerializer;
-import tools.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.databind.ser.std.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.StdConverter;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for verifying various issues with custom serializers.
  */
 @SuppressWarnings("serial")
-public class CustomSerializersTest extends BaseMapTest
+public class CustomSerializersTest extends DatabindTestUtil
 {
     static class ElementSerializer extends StdSerializer<Element>
     {
@@ -197,6 +198,7 @@ public class CustomSerializersTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testCustomization() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -209,6 +211,7 @@ public class CustomSerializersTest extends BaseMapTest
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Test
     public void testCustomLists() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -236,6 +239,7 @@ public class CustomSerializersTest extends BaseMapTest
     }
 
     // [databind#87]: delegating serializer
+    @Test
     public void testDelegating() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -257,18 +261,21 @@ public class CustomSerializersTest extends BaseMapTest
     }
 
     // [databind#215]: Allow registering CharacterEscapes via ObjectWriter
+    @Test
     public void testCustomEscapes() throws Exception
     {
         assertEquals(q("foo\\u0062\\Ar"),
                 MAPPER.writer(new CustomEscapes()).writeValueAsString("foobar"));
     }
 
+    @Test
     public void testNumberSubclass() throws Exception
     {
         assertEquals(a2q("{'x':42}"),
                 MAPPER.writeValueAsString(new LikeNumber(42)));
     }
 
+    @Test
     public void testWithCurrentValue() throws Exception
     {
         assertEquals(a2q("{'prop':'Issue631Bean/42'}"),
@@ -277,6 +284,7 @@ public class CustomSerializersTest extends BaseMapTest
                     .writeValueAsString(new Issue631Bean(42)));
     }
 
+    @Test
     public void testWithCustomElements() throws Exception
     {
         // First variant that uses per-property override
@@ -304,6 +312,7 @@ public class CustomSerializersTest extends BaseMapTest
     }
 
     // [databind#2475]
+    @Test
     public void testIssue2475() throws Exception {
         SimpleFilterProvider provider = new SimpleFilterProvider().addFilter("myFilter", new MyFilter2475());
         ObjectWriter writer = MAPPER.writer(provider);

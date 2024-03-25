@@ -2,22 +2,27 @@ package tools.jackson.databind.ser.filter;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.BaseMapTest;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializerProvider;
 import tools.jackson.databind.ser.FilterProvider;
 import tools.jackson.databind.ser.PropertyWriter;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for ensuring that entries accessible via "any filter"
  * can also be filtered with JSON Filter functionality.
  */
-public class TestAnyGetterFiltering extends BaseMapTest
+public class TestAnyGetterFiltering extends DatabindTestUtil
 {
     @JsonFilter("anyFilter")
     public static class AnyBean
@@ -86,6 +91,7 @@ public class TestAnyGetterFiltering extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testAnyGetterFiltering() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter",
@@ -94,6 +100,7 @@ public class TestAnyGetterFiltering extends BaseMapTest
     }
 
     // for [databind#1142]
+    @Test
     public void testAnyGetterIgnore() throws Exception
     {
         assertEquals(a2q("{'a':'1','b':'3'}"),
@@ -101,6 +108,7 @@ public class TestAnyGetterFiltering extends BaseMapTest
     }
 
     // [databind#1655]
+    @Test
     public void testAnyGetterPojo1655() throws Exception
     {
         FilterProvider filters = new SimpleFilterProvider().addFilter("CustomFilter", new CustomFilter());

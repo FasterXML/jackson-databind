@@ -1,30 +1,38 @@
 package tools.jackson.databind.ser;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.Base64Variants;
-import tools.jackson.databind.BaseMapTest;
+
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying serialization of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
 public class TestSimpleTypes
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testBoolean() throws Exception
     {
         assertEquals("true", MAPPER.writeValueAsString(Boolean.TRUE));
         assertEquals("false", MAPPER.writeValueAsString(Boolean.FALSE));
     }
 
+    @Test
     public void testBooleanArray() throws Exception
     {
         assertEquals("[true,false]", MAPPER.writeValueAsString(new boolean[] { true, false} ));
         assertEquals("[true,false]", MAPPER.writeValueAsString(new Boolean[] { Boolean.TRUE, Boolean.FALSE} ));
     }
 
+    @Test
     public void testByteArray() throws Exception
     {
         byte[] data = { 1, 17, -3, 127, -128 };
@@ -40,6 +48,7 @@ public class TestSimpleTypes
     }
 
     // as per [Issue#42], allow Base64 variant use as well
+    @Test
     public void testBase64Variants() throws Exception
     {
         final byte[] INPUT = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890X".getBytes("UTF-8");
@@ -59,12 +68,14 @@ public class TestSimpleTypes
                 MAPPER.writer(Base64Variants.PEM).writeValueAsString(INPUT));
     }
 
+    @Test
     public void testShortArray() throws Exception
     {
         assertEquals("[0,1]", MAPPER.writeValueAsString(new short[] { 0, 1 }));
         assertEquals("[2,3]", MAPPER.writeValueAsString(new Short[] { 2, 3 }));
     }
 
+    @Test
     public void testIntArray() throws Exception
     {
         assertEquals("[0,-3]", MAPPER.writeValueAsString(new int[] { 0, -3 }));
@@ -76,6 +87,7 @@ public class TestSimpleTypes
      * conversions though, to retain accuracy and round-trippability.
      * But still...
      */
+    @Test
     public void testFloat() throws Exception
     {
         double[] values = new double[] {
@@ -91,6 +103,7 @@ public class TestSimpleTypes
         }
     }
 
+    @Test
     public void testClass() throws Exception
     {
         String result = MAPPER.writeValueAsString(java.util.List.class);

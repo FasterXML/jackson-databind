@@ -3,14 +3,20 @@ package tools.jackson.databind.ser;
 import java.math.BigDecimal;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.ser.std.ToStringSerializer;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tests functioning of {@link JsonValue}
@@ -18,7 +24,7 @@ import tools.jackson.databind.ser.std.ToStringSerializer;
  */
 @SuppressWarnings("serial")
 public class JsonValueSerializationTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class ValueClass<T>
     {
@@ -240,18 +246,21 @@ public class JsonValueSerializationTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleMethodJsonValue() throws Exception
     {
         assertEquals("\"abc\"", MAPPER.writeValueAsString(new ValueClass<String>("abc")));
         assertEquals("null", MAPPER.writeValueAsString(new ValueClass<String>(null)));
     }
 
+    @Test
     public void testSimpleFieldJsonValue() throws Exception
     {
         assertEquals("\"abc\"", MAPPER.writeValueAsString(new FieldValueClass<String>("abc")));
         assertEquals("null", MAPPER.writeValueAsString(new FieldValueClass<String>(null)));
     }
 
+    @Test
     public void testJsonValueWithUseSerializer() throws Exception
     {
         assertEquals("\"123\"",
@@ -261,18 +270,21 @@ public class JsonValueSerializationTest
     /**
      * Test for verifying that additional getters won't confuse serializer.
      */
+    @Test
     public void testMixedJsonValue() throws Exception
     {
         assertEquals("\"xyz\"",
                 MAPPER.writeValueAsString(new ToStringValueClass2("xyz")));
     }
 
+    @Test
     public void testDisabling() throws Exception
     {
         assertEquals(a2q("{'x':1,'y':2}"),
                 MAPPER.writeValueAsString(new DisabledJsonValue()));
     }
 
+    @Test
     public void testValueWithStaticType() throws Exception
     {
         // Ok; first, with dynamic type:
@@ -285,6 +297,7 @@ public class JsonValueSerializationTest
         assertEquals("{\"a\":\"a\"}", staticMapper.writeValueAsString(new ValueWrapper()));
     }
 
+    @Test
     public void testMapWithJsonValue() throws Exception {
         // First via method
         assertEquals("{\"a\":\"1\"}", MAPPER.writeValueAsString(new MapBean()));
@@ -293,14 +306,17 @@ public class JsonValueSerializationTest
         assertEquals("{\"b\":\"2\"}", MAPPER.writeValueAsString(new MapFieldBean()));
     }
 
+    @Test
     public void testWithMap() throws Exception {
         assertEquals("42", MAPPER.writeValueAsString(new MapAsNumber()));
     }
 
+    @Test
     public void testWithList() throws Exception {
         assertEquals("13", MAPPER.writeValueAsString(new ListAsNumber()));
     }
 
+    @Test
     public void testInList() throws Exception {
         IntExtBean bean = new IntExtBean();
         bean.add(1);
@@ -310,6 +326,7 @@ public class JsonValueSerializationTest
     }
 
     // [databind#167]
+    @Test
     public void testPolymorphicSerdeWithDelegate() throws Exception
     {
 	    AdditionInterface adder = new AdditionInterfaceImpl(1);
@@ -320,6 +337,7 @@ public class JsonValueSerializationTest
 	    assertEquals(2, MAPPER.readValue(json, AdditionInterface.class).add(1));
     }
 
+    @Test
     public void testJsonValueWithCustomOverride() throws Exception
     {
         final Bean838 INPUT = new Bean838();
@@ -336,6 +354,7 @@ public class JsonValueSerializationTest
     }
 
     // [databind#1806]
+    @Test
     public void testCollectionViaJsonValue() throws Exception
     {
         assertEquals("[{\"impl\":{\"value\":1}}]",
@@ -343,6 +362,7 @@ public class JsonValueSerializationTest
     }
 
     // [databind#2822]
+    @Test
     public void testFormatWithJsonValue() throws Exception
     {
         final String json = MAPPER.writeValueAsString(new A2822("desc",

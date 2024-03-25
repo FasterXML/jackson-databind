@@ -5,18 +5,25 @@ import java.lang.annotation.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import tools.jackson.core.JsonGenerator;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.ser.*;
 import tools.jackson.databind.ser.jdk.MapProperty;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("serial")
-public class TestMapFiltering extends BaseMapTest
+public class TestMapFiltering extends DatabindTestUtil
 {
     @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
@@ -162,6 +169,7 @@ public class TestMapFiltering extends BaseMapTest
 
     final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testMapFilteringViaProps() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
@@ -170,6 +178,7 @@ public class TestMapFiltering extends BaseMapTest
         assertEquals(a2q("{'values':{'b':5}}"), json);
     }
 
+    @Test
     public void testMapFilteringViaClass() throws Exception
     {
         FilteredBean bean = new FilteredBean();
@@ -182,6 +191,7 @@ public class TestMapFiltering extends BaseMapTest
     }
 
     // [databind#527]
+    @Test
     public void testNonNullValueMapViaProp() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoNullValuesMapContainer()
@@ -192,6 +202,7 @@ public class TestMapFiltering extends BaseMapTest
     }
 
     // [databind#522]
+    @Test
     public void testMapFilteringWithAnnotations() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
@@ -206,6 +217,7 @@ public class TestMapFiltering extends BaseMapTest
     }
 
     // [databind#527]
+    @Test
     public void testMapNonNullValue() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoNullsStringMap()
@@ -216,6 +228,7 @@ public class TestMapFiltering extends BaseMapTest
     }
 
     // [databind#527]
+    @Test
     public void testMapNonEmptyValue() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoEmptyStringsMap()
@@ -227,6 +240,7 @@ public class TestMapFiltering extends BaseMapTest
 
     // Test to ensure absent content of AtomicReference handled properly
     // [databind#527]
+    @Test
     public void testMapAbsentValue() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoAbsentStringMap()
@@ -236,6 +250,7 @@ public class TestMapFiltering extends BaseMapTest
     }
 
     // [databind#527]
+    @Test
     public void testMapWithOnlyEmptyValues() throws IOException
     {
         String json;
@@ -252,6 +267,7 @@ public class TestMapFiltering extends BaseMapTest
         assertEquals(a2q("{}"), json);
     }
 
+    @Test
     public void testMapViaGlobalNonEmpty() throws Exception
     {
         // basic Map<String,String> subclass:
@@ -266,6 +282,7 @@ public class TestMapFiltering extends BaseMapTest
                     ));
     }
 
+    @Test
     public void testMapViaTypeOverride() throws Exception
     {
         // basic Map<String,String> subclass:

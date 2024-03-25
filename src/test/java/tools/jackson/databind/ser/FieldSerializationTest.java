@@ -2,6 +2,8 @@ package tools.jackson.databind.ser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
@@ -9,13 +11,16 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying that field-backed properties can also be serialized
  * (since version 1.1) as well as getter-accessible properties.
  */
 public class FieldSerializationTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class SimpleFieldBean
     {
@@ -129,6 +134,7 @@ public class FieldSerializationTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleAutoDetect() throws Exception
     {
         SimpleFieldBean bean = new SimpleFieldBean();
@@ -141,6 +147,7 @@ public class FieldSerializationTest
     }
 
     @SuppressWarnings("unchecked")
+    @Test
 	public void testSimpleAnnotation() throws Exception
     {
         SimpleFieldBean2 bean = new SimpleFieldBean2();
@@ -153,6 +160,7 @@ public class FieldSerializationTest
         assertEquals("b", values.get(1));
     }
 
+    @Test
     public void testTransientAndStatic() throws Exception
     {
         TransientBean bean = new TransientBean();
@@ -161,6 +169,7 @@ public class FieldSerializationTest
         assertEquals(Integer.valueOf(0), result.get("a"));
     }
 
+    @Test
     public void testNoAutoDetect() throws Exception
     {
         NoAutoDetectBean bean = new NoAutoDetectBean();
@@ -175,6 +184,7 @@ public class FieldSerializationTest
      * method exist for a logical property (which is allowed),
      * getter has precendence over field.
      */
+    @Test
     public void testMethodPrecedence() throws Exception
     {
         FieldAndMethodBean bean = new FieldAndMethodBean();
@@ -187,6 +197,7 @@ public class FieldSerializationTest
      * Testing [JACKSON-226]: it is ok to have "field override",
      * as long as there are no intra-class conflicts.
      */
+    @Test
     public void testOkDupFields() throws Exception
     {
         OkDupFieldBean bean = new OkDupFieldBean(1, 2);
@@ -196,6 +207,7 @@ public class FieldSerializationTest
         assertEquals(Integer.valueOf(2), json.get("y"));
     }
 
+    @Test
     public void testIssue240() throws Exception
     {
         Item240 bean = new Item240("a12", null);
@@ -208,6 +220,7 @@ public class FieldSerializationTest
     /**********************************************************
      */
 
+    @Test
     public void testFailureDueToDupField1() throws Exception
     {
         try {
@@ -218,6 +231,7 @@ public class FieldSerializationTest
         }
     }
 
+    @Test
     public void testResolvedDuplicate() throws Exception
     {
         String json = MAPPER.writeValueAsString(new DupFieldBean2());

@@ -2,13 +2,18 @@ package tools.jackson.databind.ser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class ValueSerializerModifier1612Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ValueSerializerModifier1612Test extends DatabindTestUtil
 {
     @JsonPropertyOrder({ "a", "b", "c" })
     static class Bean1612 {
@@ -48,6 +53,7 @@ public class ValueSerializerModifier1612Test extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testIssue1612() throws Exception
     {
         SimpleModule mod = new SimpleModule();

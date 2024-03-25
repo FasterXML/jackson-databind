@@ -2,16 +2,21 @@ package tools.jackson.databind.ser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tests use of Annotations for
  * bean serialization.
  */
 public class TestAnnotationInheritance
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -72,6 +77,7 @@ public class TestAnnotationInheritance
     /**********************************************************
      */
 
+    @Test
     public void testSimpleGetterInheritance() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -81,6 +87,7 @@ public class TestAnnotationInheritance
         assertEquals(Integer.valueOf(9), result.get("width"));
     }
 
+    @Test
     public void testSimpleGetterInterfaceImpl() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

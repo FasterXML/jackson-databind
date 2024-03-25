@@ -2,17 +2,24 @@ package tools.jackson.databind.ser.filter;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.TokenStreamContext;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.ser.PropertyWriter;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#3160]
-public class CurrentObject3160Test extends BaseMapTest
+public class CurrentObject3160Test extends DatabindTestUtil
 {
     @JsonFilter("myFilter")
     @JsonPropertyOrder({ "id", "strategy", "set" })
@@ -66,6 +73,7 @@ public class CurrentObject3160Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2475]
+    @Test
     public void testIssue2475() throws Exception
     {
         SimpleFilterProvider provider = new SimpleFilterProvider().addFilter("myFilter",

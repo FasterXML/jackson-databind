@@ -3,15 +3,20 @@ package tools.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for checking handling of some of {@link MapperFeature}s
  * and {@link SerializationFeature}s for serialization.
  */
 public class SerializationFeaturesTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class CloseableBean implements Closeable
     {
@@ -41,6 +46,7 @@ public class SerializationFeaturesTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @SuppressWarnings("resource")
+    @Test
     public void testCloseCloseable() throws IOException
     {
         // default should be disabled:
@@ -63,7 +69,7 @@ public class SerializationFeaturesTest
         assertTrue(bean.wasClosed);
     }
 
-    // Test for [JACKSON-289]
+    @Test
     public void testCharArrays() throws IOException
     {
         char[] chars = new char[] { 'a','b','c' };
@@ -78,6 +84,7 @@ public class SerializationFeaturesTest
                 .writeValueAsString(chars));
     }
 
+    @Test
     public void testFlushingAutomatic() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -94,6 +101,7 @@ public class SerializationFeaturesTest
         assertEquals("99", sw.toString());
     }
 
+    @Test
     public void testFlushingNotAutomatic() throws IOException
     {
         // but should not occur if configured otherwise
@@ -122,6 +130,7 @@ public class SerializationFeaturesTest
         g.close();
     }
 
+    @Test
     public void testSingleElementCollections() throws IOException
     {
         final ObjectWriter writer = objectWriter().with(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);

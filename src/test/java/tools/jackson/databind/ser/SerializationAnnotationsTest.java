@@ -3,18 +3,24 @@ package tools.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tests use of some basic Jackson annotations for
  * bean serialization.
  */
 public class SerializationAnnotationsTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     // Class for testing {@link JsonProperty} annotations with getters
     final static class SizeClassGetter
@@ -126,6 +132,7 @@ public class SerializationAnnotationsTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleGetter() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter());
@@ -135,6 +142,7 @@ public class SerializationAnnotationsTest
         assertEquals(Integer.valueOf(0), result.get("value"));
     }
 
+    @Test
     public void testSimpleGetter2() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter2());
@@ -143,6 +151,7 @@ public class SerializationAnnotationsTest
     }
 
     // testing [JACKSON-120], implied getter
+    @Test
     public void testSimpleGetter3() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter3());
@@ -154,6 +163,7 @@ public class SerializationAnnotationsTest
      * Let's also verify that inherited super-class getters are used
      * as expected
      */
+    @Test
     public void testGetterInheritance() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SubClassBean());
@@ -167,6 +177,7 @@ public class SerializationAnnotationsTest
      * Unit test to verify that {@link JsonSerialize#using} annotation works
      * when applied to a class
      */
+    @Test
     public void testClassSerializer() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -178,6 +189,7 @@ public class SerializationAnnotationsTest
      * Unit test to verify that {@code @JsonSerialize} annotation works
      * when applied to a Method
      */
+    @Test
     public void testActiveMethodSerializer() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -187,6 +199,7 @@ public class SerializationAnnotationsTest
         assertEquals("{\"x\":\"X13X\"}", sw.toString());
     }
 
+    @Test
     public void testInactiveMethodSerializer() throws Exception
     {
         String json = MAPPER.writeValueAsString(new InactiveClassMethodSerializer(8));

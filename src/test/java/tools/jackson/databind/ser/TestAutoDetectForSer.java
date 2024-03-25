@@ -2,16 +2,21 @@ package tools.jackson.databind.ser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for checking extended auto-detect configuration,
  * in context of serialization
  */
 public class TestAutoDetectForSer
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class FieldBean
     {
@@ -43,6 +48,7 @@ public class TestAutoDetectForSer
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testDefaults() throws Exception
     {
         // by default, only public fields and getters are detected
@@ -52,6 +58,7 @@ public class TestAutoDetectForSer
                 MAPPER.writeValueAsString(new MethodBean()));
     }
 
+    @Test
     public void testProtectedViaAnnotations() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new ProtFieldBean());
@@ -67,6 +74,7 @@ public class TestAutoDetectForSer
         assertNull(result.get("c"));
     }
 
+    @Test
     public void testPrivateUsingGlobals() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -92,6 +100,7 @@ public class TestAutoDetectForSer
         assertEquals("c", result.get("c"));
     }
 
+    @Test
     public void testBasicSetup() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -105,6 +114,7 @@ public class TestAutoDetectForSer
         assertEquals("private", result.get("p3"));
     }
 
+    @Test
     public void testMapperShortcutMethods() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

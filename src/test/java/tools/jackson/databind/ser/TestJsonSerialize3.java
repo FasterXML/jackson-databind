@@ -2,11 +2,16 @@ package tools.jackson.databind.ser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestJsonSerialize3 extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestJsonSerialize3 extends DatabindTestUtil
 {
     // [JACKSON-829]
     static class FooToBarSerializer extends ValueSerializer<String> {
@@ -31,6 +36,7 @@ public class TestJsonSerialize3 extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testCustomContentSerializer() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

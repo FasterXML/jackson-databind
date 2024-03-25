@@ -3,18 +3,23 @@ package tools.jackson.databind.ser;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.RawValue;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tests functioning of {@link JsonRawValue}
  * annotation with bean serialization.
  */
 public class RawValueTest
-    extends tools.jackson.databind.BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /*********************************************************
@@ -54,8 +59,9 @@ public class RawValueTest
     /*********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleStringGetter() throws Exception
     {
         String value = "abc";
@@ -64,6 +70,7 @@ public class RawValueTest
         assertEquals(expected, result);
     }
 
+    @Test
     public void testSimpleNonStringGetter() throws Exception
     {
         int value = 123;
@@ -72,6 +79,7 @@ public class RawValueTest
         assertEquals(expected, result);
     }
 
+    @Test
     public void testNullStringGetter() throws Exception
     {
         String result = MAPPER.writeValueAsString(new ClassGetter<String>(null));
@@ -79,6 +87,7 @@ public class RawValueTest
         assertEquals(expected, result);
     }
 
+    @Test
     public void testWithValueToTree() throws Exception
     {
         JsonNode w = MAPPER.valueToTree(new RawWrapped("{ }"));
@@ -87,6 +96,7 @@ public class RawValueTest
     }
 
     // for [databind#743]
+    @Test
     public void testRawFromMapToTree() throws Exception
     {
         RawValue myType = new RawValue("Jackson");

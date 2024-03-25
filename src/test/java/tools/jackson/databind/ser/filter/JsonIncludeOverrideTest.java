@@ -5,11 +5,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for checking that overridden settings for
@@ -17,7 +21,7 @@ import tools.jackson.databind.ObjectMapper;
  * as expected.
  */
 public class JsonIncludeOverrideTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     @JsonPropertyOrder({"list", "map"})
     static class EmptyListMapBean
@@ -53,6 +57,7 @@ public class JsonIncludeOverrideTest
         public String plain = null;
     }
 
+    @Test
     public void testPropConfigOverridesForInclude() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -77,6 +82,7 @@ public class JsonIncludeOverrideTest
                 mapper.writeValueAsString(empty));
     }
 
+    @Test
     public void testOverrideForIncludeAsPropertyNonNull() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -103,6 +109,7 @@ public class JsonIncludeOverrideTest
                 mapper.writeValueAsString(nullValues));
     }
 
+    @Test
     public void testOverrideForIncludeAsPropertyAlways() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -129,6 +136,7 @@ public class JsonIncludeOverrideTest
                 mapper.writeValueAsString(nullValues));
     }
 
+    @Test
     public void testOverridesForIncludeAndIncludeAsPropertyNonNull() throws Exception
     {
         // First, with ALWAYS override on containing bean, all included
@@ -165,6 +173,7 @@ public class JsonIncludeOverrideTest
                 mapper.writeValueAsString(nullValues));
     }
 
+    @Test
     public void testOverridesForIncludeAndIncludeAsPropertyAlways() throws Exception
     {
         // First, with NON_NULL override on containing bean, empty

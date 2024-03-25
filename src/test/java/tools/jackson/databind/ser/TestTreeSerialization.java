@@ -1,19 +1,23 @@
 package tools.jackson.databind.ser;
 
-
 import java.io.*;
 import java.util.*;
+
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.node.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tries to verify that JsonNode-based trees
  * can be serialized as expected
  */
 public class TestTreeSerialization
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     final static class Bean {
         public String getX() { return "y"; }
@@ -21,8 +25,9 @@ public class TestTreeSerialization
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testSimpleViaObjectMapper()
-        throws IOException
+        throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // also need tree mapper to construct tree to serialize
@@ -54,6 +59,7 @@ public class TestTreeSerialization
      * any old Java object) work with serialization
      */
     @SuppressWarnings("unchecked")
+    @Test
 	public void testPOJOString()
         throws Exception
     {
@@ -69,8 +75,9 @@ public class TestTreeSerialization
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testPOJOIntArray()
-        throws IOException
+        throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode n = mapper.getNodeFactory().objectNode();
@@ -90,7 +97,8 @@ public class TestTreeSerialization
     }
 
     @SuppressWarnings("unchecked")
-    public void testPOJOBean() throws IOException
+    @Test
+    public void testPOJOBean() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // also need tree mapper to construct tree to serialize

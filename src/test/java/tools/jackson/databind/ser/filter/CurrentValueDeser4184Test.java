@@ -1,11 +1,17 @@
 package tools.jackson.databind.ser.filter;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonParser;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#4184]
-public class CurrentValueDeser4184Test extends BaseMapTest
+public class CurrentValueDeser4184Test extends DatabindTestUtil
 {
     static class User {
         public Role role;
@@ -68,6 +74,7 @@ public class CurrentValueDeser4184Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#4184]
+    @Test
     public void testCurrentValue4184FullPojo() throws Exception
     {
         String json = "{\"role\": {\"name\": \"Manager\"}, \"type\": {\"value\":1}}";
@@ -78,6 +85,7 @@ public class CurrentValueDeser4184Test extends BaseMapTest
     }
 
     // [databind#4184]
+    @Test
     public void testCurrentValue4184EmptyPojo() throws Exception
     {
         String json = "{\"role\": {}, \"type\": {\"value\":1}}";

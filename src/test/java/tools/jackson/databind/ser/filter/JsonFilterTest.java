@@ -1,26 +1,31 @@
 package tools.jackson.databind.ser.filter;
 
-import com.fasterxml.jackson.annotation.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.TokenStreamContext;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.ser.FilterProvider;
 import tools.jackson.databind.ser.PropertyWriter;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for verifying that bean property filtering using JsonFilter
  * works as expected.
  */
-public class JsonFilterTest extends BaseMapTest
+public class JsonFilterTest extends DatabindTestUtil
 {
     @JsonFilter("RootFilter")
     @JsonPropertyOrder({ "a", "b" })
@@ -73,6 +78,7 @@ public class JsonFilterTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testCheckSiblingContextFilter() {
         FilterProvider prov = new SimpleFilterProvider().addFilter("checkSiblingContextFilter",
                 new CheckSiblingContextFilter());
@@ -133,6 +139,7 @@ public class JsonFilterTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleInclusionFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
@@ -145,6 +152,7 @@ public class JsonFilterTest extends BaseMapTest
         assertEquals("{\"a\":\"a\"}", mapper.writeValueAsString(new Bean()));
     }
 
+    @Test
     public void testIncludeAllFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
@@ -152,6 +160,7 @@ public class JsonFilterTest extends BaseMapTest
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
     }
 
+    @Test
     public void testExcludeAllFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
@@ -159,6 +168,7 @@ public class JsonFilterTest extends BaseMapTest
         assertEquals("{}", MAPPER.writer(prov).writeValueAsString(new Bean()));
     }
 
+    @Test
     public void testSimpleExclusionFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
@@ -167,6 +177,7 @@ public class JsonFilterTest extends BaseMapTest
     }
 
     // should handle missing case gracefully
+    @Test
     public void testMissingFilter() throws Exception
     {
         // First: default behavior should be to throw an exception
@@ -186,6 +197,7 @@ public class JsonFilterTest extends BaseMapTest
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", json);
     }
 
+    @Test
     public void testDefaultFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().setDefaultFilter(SimpleBeanPropertyFilter.filterOutAllExcept("b"));
@@ -193,6 +205,7 @@ public class JsonFilterTest extends BaseMapTest
     }
 
     // [databind#89] combining @JsonIgnore, @JsonProperty
+    @Test
     public void testIssue89() throws Exception
     {
         Pod pod = new Pod();
@@ -209,6 +222,7 @@ public class JsonFilterTest extends BaseMapTest
     }
 
     // Wrt [databind#306]
+    @Test
     public void testFilterOnProperty() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider()
@@ -219,6 +233,7 @@ public class JsonFilterTest extends BaseMapTest
                 MAPPER.writer(prov).writeValueAsString(new FilteredProps()));
     }
 
+    @Test
     public void testAllFiltersWithSameOutput() throws Exception
     {
         // Setup

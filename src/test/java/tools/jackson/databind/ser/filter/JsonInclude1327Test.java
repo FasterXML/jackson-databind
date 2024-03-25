@@ -2,16 +2,21 @@ package tools.jackson.databind.ser.filter;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for checking that alternative settings for
  * inclusion annotation properties work as expected.
  */
 public class JsonInclude1327Test
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     static class Issue1327BeanEmpty {
@@ -30,6 +35,7 @@ public class JsonInclude1327Test
      */
 
     // for [databind#1327]
+    @Test
     public void testClassDefaultsForEmpty() throws Exception {
         ObjectMapper om = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
@@ -41,6 +47,7 @@ public class JsonInclude1327Test
         }
     }
 
+    @Test
     public void testClassDefaultsForAlways() throws Exception {
         ObjectMapper om = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))

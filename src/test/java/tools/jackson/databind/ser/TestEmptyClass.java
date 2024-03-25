@@ -1,13 +1,20 @@
 package tools.jackson.databind.ser;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import tools.jackson.core.JsonGenerator;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestEmptyClass
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class Empty { }
 
@@ -53,6 +60,7 @@ public class TestEmptyClass
 
     protected final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testEmptyWithAnnotations() throws Exception
     {
         // First: without annotations, should complain
@@ -77,6 +85,7 @@ public class TestEmptyClass
      * Alternative it is possible to use a feature to allow
      * serializing empty classes, too
      */
+    @Test
     public void testEmptyWithFeature() throws Exception
     {
         // should be enabled by default
@@ -87,6 +96,7 @@ public class TestEmptyClass
                     .writeValueAsString(new Empty()));
     }
 
+    @Test
     public void testCustomNoEmpty() throws Exception
     {
         // first non-empty:

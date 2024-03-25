@@ -1,12 +1,13 @@
 package com.fasterxml.jackson.failing;
 
+import java.util.*;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import org.junit.jupiter.api.Test;
-
-import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -58,13 +59,12 @@ class CyclicRefViaCollection3069Test extends DatabindTestUtil {
         }
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#3069]
     @Test
     void serializationCollection() throws Exception {
         testSerializationCollection(MAPPER, new TreeSet<>(abc()));
-        //testSerializationEnumSet(MAPPER, EnumSet.of(addEnum(BeanEnum.class, a), addEnum(BeanEnum.class, b)));
     }
 
     @Test
@@ -97,11 +97,6 @@ class CyclicRefViaCollection3069Test extends DatabindTestUtil {
     private void testSerializationCollection(final ObjectMapper mapper, final Collection<Bean> collection)
             throws Exception {
         assertEquals(getExpectedResult(), mapper.writeValueAsString(collection));
-    }
-
-    private void testSerializationEnumSet(final ObjectMapper mapper, final EnumSet<?> enumSet)
-            throws Exception {
-        assertEquals(getExpectedResult(), mapper.writeValueAsString(enumSet));
     }
 
     private void testSerializationIndexedList(final ObjectMapper mapper, final List<Bean> list) throws Exception {

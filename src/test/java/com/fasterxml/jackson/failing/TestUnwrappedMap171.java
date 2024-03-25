@@ -1,12 +1,13 @@
 package com.fasterxml.jackson.failing;
 
+import java.util.Collections;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

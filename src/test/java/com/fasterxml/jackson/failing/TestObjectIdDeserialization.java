@@ -1,15 +1,16 @@
 package com.fasterxml.jackson.failing;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.objectid.TestObjectId.Employee;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.failing.TestObjectIdDeserialization.EnumMapCompany.FooEnum;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.objectid.TestObjectId.Employee;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.failing.TestObjectIdDeserialization.EnumMapCompany.FooEnum;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;

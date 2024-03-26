@@ -415,7 +415,9 @@ public class BeanDeserializer
         throws IOException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = (_anySetter != null)
+            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter)
+            : creator.startBuilding(p, ctxt, _objectIdReader);
         TokenBuffer unknown = null;
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
@@ -495,9 +497,10 @@ public class BeanDeserializer
                 continue;
             }
             // "any property"?
+
             if (_anySetter != null) {
                 try {
-                    buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                    buffer.bufferAnySetter(ctxt, p, creator, propName);
                 } catch (Exception e) {
                     wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }

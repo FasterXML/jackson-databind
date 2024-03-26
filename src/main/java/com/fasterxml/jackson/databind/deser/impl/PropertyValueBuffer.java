@@ -2,10 +2,12 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 import java.util.BitSet;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -75,6 +77,20 @@ public class PropertyValueBuffer
      */
     protected Object _idValue;
 
+    /**
+     * [databind#562]: Allow use of `@JsonAnySetter` in `@JsonCreator`
+     *
+     * @since 2.19
+     */
+    protected final SettableAnyProperty _anySetter;
+
+    /**
+     * [databind#562]: Allow use of `@JsonAnySetter` in `@JsonCreator`
+     *
+     * @since 2.19
+     */
+    private Map<Object, Object> _anySetterMap;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -82,7 +98,7 @@ public class PropertyValueBuffer
      */
 
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
-            ObjectIdReader oir)
+            ObjectIdReader oir, SettableAnyProperty anySetter)
     {
         _parser = p;
         _context = ctxt;
@@ -94,6 +110,17 @@ public class PropertyValueBuffer
         } else {
             _paramsSeenBig = new BitSet();
         }
+        _anySetter = anySetter;
+    }
+
+    /**
+     *
+     * @deprecated Since 2.19, use later version instead.
+     */
+    public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
+            ObjectIdReader oir)
+    {
+        this(p, ctxt, paramCount, oir, null);
     }
 
     /**
@@ -147,28 +174,29 @@ public class PropertyValueBuffer
     public Object[] getParameters(SettableBeanProperty[] props)
         throws JsonMappingException
     {
+        final Object[] creatorParams = _creatorParameters;
         // quick check to see if anything else is needed
         if (_paramsNeeded > 0) {
             if (_paramsSeenBig == null) {
                 int mask = _paramsSeen;
                 // not optimal, could use `Integer.trailingZeroes()`, but for now should not
                 // really matter for common cases
-                for (int ix = 0, len = _creatorParameters.length; ix < len; ++ix, mask >>= 1) {
+                for (int ix = 0, len = creatorParams.length; ix < len; ++ix, mask >>= 1) {
                     if ((mask & 1) == 0) {
-                        _creatorParameters[ix] = _findMissing(props[ix]);
+                        creatorParams[ix] = _findMissing(props[ix]);
                     }
                 }
             } else {
-                final int len = _creatorParameters.length;
+                final int len = creatorParams.length;
                 for (int ix = 0; (ix = _paramsSeenBig.nextClearBit(ix)) < len; ++ix) {
-                    _creatorParameters[ix] = _findMissing(props[ix]);
+                    creatorParams[ix] = _findMissing(props[ix]);
                 }
             }
         }
 
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             for (int ix = 0; ix < props.length; ++ix) {
-                if (_creatorParameters[ix] == null) {
+                if (creatorParams[ix] == null) {
                     SettableBeanProperty prop = props[ix];
                     _context.reportInputMismatch(prop,
                             "Null value for creator property '%s' (index %d); `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES` enabled",
@@ -176,7 +204,16 @@ public class PropertyValueBuffer
                 }
             }
         }
-        return _creatorParameters;
+        // [databind#562] since 2.19 : Respect @JsonAnySetter in @JsonCreator
+        if (_anySetter != null) {
+            for (int i = 0; i < creatorParams.length; i++) {
+                if (props[i].getMember() == _anySetter.getProperty().getMember()) {
+                    creatorParams[i] = _anySetterMap;
+                   break;
+                }
+            }
+        }
+        return creatorParams;
     }
 
     protected Object _findMissing(SettableBeanProperty prop) throws JsonMappingException
@@ -308,5 +345,26 @@ public class PropertyValueBuffer
 
     public void bufferMapProperty(Object key, Object value) {
         _buffered = new PropertyValue.Map(_buffered, value, key);
+    }
+
+    /**
+     * @since 2.19
+     */
+    public void bufferAnySetter(DeserializationContext ctxt, JsonParser p, PropertyBasedCreator creator, String propName)
+        throws IOException {
+        // Only called once, to initialize map
+        if (_anySetterMap == null) {
+            CreatorProperty cp = creator.findAnySetterProperty();
+            if (cp == null) {
+                ctxt.reportBadDefinition(creator.getClass(),
+                    "Invalid configuration: no creator property with 'any-setter' annotation found");
+            }
+            try {
+                _anySetterMap = cp.initMap(_context, _anySetter);
+            } catch (IOException e) {
+                _context.reportInputMismatch(cp, e.getMessage());
+            }
+        }
+        _anySetterMap.put(propName, _anySetter.deserialize(p, ctxt));
     }
 }

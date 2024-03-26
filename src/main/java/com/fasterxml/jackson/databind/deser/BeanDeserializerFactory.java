@@ -544,8 +544,11 @@ ClassUtil.name(propName)));
 
         // Also, do we have a fallback "any" setter?
         AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
+        AnnotatedMember creatorPropWithAnySetter = _findCreatorPropWithAnySetter(ctxt, creatorProps);
         if (anySetter != null) {
             builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetter));
+        } else if (creatorPropWithAnySetter != null) {
+            builder.setAnySetter(constructAnySetter(ctxt, beanDesc, creatorPropWithAnySetter));
         } else {
             // 23-Jan-2018, tatu: although [databind#1805] would suggest we should block
             //   properties regardless, for now only consider unless there's any setter...
@@ -659,6 +662,21 @@ ClassUtil.name(propName)));
                 builder.addProperty(prop);
             }
         }
+    }
+
+    private AnnotatedMember _findCreatorPropWithAnySetter(DeserializationContext ctxt, SettableBeanProperty[] creatorProps) {
+        if (creatorProps != null) {
+            AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
+            for (SettableBeanProperty prop : creatorProps) {
+                AnnotatedMember m = prop.getMember();
+                if (m != null) {
+                    if (Boolean.TRUE.equals(ai.hasAnySetter(m))) {
+                        return prop.getMember();
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private boolean _isSetterlessType(Class<?> rawType) {
@@ -808,6 +826,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         JavaType keyType;
         JavaType valueType;
         final boolean isField = mutator instanceof AnnotatedField;
+        boolean isMapParam = false;
 
         if (mutator instanceof AnnotatedMethod) {
             // we know it's a 2-arg method, second arg is the value
@@ -819,6 +838,23 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     valueType, null, mutator,
                     PropertyMetadata.STD_OPTIONAL);
 
+        } else if (mutator instanceof AnnotatedParameter){
+            AnnotatedParameter af = (AnnotatedParameter) mutator;
+            // get the type from the content type of the map object
+            JavaType fieldType = af.getType();
+            // 31-Jul-2022, tatu: Not just Maps any more but also JsonNode, so:
+            if (fieldType.isMapLikeType()) {
+                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+                keyType = fieldType.getKeyType();
+                valueType = fieldType.getContentType();
+                prop = new BeanProperty.Std(PropertyName.NO_NAME,
+                    fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+                isMapParam = true;
+            } else {
+                return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                    "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
+                    ClassUtil.getTypeDescription(fieldType)));
+            }
         } else if (isField) {
             AnnotatedField af = (AnnotatedField) mutator;
             // get the type from the content type of the map object
@@ -878,6 +914,10 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         TypeDeserializer typeDeser = valueType.getTypeHandler();
         if (isField) {
             return SettableAnyProperty.constructForMapField(ctxt,
+                    prop, mutator, valueType, keyDeser, deser, typeDeser);
+        }
+        if (isMapParam) {
+            return SettableAnyProperty.constructForMapParameter(ctxt,
                     prop, mutator, valueType, keyDeser, deser, typeDeser);
         }
         return SettableAnyProperty.constructForMethod(ctxt,

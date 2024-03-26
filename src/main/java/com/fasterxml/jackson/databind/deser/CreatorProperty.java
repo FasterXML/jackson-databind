@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.core.JsonParser;
@@ -76,19 +77,42 @@ public class CreatorProperty
     protected boolean _ignorable;
 
     /**
-     * @since 2.11
+     * Marker flag to indicate that current property is used to handle "any setter" via `@JsonAnySetter`.
+     *
+     * @since 2.19
+     */
+    protected final boolean _isAnySetter;
+
+    /**
+     * @since 2.19
      */
     protected CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
             int index, JacksonInject.Value injectable,
-            PropertyMetadata metadata)
+            PropertyMetadata metadata, boolean isAnySetter)
     {
         super(name, type, wrapperName, typeDeser, contextAnnotations, metadata);
         _annotated = param;
         _creatorIndex = index;
         _injectableValue = injectable;
         _fallbackSetter = null;
+        _isAnySetter = isAnySetter; // [databind#562] since 2.19
+    }
+
+    /**
+     * @since 2.11
+     * @deprecated since 2.19. use factory later version instead.
+     */
+    @Deprecated
+    protected CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
+            TypeDeserializer typeDeser,
+            Annotations contextAnnotations, AnnotatedParameter param,
+            int index, JacksonInject.Value injectable,
+            PropertyMetadata metadata)
+    {
+        this(name, type, wrapperName, typeDeser, contextAnnotations, param, index, injectable,
+                metadata, false);
     }
 
     /**
@@ -122,9 +146,26 @@ public class CreatorProperty
      *    method parameter; used for accessing annotations of the property
      * @param injectable Information about injectable value, if any
      * @param index Index of this property within creator invocation
-     *
-     * @since 2.11
+     * @param isAnySetter Marker flag to indicate that current property is used to handle "any setter" via `@JsonAnySetter`.
+     *                    
+     * @since 2.19
      */
+    public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
+            TypeDeserializer typeDeser,
+            Annotations contextAnnotations, AnnotatedParameter param,
+            int index, JacksonInject.Value injectable,
+            PropertyMetadata metadata,
+            boolean isAnySetter)
+    {
+        return new CreatorProperty(name, type, wrapperName, typeDeser, contextAnnotations,
+                param, index, injectable, metadata, isAnySetter);
+    }
+
+    /**
+     * @since 2.11
+     * @deprecated since 2.19. use later version instead.
+     */
+    @Deprecated
     public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
@@ -132,7 +173,7 @@ public class CreatorProperty
             PropertyMetadata metadata)
     {
         return new CreatorProperty(name, type, wrapperName, typeDeser, contextAnnotations,
-                param, index, injectable, metadata);
+                param, index, injectable, metadata, false);
     }
 
     /**
@@ -145,6 +186,7 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
+        _isAnySetter = src._isAnySetter; // [databind#562] since 2.19
     }
 
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser,
@@ -155,6 +197,7 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
+        _isAnySetter = src._isAnySetter; // [databind#562] since 2.19
     }
 
     @Override
@@ -320,6 +363,13 @@ public class CreatorProperty
 
     //  public boolean isInjectionOnly() { return false; }
 
+    /**
+     * @since 2.19
+     */
+    public boolean isAnySetter() {
+        return _isAnySetter;
+    }
+
     /*
     /**********************************************************
     /* Overridden methods, other
@@ -353,5 +403,14 @@ public class CreatorProperty
         } else {
             throw InvalidDefinitionException.from(p, msg, getType());
         }
+    }
+
+    /**
+     * @since 2.19
+     */
+    public Map<Object, Object> initMap(DeserializationContext context, SettableAnyProperty anySetter)
+        throws IOException
+    {
+        return ((SettableAnyProperty.MapParameterAnyProperty) anySetter).initMap(context);
     }
 }

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -115,6 +116,28 @@ public abstract class SettableAnyProperty
         return new JsonNodeFieldAnyProperty(property, field, valueType,
                 valueDeser,
                 ctxt.getNodeFactory());
+    }
+
+    /**
+     * @since 2.19
+     */
+    public static SettableAnyProperty constructForMapParameter(DeserializationContext ctxt,
+            BeanProperty property,
+            AnnotatedMember field, JavaType valueType,
+            KeyDeserializer keyDeser,
+            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
+    {
+        Class<?> mapType = field.getRawType();
+        // 02-Aug-2022, tatu: Ideally would be resolved to a concrete type by caller but
+        //    alas doesn't appear to happen. Nor does `BasicDeserializerFactory` expose method
+        //    for finding default or explicit mappings.
+        if (mapType == Map.class) {
+            mapType = LinkedHashMap.class;
+        }
+        ValueInstantiator vi = JDKValueInstantiators.findStdValueInstantiator(ctxt.getConfig(), mapType);
+        return new MapParameterAnyProperty(property, field, valueType,
+                keyDeser, valueDeser, typeDeser,
+                vi);
     }
 
     // Abstract @since 2.14
@@ -435,6 +458,46 @@ public abstract class SettableAnyProperty
         @Override
         public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
             return this;
+        }
+    }
+
+    /**
+     * @since 2.19
+     */
+    protected static class MapParameterAnyProperty extends SettableAnyProperty
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        protected final ValueInstantiator _valueInstantiator;
+
+        public MapParameterAnyProperty(BeanProperty property,
+                                       AnnotatedMember field, JavaType valueType,
+                                       KeyDeserializer keyDeser,
+                                       JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
+                                       ValueInstantiator inst) {
+            super(property, field, valueType,
+                keyDeser, valueDeser, typeDeser);
+            _valueInstantiator = Objects.requireNonNull(inst, "ValueInstantiator for MapParameterAnyProperty cannot be `null`");
+        }
+
+        @Override
+        public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
+            return new MapParameterAnyProperty(_property, _setter, _type,
+                _keyDeserializer, deser, _valueTypeDeserializer,
+                _valueInstantiator);
+        }
+
+        @Override
+        protected void _set(Object instance, Object propName, Object value) throws Exception {
+            throw new UnsupportedOperationException("Cannot set any properties for constructor parameter of type `Map`");
+        }
+
+        @SuppressWarnings("unchecked")
+        protected Map<Object, Object> initMap(DeserializationContext ctxt)
+            throws IOException
+        {
+            return  (Map<Object, Object>) _valueInstantiator.createUsingDefault(ctxt);
         }
     }
 }

@@ -1891,13 +1891,13 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         throws IOException
     {
         // First: maybe we have already created sub-type deserializer?
-        ClassKey classKey = new ClassKey(bean.getClass());
+        final ClassKey classKey = new ClassKey(bean.getClass());
         JsonDeserializer<Object> subDeser = (_subDeserializers == null) ? null : _subDeserializers.get(classKey);
         if (subDeser != null) {
             return subDeser;
         }
         // If not, maybe we can locate one. First, need provider
-        JavaType type = ctxt.constructType(bean.getClass());
+        final JavaType type = ctxt.constructType(bean.getClass());
         /* 30-Jan-2012, tatu: Ideally we would be passing referring
          *   property; which in theory we could keep track of via
          *   ResolvableDeserializer (if we absolutely must...).

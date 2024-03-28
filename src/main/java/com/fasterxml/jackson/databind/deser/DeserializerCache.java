@@ -53,7 +53,6 @@ public final class DeserializerCache
     protected final HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
         = new HashMap<JavaType, JsonDeserializer<Object>>(8);
 
-
     /**
      * We hold an explicit lock while creating deserializers to avoid creating duplicates.
      */
@@ -253,14 +252,26 @@ public final class DeserializerCache
          * limitations necessary to ensure that only completely initialized ones
          * are visible and used.
          */
+        if (type == null) {
+            throw new IllegalArgumentException("Null JavaType passed");
+        }
+        if (_hasCustomHandlers(type)) {
+            return null;
+        }
+        final boolean isCustom = _hasCustomHandlers(type);
+        JsonDeserializer<Object> deser = isCustom ? null : _cachedDeserializers.get(type);
+        if (deser != null) {
+            return deser;
+        }
+        _incompleteDeserializersLock.lock();
         try {
-            _incompleteDeserializersLock.lock();
-
-            // Ok, then: could it be that due to a race condition, deserializer can now be found?
-            JsonDeserializer<Object> deser = _findCachedDeserializer(type);
-            if (deser != null) {
-                return deser;
+            if (!isCustom) {
+                deser = _cachedDeserializers.get(type);
+                if (deser != null) {
+                    return deser;
+                }
             }
+            // Ok, then: could it be that due to a race condition, deserializer can now be found?
             int count = _incompleteDeserializers.size();
             // Or perhaps being resolved right now?
             if (count > 0) {

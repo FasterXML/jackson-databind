@@ -255,9 +255,6 @@ public final class DeserializerCache
         if (type == null) {
             throw new IllegalArgumentException("Null JavaType passed");
         }
-        if (_hasCustomHandlers(type)) {
-            return null;
-        }
         final boolean isCustom = _hasCustomHandlers(type);
         JsonDeserializer<Object> deser = isCustom ? null : _cachedDeserializers.get(type);
         if (deser != null) {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.text.*;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -68,6 +69,8 @@ public class DateDeserializers
          * just use default format.
          */
         protected final DateFormat _customFormat;
+
+        private final ReentrantLock _customFormatLock = new ReentrantLock();
 
         /**
          * Let's also keep format String for reference, to use for error messages
@@ -188,13 +191,16 @@ public class DateDeserializers
                         }
                         return null;
                     }
-                    synchronized (_customFormat) {
+                    try {
+                        _customFormatLock.lock();
                         try {
                             return _customFormat.parse(str);
                         } catch (ParseException e) {
                             return (java.util.Date) ctxt.handleWeirdStringValue(handledType(), str,
                                     "expected format \"%s\"", _formatString);
                         }
+                    } finally {
+                        _customFormatLock.unlock();
                     }
                 }
             }

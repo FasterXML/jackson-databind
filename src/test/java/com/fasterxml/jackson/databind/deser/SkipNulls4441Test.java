@@ -90,16 +90,47 @@ public class SkipNulls4441Test {
         );
     }
 
+    @Test
+    public void testDeserializeMiddleOnly() throws Exception {
+        // Passes
+        // For some reason, if most-inner "list1" field is null in the end, it works
+        testSkipNullsWithMiddleOnly(
+                        a2q("{" +
+                                "    'field1': 'data',     " +
+                                "    'listInner': null  " +
+                                "}")
+        );
+
+        // Fails
+        // But if it's null in the beginning, it doesn't work
+        testSkipNullsWithMiddleOnly(
+                        a2q("{" +
+                                "    'listInner': null,  " +
+                                "    'field1': 'data'     " +
+                                "}")
+        );
+    }
+
     private void testSkipNullsWith(String JSON) throws Exception {
         Outer outer = objectMapper.readValue(JSON, Outer.class);
 
         validateNotNull(outer);
         validateNotNull(outer.getListMiddle());
         for (Middle middle : outer.getListMiddle()) {
-            validateNotNull(middle);
-            validateNotNull(middle.getField1());
-            validateNotNull(middle.getListInner());
+            testMiddle(middle);
         }
+    }
+
+    private void testSkipNullsWithMiddleOnly(String s) throws Exception {
+        Middle middle = objectMapper.readValue(s, Middle.class);
+
+        testMiddle(middle);
+    }
+
+    private void testMiddle(Middle middle) {
+        validateNotNull(middle);
+        validateNotNull(middle.getField1());
+        validateNotNull(middle.getListInner());
     }
 
     private static void validateNotNull(Object o) {

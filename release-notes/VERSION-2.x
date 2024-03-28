@@ -12,7 +12,11 @@ Project: jackson-databind
 
 #4428: `ByteBuddy` scope went beyond `test` in version 2.17.0
  (reported by Miguel M-R)
- (fix contributed by Joo-Hyuk K)
+ (fix by Joo-Hyuk K)
+#4435: Cannot deserialize value of type `java.math.BigDecimal` from
+  String ".05": not a valid representation
+ (reported by @EAlf91)
+ (fix by @pjfanning)
 
 2.17.0 (12-Mar-2024)
 
@@ -99,7 +103,7 @@ Project: jackson-databind
 
 #1770: Incorrect deserialization for `BigDecimal` numbers
  (reported by @cristian-mocanu-mob)
- (fix contributed by @pjfanning)
+ (fix by @pjfanning)
 #2502: Add a way to configure caches Jackson uses
  (contributed by Joo-Hyuk K)
 #2787: Mix-ins do not work for `Enum`s

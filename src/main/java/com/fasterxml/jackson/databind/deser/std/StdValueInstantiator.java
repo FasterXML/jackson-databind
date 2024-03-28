@@ -383,7 +383,18 @@ public class StdValueInstantiator
                 );
             }
         }
-
+        
+        if (_fromDoubleCreator != null) {
+            Object arg = Double.valueOf(value);
+            try {
+                return _fromDoubleCreator.call1(arg);
+            } catch (Exception t0) {
+                return ctxt.handleInstantiationProblem(_fromDoubleCreator.getDeclaringClass(),
+                        arg, rewrapCtorProblem(ctxt, t0)
+                );
+            }
+        }
+        
         return super.createFromInt(ctxt, value);
     }
 
@@ -407,6 +418,18 @@ public class StdValueInstantiator
                 return _fromBigIntegerCreator.call1(arg);
             } catch (Exception t0) {
                 return ctxt.handleInstantiationProblem(_fromBigIntegerCreator.getDeclaringClass(),
+                        arg, rewrapCtorProblem(ctxt, t0)
+                );
+            }
+        }
+        
+        // can lose precision
+        if (_fromDoubleCreator != null) {
+            Object arg = Double.valueOf(value);
+            try {
+                return _fromDoubleCreator.call1(arg);
+            } catch (Exception t0) {
+                return ctxt.handleInstantiationProblem(_fromDoubleCreator.getDeclaringClass(),
                         arg, rewrapCtorProblem(ctxt, t0)
                 );
             }

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -178,7 +180,7 @@ public abstract class BeanDeserializerBase
      * that is, when the actual type is not statically known.
      * For other types this remains null.
      */
-    protected transient HashMap<ClassKey, JsonDeserializer<Object>> _subDeserializers;
+    protected transient AtomicReference<ConcurrentHashMap<ClassKey, JsonDeserializer<Object>>> _subDeserializers;
 
     /**
      * If one of properties has "unwrapped" value, we need separate
@@ -1882,12 +1884,10 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             Object bean, TokenBuffer unknownTokens)
         throws IOException
     {
-        JsonDeserializer<Object> subDeser;
-
         // First: maybe we have already created sub-type deserializer?
-        synchronized (this) {
-            subDeser = (_subDeserializers == null) ? null : _subDeserializers.get(new ClassKey(bean.getClass()));
-        }
+        final ConcurrentHashMap<ClassKey, JsonDeserializer<Object>> subDesers = _subDeserializers.get();
+        final ClassKey key = new ClassKey(bean.getClass());
+        JsonDeserializer<Object> subDeser = (subDesers == null) ? null : subDesers.get(key);
         if (subDeser != null) {
             return subDeser;
         }
@@ -1902,12 +1902,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         subDeser = ctxt.findRootValueDeserializer(type);
         // Also, need to cache it
         if (subDeser != null) {
-            synchronized (this) {
-                if (_subDeserializers == null) {
-                    _subDeserializers = new HashMap<ClassKey,JsonDeserializer<Object>>();;
-                }
-                _subDeserializers.put(new ClassKey(bean.getClass()), subDeser);
-            }
+            final ConcurrentHashMap<ClassKey, JsonDeserializer<Object>> map = subDesers == null ?
+                    getSubDeserializersMap() : subDesers;
+            map.put(key, subDeser);
         }
         return subDeser;
     }
@@ -1923,7 +1920,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * as necessary to include reference information, and to ensure it
      * is a subtype of {@link IOException}, or an unchecked exception.
      *<p>
-     * Rules for wrapping and unwrapping are bit complicated; essentially:
+     * Rules for wrapping and unwrapping are a bit complicated; essentially:
      *<ul>
      * <li>Errors are to be passed as is (if uncovered via unwrapping)
      * <li>"Plain" IOExceptions (ones that are not of type
@@ -1981,5 +1978,16 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             ClassUtil.throwIfRTE(t);
         }
         return (T) ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
+    }
+
+    private ConcurrentHashMap<ClassKey, JsonDeserializer<Object>> getSubDeserializersMap() {
+        ConcurrentHashMap<ClassKey, JsonDeserializer<Object>> map = _subDeserializers.get();
+        if (map == null) {
+            map = new ConcurrentHashMap<>();
+            if (!_subDeserializers.compareAndSet(null, map)) {
+                return _subDeserializers.get();
+            }
+        }
+        return map;
     }
 }

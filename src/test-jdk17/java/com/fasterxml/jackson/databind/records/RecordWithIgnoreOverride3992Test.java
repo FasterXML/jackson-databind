@@ -3,10 +3,13 @@ package com.fasterxml.jackson.databind.records;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
-public class RecordWithIgnoreOverride3992Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class RecordWithIgnoreOverride3992Test extends DatabindTestUtil
 {
     // [databind#3992]
     public record HelloRecord(String text, @JsonIgnore Recursion hidden) {
@@ -35,6 +38,7 @@ public class RecordWithIgnoreOverride3992Test extends BaseMapTest
      */
 
     // [databind#3992]
+    @Test
     public void testHelloRecord() throws Exception {
         Recursion beanWithRecursion = new Recursion();
         beanWithRecursion.add(beanWithRecursion);

@@ -7,9 +7,13 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
+import org.junit.jupiter.api.Test;
 
-public class TreeWithTypeTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TreeWithTypeTest extends DatabindTestUtil
 {
     public static class Foo {
         public String bar;
@@ -59,6 +63,7 @@ public class TreeWithTypeTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testValueAsStringWithoutDefaultTyping() throws Exception {
 
         Foo foo = new Foo("baz");
@@ -68,6 +73,7 @@ public class TreeWithTypeTest extends BaseMapTest
         assertEquals(jsonNode.get("bar").textValue(), foo.bar);
     }
 
+    @Test
     public void testValueAsStringWithDefaultTyping() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -81,6 +87,7 @@ public class TreeWithTypeTest extends BaseMapTest
         assertEquals(jsonNode.get("bar").textValue(), foo.bar);
     }
 
+    @Test
     public void testReadTreeWithDefaultTyping() throws Exception
     {
         final String CLASS = Foo.class.getName();
@@ -95,6 +102,7 @@ public class TreeWithTypeTest extends BaseMapTest
         assertEquals(jsonNode.get("bar").textValue(), "baz");
     }
 
+    @Test
     public void testValueToTreeWithoutDefaultTyping() throws Exception {
 
         Foo foo = new Foo("baz");
@@ -102,6 +110,7 @@ public class TreeWithTypeTest extends BaseMapTest
         assertEquals(jsonNode.get("bar").textValue(), foo.bar);
     }
 
+    @Test
     public void testValueToTreeWithDefaultTyping() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -113,6 +122,7 @@ public class TreeWithTypeTest extends BaseMapTest
         assertEquals(jsonNode.get("bar").textValue(), foo.bar);
     }
 
+    @Test
     public void testIssue353() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

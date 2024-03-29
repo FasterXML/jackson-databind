@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static com.fasterxml.jackson.databind.BaseMapTest.newJsonMapper;
-
 /**
  * Test to verify that [databind#3277] is fixed.
  */

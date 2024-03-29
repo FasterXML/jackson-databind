@@ -1,19 +1,24 @@
 package com.fasterxml.jackson.databind.ser.filter;
 
+import java.util.Map;
+import java.util.LinkedHashMap;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests {@link SimpleFilterProvider} on registration of filters.
  */
-public class SimpleFilterProviderTest extends BaseMapTest
+public class SimpleFilterProviderTest extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -53,6 +58,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testAddFilterLastOneRemains() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", SimpleBeanPropertyFilter.serializeAll())
@@ -64,6 +70,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
         assertEquals(a2q("{}"), jsonString);
     }
 
+    @Test
     public void testAddFilterLastOneRemainsFlip() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", SimpleBeanPropertyFilter.filterOutAllExcept("a"))
@@ -71,10 +78,16 @@ public class SimpleFilterProviderTest extends BaseMapTest
         AnyBeanB beanB = new AnyBeanB("1a", "2b");
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(beanB);
+        
+        Map<?,?> actualMap = MAPPER.readValue(jsonString, Map.class);
+        Map<String, Object> expectedMap = new LinkedHashMap<>();
+        expectedMap.put("a", "1a");
+        expectedMap.put("b", "2b");
 
-        assertEquals(a2q("{'a':'1a','b':'2b'}"), jsonString);
+        assertEquals(expectedMap, actualMap);
     }
 
+    @Test
     public void testAddFilterWithEmptyStringId() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("", SimpleBeanPropertyFilter.filterOutAllExcept("d"));
@@ -82,10 +95,16 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(bean);
 
-        assertEquals(a2q("{'c':null,'d':'D is filtered'}"), jsonString);
+        Map<?,?> actualMap = MAPPER.readValue(jsonString, Map.class);
+        Map<String, Object> expectedMap = new LinkedHashMap<>();
+        expectedMap.put("c", null);
+        expectedMap.put("d", "D is filtered");
+        
+        assertEquals(expectedMap, actualMap);
     }
 
-    public void testAddingNullFilter2ThrowsException() throws JsonProcessingException {
+    @Test
+    public void testAddingNullFilter2ThrowsException() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", null);
         ObjectWriter writer = MAPPER.writer(prov);
@@ -99,7 +118,8 @@ public class SimpleFilterProviderTest extends BaseMapTest
         }
     }
 
-    public void testAddingNullFilterIdThrowsException() throws JsonProcessingException {
+    @Test
+    public void testAddingNullFilterIdThrowsException() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter(null, SimpleBeanPropertyFilter.serializeAll());
         ObjectWriter writer = MAPPER.writer(prov);

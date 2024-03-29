@@ -1,12 +1,17 @@
 package com.fasterxml.jackson.databind.deser.inject;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JacksonInject;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
-public class InvalidInjectionTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class InvalidInjectionTest
 {
     static class BadBean1 {
         @JacksonInject protected String prop1;
@@ -26,6 +31,7 @@ public class InvalidInjectionTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testInvalidDup() throws Exception
     {
         try {

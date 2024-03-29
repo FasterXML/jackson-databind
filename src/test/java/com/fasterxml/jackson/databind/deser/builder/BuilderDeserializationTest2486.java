@@ -1,14 +1,20 @@
 package com.fasterxml.jackson.databind.deser.builder;
 
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.databind.BaseMapTest;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 public class BuilderDeserializationTest2486
-        extends BaseMapTest
 {
     @JsonDeserialize(builder = MyPOJOWithArrayCreator.Builder.class)
     public static class MyPOJOWithArrayCreator {
@@ -104,24 +110,28 @@ public class BuilderDeserializationTest2486
     // pass in both cases.
     //
     // I left some notes in BeanDeserializerBase as to behavior.
+    @Test
     public void testPOJOWithArrayCreatorFromObjectRepresentation() throws Exception {
         final String json = a2q("{ 'index': 123 }");
         final MyPOJOWithArrayCreator deserialized = MAPPER.readValue(json, MyPOJOWithArrayCreator.class);
         assertEquals(123, deserialized.getIndex());
     }
 
+    @Test
     public void testPOJOWithArrayCreatorFromArrayRepresentation() throws Exception {
         final String json = "[123]";
         final MyPOJOWithArrayCreator deserialized = MAPPER.readValue(json, MyPOJOWithArrayCreator.class);
         assertEquals(123, deserialized.getIndex());
     }
 
+    @Test
     public void testPOJOWithPrimitiveCreatorFromObjectRepresentation() throws Exception {
         final String json = a2q("{ 'index': 123 }");
         final MyPOJOWithPrimitiveCreator deserialized = MAPPER.readValue(json, MyPOJOWithPrimitiveCreator.class);
         assertEquals(123, deserialized.getIndex());
     }
 
+    @Test
     public void testPOJOWithPrimitiveCreatorFromPrimitiveRepresentation() throws Exception {
         final String json ="123";
         final MyPOJOWithPrimitiveCreator deserialized = MAPPER.readValue(json, MyPOJOWithPrimitiveCreator.class);
@@ -134,24 +144,28 @@ public class BuilderDeserializationTest2486
     // This fails the same as above. So the failure of default deserialization
     // from an object shape in the presence of a @JsonCreator accepting an array
     // is not specific to the use of Builders as an intermediary.
+    @Test
     public void testPOJOBuilderWithArrayCreatorFromObjectRepresentation() throws Exception {
         final String json = a2q("{ 'index': 123 }");
         final MyPOJOWithArrayCreator.Builder deserialized = MAPPER.readValue(json, MyPOJOWithArrayCreator.Builder.class);
         assertEquals(123, deserialized.index);
     }
 
+    @Test
     public void testPOJOBuilderWithArrayCreatorFromArrayRepresentation() throws Exception {
         final String json = "[123]";
         final MyPOJOWithArrayCreator.Builder deserialized = MAPPER.readValue(json, MyPOJOWithArrayCreator.Builder.class);
         assertEquals(123, deserialized.index);
     }
 
+    @Test
     public void testPOJOBuilderWithPrimitiveCreatorFromObjectRepresentation() throws Exception {
         final String json = a2q("{ 'index': 123 }");
         final MyPOJOWithPrimitiveCreator.Builder deserialized = MAPPER.readValue(json, MyPOJOWithPrimitiveCreator.Builder.class);
         assertEquals(123, deserialized.index);
     }
 
+    @Test
     public void testPOJOBuilderWithPrimitiveCreatorFromPrimitiveRepresentation() throws Exception {
         final String json = "123";
         final MyPOJOWithPrimitiveCreator.Builder deserialized = MAPPER.readValue(json, MyPOJOWithPrimitiveCreator.Builder.class);

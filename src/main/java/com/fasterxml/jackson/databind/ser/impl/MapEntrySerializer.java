@@ -270,10 +270,8 @@ public class MapEntrySerializer
             }
         }
 
-        MapEntrySerializer mser = withResolved(property, keySer, ser,
-                valueToSuppress, suppressNulls);
         // but note: no (full) filtering or sorting (unlike Maps)
-        return mser;
+        return withResolved(property, keySer, ser, valueToSuppress, suppressNulls);
     }
 
     /*
@@ -347,7 +345,7 @@ public class MapEntrySerializer
             SerializerProvider provider, TypeSerializer typeSer) throws IOException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        g.setCurrentValue(value);
+        g.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         serializeDynamic(value, g, provider);

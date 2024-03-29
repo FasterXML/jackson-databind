@@ -1,13 +1,20 @@
 package com.fasterxml.jackson.databind.deser.dos;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.ABC;
+
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 // for [databind#2157]
-public class HugeIntegerCoerceTest extends BaseMapTest
+public class HugeIntegerCoerceTest
 {
     private final static int BIG_NUM_LEN = 199999;
     private final static String BIG_POS_INTEGER;
@@ -19,6 +26,7 @@ public class HugeIntegerCoerceTest extends BaseMapTest
         BIG_POS_INTEGER = sb.toString();
     }
 
+    @Test
     public void testMaliciousLongForEnum() throws Exception
     {
         JsonFactory f = JsonFactory.builder()

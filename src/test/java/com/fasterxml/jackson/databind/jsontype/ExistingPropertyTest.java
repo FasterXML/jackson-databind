@@ -2,17 +2,21 @@ package com.fasterxml.jackson.databind.jsontype;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ExistingPropertyTest extends BaseMapTest
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ExistingPropertyTest extends DatabindTestUtil
 {
     /**
      * Polymorphic base class - existing property as simple property on subclasses
@@ -191,6 +195,54 @@ public class ExistingPropertyTest extends BaseMapTest
 
     static class Bean1635Default extends Bean1635 { }
 
+    // [databind#2785]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
+            property = "packetType")
+    public interface Base2785  {
+    }
+    @JsonTypeName("myType")
+    static class Impl2785 implements Base2785 {
+    }
+
+    // [databind#3251]: Double vs BigDecimal
+    @JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "type_alias"
+    )
+    static class GenericWrapperWithNew3251<T> {
+        private final T value;
+
+        @JsonCreator
+        public GenericWrapperWithNew3251(@JsonProperty("value") T value) {
+            this.value = value;
+        }
+
+        public T getValue() {
+            return value;
+        }
+    }
+
+    @JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        property = "fieldType",
+        visible = true,
+        defaultImpl = GenericWrapperWithExisting3251.class
+    )
+    static class GenericWrapperWithExisting3251<T> {
+        public String fieldType;
+        private final T value;
+
+        @JsonCreator
+        public GenericWrapperWithExisting3251(@JsonProperty("value") T value) {
+            this.value = value;
+        }
+
+        public T getValue() {
+            return value;
+        }
+    }
+
     // [databind#3271]
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
             visible = true, property = "type", defaultImpl = DefaultShape3271.class)
@@ -251,6 +303,7 @@ public class ExistingPropertyTest extends BaseMapTest
     /**
      * Fruits - serialization tests for simple property on sub-classes
      */
+    @Test
     public void testExistingPropertySerializationFruits() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, pinguo);
@@ -281,6 +334,7 @@ public class ExistingPropertyTest extends BaseMapTest
     /**
      * Fruits - deserialization tests for simple property on sub-classes
      */
+    @Test
     public void testSimpleClassAsExistingPropertyDeserializationFruits() throws Exception
     {
         Fruit pinguoDeserialized = MAPPER.readValue(pinguoJson, Fruit.class);
@@ -316,6 +370,7 @@ public class ExistingPropertyTest extends BaseMapTest
     /**
      * Animals - serialization tests for abstract method in base class
      */
+    @Test
     public void testExistingPropertySerializationAnimals() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, beelzebub);
@@ -346,6 +401,7 @@ public class ExistingPropertyTest extends BaseMapTest
     /**
      * Animals - deserialization tests for abstract method in base class
      */
+    @Test
     public void testSimpleClassAsExistingPropertyDeserializationAnimals() throws Exception
     {
         Animal beelzebubDeserialized = MAPPER.readValue(beelzebubJson, Animal.class);
@@ -378,6 +434,7 @@ public class ExistingPropertyTest extends BaseMapTest
     /**
      * Cars - serialization tests for no abstract method or type variable in base class
      */
+    @Test
     public void testExistingPropertySerializationCars() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, camry);
@@ -408,6 +465,7 @@ public class ExistingPropertyTest extends BaseMapTest
     /**
      * Cars - deserialization tests for no abstract method or type variable in base class
      */
+    @Test
     public void testSimpleClassAsExistingPropertyDeserializationCars() throws Exception
     {
         Car camryDeserialized = MAPPER.readValue(camryJson, Camry.class);
@@ -439,6 +497,7 @@ public class ExistingPropertyTest extends BaseMapTest
     }
 
     // for [databind#1635]: simple usage
+    @Test
     public void testExistingEnumTypeId() throws Exception
     {
         Bean1635 result = MAPPER.readValue(a2q("{'value':3, 'type':'A'}"),
@@ -451,6 +510,7 @@ public class ExistingPropertyTest extends BaseMapTest
 
     // for [databind#1635]: verify that `defaultImpl` does not block assignment of
     // type id
+    @Test
     public void testExistingEnumTypeIdViaDefault() throws Exception
     {
         Bean1635 result = MAPPER.readValue(a2q("{'type':'C'}"),
@@ -459,20 +519,59 @@ public class ExistingPropertyTest extends BaseMapTest
         assertEquals(ABC.C, result.type);
     }
 
-    // [databind#3271]: verify that `null` token does not become "null" String
+    // [databind#2785]
+    @Test
+    public void testCopyOfSubtypeResolver2785() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper().copy();
+        objectMapper.registerSubtypes(Impl2785.class);
+        Object result = objectMapper.readValue("{ \"packetType\": \"myType\" }", Base2785.class);
+        assertNotNull(result);
+    }
 
+    // [databind#3271]: verify that `null` token does not become "null" String
+    @Test
     public void testDeserializationWithValidType() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":\"square\"}", Shape3271.class);
         assertEquals("square", deserShape.getType());
     }
 
+    @Test
     public void testDeserializationWithInvalidType() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":\"invalid\"}", Shape3271.class);
         assertEquals("invalid", deserShape.getType());
     }
 
+    @Test
     public void testDeserializationNull() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":null}", Shape3271.class);
         assertNull(deserShape.getType()); // error: "expected null, but was:<null>"
     }
+
+    // [databind#3251]: Double vs BigDecimal
+    @Test
+    public void test3251WithNewProperty() throws Exception
+    {
+        GenericWrapperWithNew3251<?> wrapper = new GenericWrapperWithNew3251<>(123.5);
+
+        String json = MAPPER.writeValueAsString(wrapper);
+        GenericWrapperWithNew3251<?> actualWrapper = MAPPER.readValue(json, GenericWrapperWithNew3251.class);
+
+        assertThat(actualWrapper).satisfies(it -> assertThat(it.getValue()).isEqualTo(123.5));
+        assertThat(actualWrapper.getValue()).isInstanceOf(Double.class);
+        assertThat(json).contains("\"value\":123.5");
+    }
+
+    @Test
+    public void test3251WithExistingProperty() throws Exception
+    {
+        GenericWrapperWithExisting3251<?> wrapper = new GenericWrapperWithExisting3251<>(123.5);
+
+        String json = MAPPER.writeValueAsString(wrapper);
+        GenericWrapperWithExisting3251<?> actualWrapper = MAPPER.readValue(json, GenericWrapperWithExisting3251.class);
+
+        assertThat(actualWrapper).satisfies(it -> assertThat(it.getValue()).isEqualTo(123.5));
+        assertThat(actualWrapper.getValue()).isInstanceOf(Double.class);
+        assertThat(json).contains("\"value\":123.5");
+    }
+
 }

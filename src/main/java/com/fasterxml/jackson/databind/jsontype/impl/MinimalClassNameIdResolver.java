@@ -9,9 +9,16 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
+/**
+ * Specialization of {@link ClassNameIdResolver} that instead uses a
+ * "minimal" derivation of {@link Class} name, using relative reference
+ * from the base type (base class) that polymorphic value has.
+ */
 public class MinimalClassNameIdResolver
     extends ClassNameIdResolver
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Package name of the base class, to be used for determining common
      * prefix that can be omitted from included type id.

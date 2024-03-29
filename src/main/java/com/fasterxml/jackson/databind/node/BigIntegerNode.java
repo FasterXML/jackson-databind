@@ -111,11 +111,11 @@ public class BigIntegerNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof BigIntegerNode)) {
-            return false;
+        if (o instanceof BigIntegerNode) {
+            BigIntegerNode otherNode = (BigIntegerNode) o;
+            return Objects.equals(otherNode._value, _value);
         }
-        BigIntegerNode otherNode = (BigIntegerNode) o;
-        return Objects.equals(otherNode._value, _value);
+        return false;
     }
 
     @Override

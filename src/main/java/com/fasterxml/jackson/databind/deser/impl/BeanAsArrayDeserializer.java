@@ -109,7 +109,7 @@ public class BeanAsArrayDeserializer
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        p.setCurrentValue(bean);
+        p.assignCurrentValue(bean);
 
         final SettableBeanProperty[] props = _orderedProperties;
         int i = 0;
@@ -152,7 +152,7 @@ public class BeanAsArrayDeserializer
         throws IOException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        p.setCurrentValue(bean);
+        p.assignCurrentValue(bean);
 
         if (!p.isExpectedStartArrayToken()) {
             return _deserializeFromNonArray(p, ctxt);
@@ -227,7 +227,7 @@ public class BeanAsArrayDeserializer
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        p.setCurrentValue(bean);
+        p.assignCurrentValue(bean);
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
@@ -330,7 +330,7 @@ public class BeanAsArrayDeserializer
                         continue; // never gets here
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
-                    p.setCurrentValue(bean);
+                    p.assignCurrentValue(bean);
 
                     //  polymorphic?
                     if (bean.getClass() != _beanType.getRawClass()) {

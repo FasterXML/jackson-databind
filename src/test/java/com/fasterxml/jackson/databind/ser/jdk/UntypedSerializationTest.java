@@ -1,12 +1,17 @@
 package com.fasterxml.jackson.databind.ser.jdk;
 
+import java.io.IOException;
 import java.util.*;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.util.RawValue;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tries verify simplest aspects of
@@ -14,10 +19,11 @@ import com.fasterxml.jackson.databind.util.RawValue;
  * core JDK objects to JSON.
  */
 public class UntypedSerializationTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testFromArray() throws Exception
     {
         ArrayList<Object> doc = new ArrayList<Object>();
@@ -64,6 +70,7 @@ public class UntypedSerializationTest
         }
     }
 
+    @Test
     public void testFromMap() throws Exception
     {
         LinkedHashMap<String,Object> doc = new LinkedHashMap<String,Object>();
@@ -100,6 +107,7 @@ public class UntypedSerializationTest
         }
     }
 
+    @Test
     public void testSimpleGenerationMaps() throws Exception
     {
         assertEquals(a2q("{'msg':'Hello, world!'}"),
@@ -109,17 +117,41 @@ public class UntypedSerializationTest
                         Collections.singletonMap("id", 37))));
     }
 
+    @Test
     public void testSimpleGenerationCollections() throws Exception
     {
         assertEquals("[true,137,\"stuff\"]",
                 MAPPER.writeValueAsString(Arrays.asList(true, 137, "stuff")));
     }
 
+    @Test
     public void testRawValues() throws Exception
     {
         final String innerJson =
                 MAPPER.writeValueAsString(Collections.singletonMap("msg", "hello!"));
         assertEquals(a2q("['extra',{'msg':'hello!'}]"),
                 MAPPER.writeValueAsString(Arrays.asList("extra", new RawValue(innerJson))));
+    }
+
+    /**
+     * Method that gets textual contents of the current token using
+     * available methods, and ensures results are consistent, before
+     * returning them
+     */
+    private static String getAndVerifyText(JsonParser jp)
+        throws IOException
+    {
+        // Ok, let's verify other accessors
+        int actLen = jp.getTextLength();
+        char[] ch = jp.getTextCharacters();
+        String str2 = new String(ch, jp.getTextOffset(), actLen);
+        String str = jp.getText();
+
+        if (str.length() !=  actLen) {
+            fail("Internal problem (jp.token == "+jp.currentToken()+"): jp.getText().length() ['"+str+"'] == "+str.length()+"; jp.getTextLength() == "+actLen);
+        }
+        assertEquals(str, str2, "String access via getText(), getTextXxx() must be the same");
+
+        return str;
     }
 }

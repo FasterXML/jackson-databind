@@ -2,14 +2,19 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestEmptyClass
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class Empty { }
 
@@ -59,6 +64,7 @@ public class TestEmptyClass
      * Test to check that [JACKSON-201] works if there is a recognized
      * annotation (which indicates type is serializable)
      */
+    @Test
     public void testEmptyWithAnnotations() throws Exception
     {
         // First: without annotations, should complain
@@ -81,6 +87,7 @@ public class TestEmptyClass
      * Alternative it is possible to use a feature to allow
      * serializing empty classes, too
      */
+    @Test
     public void testEmptyWithFeature() throws Exception
     {
         // should be enabled by default
@@ -90,6 +97,7 @@ public class TestEmptyClass
     }
 
     // [JACKSON-695], JsonSerializer.isEmpty()
+    @Test
     public void testCustomNoEmpty() throws Exception
     {
         // first non-empty:

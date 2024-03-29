@@ -5,16 +5,21 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @SuppressWarnings("serial")
-public class MapSerializationTest extends BaseMapTest
+public class MapSerializationTest extends DatabindTestUtil
 {
     @JsonSerialize(using=PseudoMapSerializer.class)
     static class PseudoMap extends LinkedHashMap<String,String>
@@ -100,6 +105,7 @@ public class MapSerializationTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testUsingObjectWriter() throws IOException
     {
         ObjectWriter w = MAPPER.writerFor(Object.class);
@@ -109,12 +115,14 @@ public class MapSerializationTest extends BaseMapTest
         assertEquals(a2q("{'a':1}"), json);
     }
 
+    @Test
     public void testMapSerializer() throws IOException
     {
         assertEquals("\"{a=b, c=d}\"", MAPPER.writeValueAsString(new PseudoMap("a", "b", "c", "d")));
     }
 
     // problems with map entries, values
+    @Test
     public void testMapKeySetValuesSerialization() throws IOException
     {
         Map<String,String> map = new HashMap<String,String>();
@@ -136,9 +144,10 @@ public class MapSerializationTest extends BaseMapTest
     }
 
     // sort Map entries by key
+    @Test
     public void testOrderByKey() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         assertFalse(m.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS));
         LinkedHashMap<String,Integer> map = new LinkedHashMap<String,Integer>();
         map.put("b", 3);
@@ -151,6 +160,7 @@ public class MapSerializationTest extends BaseMapTest
     }
 
     // related to [databind#1411]
+    @Test
     public void testOrderByWithNulls() throws IOException
     {
         ObjectWriter sortingW = MAPPER.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
@@ -168,6 +178,7 @@ public class MapSerializationTest extends BaseMapTest
     }
 
     // [Databind#335]
+    @Test
     public void testOrderByKeyViaProperty() throws IOException
     {
         MapOrderingBean input = new MapOrderingBean("c", "b", "a");
@@ -176,6 +187,7 @@ public class MapSerializationTest extends BaseMapTest
     }
 
     // [Databind#565]
+    @Test
     public void testMapEntry() throws IOException
     {
         StringIntMapEntry input = new StringIntMapEntry("answer", 42);
@@ -194,6 +206,7 @@ public class MapSerializationTest extends BaseMapTest
                 json);
     }
 
+    @Test
     public void testMapEntryWrapper() throws IOException
     {
         StringIntMapEntryWrapper input = new StringIntMapEntryWrapper("answer", 42);
@@ -202,6 +215,7 @@ public class MapSerializationTest extends BaseMapTest
     }
 
     // [databind#691]
+    @Test
     public void testNullJsonMapping691() throws Exception
     {
         MapWithTypedValues input = new MapWithTypedValues();
@@ -215,17 +229,19 @@ public class MapSerializationTest extends BaseMapTest
     }
 
     // [databind#691]
+    @Test
     public void testNullJsonInTypedMap691() throws Exception {
         Map<String, String> map = new HashMap<String, String>();
         map.put("NULL", null);
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         mapper.addMixIn(Object.class, Mixin691.class);
         String json = mapper.writeValueAsString(map);
         assertEquals("{\"@class\":\"java.util.HashMap\",\"NULL\":null}", json);
     }
 
     // [databind#1513]
+    @Test
     public void testConcurrentMaps() throws Exception
     {
         final ObjectWriter w = MAPPER.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);

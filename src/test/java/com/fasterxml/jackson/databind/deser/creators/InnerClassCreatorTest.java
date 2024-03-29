@@ -1,16 +1,23 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
 // For [databind#1501], [databind#1502], [databind#1503]; mostly to
 // test that for non-static inner classes constructors are ignored
 // and no Creators should be processed (since they cannot be made
 // to work in standard way anyway).
-public class InnerClassCreatorTest extends BaseMapTest
+public class InnerClassCreatorTest
 {
     static class Something1501 {
         public InnerSomething1501 a;
@@ -59,6 +66,7 @@ public class InnerClassCreatorTest extends BaseMapTest
     }
 
     // Used to trigger `ArrayIndexOutOfBoundsException` for missing creator property index
+    @Test
     public void testIssue1501() throws Exception
     {
         String ser = MAPPER.writeValueAsString(new Something1501(false));
@@ -72,6 +80,7 @@ public class InnerClassCreatorTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testIssue1502() throws Exception
     {
         String ser = MAPPER.writeValueAsString(new Something1502(null));
@@ -85,6 +94,7 @@ public class InnerClassCreatorTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testIssue1503() throws Exception
     {
         String ser = MAPPER.writeValueAsString(new Outer1503());

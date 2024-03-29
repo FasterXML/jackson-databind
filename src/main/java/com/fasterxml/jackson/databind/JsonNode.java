@@ -635,9 +635,16 @@ public abstract class JsonNode
      * <code>defaultValue</code> in cases where null value would be returned;
      * either for missing nodes (trying to access missing property, or element
      * at invalid item for array) or explicit nulls.
+     *<p>
+     * NOTE: deprecated since 2.17 because {@link #asText()} very rarely returns
+     * {@code null} for any node types -- in fact, neither {@link MissingNode}
+     * nor {@code NullNode} return {@code null} from {@link #asText()}.
      *
      * @since 2.4
+     *
+     * @deprecated Since 2.17, to be removed from 3.0
      */
+    @Deprecated // @since 2.17
     public String asText(String defaultValue) {
         String str = asText();
         return (str == null) ? defaultValue : str;
@@ -1044,9 +1051,12 @@ public abstract class JsonNode
      */
 
     /**
-     * Method for finding a JSON Object field with specified name in this
+     * Method for finding the first JSON Object field with specified name in this
      * node or its child nodes, and returning value it has.
      * If no matching field is found in this node or its descendants, returns null.
+     *<p>
+     * Note that traversal is done in document order (that is, order in which
+     * nodes are iterated if using {@link JsonNode#elements()})
      *
      * @param fieldName Name of field to look for
      *
@@ -1055,8 +1065,10 @@ public abstract class JsonNode
     public abstract JsonNode findValue(String fieldName);
 
     /**
-     * Method for finding JSON Object fields with specified name, and returning
-     * found ones as a List. Note that sub-tree search ends if a field is found,
+     * Method for finding JSON Object fields with specified name -- both immediate
+     * child values and descendants -- and returning
+     * found ones as a {@link List}.
+     * Note that sub-tree search ends when matching field is found,
      * so possible children of result nodes are <b>not</b> included.
      * If no matching fields are found in this node or its descendants, returns
      * an empty List.
@@ -1139,20 +1151,31 @@ public abstract class JsonNode
      */
 
     /**
-     * Short-cut equivalent to:
+     * Method that works in one of possible ways, depending on whether
+     * {@code exprOrProperty} is a valid {@link JsonPointer} expression or
+     * not (valid expression is either empty String {@code ""} or starts
+     * with leading slash {@code /} character).
+     * If it is, works as a short-cut to:
      *<pre>
-     *   withObject(JsonPointer.compile(expr);
+     *  withObject(JsonPointer.compile(exprOrProperty));
      *</pre>
-     * see {@link #withObject(JsonPointer)} for full explanation.
+     * If it is NOT a valid {@link JsonPointer} expression, value is taken
+     * as a literal Object property name and calls is alias for
+     *<pre>
+     *  withObjectProperty(exprOrProperty);
+     *</pre>
      *
-     * @param expr {@link JsonPointer} expression to use
+     * @param exprOrProperty {@link JsonPointer} expression to use (if valid as one),
+     *    or, if not (no leading "/"), property name to match.
      *
      * @return {@link ObjectNode} found or created
      *
-     * @since 2.14
+     * @since 2.14 (but semantics before 2.16 did NOT allow for non-JsonPointer expressions)
      */
-    public final ObjectNode withObject(String expr) {
-        return withObject(JsonPointer.compile(expr));
+    public ObjectNode withObject(String exprOrProperty) {
+        // To avoid abstract method, base implementation just fails
+        throw new UnsupportedOperationException("`withObject(String)` not implemented by `"
+                +getClass().getName()+"`");
     }
 
     /**
@@ -1262,6 +1285,36 @@ public abstract class JsonNode
     }
 
     /**
+     * Method similar to {@link #withObject(JsonPointer, OverwriteMode, boolean)} -- basically
+     * short-cut to:
+     *<pre>
+     *   withObject(JsonPointer.compile("/"+propName), OverwriteMode.NULLS, false);
+     *</pre>
+     * that is, only matches immediate property on {@link ObjectNode}
+     * and will either use an existing {@link ObjectNode} that is
+     * value of the property, or create one if no value or value is {@code NullNode}.
+     * <br>
+     * Will fail with an exception if:
+     * <ul>
+     *  <li>Node method called on is NOT {@link ObjectNode}
+     *   </li>
+     *  <li>Property has an existing value that is NOT {@code NullNode} (explicit {@code null})
+     *   </li>
+     * </ul>
+     *
+     * @param propName Name of property that has or will have {@link ObjectNode} as value
+     *
+     * @return {@link ObjectNode} value of given property (existing or created)
+     *
+     * @since 2.16
+     */
+    public ObjectNode withObjectProperty(String propName) {
+        // To avoid abstract method, base implementation just fails
+        throw new UnsupportedOperationException("`JsonNode` not of type `ObjectNode` (but `"
+                +getClass().getName()+")`, cannot call `withObjectProperty(String)` on it");
+    }
+
+    /**
      * Method that works in one of possible ways, depending on whether
      * {@code exprOrProperty} is a valid {@link JsonPointer} expression or
      * not (valid expression is either empty String {@code ""} or starts
@@ -1277,7 +1330,7 @@ public abstract class JsonNode
      * NOTE: before Jackson 2.14 behavior was always that of non-expression usage;
      * that is, {@code exprOrProperty} was always considered as a simple property name.
      *
-     * @deprecated Since 2.14 use {@code withObject(String)} instead
+     * @deprecated Since 2.14 use {@link #withObject(String)} instead
      */
     @Deprecated // since 2.14
     public <T extends JsonNode> T with(String exprOrProperty) {
@@ -1409,6 +1462,36 @@ public abstract class JsonNode
                 +getClass().getName());
     }
 
+    /**
+     * Method similar to {@link #withArray(JsonPointer, OverwriteMode, boolean)} -- basically
+     * short-cut to:
+     *<pre>
+     *   withArray(JsonPointer.compile("/"+propName), OverwriteMode.NULLS, false);
+     *</pre>
+     * that is, only matches immediate property on {@link ObjectNode}
+     * and will either use an existing {@link ArrayNode} that is
+     * value of the property, or create one if no value or value is {@code NullNode}.
+     * <br>
+     * Will fail with an exception if:
+     * <ul>
+     *  <li>Node method called on is NOT {@link ObjectNode}
+     *   </li>
+     *  <li>Property has an existing value that is NOT {@code NullNode} (explicit {@code null})
+     *   </li>
+     * </ul>
+     *
+     * @param propName Name of property that has or will have {@link ArrayNode} as value
+     *
+     * @return {@link ArrayNode} value of given property (existing or created)
+     *
+     * @since 2.16
+     */
+    public ArrayNode withArrayProperty(String propName) {
+        // To avoid abstract method, base implementation just fails
+        throw new UnsupportedOperationException("`JsonNode` not of type `ObjectNode` (but `"
+                +getClass().getName()+")`, cannot call `withArrayProperty(String)` on it");
+    }
+    
     /*
     /**********************************************************
     /* Public API, comparison

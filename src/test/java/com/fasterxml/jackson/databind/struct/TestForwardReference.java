@@ -2,24 +2,27 @@ package com.fasterxml.jackson.databind.struct;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 /**
  * Test for testing forward reference handling
  */
-public class TestForwardReference extends BaseMapTest {
+public class TestForwardReference extends DatabindTestUtil {
 
-	private final ObjectMapper MAPPER = new ObjectMapper()
+	private final ObjectMapper MAPPER = newJsonMapper()
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.enable(SerializationFeature.INDENT_OUTPUT)
 			.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
 	/** Tests that we can read a hierarchical structure with forward references*/
+	@Test
 	public void testForwardRef() throws IOException {
 		MAPPER.readValue("{" +
 				"  \"@type\" : \"TestForwardReference$ForwardReferenceContainerClass\"," +

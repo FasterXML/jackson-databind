@@ -39,8 +39,8 @@ public final class PropertyBasedCreator
     protected final HashMap<String, SettableBeanProperty> _propertyLookup;
 
     /**
-     * Array that contains properties that expect value to inject, if any;
-     * null if no injectable values are expected.
+     * Array of all Creator properties (based on arguments to constructor
+     * or factory method).
      */
     protected final SettableBeanProperty[] _allProperties;
 

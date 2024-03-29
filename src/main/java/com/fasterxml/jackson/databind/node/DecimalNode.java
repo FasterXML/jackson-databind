@@ -104,20 +104,10 @@ public class DecimalNode
     }
 
     @Override
-    public final void serialize(JsonGenerator jgen, SerializerProvider provider)
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
-        // 07-Jul-2013, tatu: Should be handled by propagating setting to JsonGenerator
-        //    so this should not be needed:
-        /*
-        if (provider.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN)) {
-            if (!(jgen instanceof TokenBuffer)) { // [Issue#232]
-                jgen.writeNumber(((BigDecimal) _value).toPlainString());
-                return;
-            }
-        }
-        */
-        jgen.writeNumber(_value);
+        g.writeNumber(_value);
     }
 
     @Override
@@ -143,6 +133,9 @@ public class DecimalNode
             // we need a stable hash code for _value == null
             return 0;
         }
-        return Double.valueOf(doubleValue()).hashCode();
+        // 13-Feb-2024, tatu: Looks weird, but needed for 2.x invariant
+        //   where equality tries to account for differences in trailing
+        //   zeroes etc (see `equals()` above)
+        return Double.hashCode(doubleValue());        
     }
 }

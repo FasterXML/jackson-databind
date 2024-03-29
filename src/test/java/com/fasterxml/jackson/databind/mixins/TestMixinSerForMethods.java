@@ -3,14 +3,19 @@ package com.fasterxml.jackson.databind.mixins;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMixinSerForMethods
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -98,6 +103,7 @@ public class TestMixinSerForMethods
      * that is, any annotations added properly override all annotations
      * that masked methods (fields etc) have.
      */
+    @Test
     public void testLeafMixin() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -123,6 +129,7 @@ public class TestMixinSerForMethods
      * (overriding annotations of a base class, but being overridden
      * further by a sub-class) works as expected
      */
+    @Test
     public void testIntermediateMixin() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -139,6 +146,7 @@ public class TestMixinSerForMethods
      * Another intermediate mix-in, to verify that annotations
      * properly "trickle up"
      */
+    @Test
     public void testIntermediateMixin2() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -148,6 +156,7 @@ public class TestMixinSerForMethods
         assertEquals(Integer.valueOf(42), result.get("x"));
     }
 
+    @Test
     public void testSimpleMixInResolverHasMixins() {
         SimpleMixInResolver simple = new SimpleMixInResolver(null);
         assertFalse(simple.hasMixIns());
@@ -156,6 +165,7 @@ public class TestMixinSerForMethods
     }
 
     // [databind#688]
+    @Test
     public void testCustomResolver() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();

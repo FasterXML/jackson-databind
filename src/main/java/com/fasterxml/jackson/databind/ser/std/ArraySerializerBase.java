@@ -134,7 +134,7 @@ public abstract class ArraySerializerBase<T>
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        g.setCurrentValue(value);
+        g.assignCurrentValue(value);
         serializeContents(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
@@ -149,6 +149,6 @@ public abstract class ArraySerializerBase<T>
         if (_unwrapSingle == null) {
             return provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         }
-        return _unwrapSingle.booleanValue();
+        return _unwrapSingle;
     }
 }

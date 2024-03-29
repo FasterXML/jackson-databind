@@ -2,10 +2,15 @@ package com.fasterxml.jackson.databind.interop;
 
 import java.lang.reflect.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // mostly for [Issue#57]
-public class TestJDKProxy extends BaseMapTest
+public class TestJDKProxy extends DatabindTestUtil
 {
     final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -35,6 +40,7 @@ public class TestJDKProxy extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testSimple() throws Exception
     {
         IPlanet input = getProxy(IPlanet.class, new Planet("Foo"));

@@ -1,13 +1,19 @@
 package com.fasterxml.jackson.databind.ser;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestArraySerialization
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
+    @Test
     public void testLongStringArray() throws Exception
     {
         final int SIZE = 40000;
@@ -34,12 +40,14 @@ public class TestArraySerialization
         jp.close();
     }
 
+    @Test
     public void testIntArray() throws Exception
     {
         String json = MAPPER.writeValueAsString(new int[] { 1, 2, 3, -7 });
         assertEquals("[1,2,3,-7]", json);
     }
 
+    @Test
     public void testBigIntArray() throws Exception
     {
         final int SIZE = 99999;
@@ -64,12 +72,14 @@ public class TestArraySerialization
         }
     }
 
+    @Test
     public void testLongArray() throws Exception
     {
         String json = MAPPER.writeValueAsString(new long[] { Long.MIN_VALUE, 0, Long.MAX_VALUE });
         assertEquals("["+Long.MIN_VALUE+",0,"+Long.MAX_VALUE+"]", json);
     }
 
+    @Test
     public void testStringArray() throws Exception
     {
         assertEquals("[\"a\",\"\\\"foo\\\"\",null]",
@@ -78,12 +88,14 @@ public class TestArraySerialization
                 MAPPER.writeValueAsString(new String[] { }));
     }
 
+    @Test
     public void testDoubleArray() throws Exception
     {
         String json = MAPPER.writeValueAsString(new double[] { 1.01, 2.0, -7, Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY });
         assertEquals("[1.01,2.0,-7.0,\"NaN\",\"-Infinity\",\"Infinity\"]", json);
     }
 
+    @Test
     public void testFloatArray() throws Exception
     {
         String json = MAPPER.writeValueAsString(new float[] { 1.01f, 2.0f, -7f, Float.NaN, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY });

@@ -546,7 +546,7 @@ public class MapSerializer
         if (format != null) {
             Boolean B = format.getFeature(JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES);
             if (B != null) {
-                sortKeys = B.booleanValue();
+                sortKeys = B;
             }
         }
         MapSerializer mser = withResolved(property, keySer, ser, ignored, included, sortKeys);
@@ -727,7 +727,7 @@ public class MapSerializer
         throws IOException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         serializeWithoutTypeInfo(value, gen, provider);

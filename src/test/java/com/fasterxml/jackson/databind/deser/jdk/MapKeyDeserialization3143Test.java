@@ -2,15 +2,22 @@ package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
-public class MapKeyDeserialization3143Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
+public class MapKeyDeserialization3143Test
 {
     // [databind#3143]
     static class Key3143Factories {
@@ -66,6 +73,7 @@ public class MapKeyDeserialization3143Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#3143]
+    @Test
     public void testKeyWithCtorAndCreator3143() throws Exception
     {
         // Use Constructor if annotated:
@@ -76,6 +84,7 @@ public class MapKeyDeserialization3143Test extends BaseMapTest
     }
 
     // [databind#3143]
+    @Test
     public void testKeyWith2Creators3143() throws Exception
     {
         // Select explicitly annotated factory method
@@ -86,6 +95,7 @@ public class MapKeyDeserialization3143Test extends BaseMapTest
     }
 
     // [databind#3143]
+    @Test
     public void testKeyWithCreatorConflicts3143() throws Exception
     {
         try {

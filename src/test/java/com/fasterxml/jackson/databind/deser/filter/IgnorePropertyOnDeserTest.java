@@ -2,15 +2,19 @@ package com.fasterxml.jackson.databind.deser.filter;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-public class IgnorePropertyOnDeserTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class IgnorePropertyOnDeserTest
 {
     // [databind#426]
     @JsonIgnoreProperties({ "userId" })
@@ -92,6 +96,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#426]
+    @Test
     public void testIssue426() throws Exception
     {
         final String JSON = a2q("{'userId': 9, 'firstName': 'Mike' }");
@@ -102,6 +107,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
     }
 
     // [databind#1217]
+    @Test
     public void testIgnoreOnProperty1217() throws Exception
     {
         TestIgnoreObject result = MAPPER.readValue(
@@ -124,6 +130,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
     }
 
     // [databind#1217]
+    @Test
     public void testIgnoreViaConfigOverride1217() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
@@ -137,6 +144,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
     }
 
     // [databind#3721]
+    @Test
     public void testIgnoreUnknownViaConfigOverride() throws Exception
     {
         final String DOC = a2q("{'x':2,'foobar':3}");
@@ -161,6 +169,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
     }
 
     // [databind#1595]
+    @Test
     public void testIgnoreGetterNotSetter1595() throws Exception
     {
         Simple1595 config = new Simple1595();
@@ -173,6 +182,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
     }
 
     // [databind#2627]
+    @Test
     public void testIgnoreUnknownOnField() throws IOException
     {
         String json = "{\"value\": {\"name\": \"my_name\", \"extra\": \"val\"}, \"type\":\"Json\"}";

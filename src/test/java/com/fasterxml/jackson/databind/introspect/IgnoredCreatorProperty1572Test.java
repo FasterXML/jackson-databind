@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class IgnoredCreatorProperty1572Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class IgnoredCreatorProperty1572Test extends DatabindTestUtil
 {
     static class InnerTest
     {
@@ -56,6 +61,7 @@ public class IgnoredCreatorProperty1572Test extends BaseMapTest
      */
 
     // [databind#1572]
+    @Test
     public void testIgnoredCtorParam() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();

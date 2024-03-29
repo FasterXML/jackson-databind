@@ -2,13 +2,18 @@ package com.fasterxml.jackson.databind.struct;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestParentChildReferences
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -197,8 +202,9 @@ public class TestParentChildReferences
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleRefs() throws Exception
     {
         SimpleTreeNode root = new SimpleTreeNode("root");
@@ -217,6 +223,7 @@ public class TestParentChildReferences
     }
 
     // [JACKSON-693]
+    @Test
     public void testSimpleRefsWithGetter() throws Exception
     {
         SimpleTreeNode2 root = new SimpleTreeNode2("root");
@@ -234,6 +241,7 @@ public class TestParentChildReferences
         assertSame(resultChild.parent, resultNode);
     }
 
+    @Test
     public void testFullRefs() throws Exception
     {
         FullTreeNode root = new FullTreeNode("root");
@@ -262,6 +270,7 @@ public class TestParentChildReferences
         assertNull(resultChild2.next);
     }
 
+    @Test
     public void testArrayOfRefs() throws Exception
     {
         NodeArray root = new NodeArray();
@@ -280,6 +289,7 @@ public class TestParentChildReferences
         assertSame(result, kids[1].parent);
     }
 
+    @Test
     public void testListOfRefs() throws Exception
     {
         NodeList root = new NodeList();
@@ -298,6 +308,7 @@ public class TestParentChildReferences
         assertSame(result, kids.get(1).parent);
     }
 
+    @Test
     public void testMapOfRefs() throws Exception
     {
         NodeMap root = new NodeMap();
@@ -322,6 +333,7 @@ public class TestParentChildReferences
     }
 
     // for [JACKSON-368]
+    @Test
     public void testAbstract368() throws Exception
     {
         AbstractNode parent = new ConcreteNode("p");
@@ -343,6 +355,7 @@ public class TestParentChildReferences
         assertSame(root, leaf.prev);
     }
 
+    @Test
     public void testIssue693() throws Exception
     {
         Parent parent = new Parent();
@@ -355,6 +368,7 @@ public class TestParentChildReferences
         }
     }
 
+    @Test
     public void testIssue708() throws Exception
     {
         Advertisement708 ad = MAPPER.readValue("{\"title\":\"Hroch\",\"photos\":[{\"id\":3}]}", Advertisement708.class);

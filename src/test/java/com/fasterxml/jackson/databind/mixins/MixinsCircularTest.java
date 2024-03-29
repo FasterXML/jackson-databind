@@ -1,10 +1,14 @@
 package com.fasterxml.jackson.databind.mixins;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 
-public class MixinsCircularTest extends BaseMapTest {
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MixinsCircularTest extends DatabindTestUtil {
 
     static class First {
         @JsonProperty("first-mixin")
@@ -28,6 +32,7 @@ public class MixinsCircularTest extends BaseMapTest {
     /**********************************************************************
      */
 
+    @Test
     public void testPojoMixinDeserialization() throws Exception {
         ObjectMapper mxMapper = jsonMapperBuilder()
             .addMixIn(First.class, Second.class)
@@ -48,6 +53,7 @@ public class MixinsCircularTest extends BaseMapTest {
         assertEquals("first-mixin", third.value);
     }
 
+    @Test
     public void testPojoMixinSerialization() throws Exception {
         ObjectMapper mxMapper = jsonMapperBuilder()
             .addMixIn(First.class, Second.class)

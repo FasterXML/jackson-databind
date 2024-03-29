@@ -262,7 +262,7 @@ public abstract class AsArraySerializerBase<T>
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        g.setCurrentValue(value);
+        g.assignCurrentValue(value);
         serializeContents(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }

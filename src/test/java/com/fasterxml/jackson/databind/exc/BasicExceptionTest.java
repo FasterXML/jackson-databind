@@ -5,12 +5,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public class BasicExceptionTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class BasicExceptionTest
 {
     static class User {
         public String user;
@@ -23,6 +29,7 @@ public class BasicExceptionTest extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
     private final JsonFactory JSON_F = MAPPER.getFactory();
 
+    @Test
     public void testBadDefinition() throws Exception
     {
         JavaType t = TypeFactory.defaultInstance().constructType(String.class);
@@ -60,6 +67,7 @@ public class BasicExceptionTest extends BaseMapTest
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testInvalidFormat() throws Exception
     {
         // deprecated methods should still work:
@@ -76,6 +84,7 @@ public class BasicExceptionTest extends BaseMapTest
         assertNotNull(e);
     }
 
+    @Test
     public void testIgnoredProperty() throws Exception
     {
         // first just construct valid instance with some variations
@@ -101,6 +110,7 @@ public class BasicExceptionTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testUnrecognizedProperty() throws Exception
     {
         JsonParser p = JSON_F.createParser("{ }");
@@ -122,6 +132,8 @@ public class BasicExceptionTest extends BaseMapTest
 
     // [databind#2128]: ensure Location added once and only once
     // [databind#2482]: ensure Location is the original one
+    // [core#1173]: ... and needs to be correct column, too
+    @Test
     public void testLocationAddition() throws Exception
     {
         String problemJson = "{\n\t\"userList\" : [\n\t{\n\t user : \"1\"\n\t},\n\t{\n\t \"user\" : \"2\"\n\t}\n\t]\n}";
@@ -135,9 +147,10 @@ public class BasicExceptionTest extends BaseMapTest
                 fail("Should only get one 'at [' marker, got "+(str.length-1)+", source: "+msg);
             }
             JsonLocation loc = e.getLocation();
-//          String expectedLocation = "line: 4, column: 4";
+//          String expectedLocation = "line: 4, column: 3";
             assertEquals(4, loc.getLineNr());
-            assertEquals(4, loc.getColumnNr());
+            // 12-Feb-2024, tatu: varies depending on whether [core#1173] is fixed or not...
+            assertEquals(3, loc.getColumnNr());
         }
     }
 }

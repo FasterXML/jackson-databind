@@ -236,7 +236,7 @@ public class JsonMappingException
             // 17-Aug-2015, tatu: Use of token location makes some sense from databinding,
             //   since actual parsing (current) location is typically only needed for low-level
             //   parsing exceptions.
-            _location = ((JsonParser) processor).getTokenLocation();
+            _location = ((JsonParser) processor).currentTokenLocation();
         }
     }
 
@@ -250,7 +250,7 @@ public class JsonMappingException
         if (problem instanceof JacksonException) {
             _location = ((JacksonException) problem).getLocation();
         } else if (processor instanceof JsonParser) {
-            _location = ((JsonParser) processor).getTokenLocation();
+            _location = ((JsonParser) processor).currentTokenLocation();
         }
     }
 

@@ -339,8 +339,7 @@ public final class ClassUtil
             return false;
         }
         // Must take no args
-        Class<?>[] pts = m.getParameterTypes();
-        if (pts != null && pts.length != 0) {
+        if (m.getParameterTypes().length != 0) {
             return false;
         }
         // Can't be a void method
@@ -694,8 +693,19 @@ public final class ClassUtil
         if (fullType == null) {
             return "[null]";
         }
+        // 07-Dec-2023, tatu: Instead of cryptic notation for array types
+        //    (JLS-specified for JDK deserialization), let's use trailing "[]"s
+        //    to indicate dimensions instead
+        int arrays = 0;
+        while (fullType.isArrayType()) {
+            ++arrays;
+            fullType = fullType.getContentType();
+        }
         StringBuilder sb = new StringBuilder(80).append('`');
         sb.append(fullType.toCanonical());
+        while (arrays-- > 0) {
+            sb.append("[]");
+        }
         return sb.append('`').toString();
     }
 
@@ -1147,20 +1157,24 @@ se.getClass().getName(), se.getMessage()),
 
     /**
      * Accessor for checking whether given {@code Class} is under Java package
-     * of {@code java.*} or {@code javax.*} (including all sub-packages).
+     * of {@code java.*} or {@code javax.*} (including all sub-packages), or
+     * (starting with Jackson 2.17), {@code sun.*}).
      *<p>
      * Added since some aspects of handling need to be changed for JDK types (and
      * possibly some extensions under {@code javax.}?): for example, forcing of access
      * will not work well for future JDKs (12 and later).
      *<p>
      * Note: in Jackson 2.11 only returned true for {@code java.*} (and not {@code javax.*});
-     * was changed in 2.12.
+     * was changed in 2.12. {@code sun.*} was added in 2.17.
      *
      * @since 2.11
      */
     public static boolean isJDKClass(Class<?> rawType) {
         final String clsName = rawType.getName();
-        return clsName.startsWith("java.") || clsName.startsWith("javax.");
+        return clsName.startsWith("java.")
+                || clsName.startsWith("javax.")
+                || clsName.startsWith("sun.")
+                ;
     }
 
     /**

@@ -1,10 +1,16 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class AccessorNamingForBuilderTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class AccessorNamingForBuilderTest extends DatabindTestUtil
 {
     @JsonDeserialize(builder=NoPrexixBuilderXY.class)
     static class ValueClassXY
@@ -38,6 +44,7 @@ public class AccessorNamingForBuilderTest extends BaseMapTest
     }
 
     // For [databind#2624]
+    @Test
     public void testAccessorCustomWithMethod() throws Exception
     {
         final String json = a2q("{'x':28,'y':72}");

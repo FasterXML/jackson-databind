@@ -6,6 +6,8 @@ import java.util.*;
 
 import javax.xml.namespace.QName;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -13,14 +15,18 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("serial")
 public class TestJacksonAnnotationIntrospector
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     public static enum EnumExample {
         VALUE1;
@@ -143,6 +149,16 @@ public class TestJacksonAnnotationIntrospector
             }
             return names;
         }
+
+        @Override
+        public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+                Enum<?>[] enumValues, String[] names) {
+            // kinda sorta wrong, but for testing's sake...
+            for (int i = 0, len = enumValues.length; i < len; ++i) {
+                names[i] = enumValues[i].name().toLowerCase();
+            }
+            return names;
+        }
     }
 
     /*
@@ -154,6 +170,7 @@ public class TestJacksonAnnotationIntrospector
     /**
      * tests getting serializer/deserializer instances.
      */
+    @Test
     public void testSerializeDeserializeWithJaxbAnnotations() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -180,6 +197,7 @@ public class TestJacksonAnnotationIntrospector
         assertEquals(ex.enumProperty, readEx.enumProperty);
     }
 
+    @Test
     public void testJsonTypeResolver() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -192,6 +210,7 @@ public class TestJacksonAnnotationIntrospector
         assertSame(DummyBuilder.class, rb.getClass());
     }
 
+    @Test
     public void testEnumHandling() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

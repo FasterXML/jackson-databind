@@ -48,6 +48,8 @@ public class NodeContext2049Test extends BaseMapTest
     }
 
     static class ParentSettingDeserializerModifier extends BeanDeserializerModifier {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public BeanDeserializerBuilder updateBuilder(DeserializationConfig config, BeanDescription beanDesc,
                   BeanDeserializerBuilder builder) {

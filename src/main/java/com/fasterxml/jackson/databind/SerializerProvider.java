@@ -41,7 +41,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * details are delegated to {@link SerializerFactory} instance.
  *<p>
  * Object life-cycle is such that an initial instance ("blueprint") is created
- * and referenced by {@link ObjectMapper} and {@link ObjectWriter} intances;
+ * and referenced by {@link ObjectMapper} and {@link ObjectWriter} instances;
  * but for actual usage, a configured instance is created by using
  * a create method in sub-class
  * {@link com.fasterxml.jackson.databind.ser.DefaultSerializerProvider}.
@@ -258,6 +258,28 @@ public abstract class SerializerProvider
         _nullValueSerializer = src._nullValueSerializer;
         _nullKeySerializer = src._nullKeySerializer;
 
+        _stdNullValueSerializer = src._stdNullValueSerializer;
+    }
+
+
+    /**
+     * @since 2.16
+     */
+    protected SerializerProvider(SerializerProvider src, SerializerCache serializerCache)
+    {
+        _serializerCache = serializerCache;
+
+        _config = src._config;
+        _serializationView = src._serializationView;
+        _serializerFactory = src._serializerFactory;
+        _attributes = src._attributes;
+
+        _knownSerializers = src._knownSerializers;
+        _unknownTypeSerializer = src._unknownTypeSerializer;
+
+        _nullValueSerializer = src._nullValueSerializer;
+        _nullKeySerializer = src._nullKeySerializer;
+        _keySerializer = src._keySerializer;
         _stdNullValueSerializer = src._stdNullValueSerializer;
     }
 

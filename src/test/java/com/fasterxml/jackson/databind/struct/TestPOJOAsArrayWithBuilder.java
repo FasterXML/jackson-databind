@@ -1,20 +1,24 @@
 package com.fasterxml.jackson.databind.struct;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for "POJO as array" feature using Builder-style
  * POJO construction.
  */
-public class TestPOJOAsArrayWithBuilder extends BaseMapTest
+public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
 {
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     @JsonFormat(shape=JsonFormat.Shape.ARRAY)
@@ -103,8 +107,9 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
     /*****************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private final static ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleBuilder() throws Exception
     {
         // Ok, first, ensure that serializer will "black out" filtered properties
@@ -114,6 +119,7 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
     }
 
     // Won't work, but verify exception
+    @Test
     public void testBuilderWithUpdate() throws Exception
     {
         // Ok, first, simple case of all values being present
@@ -136,6 +142,7 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
      */
 
     // test to ensure @JsonCreator also works
+    @Test
     public void testWithCreator() throws Exception
     {
         CreatorValue value = MAPPER.readValue("[1,2,3]", CreatorValue.class);
@@ -160,6 +167,7 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
         assertEquals(0, value.c);
     }
 
+    @Test
     public void testWithCreatorAndView() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(CreatorValue.class);
@@ -184,6 +192,7 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
     /*****************************************************
      */
 
+    @Test
     public void testUnknownExtraProp() throws Exception
     {
         String json = "[1, 2, 3, 4]";

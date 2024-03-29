@@ -208,6 +208,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override // since 2.7
+    @Deprecated // since 2.16
     public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         HashMap<String,String> expl = null;
         for (Field f : enumType.getDeclaredFields()) {
@@ -240,7 +241,34 @@ public class JacksonAnnotationIntrospector
         return names;
     }
 
+    @Override // since 2.16
+    public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[] names)
+    {
+        Map<String, String> enumToPropertyMap = new LinkedHashMap<String, String>();
+        for (AnnotatedField field : annotatedClass.fields()) {
+            JsonProperty property = field.getAnnotation(JsonProperty.class);
+            if (property != null) {
+                String propValue = property.value();
+                if (propValue != null && !propValue.isEmpty()) {
+                    enumToPropertyMap.put(field.getName(), propValue);
+                }
+            }
+        }
+        
+        // and then stitch them together if and as necessary
+        for (int i = 0, end = enumValues.length; i < end; ++i) {
+            String defName = enumValues[i].name();
+            String explValue = enumToPropertyMap.get(defName);
+            if (explValue != null) {
+                names[i] = explValue;
+            }
+        }
+        return names;
+    }
+
     @Override // since 2.11
+    @Deprecated // since 2.16
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliasList)
     {
         // Main complication: discrepancy between Field that represent enum value,
@@ -264,18 +292,57 @@ public class JacksonAnnotationIntrospector
         }
     }
 
+    @Override
+    public void findEnumAliases(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[][] aliasList)
+    {
+        HashMap<String, String[]> enumToAliasMap = new HashMap<>();
+        for (AnnotatedField field : annotatedClass.fields()) {
+            JsonAlias alias = field.getAnnotation(JsonAlias.class);
+            if (alias != null) {
+                enumToAliasMap.putIfAbsent(field.getName(), alias.value());
+            }
+        }
+
+        for (int i = 0, end = enumValues.length; i < end; ++i) {
+            Enum<?> enumValue = enumValues[i];
+            aliasList[i] = enumToAliasMap.getOrDefault(enumValue.name(), new String[]{});
+        }
+    }
+
+    @Override
+    @Deprecated // since 2.16
+    public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
+        return ClassUtil.findFirstAnnotatedEnumValue(enumCls, JsonEnumDefaultValue.class);
+    }
+
     /**
      * Finds the Enum value that should be considered the default value, if possible.
      * <p>
      * This implementation relies on {@link JsonEnumDefaultValue} annotation to determine the default value if present.
      *
-     * @param enumCls The Enum class to scan for the default value.
+     * @param annotatedClass The Enum class to scan for the default value annotation.
      * @return null if none found or it's not possible to determine one.
-     * @since 2.8
+     * @since 2.16
      */
-    @Override
-    public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
-        return ClassUtil.findFirstAnnotatedEnumValue(enumCls, JsonEnumDefaultValue.class);
+    @Override // since 2.16
+    public Enum<?> findDefaultEnumValue(AnnotatedClass annotatedClass, Enum<?>[] enumValues) {
+        for (Annotated field : annotatedClass.fields()) {
+            if (!field.getType().isEnumType()) {
+                continue;
+            }
+            JsonEnumDefaultValue found = _findAnnotation(field, JsonEnumDefaultValue.class);
+            if (found == null) {
+                continue;
+            }
+            // Return the "first" enum with annotation
+            for (Enum<?> enumValue : enumValues) {
+                if (enumValue.name().equals(field.getName())) {
+                    return enumValue;
+                }
+            }
+        }
+        return null;
     }
 
     /*
@@ -592,6 +659,16 @@ public class JacksonAnnotationIntrospector
     /* Annotations for Polymorphic Type handling
     /**********************************************************
      */
+
+    /**
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    @Override
+    public JsonTypeInfo.Value findPolymorphicTypeInfo(MapperConfig<?> config, Annotated ann)
+    {
+        JsonTypeInfo t = _findAnnotation(ann, JsonTypeInfo.class);
+        return (t == null) ? null : JsonTypeInfo.Value.from(t);
+    }
 
     @Override
     public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
@@ -1498,27 +1575,29 @@ public class JacksonAnnotationIntrospector
     protected TypeResolverBuilder<?> _findTypeResolver(MapperConfig<?> config,
             Annotated ann, JavaType baseType)
     {
+        // since 2.16 : backporting {@link JsonTypeInfo.Value} from 3.0
+        JsonTypeInfo.Value typeInfo = findPolymorphicTypeInfo(config, ann);
+
         // First: maybe we have explicit type resolver?
         TypeResolverBuilder<?> b;
-        JsonTypeInfo info = _findAnnotation(ann, JsonTypeInfo.class);
         JsonTypeResolver resAnn = _findAnnotation(ann, JsonTypeResolver.class);
 
         if (resAnn != null) {
-            if (info == null) {
+            if (typeInfo == null) {
                 return null;
             }
             // let's not try to force access override (would need to pass
             // settings through if we did, since that's not doable on some platforms)
             b = config.typeResolverBuilderInstance(ann, resAnn.value());
         } else { // if not, use standard one, if indicated by annotations
-            if (info == null) {
+            if (typeInfo == null) {
                 return null;
             }
             // bit special; must return 'marker' to block use of default typing:
-            if (info.use() == JsonTypeInfo.Id.NONE) {
+            if (typeInfo.getIdType() == JsonTypeInfo.Id.NONE) {
                 return _constructNoTypeResolverBuilder();
             }
-            b = _constructStdTypeResolverBuilder();
+            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType);
         }
         // Does it define a custom type id resolver?
         JsonTypeIdResolver idResInfo = _findAnnotation(ann, JsonTypeIdResolver.class);
@@ -1527,26 +1606,24 @@ public class JacksonAnnotationIntrospector
         if (idRes != null) {
             idRes.init(baseType);
         }
-        b = b.init(info.use(), idRes);
         // 13-Aug-2011, tatu: One complication; external id only works for properties;
         //    so if declared for a Class, we will need to map it to "PROPERTY"
         //    instead of "EXTERNAL_PROPERTY"
-        JsonTypeInfo.As inclusion = info.include();
+        JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
         if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
-            inclusion = JsonTypeInfo.As.PROPERTY;
+            typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
         }
-        b = b.inclusion(inclusion);
-        b = b.typeProperty(info.property());
-        Class<?> defaultImpl = info.defaultImpl();
+        Class<?> defaultImpl = typeInfo.getDefaultImpl();
 
         // 08-Dec-2014, tatu: To deprecate `JsonTypeInfo.None` we need to use other placeholder(s);
         //   and since `java.util.Void` has other purpose (to indicate "deser as null"), we'll instead
         //   use `JsonTypeInfo.class` itself. But any annotation type will actually do, as they have no
         //   valid use (cannot instantiate as default)
-        if (defaultImpl != JsonTypeInfo.None.class && !defaultImpl.isAnnotation()) {
-            b = b.defaultImpl(defaultImpl);
+        if (defaultImpl != null && defaultImpl != JsonTypeInfo.None.class && !defaultImpl.isAnnotation()) {
+            typeInfo = typeInfo.withDefaultImpl(defaultImpl);
         }
-        b = b.typeIdVisibility(info.visible());
+        
+        b = b.init(typeInfo, idRes);
         return b;
     }
 
@@ -1556,6 +1633,17 @@ public class JacksonAnnotationIntrospector
      */
     protected StdTypeResolverBuilder _constructStdTypeResolverBuilder() {
         return new StdTypeResolverBuilder();
+    }
+
+    /**
+     * Helper method for constructing standard {@link TypeResolverBuilder}
+     * implementation.
+     *
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
+            JsonTypeInfo.Value typeInfo, JavaType baseType) {
+        return new StdTypeResolverBuilder(typeInfo);
     }
 
     /**

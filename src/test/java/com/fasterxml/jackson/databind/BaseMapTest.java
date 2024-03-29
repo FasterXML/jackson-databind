@@ -5,11 +5,8 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -24,24 +21,6 @@ public abstract class BaseMapTest
     /* Shared helper classes
     /**********************************************************
      */
-
-    public static class BogusSchema implements FormatSchema {
-        @Override
-        public String getSchemaType() {
-            return "TestFormat";
-        }
-    }
-
-    /**
-     * Simple wrapper around boolean types, usually to test value
-     * conversions or wrapping
-     */
-    protected static class BooleanWrapper {
-        public Boolean b;
-
-        public BooleanWrapper() { }
-        public BooleanWrapper(Boolean value) { b = value; }
-    }
 
     protected static class IntWrapper {
         public int i;
@@ -84,18 +63,6 @@ public abstract class BaseMapTest
         }
     }
 
-    protected static class ObjectWrapper {
-        final Object object;
-        protected ObjectWrapper(final Object object) {
-            this.object = object;
-        }
-        public Object getObject() { return object; }
-        @JsonCreator
-        static ObjectWrapper jsonValue(final Object object) {
-            return new ObjectWrapper(object);
-        }
-    }
-
     protected static class ListWrapper<T>
     {
         public List<T> list;
@@ -131,17 +98,6 @@ public abstract class BaseMapTest
         }
     }
 
-    /**
-     * Enumeration type with sub-classes per value.
-     */
-    protected enum EnumWithSubClass {
-        A { @Override public void foobar() { } }
-        ,B { @Override public void foobar() { } }
-        ;
-
-        public abstract void foobar();
-    }
-
     public enum ABC { A, B, C; }
 
     // since 2.8
@@ -166,36 +122,6 @@ public abstract class BaseMapTest
         @Override
         public String toString() {
             return String.format("[x=%d, y=%d]", x, y);
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Shared serializers
-    /**********************************************************
-     */
-
-    @SuppressWarnings("serial")
-    public static class UpperCasingSerializer extends StdScalarSerializer<String>
-    {
-        public UpperCasingSerializer() { super(String.class); }
-
-        @Override
-        public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
-            gen.writeString(value.toUpperCase());
-        }
-    }
-
-    @SuppressWarnings("serial")
-    public static class LowerCasingDeserializer extends StdScalarDeserializer<String>
-    {
-        public LowerCasingDeserializer() { super(String.class); }
-
-        @Override
-        public String deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException {
-            return p.getText().toLowerCase();
         }
     }
 
@@ -234,15 +160,13 @@ public abstract class BaseMapTest
         return sharedMapper().reader();
     }
 
-    protected ObjectReader objectReader(Class<?> cls) {
-        return sharedMapper().readerFor(cls);
-    }
-
+    // `public` since 2.16, was only `protected` before then.
     // @since 2.10
     public static ObjectMapper newJsonMapper() {
         return new JsonMapper();
     }
 
+    // `public` since 2.16, was only `protected` before then.
     // @since 2.10
     public static JsonMapper.Builder jsonMapperBuilder() {
         return JsonMapper.builder();
@@ -348,10 +272,6 @@ public abstract class BaseMapTest
     /* Helper methods, other
     /**********************************************************
      */
-
-    protected TimeZone getUTCTimeZone() {
-        return TimeZone.getTimeZone("GMT");
-    }
 
     protected byte[] utf8Bytes(String str) {
         try {

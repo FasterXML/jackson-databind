@@ -11,8 +11,14 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 
+/**
+ * {@link com.fasterxml.jackson.databind.jsontype.TypeIdResolver} implementation
+ * that converts using explicitly (annotation-) specified type names
+ * and maps to implementation classes; or, in absence of annotated type name,
+ * defaults to fully-qualified {@link Class} names (obtained with {@link Class#getName()}
+ */
 public class TypeNameIdResolver extends TypeIdResolverBase
-    implements java.io.Serializable // @since 2.17
+    implements java.io.Serializable // @since 2.16.2
 {
     private static final long serialVersionUID = 1L;
 

@@ -5,16 +5,21 @@ import java.io.*;
 import java.util.*;
 
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tries to verify that JsonNode-based trees
  * can be serialized as expected
  */
 public class TestTreeSerialization
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     final static class Bean {
         public String getX() { return "y"; }
@@ -22,6 +27,7 @@ public class TestTreeSerialization
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testSimpleViaObjectMapper()
         throws IOException
     {
@@ -55,6 +61,7 @@ public class TestTreeSerialization
      * any old Java object) work with serialization
      */
     @SuppressWarnings("unchecked")
+    @Test
 	public void testPOJOString()
         throws Exception
     {
@@ -72,6 +79,7 @@ public class TestTreeSerialization
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testPOJOIntArray()
         throws IOException
     {
@@ -95,6 +103,7 @@ public class TestTreeSerialization
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testPOJOBean()
         throws IOException
     {

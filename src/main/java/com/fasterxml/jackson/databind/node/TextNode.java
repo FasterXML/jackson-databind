@@ -102,6 +102,7 @@ e.getMessage()),
     }
 
     @Override
+    @Deprecated // since 2.17
     public String asText(String defaultValue) {
         return (_value == null) ? defaultValue : _value;
     }
@@ -165,8 +166,7 @@ e.getMessage()),
         if (o == this) return true;
         if (o == null) return false;
         if (o instanceof TextNode) {
-            TextNode otherNode = (TextNode) o;
-            return Objects.equals(otherNode._value, _value);
+            return Objects.equals(((TextNode) o)._value, _value);
         }
         return false;
     }

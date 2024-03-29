@@ -5,11 +5,16 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import java.util.*;
 
-public class AbstractWithObjectIdTest extends BaseMapTest
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class AbstractWithObjectIdTest extends DatabindTestUtil
 {
     interface BaseInterface { }
 
@@ -38,6 +43,7 @@ public class AbstractWithObjectIdTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testIssue877() throws Exception
     {
         // make two instances

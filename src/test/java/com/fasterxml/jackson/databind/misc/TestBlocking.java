@@ -3,15 +3,20 @@ package com.fasterxml.jackson.databind.misc;
 import java.io.*;
 
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test mostly written to cover issue [JACKSON-81]; unintended blocking
  * after data binding.
  */
 public class TestBlocking
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /**
      * This is an indirect test that should trigger problems if (and only if)
@@ -19,6 +24,7 @@ public class TestBlocking
      * Basically, although content is invalid, this should be encountered
      * quite yet.
      */
+    @Test
     public void testEagerAdvance() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();

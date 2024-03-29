@@ -1,12 +1,16 @@
 package com.fasterxml.jackson.databind.ser.filter;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class SerializationIgnore3357Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class SerializationIgnore3357Test extends DatabindTestUtil
 {
     // [databind#3357]: Precedence of @JsonIgnore over @JsonProperty along
     // public getter with no annotations, field.
@@ -31,6 +35,7 @@ public class SerializationIgnore3357Test extends BaseMapTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     // [databind#3357]: Precedence of @JsonIgnore over @JsonProperty
+    @Test
     public void testPropertyVsIgnore3357() throws Exception
     {
         String json = MAPPER.writeValueAsString(new IgnoreAndProperty3357());

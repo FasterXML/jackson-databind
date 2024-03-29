@@ -1,10 +1,19 @@
 package com.fasterxml.jackson.databind;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-public class ModuleRegistrationTest extends BaseMapTest {
+import static org.junit.jupiter.api.Assertions.*;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
+public class ModuleRegistrationTest
+{
+
+    @Test
     public void testCopyHasSameRegisteredModulesInDifferentSetInstances() {
         ObjectMapper originalMapper = newJsonMapper();
         originalMapper.registerModule(_testModuleWithId("first"));
@@ -18,6 +27,7 @@ public class ModuleRegistrationTest extends BaseMapTest {
         assertTrue(originalMapper._registeredModuleTypes.containsAll(copyMapper._registeredModuleTypes));
     }
 
+    @SuppressWarnings("serial")
     private SimpleModule _testModuleWithId(String id) {
         return new SimpleModule() {
             @Override
@@ -27,6 +37,7 @@ public class ModuleRegistrationTest extends BaseMapTest {
         };
     }
 
+    @Test
     public void testRegisterNullModuleFails() {
         ObjectMapper objectMapper = newJsonMapper();
         try {
@@ -37,6 +48,7 @@ public class ModuleRegistrationTest extends BaseMapTest {
         }
     }
 
+    @Test
     public void testRegisterModuleWithNullNameFails() {
         ObjectMapper objectMapper = newJsonMapper();
         try {
@@ -60,6 +72,7 @@ public class ModuleRegistrationTest extends BaseMapTest {
         }
     }
 
+    @Test
     public void testRegisterModuleWithNullVersionFails() {
         ObjectMapper objectMapper = newJsonMapper();
         try {

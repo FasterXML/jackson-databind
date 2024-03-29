@@ -20,7 +20,8 @@ public class SkipNulls4441Test {
         @JsonSetter(nulls = Nulls.SKIP)
         private final List<Middle> listMiddle = new ArrayList<>();
 
-        public Outer() { }
+        public Outer() {
+        }
 
         public List<Middle> getListMiddle() {
             return listMiddle;
@@ -59,75 +60,110 @@ public class SkipNulls4441Test {
         }
     }
 
-    private final ObjectMapper objectMapper = JsonMapper.builder().build();
+    // for method setter level Nulls.SKIP
+    static class OuterSetter {
+        private final List<MiddleSetter> listMiddle = new ArrayList<>();
 
-    @Test
-    public void testJSON() throws Exception {
-        // Passes
-        // For some reason, if most-inner "list1" field is null in the end, it works
-        testSkipNullsWith(
-                        a2q("{" +
-                                "    'listMiddle': [" +
-                                "        {" +
-                                "            'field1': 'data',     " +
-                                "            'listInner': null  " +
-                                "        }" +
-                                "    ]" +
-                                "}")
-        );
+        public OuterSetter() {
+        }
 
-        // Fails
-        // But if it's null in the beginning, it doesn't work
-        testSkipNullsWith(
-                        a2q("{" +
-                                "    'listMiddle': [" +
-                                "        {" +
-                                "            'listInner': null,  " +
-                                "            'field1': 'data'     " +
-                                "        }" +
-                                "    ]" +
-                                "}")
-        );
-    }
+        @JsonSetter(nulls = Nulls.SKIP)
+        public void setListMiddle(List<MiddleSetter> listMiddle) {
+            this.listMiddle.addAll(listMiddle);
+        }
 
-    @Test
-    public void testDeserializeMiddleOnly() throws Exception {
-        // Passes
-        // For some reason, if most-inner "list1" field is null in the end, it works
-        testSkipNullsWithMiddleOnly(
-                        a2q("{" +
-                                "    'field1': 'data',     " +
-                                "    'listInner': null  " +
-                                "}")
-        );
-
-        // Fails
-        // But if it's null in the beginning, it doesn't work
-        testSkipNullsWithMiddleOnly(
-                        a2q("{" +
-                                "    'listInner': null,  " +
-                                "    'field1': 'data'     " +
-                                "}")
-        );
-    }
-
-    private void testSkipNullsWith(String JSON) throws Exception {
-        Outer outer = objectMapper.readValue(JSON, Outer.class);
-
-        validateNotNull(outer);
-        validateNotNull(outer.getListMiddle());
-        for (Middle middle : outer.getListMiddle()) {
-            testMiddle(middle);
+        public List<MiddleSetter> getListMiddle() {
+            return listMiddle;
         }
     }
 
-    private void testSkipNullsWithMiddleOnly(String s) throws Exception {
+    static class MiddleSetter {
+        private final List<InnerSetter> listInner = new ArrayList<>();
+        private final String field1;
+
+        @ConstructorProperties({"field1"})
+        public MiddleSetter(String field1) {
+            this.field1 = field1;
+        }
+
+        @JsonSetter(nulls = Nulls.SKIP)
+        public void setListInner(List<InnerSetter> listInner) {
+            this.listInner.addAll(listInner);
+        }
+
+        public List<InnerSetter> getListInner() {
+            return listInner;
+        }
+
+        public String getField1() {
+            return field1;
+        }
+    }
+
+    static class InnerSetter {
+        private final String field1;
+
+        @ConstructorProperties({"field1"})
+        public InnerSetter(String field1) {
+            this.field1 = field1;
+        }
+
+        public String getField1() {
+            return field1;
+        }
+    }
+
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
+
+    private final String NULL_ENDING_JSON = a2q("{" +
+            "    'field1': 'data',     " +
+            "    'listInner': null  " +
+            "}");
+
+    private final String NULL_BEGINNING_JSON = a2q("{" +
+            "    'listInner': null,  " +
+            "    'field1': 'data'     " +
+            "}");
+
+    @Test
+    public void testFields() throws Exception {
+        // Passes
+        // For some reason, if most-inner "list1" field is null in the end, it works
+        _testFieldNullSkip(NULL_ENDING_JSON);
+        // Fails
+        // But if it's null in the beginning, it doesn't work
+        _testFieldNullSkip(NULL_BEGINNING_JSON);
+    }
+
+    @Test
+    public void testMethods() throws Exception {
+        // Passes
+        // For some reason, if most-inner "list1" field is null in the end, it works
+        _testMethodNullSkip(NULL_ENDING_JSON);
+        // Fails
+        // But if it's null in the beginning, it doesn't work
+        _testMethodNullSkip(NULL_BEGINNING_JSON);
+    }
+
+    private void _testMethodNullSkip(String s) throws Exception {
+        MiddleSetter middle = objectMapper.readValue(s, MiddleSetter.class);
+
+        testMiddleSetter(middle);
+    }
+
+    private void _testFieldNullSkip(String s) throws Exception {
         Middle middle = objectMapper.readValue(s, Middle.class);
 
         testMiddle(middle);
     }
 
     private void testMiddle(Middle middle) {
+        validateNotNull(middle);
+        validateNotNull(middle.getField1());
+        validateNotNull(middle.getListInner());
+    }
+
+    private void testMiddleSetter(MiddleSetter middle) {
         validateNotNull(middle);
         validateNotNull(middle.getField1());
         validateNotNull(middle.getListInner());

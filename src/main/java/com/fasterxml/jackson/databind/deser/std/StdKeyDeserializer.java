@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.NumberInput;
@@ -391,8 +390,6 @@ public class StdKeyDeserializer extends KeyDeserializer
          */
         protected final EnumResolver _byEnumNamingResolver;
 
-        private final ReentrantLock _resolverLock = new ReentrantLock();
-
         protected final Enum<?> _enumDefaultValue;
 
         protected EnumKD(EnumResolver er, AnnotatedMethod factory) {
@@ -475,16 +472,13 @@ public class StdKeyDeserializer extends KeyDeserializer
         {
             EnumResolver res = _byToStringResolver;
             if (res == null) {
-                try {
-                    _resolverLock.lock();
+                synchronized (this) {
                     res = _byToStringResolver;
                     if (res == null) {
                         res = EnumResolver.constructUsingToString(ctxt.getConfig(),
                             _byNameResolver.getEnumClass());
                         _byToStringResolver = res;
                     }
-                } finally {
-                    _resolverLock.unlock();
                 }
             }
             return res;
@@ -501,16 +495,13 @@ public class StdKeyDeserializer extends KeyDeserializer
         private EnumResolver _getIndexResolver(DeserializationContext ctxt) {
             EnumResolver res = _byIndexResolver;
             if (res == null) {
-                try {
-                    _resolverLock.lock();
+                synchronized (this) {
                     res = _byIndexResolver;
                     if (res == null) {
                         res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
                             _byNameResolver.getEnumClass());
                         _byIndexResolver = res;
                     }
-                } finally {
-                    _resolverLock.unlock();
                 }
             }
             return res;

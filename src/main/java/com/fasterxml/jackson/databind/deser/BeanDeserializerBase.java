@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -180,8 +179,6 @@ public abstract class BeanDeserializerBase
      * For other types this remains null.
      */
     protected transient HashMap<ClassKey, JsonDeserializer<Object>> _subDeserializers;
-
-    private final ReentrantLock _subDeserializersLock = new ReentrantLock();
 
     /**
      * If one of properties has "unwrapped" value, we need separate
@@ -1888,11 +1885,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         JsonDeserializer<Object> subDeser;
 
         // First: maybe we have already created sub-type deserializer?
-        try {
-            _subDeserializersLock.lock();
+        synchronized (this) {
             subDeser = (_subDeserializers == null) ? null : _subDeserializers.get(new ClassKey(bean.getClass()));
-        } finally {
-            _subDeserializersLock.unlock();
         }
         if (subDeser != null) {
             return subDeser;
@@ -1908,14 +1902,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         subDeser = ctxt.findRootValueDeserializer(type);
         // Also, need to cache it
         if (subDeser != null) {
-            try {
-                _subDeserializersLock.lock();
+            synchronized (this) {
                 if (_subDeserializers == null) {
                     _subDeserializers = new HashMap<ClassKey,JsonDeserializer<Object>>();;
                 }
                 _subDeserializers.put(new ClassKey(bean.getClass()), subDeser);
-            } finally {
-                _subDeserializersLock.unlock();
             }
         }
         return subDeser;

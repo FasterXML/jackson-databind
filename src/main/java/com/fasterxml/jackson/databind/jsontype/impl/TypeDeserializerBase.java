@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -42,8 +41,6 @@ public abstract class TypeDeserializerBase
      * missing or cannot be resolved.
      */
     protected final JavaType _defaultImpl;
-
-    protected final ReentrantLock _defaultImplLock = new ReentrantLock();
 
     /**
      * Name of type property used; needed for non-property versions too,
@@ -226,15 +223,12 @@ public abstract class TypeDeserializerBase
             return NullifyingDeserializer.instance;
         }
 
-        try {
-            _defaultImplLock.lock();
+        synchronized (_defaultImpl) {
             if (_defaultImplDeserializer == null) {
                 _defaultImplDeserializer = ctxt.findContextualValueDeserializer(
                         _defaultImpl, _property);
             }
             return _defaultImplDeserializer;
-        } finally {
-            _defaultImplLock.unlock();
         }
     }
 

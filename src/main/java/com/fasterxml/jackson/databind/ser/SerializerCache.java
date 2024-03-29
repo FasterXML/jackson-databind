@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
@@ -45,8 +44,6 @@ public final class SerializerCache
      * basic {@link JavaType} used for "untyped" serializers.
      */
     private final LookupCache<TypeKey, JsonSerializer<Object>> _sharedMap;
-
-    private final ReentrantLock _sharedMapLock = new ReentrantLock();
 
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
@@ -110,41 +107,29 @@ public final class SerializerCache
      */
     public JsonSerializer<Object> untypedValueSerializer(Class<?> type)
     {
-        try {
-            _sharedMapLock.lock();
+        synchronized (this) {
             return _sharedMap.get(new TypeKey(type, false));
-        } finally {
-            _sharedMapLock.unlock();
         }
     }
 
     public JsonSerializer<Object> untypedValueSerializer(JavaType type)
     {
-        try {
-            _sharedMapLock.lock();
+        synchronized (this) {
             return _sharedMap.get(new TypeKey(type, false));
-        } finally {
-            _sharedMapLock.unlock();
         }
     }
 
     public JsonSerializer<Object> typedValueSerializer(JavaType type)
     {
-        try {
-            _sharedMapLock.lock();
+        synchronized (this) {
             return _sharedMap.get(new TypeKey(type, true));
-        } finally {
-            _sharedMapLock.unlock();
         }
     }
 
     public JsonSerializer<Object> typedValueSerializer(Class<?> cls)
     {
-        try {
-            _sharedMapLock.lock();
+        synchronized (this) {
             return _sharedMap.get(new TypeKey(cls, true));
-        } finally {
-            _sharedMapLock.unlock();
         }
     }
 
@@ -161,27 +146,21 @@ public final class SerializerCache
      */
     public void addTypedSerializer(JavaType type, JsonSerializer<Object> ser)
     {
-        try {
-            _sharedMapLock.lock();
+        synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, true), ser) == null) {
                 // let's invalidate the read-only copy, too, to get it updated
                 _readOnlyMap.set(null);
             }
-        } finally {
-            _sharedMapLock.unlock();
         }
     }
 
     public void addTypedSerializer(Class<?> cls, JsonSerializer<Object> ser)
     {
-        try {
-            _sharedMapLock.lock();
+        synchronized (this) {
             if (_sharedMap.put(new TypeKey(cls, true), ser) == null) {
                 // let's invalidate the read-only copy, too, to get it updated
                 _readOnlyMap.set(null);
             }
-        } finally {
-            _sharedMapLock.unlock();
         }
     }
 
@@ -189,8 +168,7 @@ public final class SerializerCache
             SerializerProvider provider)
         throws JsonMappingException
     {
-        try {
-            _sharedMapLock.lock();
+        synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
                 _readOnlyMap.set(null);
             }
@@ -202,8 +180,6 @@ public final class SerializerCache
             if (ser instanceof ResolvableSerializer) {
                 ((ResolvableSerializer) ser).resolve(provider);
             }
-        } finally {
-            _sharedMapLock.unlock();
         }
     }
 
@@ -211,8 +187,7 @@ public final class SerializerCache
             SerializerProvider provider)
         throws JsonMappingException
     {
-        try {
-            _sharedMapLock.lock();
+        synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
                 _readOnlyMap.set(null);
             }
@@ -224,8 +199,6 @@ public final class SerializerCache
             if (ser instanceof ResolvableSerializer) {
                 ((ResolvableSerializer) ser).resolve(provider);
             }
-        } finally {
-            _sharedMapLock.unlock();
         }
     }
 
@@ -240,8 +213,7 @@ public final class SerializerCache
             SerializerProvider provider)
         throws JsonMappingException
     {
-        try {
-            _sharedMapLock.lock();
+        synchronized (this) {
             Object ob1 = _sharedMap.put(new TypeKey(rawType, false), ser);
             Object ob2 = _sharedMap.put(new TypeKey(fullType, false), ser);
             if ((ob1 == null) || (ob2 == null)) {
@@ -250,8 +222,6 @@ public final class SerializerCache
             if (ser instanceof ResolvableSerializer) {
                 ((ResolvableSerializer) ser).resolve(provider);
             }
-        } finally {
-            _sharedMapLock.unlock();
         }
     }
 

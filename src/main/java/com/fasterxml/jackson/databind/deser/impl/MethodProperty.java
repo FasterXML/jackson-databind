@@ -178,6 +178,12 @@ public final class MethodProperty
     @Override
     public final void set(Object instance, Object value) throws IOException
     {
+        // [databind#4441] 2.17 Fix `@JsonSetter(Nulls.SKIP)` Method is not skipped up to this point
+        if (value == null) {
+            if (_skipNulls) {
+                return;
+            }
+        }
         try {
             _setter.invoke(instance, value);
         } catch (Exception e) {

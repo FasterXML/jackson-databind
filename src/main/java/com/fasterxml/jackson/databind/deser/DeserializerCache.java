@@ -279,7 +279,7 @@ public final class DeserializerCache
             }
             // Nope: need to create and possibly cache
             try {
-                return _createAndCache2(ctxt, factory, type);
+                return _createAndCache2(ctxt, factory, type, isCustom);
             } finally {
                 // also: any deserializers that have been created are complete by now
                 if (count == 0 && _incompleteDeserializers.size() > 0) {
@@ -294,9 +294,18 @@ public final class DeserializerCache
     /**
      * Method that handles actual construction (via factory) and caching (both
      * intermediate and eventual)
+     *
+     * @deprecated use version of _createAndCache2 that takes `isCustom` flag
      */
     protected JsonDeserializer<Object> _createAndCache2(DeserializationContext ctxt,
-            DeserializerFactory factory, JavaType type)
+                                                        DeserializerFactory factory, JavaType type)
+            throws JsonMappingException
+    {
+        return _createAndCache2(ctxt, factory, type, _hasCustomHandlers(type));
+    }
+
+    protected JsonDeserializer<Object> _createAndCache2(DeserializationContext ctxt,
+            DeserializerFactory factory, JavaType type, final boolean isCustom)
         throws JsonMappingException
     {
         JsonDeserializer<Object> deser;
@@ -315,7 +324,7 @@ public final class DeserializerCache
          * (but can be re-defined for sub-classes by using @JsonCachable!)
          */
         // 27-Mar-2015, tatu: As per [databind#735], avoid caching types with custom value desers
-        boolean addToCache = !_hasCustomHandlers(type) && deser.isCachable();
+        boolean addToCache = !isCustom && deser.isCachable();
 
         /* we will temporarily hold on to all created deserializers (to
          * handle cyclic references, and possibly reuse non-cached

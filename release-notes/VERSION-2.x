@@ -13,6 +13,9 @@ Project: jackson-databind
 #4428: `ByteBuddy` scope went beyond `test` in version 2.17.0
  (reported by Miguel M-R)
  (fix by Joo-Hyuk K)
+#4430: Use `ReentrantLock` instead of `synchronized` in `DeserializerCache`
+  to avoid deadlock on pinning
+ (reported, fix contributed by Oddbjørn K)
 #4435: Cannot deserialize value of type `java.math.BigDecimal` from
   String ".05": not a valid representation
  (reported by @EAlf91)

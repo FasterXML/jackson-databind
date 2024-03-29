@@ -9,24 +9,13 @@ import org.junit.jupiter.api.Test;
 import java.beans.ConstructorProperties;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.fasterxml.jackson.databind.BaseTest.a2q;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#4441] @JsonSetter(nulls = Nulls.SKIP) doesn't work in some situations
 public class SkipNulls4441Test {
-
-    static class Outer {
-        @JsonSetter(nulls = Nulls.SKIP)
-        private final List<Middle> listMiddle = new ArrayList<>();
-
-        public Outer() {
-        }
-
-        public List<Middle> getListMiddle() {
-            return listMiddle;
-        }
-    }
 
     static class Middle {
         @JsonSetter(nulls = Nulls.SKIP)
@@ -60,25 +49,8 @@ public class SkipNulls4441Test {
         }
     }
 
-    // for method setter level Nulls.SKIP
-    static class OuterSetter {
-        private final List<MiddleSetter> listMiddle = new ArrayList<>();
-
-        public OuterSetter() {
-        }
-
-        @JsonSetter(nulls = Nulls.SKIP)
-        public void setListMiddle(List<MiddleSetter> listMiddle) {
-            this.listMiddle.addAll(listMiddle);
-        }
-
-        public List<MiddleSetter> getListMiddle() {
-            return listMiddle;
-        }
-    }
-
     static class MiddleSetter {
-        private final List<InnerSetter> listInner = new ArrayList<>();
+        private List<InnerSetter> listInner = new ArrayList<>();
         private final String field1;
 
         @ConstructorProperties({"field1"})
@@ -88,7 +60,9 @@ public class SkipNulls4441Test {
 
         @JsonSetter(nulls = Nulls.SKIP)
         public void setListInner(List<InnerSetter> listInner) {
-            this.listInner.addAll(listInner);
+            // null passed here
+            Objects.requireNonNull(listInner);
+            this.listInner = listInner;
         }
 
         public List<InnerSetter> getListInner() {

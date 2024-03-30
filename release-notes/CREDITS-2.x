@@ -1765,3 +1765,9 @@ Kyrylo Merzlikin (kirmerzlikin@github)
 Miguel Mendes Ruiz (migmruiz@github)
  * Reported #4428: `ByteBuddy` scope went beyond `test` in version 2.17.0
   (2.17.1)
+
+Oddbjørn Kvalsund (oddbjornkvalsund@github)
+ * Reported, contributed fix for #4430: Use `ReentrantLock` instead of `synchronized`
+   in `DeserializerCache` to avoid deadlock on pinning
+  (2.17.1)
+

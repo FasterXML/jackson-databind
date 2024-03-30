@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.struct;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test to verify that [databind#3277] is fixed.
  */
-public class UnwrappedDoubleWithAnySetter3277Test
+public class UnwrappedDoubleWithAnySetter3277Test extends DatabindTestUtil
 {
     static class Holder {
         Object value1;

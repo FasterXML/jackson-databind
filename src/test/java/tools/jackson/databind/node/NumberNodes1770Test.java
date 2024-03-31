@@ -2,6 +2,8 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
 
@@ -9,24 +11,29 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [databind#1770], [databind#4194]
-public class NumberNodes1770Test extends BaseMapTest
+public class NumberNodes1770Test extends DatabindTestUtil
 {
     // For to [databind#1770] (broken due to fix for #1028): `JsonNodeDeserializer`
     // would coerce ok but does `parser.isNaN()` check which ends up parsing
     // as Double, gets `POSITIVE_INFINITY` and returns `true`: this results in
     // `DoubleNode` being used even tho `BigDecimal` could fit the number.
+    @Test
     public void testBigDecimalCoercion() throws Exception
     {
         final String value = "7976931348623157e309";
         final JsonNode jsonNode = newJsonMapper().reader()
             .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
             .readTree(value);
-        assertTrue("Expected DecimalNode, got: "+jsonNode.getClass().getName()+": "+jsonNode, jsonNode.isBigDecimal());
+        assertTrue(jsonNode.isBigDecimal(), "Expected DecimalNode, got: "+jsonNode.getClass().getName()+": "+jsonNode);
         assertEquals(new BigDecimal(value), jsonNode.decimalValue());
     }
 
+    @Test
     public void testBigDecimalCoercionInf() throws Exception
     {
         final String value = "+INF";
@@ -36,11 +43,12 @@ public class NumberNodes1770Test extends BaseMapTest
         final JsonNode jsonNode = new JsonMapper(factory).reader()
                 .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                 .readTree(value);
-        assertTrue("Expected DoubleNode, got: "+jsonNode.getClass().getName()+": "+jsonNode, jsonNode.isDouble());
+        assertTrue(jsonNode.isDouble(), "Expected DoubleNode, got: "+jsonNode.getClass().getName()+": "+jsonNode);
         assertEquals(Double.POSITIVE_INFINITY, jsonNode.doubleValue());
     }
 
     // [databind#4194]: should be able to, by configuration, fail coercing NaN to BigDecimal
+    @Test
     public void testBigDecimalCoercionNaN() throws Exception
     {
         JsonNode n = _tryBigDecimalCoercionNaNWithOption(false);

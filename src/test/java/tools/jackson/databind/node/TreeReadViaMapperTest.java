@@ -3,20 +3,26 @@ package tools.jackson.databind.node;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.node.TreeDeserializationTest.Bean;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tries to verify that ObjectMapper
  * can properly parse JSON and bind contents into appropriate
  * JsonNode instances.
  */
-public class TreeReadViaMapperTest extends BaseMapTest
+public class TreeReadViaMapperTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = objectMapper();
 
+    @Test
     public void testSimple() throws Exception
     {
         final String JSON = SAMPLE_DOC_JSON_SPEC;
@@ -91,6 +97,7 @@ public class TreeReadViaMapperTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testMixed() throws IOException
     {
         String JSON = "{\"node\" : { \"a\" : 3 }, \"x\" : 9 }";
@@ -108,6 +115,7 @@ public class TreeReadViaMapperTest extends BaseMapTest
      * Type mappers should be able to gracefully deal with end of
      * input.
      */
+    @Test
     public void testEOF() throws Exception
     {
         String JSON =
@@ -125,6 +133,7 @@ public class TreeReadViaMapperTest extends BaseMapTest
         p.close();
     }
 
+    @Test
     public void testNullViaParser() throws Exception
     {
         final String JSON = " null ";
@@ -135,6 +144,7 @@ public class TreeReadViaMapperTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testMultiple() throws Exception
     {
         final ObjectMapper mapper = objectMapper();

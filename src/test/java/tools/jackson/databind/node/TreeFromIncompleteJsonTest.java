@@ -2,14 +2,18 @@ package tools.jackson.databind.node;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.UnexpectedEndOfInputException;
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TreeFromIncompleteJsonTest extends BaseMapTest
+public class TreeFromIncompleteJsonTest extends DatabindTestUtil
 {
     final private ObjectMapper MAPPER = objectMapper(); // shared is fine
 
+    @Test
     public void testErrorHandling() throws IOException {
 
       String json = "{\"A\":{\"B\":\n";

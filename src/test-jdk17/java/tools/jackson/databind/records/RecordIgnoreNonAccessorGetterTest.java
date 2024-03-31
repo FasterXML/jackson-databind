@@ -1,13 +1,17 @@
 package tools.jackson.databind.records;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class RecordIgnoreNonAccessorGetterTest extends BaseMapTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class RecordIgnoreNonAccessorGetterTest extends DatabindTestUtil {
 
     // [databind#3628]
     interface InterfaceWithGetter {
@@ -36,6 +40,7 @@ public class RecordIgnoreNonAccessorGetterTest extends BaseMapTest {
         }
     }
 
+    @Test
     public void testSerializeIgnoreInterfaceGetter_WithoutUsingVisibilityConfig() throws Exception {
         final ObjectMapper MAPPER = newJsonMapper();
         String json = MAPPER.writeValueAsString(new RecordWithInterfaceWithGetter("Bob"));
@@ -43,6 +48,7 @@ public class RecordIgnoreNonAccessorGetterTest extends BaseMapTest {
         assertEquals("{\"id\":\"ID:Bob\",\"name\":\"Bob\",\"count\":999}", json);
     }
 
+    @Test
     public void testSerializeIgnoreInterfaceGetter_UsingVisibilityConfig() throws Exception {
         final ObjectMapper MAPPER = jsonMapperBuilder()
                 .changeDefaultVisibility(vc ->

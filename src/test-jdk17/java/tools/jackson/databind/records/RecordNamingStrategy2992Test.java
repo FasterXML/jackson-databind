@@ -1,11 +1,15 @@
 package tools.jackson.databind.records;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class RecordNamingStrategy2992Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class RecordNamingStrategy2992Test extends DatabindTestUtil
 {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     record Record2992(String myId, String myValue) {}
@@ -13,6 +17,7 @@ public class RecordNamingStrategy2992Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2992]
+    @Test
     public void testRecordRenaming2992() throws Exception
     {
         Record2992 src = new Record2992("id", "value");

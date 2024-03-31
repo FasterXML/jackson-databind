@@ -1,9 +1,12 @@
 package tools.jackson.databind.node;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.JsonNode;
 
-abstract class NodeTestBase extends BaseMapTest
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+abstract class NodeTestBase extends DatabindTestUtil
 {
     protected void assertNodeNumbersForNonNumeric(JsonNode n)
     {

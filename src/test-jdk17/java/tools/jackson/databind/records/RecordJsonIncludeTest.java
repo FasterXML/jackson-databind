@@ -5,18 +5,15 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import static tools.jackson.databind.BaseMapTest.newJsonMapper;
-import static tools.jackson.databind.BaseTest.a2q;
 
 /**
  * Tests to verify that `@JsonInclude` annotation works with Records on both constructor parameters and getters.
  */
-public class RecordJsonIncludeTest
+public class RecordJsonIncludeTest extends DatabindTestUtil
 {
-
     record AnnotatedParamRecordClass(
         @JsonInclude(JsonInclude.Include.NON_NULL)
         String omitFieldIfNull,

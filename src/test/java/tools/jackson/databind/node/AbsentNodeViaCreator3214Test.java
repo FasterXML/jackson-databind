@@ -3,9 +3,14 @@ package tools.jackson.databind.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import tools.jackson.databind.*;
+import org.junit.jupiter.api.Test;
 
-public class AbsentNodeViaCreator3214Test extends BaseMapTest
+import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class AbsentNodeViaCreator3214Test extends DatabindTestUtil
 {
     static class Pojo3214
     {
@@ -25,6 +30,7 @@ public class AbsentNodeViaCreator3214Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#3214]
+    @Test
     public void testNullFromMissingNodeParameter() throws Exception
     {
         Pojo3214 p = MAPPER.readValue("{}", Pojo3214.class);

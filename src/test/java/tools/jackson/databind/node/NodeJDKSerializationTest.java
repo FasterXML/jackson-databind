@@ -2,13 +2,17 @@ package tools.jackson.databind.node;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonGenerator;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class NodeJDKSerializationTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class NodeJDKSerializationTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -19,6 +23,7 @@ public class NodeJDKSerializationTest extends BaseMapTest
      */
 
     // [databind#18]: Allow JDK serialization of `ObjectNode`
+    @Test
     public void testObjectNodeSerialization() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
@@ -32,6 +37,7 @@ public class NodeJDKSerializationTest extends BaseMapTest
     }
 
     // [databind#18]: Allow JDK serialization of `ArrayNode`
+    @Test
     public void testArrayNodeSerialization() throws Exception
     {
         ArrayNode root = MAPPER.createArrayNode();
@@ -44,6 +50,7 @@ public class NodeJDKSerializationTest extends BaseMapTest
     }
 
     // [databind#3328]
+    @Test
     public void testBigArrayNodeSerialization() throws Exception
     {
         // Try couple of variations just to tease out possible edge cases
@@ -73,6 +80,7 @@ public class NodeJDKSerializationTest extends BaseMapTest
     }
 
     // and then also some scalar types
+    @Test
     public void testScalarSerialization() throws Exception
     {
         testNodeRoundtrip(MAPPER.getNodeFactory().nullNode());

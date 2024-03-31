@@ -2,12 +2,16 @@ package tools.jackson.databind.records;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class RecordWithIgnoreOverride3992Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class RecordWithIgnoreOverride3992Test extends DatabindTestUtil
 {
     // [databind#3992]
     public record HelloRecord(String text, @JsonIgnore Recursion hidden) {
@@ -36,6 +40,7 @@ public class RecordWithIgnoreOverride3992Test extends BaseMapTest
      */
 
     // [databind#3992]
+    @Test
     public void testHelloRecord() throws Exception {
         Recursion beanWithRecursion = new Recursion();
         beanWithRecursion.add(beanWithRecursion);

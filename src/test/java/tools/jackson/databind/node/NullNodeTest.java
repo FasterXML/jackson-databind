@@ -4,8 +4,12 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NullNodeTest extends NodeTestBase
 {
@@ -22,6 +26,7 @@ public class NullNodeTest extends NodeTestBase
 
     private final ObjectMapper MAPPER = sharedMapper();
 
+    @Test
     public void testBasicsWithNullNode() throws Exception
     {
         // Let's use something that doesn't add much beyond JsonNode base
@@ -66,6 +71,7 @@ public class NullNodeTest extends NodeTestBase
         assertEquals("null", n.asText());
     }
 
+    @Test
     public void testNullHandling() throws Exception
     {
         // First, a stand-alone null
@@ -89,6 +95,7 @@ public class NullNodeTest extends NodeTestBase
         assertTrue(n.isNull());
     }
 
+    @Test
     public void testNullSerialization() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -96,6 +103,7 @@ public class NullNodeTest extends NodeTestBase
         assertEquals("null", sw.toString());
     }
 
+    @Test
     public void testNullHandlingCovariance() throws Exception
     {
         String JSON = "{\"object\" : null, \"array\" : null }";
@@ -109,6 +117,7 @@ public class NullNodeTest extends NodeTestBase
     }
 
     @SuppressWarnings("unlikely-arg-type")
+    @Test
     public void testNullEquality() throws Exception
     {
         JsonNode n = MAPPER.nullNode();

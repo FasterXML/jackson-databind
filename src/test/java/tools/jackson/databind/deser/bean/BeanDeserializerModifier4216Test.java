@@ -1,19 +1,20 @@
 package tools.jackson.databind.deser.bean;
 
-import static tools.jackson.databind.BaseMapTest.jsonMapperBuilder;
-import static org.junit.Assert.assertEquals;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.ValueDeserializerModifier;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.ArrayType;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit test for [databind#4216] : Primitive array deserializer cannot being captured by DeserializerModifier
  */
-public class BeanDeserializerModifier4216Test
+public class BeanDeserializerModifier4216Test extends DatabindTestUtil
 {
     static class WrapperBean4216 {
         public Byte[] objArr;

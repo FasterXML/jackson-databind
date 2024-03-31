@@ -3,11 +3,16 @@ package tools.jackson.databind.node;
 import java.io.StringReader;
 import java.util.Iterator;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.JsonNode;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class MissingNodeTest extends NodeTestBase
 {
+    @Test
     public void testMissing()
     {
         MissingNode n = MissingNode.getInstance();
@@ -33,6 +38,7 @@ public class MissingNodeTest extends NodeTestBase
      * to traverse such bogus nodes with appropriate methods.
      */
     @SuppressWarnings("unused")
+    @Test
     public void testMissingViaMapper() throws Exception
     {
         String JSON = "[ { }, [ ] ]";

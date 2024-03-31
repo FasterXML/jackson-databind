@@ -1,11 +1,15 @@
 package tools.jackson.databind.records;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.ConstructorDetector;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class RecordImplicitSingleValueUsePropertiesBasedCreatorsTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class RecordImplicitSingleValueUsePropertiesBasedCreatorsTest extends DatabindTestUtil
 {
 
     record RecordWithMultiValueCanonAndSingleValueAltConstructor(int id, String name) {
@@ -33,6 +37,7 @@ public class RecordImplicitSingleValueUsePropertiesBasedCreatorsTest extends Bas
     /**********************************************************************
      */
 
+    @Test
     public void testDeserializeMultipleConstructors_UsingMultiValueCanonicalConstructor() throws Exception {
         RecordWithMultiValueCanonAndSingleValueAltConstructor value = MAPPER.readValue(
                 a2q("{'id':123,'name':'Bob'}"),
@@ -41,6 +46,7 @@ public class RecordImplicitSingleValueUsePropertiesBasedCreatorsTest extends Bas
         assertEquals(new RecordWithMultiValueCanonAndSingleValueAltConstructor(123, "Bob"), value);
     }
 
+    @Test
     public void testDeserializeMultipleConstructors_WillIgnoreSingleValueAltConstructor() throws Exception {
         RecordWithMultiValueCanonAndSingleValueAltConstructor value = MAPPER.readValue(
                 a2q("{'id':123}"),
@@ -55,6 +61,7 @@ public class RecordImplicitSingleValueUsePropertiesBasedCreatorsTest extends Bas
     /**********************************************************************
      */
 
+    @Test
     public void testDeserializeMultipleConstructors_UsingSingleValueCanonicalConstructor() throws Exception {
         RecordWithSingleValueCanonAndMultiValueAltConstructor value = MAPPER.readValue(
                 a2q("{'name':'Bob'}"),
@@ -63,6 +70,7 @@ public class RecordImplicitSingleValueUsePropertiesBasedCreatorsTest extends Bas
         assertEquals(new RecordWithSingleValueCanonAndMultiValueAltConstructor("Bob"), value);
     }
 
+    @Test
     public void testDeserializeMultipleConstructors_WillIgnoreMultiValueAltConstructor() throws Exception {
         try {
             MAPPER.readValue(a2q("{'name':'Bob','email':'bob@email.com'}"), RecordWithSingleValueCanonAndMultiValueAltConstructor.class);

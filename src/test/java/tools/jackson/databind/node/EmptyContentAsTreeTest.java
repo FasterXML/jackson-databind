@@ -7,11 +7,15 @@ import java.nio.charset.StandardCharsets;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.TreeNode;
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests to verify handling of empty content with "readTree()"
  */
-public class EmptyContentAsTreeTest extends BaseMapTest
+public class EmptyContentAsTreeTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = objectMapper();
 

@@ -3,11 +3,15 @@ package tools.jackson.databind.node;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonGenerator;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.ser.std.StdSerializer;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class POJONodeTest extends NodeTestBase
 {
@@ -33,6 +37,7 @@ public class POJONodeTest extends NodeTestBase
 
     final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testPOJONodeCustomSer() throws Exception
     {
       Data data = new Data();
@@ -58,6 +63,7 @@ public class POJONodeTest extends NodeTestBase
     // does not (and cannot) have modules for external datatypes, such as
     // Java 8 Date/Time types. So we'll catch IOException/RuntimeException for
     // POJONode, produce something like "[ERROR: (type) [msg]" TextNode for that case?
+    @Test
     public void testAddJava8DateAsPojo() throws Exception
     {
         JsonNode node = MAPPER.createObjectNode().putPOJO("test", LocalDateTime.now());
@@ -66,9 +72,9 @@ public class POJONodeTest extends NodeTestBase
 
         JsonNode result = MAPPER.readTree(json);
         String msg = result.path("test").asText();
-        assertTrue("Wrong fail message: "+msg,
-                msg.startsWith("[ERROR:"));
-        assertTrue("Wrong fail message: "+msg,
-                msg.contains("InvalidDefinitionException"));
+        assertTrue(msg.startsWith("[ERROR:"),
+                "Wrong fail message: "+msg);
+        assertTrue(msg.contains("InvalidDefinitionException"),
+                "Wrong fail message: "+msg);
     }
 }

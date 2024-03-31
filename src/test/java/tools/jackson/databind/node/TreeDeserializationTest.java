@@ -1,15 +1,19 @@
 package tools.jackson.databind.node;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tries to verify that JsonNode-based trees
  * can be deserialized as expected.
  */
 public class TreeDeserializationTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     final static class Bean {
         int _x;
@@ -25,6 +29,7 @@ public class TreeDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testObjectNodeEquality()
     {
         ObjectNode n1 = new ObjectNode(null);
@@ -44,6 +49,7 @@ public class TreeDeserializationTest
         assertTrue(n2.equals(n1));
     }
 
+    @Test
     public void testReadFromString() throws Exception
     {
         String json = "{\"field\":\"{\\\"name\\\":\\\"John Smith\\\"}\"}";

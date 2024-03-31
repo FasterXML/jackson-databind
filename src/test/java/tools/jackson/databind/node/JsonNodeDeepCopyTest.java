@@ -1,12 +1,18 @@
 package tools.jackson.databind.node;
 
-import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 
-public class JsonNodeDeepCopyTest extends BaseMapTest
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+
+public class JsonNodeDeepCopyTest extends DatabindTestUtil
 {
     private final ObjectMapper mapper = new ObjectMapper();
 
+    @Test
     public void testWithObjectSimple()
     {
         ObjectNode root = mapper.createObjectNode();
@@ -27,6 +33,7 @@ public class JsonNodeDeepCopyTest extends BaseMapTest
         assertEquals(2, copy.size());
     }
 
+    @Test
     public void testWithArraySimple()
     {
         ArrayNode root = mapper.createArrayNode();
@@ -47,6 +54,7 @@ public class JsonNodeDeepCopyTest extends BaseMapTest
         assertEquals(2, copy.size());
     }
 
+    @Test
     public void testWithNested()
     {
         ObjectNode root = mapper.createObjectNode();

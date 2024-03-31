@@ -1,13 +1,18 @@
 package tools.jackson.databind.records;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class RecordCreatorsTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class RecordCreatorsTest extends DatabindTestUtil
 {
     record RecordWithCanonicalCtorOverride(int id, String name) {
         public RecordWithCanonicalCtorOverride(int id, String name) {
@@ -46,6 +51,7 @@ public class RecordCreatorsTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testDeserializeWithCanonicalCtorOverride() throws Exception {
         RecordWithCanonicalCtorOverride value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}",
                 RecordWithCanonicalCtorOverride.class);
@@ -53,6 +59,7 @@ public class RecordCreatorsTest extends BaseMapTest
         assertEquals("name", value.name());
     }
 
+    @Test
     public void testDeserializeWithAltCtor() throws Exception {
         RecordWithAltCtor value = MAPPER.readValue("{\"id\":2812}",
                 RecordWithAltCtor.class);
@@ -72,6 +79,7 @@ public class RecordCreatorsTest extends BaseMapTest
     }
 
     // [databind#2980]
+    @Test
     public void testDeserializeWithDelegatingCtor() throws Exception {
         RecordWithDelegation value = MAPPER.readValue(q("foobar"),
                 RecordWithDelegation.class);

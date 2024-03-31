@@ -2,12 +2,16 @@ package tools.jackson.databind.node;
 
 import java.util.*;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonNodeFindMethodsTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     private final String JSON_SAMPLE = "{ \"a\" : { \"value\" : 3 },"
             +"\"array\" : [ { \"b\" : 3 }, {\"value\" : 42}, { \"other\" : true } ]"
@@ -27,6 +31,7 @@ public class JsonNodeFindMethodsTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testNonMatching() throws Exception
     {
         JsonNode root = MAPPER.readTree(JSON_SAMPLE);
@@ -41,6 +46,7 @@ public class JsonNodeFindMethodsTest
         assertTrue(root.findParents("boogaboo").isEmpty());
     }
 
+    @Test
     public void testMatchingSingle() throws Exception
     {
         JsonNode root = MAPPER.readTree(JSON_SAMPLE);
@@ -55,6 +61,7 @@ public class JsonNodeFindMethodsTest
         assertEquals(3, node.path("b").intValue());
     }
 
+    @Test
     public void testMatchingMultiple() throws Exception
     {
         JsonNode root = MAPPER.readTree(JSON_SAMPLE);
@@ -81,6 +88,7 @@ public class JsonNodeFindMethodsTest
     }
 
     // [databind#4229]: regression in 2.16.0
+    @Test
     public void testFindValues4229() throws Exception
     {
         JsonNode rootNode = MAPPER.readTree(JSON_4229);
@@ -92,8 +100,8 @@ public class JsonNodeFindMethodsTest
     }
 
     // [databind#4229]: regression in 2.16.0
-    public void testFindParents4229() throws Exception
-    {
+    @Test
+    public void testFindParents4229() throws Exception {
         JsonNode rootNode = MAPPER.readTree(JSON_4229);
         assertEquals(Arrays.asList(
                 rootNode,

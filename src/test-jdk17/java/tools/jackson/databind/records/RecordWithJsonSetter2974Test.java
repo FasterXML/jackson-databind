@@ -3,15 +3,19 @@ package tools.jackson.databind.records;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.exc.InvalidNullException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class RecordWithJsonSetter2974Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class RecordWithJsonSetter2974Test extends DatabindTestUtil
 {
     record RecordWithNonNullDefs(@JsonSetter(nulls=Nulls.AS_EMPTY) List<String> names,
             @JsonSetter(nulls=Nulls.FAIL) Map<String, Integer> agesByNames)
@@ -26,6 +30,7 @@ public class RecordWithJsonSetter2974Test extends BaseMapTest
      */
 
     // [databind#2974]
+    @Test
     public void testDeserializeWithNullAsEmpty() throws Exception
     {
         final ObjectReader r = MAPPER.readerFor(RecordWithNonNullDefs.class);
@@ -47,6 +52,7 @@ public class RecordWithJsonSetter2974Test extends BaseMapTest
     }
 
     // [databind#2974]
+    @Test
     public void testDeserializeWithFailForNull() throws Exception
     {
         final ObjectReader r = MAPPER.readerFor(RecordWithNonNullDefs.class);

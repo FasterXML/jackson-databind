@@ -1,12 +1,16 @@
 package tools.jackson.databind.records;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class RecordSerializationOrderTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class RecordSerializationOrderTest extends DatabindTestUtil
 {
     record NestedRecordOne(String id, String email, NestedRecordTwo nestedRecordTwo) {}
     record NestedRecordOneWithJsonProperty(String id, String email,
@@ -30,6 +34,7 @@ public class RecordSerializationOrderTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testSerializationOrder() throws Exception {
         NestedRecordTwo nestedRecordTwo = new NestedRecordTwo("2", "111110");
         NestedRecordOne nestedRecordOne = new NestedRecordOne("1", "test@records.com", nestedRecordTwo);
@@ -38,6 +43,7 @@ public class RecordSerializationOrderTest extends BaseMapTest
         assertEquals(expected, output);
     }
 
+    @Test
     public void testSerializationOrderWithJsonProperty() throws Exception {
         NestedRecordTwo nestedRecordTwo = new NestedRecordTwo("2", "111110");
         NestedRecordOneWithJsonProperty nestedRecordOne =
@@ -47,6 +53,7 @@ public class RecordSerializationOrderTest extends BaseMapTest
         assertEquals(expected, output);
     }
 
+    @Test
     public void testSerializationOrderWithJsonPropertyIndexes() throws Exception {
         NestedRecordTwo nestedRecordTwo = new NestedRecordTwo("2", "111110");
         NestedRecordOneWithJsonPropertyIndex nestedRecordOne =
@@ -56,6 +63,7 @@ public class RecordSerializationOrderTest extends BaseMapTest
         assertEquals(expected, output);
     }
 
+    @Test
     public void testSerializationOrderWithJsonPropertyOrder() throws Exception {
         NestedRecordTwo nestedRecordTwo = new NestedRecordTwo("2", "111110");
         NestedRecordOneWithJsonPropertyOrder nestedRecordOne =

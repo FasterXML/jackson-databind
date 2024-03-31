@@ -1,12 +1,17 @@
 package tools.jackson.databind.node;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for new (2.14) `JsonNodeFeature`
-public class NodeFeaturesTest extends BaseMapTest
+public class NodeFeaturesTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
     private final ObjectReader READER = MAPPER.reader();
@@ -20,6 +25,7 @@ public class NodeFeaturesTest extends BaseMapTest
     private final String JSON_EMPTY = ("{}");
     private final String JSON_WITH_NULL = a2q("{'nvl':null}");
 
+    @Test
     public void testDefaultSettings() throws Exception
     {
         assertTrue(READER.isEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
@@ -31,6 +37,7 @@ public class NodeFeaturesTest extends BaseMapTest
                 .isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES));
     }
 
+    @Test
     public void testImplicitVsExplicit()
     {
         DatatypeFeatures dfs = DatatypeFeatures.defaultFeatures();
@@ -61,6 +68,7 @@ public class NodeFeaturesTest extends BaseMapTest
      */
 
     // [databind#3421]
+    @Test
     public void testReadNulls() throws Exception
     {
         // so by default we'll get null included
@@ -85,6 +93,7 @@ public class NodeFeaturesTest extends BaseMapTest
     }
 
     // [databind#3476]
+    @Test
     public void testWriteNulls() throws Exception
     {
         // so by default we'll get null written
@@ -116,6 +125,7 @@ public class NodeFeaturesTest extends BaseMapTest
      */
 
     // [databind#3476]
+    @Test
     public void testWriteSortedProperties() throws Exception
     {
         assertFalse(WRITER.isEnabled(JsonNodeFeature.WRITE_PROPERTIES_SORTED));

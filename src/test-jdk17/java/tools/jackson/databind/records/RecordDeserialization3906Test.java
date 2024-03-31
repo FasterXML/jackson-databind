@@ -1,17 +1,21 @@
 package tools.jackson.databind.records;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.NopAnnotationIntrospector;
 import tools.jackson.databind.introspect.VisibilityChecker;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case that covers both failing-by-regression tests and passing tests.
@@ -20,7 +24,7 @@ import tools.jackson.databind.module.SimpleModule;
  * [databind#3906]: Regression: 2.15.0 breaks deserialization for records when mapper.setVisibility(ALL, NONE);</a>
  */
 @SuppressWarnings("serial")
-public class RecordDeserialization3906Test extends BaseMapTest
+public class RecordDeserialization3906Test extends DatabindTestUtil
 {
     record Record3906(String string, int integer) {
     }
@@ -53,6 +57,7 @@ public class RecordDeserialization3906Test extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testEmptyJsonToRecordWorkAround() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultVisibility(vc -> 
@@ -64,7 +69,8 @@ public class RecordDeserialization3906Test extends BaseMapTest
         assertEquals(new Record3906(null, 0), recordDeser);
     }
 
-    public void testEmptyJsonToRecordCreatorsVisibile() throws Exception {
+    @Test
+    public void testEmptyJsonToRecordCreatorsVisible() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultVisibility(vc -> 
                    vc.withVisibility(PropertyAccessor.CREATOR, Visibility.NON_PRIVATE))
@@ -74,6 +80,7 @@ public class RecordDeserialization3906Test extends BaseMapTest
         assertEquals(new Record3906(null, 0), recordDeser);
     }
 
+    @Test
     public void testEmptyJsonToRecordUsingModule() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder().addModule(new SimpleModule() {
             @Override
@@ -96,6 +103,7 @@ public class RecordDeserialization3906Test extends BaseMapTest
         assertEquals(new Record3906(null, 0), recordDeser);
     }
 
+    @Test
     public void testEmptyJsonToRecordDirectAutoDetectConfig() throws Exception {
         ObjectMapper mapper = newJsonMapper();
 
@@ -103,6 +111,7 @@ public class RecordDeserialization3906Test extends BaseMapTest
         assertEquals(new Record3906Annotated(null, 0), recordDeser);
     }
 
+    @Test
     public void testEmptyJsonToRecordJsonCreator() throws Exception {
         ObjectMapper mapper = newJsonMapper();
 
@@ -110,6 +119,7 @@ public class RecordDeserialization3906Test extends BaseMapTest
         assertEquals(new Record3906Creator(null, 0), recordDeser);
     }
 
+    @Test
     public void testEmptyJsonToRecordUsingModuleOther() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder().addModule(
                 new SimpleModule() {

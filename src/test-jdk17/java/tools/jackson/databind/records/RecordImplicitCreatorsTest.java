@@ -2,14 +2,19 @@ package tools.jackson.databind.records;
 
 import java.math.BigDecimal;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.ConstructorDetector;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class RecordImplicitCreatorsTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class RecordImplicitCreatorsTest extends DatabindTestUtil
 {
     record RecordWithImplicitFactoryMethods(BigDecimal id, String name) {
 
@@ -80,24 +85,28 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testDeserializeUsingImplicitIntegerFactoryMethod() throws Exception {
         RecordWithImplicitFactoryMethods factoryMethodValue = MAPPER.readValue("123", RecordWithImplicitFactoryMethods.class);
 
         assertEquals(new RecordWithImplicitFactoryMethods(BigDecimal.valueOf(123), "IntFactoryMethod"), factoryMethodValue);
     }
 
+    @Test
     public void testDeserializeUsingImplicitDoubleFactoryMethod() throws Exception {
         RecordWithImplicitFactoryMethods value = MAPPER.readValue("123.4", RecordWithImplicitFactoryMethods.class);
 
         assertEquals(new RecordWithImplicitFactoryMethods(BigDecimal.valueOf(123.4), "DoubleFactoryMethod"), value);
     }
 
+    @Test
     public void testDeserializeUsingImplicitStringFactoryMethod() throws Exception {
         RecordWithImplicitFactoryMethods value = MAPPER.readValue("\"123.4\"", RecordWithImplicitFactoryMethods.class);
 
         assertEquals(new RecordWithImplicitFactoryMethods(BigDecimal.valueOf(123.4), "StringFactoryMethod"), value);
     }
 
+    @Test
     public void testDeserializeUsingImplicitCanonicalConstructor_WhenImplicitFactoryMethodsExist() throws Exception {
         RecordWithImplicitFactoryMethods value = MAPPER.readValue(
                 "{\"id\":123.4,\"name\":\"CanonicalConstructor\"}",
@@ -106,6 +115,7 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
         assertEquals(new RecordWithImplicitFactoryMethods(BigDecimal.valueOf(123.4), "CanonicalConstructor"), value);
     }
 
+    @Test
     public void testDeserializeUsingImplicitFactoryMethod_WithAutoDetectCreatorsDisabled_WillFail() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultVisibility(vc -> vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.NONE)
@@ -150,6 +160,7 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
      * yihtserns: maybe we can change this to adopt JavaBean's behaviour, but I prefer to not break existing behaviour
      * until and unless there's a discussion on this.
      */
+    @Test
     public void testDeserializeUsingImplicitSingleValueConstructor() throws Exception {
         try {
             // Cannot use delegating creator, unlike when dealing with JavaBean
@@ -172,6 +183,7 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
      * This test-case is just for documentation purpose:
      * See {@link #testDeserializeUsingImplicitSingleValueConstructor}
      */
+    @Test
     public void testDeserializeSingleValueConstructor_WithDelegatingConstructorDetector_WillFail() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .constructorDetector(ConstructorDetector.USE_DELEGATING)
@@ -197,6 +209,7 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
     /**
      * This is just to catch any potential regression.
      */
+    @Test
     public void testDeserializeSingleValueConstructor_WithPropertiesBasedConstructorDetector_WillFail() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .constructorDetector(ConstructorDetector.USE_PROPERTIES_BASED)
@@ -230,6 +243,7 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
      * Unlike {@link #testDeserializeUsingImplicitSingleValueConstructor()}, annotating {@code @JsonValue}
      * to a Record's header results in a delegating constructor.
      */
+    @Test
     public void testDeserializeUsingImplicitSingleValueConstructor_WithJsonValue() throws Exception {
         // Can use delegating creator
         RecordWithSingleValueConstructorWithJsonValue value = MAPPER.readValue(
@@ -256,6 +270,7 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
      * Unlike {@link #testDeserializeUsingImplicitSingleValueConstructor()}, annotating {@code @JsonValue}
      * to the accessor results in a delegating creator.
      */
+    @Test
     public void testDeserializeUsingImplicitSingleValueConstructor_WithJsonValueAccessor() throws Exception {
         // Can use delegating creator
         RecordWithSingleValueConstructorWithJsonValueAccessor value = MAPPER.readValue(
@@ -282,6 +297,7 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testDeserializeUsingImplicitPropertiesBasedConstructor() throws Exception {
         RecordWithAltSingleValueConstructor value = MAPPER.readValue(
                 "{\"id\":123,\"name\":\"PropertiesBasedConstructor\"}",
@@ -293,6 +309,7 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
     /**
      * @see #testDeserializeUsingImplicitSingleValueConstructor()
      */
+    @Test
     public void testDeserializeUsingImplicitDelegatingConstructor() throws Exception {
         RecordWithAltSingleValueConstructor value = MAPPER.readValue("123", RecordWithAltSingleValueConstructor.class);
 
@@ -305,6 +322,7 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testDeserializeMultipleConstructorsRecord_WithImplicitParameterNames_WillUseCanonicalConstructor() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -318,6 +336,7 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
         assertEquals(new RecordWithNonCanonicalConstructor(123, "Bob", "bob@example.com"), value);
     }
 
+    @Test
     public void testDeserializeMultipleConstructorsRecord_WithImplicitParameterNames_WillIgnoreNonCanonicalConstructor() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

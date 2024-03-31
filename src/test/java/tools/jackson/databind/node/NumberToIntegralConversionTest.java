@@ -2,14 +2,21 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // for [databind#2885]
-public class NumberToIntegralConversionTest extends BaseMapTest
+public class NumberToIntegralConversionTest extends DatabindTestUtil
 {
-    private final ObjectMapper MAPPER = sharedMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     private final JsonNodeFactory NODES = MAPPER.getNodeFactory();
 
+    @Test
     public void testFloatToIntegrals() throws Exception
     {
         assertTrue(NODES.numberNode(0f).canConvertToExactIntegral());
@@ -20,6 +27,7 @@ public class NumberToIntegralConversionTest extends BaseMapTest
         assertFalse(NODES.numberNode(0.25f).canConvertToExactIntegral());
     }
 
+    @Test
     public void testDoubleToIntegrals() throws Exception
     {
         assertTrue(NODES.numberNode(0d).canConvertToExactIntegral());
@@ -34,6 +42,7 @@ public class NumberToIntegralConversionTest extends BaseMapTest
         assertFalse(NODES.numberNode(12000000.5d).canConvertToExactIntegral());
     }
 
+    @Test
     public void testNaNsToIntegrals() throws Exception
     {
         assertFalse(NODES.numberNode(Float.NaN).canConvertToExactIntegral());
@@ -45,6 +54,7 @@ public class NumberToIntegralConversionTest extends BaseMapTest
         assertFalse(NODES.numberNode(Double.POSITIVE_INFINITY).canConvertToExactIntegral());
     }
 
+    @Test
     public void testBigDecimalToIntegrals() throws Exception
     {
         assertTrue(NODES.numberNode(BigDecimal.ZERO).canConvertToExactIntegral());

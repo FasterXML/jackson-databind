@@ -17,8 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test to verify that [databind#3277] is fixed.
  */
-public class UnwrappedDoubleWithAnySetter3277Test
-    extends DatabindTestUtil
+public class UnwrappedDoubleWithAnySetter3277Test extends DatabindTestUtil
 {
     static class Holder {
         Object value1;

@@ -2,15 +2,9 @@ package tools.jackson.databind.jdk21;
 
 import java.util.*;
 
-<<<<<<< HEAD:src/test-jdk21/java/tools/jackson/databind/jdk21/Java21CollectionsTest.java
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
-=======
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
->>>>>>> 2.18:src/test-jdk21/java/com/fasterxml/jackson/databind/jdk21/Java21CollectionsTest.java
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

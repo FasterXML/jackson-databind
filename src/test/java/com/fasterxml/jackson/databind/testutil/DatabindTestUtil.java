@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Class containing test utility methods.
- * The methods are migrated from {@link BaseMapTest} and {@link BaseTest},
+ * The methods are migrated from {@code BaseMapTest} and {@code BaseTest},
  * as part of JUnit 5 migration.
  *
  * @since 2.17

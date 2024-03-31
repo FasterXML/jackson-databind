@@ -7,6 +7,9 @@ import java.util.TreeMap;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonNodeFactoryTest extends NodeTestBase
 {
@@ -23,6 +26,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
         }
     }
 
+    @Test
     public void testSimpleCreation()
     {
         JsonNodeFactory f = MAPPER.getNodeFactory();
@@ -58,6 +62,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
     // 09-Sep-2020, tatu: Let's try something more useful: auto-sorting
     //    Tree Model!
 
+    @Test
    public void testSortingObjectNode() throws Exception
    {
        final String SIMPLE_INPUT = "{\"b\":2,\"a\":1}";
@@ -80,6 +85,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
                MAPPER.writeValueAsString(mapper.readTree(BIGGER_INPUT)));
    }
 
+   @Test
    public void testBigDecimalNormalization_enabled_by_default() throws Exception
    {
       final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
@@ -91,6 +97,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
    }
 
    // 06-Nov-2022, tatu: Wasn't being tested, oddly enough
+    @Test
    public void testBigDecimalNormalization_when_disabled() throws Exception
    {
        final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
@@ -105,6 +112,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
    }
 
    @SuppressWarnings("deprecation")
+   @Test
    public void testBigDecimalNormalizationLEGACY() throws Exception
    {
        final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");

@@ -56,7 +56,8 @@ public class TreeTraversingParserTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertNull(p.currentName());
-        assertEquals("Expected START_OBJECT", JsonToken.START_OBJECT.asString(), p.getText());
+        assertEquals(JsonToken.START_OBJECT.asString(), p.getText(),
+                "Expected START_OBJECT");
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("a", p.currentName());

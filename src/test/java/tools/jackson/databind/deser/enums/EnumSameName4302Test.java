@@ -4,15 +4,13 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static tools.jackson.databind.BaseMapTest.a2q;
-import static tools.jackson.databind.BaseMapTest.jsonMapperBuilder;
-import static tools.jackson.databind.BaseMapTest.q;
-
 // [databind#4302]
 public class EnumSameName4302Test
+    extends DatabindTestUtil
 {
     enum Field4302Enum {
         FOO(0);

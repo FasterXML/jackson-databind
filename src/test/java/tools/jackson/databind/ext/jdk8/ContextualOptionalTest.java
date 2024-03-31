@@ -10,8 +10,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class ContextualOptionalTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class ContextualOptionalTest extends DatabindTestUtil
 {
     // [datatypes-java8#17]
     @JsonPropertyOrder({ "date", "date1", "date2" })

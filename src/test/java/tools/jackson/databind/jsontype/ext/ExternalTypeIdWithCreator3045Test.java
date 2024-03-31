@@ -5,16 +5,19 @@ import java.util.HashMap;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class ExternalTypeIdWithCreator3045Test
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     public static class ChildBaseByParentTypeResolver extends TypeIdResolverBase {
         private static final long serialVersionUID = 1L;

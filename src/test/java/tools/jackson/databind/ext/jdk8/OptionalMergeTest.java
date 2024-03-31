@@ -6,10 +6,13 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class OptionalMergeTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class OptionalMergeTest
+    extends DatabindTestUtil
 {
     // [modules-java8#214]
     static class OptionalListWrapper {

@@ -1,22 +1,22 @@
 package tools.jackson.databind.jsontype.ext;
 
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import org.junit.jupiter.api.Test;
-
-import static tools.jackson.databind.BaseMapTest.newJsonMapper;
-import static tools.jackson.databind.BaseTest.a2q;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Unit test to verify that the following issue is fixed:
  * [databind#4185]: @JsonIgnoreProperties with JsonTypeInfo.As.EXTERNAL_PROPERTY does not work
  */
-public class ExternalTypeIdWithJsonIgnore4185Test
+class ExternalTypeIdWithJsonIgnore4185Test
+    extends DatabindTestUtil
 {
     static class Parent {
         @JsonIgnoreProperties("parent")

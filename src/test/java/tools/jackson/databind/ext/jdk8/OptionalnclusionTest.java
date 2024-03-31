@@ -8,8 +8,12 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class OptionalnclusionTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class OptionalnclusionTest
+    extends DatabindTestUtil
 {
     @JsonAutoDetect(fieldVisibility=Visibility.ANY)
     public static final class OptionalData {

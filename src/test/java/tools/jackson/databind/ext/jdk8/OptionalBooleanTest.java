@@ -3,8 +3,12 @@ package tools.jackson.databind.ext.jdk8;
 import java.util.Optional;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class OptionalBooleanTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class OptionalBooleanTest
+    extends DatabindTestUtil
 {
     static class BooleanBean {
         public Optional<Boolean> value;

@@ -8,9 +8,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class OptionalBasicTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class OptionalBasicTest
+    extends DatabindTestUtil
 {
     public static final class OptionalData {
         public Optional<String> myString;
@@ -214,7 +218,7 @@ public class OptionalBasicTest extends BaseMapTest
 		List<Optional<String>> result = MAPPER.readValue(str, typeReference);
 		assertEquals(list.size(), result.size());
 		for (int i = 0; i < list.size(); ++i) {
-			assertEquals("Entry #" + i, list.get(i), result.get(i));
+			assertEquals(list.get(i), result.get(i), "Entry #" + i);
 		}
 	}
 

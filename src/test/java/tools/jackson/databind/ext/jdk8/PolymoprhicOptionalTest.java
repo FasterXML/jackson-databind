@@ -6,8 +6,12 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class PolymoprhicOptionalTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class PolymoprhicOptionalTest
+    extends DatabindTestUtil
 {
     // For [datatype-jdk8#14]
     public static class Container {

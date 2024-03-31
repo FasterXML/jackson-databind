@@ -3,12 +3,13 @@ package tools.jackson.databind.deser.creators.jdk8;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
-
-import org.junit.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
-public class JsonCreatorTest extends BaseMapTest
+import org.junit.jupiter.api.Test;
+
+public class JsonCreatorTest extends DatabindTestUtil
 {
     static class ClassWithJsonCreatorOnStaticMethod {
         final String first;

@@ -14,8 +14,12 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class OptionalTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class OptionalTest
+    extends DatabindTestUtil
 {
     private static final TypeReference<Optional<String>> OPTIONAL_STRING_TYPE = new TypeReference<Optional<String>>() {};
     private static final TypeReference<Optional<TestBean>> OPTIONAL_BEAN_TYPE = new TypeReference<Optional<TestBean>>() {};

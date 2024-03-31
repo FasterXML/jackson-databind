@@ -12,8 +12,12 @@ import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.ser.BeanSerializerFactory;
 import tools.jackson.databind.ser.SerializationContextExt;
 import tools.jackson.databind.ser.SerializerCache;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class OptionalUnwrappedTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class OptionalUnwrappedTest
+    extends DatabindTestUtil
 {
     static class Child {
         public String name = "Bob";

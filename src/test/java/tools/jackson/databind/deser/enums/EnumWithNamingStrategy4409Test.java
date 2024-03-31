@@ -8,7 +8,8 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4409]: PropertyNamingStrategy should not affect to Enums
-class EnumWithNamingStrategy4409Test extends DatabindTestUtil 
+class EnumWithNamingStrategy4409Test
+    extends DatabindTestUtil
 {
     enum ColorMode {
         RGB,

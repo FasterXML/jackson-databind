@@ -1,8 +1,5 @@
 package tools.jackson.databind.jsontype.jdk;
 
-import static tools.jackson.databind.BaseMapTest.jsonMapperBuilder;
-import static tools.jackson.databind.BaseTest.a2q;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 /**
  * Unit test proving that below issue is fixed.
@@ -22,6 +20,7 @@ import tools.jackson.databind.ObjectMapper;
  * ordering (BigDecimal / Double) when used in combination with @JsonSubTypes
  */
 public class BigDecimalForFloatDisabled3133Test
+    extends DatabindTestUtil
 {
     @JsonTypeInfo(
             use = JsonTypeInfo.Id.NAME,

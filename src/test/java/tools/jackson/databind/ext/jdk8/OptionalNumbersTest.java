@@ -8,10 +8,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.Assert.assertThrows;
 
-public class OptionalNumbersTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class OptionalNumbersTest
+    extends DatabindTestUtil
 {
     static class OptionalIntBean {
         public OptionalInt value;

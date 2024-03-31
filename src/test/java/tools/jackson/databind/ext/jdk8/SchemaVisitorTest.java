@@ -7,9 +7,13 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsonFormatVisitors.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // trivial tests visitor used (mostly) for JSON Schema generation
-public class SchemaVisitorTest extends BaseMapTest
+public class SchemaVisitorTest
+    extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 

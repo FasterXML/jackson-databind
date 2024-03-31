@@ -6,8 +6,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class CreatorForOptionalTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class CreatorForOptionalTest
+    extends DatabindTestUtil
 {
     static class CreatorWithOptionalStrings
     {

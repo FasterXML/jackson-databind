@@ -4,8 +4,12 @@ import java.util.Optional;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class OptionalWithEmptyTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class OptionalWithEmptyTest
+    extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 

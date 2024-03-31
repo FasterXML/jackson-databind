@@ -6,10 +6,13 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class OptionalMapsTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class OptionalMapsTest
+    extends DatabindTestUtil
 {
     static final class OptMapBean {
         public Map<String, Optional<?>> values;

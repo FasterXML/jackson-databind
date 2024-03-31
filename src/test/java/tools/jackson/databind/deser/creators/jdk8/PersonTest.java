@@ -2,10 +2,12 @@ package tools.jackson.databind.deser.creators.jdk8;
 
 import java.io.IOException;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class PersonTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class PersonTest extends DatabindTestUtil
 {
     static class Person {
 

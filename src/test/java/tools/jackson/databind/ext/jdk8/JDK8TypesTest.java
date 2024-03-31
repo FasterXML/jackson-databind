@@ -6,9 +6,13 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.ReferenceType;
 
-public class JDK8TypesTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class JDK8TypesTest
+    extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 

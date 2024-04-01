@@ -293,9 +293,9 @@ public final class DeserializerCache
      * Method that handles actual construction (via factory) and caching (both
      * intermediate and eventual)
      *
-     * @deprecated use version of _createAndCache2 that takes `isCustom` flag
+     * @deprecated Since 2.18 use version of _createAndCache2 that takes `isCustom` flag
      */
-    @Deprecated
+    @Deprecated // since 2.18
     protected JsonDeserializer<Object> _createAndCache2(DeserializationContext ctxt,
             DeserializerFactory factory, JavaType type)
         throws JsonMappingException

@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -153,6 +154,7 @@ public final class DeserializerCache
     public ValueDeserializer<Object> findValueDeserializer(DeserializationContext ctxt,
             DeserializerFactory factory, JavaType propertyType)
     {
+        Objects.requireNonNull(propertyType, "Null 'propertyType' passed");
         ValueDeserializer<Object> deser = _findCachedDeserializer(propertyType);
         if (deser == null) {
             // If not, need to request factory to construct (or recycle)
@@ -179,6 +181,7 @@ public final class DeserializerCache
     public KeyDeserializer findKeyDeserializer(DeserializationContext ctxt,
             DeserializerFactory factory, JavaType type)
     {
+        Objects.requireNonNull(type, "Null 'type' passed");
         KeyDeserializer kd = factory.createKeyDeserializer(ctxt, type);
         if (kd == null) { // if none found, need to use a placeholder that'll fail
             return _handleUnknownKeyDeserializer(ctxt, type);
@@ -196,9 +199,7 @@ public final class DeserializerCache
 
     protected ValueDeserializer<Object> _findCachedDeserializer(JavaType type)
     {
-        if (type == null) {
-            throw new IllegalArgumentException("Null JavaType passed");
-        }
+        // note: caller ensures 'type' never null
         if (_hasCustomHandlers(type)) {
             return null;
         }
@@ -210,15 +211,15 @@ public final class DeserializerCache
      * and resolve and cache it if necessary
      *
      * @param ctxt Currently active deserialization context
-     * @param type Type of property to deserialize
+     * @param type Type of property to deserialize (never null, callers verify)
      */
     protected ValueDeserializer<Object> _createAndCacheValueDeserializer(DeserializationContext ctxt,
             DeserializerFactory factory, JavaType type)
     {
-        /* Only one thread to construct deserializers at any given point in time;
-         * limitations necessary to ensure that only completely initialized ones
-         * are visible and used.
-         */
+        // Only one thread to construct deserializers at any given point in time;
+        // limitations necessary to ensure that only completely initialized ones
+        // are visible and used.
+
         try {
             _incompleteDeserializersLock.lock();
 

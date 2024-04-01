@@ -20,7 +20,8 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestJacksonAnnotationIntrospector extends DatabindTestUtil
+public class JacksonAnnotationIntrospectorTest
+    extends DatabindTestUtil
 {
     public static enum EnumExample {
         VALUE1;

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -163,6 +164,7 @@ public final class DeserializerCache
             DeserializerFactory factory, JavaType propertyType)
         throws JsonMappingException
     {
+        Objects.requireNonNull(propertyType, "Null 'propertyType' passed");
         JsonDeserializer<Object> deser = _findCachedDeserializer(propertyType);
         if (deser == null) {
             // If not, need to request factory to construct (or recycle)
@@ -190,6 +192,7 @@ public final class DeserializerCache
             DeserializerFactory factory, JavaType type)
         throws JsonMappingException
     {
+        Objects.requireNonNull(type, "Null 'type' passed");
         KeyDeserializer kd = factory.createKeyDeserializer(ctxt, type);
         if (kd == null) { // if none found, need to use a placeholder that'll fail
             return _handleUnknownKeyDeserializer(ctxt, type);
@@ -210,9 +213,10 @@ public final class DeserializerCache
             DeserializerFactory factory, JavaType type)
         throws JsonMappingException
     {
-        /* Note: mostly copied from findValueDeserializer, except for
-         * handling of unknown types
-         */
+        Objects.requireNonNull(type, "Null 'type' passed");
+
+        // Note: mostly copied from findValueDeserializer, except for
+        // handling of unknown types
         JsonDeserializer<Object> deser = _findCachedDeserializer(type);
         if (deser == null) {
             deser = _createAndCacheValueDeserializer(ctxt, factory, type);
@@ -228,9 +232,7 @@ public final class DeserializerCache
 
     protected JsonDeserializer<Object> _findCachedDeserializer(JavaType type)
     {
-        if (type == null) {
-            throw new IllegalArgumentException("Null JavaType passed");
-        }
+        // note: caller ensures 'type' never null
         if (_hasCustomHandlers(type)) {
             return null;
         }
@@ -242,19 +244,15 @@ public final class DeserializerCache
      * and resolve and cache it if necessary
      *
      * @param ctxt Currently active deserialization context
-     * @param type Type of property to deserialize
+     * @param type Type of property to deserialize (never null, callers verify)
      */
     protected JsonDeserializer<Object> _createAndCacheValueDeserializer(DeserializationContext ctxt,
             DeserializerFactory factory, JavaType type)
         throws JsonMappingException
     {
-        /* Only one thread to construct deserializers at any given point in time;
-         * limitations necessary to ensure that only completely initialized ones
-         * are visible and used.
-         */
-        if (type == null) {
-            throw new IllegalArgumentException("Null JavaType passed");
-        }
+        // Only one thread to construct deserializers at any given point in time;
+        // limitations necessary to ensure that only completely initialized ones
+        // are visible and used.
         final boolean isCustom = _hasCustomHandlers(type);
         JsonDeserializer<Object> deser = isCustom ? null : _cachedDeserializers.get(type);
         if (deser != null) {
@@ -297,9 +295,10 @@ public final class DeserializerCache
      *
      * @deprecated use version of _createAndCache2 that takes `isCustom` flag
      */
+    @Deprecated
     protected JsonDeserializer<Object> _createAndCache2(DeserializationContext ctxt,
-                                                        DeserializerFactory factory, JavaType type)
-            throws JsonMappingException
+            DeserializerFactory factory, JavaType type)
+        throws JsonMappingException
     {
         return _createAndCache2(ctxt, factory, type, _hasCustomHandlers(type));
     }

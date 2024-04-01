@@ -5,13 +5,14 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
-
 // [databind#4409]: PropertyNamingStrategy should not affect to Enums
-class EnumWithNamingStrategy4409Test {
+class EnumWithNamingStrategy4409Test
+    extends DatabindTestUtil
+{
 
     enum ColorMode {
         RGB,

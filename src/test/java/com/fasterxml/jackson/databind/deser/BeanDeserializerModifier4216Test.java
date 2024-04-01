@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.deser;
 
-import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
 import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit test for [databind#4216] : Primitive array deserializer cannot being captured by DeserializerModifier
  */
-public class BeanDeserializerModifier4216Test
+public class BeanDeserializerModifier4216Test extends DatabindTestUtil
 {
 
     static class WrapperBean4216 {

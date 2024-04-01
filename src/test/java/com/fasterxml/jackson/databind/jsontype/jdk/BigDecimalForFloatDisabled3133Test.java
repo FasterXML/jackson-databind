@@ -1,17 +1,16 @@
 package com.fasterxml.jackson.databind.jsontype.jdk;
 
-import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
-import static com.fasterxml.jackson.databind.BaseTest.a2q;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 /**
  * Unit test proving that below issue is fixed.
@@ -20,6 +19,7 @@ import org.junit.jupiter.api.Test;
  * ordering (BigDecimal / Double) when used in combination with @JsonSubTypes
  */
 public class BigDecimalForFloatDisabled3133Test
+    extends DatabindTestUtil
 {
     @JsonTypeInfo(
             use = JsonTypeInfo.Id.NAME,

@@ -5,9 +5,13 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MissingNodeTest extends NodeTestBase
 {
+    @Test
     public void testMissing()
     {
         MissingNode n = MissingNode.getInstance();
@@ -33,6 +37,7 @@ public class MissingNodeTest extends NodeTestBase
      * to traverse such bogus nodes with appropriate methods.
      */
     @SuppressWarnings("unused")
+    @Test
     public void testMissingViaMapper() throws Exception
     {
         String JSON = "[ { }, [ ] ]";

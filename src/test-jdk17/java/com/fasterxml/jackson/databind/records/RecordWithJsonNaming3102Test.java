@@ -2,13 +2,16 @@ package com.fasterxml.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
-public class RecordWithJsonNaming3102Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class RecordWithJsonNaming3102Test extends DatabindTestUtil
 {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record SnakeRecord(int id, String toSnakeCase) {
@@ -28,6 +31,7 @@ public class RecordWithJsonNaming3102Test extends BaseMapTest
      */
 
     // [databind#3102]
+    @Test
     public void testDeserializeWithJsonNaming() throws Exception
     {
         final ObjectReader r = MAPPER.readerFor(SnakeRecord.class);

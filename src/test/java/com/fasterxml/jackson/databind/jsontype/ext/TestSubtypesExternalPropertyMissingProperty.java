@@ -245,7 +245,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
             r.forType(Box.class).readValue(json);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            BaseMapTest.verifyException(e, "Missing property 'fruit' for external type id 'type'");
+            verifyException(e, "Missing property 'fruit' for external type id 'type'");
         }
     }
 
@@ -254,7 +254,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
             r.forType(ReqBox.class).readValue(json, ReqBox.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            BaseMapTest.verifyException(e, "Missing property 'fruit' for external type id 'type'");
+            verifyException(e, "Missing property 'fruit' for external type id 'type'");
         }
     }
 }

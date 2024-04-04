@@ -182,6 +182,8 @@ public class PropertyBuilder
             }
             if (valueToSuppress == null) {
                 suppressNulls = true;
+                // [databind#4464] Since 2.15, NON_DEFAULT should be extension of NON_EMPTY
+                valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
             } else {
                 if (valueToSuppress.getClass().isArray()) {
                     valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);

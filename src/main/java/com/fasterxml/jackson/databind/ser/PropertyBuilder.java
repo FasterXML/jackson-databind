@@ -182,7 +182,7 @@ public class PropertyBuilder
             }
             if (valueToSuppress == null) {
                 suppressNulls = true;
-                // [databind#4464] Since 2.15, NON_DEFAULT should be extension of NON_EMPTY
+                // [databind#4464] Since 2.15, NON_DEFAULT does not work with NON_EMPTY for custom serializer
                 valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
             } else {
                 if (valueToSuppress.getClass().isArray()) {

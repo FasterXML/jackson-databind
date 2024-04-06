@@ -1,11 +1,17 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TypeDeserializerUtilMethodsTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+public class TypeDeserializerUtilMethodsTest extends DatabindTestUtil
 {
+    @Test
     public void testUtilMethods() throws Exception
     {
         final JsonFactory f = new JsonFactory();

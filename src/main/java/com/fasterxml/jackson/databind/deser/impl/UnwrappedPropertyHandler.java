@@ -21,7 +21,8 @@ public class UnwrappedPropertyHandler
 
     public UnwrappedPropertyHandler()  {
         _properties = new ArrayList<SettableBeanProperty>();
-   }
+    }
+
     protected UnwrappedPropertyHandler(List<SettableBeanProperty> props)  {
         _properties = props;
     }

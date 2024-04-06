@@ -3,12 +3,16 @@ package com.fasterxml.jackson.databind.mixins;
 import java.io.IOException;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMixinInheritance
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class Beano {
         public int ido = 42;
@@ -48,6 +52,7 @@ public class TestMixinInheritance
     /**********************************************************
      */
 
+    @Test
     public void testMixinFieldInheritance() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -61,6 +66,7 @@ public class TestMixinInheritance
         }
     }
 
+    @Test
     public void testMixinMethodInheritance() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();

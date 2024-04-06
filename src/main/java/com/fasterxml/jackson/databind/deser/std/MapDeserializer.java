@@ -467,7 +467,7 @@ public class MapDeserializer
         throws IOException
     {
         // [databind#631]: Assign current value, to be accessible by custom deserializers
-        p.setCurrentValue(result);
+        p.assignCurrentValue(result);
 
         // Ok: must point to START_OBJECT or FIELD_NAME
         JsonToken t = p.currentToken();

@@ -1,14 +1,21 @@
 package com.fasterxml.jackson.databind.exc;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 
-public class UnresolvedForwardReferenceTest extends BaseMapTest
-{
-    private final JsonFactory JSON_F = sharedMapper().getFactory();
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class UnresolvedForwardReferenceTest
+{
+    private final JsonFactory JSON_F = newJsonMapper().getFactory();
+
+    @Test
     public void testWithAndWithoutStackTraces() throws Exception
     {
         try (JsonParser p = JSON_F.createParser("{}")) {

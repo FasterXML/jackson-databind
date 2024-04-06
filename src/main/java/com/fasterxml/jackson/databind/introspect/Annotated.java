@@ -36,6 +36,13 @@ public abstract class Annotated
         return Modifier.isPublic(getModifiers());
     }
 
+    /**
+     * @since 2.16.2
+     */
+    public boolean isStatic() {
+        return Modifier.isStatic(getModifiers());
+    }
+
     public abstract String getName();
 
     /**

@@ -5,12 +5,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.fasterxml.jackson.databind.*;
 
-public class ReadOrWriteOnlyTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class ReadOrWriteOnlyTest
 {
     // for [databind#935], verify read/write-only cases
     static class ReadXWriteY {
@@ -130,9 +135,10 @@ public class ReadOrWriteOnlyTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#935]
+    @Test
     public void testReadOnlyAndWriteOnly() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ReadXWriteY());
@@ -144,6 +150,7 @@ public class ReadOrWriteOnlyTest extends BaseMapTest
         assertEquals(6, result.y);
     }
 
+    @Test
     public void testReadOnly935() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Pojo935());
@@ -152,6 +159,7 @@ public class ReadOrWriteOnlyTest extends BaseMapTest
     }
 
     // [databind#1345]
+    @Test
     public void testReadOnly1345() throws Exception
     {
         Foo1345 result = MAPPER.readValue("{\"name\":\"test\"}", Foo1345.class);
@@ -161,14 +169,16 @@ public class ReadOrWriteOnlyTest extends BaseMapTest
     }
 
     // [databind#1382]
+    @Test
     public void testReadOnly1382() throws Exception
     {
         String payload = "{\"list\":[1,2,3,4]}";
         Foo1382 foo = MAPPER.readValue(payload, Foo1382.class);
-        assertTrue("List should be empty", foo.getList().isEmpty());
+        assertTrue(foo.getList().isEmpty(), "List should be empty");
     }
 
     // [databind#1805]
+    @Test
     public void testViaReadOnly() throws Exception {
         UserWithReadOnly1805 user = new UserWithReadOnly1805();
         user.name = "foo";
@@ -178,6 +188,7 @@ public class ReadOrWriteOnlyTest extends BaseMapTest
     }
 
     // [databind#1805]
+    @Test
     public void testUsingAllowGetters() throws Exception {
         UserAllowGetters1805 user = new UserAllowGetters1805();
         user.name = "foo";
@@ -188,6 +199,7 @@ public class ReadOrWriteOnlyTest extends BaseMapTest
     }
 
     // [databind#2779]: ignorable property renaming
+    @Test
     public void testIssue2779() throws Exception
     {
         Bean2779 bean = new Bean2779();

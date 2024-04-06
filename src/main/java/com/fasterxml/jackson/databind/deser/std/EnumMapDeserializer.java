@@ -267,7 +267,7 @@ public class EnumMapDeserializer
         throws IOException
     {
         // [databind#631]: Assign current value, to be accessible by custom deserializers
-        p.setCurrentValue(result);
+        p.assignCurrentValue(result);
 
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;

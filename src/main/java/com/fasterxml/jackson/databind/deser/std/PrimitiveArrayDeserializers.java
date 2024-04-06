@@ -99,7 +99,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         if (rawType == Character.TYPE) {
             return new CharDeser();
         }
-        throw new IllegalStateException();
+        throw new IllegalArgumentException("Unknown primitive array element type: "+rawType);
     }
 
     @Override

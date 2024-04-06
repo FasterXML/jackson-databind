@@ -7,9 +7,15 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.fasterxml.jackson.databind.*;
+import org.junit.jupiter.api.Test;
 
-public class ThreadSafety1759Test extends BaseMapTest
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class ThreadSafety1759Test extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -17,6 +23,7 @@ public class ThreadSafety1759Test extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testCalendarForDeser() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();

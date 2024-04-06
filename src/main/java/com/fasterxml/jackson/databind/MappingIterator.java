@@ -376,7 +376,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * @since 2.2.1
      */
     public JsonLocation getCurrentLocation() {
-        return _parser.getCurrentLocation();
+        return _parser.currentLocation();
     }
 
     /*

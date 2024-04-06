@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.convert;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -9,7 +10,11 @@ import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
-public class CoerceFloatToStringTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class CoerceFloatToStringTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
@@ -33,16 +38,19 @@ public class CoerceFloatToStringTest extends BaseMapTest
                     cfg.setCoercion(CoercionInputShape.Float, CoercionAction.AsEmpty))
             .build();
 
+    @Test
     public void testDefaultFloatToStringCoercion() throws JsonProcessingException
     {
         assertSuccessfulFloatToStringCoercionWith(DEFAULT_MAPPER);
     }
 
+    @Test
     public void testCoerceConfigToConvert() throws JsonProcessingException
     {
         assertSuccessfulFloatToStringCoercionWith(MAPPER_TRY_CONVERT);
     }
 
+    @Test
     public void testCoerceConfigToNull() throws JsonProcessingException
     {
         assertNull(MAPPER_TO_NULL.readValue("1.2", String.class));
@@ -53,6 +61,7 @@ public class CoerceFloatToStringTest extends BaseMapTest
         assertNull(arr[0]);
     }
 
+    @Test
     public void testCoerceConfigToEmpty() throws JsonProcessingException
     {
         assertEquals("", MAPPER_TO_EMPTY.readValue("3.5", String.class));
@@ -63,7 +72,7 @@ public class CoerceFloatToStringTest extends BaseMapTest
         assertEquals("", arr[0]);
     }
 
-
+    @Test
     public void testCoerceConfigToFail() throws JsonProcessingException
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, String.class, "3.5");

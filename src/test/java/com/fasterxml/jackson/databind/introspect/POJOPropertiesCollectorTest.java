@@ -1,18 +1,20 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 import java.math.BigDecimal;
 import java.util.*;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class POJOPropertiesCollectorTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class Simple {
         public int value;
@@ -237,8 +239,9 @@ public class POJOPropertiesCollectorTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimple()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
@@ -252,6 +255,7 @@ public class POJOPropertiesCollectorTest
         assertTrue(prop.hasField());
     }
 
+    @Test
     public void testSimpleFieldVisibility()
     {
         // false -> deserialization
@@ -266,6 +270,7 @@ public class POJOPropertiesCollectorTest
         assertTrue(prop.hasField());
     }
 
+    @Test
     public void testSimpleGetterVisibility()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
@@ -281,6 +286,7 @@ public class POJOPropertiesCollectorTest
 
     // Unit test for verifying that a single @JsonIgnore can remove the
     // whole property, unless explicit property marker exists
+    @Test
     public void testEmpty()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
@@ -292,6 +298,7 @@ public class POJOPropertiesCollectorTest
     // Unit test for verifying handling of 'partial' @JsonIgnore; that is,
     // if there is at least one explicit annotation to indicate property,
     // only parts that are ignored are, well, ignored
+    @Test
     public void testPartialIgnore()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
@@ -305,6 +312,7 @@ public class POJOPropertiesCollectorTest
         assertTrue(prop.hasField());
     }
 
+    @Test
     public void testSimpleRenamed()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
@@ -318,6 +326,7 @@ public class POJOPropertiesCollectorTest
         assertTrue(prop.hasField());
     }
 
+    @Test
     public void testSimpleRenamed2()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
@@ -331,6 +340,7 @@ public class POJOPropertiesCollectorTest
         assertFalse(prop.hasField());
     }
 
+    @Test
     public void testMergeWithRename()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
@@ -344,6 +354,7 @@ public class POJOPropertiesCollectorTest
         assertTrue(prop.hasField());
     }
 
+    @Test
     public void testSimpleIgnoreAndRename()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
@@ -357,6 +368,7 @@ public class POJOPropertiesCollectorTest
         assertFalse(prop.hasField());
     }
 
+    @Test
     public void testGlobalVisibilityForGetters()
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -368,6 +380,7 @@ public class POJOPropertiesCollectorTest
         assertEquals(0, props.size());
     }
 
+    @Test
     public void testCollectionOfIgnored()
     {
         POJOPropertiesCollector coll = collector(MAPPER, ImplicitIgnores.class, false);
@@ -381,6 +394,7 @@ public class POJOPropertiesCollectorTest
         assertTrue(ign.contains("b"));
     }
 
+    @Test
     public void testSimpleOrderingForDeserialization()
     {
         POJOPropertiesCollector coll = collector(MAPPER, SortedProperties.class, false);
@@ -392,6 +406,7 @@ public class POJOPropertiesCollectorTest
         assertEquals("d", props.get(3).getName());
     }
 
+    @Test
     public void testSimpleWithType()
     {
         // first for serialization; should base choice on getter
@@ -413,6 +428,7 @@ public class POJOPropertiesCollectorTest
         assertEquals(String.class, m.getRawType());
     }
 
+    @Test
     public void testInnerClassWithAnnotationsInCreator() throws Exception
     {
         BeanDescription beanDesc;
@@ -424,6 +440,7 @@ public class POJOPropertiesCollectorTest
         assertNotNull(beanDesc);
     }
 
+    @Test
     public void testUseAnnotationsFalse() throws Exception
     {
         // note: need a separate mapper, need to reconfigure
@@ -438,6 +455,7 @@ public class POJOPropertiesCollectorTest
         assertNotNull(json);
     }
 
+    @Test
     public void testJackson744() throws Exception
     {
         BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect
@@ -450,6 +468,7 @@ public class POJOPropertiesCollectorTest
     }
 
     // [databind#269]: Support new @JsonPropertyDescription
+    @Test
     public void testPropertyDesc() throws Exception
     {
         // start via deser
@@ -461,6 +480,7 @@ public class POJOPropertiesCollectorTest
     }
 
     // [databind#438]: Support @JsonProperty.index
+    @Test
     public void testPropertyIndex() throws Exception
     {
         BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
@@ -469,6 +489,7 @@ public class POJOPropertiesCollectorTest
         _verifyProperty(beanDesc, false, true, "13");
     }
 
+    @Test
     public void testDuplicateGetters() throws Exception
     {
         POJOPropertiesCollector coll = collector(MAPPER, DuplicateGetterBean.class, true);
@@ -480,6 +501,7 @@ public class POJOPropertiesCollectorTest
         assertTrue(prop.getGetter().hasAnnotation(B.class));
     }
 
+    @Test
     public void testDuplicateGettersCreator() throws Exception
     {
         POJOPropertiesCollector coll = collector(MAPPER, DuplicateGetterCreatorBean.class, true);

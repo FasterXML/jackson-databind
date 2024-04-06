@@ -2,11 +2,17 @@ package com.fasterxml.jackson.databind.jsontype.ext;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ExternalTypeIdWithIgnoreUnknownTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class ExternalTypeIdWithIgnoreUnknownTest extends DatabindTestUtil
 {
     // [databind#2611]
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -44,6 +50,7 @@ public class ExternalTypeIdWithIgnoreUnknownTest extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2611]
+    @Test
     public void testDeserialization() throws Exception
     {
         final String data = a2q("[{'type': 'test','data': {},'additional': {}}]");

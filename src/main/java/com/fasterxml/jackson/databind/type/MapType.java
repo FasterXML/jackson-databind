@@ -57,14 +57,6 @@ public final class MapType extends MapLikeType
                 keyT, valueT, null, null, false);
     }
 
-    @Deprecated // since 2.7
-    @Override
-    protected JavaType _narrow(Class<?> subclass) {
-        return new MapType(subclass, _bindings,
-                _superClass, _superInterfaces, _keyType, _valueType,
-                _valueHandler, _typeHandler, _asStatic);
-    }
-
     @Override
     public MapType withTypeHandler(Object h) {
         return new MapType(_class, _bindings,

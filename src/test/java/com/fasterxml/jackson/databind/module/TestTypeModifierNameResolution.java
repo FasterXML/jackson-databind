@@ -3,13 +3,18 @@ package com.fasterxml.jackson.databind.module;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
 
 import java.lang.reflect.Type;
 
-public class TestTypeModifierNameResolution extends BaseMapTest
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestTypeModifierNameResolution extends DatabindTestUtil
 {
 	interface MyType {
 		String getData();
@@ -44,6 +49,7 @@ public class TestTypeModifierNameResolution extends BaseMapTest
 	public interface Mixin { }
 
 	// Expect that the TypeModifier kicks in when the type id is written.
+	@Test
 	public void testTypeModiferNameResolution() throws Exception
 	{
 		ObjectMapper mapper = new ObjectMapper();

@@ -123,54 +123,6 @@ public class SimpleType // note: until 2.6 was final
     }
 
     @Override
-    @Deprecated
-    protected JavaType _narrow(Class<?> subclass)
-    {
-        if (_class == subclass) {
-            return this;
-        }
-        // Should we check that there is a sub-class relationship?
-        // 15-Jan-2016, tatu: Almost yes, but there are some complications with
-        //    placeholder values (`Void`, `NoClass`), so cannot quite do yet.
-        // TODO: fix in 2.9
-        if (!_class.isAssignableFrom(subclass)) {
-            /*
-            throw new IllegalArgumentException("Class "+subclass.getName()+" not sub-type of "
-                    +_class.getName());
-                    */
-            return new SimpleType(subclass, _bindings, this, _superInterfaces,
-                    _valueHandler, _typeHandler, _asStatic);
-        }
-        // Otherwise, stitch together the hierarchy. First, super-class
-        Class<?> next = subclass.getSuperclass();
-        if (next == _class) { // straight up parent class? Great.
-            return new SimpleType(subclass, _bindings, this,
-                    _superInterfaces, _valueHandler, _typeHandler, _asStatic);
-        }
-        if ((next != null) && _class.isAssignableFrom(next)) {
-            JavaType superb = _narrow(next);
-            return new SimpleType(subclass, _bindings, superb,
-                    null, _valueHandler, _typeHandler, _asStatic);
-        }
-        // if not found, try a super-interface
-        Class<?>[] nextI = subclass.getInterfaces();
-        for (Class<?> iface : nextI) {
-            if (iface == _class) { // directly implemented
-                return new SimpleType(subclass, _bindings, null,
-                        new JavaType[] { this }, _valueHandler, _typeHandler, _asStatic);
-            }
-            if (_class.isAssignableFrom(iface)) { // indirect, so recurse
-                JavaType superb = _narrow(iface);
-                return new SimpleType(subclass, _bindings, null,
-                        new JavaType[] { superb }, _valueHandler, _typeHandler, _asStatic);
-            }
-        }
-        // should not get here but...
-        throw new IllegalArgumentException("Internal error: Cannot resolve sub-type for Class "+subclass.getName()+" to "
-                +_class.getName());
-    }
-
-    @Override
     public JavaType withContentType(JavaType contentType) {
         throw new IllegalArgumentException("Simple types have no content types; cannot call withContentType()");
     }

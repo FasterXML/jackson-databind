@@ -244,7 +244,7 @@ public abstract class BasicSerializerFactory
                                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                             }
                             // null -> no TypeSerializer for key-serializer use case
-                            ser = new JsonValueSerializer(acc, null, delegate);
+                            ser = JsonValueSerializer.construct(config, acc, null, delegate);
                         } else {
                             ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass(),
                                                                                 beanDesc.getClassInfo());
@@ -405,7 +405,8 @@ public abstract class BasicSerializerFactory
             if (typeSerializer == null) {
                 typeSerializer = createTypeSerializer(prov.getConfig(), valueType);
             }
-            return new JsonValueSerializer(valueAccessor, typeSerializer, valueSerializer);
+            return JsonValueSerializer.construct(prov.getConfig(), valueAccessor,
+                    typeSerializer, valueSerializer);
         }
         // No well-known annotations...
         return null;
@@ -466,7 +467,7 @@ public abstract class BasicSerializerFactory
         }
         if (Number.class.isAssignableFrom(raw)) {
             // 21-May-2014, tatu: Couple of alternatives actually
-            JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+            JsonFormat.Value format = beanDesc.findExpectedFormat();
             switch (format.getShape()) {
             case STRING:
                 return ToStringSerializer.instance;
@@ -712,7 +713,7 @@ public abstract class BasicSerializerFactory
             if (ser == null) {
                 // We may also want to use serialize Collections "as beans", if (and only if)
                 // this is specified with `@JsonFormat(shape=Object)`
-                JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+                JsonFormat.Value format = beanDesc.findExpectedFormat();
                 if (format.getShape() == JsonFormat.Shape.OBJECT) {
                     return null;
                 }
@@ -802,7 +803,7 @@ public abstract class BasicSerializerFactory
     {
         // [databind#467]: This is where we could allow serialization "as POJO": But! It's
         // nasty to undo, and does not apply on per-property basis. So, hardly optimal
-        JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+        JsonFormat.Value format = beanDesc.findExpectedFormat();
         if (format.getShape() == JsonFormat.Shape.OBJECT) {
             return null;
         }
@@ -900,9 +901,7 @@ public abstract class BasicSerializerFactory
             break;
         case CUSTOM: // new with 2.9
             valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
-            if (valueToSuppress == null) { // is this legal?
-                suppressNulls = true;
-            } else {
+            if (valueToSuppress != null) { // is this legal?
                 suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
             }
             break;
@@ -925,7 +924,7 @@ public abstract class BasicSerializerFactory
         // [databind#865]: Allow serialization "as POJO" -- note: to undo, declare
         //   serialization as `Shape.NATURAL` instead; that's JSON Object too.
         JsonFormat.Value formatOverride = prov.getDefaultPropertyFormat(Map.Entry.class);
-        JsonFormat.Value formatFromAnnotation = beanDesc.findExpectedFormat(null);
+        JsonFormat.Value formatFromAnnotation = beanDesc.findExpectedFormat();
         JsonFormat.Value format = JsonFormat.Value.merge(formatFromAnnotation, formatOverride);
         if (format.getShape() == JsonFormat.Shape.OBJECT) {
             return null;
@@ -967,9 +966,7 @@ public abstract class BasicSerializerFactory
             break;
         case CUSTOM:
             valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
-            if (valueToSuppress == null) { // is this legal?
-                suppressNulls = true;
-            } else {
+            if (valueToSuppress != null) { // is this legal?
                 suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
             }
             break;
@@ -1205,10 +1202,14 @@ public abstract class BasicSerializerFactory
          * POJO style serialization, so we must handle that special case separately;
          * otherwise pass it to EnumSerializer.
          */
-        JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+        JsonFormat.Value format = beanDesc.findExpectedFormat();
         if (format.getShape() == JsonFormat.Shape.OBJECT) {
             // one special case: suppress serialization of "getDeclaringClass()"...
             ((BasicBeanDescription) beanDesc).removeProperty("declaringClass");
+            // [databind#2787]: remove self-referencing enum fields introduced by annotation flattening of mixins
+            if (type.isEnumType()){
+                _removeEnumSelfReferences(((BasicBeanDescription) beanDesc));
+            }
             // returning null will mean that eventually BeanSerializer gets constructed
             return null;
         }
@@ -1222,6 +1223,30 @@ public abstract class BasicSerializerFactory
             }
         }
         return ser;
+    }
+
+    /**
+     * Helper method used for serialization {@link Enum} as {@link JsonFormat.Shape#OBJECT}. Removes any 
+     * self-referencing properties from its bean description before it is transformed into a JSON Object 
+     * as configured by {@link JsonFormat.Shape#OBJECT}.
+     * <p>
+     * Internally, this method iterates through {@link BeanDescription#findProperties()} and removes self.
+     *
+     * @param beanDesc the bean description to remove Enum properties from.
+     *
+     * @since 2.16
+     */
+    private void _removeEnumSelfReferences(BasicBeanDescription beanDesc) {
+        Class<?> aClass = ClassUtil.findEnumType(beanDesc.getBeanClass());
+        Iterator<BeanPropertyDefinition> it = beanDesc.findProperties().iterator();
+        while (it.hasNext()) {
+            BeanPropertyDefinition property = it.next();
+            JavaType propType = property.getPrimaryType();
+            // is the property a self-reference?
+            if (propType.isEnumType() && propType.isTypeOrSubTypeOf(aClass)) {
+                it.remove();
+            }
+        }
     }
 
     /*
@@ -1278,40 +1303,22 @@ public abstract class BasicSerializerFactory
      * (declared types)  should be used for properties.
      * (instead of dynamic runtime types).
      *
-     * @since 2.1 (earlier had variant with additional 'property' parameter)
+     * @since 2.16 (earlier had variant with additional 'typeSer' parameter)
      */
     protected boolean usesStaticTyping(SerializationConfig config,
-            BeanDescription beanDesc, TypeSerializer typeSer)
+            BeanDescription beanDesc)
     {
-        /* 16-Aug-2010, tatu: If there is a (value) type serializer, we cannot force
-         *    static typing; that would make it impossible to handle expected subtypes
-         */
-        if (typeSer != null) {
-            return false;
-        }
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        JsonSerialize.Typing t = intr.findSerializationTyping(beanDesc.getClassInfo());
-        if (t != null && t != JsonSerialize.Typing.DEFAULT_TYPING) {
-            return (t == JsonSerialize.Typing.STATIC);
+        JsonSerialize.Typing t = config.getAnnotationIntrospector().findSerializationTyping(beanDesc.getClassInfo());
+        if (t != null) {
+            switch (t) {
+            case DYNAMIC:
+                return false;
+            case STATIC:
+                return true;
+            case DEFAULT_TYPING:
+                // fall through
+            }
         }
         return config.isEnabled(MapperFeature.USE_STATIC_TYPING);
     }
-
-    // Commented out in 2.9
-    /*
-    protected Class<?> _verifyAsClass(Object src, String methodName, Class<?> noneClass)
-    {
-        if (src == null) {
-            return null;
-        }
-        if (!(src instanceof Class)) {
-            throw new IllegalStateException("AnnotationIntrospector."+methodName+"() returned value of type "+src.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
-        }
-        Class<?> cls = (Class<?>) src;
-        if (cls == noneClass || ClassUtil.isBogusClass(cls)) {
-            return null;
-        }
-        return cls;
-    }
-    */
 }

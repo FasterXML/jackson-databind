@@ -151,7 +151,7 @@ public class BeanAsArraySerializer
         }
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_ARRAY);
         typeSer.writeTypePrefix(gen, typeIdDef);
-        gen.setCurrentValue(bean);
+        gen.assignCurrentValue(bean);
         serializeAsArray(bean, gen, provider);
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }

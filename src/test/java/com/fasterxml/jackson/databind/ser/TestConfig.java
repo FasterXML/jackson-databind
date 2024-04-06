@@ -4,17 +4,22 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for checking handling of SerializationConfig.
  */
 public class TestConfig
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -54,6 +59,7 @@ public class TestConfig
      * hit the limit, need to change implementation -- this test just
      * gives low-water mark
      */
+    @Test
     public void testEnumIndexes()
     {
         int max = 0;
@@ -66,6 +72,7 @@ public class TestConfig
         }
     }
 
+    @Test
     public void testDefaults()
     {
         SerializationConfig cfg = MAPPER.getSerializationConfig();
@@ -90,6 +97,7 @@ public class TestConfig
 
     }
 
+    @Test
     public void testOverrideIntrospectors()
     {
         SerializationConfig cfg = MAPPER.getSerializationConfig();
@@ -99,6 +107,7 @@ public class TestConfig
         assertNull(cfg.getAnnotationIntrospector());
     }
 
+    @Test
     public void testMisc()
     {
         ObjectMapper m = new ObjectMapper();
@@ -106,6 +115,7 @@ public class TestConfig
         assertNotNull(m.getSerializationConfig().toString()); // ditto
     }
 
+    @Test
     public void testIndentation() throws Exception
     {
         Map<String,Integer> map = new HashMap<String,Integer>();
@@ -117,6 +127,7 @@ public class TestConfig
         assertEquals("{"+lf+"  \"a\" : 2"+lf+"}", result);
     }
 
+    @Test
     public void testAnnotationsDisabled() throws Exception
     {
         // first: verify that annotation introspection is enabled by default
@@ -134,6 +145,7 @@ public class TestConfig
     /**
      * Test for verifying working of [JACKSON-191]
      */
+    @Test
     public void testProviderConfig() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -160,6 +172,7 @@ public class TestConfig
     }
 
     // Test for [Issue#12]
+    @Test
     public void testIndentWithPassedGenerator() throws Exception
     {
         Indentable input = new Indentable();
@@ -186,6 +199,7 @@ public class TestConfig
         assertEquals(INDENTED, sw.toString());
     }
 
+    @Test
     public void testNoAccessOverrides() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -194,6 +208,7 @@ public class TestConfig
         assertEquals("{\"x\":1}", m.writeValueAsString(new SimpleBean()));
     }
 
+    @Test
     public void testDateFormatConfig() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

@@ -1,10 +1,14 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-public class ProblemHandler3450Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+public class ProblemHandler3450Test
 {
     // [databind#3450]
     static class LenientDeserializationProblemHandler extends DeserializationProblemHandler {
@@ -30,6 +34,7 @@ public class ProblemHandler3450Test extends BaseMapTest
             JsonMapper.builder().addHandler(new LenientDeserializationProblemHandler()).build();
 
     // [databind#3450]
+    @Test
     public void testIntegerCoercion3450() throws Exception
     {
         TestPojo3450Int pojo;
@@ -43,6 +48,7 @@ public class ProblemHandler3450Test extends BaseMapTest
         assertNull(pojo.myInteger);
     }
 
+    @Test
     public void testLongCoercion3450() throws Exception
     {
         TestPojo3450Long pojo;

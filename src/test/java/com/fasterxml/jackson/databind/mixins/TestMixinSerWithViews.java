@@ -2,12 +2,17 @@ package com.fasterxml.jackson.databind.mixins;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMixinSerWithViews
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -159,6 +164,7 @@ public class TestMixinSerWithViews
     /**********************************************************
      */
 
+    @Test
     public void testDataBindingUsage( ) throws Exception
     {
       ObjectMapper objectMapper = createObjectMapper();
@@ -169,6 +175,7 @@ public class TestMixinSerWithViews
       assertTrue( json.indexOf( "\"name\" : \"shown\"" ) > 0 );
     }
 
+    @Test
     public void testIssue560() throws Exception
     {
         A a = new A("myname", 29, "mysurname");

@@ -2,9 +2,15 @@ package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 
-public class RecursiveTypeTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class RecursiveTypeTest
 {
     // for [databind#1301]
     @SuppressWarnings("serial")
@@ -52,6 +58,7 @@ public class RecursiveTypeTest extends BaseMapTest
     }
 
     // for [databind#1301]
+    @Test
     public void testRecursiveType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -69,9 +76,10 @@ public class RecursiveTypeTest extends BaseMapTest
         public String type;
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#938]
+    @Test
     public void testRecursivePair() throws Exception
     {
         JavaType t = MAPPER.constructType(ImmutablePair.class);
@@ -89,9 +97,10 @@ public class RecursiveTypeTest extends BaseMapTest
     }
 
     // for [databind#1301]
+    @Test
     public void testJavaTypeToString() throws Exception
     {
-        TypeFactory tf = objectMapper().getTypeFactory();
+        TypeFactory tf = MAPPER.getTypeFactory();
         String desc = tf.constructType(DataDefinition.class).toString();
         assertNotNull(desc);
         // could try comparing exact message, but since it's informational try looser:
@@ -104,8 +113,9 @@ public class RecursiveTypeTest extends BaseMapTest
     }
 
     // for [databind#1647]
+    @Test
     public void testSuperClassWithReferencedJavaType() {
-        TypeFactory tf = objectMapper().getTypeFactory();
+        TypeFactory tf = MAPPER.getTypeFactory();
         tf.constructType(Base.class); // must be constructed before sub to set the cache correctly
         JavaType subType = tf.constructType(Sub.class);
         // baseTypeFromSub should be a ResolvedRecursiveType in this test

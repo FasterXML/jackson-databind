@@ -4,9 +4,13 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeatures;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for new (2.14) `JsonNodeFeature`
-public class NodeFeaturesTest extends BaseMapTest
+public class NodeFeaturesTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
     private final ObjectReader READER = MAPPER.reader();
@@ -20,6 +24,7 @@ public class NodeFeaturesTest extends BaseMapTest
     private final String JSON_EMPTY = ("{}");
     private final String JSON_WITH_NULL = a2q("{'nvl':null}");
 
+    @Test
     public void testDefaultSettings() throws Exception
     {
         assertTrue(READER.isEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
@@ -31,6 +36,7 @@ public class NodeFeaturesTest extends BaseMapTest
                 .isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES));
     }
 
+    @Test
     public void testImplicitVsExplicit()
     {
         DatatypeFeatures dfs = DatatypeFeatures.defaultFeatures();
@@ -56,11 +62,12 @@ public class NodeFeaturesTest extends BaseMapTest
 
     /*
     /**********************************************************************
-    /* ObjectNode property handling
+    /* ObjectNode property handling: null-handling
     /**********************************************************************
      */
 
     // [databind#3421]
+    @Test
     public void testReadNulls() throws Exception
     {
         // so by default we'll get null included
@@ -85,6 +92,7 @@ public class NodeFeaturesTest extends BaseMapTest
     }
 
     // [databind#3476]
+    @Test
     public void testWriteNulls() throws Exception
     {
         // so by default we'll get null written
@@ -107,6 +115,39 @@ public class NodeFeaturesTest extends BaseMapTest
         doc.putNull("b");
         doc.put("c", true);
         assertEquals(a2q("{'a':1,'c':true}"), w.writeValueAsString(doc));
+    }
+
+    /*
+    /**********************************************************************
+    /* ObjectNode property handling: sorting on write
+    /**********************************************************************
+     */
+
+    // [databind#3476]
+    @Test
+    public void testWriteSortedProperties() throws Exception
+    {
+        assertFalse(WRITER.isEnabled(JsonNodeFeature.WRITE_PROPERTIES_SORTED));
+
+        ObjectNode doc = MAPPER.createObjectNode();
+        doc.put("b", 2);
+        doc.put("c", 3);
+        doc.put("a", 1);
+
+        // by default, retain insertion order:
+        assertEquals(a2q("{'b':2,'c':3,'a':1}"), WRITER.writeValueAsString(doc));
+
+        // but if forcing sorting, changes
+        final String SORTED = a2q("{'a':1,'b':2,'c':3}");
+        ObjectMapper sortingMapper = JsonMapper.builder()
+                .enable(JsonNodeFeature.WRITE_PROPERTIES_SORTED)
+                .build();
+        assertEquals(SORTED, sortingMapper.writeValueAsString(doc));
+
+        // Let's verify ObjectWriter config too
+        ObjectWriter w2 = WRITER.with(JsonNodeFeature.WRITE_PROPERTIES_SORTED);
+        assertTrue(w2.isEnabled(JsonNodeFeature.WRITE_PROPERTIES_SORTED));
+        assertEquals(SORTED, w2.writeValueAsString(doc));
     }
 
     /*

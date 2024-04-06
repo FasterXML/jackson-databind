@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.jsontype.jdk;
 import java.util.*;
 
 import org.junit.Assert;
-
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
@@ -12,13 +12,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TypedContainerSerTest
-	extends BaseMapTest
+	extends DatabindTestUtil
 {
     @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "object-type")
     @JsonSubTypes( { @Type(value = Dog.class, name = "doggy"),
@@ -106,6 +108,7 @@ public class TypedContainerSerTest
     /**********************************************************
      */
 
+	@Test
     public void testPolymorphicWithContainer() throws Exception
     {
 		Dog dog = new Dog("medor");
@@ -122,6 +125,7 @@ public class TypedContainerSerTest
 				.indexOf("\"object-type\":\"doggy\"") >= 0);
     }
 
+	@Test
     public void testIssue329() throws Exception
     {
         ArrayList<Animal> animals = new ArrayList<Animal>();
@@ -133,6 +137,7 @@ public class TypedContainerSerTest
         }
     }
 
+	@Test
     public void testIssue508() throws Exception
     {
         List<List<Issue508A>> l = new ArrayList<List<Issue508A>>();

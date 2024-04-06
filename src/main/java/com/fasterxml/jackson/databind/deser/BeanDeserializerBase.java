@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.ConfigOverride;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -250,7 +251,7 @@ public abstract class BeanDeserializerBase
             ;
 
         // Any transformation we may need to apply?
-        final JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+        final JsonFormat.Value format = beanDesc.findExpectedFormat();
         _serializationShape = format.getShape();
 
         _needViewProcesing = hasViews;
@@ -695,12 +696,29 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
 
     @SuppressWarnings("unchecked")
     private JsonDeserializer<Object> _findDelegateDeserializer(DeserializationContext ctxt,
-            JavaType delegateType, AnnotatedWithParams delegateCreator) throws JsonMappingException
+            JavaType delegateType, AnnotatedWithParams delegateCreator)
+        throws JsonMappingException
     {
-        // Need to create a temporary property to allow contextual deserializers:
-        BeanProperty.Std property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
-                delegateType, null, delegateCreator,
-                PropertyMetadata.STD_OPTIONAL);
+        // 27-Nov-2023, tatu: [databind#4200] Need to resolve PropertyMetadata.
+        //   And all we have is the actual Creator method; but for annotations
+        //   we actually need the one parameter -- if there is one
+        //   (NOTE! This would not work for case of more than one parameter with
+        //   delegation, others injected)
+        final BeanProperty property;
+
+        if ((delegateCreator != null) && (delegateCreator.getParameterCount() == 1)) {
+            AnnotatedMember delegator = delegateCreator.getParameter(0);
+            PropertyMetadata propMd = _getSetterInfo(ctxt, delegator, delegateType);
+            property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
+                    delegateType, null, delegator, propMd);
+        } else {
+            // No creator indicated; or Zero, or more than 2 arguments (since we don't
+            // know which one is the  "real" delegating parameter. Although could possibly
+            // figure it out if someone provides actual use case
+            property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
+                    delegateType, null, delegateCreator,
+                    PropertyMetadata.STD_OPTIONAL);
+        }
         TypeDeserializer td = delegateType.getTypeHandler();
         if (td == null) {
             td = ctxt.getConfig().findTypeDeserializer(delegateType);
@@ -718,6 +736,62 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
             return new TypeWrappedDeserializer(td, dd);
         }
         return dd;
+    }
+
+    /**
+     * Method essentially copied from {@code BasicDeserializerFactory},
+     * needed to find {@link PropertyMetadata} for Delegating Creator,
+     * for access to annotation-derived info.
+     *
+     * @since 2.16.1
+     */
+    protected PropertyMetadata _getSetterInfo(DeserializationContext ctxt,
+            AnnotatedMember accessor, JavaType type)
+    {
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final DeserializationConfig config = ctxt.getConfig();
+
+        PropertyMetadata metadata = PropertyMetadata.STD_OPTIONAL;
+        boolean needMerge = true;
+        Nulls valueNulls = null;
+        Nulls contentNulls = null;
+
+        // NOTE: compared to `POJOPropertyBuilder`, we only have access to creator
+        // parameter, not other accessors, so code bit simpler
+        // Ok, first: does property itself have something to say?
+        if (intr != null) {
+            JsonSetter.Value setterInfo = intr.findSetterInfo(accessor);
+            if (setterInfo != null) {
+                valueNulls = setterInfo.nonDefaultValueNulls();
+                contentNulls = setterInfo.nonDefaultContentNulls();
+            }
+        }
+        // If not, config override?
+        if (needMerge || (valueNulls == null) || (contentNulls == null)) {
+            ConfigOverride co = config.getConfigOverride(type.getRawClass());
+            JsonSetter.Value setterInfo = co.getSetterInfo();
+            if (setterInfo != null) {
+                if (valueNulls == null) {
+                    valueNulls = setterInfo.nonDefaultValueNulls();
+                }
+                if (contentNulls == null) {
+                    contentNulls = setterInfo.nonDefaultContentNulls();
+                }
+            }
+        }
+        if (needMerge || (valueNulls == null) || (contentNulls == null)) {
+            JsonSetter.Value setterInfo = config.getDefaultSetterInfo();
+            if (valueNulls == null) {
+                valueNulls = setterInfo.nonDefaultValueNulls();
+            }
+            if (contentNulls == null) {
+                contentNulls = setterInfo.nonDefaultContentNulls();
+            }
+        }
+        if ((valueNulls != null) || (contentNulls != null)) {
+            metadata = metadata.withNulls(valueNulls, contentNulls);
+        }
+        return metadata;
     }
 
     /**
@@ -1398,7 +1472,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (pojo == null) { // not yet; should wait...
             throw new UnresolvedForwardReference(p,
                     "Could not resolve Object Id ["+id+"] (for "+_beanType+").",
-                    p.getCurrentLocation(), roid);
+                    p.currentLocation(), roid);
         }
         return pojo;
     }
@@ -1856,7 +1930,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      *   {@link JsonMappingException} are to be passed as is
      *</ul>
      */
-    public void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
+    public <T> T wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
         throws IOException
     {
         // Need to add reference information
@@ -1887,7 +1961,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return t;
     }
 
-    protected Object wrapInstantiationProblem(Throwable t, DeserializationContext ctxt)
+    @SuppressWarnings("unchecked")
+    protected <T> T wrapInstantiationProblem(Throwable t, DeserializationContext ctxt)
         throws IOException
     {
         while (t instanceof InvocationTargetException && t.getCause() != null) {
@@ -1905,6 +1980,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (!ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
             ClassUtil.throwIfRTE(t);
         }
-        return ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
+        return (T) ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
     }
 }

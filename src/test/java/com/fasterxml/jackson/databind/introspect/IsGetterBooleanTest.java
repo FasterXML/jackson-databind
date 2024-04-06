@@ -5,9 +5,14 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.databind.*;
+import org.junit.jupiter.api.Test;
 
-public class IsGetterBooleanTest extends BaseMapTest
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class IsGetterBooleanTest extends DatabindTestUtil
 {
     // [databind#3609]
     static class POJO3609 {
@@ -42,6 +47,7 @@ public class IsGetterBooleanTest extends BaseMapTest
      */
 
     // [databind#3609]
+    @Test
     public void testAllowIntIsGetter() throws Exception
     {
         ObjectMapper MAPPER = jsonMapperBuilder()
@@ -60,6 +66,7 @@ public class IsGetterBooleanTest extends BaseMapTest
     }
 
     // [databind#3609]
+    @Test
     public void testDisallowIntIsGetter() throws Exception
     {
         ObjectMapper MAPPER = jsonMapperBuilder()
@@ -75,6 +82,7 @@ public class IsGetterBooleanTest extends BaseMapTest
     }
 
     // [databind#3836]
+    @Test
     public void testBooleanReference() throws Exception
     {
         assertEquals(a2q("{'atomic':true}"),
@@ -82,6 +90,7 @@ public class IsGetterBooleanTest extends BaseMapTest
     }
 
     // [databind#3836]
+    @Test
     public void testAtomicBoolean() throws Exception
     {
         assertEquals(a2q("{'atomic':true}"),

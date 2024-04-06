@@ -1,10 +1,21 @@
 package com.fasterxml.jackson.databind.type;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.lang.reflect.*;
+import java.util.stream.BaseStream;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
@@ -65,6 +76,15 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Default size used to construct {@link #_typeCache}.
+     *
+     * Used to be passed inline.
+     *
+     * @since 2.16
+     */
+    public static final int DEFAULT_MAX_CACHE_SIZE = 200;
+
     private final static JavaType[] NO_TYPES = new JavaType[0];
 
     /**
@@ -94,6 +114,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     private final static Class<?> CLS_JSON_NODE = JsonNode.class; // since 2.10
 
     private final static Class<?> CLS_BOOL = Boolean.TYPE;
+    private final static Class<?> CLS_DOUBLE = Double.TYPE;
     private final static Class<?> CLS_INT = Integer.TYPE;
     private final static Class<?> CLS_LONG = Long.TYPE;
 
@@ -105,6 +126,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
 
     // note: these are primitive, hence no super types
     protected final static SimpleType CORE_TYPE_BOOL = new SimpleType(CLS_BOOL);
+    protected final static SimpleType CORE_TYPE_DOUBLE = new SimpleType(CLS_DOUBLE);
     protected final static SimpleType CORE_TYPE_INT = new SimpleType(CLS_INT);
     protected final static SimpleType CORE_TYPE_LONG = new SimpleType(CLS_LONG);
 
@@ -171,39 +193,17 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
 
     private TypeFactory() {
-        this((LookupCache<Object,JavaType>) null);
-    }
-
-    /**
-     * @since 2.8
-     * @deprecated Since 2.12
-     */
-    @Deprecated // since 2.12
-    protected TypeFactory(LRUMap<Object,JavaType> typeCache) {
-        this((LookupCache<Object,JavaType>) typeCache);
+        this(new LRUMap<>(16, DEFAULT_MAX_CACHE_SIZE));
     }
 
     /**
      * @since 2.12
      */
     protected TypeFactory(LookupCache<Object,JavaType> typeCache) {
-        if (typeCache == null) {
-            typeCache = new LRUMap<>(16, 200);
-        }
-        _typeCache = typeCache;
+        _typeCache = Objects.requireNonNull(typeCache);
         _parser = new TypeParser(this);
         _modifiers = null;
         _classLoader = null;
-    }
-
-    /**
-     * @deprecated Since 2.12
-     */
-    @Deprecated // since 2.12
-    protected TypeFactory(LRUMap<Object,JavaType> typeCache, TypeParser p,
-            TypeModifier[] mods, ClassLoader classLoader)
-    {
-        this((LookupCache<Object,JavaType>) typeCache, p, mods, classLoader);
     }
 
     /**
@@ -213,7 +213,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
                           TypeModifier[] mods, ClassLoader classLoader)
     {
         if (typeCache == null) {
-            typeCache = new LRUMap<>(16, 200);
+            typeCache = new LRUMap<>(16, DEFAULT_MAX_CACHE_SIZE);
         }
         _typeCache = typeCache;
         // As per [databind#894] must ensure we have back-linkage from TypeFactory:
@@ -271,8 +271,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
 
     /**
      * Mutant factory method that will construct new {@link TypeFactory} with
-     * identical settings except for different cache; most likely one with
-     * bigger maximum size.
+     * identical settings except for different cache.
      *
      * @since 2.12
      */
@@ -282,7 +281,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
 
     /**
      * Method used to access the globally shared instance, which has
-     * no custom configuration. Used by <code>ObjectMapper</code> to
+     * no custom configuration. Used by {@code ObjectMapper} to
      * get the default factory when constructed.
      */
     public static TypeFactory defaultInstance() { return instance; }
@@ -329,8 +328,18 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     public static Class<?> rawClass(Type t) {
         if (t instanceof Class<?>) {
             return (Class<?>) t;
+        } else if (t instanceof JavaType) {
+            return ((JavaType) t).getRawClass();
+        } else if (t instanceof GenericArrayType) {
+            return Array.newInstance(rawClass(((GenericArrayType) t).getGenericComponentType()), 0).getClass();
+        } else if (t instanceof ParameterizedType) {
+            return rawClass(((ParameterizedType) t).getRawType());
+        } else if (t instanceof TypeVariable<?>) {
+            return rawClass(((TypeVariable<?>) t).getBounds()[0]);
+        } else if (t instanceof WildcardType) {
+            return rawClass(((WildcardType) t).getUpperBounds()[0]);
         }
-        // Should be able to optimize bit more in future...
+        // fallback
         return defaultInstance().constructType(t).getRawClass();
     }
 
@@ -694,6 +703,23 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
             return NO_TYPES;
         }
         return match.getBindings().typeParameterArray();
+    }
+
+    /**
+     * Specialized alternative to {@link #findTypeParameters}
+     *
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    public JavaType findFirstTypeParameter(JavaType type, Class<?> expType)
+    {
+        JavaType match = type.findSuperType(expType);
+        if (match != null) {
+            JavaType t = match.getBindings().getBoundTypeOrNull(0);
+            if (t != null) {
+                return t;
+            }
+        }
+        return _unknownType();
     }
 
     /**
@@ -1318,6 +1344,30 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         return ReferenceType.construct(rawClass, bindings, superClass, superInterfaces, ct);
     }
 
+    private JavaType _iterationType(Class<?> rawClass, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInterfaces)
+    {
+        List<JavaType> typeParams = bindings.getTypeParameters();
+        // ok to have no types ("raw")
+        JavaType ct;
+        if (typeParams.isEmpty()) {
+            ct = _unknownType();
+        } else if (typeParams.size() == 1) {
+            ct = typeParams.get(0);
+        } else {
+            throw new IllegalArgumentException("Strange Iteration type "+rawClass.getName()+": cannot determine type parameters");
+        }
+        return _iterationType(rawClass, bindings, superClass, superInterfaces, ct);
+    }
+
+    private JavaType _iterationType(Class<?> rawClass, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInterfaces,
+            JavaType iteratedType)
+    {
+        return IterationType.construct(rawClass, bindings, superClass, superInterfaces,
+                iteratedType);
+    }
+
     /**
      * Factory method to call when no special {@link JavaType} is needed,
      * no generic parameters are passed. Default implementation may check
@@ -1372,6 +1422,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             if (clz == CLS_BOOL) return CORE_TYPE_BOOL;
             if (clz == CLS_INT) return CORE_TYPE_INT;
             if (clz == CLS_LONG) return CORE_TYPE_LONG;
+            if (clz == CLS_DOUBLE) return CORE_TYPE_DOUBLE;
         } else {
             if (clz == CLS_STRING) return CORE_TYPE_STRING;
             if (clz == CLS_OBJECT) return CORE_TYPE_OBJECT; // since 2.7
@@ -1582,9 +1633,25 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             return _referenceType(rawType, bindings, superClass, superInterfaces);
         }
         // 01-Nov-2015, tatu: As of 2.7, couple of potential `CollectionLikeType`s (like
-        //    `Iterable`, `Iterator`), and `MapLikeType`s (`Map.Entry`) are not automatically
+        //    `Iterable`), and `MapLikeType`s (`Map.Entry`) are not automatically
         //    detected, related to difficulties in propagating type upwards (Iterable, for
         //    example, is a weak, tag-on type). They may be detectable in future.
+        // 23-May-2023, tatu: As of 2.16 we do, however, recognized certain `IterationType`s.
+        if (rawType == Iterator.class || rawType == Stream.class) {
+            return _iterationType(rawType, bindings, superClass, superInterfaces);
+        }
+        if (BaseStream.class.isAssignableFrom(rawType)) {
+            if (DoubleStream.class.isAssignableFrom(rawType)) {
+                return _iterationType(rawType, bindings, superClass, superInterfaces,
+                        CORE_TYPE_DOUBLE);
+            } else if (IntStream.class.isAssignableFrom(rawType)) {
+                return _iterationType(rawType, bindings, superClass, superInterfaces,
+                        CORE_TYPE_INT);
+            } else if (LongStream.class.isAssignableFrom(rawType)) {
+                return _iterationType(rawType, bindings, superClass, superInterfaces,
+                        CORE_TYPE_LONG);
+            }
+        }
         return null;
     }
 
@@ -1638,6 +1705,22 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
                 pt[i] = _fromAny(context, args[i], parentBindings);
             }
             newBindings = TypeBindings.create(rawType, pt);
+
+            // [databind#4118] Unbind any wildcards with a less specific upper bound than
+            // declared on the type variable (since 2.16)
+
+            // [databind#4147] Regressum Maximum, alas! Need to undo fix due to side effects;
+            // plan is to re-tackle in 2.17
+            /*
+            for (int i = 0; i < paramCount; ++i) {
+                if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
+                    TypeVariable<? extends Class<?>> typeVariable = rawType.getTypeParameters()[i];
+                    if (pt[i].getRawClass().isAssignableFrom(rawClass(typeVariable))) {
+                        newBindings = newBindings.withoutVariable(typeVariable.getName());
+                    }
+                }
+            }
+            */
         }
         return _fromClass(context, rawType, newBindings);
     }

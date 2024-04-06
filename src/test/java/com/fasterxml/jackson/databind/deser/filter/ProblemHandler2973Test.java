@@ -2,14 +2,20 @@ package com.fasterxml.jackson.databind.deser.filter;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-public class ProblemHandler2973Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class ProblemHandler2973Test
 {
     // [databind#2973]
     static class WeirdTokenHandler
@@ -34,6 +40,7 @@ public class ProblemHandler2973Test extends BaseMapTest
      */
 
     // [databind#2973]
+    @Test
     public void testUnexpectedToken2973() throws Exception
     {
         // First: without handler, should get certain failure
@@ -49,7 +56,7 @@ public class ProblemHandler2973Test extends BaseMapTest
         mapper = jsonMapperBuilder()
             .addHandler(new WeirdTokenHandler())
             .build();
-        ;
+
         String str = mapper.readValue("{ }", String.class);
         assertEquals("START_OBJECT", str);
     }

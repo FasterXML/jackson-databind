@@ -4,14 +4,18 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [databind#888]
-public class JsonIncludeCustomTest extends BaseMapTest
+public class JsonIncludeCustomTest extends DatabindTestUtil
 {
     static class FooFilter {
         @Override
@@ -87,12 +91,14 @@ public class JsonIncludeCustomTest extends BaseMapTest
 
     final private ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testSimpleCustomFilter() throws Exception
     {
         assertEquals(a2q("{'value':'x'}"), MAPPER.writeValueAsString(new FooBean("x")));
         assertEquals("{}", MAPPER.writeValueAsString(new FooBean("foo")));
     }
 
+    @Test
     public void testCustomFilterWithMap() throws Exception
     {
         FooMapBean input = new FooMapBean()
@@ -104,6 +110,7 @@ public class JsonIncludeCustomTest extends BaseMapTest
     }
 
     // [databind#3481]
+    @Test
     public void testRepeatedCalls() throws Exception
     {
         CountingFooFilter.counter.set(0);
@@ -126,6 +133,7 @@ public class JsonIncludeCustomTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testBrokenFilter() throws Exception
     {
         try {

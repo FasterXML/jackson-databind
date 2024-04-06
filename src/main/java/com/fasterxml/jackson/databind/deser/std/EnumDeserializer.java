@@ -47,6 +47,8 @@ public class EnumDeserializer
     /**
      * Alternatively, we may need a different lookup object if "use toString"
      * is defined.
+     * <p>
+     * Note: this will be final in Jackson 3.x, by removing deprecated {@link #_getToStringLookup(DeserializationContext)}
      *
      * @since 2.7.3
      */
@@ -76,15 +78,19 @@ public class EnumDeserializer
 
     /**
      * @since 2.9
+     * @deprecated since 2.16
      */
+    @Deprecated
     public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
     {
-        this(byNameResolver, caseInsensitive, null);
+        this(byNameResolver, caseInsensitive, null, null);
     }
 
     /**
      * @since 2.15
+     * @deprecated since 2.16
      */
+    @Deprecated
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
                             EnumResolver byEnumNamingResolver)
     {
@@ -95,6 +101,23 @@ public class EnumDeserializer
         _caseInsensitive = caseInsensitive;
         _isFromIntValue = byNameResolver.isFromIntValue();
         _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
+        _lookupByToString = null;
+    }
+
+    /**
+     * @since 2.16
+     */
+    public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
+                            EnumResolver byEnumNamingResolver, EnumResolver toStringResolver)
+    {
+        super(byNameResolver.getEnumClass());
+        _lookupByName = byNameResolver.constructLookup();
+        _enumsByIndex = byNameResolver.getRawEnums();
+        _enumDefaultValue = byNameResolver.getDefaultValue();
+        _caseInsensitive = caseInsensitive;
+        _isFromIntValue = byNameResolver.isFromIntValue();
+        _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
+        _lookupByToString = toStringResolver == null ? null : toStringResolver.constructLookup();
     }
 
     /**
@@ -112,6 +135,7 @@ public class EnumDeserializer
         _useDefaultValueForUnknownEnum = useDefaultValueForUnknownEnum;
         _useNullForUnknownEnum = useNullForUnknownEnum;
         _lookupByEnumNaming = base._lookupByEnumNaming;
+        _lookupByToString = base._lookupByToString;
     }
 
     /**
@@ -212,6 +236,7 @@ public class EnumDeserializer
           JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)).orElse(_useDefaultValueForUnknownEnum);
         Boolean useNullForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
           JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)).orElse(_useNullForUnknownEnum);
+        
         return withResolved(caseInsensitive, useDefaultValueForUnknownEnum, useNullForUnknownEnum);
     }
 
@@ -390,18 +415,25 @@ public class EnumDeserializer
                 // [databind#149]: Allow use of 'String' indexes as well -- unless prohibited (as per above)
                 char c = name.charAt(0);
                 if (c >= '0' && c <= '9') {
-                    try {
-                        int index = Integer.parseInt(name);
-                        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-                            return ctxt.handleWeirdStringValue(_enumClass(), name,
+                    // [databind#4403]: cannot prevent "Stringified" numbers as Enum
+                    // index yet (might need combination of "Does format have Numbers"
+                    // (XML does not f.ex) and new `EnumFeature`. But can disallow "001" etc.
+                    if (c == '0' && name.length() > 1) {
+                        ;
+                    } else {
+                        try {
+                            int index = Integer.parseInt(name);
+                            if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+                                return ctxt.handleWeirdStringValue(_enumClass(), name,
 "value looks like quoted Enum index, but `MapperFeature.ALLOW_COERCION_OF_SCALARS` prevents use"
-                                    );
+                                        );
+                            }
+                            if (index >= 0 && index < _enumsByIndex.length) {
+                                return _enumsByIndex[index];
+                            }
+                        } catch (NumberFormatException e) {
+                            // fine, ignore, was not an integer
                         }
-                        if (index >= 0 && index < _enumsByIndex.length) {
-                            return _enumsByIndex[index];
-                        }
-                    } catch (NumberFormatException e) {
-                        // fine, ignore, was not an integer
                     }
                 }
             }
@@ -429,6 +461,14 @@ public class EnumDeserializer
         return handledType();
     }
 
+    /**
+     * Since 2.16, {@link #_lookupByToString} it is passed via 
+     * {@link #EnumDeserializer(EnumResolver, boolean, EnumResolver, EnumResolver)}, so there is no need for lazy
+     * initialization. But kept for backward-compatilibility reasons. In case {@link #_lookupByToString} is null.
+     *
+     * @deprecated Since 2.16
+     */
+    @Deprecated
     protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt) {
         CompactStringObjectMap lookup = _lookupByToString;
         if (lookup == null) {

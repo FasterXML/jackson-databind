@@ -1,53 +1,51 @@
 package com.fasterxml.jackson.failing;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.BaseMapTest;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#3681]: JsonSubTypes declared on multiple interfaces of a class
 // results in order-dependent resolution and outcome
-public class JsonTypeIdConflict3681Test extends BaseMapTest {
-
-    /*
-    /**********************************************************
-    /* Set up
-    /**********************************************************
-    */
+class JsonTypeIdConflict3681Test extends DatabindTestUtil {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes({
-        @JsonSubTypes.Type(name = "a_impl", value = A_Impl.class)
+            @JsonSubTypes.Type(name = "a_impl", value = A_Impl.class)
     })
-    private interface A {}
+    private interface A {
+    }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes({
-        @JsonSubTypes.Type(name = "b_impl", value = B_Impl.class),
+            @JsonSubTypes.Type(name = "b_impl", value = B_Impl.class),
     })
-    private interface B {}
+    private interface B {
+    }
 
     /**
      * NOTE: the <b>"order"</b> of declarations on inherited interfaces makes
      * the difference in how types are resolved here.
      */
-    private interface C extends B, A {}
+    private interface C extends B, A {
+    }
 
-    private static class A_Impl implements C {}
+    private static class A_Impl implements C {
+    }
 
-    private static class B_Impl implements B {}
+    private static class B_Impl implements B {
+    }
 
     private static class WrapperC {
         @JsonProperty
         public C c;
     }
-
-    /*
-    /**********************************************************
-    /* Tests
-    /**********************************************************
-    */
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -59,10 +57,9 @@ public class JsonTypeIdConflict3681Test extends BaseMapTest {
      *  private interface C extends A, B {}
      * </pre>
      */
-    public void testFailureWithTypeIdConflict() throws Exception {
+    @Test
+    void failureWithTypeIdConflict() throws Exception {
         WrapperC c = MAPPER.readValue(a2q("{'c': {'type': 'c_impl'}}"), WrapperC.class);
         assertNotNull(c);
     }
-    // com.fasterxml.jackson.databind.exc.InvalidTypeIdException: Could not resolve type id 'c_impl' as a subtype
-    // of `com.fasterxml.jackson.failing.JsonTypeIdConflict3681Test$C`: known type ids = [b_impl] (for POJO property 'c')
 }

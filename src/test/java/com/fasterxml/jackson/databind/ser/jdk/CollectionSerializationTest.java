@@ -3,15 +3,20 @@ package com.fasterxml.jackson.databind.ser.jdk;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class CollectionSerializationTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     enum Key { A, B, C };
 
@@ -86,8 +91,9 @@ public class CollectionSerializationTest
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private final static ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testCollections() throws IOException
     {
         // Let's try different collections, arrays etc
@@ -136,6 +142,7 @@ public class CollectionSerializationTest
     }
 
     @SuppressWarnings("resource")
+    @Test
     public void testBigCollection() throws IOException
     {
         final int COUNT = 9999;
@@ -179,6 +186,7 @@ public class CollectionSerializationTest
         }
     }
 
+    @Test
     public void testEnumMap() throws IOException
     {
         EnumMap<Key,String> map = new EnumMap<Key,String>(Key.class);
@@ -192,6 +200,7 @@ public class CollectionSerializationTest
     // Test that checks that empty collections are properly serialized
     // when they are Bean properties
     @SuppressWarnings("unchecked")
+    @Test
     public void testEmptyBeanCollection() throws IOException
     {
         Collection<Object> x = new ArrayList<Object>();
@@ -205,6 +214,7 @@ public class CollectionSerializationTest
         assertEquals(x, x2);
     }
 
+    @Test
     public void testNullBeanCollection()
         throws IOException
     {
@@ -216,6 +226,7 @@ public class CollectionSerializationTest
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testEmptyBeanEnumMap() throws IOException
     {
         EnumMap<Key,String> map = new EnumMap<Key,String>(Key.class);
@@ -231,6 +242,7 @@ public class CollectionSerializationTest
     }
 
     // Should also be able to serialize null EnumMaps as expected
+    @Test
     public void testNullBeanEnumMap() throws IOException
     {
         EnumMapBean b = new EnumMapBean(null);
@@ -241,6 +253,7 @@ public class CollectionSerializationTest
         assertNull(result.get("map"));
     }
 
+    @Test
     public void testListSerializer() throws IOException
     {
         assertEquals(q("[ab, cd, ef]"),
@@ -250,6 +263,7 @@ public class CollectionSerializationTest
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testEmptyListOrArray() throws IOException
     {
         // by default, empty lists serialized normally
@@ -260,12 +274,13 @@ public class CollectionSerializationTest
         assertEquals("{\"empty\":[]}", MAPPER.writeValueAsString(array));
 
         // note: value of setting may be cached when constructing serializer, need a new instance
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         m.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         assertEquals("{}", m.writeValueAsString(list));
         assertEquals("{}", m.writeValueAsString(array));
     }
 
+    @Test
     public void testStaticList() throws IOException
     {
         // First: au naturel

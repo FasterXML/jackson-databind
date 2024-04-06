@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.reflect.*;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -247,7 +248,7 @@ public final class AnnotatedMethod
 
     @Override
     public int hashCode() {
-        return _method.getName().hashCode();
+        return _method.hashCode();
     }
 
     @Override
@@ -256,13 +257,8 @@ public final class AnnotatedMethod
         if (!ClassUtil.hasClass(o, getClass())) {
             return false;
         }
-
         AnnotatedMethod other = (AnnotatedMethod) o;
-        if (other._method == null) {
-            return _method == null;
-        } else {
-            return other._method.equals(_method);
-        }
+        return Objects.equals(_method, other._method);
     }
 
     /*

@@ -144,7 +144,7 @@ public abstract class StdSerializer<T>
     {
         ObjectNode schema = (ObjectNode) getSchema(provider, typeHint);
         if (!isOptional) {
-            schema.put("required", !isOptional);
+            schema.put("required", true);
         }
         return schema;
     }
@@ -166,7 +166,7 @@ public abstract class StdSerializer<T>
     {
         ObjectNode schema = createSchemaNode(type);
         if (!isOptional) {
-            schema.put("required", !isOptional);
+            schema.put("required", true);
         }
         return schema;
     }

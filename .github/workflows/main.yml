@@ -4,7 +4,8 @@ on:
     branches:
     - master
     - "3.0"
-    - "2.15"
+    - "2.18"
+    - "2.17"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -12,7 +13,8 @@ on:
     branches:
     - master
     - "3.0"
-    - "2.15"
+    - "2.18"
+    - "2.17"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -25,14 +27,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['8', '11', '17']
+        java_version: ['8', '11', '17', '21']
         os: ['ubuntu-20.04']
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
-    - uses: actions/checkout@v3.5.2
+    - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
     - name: Set up JDK
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
@@ -63,7 +65,7 @@ jobs:
       run: ./mvnw -B -q -ff -ntp test
     - name: Publish code coverage
       if: github.event_name != 'pull_request' && matrix.java_version == '8'
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@c16abc29c95fcf9174b58eb7e1abf4c866893bc8 # v4.1.1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./target/site/jacoco/jacoco.xml

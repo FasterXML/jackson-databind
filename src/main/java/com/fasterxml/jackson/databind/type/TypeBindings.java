@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.type;
 
-import java.lang.reflect.*;
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.JavaType;
@@ -213,6 +213,24 @@ public class TypeBindings
         return new TypeBindings(_names, _types, names);
     }
 
+    /**
+     * Create a new instance with the same bindings as this object, except with
+     * the given variable removed. This is used to create generic types that are
+     * "partially raw", i.e. only have some variables bound.
+     *
+     * @since 2.16
+     */
+    public TypeBindings withoutVariable(String name)
+    {
+        int index = Arrays.asList(_names).indexOf(name);
+        if (index == -1) {
+            return this;
+        }
+        JavaType[] newTypes = _types.clone();
+        newTypes[index] = null;
+        return new TypeBindings(_names, newTypes, _unboundVariables);
+    }
+
     /*
     /**********************************************************************
     /* Accessors
@@ -287,7 +305,30 @@ name, i, t.getRawClass()));
         return _names[index];
     }
 
+    /**
+     * Get the type bound to the variable at {@code index}. If the type is {@link #withoutVariable(String) not bound}
+     * but the index is within {@link #size()} constraints, this method returns {@link TypeFactory#unknownType()} for
+     * compatibility. If the index is out of {@link #size()} constraints, this method will still return {@code null}.
+     */
     public JavaType getBoundType(int index)
+    {
+        if (index < 0 || index >= _types.length) {
+            return null;
+        }
+        JavaType type = _types[index];
+        if (type == null) {
+            type = TypeFactory.unknownType();
+        }
+        return type;
+    }
+
+    /**
+     * Get the type bound to the variable at {@code index}. If the type is {@link #withoutVariable(String) not bound}
+     * or the index is within {@link #size()} constraints, this method returns {@code null}.
+     *
+     * @since 2.16
+     */
+    public JavaType getBoundTypeOrNull(int index)
     {
         if (index < 0 || index >= _types.length) {
             return null;
@@ -303,7 +344,17 @@ name, i, t.getRawClass()));
         if (_types.length == 0) {
             return Collections.emptyList();
         }
-        return Arrays.asList(_types);
+        List<JavaType> list = Arrays.asList(_types);
+        if (list.contains(null)) {
+            // jackson-databind#4122
+            list = new ArrayList<>(list);
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i) == null) {
+                    list.set(i, TypeFactory.unknownType());
+                }
+            }
+        }
+        return list;
     }
 
     /**
@@ -356,8 +407,12 @@ name, i, t.getRawClass()));
                 sb.append(',');
             }
 //            sb = _types[i].appendBriefDescription(sb);
-            String sig = _types[i].getGenericSignature();
-            sb.append(sig);
+            JavaType type = _types[i];
+            if (type == null) {
+                sb.append("?");
+            } else {
+                sb.append(type.getGenericSignature());
+            }
         }
         sb.append('>');
         return sb.toString();
@@ -481,7 +536,7 @@ name, i, t.getRawClass()));
 
                 if (len == otherParams.length) {
                     for (int i = 0; i < len; ++i) {
-                        if (!_params[i].equals(otherParams[i])) {
+                        if (!Objects.equals(_params[i], otherParams[i])) {
                             return false;
                         }
                     }

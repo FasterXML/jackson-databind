@@ -1,10 +1,15 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestPolymorphicWithDefaultImpl1565 extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestPolymorphicWithDefaultImpl1565 extends DatabindTestUtil
 {
     // [databind#1565]
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY,
@@ -76,6 +81,7 @@ public class TestPolymorphicWithDefaultImpl1565 extends BaseMapTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     // [databind#1565]
+    @Test
     public void testIncompatibleDefaultImpl1565() throws Exception
     {
         String value = "{\"typeInfo\": \"derived\", \"name\": \"John\", \"description\": \"Owner\"}";
@@ -84,6 +90,7 @@ public class TestPolymorphicWithDefaultImpl1565 extends BaseMapTest
     }
 
     // [databind#1861]
+    @Test
     public void testWithIncompatibleTargetType1861() throws Exception
     {
         // Should allow deserialization even if `defaultImpl` incompatible

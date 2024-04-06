@@ -3,19 +3,24 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tests use of @JsonClass Annotation
  * with bean serialization.
  */
 public class TestJsonSerialize
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -131,9 +136,10 @@ public class TestJsonSerialize
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = objectMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testSimpleValueDefinition() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForAs());
@@ -145,6 +151,7 @@ public class TestJsonSerialize
         assertEquals(Integer.valueOf(3), result.get("x"));
     }
 
+    @Test
     public void testBrokenAnnotation() throws Exception
     {
         try {
@@ -156,6 +163,7 @@ public class TestJsonSerialize
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testStaticTypingForClass() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForStaticTyping());
@@ -168,6 +176,7 @@ public class TestJsonSerialize
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testMixedTypingForClass() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForStaticTyping2());
@@ -187,6 +196,7 @@ public class TestJsonSerialize
         assertEquals(Integer.valueOf(5), dyn.get("y"));
     }
 
+    @Test
     public void testStaticTypingWithMap() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -197,6 +207,7 @@ public class TestJsonSerialize
         assertEquals("{\"a\":{\"x\":3}}", serializeAsString(m, map));
     }
 
+    @Test
     public void testStaticTypingWithArrayList() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -207,6 +218,7 @@ public class TestJsonSerialize
         assertEquals("[{\"x\":3}]", m.writeValueAsString(list));
     }
 
+    @Test
     public void testStaticTypingWithLinkedList() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -217,6 +229,7 @@ public class TestJsonSerialize
         assertEquals("[{\"x\":3}]", serializeAsString(m, list));
     }
 
+    @Test
     public void testStaticTypingWithArray() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -226,6 +239,7 @@ public class TestJsonSerialize
         assertEquals("[{\"x\":3}]", serializeAsString(m, array));
     }
 
+    @Test
     public void testIssue294() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
@@ -241,6 +255,7 @@ public class TestJsonSerialize
         public boolean isSomething() { return true; }
     }
 
+    @Test
     public void testWithIsGetter() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

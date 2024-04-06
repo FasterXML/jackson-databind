@@ -1,10 +1,16 @@
 package com.fasterxml.jackson.failing;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.fasterxml.jackson.databind.*;
+import org.junit.jupiter.api.Test;
 
-public class TestUnwrappedWithUnknown650 extends BaseMapTest
-{
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class TestUnwrappedWithUnknown650 extends DatabindTestUtil {
     static class A {
         @JsonUnwrapped
         public B b;
@@ -16,8 +22,8 @@ public class TestUnwrappedWithUnknown650 extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
-    public void testFailOnUnknownPropertyUnwrapped() throws Exception
-    {
+    @Test
+    void failOnUnknownPropertyUnwrapped() throws Exception {
         assertTrue(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
 
         final String JSON = "{'field': 'value', 'bad':'bad value'}";

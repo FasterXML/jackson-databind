@@ -1,20 +1,25 @@
 package com.fasterxml.jackson.failing;
 
-import com.fasterxml.jackson.databind.*;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ImplicitParamsForCreator806Test extends BaseMapTest
-{
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class ImplicitParamsForCreator806Test extends DatabindTestUtil {
     @SuppressWarnings("serial")
-    static class MyParamIntrospector extends JacksonAnnotationIntrospector
-    {
+    static class MyParamIntrospector extends JacksonAnnotationIntrospector {
         @Override
         public String findImplicitPropertyName(AnnotatedMember param) {
             if (param instanceof AnnotatedParameter) {
                 AnnotatedParameter ap = (AnnotatedParameter) param;
-                return "paramName"+ap.getIndex();
+                return "paramName" + ap.getIndex();
             }
             return super.findImplicitPropertyName(param);
         }
@@ -31,21 +36,14 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
         }
     }
 
-    /*
-    /**********************************************************
-    /* Test methods
-    /**********************************************************
-     */
-
     private final ObjectMapper MAPPER = newJsonMapper()
             .setAnnotationIntrospector(new MyParamIntrospector())
-            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-            ;
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
     // for [databind#806]: problem is that renaming occurs too late for implicitly detected
     // Creators
-    public void testImplicitNameWithNamingStrategy() throws Exception
-    {
+    @Test
+    void implicitNameWithNamingStrategy() throws Exception {
         XY value = MAPPER.readValue(a2q("{'param_name0':1,'param_name1':2}"), XY.class);
         assertNotNull(value);
         assertEquals(1, value.x);

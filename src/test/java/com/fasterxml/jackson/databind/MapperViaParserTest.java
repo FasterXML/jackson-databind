@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind;
 import java.io.IOException;
 import java.io.StringReader;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -10,7 +12,12 @@ import com.fasterxml.jackson.core.json.JsonWriteFeature;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-public class MapperViaParserTest  extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.assertToken;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
+public class MapperViaParserTest
 {
     final static int TWO_BYTE_ESCAPED = 0x111;
     final static int THREE_BYTE_ESCAPED = 0x1111;
@@ -74,6 +81,7 @@ public class MapperViaParserTest  extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testPojoReading() throws IOException
     {
         JsonFactory jf = new MappingJsonFactory();
@@ -96,6 +104,7 @@ public class MapperViaParserTest  extends BaseMapTest
     /**
      * Test similar to above, but instead reads a sequence of values
      */
+    @Test
     public void testIncrementalPojoReading() throws IOException
     {
         JsonFactory jf = new MappingJsonFactory();
@@ -129,6 +138,7 @@ public class MapperViaParserTest  extends BaseMapTest
     }
 
     @SuppressWarnings("resource")
+    @Test
     public void testPojoReadingFailing() throws IOException
     {
         // regular factory can't do it, without a call to setCodec()
@@ -143,6 +153,7 @@ public class MapperViaParserTest  extends BaseMapTest
         }
     }
 
+    @Test
     public void testEscapingUsingMapper() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()

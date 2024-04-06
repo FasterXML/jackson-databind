@@ -1,16 +1,21 @@
 package com.fasterxml.jackson.databind.struct;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying that basic {@link JsonUnwrapped} annotation
  * handling works as expected; some more advanced tests are separated out
  * to more specific test classes (like prefix/suffix handling).
  */
-public class TestUnwrapped extends BaseMapTest
+public class TestUnwrapped extends DatabindTestUtil
 {
     static class Unwrapping {
         public String name;
@@ -145,14 +150,16 @@ public class TestUnwrapped extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleUnwrappingSerialize() throws Exception {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         assertEquals("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
                 mapper.writeValueAsString(new Unwrapping("Tatu", 1, 2)));
     }
 
+    @Test
     public void testDeepUnwrappingSerialize() throws Exception {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         assertEquals("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
@@ -165,6 +172,7 @@ public class TestUnwrapped extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSimpleUnwrappedDeserialize() throws Exception
     {
         Unwrapping bean = MAPPER.readValue("{\"name\":\"Tatu\",\"y\":7,\"x\":-13}",
@@ -176,6 +184,7 @@ public class TestUnwrapped extends BaseMapTest
         assertEquals(7, loc.y);
     }
 
+    @Test
     public void testDoubleUnwrapping() throws Exception
     {
         TwoUnwrappedProperties bean = MAPPER.readValue("{\"first\":\"Joe\",\"y\":7,\"last\":\"Smith\",\"x\":-13}",
@@ -190,6 +199,7 @@ public class TestUnwrapped extends BaseMapTest
         assertEquals("Smith", name.last);
     }
 
+    @Test
     public void testDeepUnwrapping() throws Exception
     {
         DeepUnwrapping bean = MAPPER.readValue("{\"x\":3,\"name\":\"Bob\",\"y\":27}",
@@ -203,6 +213,7 @@ public class TestUnwrapped extends BaseMapTest
         assertEquals(27, loc.y);
     }
 
+    @Test
     public void testUnwrappedDeserializeWithCreator() throws Exception
     {
         UnwrappingWithCreator bean = MAPPER.readValue("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
@@ -214,6 +225,7 @@ public class TestUnwrapped extends BaseMapTest
         assertEquals(2, loc.y);
     }
 
+    @Test
     public void testIssue615() throws Exception
     {
         Parent input = new Parent("name");
@@ -222,6 +234,7 @@ public class TestUnwrapped extends BaseMapTest
         assertEquals("name", output.c1.field);
     }
 
+    @Test
     public void testUnwrappedAsPropertyIndicator() throws Exception
     {
         Inner inner = new Inner();
@@ -238,6 +251,7 @@ public class TestUnwrapped extends BaseMapTest
     }
 
     // [databind#1493]: case-insensitive handling
+    @Test
     public void testCaseInsensitiveUnwrap() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -248,6 +262,7 @@ public class TestUnwrapped extends BaseMapTest
     }
 
     // [databind#2088]: accidental skipping of values
+    @Test
     public void testIssue2088UnwrappedFieldsAfterLastCreatorProp() throws Exception
     {
         Issue2088Bean bean = MAPPER.readValue("{\"x\":1,\"a\":2,\"y\":3,\"b\":4}", Issue2088Bean.class);

@@ -131,7 +131,7 @@ public class NumberSerializers {
         @Override
         public void serialize(Object value, JsonGenerator gen,
                 SerializerProvider provider) throws IOException {
-            gen.writeNumber(((Short) value).shortValue());
+            gen.writeNumber((Short) value);
         }
     }
 
@@ -154,7 +154,7 @@ public class NumberSerializers {
         @Override
         public void serialize(Object value, JsonGenerator gen,
                 SerializerProvider provider) throws IOException {
-            gen.writeNumber(((Integer) value).intValue());
+            gen.writeNumber((Integer) value);
         }
 
         // IMPORTANT: copied from `NonTypedScalarSerializerBase`
@@ -196,7 +196,7 @@ public class NumberSerializers {
         @Override
         public void serialize(Object value, JsonGenerator gen,
                 SerializerProvider provider) throws IOException {
-            gen.writeNumber(((Long) value).longValue());
+            gen.writeNumber((Long) value);
         }
     }
 
@@ -211,7 +211,7 @@ public class NumberSerializers {
         @Override
         public void serialize(Object value, JsonGenerator gen,
                 SerializerProvider provider) throws IOException {
-            gen.writeNumber(((Float) value).floatValue());
+            gen.writeNumber((Float) value);
         }
     }
 
@@ -232,7 +232,7 @@ public class NumberSerializers {
         public void serialize(Object value, JsonGenerator gen,
                 SerializerProvider provider) throws IOException
         {
-            gen.writeNumber(((Double) value).doubleValue());
+            gen.writeNumber((Double) value);
         }
 
         // IMPORTANT: copied from `NonTypedScalarSerializerBase`

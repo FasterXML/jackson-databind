@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
@@ -12,16 +14,19 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.POJOPropertyBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying that it is possible to configure
  * construction of {@link BeanSerializer} instances.
  */
 @SuppressWarnings("serial")
-public class BeanSerializerModifierTest extends BaseMapTest
+public class BeanSerializerModifierTest extends DatabindTestUtil
 {
     static class SerializerModifierModule extends SimpleModule
     {
@@ -252,6 +257,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testPropertyRemoval() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -260,6 +266,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         assertEquals("{\"b\":\"b\"}", mapper.writeValueAsString(bean));
     }
 
+    @Test
     public void testPropertyReorder() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -268,6 +275,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", mapper.writeValueAsString(bean));
     }
 
+    @Test
     public void testBuilderReplacement() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -275,6 +283,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         Bean bean = new Bean();
         assertEquals("17", mapper.writeValueAsString(bean));
     }
+    @Test
     public void testSerializerReplacement() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -284,6 +293,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
     }
 
     // for [JACKSON-670]
+    @Test
     public void testEmptyBean() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -299,6 +309,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         assertEquals("{\"bogus\":\"foo\"}", json);
     }
 
+    @Test
     public void testEmptyBean539() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -316,6 +327,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     // [databind#121]
 
+    @Test
     public void testModifyArraySerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -324,6 +336,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         assertEquals("123", mapper.writeValueAsString(new Integer[] { 1, 2 }));
     }
 
+    @Test
     public void testModifyCollectionSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -332,6 +345,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         assertEquals("123", mapper.writeValueAsString(new ArrayList<Integer>()));
     }
 
+    @Test
     public void testModifyMapSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -340,6 +354,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         assertEquals("123", mapper.writeValueAsString(new HashMap<String,String>()));
     }
 
+    @Test
     public void testModifyEnumSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -348,6 +363,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         assertEquals("123", mapper.writeValueAsString(ABC.C));
     }
 
+    @Test
     public void testModifyKeySerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

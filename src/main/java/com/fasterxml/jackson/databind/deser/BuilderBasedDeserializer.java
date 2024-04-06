@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -554,6 +555,13 @@ public class BuilderBasedDeserializer
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) {
                 if (!prop.visibleInView(activeView)) {
+                    // [databind#437]: fields in other views to be considered as unknown properties
+                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)){
+                        ctxt.reportInputMismatch(handledType(),
+                            String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
+                                    " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
+                                ClassUtil.nameOf(handledType()), prop.getName(), activeView.getName()));
+                    }
                     p.skipChildren();
                     continue;
                 }

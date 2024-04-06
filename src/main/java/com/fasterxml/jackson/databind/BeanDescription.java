@@ -40,7 +40,7 @@ public abstract class BeanDescription
 
     /*
     /**********************************************************
-    /* Simple accesors
+    /* Simple accessors
     /**********************************************************
      */
 
@@ -305,9 +305,25 @@ public abstract class BeanDescription
      * defined by defaults and possible annotations.
      * Note that this may be further refined by per-property annotations.
      *
-     * @since 2.1
+     * @since 2.17
      */
-    public abstract JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue);
+    public abstract JsonFormat.Value findExpectedFormat();
+
+    /**
+     * @since 2.1
+     * @deprecated Since 2.17 use {@link #findExpectedFormat()}
+     */
+    @Deprecated // since 2.17
+    public JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue) {
+        JsonFormat.Value v = findExpectedFormat();
+        if (defValue == null) {
+            return v;
+        }
+        if (v == null)  {
+            return defValue;
+        }
+        return defValue.withOverrides(v);
+    }
 
     /**
      * Method for finding {@link Converter} used for serializing instances

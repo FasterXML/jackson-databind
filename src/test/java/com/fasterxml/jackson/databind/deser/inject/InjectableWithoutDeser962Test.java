@@ -1,13 +1,17 @@
 package com.fasterxml.jackson.databind.deser.inject;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.OptBoolean;
 import com.fasterxml.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 // [databind#962]: "pure" Injectable that could not be deserialized
-public class InjectableWithoutDeser962Test extends BaseMapTest
+public class InjectableWithoutDeser962Test
 {
     // [databind#962]
     static class InjectMe
@@ -46,6 +50,7 @@ public class InjectableWithoutDeser962Test extends BaseMapTest
     }
 
     // [databind#962]
+    @Test
     public void testInjected() throws Exception
     {
         InjectMe im = new InjectMe(true);

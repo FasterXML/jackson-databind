@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
@@ -14,11 +14,15 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Test custom value instantiators.
  */
 @SuppressWarnings("serial")
-public class TestValueInstantiator extends BaseMapTest
+public class TestValueInstantiator
 {
     static class MyBean
     {
@@ -335,8 +339,9 @@ public class TestValueInstantiator extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = sharedMapper();
 
+    @Test
     public void testCustomBeanInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -346,6 +351,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals("secret!", bean._secret);
     }
 
+    @Test
     public void testCustomListInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -356,6 +362,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals(0, result.size());
     }
 
+    @Test
     public void testCustomMapInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -372,6 +379,7 @@ public class TestValueInstantiator extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testDelegateBeanInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -381,6 +389,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals("123", bean._secret);
     }
 
+    @Test
     public void testDelegateListInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -391,6 +400,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals(Integer.valueOf(123), result.get(0));
     }
 
+    @Test
     public void testDelegateMapInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -401,6 +411,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals(Integer.valueOf(123), result.values().iterator().next());
     }
 
+    @Test
     public void testCustomDelegateInstantiator() throws Exception
     {
         AnnotatedBeanDelegating value = MAPPER.readValue("{\"a\":3}", AnnotatedBeanDelegating.class);
@@ -416,6 +427,7 @@ public class TestValueInstantiator extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testPropertyBasedBeanInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -443,6 +455,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals("123", bean._secret);
     }
 
+    @Test
     public void testPropertyBasedMapInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -460,6 +473,7 @@ public class TestValueInstantiator extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testBeanFromString() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -478,6 +492,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals("abc", result.value);
     }
 
+    @Test
     public void testBeanFromInt() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -496,6 +511,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals(Integer.valueOf(38), result.value);
     }
 
+    @Test
     public void testBeanFromLong() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -514,6 +530,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals(Long.valueOf(9876543211L), result.value);
     }
 
+    @Test
     public void testBeanFromDouble() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -532,6 +549,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals(Double.valueOf(0.5), result.value);
     }
 
+    @Test
     public void testBeanFromBoolean() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -560,6 +578,7 @@ public class TestValueInstantiator extends BaseMapTest
      * Beyond basic features, it should be possible to even implement
      * polymorphic handling...
      */
+    @Test
     public void testPolymorphicCreatorBean() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -571,6 +590,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals("Axel", ((PolymorphicBean) result).name);
     }
 
+    @Test
     public void testEmptyBean() throws Exception
     {
         AnnotatedBean bean = MAPPER.readValue("{}", AnnotatedBean.class);
@@ -579,6 +599,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals(3, bean.b);
     }
 
+    @Test
     public void testErrorMessageForMissingCtor() throws Exception
     {
         // first fail, check message from JSON Object (no default ctor)
@@ -591,6 +612,7 @@ public class TestValueInstantiator extends BaseMapTest
         }
     }
 
+    @Test
     public void testErrorMessageForMissingStringCtor() throws Exception
     {
         // then from JSON String

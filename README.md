@@ -18,7 +18,8 @@ Naming of classes uses word 'JSON' in many places even though there is no actual
 | Artifact | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind) |
 | OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-databind)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind?utm_source=maven-com-fasterxml-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=readme) |
 | Javadocs | [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-databind.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind) |
-| Code coverage (2.15) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=2.15)](https://codecov.io/github/FasterXML/jackson-databind?branch=2.15) |
+| Code coverage (2.17) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=2.17)](https://codecov.io/github/FasterXML/jackson-databind?branch=2.17) |
+| OpenSSF Score | [![OpenSSF  Scorecard](https://api.securityscorecards.dev/projects/github.com/FasterXML/jackson-databind/badge)](https://securityscorecards.dev/viewer/?uri=github.com/FasterXML/jackson-databind) |
 
 # Get it!
 
@@ -30,7 +31,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>2.14.2</jackson.version>
+  <jackson.version>2.16.0</jackson.version>
   ...
 </properties>
 
@@ -76,10 +77,12 @@ Jackson-databind package baseline JDK requirements are as follows:
 
 ### Android
 
-List is incomplete due to recent addition of compatibility checker.
+List is incomplete due to compatibility checker addition being done for Jackson 2.13.
 
 * 2.13: Android SDK 24+
 * 2.14: Android SDK 26+
+* 2.15: Android SDK 26+
+* 2.16: Android SDK 26+
 
 for information on Android SDK versions to Android Release names see [https://en.wikipedia.org/wiki/Android_version_history]
 
@@ -156,26 +159,30 @@ Map<String, ResultValue> results = mapper.readValue(jsonSource,
 
 But wait! There is more!
 
+(enters Tree Model...)
+
+### Tree Model
+
 While dealing with `Map`s, `List`s and other "simple" Object types (Strings, Numbers, Booleans) can be simple, Object traversal can be cumbersome.
 This is where Jackson's [Tree model](https://github.com/FasterXML/jackson-databind/wiki/JacksonTreeModel) can come in handy:
 
 ```java
 // can be read as generic JsonNode, if it can be Object or Array; or,
 // if known to be Object, as ObjectNode, if array, ArrayNode etc:
-ObjectNode root = mapper.readTree("stuff.json");
+JsonNode root = mapper.readTree("{ \"name\": \"Joe\", \"age\": 13 }");
 String name = root.get("name").asText();
 int age = root.get("age").asInt();
 
 // can modify as well: this adds child Object as property 'other', set property 'type'
-root.with("other").put("type", "student");
-String json = mapper.writeValueAsString(root);
+root.withObject("/other").put("type", "student");
+String json = mapper.writeValueAsString(root); // prints below
 
 /*
 with above, we end up with something like as 'json' String:
 {
   "name" : "Bob",
   "age" : 13,
-    "other" : {
+  "other" : {
     "type" : "student"
   }
 } 
@@ -183,6 +190,39 @@ with above, we end up with something like as 'json' String:
 ```
 
 Tree Model can be more convenient than data-binding, especially in cases where structure is highly dynamic, or does not map nicely to Java classes.
+
+Finally, feel free to mix and match, and even in the same json document (useful when only part of the document is known and modeled in your code)
+
+```java
+// Some parts of this json are modeled in our code, some are not
+JsonNode root = mapper.readTree(complexJson);
+Person p = mapper.treeToValue(root.get("person"), Person.class); // known single pojo
+Map<String, Object> dynamicmetadata = mapper.treeToValue(root.get("dynamicmetadata"), Map.class); // unknown smallish subfield, convert all to collections
+int singledeep = root.get("deep").get("large").get("hiearchy").get("important").intValue(); // single value in very deep optional subfield, ignoring the rest
+int singledeeppath = root.at("/deep/large/hiearchy/important").intValue(); // json path
+int singledeeppathunique = root.findValue("important").intValue(); // by unique field name
+
+// Send an aggregate json from heterogenous sources
+ObjectNode root = mapper.createObjectNode();
+root.putPOJO("person", new Person("Joe")); // simple pojo
+root.putPOJO("friends", List.of(new Person("Jane"), new Person("Jack"))); // generics
+Map<String, Object> dynamicmetadata = Map.of("Some", "Metadata");
+root.putPOJO("dynamicmetadata", dynamicmetadata);  // collections
+root.putPOJO("dynamicmetadata", mapper.valueToTree(dynamicmetadata)); // same thing
+root.set("dynamicmetadata", mapper.valueToTree(dynamicmetadata)); // same thing
+root.withObject("deep").withObject("large").withObject("hiearchy").put("important", 42); // create as you go
+root.withObject("/deep/large/hiearchy").put("important", 42); // json path
+mapper.writeValueAsString(root);
+```
+
+**Supported for Jackson 2.16+ versions**
+
+```java
+// generics
+List<Person> friends = mapper.treeToValue(root.get("friends"), new TypeReference<List<Person>>() { });
+// create as you go but without trying json path
+root.withObjectProperty("deep").withObjectProperty("large").withObjectProperty("hiearchy").put("important", 42);
+```
 
 ## 5 minute tutorial: Streaming parser, generator
 
@@ -290,9 +330,9 @@ public class MyBean {
 }
 ```
 
-There are other mechanisms to use for systematic naming changes: see [Custom Naming Convention](https://github.com/FasterXML/jackson-databind/wiki/JacksonCustomNamingConvention) for details.
+There are other mechanisms to use for systematic naming changes, including use of "Naming Strategy" (via `@JsonNaming` annotation).
 
-Note, too, that you can use [Mix-in Annotations](https://github.com/FasterXML/jackson-databind/wiki/JacksonMixinAnnotations) to associate all annotations.
+You can use [Mix-in Annotations](https://github.com/FasterXML/jackson-docs/wiki/JacksonMixinAnnotations) to associate any and all Jackson-provided annotations.
 
 ### Annotations: Ignoring properties
 
@@ -557,14 +597,14 @@ usually a Jackson module.
 `master` branch is for developing the next major Jackson version -- 3.0 -- but there
 are active maintenance branches in which much of development happens:
 
-* `2.15` is the branch for "next" minor version to release (as of November 2022)
-* `2.14` is the current stable minor 2.x version
-* `2.13` is for selected backported fixes
+* `2.16` is the branch for "next" minor version to release (as of July 2023)
+* `2.15` is the current stable minor 2.x version
+* `2.14` is for selected backported fixes
 
 Older branches are usually not maintained after being declared as closed
 on [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases) page,
 but exist just in case a rare emergency patch is needed.
-All released versions have matching git tags (`jackson-dataformats-binary-2.12.3`).
+All released versions have matching git tags (e.g. `jackson-dataformats-binary-2.12.3`).
 
 -----
 

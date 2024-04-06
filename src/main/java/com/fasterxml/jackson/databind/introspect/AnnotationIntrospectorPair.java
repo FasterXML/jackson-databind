@@ -97,16 +97,8 @@ public class AnnotationIntrospectorPair
     @Override
     public PropertyName findRootName(AnnotatedClass ac)
     {
-        PropertyName name1 = _primary.findRootName(ac);
-        if (name1 == null) {
-            return _secondary.findRootName(ac);
-        }
-        if (name1.hasSimpleName()) {
-            return name1;
-        }
-        // name1 is empty; how about secondary?
-        PropertyName name2 = _secondary.findRootName(ac);
-        return (name2 == null) ? name1 : name2;
+        return PropertyName.merge(_primary.findRootName(ac),
+                _secondary.findRootName(ac));
     }
 
     // since 2.12
@@ -178,27 +170,6 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    @Deprecated // since 2.8
-    public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
-        String[] result = _primary.findPropertiesToIgnore(ac, forSerialization);
-        if (result == null) {
-            result = _secondary.findPropertiesToIgnore(ac, forSerialization);
-        }
-        return result;
-    }
-
-    @Override
-    @Deprecated // since 2.8
-    public Boolean findIgnoreUnknownProperties(AnnotatedClass ac)
-    {
-        Boolean result = _primary.findIgnoreUnknownProperties(ac);
-        if (result == null) {
-            result = _secondary.findIgnoreUnknownProperties(ac);
-        }
-        return result;
-    }
-
-    @Override
     @Deprecated // since 2.12
     public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated a)
     {
@@ -230,6 +201,19 @@ public class AnnotationIntrospectorPair
     /* Type handling
     /******************************************************
      */
+
+    /**
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    @Override
+    public JsonTypeInfo.Value findPolymorphicTypeInfo(MapperConfig<?> config, Annotated ann)
+    {
+        JsonTypeInfo.Value v = _primary.findPolymorphicTypeInfo(config, ann);
+        if (v == null) {
+            v = _secondary.findPolymorphicTypeInfo(config, ann);
+        }
+        return v;
+    }
 
     @Override
     public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
@@ -451,17 +435,8 @@ public class AnnotationIntrospectorPair
 
     @Override
     public PropertyName findWrapperName(Annotated ann) {
-        PropertyName name = _primary.findWrapperName(ann);
-        if (name == null) {
-            name = _secondary.findWrapperName(ann);
-        } else if (name == PropertyName.USE_DEFAULT) {
-            // does the other introspector have a better idea?
-            PropertyName name2 = _secondary.findWrapperName(ann);
-            if (name2 != null) {
-                name = name2;
-            }
-        }
-        return name;
+        return PropertyName.merge(_primary.findWrapperName(ann),
+                _secondary.findWrapperName(ann));
     }
 
     @Override
@@ -521,11 +496,8 @@ public class AnnotationIntrospectorPair
     @Override // since 2.11
     public PropertyName findRenameByField(MapperConfig<?> config,
             AnnotatedField f, PropertyName implName) {
-        PropertyName n = _secondary.findRenameByField(config, f, implName);
-        if (n == null) {
-            n = _primary.findRenameByField(config, f, implName);
-        }
-        return n;
+        return PropertyName.merge(_secondary.findRenameByField(config, f, implName),
+                    _primary.findRenameByField(config, f, implName));
     }
 
     // // // Serialization: type refinements
@@ -564,17 +536,8 @@ public class AnnotationIntrospectorPair
 
     @Override
     public PropertyName findNameForSerialization(Annotated a) {
-        PropertyName n = _primary.findNameForSerialization(a);
-        // note: "use default" should not block explicit answer, so:
-        if (n == null) {
-            n = _secondary.findNameForSerialization(a);
-        } else if (n == PropertyName.USE_DEFAULT) {
-            PropertyName n2 = _secondary.findNameForSerialization(a);
-            if (n2 != null) {
-                n = n2;
-            }
-        }
-        return n;
+        return PropertyName.merge(_primary.findNameForSerialization(a),
+                _secondary.findNameForSerialization(a));
     }
 
     @Override
@@ -604,6 +567,7 @@ public class AnnotationIntrospectorPair
         return b;
     }
 
+    @Deprecated // since 2.16
     @Override
     public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         // reverse order to give _primary higher precedence
@@ -613,6 +577,16 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[] names) {
+        // reverse order to give _primary higher precedence
+        names = _secondary.findEnumValues(config, annotatedClass, enumValues, names);
+        names = _primary.findEnumValues(config, annotatedClass, enumValues, names);
+        return names;
+    }
+
+    @Deprecated // since 2.16
+    @Override
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
         // reverse order to give _primary higher precedence
         _secondary.findEnumAliases(enumType, enumValues, aliases);
@@ -620,9 +594,24 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public void findEnumAliases(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumConstants, String[][] aliases) {
+        // reverse order to give _primary higher precedence
+        _secondary.findEnumAliases(config, annotatedClass, enumConstants, aliases);
+        _primary.findEnumAliases(config, annotatedClass, enumConstants, aliases);
+    }
+
+    @Override
+    @Deprecated // since 2.16
     public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
         Enum<?> en = _primary.findDefaultEnumValue(enumCls);
         return (en == null) ? _secondary.findDefaultEnumValue(enumCls) : en;
+    }
+    
+    @Override // since 2.16
+    public Enum<?> findDefaultEnumValue(AnnotatedClass annotatedClass, Enum<?>[] enumValues) {
+        Enum<?> en = _primary.findDefaultEnumValue(annotatedClass, enumValues);
+        return (en == null) ? _secondary.findDefaultEnumValue(annotatedClass, enumValues) : en;
     }
 
     @Override
@@ -725,17 +714,9 @@ public class AnnotationIntrospectorPair
     @Override
     public PropertyName findNameForDeserialization(Annotated a)
     {
-        // note: "use default" should not block explicit answer, so:
-        PropertyName n = _primary.findNameForDeserialization(a);
-        if (n == null) {
-            n = _secondary.findNameForDeserialization(a);
-        } else if (n == PropertyName.USE_DEFAULT) {
-            PropertyName n2 = _secondary.findNameForDeserialization(a);
-            if (n2 != null) {
-                n = n2;
-            }
-        }
-        return n;
+        return PropertyName.merge(
+                _primary.findNameForDeserialization(a),
+                _secondary.findNameForDeserialization(a));
     }
 
     @Override

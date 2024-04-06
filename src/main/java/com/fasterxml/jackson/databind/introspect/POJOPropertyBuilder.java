@@ -3,10 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.ConfigOverride;
@@ -394,7 +391,11 @@ public class POJOPropertyBuilder
 
     @Override
     public boolean couldDeserialize() {
-        return (_ctorParameters != null) || (_setters != null) || (_fields != null);
+        return (_ctorParameters != null)
+            || (_setters != null)
+            || ((_fields != null)
+                // [databind#736] Since 2.16 : Fix `REQUIRE_SETTERS_FOR_GETTERS` taking no effect
+                && (_anyVisible(_fields)));
     }
 
     @Override
@@ -623,6 +624,21 @@ public class POJOPropertyBuilder
                     continue;
                 }
             }
+            // 11-Jan-2024, tatu: Wrt [databind#4302] problem here is that we have
+            //   Enum constant fields (static!) added due to change in 2.16.0 (see
+            //  {@code AnnotatedFieldCollector#_isIncludableField}) and they can
+            //  conflict with actual fields.
+            /// Let's resolve conflict in favor of non-static Field.
+            final boolean currStatic = field.isStatic();
+            final boolean nextStatic = nextField.isStatic();
+
+            if (currStatic != nextStatic) {
+                if (currStatic) {
+                    field = nextField;
+                }
+                continue;
+            }
+
             throw new IllegalArgumentException("Multiple fields representing property \""+getName()+"\": "
                     +field.getFullName()+" vs "+nextField.getFullName());
         }
@@ -822,6 +838,19 @@ public class POJOPropertyBuilder
         JsonInclude.Value v = (_annotationIntrospector == null) ?
                 null : _annotationIntrospector.findPropertyInclusion(a);
         return (v == null) ? JsonInclude.Value.empty() : v;
+    }
+
+    // since 2.17
+    @Override
+    public List<PropertyName> findAliases() {
+        AnnotatedMember ann = getPrimaryMember();
+        if (ann != null) {
+            List<PropertyName> propertyNames = _annotationIntrospector.findPropertyAliases(ann);
+            if (propertyNames != null) {
+                return propertyNames;
+            }
+        }
+        return Collections.emptyList();
     }
 
     public JsonProperty.Access findAccess() {

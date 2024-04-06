@@ -16,9 +16,11 @@ import tools.jackson.databind.deser.std.FromStringDeserializer;
  */
 public class CoreXMLDeserializers
 {
+    protected final static QName EMPTY_QNAME = QName.valueOf("");
+
     /**
      * Data type factories are thread-safe after instantiation (and
-     * configuration, if any); and since instantion (esp. implementation
+     * configuration, if any); and since instantiation (esp. implementation
      * introspection) can be expensive we better reuse the instance.
      */
     final static DatatypeFactory _dataTypeFactory;
@@ -113,6 +115,14 @@ public class CoreXMLDeserializers
                 return _gregorianFromDate(ctxt, d);
             }
             throw new IllegalStateException();
+        }
+
+        @Override
+        protected Object _deserializeFromEmptyString(DeserializationContext ctxt) {
+            if (_kind == TYPE_QNAME) {
+                return EMPTY_QNAME;
+            }
+            return super._deserializeFromEmptyString(ctxt);
         }
 
         protected XMLGregorianCalendar _gregorianFromDate(DeserializationContext ctxt,

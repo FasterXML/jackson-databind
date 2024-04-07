@@ -33,6 +33,9 @@ public abstract class StdDeserializer<T>
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
+    // Legitimate or accidental use of more than one nesting level is
+    // plausible, but we have to put the line somewhere.
+    protected static final int maxRecursionDepth = 10;
 
     /**
      * Bitmask that covers {@link DeserializationFeature#USE_BIG_INTEGER_FOR_INTS}
@@ -202,8 +205,12 @@ public abstract class StdDeserializer<T>
         }
         // [databind#381]
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            p.nextToken();
+            if (p.nextToken() == JsonToken.START_ARRAY && ctxt.getPrimitiveRecursionDepth() >= maxRecursionDepth) {
+                return (boolean) handleNestedArrayForSingle(p, ctxt);
+            }
+            ctxt.incPrimitiveRecursionDepth();
             final boolean parsed = _parseBooleanPrimitive(p, ctxt);
+            ctxt.resetPrimitiveRecursionDepth();
             _verifyEndArrayForSingle(p, ctxt);
             return parsed;
         }
@@ -274,8 +281,12 @@ public abstract class StdDeserializer<T>
             return 0;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY && ctxt.getPrimitiveRecursionDepth() >= maxRecursionDepth) {
+                    return (int) handleNestedArrayForSingle(p, ctxt);
+                }
+                ctxt.incPrimitiveRecursionDepth();
                 final int parsed = _parseIntPrimitive(p, ctxt);
+                ctxt.resetPrimitiveRecursionDepth();
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
@@ -334,8 +345,12 @@ public abstract class StdDeserializer<T>
             return 0L;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY && ctxt.getPrimitiveRecursionDepth() >= maxRecursionDepth) {
+                    return (long) handleNestedArrayForSingle(p, ctxt);
+                }
+                ctxt.incPrimitiveRecursionDepth();
                 final long parsed = _parseLongPrimitive(p, ctxt);
+                ctxt.resetPrimitiveRecursionDepth();
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
@@ -380,8 +395,12 @@ public abstract class StdDeserializer<T>
             return 0.0f;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY && ctxt.getPrimitiveRecursionDepth() >= maxRecursionDepth) {
+                    return (float) handleNestedArrayForSingle(p, ctxt);
+                }
+                ctxt.incPrimitiveRecursionDepth();
                 final float parsed = _parseFloatPrimitive(p, ctxt);
+                ctxt.resetPrimitiveRecursionDepth();
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
@@ -441,8 +460,12 @@ public abstract class StdDeserializer<T>
             return 0.0;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY && ctxt.getPrimitiveRecursionDepth() >= maxRecursionDepth) {
+                    return (double) handleNestedArrayForSingle(p, ctxt);
+                }
+                ctxt.incPrimitiveRecursionDepth();
                 final double parsed = _parseDoublePrimitive(p, ctxt);
+                ctxt.resetPrimitiveRecursionDepth();
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
@@ -524,7 +547,12 @@ public abstract class StdDeserializer<T>
                 }
             }
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                if (t == JsonToken.START_ARRAY && ctxt.getPrimitiveRecursionDepth() >= maxRecursionDepth) {
+                    return (java.util.Date) handleNestedArrayForSingle(p, ctxt);
+                }
+                ctxt.incPrimitiveRecursionDepth();
                 final Date parsed = _parseDate(p, ctxt);
+                ctxt.resetPrimitiveRecursionDepth();
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
@@ -728,12 +756,8 @@ public abstract class StdDeserializer<T>
         // 23-Mar-2017, tatu: Let's specifically block recursive resolution to avoid
         //   either supporting nested arrays, or to cause infinite looping.
         if (p.hasToken(JsonToken.START_ARRAY)) {
-            String msg = String.format(
-"Cannot deserialize instance of %s out of %s token: nested Arrays not allowed with %s",
-                    ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
-                    "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
             @SuppressWarnings("unchecked")
-            T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.getCurrentToken(), p, msg);
+            T result = (T) handleNestedArrayForSingle(p, ctxt);
             return result;
         }
         return (T) deserialize(p, ctxt);
@@ -1220,6 +1244,21 @@ public abstract class StdDeserializer<T>
 handledType().getName());
         // 05-May-2016, tatu: Should recover somehow (maybe skip until END_ARRAY);
         //     but for now just fall through
+    }
+
+    /**
+     * Helper method called when detecting a deep(er) nesting of Arrays when trying
+     * to unwrap value for {@code DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS}.
+     *
+     * @since 2.13.4.1
+     */
+    protected Object handleNestedArrayForSingle(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        String msg = String.format(
+"Cannot deserialize instance of %s out of %s token: nested Arrays not allowed with %s",
+                ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
+                "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, msg);
     }
 
     protected void _verifyEndArrayForSingle(JsonParser p, DeserializationContext ctxt) throws IOException

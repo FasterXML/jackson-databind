@@ -96,6 +96,7 @@ public abstract class DeserializationContext
      */
     protected final int _featureFlags;
 
+    protected int _primitiveRecursionDepth;
     /**
      * Currently active view, if any.
      */
@@ -164,6 +165,7 @@ public abstract class DeserializationContext
         }
         _cache = cache;
         _featureFlags = 0;
+        _primitiveRecursionDepth = 0;
         _config = null;
         _injectableValues = null;
         _view = null;
@@ -178,6 +180,7 @@ public abstract class DeserializationContext
         
         _config = src._config;
         _featureFlags = src._featureFlags;
+        _primitiveRecursionDepth = 0;
         _view = src._view;
         _parser = src._parser;
         _injectableValues = src._injectableValues;
@@ -193,9 +196,10 @@ public abstract class DeserializationContext
     {
         _cache = src._cache;
         _factory = src._factory;
-        
+
         _config = config;
         _featureFlags = config.getDeserializationFeatures();
+         _primitiveRecursionDepth = 0;
         _view = config.getActiveView();
         _parser = p;
         _injectableValues = injectableValues;
@@ -211,6 +215,7 @@ public abstract class DeserializationContext
 
         _config = src._config;
         _featureFlags = src._featureFlags;
+        _primitiveRecursionDepth = 0;
         _view = src._view;
         _injectableValues = null;
     }
@@ -373,6 +378,18 @@ public abstract class DeserializationContext
      */
     public final boolean hasSomeOfFeatures(int featureMask) {
         return (_featureFlags & featureMask) != 0;
+    }
+
+    public final int getPrimitiveRecursionDepth(){
+        return _primitiveRecursionDepth;
+    }
+
+    public final void incPrimitiveRecursionDepth() {
+        _primitiveRecursionDepth += 1;
+    }
+
+    public final void resetPrimitiveRecursionDepth() {
+        _primitiveRecursionDepth = 0;
     }
     
     /**

@@ -6,7 +6,10 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
--
+#4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
+  not called on the serializer
+ (reported by Teodor D)
+ (fix by Joo-Hyuk K)
 
 2.17.1 (not yet released)
 
@@ -20,6 +23,9 @@ Project: jackson-databind
   String ".05": not a valid representation
  (reported by @EAlf91)
  (fix by @pjfanning)
+#4441: `@JsonSetter(nulls = Nulls.SKIP)` doesn't work in some situations
+ (reported by @Asapin)
+ (fix by Joo-Hyuk K)
 #4450: Empty QName deserialized as `null`
  (reported by @winfriedgerlach)
 

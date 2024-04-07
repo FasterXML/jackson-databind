@@ -54,7 +54,6 @@ public final class DeserializerCache
     protected final HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
         = new HashMap<JavaType, JsonDeserializer<Object>>(8);
 
-
     /**
      * We hold an explicit lock while creating deserializers to avoid creating duplicates.
      */
@@ -166,7 +165,6 @@ public final class DeserializerCache
         throws JsonMappingException
     {
         Objects.requireNonNull(propertyType, "Null 'propertyType' passed");
-        
         JsonDeserializer<Object> deser = _findCachedDeserializer(propertyType);
         if (deser == null) {
             // If not, need to request factory to construct (or recycle)
@@ -255,26 +253,33 @@ public final class DeserializerCache
         // Only one thread to construct deserializers at any given point in time;
         // limitations necessary to ensure that only completely initialized ones
         // are visible and used.
-
-        try {
-            _incompleteDeserializersLock.lock();
-
-            // Ok, then: could it be that due to a race condition, deserializer can now be found?
-            JsonDeserializer<Object> deser = _findCachedDeserializer(type);
+        final boolean isCustom = _hasCustomHandlers(type);
+        if (!isCustom) {
+            JsonDeserializer<Object> deser = _cachedDeserializers.get(type);
             if (deser != null) {
                 return deser;
             }
+        }
+        _incompleteDeserializersLock.lock();
+        try {
+            if (!isCustom) {
+                JsonDeserializer<Object> deser = _cachedDeserializers.get(type);
+                if (deser != null) {
+                    return deser;
+                }
+            }
+            // Ok, then: could it be that due to a race condition, deserializer can now be found?
             int count = _incompleteDeserializers.size();
             // Or perhaps being resolved right now?
             if (count > 0) {
-                deser = _incompleteDeserializers.get(type);
+                JsonDeserializer<Object> deser = _incompleteDeserializers.get(type);
                 if (deser != null) {
                     return deser;
                 }
             }
             // Nope: need to create and possibly cache
             try {
-                return _createAndCache2(ctxt, factory, type);
+                return _createAndCache2(ctxt, factory, type, isCustom);
             } finally {
                 // also: any deserializers that have been created are complete by now
                 if (count == 0 && _incompleteDeserializers.size() > 0) {
@@ -289,9 +294,20 @@ public final class DeserializerCache
     /**
      * Method that handles actual construction (via factory) and caching (both
      * intermediate and eventual)
+     *
+     * @deprecated Since 2.18 use version of _createAndCache2 that takes `isCustom` flag
      */
+    @Deprecated // since 2.18, remove from 2.19
     protected JsonDeserializer<Object> _createAndCache2(DeserializationContext ctxt,
             DeserializerFactory factory, JavaType type)
+        throws JsonMappingException
+    {
+        return _createAndCache2(ctxt, factory, type, _hasCustomHandlers(type));
+    }
+
+    // @since 2.18
+    protected JsonDeserializer<Object> _createAndCache2(DeserializationContext ctxt,
+            DeserializerFactory factory, JavaType type, boolean isCustom)
         throws JsonMappingException
     {
         JsonDeserializer<Object> deser;
@@ -306,11 +322,11 @@ public final class DeserializerCache
         if (deser == null) {
             return null;
         }
-        /* cache resulting deserializer? always true for "plain" BeanDeserializer
-         * (but can be re-defined for sub-classes by using @JsonCachable!)
-         */
+        // cache resulting deserializer? always true for "plain" BeanDeserializer
+        // (but can be re-defined for sub-classes by using @JsonCachable!)
+
         // 27-Mar-2015, tatu: As per [databind#735], avoid caching types with custom value desers
-        boolean addToCache = !_hasCustomHandlers(type) && deser.isCachable();
+        boolean addToCache = !isCustom && deser.isCachable();
 
         /* we will temporarily hold on to all created deserializers (to
          * handle cyclic references, and possibly reuse non-cached
@@ -321,9 +337,8 @@ public final class DeserializerCache
          *   either not add Lists or Maps, or clear references eagerly.
          *   Let's actually do both; since both seem reasonable.
          */
-        /* Need to resolve? Mostly done for bean deserializers; required for
-         * resolving cyclic references.
-         */
+        // Need to resolve? Mostly done for bean deserializers; required for
+        // resolving cyclic references.
         if (deser instanceof ResolvableDeserializer) {
             _incompleteDeserializers.put(type, deser);
             try {

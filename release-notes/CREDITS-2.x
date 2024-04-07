@@ -1772,6 +1772,6 @@ Oddbjørn Kvalsund (oddbjornkvalsund@github)
   (2.17.1)
 
 Teodor Danciu (teodord@github)
- * Repored #4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
+ * Reported #4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
    not called on the serializer
   (2.18.0)

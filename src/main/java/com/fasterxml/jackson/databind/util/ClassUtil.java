@@ -184,11 +184,15 @@ public final class ClassUtil
     {
         /* As per [JACKSON-187], GAE seems to throw SecurityExceptions
          * here and there... and GAE itself has a bug, too
-         * (see []). Bah. So we need to catch some wayward exceptions on GAE
+         * Bah. So we need to catch some wayward exceptions on GAE
          */
         try {
+            final boolean isStatic = Modifier.isStatic(type.getModifiers());
+
             // one more: method locals, anonymous, are not good:
-            if (hasEnclosingMethod(type)) {
+            // 23-Jun-2020, tatu: [databind#2758] With JDK14+ should allow
+            //    local Record types, however
+            if (!isStatic && hasEnclosingMethod(type)) {
                 return "local/anonymous";
             }
             /* But how about non-static inner classes? Can't construct
@@ -196,7 +200,7 @@ public final class ClassUtil
              * happens to be enclosing... but that gets convoluted)
              */
             if (!allowNonStatic) {
-                if (isNonStaticInnerClass(type)) {
+                if (!isStatic && getEnclosingClass(type) != null) {
                     return "non-static member class";
                 }
             }
@@ -1156,17 +1160,33 @@ public final class ClassUtil
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             if (loader == null){
                 // Nope... this is going to end poorly
-                throw ex;
+                return _failGetClassMethods(cls, ex);
             }
             final Class<?> contextClass;
             try {
                 contextClass = loader.loadClass(cls.getName());
             } catch (ClassNotFoundException e) {
                 ex.addSuppressed(e);
-                throw ex;
+                return _failGetClassMethods(cls, ex);
             }
-            return contextClass.getDeclaredMethods(); // Cross fingers
+            try {
+                return contextClass.getDeclaredMethods(); // Cross fingers
+            } catch (Throwable t) {
+                return _failGetClassMethods(cls, t);
+            }
+        } catch (Throwable t) {
+            return _failGetClassMethods(cls, t);
         }
+    }
+
+    // @since 2.11.4 (see [databind#2807])
+    private static Method[] _failGetClassMethods(Class<?> cls, Throwable rootCause)
+            throws IllegalArgumentException
+    {
+        throw new IllegalArgumentException(String.format(
+"Failed on call to `getDeclaredMethods()` on class `%s`, problem: (%s) %s",
+cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
+                rootCause);
     }
     
     /**

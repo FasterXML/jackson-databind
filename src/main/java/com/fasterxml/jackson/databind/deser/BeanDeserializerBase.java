@@ -65,12 +65,18 @@ public abstract class BeanDeserializerBase
     /**
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
+     *<p>
+     * NOTE: cannot be {@code final} because we need to get it during
+     * {@code resolve()} method (and not contextualization).
      */
     protected JsonDeserializer<Object> _delegateDeserializer;
 
     /**
      * Deserializer that is used iff array-delegate-based creator
      * is to be used for deserializing from JSON Object.
+     *<p>
+     * NOTE: cannot be {@code final} because we need to get it during
+     * {@code resolve()} method (and not contextualization).
      */
     protected JsonDeserializer<Object> _arrayDelegateDeserializer;
 
@@ -84,9 +90,13 @@ public abstract class BeanDeserializerBase
     protected PropertyBasedCreator _propertyBasedCreator;
 
     /**
-     * Flag that is set to mark "non-standard" cases; where either
-     * we use one of non-default creators, or there are unwrapped
-     * values to consider.
+     * Flag that is set to mark cases where deserialization from Object value
+     * using otherwise "standard" property binding will need to use non-default
+     * creation method: namely, either "full" delegation (array-delegation does
+     * not apply), or properties-based Creator method is used.
+     *<p>
+     * Note that flag is somewhat mis-named as it is not affected by scalar-delegating
+     * creators; it only has effect on Object Value binding.
      */
     protected boolean _nonStandardCreation;
 
@@ -200,7 +210,11 @@ public abstract class BeanDeserializerBase
     {
         super(beanDesc.getType());
         _beanType = beanDesc.getType();
+
         _valueInstantiator = builder.getValueInstantiator();
+        _delegateDeserializer = null;
+        _arrayDelegateDeserializer = null;
+        _propertyBasedCreator = null;
         
         _beanProperties = properties;
         _backRefs = backRefs;
@@ -212,9 +226,17 @@ public abstract class BeanDeserializerBase
         _injectables = (injectables == null || injectables.isEmpty()) ? null
                 : injectables.toArray(new ValueInjector[injectables.size()]);
         _objectIdReader = builder.getObjectIdReader();
+
+        // 02-May-2020, tatu: This boolean setting is only used when binding from
+        //    Object value, and hence does not consider "array-delegating" or various
+        //    scalar-delegation cases. It is set when default (0-argument) constructor
+        //    is NOT to be used when binding an Object value (or in case of
+        //    POJO-as-array, Array value).
         _nonStandardCreation = (_unwrappedPropertyHandler != null)
             || _valueInstantiator.canCreateUsingDelegate()
-            || _valueInstantiator.canCreateUsingArrayDelegate() // new in 2.7
+        // [databind#2486]: as per above, array-delegating creator should not be considered
+        //   as doing so will prevent use of Array-or-standard-Object deserialization
+        //            || _valueInstantiator.canCreateUsingArrayDelegate()
             || _valueInstantiator.canCreateFromObjectWith()
             || !_valueInstantiator.canCreateUsingDefault()
             ;
@@ -244,6 +266,7 @@ public abstract class BeanDeserializerBase
         
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
         
         _beanProperties = src._beanProperties;
@@ -270,6 +293,7 @@ public abstract class BeanDeserializerBase
         
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
 
         _backRefs = src._backRefs;
@@ -307,6 +331,7 @@ public abstract class BeanDeserializerBase
         
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
         
         _backRefs = src._backRefs;
@@ -344,6 +369,7 @@ public abstract class BeanDeserializerBase
         
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
 
         _backRefs = src._backRefs;
@@ -375,6 +401,7 @@ public abstract class BeanDeserializerBase
 
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
 
         _beanProperties = beanProps;

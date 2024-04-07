@@ -7,10 +7,9 @@ import com.fasterxml.jackson.databind.*;
 public class DelegatingExternalProperty1003Test extends BaseMapTest
 {
     static class HeroBattle {
+        final Hero hero;
 
-        private final Hero hero;
-
-        private HeroBattle(Hero hero) {
+        HeroBattle(Hero hero) {
             if (hero == null) throw new Error();
             this.hero = hero;
         }

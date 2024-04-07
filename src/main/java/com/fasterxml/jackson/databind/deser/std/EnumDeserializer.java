@@ -170,7 +170,9 @@ public class EnumDeserializer
         JsonToken curr = p.currentToken();
 
         // Usually should just get string value:
-        if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
+        // 04-Sep-2020, tatu: for 2.11.3 / 2.12.0, removed "FIELD_NAME" as allowed;
+        //   did not work and gave odd error message.
+        if (curr == JsonToken.VALUE_STRING) {
             CompactStringObjectMap lookup = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                     ? _getToStringLookup(ctxt) : _lookupByName;
             final String name = p.getText();

@@ -121,7 +121,7 @@ public abstract class JavaUtilCollectionsDeserializers
 
         private final int _kind;
 
-        private JavaUtilCollectionsConverter(int kind, JavaType inputType) {
+        JavaUtilCollectionsConverter(int kind, JavaType inputType) {
             _inputType = inputType;
             _kind = kind;
         }

@@ -128,13 +128,13 @@ public final class SerializationConfig
     /**
      * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}.
      *
-     * @since 2.9
+     * @since 2.11.2
      */
     protected SerializationConfig(SerializationConfig src,
-            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
     {
-        super(src, mixins, rootNames, configOverrides);
+        super(src, str, mixins, rootNames, configOverrides);
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
@@ -142,6 +142,18 @@ public final class SerializationConfig
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
         _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
+    }
+
+    /**
+     * @since 2.9
+     * @deprecated since 2.11.2
+     */
+    @Deprecated
+    protected SerializationConfig(SerializationConfig src,
+            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            ConfigOverrides configOverrides)
+    {
+        this(src, src._subtypeResolver, mixins, rootNames, configOverrides);
     }
 
     /*

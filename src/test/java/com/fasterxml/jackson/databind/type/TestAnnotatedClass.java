@@ -66,7 +66,7 @@ public class TestAnnotatedClass
     // for [databind#1005]
     static class Bean1005 {
         // private to force creation of a synthetic constructor to avoid access issues
-        private Bean1005(int i) {}     
+        Bean1005(int i) {}     
     }
 
     /*

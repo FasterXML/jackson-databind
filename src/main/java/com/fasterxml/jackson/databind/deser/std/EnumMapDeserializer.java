@@ -124,7 +124,7 @@ public class EnumMapDeserializer
     /* Validation, post-processing (ResolvableDeserializer)
     /**********************************************************
      */
-    
+
     @Override
     public void resolve(DeserializationContext ctxt) throws JsonMappingException
     {
@@ -234,18 +234,34 @@ public class EnumMapDeserializer
             return (EnumMap<?,?>) _valueInstantiator.createUsingDelegate(ctxt,
                     _delegateDeserializer.deserialize(p, ctxt));
         }
-        // Ok: must point to START_OBJECT
-        JsonToken t = p.currentToken();
-        if ((t != JsonToken.START_OBJECT) && (t != JsonToken.FIELD_NAME) && (t != JsonToken.END_OBJECT)) {
-            // (empty) String may be ok however; or single-String-arg ctor
-            if (t == JsonToken.VALUE_STRING) {
-                return (EnumMap<?,?>) _valueInstantiator.createFromString(ctxt, p.getText());
+        // Ok: must point to START_OBJECT (or similar)
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_START_OBJECT:
+        case JsonTokenId.ID_END_OBJECT:
+        case JsonTokenId.ID_FIELD_NAME:
+            return deserialize(p, ctxt, constructMap(ctxt));
+        case JsonTokenId.ID_STRING:
+            return (EnumMap<?,?>) _valueInstantiator.createFromString(ctxt, p.getText());
+        case JsonTokenId.ID_START_ARRAY:
+            {
+                JsonToken t = p.nextToken();
+                if (t == JsonToken.END_ARRAY) {
+                    if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                        return null;
+                    }
+                } else if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                    final Object value = deserialize(p, ctxt);
+                    if (p.nextToken() != JsonToken.END_ARRAY) {
+                        handleMissingEndArrayForSingle(p, ctxt);
+                    }
+                    return (EnumMap<?,?>) value;
+                }
             }
-            // slightly redundant (since String was passed above), but also handles empty array case:
-            return _deserializeFromEmpty(p, ctxt);
+            return (EnumMap<?,?>) ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
+        default:
         }
-        EnumMap result = constructMap(ctxt);
-        return deserialize(p, ctxt, result);
+        // slightly redundant (since String was passed above), but also handles empty array case:
+        return _deserializeFromEmpty(p, ctxt);
     }
 
     @Override

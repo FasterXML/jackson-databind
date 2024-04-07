@@ -7,8 +7,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
 
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;

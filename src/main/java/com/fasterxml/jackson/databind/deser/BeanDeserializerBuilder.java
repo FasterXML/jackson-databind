@@ -193,7 +193,9 @@ public class BeanDeserializerBuilder
         // 15-Sep-2016, tatu: For some reason fixing access at point of `build()` does
         //    NOT work (2 failing unit tests). Not 100% clear why, but for now force
         //    access set early; unfortunate, but since it works....
-        prop.fixAccess(_config);
+        if (_config.canOverrideAccessModifiers()) {
+            prop.fixAccess(_config);
+        }
         _backRefProperties.put(referenceName, prop);
         // 16-Jan-2018, tatu: As per [databind#1878] we may want to leave it as is, to allow
         //    population for cases of "wrong direction", traversing parent first
@@ -213,10 +215,8 @@ public class BeanDeserializerBuilder
         if (_injectables == null) {
             _injectables = new ArrayList<ValueInjector>();
         }
-        boolean fixAccess = _config.canOverrideAccessModifiers();
-        boolean forceAccess = fixAccess && _config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
-        if (fixAccess) {
-            member.fixAccess(forceAccess);
+        if ( _config.canOverrideAccessModifiers()) {
+            member.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
         _injectables.add(new ValueInjector(propName, propType, member, valueId));
     }
@@ -482,15 +482,22 @@ public class BeanDeserializerBuilder
             ignorable = Collections.emptySet();
         }
         */
-        for (SettableBeanProperty prop : mainProps) {
-            /*
-            // first: no point forcing access on to-be-ignored properties
-            if (ignorable.contains(prop.getName())) {
-                continue;
+
+        // 17-Jun-2020, tatu: [databind#2760] means we should not force access
+        //   if we are not configured to... at least not "regular" properties
+
+        if (_config.canOverrideAccessModifiers()) {
+            for (SettableBeanProperty prop : mainProps) {
+                /*
+                // first: no point forcing access on to-be-ignored properties
+                if (ignorable.contains(prop.getName())) {
+                    continue;
+                }
+                */
+                prop.fixAccess(_config);
             }
-            */
-            prop.fixAccess(_config);
         }
+
         // 15-Sep-2016, tatu: Access via back-ref properties has been done earlier
         //   as it has to, for some reason, so not repeated here.
 /*        
@@ -500,6 +507,11 @@ public class BeanDeserializerBuilder
             }
         }
         */
+
+        // 17-Jun-2020, tatu: Despite [databind#2760], it seems that methods that
+        //    are explicitly defined (any setter via annotation, builder too) can not
+        //    be left as-is? May reconsider based on feedback
+        
         if (_anySetter != null) {
             _anySetter.fixAccess(_config);
         }

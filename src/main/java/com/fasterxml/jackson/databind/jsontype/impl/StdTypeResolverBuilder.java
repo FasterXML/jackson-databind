@@ -84,7 +84,10 @@ public class StdTypeResolverBuilder
         // 03-Oct-2016, tatu: As per [databind#1395] better prevent use for primitives,
         //    regardless of setting
         if (baseType.isPrimitive()) {
-            return null;
+            // 19-Jun-2020, tatu: But for [databind#2753], allow overriding
+            if (!allowPrimitiveTypes(config, baseType)) {
+                return null;
+            }
         }
         TypeIdResolver idRes = idResolver(config, baseType, subTypeValidator(config),
                 subtypes, true, false);
@@ -118,7 +121,10 @@ public class StdTypeResolverBuilder
         // 03-Oct-2016, tatu: As per [databind#1395] better prevent use for primitives,
         //    regardless of setting
         if (baseType.isPrimitive()) {
-            return null;
+            // 19-Jun-2020, tatu: But for [databind#2753], allow overriding
+            if (!allowPrimitiveTypes(config, baseType)) {
+                return null;
+            }
         }
 
         // 27-Apr-2019, tatu: Part of [databind#2195]; must first check whether any subtypes
@@ -151,7 +157,6 @@ public class StdTypeResolverBuilder
     protected JavaType defineDefaultImpl(DeserializationConfig config, JavaType baseType) {
         JavaType defaultImpl;
         if (_defaultImpl == null) {
-            //Fis of issue #955
             if (config.isEnabled(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL) && !baseType.isAbstract()) {
                 defaultImpl = baseType;
             } else {
@@ -331,5 +336,32 @@ public class StdTypeResolverBuilder
 "Configured `PolymorphicTypeValidator` (of type %s) denied resolution of all subtypes of base type %s",
                         ClassUtil.classNameOf(ptv), ClassUtil.classNameOf(baseType.getRawClass()))
         );
+    }
+
+    /*
+    /**********************************************************
+    /* Overridable helper methods
+    /**********************************************************
+     */
+
+    /**
+     * Overridable helper method that is called to determine whether type serializers
+     * and type deserializers may be created even if base type is Java {@code primitive}
+     * type.
+     * Default implementation simply returns {@code false} (since primitive types can not
+     * be sub-classed, are never polymorphic) but custom implementations
+     * may change the logic for some special cases.
+     *
+     * @param config Currently active configuration
+     * @param baseType Primitive base type for property being handled
+     *
+     * @return True if type (de)serializer may be created even if base type is Java
+     *    {@code primitive} type; false if not
+     *
+     * @since 2.11.1
+     */
+    protected boolean allowPrimitiveTypes(MapperConfig<?> config,
+            JavaType baseType) {
+        return false;
     }
 }

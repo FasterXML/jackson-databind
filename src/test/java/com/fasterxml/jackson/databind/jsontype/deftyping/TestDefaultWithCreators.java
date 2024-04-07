@@ -46,7 +46,7 @@ public class TestDefaultWithCreators
 
     static class Bean1385
     {
-        private byte[] raw;
+        byte[] raw;
     
         @JsonCreator(mode=JsonCreator.Mode.DELEGATING)
         public Bean1385(byte[] raw) {

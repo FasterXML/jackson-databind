@@ -188,13 +188,16 @@ public class ObjectMapper
 
         /**
          * Value that means that default typing will be used for
-         * all non-final types, with exception of small number of
+         * all types, with exception of small number of
          * "natural" types (String, Boolean, Integer, Double) that
          * can be correctly inferred from JSON, and primitives (which
          * can not be polymorphic either). Typing is also enabled for
          * all array types.
          *<p>
-         * Note that the only known use case for this setting is for serialization
+         * Note that this is rarely the option you should use as it results
+         * in adding type information in many places where it should not be needed:
+         * make sure you understand its behavior.
+         * The only known use case for this setting is for serialization
          * when passing instances of final class, and base type is not
          * separately specified.
          *
@@ -338,8 +341,6 @@ public class ObjectMapper
         }
     }
 
-    
-    
     /*
     /**********************************************************
     /* Internal constants, singletons
@@ -512,7 +513,7 @@ public class ObjectMapper
      * (should very quickly converge to zero after startup), let's
      * explicitly define a low concurrency setting.
      *<p>
-     * Since version 1.5, these may are either "raw" deserializers (when
+     * These may are either "raw" deserializers (when
      * no type information is needed for base type), or type-wrapped
      * deserializers (if it is needed)
      */
@@ -559,7 +560,7 @@ public class ObjectMapper
     {
         _jsonFactory = src._jsonFactory.copy();
         _jsonFactory.setCodec(this);
-        _subtypeResolver = src._subtypeResolver;
+        _subtypeResolver = src._subtypeResolver.copy();
         _typeFactory = src._typeFactory;
         _injectableValues = src._injectableValues;
         _configOverrides = src._configOverrides.copy();
@@ -567,9 +568,9 @@ public class ObjectMapper
 
         RootNameLookup rootNames = new RootNameLookup();
         _serializationConfig = new SerializationConfig(src._serializationConfig,
-                _mixIns, rootNames, _configOverrides);
+                _subtypeResolver, _mixIns, rootNames, _configOverrides);
         _deserializationConfig = new DeserializationConfig(src._deserializationConfig,
-                _mixIns, rootNames,  _configOverrides);
+                _subtypeResolver, _mixIns, rootNames,  _configOverrides);
         _serializerProvider = src._serializerProvider.copy();
         _deserializationContext = src._deserializationContext.copy();
 
@@ -1114,7 +1115,9 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(OutputStream out) throws IOException {
         _assertNotNull("out", out);
-        return _jsonFactory.createGenerator(out, JsonEncoding.UTF8);
+        JsonGenerator g = _jsonFactory.createGenerator(out, JsonEncoding.UTF8);
+        _serializationConfig.initialize(g);
+        return g;
     }
 
     /**
@@ -1127,7 +1130,9 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
         _assertNotNull("out", out);
-        return _jsonFactory.createGenerator(out, enc);
+        JsonGenerator g = _jsonFactory.createGenerator(out, enc);
+        _serializationConfig.initialize(g);
+        return g;
     }
 
     /**
@@ -1140,7 +1145,9 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(Writer w) throws IOException {
         _assertNotNull("w", w);
-        return _jsonFactory.createGenerator(w);
+        JsonGenerator g = _jsonFactory.createGenerator(w);
+        _serializationConfig.initialize(g);
+        return g;
     }
 
     /**
@@ -1153,7 +1160,9 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(File outputFile, JsonEncoding enc) throws IOException {
         _assertNotNull("outputFile", outputFile);
-        return _jsonFactory.createGenerator(outputFile, enc);
+        JsonGenerator g = _jsonFactory.createGenerator(outputFile, enc);
+        _serializationConfig.initialize(g);
+        return g;
     }
 
     /**
@@ -1166,7 +1175,9 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(DataOutput out) throws IOException {
         _assertNotNull("out", out);
-        return _jsonFactory.createGenerator(out);
+        JsonGenerator g = _jsonFactory.createGenerator(out);
+        _serializationConfig.initialize(g);
+        return g;
     }
 
     /*
@@ -1185,7 +1196,9 @@ public class ObjectMapper
      */
     public JsonParser createParser(File src) throws IOException {
         _assertNotNull("src", src);
-        return _jsonFactory.createParser(src);
+        JsonParser p = _jsonFactory.createParser(src);
+        _deserializationConfig.initialize(p);
+        return p;
     }
 
     /**
@@ -1198,7 +1211,9 @@ public class ObjectMapper
      */
     public JsonParser createParser(URL src) throws IOException {
         _assertNotNull("src", src);
-        return _jsonFactory.createParser(src);
+        JsonParser p = _jsonFactory.createParser(src);
+        _deserializationConfig.initialize(p);
+        return p;
     }
 
     /**
@@ -1211,7 +1226,9 @@ public class ObjectMapper
      */
     public JsonParser createParser(InputStream in) throws IOException {
         _assertNotNull("in", in);
-        return _jsonFactory.createParser(in);
+        JsonParser p = _jsonFactory.createParser(in);
+        _deserializationConfig.initialize(p);
+        return p;
     }
 
     /**
@@ -1224,7 +1241,9 @@ public class ObjectMapper
      */
     public JsonParser createParser(Reader r) throws IOException {
         _assertNotNull("r", r);
-        return _jsonFactory.createParser(r);
+        JsonParser p = _jsonFactory.createParser(r);
+        _deserializationConfig.initialize(p);
+        return p;
     }
 
     /**
@@ -1237,7 +1256,9 @@ public class ObjectMapper
      */
     public JsonParser createParser(byte[] content) throws IOException {
         _assertNotNull("content", content);
-        return _jsonFactory.createParser(content);
+        JsonParser p = _jsonFactory.createParser(content);
+        _deserializationConfig.initialize(p);
+        return p;
     }
 
     /**
@@ -1250,7 +1271,9 @@ public class ObjectMapper
      */
     public JsonParser createParser(byte[] content, int offset, int len) throws IOException {
         _assertNotNull("content", content);
-        return _jsonFactory.createParser(content, offset, len);
+        JsonParser p = _jsonFactory.createParser(content, offset, len);
+        _deserializationConfig.initialize(p);
+        return p;
     }
 
     /**
@@ -1263,7 +1286,9 @@ public class ObjectMapper
      */
     public JsonParser createParser(String content) throws IOException {
         _assertNotNull("content", content);
-        return _jsonFactory.createParser(content);
+        JsonParser p = _jsonFactory.createParser(content);
+        _deserializationConfig.initialize(p);
+        return p;
     }
 
     /**
@@ -1276,7 +1301,9 @@ public class ObjectMapper
      */
     public JsonParser createParser(char[] content) throws IOException {
         _assertNotNull("content", content);
-        return _jsonFactory.createParser(content);
+        JsonParser p = _jsonFactory.createParser(content);
+        _deserializationConfig.initialize(p);
+        return p;
     }
 
     /**
@@ -1289,7 +1316,9 @@ public class ObjectMapper
      */
     public JsonParser createParser(char[] content, int offset, int len) throws IOException {
         _assertNotNull("content", content);
-        return _jsonFactory.createParser(content, offset, len);
+        JsonParser p = _jsonFactory.createParser(content, offset, len);
+        _deserializationConfig.initialize(p);
+        return p;
     }
 
     /**
@@ -1302,7 +1331,9 @@ public class ObjectMapper
      */
     public JsonParser createParser(DataInput content) throws IOException {
         _assertNotNull("content", content);
-        return _jsonFactory.createParser(content);
+        JsonParser p = _jsonFactory.createParser(content);
+        _deserializationConfig.initialize(p);
+        return p;
     }
 
     /**
@@ -1314,7 +1345,9 @@ public class ObjectMapper
      * @since 2.11
      */
     public JsonParser createNonBlockingByteArrayParser() throws IOException {
-        return _jsonFactory.createNonBlockingByteArrayParser();
+        JsonParser p = _jsonFactory.createNonBlockingByteArrayParser();
+        _deserializationConfig.initialize(p);
+        return p;
     }
 
     /*
@@ -1837,7 +1870,7 @@ public class ObjectMapper
     /**
      * Convenience method that is equivalent to calling
      *<pre>
-     *  enableDefaultTyping(ptv, DefaultTyping.OBJECT_AND_NON_CONCRETE);
+     *  activateDefaultTyping(ptv, DefaultTyping.OBJECT_AND_NON_CONCRETE);
      *</pre>
      *<p>
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
@@ -1855,7 +1888,7 @@ public class ObjectMapper
     /**
      * Convenience method that is equivalent to calling
      *<pre>
-     *  enableDefaultTyping(ptv, dti, JsonTypeInfo.As.WRAPPER_ARRAY);
+     *  activateDefaultTyping(ptv, dti, JsonTypeInfo.As.WRAPPER_ARRAY);
      *</pre>
      *<p>
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
@@ -1874,11 +1907,11 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling automatic inclusion of type information, needed
-     * for proper deserialization of polymorphic types (unless types
+     * Method for enabling automatic inclusion of type information ("Default Typing"),
+     * needed for proper deserialization of polymorphic types (unless types
      * have been annotated with {@link com.fasterxml.jackson.annotation.JsonTypeInfo}).
      *<P>
-     * NOTE: use of <code>JsonTypeInfo.As#EXTERNAL_PROPERTY</code> <b>NOT SUPPORTED</b>;
+     * NOTE: use of {@code JsonTypeInfo.As#EXTERNAL_PROPERTY} <b>NOT SUPPORTED</b>;
      * and attempts of do so will throw an {@link IllegalArgumentException} to make
      * this limitation explicit.
      *<p>
@@ -1910,8 +1943,8 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling automatic inclusion of type information -- needed
-     * for proper deserialization of polymorphic types (unless types
+     * Method for enabling automatic inclusion of type information ("Default Typing")
+     * -- needed for proper deserialization of polymorphic types (unless types
      * have been annotated with {@link com.fasterxml.jackson.annotation.JsonTypeInfo}) --
      * using "As.PROPERTY" inclusion mechanism and specified property name
      * to use for inclusion (default being "@class" since default type information
@@ -1932,8 +1965,7 @@ public class ObjectMapper
             DefaultTyping applicability, String propertyName)
     {
         TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability,
-                getPolymorphicTypeValidator());
-
+                ptv);
         // we'll always use full class name, when using defaulting
         typer = typer.init(JsonTypeInfo.Id.CLASS, null);
         typer = typer.inclusion(JsonTypeInfo.As.PROPERTY);
@@ -1946,14 +1978,16 @@ public class ObjectMapper
      * explicitly annotated types (ones with
      * {@link com.fasterxml.jackson.annotation.JsonTypeInfo}) will have
      * additional embedded type information.
+     *
+     * @since 2.10
      */
     public ObjectMapper deactivateDefaultTyping() {
         return setDefaultTyping(null);
     }
 
     /**
-     * Method for enabling automatic inclusion of type information, using
-     * specified handler object for determining which types this affects,
+     * Method for enabling automatic inclusion of type information ("Default Typing"),
+     * using specified handler object for determining which types this affects,
      * as well as details of how information is embedded.
      *<p>
      * NOTE: use of Default Typing can be a potential security risk if incoming
@@ -3567,7 +3601,7 @@ public class ObjectMapper
     public void writeValue(File resultFile, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(createGenerator(resultFile, JsonEncoding.UTF8), value);
+        _writeValueAndClose(createGenerator(resultFile, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -3584,7 +3618,7 @@ public class ObjectMapper
     public void writeValue(OutputStream out, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(createGenerator(out, JsonEncoding.UTF8), value);
+        _writeValueAndClose(createGenerator(out, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -3592,7 +3626,7 @@ public class ObjectMapper
      */
     public void writeValue(DataOutput out, Object value) throws IOException
     {
-        _configAndWriteValue(createGenerator(out), value);
+        _writeValueAndClose(createGenerator(out), value);
     }
 
     /**
@@ -3608,7 +3642,7 @@ public class ObjectMapper
     public void writeValue(Writer w, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(createGenerator(w), value);
+        _writeValueAndClose(createGenerator(w), value);
     }
 
     /**
@@ -3626,7 +3660,7 @@ public class ObjectMapper
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(createGenerator(sw), value);
+            _writeValueAndClose(createGenerator(sw), value);
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -3650,7 +3684,7 @@ public class ObjectMapper
     {
         ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(createGenerator(bb, JsonEncoding.UTF8), value);
+            _writeValueAndClose(createGenerator(bb, JsonEncoding.UTF8), value);
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -4360,14 +4394,15 @@ public class ObjectMapper
     /**
      * Method called to configure the generator as necessary and then
      * call write functionality
+     *
+     * @since 2.11.2
      */
-    protected final void _configAndWriteValue(JsonGenerator g, Object value)
+    protected final void _writeValueAndClose(JsonGenerator g, Object value)
         throws IOException
     {
         SerializationConfig cfg = getSerializationConfig();
-        cfg.initialize(g); // since 2.5
         if (cfg.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
-            _configAndWriteCloseable(g, value, cfg);
+            _writeCloseable(g, value, cfg);
             return;
         }
         try {
@@ -4383,7 +4418,7 @@ public class ObjectMapper
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _configAndWriteCloseable(JsonGenerator g, Object value, SerializationConfig cfg)
+    private final void _writeCloseable(JsonGenerator g, Object value, SerializationConfig cfg)
         throws IOException
     {
         Closeable toClose = (Closeable) value;
@@ -4417,6 +4452,15 @@ public class ObjectMapper
             return;
         }
         toClose.close();
+    }
+
+    /**
+     * @deprecated Since 2.11.2 Use {@link #_writeValueAndClose} instead
+     */
+    @Deprecated // since 2.11.2 (to remove earliest from 2.13)
+    protected final void _configAndWriteValue(JsonGenerator g, Object value) throws IOException {
+        getSerializationConfig().initialize(g);
+        _writeValueAndClose(g, value);
     }
 
     /*

@@ -115,7 +115,7 @@ public class TestCreators3 extends BaseMapTest
             return new Product1853(false, "DELEG:"+name);
         }
 
-        private Product1853(boolean bogus, String name) {
+        Product1853(boolean bogus, String name) {
             this.name = name;
         }
 

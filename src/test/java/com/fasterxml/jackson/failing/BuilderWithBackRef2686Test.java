@@ -16,9 +16,9 @@ public class BuilderWithBackRef2686Test extends BaseMapTest
 {
     // [databind#2686]
     public static class Container {
-        private Content forward;
+        Content forward;
 
-        private String containerValue;
+        String containerValue;
 
         @JsonManagedReference
         public Content getForward() {

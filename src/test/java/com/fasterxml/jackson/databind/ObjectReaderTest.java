@@ -26,6 +26,12 @@ public class ObjectReaderTest extends BaseMapTest
         public Map<String, Object> name;
     }
 
+    /*
+    /**********************************************************
+    /* Test methods, simple read/write with defaults
+    /**********************************************************
+     */
+
     public void testSimpleViaParser() throws Exception
     {
         final String JSON = "[1]";
@@ -89,7 +95,23 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(Collections.singletonMap("key", ABC.B), value);
     }
 
-    public void testParserFeatures() throws Exception
+    public void testNodeHandling() throws Exception
+    {
+        JsonNodeFactory nodes = new JsonNodeFactory(true);
+        ObjectReader r = MAPPER.reader().with(nodes);
+        // but also no further changes if attempting again
+        assertSame(r, r.with(nodes));
+        assertTrue(r.createArrayNode().isArray());
+        assertTrue(r.createObjectNode().isObject());
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, some alternative JSON settings
+    /**********************************************************
+     */
+
+    public void testParserFeaturesComments() throws Exception
     {
         final String JSON = "[ /* foo */ 7 ]";
         // default won't accept comments, let's change that:
@@ -110,15 +132,41 @@ public class ObjectReaderTest extends BaseMapTest
         }
     }
 
-    public void testNodeHandling() throws Exception
+    public void testParserFeaturesCtrlChars() throws Exception
     {
-        JsonNodeFactory nodes = new JsonNodeFactory(true);
-        ObjectReader r = MAPPER.reader().with(nodes);
-        // but also no further changes if attempting again
-        assertSame(r, r.with(nodes));
-        assertTrue(r.createArrayNode().isArray());
-        assertTrue(r.createObjectNode().isObject());
+        String FIELD = "a\tb";
+        String VALUE = "\t";
+        String JSON = "{ "+quote(FIELD)+" : "+quote(VALUE)+"}";
+        Map<?, ?> result;
+
+        // First: by default, unescaped control characters should not work
+        try {
+            result = MAPPER.readValue(JSON, Map.class);
+            fail("Should not pass with defaylt settings");
+        } catch (JsonParseException e) {
+            verifyException(e, "Illegal unquoted character");
+        }
+
+        // But both ObjectReader:
+        result = MAPPER.readerFor(Map.class)
+                .with(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+                .readValue(JSON);
+        assertEquals(1, result.size());
+
+        // and new mapper should work
+        ObjectMapper mapper2 = JsonMapper.builder()
+                .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+                .build();
+        result = mapper2.readerFor(Map.class)
+                .readValue(JSON);
+        assertEquals(1, result.size());
     }
+
+    /*
+    /**********************************************************
+    /* Test methods, config setting verification
+    /**********************************************************
+     */
 
     public void testFeatureSettings() throws Exception
     {
@@ -236,6 +284,31 @@ public class ObjectReaderTest extends BaseMapTest
 
         r = r.forType(String.class);
         assertEquals(MAPPER.constructType(String.class), r.getValueType());
+    }
+
+    public void testParserConfigViaReader() throws Exception
+    {
+        try (JsonParser p = MAPPER.reader()
+                .with(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+                .createParser("[ ]")) {
+            assertTrue(p.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION));
+        }
+
+        try (JsonParser p = MAPPER.reader()
+                .with(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+                .createParser("[ ]")) {
+            assertTrue(p.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS.mappedFeature()));
+        }
+    }
+
+    public void testGeneratorConfigViaReader() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator g = MAPPER.writer()
+                .with(StreamWriteFeature.IGNORE_UNKNOWN)
+                .createGenerator(sw)) {
+            assertTrue(g.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
+        }
     }
 
     /*
@@ -444,7 +517,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     private static class A{
-        private String knownField;
+        String knownField;
 
         @JsonCreator
         private A(@JsonProperty("knownField") String knownField) {

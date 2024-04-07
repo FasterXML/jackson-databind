@@ -43,7 +43,7 @@ public class InetAddressSerializer
         super(InetAddress.class);
         _asNumeric = asNumeric;
     }
-    
+
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property) throws JsonMappingException

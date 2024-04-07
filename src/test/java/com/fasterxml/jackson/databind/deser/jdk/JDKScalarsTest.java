@@ -48,7 +48,7 @@ public class JDKScalarsTest
         long _v;
         void setV(long v) { _v = v; }
     }
-    
+
     final static class DoubleBean {
         double _v;
         void setV(double v) { _v = v; }
@@ -118,7 +118,7 @@ public class JDKScalarsTest
         public Void value;
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
     /**********************************************************
@@ -280,40 +280,6 @@ public class JDKScalarsTest
         assertNotNull(array);
         assertEquals(1, array.length);
         assertEquals(0, array[0]);
-        
-        // [databind#381]
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        try {
-            mapper.readValue("{\"v\":[3]}", IntBean.class);
-            fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
-        } catch (MismatchedInputException exp) {
-            //Correctly threw exception
-        }
-        
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
-        result = mapper.readValue("{\"v\":[3]}", IntBean.class);
-        assertEquals(3, result._v);
-        
-        result = mapper.readValue("[{\"v\":[3]}]", IntBean.class);
-        assertEquals(3, result._v);
-        
-        try {
-            mapper.readValue("[{\"v\":[3,3]}]", IntBean.class);
-            fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
-        } catch (MismatchedInputException exp) {
-            //threw exception as required
-        }
-        
-        result = mapper.readValue("{\"v\":[null]}", IntBean.class);
-        assertNotNull(result);
-        assertEquals(0, result._v);
-
-        array = mapper.readValue("[ [ null ] ]", int[].class);
-        assertNotNull(array);
-        assertEquals(1, array.length);
-        assertEquals(0, array[0]);
     }
 
     public void testLongWrapper() throws Exception
@@ -340,40 +306,6 @@ public class JDKScalarsTest
 
         // should work with arrays too..
         long[] array = MAPPER.readValue("[ null ]", long[].class);
-        assertNotNull(array);
-        assertEquals(1, array.length);
-        assertEquals(0, array[0]);
-        
-        // [databind#381]
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        try {
-            mapper.readValue("{\"v\":[3]}", LongBean.class);
-            fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
-        } catch (MismatchedInputException exp) {
-            //Correctly threw exception
-        }
-        
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
-        result = mapper.readValue("{\"v\":[3]}", LongBean.class);
-        assertEquals(3, result._v);
-        
-        result = mapper.readValue("[{\"v\":[3]}]", LongBean.class);
-        assertEquals(3, result._v);
-        
-        try {
-            mapper.readValue("[{\"v\":[3,3]}]", LongBean.class);
-            fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
-        } catch (MismatchedInputException exp) {
-            //threw exception as required
-        }
-        
-        result = mapper.readValue("{\"v\":[null]}", LongBean.class);
-        assertNotNull(result);
-        assertEquals(0, result._v);
-
-        array = mapper.readValue("[ [ null ] ]", long[].class);
         assertNotNull(array);
         assertEquals(1, array.length);
         assertEquals(0, array[0]);
@@ -464,44 +396,6 @@ public class JDKScalarsTest
         }
     }
 
-    public void testDoubleAsArray() throws Exception
-    {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        final double value = 0.016;
-        try {
-            mapper.readValue("{\"v\":[" + value + "]}", DoubleBean.class);
-            fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
-        } catch (JsonMappingException exp) {
-            //Correctly threw exception
-        }
-        
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
-        DoubleBean result = mapper.readValue("{\"v\":[" + value + "]}",
-                DoubleBean.class);
-        assertEquals(value, result._v);
-        
-        result = mapper.readValue("[{\"v\":[" + value + "]}]", DoubleBean.class);
-        assertEquals(value, result._v);
-        
-        try {
-            mapper.readValue("[{\"v\":[" + value + "," + value + "]}]", DoubleBean.class);
-            fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
-        } catch (MismatchedInputException exp) {
-            //threw exception as required
-        }
-        
-        result = mapper.readValue("{\"v\":[null]}", DoubleBean.class);
-        assertNotNull(result);
-        assertEquals(0d, result._v);
-
-        double[] array = mapper.readValue("[ [ null ] ]", double[].class);
-        assertNotNull(array);
-        assertEquals(1, array.length);
-        assertEquals(0d, array[0]);
-    }
-
     public void testDoublePrimitiveNonNumeric() throws Exception
     {
         // first, simple case:
@@ -564,7 +458,7 @@ public class JDKScalarsTest
     public void testBase64Variants() throws Exception
     {
         final byte[] INPUT = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890X".getBytes("UTF-8");
-        
+
         // default encoding is "MIME, no linefeeds", so:
         Assert.assertArrayEquals(INPUT, MAPPER.readValue(
                 quote("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA=="),
@@ -585,7 +479,7 @@ public class JDKScalarsTest
         Assert.assertArrayEquals(INPUT, (byte[]) reader.with(Base64Variants.PEM).readValue(
                 quote("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamts\\nbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA=="
         )));
-    }    
+    }
 
     /*
     /**********************************************************
@@ -883,7 +777,7 @@ public class JDKScalarsTest
 
     public void testInvalidStringCoercionFail() throws IOException
     {
-        _testInvalidStringCoercionFail(boolean[].class);
+        _testInvalidStringCoercionFail(boolean[].class, "boolean");
         _testInvalidStringCoercionFail(byte[].class);
 
         // char[] is special, cannot use generalized test here
@@ -897,14 +791,19 @@ public class JDKScalarsTest
 
     private void _testInvalidStringCoercionFail(Class<?> cls) throws IOException
     {
+        _testInvalidStringCoercionFail(cls, cls.getSimpleName());
+    }
+
+    private void _testInvalidStringCoercionFail(Class<?> cls, String targetTypeName)
+            throws IOException
+    {
         final String JSON = "[ \"foobar\" ]";
-        final String SIMPLE_NAME = cls.getSimpleName();
 
         try {
             MAPPER.readerFor(cls).readValue(JSON);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Cannot deserialize value of type `"+SIMPLE_NAME+"` from String \"foobar\"");
+            verifyException(e, "Cannot deserialize value of type `"+targetTypeName+"` from String \"foobar\"");
         }
     }
 }

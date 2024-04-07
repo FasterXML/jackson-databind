@@ -221,7 +221,7 @@ public class AnySetterTest
         public String type;
         public int x, y;
     
-        private Map<String, Object> props = new HashMap<>();
+        Map<String, Object> props = new HashMap<>();
     
         @JsonAnySetter
         public void addProperty(String key, Object value) {

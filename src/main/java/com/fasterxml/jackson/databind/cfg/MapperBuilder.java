@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
+import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -703,7 +704,29 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _mapper.deactivateDefaultTyping();
         return _this();
     }
-    
+
+    /**
+     * Method for enabling automatic inclusion of type information, using
+     * specified handler object for determining which types this affects,
+     * as well as details of how information is embedded.
+     *<p>
+     * NOTE: use of Default Typing can be a potential security risk if incoming
+     * content comes from untrusted sources, so care should be taken to use
+     * a {@link TypeResolverBuilder} that can limit allowed classes to
+     * deserialize. Note in particular that
+     * {@link com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder}
+     * DOES NOT limit applicability but creates type (de)serializers for all
+     * types.
+     *
+     * @param typer Type information inclusion handler
+     *
+     * @since 2.12
+     */
+    public B setDefaultTyping(TypeResolverBuilder<?> typer) {
+        _mapper.setDefaultTyping(typer);
+        return _this();
+    }
+
     /*
     /**********************************************************************
     /* Other helper methods

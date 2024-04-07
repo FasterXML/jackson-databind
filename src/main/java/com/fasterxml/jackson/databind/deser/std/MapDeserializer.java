@@ -356,8 +356,21 @@ public class MapDeserializer
             if (t == JsonToken.VALUE_STRING) {
                 return (Map<Object,Object>) _valueInstantiator.createFromString(ctxt, p.getText());
             }
-            // slightly redundant (since String was passed above), but also handles empty array case:
-            return _deserializeFromEmpty(p, ctxt);
+            if (t == JsonToken.START_ARRAY) {
+                if (p.nextToken() == JsonToken.END_ARRAY) {
+                    if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                        return null;
+                    }
+                } else if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                    final Object value = deserialize(p, ctxt);
+                    if (p.nextToken() != JsonToken.END_ARRAY) {
+                        handleMissingEndArrayForSingle(p, ctxt);
+                    }
+                    return (Map<Object,Object>) value;
+                }
+                // fall through to failing case
+            }
+            return (Map<Object,Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), t, p, null);
         }
         final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
         if (_standardStringKey) {

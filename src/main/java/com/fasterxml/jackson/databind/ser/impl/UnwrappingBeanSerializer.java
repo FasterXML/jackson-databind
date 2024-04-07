@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -54,6 +55,13 @@ public class UnwrappingBeanSerializer
         _nameTransformer = src._nameTransformer;
     }
 
+    // @since 2.11.1
+    protected UnwrappingBeanSerializer(UnwrappingBeanSerializer src,
+            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties) {
+        super(src, properties, filteredProperties);
+        _nameTransformer = src._nameTransformer;
+    }
+
     /*
     /**********************************************************
     /* Life-cycle: factory methods, fluent factories
@@ -84,6 +92,12 @@ public class UnwrappingBeanSerializer
     @Override
     protected BeanSerializerBase withIgnorals(Set<String> toIgnore) {
         return new UnwrappingBeanSerializer(this, toIgnore);
+    }
+
+    @Override // @since 2.11.1
+    protected BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
+            BeanPropertyWriter[] filteredProperties) {
+        return new UnwrappingBeanSerializer(this, properties, filteredProperties);
     }
 
     /**

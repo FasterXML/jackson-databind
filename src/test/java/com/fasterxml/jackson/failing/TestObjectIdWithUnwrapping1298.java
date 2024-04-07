@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 // Test case for https://github.com/FasterXML/jackson-databind/issues/1298
 public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
 {
-    private static Long nextId = 1L;
+    static Long nextId = 1L;
 
     public static final class ListOfParents{
         public List<Parent> parents = new ArrayList<>();

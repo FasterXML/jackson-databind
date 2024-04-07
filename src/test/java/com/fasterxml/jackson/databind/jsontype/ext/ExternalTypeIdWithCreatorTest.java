@@ -66,7 +66,7 @@ public class ExternalTypeIdWithCreatorTest extends BaseMapTest
         @JsonSubTypes({
                 @JsonSubTypes.Type(FooPayload999.class),
                 @JsonSubTypes.Type(BarPayload999.class) })
-        private final P payload;
+        final P payload;
 
         @JsonCreator
         public Message(@JsonProperty("type") String type,

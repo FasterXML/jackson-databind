@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.base.GeneratorBase;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Basic tests to ensure that {@link FormatSchema} instances are properly

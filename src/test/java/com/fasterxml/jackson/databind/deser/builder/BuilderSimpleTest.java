@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 
 public class BuilderSimpleTest extends BaseMapTest
@@ -295,6 +296,56 @@ public class BuilderSimpleTest extends BaseMapTest
         }
     }
 
+    @JsonDeserialize(builder = ValidatingValue.Builder.class)
+    static class ValidatingValue
+    {
+        final String first;
+        final String second;
+
+        ValidatingValue(String first, String second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        static class ValidationException extends RuntimeException
+        {
+            private static final long serialVersionUID = 1L;
+
+            ValidationException(String message) {
+                super(message);
+            }
+        }
+
+        static class Builder
+        {
+
+            private String first;
+            private String second;
+
+            @JsonSetter("a")
+            Builder first(String value) {
+                this.first = value;
+                return this;
+            }
+
+            @JsonSetter("b")
+            Builder second(String value) {
+                this.second = value;
+                return this;
+            }
+
+            ValidatingValue build() {
+                if (first == null) {
+                    throw new ValidationException("Missing first");
+                }
+                if (second == null) {
+                    throw new ValidationException("Missing second");
+                }
+                return new ValidatingValue(first, second);
+            }
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -429,5 +480,67 @@ public class BuilderSimpleTest extends BaseMapTest
         String json = aposToQuotes("{'value':13}");
         Value2354 result = MAPPER.readValue(json, Value2354.class);
         assertEquals(13, result.value());
+    }
+
+    public void testSuccessfulValidatingBuilder() throws Exception
+    {
+        ValidatingValue result = MAPPER.readValue(aposToQuotes("{'a':'1','b':'2'}"), ValidatingValue.class);
+        assertEquals("1", result.first);
+        assertEquals("2", result.second);
+    }
+
+
+    public void testFailingValidatingBuilderWithExceptionWrapping() throws Exception
+    {
+        ObjectMapper withWrapping = MAPPER.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)
+                ? MAPPER : MAPPER.copy().enable(DeserializationFeature.WRAP_EXCEPTIONS);
+        try {
+            withWrapping
+                    .readValue(aposToQuotes("{'a':'1'}"), ValidatingValue.class);
+            fail("Expected an exception");
+        } catch (JsonMappingException e) {
+            assertTrue(e.getMessage().contains("Missing second"));
+            assertTrue(e.getCause() instanceof ValidatingValue.ValidationException);
+        }
+    }
+
+    public void testFailingValidatingBuilderWithExceptionWrappingFromTree() throws Exception
+    {
+        ObjectMapper withWrapping = MAPPER.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)
+                ? MAPPER : MAPPER.copy().enable(DeserializationFeature.WRAP_EXCEPTIONS);
+        try {
+            JsonNode tree = withWrapping.readTree(aposToQuotes("{'a':'1'}"));
+            withWrapping.treeToValue(tree, ValidatingValue.class);
+            fail("Expected an exception");
+        } catch (ValueInstantiationException e) {
+            assertTrue(e.getMessage().contains("Missing second"));
+            assertTrue(e.getCause() instanceof ValidatingValue.ValidationException);
+        }
+    }
+
+    public void testFailingValidatingBuilderWithoutExceptionWrapping() throws Exception
+    {
+        ObjectMapper withoutWrapping = MAPPER.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)
+                ? MAPPER.copy().disable(DeserializationFeature.WRAP_EXCEPTIONS) : MAPPER;
+        try {
+            withoutWrapping
+                    .readValue(aposToQuotes("{'a':'1'}"), ValidatingValue.class);
+            fail("Expected an exception");
+        } catch (ValidatingValue.ValidationException e) {
+            assertEquals("Missing second", e.getMessage());
+        }
+    }
+
+    public void testFailingValidatingBuilderWithoutExceptionWrappingFromTree() throws Exception
+    {
+        ObjectMapper withoutWrapping = MAPPER.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)
+                ? MAPPER.copy().disable(DeserializationFeature.WRAP_EXCEPTIONS) : MAPPER;
+        try {
+            JsonNode tree = withoutWrapping.readTree(aposToQuotes("{'a':'1'}"));
+            withoutWrapping.treeToValue(tree, ValidatingValue.class);
+            fail("Expected an exception");
+        } catch (ValidatingValue.ValidationException e) {
+            assertEquals("Missing second", e.getMessage());
+        }
     }
 }

@@ -164,20 +164,28 @@ public class ScalarCoercionTest extends BaseMapTest
         _verifyRootStringCoerceFail("123.0", BigDecimal.class);
     }
 
+    // [databind#2635], [databind#2770]
     public void testToBooleanCoercionFailBytes() throws Exception
     {
         final String beanDoc = aposToQuotes("{'value':1}");
         _verifyBooleanCoerceFail("1", true, JsonToken.VALUE_NUMBER_INT, "1", Boolean.TYPE);
         _verifyBooleanCoerceFail("1", true, JsonToken.VALUE_NUMBER_INT, "1", Boolean.class);
         _verifyBooleanCoerceFail(beanDoc, true, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
+
+        _verifyBooleanCoerceFail("1.25", true, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.TYPE);
+        _verifyBooleanCoerceFail("1.25", true, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.class);
     }
 
+    // [databind#2635], [databind#2770]
     public void testToBooleanCoercionFailChars() throws Exception
     {
         final String beanDoc = aposToQuotes("{'value':1}");
         _verifyBooleanCoerceFail("1", false, JsonToken.VALUE_NUMBER_INT, "1", Boolean.TYPE);
         _verifyBooleanCoerceFail("1", false, JsonToken.VALUE_NUMBER_INT, "1", Boolean.class);
         _verifyBooleanCoerceFail(beanDoc, false, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
+
+        _verifyBooleanCoerceFail("1.25", false, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.TYPE);
+        _verifyBooleanCoerceFail("1.25", false, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.class);
     }
 
     public void testMiscCoercionFail() throws Exception
@@ -273,9 +281,8 @@ public class ScalarCoercionTest extends BaseMapTest
     private void _verifyBooleanCoerceFailReason(MismatchedInputException e,
             JsonToken tokenType, String tokenValue) throws IOException
     {
-        verifyException(e, "Cannot coerce ");
-        verifyException(e, " for type `");
-        verifyException(e, "enable `MapperFeature.ALLOW_COERCION_OF_SCALARS` to allow");
+        // 2 different possibilities here
+        verifyException(e, "Cannot coerce Number", "Cannot deserialize instance of `");
 
         JsonParser p = (JsonParser) e.getProcessor();
 
@@ -286,7 +293,7 @@ public class ScalarCoercionTest extends BaseMapTest
         if (!tokenValue.equals(text)) {
             String textDesc = (text == null) ? "NULL" : quote(text);
             fail("Token text ("+textDesc+") via parser of type "+p.getClass().getName()
-                    +" not as expected ("+quote(tokenValue)+")");
+                    +" not as expected ("+quote(tokenValue)+"); exception message: '"+e.getMessage()+"'");
         }
     }
 }

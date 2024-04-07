@@ -12,6 +12,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass.Creators;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -27,6 +28,9 @@ final class AnnotatedCreatorCollector
 
     private final TypeResolutionContext _typeContext;
 
+    // @since 2.11.3
+    private final TypeFactory _typeFactory;
+
     /**
      * @since 2.11
      */
@@ -36,23 +40,37 @@ final class AnnotatedCreatorCollector
 
     private AnnotatedConstructor _defaultConstructor;
 
-    AnnotatedCreatorCollector(AnnotationIntrospector intr,
+    AnnotatedCreatorCollector(AnnotationIntrospector intr, TypeFactory tf,
             TypeResolutionContext tc, boolean collectAnnotations)
     {
         super(intr);
+        _typeFactory = tf;
         _typeContext = tc;
         _collectAnnotations = collectAnnotations;
     }
 
+    @Deprecated // since 2.11.3; to be removed ASAP (2.12.0)
     public static Creators collectCreators(AnnotationIntrospector intr,
-            TypeResolutionContext tc, 
+            TypeResolutionContext tc,
             JavaType type, Class<?> primaryMixIn, boolean collectAnnotations)
     {
-        final boolean checkClassAnnotations = (intr != null)
-                && !ClassUtil.isJDKClass(type.getRawClass());
+        return collectCreators(intr, TypeFactory.defaultInstance(),
+                tc, type, primaryMixIn, collectAnnotations);
+    }
+
+    /**
+     * @since 2.11.3
+     */
+    public static Creators collectCreators(AnnotationIntrospector intr,
+            TypeFactory typeFactory, TypeResolutionContext tc,
+            JavaType type, Class<?> primaryMixIn, boolean collectAnnotations)
+    {
+        // 30-Sep-2020, tatu: [databind#2795] Even if annotations not otherwise
+        //  requested (for JDK collections), force change if mix-in in use
+        collectAnnotations |= (primaryMixIn != null);
 
         // Constructor also always members of resolved class, parent == resolution context
-        return new AnnotatedCreatorCollector(intr, tc, checkClassAnnotations)
+        return new AnnotatedCreatorCollector(intr, typeFactory, tc, collectAnnotations)
                 .collect(type, primaryMixIn);
     }
 
@@ -203,6 +221,18 @@ final class AnnotatedCreatorCollector
         if (candidates == null) {
             return Collections.emptyList();
         }
+        // 05-Sep-2020, tatu: Important fix wrt [databind#2821] -- static methods
+        //   do NOT have type binding context of the surrounding class and although
+        //   passing that should not break things, it appears to... Regardless,
+        //   it should not be needed or useful as those bindings are only available
+        //   to non-static members
+
+        // 27-Oct-2020, tatu: SIGH. As per [databind#2894] there is widespread use of
+        //   incorrect bindings in the wild -- not supported (no tests) but used
+        //   nonetheless. So, for 2.11.x, put back "Bad Bindings"...
+//        final TypeResolutionContext typeResCtxt = new TypeResolutionContext.Empty(_typeFactory);
+        final TypeResolutionContext typeResCtxt = _typeContext;
+
         int factoryCount = candidates.size();
         List<AnnotatedMethod> result = new ArrayList<>(factoryCount);
         for (int i = 0; i < factoryCount; ++i) {
@@ -225,7 +255,8 @@ final class AnnotatedCreatorCollector
                 for (int i = 0; i < factoryCount; ++i) {
                     if (key.equals(methodKeys[i])) {
                         result.set(i,
-                                constructFactoryCreator(candidates.get(i), mixinFactory));
+                                constructFactoryCreator(candidates.get(i),
+                                        typeResCtxt, mixinFactory));
                         break;
                     }
                 }
@@ -236,7 +267,8 @@ final class AnnotatedCreatorCollector
             AnnotatedMethod factory = result.get(i);
             if (factory == null) {
                 result.set(i,
-                        constructFactoryCreator(candidates.get(i), null));
+                        constructFactoryCreator(candidates.get(i),
+                                typeResCtxt, null));
             }
         }
         return result;
@@ -308,18 +340,19 @@ ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
                 collectAnnotations(ctor, mixin), resolvedAnnotations);
     }
 
-    protected AnnotatedMethod constructFactoryCreator(Method m, Method mixin)
+    protected AnnotatedMethod constructFactoryCreator(Method m,
+            TypeResolutionContext typeResCtxt, Method mixin)
     {
         final int paramCount = m.getParameterTypes().length;
         if (_intr == null) { // when annotation processing is disabled
-            return new AnnotatedMethod(_typeContext, m, _emptyAnnotationMap(),
+            return new AnnotatedMethod(typeResCtxt, m, _emptyAnnotationMap(),
                     _emptyAnnotationMaps(paramCount));
         }
         if (paramCount == 0) { // common enough we can slightly optimize
-            return new AnnotatedMethod(_typeContext, m, collectAnnotations(m, mixin),
+            return new AnnotatedMethod(typeResCtxt, m, collectAnnotations(m, mixin),
                     NO_ANNOTATION_MAPS);
         }
-        return new AnnotatedMethod(_typeContext, m, collectAnnotations(m, mixin),
+        return new AnnotatedMethod(typeResCtxt, m, collectAnnotations(m, mixin),
                 collectAnnotations(m.getParameterAnnotations(),
                         (mixin == null) ? null : mixin.getParameterAnnotations()));
     }

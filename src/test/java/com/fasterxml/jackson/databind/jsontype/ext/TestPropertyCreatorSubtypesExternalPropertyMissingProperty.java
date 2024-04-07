@@ -37,9 +37,9 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
                 @Type(value = Apple.class, name = "apple"),
                 @Type(value = Orange.class, name = "orange")
         })
-        private Fruit fruit;
+        Fruit fruit;
 
-        private Box(String type, Fruit fruit) {
+        Box(String type, Fruit fruit) {
             this.type = type;
             this.fruit = fruit;
         }
@@ -71,9 +71,9 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
     }
 
     static class Apple extends Fruit {
-        private int seedCount;
+        int seedCount;
 
-        private Apple(String name, int b) {
+        Apple(String name, int b) {
             super(name);
             seedCount = b;
         }
@@ -89,8 +89,8 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
     }
 
     static class Orange extends Fruit {
-        private String color;
-        private Orange(String name, String c) {
+        String color;
+        Orange(String name, String c) {
             super(name);
             color = c;
         }

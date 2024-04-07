@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.databind.struct;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 public class FormatFeatureAcceptSingleTest extends BaseMapTest
 {
@@ -51,6 +56,33 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
         public List<String> values;
     }
 
+    @JsonDeserialize(builder = StringListWrapperWithBuilder.Builder.class)
+    static class StringListWrapperWithBuilder {
+        public final List<String> values;
+
+        StringListWrapperWithBuilder(List<String> values) {
+            this.values = values;
+        }
+
+        static class Builder {
+            private List<String> values = Collections.emptyList();
+
+            @JsonProperty
+            @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+            public Builder values(Iterable<? extends String> elements) {
+                values = new ArrayList<>();
+                for (String value : elements) {
+                    values.add(value);
+                }
+                return this;
+            }
+
+            public StringListWrapperWithBuilder build() {
+                return new StringListWrapperWithBuilder(values);
+            }
+        }
+    }
+
     static class EnumSetWrapper {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public EnumSet<ABC> values;
@@ -66,9 +98,58 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
         public List<Role> roles;
     }
 
+    @JsonDeserialize(builder = RolesInListWithBuilder.Builder.class)
+    static class RolesInListWithBuilder {
+        public final List<Role> roles;
+
+        RolesInListWithBuilder(List<Role> roles) {
+            this.roles = roles;
+        }
+
+        static class Builder {
+            private List<Role> values = Collections.emptyList();
+
+            @JsonProperty
+            @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+            public Builder roles(Iterable<? extends Role> elements) {
+                values = new ArrayList<>();
+                for (Role value : elements) {
+                    values.add(value);
+                }
+                return this;
+            }
+
+            public RolesInListWithBuilder build() {
+                return new RolesInListWithBuilder(values);
+            }
+        }
+    }
+
+    static class WrapperWithStringFactoryInList {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        public List<WrapperWithStringFactory> values;
+    }
+
     static class Role {
         public String ID;
         public String Name;
+    }
+
+    @JsonDeserialize
+    static class WrapperWithStringFactory {
+        final Role role;
+
+        private WrapperWithStringFactory(Role role) {
+            this.role = role;
+        }
+
+        @JsonCreator
+        static WrapperWithStringFactory from(String value) {
+            Role role = new Role();
+            role.ID = "1";
+            role.Name = value;
+            return new WrapperWithStringFactory(role);
+        }
     }
 
     private final ObjectMapper MAPPER = new ObjectMapper();
@@ -150,11 +231,21 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
         assertEquals(1, response.roles.length);
         assertEquals("333", response.roles[0].ID);
     }
-    
+
     public void testSingleStringListRead() throws Exception {
         String json = aposToQuotes(
                 "{ 'values': 'first' }");
         StringListWrapper result = MAPPER.readValue(json, StringListWrapper.class);
+        assertNotNull(result.values);
+        assertEquals(1, result.values.size());
+        assertEquals("first", result.values.get(0));
+    }
+
+    public void testSingleStringListReadWithBuilder() throws Exception {
+        String json = aposToQuotes(
+                "{ 'values': 'first' }");
+        StringListWrapperWithBuilder result =
+                MAPPER.readValue(json, StringListWrapperWithBuilder.class);
         assertNotNull(result.values);
         assertEquals(1, result.values.size());
         assertEquals("first", result.values.get(0));
@@ -167,6 +258,24 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
         assertNotNull(response.roles);
         assertEquals(1, response.roles.size());
         assertEquals("333", response.roles.get(0).ID);
+    }
+
+    public void testSingleElementListReadWithBuilder() throws Exception {
+        String json = aposToQuotes(
+                "{ 'roles': { 'Name': 'User', 'ID': '333' } }");
+        RolesInListWithBuilder response = MAPPER.readValue(json, RolesInListWithBuilder.class);
+        assertNotNull(response.roles);
+        assertEquals(1, response.roles.size());
+        assertEquals("333", response.roles.get(0).ID);
+    }
+
+    public void testSingleElementWithStringFactoryRead() throws Exception {
+        String json = aposToQuotes(
+                "{ 'values': '333' }");
+        WrapperWithStringFactoryInList response = MAPPER.readValue(json, WrapperWithStringFactoryInList.class);
+        assertNotNull(response.values);
+        assertEquals(1, response.values.size());
+        assertEquals("333", response.values.get(0).role.Name);
     }
 
     public void testSingleEnumSetRead() throws Exception {

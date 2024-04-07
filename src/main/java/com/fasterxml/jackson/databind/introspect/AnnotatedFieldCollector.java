@@ -88,7 +88,7 @@ public class AnnotatedFieldCollector
             fields.put(f.getName(), b);
         }
         // And then... any mix-in overrides?
-        if (_mixInResolver != null) {
+        if ((fields != null) && (_mixInResolver != null)) {
             Class<?> mixin = _mixInResolver.findMixInClassFor(cls);
             if (mixin != null) {
                 _addFieldMixIns(mixin, cls, fields);

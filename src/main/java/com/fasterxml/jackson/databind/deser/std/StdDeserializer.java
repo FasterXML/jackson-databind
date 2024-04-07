@@ -53,7 +53,6 @@ public abstract class StdDeserializer<T>
             DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS.getMask() |
             DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT.getMask();
 
-
     /**
      * Type of values this deserializer handles: sometimes
      * exact types, other time most specific supertype of
@@ -171,7 +170,14 @@ public abstract class StdDeserializer<T>
     /**********************************************************
      */
 
-    protected final boolean _parseBooleanPrimitive(JsonParser p, DeserializationContext ctxt) throws IOException
+    @Deprecated // since 2.11, use overloaded variant
+    protected final boolean _parseBooleanPrimitive(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return _parseBooleanPrimitive(ctxt, p, Boolean.TYPE);
+    }
+
+    // @since 2.11
+    protected final boolean _parseBooleanPrimitive(DeserializationContext ctxt,
+            JsonParser p, Class<?> targetType) throws IOException
     {
         JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_TRUE) return true;
@@ -199,7 +205,7 @@ public abstract class StdDeserializer<T>
                 _verifyNullForPrimitiveCoercion(ctxt, text);
                 return false;
             }
-            Boolean b = (Boolean) ctxt.handleWeirdStringValue(_valueClass, text,
+            Boolean b = (Boolean) ctxt.handleWeirdStringValue(targetType, text,
                     "only \"true\" or \"false\" recognized");
             return Boolean.TRUE.equals(b);
         }
@@ -215,7 +221,7 @@ public abstract class StdDeserializer<T>
             return parsed;
         }
         // Otherwise, no can do:
-        return ((Boolean) ctxt.handleUnexpectedToken(_valueClass, p)).booleanValue();
+        return ((Boolean) ctxt.handleUnexpectedToken(targetType, p)).booleanValue();
     }
 
     protected boolean _parseBooleanFromInt(JsonParser p, DeserializationContext ctxt)

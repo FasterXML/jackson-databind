@@ -28,21 +28,21 @@ public class DateDeserializationTZTest
 
     static class Annot_TimeZone {
         @JsonFormat(timezone="GMT+4")
-        private java.util.Date date;
+        java.util.Date date;
     }
 
     static class Annot_Pattern {
         @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'")
-        private java.util.Date pattern;
+        java.util.Date pattern;
 
         @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'", locale="FR")
-        private java.util.Date pattern_FR;
+        java.util.Date pattern_FR;
 
         @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'", timezone="GMT+4")
-        private java.util.Date pattern_GMT4;
+        java.util.Date pattern_GMT4;
 
         @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'", locale="FR", timezone="GMT+4")
-        private java.util.Date pattern_FR_GMT4;
+        java.util.Date pattern_FR_GMT4;
     }
 
     static class DateAsStringBean {

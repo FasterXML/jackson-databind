@@ -7,6 +7,8 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
@@ -51,7 +53,16 @@ public class ObjectMapperTest extends BaseMapTest
     @SuppressWarnings("serial")
     static class NoCopyMapper extends ObjectMapper { }
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    // [databind#2785]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
+            property = "packetType")
+    public interface Base2785  {
+    }
+    @JsonTypeName("myType")
+    static class Impl2785 implements Base2785 {
+    }
+
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
     /**********************************************************
@@ -133,8 +144,10 @@ public class ObjectMapperTest extends BaseMapTest
         assertFalse(m2.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
 
         // // Also, underlying JsonFactory instances should be distinct
-        
         assertNotSame(m.getFactory(), m2.getFactory());
+
+        // [databind#2755]: also need to copy this:
+        assertNotSame(m.getSubtypeResolver(), m2.getSubtypeResolver());
 
         // [databind#122]: Need to ensure mix-ins are not shared
         assertEquals(0, m.getSerializationConfig().mixInCount());
@@ -181,6 +194,14 @@ public class ObjectMapperTest extends BaseMapTest
         assertSame(customSetter, config2.getDefaultSetterInfo());
         assertEquals(Boolean.TRUE, config2.getDefaultMergeable());
         assertSame(customVis, config2.getDefaultVisibilityChecker());
+    }
+
+    // [databind#2785]
+    public void testCopyOfSubtypeResolver2785() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper().copy();
+        objectMapper.registerSubtypes(Impl2785.class);
+        Object result = objectMapper.readValue("{ \"packetType\": \"myType\" }", Base2785.class);
+        assertNotNull(result);
     }
 
     public void testFailedCopy() throws Exception

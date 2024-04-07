@@ -198,11 +198,11 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     // [databind#148]
     public void testBadTypeAsNull() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
-        Object ob = mapper.readValue("{}", MysteryPolymorphic.class);
+        ObjectReader r = MAPPER.readerFor(MysteryPolymorphic.class)
+                .without(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
+        Object ob = r.readValue("{}");
         assertNull(ob);
-        ob = mapper.readValue("{ \"whatever\":13}", MysteryPolymorphic.class);
+        ob = r.readValue("{ \"whatever\":13}");
         assertNull(ob);
     }
 

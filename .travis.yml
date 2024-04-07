@@ -7,7 +7,7 @@ git:
 # Since Jackson 2.10 build requires JDK 8 even if only JDK 7 runtime
 jdk:
   - openjdk8
-  - oraclejdk11
+  - openjdk11
 
 # 2019-11-26, tatu: Let's try caching Maven dependencies
 cache:

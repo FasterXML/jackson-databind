@@ -181,11 +181,23 @@ public class BeanSerializerBuilder
      */
     public JsonSerializer<?> build()
     {
+        // [databind#2789]: There can be a case wherein `_typeId` is used, but
+        // nothing else. Rare but has happened; so force access.
+        if (_typeId != null) {
+            if (_config.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+                _typeId.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            }
+        }
+        if (_anyGetter != null) {
+            _anyGetter.fixAccess(_config);
+        }
+
         BeanPropertyWriter[] properties;
         // No properties, any getter or object id writer?
         // No real serializer; caller gets to handle
         if (_properties == null || _properties.isEmpty()) {
             if (_anyGetter == null && _objectIdWriter == null) {
+                // NOTE! Caller may still call `createDummy()` later on
                 return null;
             }
             properties = NO_PROPERTIES;
@@ -203,14 +215,6 @@ public class BeanSerializerBuilder
                 throw new IllegalStateException(String.format(
 "Mismatch between `properties` size (%d), `filteredProperties` (%s): should have as many (or `null` for latter)",
 _properties.size(), _filteredProperties.length));
-            }
-        }
-        if (_anyGetter != null) {
-            _anyGetter.fixAccess(_config);
-        }
-        if (_typeId != null) {
-            if (_config.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
-                _typeId.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
         }
         return new BeanSerializer(_beanDesc.getType(), this,

@@ -1215,7 +1215,7 @@ public abstract class DeserializationContext
      * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
      *
      * @param targetType Type that was to be instantiated
-     * @param t Token encountered that does match expected
+     * @param t Token encountered that does not match expected
      * @param p Parser that points to the JSON value to decode
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
@@ -1251,6 +1251,10 @@ public abstract class DeserializationContext
                 msg = String.format("Cannot deserialize instance of %s out of %s token",
                         ClassUtil.getTypeDescription(targetType), t);
             }
+        }
+        // 18-Jun-2020, tatu: to resolve [databind#2770], force access to `getText()` for scalars
+        if ((t != null) && t.isScalarValue()) {
+            p.getText();
         }
         reportInputMismatch(targetType, msg);
         return null; // never gets here

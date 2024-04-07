@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
@@ -234,7 +233,7 @@ public abstract class BaseMapTest
 
     // @since 2.10
     protected static ObjectMapper newJsonMapper() {
-        return new ObjectMapper();
+        return new JsonMapper();
     }
 
     // @since 2.10
@@ -353,6 +352,11 @@ public abstract class BaseMapTest
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    // @since 2.11.3
+    protected static String a2q(String json) {
+        return json.replace("'", "\"");
     }
 
     protected static String aposToQuotes(String json) {

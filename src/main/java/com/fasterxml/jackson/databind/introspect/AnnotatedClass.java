@@ -77,6 +77,9 @@ public final class AnnotatedClass
     final protected Class<?> _primaryMixIn;
 
     /**
+     * Flag that indicates whether (fulll) annotation resolution should
+     * occur: starting with 2.11 is disabled for JDK container types.
+     *
      * @since 2.11
      */
     final protected boolean _collectAnnotations;
@@ -226,6 +229,12 @@ public final class AnnotatedClass
 
     @Override
     public JavaType resolveType(Type type) {
+        // 05-Sep-2020, tatu: [databind#2846][databind#2821] avoid
+        //    passing context in case of Raw class (generic type declared
+        //    without type parametrers) as that can lead to mismatch
+        if (type instanceof Class<?>) {
+            return _typeFactory.constructType(type);
+        }
         return _typeFactory.constructType(type, _bindings);
     }
 
@@ -396,6 +405,7 @@ public final class AnnotatedClass
                 c = NO_CREATORS;
             } else {
                 c = AnnotatedCreatorCollector.collectCreators(_annotationIntrospector,
+                        _typeFactory,
                         this, _type, _primaryMixIn, _collectAnnotations);
             }
             _creators = c;

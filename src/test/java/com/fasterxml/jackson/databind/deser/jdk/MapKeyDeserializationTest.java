@@ -1,11 +1,14 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
+import java.util.Collections;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.*;
 
 import org.junit.Assert;
@@ -13,7 +16,7 @@ import org.junit.Assert;
 public class MapKeyDeserializationTest extends BaseMapTest
 {
     static class FullName {
-        private String _firstname, _lastname;
+        String _firstname, _lastname;
 
         private FullName(String firstname, String lastname) {
             _firstname = firstname;
@@ -37,6 +40,31 @@ public class MapKeyDeserializationTest extends BaseMapTest
         }
     }
 
+    // [databind#2725]
+    enum TestEnum2725 {
+        FOO(1);
+
+        private final int i;
+
+        TestEnum2725(final int i) {
+            this.i = i;
+        }
+
+        @JsonValue
+        public int getI() {
+            return i;
+        }
+
+        @JsonCreator
+        public static TestEnum2725 getByIntegerId(final Integer id) {
+            return id == FOO.i ? FOO : null;
+        }
+
+        @JsonCreator
+        public static TestEnum2725 getByStringId(final String id) {
+            return Integer.parseInt(id) == FOO.i ? FOO : null;
+        }
+    }    
     /*
     /**********************************************************
     /* Test methods, wrapper keys
@@ -137,5 +165,17 @@ public class MapKeyDeserializationTest extends BaseMapTest
         assertEquals("foobar", entry.getValue());
         byte[] key = entry.getKey();
         Assert.assertArrayEquals(binary, key);
+    }
+
+    // [databind#2725]
+    public void testEnumWithCreatorMapKeyDeserialization() throws Exception
+    {
+        final Map<TestEnum2725, String> input = Collections.singletonMap(TestEnum2725.FOO, "Hello");
+        final String json = MAPPER.writeValueAsString(input);
+        final Map<TestEnum2725, String> output = MAPPER.readValue(json,
+                new TypeReference<Map<TestEnum2725, String>>() { });
+
+        assertNotNull(output);
+        assertEquals(1, output.size());
     }
 }

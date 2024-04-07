@@ -957,6 +957,8 @@ Vladimir Tsanev (tsachev@github)
 Marcos Passos (marcospassos@github(
   * Contributed #2432: Add support for module bundles
    (2.10.0)
+  * Reported #2795: Cannot detect creator arguments of mixins for JDK types
+   (2.11.3)
 
 David Becker (dsbecker@github)
   * Suggested #2433: Improve `NullNode.equals()`
@@ -991,6 +993,11 @@ João Guerra (joca-bt@github)
   (2.10.1)
   * Reported #2567: Incorrect target type for arrays when providing nulls and nulls are disabled
   (2.10.2)
+  * Reported #2635: JsonParser cannot getText() for input stream on MismatchedInputException
+  (2.11.0)
+  * Reported #2770: JsonParser from MismatchedInputException cannot getText() for
+    floating-point value
+  (2.11.1)
 
 Ryan Bohn (bohnman@github)
   * Reported #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,
@@ -1051,13 +1058,19 @@ Endre Stølsvik (stolsvik@github)
   * Reported #2679: `ObjectMapper.readValue("123", Void.TYPE)` throws "should never occur"
   (2.10.4)
 
+Denis Kostousov (kostousov-ds@github)
+  * Reported #2787 (partial fix): NPE after add mixin for enum
+  (2.10.5)
+
 Máté Rédecsi (rmatesz@github)
   * Reported #953: i-I case convertion problem in Turkish locale with case-insensitive deserialization
- (2.11.0)
+  (2.11.0)
 
 Ville Koskela (vjkoskela@github)
   * Contributed #2487: BeanDeserializerBuilder Protected Factory Method for Extension
   (2.11.0)
+  * Reported #2486: Builder Deserialization with JsonCreator Value vs Array
+  (2.11.1)
 
 Fitz (Joongsoo.Park) (joongsoo@github)
   * Contributed #2511: Add `SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL`
@@ -1074,31 +1087,90 @@ Robert Diebels (RobertDiebels@github)
 Joseph Koshakow (jkosh44@github)
   * Contributed fix for #2515: `ObjectMapper.registerSubtypes(NamedType...)` doesn't allow registering
     the same POJO for two different type ids
- (2.11.0)
+  (2.11.0)
 
 Haowei Wen (yushijinhun@github)
   * Reported #2565: Java 8 `Optional` not working with `@JsonUnwrapped` on unwrappable type
- (2.11.0)
+  (2.11.0)
 
 Bartosz Baranowski (baranowb@github)
   * Reported #2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
    external entity expansion in all cases
- (2.11.0)
+  (2.11.0)
 
 Oleksii Khomchenko (gagoman@github)
   * Reported, contributed fix for #2592: `ObjectMapper.setSerializationInclusion()` is
    ignored for `JsonAnyGetter`
- (2.11.0)
+  (2.11.0)
 
 Oleksandr Poslavskyi (alevskyi@github)
   * Contributed fix for #1983: Polymorphic deserialization should handle case-insensitive Type Id
     property name if `MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES` is enabled
- (2.11.0)
+  (2.11.0)
 
 Simone D'Avico (simonedavico@github)
   * Reported #2632: Failure to resolve generic type parameters on serialization
- (2.11.0)
+  (2.11.0)
  
 Robin Roos (robinroos@github)
   * Contributed #2636: ObjectReader readValue lacks Class<T> argument
- (2.11.0)
+  (2.11.0)
+
+Michael Cramer (BigMichi1@github)
+  * Reported #2725: JsonCreator on static method in Enum and Enum used as key in map
+   fails randomly
+  (2.11.1)
+ 
+Frank Schmager (fschmager@github)
+  * Reported #2757: "Conflicting setter definitions for property" exception for `Map`
+   subtype during deserialization
+  (2.11.1)
+
+Johannes Kuhn (DasBrain@github)
+  * Reported #2758: Fail to deserialize local Records
+  (2.11.1)
+  * Reported #2760: Jackson doesn't respect `CAN_OVERRIDE_ACCESS_MODIFIERS=false` for
+    deserializer properties
+  (2.11.1)
+
+Oleg Chtchoukine (oshatrk@github)
+  * Reported #2759: Rearranging of props when property-based generator is in use leads
+    to incorrect output
+  (2.11.1)
+
+Joshua Shannon (retrodaredevil@github)
+  * Reported, contributed fix for #2785: Polymorphic subtypes not registering on copied
+    ObjectMapper (2.11.1)
+  (2.11.2)
+
+Daniel Hrabovcak (TheSpiritXIII@github)
+  * Reported #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
+  (2.11.2)
+
+Lari Hotari (lhotari@github)
+  * Reported #2821: Json serialization fails or a specific case that contains generics and
+   static methods with generic parameters (2.11.1 -> 2.11.2 regression)
+  (2.11.3)
+
+Nils Christian Ehmke (nils-christian@github)
+  * Reported #2822: Using JsonValue and JsonFormat on one field does not work as expected
+  (2.11.3)
+
+Daniel Wu (DanielYWoo@github)
+  * Reported #2840: `ObjectMapper.activateDefaultTypingAsProperty()` is not using
+  (2.11.3)
+
+Łukasz Walkiewicz (lukasz-walkiewicz@github)
+  * Reported #2894: Fix type resolution for static methods (regression in 2.11.3)
+  (2.11.4)
+
+Lucian H (symposion@github)
+  * Reported, suggested fix for #2944: `@JsonCreator` on constructor not compatible
+    with `@JsonIdentityInfo`, `PropertyGenerator`
+  (2.11.4)
+
+Gian Merlino (gianm@github)
+#3022: Property ignorals cause `BeanDeserializer `to forget how to read
+   from arrays (not copying `_arrayDelegateDeserializer`)
+  (2.11.5 / 2.12.2)
+ 

@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.*;
 public class TimestampDeserializationTest
     extends BaseMapTest
 {
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     // As for TestDateDeserialization except we don't need to test date conversion routines, so
     // just check we pick up timestamp class
 
@@ -17,27 +19,27 @@ public class TimestampDeserializationTest
         java.sql.Timestamp value = new java.sql.Timestamp(now);
 
         // First from long
-        assertEquals(value, new ObjectMapper().readValue(""+now, java.sql.Timestamp.class));
+        assertEquals(value, MAPPER.readValue(""+now, java.sql.Timestamp.class));
 
         String dateStr = serializeTimestampAsString(value);
-        java.sql.Timestamp result = new ObjectMapper().readValue("\""+dateStr+"\"", java.sql.Timestamp.class);
+        java.sql.Timestamp result = MAPPER.readValue("\""+dateStr+"\"", java.sql.Timestamp.class);
 
         assertEquals("Date: expect "+value+" ("+value.getTime()+"), got "+result+" ("+result.getTime()+")", value.getTime(), result.getTime());
     }
-    
+
     public void testTimestampUtilSingleElementArray() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        final ObjectReader r = MAPPER.readerFor(java.sql.Timestamp.class)
+                .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
         
         long now = System.currentTimeMillis();
         java.sql.Timestamp value = new java.sql.Timestamp(now);
 
         // First from long
-        assertEquals(value, mapper.readValue("["+now+"]", java.sql.Timestamp.class));
+        assertEquals(value, r.readValue("["+now+"]"));
 
         String dateStr = serializeTimestampAsString(value);
-        java.sql.Timestamp result = mapper.readValue("[\""+dateStr+"\"]", java.sql.Timestamp.class);
+        java.sql.Timestamp result = r.readValue("[\""+dateStr+"\"]");
 
         assertEquals("Date: expect "+value+" ("+value.getTime()+"), got "+result+" ("+result.getTime()+")", value.getTime(), result.getTime());
     }

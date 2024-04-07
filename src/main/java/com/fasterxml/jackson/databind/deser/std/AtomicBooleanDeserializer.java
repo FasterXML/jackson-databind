@@ -13,7 +13,7 @@ public class AtomicBooleanDeserializer extends StdScalarDeserializer<AtomicBoole
     public AtomicBooleanDeserializer() { super(AtomicBoolean.class); }
 
     @Override
-    public AtomicBoolean deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return new AtomicBoolean(_parseBooleanPrimitive(jp, ctxt));
+    public AtomicBoolean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return new AtomicBoolean(_parseBooleanPrimitive(ctxt, p, AtomicBoolean.class));
     }
 }

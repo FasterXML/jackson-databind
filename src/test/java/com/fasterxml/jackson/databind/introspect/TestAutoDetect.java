@@ -1,10 +1,13 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 public class TestAutoDetect
     extends BaseMapTest
@@ -35,13 +38,84 @@ public class TestAutoDetect
         }
     }
 
+    // [databind#1947]
+    static class Entity1947 {
+        public int shouldBeDetected;
+        public String shouldNotBeDetected;
+
+        @JsonProperty
+        public int getShouldBeDetected() {
+            return shouldBeDetected;
+        }
+
+        public void setShouldBeDetected(int shouldBeDetected) {
+            this.shouldBeDetected = shouldBeDetected;
+        }
+
+        public String getShouldNotBeDetected() {
+            return shouldNotBeDetected;
+        }
+
+        public void setShouldNotBeDetected(String shouldNotBeDetected) {
+            this.shouldNotBeDetected = shouldNotBeDetected;
+        }
+    }
+
+    // For [databind#2789]
+
+    @SuppressWarnings("unused")
+    @JsonAutoDetect(
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        creatorVisibility = JsonAutoDetect.Visibility.NONE,
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+        fieldVisibility = JsonAutoDetect.Visibility.NONE,
+        setterVisibility = JsonAutoDetect.Visibility.NONE)
+    @JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type",
+        visible = true)
+    @JsonSubTypes({
+        @JsonSubTypes.Type(name = "CLASS_A", value = DataClassA.class)
+    })
+    private static abstract class DataParent2789 {
+
+        @JsonProperty("type")
+        @JsonTypeId
+        private final DataType2789 type;
+
+        DataParent2789() {
+            super();
+            this.type = null;
+        }
+
+        DataParent2789(final DataType2789 type) {
+            super();
+            this.type = Objects.requireNonNull(type);
+        }
+
+        public DataType2789 getType() {
+            return this.type;
+        }
+    }
+
+    private static final class DataClassA extends DataParent2789 {
+        DataClassA() {
+            super(DataType2789.CLASS_A);
+        }
+    }
+
+    private enum DataType2789 {
+        CLASS_A;
+    }
+
     /*
     /********************************************************
     /* Unit tests
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testPrivateCtor() throws Exception
     {
@@ -100,5 +174,29 @@ public class TestAutoDetect
                         Visibility.NONE));
         Feature1347DeserBean result = mapper.readValue(JSON, Feature1347DeserBean.class);
         assertEquals(3, result.value);
+    }
+
+    // [databind#1947]
+    public void testDisablingAll() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.AUTO_DETECT_SETTERS)
+                .disable(MapperFeature.AUTO_DETECT_FIELDS)
+                .disable(MapperFeature.AUTO_DETECT_GETTERS)
+                .disable(MapperFeature.AUTO_DETECT_CREATORS)
+                .disable(MapperFeature.AUTO_DETECT_IS_GETTERS)
+                .build();
+        String json = mapper.writeValueAsString(new Entity1947());
+        JsonNode n = mapper.readTree(json);
+        assertEquals(1, n.size());
+        assertTrue(n.has("shouldBeDetected"));
+        assertFalse(n.has("shouldNotBeDetected"));
+    }
+
+    // [databind#2789]
+    public void testAnnotatedFieldIssue2789() throws Exception {
+        final String json = MAPPER.writeValueAsString(new DataClassA());
+        final DataParent2789 copy = MAPPER.readValue(json, DataParent2789.class);
+        assertEquals(DataType2789.CLASS_A, copy.getType());
     }
 }

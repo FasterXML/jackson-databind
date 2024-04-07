@@ -6,10 +6,9 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.module.SimpleDeserializers;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.*;
 
@@ -205,22 +204,23 @@ public class TestTypeModifiers extends BaseMapTest
             return type;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER_WITH_MODIFIER = JsonMapper.builder()
+            .typeFactory(TypeFactory.defaultInstance().withModifier(new MyTypeModifier()))
+            .build();
+
     /**
      * Basic test for ensuring that we can get "xxx-like" types recognized.
      */
     public void testMapLikeTypeConstruction() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
-
-        JavaType type = mapper.constructType(MyMapLikeType.class);
+        JavaType type = MAPPER_WITH_MODIFIER.constructType(MyMapLikeType.class);
         assertTrue(type.isMapLikeType());
         // also, must have resolved type info
         JavaType param = ((MapLikeType) type).getKeyType();
@@ -229,6 +229,21 @@ public class TestTypeModifiers extends BaseMapTest
         param = ((MapLikeType) type).getContentType();
         assertNotNull(param);
         assertSame(Integer.class, param.getRawClass());
+    }
+
+    public void testMapLikeTypeViaParametric() throws Exception
+    {
+        // [databind#2796]: should refine with another call too
+        JavaType type = MAPPER_WITH_MODIFIER.getTypeFactory().constructParametricType(MapMarker.class,
+                new Class<?>[] { String.class, Double.class });
+        assertTrue(type.isMapLikeType());
+        JavaType param = ((MapLikeType) type).getKeyType();
+        assertNotNull(param);
+        assertSame(String.class, param.getRawClass());
+
+        param = ((MapLikeType) type).getContentType();
+        assertNotNull(param);
+        assertSame(Double.class, param.getRawClass());
     }
 
     // [databind#2395] Can trigger problem this way too
@@ -247,10 +262,7 @@ public class TestTypeModifiers extends BaseMapTest
 
     public void testCollectionLikeTypeConstruction() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
-
-        JavaType type = mapper.constructType(MyCollectionLikeType.class);
+        JavaType type = MAPPER_WITH_MODIFIER.constructType(MyCollectionLikeType.class);
         assertTrue(type.isCollectionLikeType());
         JavaType param = ((CollectionLikeType) type).getContentType();
         assertNotNull(param);

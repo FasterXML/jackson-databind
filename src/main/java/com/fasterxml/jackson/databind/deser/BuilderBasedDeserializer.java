@@ -355,7 +355,11 @@ public class BuilderBasedDeserializer
             String propName = p.getCurrentName();
             p.nextToken(); // to point to value
             // creator property?
-            SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            // Object Id property?
+            if (buffer.readIdProperty(propName) && creatorProp == null) {
+                continue;
+            }
             if (creatorProp != null) {
                 if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
                     p.skipChildren();
@@ -381,10 +385,6 @@ public class BuilderBasedDeserializer
                     // or just clean?
                     return _deserialize(p, ctxt, builder);
                 }
-                continue;
-            }
-            // Object Id property?
-            if (buffer.readIdProperty(propName)) {
                 continue;
             }
             // regular property? needs buffering
@@ -630,7 +630,11 @@ public class BuilderBasedDeserializer
             String propName = p.getCurrentName();
             p.nextToken(); // to point to value
             // creator property?
-            SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            // Object Id property?
+            if (buffer.readIdProperty(propName) && creatorProp == null) {
+                continue;
+            }
             if (creatorProp != null) {
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
@@ -646,10 +650,6 @@ public class BuilderBasedDeserializer
                     }
                     return deserializeWithUnwrapped(p, ctxt, builder, tokens);
                 }
-                continue;
-            }
-            // Object Id property?
-            if (buffer.readIdProperty(propName)) {
                 continue;
             }
             // regular property? needs buffering

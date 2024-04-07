@@ -63,9 +63,15 @@ public class BeanSerializer
             ObjectIdWriter objectIdWriter, Object filterId) {
         super(src, objectIdWriter, filterId);
     }
-    
+
     protected BeanSerializer(BeanSerializerBase src, Set<String> toIgnore) {
         super(src, toIgnore);
+    }
+
+    // @since 2.11.1
+    protected BeanSerializer(BeanSerializerBase src,
+            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties) {
+        super(src, properties, filteredProperties);
     }
 
     /*
@@ -112,6 +118,12 @@ public class BeanSerializer
     @Override
     protected BeanSerializerBase withIgnorals(Set<String> toIgnore) {
         return new BeanSerializer(this, toIgnore);
+    }
+
+    @Override // @since 2.11.1
+    protected BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
+            BeanPropertyWriter[] filteredProperties) {
+        return new BeanSerializer(this, properties, filteredProperties);
     }
 
     /**

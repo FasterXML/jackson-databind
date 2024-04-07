@@ -3,9 +3,6 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.POJOPropertiesCollector;
-import com.fasterxml.jackson.databind.introspect.POJOPropertyBuilder;
 
 public class TestBuilderMethods extends BaseMapTest
 {

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
- * Testing for [JACKSON-237] (NPE due to race condition)
+ * Testing for NPE due to race condition.
  */
 public class TestConcurrency extends BaseMapTest
 {
@@ -18,7 +18,7 @@ public class TestConcurrency extends BaseMapTest
     /**********************************************
      */
 
-    @JsonDeserialize(using=BeanDeserializer.class)
+    @JsonDeserialize(using=CustomBeanDeserializer.class)
     static class Bean
     {
         public int value = 42;
@@ -34,7 +34,7 @@ public class TestConcurrency extends BaseMapTest
      * Dummy deserializer used for verifying that partially handled (i.e. not yet
      * resolved) deserializers are not allowed to be used.
      */
-    static class BeanDeserializer
+    static class CustomBeanDeserializer
         extends JsonDeserializer<Bean>
         implements ResolvableDeserializer
     {

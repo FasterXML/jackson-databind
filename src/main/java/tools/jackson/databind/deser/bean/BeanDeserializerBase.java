@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -175,7 +176,7 @@ public abstract class BeanDeserializerBase
      * that is, when the actual type is not statically known.
      * For other types this remains null.
      */
-    protected transient HashMap<ClassKey, ValueDeserializer<Object>> _subDeserializers;
+    protected transient ConcurrentHashMap<ClassKey, ValueDeserializer<Object>> _subDeserializers;
 
     /**
      * If one of properties has "unwrapped" value, we need separate
@@ -1764,17 +1765,14 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             Object bean, TokenBuffer unknownTokens)
         throws JacksonException
     {
-        ValueDeserializer<Object> subDeser;
-
         // First: maybe we have already created sub-type deserializer?
-        synchronized (this) {
-            subDeser = (_subDeserializers == null) ? null : _subDeserializers.get(new ClassKey(bean.getClass()));
-        }
+        final ClassKey classKey = new ClassKey(bean.getClass());
+        ValueDeserializer<Object> subDeser = (_subDeserializers == null) ? null : _subDeserializers.get(classKey);
         if (subDeser != null) {
             return subDeser;
         }
         // If not, maybe we can locate one. First, need provider
-        JavaType type = ctxt.constructType(bean.getClass());
+        final JavaType type = ctxt.constructType(bean.getClass());
         /* 30-Jan-2012, tatu: Ideally we would be passing referring
          *   property; which in theory we could keep track of via
          *   ResolvableDeserializer (if we absolutely must...).
@@ -1784,12 +1782,14 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         subDeser = ctxt.findRootValueDeserializer(type);
         // Also, need to cache it
         if (subDeser != null) {
-            synchronized (this) {
-                if (_subDeserializers == null) {
-                    _subDeserializers = new HashMap<ClassKey,ValueDeserializer<Object>>();;
+            if (_subDeserializers == null) {
+                synchronized (this) {
+                    if (_subDeserializers == null) {
+                        _subDeserializers = new ConcurrentHashMap<>();
+                    }
                 }
-                _subDeserializers.put(new ClassKey(bean.getClass()), subDeser);
             }
+            _subDeserializers.put(classKey, subDeser);
         }
         return subDeser;
     }

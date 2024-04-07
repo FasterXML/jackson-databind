@@ -23,6 +23,9 @@ Project: jackson-databind
   String ".05": not a valid representation
  (reported by @EAlf91)
  (fix by @pjfanning)
+#4441: `@JsonSetter(nulls = Nulls.SKIP)` doesn't work in some situations
+ (reported by @Asapin)
+ (fix by Joo-Hyuk K)
 #4450: Empty QName deserialized as `null`
  (reported by @winfriedgerlach)
 

@@ -179,6 +179,8 @@ public class PropertyBuilder
             }
             if (valueToSuppress == null) {
                 suppressNulls = true;
+                // [databind#4464] NON_DEFAULT does not work with NON_EMPTY for custom serializer
+                valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
             } else {
                 if (valueToSuppress.getClass().isArray()) {
                     valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);

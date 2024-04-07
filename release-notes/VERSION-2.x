@@ -6,7 +6,10 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
--
+#4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
+  not called on the serializer
+ (reported by Teodor D)
+ (fix by Joo-Hyuk K)
 
 2.17.1 (not yet released)
 

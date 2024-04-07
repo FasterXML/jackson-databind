@@ -1,23 +1,23 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fasterxml.jackson.databind.BaseTest.a2q;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#4441] @JsonSetter(nulls = Nulls.SKIP) doesn't work in some situations
-public class SkipNulls4441Test {
-
+public class SkipNulls4441Test
+    extends DatabindTestUtil
+{
     static class Middle {
         @JsonSetter(nulls = Nulls.SKIP)
         private final List<Inner> listInner = new ArrayList<>();

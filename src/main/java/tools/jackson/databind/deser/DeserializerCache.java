@@ -56,7 +56,6 @@ public final class DeserializerCache
     private final transient HashMap<JavaType, ValueDeserializer<Object>> _incompleteDeserializers
         = new HashMap<>(8);
 
-
     /**
      * We hold an explicit lock while creating deserializers to avoid creating duplicates.
      */
@@ -219,26 +218,33 @@ public final class DeserializerCache
         // Only one thread to construct deserializers at any given point in time;
         // limitations necessary to ensure that only completely initialized ones
         // are visible and used.
-
-        try {
-            _incompleteDeserializersLock.lock();
-
-            // Ok, then: could it be that due to a race condition, deserializer can now be found?
-            ValueDeserializer<Object> deser = _findCachedDeserializer(type);
+        final boolean isCustom = _hasCustomHandlers(type);
+        if (!isCustom) {
+            ValueDeserializer<Object> deser = _cachedDeserializers.get(type);
             if (deser != null) {
                 return deser;
             }
+        }
+        _incompleteDeserializersLock.lock();
+        try {
+            if (!isCustom) {
+                ValueDeserializer<Object> deser = _cachedDeserializers.get(type);
+                if (deser != null) {
+                    return deser;
+                }
+            }
+            // Ok, then: could it be that due to a race condition, deserializer can now be found?
             int count = _incompleteDeserializers.size();
             // Or perhaps being resolved right now?
             if (count > 0) {
-                deser = _incompleteDeserializers.get(type);
+                ValueDeserializer<Object> deser = _incompleteDeserializers.get(type);
                 if (deser != null) {
                     return deser;
                 }
             }
             // Nope: need to create and possibly cache
             try {
-                return _createAndCache2(ctxt, factory, type);
+                return _createAndCache2(ctxt, factory, type, isCustom);
             } finally {
                 // also: any deserializers that have been created are complete by now
                 if (count == 0 && _incompleteDeserializers.size() > 0) {
@@ -255,7 +261,7 @@ public final class DeserializerCache
      * intermediate and eventual)
      */
     protected ValueDeserializer<Object> _createAndCache2(DeserializationContext ctxt,
-            DeserializerFactory factory, JavaType type)
+            DeserializerFactory factory, JavaType type, boolean isCustom)
     {
         ValueDeserializer<Object> deser;
         try {
@@ -269,11 +275,11 @@ public final class DeserializerCache
         if (deser == null) {
             return null;
         }
-        /* cache resulting deserializer? always true for "plain" BeanDeserializer
-         * (but can be re-defined for sub-classes by using @JsonCachable!)
-         */
+        // cache resulting deserializer? always true for "plain" BeanDeserializer
+        // (but can be re-defined for sub-classes by using @JsonCachable!)
+
         // 27-Mar-2015, tatu: As per [databind#735], avoid caching types with custom value desers
-        boolean addToCache = !_hasCustomHandlers(type) && deser.isCachable();
+        boolean addToCache = !isCustom && deser.isCachable();
 
         /* we will temporarily hold on to all created deserializers (to
          * handle cyclic references, and possibly reuse non-cached
@@ -284,9 +290,8 @@ public final class DeserializerCache
          *   either not add Lists or Maps, or clear references eagerly.
          *   Let's actually do both; since both seem reasonable.
          */
-        /* Need to resolve? Mostly done for bean deserializers; required for
-         * resolving cyclic references.
-         */
+        // Need to resolve? Mostly done for bean deserializers; required for
+        // resolving cyclic references.
         _incompleteDeserializers.put(type, deser);
         try {
             deser.resolve(ctxt);

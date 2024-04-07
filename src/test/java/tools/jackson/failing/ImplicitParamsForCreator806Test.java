@@ -44,6 +44,7 @@ class ImplicitParamsForCreator806Test extends DatabindTestUtil {
 
     // for [databind#806]: problem is that renaming occurs too late for implicitly detected
     // Creators
+    @Test
     public void implicitNameWithNamingStrategy() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

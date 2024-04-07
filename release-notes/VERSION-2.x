@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
+#4456: Rework locking in `DeserializerCache`
+ (contributed by @pjfanning)
 #4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
   not called on the serializer
  (reported by Teodor D)

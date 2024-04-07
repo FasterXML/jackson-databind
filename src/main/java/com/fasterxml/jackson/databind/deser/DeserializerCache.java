@@ -254,14 +254,16 @@ public final class DeserializerCache
         // limitations necessary to ensure that only completely initialized ones
         // are visible and used.
         final boolean isCustom = _hasCustomHandlers(type);
-        JsonDeserializer<Object> deser = isCustom ? null : _cachedDeserializers.get(type);
-        if (deser != null) {
-            return deser;
+        if (!isCustom) {
+            JsonDeserializer<Object> deser = _cachedDeserializers.get(type);
+            if (deser != null) {
+                return deser;
+            }
         }
         _incompleteDeserializersLock.lock();
         try {
             if (!isCustom) {
-                deser = _cachedDeserializers.get(type);
+                JsonDeserializer<Object> deser = _cachedDeserializers.get(type);
                 if (deser != null) {
                     return deser;
                 }
@@ -270,7 +272,7 @@ public final class DeserializerCache
             int count = _incompleteDeserializers.size();
             // Or perhaps being resolved right now?
             if (count > 0) {
-                deser = _incompleteDeserializers.get(type);
+                JsonDeserializer<Object> deser = _incompleteDeserializers.get(type);
                 if (deser != null) {
                     return deser;
                 }
@@ -295,7 +297,7 @@ public final class DeserializerCache
      *
      * @deprecated Since 2.18 use version of _createAndCache2 that takes `isCustom` flag
      */
-    @Deprecated // since 2.18
+    @Deprecated // since 2.18, remove from 2.19
     protected JsonDeserializer<Object> _createAndCache2(DeserializationContext ctxt,
             DeserializerFactory factory, JavaType type)
         throws JsonMappingException
@@ -303,8 +305,9 @@ public final class DeserializerCache
         return _createAndCache2(ctxt, factory, type, _hasCustomHandlers(type));
     }
 
+    // @since 2.18
     protected JsonDeserializer<Object> _createAndCache2(DeserializationContext ctxt,
-            DeserializerFactory factory, JavaType type, final boolean isCustom)
+            DeserializerFactory factory, JavaType type, boolean isCustom)
         throws JsonMappingException
     {
         JsonDeserializer<Object> deser;
@@ -319,9 +322,9 @@ public final class DeserializerCache
         if (deser == null) {
             return null;
         }
-        /* cache resulting deserializer? always true for "plain" BeanDeserializer
-         * (but can be re-defined for sub-classes by using @JsonCachable!)
-         */
+        // cache resulting deserializer? always true for "plain" BeanDeserializer
+        // (but can be re-defined for sub-classes by using @JsonCachable!)
+
         // 27-Mar-2015, tatu: As per [databind#735], avoid caching types with custom value desers
         boolean addToCache = !isCustom && deser.isCachable();
 
@@ -334,9 +337,8 @@ public final class DeserializerCache
          *   either not add Lists or Maps, or clear references eagerly.
          *   Let's actually do both; since both seem reasonable.
          */
-        /* Need to resolve? Mostly done for bean deserializers; required for
-         * resolving cyclic references.
-         */
+        // Need to resolve? Mostly done for bean deserializers; required for
+        // resolving cyclic references.
         if (deser instanceof ResolvableDeserializer) {
             _incompleteDeserializers.put(type, deser);
             try {

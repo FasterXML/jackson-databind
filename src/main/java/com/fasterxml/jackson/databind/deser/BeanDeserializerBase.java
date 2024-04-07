@@ -5,7 +5,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -182,11 +181,6 @@ public abstract class BeanDeserializerBase
      * The map type changed in 2.18 (from HashMap to ConcurrentHashMap)
      */
     protected transient ConcurrentHashMap<ClassKey, JsonDeserializer<Object>> _subDeserializers;
-
-    /**
-     * Lock used to prevent multiple creation of _subDeserializers map
-     */
-    private final ReentrantLock _subDeserializersLock = new ReentrantLock();
 
     /**
      * If one of properties has "unwrapped" value, we need separate
@@ -1908,13 +1902,10 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         // Also, need to cache it
         if (subDeser != null) {
             if (_subDeserializers == null) {
-                _subDeserializersLock.lock();
-                try {
+                synchronized (this) {
                     if (_subDeserializers == null) {
                         _subDeserializers = new ConcurrentHashMap<>();
                     }
-                } finally {
-                    _subDeserializersLock.unlock();
                 }
             }
             _subDeserializers.put(classKey, subDeser);

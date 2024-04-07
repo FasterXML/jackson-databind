@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #4456: Rework locking in `DeserializerCache`
  (contributed by @pjfanning)
+#4458: Rework synchronized block from `BeanDeserializerBase`
+ (contributed by @pjfanning)
 #4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
   not called on the serializer
  (reported by Teodor D)

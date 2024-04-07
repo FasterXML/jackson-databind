@@ -14,6 +14,8 @@ Project: jackson-databind
   not called on the serializer
  (reported by Teodor D)
  (fix by Joo-Hyuk K)
+#4472: Rework synchronized block in `TypeDeserializerBase`
+ (contributed by @pjfanning)
 
 2.17.1 (not yet released)
 

@@ -631,17 +631,18 @@ public abstract class JsonNode
     public abstract String asText();
 
     /**
-     * Method similar to {@link #asText()}, except that it will return
-     * <code>defaultValue</code> in cases where null value would be returned;
-     * either for missing nodes (trying to access missing property, or element
-     * at invalid item for array) or explicit nulls.
+     * Returns the text value of this node or the provided {@code defaultValue} if this node
+     * does not have a text value. Useful for nodes that are {@link MissingNode} or
+     * {@link com.fasterxml.jackson.databind.node.NullNode}, ensuring a default value is returned instead of null or missing indicators.
+     *
      *<p>
      * NOTE: deprecated since 2.17 because {@link #asText()} very rarely returns
      * {@code null} for any node types -- in fact, neither {@link MissingNode}
      * nor {@code NullNode} return {@code null} from {@link #asText()}.
      *
+     * @param defaultValue The default value to return if this node's text value is absent.
+     * @return The text value of this node, or defaultValue if the text value is absent.
      * @since 2.4
-     *
      * @deprecated Since 2.17, to be removed from 3.0
      */
     @Deprecated // @since 2.17

@@ -2,12 +2,17 @@ package com.fasterxml.jackson.databind.mixins;
 
 import java.lang.annotation.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // for [databind#771]
-public class MixinsWithBundlesTest extends BaseMapTest
+public class MixinsWithBundlesTest extends DatabindTestUtil
 {
     @Target(value={ ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD })
     @Retention(value=RetentionPolicy.RUNTIME)
@@ -34,6 +39,8 @@ public class MixinsWithBundlesTest extends BaseMapTest
             return stuff;
         }
     }
+
+    @Test
     public void testMixinWithBundles() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper().addMixIn(Foo.class, FooMixin.class);

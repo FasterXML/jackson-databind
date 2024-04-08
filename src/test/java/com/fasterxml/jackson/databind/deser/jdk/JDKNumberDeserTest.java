@@ -16,12 +16,12 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
-
 public class JDKNumberDeserTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************************
@@ -104,7 +104,7 @@ public class JDKNumberDeserTest
     /**********************************************************************
      */
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
     public void testNaN() throws Exception

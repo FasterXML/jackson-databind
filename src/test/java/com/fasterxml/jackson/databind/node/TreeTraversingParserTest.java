@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
-public class TestTreeTraversingParser
+public class TreeTraversingParserTest
     extends BaseMapTest
 {
     static class Person {

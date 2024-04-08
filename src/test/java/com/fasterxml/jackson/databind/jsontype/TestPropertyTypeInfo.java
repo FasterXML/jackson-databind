@@ -2,17 +2,21 @@ package com.fasterxml.jackson.databind.jsontype;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Testing to verify that {@link JsonTypeInfo} works
  * for properties as well as types.
  */
 @SuppressWarnings("serial")
-public class TestPropertyTypeInfo extends BaseMapTest
+public class TestPropertyTypeInfo extends DatabindTestUtil
 {
     protected static class BooleanValue {
         public Boolean b;
@@ -81,6 +85,7 @@ public class TestPropertyTypeInfo extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSimpleField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -92,6 +97,7 @@ public class TestPropertyTypeInfo extends BaseMapTest
         assertEquals(((StringWrapper) bean.value).str, "foo");
     }
 
+    @Test
     public void testSimpleMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -103,6 +109,7 @@ public class TestPropertyTypeInfo extends BaseMapTest
         assertEquals(((IntWrapper) bean.value).i, 37);
     }
 
+    @Test
     public void testSimpleListField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -119,6 +126,7 @@ public class TestPropertyTypeInfo extends BaseMapTest
         assertEquals(((OtherBean) bean.value).y, 1);
     }
 
+    @Test
     public void testSimpleListMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -140,6 +148,7 @@ public class TestPropertyTypeInfo extends BaseMapTest
         assertEquals(OtherBean.class, bean.value.getClass());
     }
 
+    @Test
     public void testSimpleArrayField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -155,6 +164,7 @@ public class TestPropertyTypeInfo extends BaseMapTest
         assertEquals(((BooleanValue) bean.value).b, Boolean.TRUE);
     }
 
+    @Test
     public void testSimpleArrayMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -170,6 +180,7 @@ public class TestPropertyTypeInfo extends BaseMapTest
         assertEquals(((StringWrapper) bean.value).str, "A");
     }
 
+    @Test
     public void testSimpleMapField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -186,6 +197,7 @@ public class TestPropertyTypeInfo extends BaseMapTest
         assertEquals(((IntWrapper) ob).i, 13);
     }
 
+    @Test
     public void testSimpleMapMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

@@ -2,11 +2,16 @@ package com.fasterxml.jackson.databind.jsontype;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Originally test for [databind#1964], wherein slightly incompatible type hierarchy,
@@ -17,7 +22,7 @@ import com.fasterxml.jackson.databind.*;
  * such downcast just for Map key types (for now at least).
  */
 @SuppressWarnings("serial")
-public class SubTypeResolutionTest extends BaseMapTest
+public class SubTypeResolutionTest extends DatabindTestUtil
 {
     // [databind#1964]
     static class AccessModel {
@@ -97,6 +102,7 @@ public class SubTypeResolutionTest extends BaseMapTest
     final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1964]
+    @Test
     public void testTypeCompatibility1964() throws Exception
     {
         // Important! Must use raw type since assignment requires effectively
@@ -117,6 +123,7 @@ public class SubTypeResolutionTest extends BaseMapTest
     }
 
     // [databind#2034]
+    @Test
     public void testTypeSpecialization2034() throws Exception
     {
         MetaModel<Dummy, Dummy> metaModel = new MetaModel<>();
@@ -127,6 +134,7 @@ public class SubTypeResolutionTest extends BaseMapTest
     }
 
     // [databind#2632]: fail to specialize type-erased
+    @Test
     public void testSpecializeIncompatibleRawType() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Foo());

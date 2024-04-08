@@ -1,9 +1,14 @@
 package com.fasterxml.jackson.databind.module;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestDuplicateRegistration extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestDuplicateRegistration extends DatabindTestUtil
 {
     static class MyModule extends com.fasterxml.jackson.databind.Module {
         public int regCount;
@@ -29,6 +34,7 @@ public class TestDuplicateRegistration extends BaseMapTest
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testDuplicateRegistration() throws Exception
     {
         // by default, duplicate registration should be prevented

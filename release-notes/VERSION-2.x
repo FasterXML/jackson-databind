@@ -4,7 +4,29 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.17.0 (not yet released)
+2.18.0 (not yet released)
+
+-
+
+2.17.1 (not yet released)
+
+#4428: `ByteBuddy` scope went beyond `test` in version 2.17.0
+ (reported by Miguel M-R)
+ (fix by Joo-Hyuk K)
+#4430: Use `ReentrantLock` instead of `synchronized` in `DeserializerCache`
+  to avoid deadlock on pinning
+ (reported, fix contributed by Oddbjørn K)
+#4435: Cannot deserialize value of type `java.math.BigDecimal` from
+  String ".05": not a valid representation
+ (reported by @EAlf91)
+ (fix by @pjfanning)
+#4441: `@JsonSetter(nulls = Nulls.SKIP)` doesn't work in some situations
+ (reported by @Asapin)
+ (fix by Joo-Hyuk K)
+#4450: Empty QName deserialized as `null`
+ (reported by @winfriedgerlach)
+
+2.17.0 (12-Mar-2024)
 
 #437: Support throwing `MismatchedInputException` when deserializing
   properties that are not part of the view
@@ -12,6 +34,10 @@ Project: jackson-databind
 #736: `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS` has no effect
  (reported by @migel)
  (fix contributed by Joo-Hyuk K)
+#2543: Introspection includes delegating ctor's only parameter as
+  a property in `BeanDescription`
+ (reported by @nikita2206)
+ (fix contributed by Kyrylo M)
 #4160: Deprecate `DefaultTyping.EVERYTHING` in `2.x` and remove in `3.0`
  (contributed by Joo-Hyuk K)
 #4194: Add `JsonNodeFeature.FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION` option to
@@ -42,9 +68,16 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #4337: `AtomicReference` serializer does not support `@JsonSerialize(contentConverter=...)`
 #4364: `@JsonProperty` and equivalents should merge with `AnnotationIntrospectorPair`
+#4394: Better Base64 support for `java.util.UUIDs`
+  without padding
+ (fix contributed by Jesper B)
+#4403: Deserialization of unknown value for enums does not yield default enum value
+ (reported by @dominik-henning)
+#4416: Deprecate `JsonNode.asText(String)`
+ (suggested by András P)
 - JUnit5 upgraded to 5.10.1
 
-2.16.2 (not yet released)
+2.16.2 (09-Mar-2024)
 
 #4302: Problem deserializing some type of Enums when using `PropertyNamingStrategy`
  (reported by Pieter D-S)
@@ -58,6 +91,10 @@ Project: jackson-databind
 #4355: Jackson 2.16 fails attempting to obtain `ObjectWriter` for an `Enum` of which
   some value returns null from `toString()`
  (reported by @YutaHiguchi-bsn)
+#4409: Deserialization of enums with name defined with different cases leads to
+  `InvalidDefinitionException`: Multiple fields representing property
+ (reported by Stephane B)
+ (fix contributed by Joo-Hyuk K)
 
 2.16.1 (24-Dec-2023)
 
@@ -74,7 +111,7 @@ Project: jackson-databind
 
 #1770: Incorrect deserialization for `BigDecimal` numbers
  (reported by @cristian-mocanu-mob)
- (fix contributed by @pjfanning)
+ (fix by @pjfanning)
 #2502: Add a way to configure caches Jackson uses
  (contributed by Joo-Hyuk K)
 #2787: Mix-ins do not work for `Enum`s

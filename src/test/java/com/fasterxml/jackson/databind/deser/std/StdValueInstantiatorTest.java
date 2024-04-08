@@ -163,10 +163,6 @@ public class StdValueInstantiatorTest
     static class B2 {
         final int creatorType;
         
-        B2(int value) {
-            this.creatorType = 1;
-        }
-        
         B2(BigInteger value) {
             this.creatorType = 3;
         }

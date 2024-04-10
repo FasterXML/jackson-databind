@@ -383,7 +383,18 @@ public class StdValueInstantiator
                 );
             }
         }
-
+        
+        if (_fromDoubleCreator != null) {
+            Object arg = Double.valueOf(value);
+            try {
+                return _fromDoubleCreator.call1(arg);
+            } catch (Exception t0) {
+                return ctxt.handleInstantiationProblem(_fromDoubleCreator.getDeclaringClass(),
+                        arg, rewrapCtorProblem(ctxt, t0)
+                );
+            }
+        }
+        
         return super.createFromInt(ctxt, value);
     }
 
@@ -407,6 +418,19 @@ public class StdValueInstantiator
                 return _fromBigIntegerCreator.call1(arg);
             } catch (Exception t0) {
                 return ctxt.handleInstantiationProblem(_fromBigIntegerCreator.getDeclaringClass(),
+                        arg, rewrapCtorProblem(ctxt, t0)
+                );
+            }
+        }
+        
+        // [databind#4453]: Note: can lose precision (since double is 64-bits of which
+        // only part is for mantissa). But already the case with regular properties.
+        if (_fromDoubleCreator != null) {
+            Object arg = Double.valueOf(value);
+            try {
+                return _fromDoubleCreator.call1(arg);
+            } catch (Exception t0) {
+                return ctxt.handleInstantiationProblem(_fromDoubleCreator.getDeclaringClass(),
                         arg, rewrapCtorProblem(ctxt, t0)
                 );
             }

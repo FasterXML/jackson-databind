@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -15,8 +16,19 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#2978]
 public class StdValueInstantiatorTest
+    extends DatabindTestUtil
 {
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     private static final long LONG_TEST_VALUE = 12345678901L;
+
+    static class Stuff {
+        final double value;
+        
+        Stuff(double value) {
+            this.value = value;
+        }
+    }
     
     @Test
     public void testDoubleValidation_valid() {
@@ -34,31 +46,20 @@ public class StdValueInstantiatorTest
     
     @Test
     public void testJsonIntegerToDouble() throws Exception {
-        ObjectMapper m = new ObjectMapper();
-        Stuff a = m.readValue("5", Stuff.class);
+        Stuff a = MAPPER.readValue("5", Stuff.class);
         assertEquals(5, a.value);
     }
     
     @Test
     public void testJsonLongToDouble() throws Exception {
-        ObjectMapper m = new ObjectMapper();
         assertTrue(LONG_TEST_VALUE > Integer.MAX_VALUE);
-        Stuff a = m.readValue(String.valueOf(LONG_TEST_VALUE), Stuff.class);
+        Stuff a = MAPPER.readValue(String.valueOf(LONG_TEST_VALUE), Stuff.class);
         assertEquals(LONG_TEST_VALUE, a.value);
-    }
-    
-    static class Stuff {
-        final double value;
-        
-        Stuff(double value) {
-            this.value = value;
-        }
     }
     
     @Test
     public void testJsonIntegerDeserializationPrefersInt() throws Exception {
-        ObjectMapper m = new ObjectMapper();
-        A a = m.readValue("5", A.class);
+        A a = MAPPER.readValue("5", A.class);
         assertEquals(1, a.creatorType);
     }
     
@@ -84,8 +85,7 @@ public class StdValueInstantiatorTest
     
     @Test
     public void testJsonIntegerDeserializationPrefersLong() throws Exception {
-        ObjectMapper m = new ObjectMapper();
-        B a = m.readValue("5", B.class);
+        B a = MAPPER.readValue("5", B.class);
         assertEquals(2, a.creatorType);
     }
     
@@ -107,8 +107,7 @@ public class StdValueInstantiatorTest
     
     @Test
     public void testJsonIntegerDeserializationPrefersBigInteger() throws Exception {
-        ObjectMapper m = new ObjectMapper();
-        C a = m.readValue("5", C.class);
+        C a = MAPPER.readValue("5", C.class);
         assertEquals(3, a.creatorType);
     }
     
@@ -126,8 +125,7 @@ public class StdValueInstantiatorTest
     
     @Test
     public void testJsonLongDeserializationPrefersLong() throws Exception {
-        ObjectMapper m = new ObjectMapper();
-        A2 a = m.readValue(String.valueOf(LONG_TEST_VALUE), A2.class);
+        A2 a = MAPPER.readValue(String.valueOf(LONG_TEST_VALUE), A2.class);
         assertEquals(2, a.creatorType);
     }
     
@@ -153,8 +151,7 @@ public class StdValueInstantiatorTest
     
     @Test
     public void testJsonLongDeserializationPrefersBigInteger() throws Exception {
-        ObjectMapper m = new ObjectMapper();
-        B2 a = m.readValue(String.valueOf(LONG_TEST_VALUE), B2.class);
+        B2 a = MAPPER.readValue(String.valueOf(LONG_TEST_VALUE), B2.class);
         assertEquals(3, a.creatorType);
     }
     
@@ -172,10 +169,9 @@ public class StdValueInstantiatorTest
     
     @Test
     public void testJsonIntegerIntoDoubleConstructorThrows() throws Exception {
-        ObjectMapper m = new ObjectMapper();
         try {
-            m.readValue("5", D.class);
-            fail();
+            MAPPER.readValue("5", D.class);
+            fail("Should not pass");
         } catch (ValueInstantiationException e) {
             assertTrue(e.getCause() instanceof IllegalArgumentException);
             assertEquals("boo", e.getCause().getMessage());
@@ -191,14 +187,12 @@ public class StdValueInstantiatorTest
     
     @Test
     public void testJsonLongIntoDoubleConstructorThrows() throws Exception {
-        ObjectMapper m = new ObjectMapper();
         try {
-            m.readValue(String.valueOf(LONG_TEST_VALUE), D.class);
-            fail();
+            MAPPER.readValue(String.valueOf(LONG_TEST_VALUE), D.class);
+            fail("Should not pass");
         } catch (ValueInstantiationException e) {
             assertTrue(e.getCause() instanceof IllegalArgumentException);
             assertEquals("boo", e.getCause().getMessage());
         }
     }
-    
 }

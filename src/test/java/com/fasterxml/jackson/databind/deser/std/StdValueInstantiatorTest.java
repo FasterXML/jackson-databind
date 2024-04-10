@@ -1,19 +1,17 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#2978]
 public class StdValueInstantiatorTest
@@ -35,14 +33,14 @@ public class StdValueInstantiatorTest
     }
     
     @Test
-    public void testJsonIntegerToDouble() throws JsonMappingException, JsonProcessingException {
+    public void testJsonIntegerToDouble() throws Exception {
         ObjectMapper m = new ObjectMapper();
         Stuff a = m.readValue("5", Stuff.class);
         assertEquals(5, a.value);
     }
     
     @Test
-    public void testJsonLongToDouble() throws JsonMappingException, JsonProcessingException {
+    public void testJsonLongToDouble() throws Exception {
         ObjectMapper m = new ObjectMapper();
         assertTrue(LONG_TEST_VALUE > Integer.MAX_VALUE);
         Stuff a = m.readValue(String.valueOf(LONG_TEST_VALUE), Stuff.class);
@@ -58,7 +56,7 @@ public class StdValueInstantiatorTest
     }
     
     @Test
-    public void testJsonIntegerDeserializationPrefersInt() throws JsonMappingException, JsonProcessingException {
+    public void testJsonIntegerDeserializationPrefersInt() throws Exception {
         ObjectMapper m = new ObjectMapper();
         A a = m.readValue("5", A.class);
         assertEquals(1, a.creatorType);
@@ -85,7 +83,7 @@ public class StdValueInstantiatorTest
     }
     
     @Test
-    public void testJsonIntegerDeserializationPrefersLong() throws JsonMappingException, JsonProcessingException {
+    public void testJsonIntegerDeserializationPrefersLong() throws Exception {
         ObjectMapper m = new ObjectMapper();
         B a = m.readValue("5", B.class);
         assertEquals(2, a.creatorType);
@@ -108,7 +106,7 @@ public class StdValueInstantiatorTest
     }
     
     @Test
-    public void testJsonIntegerDeserializationPrefersBigInteger() throws JsonMappingException, JsonProcessingException {
+    public void testJsonIntegerDeserializationPrefersBigInteger() throws Exception {
         ObjectMapper m = new ObjectMapper();
         C a = m.readValue("5", C.class);
         assertEquals(3, a.creatorType);
@@ -127,7 +125,7 @@ public class StdValueInstantiatorTest
     }
     
     @Test
-    public void testJsonLongDeserializationPrefersLong() throws JsonMappingException, JsonProcessingException {
+    public void testJsonLongDeserializationPrefersLong() throws Exception {
         ObjectMapper m = new ObjectMapper();
         A2 a = m.readValue(String.valueOf(LONG_TEST_VALUE), A2.class);
         assertEquals(2, a.creatorType);
@@ -154,7 +152,7 @@ public class StdValueInstantiatorTest
     }
     
     @Test
-    public void testJsonLongDeserializationPrefersBigInteger() throws JsonMappingException, JsonProcessingException {
+    public void testJsonLongDeserializationPrefersBigInteger() throws Exception {
         ObjectMapper m = new ObjectMapper();
         B2 a = m.readValue(String.valueOf(LONG_TEST_VALUE), B2.class);
         assertEquals(3, a.creatorType);
@@ -173,7 +171,7 @@ public class StdValueInstantiatorTest
     }
     
     @Test
-    public void testJsonIntegerIntoDoubleConstructorThrows() throws JsonMappingException, JsonProcessingException {
+    public void testJsonIntegerIntoDoubleConstructorThrows() throws Exception {
         ObjectMapper m = new ObjectMapper();
         try {
             m.readValue("5", D.class);
@@ -192,7 +190,7 @@ public class StdValueInstantiatorTest
     }
     
     @Test
-    public void testJsonLongIntoDoubleConstructorThrows() throws JsonMappingException, JsonProcessingException {
+    public void testJsonLongIntoDoubleConstructorThrows() throws Exception {
         ObjectMapper m = new ObjectMapper();
         try {
             m.readValue(String.valueOf(LONG_TEST_VALUE), D.class);

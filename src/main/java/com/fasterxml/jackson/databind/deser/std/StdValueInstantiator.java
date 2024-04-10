@@ -423,7 +423,8 @@ public class StdValueInstantiator
             }
         }
         
-        // can lose precision
+        // [databind#4453]: Note: can lose precision (since double is 64-bits of which
+        // only part is for mantissa). But already the case with regular properties.
         if (_fromDoubleCreator != null) {
             Object arg = Double.valueOf(value);
             try {

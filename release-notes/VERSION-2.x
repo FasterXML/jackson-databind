@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
+#4453: Allow JSON Integer to deserialize into a single-arg constructor of
+  parameter type `double`
+ (contributed by David M)
 #4456: Rework locking in `DeserializerCache`
  (contributed by @pjfanning)
 #4458: Rework synchronized block from `BeanDeserializerBase`

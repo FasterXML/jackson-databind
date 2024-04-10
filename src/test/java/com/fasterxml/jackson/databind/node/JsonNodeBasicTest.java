@@ -7,6 +7,9 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import com.fasterxml.jackson.databind.util.RawValue;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Basic tests for {@link JsonNode} base class and some features
@@ -16,6 +19,7 @@ public class JsonNodeBasicTest extends NodeTestBase
 {
     private final ObjectMapper MAPPER = objectMapper();
 
+    @Test
     public void testBoolean() throws Exception
     {
         BooleanNode f = BooleanNode.getFalse();
@@ -62,6 +66,7 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertEquals(result, BooleanNode.getTrue());
     }
 
+    @Test
     public void testBinary() throws Exception
     {
         assertNull(BinaryNode.valueOf(null));
@@ -88,6 +93,7 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertNodeNumbersForNonNumeric(n);
     }
 
+    @Test
     public void testPOJO()
     {
         POJONode n = new POJONode("x"); // not really a pojo but that's ok
@@ -106,6 +112,7 @@ public class JsonNodeBasicTest extends NodeTestBase
     }
 
     // [databind#743]
+    @Test
     public void testRawValue() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
@@ -115,6 +122,7 @@ public class JsonNodeBasicTest extends NodeTestBase
     }
 
     // [databind#790]
+    @Test
     public void testCustomComparators() throws Exception
     {
         ObjectNode nestedObject1 = MAPPER.createObjectNode();
@@ -185,6 +193,7 @@ public class JsonNodeBasicTest extends NodeTestBase
     }
 
     // [databind#793]
+    @Test
     public void testArrayWithDefaultTyping() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()

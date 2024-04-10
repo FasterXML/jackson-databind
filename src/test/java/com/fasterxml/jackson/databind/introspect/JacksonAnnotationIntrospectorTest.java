@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("serial")
-public class TestJacksonAnnotationIntrospector
+public class JacksonAnnotationIntrospectorTest
     extends DatabindTestUtil
 {
     public static enum EnumExample {

@@ -223,13 +223,15 @@ public abstract class TypeDeserializerBase
             return NullifyingDeserializer.instance;
         }
 
-        synchronized (_defaultImpl) {
-            if (_defaultImplDeserializer == null) {
-                _defaultImplDeserializer = ctxt.findContextualValueDeserializer(
+        if (_defaultImplDeserializer == null) {
+            synchronized (_defaultImpl) {
+                if (_defaultImplDeserializer == null) {
+                    _defaultImplDeserializer = ctxt.findContextualValueDeserializer(
                         _defaultImpl, _property);
+                }
             }
-            return _defaultImplDeserializer;
         }
+        return _defaultImplDeserializer;
     }
 
     /**

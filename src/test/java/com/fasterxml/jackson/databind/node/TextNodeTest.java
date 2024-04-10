@@ -1,9 +1,14 @@
 package com.fasterxml.jackson.databind.node;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.Assert.assertNotEquals;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TextNodeTest extends NodeTestBase
 {
+    @Test
     public void testText()
     {
         assertNull(TextNode.valueOf(null));
@@ -39,6 +44,7 @@ public class TextNodeTest extends NodeTestBase
         assertFalse(TextNode.valueOf("false").asBoolean(false));
     }
 
+    @Test
     public void testEquals()
     {
         assertEquals(new TextNode(null), new TextNode(null));
@@ -48,6 +54,7 @@ public class TextNodeTest extends NodeTestBase
         assertNotEquals(new TextNode("abc"), new TextNode(null));
     }
 
+    @Test
     public void testHashCode()
     {
         assertEquals(0, new TextNode(null).hashCode());

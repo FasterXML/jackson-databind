@@ -6,17 +6,34 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
--
+#4456: Rework locking in `DeserializerCache`
+ (contributed by @pjfanning)
+#4458: Rework synchronized block from `BeanDeserializerBase`
+ (contributed by @pjfanning)
+#4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
+  not called on the serializer
+ (reported by Teodor D)
+ (fix by Joo-Hyuk K)
+#4472: Rework synchronized block in `TypeDeserializerBase`
+ (contributed by @pjfanning)
 
 2.17.1 (not yet released)
 
 #4428: `ByteBuddy` scope went beyond `test` in version 2.17.0
  (reported by Miguel M-R)
  (fix by Joo-Hyuk K)
+#4430: Use `ReentrantLock` instead of `synchronized` in `DeserializerCache`
+  to avoid deadlock on pinning
+ (reported, fix contributed by Oddbjørn K)
 #4435: Cannot deserialize value of type `java.math.BigDecimal` from
   String ".05": not a valid representation
  (reported by @EAlf91)
  (fix by @pjfanning)
+#4441: `@JsonSetter(nulls = Nulls.SKIP)` doesn't work in some situations
+ (reported by @Asapin)
+ (fix by Joo-Hyuk K)
+#4450: Empty QName deserialized as `null`
+ (reported by @winfriedgerlach)
 
 2.17.0 (12-Mar-2024)
 

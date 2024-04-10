@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -177,8 +178,9 @@ public abstract class BeanDeserializerBase
      * Note that this is <b>only needed</b> for polymorphic types,
      * that is, when the actual type is not statically known.
      * For other types this remains null.
+     * The map type changed in 2.18 (from HashMap to ConcurrentHashMap)
      */
-    protected transient HashMap<ClassKey, JsonDeserializer<Object>> _subDeserializers;
+    protected transient ConcurrentHashMap<ClassKey, JsonDeserializer<Object>> _subDeserializers;
 
     /**
      * If one of properties has "unwrapped" value, we need separate
@@ -1882,17 +1884,14 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             Object bean, TokenBuffer unknownTokens)
         throws IOException
     {
-        JsonDeserializer<Object> subDeser;
-
         // First: maybe we have already created sub-type deserializer?
-        synchronized (this) {
-            subDeser = (_subDeserializers == null) ? null : _subDeserializers.get(new ClassKey(bean.getClass()));
-        }
+        final ClassKey classKey = new ClassKey(bean.getClass());
+        JsonDeserializer<Object> subDeser = (_subDeserializers == null) ? null : _subDeserializers.get(classKey);
         if (subDeser != null) {
             return subDeser;
         }
         // If not, maybe we can locate one. First, need provider
-        JavaType type = ctxt.constructType(bean.getClass());
+        final JavaType type = ctxt.constructType(bean.getClass());
         /* 30-Jan-2012, tatu: Ideally we would be passing referring
          *   property; which in theory we could keep track of via
          *   ResolvableDeserializer (if we absolutely must...).
@@ -1902,12 +1901,14 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         subDeser = ctxt.findRootValueDeserializer(type);
         // Also, need to cache it
         if (subDeser != null) {
-            synchronized (this) {
-                if (_subDeserializers == null) {
-                    _subDeserializers = new HashMap<ClassKey,JsonDeserializer<Object>>();;
+            if (_subDeserializers == null) {
+                synchronized (this) {
+                    if (_subDeserializers == null) {
+                        _subDeserializers = new ConcurrentHashMap<>();
+                    }
                 }
-                _subDeserializers.put(new ClassKey(bean.getClass()), subDeser);
             }
+            _subDeserializers.put(classKey, subDeser);
         }
         return subDeser;
     }

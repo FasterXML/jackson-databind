@@ -1765,3 +1765,13 @@ Kyrylo Merzlikin (kirmerzlikin@github)
 Miguel Mendes Ruiz (migmruiz@github)
  * Reported #4428: `ByteBuddy` scope went beyond `test` in version 2.17.0
   (2.17.1)
+
+Oddbjørn Kvalsund (oddbjornkvalsund@github)
+ * Reported, contributed fix for #4430: Use `ReentrantLock` instead of `synchronized`
+   in `DeserializerCache` to avoid deadlock on pinning
+  (2.17.1)
+
+Teodor Danciu (teodord@github)
+ * Reported #4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
+   not called on the serializer
+  (2.18.0)

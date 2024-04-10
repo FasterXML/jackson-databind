@@ -175,7 +175,7 @@ public class StdValueInstantiatorTest
         ObjectMapper m = new ObjectMapper();
         try {
             m.readValue("5", D.class);
-            Assert.fail();
+            fail();
         } catch (ValueInstantiationException e) {
             assertTrue(e.getCause() instanceof IllegalArgumentException);
             assertEquals("boo", e.getCause().getMessage());
@@ -194,7 +194,7 @@ public class StdValueInstantiatorTest
         ObjectMapper m = new ObjectMapper();
         try {
             m.readValue(String.valueOf(LONG_TEST_VALUE), D.class);
-            Assert.fail();
+            fail();
         } catch (ValueInstantiationException e) {
             assertTrue(e.getCause() instanceof IllegalArgumentException);
             assertEquals("boo", e.getCause().getMessage());

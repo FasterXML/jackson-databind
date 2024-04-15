@@ -13,11 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 // [databind#4452] : JsonProperty not serializing field names properly on JsonCreator in record #4452
 class RecordCreatorSerialization4452Test {
 
-    private final ObjectMapper OBJECT_MAPPER =
-            JsonMapper.builder()
-                    .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
-                    .build();
-
     public record PlainTestObject(
             @JsonProperty("strField") String testFieldName,
             @JsonProperty("intField") Integer testOtherField
@@ -36,6 +31,11 @@ class RecordCreatorSerialization4452Test {
             this(testFieldName, testOtherField + testOtherIntField);
         }
     }
+
+    private final ObjectMapper OBJECT_MAPPER =
+            JsonMapper.builder()
+                    .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
+                    .build();
 
     // supposed to pass, and yes it does
     @Test

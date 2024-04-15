@@ -46,7 +46,8 @@ class RecordCreatorSerialization4452Test {
         assertEquals("{\"strField\":\"test\",\"intField\":1}", result);
     }
 
-    // Should pass but it doesn't
+    // Should pass but doesn't
+    // It did pass in 2.15 or earlier versions, but it fails in 2.16 or later
     @Test
     public void testWithCreator()
             throws Exception

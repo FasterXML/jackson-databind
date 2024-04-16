@@ -6,7 +6,7 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-class Jdk8ConstructorParameterNameAnnotationIntrospector extends JacksonAnnotationIntrospector
+public class Jdk8ConstructorParameterNameAnnotationIntrospector extends JacksonAnnotationIntrospector
 {
     private static final long serialVersionUID = 1L;
 

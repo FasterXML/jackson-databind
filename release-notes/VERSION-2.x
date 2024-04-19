@@ -19,6 +19,8 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4472: Rework synchronized block in `TypeDeserializerBase`
  (contributed by @pjfanning)
+#4483: Remove `final` on method BeanSerializer.serialize()
+ (contributed by Matthew L)
 
 2.17.1 (not yet released)
 

@@ -1780,3 +1780,7 @@ Teodor Danciu (teodord@github)
  * Reported #4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
    not called on the serializer
   (2.18.0)
+
+Matthew Luckam (mluckam@github)
+ * Contributed #4483: Remove `final` on method BeanSerializer.serialize()
+  (2.18.0)

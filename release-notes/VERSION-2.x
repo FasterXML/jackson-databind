@@ -19,6 +19,8 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4472: Rework synchronized block in `TypeDeserializerBase`
  (contributed by @pjfanning)
+#4483: Remove `final` on method BeanSerializer.serialize()
+ (contributed by Matthew L)
 
 2.17.1 (not yet released)
 
@@ -37,6 +39,9 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4450: Empty QName deserialized as `null`
  (reported by @winfriedgerlach)
+#4481: Unable to override `DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL`
+  with `JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL`
+ (reported by @luozhenyu)
 
 2.17.0 (12-Mar-2024)
 

@@ -371,8 +371,10 @@ public class EnumDeserializer
 
     // @since 2.15
     protected boolean useNullForUnknownEnum(DeserializationContext ctxt) {
-        return Boolean.TRUE.equals(_useNullForUnknownEnum)
-          || ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        if (_useNullForUnknownEnum != null) {
+            return _useNullForUnknownEnum;
+        }
+        return ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
     }
 
     // @since 2.15

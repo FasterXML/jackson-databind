@@ -168,6 +168,7 @@ public class BeanSerializer
      * {@link BeanPropertyWriter} instances.
      */
     @Override
+    // note: was final before 2.18
     public void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {

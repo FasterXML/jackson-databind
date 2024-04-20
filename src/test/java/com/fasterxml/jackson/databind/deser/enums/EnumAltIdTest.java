@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.enums;
 import java.io.IOException;
 import java.util.EnumSet;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
@@ -101,6 +102,22 @@ public class EnumAltIdTest
     static class Book4481 {
         @JsonFormat(without = JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
         public Color color;
+    }
+
+    enum Types {
+        @JsonEnumDefaultValue
+        DEFAULT_TYPE,
+        FAST, SLOW
+    }
+
+    static class SpeedWithoutDefaultOverride {
+        @JsonFormat(without = JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+        public Types type;
+    }
+
+    static class SpeedWithDefaultOverride {
+        @JsonFormat(with = JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+        public Types type;
     }
 
     /*
@@ -313,6 +330,37 @@ public class EnumAltIdTest
           .readValue(JSON);
         assertEquals(1, pojo.value.size());
         assertTrue(pojo.value.contains(MyEnum2352_3.B));
+    }
+
+    /**
+     * Test to verify that configuration via {@link JsonFormat.Feature#READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE}
+     * takes precedence over global configuration.
+     */
+    @Test
+    public void testJsonEnumDefaultValueOverrideOverGlobalConfig() throws Exception {
+        final String UNKNOWN_JSON = a2q("{'type':'OOPS!'}");
+
+        // First, global configuration is ENABLED and JsonFeature configuration is DISABLED
+        // So the test should fail
+        try {
+            JsonMapper.builder()
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .build()
+                .readValue(UNKNOWN_JSON, SpeedWithoutDefaultOverride.class);
+            fail();
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot deserialize value of type");
+            verifyException(e, "not one of the values accepted for Enum class");
+        }
+
+        // Second, global configuration is DISABLED and JsonFeature configuration is ENABLED
+        // So the test should pass
+        SpeedWithDefaultOverride pojo = JsonMapper.builder()
+            .disable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+            .build()
+            .readValue(UNKNOWN_JSON, SpeedWithDefaultOverride.class);
+
+        assertEquals(Types.DEFAULT_TYPE, pojo.type);
     }
 
     /*

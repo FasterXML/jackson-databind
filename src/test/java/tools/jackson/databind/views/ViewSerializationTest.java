@@ -10,8 +10,8 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Unit tests for verifying JSON view functionality: ability to declaratively

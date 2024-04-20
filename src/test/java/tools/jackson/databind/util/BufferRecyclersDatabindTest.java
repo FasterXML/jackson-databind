@@ -19,7 +19,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // For [databind#4321]: basic test
 public class BufferRecyclersDatabindTest extends DatabindTestUtil

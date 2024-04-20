@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.JavaType;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;

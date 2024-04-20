@@ -107,7 +107,7 @@ class DeserializerUpdateProperties4358Test extends DatabindTestUtil {
     final ObjectMapper modifiedObjectMapper = jsonMapperBuilder().addModules(getSimpleModuleWithDeserializerModifier()).build();
 
     @BeforeAll
-    void setUp() {
+    static void setUp() {
         actualOrder.clear();
     }
 

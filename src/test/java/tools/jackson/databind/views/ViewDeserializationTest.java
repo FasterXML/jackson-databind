@@ -9,8 +9,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ViewDeserializationTest extends DatabindTestUtil
 {

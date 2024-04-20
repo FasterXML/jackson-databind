@@ -71,6 +71,7 @@ public class ArrayNode3338MergeTest
        return mapper.readerForUpdating(mergeTarget).readValue(updateNode);
     }
 
+    @Test
     public void testEnabledObjectNodeMerge() throws Exception {
         final ObjectMapper mapperWithMerge = sharedMapper();
 
@@ -91,6 +92,7 @@ public class ArrayNode3338MergeTest
         assertEquals(expected, merged);
     }
 
+    @Test
     public void testDisabledObjectNodeMerge() throws Exception {
         ObjectMapper mapperNoObjectMerge = jsonMapperBuilder()
                 .withConfigOverride(ObjectNode.class,

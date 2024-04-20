@@ -142,6 +142,7 @@ public class SequenceWriterTest extends DatabindTestUtil
         //   will not work in 2.x.
     }
 
+    @Test
     public void testSimpleArray() throws Exception
     {
         StringWriter strw = new StringWriter();
@@ -171,6 +172,7 @@ public class SequenceWriterTest extends DatabindTestUtil
      */
 
     @SuppressWarnings("resource")
+    @Test
     public void testPolymorphicNonArrayWithoutType() throws Exception
     {
         StringWriter strw = new StringWriter();
@@ -184,6 +186,7 @@ public class SequenceWriterTest extends DatabindTestUtil
     }
 
     @SuppressWarnings("resource")
+    @Test
     public void testPolymorphicArrayWithoutType() throws Exception
     {
         StringWriter strw = new StringWriter();
@@ -196,6 +199,7 @@ public class SequenceWriterTest extends DatabindTestUtil
                 strw.toString());
     }
 
+    @Test
     public void testPolymorphicArrayWithType() throws Exception
     {
         StringWriter strw = new StringWriter();
@@ -212,6 +216,7 @@ public class SequenceWriterTest extends DatabindTestUtil
     }
 
     @SuppressWarnings("resource")
+    @Test
     public void testSimpleCloseable() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();

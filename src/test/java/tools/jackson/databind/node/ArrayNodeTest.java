@@ -14,7 +14,8 @@ import tools.jackson.databind.util.RawValue;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Additional tests for {@link ArrayNode} container class.

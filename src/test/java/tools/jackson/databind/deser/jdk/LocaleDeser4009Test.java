@@ -15,6 +15,7 @@ public class LocaleDeser4009Test
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testLocaleWithFeatureDisabled() throws Exception 
     {
         assertEquals(Locale.ROOT,

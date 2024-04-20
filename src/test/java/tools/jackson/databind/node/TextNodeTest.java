@@ -2,7 +2,7 @@ package tools.jackson.databind.node;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import static org.junit.jupiter.api.Assertions.*;
 

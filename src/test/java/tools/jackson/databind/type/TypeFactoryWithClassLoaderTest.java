@@ -89,52 +89,52 @@ public class TypeFactoryWithClassLoaderTest
 	//	Assert.assertEquals(typeModifier,spySut._modifiers[0]);
   }
 
-@Test
-public void testCallingOnlyWithModifierGivesExpectedResults(){
+  @Test
+  public void testCallingOnlyWithModifierGivesExpectedResults(){
 	TypeFactory sut = mapper.getTypeFactory().withModifier(typeModifier);
 	assertNull(sut.getClassLoader());
-//	assertEquals(typeModifier,sut._modifiers[0]);
-}
+	//	assertEquals(typeModifier,sut._modifiers[0]);
+  }
 
-@Test
-public void testCallingOnlyWithClassLoaderGivesExpectedResults(){
+  @Test
+  public void testCallingOnlyWithClassLoaderGivesExpectedResults(){
 	TypeFactory sut = mapper.getTypeFactory().withClassLoader(classLoader);
 	assertNotNull(sut.getClassLoader());
 	assertArrayEquals(null,sut._modifiers);
-}
+  }
 
-@Test
-public void testDefaultTypeFactoryNotAffectedByWithConstructors() {
+  @Test
+  public void testDefaultTypeFactoryNotAffectedByWithConstructors() {
 	TypeFactory sut = mapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader);
 	assertEquals(classLoader, sut.getClassLoader());
-//	assertEquals(typeModifier,sut._modifiers[0]);
+	//	assertEquals(typeModifier,sut._modifiers[0]);
 	assertNull(mapper.getTypeFactory().getClassLoader());
 	assertArrayEquals(null,mapper.getTypeFactory()._modifiers);
-}
+  }
 
-@Test
-public void testSetsTheCorrectClassLoderIfUsingWithModifierFollowedByWithClassLoader() {
+  @Test
+  public void testSetsTheCorrectClassLoderIfUsingWithModifierFollowedByWithClassLoader() {
 	TypeFactory sut = mapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader);
 	assertNotNull(sut.getClassLoader());
-}
+  }
 
-@Test
-public void testSetsTheCorrectClassLoderIfUsingWithClassLoaderFollowedByWithModifier() {
+  @Test
+  public void testSetsTheCorrectClassLoderIfUsingWithClassLoaderFollowedByWithModifier() {
 	TypeFactory sut = mapper.getTypeFactory().withClassLoader(classLoader).withModifier(typeModifier);
 	assertNotNull(sut.getClassLoader());
-}
+  }
 
-@Test
-public void testThreadContextClassLoaderIsUsedIfNotUsingWithClassLoader() throws ClassNotFoundException {
+  @Test
+  public void testThreadContextClassLoaderIsUsedIfNotUsingWithClassLoader() throws ClassNotFoundException {
 	TypeFactory spySut = spy(mapper.getTypeFactory());
 	assertNull(spySut.getClassLoader());
 	Class<?> clazz = spySut.findClass(aClassName);
 	assertNotNull(clazz);
 	verify(spySut).classForName(any(String.class), any(Boolean.class), eq(threadClassLoader));
-}
+  }
 
-@Test
-public void testUsesFallBackClassLoaderIfNoThreadClassLoaderAndNoWithClassLoader() throws ClassNotFoundException {
+  @Test
+  public void testUsesFallBackClassLoaderIfNoThreadClassLoaderAndNoWithClassLoader() throws ClassNotFoundException {
 	Thread.currentThread().setContextClassLoader(null);
 	TypeFactory spySut = spy(mapper.getTypeFactory());
 	assertNull(spySut.getClassLoader());
@@ -142,6 +142,5 @@ public void testUsesFallBackClassLoaderIfNoThreadClassLoaderAndNoWithClassLoader
 	Class<?> clazz = spySut.findClass(aClassName);
 	assertNotNull(clazz);
 	verify(spySut).classForName(any(String.class));
-}
-
+  }
 }

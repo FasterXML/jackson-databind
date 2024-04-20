@@ -21,7 +21,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
 public class TokenBufferTest extends DatabindTestUtil
@@ -83,7 +83,7 @@ public class TokenBufferTest extends DatabindTestUtil
         TokenBuffer buf = TokenBuffer.forGeneration();
         try (JsonParser p = buf.asParser()) {
             for (StreamReadFeature feat : StreamReadFeature.values()) {
-                assertEquals("Feature "+feat, feat.enabledByDefault(), p.isEnabled(feat));
+                assertEquals(feat.enabledByDefault(), p.isEnabled(feat), "Feature "+feat);
             }
         }
     }

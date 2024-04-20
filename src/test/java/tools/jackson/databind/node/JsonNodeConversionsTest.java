@@ -359,7 +359,8 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
         // then via conversions: should become JSON Object
         JsonNode tree = MAPPER.valueToTree(input);
-        assertTrue(tree.isBoolean(), "Expected Object, got "+tree.getNodeType());
+        assertTrue(tree.isBoolean(),
+                "Expected Object, got "+tree.getNodeType());
         assertEquals(EXP, MAPPER.writeValueAsString(tree));
 
         JsonNode tree2 = MAPPER.writer().valueToTree(tree);

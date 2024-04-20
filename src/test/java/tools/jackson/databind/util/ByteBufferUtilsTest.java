@@ -10,7 +10,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.FiveMinuteUser;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ByteBufferUtilsTest extends DatabindTestUtil
 {

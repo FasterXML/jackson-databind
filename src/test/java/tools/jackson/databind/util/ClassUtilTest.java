@@ -15,7 +15,7 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ClassUtilTest extends DatabindTestUtil
 {

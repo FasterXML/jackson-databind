@@ -49,7 +49,6 @@ public class CustomExceptionDeser4071Test
         _testDeserAsThrowable(MAPPER.writeValueAsString(new CustomThrowable4071()));
     }
 
-    @Test
     private void _testDeserAsThrowable(String exStr) throws Exception
     {
         assertNotNull(MAPPER.readValue(exStr, Throwable.class));

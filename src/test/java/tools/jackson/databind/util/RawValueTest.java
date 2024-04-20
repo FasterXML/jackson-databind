@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JacksonSerializable;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RawValueTest extends DatabindTestUtil
 {

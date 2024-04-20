@@ -10,8 +10,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class BeanUtilTest extends DatabindTestUtil
 {

@@ -498,6 +498,7 @@ public class AnySetterTest extends DatabindTestUtil
     }
 
     // [databind#4316]
+    @Test
     public void testWithAnySetter() throws Exception
     {
         Problem4316 problem = new Problem4316();

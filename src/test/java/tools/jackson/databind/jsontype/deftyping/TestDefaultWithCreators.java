@@ -1,6 +1,5 @@
 package tools.jackson.databind.jsontype.deftyping;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -103,6 +102,6 @@ public class TestDefaultWithCreators
         assertNotNull(result.value);
         assertEquals(Bean1385.class, result.value.getClass());
         Bean1385 b = (Bean1385) result.value;
-        Assert.assertArrayEquals(BYTES, b.raw);
+        assertArrayEquals(BYTES, b.raw);
     }
  }

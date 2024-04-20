@@ -2,7 +2,6 @@ package tools.jackson.databind.jsontype.jdk;
 
 import java.util.*;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -116,13 +115,13 @@ public class TypedContainerSerTest
 		Container1 c1 = new Container1();
 		c1.setAnimal(dog);
 		String s1 = mapper.writeValueAsString(c1);
-		Assert.assertTrue("polymorphic type info is kept (1)", s1
-				.indexOf("\"object-type\":\"doggy\"") >= 0);
+		assertTrue(s1.indexOf("\"object-type\":\"doggy\"") >= 0,
+				"polymorphic type info is kept (1)");
 		Container2<Animal> c2 = new Container2<Animal>();
 		c2.setAnimal(dog);
 		String s2 = mapper.writeValueAsString(c2);
-		Assert.assertTrue("polymorphic type info is kept (2)", s2
-				.indexOf("\"object-type\":\"doggy\"") >= 0);
+		assertTrue(s2.indexOf("\"object-type\":\"doggy\"") >= 0,
+				"polymorphic type info is kept (2)");
     }
 
 	@Test

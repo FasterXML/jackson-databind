@@ -10,7 +10,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.jsonFormatVisitors.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ViewsWithSchemaTest extends DatabindTestUtil
 {

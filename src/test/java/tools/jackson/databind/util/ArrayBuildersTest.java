@@ -14,7 +14,7 @@ import tools.jackson.databind.util.ArrayBuilders.LongBuilder;
 import tools.jackson.databind.util.ArrayBuilders.ShortBuilder;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ArrayBuildersTest extends DatabindTestUtil
 {

@@ -135,7 +135,7 @@ public class EmptyContentAsTreeTest extends DatabindTestUtil
     }
 
     private void _assertMissing(JsonNode n) {
-        assertNotNull("Should not get `null` but `MissingNode`", n);
+        assertNotNull(n, "Should not get `null` but `MissingNode`");
         if (!n.isMissingNode()) {
             fail("Should get `MissingNode` but got: "+n.getClass().getName());
         }

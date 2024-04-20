@@ -90,7 +90,7 @@ public class TokenBufferTest extends DatabindTestUtil
         TokenBuffer buf = new TokenBuffer(MAPPER, false);
         try (JsonParser p = buf.asParser()) {
             for (JsonParser.Feature feat : JsonParser.Feature.values()) {
-                assertEquals("Feature "+feat, feat.enabledByDefault(), p.isEnabled(feat));
+                assertEquals(feat.enabledByDefault(), p.isEnabled(feat), "Feature "+feat);
             }
         }
     }

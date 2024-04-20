@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.enums;
 import java.io.IOException;
 import java.util.EnumSet;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
@@ -11,10 +10,8 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -333,7 +330,8 @@ public class EnumAltIdTest
     }
 
     /**
-     * Test to verify that configuration via {@link JsonFormat.Feature#READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE}
+     * Test to verify that configuration via
+     * {@link com.fasterxml.jackson.annotation.JsonFormat.Feature#READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE}
      * takes precedence over global configuration.
      */
     @Test

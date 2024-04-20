@@ -1436,7 +1436,8 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             // 17-Sep-2017, tatu: Jackson 3.x brings Java 8 optional types in...
             return _referenceType(rawType, bindings, superClass, superInterfaces);
         }
-        if (rawType == Iterator.class || rawType == Stream.class) {
+        if (rawType == Iterator.class || rawType == Stream.class
+                || rawType == Iterable.class) {
             return _iterationType(rawType, bindings, superClass, superInterfaces);
         }
         // 23-May-2023, tatu: [databind#3950] IterationTypes

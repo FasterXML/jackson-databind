@@ -105,6 +105,7 @@ public class BiggerDataTest
 		assertEquals(1, citm.venueNames.size());
 	}
 
+	@Test
 	public void testRoundTrip() throws Exception
 	{
 		Citm citm = MAPPER.readValue(getClass().getResourceAsStream("/data/citm_catalog.json"),

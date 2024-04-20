@@ -9,11 +9,12 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StdDateFormatTest extends DatabindTestUtil
 {
     @SuppressWarnings("deprecation")
+    @Test
     public void testFactories() {
         TimeZone tz = TimeZone.getTimeZone("GMT");
         Locale loc = Locale.US;

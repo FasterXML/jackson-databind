@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders.IntBuilder;
 import com.fasterxml.jackson.databind.util.ArrayBuilders.LongBuilder;
 import com.fasterxml.jackson.databind.util.ArrayBuilders.ShortBuilder;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ArrayBuildersTest extends DatabindTestUtil
 {

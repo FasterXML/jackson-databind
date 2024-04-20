@@ -6,11 +6,10 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import org.junit.Assert;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
@@ -272,9 +271,9 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         Issue709Bean resultFromConvert = MAPPER.convertValue(node, Issue709Bean.class);
 
         // all methods should work equally well:
-        Assert.assertArrayEquals(inputData, resultFromString.data);
-        Assert.assertArrayEquals(inputData, resultFromConvert.data);
-        Assert.assertArrayEquals(inputData, result.data);
+        assertArrayEquals(inputData, resultFromString.data);
+        assertArrayEquals(inputData, resultFromConvert.data);
+        assertArrayEquals(inputData, result.data);
     }
 
     @Test
@@ -328,7 +327,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
         // then via conversions: should become JSON Object
         JsonNode tree = MAPPER.valueToTree(input);
-        assertTrue("Expected Object, got "+tree.getNodeType(), tree.isObject());
+        assertTrue(tree.isObject(), "Expected Object, got "+tree.getNodeType());
         assertEquals(EXP, MAPPER.writeValueAsString(tree));
     }
 
@@ -345,7 +344,8 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
         // then via conversions: should become JSON Object
         JsonNode tree = MAPPER.valueToTree(input);
-        assertTrue("Expected Object, got "+tree.getNodeType(), tree.isBoolean());
+        assertTrue(tree.isBoolean(),
+                "Expected Object, got "+tree.getNodeType());
         assertEquals(EXP, MAPPER.writeValueAsString(tree));
     }
 

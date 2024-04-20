@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.databind;
 
 import com.google.common.testing.GcFinalization;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openjdk.jol.info.GraphLayout;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MapperFootprintTest {
     /*
@@ -28,10 +29,10 @@ public class MapperFootprintTest {
 
         // 29-Nov-2022, tatu: Should be under 10k, but... flakiness.
         final int maxByteSize = 20_000;
-        Assert.assertTrue(
+        assertTrue(
+                mapperLayout.totalSize() < maxByteSize,
                 "ObjectMapper memory footprint ("+mapperLayout.totalSize()
                 +") exceeded limit ("+maxByteSize
-                +"). Footprint details: " + mapperLayout.toFootprint(),
-                mapperLayout.totalSize() < maxByteSize);
+                +"). Footprint details: " + mapperLayout.toFootprint());
     }
 }

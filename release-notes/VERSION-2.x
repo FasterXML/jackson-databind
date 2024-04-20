@@ -28,6 +28,10 @@ Project: jackson-databind
 #4481: Unable to override `DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL`
   with `JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL`
  (reported by @luozhenyu)
+#4489: Unable to override `DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE`
+  with `JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE`
+  (reported by Joo-Hyuk K)
+  (fix by Joo-Hyuk K)
 
 2.17.0 (12-Mar-2024)
 

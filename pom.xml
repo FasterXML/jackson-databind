@@ -48,6 +48,9 @@
     <version.android.sdk>28</version.android.sdk>
     <version.android.sdk.signature>0.5.1</version.android.sdk.signature>
 
+    <version.bytebuddy>1.14.13</version.bytebuddy>
+    <version.mockito>4.11.0</version.mockito>
+
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>tools.jackson.databind.*;version=${project.version}</osgi.export>
     <!-- fix for databind#2299: using jackson-databind in an OSGi environment under Android -->
@@ -63,6 +66,23 @@
     <!-- for Reproducible Builds -->
     <project.build.outputTimestamp>2022-09-18T00:00:00Z</project.build.outputTimestamp>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- We need to specify later Bytebuddy version because Mockito 4.11.0 depends on earlier
+           Bytebuddy which does not support JDK 21, since 2.17-->
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${version.bytebuddy}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy-agent</artifactId>
+        <version>${version.bytebuddy}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <!-- Builds on core streaming API; also needs core annotations -->
@@ -126,21 +146,13 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>4.11.0</version>
+      <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-inline</artifactId>
-      <version>4.11.0</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- We need to specify later Bytebuddy version because Mockito 4.11.0 depends on earlier Bytebuddy which
-    does not support JDK 21, since 2.17-->
-    <dependency>
-      <groupId>net.bytebuddy</groupId>
-      <artifactId>byte-buddy</artifactId>
-      <version>1.14.13</version>
+      <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
 

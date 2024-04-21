@@ -65,12 +65,30 @@
     <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
+    <version.bytebuddy>1.14.13</version.bytebuddy>
+    <version.mockito>4.11.0</version.mockito>
     <version.powermock>2.0.9</version.powermock>
 
     <!-- for Reproducible Builds -->
     <project.build.outputTimestamp>2024-02-27T01:47:51Z</project.build.outputTimestamp>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <!-- We need to specify later Bytebuddy version because Mockito 4.11.0 depends on earlier
+           Bytebuddy which does not support JDK 21, since 2.17-->
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${version.bytebuddy}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy-agent</artifactId>
+        <version>${version.bytebuddy}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
     <!-- Builds on core streaming API; also needs core annotations -->
     <dependency>
@@ -129,21 +147,13 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>4.11.0</version>
+      <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-inline</artifactId>
-      <version>4.11.0</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- We need to specify later Bytebuddy version because Mockito 4.11.0 depends on earlier Bytebuddy which
-    does not support JDK 21, since 2.17-->
-    <dependency>
-      <groupId>net.bytebuddy</groupId>
-      <artifactId>byte-buddy</artifactId>
-      <version>1.14.13</version>
+      <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

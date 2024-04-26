@@ -450,7 +450,7 @@ public class NumberDeserializers
                 //   coercion -- as long as it has length of 1.
                 text = p.getText();
                 break;
-            case JsonTokenId.ID_NUMBER_INT: // ok iff Unicode value
+            case JsonTokenId.ID_NUMBER_INT: // ok if Unicode value
                 CoercionAction act = ctxt.findCoercionAction(logicalType(), _valueClass, CoercionInputShape.Integer);
                 switch (act) {
                 case Fail:

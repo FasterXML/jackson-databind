@@ -567,7 +567,7 @@ public abstract class BasicDeserializerFactory
                     */
                     continue;
                 }
-                // One more thing: implicit names are ok iff ctor has creator annotation
+                // One more thing: implicit names are ok if ctor has creator annotation
                 /*
                 if (isCreator && (name != null && !name.isEmpty())) {
                     ++implicitWithCreatorCount;
@@ -749,7 +749,7 @@ nonAnnotatedParamIndex, ctor);
                     */
                     continue;
                 }
-                // One more thing: implicit names are ok iff ctor has creator annotation
+                // One more thing: implicit names are ok if ctor has creator annotation
                 /*
                 if (isCreator) {
                     if (name != null && !name.isEmpty()) {
@@ -1136,7 +1136,7 @@ candidate.creator());
                 creators.addBigDecimalCreator(ctor, isCreator);
             }
         }
-        // Delegating Creator ok iff it has @JsonCreator (etc)
+        // Delegating Creator ok if it has @JsonCreator (etc)
         if (isCreator) {
             creators.addDelegatingCreator(ctor, isCreator, null, 0);
             return true;

@@ -265,7 +265,7 @@ public class JDKStringLikeTypeDeserTest
         assertNotNull(bean.location);
         assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
 
-        // and then directly, iff registered
+        // and then directly, if registered
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());

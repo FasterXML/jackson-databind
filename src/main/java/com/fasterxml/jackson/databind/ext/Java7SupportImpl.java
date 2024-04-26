@@ -37,7 +37,7 @@ public class Java7SupportImpl extends Java7Support
     public Boolean hasCreatorAnnotation(Annotated a) {
         ConstructorProperties props = a.getAnnotation(ConstructorProperties.class);
         // 08-Nov-2015, tatu: One possible check would be to ensure there is at least
-        //    one name iff constructor has arguments. But seems unnecessary for now.
+        //    one name if constructor has arguments. But seems unnecessary for now.
         if (props != null) {
             return Boolean.TRUE;
         }

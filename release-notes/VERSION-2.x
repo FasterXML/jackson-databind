@@ -2815,7 +2815,7 @@ Other changes:
 
 * New variant of AnnotationIntrospector.getFormat(), to support class
   annotations
-* It is now possible to serialize instances of plain old Object, iff
+* It is now possible to serialize instances of plain old Object, if
   'FAIL_ON_EMPTY_BEANS' is disabled.
 * Trying to remove reference to "JSON" in datatype conversion errors
  (since databinding is format-agnostic)

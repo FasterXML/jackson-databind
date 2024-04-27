@@ -58,7 +58,6 @@ public class POJONode
     public String asText() { return (_value == null) ? "null" : _value.toString(); }
 
     @Override
-    @Deprecated
     public String asText(String defaultValue) {
         return (_value == null) ? defaultValue : _value.toString();
     }

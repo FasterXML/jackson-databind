@@ -82,7 +82,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(BigInteger.ONE, n.bigIntegerValue());
         assertEquals("1", n.asText());
         // 2.4
-        assertEquals("1", n.asText());
+        assertEquals("1", n.asText("foo"));
 
         assertNodeNumbers(n, 1, 1.0);
 

@@ -48,6 +48,9 @@ public class NullNodeTest extends NodeTestBase
         assertEquals(0L, n.longValue());
         assertEquals(BigDecimal.ZERO, n.decimalValue());
         assertEquals(BigInteger.ZERO, n.bigIntegerValue());
+        // may be odd but...
+        assertEquals("null", n.asText());
+        assertEquals("fallback", n.asText("fallback"));
 
         assertEquals(0, n.size());
         assertTrue(n.isEmpty());

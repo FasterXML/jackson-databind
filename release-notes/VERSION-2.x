@@ -33,7 +33,7 @@ Project: jackson-databind
   (reported by Joo-Hyuk K)
   (fix by Joo-Hyuk K)
 #4471: Reconsider deprecation of `JsonNode.asText(defaultValue)`
-  (reported by @aerisnju)
+  (requested by @aerisnju)
   (fix by Joo-Hyuk K)
 
 2.17.0 (12-Mar-2024)

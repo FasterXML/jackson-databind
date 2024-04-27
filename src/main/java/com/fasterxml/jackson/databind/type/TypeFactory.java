@@ -1637,9 +1637,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         //    detected, related to difficulties in propagating type upwards (Iterable, for
         //    example, is a weak, tag-on type). They may be detectable in future.
         // 23-May-2023, tatu: As of 2.16 we do, however, recognized certain `IterationType`s.
-        if (rawType == Iterator.class || rawType == Stream.class
-                // 18-Apr-2024, tatu: [databind#4443] allow exact `Iterable`
-                || rawType == Iterable.class) {
+        if (rawType == Iterator.class || rawType == Stream.class) {
             return _iterationType(rawType, bindings, superClass, superInterfaces);
         }
         if (BaseStream.class.isAssignableFrom(rawType)) {

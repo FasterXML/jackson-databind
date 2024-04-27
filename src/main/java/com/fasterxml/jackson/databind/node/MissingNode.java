@@ -60,7 +60,6 @@ public final class MissingNode
 
     @Override public String asText() { return ""; }
 
-    @Deprecated // since 2.17
     @Override public String asText(String defaultValue) { return defaultValue; }
 
     // // Note: not a numeric node, hence default 'asXxx()' are fine:

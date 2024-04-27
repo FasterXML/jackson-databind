@@ -1638,8 +1638,12 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         //    example, is a weak, tag-on type). They may be detectable in future.
         // 23-May-2023, tatu: As of 2.16 we do, however, recognized certain `IterationType`s.
         if (rawType == Iterator.class || rawType == Stream.class
-                // 18-Apr-2024, tatu: [databind#4443] allow exact `Iterable`
-                || rawType == Iterable.class) {
+                // 27-Apr-2024, tatu: Tried to do [databind#4443] for 2.18 but that caused
+                //    regression so cannot add "Iterable.class" without figuring out issue
+                //    with HPPC `ObjectArrayList`s type hierarchy first
+                //
+                // || rawType == Iterable.class
+                ) {
             return _iterationType(rawType, bindings, superClass, superInterfaces);
         }
         if (BaseStream.class.isAssignableFrom(rawType)) {

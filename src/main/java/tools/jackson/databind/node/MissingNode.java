@@ -54,6 +54,8 @@ public final class MissingNode
 
     @Override public String asText() { return ""; }
 
+    @Override public String asText(String defaultValue) { return defaultValue; }
+
     // // Note: not a numeric node, hence default 'asXxx()' are fine:
 
     /*

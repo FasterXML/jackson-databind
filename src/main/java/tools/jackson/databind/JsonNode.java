@@ -611,6 +611,19 @@ public abstract class JsonNode
     public abstract String asText();
 
     /**
+     * Returns the text value of this node or the provided {@code defaultValue} if this node
+     * does not have a text value. Useful for nodes that are {@link MissingNode} or
+     * {@link tools.jackson.databind.node.NullNode}, ensuring a default value is returned instead of null or missing indicators.
+     *
+     * @param defaultValue The default value to return if this node's text value is absent.
+     * @return The text value of this node, or {@code defaultValue} if the text value is absent.
+     */
+    public String asText(String defaultValue) {
+        String str = asText();
+        return (str == null) ? defaultValue : str;
+    }
+
+    /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
      * and 1 (true), and Strings are parsed using default Java language integer

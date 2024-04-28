@@ -1437,7 +1437,12 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             return _referenceType(rawType, bindings, superClass, superInterfaces);
         }
         if (rawType == Iterator.class || rawType == Stream.class
-                || rawType == Iterable.class) {
+                // 27-Apr-2024, tatu: Tried to do [databind#4443] for 2.18 but that caused
+                //    regression so cannot add "Iterable.class" without figuring out issue
+                //    with HPPC `ObjectArrayList`s type hierarchy first
+                //
+                // || rawType == Iterable.class
+                ) {
             return _iterationType(rawType, bindings, superClass, superInterfaces);
         }
         // 23-May-2023, tatu: [databind#3950] IterationTypes

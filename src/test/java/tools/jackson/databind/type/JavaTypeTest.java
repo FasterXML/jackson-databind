@@ -313,8 +313,6 @@ public class JavaTypeTest
                 Iterator.class, Object.class);
         _verifyIteratorType(tf.constructType(Stream.class),
                 Stream.class, Object.class);
-        _verifyIteratorType(tf.constructType(Iterable.class),
-                Iterable.class, Object.class);
 
         // Then generic but direct
         JavaType t = _verifyIteratorType(tf.constructType(new TypeReference<Iterator<String>>() { }),

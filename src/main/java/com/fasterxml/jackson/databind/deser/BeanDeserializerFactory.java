@@ -425,6 +425,17 @@ ClassUtil.name(propName)));
 
         // But then let's decorate things a bit
         // Need to add "initCause" as setter for exceptions (sub-classes of Throwable).
+        // 26-May-2022, tatu: [databind#3275] Looks like JDK 12 added "setCause()"
+        //    which can wreak havoc, at least with NamingStrategy
+        Iterator<SettableBeanProperty> it = builder.getProperties();
+        while (it.hasNext()) {
+            SettableBeanProperty prop = it.next();
+            if ("setCause".equals(prop.getMember().getName())) {
+                // For now this is allowed as we are returned "live" Iterator...
+                it.remove();
+                break;
+            }
+        }
         AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
             SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(ctxt.getConfig(), am,
@@ -454,10 +465,9 @@ ClassUtil.name(propName)));
             }
         }
         JsonDeserializer<?> deserializer = builder.build();
-        
-        /* At this point it ought to be a BeanDeserializer; if not, must assume
-         * it's some other thing that can handle deserialization ok...
-         */
+
+        // At this point it ought to be a BeanDeserializer; if not, must assume
+        // it's some other thing that can handle deserialization ok...
         if (deserializer instanceof BeanDeserializer) {
             deserializer = new ThrowableDeserializer((BeanDeserializer) deserializer);
         }

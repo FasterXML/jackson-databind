@@ -1440,5 +1440,4 @@ Spence Nace (snace98@github)
 Jason Harper (jsharper@github)
   * Reported #3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
    `PropertyNamingStrategy.UPPER_CAMEL_CASE`
-  (2.13.4)
-
+  (2.13.4, 2.12.7.2)

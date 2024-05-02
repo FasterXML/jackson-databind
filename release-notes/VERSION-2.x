@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.12.7.2 (not yet released)
+
+#3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
+  `PropertyNamingStrategy.UPPER_CAMEL_CASE`
+ (reported by Jason H)
+
 2.12.7.1 (12-Oct-2022)
 
 #3582: Add check in `BeanDeserializer._deserializeFromArray()` to prevent

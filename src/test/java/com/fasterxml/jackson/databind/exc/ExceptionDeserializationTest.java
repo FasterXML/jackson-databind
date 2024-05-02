@@ -172,7 +172,7 @@ public class ExceptionDeserializationTest
         assertNotNull(exc);
     }
 
-    // [databind#1842]:
+    // [databind#1842]
     public void testNullAsMessage() throws IOException
     {
         Exception exc = MAPPER.readValue(aposToQuotes(

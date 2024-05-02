@@ -1324,3 +1324,8 @@ Jelle Voost (jellevoost@github)
 JoeWoo (xJoeWoo@github)
   * Reported #3139: Deserialization of "empty" subtype with DEDUCTION failed
    (2.12.4)
+
+Jason Harper (jsharper@github)
+  * Reported #3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
+   `PropertyNamingStrategy.UPPER_CAMEL_CASE`
+  (2.12.7.2)

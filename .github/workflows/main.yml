@@ -30,10 +30,10 @@ jobs:
         include:
           - java_version: '8'
             os: 'ubuntu-20.04'
-            release_build: 1
+            release_build: 'R'
           - java_version: '8'
             os: 'windows-latest'
-            is_windows: true
+            is_windows: 'W'
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:

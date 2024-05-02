@@ -33,6 +33,7 @@ jobs:
             release_build: 1
           - java_version: '8'
             os: 'windows-latest'
+            is_windows: true
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
@@ -53,6 +54,7 @@ jobs:
       run: ./mvnw -B -ff -ntp clean verify
     - name: Extract project Maven version
       id: projectVersion
+      if: ${{ !matrix.is_windows }}
       run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.3.0:evaluate -DforceStdout -Dexpression=project.version -q)" >> $GITHUB_OUTPUT
     - name: Verify Android SDK Compatibility
       if: ${{ matrix.release_build }}

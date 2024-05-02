@@ -28,11 +28,11 @@ jobs:
         java_version: ['8', '11', '17', '21']
         os: ['ubuntu-20.04']
 	include:
-	  - java_version: '8'
-	    os: 'ubuntu-20.04'
-	    release_build: 1
-	  - java_version: '8'
-	    os: 'windows-latest'
+          - java_version: '8'
+            os: 'ubuntu-20.04'
+            release_build: 1
+          - java_version: '8'
+            os: 'windows-latest'
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:

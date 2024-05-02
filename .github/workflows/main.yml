@@ -27,7 +27,7 @@ jobs:
       matrix:
         java_version: ['8', '11', '17', '21']
         os: ['ubuntu-20.04']
-	include:
+        include:
           - java_version: '8'
             os: 'ubuntu-20.04'
             release_build: 1

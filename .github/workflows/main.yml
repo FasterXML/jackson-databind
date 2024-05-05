@@ -25,11 +25,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['8', '11', '17', '21']
-        os: ['ubuntu-20.04']
+        java_version: ['8', '11', '17', '21', '22']
+        os: ['ubuntu-22.04']
         include:
           - java_version: '8'
-            os: 'ubuntu-20.04'
+            os: 'ubuntu-22.04'
             release_build: 'R'
           - java_version: '8'
             os: 'windows-latest'

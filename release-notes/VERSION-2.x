@@ -22,7 +22,7 @@ Project: jackson-databind
 #4483: Remove `final` on method BeanSerializer.serialize()
  (contributed by Matthew L)
 
-2.17.1 (not yet released)
+2.17.1 (04-May-2024)
 
 #4428: `ByteBuddy` scope went beyond `test` in version 2.17.0
  (reported by Miguel M-R)

@@ -499,21 +499,6 @@
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <!-- Enable Java 22 for all sources so that Intellij picks the right language level -->
-              <source>22</source>
-              <release>22</release>
-              <compilerArgs>
-                <arg>-parameters</arg>
-                <arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
-                <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
-              </compilerArgs>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</argLine>

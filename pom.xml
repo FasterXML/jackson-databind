@@ -342,17 +342,6 @@
               <!-- Enable Java 11+ for all sources so that Intellij picks the right language level -->
               <source>11</source>
               <release>11</release>
-              <compilerArgs>
-                <arg>-parameters</arg>
-                <arg>--enable-preview</arg>
-              </compilerArgs>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <argLine>--enable-preview</argLine>
             </configuration>
           </plugin>
         </plugins>

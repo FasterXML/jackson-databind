@@ -1,0 +1,39 @@
+name: Re-build on jackson-core push
+on:
+  repository_dispatch:
+    types: [jackson-core-pushed]
+  # just for testing
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # Do we want wide matrix build? For now, limited
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        java_version: ['8', '17', '21']
+        os: ['ubuntu-22.04']
+    env:
+      JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+    steps:
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    - name: Set up JDK
+      uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
+      with:
+        distribution: 'temurin'
+        java-version: ${{ matrix.java_version }}
+        cache: 'maven'
+    - name: Build and test
+      run: ./mvnw -B -ff -ntp clean verify
+
+  # And let's proceed recursively...
+  trigger-downstream-builds:
+    name: Trigger downstream builds
+    uses: ./.github/workflows/trigger_dep_builds.yml
+    with:
+      secrets:
+        token: ${{ secrets.REPO_DISPATCH }}

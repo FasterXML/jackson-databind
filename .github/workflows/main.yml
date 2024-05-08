@@ -76,3 +76,13 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./target/site/jacoco/jacoco.xml
         flags: unittests
+
+  trigger-dep-build:
+    name: Trigger downstream builds
+    needs: [build]
+    # Only for pushes to default branch
+    if: ${{ github.event_name == 'push' && github.event.ref_name == github.event.repository.default_branch }}
+    uses: ./.github/workflows/trigger_dep_builds.yml
+    with:
+      secrets:
+        token: ${{ secrets.REPO_DISPATCH }}

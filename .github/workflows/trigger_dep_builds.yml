@@ -34,4 +34,4 @@ jobs:
           client-payload: '{"version": "N/A" }'
       - name: Delay between dispatches
         run: sleep 10s
-	shell: bash
+        shell: bash

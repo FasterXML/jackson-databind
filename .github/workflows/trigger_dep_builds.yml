@@ -23,6 +23,7 @@ jobs:
           - 'FasterXML/jackson-datatypes-collections'
           - 'FasterXML/jackson-datatypes-misc'
           - 'FasterXML/jackson-module-kotlin'
+          - 'FasterXML/jackson-module-scala'          
 
     steps:
       - name: Repository dispatch

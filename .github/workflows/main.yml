@@ -78,7 +78,7 @@ jobs:
         flags: unittests
 
   trigger-dep-build:
-    name: Trigger downstream builds
+    name: Trigger dep builds
     needs: [build]
     # Only for pushes to default branch
     if: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}

@@ -12,11 +12,16 @@ jobs:
 
     strategy:
       fail-fast: false
+      # Won't matter a lot but try to make dispatching non-parallel
+      max-parallel: 1
       matrix:
         repo:
+          - 'FasterXML/jackson-modules-base'
           - 'FasterXML/jackson-dataformats-binary'
           - 'FasterXML/jackson-dataformats-text'
           - 'FasterXML/jackson-dataformat-xml'
+          - 'FasterXML/jackson-datatypes-collections'
+          - 'FasterXML/jackson-datatypes-misc'
 
     steps:
       - name: Repository dispatch
@@ -27,3 +32,6 @@ jobs:
           event-type: jackson-databind-pushed
           # Could push information on what was built but not yet
           client-payload: '{"version": "N/A" }'
+      - name: Delay between dispatches
+        run: sleep 10s
+	shell: bash

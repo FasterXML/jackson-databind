@@ -28,7 +28,7 @@ jobs:
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
     - name: Build and test
-      run: ./mvnw -B -ff -ntp clean verify
+      run: ./mvnw -B -ff -ntp verify
 
   # And let's proceed recursively...
   trigger-dep-build:

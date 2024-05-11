@@ -56,6 +56,7 @@ public class BufferRecyclersDatabindTest extends DatabindTestUtil
     }
 
     @Test
+    @Deprecated // tests deprecated impl
     public void testParserWithLockFreePool() throws Exception {
         _testParser(JsonRecyclerPools.newLockFreePool());
         _testParser(JsonRecyclerPools.sharedLockFreePool());
@@ -112,6 +113,7 @@ public class BufferRecyclersDatabindTest extends DatabindTestUtil
     }
 
     @Test
+    @Deprecated // tests deprecated impl
     public void testGeneratorWithLockFreePool() throws Exception {
         _testGenerator(JsonRecyclerPools.newLockFreePool());
         _testGenerator(JsonRecyclerPools.sharedLockFreePool());
@@ -151,7 +153,7 @@ public class BufferRecyclersDatabindTest extends DatabindTestUtil
         private static final Predicate<Thread> isVirtual = VirtualPredicate.findIsVirtualPredicate();
 
         private final RecyclerPool<BufferRecycler> nativePool = JsonRecyclerPools.threadLocalPool();
-        private final RecyclerPool<BufferRecycler> virtualPool = JsonRecyclerPools.newLockFreePool();
+        private final RecyclerPool<BufferRecycler> virtualPool = JsonRecyclerPools.newConcurrentDequePool();
 
         @Override
         public BufferRecycler acquirePooled() {

@@ -28,29 +28,12 @@ jobs:
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
     - name: Build and test
-      run: ./mvnw -B -ff -ntp clean verify
+      run: ./mvnw -B -ff -ntp verify
 
   # And let's proceed recursively...
   trigger-dep-build:
     name: Trigger downstream builds
     needs: [build]
-    runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        repo:
-          - 'FasterXML/jackson-dataformats-binary'
-          - 'FasterXML/jackson-dataformats-text'
-          - 'FasterXML/jackson-dataformat-xml'
-
-    steps:
-      - name: Repository dispatch
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          # Does regular token work within same org?
-          token: ${{ secrets.REPO_DISPATCH }}
-          repository: ${{ matrix.repo }}
-          event-type: jackson-databind-pushed
-          # Could push information on what was built but not yet
-          client-payload: '{"version": "N/A" }'
+    uses: ./.github/workflows/trigger_dep_builds.yml
+    secrets:
+      token: ${{ secrets.REPO_DISPATCH }}

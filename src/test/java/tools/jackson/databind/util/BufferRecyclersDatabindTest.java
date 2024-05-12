@@ -55,13 +55,6 @@ public class BufferRecyclersDatabindTest extends DatabindTestUtil
     }
 
     @Test
-    @Deprecated // tests deprecated impl
-    public void testParserWithLockFreePool() throws Exception {
-        _testParser(JsonRecyclerPools.newLockFreePool());
-        _testParser(JsonRecyclerPools.sharedLockFreePool());
-    }
-
-    @Test
     public void testParserWithBoundedPool() throws Exception {
         _testParser(JsonRecyclerPools.newBoundedPool(5));
         _testParser(JsonRecyclerPools.sharedBoundedPool());
@@ -109,13 +102,6 @@ public class BufferRecyclersDatabindTest extends DatabindTestUtil
     public void testGeneratorWithDequeuPool() throws Exception {
         _testGenerator(JsonRecyclerPools.newConcurrentDequePool());
         _testGenerator(JsonRecyclerPools.sharedConcurrentDequePool());
-    }
-
-    @Test
-    @Deprecated // tests deprecated impl
-    public void testGeneratorWithLockFreePool() throws Exception {
-        _testGenerator(JsonRecyclerPools.newLockFreePool());
-        _testGenerator(JsonRecyclerPools.sharedLockFreePool());
     }
 
     @Test

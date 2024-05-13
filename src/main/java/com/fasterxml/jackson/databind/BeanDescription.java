@@ -256,33 +256,6 @@ public abstract class BeanDescription
 
     public abstract AnnotatedMethod findMethod(String name, Class<?>[] paramTypes);
 
-    @Deprecated // since 2.9
-    public abstract AnnotatedMethod findJsonValueMethod();
-
-    /**
-     * @deprecated Since 2.9: use {@link #findAnySetterAccessor} instead
-     */
-    @Deprecated
-    public AnnotatedMethod findAnySetter() {
-        AnnotatedMember m = findAnySetterAccessor();
-        if (m instanceof AnnotatedMethod) {
-            return (AnnotatedMethod) m;
-        }
-        return null;
-    }
-
-    /**
-     * @deprecated Since 2.9: use {@link #findAnySetterAccessor} instead
-     */
-    @Deprecated
-    public AnnotatedMember findAnySetterField() {
-        AnnotatedMember m = findAnySetterAccessor();
-        if (m instanceof AnnotatedField) {
-            return m;
-        }
-        return null;
-    }
-
     /*
     /**********************************************************
     /* Basic API, class configuration

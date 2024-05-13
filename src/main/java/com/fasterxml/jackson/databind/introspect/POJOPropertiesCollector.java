@@ -152,20 +152,6 @@ public class POJOPropertiesCollector
      */
     protected JsonFormat.Value _formatOverrides;
 
-    // // // Deprecated entries to remove from 3.0
-
-    /**
-     * @deprecated Since 2.12
-     */
-    @Deprecated
-    protected final boolean _stdBeanNaming;
-
-    /**
-     * @deprecated Since 2.12
-     */
-    @Deprecated
-    protected String _mutatorPrefix = "set";
-
     /*
     /**********************************************************
     /* Life-cycle
@@ -194,31 +180,6 @@ public class POJOPropertiesCollector
         _visibilityChecker = _config.getDefaultVisibilityChecker(type.getRawClass(),
                 classDef);
         _accessorNaming = accessorNaming;
-
-        // for backwards-compatibility only
-        _stdBeanNaming = config.isEnabled(MapperFeature.USE_STD_BEAN_NAMING);
-    }
-
-    /**
-     * @deprecated Since 2.12
-     */
-    @Deprecated
-    protected POJOPropertiesCollector(MapperConfig<?> config, boolean forSerialization,
-            JavaType type, AnnotatedClass classDef,
-            String mutatorPrefix)
-    {
-        this(config, forSerialization, type, classDef,
-                _accessorNaming(config, classDef, mutatorPrefix));
-        _mutatorPrefix = mutatorPrefix;
-    }
-
-    private static AccessorNamingStrategy _accessorNaming(MapperConfig<?> config, AnnotatedClass classDef,
-            String mutatorPrefix) {
-        if (mutatorPrefix == null) {
-            mutatorPrefix = "set";
-        }
-        return new DefaultAccessorNamingStrategy.Provider()
-                .withSetterPrefix(mutatorPrefix).forPOJO(config, classDef);
     }
 
     /*
@@ -413,15 +374,6 @@ public class POJOPropertiesCollector
             collectAll();
         }
         return _properties;
-    }
-
-    @Deprecated // since 2.9
-    public AnnotatedMethod getJsonValueMethod() {
-        AnnotatedMember m = getJsonValueAccessor();
-        if (m instanceof AnnotatedMethod) {
-            return (AnnotatedMethod) m;
-        }
-        return null;
     }
 
     @Deprecated // since 2.11 (not used by anything at this point)
@@ -1495,11 +1447,6 @@ public class POJOPropertiesCollector
         }
         return (PropertyNamingStrategy) ClassUtil.createInstance(namingClass,
                     _config.canOverrideAccessModifiers());
-    }
-
-    @Deprecated // since 2.12.1 (temporarily missing from 2.12.0)
-    protected void _updateCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
-        _replaceCreatorProperty(prop, creatorProperties);
     }
 
     protected boolean _replaceCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {

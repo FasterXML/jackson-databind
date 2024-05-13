@@ -953,15 +953,6 @@ public final class DeserializationConfig
                 builderType, this, valueTypeDesc);
     }
 
-    /**
-     * @since 2.0
-     * @deprecated Since 2.12 - use variant that takes both builder and value type
-     */
-    @Deprecated
-    public BeanDescription introspectForBuilder(JavaType type) {
-        return getClassIntrospector().forDeserializationWithBuilder(this, type, this);
-    }
-
     /*
     /**********************************************************
     /* Support for polymorphic type handling

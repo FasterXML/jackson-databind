@@ -61,7 +61,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             null, // to indicate "use Jackson default TimeZone" (UTC)
             Base64Variants.getDefaultVariant(),
             DefaultCacheProvider.defaultInstance(),
-            JsonNodeFactory.instance
+            JsonNodeFactory.instance,
+            null // ConstructorDetector
     );
 
     protected final static TypeResolverProvider DEFAULT_TYPE_RESOLVER_PROVIDER = new TypeResolverProvider();
@@ -180,8 +181,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected AbstractTypeResolver[] _abstractTypeResolvers;
 
-    protected ConstructorDetector _ctorDetector;
-
     /*
     /**********************************************************************
     /* Handlers/factories, other:
@@ -298,7 +297,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _deserializationContexts = null;
         _injectableValues = null;
         _problemHandlers = null;
-        _ctorDetector = null;
         _abstractTypeResolvers = NO_ABSTRACT_TYPE_RESOLVERS;
 
         _defaultAttributes = null;
@@ -345,7 +343,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _injectableValues = Snapshottable.takeSnapshot(state._injectableValues);
         _problemHandlers = state._problemHandlers;
         _abstractTypeResolvers = state._abstractTypeResolvers;
-        _ctorDetector = state._ctorDetector;
 
         // Factories/handlers, other
         _defaultAttributes = Snapshottable.takeSnapshot(state._defaultAttributes);
@@ -394,7 +391,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _injectableValues = base._injectableValues;
         _problemHandlers = base._problemHandlers;
         _abstractTypeResolvers = base._abstractTypeResolvers;
-        _ctorDetector = base._ctorDetector;
         _cacheProvider = base._cacheProvider;
     }
     */
@@ -468,7 +464,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
                 configOverrides, coercionConfigs,
                 tf, classIntr, mixins, str,
                 defaultAttributes(), rootNames,
-                _abstractTypeResolvers, _ctorDetector);
+                _abstractTypeResolvers);
     }
 
     /*
@@ -1323,7 +1319,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * single-argument constructors).
      */
     public B constructorDetector(ConstructorDetector cd) {
-        _ctorDetector = cd;
+        _baseSettings = _baseSettings.with(cd);
         return _this();
     }
 

@@ -546,8 +546,15 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * @since 2.16
      */
-    public CacheProvider getCacheProvider() {
+    public final CacheProvider getCacheProvider() {
         return _base.getCacheProvider();
+    }
+
+    /**
+     * @since 2.18 (in DeserializationConfig-only since 2.12)
+     */
+    public final ConstructorDetector getConstructorDetector() {
+        return _base.getConstructorDetector();
     }
 
     /*

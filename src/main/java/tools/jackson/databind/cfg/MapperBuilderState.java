@@ -109,8 +109,6 @@ public abstract class MapperBuilderState
 
     protected final AbstractTypeResolver[] _abstractTypeResolvers;
 
-    protected final ConstructorDetector _ctorDetector;
-
     /*
     /**********************************************************************
     /* Handlers, other
@@ -167,7 +165,6 @@ public abstract class MapperBuilderState
         // assume our usage of LinkedNode-based list is immutable here (should be)
         _problemHandlers = src._problemHandlers;
         _abstractTypeResolvers = src._abstractTypeResolvers;
-        _ctorDetector = src._ctorDetector;
 
         // Other handlers
         _defaultAttributes = Snapshottable.takeSnapshot(src._defaultAttributes);

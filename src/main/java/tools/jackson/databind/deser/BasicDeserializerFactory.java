@@ -10,10 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.cfg.ConfigOverride;
-import tools.jackson.databind.cfg.ConstructorDetector;
-import tools.jackson.databind.cfg.DeserializerFactoryConfig;
-import tools.jackson.databind.cfg.HandlerInstantiator;
+import tools.jackson.databind.cfg.*;
 import tools.jackson.databind.deser.bean.CreatorCandidate;
 import tools.jackson.databind.deser.bean.CreatorCollector;
 import tools.jackson.databind.deser.jackson.JsonNodeDeserializer;
@@ -155,7 +152,7 @@ public abstract class BasicDeserializerFactory
         ValueInstantiator instantiator = null;
         // Check @JsonValueInstantiator before anything else
         AnnotatedClass ac = beanDesc.getClassInfo();
-        Object instDef = ctxt.getAnnotationIntrospector().findValueInstantiator(ctxt.getConfig(), ac);
+        Object instDef = config.getAnnotationIntrospector().findValueInstantiator(ctxt.getConfig(), ac);
         if (instDef != null) {
             instantiator = _valueInstantiatorInstance(config, ac, instDef);
         }
@@ -227,7 +224,7 @@ public abstract class BasicDeserializerFactory
             final CreatorCollector creators = new CreatorCollector(beanDesc, config);
             Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs = _findCreatorsFromProperties(ctxt,
                     beanDesc);
-            ccState = new CreatorCollectionState(ctxt, beanDesc, vchecker,
+            ccState = new CreatorCollectionState(config, beanDesc, vchecker,
                     creators, creatorDefs);
         }
 
@@ -2409,7 +2406,7 @@ factory.toString()));
      * during Creator introspection.
      */
     protected static class CreatorCollectionState {
-        public final DeserializationContext context;
+        public final MapperConfig<?> config;
         public final BeanDescription beanDesc;
         public final VisibilityChecker vchecker;
         public final CreatorCollector creators;
@@ -2421,12 +2418,12 @@ factory.toString()));
         private List<CreatorCandidate> _implicitConstructorCandidates;
         private int _explicitConstructorCount;
 
-        public CreatorCollectionState(DeserializationContext ctxt, BeanDescription bd,
+        public CreatorCollectionState(MapperConfig<?> cfg, BeanDescription bd,
                 VisibilityChecker vc,
                 CreatorCollector cc,
                 Map<AnnotatedWithParams,BeanPropertyDefinition[]> cp)
         {
-            context = ctxt;
+            config = cfg;
             beanDesc = bd;
             vchecker = vc;
             creators = cc;
@@ -2434,7 +2431,7 @@ factory.toString()));
         }
 
         public AnnotationIntrospector annotationIntrospector() {
-            return context.getAnnotationIntrospector();
+            return config.getAnnotationIntrospector();
         }
 
         // // // Factory creator candidate info

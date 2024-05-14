@@ -377,11 +377,6 @@ public class POJOPropertiesCollector
         return _properties;
     }
 
-    @Deprecated // since 2.11 (not used by anything at this point)
-    public Class<?> findPOJOBuilderClass() {
-        return _annotationIntrospector.findPOJOBuilder(_classDef);
-    }
-
     /**
      * @since 2.17
      */

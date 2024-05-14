@@ -2328,6 +2328,12 @@ factory.toString()));
         return false;
     }
 
+    /*
+    /**********************************************************************
+    /* Helper classes
+    /**********************************************************************
+     */
+
     /**
      * Helper class to contain default mappings for abstract JDK {@link java.util.Collection}
      * and {@link java.util.Map} types. Separated out here to defer cost of creating lookups

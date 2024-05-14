@@ -1404,7 +1404,7 @@ public class POJOPropertiesCollector
 //    @Deprecated // since 2.12.1 (temporarily missing from 2.12.0)
 //    protected void _updateCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
 //        _replaceCreatorProperty(prop, creatorProperties);
- //   }
+//    }
 
     protected boolean _replaceCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
         if (creatorProperties != null) {

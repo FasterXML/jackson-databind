@@ -887,16 +887,6 @@ nonAnnotatedParamIndex, ctor);
         creators.addPropertyCreator(candidate.creator(), true, properties);
     }
 
-    @Deprecated // since 2.12, remove from 2.13 or later
-    protected void _addExplicitAnyCreator(DeserializationContext ctxt,
-            BeanDescription beanDesc, CreatorCollector creators,
-            CreatorCandidate candidate)
-        throws JsonMappingException
-    {
-        _addExplicitAnyCreator(ctxt, beanDesc, creators, candidate,
-                ctxt.getConfig().getConstructorDetector());
-    }
-
     /**
      * Helper method called when there is explicit "is-creator" marker,
      * but no mode declaration.
@@ -2484,51 +2474,9 @@ factory.toString()));
 
     /*
     /**********************************************************
-    /* Deprecated helper methods
+    /* Helper classes
     /**********************************************************
      */
-
-    /**
-     * Method called to see if given method has annotations that indicate
-     * a more specific type than what the argument specifies.
-     *
-     * @deprecated Since 2.8; call {@link #resolveMemberAndTypeAnnotations} instead
-     */
-    @Deprecated
-    protected JavaType modifyTypeByAnnotation(DeserializationContext ctxt,
-            Annotated a, JavaType type)
-        throws JsonMappingException
-    {
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr == null) {
-            return type;
-        }
-        return intr.refineDeserializationType(ctxt.getConfig(), a, type);
-    }
-
-    /**
-     * @deprecated since 2.8 call {@link #resolveMemberAndTypeAnnotations} instead.
-     */
-    @Deprecated // since 2.8
-    protected JavaType resolveType(DeserializationContext ctxt,
-            BeanDescription beanDesc, JavaType type, AnnotatedMember member)
-        throws JsonMappingException
-    {
-        return resolveMemberAndTypeAnnotations(ctxt, member, type);
-    }
-
-    /**
-     * @deprecated since 2.8 call <code>findJsonValueMethod</code> on {@link BeanDescription} instead
-     */
-    @Deprecated // not used, possibly remove as early as 2.9
-    protected AnnotatedMethod _findJsonValueFor(DeserializationConfig config, JavaType enumType)
-    {
-        if (enumType == null) {
-            return null;
-        }
-        BeanDescription beanDesc = config.introspect(enumType);
-        return beanDesc.findJsonValueMethod();
-    }
 
     /**
      * Helper class to contain default mappings for abstract JDK {@link java.util.Collection}

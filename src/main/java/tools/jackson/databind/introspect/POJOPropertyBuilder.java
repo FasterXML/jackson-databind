@@ -934,10 +934,9 @@ public class POJOPropertyBuilder
     public JsonProperty.Access removeNonVisible(boolean inferMutators,
             POJOPropertiesCollector parent)
     {
-        /* 07-Jun-2015, tatu: With 2.6, we will allow optional definition
-         *  of explicit access type for property; if not "AUTO", it will
-         *  dictate how visibility checks are applied.
-         */
+        // 07-Jun-2015, tatu: With 2.6, we will allow optional definition
+        //  of explicit access type for property; if not "AUTO", it will
+        //  dictate how visibility checks are applied.
         JsonProperty.Access acc = findAccess();
         if (acc == null) {
             acc = JsonProperty.Access.AUTO;

@@ -133,6 +133,13 @@ public class POJOPropertiesCollector
      */
     protected LinkedHashMap<Object, AnnotatedMember> _injectables;
 
+    /**
+     * Lazily accessed information about POJO format overrides
+     *
+     * @since 2.17
+     */
+    protected JsonFormat.Value _formatOverrides;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -346,6 +353,33 @@ public class POJOPropertiesCollector
             collectAll();
         }
         return _properties;
+    }
+
+    // 14-May-2024, tatu: Not 100% sure this is needed in Jackson 3.x; was added
+    //    in 2.x, merged in 2.18 timeframe to 3.0 for easier merges.
+    /**
+     * @since 2.17
+     */
+    public JsonFormat.Value getFormatOverrides() {
+        if (_formatOverrides == null) {
+            JsonFormat.Value format = null;
+
+            // Let's check both per-type defaults and annotations;
+            // per-type defaults having higher precedence, so start with annotations
+            if (_annotationIntrospector != null) {
+                format = _annotationIntrospector.findFormat(_config, _classDef);
+            }
+            JsonFormat.Value v = _config.getDefaultPropertyFormat(_type.getRawClass());
+            if (v != null) {
+                if (format == null) {
+                    format = v;
+                } else {
+                    format = format.withOverrides(v);
+                }
+            }
+            _formatOverrides = (format == null) ? JsonFormat.Value.empty() : format;
+        }
+        return _formatOverrides;
     }
 
     /*

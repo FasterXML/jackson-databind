@@ -941,7 +941,7 @@ nonAnnotatedParamIndex, ctor);
 
         case REQUIRE_MODE:
             ctxt.reportBadTypeDefinition(beanDesc,
-"Single-argument constructor (%s) is annotated but no 'mode' defined; `CreatorDetector`"
+"Single-argument constructor (%s) is annotated but no 'mode' defined; `ConstructorDetector`"
 + "configured with `SingleArgConstructor.REQUIRE_MODE`",
 candidate.creator());
             return;

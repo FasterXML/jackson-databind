@@ -1,15 +1,13 @@
 package com.fasterxml.jackson.databind;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.introspect.*;
-import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -83,26 +81,6 @@ public abstract class BeanDescription
     public abstract boolean hasKnownClassAnnotations();
 
     /**
-     * Accessor for type bindings that may be needed to fully resolve
-     * types of member object, such as return and argument types of
-     * methods and constructors, and types of fields.
-     *
-     * @deprecated Since 2.7, should not need to access bindings directly
-     */
-    @Deprecated
-    public abstract TypeBindings bindingsForBeanType();
-
-    /**
-     * Method for resolving given JDK type, using this bean as the
-     * generic type resolution context.
-     *
-     * @deprecated Since 2.8, should simply call <code>getType</code> of
-     *    property accessor directly.
-     */
-    @Deprecated
-    public abstract JavaType resolveType(java.lang.reflect.Type jdkType);
-
-    /**
      * Method for accessing collection of annotations the bean
      * class has.
      */
@@ -128,14 +106,6 @@ public abstract class BeanDescription
      * @since 2.9
      */
     public abstract List<BeanPropertyDefinition> findBackReferences();
-
-    /**
-     * Method for locating all back-reference properties (setters, fields) bean has
-     *
-     * @deprecated Since 2.9 use {@link #findBackReferences()} instead
-     */
-    @Deprecated
-    public abstract Map<String,AnnotatedMember> findBackReferenceProperties();
 
     /*
     /**********************************************************
@@ -195,18 +165,6 @@ public abstract class BeanDescription
      * ignorable.
      */
     public abstract AnnotatedConstructor findDefaultConstructor();
-
-    /**
-     * @deprecated Since 2.13: instead use {@link #getConstructors()}, filter.
-     */
-    @Deprecated
-    public abstract Constructor<?> findSingleArgConstructor(Class<?>... argTypes);
-
-    /**
-     * @deprecated Since 2.13: instead use {@link #getFactoryMethods()}, filter.
-     */
-    @Deprecated
-    public abstract Method findFactoryMethod(Class<?>... expArgTypes);
 
     /*
     /**********************************************************

@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -272,20 +271,6 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     @Override
-    @Deprecated // since 2.7
-    public TypeBindings bindingsForBeanType() {
-        return _type.getBindings();
-    }
-
-    @Override
-    @Deprecated // since 2.8
-    public JavaType resolveType(java.lang.reflect.Type jdkType) {
-        // 06-Sep-2020, tatu: Careful wrt [databind#2846][databind#2821],
-        //     call new method added in 2.12
-        return _config.getTypeFactory().resolveMemberType(jdkType, _type.getBindings());
-    }
-
-    @Override
     public AnnotatedConstructor findDefaultConstructor() {
         return _classInfo.getDefaultConstructor();
     }
@@ -521,21 +506,6 @@ anyField.getName()));
         return result;
     }
 
-    @Deprecated // since 2.9
-    @Override
-    public Map<String,AnnotatedMember> findBackReferenceProperties()
-    {
-        List<BeanPropertyDefinition> props = findBackReferences();
-        if (props == null) {
-            return null;
-        }
-        Map<String,AnnotatedMember> result = new HashMap<>();
-        for (BeanPropertyDefinition prop : props) {
-            result.put(prop.getName(), prop.getMutator());
-        }
-        return result;
-    }
-
     /*
     /**********************************************************
     /* Introspection for deserialization, factories
@@ -587,45 +557,6 @@ anyField.getName()));
             return Collections.emptyList();
         }
         return result;
-    }
-
-    @Override
-    @Deprecated // since 2.13
-    public Constructor<?> findSingleArgConstructor(Class<?>... argTypes)
-    {
-        for (AnnotatedConstructor ac : _classInfo.getConstructors()) {
-            // This list is already filtered to only include accessible
-            if (ac.getParameterCount() == 1) {
-                Class<?> actArg = ac.getRawParameterType(0);
-                for (Class<?> expArg : argTypes) {
-                    if (expArg == actArg) {
-                        return ac.getAnnotated();
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
-    @Deprecated // since 2.13
-    public Method findFactoryMethod(Class<?>... expArgTypes)
-    {
-        // So, of all single-arg static methods:
-        for (AnnotatedMethod am : _classInfo.getFactoryMethods()) {
-            // 24-Oct-2016, tatu: Better ensure it only takes 1 arg, no matter what
-            if (isFactoryMethod(am) && am.getParameterCount() == 1) {
-                // And must take one of expected arg types (or supertype)
-                Class<?> actualArgType = am.getRawParameterType(0);
-                for (Class<?> expArgType : expArgTypes) {
-                    // And one that matches what we would pass in
-                    if (actualArgType.isAssignableFrom(expArgType)) {
-                        return am.getAnnotated();
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     protected boolean isFactoryMethod(AnnotatedMethod am)

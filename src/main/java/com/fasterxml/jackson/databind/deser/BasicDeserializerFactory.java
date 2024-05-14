@@ -251,7 +251,7 @@ public abstract class BasicDeserializerFactory
         final ConstructorDetector ctorDetector;
 
         {
-            final DeserializationConfig config = ctxt.getConfig();
+            final MapperConfig<?> config = ctxt.getConfig();
             // need to construct suitable visibility checker:
             final VisibilityChecker<?> vchecker = config.getDefaultVisibilityChecker(beanDesc.getBeanClass(),
                     beanDesc.getClassInfo());

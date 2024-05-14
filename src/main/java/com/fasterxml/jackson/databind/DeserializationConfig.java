@@ -914,6 +914,7 @@ public final class DeserializationConfig
     /**
      * @since 2.12
      */
+    @Override // since 2.18
     public ConstructorDetector getConstructorDetector() {
         if (_ctorDetector == null) {
             return ConstructorDetector.DEFAULT;

@@ -2305,6 +2305,8 @@ public class ObjectMapper
      */
     public ObjectMapper setConstructorDetector(ConstructorDetector cd) {
         _deserializationConfig = _deserializationConfig.with(cd);
+        // since 2.18
+        _serializationConfig = _serializationConfig.with(cd);
         return this;
     }
 

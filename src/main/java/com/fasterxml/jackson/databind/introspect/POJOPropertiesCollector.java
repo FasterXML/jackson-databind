@@ -214,7 +214,7 @@ public class POJOPropertiesCollector
     public List<BeanPropertyDefinition> getProperties() {
         // make sure we return a copy, so caller can remove entries if need be:
         Map<String, POJOPropertyBuilder> props = getPropertyMap();
-        return new ArrayList<BeanPropertyDefinition>(props.values());
+        return new ArrayList<>(props.values());
     }
 
     public Map<Object, AnnotatedMember> getInjectables() {
@@ -368,7 +368,8 @@ public class POJOPropertiesCollector
         return info;
     }
 
-    // for unit tests:
+    // Method called by main "getProperties()" method; left
+    // "protected" for unit tests
     protected Map<String, POJOPropertyBuilder> getPropertyMap() {
         if (!_collected) {
             collectAll();

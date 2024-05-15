@@ -606,7 +606,7 @@ public abstract class BasicDeserializerFactory
                                 +ctor.getDeclaringClass().getName()+" cannot use @JsonCreator for constructors");
                     }
                     */
-                    ctxt.reportBadTypeDefinition(beanDesc,
+                    _reportBadTypeDefinition(beanDesc,
 "Argument #%d of constructor %s has no property name annotation; must have name when multiple-parameter constructor annotated as Creator",
 nonAnnotatedParamIndex, ctor);
                 }
@@ -646,7 +646,7 @@ nonAnnotatedParamIndex, ctor);
 
         // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
-            JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), factory);
+            JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ccState.config, factory);
             final int argCount = factory.getParameterCount();
             if (creatorMode == null) {
                 // Only potentially accept 1-argument factory methods
@@ -786,7 +786,7 @@ nonAnnotatedParamIndex, ctor);
                     // secondary: all but one injectable, one un-annotated (un-named)
                     creators.addDelegatingCreator(factory, false, properties, 0);
                 } else { // otherwise, epic fail
-                    ctxt.reportBadTypeDefinition(beanDesc,
+                    _reportBadTypeDefinition(beanDesc,
 "Argument #%d of factory method %s has no property name annotation; must have name when multiple-parameter constructor annotated as Creator",
                     (nonAnnotatedParam == null) ? -1 : nonAnnotatedParam.getIndex(),
                     factory);
@@ -829,13 +829,13 @@ nonAnnotatedParamIndex, ctor);
                 continue;
             }
             // Illegal to have more than one value to delegate to
-            ctxt.reportBadTypeDefinition(beanDesc,
+            _reportBadTypeDefinition(beanDesc,
                     "More than one argument (#%d and #%d) left as delegating for Creator %s: only one allowed",
                     ix, i, candidate);
         }
         // Also, let's require that one Delegating argument does eixt
         if (ix < 0) {
-            ctxt.reportBadTypeDefinition(beanDesc,
+            _reportBadTypeDefinition(beanDesc,
                     "No argument left as delegating for Creator %s: exactly one required", candidate);
         }
         // 17-Jan-2018, tatu: as per [databind#1853] need to ensure we will distinguish
@@ -947,7 +947,7 @@ nonAnnotatedParamIndex, ctor);
             break;
 
         case REQUIRE_MODE:
-            ctxt.reportBadTypeDefinition(beanDesc,
+            _reportBadTypeDefinition(beanDesc,
 "Single-argument constructor (%s) is annotated but no 'mode' defined; `ConstructorDetector`"
 + "configured with `SingleArgConstructor.REQUIRE_MODE`",
 candidate.creator());
@@ -1156,7 +1156,7 @@ candidate.creator());
     {
         // Must be injectable or have name; without either won't work
         if ((name == null) && (injectId == null)) {
-            ctxt.reportBadTypeDefinition(beanDesc,
+            _reportBadTypeDefinition(beanDesc,
 "Argument #%d of constructor %s has no property name (and is not Injectable): can not use as property-based Creator",
 paramIndex, candidate);
         }
@@ -1168,7 +1168,7 @@ paramIndex, candidate);
             BeanDescription beanDesc, AnnotatedParameter param)
         throws JsonMappingException
     {
-        ctxt.reportBadTypeDefinition(beanDesc,
+        _reportBadTypeDefinition(beanDesc,
 "Cannot define Creator parameter %d as `@JsonUnwrapped`: combination not yet supported",
                 param.getIndex());
     }
@@ -1313,10 +1313,26 @@ paramIndex, candidate);
         return metadata;
     }
 
+    // Inlined version of:
+    //   return ctxt.reportBadTypeDefinition(bean, msg, msgArgs);
+    // @since 2.18
+    private <T> T _reportBadTypeDefinition(BeanDescription bean,
+            String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+
+        String beanDesc = ClassUtil.nameOf(bean.getBeanClass());
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        msg = String.format("Invalid type definition for type %s: %s", beanDesc, msg);
+        throw InvalidDefinitionException.from((JsonParser) null, msg, bean, null);
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* DeserializerFactory impl: array deserializers
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

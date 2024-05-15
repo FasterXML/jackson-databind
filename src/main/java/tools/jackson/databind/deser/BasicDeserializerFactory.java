@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.*;
 import tools.jackson.databind.deser.bean.CreatorCandidate;
@@ -16,6 +17,7 @@ import tools.jackson.databind.deser.bean.CreatorCollector;
 import tools.jackson.databind.deser.jackson.JsonNodeDeserializer;
 import tools.jackson.databind.deser.jackson.TokenBufferDeserializer;
 import tools.jackson.databind.deser.jdk.*;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.ext.OptionalHandlerFactory;
 import tools.jackson.databind.ext.jdk8.Jdk8OptionalDeserializer;
 import tools.jackson.databind.ext.jdk8.OptionalDoubleDeserializer;
@@ -222,8 +224,8 @@ public abstract class BasicDeserializerFactory
             // 15-Mar-2015, tatu: Alas, this won't help with constructors that only have implicit
             //   names. Those will need to be resolved later on.
             final CreatorCollector creators = new CreatorCollector(beanDesc, config);
-            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs = _findCreatorsFromProperties(ctxt,
-                    beanDesc);
+            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs =
+                    _findCreatorsFromProperties(beanDesc);
             ccState = new CreatorCollectionState(config, beanDesc, vchecker,
                     creators, creatorDefs);
         }
@@ -264,7 +266,7 @@ public abstract class BasicDeserializerFactory
         return ccState.creators.constructValueInstantiator(ctxt);
     }
 
-    protected Map<AnnotatedWithParams,BeanPropertyDefinition[]> _findCreatorsFromProperties(DeserializationContext ctxt,
+    protected Map<AnnotatedWithParams,BeanPropertyDefinition[]> _findCreatorsFromProperties(
             BeanDescription beanDesc)
     {
         Map<AnnotatedWithParams,BeanPropertyDefinition[]> result = Collections.emptyMap();
@@ -284,9 +286,15 @@ public abstract class BasicDeserializerFactory
                     result.put(owner, defs);
                 } else {
                     if (defs[index] != null) {
-                        ctxt.reportBadTypeDefinition(beanDesc,
-"Conflict: parameter #%d of %s bound to more than one property; %s vs %s",
-index, owner, defs[index], propDef);
+                        // Inlined copy of "DeserializationContext.reportBadTypeDefinition()"
+                        String msg = String.format(
+                                "Conflict: parameter #%d of %s bound to more than one property; %s vs %s",
+                                index, owner, defs[index], propDef);
+                        String errorMsg =
+                                String.format("Invalid type definition for type %s: %s",
+                                        ClassUtil.nameOf(beanDesc.getBeanClass()), msg);
+                        throw InvalidDefinitionException.from((JsonParser) null, errorMsg,
+                                beanDesc, null);
                     }
                 }
                 defs[index] = propDef;

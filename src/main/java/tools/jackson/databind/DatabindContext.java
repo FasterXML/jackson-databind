@@ -426,6 +426,10 @@ public abstract class DatabindContext
         return reportBadDefinition(constructType(type), msg);
     }
 
+    public abstract <T> T reportBadTypeDefinition(BeanDescription bean,
+            String msg, Object... msgArgs)
+        throws DatabindException;
+
     /*
     /**********************************************************************
     /* Helper methods

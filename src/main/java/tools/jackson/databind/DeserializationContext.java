@@ -1845,12 +1845,12 @@ trailingToken, ClassUtil.nameOf(targetType)
      * regarding specific Java type, unrelated to actual JSON content to map.
      * Default behavior is to construct and throw a {@link DatabindException}.
      */
+    @Override
     public <T> T reportBadTypeDefinition(BeanDescription bean,
             String msg, Object... msgArgs) throws DatabindException
     {
-        msg = _format(msg, msgArgs);
         String beanDesc = ClassUtil.nameOf(bean.getBeanClass());
-        msg = String.format("Invalid type definition for type %s: %s", beanDesc, msg);
+        msg = String.format("Invalid type definition for type %s: %s", beanDesc, _format(msg, msgArgs));
         throw InvalidDefinitionException.from(_parser, msg, bean, null);
     }
 

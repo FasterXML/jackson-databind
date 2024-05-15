@@ -1278,6 +1278,7 @@ public abstract class SerializerProvider
      * regarding specific Java type, unrelated to actual JSON content to map.
      * Default behavior is to construct and throw a {@link InvalidDefinitionException}.
      */
+    @Override
     public <T> T reportBadTypeDefinition(BeanDescription bean,
             String msg, Object... msgArgs)
         throws DatabindException

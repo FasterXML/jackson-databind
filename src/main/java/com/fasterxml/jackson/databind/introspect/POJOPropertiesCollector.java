@@ -623,7 +623,7 @@ public class POJOPropertiesCollector
         if (_useAnnotations) {
             for (AnnotatedConstructor ctor : _classDef.getConstructors()) {
                 if (_creatorProperties == null) {
-                    _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+                    _creatorProperties = new LinkedList<>();
                 }
                 for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
                     _addCreatorParam(props, ctor.getParameter(i));
@@ -631,7 +631,7 @@ public class POJOPropertiesCollector
             }
             for (AnnotatedMethod factory : _classDef.getFactoryMethods()) {
                 if (_creatorProperties == null) {
-                    _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+                    _creatorProperties = new LinkedList<>();
                 }
                 for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
                     _addCreatorParam(props, factory.getParameter(i));
@@ -639,16 +639,16 @@ public class POJOPropertiesCollector
             }
         }
         if (isRecordType()) {
-            List<String> recordComponentNames = new ArrayList<String>();
+            List<String> recordComponentNames = new ArrayList<>();
             AnnotatedConstructor canonicalCtor = JDK14Util.findRecordConstructor(
                     _classDef, _annotationIntrospector, _config, recordComponentNames);
 
             if (canonicalCtor != null) {
                 if (_creatorProperties == null) {
-                    _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+                    _creatorProperties = new LinkedList<>();
                 }
 
-                Set<AnnotatedParameter> registeredParams = new HashSet<AnnotatedParameter>();
+                Set<AnnotatedParameter> registeredParams = new HashSet<>();
                 for (POJOPropertyBuilder creatorProperty : _creatorProperties) {
                     Iterator<AnnotatedParameter> iter = creatorProperty.getConstructorParameters();
                     while (iter.hasNext()) {
@@ -753,7 +753,7 @@ public class POJOPropertiesCollector
             } else if (argCount == 2) { // any setter?
                 if (Boolean.TRUE.equals(_annotationIntrospector.hasAnySetter(m))) {
                     if (_anySetters == null) {
-                        _anySetters = new LinkedList<AnnotatedMethod>();
+                        _anySetters = new LinkedList<>();
                     }
                     _anySetters.add(m);
                 }
@@ -778,7 +778,7 @@ public class POJOPropertiesCollector
         // @JsonAnyGetter?
         if (Boolean.TRUE.equals(ai.hasAnyGetter(m))) {
             if (_anyGetters == null) {
-                _anyGetters = new LinkedList<AnnotatedMember>();
+                _anyGetters = new LinkedList<>();
             }
             _anyGetters.add(m);
             return;
@@ -1022,7 +1022,7 @@ public class POJOPropertiesCollector
     {
         if (!_forSerialization && (name != null)) {
             if (_ignoredPropertyNames == null) {
-                _ignoredPropertyNames = new HashSet<String>();
+                _ignoredPropertyNames = new HashSet<>();
             }
             _ignoredPropertyNames.add(name);
         }
@@ -1051,7 +1051,7 @@ public class POJOPropertiesCollector
             }
             it.remove(); // need to replace with one or more renamed
             if (renamed == null) {
-                renamed = new LinkedList<POJOPropertyBuilder>();
+                renamed = new LinkedList<>();
             }
             // simple renaming? Just do it
             if (l.size() == 1) {
@@ -1066,7 +1066,7 @@ public class POJOPropertiesCollector
             String newName = prop.findNewName();
             if (newName != null) {
                 if (renamed == null) {
-                    renamed = new LinkedList<POJOPropertyBuilder>();
+                    renamed = new LinkedList<>();
                 }
                 prop = prop.withSimpleName(newName);
                 renamed.add(prop);
@@ -1184,7 +1184,7 @@ public class POJOPropertiesCollector
             }
             if (!wrapperName.equals(prop.getFullName())) {
                 if (renamed == null) {
-                    renamed = new LinkedList<POJOPropertyBuilder>();
+                    renamed = new LinkedList<>();
                 }
                 prop = prop.withName(wrapperName);
                 renamed.add(prop);

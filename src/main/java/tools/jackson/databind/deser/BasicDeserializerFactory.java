@@ -437,8 +437,9 @@ public abstract class BasicDeserializerFactory
 
     protected void _addImplicitConstructorCreators(DeserializationContext ctxt,
             CreatorCollectionState ccState, List<CreatorCandidate> ctorCandidates)
+        throws JacksonException
     {
-        final DeserializationConfig config = ctxt.getConfig();
+        final MapperConfig<?> config = ccState.config;
         final BeanDescription beanDesc = ccState.beanDesc;
         final CreatorCollector creators = ccState.creators;
         final AnnotationIntrospector intr = ccState.annotationIntrospector();
@@ -517,7 +518,7 @@ public abstract class BasicDeserializerFactory
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(config, param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
+                    _reportUnwrappedCreatorProperty(beanDesc, param);
                     /*
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
                     ++explicitNameCount;
@@ -698,7 +699,7 @@ nonAnnotatedParamIndex, ctor);
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(config, param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
+                    _reportUnwrappedCreatorProperty(beanDesc, param);
                     /*
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
                     ++implicitNameCount;
@@ -818,14 +819,14 @@ nonAnnotatedParamIndex, ctor);
                 //   as that will not work with Creators well at all
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(config, param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
+                    _reportUnwrappedCreatorProperty(beanDesc, param);
                     /*
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
                     ++explicitNameCount;
                     */
                 }
                 name = candidate.findImplicitParamName(i);
-                _validateNamedPropertyParameter(ctxt, beanDesc, candidate, i,
+                _validateNamedPropertyParameter(beanDesc, candidate, i,
                         name, injectId);
             }
             properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
@@ -880,7 +881,7 @@ nonAnnotatedParamIndex, ctor);
             paramName = candidate.paramName(0);
             // [databind#2977]: Need better exception if name missing
             if (paramName == null) {
-                _validateNamedPropertyParameter(ctxt, beanDesc, candidate, 0,
+                _validateNamedPropertyParameter(beanDesc, candidate, 0,
                         paramName, injectId);
             }
             break;
@@ -1094,7 +1095,7 @@ candidate.creator());
 
     // Helper method to check that parameter of Property-based creator either
     // has name or is marked as Injectable
-    protected void _validateNamedPropertyParameter(DeserializationContext ctxt,
+    protected void _validateNamedPropertyParameter(
             BeanDescription beanDesc,
             CreatorCandidate candidate, int paramIndex,
             PropertyName name, JacksonInject.Value injectId)
@@ -1109,7 +1110,7 @@ paramIndex, candidate);
 
     // 01-Dec-2016, tatu: As per [databind#265] we cannot yet support passing
     //   of unwrapped values through creator properties, so fail fast
-    protected void _reportUnwrappedCreatorProperty(DeserializationContext ctxt,
+    protected void _reportUnwrappedCreatorProperty(
             BeanDescription beanDesc, AnnotatedParameter param)
     {
         _reportBadTypeDefinition(beanDesc,
@@ -1156,7 +1157,7 @@ paramIndex, candidate);
 
         // 22-Sep-2019, tatu: for [databind#2458] need more work on getting metadata
         //   about SetterInfo, mergeability
-        metadata = _getSetterInfo(ctxt, property, metadata);
+        metadata = _getSetterInfo(config, property, metadata);
 
         // Note: contextualization of typeDeser _should_ occur in constructor of CreatorProperty
         // so it is not called directly here
@@ -1203,10 +1204,9 @@ paramIndex, candidate);
      * Helper method copied from {@code POJOPropertyBuilder} since that won't be
      * applied to creator parameters.
      */
-    protected PropertyMetadata _getSetterInfo(DeserializationContext ctxt,
+    protected PropertyMetadata _getSetterInfo(MapperConfig<?> config,
             BeanProperty prop, PropertyMetadata metadata)
     {
-        final DeserializationConfig config = ctxt.getConfig();
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
 
         boolean needMerge = true;

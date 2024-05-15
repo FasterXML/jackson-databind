@@ -424,8 +424,9 @@ public abstract class BasicDeserializerFactory
 
     protected void _addExplicitConstructorCreators(DeserializationContext ctxt,
             CreatorCollectionState ccState, boolean findImplicit)
-                    throws JsonMappingException
+        throws JsonMappingException
     {
+        final MapperConfig<?> config = ccState.config;
         final BeanDescription beanDesc = ccState.beanDesc;
         final CreatorCollector creators = ccState.creators;
         final AnnotationIntrospector intr = ccState.annotationIntrospector();
@@ -437,13 +438,13 @@ public abstract class BasicDeserializerFactory
         // in list of constructors, so needs to be handled separately.
         AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
         if (defaultCtor != null) {
-            if (!creators.hasDefaultCreator() || _hasCreatorAnnotation(ctxt, defaultCtor)) {
+            if (!creators.hasDefaultCreator() || _hasCreatorAnnotation(config, defaultCtor)) {
                 creators.setDefaultCreator(defaultCtor);
             }
         }
         // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
-            JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), ctor);
+            JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(config, ctor);
             if (JsonCreator.Mode.DISABLED == creatorMode) {
                 continue;
             }
@@ -1686,7 +1687,7 @@ paramIndex, candidate);
                     : valueInstantiator.getFromObjectArguments(ctxt.getConfig());
             // May have @JsonCreator for static factory method:
             for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
-                if (_hasCreatorAnnotation(ctxt, factory)) {
+                if (_hasCreatorAnnotation(config, factory)) {
                     if (factory.getParameterCount() == 0) { // [databind#960]
                         deser = EnumDeserializer.deserializerForNoArgsCreator(config, enumClass, factory);
                         break;
@@ -1923,7 +1924,7 @@ factory.toString()));
 
         // May have @JsonCreator for static factory method
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
-            if (_hasCreatorAnnotation(ctxt, factory)) {
+            if (_hasCreatorAnnotation(config, factory)) {
                 int argCount = factory.getParameterCount();
                 if (argCount == 1) {
                     Class<?> returnType = factory.getRawReturnType();
@@ -2464,12 +2465,27 @@ factory.toString()));
     
     /**
      * @since 2.9
+     * @deprecated Since 2.18 use {@link #_hasCreatorAnnotation(MapperConfig, Annotated)} instead
      */
+    @Deprecated // since 2.18
     protected boolean _hasCreatorAnnotation(DeserializationContext ctxt,
             Annotated ann) {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null) {
             JsonCreator.Mode mode = intr.findCreatorAnnotation(ctxt.getConfig(), ann);
+            return (mode != null) && (mode != JsonCreator.Mode.DISABLED);
+        }
+        return false;
+    }
+
+    /**
+     * @since 2.18
+     */
+    protected boolean _hasCreatorAnnotation(MapperConfig<?> config,
+            Annotated ann) {
+        AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        if (intr != null) {
+            JsonCreator.Mode mode = intr.findCreatorAnnotation(config, ann);
             return (mode != null) && (mode != JsonCreator.Mode.DISABLED);
         }
         return false;

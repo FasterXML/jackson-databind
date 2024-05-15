@@ -560,7 +560,7 @@ public abstract class BasicDeserializerFactory
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(beanDesc, param);
+                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
                     /*
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
                     ++explicitNameCount;
@@ -606,7 +606,7 @@ public abstract class BasicDeserializerFactory
                                 +ctor.getDeclaringClass().getName()+" cannot use @JsonCreator for constructors");
                     }
                     */
-                    _reportBadTypeDefinition(beanDesc,
+                    ctxt.reportBadTypeDefinition(beanDesc,
 "Argument #%d of constructor %s has no property name annotation; must have name when multiple-parameter constructor annotated as Creator",
 nonAnnotatedParamIndex, ctor);
                 }
@@ -742,7 +742,7 @@ nonAnnotatedParamIndex, ctor);
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(beanDesc, param);
+                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
                     /*
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
                     ++implicitNameCount;
@@ -786,7 +786,7 @@ nonAnnotatedParamIndex, ctor);
                     // secondary: all but one injectable, one un-annotated (un-named)
                     creators.addDelegatingCreator(factory, false, properties, 0);
                 } else { // otherwise, epic fail
-                    _reportBadTypeDefinition(beanDesc,
+                    ctxt.reportBadTypeDefinition(beanDesc,
 "Argument #%d of factory method %s has no property name annotation; must have name when multiple-parameter constructor annotated as Creator",
                     (nonAnnotatedParam == null) ? -1 : nonAnnotatedParam.getIndex(),
                     factory);
@@ -829,13 +829,13 @@ nonAnnotatedParamIndex, ctor);
                 continue;
             }
             // Illegal to have more than one value to delegate to
-            _reportBadTypeDefinition(beanDesc,
+            ctxt.reportBadTypeDefinition(beanDesc,
                     "More than one argument (#%d and #%d) left as delegating for Creator %s: only one allowed",
                     ix, i, candidate);
         }
         // Also, let's require that one Delegating argument does eixt
         if (ix < 0) {
-            _reportBadTypeDefinition(beanDesc,
+            ctxt.reportBadTypeDefinition(beanDesc,
                     "No argument left as delegating for Creator %s: exactly one required", candidate);
         }
         // 17-Jan-2018, tatu: as per [databind#1853] need to ensure we will distinguish
@@ -876,14 +876,14 @@ nonAnnotatedParamIndex, ctor);
                 //   as that will not work with Creators well at all
                 NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(beanDesc, param);
+                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
                     /*
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
                     ++explicitNameCount;
                     */
                 }
                 name = candidate.findImplicitParamName(i);
-                _validateNamedPropertyParameter(beanDesc, candidate, i,
+                _validateNamedPropertyParameter(ctxt, beanDesc, candidate, i,
                         name, injectId);
             }
             properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
@@ -941,13 +941,13 @@ nonAnnotatedParamIndex, ctor);
             paramName = candidate.paramName(0);
             // [databind#2977]: Need better exception if name missing
             if (paramName == null) {
-                _validateNamedPropertyParameter(beanDesc, candidate, 0,
+                _validateNamedPropertyParameter(ctxt, beanDesc, candidate, 0,
                         paramName, injectId);
             }
             break;
 
         case REQUIRE_MODE:
-            _reportBadTypeDefinition(beanDesc,
+            ctxt.reportBadTypeDefinition(beanDesc,
 "Single-argument constructor (%s) is annotated but no 'mode' defined; `ConstructorDetector`"
 + "configured with `SingleArgConstructor.REQUIRE_MODE`",
 candidate.creator());
@@ -1148,7 +1148,7 @@ candidate.creator());
     // has name or is marked as Injectable
     //
     // @since 2.12.1
-    protected void _validateNamedPropertyParameter(
+    protected void _validateNamedPropertyParameter(DeserializationContext ctxt,
             BeanDescription beanDesc,
             CreatorCandidate candidate, int paramIndex,
             PropertyName name, JacksonInject.Value injectId)
@@ -1156,7 +1156,7 @@ candidate.creator());
     {
         // Must be injectable or have name; without either won't work
         if ((name == null) && (injectId == null)) {
-            _reportBadTypeDefinition(beanDesc,
+            ctxt.reportBadTypeDefinition(beanDesc,
 "Argument #%d of constructor %s has no property name (and is not Injectable): can not use as property-based Creator",
 paramIndex, candidate);
         }
@@ -1164,11 +1164,11 @@ paramIndex, candidate);
 
     // 01-Dec-2016, tatu: As per [databind#265] we cannot yet support passing
     //   of unwrapped values through creator properties, so fail fast
-    protected void _reportUnwrappedCreatorProperty(
+    protected void _reportUnwrappedCreatorProperty(DeserializationContext ctxt,
             BeanDescription beanDesc, AnnotatedParameter param)
         throws JsonMappingException
     {
-        _reportBadTypeDefinition(beanDesc,
+        ctxt.reportBadTypeDefinition(beanDesc,
 "Cannot define Creator parameter %d as `@JsonUnwrapped`: combination not yet supported",
                 param.getIndex());
     }
@@ -1310,22 +1310,6 @@ paramIndex, candidate);
             metadata = metadata.withNulls(valueNulls, contentNulls);
         }
         return metadata;
-    }
-
-    // Inlined version of:
-    //   return ctxt.reportBadTypeDefinition(bean, msg, msgArgs);
-    // @since 2.18
-    private <T> T _reportBadTypeDefinition(BeanDescription bean,
-            String msg, Object... msgArgs)
-        throws JsonMappingException
-    {
-
-        String beanDesc = ClassUtil.nameOf(bean.getBeanClass());
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
-        msg = String.format("Invalid type definition for type %s: %s", beanDesc, msg);
-        throw InvalidDefinitionException.from((JsonParser) null, msg, bean, null);
     }
 
     /*

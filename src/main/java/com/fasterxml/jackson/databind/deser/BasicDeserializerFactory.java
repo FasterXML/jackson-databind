@@ -265,8 +265,8 @@ public abstract class BasicDeserializerFactory
             // 15-Mar-2015, tatu: Alas, this won't help with constructors that only have implicit
             //   names. Those will need to be resolved later on.
             final CreatorCollector creators = new CreatorCollector(beanDesc, config);
-            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs = _findCreatorsFromProperties(ctxt,
-                    beanDesc);
+            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs =
+                    _findCreatorsFromProperties(beanDesc);
             ccState = new CreatorCollectionState(config, beanDesc, vchecker,
                     creators, creatorDefs);
         }
@@ -307,7 +307,7 @@ public abstract class BasicDeserializerFactory
         return ccState.creators.constructValueInstantiator(ctxt);
     }
 
-    protected Map<AnnotatedWithParams,BeanPropertyDefinition[]> _findCreatorsFromProperties(DeserializationContext ctxt,
+    protected Map<AnnotatedWithParams,BeanPropertyDefinition[]> _findCreatorsFromProperties(
             BeanDescription beanDesc) throws JsonMappingException
     {
         Map<AnnotatedWithParams,BeanPropertyDefinition[]> result = Collections.emptyMap();
@@ -327,9 +327,15 @@ public abstract class BasicDeserializerFactory
                     result.put(owner, defs);
                 } else {
                     if (defs[index] != null) {
-                        ctxt.reportBadTypeDefinition(beanDesc,
-"Conflict: parameter #%d of %s bound to more than one property; %s vs %s",
-index, owner, defs[index], propDef);
+                        // Inlined copy of "DeserializationContext.reportBadTypeDefinition()"
+                        String msg = String.format(
+                                "Conflict: parameter #%d of %s bound to more than one property; %s vs %s",
+                                index, owner, defs[index], propDef);
+                        String errorMsg =
+                                String.format("Invalid type definition for type %s: %s",
+                                        ClassUtil.nameOf(beanDesc.getBeanClass()), msg);
+                        throw InvalidDefinitionException.from((JsonParser) null, errorMsg,
+                                beanDesc, null);
                     }
                 }
                 defs[index] = propDef;

@@ -321,7 +321,7 @@ public abstract class BasicDeserializerFactory
 
                 if (defs == null) {
                     if (result.isEmpty()) { // since emptyMap is immutable need to create a 'real' one
-                        result = new LinkedHashMap<AnnotatedWithParams,BeanPropertyDefinition[]>();
+                        result = new LinkedHashMap<>();
                     }
                     defs = new BeanPropertyDefinition[owner.getParameterCount()];
                     result.put(owner, defs);

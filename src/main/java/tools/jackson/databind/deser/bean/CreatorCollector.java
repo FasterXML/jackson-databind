@@ -171,7 +171,7 @@ public class CreatorCollector
         if (verifyNonDup(creator, C_PROPS, explicit)) {
             // Better ensure we have no duplicate names either...
             if (properties.length > 1) {
-                HashMap<String, Integer> names = new HashMap<String, Integer>();
+                HashMap<String, Integer> names = new HashMap<>();
                 for (int i = 0, len = properties.length; i < len; ++i) {
                     String name = properties[i].getName();
                     // Need to consider Injectables, which may not have

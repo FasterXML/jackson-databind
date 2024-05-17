@@ -74,7 +74,6 @@ public abstract class PolymorphicTypeValidator
          * determination will be {@code DENIED}, for safety reasons.
          */
         INDETERMINATE
-        ;
     }
 
     /**

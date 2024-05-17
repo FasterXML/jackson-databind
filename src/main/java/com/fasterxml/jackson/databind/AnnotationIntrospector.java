@@ -68,7 +68,6 @@ public abstract class AnnotationIntrospector
              * {@link com.fasterxml.jackson.annotation.JsonBackReference}
              */
             BACK_REFERENCE
-            ;
         }
 
         private final Type _type;
@@ -1111,7 +1110,7 @@ public abstract class AnnotationIntrospector
      */
     @Deprecated
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
-        ;
+        ; // do nothing
     }
 
     /**

@@ -320,8 +320,7 @@ public class CreatorCollector
                     if (_isEnumValueOf(newOne)) {
                         return false; // ignore
                     }
-                    if (_isEnumValueOf(oldOne)) {
-                    } else {
+                    if (!_isEnumValueOf(oldOne)) {
                         _reportDuplicateCreator(typeIndex, explicit, oldOne, newOne);
                     }
                 }

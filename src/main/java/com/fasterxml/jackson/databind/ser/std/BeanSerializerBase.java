@@ -471,6 +471,7 @@ public abstract class BeanSerializerBase
                 // 16-Oct-2016, tatu: Ditto for `Map`, `Map.Entry` subtypes
                 } else if (shape == JsonFormat.Shape.NATURAL) {
                     if (_beanType.isMapLikeType() && Map.class.isAssignableFrom(_handledType)) {
+                        ;
                     } else if (Map.Entry.class.isAssignableFrom(_handledType)) {
                         JavaType mapEntryType = _beanType.findSuperType(Map.Entry.class);
 

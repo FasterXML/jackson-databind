@@ -1110,6 +1110,7 @@ public abstract class AnnotationIntrospector
      */
     @Deprecated
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
+        ; // do nothing
     }
 
     /**

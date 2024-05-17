@@ -594,6 +594,7 @@ ClassUtil.name(propName)));
                         // 23-Jan-2018, tatu: As per [databind#1805], need to ensure we don't
                         //   accidentally sneak in getter-as-setter for `READ_ONLY` properties
                         if (builder.hasIgnorable(propDef.getName())) {
+                            ; // skip
                         } else {
                             prop = constructSetterlessProperty(ctxt, beanDesc, propDef);
                         }

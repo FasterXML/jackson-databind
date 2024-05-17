@@ -314,7 +314,7 @@ public abstract class JsonNode
 
     /**
      * Method that can be used to check if the node is a wrapper
-     * for a POJO ("Plain Old Java Object" aka "bean".
+     * for a POJO ("Plain Old Java Object" aka "bean").
      * Returns true only for
      * instances of <code>POJONode</code>.
      *

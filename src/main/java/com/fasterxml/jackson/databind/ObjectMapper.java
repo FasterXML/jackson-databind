@@ -139,7 +139,7 @@ public class ObjectMapper
      * is found, but this enumeration further limits subset of those types.
      *<p>
      * Since 2.4 there are special exceptions for JSON Tree model
-     * types (sub-types of {@link TreeNode}: default typing is never
+     * types (sub-types of {@link TreeNode}): default typing is never
      * applied to them.
      * Since 2.8(.4) additional checks are made to avoid attempts at default
      * typing primitive-valued properties.
@@ -211,7 +211,7 @@ public class ObjectMapper
          * as it tends to add Type Ids everywhere, even in cases
          * where type can not be anything other than declared (for example
          * if declared value type of a property is {@code final} -- for example,
-         * properties of type {@code long} (or wrapper {@code Long}).
+         * properties of type {@code long} or wrapper {@code Long}).
          *<p>
          * Note that this is rarely the option you should use as it results
          * in adding type information in many places where it should not be needed:
@@ -543,7 +543,7 @@ public class ObjectMapper
      */
 
     /**
-     * Set of module types (as per {@link Module#getTypeId()} that have been
+     * Set of module types (as per {@link Module#getTypeId()}) that have been
      * registered; kept track of if (and only if) {@link MapperFeature#IGNORE_DUPLICATE_MODULE_REGISTRATIONS}
      * is enabled, so that duplicate registration calls can be ignored
      * (to avoid adding same handlers multiple times, mostly).
@@ -3657,7 +3657,7 @@ public class ObjectMapper
      * it could deserialize an Object of given type.
      * Check is done by checking whether a registered deserializer can
      * be found or built for the type; if not (either by no mapping being
-     * found, or through an <code>Exception</code> being thrown, false
+     * found, or through an <code>Exception</code> being thrown) false
      * is returned.
      *<p>
      * <b>NOTE</b>: in case an exception is thrown during course of trying
@@ -4114,7 +4114,7 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified {@link DateFormat}; or, if
-     * null passed, using timestamp (64-bit number.
+     * null passed, using timestamp (64-bit number).
      */
     public ObjectWriter writer(DateFormat df) {
         return _newWriter(getSerializationConfig().with(df));

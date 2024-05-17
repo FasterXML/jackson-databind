@@ -282,7 +282,6 @@ public abstract class BasicDeserializerFactory
             final boolean isNonStaticInnerClass = beanDesc.isNonStaticInnerClass();
             if (isNonStaticInnerClass) {
                 // TODO: look for `@JsonCreator` annotated ones, throw explicit exception?
-                ;
             } else {
                 // 18-Sep-2020, tatu: Although by default implicit introspection is allowed, 2.12
                 //   has settings to prevent that either generally, or at least for JDK types
@@ -964,7 +963,6 @@ candidate.creator());
                 if (!useProps) {
                     // Otherwise, `@JsonValue` suggests delegation
                     if (beanDesc.findJsonValueAccessor() != null) {
-                        ;
                     } else if (injectId != null) {
                         // But Injection suggests property-based (for legacy reasons?)
                         useProps = true;

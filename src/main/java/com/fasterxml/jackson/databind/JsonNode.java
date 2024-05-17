@@ -79,7 +79,7 @@ public abstract class JsonNode
          * Mode in which all incompatible node types may be replaced, including
          * Array and Object nodes where necessary.
          */
-        ALL;
+        ALL
     }
 
     /*
@@ -517,8 +517,7 @@ public abstract class JsonNode
      * literals 'true' and 'false').
      * For other types, always returns false.
      *
-     * @return Textual value this node contains, iff it is a textual
-     *   json node (comes from JSON String value entry)
+     * @return Boolean value this node contains, if any; otherwise always <code>false</code>
      */
     public boolean booleanValue() { return false; }
 

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.ConstructorDetector;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jdk14.JDK14Util;
@@ -430,7 +431,7 @@ public class POJOPropertiesCollector
         //    inner classes, see [databind#1502]
         // 13-May-2023, PJ: Need to avoid adding creators for Records when serializing [databind#3925]
         if (!_classDef.isNonStaticInnerClass() && !(_forSerialization && isRecord)) {
-            _addCreators(props);
+            _addPotentialCreators(props);
         }
 
         // Remove ignored properties, first; this MUST precede annotation merging
@@ -614,9 +615,94 @@ public class POJOPropertiesCollector
         }
     }
 
+    // @since 2.18
+    protected void _addPotentialCreators(Map<String, POJOPropertyBuilder> props)
+    {
+        // First, resolve explicit annotation:
+        List<PotentialCreator> ctors = _collectCreators(_classDef.getConstructors());
+        List<PotentialCreator> factories = _collectCreators(_classDef.getFactoryMethods());
+
+        final PotentialCreators creators = new PotentialCreators(ctors, factories);
+
+        if (_useAnnotations) { // can't have explicit ones without Annotation introspection
+            _addExplicitCreators(creators, creators.constructors);
+            _addExplicitCreators(creators, creators.factories);
+        }
+    }
+
+    private List<PotentialCreator> _collectCreators(List<? extends AnnotatedWithParams> ctors)
+    {
+        List<PotentialCreator> result = null;
+        for (AnnotatedWithParams ctor : ctors) {
+            JsonCreator.Mode creatorMode = _useAnnotations
+                    ? _annotationIntrospector.findCreatorAnnotation(_config, ctor) : null;
+            // explicitly prevented? Remove
+            if (creatorMode == JsonCreator.Mode.DISABLED) {
+                continue;
+            }
+            if (result == null) {
+                result = new ArrayList<>();
+            }
+            result.add(new PotentialCreator(ctor, creatorMode));
+        }
+        return result;
+    }
+
+    private void _addExplicitCreators(PotentialCreators collector, List<PotentialCreator> ctors)
+    {
+        final ConstructorDetector ctorDetector = _config.getConstructorDetector();
+        Iterator<PotentialCreator> it = ctors.iterator();
+        while (it.hasNext()) {
+            PotentialCreator ctor = it.next();
+
+            final int paramCount = ctor.paramCount();
+            if (paramCount == 0) {
+                it.remove();
+                collector.addDefault(ctor.creator);
+                continue;
+            }
+            
+            if (ctor.creatorMode == null) {
+                continue;
+            }
+            it.remove();
+            switch (ctor.creatorMode) {
+            case DELEGATING:
+                collector.addDelegating(ctor);
+                break;
+            case DEFAULT:
+                // First things first: if not single-arg Creator, must be Properties-based
+                // !!! Or does it? What if there's @JacksonInject etc?
+                if (paramCount == 1) {
+                    break;
+                }
+                // fall through
+            case PROPERTIES:
+                collector.addPropertiesBased(ctor, "explicit");
+                break;
+            default:
+            }
+
+            // Is ambiguity/heuristics allowed?
+            if (ctorDetector.requireCtorAnnotation()) {
+                throw new IllegalArgumentException(String.format(
+                        "Ambiguous 1-argument Creator; `ConstructorDetector` requires specifying `mode`: %s",
+                        ctor));
+            }
+
+            // !!! TODO: actual heuristics
+            if (ctorDetector.singleArgCreatorDefaultsToProperties()) {
+                collector.addPropertiesBased(ctor, "explicit");
+            } else {
+                collector.addDelegating(ctor);
+            }
+        }
+    }
+
     /**
      * Method for collecting basic information on constructor(s) found
      */
+    @Deprecated
     protected void _addCreators(Map<String, POJOPropertyBuilder> props)
     {
         // can be null if annotation processing is disabled...

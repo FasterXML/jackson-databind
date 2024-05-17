@@ -645,7 +645,7 @@ public class POJOPropertiesCollector
             }
             result.add(new PotentialCreator(ctor, creatorMode));
         }
-        return result;
+        return (result == null) ? Collections.emptyList() : result;
     }
 
     private void _addExplicitCreators(PotentialCreators collector, List<PotentialCreator> ctors)

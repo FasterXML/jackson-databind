@@ -24,6 +24,12 @@ public class PotentialCreators
         this.factories = factories;
     }
 
+    /*
+    /**********************************************************************
+    /* Accumulating candidates
+    /**********************************************************************
+     */
+    
     // desc -> "explicit", "implicit" etc
     public void addPropertiesBased(PotentialCreator ctor, String mode)
     {
@@ -40,7 +46,18 @@ public class PotentialCreators
         delegating.add(ctor);
     }
     
-    public void addDefault(AnnotatedWithParams ctor) {
+    public void addDefault(AnnotatedWithParams ctor)
+    {
         defaultCreator = ctor;
+    }
+
+    /*
+    /**********************************************************************
+    /* Accessors
+    /**********************************************************************
+     */
+
+    public boolean hasParametersBasedOrDelegating() {
+        return (propertiesBased != null) || !delegating.isEmpty();
     }
 }

@@ -89,7 +89,7 @@ public class POJOPropertiesCollector
      */
     protected LinkedHashMap<String, POJOPropertyBuilder> _properties;
 
-    protected LinkedList<POJOPropertyBuilder> _creatorProperties;
+    protected List<POJOPropertyBuilder> _creatorProperties;
 
     /**
      * A set of "field renamings" that have been discovered, indicating
@@ -618,15 +618,33 @@ public class POJOPropertiesCollector
     // @since 2.18
     protected void _addPotentialCreators(Map<String, POJOPropertyBuilder> props)
     {
-        // First, resolve explicit annotation:
+        _creatorProperties = new ArrayList<>();
+
+        // First, resolve explicit annotations:
         List<PotentialCreator> ctors = _collectCreators(_classDef.getConstructors());
         List<PotentialCreator> factories = _collectCreators(_classDef.getFactoryMethods());
 
-        final PotentialCreators creators = new PotentialCreators(ctors, factories);
+        final PotentialCreators collector = new PotentialCreators(ctors, factories);
 
+        // and use them to find highest precedence Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
-            _addExplicitCreators(creators, creators.constructors);
-            _addExplicitCreators(creators, creators.factories);
+            _addExplicitCreators(collector, collector.constructors);
+            _addExplicitCreators(collector, collector.factories);
+        }
+
+        final boolean hasExplicit = collector.hasParametersBasedOrDelegating();
+
+        // Find canonical (record) Constructor if no explicitly marked creators:
+        if (!hasExplicit) {
+            // !!! TODO
+        }
+
+        PotentialCreator primary = collector.propertiesBased;
+        if (primary != null) {
+            final AnnotatedWithParams ctor = primary.creator;
+            for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
+                _addCreatorParam(props, ctor.getParameter(i));
+            }
         }
     }
 

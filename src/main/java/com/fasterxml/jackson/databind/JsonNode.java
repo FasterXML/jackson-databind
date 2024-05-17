@@ -79,7 +79,7 @@ public abstract class JsonNode
          * Mode in which all incompatible node types may be replaced, including
          * Array and Object nodes where necessary.
          */
-        ALL;
+        ALL
     }
 
     /*

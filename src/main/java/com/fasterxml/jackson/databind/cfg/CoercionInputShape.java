@@ -92,5 +92,4 @@ public enum CoercionInputShape
      */
     EmptyString
 
-    ;
 }

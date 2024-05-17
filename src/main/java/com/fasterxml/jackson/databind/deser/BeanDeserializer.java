@@ -1045,7 +1045,6 @@ public class BeanDeserializer
                 // 11-Sep-2015, tatu: Important; do NOT pass buffer as last arg, but null,
                 //   since it is not the bean
                 if (ext.handlePropertyValue(p, ctxt, propName, null)) {
-                    ;
                 } else {
                     // Last creator property to set?
                     if (buffer.assignParameter(creatorProp,

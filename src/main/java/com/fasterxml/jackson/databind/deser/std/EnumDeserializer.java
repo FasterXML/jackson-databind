@@ -419,7 +419,6 @@ public class EnumDeserializer
                     // index yet (might need combination of "Does format have Numbers"
                     // (XML does not f.ex) and new `EnumFeature`. But can disallow "001" etc.
                     if (c == '0' && name.length() > 1) {
-                        ;
                     } else {
                         try {
                             int index = Integer.parseInt(name);

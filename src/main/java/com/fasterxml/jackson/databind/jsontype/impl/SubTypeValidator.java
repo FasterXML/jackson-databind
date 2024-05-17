@@ -274,7 +274,6 @@ public class SubTypeValidator
             //    for some Spring framework types
             // 05-Jan-2017, tatu: ... also, only applies to classes, not interfaces
             if (raw.isInterface()) {
-                ;
             } else if (full.startsWith(PREFIX_SPRING)) {
                 for (Class<?> cls = raw; (cls != null) && (cls != Object.class); cls = cls.getSuperclass()){
                     String name = cls.getSimpleName();

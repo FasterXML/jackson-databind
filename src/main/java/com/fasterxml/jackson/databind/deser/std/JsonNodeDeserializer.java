@@ -823,7 +823,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 bigDec = bigDec.stripTrailingZeros();
             } catch (ArithmeticException e) {
                 // If we can't, we can't...
-                ;
             }
         }
         return nodeFactory.numberNode(bigDec);

@@ -240,7 +240,6 @@ public @interface JsonSerialize
          * @since 2.3
          */
         DEFAULT_INCLUSION
-        ;
     }
 
     /**
@@ -269,6 +268,5 @@ public @interface JsonSerialize
          * @since 2.3
          */
         DEFAULT_TYPING
-        ;
     }
 }

@@ -321,7 +321,6 @@ public class CreatorCollector
                         return false; // ignore
                     }
                     if (_isEnumValueOf(oldOne)) {
-                        ;
                     } else {
                         _reportDuplicateCreator(typeIndex, explicit, oldOne, newOne);
                     }
@@ -332,7 +331,6 @@ public class CreatorCollector
                     return false;
                 } else if (oldType.isAssignableFrom(newType)) {
                     // new type more specific, use it
-                    ;
                     // 23-Feb-2021, tatu: due to [databind#3062], backwards-compatibility,
                     //   let's allow "primitive/Wrapper" case and tie-break in favor
                     //   of PRIMITIVE argument (null would never map to scalar creators,

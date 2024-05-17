@@ -1208,9 +1208,7 @@ public class BeanDeserializer
                 // first: let's check to see if this might be part of value with external type id:
                 // 11-Sep-2015, tatu: Important; do NOT pass buffer as last arg, but null,
                 //   since it is not the bean
-                if (ext.handlePropertyValue(p, ctxt, propName, null)) {
-                    ;
-                } else {
+                if (!ext.handlePropertyValue(p, ctxt, propName, null)) {
                     // Last creator property to set?
                     if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
                         t = p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT

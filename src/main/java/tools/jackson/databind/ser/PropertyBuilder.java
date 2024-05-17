@@ -277,7 +277,7 @@ public class PropertyBuilder
             // Must be a super type to be usable
             Class<?> rawDeclared = declaredType.getRawClass();
             if (serClass.isAssignableFrom(rawDeclared)) {
-                ; // fine as is
+                // fine as is
             } else {
                 /* 18-Nov-2010, tatu: Related to fixing [JACKSON-416], an issue with such
                  *   check is that for deserialization more specific type makes sense;

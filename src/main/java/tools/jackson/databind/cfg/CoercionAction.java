@@ -37,6 +37,5 @@ public enum CoercionAction
      * empty collection; for POJOs instance configured with default constructor
      * and so on.
      */
-    AsEmpty;
-    ;
+    AsEmpty
 }

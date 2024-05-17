@@ -467,7 +467,7 @@ public final class ClassUtil
             }
             return ctor;
         } catch (NoSuchMethodException e) {
-            ;
+            return null;
         } catch (Exception e) {
             ClassUtil.unwrapAndThrowAsIAE(e, "Failed to find default constructor of class "+cls.getName()
                 +", problem: "+exceptionMessage(e));

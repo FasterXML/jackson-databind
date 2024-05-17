@@ -27,5 +27,4 @@ public enum AccessPattern {
      * needed.
      */
     DYNAMIC
-    ;
 }

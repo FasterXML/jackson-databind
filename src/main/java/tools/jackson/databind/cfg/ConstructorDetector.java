@@ -55,7 +55,7 @@ public final class ConstructorDetector
          * {@link tools.jackson.databind.exc.InvalidDefinitionException}
          * in ambiguous case.
          */
-        REQUIRE_MODE;
+        REQUIRE_MODE
     }
 
     /*

@@ -1324,7 +1324,6 @@ public class ObjectWriter
                     return new Prefetch(newType, ser, null);
                 } catch (JacksonException e) {
                     // need to swallow?
-                    ;
                 }
             }
             return new Prefetch(newType, null, typeSerializer);

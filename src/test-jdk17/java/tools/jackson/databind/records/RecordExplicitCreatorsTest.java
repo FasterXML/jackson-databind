@@ -302,9 +302,11 @@ public class RecordExplicitCreatorsTest extends DatabindTestUtil
 
     @Test
     public void testDeserializeMultipleConstructorsRecord_WithExplicitAndImplicitParameterNames_WithJsonCreator() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
                 .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
                 .build();
+
         RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator value = mapper.readValue(
                 "{\"id_only\":123,\"email\":\"bob@example.com\"}",
                 RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator.class);
@@ -327,9 +329,9 @@ public class RecordExplicitCreatorsTest extends DatabindTestUtil
      * @see #testDeserializeUsingCanonicalConstructor_WhenJsonCreatorConstructorExists_WillFail()
      */
     @Test
-    public void testDeserializeMultipleConstructorsRecord_WithExplicitAndImplicitParameterNames() throws Exception
-    {
-        ObjectMapper mapper = jsonMapperBuilder()
+    public void testDeserializeMultipleConstructorsRecord_WithExplicitAndImplicitParameterNames() throws Exception {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
                 .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
                 .build();
         try {

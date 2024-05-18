@@ -58,6 +58,9 @@ public class ImplicitNameMatch792Test
         public int getValue() { return x; }
     }
 
+    // 17-May-2024, tatu: [databind#4515] This is not a valid test; commenting
+    //    out; to be removed in near future (after 2.18)
+    /*
     static class ReadWriteBean
     {
         private int value;
@@ -74,6 +77,7 @@ public class ImplicitNameMatch792Test
             throw new RuntimeException("Should have used constructor for 'value' not setter");
         }
     }
+    */
 
     // Bean that should only serialize 'value', but deserialize both
     static class PasswordBean
@@ -115,12 +119,16 @@ public class ImplicitNameMatch792Test
         assertEquals(a2q("{'stuff':3}"), json);
     }
 
+    // 17-May-2024, tatu: [databind#4515] This is not a valid test; commenting
+    //    out; to be removed in near future (after 2.18)
+    /*
     @Test
     public void testReadWriteWithPrivateField() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ReadWriteBean(3));
         assertEquals("{\"value\":3}", json);
     }
+    */
 
     @Test
     public void testWriteOnly() throws Exception

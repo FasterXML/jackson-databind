@@ -1101,7 +1101,7 @@ candidate.creator());
         // Must be injectable or have name; without either won't work
         if ((name == null) && (injectId == null)) {
             ctxt.reportBadTypeDefinition(beanDesc,
-"Argument #%d of constructor %s has no property name (and is not Injectable): can not use as property-based Creator",
+"Argument #%d of Creator %s has no property name (and is not Injectable): can not use as property-based Creator",
 paramIndex, candidate);
         }
     }

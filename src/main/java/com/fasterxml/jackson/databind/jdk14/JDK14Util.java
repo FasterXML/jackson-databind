@@ -45,10 +45,16 @@ public class JDK14Util
             return null;
         }
 
+        // And then locate the canonical constructor
         final int argCount = recordFields.length;
-
-        // And then locate the canonical constructor; must be found, if not, fail
-        // altogether (so we can figure out what went wrong)
+        // One special case: zero-arg constructor not included in candidate List
+        if (argCount == 0) {
+            // Bit hacky but has to do: create new PotentialCreator let caller deal
+            AnnotatedConstructor defCtor = recordClass.getDefaultConstructor();
+            if (defCtor != null) {
+                return new PotentialCreator(defCtor, null);
+            }
+        }
 
         main_loop:
         for (PotentialCreator ctor : constructors) {

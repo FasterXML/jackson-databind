@@ -684,33 +684,43 @@ public class POJOPropertiesCollector
                 continue;
             }
             it.remove();
+
+            Boolean propsBased = null;
+            
             switch (ctor.creatorMode) {
             case DELEGATING:
-                collector.addDelegating(ctor);
+                propsBased = false;
+                break;
+            case PROPERTIES:
+                propsBased = true;
                 break;
             case DEFAULT:
                 // First things first: if not single-arg Creator, must be Properties-based
                 // !!! Or does it? What if there's @JacksonInject etc?
-                if (paramCount == 1) {
-                    break;
+                if (paramCount != 1) {
+                    propsBased = true;
                 }
-                // fall through
-            case PROPERTIES:
-                collector.addPropertiesBased(ctor, "explicit");
                 break;
             default:
             }
 
-            // Is ambiguity/heuristics allowed?
-            if (ctorDetector.requireCtorAnnotation()) {
-                throw new IllegalArgumentException(String.format(
-                        "Ambiguous 1-argument Creator; `ConstructorDetector` requires specifying `mode`: %s",
-                        ctor));
+            if (propsBased == null) {
+                // Is ambiguity/heuristics allowed?
+                if (ctorDetector.requireCtorAnnotation()) {
+                    throw new IllegalArgumentException(String.format(
+                            "Ambiguous 1-argument Creator; `ConstructorDetector` requires specifying `mode`: %s",
+                            ctor));
+                }
+    
+                // First things first: if explict names found, is Properties-based
+                ctor.introspectParamNames(_config);
+                
+                propsBased = ctor.hasExplicitNames()
+                        || ctorDetector.singleArgCreatorDefaultsToProperties();
             }
 
-            // !!! TODO: actual heuristics
-            if (ctorDetector.singleArgCreatorDefaultsToProperties()) {
-                collector.addPropertiesBased(ctor, "explicit");
+            if (propsBased) {
+                collector.addPropertiesBased(_config, ctor, "explicit");
             } else {
                 collector.addDelegating(ctor);
             }

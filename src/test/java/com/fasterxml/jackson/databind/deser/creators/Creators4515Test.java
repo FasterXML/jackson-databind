@@ -33,16 +33,27 @@ public class Creators4515Test extends DatabindTestUtil
         }
     }
 
+    static class FactoryBeanPropsExplicit {
+        double d;
+
+        private FactoryBeanPropsExplicit(double value, boolean dummy) { d = value; }
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        protected static FactoryBeanPropsExplicit createIt(@JsonProperty("f") double value) {
+            return new FactoryBeanPropsExplicit(value, true);
+        }
+    }
+
     /*
     /**********************************************************************
-    /* Test methods, simple Properties-based, explicitly annotated
+    /* Test methods, simple Properties-based (constructor) explicitly annotated
     /**********************************************************************
      */
     
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testPropsBasedExplicit() throws Exception
+    public void testPropsBasedConstructorExplicit() throws Exception
     {
         ConstructorBeanPropsExplicit bean = MAPPER.readValue("{ \"x\" : 42 }",
                 ConstructorBeanPropsExplicit.class);
@@ -50,10 +61,31 @@ public class Creators4515Test extends DatabindTestUtil
     }
 
     @Test
-    public void testPropsBasedViaName() throws Exception
+    public void testPropsBasedConstructorWithName() throws Exception
     {
         ConstructorBeanPropsWithName bean = MAPPER.readValue("{ \"x\" : 28 }",
                 ConstructorBeanPropsWithName.class);
         assertEquals(28, bean.x);
     }
+
+    /*
+    /**********************************************************************
+    /* Test methods, simple Properties-based (constructor) explicitly annotated
+    /**********************************************************************
+     */
+
+    @Test
+    public void testPropsBasedFactoryExplicit() throws Exception
+    {
+        FactoryBeanPropsExplicit bean = MAPPER.readValue("{ \"f\" : 0.5 }",
+                FactoryBeanPropsExplicit.class);
+        assertEquals(0.5, bean.d);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, simple Delegating, explicitly annotated
+    /**********************************************************************
+     */
+
 }

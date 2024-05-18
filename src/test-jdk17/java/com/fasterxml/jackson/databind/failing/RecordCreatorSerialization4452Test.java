@@ -54,8 +54,9 @@ class RecordCreatorSerialization4452Test {
     {
         String result = OBJECT_MAPPER
                 .writeValueAsString(new CreatorTestObject("test", 2, 1));
+
         /*
-        Serializes to:
+        Serializes to (using System.err.println("JSON: "+result); )
 
             {"testFieldName":"test","testOtherField":3}
 

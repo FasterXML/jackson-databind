@@ -359,7 +359,7 @@ public class DatabindTestUtil
 
     public static JsonMapper.Builder jsonMapperBuilder() {
         return JsonMapper.builder()
-            .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION);
+                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION);
     }
 
     /*

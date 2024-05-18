@@ -625,6 +625,15 @@ public class POJOPropertiesCollector
         List<PotentialCreator> factories = _collectCreators(_classDef.getFactoryMethods());
 
         final PotentialCreators collector = new PotentialCreators(ctors, factories);
+        final PotentialCreator canonical;
+
+        // First things first: find and mark "canonical" constructor for Records.
+        // Needs to be done early to get implicit names populated
+        if (_isRecordType) {
+            canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, ctors);
+        } else {
+            canonical = null;
+        }
 
         // and use them to find highest precedence Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
@@ -637,10 +646,10 @@ public class POJOPropertiesCollector
 
         final boolean hasExplicit = collector.hasParametersBasedOrDelegating();
 
-        // Find canonical (record/Scala/Kotlin) Constructor if no explicitly marked creators:
-        if (!hasExplicit && isRecordType()) {
-            PotentialCreator canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, ctors);
-            if (canonical != null) { // is null invalid? Can happen with Graal?
+        // Find/use canonical (record/Scala/Kotlin) Constructor if no explicitly marked creators:
+        if (!hasExplicit) {
+            // for Records:
+            if ((canonical != null) && ctors.contains(canonical)) {
                 ctors.remove(canonical);
                 collector.addPropertiesBased(_config, canonical, "canonical");
             }

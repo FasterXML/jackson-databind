@@ -78,11 +78,13 @@ public class JDK14Util
                         +ClassUtil.getTypeDescription(recordClass.getType()));
     }
 
+    @Deprecated // since 2.18
     public static AnnotatedConstructor findRecordConstructor(DeserializationContext ctxt,
             BeanDescription beanDesc, List<String> names) {
         return findRecordConstructor(beanDesc.getClassInfo(), ctxt.getAnnotationIntrospector(), ctxt.getConfig(), names);
     }
 
+    @Deprecated // since 2.18
     public static AnnotatedConstructor findRecordConstructor(AnnotatedClass recordClass,
             AnnotationIntrospector intr, MapperConfig<?> config, List<String> names) {
         return new CreatorLocator(config, recordClass)
@@ -194,6 +196,7 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
 
     }
 
+    @Deprecated // since 2.18
     static class RawTypeName {
         public final Class<?> rawType;
         public final String name;
@@ -204,6 +207,7 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
         }
     }
 
+    @Deprecated // since 2.18
     static class CreatorLocator {
         protected final AnnotatedClass _recordClass;
         protected final MapperConfig<?> _config;

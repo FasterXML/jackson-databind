@@ -404,9 +404,9 @@ public class POJOPropertiesCollector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API: main-level collection
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -481,9 +481,9 @@ public class POJOPropertiesCollector
     }
 
     /*
-    /**********************************************************
-    /* Overridable internal methods, adding members
-    /**********************************************************
+    /**********************************************************************
+    /* Property introspection: Fields
+    /**********************************************************************
      */
 
     /**
@@ -614,6 +614,12 @@ public class POJOPropertiesCollector
             _property(props, implName).addField(f, pn, nameExplicit, visible, ignored);
         }
     }
+
+    /*
+    /**********************************************************************
+    /* Property introspection: Creators (constructors, factory methods)
+    /**********************************************************************
+     */
 
     // Completely rewritten in 2.18
     protected void _addCreators(Map<String, POJOPropertyBuilder> props)
@@ -816,134 +822,7 @@ public class POJOPropertiesCollector
 
     /*
     /**********************************************************************
-    /* Deprecated (in 2.18) creator detection
-    /**********************************************************************
-     */
-
-    /**
-     * Method for collecting basic information on constructor(s) found
-     */
-    @Deprecated
-    protected void _addCreatorsOLD(Map<String, POJOPropertyBuilder> props)
-    {
-        // can be null if annotation processing is disabled...
-        if (_useAnnotations) {
-            for (AnnotatedConstructor ctor : _classDef.getConstructors()) {
-                if (_creatorProperties == null) {
-                    _creatorProperties = new LinkedList<>();
-                }
-                for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
-                    _addCreatorParam(props, ctor.getParameter(i));
-                }
-            }
-            for (AnnotatedMethod factory : _classDef.getFactoryMethods()) {
-                if (_creatorProperties == null) {
-                    _creatorProperties = new LinkedList<>();
-                }
-                for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
-                    _addCreatorParam(props, factory.getParameter(i));
-                }
-            }
-        }
-        if (isRecordType()) {
-            List<String> recordComponentNames = new ArrayList<>();
-            AnnotatedConstructor canonicalCtor = JDK14Util.findRecordConstructor(
-                    _classDef, _annotationIntrospector, _config, recordComponentNames);
-
-            if (canonicalCtor != null) {
-                if (_creatorProperties == null) {
-                    _creatorProperties = new LinkedList<>();
-                }
-
-                Set<AnnotatedParameter> registeredParams = new HashSet<>();
-                for (POJOPropertyBuilder creatorProperty : _creatorProperties) {
-                    Iterator<AnnotatedParameter> iter = creatorProperty.getConstructorParameters();
-                    while (iter.hasNext()) {
-                        AnnotatedParameter param = iter.next();
-                        if (param.getOwner().equals(canonicalCtor)) {
-                            registeredParams.add(param);
-                        }
-                    }
-                }
-
-                if (_creatorProperties.isEmpty() || !registeredParams.isEmpty()) {
-                    for (int i = 0; i < canonicalCtor.getParameterCount(); i++) {
-                        AnnotatedParameter param = canonicalCtor.getParameter(i);
-                        if (!registeredParams.contains(param)) {
-                            _addCreatorParam(props, param, recordComponentNames.get(i));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * @since 2.4
-     */
-    protected void _addCreatorParam(Map<String, POJOPropertyBuilder> props,
-            AnnotatedParameter param)
-    {
-        _addCreatorParam(props, param, null);
-    }
-
-    private void _addCreatorParam(Map<String, POJOPropertyBuilder> props,
-            AnnotatedParameter param, String recordComponentName)
-    {
-        String impl;
-        if (recordComponentName != null) {
-            impl = recordComponentName;
-        } else {
-            // JDK 8, paranamer, Scala can give implicit name
-            impl = _annotationIntrospector.findImplicitPropertyName(param);
-            if (impl == null) {
-                impl = "";
-            }
-        }
-
-        PropertyName pn = _annotationIntrospector.findNameForDeserialization(param);
-        boolean expl = (pn != null && !pn.isEmpty());
-        if (!expl) {
-            if (impl.isEmpty()) {
-                // Important: if neither implicit nor explicit name, cannot make use of
-                // this creator parameter -- may or may not be a problem, verified at a later point.
-                return;
-            }
-
-            // Also: if this occurs, there MUST be explicit annotation on creator itself...
-            JsonCreator.Mode creatorMode = _annotationIntrospector.findCreatorAnnotation(_config, param.getOwner());
-            // ...or is a Records canonical constructor
-            boolean isCanonicalConstructor = recordComponentName != null;
-
-            if ((creatorMode == null
-                    || creatorMode == JsonCreator.Mode.DISABLED
-                    // 12-Mar-2024: [databind#2543] need to skip delegating as well
-                    || creatorMode == JsonCreator.Mode.DELEGATING)
-                    && !isCanonicalConstructor) {
-                return;
-            }
-            pn = PropertyName.construct(impl);
-        }
-
-        // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
-        impl = _checkRenameByField(impl);
-
-        // shouldn't need to worry about @JsonIgnore, since creators only added
-        // if so annotated
-
-        /* 13-May-2015, tatu: We should try to start with implicit name, similar to how
-         *   fields and methods work; but unlike those, we don't necessarily have
-         *   implicit name to use (pre-Java8 at least). So:
-         */
-        POJOPropertyBuilder prop = (expl && impl.isEmpty())
-                ? _property(props, pn) : _property(props, impl);
-        prop.addCtor(param, pn, expl, true, false);
-        _creatorProperties.add(prop);
-    }
-
-    /*
-    /**********************************************************************
-    /* Method (getter, setter etc) introspection
+    /* Property introspection: Methods (getters, setters etc)
     /**********************************************************************
      */
 

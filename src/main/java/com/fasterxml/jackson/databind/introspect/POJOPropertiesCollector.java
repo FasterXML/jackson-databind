@@ -615,7 +615,7 @@ public class POJOPropertiesCollector
         }
     }
 
-    // @since 2.18
+    // Completely rewritten in 2.18
     protected void _addCreators(Map<String, POJOPropertyBuilder> props)
     {
         _creatorProperties = new ArrayList<>();
@@ -632,7 +632,7 @@ public class POJOPropertiesCollector
         if (_isRecordType) {
             canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, ctors);
         } else {
-            // !!! TODO: fetch for Kotlin, Scala
+            // !!! TODO: fetch Canonical for Kotlin, Scala, via AnnotationIntrospector?
             canonical = null;
         }
 

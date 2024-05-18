@@ -59,11 +59,11 @@ public class PotentialCreators
     /**********************************************************************
      */
 
-    public boolean hasParametersBased() {
+    public boolean hasPropertiesBased() {
         return (propertiesBased != null);
     }
 
-    public boolean hasParametersBasedOrDelegating() {
+    public boolean hasPropertiesBasedOrDelegating() {
         return (propertiesBased != null) || !delegating.isEmpty();
     }
 }

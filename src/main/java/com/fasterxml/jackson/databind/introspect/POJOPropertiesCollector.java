@@ -644,22 +644,22 @@ public class POJOPropertiesCollector
         // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
             // Start with Constructors as they have higher precedence:
-            _addExplicitCreators(collector, collector.constructors, props, false);
+            _addExplicitlyAnnotatedCreators(collector, collector.constructors, props, false);
             // followed by Factory methods (lower precedence)
-            _addExplicitCreators(collector, collector.factories, props,
-                    collector.propertiesBased != null);
+            _addExplicitlyAnnotatedCreators(collector, collector.factories, props,
+                    collector.hasPropertiesBased());
         }
 
         // If no Explicitly annotated creators found, look
         // for ones with explicitly-named ({@code @JsonProperty}) parameters
-        if (!collector.hasParametersBased()) {
+        if (!collector.hasPropertiesBased()) {
             // only discover constructor Creators?
-            _addCreatorsWithExplicitNames(collector, collector.constructors);
+            _addCreatorsWithAnnotatedNames(collector, collector.constructors);
         }
 
         // But if no annotation-based Creators found, find/use canonical Creator
         // (JDK 17 Record/Scala/Kotlin)
-        if (!collector.hasParametersBased()) {
+        if (!collector.hasPropertiesBased()) {
             // for Records:
             if ((canonical != null) && ctors.contains(canonical)) {
                 ctors.remove(canonical);
@@ -670,7 +670,7 @@ public class POJOPropertiesCollector
         // And finally add logical properties:
         PotentialCreator primary = collector.propertiesBased;
         if (primary != null) {
-            _addExplicitCreatorParams(props, primary);
+            _addCreatorParams(props, primary);
         }
     }
 
@@ -699,7 +699,8 @@ public class POJOPropertiesCollector
         }
     }
 
-    private void _addExplicitCreators(PotentialCreators collector, List<PotentialCreator> ctors,
+    private void _addExplicitlyAnnotatedCreators(PotentialCreators collector,
+            List<PotentialCreator> ctors,
             Map<String, POJOPropertyBuilder> props,
             boolean skipPropsBased)
     {
@@ -772,7 +773,25 @@ public class POJOPropertiesCollector
         }
     }
 
-    private void _addExplicitCreatorParams(Map<String, POJOPropertyBuilder> props,
+    private void _addCreatorsWithAnnotatedNames(PotentialCreators collector,
+            List<PotentialCreator> ctors)
+    {
+        Iterator<PotentialCreator> it = ctors.iterator();
+        while (it.hasNext()) {
+            PotentialCreator ctor = it.next();
+
+            // Ok: existence of explicit (annotated) names infers properties-based:
+            ctor.introspectParamNames(_config);
+            if (!ctor.hasExplicitNames()) {
+                continue;
+            }
+            it.remove();
+
+            collector.addPropertiesBased(_config, ctor, "implicit");
+        }
+    }
+
+    private void _addCreatorParams(Map<String, POJOPropertyBuilder> props,
             PotentialCreator ctor)
     {
         for (int i = 0, len = ctor.paramCount(); i < len; ++i) {
@@ -799,24 +818,6 @@ public class POJOPropertiesCollector
                     ? _property(props, explName) : _property(props, implName);
             prop.addCtor(param, hasExplicit ? explName : implName, hasExplicit, true, false);
             _creatorProperties.add(prop);
-        }
-    }
-
-    private void _addCreatorsWithExplicitNames(PotentialCreators collector,
-            List<PotentialCreator> ctors)
-    {
-        Iterator<PotentialCreator> it = ctors.iterator();
-        while (it.hasNext()) {
-            PotentialCreator ctor = it.next();
-
-            // Ok: existence of explicit (annotated) names infers properties-based:
-            ctor.introspectParamNames(_config);
-            if (!ctor.hasExplicitNames()) {
-                continue;
-            }
-            it.remove();
-
-            collector.addPropertiesBased(_config, ctor, "implicit");
         }
     }
 

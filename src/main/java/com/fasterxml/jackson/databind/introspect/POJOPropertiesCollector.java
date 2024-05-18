@@ -628,8 +628,11 @@ public class POJOPropertiesCollector
 
         // and use them to find highest precedence Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
-            _addExplicitCreators(collector, collector.constructors);
-            _addExplicitCreators(collector, collector.factories);
+            // Start with Constructors as they have higher precedence:
+            _addExplicitCreators(collector, collector.constructors, false);
+            // followed by Factory methods (lower precedence)
+            _addExplicitCreators(collector, collector.factories,
+                    collector.propertiesBased != null);
         }
 
         final boolean hasExplicit = collector.hasParametersBasedOrDelegating();
@@ -663,7 +666,8 @@ public class POJOPropertiesCollector
         return (result == null) ? Collections.emptyList() : result;
     }
 
-    private void _addExplicitCreators(PotentialCreators collector, List<PotentialCreator> ctors)
+    private void _addExplicitCreators(PotentialCreators collector, List<PotentialCreator> ctors,
+            boolean skipPropsBased)
     {
         final ConstructorDetector ctorDetector = _config.getConstructorDetector();
         Iterator<PotentialCreator> it = ctors.iterator();
@@ -717,7 +721,10 @@ public class POJOPropertiesCollector
             }
 
             if (propsBased) {
-                collector.addPropertiesBased(_config, ctor, "explicit");
+                // Skipping done if we already got higher-precedence Creator
+                if (!skipPropsBased) {
+                    collector.addPropertiesBased(_config, ctor, "explicit");
+                }
             } else {
                 collector.addDelegating(ctor);
             }

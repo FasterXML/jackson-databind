@@ -629,9 +629,9 @@ public class POJOPropertiesCollector
         // and use them to find highest precedence Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
             // Start with Constructors as they have higher precedence:
-            _addExplicitCreators(collector, collector.constructors, false);
+            _addExplicitCreators(collector, collector.constructors, props, false);
             // followed by Factory methods (lower precedence)
-            _addExplicitCreators(collector, collector.factories,
+            _addExplicitCreators(collector, collector.factories, props,
                     collector.propertiesBased != null);
         }
 
@@ -667,6 +667,7 @@ public class POJOPropertiesCollector
     }
 
     private void _addExplicitCreators(PotentialCreators collector, List<PotentialCreator> ctors,
+            Map<String, POJOPropertyBuilder> props,
             boolean skipPropsBased)
     {
         final ConstructorDetector ctorDetector = _config.getConstructorDetector();
@@ -696,15 +697,15 @@ public class POJOPropertiesCollector
                 propsBased = true;
                 break;
             case DEFAULT:
+            default:
                 // First things first: if not single-arg Creator, must be Properties-based
                 // !!! Or does it? What if there's @JacksonInject etc?
                 if (paramCount != 1) {
                     propsBased = true;
                 }
-                break;
-            default:
             }
 
+            // Must be 1-arg case:
             if (propsBased == null) {
                 // Is ambiguity/heuristics allowed?
                 if (ctorDetector.requireCtorAnnotation()) {
@@ -713,11 +714,16 @@ public class POJOPropertiesCollector
                             ctor));
                 }
     
-                // First things first: if explict names found, is Properties-based
+                // First things first: if explicit names found, is Properties-based
                 ctor.introspectParamNames(_config);
-                
                 propsBased = ctor.hasExplicitNames()
                         || ctorDetector.singleArgCreatorDefaultsToProperties();
+                // One more possibility: implicit name that maps to implied
+                // property based on Field/Getter/Setter
+                if (!propsBased) {
+                    String implName = ctor.implicitNameSimple(0);
+                    propsBased = (implName != null) && props.containsKey(implName);
+                }
             }
 
             if (propsBased) {
@@ -737,9 +743,10 @@ public class POJOPropertiesCollector
         for (int i = 0, len = ctor.paramCount(); i < len; ++i) {
             final AnnotatedParameter param = ctor.param(i);
             final PropertyName explName = ctor.explicitName(i);
-            String implName = ctor.implicitNameSimple(i);
+            PropertyName implName = ctor.implicitName(i);
+            final boolean hasExplicit = (explName != null);
 
-            if (explName == null) {
+            if (!hasExplicit) {
                 if (implName == null) {
                     // Important: if neither implicit nor explicit name, cannot make use of
                     // this creator parameter -- may or may not be a problem, verified at a later point.
@@ -749,12 +756,13 @@ public class POJOPropertiesCollector
 
             // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
             if (implName != null) {
-                implName = _checkRenameByField(implName);
+                String n = _checkRenameByField(implName.getSimpleName());
+                implName = PropertyName.construct(n);
             }
 
             POJOPropertyBuilder prop = (implName == null)
                     ? _property(props, explName) : _property(props, implName);
-            prop.addCtor(param, explName, (explName != null), true, false);
+            prop.addCtor(param, hasExplicit ? explName : implName, hasExplicit, true, false);
             _creatorProperties.add(prop);
         }
     }

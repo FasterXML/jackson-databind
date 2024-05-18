@@ -95,6 +95,10 @@ public class PotentialCreator
         return explicitParamNames[ix];
     }
     
+    public PropertyName implicitName(int ix) {
+        return implicitParamNames[ix];
+    }
+
     public String implicitNameSimple(int ix) {
         PropertyName pn = implicitParamNames[ix];
         return (pn == null) ? null : pn.getSimpleName();

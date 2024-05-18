@@ -641,10 +641,7 @@ public class POJOPropertiesCollector
 
         PotentialCreator primary = collector.propertiesBased;
         if (primary != null) {
-            final AnnotatedWithParams ctor = primary.creator;
-            for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
-                _addCreatorParam(props, ctor.getParameter(i));
-            }
+            _addExplicitCreatorParams(props, primary);
         }
     }
 
@@ -724,6 +721,34 @@ public class POJOPropertiesCollector
             } else {
                 collector.addDelegating(ctor);
             }
+        }
+    }
+
+    private void _addExplicitCreatorParams(Map<String, POJOPropertyBuilder> props,
+            PotentialCreator ctor)
+    {
+        for (int i = 0, len = ctor.paramCount(); i < len; ++i) {
+            final AnnotatedParameter param = ctor.param(i);
+            final PropertyName explName = ctor.explicitName(i);
+            String implName = ctor.implicitNameSimple(i);
+
+            if (explName == null) {
+                if (implName == null) {
+                    // Important: if neither implicit nor explicit name, cannot make use of
+                    // this creator parameter -- may or may not be a problem, verified at a later point.
+                    continue;
+                }
+            }
+
+            // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
+            if (implName != null) {
+                implName = _checkRenameByField(implName);
+            }
+
+            POJOPropertyBuilder prop = (implName == null)
+                    ? _property(props, explName) : _property(props, implName);
+            prop.addCtor(param, explName, (explName != null), true, false);
+            _creatorProperties.add(prop);
         }
     }
 

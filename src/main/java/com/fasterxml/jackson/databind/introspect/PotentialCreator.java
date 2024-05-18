@@ -78,6 +78,10 @@ public class PotentialCreator
         return creator.getParameterCount();
     }
 
+    public AnnotatedParameter param(int ix) {
+        return creator.getParameter(ix);
+    }
+
     public boolean hasExplicitNames() {
         for (int i = 0, end = explicitParamNames.length; i < end; ++i) {
             if (explicitParamNames[i] != null) {
@@ -86,7 +90,16 @@ public class PotentialCreator
         }
         return false;
     }
+
+    public PropertyName explicitName(int ix) {
+        return explicitParamNames[ix];
+    }
     
+    public String implicitNameSimple(int ix) {
+        PropertyName pn = implicitParamNames[ix];
+        return (pn == null) ? null : pn.getSimpleName();
+    }
+
     /*
     /**********************************************************************
     /* Misc other

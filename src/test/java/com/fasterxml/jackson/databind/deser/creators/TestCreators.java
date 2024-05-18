@@ -119,7 +119,7 @@ public class TestCreators
     }
 
     /**
-     * Bean that defines both creator and factory methor as
+     * Bean that defines both creator and factory method as
      * creators. Constructors have priority; but it is possible
      * to hide it using mix-in annotations.
      */

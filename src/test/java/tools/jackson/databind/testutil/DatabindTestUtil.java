@@ -348,7 +348,7 @@ public class DatabindTestUtil
     /**********************************************************************
      */
 
-    public static ObjectMapper newJsonMapper() {
+    public static JsonMapper newJsonMapper() {
         return jsonMapperBuilder().build();
     }
 

@@ -354,11 +354,12 @@ public class DatabindTestUtil
      */
 
     public static ObjectMapper newJsonMapper() {
-        return new JsonMapper();
+        return jsonMapperBuilder().build();
     }
 
     public static JsonMapper.Builder jsonMapperBuilder() {
-        return JsonMapper.builder();
+        return JsonMapper.builder()
+            .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION);
     }
 
     /*

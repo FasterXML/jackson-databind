@@ -235,12 +235,12 @@ public class RecordExplicitCreatorsTest extends DatabindTestUtil
     @Test
     public void testDeserializeUsingDisabledConstructors_WillFail() throws Exception {
         try {
-            MAPPER.readValue("{\"id\":123,\"name\":\"Bobby\"}", RecordWithDisabledJsonCreator.class);
-
+            MAPPER.readValue("{\"id\":123,\"name\":\"Bobby\"}",
+                    RecordWithDisabledJsonCreator.class);
             fail("should not pass");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "Cannot construct instance");
             verifyException(e, "RecordWithDisabledJsonCreator");
+            verifyException(e, "Cannot construct instance");
             verifyException(e, "no Creators, like default constructor, exist");
             verifyException(e, "cannot deserialize from Object value");
         }

@@ -620,14 +620,14 @@ public class POJOPropertiesCollector
     {
         _creatorProperties = new ArrayList<>();
 
-        // First, resolve explicit annotations:
+        // First, resolve explicit annotations for all potential Creators
+        // (but do NOT filter out DISABLED ones yet!)
         List<PotentialCreator> ctors = _collectCreators(_classDef.getConstructors());
         List<PotentialCreator> factories = _collectCreators(_classDef.getFactoryMethods());
 
-        final PotentialCreators collector = new PotentialCreators(ctors, factories);
         final PotentialCreator canonical;
 
-        // First things first: find and mark "canonical" constructor for Records.
+        // Find and mark "canonical" constructor for Records.
         // Needs to be done early to get implicit names populated
         if (_isRecordType) {
             canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, ctors);
@@ -635,7 +635,12 @@ public class POJOPropertiesCollector
             canonical = null;
         }
 
-        // and use them to find highest precedence Creators
+        // Next: remove creators marked as explicitly disabled
+        _removeDisabledCreators(ctors);
+        _removeDisabledCreators(factories);
+
+        final PotentialCreators collector = new PotentialCreators(ctors, factories);
+        // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
             // Start with Constructors as they have higher precedence:
             _addExplicitCreators(collector, collector.constructors, props, false);
@@ -671,20 +676,27 @@ public class POJOPropertiesCollector
 
     private List<PotentialCreator> _collectCreators(List<? extends AnnotatedWithParams> ctors)
     {
-        List<PotentialCreator> result = null;
+        if (ctors.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<PotentialCreator> result = new ArrayList<>();
         for (AnnotatedWithParams ctor : ctors) {
             JsonCreator.Mode creatorMode = _useAnnotations
                     ? _annotationIntrospector.findCreatorAnnotation(_config, ctor) : null;
-            // explicitly prevented? Remove
-            if (creatorMode == JsonCreator.Mode.DISABLED) {
-                continue;
-            }
-            if (result == null) {
-                result = new ArrayList<>();
-            }
             result.add(new PotentialCreator(ctor, creatorMode));
         }
         return (result == null) ? Collections.emptyList() : result;
+    }
+
+    private void _removeDisabledCreators(List<PotentialCreator> ctors)
+    {
+        Iterator<PotentialCreator> it = ctors.iterator();
+        while (it.hasNext()) {
+            // explicitly prevented? Remove
+            if (it.next().creatorMode == JsonCreator.Mode.DISABLED) {
+                it.remove();
+            }
+        }
     }
 
     private void _addExplicitCreators(PotentialCreators collector, List<PotentialCreator> ctors,

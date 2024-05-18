@@ -9,9 +9,11 @@ import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
+import com.fasterxml.jackson.databind.introspect.PotentialCreator;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NativeImageUtil;
 
@@ -29,6 +31,47 @@ public class JDK14Util
         return RecordAccessor.instance().getRecordFieldNames(recordType);
     }
 
+    /**
+     * @since 2.18
+     */
+    public static PotentialCreator findCanonicalRecordConstructor(MapperConfig<?> config,
+            AnnotatedClass recordClass,
+            List<PotentialCreator> constructors)
+    {
+        final RawTypeName[] recordFields = RecordAccessor.instance().getRecordFields(recordClass.getRawType());
+
+        if (recordFields == null) {
+            // not a record, or no reflective access on native image
+            return null;
+        }
+
+        final int argCount = recordFields.length;
+
+        // And then locate the canonical constructor; must be found, if not, fail
+        // altogether (so we can figure out what went wrong)
+
+        main_loop:
+        for (PotentialCreator ctor : constructors) {
+            if (ctor.paramCount() != argCount) {
+                continue;
+            }
+            for (int i = 0; i < argCount; ++i) {
+                if (!ctor.creator.getRawParameterType(i).equals(recordFields[i].rawType)) {
+                    continue main_loop;
+                }
+            }
+            // Found it! One more thing; get implicit Record field names:
+            final PropertyName[] implicits = new PropertyName[argCount];
+            for (int i = 0; i < argCount; ++i) {
+                implicits[i] = PropertyName.construct(recordFields[i].name);
+            }
+            return ctor.introspectParamNames(config, implicits);
+        }
+
+        throw new IllegalArgumentException("Failed to find the canonical Record constructor of type "
+                        +ClassUtil.getTypeDescription(recordClass.getType()));
+    }
+
     public static AnnotatedConstructor findRecordConstructor(DeserializationContext ctxt,
             BeanDescription beanDesc, List<String> names) {
         return findRecordConstructor(beanDesc.getClassInfo(), ctxt.getAnnotationIntrospector(), ctxt.getConfig(), names);
@@ -36,7 +79,7 @@ public class JDK14Util
 
     public static AnnotatedConstructor findRecordConstructor(AnnotatedClass recordClass,
             AnnotationIntrospector intr, MapperConfig<?> config, List<String> names) {
-        return new CreatorLocator(recordClass, intr, config)
+        return new CreatorLocator(config, recordClass)
             .locate(names);
     }
 
@@ -164,11 +207,11 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
         protected final AnnotatedConstructor _primaryConstructor;
         protected final RawTypeName[] _recordFields;
 
-        CreatorLocator(AnnotatedClass recordClass, AnnotationIntrospector intr, MapperConfig<?> config)
+        CreatorLocator(MapperConfig<?> config, AnnotatedClass recordClass)
         {
             _recordClass = recordClass;
 
-            _intr = intr;
+            _intr = config.getAnnotationIntrospector();
             _config = config;
 
             _recordFields = RecordAccessor.instance().getRecordFields(recordClass.getRawType());

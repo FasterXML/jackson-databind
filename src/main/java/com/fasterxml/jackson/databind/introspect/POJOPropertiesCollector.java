@@ -637,14 +637,18 @@ public class POJOPropertiesCollector
 
         final boolean hasExplicit = collector.hasParametersBasedOrDelegating();
 
-        // Find canonical (record) Constructor if no explicitly marked creators:
-        if (!hasExplicit) {
-            // !!! TODO
+        // Find canonical (record/Scala/Kotlin) Constructor if no explicitly marked creators:
+        if (!hasExplicit && isRecordType()) {
+            PotentialCreator canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, ctors);
+            if (canonical != null) { // is null invalid? Can happen with Graal?
+                ctors.remove(canonical);
+                collector.addPropertiesBased(_config, canonical, "canonical");
+            }
         }
 
         // If no explicit or canonical Properties-based creators found, look
         // for ones with explicitly-named ({@code @JsonProperty}) parameters
-        if (!hasExplicit) {
+        if (!collector.hasParametersBasedOrDelegating()) {
             // only discover Creators?
             _addImplicitCreators(collector, collector.constructors);
         }

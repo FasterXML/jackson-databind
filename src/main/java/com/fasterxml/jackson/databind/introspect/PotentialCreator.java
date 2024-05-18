@@ -41,8 +41,6 @@ public class PotentialCreator
         if (implicitParamNames != null) {
             return this;
         }
-        
-        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         final int paramCount = creator.getParameterCount();
 
         if (paramCount == 0) {
@@ -53,6 +51,7 @@ public class PotentialCreator
         explicitParamNames = new PropertyName[paramCount];
         implicitParamNames = new PropertyName[paramCount];
 
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         for (int i = 0; i < paramCount; ++i) {
             AnnotatedParameter param = creator.getParameter(i);
 
@@ -60,6 +59,37 @@ public class PotentialCreator
             if (rawImplName != null && !rawImplName.isEmpty()) {
                 implicitParamNames[i] = PropertyName.construct(rawImplName);
             }
+            PropertyName explName = intr.findNameForDeserialization(param);
+            if (explName != null && !explName.isEmpty()) {
+                explicitParamNames[i] = explName;
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Variant used when implicit names are known; such as case for JDK
+     * Record types.
+     */
+    public PotentialCreator introspectParamNames(MapperConfig<?> config,
+           PropertyName[] implicits)
+    {
+        if (implicitParamNames != null) {
+            return this;
+        }
+        final int paramCount = creator.getParameterCount();
+        if (paramCount == 0) {
+            implicitParamNames = explicitParamNames = NO_NAMES;
+            return this;
+        }
+
+        explicitParamNames = new PropertyName[paramCount];
+        implicitParamNames = implicits;
+
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        for (int i = 0; i < paramCount; ++i) {
+            AnnotatedParameter param = creator.getParameter(i);
+
             PropertyName explName = intr.findNameForDeserialization(param);
             if (explName != null && !explName.isEmpty()) {
                 explicitParamNames[i] = explName;

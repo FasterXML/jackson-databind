@@ -632,6 +632,7 @@ public class POJOPropertiesCollector
         if (_isRecordType) {
             canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, ctors);
         } else {
+            // !!! TODO: fetch for Kotlin, Scala
             canonical = null;
         }
 

@@ -47,7 +47,7 @@ class ConstructorDetector3241Test extends DatabindTestUtil {
         // @JsonCreator gone!
         public Input3241(@ImplicitName("field") Boolean field) {
             if (field == null) {
-                throw new NullPointerException("Should not get here!");
+                throw new NullPointerException("Field should not remain null!");
             }
             this.field = field;
         }
@@ -74,7 +74,7 @@ class ConstructorDetector3241Test extends DatabindTestUtil {
     }
 
     private JsonMapper.Builder mapperBuilder() {
-        return JsonMapper.builder()
+        return jsonMapperBuilder()
                 .annotationIntrospector(new CtorNameIntrospector());
     }
 }

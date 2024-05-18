@@ -649,22 +649,21 @@ public class POJOPropertiesCollector
                     collector.propertiesBased != null);
         }
 
-        final boolean hasExplicit = collector.hasParametersBasedOrDelegating();
+        // If no Explicitly annotated creators found, look
+        // for ones with explicitly-named ({@code @JsonProperty}) parameters
+        if (!collector.hasParametersBasedOrDelegating()) {
+            // only discover Creators?
+            _addCreatorsWithExplicitNames(collector, collector.constructors);
+        }
 
-        // Find/use canonical (record/Scala/Kotlin) Constructor if no explicitly marked creators:
-        if (!hasExplicit) {
+        // But if no annotation-based Creators found, find/use canonical Creator
+        // (JDK 17 Record/Scala/Kotlin)
+        if (!collector.hasParametersBasedOrDelegating()) {
             // for Records:
             if ((canonical != null) && ctors.contains(canonical)) {
                 ctors.remove(canonical);
                 collector.addPropertiesBased(_config, canonical, "canonical");
             }
-        }
-
-        // If no explicit or canonical Properties-based creators found, look
-        // for ones with explicitly-named ({@code @JsonProperty}) parameters
-        if (!collector.hasParametersBasedOrDelegating()) {
-            // only discover Creators?
-            _addImplicitCreators(collector, collector.constructors);
         }
 
         // And finally add logical properties:
@@ -802,7 +801,7 @@ public class POJOPropertiesCollector
         }
     }
 
-    private void _addImplicitCreators(PotentialCreators collector,
+    private void _addCreatorsWithExplicitNames(PotentialCreators collector,
             List<PotentialCreator> ctors)
     {
         Iterator<PotentialCreator> it = ctors.iterator();

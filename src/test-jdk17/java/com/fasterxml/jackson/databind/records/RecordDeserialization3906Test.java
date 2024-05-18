@@ -95,6 +95,7 @@ public class RecordDeserialization3906Test extends DatabindTestUtil
         assertEquals(new Record3906(null, 0), recordDeser);
     }
 
+    @SuppressWarnings("serial")
     @Test
     public void testEmptyJsonToRecordUsingModule() throws JsonProcessingException {
         ObjectMapper mapper = jsonMapperBuilder().addModule(new SimpleModule() {
@@ -133,6 +134,7 @@ public class RecordDeserialization3906Test extends DatabindTestUtil
         assertEquals(new Record3906Creator(null, 0), recordDeser);
     }
 
+    @SuppressWarnings("serial")
     @Test
     public void testEmptyJsonToRecordUsingModuleOther() throws JsonProcessingException {
         ObjectMapper mapper = jsonMapperBuilder().addModule(

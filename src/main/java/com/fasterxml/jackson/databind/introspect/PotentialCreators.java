@@ -47,11 +47,6 @@ public class PotentialCreators
     {
         delegating.add(ctor);
     }
-    
-    public void addDefault(AnnotatedWithParams ctor)
-    {
-        defaultCreator = ctor;
-    }
 
     /*
     /**********************************************************************

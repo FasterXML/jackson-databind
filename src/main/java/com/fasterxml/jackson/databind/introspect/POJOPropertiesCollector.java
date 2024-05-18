@@ -709,13 +709,6 @@ public class POJOPropertiesCollector
         while (it.hasNext()) {
             PotentialCreator ctor = it.next();
 
-            final int paramCount = ctor.paramCount();
-            if (paramCount == 0) {
-                it.remove();
-                collector.addDefault(ctor.creator);
-                continue;
-            }
-
             // If no explicit annotation, skip for now (may be discovered
             // at a later point)
             if (ctor.creatorMode == null) {
@@ -736,7 +729,7 @@ public class POJOPropertiesCollector
             default:
                 // First things first: if not single-arg Creator, must be Properties-based
                 // !!! Or does it? What if there's @JacksonInject etc?
-                if (paramCount != 1) {
+                if (ctor.paramCount() != 1) {
                     propsBased = true;
                 }
             }

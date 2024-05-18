@@ -21,13 +21,13 @@ public class ObjectOrArrayDeserTest
         final List<SomeObject> objects;
         final SomeObject object;
 
-        @JsonCreator
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public ArrayOrObject(List<SomeObject> objects) {
             this.objects = objects;
             this.object = null;
         }
 
-        @JsonCreator
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public ArrayOrObject(SomeObject object) {
             this.objects = null;
             this.object = object;

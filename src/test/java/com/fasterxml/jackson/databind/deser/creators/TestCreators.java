@@ -4,24 +4,24 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.*;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
  * Unit tests for verifying that it is possible to annotate
  * various kinds of things with {@link JsonCreator} annotation.
  */
 public class TestCreators
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -130,7 +130,7 @@ public class TestCreators
 
         @JsonCreator
         protected CreatorBean(@JsonProperty("a") String paramA,
-                              @JsonProperty("x") int paramX)
+                @JsonProperty("x") int paramX)
         {
             a = "ctor:"+paramA;
             x = 1+paramX;
@@ -142,8 +142,8 @@ public class TestCreators
         }
 
         @JsonCreator
-        public static CreatorBean buildMeUpButterCup(@JsonProperty("a") String paramA,
-                                                     @JsonProperty("x") int paramX)
+        public static CreatorBean bobTheBuilder(@JsonProperty("a") String paramA,
+                @JsonProperty("x") int paramX)
         {
             return new CreatorBean("factory:"+paramA, paramX-1, false);
         }
@@ -324,7 +324,7 @@ public class TestCreators
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSimpleConstructor() throws Exception

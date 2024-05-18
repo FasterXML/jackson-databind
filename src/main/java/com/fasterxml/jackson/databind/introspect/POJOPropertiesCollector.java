@@ -790,6 +790,7 @@ public class POJOPropertiesCollector
                 continue;
             }
             it.remove();
+
             collector.addPropertiesBased(_config, ctor, "implicit");
         }
     }

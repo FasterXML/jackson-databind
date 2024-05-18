@@ -642,6 +642,14 @@ public class POJOPropertiesCollector
             // !!! TODO
         }
 
+        // If no explicit or canonical Properties-based creators found, look
+        // for ones with explicitly-named ({@code @JsonProperty}) parameters
+        if (!hasExplicit) {
+            // only discover Creators?
+            _addImplicitCreators(collector, collector.constructors);
+        }
+
+        // And finally add logical properties:
         PotentialCreator primary = collector.propertiesBased;
         if (primary != null) {
             _addExplicitCreatorParams(props, primary);
@@ -681,7 +689,9 @@ public class POJOPropertiesCollector
                 collector.addDefault(ctor.creator);
                 continue;
             }
-            
+
+            // If no explicit annotation, skip for now (may be discovered
+            // at a later point)
             if (ctor.creatorMode == null) {
                 continue;
             }
@@ -766,6 +776,29 @@ public class POJOPropertiesCollector
             _creatorProperties.add(prop);
         }
     }
+
+    private void _addImplicitCreators(PotentialCreators collector,
+            List<PotentialCreator> ctors)
+    {
+        Iterator<PotentialCreator> it = ctors.iterator();
+        while (it.hasNext()) {
+            PotentialCreator ctor = it.next();
+
+            // Ok: existence of explicit (annotated) names infers properties-based:
+            ctor.introspectParamNames(_config);
+            if (!ctor.hasExplicitNames()) {
+                continue;
+            }
+            it.remove();
+            collector.addPropertiesBased(_config, ctor, "implicit");
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Deprecated (in 2.18) creator detection
+    /**********************************************************************
+     */
 
     /**
      * Method for collecting basic information on constructor(s) found
@@ -888,8 +921,14 @@ public class POJOPropertiesCollector
         _creatorProperties.add(prop);
     }
 
+    /*
+    /**********************************************************************
+    /* Method (getter, setter etc) introspection
+    /**********************************************************************
+     */
+
     /**
-     * Method for collecting basic information on all fields found
+     * Method for collecting basic information on all accessor methods found
      */
     protected void _addMethods(Map<String, POJOPropertyBuilder> props)
     {

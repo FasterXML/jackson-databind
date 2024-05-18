@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.ConstructorDetector;
 import tools.jackson.databind.cfg.HandlerInstantiator;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.jdk14.JDK14Util;
@@ -83,7 +84,7 @@ public class POJOPropertiesCollector
      */
     protected LinkedHashMap<String, POJOPropertyBuilder> _properties;
 
-    protected LinkedList<POJOPropertyBuilder> _creatorProperties;
+    protected List<POJOPropertyBuilder> _creatorProperties;
 
     /**
      * A set of "field renamings" that have been discovered, indicating
@@ -590,10 +591,216 @@ public class POJOPropertiesCollector
         }
     }
 
+    // Completely rewritten in 2.18
+    protected void _addCreators(Map<String, POJOPropertyBuilder> props)
+    {
+        _creatorProperties = new ArrayList<>();
+
+        // First, resolve explicit annotations for all potential Creators
+        // (but do NOT filter out DISABLED ones yet!)
+        List<PotentialCreator> ctors = _collectCreators(_classDef.getConstructors());
+        List<PotentialCreator> factories = _collectCreators(_classDef.getFactoryMethods());
+
+        final PotentialCreator canonical;
+
+        // Find and mark "canonical" constructor for Records.
+        // Needs to be done early to get implicit names populated
+        if (_isRecordType) {
+            canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, ctors);
+        } else {
+            // !!! TODO: fetch Canonical for Kotlin, Scala, via AnnotationIntrospector?
+            canonical = null;
+        }
+
+        // Next: remove creators marked as explicitly disabled
+        _removeDisabledCreators(ctors);
+        _removeDisabledCreators(factories);
+
+        final PotentialCreators collector = new PotentialCreators(ctors, factories);
+        // and use annotations to find explicitly chosen Creators
+        if (_useAnnotations) { // can't have explicit ones without Annotation introspection
+            // Start with Constructors as they have higher precedence:
+            _addExplicitlyAnnotatedCreators(collector, collector.constructors, props, false);
+            // followed by Factory methods (lower precedence)
+            _addExplicitlyAnnotatedCreators(collector, collector.factories, props,
+                    collector.hasPropertiesBased());
+        }
+
+        // If no Explicitly annotated creators found, look
+        // for ones with explicitly-named ({@code @JsonProperty}) parameters
+        if (!collector.hasPropertiesBased()) {
+            // only discover constructor Creators?
+            _addCreatorsWithAnnotatedNames(collector, collector.constructors);
+        }
+
+        // But if no annotation-based Creators found, find/use canonical Creator
+        // (JDK 17 Record/Scala/Kotlin)
+        if (!collector.hasPropertiesBased()) {
+            // for Records:
+            if ((canonical != null) && ctors.contains(canonical)) {
+                ctors.remove(canonical);
+                collector.addPropertiesBased(_config, canonical, "canonical");
+            }
+        }
+
+        // And finally add logical properties:
+        PotentialCreator primary = collector.propertiesBased;
+        if (primary != null) {
+            _addCreatorParams(props, primary);
+        }
+    }
+
+    private List<PotentialCreator> _collectCreators(List<? extends AnnotatedWithParams> ctors)
+    {
+        if (ctors.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<PotentialCreator> result = new ArrayList<>();
+        for (AnnotatedWithParams ctor : ctors) {
+            JsonCreator.Mode creatorMode = _useAnnotations
+                    ? _annotationIntrospector.findCreatorAnnotation(_config, ctor) : null;
+            result.add(new PotentialCreator(ctor, creatorMode));
+        }
+        return (result == null) ? Collections.emptyList() : result;
+    }
+
+    private void _removeDisabledCreators(List<PotentialCreator> ctors)
+    {
+        Iterator<PotentialCreator> it = ctors.iterator();
+        while (it.hasNext()) {
+            // explicitly prevented? Remove
+            if (it.next().creatorMode == JsonCreator.Mode.DISABLED) {
+                it.remove();
+            }
+        }
+    }
+
+    private void _addExplicitlyAnnotatedCreators(PotentialCreators collector,
+            List<PotentialCreator> ctors,
+            Map<String, POJOPropertyBuilder> props,
+            boolean skipPropsBased)
+    {
+        final ConstructorDetector ctorDetector = _config.getConstructorDetector();
+        Iterator<PotentialCreator> it = ctors.iterator();
+        while (it.hasNext()) {
+            PotentialCreator ctor = it.next();
+
+            // If no explicit annotation, skip for now (may be discovered
+            // at a later point)
+            if (ctor.creatorMode == null) {
+                continue;
+            }
+            it.remove();
+
+            Boolean propsBased = null;
+            
+            switch (ctor.creatorMode) {
+            case DELEGATING:
+                propsBased = false;
+                break;
+            case PROPERTIES:
+                propsBased = true;
+                break;
+            case DEFAULT:
+            default:
+                // First things first: if not single-arg Creator, must be Properties-based
+                // !!! Or does it? What if there's @JacksonInject etc?
+                if (ctor.paramCount() != 1) {
+                    propsBased = true;
+                }
+            }
+
+            // Must be 1-arg case:
+            if (propsBased == null) {
+                // Is ambiguity/heuristics allowed?
+                if (ctorDetector.requireCtorAnnotation()) {
+                    throw new IllegalArgumentException(String.format(
+                            "Ambiguous 1-argument Creator; `ConstructorDetector` requires specifying `mode`: %s",
+                            ctor));
+                }
+    
+                // First things first: if explicit names found, is Properties-based
+                ctor.introspectParamNames(_config);
+                propsBased = ctor.hasExplicitNames()
+                        || ctorDetector.singleArgCreatorDefaultsToProperties();
+                // One more possibility: implicit name that maps to implied
+                // property based on Field/Getter/Setter
+                if (!propsBased) {
+                    String implName = ctor.implicitNameSimple(0);
+                    propsBased = (implName != null) && props.containsKey(implName);
+                }
+            }
+
+            if (propsBased) {
+                // Skipping done if we already got higher-precedence Creator
+                if (!skipPropsBased) {
+                    collector.addPropertiesBased(_config, ctor, "explicit");
+                }
+            } else {
+                collector.addDelegating(ctor);
+            }
+        }
+    }
+
+    private void _addCreatorsWithAnnotatedNames(PotentialCreators collector,
+            List<PotentialCreator> ctors)
+    {
+        Iterator<PotentialCreator> it = ctors.iterator();
+        while (it.hasNext()) {
+            PotentialCreator ctor = it.next();
+
+            // Ok: existence of explicit (annotated) names infers properties-based:
+            ctor.introspectParamNames(_config);
+            if (!ctor.hasExplicitNames()) {
+                continue;
+            }
+            it.remove();
+
+            collector.addPropertiesBased(_config, ctor, "implicit");
+        }
+    }
+
+    private void _addCreatorParams(Map<String, POJOPropertyBuilder> props,
+            PotentialCreator ctor)
+    {
+        for (int i = 0, len = ctor.paramCount(); i < len; ++i) {
+            final AnnotatedParameter param = ctor.param(i);
+            final PropertyName explName = ctor.explicitName(i);
+            PropertyName implName = ctor.implicitName(i);
+            final boolean hasExplicit = (explName != null);
+
+            if (!hasExplicit) {
+                if (implName == null) {
+                    // Important: if neither implicit nor explicit name, cannot make use of
+                    // this creator parameter -- may or may not be a problem, verified at a later point.
+                    continue;
+                }
+            }
+
+            // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
+            if (implName != null) {
+                String n = _checkRenameByField(implName.getSimpleName());
+                implName = PropertyName.construct(n);
+            }
+
+            POJOPropertyBuilder prop = (implName == null)
+                    ? _property(props, explName) : _property(props, implName);
+            prop.addCtor(param, hasExplicit ? explName : implName, hasExplicit, true, false);
+            _creatorProperties.add(prop);
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Deprecated (in 2.18) creator detection
+    /**********************************************************************
+     */
+
     /**
      * Method for collecting basic information on constructor(s) found
      */
-    protected void _addCreators(Map<String, POJOPropertyBuilder> props)
+    @Deprecated
+    protected void _addCreatorsOLD(Map<String, POJOPropertyBuilder> props)
     {
         // can be null if annotation processing is disabled...
         if (_useAnnotations) {
@@ -707,8 +914,14 @@ public class POJOPropertiesCollector
         _creatorProperties.add(prop);
     }
 
+    /*
+    /**********************************************************************
+    /* Method (getter, setter etc) introspection
+    /**********************************************************************
+     */
+
     /**
-     * Method for collecting basic information on all fields found
+     * Method for collecting basic information on all accessor methods found
      */
     protected void _addMethods(Map<String, POJOPropertyBuilder> props)
     {

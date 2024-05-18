@@ -431,7 +431,7 @@ public class POJOPropertiesCollector
         //    inner classes, see [databind#1502]
         // 13-May-2023, PJ: Need to avoid adding creators for Records when serializing [databind#3925]
         if (!_classDef.isNonStaticInnerClass() && !(_forSerialization && isRecord)) {
-            _addPotentialCreators(props);
+            _addCreators(props);
         }
 
         // Remove ignored properties, first; this MUST precede annotation merging
@@ -616,7 +616,7 @@ public class POJOPropertiesCollector
     }
 
     // @since 2.18
-    protected void _addPotentialCreators(Map<String, POJOPropertyBuilder> props)
+    protected void _addCreators(Map<String, POJOPropertyBuilder> props)
     {
         _creatorProperties = new ArrayList<>();
 
@@ -651,14 +651,14 @@ public class POJOPropertiesCollector
 
         // If no Explicitly annotated creators found, look
         // for ones with explicitly-named ({@code @JsonProperty}) parameters
-        if (!collector.hasParametersBasedOrDelegating()) {
-            // only discover Creators?
+        if (!collector.hasParametersBased()) {
+            // only discover constructor Creators?
             _addCreatorsWithExplicitNames(collector, collector.constructors);
         }
 
         // But if no annotation-based Creators found, find/use canonical Creator
         // (JDK 17 Record/Scala/Kotlin)
-        if (!collector.hasParametersBasedOrDelegating()) {
+        if (!collector.hasParametersBased()) {
             // for Records:
             if ((canonical != null) && ctors.contains(canonical)) {
                 ctors.remove(canonical);
@@ -829,7 +829,7 @@ public class POJOPropertiesCollector
      * Method for collecting basic information on constructor(s) found
      */
     @Deprecated
-    protected void _addCreators(Map<String, POJOPropertyBuilder> props)
+    protected void _addCreatorsOLD(Map<String, POJOPropertyBuilder> props)
     {
         // can be null if annotation processing is disabled...
         if (_useAnnotations) {

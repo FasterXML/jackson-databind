@@ -77,17 +77,6 @@ public class JDK14Util
                         +ClassUtil.getTypeDescription(recordClass.getType()));
     }
 
-    public static AnnotatedConstructor findRecordConstructor(DeserializationContext ctxt,
-            BeanDescription beanDesc, List<String> names) {
-        return findRecordConstructor(beanDesc.getClassInfo(), ctxt.getAnnotationIntrospector(), ctxt.getConfig(), names);
-    }
-
-    public static AnnotatedConstructor findRecordConstructor(AnnotatedClass recordClass,
-            AnnotationIntrospector intr, MapperConfig<?> config, List<String> names) {
-        return new CreatorLocator(config, recordClass)
-            .locate(names);
-    }
-
     static class RecordAccessor {
         private final Method RECORD_GET_RECORD_COMPONENTS;
         private final Method RECORD_COMPONENT_GET_NAME;
@@ -200,95 +189,6 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
         public RawTypeName(Class<?> rt, String n) {
             rawType = rt;
             name = n;
-        }
-    }
-
-    static class CreatorLocator {
-        protected final AnnotatedClass _recordClass;
-        protected final MapperConfig<?> _config;
-        protected final AnnotationIntrospector _intr;
-
-        protected final List<AnnotatedConstructor> _constructors;
-        protected final AnnotatedConstructor _primaryConstructor;
-        protected final RawTypeName[] _recordFields;
-
-        CreatorLocator(MapperConfig<?> config, AnnotatedClass recordClass)
-        {
-            _recordClass = recordClass;
-
-            _intr = config.getAnnotationIntrospector();
-            _config = config;
-
-            _recordFields = RecordAccessor.instance().getRecordFields(recordClass.getRawType());
-            if (_recordFields == null) {
-                // not a record, or no reflective access on native image
-                _constructors = recordClass.getConstructors();
-                _primaryConstructor = null;
-            } else {
-                final int argCount = _recordFields.length;
-
-                // And then locate the canonical constructor; must be found, if not, fail
-                // altogether (so we can figure out what went wrong)
-                AnnotatedConstructor primary = null;
-
-                // One special case: empty Records, empty constructor is separate case
-                if (argCount == 0) {
-                    primary = recordClass.getDefaultConstructor();
-                    _constructors = Collections.singletonList(primary);
-                } else {
-                    _constructors = recordClass.getConstructors();
-                    main_loop:
-                    for (AnnotatedConstructor ctor : _constructors) {
-                        if (ctor.getParameterCount() != argCount) {
-                            continue;
-                        }
-                        for (int i = 0; i < argCount; ++i) {
-                            if (!ctor.getRawParameterType(i).equals(_recordFields[i].rawType)) {
-                                continue main_loop;
-                            }
-                        }
-                        primary = ctor;
-                        break;
-                    }
-                }
-                if (primary == null) {
-                    throw new IllegalArgumentException("Failed to find the canonical Record constructor of type "
-                            +ClassUtil.getTypeDescription(_recordClass.getType()));
-                }
-                _primaryConstructor = primary;
-            }
-        }
-
-        public AnnotatedConstructor locate(List<String> names)
-        {
-            // First things first: ensure that either there are no explicit marked constructors
-            // or that there is just one and it is the canonical one and it is not
-            // declared as "delegating" constructor
-            for (AnnotatedConstructor ctor : _constructors) {
-                JsonCreator.Mode creatorMode = _intr.findCreatorAnnotation(_config, ctor);
-                if ((null == creatorMode) || (Mode.DISABLED == creatorMode)) {
-                    continue;
-                }
-                // If there's a delegating Creator let caller figure out
-                if (Mode.DELEGATING == creatorMode) {
-                    return null;
-                }
-                if (ctor != _primaryConstructor) {
-                    return null;
-                }
-            }
-
-            if (_recordFields == null) {
-                // not a record, or no reflective access on native image
-                return null;
-            }
-
-            // By now we have established that the canonical constructor is the one to use
-            // and just need to gather implicit names to return
-            for (RawTypeName field : _recordFields) {
-                names.add(field.name);
-            }
-            return _primaryConstructor;
         }
     }
 }

@@ -430,7 +430,9 @@ public class POJOPropertiesCollector
         // 25-Jan-2016, tatu: Avoid introspecting (constructor-)creators for non-static
         //    inner classes, see [databind#1502]
         // 13-May-2023, PJ: Need to avoid adding creators for Records when serializing [databind#3925]
-        if (!_classDef.isNonStaticInnerClass() && !(_forSerialization && isRecord)) {
+        // 18-May-2024, tatu: Serialization side does, however, require access to renaming
+        //    etc (see f.ex [databind#4452]) so let's not skip
+        if (!_classDef.isNonStaticInnerClass()) { // && !(_forSerialization && isRecord)) {
             _addCreators(props);
         }
 

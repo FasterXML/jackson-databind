@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
+#4452: `@JsonProperty` not serializing field names properly
+  on `@JsonCreator` in Record
+ (reported by @Incara)
 #4453: Allow JSON Integer to deserialize into a single-arg constructor of
   parameter type `double`
  (contributed by David M)

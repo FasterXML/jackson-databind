@@ -382,41 +382,6 @@ public abstract class BasicDeserializerFactory
 
     /*
     /**********************************************************************
-    /* Creator introspection: Record introspection (Jackson 2.12+, Java 14+)
-    /**********************************************************************
-     */
-
-    /**
-     * Helper method called when a {@code java.lang.Record} definition's "canonical"
-     * constructor is to be used: if so, we have implicit names to consider.
-     *
-     * @since 2.12
-     * @deprecated since 2.15 - no longer used, but kept because this protected method might have been overridden/used
-     * elsewhere
-     */
-    @Deprecated
-    protected void _addRecordConstructor(DeserializationContext ctxt, CreatorCollectionState ccState,
-            AnnotatedConstructor canonical, List<String> implicitNames)
-                    throws JsonMappingException
-    {
-        final int argCount = canonical.getParameterCount();
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        final SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
-
-        for (int i = 0; i < argCount; ++i) {
-            final AnnotatedParameter param = canonical.getParameter(i);
-            JacksonInject.Value injectable = intr.findInjectableValue(param);
-            PropertyName name = intr.findNameForDeserialization(param);
-            if (name == null || name.isEmpty()) {
-                name = PropertyName.construct(implicitNames.get(i));
-            }
-            properties[i] = constructCreatorProperty(ctxt, ccState.beanDesc, name, i, param, injectable);
-        }
-        ccState.creators.addPropertyCreator(canonical, false, properties);
-    }
-
-    /*
-    /**********************************************************************
     /* Creator introspection: constructor creator introspection
     /**********************************************************************
      */

@@ -365,14 +365,14 @@ public class POJOPropertiesCollector
      */
     protected void collectAll()
     {
+        // First: gather basic accessors
         LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<String, POJOPropertyBuilder>();
 
-        // First: gather basic data
-        final boolean isRecord = isRecordType();
         // 15-Jan-2023, tatu: [databind#3736] Let's avoid detecting fields of Records
         //   altogether (unless we find a good reason to detect them)
-        // 17-Apr-2023: Need Records' fields for serialization for cases like [databind#3895] & [databind#3628]
-        if (!isRecord || _forSerialization) {
+        // 17-Apr-2023: Need Records' fields for serialization for cases
+        //   like [databind#3628], [databind#3895] and [databind#3992]
+        if (!isRecordType() || _forSerialization) {
             _addFields(props); // note: populates _fieldRenameMappings
         }
         _addMethods(props);

@@ -16,13 +16,19 @@ public class PotentialCreator
 {
     private static final PropertyName[] NO_NAMES = new PropertyName[0];
     
-    public final AnnotatedWithParams creator;
+    private final AnnotatedWithParams creator;
 
-    public final JsonCreator.Mode creatorMode;
+    private final JsonCreator.Mode creatorMode;
 
     private PropertyName[] implicitParamNames;
     
     private PropertyName[] explicitParamNames;
+
+    /**
+     * Parameter definitions if (and only if) this represents a
+     * Property-based Creator.
+     */
+    private BeanPropertyDefinition[] propertyDefs;
 
     public PotentialCreator(AnnotatedWithParams cr,
             JsonCreator.Mode cm)
@@ -36,6 +42,10 @@ public class PotentialCreator
     /* Mutators
     /**********************************************************************
      */
+
+    public void assignPropertyDefs(BeanPropertyDefinition[] propertyDefs) {
+        this.propertyDefs = propertyDefs;
+    }
 
     public PotentialCreator introspectParamNames(MapperConfig<?> config)
     {
@@ -104,6 +114,14 @@ public class PotentialCreator
     /* Accessors
     /**********************************************************************
      */
+
+    public AnnotatedWithParams creator() {
+        return creator;
+    }
+
+    public JsonCreator.Mode creatorMode() {
+        return creatorMode;
+    }
 
     public int paramCount() {
         return creator.getParameterCount();

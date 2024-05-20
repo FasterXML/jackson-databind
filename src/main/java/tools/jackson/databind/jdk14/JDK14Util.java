@@ -61,7 +61,7 @@ public class JDK14Util
                 continue;
             }
             for (int i = 0; i < argCount; ++i) {
-                if (!ctor.creator.getRawParameterType(i).equals(recordFields[i].rawType)) {
+                if (!ctor.creator().getRawParameterType(i).equals(recordFields[i].rawType)) {
                     continue main_loop;
                 }
             }

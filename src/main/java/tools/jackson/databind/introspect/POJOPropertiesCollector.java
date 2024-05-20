@@ -577,7 +577,7 @@ public class POJOPropertiesCollector
 
         // First, resolve explicit annotations for all potential Creators
         // (but do NOT filter out DISABLED ones yet!)
-        List<PotentialCreator> ctors = _collectCreators(_classDef.getConstructors());
+        List<PotentialCreator> constructors = _collectCreators(_classDef.getConstructors());
         List<PotentialCreator> factories = _collectCreators(_classDef.getFactoryMethods());
 
         final PotentialCreator canonical;
@@ -585,23 +585,23 @@ public class POJOPropertiesCollector
         // Find and mark "canonical" constructor for Records.
         // Needs to be done early to get implicit names populated
         if (_isRecordType) {
-            canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, ctors);
+            canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, constructors);
         } else {
             // !!! TODO: fetch Canonical for Kotlin, Scala, via AnnotationIntrospector?
             canonical = null;
         }
 
         // Next: remove creators marked as explicitly disabled
-        _removeDisabledCreators(ctors);
+        _removeDisabledCreators(constructors);
         _removeDisabledCreators(factories);
 
-        final PotentialCreators collector = new PotentialCreators(ctors, factories);
+        final PotentialCreators collector = new PotentialCreators();
         // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
             // Start with Constructors as they have higher precedence:
-            _addExplicitlyAnnotatedCreators(collector, collector.constructors, props, false);
+            _addExplicitlyAnnotatedCreators(collector, constructors, props, false);
             // followed by Factory methods (lower precedence)
-            _addExplicitlyAnnotatedCreators(collector, collector.factories, props,
+            _addExplicitlyAnnotatedCreators(collector, factories, props,
                     collector.hasPropertiesBased());
         }
 
@@ -609,15 +609,15 @@ public class POJOPropertiesCollector
         // for ones with explicitly-named ({@code @JsonProperty}) parameters
         if (!collector.hasPropertiesBased()) {
             // only discover constructor Creators?
-            _addCreatorsWithAnnotatedNames(collector, collector.constructors);
+            _addCreatorsWithAnnotatedNames(collector, constructors);
         }
 
         // But if no annotation-based Creators found, find/use canonical Creator
         // (JDK 17 Record/Scala/Kotlin)
         if (!collector.hasPropertiesBased()) {
             // for Records:
-            if ((canonical != null) && ctors.contains(canonical)) {
-                ctors.remove(canonical);
+            if ((canonical != null) && constructors.contains(canonical)) {
+                constructors.remove(canonical);
                 collector.addPropertiesBased(_config, canonical, "canonical");
             }
         }
@@ -648,7 +648,7 @@ public class POJOPropertiesCollector
         Iterator<PotentialCreator> it = ctors.iterator();
         while (it.hasNext()) {
             // explicitly prevented? Remove
-            if (it.next().creatorMode == JsonCreator.Mode.DISABLED) {
+            if (it.next().creatorMode() == JsonCreator.Mode.DISABLED) {
                 it.remove();
             }
         }
@@ -666,14 +666,14 @@ public class POJOPropertiesCollector
 
             // If no explicit annotation, skip for now (may be discovered
             // at a later point)
-            if (ctor.creatorMode == null) {
+            if (ctor.creatorMode() == null) {
                 continue;
             }
             it.remove();
 
             Boolean propsBased = null;
             
-            switch (ctor.creatorMode) {
+            switch (ctor.creatorMode()) {
             case DELEGATING:
                 propsBased = false;
                 break;
@@ -742,7 +742,9 @@ public class POJOPropertiesCollector
     private void _addCreatorParams(Map<String, POJOPropertyBuilder> props,
             PotentialCreator ctor)
     {
-        for (int i = 0, len = ctor.paramCount(); i < len; ++i) {
+        final int paramCount = ctor.paramCount();
+        final BeanPropertyDefinition[] propertyDefs = new BeanPropertyDefinition[paramCount];
+        for (int i = 0; i < paramCount; ++i) {
             final AnnotatedParameter param = ctor.param(i);
             final PropertyName explName = ctor.explicitName(i);
             PropertyName implName = ctor.implicitName(i);
@@ -765,8 +767,10 @@ public class POJOPropertiesCollector
             POJOPropertyBuilder prop = (implName == null)
                     ? _property(props, explName) : _property(props, implName);
             prop.addCtor(param, hasExplicit ? explName : implName, hasExplicit, true, false);
+            propertyDefs[i] = prop;
             _creatorProperties.add(prop);
         }
+        ctor.assignPropertyDefs(propertyDefs);
     }
 
     /*

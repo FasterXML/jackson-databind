@@ -745,7 +745,7 @@ nonAnnotatedParamIndex, ctor);
                     "More than one argument (#%d and #%d) left as delegating for Creator %s: only one allowed",
                     ix, i, candidate);
         }
-        // Also, let's require that one Delegating argument does eixt
+        // Also, let's require that one Delegating argument does exist
         if (ix < 0) {
             ctxt.reportBadTypeDefinition(beanDesc,
                     "No argument left as delegating for Creator %s: exactly one required", candidate);

@@ -6,24 +6,15 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 public class PotentialCreators
 {
-    public final List<PotentialCreator> constructors;
-    
-    public final List<PotentialCreator> factories;
-
     /**
      * Property-based Creator found, if any
      */
     public PotentialCreator propertiesBased;
 
-    public AnnotatedWithParams defaultCreator;
-
     public final List<PotentialCreator> delegating = new ArrayList<>();
 
-    public PotentialCreators(List<PotentialCreator> constructors,
-            List<PotentialCreator> factories)
+    public PotentialCreators()
     {
-        this.constructors = constructors;
-        this.factories = factories;
     }
 
     /*
@@ -38,7 +29,7 @@ public class PotentialCreators
         if (propertiesBased != null) {
             throw new IllegalArgumentException(String.format(
                     "Conflicting property-based creators: already had %s creator %s, encountered another: %s",
-                    mode, propertiesBased.creator, ctor.creator));
+                    mode, propertiesBased.creator(), ctor.creator()));
         }
         propertiesBased = ctor.introspectParamNames(config);
     }

@@ -109,7 +109,7 @@ public abstract class BeanDescription
 
     /*
     /**********************************************************
-    /* Basic API for finding creator members
+    /* Basic API for finding Creators, related information
     /**********************************************************
      */
 
@@ -165,6 +165,15 @@ public abstract class BeanDescription
      * ignorable.
      */
     public abstract AnnotatedConstructor findDefaultConstructor();
+
+    /**
+     * Method that is replacing earlier Creator introspection access methods.
+     *
+     * @since 2.18
+     *
+     * @return Container for introspected Creator candidates, if any
+     */
+    public abstract PotentialCreators getPotentialCreators();
 
     /*
     /**********************************************************

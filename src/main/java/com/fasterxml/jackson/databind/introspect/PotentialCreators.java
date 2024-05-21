@@ -11,7 +11,7 @@ public class PotentialCreators
      */
     public PotentialCreator propertiesBased;
 
-    public final List<PotentialCreator> delegating = new ArrayList<>();
+    private List<PotentialCreator> delegating;
 
     public PotentialCreators()
     {
@@ -36,6 +36,9 @@ public class PotentialCreators
 
     public void addDelegating(PotentialCreator ctor)
     {
+        if (delegating == null) {
+            delegating = new ArrayList<>();
+        }
         delegating.add(ctor);
     }
 
@@ -50,6 +53,10 @@ public class PotentialCreators
     }
 
     public boolean hasPropertiesBasedOrDelegating() {
-        return (propertiesBased != null) || !delegating.isEmpty();
+        return (propertiesBased != null) || (delegating != null && !delegating.isEmpty());
+    }
+
+    public List<PotentialCreator> getDelegating() {
+        return (delegating == null) ? Collections.emptyList() : delegating;
     }
 }

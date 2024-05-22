@@ -267,8 +267,8 @@ public abstract class BasicDeserializerFactory
             //   names. Those will need to be resolved later on.
             final CreatorCollector creators = new CreatorCollector(beanDesc, config);
 
+            // 21-May-2024, tatu: [databind#4515] Rewritten to use PotentialCreators
             Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs;
-
             if (potentialCreators.hasPropertiesBased()) {
                 PotentialCreator primaryPropsBased = potentialCreators.propertiesBased;
                 creatorDefs = Collections.singletonMap(primaryPropsBased.creator(),
@@ -313,43 +313,6 @@ public abstract class BasicDeserializerFactory
             _addImplicitFactoryCreators(ctxt, ccState, ccState.implicitFactoryCandidates());
         }
         return ccState.creators.constructValueInstantiator(ctxt);
-    }
-
-    protected Map<AnnotatedWithParams,BeanPropertyDefinition[]> _findCreatorsFromProperties(
-            BeanDescription beanDesc) throws JsonMappingException
-    {
-        Map<AnnotatedWithParams,BeanPropertyDefinition[]> result = Collections.emptyMap();
-        for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
-            Iterator<AnnotatedParameter> it = propDef.getConstructorParameters();
-            while (it.hasNext()) {
-                AnnotatedParameter param = it.next();
-                AnnotatedWithParams owner = param.getOwner();
-                BeanPropertyDefinition[] defs = result.get(owner);
-                final int index = param.getIndex();
-
-                if (defs == null) {
-                    if (result.isEmpty()) { // since emptyMap is immutable need to create a 'real' one
-                        result = new LinkedHashMap<>();
-                    }
-                    defs = new BeanPropertyDefinition[owner.getParameterCount()];
-                    result.put(owner, defs);
-                } else {
-                    if (defs[index] != null) {
-                        // Inlined copy of "DeserializationContext.reportBadTypeDefinition()"
-                        String msg = String.format(
-                                "Conflict: parameter #%d of %s bound to more than one property; %s vs %s",
-                                index, owner, defs[index], propDef);
-                        String errorMsg =
-                                String.format("Invalid type definition for type %s: %s",
-                                        ClassUtil.nameOf(beanDesc.getBeanClass()), msg);
-                        throw InvalidDefinitionException.from((JsonParser) null, errorMsg,
-                                beanDesc, null);
-                    }
-                }
-                defs[index] = propDef;
-            }
-        }
-        return result;
     }
 
     public ValueInstantiator _valueInstantiatorInstance(DeserializationConfig config,

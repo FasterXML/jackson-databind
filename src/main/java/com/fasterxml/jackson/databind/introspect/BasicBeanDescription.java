@@ -341,6 +341,11 @@ anyField.getName()));
     }
 
     @Override
+    public PotentialCreators getPotentialCreators() {
+        return _propCollector.getPotentialCreators();
+    }
+    
+    @Override
     public Object instantiateBean(boolean fixAccess) {
         AnnotatedConstructor ac = _classInfo.getDefaultConstructor();
         if (ac == null) {

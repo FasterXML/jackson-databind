@@ -11,7 +11,10 @@ public class PotentialCreators
      */
     public PotentialCreator propertiesBased;
 
-    public final List<PotentialCreator> delegating = new ArrayList<>();
+    private List<PotentialCreator> explicitDelegating;
+
+    private List<PotentialCreator> implicitDelegatingConstructors;
+    private List<PotentialCreator> implicitDelegatingFactories;
 
     public PotentialCreators()
     {
@@ -24,7 +27,7 @@ public class PotentialCreators
      */
     
     // desc -> "explicit", "implicit" etc
-    public void addPropertiesBased(MapperConfig<?> config, PotentialCreator ctor, String mode)
+    public void setPropertiesBased(MapperConfig<?> config, PotentialCreator ctor, String mode)
     {
         if (propertiesBased != null) {
             throw new IllegalArgumentException(String.format(
@@ -34,9 +37,19 @@ public class PotentialCreators
         propertiesBased = ctor.introspectParamNames(config);
     }
 
-    public void addDelegating(PotentialCreator ctor)
+    public void addExplicitDelegating(PotentialCreator ctor)
     {
-        delegating.add(ctor);
+        if (explicitDelegating == null) {
+            explicitDelegating = new ArrayList<>();
+        }
+        explicitDelegating.add(ctor);
+    }
+
+    public void setImplicitDelegating(List<PotentialCreator> implicitConstructors,
+            List<PotentialCreator> implicitFactories)
+    {
+        implicitDelegatingConstructors = implicitConstructors;
+        implicitDelegatingFactories = implicitFactories;
     }
 
     /*
@@ -50,6 +63,18 @@ public class PotentialCreators
     }
 
     public boolean hasPropertiesBasedOrDelegating() {
-        return (propertiesBased != null) || !delegating.isEmpty();
+        return (propertiesBased != null) || (explicitDelegating != null && !explicitDelegating.isEmpty());
+    }
+
+    public List<PotentialCreator> getExplicitDelegating() {
+        return (explicitDelegating == null) ? Collections.emptyList() : explicitDelegating;
+    }
+
+    public List<PotentialCreator> getImplicitDelegatingFactories() {
+        return implicitDelegatingFactories;
+    }
+    
+    public List<PotentialCreator> getImplicitDelegatingConstructors() {
+        return implicitDelegatingConstructors;
     }
 }

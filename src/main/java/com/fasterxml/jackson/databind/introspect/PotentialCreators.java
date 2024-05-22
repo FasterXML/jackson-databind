@@ -11,7 +11,10 @@ public class PotentialCreators
      */
     public PotentialCreator propertiesBased;
 
-    private List<PotentialCreator> delegating;
+    private List<PotentialCreator> explicitDelegating;
+
+    private List<PotentialCreator> implicitDelegatingConstructors;
+    private List<PotentialCreator> implicitDelegatingFactories;
 
     public PotentialCreators()
     {
@@ -24,7 +27,7 @@ public class PotentialCreators
      */
     
     // desc -> "explicit", "implicit" etc
-    public void addPropertiesBased(MapperConfig<?> config, PotentialCreator ctor, String mode)
+    public void setPropertiesBased(MapperConfig<?> config, PotentialCreator ctor, String mode)
     {
         if (propertiesBased != null) {
             throw new IllegalArgumentException(String.format(
@@ -34,12 +37,19 @@ public class PotentialCreators
         propertiesBased = ctor.introspectParamNames(config);
     }
 
-    public void addDelegating(PotentialCreator ctor)
+    public void addExplicitDelegating(PotentialCreator ctor)
     {
-        if (delegating == null) {
-            delegating = new ArrayList<>();
+        if (explicitDelegating == null) {
+            explicitDelegating = new ArrayList<>();
         }
-        delegating.add(ctor);
+        explicitDelegating.add(ctor);
+    }
+
+    public void setImplicitDelegating(List<PotentialCreator> implicitConstructors,
+            List<PotentialCreator> implicitFactories)
+    {
+        implicitDelegatingConstructors = implicitConstructors;
+        implicitDelegatingFactories = implicitFactories;
     }
 
     /*
@@ -53,10 +63,18 @@ public class PotentialCreators
     }
 
     public boolean hasPropertiesBasedOrDelegating() {
-        return (propertiesBased != null) || (delegating != null && !delegating.isEmpty());
+        return (propertiesBased != null) || (explicitDelegating != null && !explicitDelegating.isEmpty());
     }
 
-    public List<PotentialCreator> getDelegating() {
-        return (delegating == null) ? Collections.emptyList() : delegating;
+    public List<PotentialCreator> getExplicitDelegating() {
+        return (explicitDelegating == null) ? Collections.emptyList() : explicitDelegating;
+    }
+
+    public List<PotentialCreator> getImplicitDelegatingFactories() {
+        return implicitDelegatingFactories;
+    }
+    
+    public List<PotentialCreator> getImplicitDelegatingConstructors() {
+        return implicitDelegatingConstructors;
     }
 }

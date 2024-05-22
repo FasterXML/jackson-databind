@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.util.Converter;
 /**
  * Basic container for information gathered by {@link ClassIntrospector} to
  * help in constructing serializers and deserializers.
- * Note that the main implementation type is
+ * Note that the one implementation type is
  * {@link com.fasterxml.jackson.databind.introspect.BasicBeanDescription},
- * meaning that it is safe to upcast to this type.
+ * meaning that it is safe to upcast to that type.
  */
 public abstract class BeanDescription
 {

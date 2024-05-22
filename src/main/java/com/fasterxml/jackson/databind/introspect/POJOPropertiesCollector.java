@@ -685,7 +685,7 @@ public class POJOPropertiesCollector
             // for Records:
             if ((canonical != null) && constructors.contains(canonical)) {
                 constructors.remove(canonical);
-                creators.addPropertiesBased(_config, canonical, "canonical");
+                creators.setPropertiesBased(_config, canonical, "canonical");
             }
         }
 
@@ -781,10 +781,10 @@ public class POJOPropertiesCollector
             if (propsBased) {
                 // Skipping done if we already got higher-precedence Creator
                 if (!skipPropsBased) {
-                    collector.addPropertiesBased(_config, ctor, "explicit");
+                    collector.setPropertiesBased(_config, ctor, "explicit");
                 }
             } else {
-                collector.addDelegating(ctor);
+                collector.addExplicitDelegating(ctor);
             }
         }
     }
@@ -803,7 +803,7 @@ public class POJOPropertiesCollector
             }
             it.remove();
 
-            collector.addPropertiesBased(_config, ctor, "implicit");
+            collector.setPropertiesBased(_config, ctor, "implicit");
         }
     }
 

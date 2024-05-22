@@ -14,9 +14,9 @@ import tools.jackson.databind.util.Converter;
 /**
  * Basic container for information gathered by {@link ClassIntrospector} to
  * help in constructing serializers and deserializers.
- * Note that the main implementation type is
+ * Note that the one implementation type is
  * {@link tools.jackson.databind.introspect.BasicBeanDescription},
- * meaning that it is safe to upcast to this type.
+ * meaning that it is safe to upcast to that type.
  */
 public abstract class BeanDescription
 {
@@ -101,7 +101,7 @@ public abstract class BeanDescription
 
     /*
     /**********************************************************************
-    /* Basic API for finding creator members
+    /* Basic API for finding Creators, related information
     /**********************************************************************
      */
 
@@ -157,6 +157,15 @@ public abstract class BeanDescription
      * ignorable.
      */
     public abstract AnnotatedConstructor findDefaultConstructor();
+
+    /**
+     * Method that is replacing earlier Creator introspection access methods.
+     *
+     * @since 2.18
+     *
+     * @return Container for introspected Creator candidates, if any
+     */
+    public abstract PotentialCreators getPotentialCreators();
 
     /*
     /**********************************************************************

@@ -80,6 +80,11 @@ public class POJOPropertiesCollector
     protected List<POJOPropertyBuilder> _creatorProperties;
 
     /**
+     * @since 2.18
+     */
+    protected PotentialCreators _potentialCreators;
+
+    /**
      * A set of "field renamings" that have been discovered, indicating
      * intended renaming of other accessors: key is the implicit original
      * name and value intended name to use instead.
@@ -188,6 +193,14 @@ public class POJOPropertiesCollector
         // make sure we return a copy, so caller can remove entries if need be:
         Map<String, POJOPropertyBuilder> props = getPropertyMap();
         return new ArrayList<>(props.values());
+    }
+
+    // @since 2.18
+    public PotentialCreators getPotentialCreators() {
+        if (!_collected) {
+            collectAll();
+        }
+        return _potentialCreators;
     }
 
     public Map<Object, AnnotatedMember> getInjectables() {
@@ -573,6 +586,8 @@ public class POJOPropertiesCollector
     // Completely rewritten in 2.18
     protected void _addCreators(Map<String, POJOPropertyBuilder> props)
     {
+        final PotentialCreators creators = new PotentialCreators();
+        _potentialCreators = creators;
         _creatorProperties = new ArrayList<>();
 
         // First, resolve explicit annotations for all potential Creators
@@ -595,35 +610,35 @@ public class POJOPropertiesCollector
         _removeDisabledCreators(constructors);
         _removeDisabledCreators(factories);
 
-        final PotentialCreators collector = new PotentialCreators();
         // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
             // Start with Constructors as they have higher precedence:
-            _addExplicitlyAnnotatedCreators(collector, constructors, props, false);
+            _addExplicitlyAnnotatedCreators(creators, constructors, props, false);
             // followed by Factory methods (lower precedence)
-            _addExplicitlyAnnotatedCreators(collector, factories, props,
-                    collector.hasPropertiesBased());
+            _addExplicitlyAnnotatedCreators(creators, factories, props,
+                    creators.hasPropertiesBased());
         }
 
         // If no Explicitly annotated creators found, look
         // for ones with explicitly-named ({@code @JsonProperty}) parameters
-        if (!collector.hasPropertiesBased()) {
+        if (!creators.hasPropertiesBased()) {
             // only discover constructor Creators?
-            _addCreatorsWithAnnotatedNames(collector, constructors);
+            _addCreatorsWithAnnotatedNames(creators, constructors);
         }
 
         // But if no annotation-based Creators found, find/use canonical Creator
         // (JDK 17 Record/Scala/Kotlin)
-        if (!collector.hasPropertiesBased()) {
+        if (!creators.hasPropertiesBased()) {
             // for Records:
             if ((canonical != null) && constructors.contains(canonical)) {
                 constructors.remove(canonical);
-                collector.addPropertiesBased(_config, canonical, "canonical");
+                creators.setPropertiesBased(_config, canonical, "canonical");
             }
         }
 
-        // And finally add logical properties:
-        PotentialCreator primary = collector.propertiesBased;
+        // And finally add logical properties for the One Properties-based
+        // creator selected (if any):
+        PotentialCreator primary = creators.propertiesBased;
         if (primary != null) {
             _addCreatorParams(props, primary);
         }
@@ -713,10 +728,10 @@ public class POJOPropertiesCollector
             if (propsBased) {
                 // Skipping done if we already got higher-precedence Creator
                 if (!skipPropsBased) {
-                    collector.addPropertiesBased(_config, ctor, "explicit");
+                    collector.setPropertiesBased(_config, ctor, "explicit");
                 }
             } else {
-                collector.addDelegating(ctor);
+                collector.addExplicitDelegating(ctor);
             }
         }
     }
@@ -735,7 +750,7 @@ public class POJOPropertiesCollector
             }
             it.remove();
 
-            collector.addPropertiesBased(_config, ctor, "implicit");
+            collector.setPropertiesBased(_config, ctor, "implicit");
         }
     }
 

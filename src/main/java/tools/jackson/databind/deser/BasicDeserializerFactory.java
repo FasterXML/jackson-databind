@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.*;
 import tools.jackson.databind.deser.bean.CreatorCandidate;
@@ -586,12 +587,6 @@ nonAnnotatedParamIndex, ctor);
                 continue;
             }
 
-            // zero-arg method factory methods fine, as long as explicit
-            if (argCount == 0) {
-                creators.setDefaultCreator(factory);
-                continue;
-            }
-
             switch (creatorMode) {
             case DELEGATING:
                 _addExplicitDelegatingCreator(ctxt, beanDesc, creators,
@@ -668,24 +663,8 @@ nonAnnotatedParamIndex, ctor);
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(config, param);
                 if (unwrapper != null) {
                     _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
-                    /*
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
-                    ++implicitNameCount;
-                    */
                     continue;
                 }
-                /* 25-Sep-2014, tatu: Actually, we may end up "losing" naming due to higher-priority constructor
-                 *  (see TestCreators#testConstructorCreator() test). And just to avoid running into that problem,
-                 *  let's add one more work around
-                 */
-                /*
-                PropertyName name2 = _findExplicitParamName(param, intr);
-                if (name2 != null && !name2.isEmpty()) {
-                    // Hmmh. Ok, fine. So what are we to do with it... ?
-                    // For now... skip. May need to revisit this, should this become problematic
-                    continue main_loop;
-                }
-                */
                 if (nonAnnotatedParam == null) {
                     nonAnnotatedParam = param;
                 }
@@ -788,10 +767,6 @@ nonAnnotatedParamIndex, ctor);
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(config, param);
                 if (unwrapper != null) {
                     _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
-                    /*
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
-                    ++explicitNameCount;
-                    */
                 }
                 name = candidate.findImplicitParamName(i);
                 _validateNamedPropertyParameter(ctxt, beanDesc, candidate, i,

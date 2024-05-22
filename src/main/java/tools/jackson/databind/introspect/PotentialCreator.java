@@ -153,6 +153,10 @@ public class PotentialCreator
         return (pn == null) ? null : pn.getSimpleName();
     }
 
+    public BeanPropertyDefinition[] propertyDefs() {
+        return propertyDefs;
+    }
+
     /*
     /**********************************************************************
     /* Misc other

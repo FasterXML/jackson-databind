@@ -330,6 +330,9 @@ anyField.getName()));
 
     @Override
     public PotentialCreators getPotentialCreators() {
+        if (_propCollector == null) {
+            return new PotentialCreators();
+        }
         return _propCollector.getPotentialCreators();
     }
     

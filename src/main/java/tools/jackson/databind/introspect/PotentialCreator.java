@@ -1,5 +1,7 @@
 package tools.jackson.databind.introspect;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import tools.jackson.databind.AnnotationIntrospector;
@@ -28,7 +30,7 @@ public class PotentialCreator
      * Parameter definitions if (and only if) this represents a
      * Property-based Creator.
      */
-    private BeanPropertyDefinition[] propertyDefs;
+    private List<BeanPropertyDefinition> propertyDefs;
 
     public PotentialCreator(AnnotatedWithParams cr,
             JsonCreator.Mode cm)
@@ -43,8 +45,9 @@ public class PotentialCreator
     /**********************************************************************
      */
 
-    public void assignPropertyDefs(BeanPropertyDefinition[] propertyDefs) {
-        this.propertyDefs = propertyDefs;
+    @SuppressWarnings("unchecked")
+    public void assignPropertyDefs(List<? extends BeanPropertyDefinition> propertyDefs) {
+        this.propertyDefs = (List<BeanPropertyDefinition>) propertyDefs;
     }
 
     public PotentialCreator introspectParamNames(MapperConfig<?> config)
@@ -154,7 +157,10 @@ public class PotentialCreator
     }
 
     public BeanPropertyDefinition[] propertyDefs() {
-        return propertyDefs;
+        if (propertyDefs == null || propertyDefs.isEmpty()) {
+            return new BeanPropertyDefinition[0];
+        }
+        return propertyDefs.toArray(new BeanPropertyDefinition[propertyDefs.size()]);
     }
 
     /*

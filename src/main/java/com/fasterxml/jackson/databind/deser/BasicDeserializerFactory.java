@@ -249,6 +249,7 @@ public abstract class BasicDeserializerFactory
     {
         final CreatorCollectionState ccState;
         final ConstructorDetector ctorDetector;
+        final PotentialCreators potentialCreators = beanDesc.getPotentialCreators();
 
         {
             final MapperConfig<?> config = ctxt.getConfig();
@@ -265,8 +266,16 @@ public abstract class BasicDeserializerFactory
             // 15-Mar-2015, tatu: Alas, this won't help with constructors that only have implicit
             //   names. Those will need to be resolved later on.
             final CreatorCollector creators = new CreatorCollector(beanDesc, config);
-            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs =
-                    _findCreatorsFromProperties(beanDesc);
+
+            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs;
+
+            if (potentialCreators.hasPropertiesBased()) {
+                PotentialCreator primaryPropsBased = potentialCreators.propertiesBased;
+                creatorDefs = Collections.singletonMap(primaryPropsBased.creator(),
+                        primaryPropsBased.propertyDefs());
+            } else {
+                creatorDefs = Collections.emptyMap();
+            }
             ccState = new CreatorCollectionState(config, beanDesc, vchecker,
                     creators, creatorDefs);
         }

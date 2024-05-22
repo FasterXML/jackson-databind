@@ -1563,6 +1563,8 @@ public class POJOPropertiesCollector
                     _config.canOverrideAccessModifiers());
     }
 
+    // Method called to make sure secondary _creatorProperties entries are updated
+    // when main properties are recreated (for some renaming, cleaving)
     protected boolean _replaceCreatorProperty(List<POJOPropertyBuilder> creatorProperties,
             POJOPropertyBuilder prop)
     {

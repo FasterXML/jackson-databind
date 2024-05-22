@@ -429,6 +429,8 @@ public class POJOPropertiesCollector
      */
     protected void collectAll()
     {
+        _potentialCreators = new PotentialCreators();
+
         // First: gather basic accessors
         LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<String, POJOPropertyBuilder>();
 
@@ -639,9 +641,7 @@ public class POJOPropertiesCollector
     // Completely rewritten in 2.18
     protected void _addCreators(Map<String, POJOPropertyBuilder> props)
     {
-        final PotentialCreators creators = new PotentialCreators();
-        _potentialCreators = creators;
-        _creatorProperties = new ArrayList<>();
+        final PotentialCreators creators = _potentialCreators;
 
         // First, resolve explicit annotations for all potential Creators
         // (but do NOT filter out DISABLED ones yet!)
@@ -692,8 +692,11 @@ public class POJOPropertiesCollector
         // And finally add logical properties for the One Properties-based
         // creator selected (if any):
         PotentialCreator primary = creators.propertiesBased;
-        if (primary != null) {
-            _addCreatorParams(props, primary);
+        if (primary == null) {
+            _creatorProperties = Collections.emptyList();
+        } else {
+            _creatorProperties = new ArrayList<>();
+            _addCreatorParams(props, primary, _creatorProperties);
         }
     }
 
@@ -808,37 +811,33 @@ public class POJOPropertiesCollector
     }
 
     private void _addCreatorParams(Map<String, POJOPropertyBuilder> props,
-            PotentialCreator ctor)
+            PotentialCreator ctor, List<POJOPropertyBuilder> creatorProps)
     {
         final int paramCount = ctor.paramCount();
-        final BeanPropertyDefinition[] propertyDefs = new BeanPropertyDefinition[paramCount];
         for (int i = 0; i < paramCount; ++i) {
             final AnnotatedParameter param = ctor.param(i);
             final PropertyName explName = ctor.explicitName(i);
             PropertyName implName = ctor.implicitName(i);
             final boolean hasExplicit = (explName != null);
+            final POJOPropertyBuilder prop;
 
-            if (!hasExplicit) {
-                if (implName == null) {
-                    // Important: if neither implicit nor explicit name, cannot make use of
-                    // this creator parameter -- may or may not be a problem, verified at a later point.
-                    continue;
+            if (!hasExplicit && (implName == null)) {
+                // Important: if neither implicit nor explicit name, cannot make use of
+                // this creator parameter -- may or may not be a problem, verified at a later point.
+                prop = null;
+            } else {
+                // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
+                if (implName != null) {
+                    String n = _checkRenameByField(implName.getSimpleName());
+                    implName = PropertyName.construct(n);
                 }
+                prop = (implName == null)
+                        ? _property(props, explName) : _property(props, implName);
+                prop.addCtor(param, hasExplicit ? explName : implName, hasExplicit, true, false);
             }
-
-            // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
-            if (implName != null) {
-                String n = _checkRenameByField(implName.getSimpleName());
-                implName = PropertyName.construct(n);
-            }
-
-            POJOPropertyBuilder prop = (implName == null)
-                    ? _property(props, explName) : _property(props, implName);
-            prop.addCtor(param, hasExplicit ? explName : implName, hasExplicit, true, false);
-            propertyDefs[i] = prop;
-            _creatorProperties.add(prop);
+            creatorProps.add(prop);
         }
-        ctor.assignPropertyDefs(propertyDefs);
+        ctor.assignPropertyDefs(creatorProps);
     }
 
     /*
@@ -1199,7 +1198,7 @@ public class POJOPropertiesCollector
                     old.addAll(prop);
                 }
                 // replace the creatorProperty too, if there is one
-                if (_replaceCreatorProperty(prop, _creatorProperties)) {
+                if (_replaceCreatorProperty(_creatorProperties, prop)) {
                     // [databind#2001]: New name of property was ignored previously? Remove from ignored
                     // 01-May-2018, tatu: I have a feeling this will need to be revisited at some point,
                     //   to avoid removing some types of removals, possibly. But will do for now.
@@ -1271,7 +1270,7 @@ public class POJOPropertiesCollector
             }
 
             // replace the creatorProperty too, if there is one
-            _replaceCreatorProperty(prop, _creatorProperties);
+            _replaceCreatorProperty(_creatorProperties, prop);
         }
     }
 
@@ -1409,15 +1408,21 @@ public class POJOPropertiesCollector
                 TreeMap<String, POJOPropertyBuilder> sorted =
                         new TreeMap<String,POJOPropertyBuilder>();
                 for (POJOPropertyBuilder prop : _creatorProperties) {
-                    sorted.put(prop.getName(), prop);
+                    if (prop != null) {
+                        sorted.put(prop.getName(), prop);
+                    }
                 }
                 cr = sorted.values();
             } else {
                 cr = _creatorProperties;
             }
             for (POJOPropertyBuilder prop : cr) {
+                if (prop == null) {
+                    continue;
+                }
                 // 16-Jan-2016, tatu: Related to [databind#1317], make sure not to accidentally
                 //    add back pruned creator properties!
+
                 String name = prop.getName();
                 // 27-Nov-2019, tatu: Not sure why, but we should NOT remove it from `all` tho:
 //                if (all.remove(name) != null) {
@@ -1558,13 +1563,20 @@ public class POJOPropertiesCollector
                     _config.canOverrideAccessModifiers());
     }
 
-    protected boolean _replaceCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
+    // Method called to make sure secondary _creatorProperties entries are updated
+    // when main properties are recreated (for some renaming, cleaving)
+    protected boolean _replaceCreatorProperty(List<POJOPropertyBuilder> creatorProperties,
+            POJOPropertyBuilder prop)
+    {
+        final AnnotatedParameter ctorParam = prop.getConstructorParameter();
         if (creatorProperties != null) {
-            final String intName = prop.getInternalName();
             for (int i = 0, len = creatorProperties.size(); i < len; ++i) {
-                if (creatorProperties.get(i).getInternalName().equals(intName)) {
-                    creatorProperties.set(i, prop);
-                    return true;
+                POJOPropertyBuilder cprop = creatorProperties.get(i);
+                if (cprop != null) {
+                    if (cprop.getConstructorParameter() == ctorParam) {
+                        creatorProperties.set(i, prop);
+                        return true;
+                    }
                 }
             }
         }

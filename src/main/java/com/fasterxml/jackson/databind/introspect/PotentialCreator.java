@@ -142,6 +142,15 @@ public class PotentialCreator
         return false;
     }
 
+    public boolean hasNameForAllParams() {
+        for (int i = 0, end = implicitParamNames.length; i < end; ++i) {
+            if ((explicitParamNames[i] == null) && (implicitParamNames[i] == null)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     public PropertyName explicitName(int ix) {
         return explicitParamNames[ix];
     }

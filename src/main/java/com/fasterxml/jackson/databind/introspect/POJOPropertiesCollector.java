@@ -689,6 +689,14 @@ public class POJOPropertiesCollector
             }
         }
 
+        // One more thing: if neither explicit (constructor or factory) nor
+        // canonical (constructor?), consider implicit Constructor with
+        // all named
+        if (!creators.hasPropertiesBasedOrDelegating()
+                && !_config.getConstructorDetector().requireCtorAnnotation()) {
+            _addImplicitConstructor(creators, constructors);
+        }
+        
         // Anything else left, add as possible implicit Creators
         creators.setImplicitDelegating(constructors, factories);
 
@@ -810,6 +818,21 @@ public class POJOPropertiesCollector
             it.remove();
 
             collector.setPropertiesBased(_config, ctor, "implicit");
+        }
+    }
+
+    private void _addImplicitConstructor(PotentialCreators collector,
+            List<PotentialCreator> ctors)
+    {
+        if (ctors.size() == 1) {
+            PotentialCreator ctor = ctors.get(0);
+            if (_visibilityChecker.isCreatorVisible(ctor.creator())) {
+                ctor.introspectParamNames(_config);
+                if (ctor.hasNameForAllParams()) {
+                    ctors.remove(0);
+                    collector.setPropertiesBased(_config, ctor, "implicit");
+                }
+            }
         }
     }
 

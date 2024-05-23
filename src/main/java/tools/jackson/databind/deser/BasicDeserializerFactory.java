@@ -208,12 +208,12 @@ public abstract class BasicDeserializerFactory
     protected ValueInstantiator _constructDefaultValueInstantiator(DeserializationContext ctxt,
             BeanDescription beanDesc)
     {
+        final MapperConfig<?> config = ctxt.getConfig();
+        final PotentialCreators potentialCreators = beanDesc.getPotentialCreators();
         final CreatorCollectionState ccState;
         final ConstructorDetector ctorDetector;
-        final PotentialCreators potentialCreators = beanDesc.getPotentialCreators();
 
         {
-            final MapperConfig<?> config = ctxt.getConfig();
             // need to construct suitable visibility checker:
             final VisibilityChecker vchecker = config.getDefaultVisibilityChecker(beanDesc.getBeanClass(),
                     beanDesc.getClassInfo());
@@ -253,6 +253,16 @@ public abstract class BasicDeserializerFactory
             if (isNonStaticInnerClass) {
                 // TODO: look for `@JsonCreator` annotated ones, throw explicit exception?
             } else {
+                // First things first: the "default constructor" (zero-arg
+                // constructor; whether implicit or explicit) is NOT included
+                // in list of constructors, so needs to be handled separately.
+                AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
+                if (defaultCtor != null) {
+                    if (!ccState.creators.hasDefaultCreator() || _hasCreatorAnnotation(config, defaultCtor)) {
+                        ccState.creators.setDefaultCreator(defaultCtor);
+                    }
+                }
+
                 // 18-Sep-2020, tatu: Although by default implicit introspection is allowed, 2.12
                 //   has settings to prevent that either generally, or at least for JDK types
                 final boolean findImplicit = ctorDetector.shouldIntrospectorImplicitConstructors(beanDesc.getBeanClass());
@@ -314,7 +324,13 @@ public abstract class BasicDeserializerFactory
 
     /*
     /**********************************************************************
-    /* Creator introspection: constructor creator introspection
+    /* Creator introspection: new (2.18) helper methods
+    /**********************************************************************
+     */
+
+    /*
+    /**********************************************************************
+    /* OLD Creator introspection: constructor creator introspection
     /**********************************************************************
      */
 
@@ -328,15 +344,6 @@ public abstract class BasicDeserializerFactory
         final VisibilityChecker vchecker = ccState.vchecker;
         final Map<AnnotatedWithParams, BeanPropertyDefinition[]> creatorParams = ccState.creatorParams;
 
-        // First things first: the "default constructor" (zero-arg
-        // constructor; whether implicit or explicit) is NOT included
-        // in list of constructors, so needs to be handled separately.
-        AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
-        if (defaultCtor != null) {
-            if (!creators.hasDefaultCreator() || _hasCreatorAnnotation(config, defaultCtor)) {
-                creators.setDefaultCreator(defaultCtor);
-            }
-        }
         // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(config, ctor);

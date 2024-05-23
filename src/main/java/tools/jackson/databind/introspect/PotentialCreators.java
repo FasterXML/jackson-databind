@@ -16,9 +16,7 @@ public class PotentialCreators
     private List<PotentialCreator> implicitDelegatingConstructors;
     private List<PotentialCreator> implicitDelegatingFactories;
 
-    public PotentialCreators()
-    {
-    }
+    public PotentialCreators() { }
 
     /*
     /**********************************************************************

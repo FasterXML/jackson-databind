@@ -636,6 +636,9 @@ public class POJOPropertiesCollector
             }
         }
 
+        // Anything else left, add as possible implicit Creators
+        creators.setImplicitDelegating(constructors, factories);
+
         // And finally add logical properties for the One Properties-based
         // creator selected (if any):
         PotentialCreator primary = creators.propertiesBased;

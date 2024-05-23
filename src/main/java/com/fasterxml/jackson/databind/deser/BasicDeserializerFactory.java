@@ -273,6 +273,11 @@ public abstract class BasicDeserializerFactory
                 PotentialCreator primaryPropsBased = potentialCreators.propertiesBased;
                 creatorDefs = Collections.singletonMap(primaryPropsBased.creator(),
                         primaryPropsBased.propertyDefs());
+
+                // Start by assigning the primary (and only) properties-based creator
+                _addExplicitPropertyCreator(ctxt, beanDesc, creators,
+                        CreatorCandidate.construct(config.getAnnotationIntrospector(),
+                                primaryPropsBased.creator(), primaryPropsBased.propertyDefs()));
             } else {
                 creatorDefs = Collections.emptyMap();
             }
@@ -280,8 +285,10 @@ public abstract class BasicDeserializerFactory
                     creators, creatorDefs);
         }
 
-        // Start with explicitly annotated factory methods
-        _addExplicitFactoryCreators(ctxt, ccState, !ctorDetector.requireCtorAnnotation());
+        // Continue with explicitly annotated delegating Creators
+        _addExplicitDelegatingCreators(ctxt, ccState, potentialCreators.getExplicitDelegating());
+
+//        _addExplicitFactoryCreators(ctxt, ccState, !ctorDetector.requireCtorAnnotation());
 
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
@@ -305,7 +312,7 @@ public abstract class BasicDeserializerFactory
                 // 18-Sep-2020, tatu: Although by default implicit introspection is allowed, 2.12
                 //   has settings to prevent that either generally, or at least for JDK types
                 final boolean findImplicit = ctorDetector.shouldIntrospectorImplicitConstructors(beanDesc.getBeanClass());
-                _addExplicitConstructorCreators(ctxt, ccState, findImplicit);
+//                _addExplicitConstructorCreators(ctxt, ccState, findImplicit);
                 if (ccState.hasImplicitConstructorCandidates()
                         // 05-Dec-2020, tatu: [databind#2962] explicit annotation of
                         //   a factory should not block implicit constructor, for backwards
@@ -367,6 +374,22 @@ public abstract class BasicDeserializerFactory
     /* Creator introspection: new (2.18) helper methods
     /**********************************************************************
      */
+
+    protected void _addExplicitDelegatingCreators(DeserializationContext ctxt,
+            CreatorCollectionState ccState, List<PotentialCreator> potentials)
+        throws JsonMappingException
+    {
+        final BeanDescription beanDesc = ccState.beanDesc;
+        final CreatorCollector creators = ccState.creators;
+        final AnnotationIntrospector intr = ccState.annotationIntrospector();
+
+        // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
+        for (PotentialCreator ctor : potentials) {
+            _addExplicitDelegatingCreator(ctxt, beanDesc, creators,
+                    CreatorCandidate.construct(intr, ctor.creator(), null));
+            ccState.increaseExplicitConstructorCount();
+        }
+    }
 
     /*
     /**********************************************************************

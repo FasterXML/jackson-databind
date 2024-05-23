@@ -312,7 +312,13 @@ public abstract class BasicDeserializerFactory
                 // 18-Sep-2020, tatu: Although by default implicit introspection is allowed, 2.12
                 //   has settings to prevent that either generally, or at least for JDK types
                 final boolean findImplicit = ctorDetector.shouldIntrospectorImplicitConstructors(beanDesc.getBeanClass());
-//                _addExplicitConstructorCreators(ctxt, ccState, findImplicit);
+                if (findImplicit) {
+                    _addImplicitDelegatingConstructors(ctxt, ccState,
+                            potentialCreators.getImplicitDelegatingConstructors());
+                }
+
+                //                _addExplicitConstructorCreators(ctxt, ccState, findImplicit);
+                /*
                 if (ccState.hasImplicitConstructorCandidates()
                         // 05-Dec-2020, tatu: [databind#2962] explicit annotation of
                         //   a factory should not block implicit constructor, for backwards
@@ -322,13 +328,21 @@ public abstract class BasicDeserializerFactory
                         && !ccState.hasExplicitConstructors()) {
                     _addImplicitConstructorCreators(ctxt, ccState, ccState.implicitConstructorCandidates());
                 }
+                */
             }
         }
         // and finally, implicitly found factory methods if nothing explicit found
+        /*
         if (ccState.hasImplicitFactoryCandidates()
                 && !ccState.hasExplicitFactories() && !ccState.hasExplicitConstructors()) {
             _addImplicitFactoryCreators(ctxt, ccState, ccState.implicitFactoryCandidates());
         }
+        */
+        if (!ccState.hasExplicitFactories() && !ccState.hasExplicitConstructors()) {
+            _addImplicitDelegatingFactories(ctxt, ccState,
+                    potentialCreators.getImplicitDelegatingFactories());
+        }
+
         return ccState.creators.constructValueInstantiator(ctxt);
     }
 
@@ -383,11 +397,91 @@ public abstract class BasicDeserializerFactory
         final CreatorCollector creators = ccState.creators;
         final AnnotationIntrospector intr = ccState.annotationIntrospector();
 
-        // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
         for (PotentialCreator ctor : potentials) {
             _addExplicitDelegatingCreator(ctxt, beanDesc, creators,
                     CreatorCandidate.construct(intr, ctor.creator(), null));
             ccState.increaseExplicitConstructorCount();
+        }
+    }
+
+    protected void _addImplicitDelegatingConstructors(DeserializationContext ctxt,
+            CreatorCollectionState ccState, List<PotentialCreator> potentials)
+        throws JsonMappingException
+    {
+        final BeanDescription beanDesc = ccState.beanDesc;
+        final CreatorCollector creators = ccState.creators;
+        final AnnotationIntrospector intr = ccState.annotationIntrospector();
+        final VisibilityChecker<?> vchecker = ccState.vchecker;
+
+        for (PotentialCreator candidate : potentials) {
+            final int argCount = candidate.paramCount();
+            final AnnotatedWithParams ctor = candidate.creator();
+            // some single-arg factory methods (String, number) are auto-detected
+            if (argCount == 1) {
+                /*boolean added = */ _handleSingleArgumentCreator(creators,
+                        ctor, false,
+                        vchecker.isCreatorVisible(ctor));
+                // regardless, fully handled
+                continue;
+            }
+
+            // 2 or more args; all params must have names or be injectable
+            // 14-Mar-2015, tatu (2.6): Or, as per [#725], implicit names will also
+            //   do, with some constraints. But that will require bit post processing...
+
+            SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
+            int injectCount = 0;
+
+            for (int i = 0; i < argCount; ++i) {
+                final AnnotatedParameter param = ctor.getParameter(i);
+                JacksonInject.Value injectable = intr.findInjectableValue(param);
+
+                if (injectable != null) {
+                    ++injectCount;
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, null, i, param, injectable);
+                    continue;
+                }
+                NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
+                if (unwrapper != null) {
+                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
+                    /*
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
+                    ++explicitNameCount;
+                    */
+                    continue;
+                }
+            }
+
+            if ((injectCount + 1) == argCount) {
+                // Secondary: all but one injectable, one un-annotated (un-named)
+                creators.addDelegatingCreator(ctor, false, properties, 0);
+                continue;
+            }
+            // otherwise, fail? Or no?
+            /*
+            ctxt.reportBadTypeDefinition(beanDesc,
+    "Delegating constructor has %d parameters (with %d Injectables): must have one and only one non-Injectable parameter",
+    argCount, injectCount);
+*/
+        }
+    }
+    
+    protected void _addImplicitDelegatingFactories(DeserializationContext ctxt,
+            CreatorCollectionState ccState, List<PotentialCreator> potentials)
+        throws JsonMappingException
+    {
+        final CreatorCollector creators = ccState.creators;
+        final VisibilityChecker<?> vchecker = ccState.vchecker;
+
+        for (PotentialCreator candidate : potentials) {
+            final int argCount = candidate.paramCount();
+            AnnotatedWithParams factory = candidate.creator();
+            // some single-arg factory methods (String, number) are auto-detected
+            if (argCount == 1) {
+                /*boolean added=*/ _handleSingleArgumentCreator(creators,
+                        factory, false, vchecker.isCreatorVisible(factory));
+            }
+            // 2 and more args? Must be explicit, handled earlier
         }
     }
 

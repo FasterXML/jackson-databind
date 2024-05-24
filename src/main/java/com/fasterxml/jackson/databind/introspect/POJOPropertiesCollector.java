@@ -684,10 +684,16 @@ public class POJOPropertiesCollector
         if (!creators.hasPropertiesBased()) {
             // for Records:
             if (canonical != null) {
+                // ... but only process if still included as a candidate
                 if (constructors.contains(canonical)) {
                     constructors.remove(canonical);
+                    // But wait! Could be delegating
+                    if (_isDelegatingConstructor(canonical)) {
+                        creators.addExplicitDelegating(canonical);
+                    } else {
+                        creators.setPropertiesBased(_config, canonical, "canonical");
+                    }
                 }
-                creators.setPropertiesBased(_config, canonical, "canonical");
             }
         }
 
@@ -711,6 +717,20 @@ public class POJOPropertiesCollector
             _creatorProperties = new ArrayList<>();
             _addCreatorParams(props, primary, _creatorProperties);
         }
+    }
+
+    // Method to determine if given non-explictly-annotated constructor
+    // looks like delegating one
+    private boolean _isDelegatingConstructor(PotentialCreator ctor)
+    {
+        // Only consider single-arg case, for now
+        if (ctor.paramCount() == 1) {
+            // Main thing: @JsonValue makes it delegating:
+            if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<PotentialCreator> _collectCreators(List<? extends AnnotatedWithParams> ctors)

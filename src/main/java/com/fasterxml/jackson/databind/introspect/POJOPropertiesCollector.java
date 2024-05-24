@@ -683,8 +683,10 @@ public class POJOPropertiesCollector
         // (JDK 17 Record/Scala/Kotlin)
         if (!creators.hasPropertiesBased()) {
             // for Records:
-            if ((canonical != null) && constructors.contains(canonical)) {
-                constructors.remove(canonical);
+            if (canonical != null) {
+                if (constructors.contains(canonical)) {
+                    constructors.remove(canonical);
+                }
                 creators.setPropertiesBased(_config, canonical, "canonical");
             }
         }

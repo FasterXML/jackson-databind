@@ -397,7 +397,6 @@ public abstract class BasicDeserializerFactory
         throws JsonMappingException
     {
 //System.err.println("_addExplicitDelegatingCreators("+potentials.size()+")");
-
         final BeanDescription beanDesc = ccState.beanDesc;
         final CreatorCollector creators = ccState.creators;
         final AnnotationIntrospector intr = ccState.annotationIntrospector();
@@ -993,6 +992,7 @@ candidate.creator());
                 if (!useProps) {
                     // Otherwise, `@JsonValue` suggests delegation
                     if (beanDesc.findJsonValueAccessor() != null) {
+                        // nothing to do; leave as non-props
                     } else if (injectId != null) {
                         // But Injection suggests property-based (for legacy reasons?)
                         useProps = true;

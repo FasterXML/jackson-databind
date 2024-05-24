@@ -779,16 +779,21 @@ public class POJOPropertiesCollector
                             "Ambiguous 1-argument Creator; `ConstructorDetector` requires specifying `mode`: %s",
                             ctor));
                 }
-    
-                // First things first: if explicit names found, is Properties-based
-                ctor.introspectParamNames(_config);
-                propsBased = ctor.hasExplicitNames()
-                        || ctorDetector.singleArgCreatorDefaultsToProperties();
-                // One more possibility: implicit name that maps to implied
-                // property based on Field/Getter/Setter
-                if (!propsBased) {
-                    String implName = ctor.implicitNameSimple(0);
-                    propsBased = (implName != null) && props.containsKey(implName);
+                // First: [databind#3180] @JsonValue indicates delegating
+                if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {
+                    propsBased = false;
+                } else {
+                    // Second: if explicit names found, is Properties-based
+                    ctor.introspectParamNames(_config);
+                    propsBased = ctor.hasExplicitNames()
+                            || ctorDetector.singleArgCreatorDefaultsToProperties();
+
+                    // One more possibility: implicit name that maps to implied
+                    // property based on Field/Getter/Setter
+                    if (!propsBased) {
+                        String implName = ctor.implicitNameSimple(0);
+                        propsBased = (implName != null) && props.containsKey(implName);
+                    }
                 }
             }
 

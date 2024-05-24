@@ -793,13 +793,14 @@ public class POJOPropertiesCollector
                 }
             }
 
-            // Must be 1-arg case:
+            // Must be 1-param case:
             if (propsBased == null) {
                 // Is ambiguity/heuristics allowed?
-                if (ctorDetector.requireCtorAnnotation()) {
+                if (ctorDetector.singleArgMode() == ConstructorDetector.SingleArgConstructor.REQUIRE_MODE) {
                     throw new IllegalArgumentException(String.format(
-                            "Ambiguous 1-argument Creator; `ConstructorDetector` requires specifying `mode`: %s",
-                            ctor));
+"Single-argument constructor (%s) is annotated but no 'mode' defined; `ConstructorDetector`"
++ "configured with `SingleArgConstructor.REQUIRE_MODE`",
+ctor.creator()));
                 }
                 // First: [databind#3180] @JsonValue indicates delegating
                 if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {

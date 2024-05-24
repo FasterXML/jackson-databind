@@ -702,9 +702,9 @@ public class POJOPropertiesCollector
         // all named
         if (!creators.hasPropertiesBasedOrDelegating()
                 && !_config.getConstructorDetector().requireCtorAnnotation()) {
-            _addImplicitConstructor(creators, constructors);
+            _addImplicitConstructor(creators, constructors, props);
         }
-        
+
         // Anything else left, add as possible implicit Creators
         creators.setImplicitDelegating(constructors, factories);
 
@@ -848,19 +848,37 @@ public class POJOPropertiesCollector
         }
     }
 
-    private void _addImplicitConstructor(PotentialCreators collector,
-            List<PotentialCreator> ctors)
+    private boolean _addImplicitConstructor(PotentialCreators collector,
+            List<PotentialCreator> ctors, Map<String, POJOPropertyBuilder> props)
     {
+        // Must have one and only one candidate
         if (ctors.size() == 1) {
-            PotentialCreator ctor = ctors.get(0);
+            final PotentialCreator ctor = ctors.get(0);
+            // which needs to be visible
             if (_visibilityChecker.isCreatorVisible(ctor.creator())) {
                 ctor.introspectParamNames(_config);
+                // and have implicit name for all parameters
                 if (ctor.hasNameForAllParams()) {
+                    // yet one more complication: 1-param case
+                    if (ctor.paramCount() == 1) {
+                        // may have explicit preference
+                        final ConstructorDetector ctorDetector = _config.getConstructorDetector();
+                        if (ctorDetector.singleArgCreatorDefaultsToDelegating()) {
+                            return false;
+                        }
+                        // if not, prefer Properties-based if explicit preference OR
+                        // property with same name
+                        if (!ctorDetector.singleArgCreatorDefaultsToProperties()
+                                && !props.containsKey(ctor.implicitNameSimple(0))) {
+                            return false;
+                        }
+                    }
                     ctors.remove(0);
                     collector.setPropertiesBased(_config, ctor, "implicit");
                 }
             }
         }
+        return false;
     }
 
     private void _addCreatorParams(Map<String, POJOPropertyBuilder> props,

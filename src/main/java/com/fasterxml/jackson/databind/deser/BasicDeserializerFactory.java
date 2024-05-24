@@ -491,7 +491,7 @@ public abstract class BasicDeserializerFactory
     /**********************************************************************
      */
 
-    protected void _addExplicitConstructorCreators(DeserializationContext ctxt,
+    private void _addExplicitConstructorCreators(DeserializationContext ctxt,
             CreatorCollectionState ccState, boolean findImplicit)
         throws JsonMappingException
     {
@@ -536,7 +536,7 @@ public abstract class BasicDeserializerFactory
         }
     }
 
-    protected void _addImplicitConstructorCreators(DeserializationContext ctxt,
+    private void _addImplicitConstructorCreators(DeserializationContext ctxt,
             CreatorCollectionState ccState, List<CreatorCandidate> ctorCandidates)
         throws JsonMappingException
     {
@@ -690,11 +690,11 @@ nonAnnotatedParamIndex, ctor);
 
     /*
     /**********************************************************************
-    /* Creator introspection: factory creator introspection
+    /* OLD Creator introspection: factory creator introspection
     /**********************************************************************
      */
 
-    protected void _addExplicitFactoryCreators(DeserializationContext ctxt,
+    private void _addExplicitFactoryCreators(DeserializationContext ctxt,
             CreatorCollectionState ccState, boolean findImplicit)
         throws JsonMappingException
     {
@@ -741,7 +741,7 @@ nonAnnotatedParamIndex, ctor);
         }
     }
 
-    protected void _addImplicitFactoryCreators(DeserializationContext ctxt,
+    private void _addImplicitFactoryCreators(DeserializationContext ctxt,
             CreatorCollectionState ccState, List<CreatorCandidate> factoryCandidates)
         throws JsonMappingException
     {
@@ -834,7 +834,7 @@ nonAnnotatedParamIndex, ctor);
      *
      * @since 2.9.2
      */
-    protected void _addExplicitDelegatingCreator(DeserializationContext ctxt,
+    private void _addExplicitDelegatingCreator(DeserializationContext ctxt,
             BeanDescription beanDesc, CreatorCollector creators,
             CreatorCandidate candidate)
         throws JsonMappingException
@@ -887,7 +887,7 @@ nonAnnotatedParamIndex, ctor);
      *
      * @since 2.9.2
      */
-    protected void _addExplicitPropertyCreator(DeserializationContext ctxt,
+    private void _addExplicitPropertyCreator(DeserializationContext ctxt,
             BeanDescription beanDesc, CreatorCollector creators,
             CreatorCandidate candidate)
         throws JsonMappingException
@@ -921,7 +921,7 @@ nonAnnotatedParamIndex, ctor);
      *
      * @since 2.12
      */
-    protected void _addExplicitAnyCreator(DeserializationContext ctxt,
+    private void _addExplicitAnyCreator(DeserializationContext ctxt,
             BeanDescription beanDesc, CreatorCollector creators,
             CreatorCandidate candidate, ConstructorDetector ctorDetector)
         throws JsonMappingException
@@ -1114,7 +1114,7 @@ candidate.creator());
         }
     }
 
-    protected boolean _handleSingleArgumentCreator(CreatorCollector creators,
+    private boolean _handleSingleArgumentCreator(CreatorCollector creators,
             AnnotatedWithParams ctor, boolean isCreator, boolean isVisible)
     {
         // otherwise either 'simple' number, String, or general delegate:

@@ -251,6 +251,7 @@ public abstract class BasicDeserializerFactory
         final PotentialCreators potentialCreators = beanDesc.getPotentialCreators();
         final CreatorCollectionState ccState;
         final ConstructorDetector ctorDetector;
+        final boolean hasPrimaryPropsCreator;
 
         {
             // need to construct suitable visibility checker:
@@ -269,7 +270,8 @@ public abstract class BasicDeserializerFactory
 
             // 21-May-2024, tatu: [databind#4515] Rewritten to use PotentialCreators
             Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs;
-            if (potentialCreators.hasPropertiesBased()) {
+            hasPrimaryPropsCreator = potentialCreators.hasPropertiesBased();
+            if (hasPrimaryPropsCreator) {
                 PotentialCreator primaryPropsBased = potentialCreators.propertiesBased;
                 creatorDefs = Collections.singletonMap(primaryPropsBased.creator(),
                         primaryPropsBased.propertyDefs());
@@ -286,7 +288,8 @@ public abstract class BasicDeserializerFactory
         }
 
         // Continue with explicitly annotated delegating Creators
-        _addExplicitDelegatingCreators(ctxt, ccState, potentialCreators.getExplicitDelegating());
+        boolean hasExplicitDelegating = _addExplicitDelegatingCreators(ctxt, ccState,
+                potentialCreators.getExplicitDelegating());
 
 //        _addExplicitFactoryCreators(ctxt, ccState, !ctorDetector.requireCtorAnnotation());
 
@@ -338,7 +341,7 @@ public abstract class BasicDeserializerFactory
             _addImplicitFactoryCreators(ctxt, ccState, ccState.implicitFactoryCandidates());
         }
         */
-        if (!ccState.hasExplicitFactories() && !ccState.hasExplicitConstructors()) {
+        if (!hasExplicitDelegating) {
             _addImplicitDelegatingFactories(ctxt, ccState,
                     potentialCreators.getImplicitDelegatingFactories());
         }
@@ -389,25 +392,31 @@ public abstract class BasicDeserializerFactory
     /**********************************************************************
      */
 
-    protected void _addExplicitDelegatingCreators(DeserializationContext ctxt,
+    protected boolean _addExplicitDelegatingCreators(DeserializationContext ctxt,
             CreatorCollectionState ccState, List<PotentialCreator> potentials)
         throws JsonMappingException
     {
+//System.err.println("_addExplicitDelegatingCreators("+potentials.size()+")");
+
         final BeanDescription beanDesc = ccState.beanDesc;
         final CreatorCollector creators = ccState.creators;
         final AnnotationIntrospector intr = ccState.annotationIntrospector();
+        boolean added = false;
 
         for (PotentialCreator ctor : potentials) {
-            _addExplicitDelegatingCreator(ctxt, beanDesc, creators,
+            added |= _addExplicitDelegatingCreator(ctxt, beanDesc, creators,
                     CreatorCandidate.construct(intr, ctor.creator(), null));
             ccState.increaseExplicitConstructorCount();
         }
+        return added;
     }
 
     protected void _addImplicitDelegatingConstructors(DeserializationContext ctxt,
             CreatorCollectionState ccState, List<PotentialCreator> potentials)
         throws JsonMappingException
     {
+//System.err.println("_addImplicitDelegatingConstructors("+potentials.size()+")");
+
         final BeanDescription beanDesc = ccState.beanDesc;
         final CreatorCollector creators = ccState.creators;
         final AnnotationIntrospector intr = ccState.annotationIntrospector();
@@ -470,6 +479,7 @@ public abstract class BasicDeserializerFactory
             CreatorCollectionState ccState, List<PotentialCreator> potentials)
         throws JsonMappingException
     {
+//System.err.println("_addImplicitDelegatingFactories("+potentials.size()+")");
         final CreatorCollector creators = ccState.creators;
         final VisibilityChecker<?> vchecker = ccState.vchecker;
 
@@ -834,7 +844,7 @@ nonAnnotatedParamIndex, ctor);
      *
      * @since 2.9.2
      */
-    private void _addExplicitDelegatingCreator(DeserializationContext ctxt,
+    private boolean _addExplicitDelegatingCreator(DeserializationContext ctxt,
             BeanDescription beanDesc, CreatorCollector creators,
             CreatorCandidate candidate)
         throws JsonMappingException
@@ -869,16 +879,10 @@ nonAnnotatedParamIndex, ctor);
         // 17-Jan-2018, tatu: as per [databind#1853] need to ensure we will distinguish
         //   "well-known" single-arg variants (String, int/long, boolean) from "generic" delegating...
         if (argCount == 1) {
-            _handleSingleArgumentCreator(creators, candidate.creator(), true, true);
-            // one more thing: sever link to creator property, to avoid possible later
-            // problems with "unresolved" constructor property
-            BeanPropertyDefinition paramDef = candidate.propertyDef(0);
-            if (paramDef != null) {
-                ((POJOPropertyBuilder) paramDef).removeConstructors();
-            }
-            return;
+            return _handleSingleArgumentCreator(creators, candidate.creator(), true, true);
         }
         creators.addDelegatingCreator(candidate.creator(), true, properties, ix);
+        return true;
     }
 
     /**
@@ -892,6 +896,7 @@ nonAnnotatedParamIndex, ctor);
             CreatorCandidate candidate)
         throws JsonMappingException
     {
+//System.err.println("_addExplicitPropertyCreator(): "+candidate);
         final int paramCount = candidate.paramCount();
         SettableBeanProperty[] properties = new SettableBeanProperty[paramCount];
 

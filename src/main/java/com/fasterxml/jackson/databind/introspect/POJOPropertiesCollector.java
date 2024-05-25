@@ -662,6 +662,8 @@ public class POJOPropertiesCollector
         // Next: remove creators marked as explicitly disabled
         _removeDisabledCreators(constructors);
         _removeDisabledCreators(factories);
+        // And then remove non-annotated static methods that do not look like factories
+        _removeNonFactoryStaticMethods(factories);
 
         // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
@@ -758,6 +760,35 @@ public class POJOPropertiesCollector
             if (it.next().creatorMode() == JsonCreator.Mode.DISABLED) {
                 it.remove();
             }
+        }
+    }
+
+    private void _removeNonFactoryStaticMethods(List<PotentialCreator> ctors)
+    {
+        final Class<?> rawType = _type.getRawClass();
+        Iterator<PotentialCreator> it = ctors.iterator();
+        while (it.hasNext()) {
+            // explicit mode? Retain (for now)
+            PotentialCreator ctor = it.next();
+            if (ctor.creatorMode() != null) {
+                continue;
+            }
+            // Copied from `BasicBeanDescription.isFactoryMethod()`
+            AnnotatedWithParams factory = ctor.creator();
+            if (rawType.isAssignableFrom(factory.getRawType())
+                    && ctor.paramCount() == 1) {
+                String name = factory.getName();
+
+                if ("valueOf".equals(name)) {
+                    continue;
+                } else if ("fromString".equals(name)) {
+                    Class<?> cls = factory.getRawParameterType(0);
+                    if (cls == String.class || CharSequence.class.isAssignableFrom(cls)) {
+                        continue;
+                    }
+                }
+            }
+            it.remove();
         }
     }
 

@@ -69,10 +69,10 @@ public class PotentialCreators
     }
 
     public List<PotentialCreator> getImplicitDelegatingFactories() {
-        return implicitDelegatingFactories;
+        return (implicitDelegatingFactories == null) ? Collections.emptyList() : implicitDelegatingFactories;
     }
     
     public List<PotentialCreator> getImplicitDelegatingConstructors() {
-        return implicitDelegatingConstructors;
+        return (implicitDelegatingConstructors == null) ? Collections.emptyList() : implicitDelegatingConstructors;
     }
 }

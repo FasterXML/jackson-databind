@@ -142,19 +142,28 @@ public class PotentialCreator
         return false;
     }
 
-    public boolean hasNameForAllParams() {
+    public boolean hasNameFor(int ix) {
+        return (explicitParamNames[ix] != null)
+                || (implicitParamNames[ix] != null);
+    }
+
+    public boolean hasNameOrInjectForAllParams(MapperConfig<?> config)
+    {
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         for (int i = 0, end = implicitParamNames.length; i < end; ++i) {
-            if ((explicitParamNames[i] == null) && (implicitParamNames[i] == null)) {
-                return false;
+            if (!hasNameFor(i)) {
+                if (intr == null || intr.findInjectableValue(creator.getParameter(i)) == null) {
+                    return false;
+                }
             }
         }
         return true;
     }
-    
+
     public PropertyName explicitName(int ix) {
         return explicitParamNames[ix];
     }
-    
+
     public PropertyName implicitName(int ix) {
         return implicitParamNames[ix];
     }

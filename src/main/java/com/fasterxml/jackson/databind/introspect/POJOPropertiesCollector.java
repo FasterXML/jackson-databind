@@ -874,8 +874,8 @@ ctor.creator()));
             }
             return false;
         }
-        // Trickiest case: rely on existence of implicit names
-        return ctor.hasNameForAllParams();
+        // Trickiest case: rely on existence of implicit names and/or injectables
+        return ctor.hasNameOrInjectForAllParams(_config);
     }
 
     private void _addCreatorsWithAnnotatedNames(PotentialCreators collector,
@@ -900,33 +900,44 @@ ctor.creator()));
             List<PotentialCreator> ctors, Map<String, POJOPropertyBuilder> props)
     {
         // Must have one and only one candidate
-        if (ctors.size() == 1) {
-            final PotentialCreator ctor = ctors.get(0);
-            // which needs to be visible
-            if (_visibilityChecker.isCreatorVisible(ctor.creator())) {
-                ctor.introspectParamNames(_config);
-                // and have implicit name for all parameters
-                if (ctor.hasNameForAllParams()) {
-                    // yet one more complication: 1-param case
-                    if (ctor.paramCount() == 1) {
-                        // may have explicit preference
-                        final ConstructorDetector ctorDetector = _config.getConstructorDetector();
-                        if (ctorDetector.singleArgCreatorDefaultsToDelegating()) {
-                            return false;
-                        }
-                        // if not, prefer Properties-based if explicit preference OR
-                        // property with same name
-                        if (!ctorDetector.singleArgCreatorDefaultsToProperties()
-                                && !props.containsKey(ctor.implicitNameSimple(0))) {
-                            return false;
-                        }
-                    }
-                    ctors.remove(0);
-                    collector.setPropertiesBased(_config, ctor, "implicit");
+        if (ctors.size() != 1) {
+            return false;
+        }
+        final PotentialCreator ctor = ctors.get(0);
+        // which needs to be visible
+        if (!_visibilityChecker.isCreatorVisible(ctor.creator())) {
+            return false;
+        }
+        ctor.introspectParamNames(_config);
+
+        // As usual, 1-param case is distinct
+        if (ctor.paramCount() != 1) {
+            if (!ctor.hasNameOrInjectForAllParams(_config)) {
+                return false;
+            }
+        } else {
+            // First things first: if only param has Injectable, must be Props-based
+            if ((_annotationIntrospector != null)
+                    && _annotationIntrospector.findInjectableValue(ctor.param(0)) != null) {
+                // props-based, continue
+            } else {
+                // may have explicit preference
+                final ConstructorDetector ctorDetector = _config.getConstructorDetector();
+                if (ctorDetector.singleArgCreatorDefaultsToDelegating()) {
+                    return false;
+                }
+                // if not, prefer Properties-based if explicit preference OR
+                // property with same name
+                if (!ctorDetector.singleArgCreatorDefaultsToProperties()
+                        && !props.containsKey(ctor.implicitNameSimple(0))) {
+                    return false;
                 }
             }
         }
-        return false;
+
+        ctors.remove(0);
+        collector.setPropertiesBased(_config, ctor, "implicit");
+        return true;
     }
 
     private void _addCreatorParams(Map<String, POJOPropertyBuilder> props,

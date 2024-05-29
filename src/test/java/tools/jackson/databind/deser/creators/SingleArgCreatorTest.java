@@ -183,7 +183,12 @@ public class SingleArgCreatorTest
         final ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new MyParamIntrospector("value"))
                 .build();
-        StringyBean bean = mapper.readValue(q("foobar"), StringyBean.class);
+        // 23-May-2024, tatu: [databind#4515] Clarifies handling to make
+        //   1-param Constructor with implicit name auto-discoverable
+        //   This is compatibility change so hopefully won't bite us but...
+        //   it seems like the right thing to do.
+//        StringyBean bean = mapper.readValue(q("foobar"), StringyBean.class);
+        StringyBean bean = mapper.readValue(a2q("{'value':'foobar'}"), StringyBean.class);
         assertEquals("foobar", bean.getValue());
     }
 

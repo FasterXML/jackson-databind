@@ -687,8 +687,7 @@ public class POJOPropertiesCollector
             // for Records:
             if (canonical != null) {
                 // ... but only process if still included as a candidate
-                if (constructors.contains(canonical)) {
-                    constructors.remove(canonical);
+                if (constructors.remove(canonical)) {
                     // But wait! Could be delegating
                     if (_isDelegatingConstructor(canonical)) {
                         creators.addExplicitDelegating(canonical);

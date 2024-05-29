@@ -259,6 +259,11 @@ public class BasicClassIntrospector
             //    of matches), or ambitious? Let's do latter for now.
             if (Collection.class.isAssignableFrom(raw)
                     || Map.class.isAssignableFrom(raw)) {
+                // 28-May-2024, tatu: Complications wrt [databind#4515] / [databind#2795]
+                //    mean that partial introspection NOT for inner classes
+                if (raw.toString().indexOf('$') > 0) {
+                    return false;
+                }
                 return true;
             }
         }

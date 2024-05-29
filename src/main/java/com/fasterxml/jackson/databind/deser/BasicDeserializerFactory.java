@@ -449,7 +449,7 @@ public abstract class BasicDeserializerFactory
 
     /*
     /**********************************************************************
-    /* Creator introspection: helper methods
+    /* Creator introspection: older (pre-2.18) helper methods
     /**********************************************************************
      */
 

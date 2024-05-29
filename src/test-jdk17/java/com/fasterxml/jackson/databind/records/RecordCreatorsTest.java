@@ -34,7 +34,7 @@ public class RecordCreatorsTest extends DatabindTestUtil
             this.value = "del:"+value;
         }
 
-        @JsonValue()
+        @JsonValue
         public String getValue() {
             return "val:"+value;
         }

@@ -662,6 +662,8 @@ public class POJOPropertiesCollector
         // Next: remove creators marked as explicitly disabled
         _removeDisabledCreators(constructors);
         _removeDisabledCreators(factories);
+        // And then remove non-annotated static methods that do not look like factories
+        _removeNonFactoryStaticMethods(factories);
 
         // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
@@ -683,9 +685,30 @@ public class POJOPropertiesCollector
         // (JDK 17 Record/Scala/Kotlin)
         if (!creators.hasPropertiesBased()) {
             // for Records:
-            if ((canonical != null) && constructors.contains(canonical)) {
-                constructors.remove(canonical);
-                creators.setPropertiesBased(_config, canonical, "canonical");
+            if (canonical != null) {
+                // ... but only process if still included as a candidate
+                if (constructors.remove(canonical)) {
+                    // But wait! Could be delegating
+                    if (_isDelegatingConstructor(canonical)) {
+                        creators.addExplicitDelegating(canonical);
+                    } else {
+                        creators.setPropertiesBased(_config, canonical, "canonical");
+                    }
+                }
+            }
+        }
+
+        // One more thing: if neither explicit (constructor or factory) nor
+        // canonical (constructor?), consider implicit Constructor with
+        // all named.
+        final ConstructorDetector ctorDetector = _config.getConstructorDetector();
+        if (!creators.hasPropertiesBasedOrDelegating()
+                && !ctorDetector.requireCtorAnnotation()) {
+            // But only if no default constructor available OR if we are configured
+            // to prefer properties-based Creators
+            if ((_classDef.getDefaultConstructor() == null)
+                    || ctorDetector.singleArgCreatorDefaultsToProperties()) {
+                _addImplicitConstructor(creators, constructors, props);
             }
         }
 
@@ -701,6 +724,20 @@ public class POJOPropertiesCollector
             _creatorProperties = new ArrayList<>();
             _addCreatorParams(props, primary, _creatorProperties);
         }
+    }
+
+    // Method to determine if given non-explictly-annotated constructor
+    // looks like delegating one
+    private boolean _isDelegatingConstructor(PotentialCreator ctor)
+    {
+        // Only consider single-arg case, for now
+        if (ctor.paramCount() == 1) {
+            // Main thing: @JsonValue makes it delegating:
+            if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<PotentialCreator> _collectCreators(List<? extends AnnotatedWithParams> ctors)
@@ -728,6 +765,35 @@ public class POJOPropertiesCollector
         }
     }
 
+    private void _removeNonFactoryStaticMethods(List<PotentialCreator> ctors)
+    {
+        final Class<?> rawType = _type.getRawClass();
+        Iterator<PotentialCreator> it = ctors.iterator();
+        while (it.hasNext()) {
+            // explicit mode? Retain (for now)
+            PotentialCreator ctor = it.next();
+            if (ctor.creatorMode() != null) {
+                continue;
+            }
+            // Copied from `BasicBeanDescription.isFactoryMethod()`
+            AnnotatedWithParams factory = ctor.creator();
+            if (rawType.isAssignableFrom(factory.getRawType())
+                    && ctor.paramCount() == 1) {
+                String name = factory.getName();
+
+                if ("valueOf".equals(name)) {
+                    continue;
+                } else if ("fromString".equals(name)) {
+                    Class<?> cls = factory.getRawParameterType(0);
+                    if (cls == String.class || CharSequence.class.isAssignableFrom(cls)) {
+                        continue;
+                    }
+                }
+            }
+            it.remove();
+        }
+    }
+
     private void _addExplicitlyAnnotatedCreators(PotentialCreators collector,
             List<PotentialCreator> ctors,
             Map<String, POJOPropertyBuilder> props,
@@ -743,48 +809,25 @@ public class POJOPropertiesCollector
             if (ctor.creatorMode() == null) {
                 continue;
             }
+
             it.remove();
 
-            Boolean propsBased = null;
-            
+            boolean isPropsBased;
+
             switch (ctor.creatorMode()) {
             case DELEGATING:
-                propsBased = false;
+                isPropsBased = false;
                 break;
             case PROPERTIES:
-                propsBased = true;
+                isPropsBased = true;
                 break;
             case DEFAULT:
             default:
-                // First things first: if not single-arg Creator, must be Properties-based
-                // !!! Or does it? What if there's @JacksonInject etc?
-                if (ctor.paramCount() != 1) {
-                    propsBased = true;
-                }
+                isPropsBased = _isExplicitlyAnnotatedCreatorPropsBased(ctor,
+                        props, ctorDetector);
             }
 
-            // Must be 1-arg case:
-            if (propsBased == null) {
-                // Is ambiguity/heuristics allowed?
-                if (ctorDetector.requireCtorAnnotation()) {
-                    throw new IllegalArgumentException(String.format(
-                            "Ambiguous 1-argument Creator; `ConstructorDetector` requires specifying `mode`: %s",
-                            ctor));
-                }
-    
-                // First things first: if explicit names found, is Properties-based
-                ctor.introspectParamNames(_config);
-                propsBased = ctor.hasExplicitNames()
-                        || ctorDetector.singleArgCreatorDefaultsToProperties();
-                // One more possibility: implicit name that maps to implied
-                // property based on Field/Getter/Setter
-                if (!propsBased) {
-                    String implName = ctor.implicitNameSimple(0);
-                    propsBased = (implName != null) && props.containsKey(implName);
-                }
-            }
-
-            if (propsBased) {
+            if (isPropsBased) {
                 // Skipping done if we already got higher-precedence Creator
                 if (!skipPropsBased) {
                     collector.setPropertiesBased(_config, ctor, "explicit");
@@ -793,6 +836,53 @@ public class POJOPropertiesCollector
                 collector.addExplicitDelegating(ctor);
             }
         }
+    }
+
+    private boolean _isExplicitlyAnnotatedCreatorPropsBased(PotentialCreator ctor,
+            Map<String, POJOPropertyBuilder> props, ConstructorDetector ctorDetector)
+    {
+        if (ctor.paramCount() == 1) {
+            // Is ambiguity/heuristics allowed?
+            switch (ctorDetector.singleArgMode()) {
+            case DELEGATING:
+                return false;
+            case PROPERTIES:
+                return true;
+            case REQUIRE_MODE:
+                throw new IllegalArgumentException(String.format(
+"Single-argument constructor (%s) is annotated but no 'mode' defined; `ConstructorDetector`"
++ "configured with `SingleArgConstructor.REQUIRE_MODE`",
+ctor.creator()));
+            case HEURISTIC:
+            default:
+            }
+        }
+
+        // First: if explicit names found, is Properties-based
+        ctor.introspectParamNames(_config);
+        if (ctor.hasExplicitNames()) {
+            return true;
+        }
+        // Second: [databind#3180] @JsonValue indicates delegating
+        if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {
+            return false;
+        }
+        if (ctor.paramCount() == 1) {
+            // One more possibility: implicit name that maps to implied
+            // property based on Field/Getter/Setter
+            String implName = ctor.implicitNameSimple(0);
+            if ((implName != null) && props.containsKey(implName)) {
+                return true;
+            }
+            // Second: injectable also suffices
+            if ((_annotationIntrospector != null)
+                    && _annotationIntrospector.findInjectableValue(ctor.param(0)) != null) {
+                return true;
+            }
+            return false;
+        }
+        // Trickiest case: rely on existence of implicit names and/or injectables
+        return ctor.hasNameOrInjectForAllParams(_config);
     }
 
     private void _addCreatorsWithAnnotatedNames(PotentialCreators collector,
@@ -811,6 +901,50 @@ public class POJOPropertiesCollector
 
             collector.setPropertiesBased(_config, ctor, "implicit");
         }
+    }
+
+    private boolean _addImplicitConstructor(PotentialCreators collector,
+            List<PotentialCreator> ctors, Map<String, POJOPropertyBuilder> props)
+    {
+        // Must have one and only one candidate
+        if (ctors.size() != 1) {
+            return false;
+        }
+        final PotentialCreator ctor = ctors.get(0);
+        // which needs to be visible
+        if (!_visibilityChecker.isCreatorVisible(ctor.creator())) {
+            return false;
+        }
+        ctor.introspectParamNames(_config);
+
+        // As usual, 1-param case is distinct
+        if (ctor.paramCount() != 1) {
+            if (!ctor.hasNameOrInjectForAllParams(_config)) {
+                return false;
+            }
+        } else {
+            // First things first: if only param has Injectable, must be Props-based
+            if ((_annotationIntrospector != null)
+                    && _annotationIntrospector.findInjectableValue(ctor.param(0)) != null) {
+                // props-based, continue
+            } else {
+                // may have explicit preference
+                final ConstructorDetector ctorDetector = _config.getConstructorDetector();
+                if (ctorDetector.singleArgCreatorDefaultsToDelegating()) {
+                    return false;
+                }
+                // if not, prefer Properties-based if explicit preference OR
+                // property with same name
+                if (!ctorDetector.singleArgCreatorDefaultsToProperties()
+                        && !props.containsKey(ctor.implicitNameSimple(0))) {
+                    return false;
+                }
+            }
+        }
+
+        ctors.remove(0);
+        collector.setPropertiesBased(_config, ctor, "implicit");
+        return true;
     }
 
     private void _addCreatorParams(Map<String, POJOPropertyBuilder> props,

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -147,13 +148,20 @@ public class ConstructorDetector1498Test
     @Test
     public void test1ArgDefaultsToPropsMultipleCtors() throws Exception
     {
+        // 23-May-2024, tatu: Will fail differently with [databind#4515]; default
+        //   constructor available, implicit ones ignored
         try {
             MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
                 SingleArg2CtorsNotAnnotated.class);
             fail("Should not pass");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "\"value\"");
+        }
+            /*
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Conflicting property-based creators");
         }
+        */
     }
 
     /*

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -180,9 +181,15 @@ public class SingleArgCreatorTest
     @Test
     public void testSingleStringArgWithImplicitName() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
-        StringyBean bean = mapper.readValue(q("foobar"), StringyBean.class);
+        final ObjectMapper mapper = JsonMapper.builder()
+                .annotationIntrospector(new MyParamIntrospector("value"))
+                .build();
+        // 23-May-2024, tatu: [databind#4515] Clarifies handling to make
+        //   1-param Constructor with implicit name auto-discoverable
+        //   This is compatibility change so hopefully won't bite us but...
+        //   it seems like the right thing to do.
+//        StringyBean bean = mapper.readValue(q("foobar"), StringyBean.class);
+        StringyBean bean = mapper.readValue(a2q("{'value':'foobar'}"), StringyBean.class);
         assertEquals("foobar", bean.getValue());
     }
 
@@ -190,8 +197,9 @@ public class SingleArgCreatorTest
     @Test
     public void testSingleImplicitlyNamedNotDelegating() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
+        final ObjectMapper mapper = JsonMapper.builder()
+                .annotationIntrospector(new MyParamIntrospector("value"))
+                .build();
         StringyBeanWithProps bean = mapper.readValue("{\"value\":\"x\"}", StringyBeanWithProps.class);
         assertEquals("x", bean.getValue());
     }

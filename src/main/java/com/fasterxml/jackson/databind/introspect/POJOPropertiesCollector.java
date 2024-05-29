@@ -702,10 +702,13 @@ public class POJOPropertiesCollector
         // One more thing: if neither explicit (constructor or factory) nor
         // canonical (constructor?), consider implicit Constructor with
         // all named.
+        final ConstructorDetector ctorDetector = _config.getConstructorDetector();
         if (!creators.hasPropertiesBasedOrDelegating()
-                && !_config.getConstructorDetector().requireCtorAnnotation()) {
-            // But only if no default constructor available!
-            if (_classDef.getDefaultConstructor() == null) {
+                && !ctorDetector.requireCtorAnnotation()) {
+            // But only if no default constructor available OR if we are configured
+            // to prefer properties-based Creators
+            if ((_classDef.getDefaultConstructor() == null)
+                    || ctorDetector.singleArgCreatorDefaultsToProperties()) {
                 _addImplicitConstructor(creators, constructors, props);
             }
         }

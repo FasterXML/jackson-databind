@@ -338,8 +338,7 @@ public abstract class BasicDeserializerFactory
             if (argCount == 1) {
                 // !!! 29-May-2024, tatu: Should last arg be "true" as it used to be?
                 /*boolean added = */ _handleSingleArgumentCreator(creators,
-                        ctor, false,
-                        true);
+                        ctor, false, true); // not-annotated, yes, visible
 //                        vchecker.isCreatorVisible(ctor));
                 // regardless, fully handled
                 continue;
@@ -396,7 +395,6 @@ public abstract class BasicDeserializerFactory
             AnnotatedWithParams factory = candidate.creator();
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
-                // !!! 29-May-2024, tatu: Should last arg be "true" as it used to be?
                 /*boolean added=*/ _handleSingleArgumentCreator(creators,
                         factory, false,
                         vchecker.isCreatorVisible(factory));

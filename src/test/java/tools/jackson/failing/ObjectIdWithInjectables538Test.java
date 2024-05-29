@@ -34,7 +34,7 @@ public class ObjectIdWithInjectables538Test extends DatabindTestUtil
     /*****************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // 26-Sep-2017, tatu: With Jackson 3.x and inclusion of parameter-names for creators
     //   we face a new failure since explicit name of injectables is sort of ignored.

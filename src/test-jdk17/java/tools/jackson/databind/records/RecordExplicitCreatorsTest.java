@@ -199,18 +199,15 @@ public class RecordExplicitCreatorsTest extends DatabindTestUtil
         }
     }
 
+    // 23-May-2024, tatu: Logic changed as part of [databind#4515]: explicit properties-based
+    //   Creator does NOT block implicit delegating Creators. So formerly (pre-2.18) failing
+    //   case is now expected to pass.
     @Test
     public void testDeserializeUsingImplicitFactoryMethod_WhenJsonCreatorConstructorExists_WillFail() throws Exception {
-        try {
-            MAPPER.readValue("123", RecordWithJsonPropertyWithJsonCreator.class);
-
-            fail("should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot construct instance");
-            verifyException(e, "RecordWithJsonPropertyWithJsonCreator");
-            verifyException(e, "although at least one Creator exists");
-            verifyException(e, "no int/Int-argument constructor/factory method");
-        }
+        RecordWithJsonPropertyWithJsonCreator value = MAPPER.readValue("123",
+                RecordWithJsonPropertyWithJsonCreator.class);
+        assertEquals(123, value.id());
+        assertEquals("JsonCreatorConstructor", value.name());
     }
 
     /*

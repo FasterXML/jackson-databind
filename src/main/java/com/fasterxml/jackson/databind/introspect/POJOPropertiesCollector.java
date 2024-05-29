@@ -872,6 +872,11 @@ ctor.creator()));
             if ((implName != null) && props.containsKey(implName)) {
                 return true;
             }
+            // Second: injectable also suffices
+            if ((_annotationIntrospector != null)
+                    && _annotationIntrospector.findInjectableValue(ctor.param(0)) != null) {
+                return true;
+            }
             return false;
         }
         // Trickiest case: rely on existence of implicit names and/or injectables

@@ -24,6 +24,7 @@ Project: jackson-databind
  (contributed by @pjfanning)
 #4483: Remove `final` on method BeanSerializer.serialize()
  (contributed by Matthew L)
+#4515: Rewrite Bean Property Introspection logic in Jackson 2.x
 
 2.17.1 (04-May-2024)
 

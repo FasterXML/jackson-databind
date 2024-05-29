@@ -249,49 +249,27 @@ public abstract class BasicDeserializerFactory
     {
         final MapperConfig<?> config = ctxt.getConfig();
         final PotentialCreators potentialCreators = beanDesc.getPotentialCreators();
-        final CreatorCollectionState ccState;
-        final ConstructorDetector ctorDetector;
-        final boolean hasPrimaryPropsCreator;
+        final ConstructorDetector ctorDetector = config.getConstructorDetector();
+        // need to construct suitable visibility checker:
+        final VisibilityChecker<?> vchecker = config.getDefaultVisibilityChecker(beanDesc.getBeanClass(),
+                beanDesc.getClassInfo());
 
-        {
-            // need to construct suitable visibility checker:
-            final VisibilityChecker<?> vchecker = config.getDefaultVisibilityChecker(beanDesc.getBeanClass(),
-                    beanDesc.getClassInfo());
-            ctorDetector = config.getConstructorDetector();
+        final CreatorCollector creators = new CreatorCollector(beanDesc, config);
 
-            // 24-Sep-2014, tatu: Tricky part first; need to merge resolved property information
-            //  (which has creator parameters sprinkled around) with actual creator
-            //  declarations (which are needed to access creator annotation, amongst other things).
-            //  Easiest to combine that info first, then pass it to remaining processing.
+        // 21-May-2024, tatu: [databind#4515] Rewritten to use PotentialCreators
+        if (potentialCreators.hasPropertiesBased()) {
+            PotentialCreator primaryPropsBased = potentialCreators.propertiesBased;
 
-            // 15-Mar-2015, tatu: Alas, this won't help with constructors that only have implicit
-            //   names. Those will need to be resolved later on.
-            final CreatorCollector creators = new CreatorCollector(beanDesc, config);
-
-            // 21-May-2024, tatu: [databind#4515] Rewritten to use PotentialCreators
-            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs;
-            hasPrimaryPropsCreator = potentialCreators.hasPropertiesBased();
-            if (hasPrimaryPropsCreator) {
-                PotentialCreator primaryPropsBased = potentialCreators.propertiesBased;
-                creatorDefs = Collections.singletonMap(primaryPropsBased.creator(),
-                        primaryPropsBased.propertyDefs());
-
-                // Start by assigning the primary (and only) properties-based creator
-                _addExplicitPropertyCreator(ctxt, beanDesc, creators,
-                        CreatorCandidate.construct(config.getAnnotationIntrospector(),
-                                primaryPropsBased.creator(), primaryPropsBased.propertyDefs()));
-            } else {
-                creatorDefs = Collections.emptyMap();
-            }
-            ccState = new CreatorCollectionState(config, beanDesc, vchecker,
-                    creators, creatorDefs);
+            // Start by assigning the primary (and only) properties-based creator
+            _addExplicitPropertyCreator(ctxt, beanDesc, creators,
+                    CreatorCandidate.construct(config.getAnnotationIntrospector(),
+                            primaryPropsBased.creator(), primaryPropsBased.propertyDefs()));
         }
 
         // Continue with explicitly annotated delegating Creators
-        boolean hasExplicitDelegating = _addExplicitDelegatingCreators(ctxt, ccState,
+        boolean hasExplicitDelegating = _addExplicitDelegatingCreators(ctxt,
+                beanDesc, creators,
                 potentialCreators.getExplicitDelegating());
-
-//        _addExplicitFactoryCreators(ctxt, ccState, !ctorDetector.requireCtorAnnotation());
 
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
@@ -307,8 +285,8 @@ public abstract class BasicDeserializerFactory
                 // in list of constructors, so needs to be handled separately.
                 AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
                 if (defaultCtor != null) {
-                    if (!ccState.creators.hasDefaultCreator() || _hasCreatorAnnotation(config, defaultCtor)) {
-                        ccState.creators.setDefaultCreator(defaultCtor);
+                    if (!creators.hasDefaultCreator() || _hasCreatorAnnotation(config, defaultCtor)) {
+                        creators.setDefaultCreator(defaultCtor);
                     }
                 }
 
@@ -316,37 +294,19 @@ public abstract class BasicDeserializerFactory
                 //   has settings to prevent that either generally, or at least for JDK types
                 final boolean findImplicit = ctorDetector.shouldIntrospectorImplicitConstructors(beanDesc.getBeanClass());
                 if (findImplicit) {
-                    _addImplicitDelegatingConstructors(ctxt, ccState,
+                    _addImplicitDelegatingConstructors(ctxt, beanDesc, vchecker,
+                            creators,
                             potentialCreators.getImplicitDelegatingConstructors());
                 }
-
-                //                _addExplicitConstructorCreators(ctxt, ccState, findImplicit);
-                /*
-                if (ccState.hasImplicitConstructorCandidates()
-                        // 05-Dec-2020, tatu: [databind#2962] explicit annotation of
-                        //   a factory should not block implicit constructor, for backwards
-                        //   compatibility (minor regression in 2.12.0)
-                        //&& !ccState.hasExplicitFactories()
-                        //  ... explicit constructor should prevent, however
-                        && !ccState.hasExplicitConstructors()) {
-                    _addImplicitConstructorCreators(ctxt, ccState, ccState.implicitConstructorCandidates());
-                }
-                */
             }
         }
-        // and finally, implicitly found factory methods if nothing explicit found
-        /*
-        if (ccState.hasImplicitFactoryCandidates()
-                && !ccState.hasExplicitFactories() && !ccState.hasExplicitConstructors()) {
-            _addImplicitFactoryCreators(ctxt, ccState, ccState.implicitFactoryCandidates());
-        }
-        */
         if (!hasExplicitDelegating) {
-            _addImplicitDelegatingFactories(ctxt, ccState,
+            _addImplicitDelegatingFactories(ctxt, vchecker,
+                    creators,
                     potentialCreators.getImplicitDelegatingFactories());
         }
 
-        return ccState.creators.constructValueInstantiator(ctxt);
+        return creators.constructValueInstantiator(ctxt);
     }
 
     public ValueInstantiator _valueInstantiatorInstance(DeserializationConfig config,
@@ -393,33 +353,28 @@ public abstract class BasicDeserializerFactory
      */
 
     private boolean _addExplicitDelegatingCreators(DeserializationContext ctxt,
-            CreatorCollectionState ccState, List<PotentialCreator> potentials)
+            BeanDescription beanDesc,
+            CreatorCollector creators,
+            List<PotentialCreator> potentials)
         throws JsonMappingException
     {
-//System.err.println("_addExplicitDelegatingCreators("+potentials.size()+")");
-        final BeanDescription beanDesc = ccState.beanDesc;
-        final CreatorCollector creators = ccState.creators;
-        final AnnotationIntrospector intr = ccState.annotationIntrospector();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         boolean added = false;
 
         for (PotentialCreator ctor : potentials) {
             added |= _addExplicitDelegatingCreator(ctxt, beanDesc, creators,
                     CreatorCandidate.construct(intr, ctor.creator(), null));
-            ccState.increaseExplicitConstructorCount();
         }
         return added;
     }
 
     private void _addImplicitDelegatingConstructors(DeserializationContext ctxt,
-            CreatorCollectionState ccState, List<PotentialCreator> potentials)
+            BeanDescription beanDesc, VisibilityChecker<?> vchecker,
+            CreatorCollector creators,
+            List<PotentialCreator> potentials)
         throws JsonMappingException
     {
-//System.err.println("_addImplicitDelegatingConstructors("+potentials.size()+")");
-
-        final BeanDescription beanDesc = ccState.beanDesc;
-        final CreatorCollector creators = ccState.creators;
-        final AnnotationIntrospector intr = ccState.annotationIntrospector();
-        final VisibilityChecker<?> vchecker = ccState.vchecker;
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
 
         for (PotentialCreator candidate : potentials) {
             final int argCount = candidate.paramCount();
@@ -475,13 +430,11 @@ public abstract class BasicDeserializerFactory
     }
     
     private void _addImplicitDelegatingFactories(DeserializationContext ctxt,
-            CreatorCollectionState ccState, List<PotentialCreator> potentials)
+            VisibilityChecker<?> vchecker,
+            CreatorCollector creators,
+            List<PotentialCreator> potentials)
         throws JsonMappingException
     {
-//System.err.println("_addImplicitDelegatingFactories("+potentials.size()+")");
-        final CreatorCollector creators = ccState.creators;
-        final VisibilityChecker<?> vchecker = ccState.vchecker;
-
         for (PotentialCreator candidate : potentials) {
             final int argCount = candidate.paramCount();
             AnnotatedWithParams factory = candidate.creator();
@@ -1929,21 +1882,6 @@ factory.toString()));
         return enumNamingStrategy == null ? null
             : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);
     }
-    
-    /**
-     * @since 2.9
-     * @deprecated Since 2.18 use {@link #_hasCreatorAnnotation(MapperConfig, Annotated)} instead
-     */
-    @Deprecated // since 2.18
-    protected boolean _hasCreatorAnnotation(DeserializationContext ctxt,
-            Annotated ann) {
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr != null) {
-            JsonCreator.Mode mode = intr.findCreatorAnnotation(ctxt.getConfig(), ann);
-            return (mode != null) && (mode != JsonCreator.Mode.DISABLED);
-        }
-        return false;
-    }
 
     /**
      * @since 2.18
@@ -2033,92 +1971,6 @@ factory.toString()));
 
         public static Class<?> findMapFallback(JavaType type) {
             return _mapFallbacks.get(type.getRawClass().getName());
-        }
-    }
-
-    /**
-     * Helper class to contain largish number of parameters that need to be passed
-     * during Creator introspection.
-     *
-     * @since 2.12
-     */
-    protected static class CreatorCollectionState {
-        public final MapperConfig<?> config;
-        public final BeanDescription beanDesc;
-        public final VisibilityChecker<?> vchecker;
-        public final CreatorCollector creators;
-        public final Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams;
-
-        private List<CreatorCandidate> _implicitFactoryCandidates;
-        private int _explicitFactoryCount;
-
-        private List<CreatorCandidate> _implicitConstructorCandidates;
-        private int _explicitConstructorCount;
-
-        public CreatorCollectionState(MapperConfig<?> cfg, BeanDescription bd,
-                VisibilityChecker<?> vc,
-                CreatorCollector cc,
-                Map<AnnotatedWithParams,BeanPropertyDefinition[]> cp)
-        {
-            config = cfg;
-            beanDesc = bd;
-            vchecker = vc;
-            creators = cc;
-            creatorParams = cp;
-        }
-
-        public AnnotationIntrospector annotationIntrospector() {
-            return config.getAnnotationIntrospector();
-        }
-
-        // // // Factory creator candidate info
-
-        public void addImplicitFactoryCandidate(CreatorCandidate cc) {
-            if (_implicitFactoryCandidates == null) {
-                _implicitFactoryCandidates = new LinkedList<>();
-            }
-            _implicitFactoryCandidates.add(cc);
-        }
-
-        public void increaseExplicitFactoryCount() {
-            ++_explicitFactoryCount;
-        }
-
-        public boolean hasExplicitFactories() {
-            return _explicitFactoryCount > 0;
-        }
-
-        public boolean hasImplicitFactoryCandidates() {
-            return _implicitFactoryCandidates != null;
-        }
-
-        public List<CreatorCandidate> implicitFactoryCandidates() {
-            return _implicitFactoryCandidates;
-        }
-
-        // // // Constructor creator candidate info
-
-        public void addImplicitConstructorCandidate(CreatorCandidate cc) {
-            if (_implicitConstructorCandidates == null) {
-                _implicitConstructorCandidates = new LinkedList<>();
-            }
-            _implicitConstructorCandidates.add(cc);
-        }
-
-        public void increaseExplicitConstructorCount() {
-            ++_explicitConstructorCount;
-        }
-
-        public boolean hasExplicitConstructors() {
-            return _explicitConstructorCount > 0;
-        }
-
-        public boolean hasImplicitConstructorCandidates() {
-            return _implicitConstructorCandidates != null;
-        }
-
-        public List<CreatorCandidate> implicitConstructorCandidates() {
-            return _implicitConstructorCandidates;
         }
     }
 }

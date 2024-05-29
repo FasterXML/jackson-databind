@@ -869,10 +869,13 @@ ctor.creator()));
         }
         if (ctor.paramCount() == 1) {
             // One more possibility: implicit name that maps to implied
-            // property based on Field/Getter/Setter
+            // property based on Getter/Setter (but not field!)
             String implName = ctor.implicitNameSimple(0);
-            if ((implName != null) && props.containsKey(implName)) {
-                return true;
+            if (implName != null) {
+                POJOPropertyBuilder prop = props.get(implName);
+                if ((prop != null) && (prop.hasGetter() || prop.hasSetter())) {
+                    return true;
+                }
             }
             // Second: injectable also suffices
             if ((_annotationIntrospector != null)

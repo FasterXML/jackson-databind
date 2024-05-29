@@ -399,8 +399,7 @@ public abstract class BasicDeserializerFactory
                 // !!! 29-May-2024, tatu: Should last arg be "true" as it used to be?
                 /*boolean added=*/ _handleSingleArgumentCreator(creators,
                         factory, false,
-                        true);
-//                        vchecker.isCreatorVisible(factory));
+                        vchecker.isCreatorVisible(factory));
             }
             // 2 and more args? Must be explicit, handled earlier
         }

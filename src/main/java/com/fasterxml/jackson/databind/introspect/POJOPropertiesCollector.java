@@ -713,6 +713,9 @@ public class POJOPropertiesCollector
         }
 
         // Anything else left, add as possible implicit Creators
+        // ... but first, trim non-visible
+        _removeNonVisibleCreators(constructors);
+        _removeNonVisibleCreators(factories);
         creators.setImplicitDelegating(constructors, factories);
 
         // And finally add logical properties for the One Properties-based
@@ -760,6 +763,17 @@ public class POJOPropertiesCollector
         while (it.hasNext()) {
             // explicitly prevented? Remove
             if (it.next().creatorMode() == JsonCreator.Mode.DISABLED) {
+                it.remove();
+            }
+        }
+    }
+
+    private void _removeNonVisibleCreators(List<PotentialCreator> ctors)
+    {
+        Iterator<PotentialCreator> it = ctors.iterator();
+        while (it.hasNext()) {
+            PotentialCreator ctor = it.next();
+            if (!_visibilityChecker.isCreatorVisible(ctor.creator())) {
                 it.remove();
             }
         }

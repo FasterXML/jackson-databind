@@ -6,6 +6,7 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
+#806: Problem with `NamingStrategy`, creator methods with implicit names
 #2977: Incompatible `FAIL_ON_MISSING_PRIMITIVE_PROPERTIES` and
   field level `@JsonProperty`
  (reported by @GeorgiPetkov)

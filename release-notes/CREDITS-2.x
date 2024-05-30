@@ -1052,7 +1052,10 @@ João Guerra (joca-bt@github)
   (2.11.1)
  * Reported #3227: Content `null` handling not working for root values
   (2.13.0)
- * Reported #3690: Incorrect target type for arrays when disabling coercion
+ * Reported #3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
+   for nullability
+  (2.18.0)
+* Reported #3690: Incorrect target type for arrays when disabling coercion
   (2.15.0)
  * Reported #3924: Incorrect target type when disabling coercion, trying to deserialize
     String from Array/Object

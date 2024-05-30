@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
+#3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
+  for nullability
+ (reported by @joca-bt)
 #4119: Exception when deserialization uses a record with a constructor
   property with `access=READ_ONLY`
  (reported by @Mochis)

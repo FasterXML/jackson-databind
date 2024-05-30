@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.creators;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

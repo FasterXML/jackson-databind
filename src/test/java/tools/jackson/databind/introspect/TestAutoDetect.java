@@ -19,9 +19,9 @@ public class TestAutoDetect extends DatabindTestUtil
     // 21-Sep-2017, tatu: With 2.x, private delegating ctor was acceptable; with 3.x
     //    must be non-private OR annotated
     static class ProtectedBean {
-        String a;
+        String _a;
 
-        protected ProtectedBean(String a) { this.a = a; }
+        protected ProtectedBean(String a) { this._a = a; }
     }
 
     // Private scalar constructor ok, but only if annotated (or level changed)
@@ -116,7 +116,7 @@ public class TestAutoDetect extends DatabindTestUtil
         // first, default settings, with which construction works ok
         ObjectMapper m = new ObjectMapper();
         ProtectedBean bean = m.readValue(q("abc"), ProtectedBean.class);
-        assertEquals("abc", bean.a);
+        assertEquals("abc", bean._a);
 
         // then by increasing visibility requirement:
         m = jsonMapperBuilder()

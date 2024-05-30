@@ -338,7 +338,8 @@ public abstract class BasicDeserializerFactory
             if (argCount == 1) {
                 // 29-May-2024, tatu: Last arg is "true" for 3.0 (for some reason)
                 /*boolean added = */ _handleSingleArgumentCreator(creators,
-                        ctor, false, true); // not-annotated, yes, visible
+                        ctor, false,
+                        true); // not-annotated, yes, visible
 //                        vchecker.isCreatorVisible(ctor));
                 // regardless, fully handled
                 continue;

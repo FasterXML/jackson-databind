@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.databind.objectid;
 
 import org.junit.jupiter.api.Test;
 

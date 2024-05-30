@@ -32,7 +32,7 @@ public class RawValueTest
     {
         protected final T _value;
 
-        protected ClassGetter(T value) { _value = value;}
+        protected ClassGetter(T v) { _value = v;}
 
         public T getNonRaw() { return _value; }
 

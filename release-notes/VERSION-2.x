@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
+#4119: Exception when deserialization uses a record with a constructor
+  property with `access=READ_ONLY`
+ (reported by @Mochis)
 #4452: `@JsonProperty` not serializing field names properly
   on `@JsonCreator` in Record
  (reported by @Incara)

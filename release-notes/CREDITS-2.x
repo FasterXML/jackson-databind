@@ -1774,6 +1774,10 @@ Oddbjørn Kvalsund (oddbjornkvalsund@github)
    in `DeserializerCache` to avoid deadlock on pinning
   (2.17.1)
 
+Ulf Dreyer (u3r@github)
+ * Reported #4085: `@JsonView` does not work on class-level for records
+  (2.18.0)
+
 David Moten (davidmoten@github)
  * Contributed #4453: Allow JSON Integer to deserialize into a single-arg constructor of
    parameter type `double`

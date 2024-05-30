@@ -12,13 +12,12 @@ import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.*;
-
-public class SingleArgCreatorTest
+public class SingleArgCreatorTest extends DatabindTestUtil
 {
     // [databind#430]: single arg BUT named; should not delegate
     static class SingleNamedStringBean {

@@ -13,6 +13,8 @@ Project: jackson-databind
 #3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
   for nullability
  (reported by @joca-bt)
+#4085: `@JsonView` does not work on class-level for records
+ (reported by Ulf D)
 #4119: Exception when deserialization uses a record with a constructor
   property with `access=READ_ONLY`
  (reported by @Mochis)

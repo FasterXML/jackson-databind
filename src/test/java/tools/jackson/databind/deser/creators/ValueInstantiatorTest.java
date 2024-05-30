@@ -23,7 +23,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
  * Test custom value instantiators.
  */
 @SuppressWarnings("serial")
-public class TestValueInstantiator
+public class ValueInstantiatorTest
 {
     static class MyBean
     {

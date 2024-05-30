@@ -60,14 +60,14 @@ public class TestCreators
     }
 
     static class DoubleConstructorBean {
-        Double d; // cup?
+        Double d;
         @JsonCreator protected DoubleConstructorBean(Double d) {
             this.d = d;
         }
     }
 
     static class FactoryBean {
-        double d; // teehee
+        double d;
 
         private FactoryBean(double value, boolean dummy) { d = value; }
 

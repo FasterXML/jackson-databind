@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
+#2977: Incompatible `FAIL_ON_MISSING_PRIMITIVE_PROPERTIES` and
+  field level `@JsonProperty`
+ (reported by @GeorgiPetkov)
 #3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
   for nullability
  (reported by @joca-bt)

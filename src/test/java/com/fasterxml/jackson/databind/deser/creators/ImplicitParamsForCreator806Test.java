@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.creators;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,12 +25,12 @@ class ImplicitParamsForCreator806Test extends DatabindTestUtil {
         }
     }
 
-    static class XY {
+    static class XY806 {
         protected int x, y;
 
         // annotation should NOT be needed with 2.6 any more (except for single-arg case)
 //        @com.fasterxml.jackson.annotation.JsonCreator
-        public XY(int x, int y) {
+        public XY806(int x, int y) {
             this.x = x;
             this.y = y;
         }
@@ -44,7 +44,7 @@ class ImplicitParamsForCreator806Test extends DatabindTestUtil {
     // Creators
     @Test
     void implicitNameWithNamingStrategy() throws Exception {
-        XY value = MAPPER.readValue(a2q("{'param_name0':1,'param_name1':2}"), XY.class);
+        XY806 value = MAPPER.readValue(a2q("{'param_name0':1,'param_name1':2}"), XY806.class);
         assertNotNull(value);
         assertEquals(1, value.x);
         assertEquals(2, value.y);

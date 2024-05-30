@@ -5,23 +5,23 @@ import java.lang.annotation.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
-
-// Tests for [databind#1498] (Jackson 2.12)
-public class ConstructorDetector1498Test
+// Tests for [databind#1498], [databind#3241] (Jackson 2.12)
+public class ConstructorDetectorTest extends DatabindTestUtil
 {
     // Helper annotation to work around lack of implicit name access with Jackson 2.x
     @Target(ElementType.PARAMETER)
@@ -95,6 +95,23 @@ public class ConstructorDetector1498Test
         }
     }
 
+    // [databind#3241]
+    static class Input3241 {
+        private final Boolean field;
+
+        // @JsonCreator gone!
+        public Input3241(@ImplicitName("field") Boolean field) {
+            if (field == null) {
+                throw new NullPointerException("Field should not remain null!");
+            }
+            this.field = field;
+        }
+
+        public Boolean field() {
+            return field;
+        }
+    }
+    
     private final ObjectMapper MAPPER_PROPS = mapperFor(ConstructorDetector.USE_PROPERTIES_BASED);
     private final ObjectMapper MAPPER_DELEGATING = mapperFor(ConstructorDetector.USE_DELEGATING);
     private final ObjectMapper MAPPER_EXPLICIT = mapperFor(ConstructorDetector.EXPLICIT_ONLY);
@@ -266,6 +283,22 @@ public class ConstructorDetector1498Test
             fail("Should not pass");
         } catch (InvalidDefinitionException e) {
             verifyException(e, "no Creators, like default constructor");
+        }
+    }
+
+    // [databind#3241]
+    @Test
+    void nullHandlingCreator3241() throws Exception {
+        ObjectMapper mapper = mapperBuilder()
+                .constructorDetector(ConstructorDetector.USE_PROPERTIES_BASED) // new!
+                .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.FAIL))
+                .build();
+
+        try {
+            mapper.readValue("{ \"field\": null }", Input3241.class);
+            fail("InvalidNullException expected");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value encountered");
         }
     }
 

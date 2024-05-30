@@ -951,10 +951,12 @@ ctor.creator()));
                     return false;
                 }
                 // if not, prefer Properties-based if explicit preference OR
-                // property with same name
-                if (!ctorDetector.singleArgCreatorDefaultsToProperties()
-                        && !props.containsKey(ctor.implicitNameSimple(0))) {
-                    return false;
+                // property with same name with at least one visible accessor
+                if (!ctorDetector.singleArgCreatorDefaultsToProperties()) {
+                    POJOPropertyBuilder prop = props.get(ctor.implicitNameSimple(0));
+                    if ((prop == null) || !prop.anyVisible() || prop.anyIgnorals()) {
+                        return false;
+                    }
                 }
             }
         }

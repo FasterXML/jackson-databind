@@ -660,6 +660,9 @@ public class POJOPropertiesCollector
         }
 
         // Anything else left, add as possible implicit Creators
+        // ... but first, trim non-visible
+        _removeNonVisibleCreators(constructors);
+        _removeNonVisibleCreators(factories);
         creators.setImplicitDelegating(constructors, factories);
 
         // And finally add logical properties for the One Properties-based
@@ -707,6 +710,20 @@ public class POJOPropertiesCollector
         while (it.hasNext()) {
             // explicitly prevented? Remove
             if (it.next().creatorMode() == JsonCreator.Mode.DISABLED) {
+                it.remove();
+            }
+        }
+    }
+
+    private void _removeNonVisibleCreators(List<PotentialCreator> ctors)
+    {
+        Iterator<PotentialCreator> it = ctors.iterator();
+        while (it.hasNext()) {
+            PotentialCreator ctor = it.next();
+            boolean visible = (ctor.paramCount() == 1)
+                    ? _visibilityChecker.isScalarConstructorVisible(ctor.creator())
+                    : _visibilityChecker.isCreatorVisible(ctor.creator());
+            if (!visible) {
                 it.remove();
             }
         }
@@ -862,7 +879,10 @@ ctor.creator()));
         }
         final PotentialCreator ctor = ctors.get(0);
         // which needs to be visible
-        if (!_visibilityChecker.isCreatorVisible(ctor.creator())) {
+        final boolean visible = (ctor.paramCount() == 1)
+                ? _visibilityChecker.isScalarConstructorVisible(ctor.creator())
+                : _visibilityChecker.isCreatorVisible(ctor.creator());
+        if (!visible) {
             return false;
         }
         ctor.introspectParamNames(_config);
@@ -884,10 +904,12 @@ ctor.creator()));
                     return false;
                 }
                 // if not, prefer Properties-based if explicit preference OR
-                // property with same name
-                if (!ctorDetector.singleArgCreatorDefaultsToProperties()
-                        && !props.containsKey(ctor.implicitNameSimple(0))) {
-                    return false;
+                // property with same name with at least one visible accessor
+                if (!ctorDetector.singleArgCreatorDefaultsToProperties()) {
+                    POJOPropertyBuilder prop = props.get(ctor.implicitNameSimple(0));
+                    if ((prop == null) || !prop.anyVisible() || prop.anyIgnorals()) {
+                        return false;
+                    }
                 }
             }
         }

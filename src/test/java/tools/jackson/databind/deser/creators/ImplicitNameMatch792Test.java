@@ -127,6 +127,7 @@ public class ImplicitNameMatch792Test
 
     // 17-May-2024, tatu: [databind#4515] This is not a valid test; commenting
     //    out; to be removed in near future (after 2.18)
+    // 30-May-2024, tatu: Hmmh. Actually passes if commented out... should reconsider?
     /*
     @Test
     public void testReadWriteWithPrivateField() throws Exception

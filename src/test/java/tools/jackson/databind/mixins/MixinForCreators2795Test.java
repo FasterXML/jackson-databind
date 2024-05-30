@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -25,7 +24,7 @@ public class MixinForCreators2795Test extends DatabindTestUtil
     @Test
     public void testMixinWithUnmmodifiableCollection() throws Exception
     {
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(Collections.unmodifiableCollection(Collections.emptyList()).getClass(),
                         UnmodifiableCollectionMixin.class)
                 .activateDefaultTypingAsProperty(new NoCheckSubTypeValidator(),
@@ -36,8 +35,8 @@ public class MixinForCreators2795Test extends DatabindTestUtil
         final Collection<String> unmodifiableCollection = Collections.unmodifiableCollection(strings);
         final byte[] bytes = mapper.writeValueAsBytes(unmodifiableCollection);
 
-        final Collection<?> collection = mapper.readValue(bytes, Collection.class);
+        final Collection<?> result = mapper.readValue(bytes, Collection.class);
 
-        assertEquals(2, collection.size());
+        assertEquals(2, result.size());
     }
 }

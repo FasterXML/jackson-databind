@@ -486,14 +486,24 @@ public class EnumDeserializer
 
     // @since 2.15
     protected boolean useNullForUnknownEnum(DeserializationContext ctxt) {
-        return Boolean.TRUE.equals(_useNullForUnknownEnum)
-          || ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        if (_useNullForUnknownEnum != null) {
+            return _useNullForUnknownEnum;
+        }
+        return ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
     }
 
     // @since 2.15
     protected boolean useDefaultValueForUnknownEnum(DeserializationContext ctxt) {
-        return (_enumDefaultValue != null)
-          && (Boolean.TRUE.equals(_useDefaultValueForUnknownEnum)
-          || ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE));
+        // If we have a default value...
+        if (_enumDefaultValue != null) {
+            // Check if FormatFeature overrides exist first
+            if (_useDefaultValueForUnknownEnum != null) {
+                return _useDefaultValueForUnknownEnum;
+            }
+            // Otherwise, check the global setting
+            return ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        }
+        // No default value? then false
+        return false;
     }
 }

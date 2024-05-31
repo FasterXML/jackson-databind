@@ -8,7 +8,7 @@ Project: jackson-databind
 
 -
 
-2.17.1 (not yet released)
+2.17.1 (04-May-2024)
 
 #4428: `ByteBuddy` scope went beyond `test` in version 2.17.0
  (reported by Miguel M-R)
@@ -25,6 +25,15 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4450: Empty QName deserialized as `null`
  (reported by @winfriedgerlach)
+#4471: Reconsider deprecation of `JsonNode.asText(defaultValue)`
+ (requested by @aerisnju)
+ (fix by Joo-Hyuk K)
+#4481: Unable to override `DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL`
+  with `JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL`
+ (reported by @luozhenyu)
+#4489: Unable to override `DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE`
+  with `JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE`
+ (fix by Joo-Hyuk K)
 
 2.17.0 (12-Mar-2024)
 

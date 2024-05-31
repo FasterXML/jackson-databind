@@ -244,7 +244,7 @@ public abstract class BasicSerializerFactory
                                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                             }
                             // null -> no TypeSerializer for key-serializer use case
-                            ser = new JsonValueSerializer(acc, null, delegate);
+                            ser = JsonValueSerializer.construct(config, acc, null, delegate);
                         } else {
                             ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass(),
                                                                                 beanDesc.getClassInfo());
@@ -405,7 +405,8 @@ public abstract class BasicSerializerFactory
             if (typeSerializer == null) {
                 typeSerializer = createTypeSerializer(prov.getConfig(), valueType);
             }
-            return new JsonValueSerializer(valueAccessor, typeSerializer, valueSerializer);
+            return JsonValueSerializer.construct(prov.getConfig(), valueAccessor,
+                    typeSerializer, valueSerializer);
         }
         // No well-known annotations...
         return null;
@@ -900,9 +901,7 @@ public abstract class BasicSerializerFactory
             break;
         case CUSTOM: // new with 2.9
             valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
-            if (valueToSuppress == null) { // is this legal?
-                suppressNulls = true;
-            } else {
+            if (valueToSuppress != null) { // is this legal?
                 suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
             }
             break;
@@ -967,9 +966,7 @@ public abstract class BasicSerializerFactory
             break;
         case CUSTOM:
             valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
-            if (valueToSuppress == null) { // is this legal?
-                suppressNulls = true;
-            } else {
+            if (valueToSuppress != null) { // is this legal?
                 suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
             }
             break;
@@ -1306,40 +1303,22 @@ public abstract class BasicSerializerFactory
      * (declared types)  should be used for properties.
      * (instead of dynamic runtime types).
      *
-     * @since 2.1 (earlier had variant with additional 'property' parameter)
+     * @since 2.16 (earlier had variant with additional 'typeSer' parameter)
      */
     protected boolean usesStaticTyping(SerializationConfig config,
-            BeanDescription beanDesc, TypeSerializer typeSer)
+            BeanDescription beanDesc)
     {
-        /* 16-Aug-2010, tatu: If there is a (value) type serializer, we cannot force
-         *    static typing; that would make it impossible to handle expected subtypes
-         */
-        if (typeSer != null) {
-            return false;
-        }
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        JsonSerialize.Typing t = intr.findSerializationTyping(beanDesc.getClassInfo());
-        if (t != null && t != JsonSerialize.Typing.DEFAULT_TYPING) {
-            return (t == JsonSerialize.Typing.STATIC);
+        JsonSerialize.Typing t = config.getAnnotationIntrospector().findSerializationTyping(beanDesc.getClassInfo());
+        if (t != null) {
+            switch (t) {
+            case DYNAMIC:
+                return false;
+            case STATIC:
+                return true;
+            case DEFAULT_TYPING:
+                // fall through
+            }
         }
         return config.isEnabled(MapperFeature.USE_STATIC_TYPING);
     }
-
-    // Commented out in 2.9
-    /*
-    protected Class<?> _verifyAsClass(Object src, String methodName, Class<?> noneClass)
-    {
-        if (src == null) {
-            return null;
-        }
-        if (!(src instanceof Class)) {
-            throw new IllegalStateException("AnnotationIntrospector."+methodName+"() returned value of type "+src.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
-        }
-        Class<?> cls = (Class<?>) src;
-        if (cls == noneClass || ClassUtil.isBogusClass(cls)) {
-            return null;
-        }
-        return cls;
-    }
-    */
 }

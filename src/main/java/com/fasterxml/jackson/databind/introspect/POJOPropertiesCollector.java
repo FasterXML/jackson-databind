@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -612,7 +613,10 @@ public class POJOPropertiesCollector
                     //     only retain if also have ignoral annotations (for name or ignoral)
                     if (transientAsIgnoral) {
                         ignored = true;
-                    } else {
+
+                    // 18-Jul-2023, tatu: [databind#3948] Need to retain if there was explicit
+                    //   ignoral marker
+                    } else if (!ignored) {
                         continue;
                     }
                 }
@@ -973,12 +977,15 @@ public class POJOPropertiesCollector
             // Otherwise, check ignorals
             if (prop.anyIgnorals()) {
                 // Special handling for Records, as they do not have mutators so relying on constructors
-                // with (mostly)  implicitly-named parameters...
-                if (isRecordType()) {
-                    // ...so can only remove ignored field and/or accessors, not constructor parameters that are needed
-                    // for instantiation...
-                    prop.removeIgnored();
-                    // ...which will then be ignored (the incoming property value) during deserialization
+                // with (mostly) implicitly-named parameters...
+                // 20-Jul-2023, tatu: This can be harmful, see f.ex [databind#3992] so
+                //    only use special handling for deserialization
+
+                if (isRecordType() && !_forSerialization) {
+                      // ...so can only remove ignored field and/or accessors, not constructor parameters that are needed
+                      // for instantiation...
+                      prop.removeIgnored();
+                      // ...which will then be ignored (the incoming property value) during deserialization
                     _collectIgnorals(prop.getName());
                     continue;
                 }
@@ -1117,6 +1124,10 @@ public class POJOPropertiesCollector
     protected void _renameUsing(Map<String, POJOPropertyBuilder> propMap,
             PropertyNamingStrategy naming)
     {
+        // [databind#4409]: Need to skip renaming for Enums, unless Enums are handled as OBJECT format
+        if (_type.isEnumType() && (_findFormatShape() != JsonFormat.Shape.OBJECT)) {
+            return;
+        }
         POJOPropertyBuilder[] props = propMap.values().toArray(new POJOPropertyBuilder[propMap.size()]);
         propMap.clear();
         for (POJOPropertyBuilder prop : props) {
@@ -1163,6 +1174,29 @@ public class POJOPropertiesCollector
             // replace the creatorProperty too, if there is one
             _replaceCreatorProperty(prop, _creatorProperties);
         }
+    }
+
+    /**
+     * Helper method called to check if given property should be renamed using {@link PropertyNamingStrategies}.
+     *<p>
+     * NOTE: copied+simplified version of {@code BasicBeanDescription.findExpectedFormat()}.
+     *
+     * @since 2.16.2
+     */
+    private JsonFormat.Shape _findFormatShape()
+    {
+        JsonFormat.Shape shape = null;
+        JsonFormat.Value format = _annotationIntrospector.findFormat(_classDef);
+        if (format != null) {
+            shape = format.getShape();
+        }
+        JsonFormat.Value defFormat = _config.getDefaultPropertyFormat(_classDef.getRawType());
+        if (defFormat != null) {
+            if (shape == null) {
+                shape = defFormat.getShape();
+            }
+        }
+        return shape;
     }
 
     protected void _renameWithWrappers(Map<String, POJOPropertyBuilder> props)

@@ -129,6 +129,11 @@ public final class EnumValues
             if (name == null) {
                 Enum<?> en = enumConstants[i];
                 name = en.toString();
+                // 01-Feb-2024, tatu: [databind#4355] Nulls not great but... let's
+                //   coerce into "" for backwards compatibility
+                if (name == null) {
+                    name = "";
+                }
             }
             if (useLowerCase) {
                 name = name.toLowerCase();
@@ -169,6 +174,7 @@ public final class EnumValues
     {
         // prepare data
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
         final Class<?> enumCls0 = annotatedClass.getRawType();
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
@@ -186,6 +192,9 @@ public final class EnumValues
             String name = names[i];
             if (name == null) {
                 name = namingStrategy.convertEnumToExternalName(enumValue.name());
+            }
+            if (useLowerCase) {
+                name = name.toLowerCase();
             }
             textual[i] = config.compileString(name);
         }

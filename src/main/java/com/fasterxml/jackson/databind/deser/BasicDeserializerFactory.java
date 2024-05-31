@@ -1346,15 +1346,15 @@ paramIndex, candidate);
                 config, beanDesc, elemTypeDeser, contentDeser);
         if (deser == null) {
             if (contentDeser == null) {
-                Class<?> raw = elemType.getRawClass();
                 if (elemType.isPrimitive()) {
-                    return PrimitiveArrayDeserializers.forType(raw);
-                }
-                if (raw == String.class) {
-                    return StringArrayDeserializer.instance;
+                    deser = PrimitiveArrayDeserializers.forType(elemType.getRawClass());
+                } else if (elemType.hasRawClass(String.class)) {
+                    deser = StringArrayDeserializer.instance;
                 }
             }
-            deser = new ObjectArrayDeserializer(type, contentDeser, elemTypeDeser);
+            if (deser == null) {
+                deser = new ObjectArrayDeserializer(type, contentDeser, elemTypeDeser);
+            }
         }
         // and then new with 2.2: ability to post-process it too (databind#120)
         if (_factoryConfig.hasDeserializerModifiers()) {
@@ -2562,6 +2562,10 @@ factory.toString()));
             fallbacks.put(Deque.class.getName(), LinkedList.class);
             fallbacks.put(NavigableSet.class.getName(), TreeSet.class);
 
+            // Sequenced types added in JDK21
+            fallbacks.put("java.util.SequencedCollection", DEFAULT_LIST);
+            fallbacks.put("java.util.SequencedSet", LinkedHashSet.class);
+
             _collectionFallbacks = fallbacks;
         }
 
@@ -2581,6 +2585,9 @@ factory.toString()));
             fallbacks.put(java.util.NavigableMap.class.getName(), TreeMap.class);
             fallbacks.put(java.util.concurrent.ConcurrentNavigableMap.class.getName(),
                     java.util.concurrent.ConcurrentSkipListMap.class);
+
+            // Sequenced types added in JDK21
+            fallbacks.put("java.util.SequencedMap", LinkedHashMap.class);
 
             _mapFallbacks = fallbacks;
         }

@@ -818,6 +818,9 @@ Freddy Boucher (freddyboucher@github)
 Ondrej Zizka (OndraZizk@github)
   * Reported #1999: "Duplicate property" issue should mention which class it complains about
    (2.9.6)
+  * Repoted #4145: NPE when transforming a tree to a model class object,
+    at `ArrayNode.elements()`
+   (2.16.0)
 
 Jakub Skierbiszewski (jskierbi@github)
   * Reported, contributed fix for #2001: Deserialization issue with `@JsonIgnore` and
@@ -1102,20 +1105,23 @@ Tobias Preuss (johnjohndoe@github)
   (2.10.3)
 
 Eduard Tudenhöfner (nastra@github)
-  * Reported #2602, contributed fix for: ByteBufferSerializer produces unexpected results with
-    a duplicated ByteBuffer and a position > 0
+ * Reported #2602, contributed fix for: ByteBufferSerializer produces unexpected results with
+   a duplicated ByteBuffer and a position > 0
   (2.10.3)
 
 Alexander Shilov (ashlanderr@github)
-  * Reported, suggested fix for #2610: `EXTERNAL_PROPERTY` doesn't work with `@JsonIgnoreProperties`
+ * Reported, suggested fix for #2610: `EXTERNAL_PROPERTY` doesn't work with `@JsonIgnoreProperties`
   (2.10.3)
 
 Endre Stølsvik (stolsvik@github)
-  * Reported #2679: `ObjectMapper.readValue("123", Void.TYPE)` throws "should never occur"
+ * Reported #2679: `ObjectMapper.readValue("123", Void.TYPE)` throws "should never occur"
   (2.10.4)
+ * Reported #3906: Regression: 2.15.0 breaks deserialization for records when
+   `mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE)`
+  (2.16.0)
 
 Denis Kostousov (kostousov-ds@github)
-  * Reported #2787 (partial fix): NPE after add mixin for enum
+ * Reported #2787 (partial fix): NPE after add mixin for enum
   (2.10.5)
 
 Máté Rédecsi (rmatesz@github)
@@ -1555,6 +1561,10 @@ Gili Tzabari (cowwoc@github)
   * Reported #3063: `@JsonValue` fails for Java Record
   (2.14.2)
 
+Yury Molchan (yurkom@github)
+  * Contributed #4121: Preserve the original component type in merging to an array
+  (2.14.4)
+
 Joo Hyuk Kim (JooHyukKim@github)
   * Contributed #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
     existing "WRITE_ENUM_KEYS_USING_INDEX"
@@ -1649,6 +1659,23 @@ Antti Lampinen (arlampin@github)
  * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
    and is marked `Access.WRITE_ONLY`
   (2.15.1)
+  * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
+    and is marked `Access.WRITE_ONLY`
+   (2.15.1)
+
+Dmitry Bolotin (dbolotin@github)
+  * Reported #1172: `@JsonView` doesn't work with `@JsonCreator`
+   (2.15.4)
+
+Kevin Baes (BaesKevin@github)
+ * Reported #3251: Generic class with generic field of runtime type `Double` is deserialized
+   as `BigDecimal` when used with `@JsonTypeInfo` and `JsonTypeInfo.As.EXISTING_PROPERTY`
+ (2.16.0)
+
+John Hendrikx (hjohn@github)
+ * Reported #3277: Combination of `@JsonUnwrapped` and `@JsonAnySetter` results in `BigDecimal`
+  instead of `Double`
+ (2.16.0)
 
 David Schlosnagle (schlosna@github)
  * Contributed #4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
@@ -1673,3 +1700,41 @@ iProdigy (iProdigy@github)
   (2.16.0)
  * Contributed fix #4041: Actually cache EnumValues#internalMap
   (2.16.0)
+
+Jason Laber (jlaber@github)
+ * Reported #3948: `@JsonIgnore` no longer works for transient backing fields
+  (2.16.0)
+
+Andreas Zahnen (azahnen@github)
+ * Reported #4078: `java.desktop` module is no longer optional
+  (2.16.0)
+
+Omar Aloraini (ooraini@github)
+ * Requested #4061: Add JsonTypeInfo.Id.SIMPLE_NAME which defaults type id
+   to `Class.getSimpleName()`
+  (2.16.0)
+
+Naoki Takezoe (takezoe@github)
+ * Contributed #4144: Log WARN if deprecated subclasses of `PropertyNamingStrategy`
+   is used
+  (2.16.0)
+
+Garret Wilson (garretwilson@github)
+ * Reported #4153: Deprecated `ObjectReader.withType(Type)` has no direct
+   replacement; need `forType(Type)`
+  (2.16.0)
+
+Jan Pachol (janpacho@github)
+ * Reported #4175: Exception when deserialization of `private` record with
+   default constructor
+  (2.16.0)
+
+Pieter Dirk Soels (Badbond@github)
+ * Reported #4302: Problem deserializing some type of Enums when using
+  `PropertyNamingStrategy`
+  (2.16.2)
+
+Stephane Bailliez (sbailliez@github)
+ * Reported #4409: Deserialization of enums with name defined with different cases
+   leads to `InvalidDefinitionException`: Multiple fields representing property
+  (2.16.2)

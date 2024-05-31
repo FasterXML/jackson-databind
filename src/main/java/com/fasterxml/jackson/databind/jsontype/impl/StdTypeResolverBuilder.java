@@ -368,6 +368,8 @@ public class StdTypeResolverBuilder
             return ClassNameIdResolver.construct(baseType, config, subtypeValidator);
         case MINIMAL_CLASS:
             return MinimalClassNameIdResolver.construct(baseType, config, subtypeValidator);
+        case SIMPLE_NAME:
+            return SimpleNameIdResolver.construct(config, baseType, subtypes, forSer, forDeser);
         case NAME:
             return TypeNameIdResolver.construct(config, baseType, subtypes, forSer, forDeser);
         case NONE: // hmmh. should never get this far with 'none'

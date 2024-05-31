@@ -3,9 +3,11 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import com.fasterxml.jackson.core.*;
@@ -56,6 +58,7 @@ public class JsonValueSerializer
 
     protected final BeanProperty _property;
 
+
     /**
      * Declared type of the value accessed, as declared by accessor.
      *
@@ -72,6 +75,14 @@ public class JsonValueSerializer
     protected final boolean _forceTypeInformation;
 
     /**
+     * Names of properties to ignore from Value class accessed using
+     * accessor.
+     *
+     * @since 2.16
+     */
+    protected final Set<String> _ignoredProperties;
+
+    /**
      * If value type cannot be statically determined, mapping from
      * runtime value types to serializers are cached in this object.
      *
@@ -80,9 +91,9 @@ public class JsonValueSerializer
     protected transient PropertySerializerMap _dynamicSerializers;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -95,7 +106,8 @@ public class JsonValueSerializer
      */
     @SuppressWarnings("unchecked")
     public JsonValueSerializer(AnnotatedMember accessor,
-            TypeSerializer vts, JsonSerializer<?> ser)
+            TypeSerializer vts, JsonSerializer<?> ser,
+            Set<String> ignoredProperties)
     {
         super(accessor.getType());
         _accessor = accessor;
@@ -104,7 +116,15 @@ public class JsonValueSerializer
         _valueSerializer = (JsonSerializer<Object>) ser;
         _property = null;
         _forceTypeInformation = true; // gets reconsidered when we are contextualized
+        _ignoredProperties = ignoredProperties;
         _dynamicSerializers = PropertySerializerMap.emptyForProperties();
+    }
+
+    @Deprecated // since 2.16
+    public JsonValueSerializer(AnnotatedMember accessor,
+            TypeSerializer vts, JsonSerializer<?> ser)
+    {
+        this(accessor, vts, ser, Collections.emptySet());
     }
 
     /**
@@ -112,7 +132,7 @@ public class JsonValueSerializer
      */
     @Deprecated
     public JsonValueSerializer(AnnotatedMember accessor, JsonSerializer<?> ser) {
-        this(accessor, null, ser);
+        this(accessor, null, ser, Collections.emptySet());
     }
 
     // @since 2.12
@@ -127,7 +147,22 @@ public class JsonValueSerializer
         _valueSerializer = (JsonSerializer<Object>) ser;
         _property = property;
         _forceTypeInformation = forceTypeInfo;
+        _ignoredProperties = src._ignoredProperties;
         _dynamicSerializers = PropertySerializerMap.emptyForProperties();
+    }
+
+    /**
+     * @since 2.16
+     */
+    public static JsonValueSerializer construct(SerializationConfig config,
+            AnnotatedMember accessor,
+            TypeSerializer vts, JsonSerializer<?> ser)
+    {
+        JsonIgnoreProperties.Value ignorals = config.getAnnotationIntrospector()
+                .findPropertyIgnoralByName(config, accessor);
+        final Set<String> ignoredProperties = ignorals.findIgnoredForSerialization();
+        ser = _withIgnoreProperties(ser, ignoredProperties);
+        return new JsonValueSerializer(accessor, vts, ser, ignoredProperties);
     }
 
     @SuppressWarnings("unchecked")
@@ -203,6 +238,8 @@ public class JsonValueSerializer
                  */
                 // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
                 ser = ctxt.findPrimaryPropertySerializer(_valueType, property);
+                ser = _withIgnoreProperties(ser, _ignoredProperties);
+
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
@@ -414,10 +451,13 @@ public class JsonValueSerializer
             if (_valueType.hasGenericTypes()) {
                 final JavaType fullType = ctxt.constructSpecializedType(_valueType, valueClass);
                 serializer = ctxt.findPrimaryPropertySerializer(fullType, _property);
+                serializer = _withIgnoreProperties(serializer, _ignoredProperties);
                 PropertySerializerMap.SerializerAndMapResult result = _dynamicSerializers.addSerializer(fullType, serializer);
                 _dynamicSerializers = result.map;
             } else {
                 serializer = ctxt.findPrimaryPropertySerializer(valueClass, _property);
+                // [databind#3647] : Support `@JsonIgnoreProperties` to work with `@JsonValue`
+                serializer = _withIgnoreProperties(serializer, _ignoredProperties);
                 PropertySerializerMap.SerializerAndMapResult result = _dynamicSerializers.addSerializer(valueClass, serializer);
                 _dynamicSerializers = result.map;
             }
@@ -442,6 +482,24 @@ public class JsonValueSerializer
             return serializer;
         }
         */
+    }
+
+    /**
+     * Internal helper that configures the provided {@code ser} to ignore properties specified by {@link JsonIgnoreProperties}.
+     *
+     * @param ser  Serializer to be configured
+     * @return Configured serializer with specified properties ignored
+     * @since 2.16
+     */
+    @SuppressWarnings("unchecked")
+    protected static JsonSerializer<Object> _withIgnoreProperties(JsonSerializer<?> ser,
+            Set<String> ignoredProperties) {
+        if (ser != null) {
+            if (!ignoredProperties.isEmpty()) {
+                ser = ser.withIgnoredProperties(ignoredProperties);
+            }
+        }
+        return (JsonSerializer<Object>) ser;
     }
 
     /*

@@ -62,33 +62,6 @@ public final class CreatorCandidate
         return null;
     }
 
-    public PropertyName findImplicitParamName(int i) {
-        String str = _config.getAnnotationIntrospector().findImplicitPropertyName(_config, _params[i].annotated);
-        if (str != null && !str.isEmpty()) {
-            return PropertyName.construct(str);
-        }
-        return null;
-    }
-
-    /**
-     * Specialized accessor that finds index of the one and only parameter
-     * with NO injection and returns that; or, if none or more than one found,
-     * returns -1.
-     */
-    public int findOnlyParamWithoutInjection()
-    {
-        int missing = -1;
-        for (int i = 0; i < _paramCount; ++i) {
-            if (_params[i].injection == null) {
-                if (missing >= 0) {
-                    return -1;
-                }
-                missing = i;
-            }
-        }
-        return missing;
-    }
-
     @Override
     public String toString() {
         return _creator.toString();

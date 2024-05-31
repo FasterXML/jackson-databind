@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for verifying that it is possible to annotate
  * various kinds of things with {@link JsonCreator} annotation.
  */
-public class TestPolymorphicCreators
+public class TestPolymorphicCreators extends DatabindTestUtil
 {
     static class Animal
     {
@@ -87,13 +88,52 @@ public class TestPolymorphicCreators
         }
     }
 
+    // [databind#113]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
+    @JsonSubTypes({  @JsonSubTypes.Type(Dog113.class) })
+    public static abstract class Animal113 {
+        public final static String ID = "id";
+
+        private String id;
+
+        @JsonCreator
+        public Animal113(@JsonProperty(ID) String id) {
+            this.id = id;
+        }
+
+        @JsonProperty(ID)
+        public String getId() {
+            return id;
+        }
+    }
+
+    public static class Dog113 extends Animal113 {
+        @JsonCreator
+        public Dog113(@JsonProperty(ID) String id) {
+            super(id);
+        }
+    }
+
+    public static class AnimalWrapper113 {
+        private Animal113 animal;
+
+        @JsonCreator
+        public AnimalWrapper113(@JsonProperty("animal") Animal113 animal) {
+            this.animal = animal;
+        }
+
+        public Animal113 getAnimal() {
+            return animal;
+        }
+    }
+
     /*
     /**********************************************************
     /* Actual tests
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /**
      * Simple test to verify that it is possible to implement polymorphic
@@ -145,4 +185,16 @@ public class TestPolymorphicCreators
          assertNotNull(result);
          assertEquals("oh hai!", result.getOpt());
     }
+
+    // [databind#113]
+    @Test
+    public void testSubtypes113() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        String id = "nice dogy";
+        String json = mapper.writeValueAsString(new AnimalWrapper113(new Dog113(id)));
+//System.err.println("JSON = "+json);
+        AnimalWrapper113 wrapper = mapper.readValue(json, AnimalWrapper113.class);
+        assertEquals(id, wrapper.getAnimal().getId());
+    }    
 }

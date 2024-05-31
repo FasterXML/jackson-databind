@@ -411,7 +411,6 @@ public abstract class BasicDeserializerFactory
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
                     ++explicitNameCount;
                     */
-                    continue;
                 }
             }
 

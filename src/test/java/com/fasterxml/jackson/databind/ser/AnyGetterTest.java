@@ -186,7 +186,6 @@ public class AnyGetterTest extends DatabindTestUtil
     }
 
     // [databind#1458]: Allow `@JsonAnyGetter` on fields too
-    @Test
     static class DynaFieldOrderedBean {
         public int id = 123;
 

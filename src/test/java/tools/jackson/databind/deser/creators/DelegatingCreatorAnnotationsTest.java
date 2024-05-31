@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.creators;
 
+import java.util.*;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -18,8 +20,27 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // Tests for problems uncovered with [databind#2016]; related to
 // `@JsonDeserialize` modifications to type, deserializer(s)
-public class DelegatingCreatorAnnotations2021Test
+public class DelegatingCreatorAnnotationsTest
 {
+    // [databind#2016]
+    static class Wrapper2016As {
+        Object value;
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public Wrapper2016As(@JsonDeserialize(as = java.util.Date.class) Object v) {
+            value = v;
+        }
+    }
+
+    static class Wrapper2016ContentAs {
+        List<Object> value;
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public Wrapper2016ContentAs(@JsonDeserialize(contentAs = java.util.Date.class) List<Object> v) {
+            value = v;
+        }
+    }
+
     // [databind#2021]
     static class DelegatingWithCustomDeser2021 {
         public final static Double DEFAULT = 0.25;
@@ -51,6 +72,24 @@ public class DelegatingCreatorAnnotations2021Test
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
+
+    // [databind#2016]
+    @Test
+    public void testDelegatingWithAs() throws Exception
+    {
+        Wrapper2016As actual = MAPPER.readValue("123", Wrapper2016As.class);
+        assertEquals(Date.class, actual.value.getClass());
+    }
+
+    // [databind#2016]
+    @Test
+    public void testDelegatingWithContentAs() throws Exception
+    {
+        Wrapper2016ContentAs actual = MAPPER.readValue("[123]", Wrapper2016ContentAs.class);
+        List<Object> l = actual.value;
+        assertEquals(1, l.size());
+        assertEquals(Date.class, l.get(0).getClass());
+    }
 
     // [databind#2021]
     @Test

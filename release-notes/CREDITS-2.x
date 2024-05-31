@@ -1791,3 +1791,8 @@ Teodor Danciu (teodord@github)
 Matthew Luckam (mluckam@github)
  * Contributed #4483: Remove `final` on method BeanSerializer.serialize()
   (2.18.0)
+
+Alexandre Jacob (ajacob@github)
+ * Reported #4545: Unexpected deserialization behavior with `@JsonCreator`,
+   `@JsonProperty` and javac `-parameters`
+  (2.18.0)

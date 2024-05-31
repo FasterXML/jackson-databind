@@ -218,7 +218,7 @@ public abstract class BasicDeserializerFactory
             PotentialCreator primaryPropsBased = potentialCreators.propertiesBased;
 
             // Start by assigning the primary (and only) properties-based creator
-            _addExplicitPropertyCreator(ctxt, beanDesc, creators,
+            _addSelectedPropertiesBasedCreator(ctxt, beanDesc, creators,
                     CreatorCandidate.construct(config,
                             primaryPropsBased.creator(), primaryPropsBased.propertyDefs()));
         }
@@ -334,7 +334,7 @@ public abstract class BasicDeserializerFactory
         for (PotentialCreator candidate : potentials) {
             final int argCount = candidate.paramCount();
             final AnnotatedWithParams ctor = candidate.creator();
-            // some single-arg factory methods (String, number) are auto-detected
+            // some single-arg Constructors (String, number) are auto-detected
             if (argCount == 1) {
                 // 29-May-2024, tatu: Last arg is "true" for 3.0 (for some reason)
                 /*boolean added = */ _handleSingleArgumentCreator(creators,
@@ -394,7 +394,7 @@ public abstract class BasicDeserializerFactory
         for (PotentialCreator candidate : potentials) {
             final int argCount = candidate.paramCount();
             AnnotatedWithParams factory = candidate.creator();
-            // some single-arg factory methods (String, number) are auto-detected
+            // some single-arg Factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 /*boolean added=*/ _handleSingleArgumentCreator(creators,
                         factory, false, vchecker.isCreatorVisible(factory));
@@ -453,10 +453,9 @@ public abstract class BasicDeserializerFactory
     }
 
     /**
-     * Helper method called when there is the explicit "is-creator" annotation with mode
-     * of "properties-based"
+     * Helper method called to add the single chosen "properties-based" Creator (if any).
      */
-    private void _addExplicitPropertyCreator(DeserializationContext ctxt,
+    private void _addSelectedPropertiesBasedCreator(DeserializationContext ctxt,
             BeanDescription beanDesc, CreatorCollector creators,
             CreatorCandidate candidate)
     {

@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class AnySetterForCreator562Test extends DatabindTestUtil
+public class AnySetterForCreator562Test extends DatabindTestUtil
 {
     // [databind#562]
     static class POJO562
@@ -66,7 +66,7 @@ class AnySetterForCreator562Test extends DatabindTestUtil
 
     // [databind#562]
     @Test
-    void anySetterViaCreator562() throws Exception
+    public void anySetterViaCreator562() throws Exception
     {
         Map<String, Object> expected = new HashMap<>();
         expected.put("b", Integer.valueOf(42));
@@ -76,6 +76,7 @@ class AnySetterForCreator562Test extends DatabindTestUtil
                 "{'a':'value', 'b':42, 'c': 111}"
                 ),
                 POJO562.class);
+
         assertEquals("value", pojo.a);
         assertEquals(expected, pojo.stuff);
     }

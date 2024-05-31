@@ -261,7 +261,7 @@ public abstract class BasicDeserializerFactory
             PotentialCreator primaryPropsBased = potentialCreators.propertiesBased;
 
             // Start by assigning the primary (and only) properties-based creator
-            _addExplicitPropertyCreator(ctxt, beanDesc, creators,
+            _addSelectedPropertiesBasedCreator(ctxt, beanDesc, creators,
                     CreatorCandidate.construct(config.getAnnotationIntrospector(),
                             primaryPropsBased.creator(), primaryPropsBased.propertyDefs()));
         }
@@ -379,7 +379,7 @@ public abstract class BasicDeserializerFactory
         for (PotentialCreator candidate : potentials) {
             final int argCount = candidate.paramCount();
             final AnnotatedWithParams ctor = candidate.creator();
-            // some single-arg factory methods (String, number) are auto-detected
+            // some single-arg Constructors (String, number) are auto-detected
             if (argCount == 1) {
                 /*boolean added = */ _handleSingleArgumentCreator(creators,
                         ctor, false,
@@ -411,7 +411,6 @@ public abstract class BasicDeserializerFactory
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
                     ++explicitNameCount;
                     */
-                    continue;
                 }
             }
 
@@ -438,7 +437,7 @@ public abstract class BasicDeserializerFactory
         for (PotentialCreator candidate : potentials) {
             final int argCount = candidate.paramCount();
             AnnotatedWithParams factory = candidate.creator();
-            // some single-arg factory methods (String, number) are auto-detected
+            // some single-arg Factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 /*boolean added=*/ _handleSingleArgumentCreator(creators,
                         factory, false, vchecker.isCreatorVisible(factory));
@@ -500,17 +499,13 @@ public abstract class BasicDeserializerFactory
     }
 
     /**
-     * Helper method called when there is the explicit "is-creator" annotation with mode
-     * of "properties-based"
-     *
-     * @since 2.9.2
+     * Helper method called the single chosen "properties-based" Creator (if any)
      */
-    private void _addExplicitPropertyCreator(DeserializationContext ctxt,
+    private void _addSelectedPropertiesBasedCreator(DeserializationContext ctxt,
             BeanDescription beanDesc, CreatorCollector creators,
             CreatorCandidate candidate)
         throws JsonMappingException
     {
-//System.err.println("_addExplicitPropertyCreator(): "+candidate);
         final int paramCount = candidate.paramCount();
         SettableBeanProperty[] properties = new SettableBeanProperty[paramCount];
 
@@ -525,9 +520,12 @@ public abstract class BasicDeserializerFactory
                 if (unwrapper != null) {
                     _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
                 }
-                name = candidate.findImplicitParamName(i);
-                _validateNamedPropertyParameter(ctxt, beanDesc, candidate, i,
-                        name, injectId);
+                // Must be injectable or have name; without either won't work
+                if ((name == null) && (injectId == null)) {
+                    ctxt.reportBadTypeDefinition(beanDesc,
+"Argument #%d of Creator %s has no property name (and is not Injectable): can not use as property-based Creator",
+i, candidate);
+                }
             }
             properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
         }
@@ -585,24 +583,6 @@ public abstract class BasicDeserializerFactory
             return true;
         }
         return false;
-    }
-
-    // Helper method to check that parameter of Property-based creator either
-    // has name or is marked as Injectable
-    //
-    // @since 2.12.1
-    private void _validateNamedPropertyParameter(DeserializationContext ctxt,
-            BeanDescription beanDesc,
-            CreatorCandidate candidate, int paramIndex,
-            PropertyName name, JacksonInject.Value injectId)
-        throws JsonMappingException
-    {
-        // Must be injectable or have name; without either won't work
-        if ((name == null) && (injectId == null)) {
-            ctxt.reportBadTypeDefinition(beanDesc,
-"Argument #%d of Creator %s has no property name (and is not Injectable): can not use as property-based Creator",
-paramIndex, candidate);
-        }
     }
 
     // 01-Dec-2016, tatu: As per [databind#265] we cannot yet support passing

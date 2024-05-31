@@ -1,12 +1,16 @@
 package tools.jackson.databind.testutil;
 
 import java.io.*;
+import java.lang.annotation.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.type.TypeFactory;
 
@@ -19,6 +23,25 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class DatabindTestUtil
 {
+    // @since 2.18
+    // Helper annotation to work around lack of implicit name access with Jackson 2.x
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    protected @interface ImplicitName {
+        String value();
+    }
+
+    // @since 2.18
+    @SuppressWarnings("serial")
+    static public class ImplicitNameIntrospector extends JacksonAnnotationIntrospector
+    {
+        @Override
+        public String findImplicitPropertyName(MapperConfig<?> config,
+                AnnotatedMember member) {
+            final ImplicitName ann = member.getAnnotation(ImplicitName.class);
+            return (ann == null) ? null : ann.value();
+        }
+    }
 
     private final static Object SINGLETON_OBJECT = new Object();
 

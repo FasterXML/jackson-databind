@@ -401,7 +401,7 @@ public abstract class BasicDeserializerFactory
 
                 if (injectable != null) {
                     ++injectCount;
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, null, i, param, injectable);
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, null, i, param, injectable, false);
                     continue;
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
@@ -411,7 +411,6 @@ public abstract class BasicDeserializerFactory
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
                     ++explicitNameCount;
                     */
-                    continue;
                 }
             }
 
@@ -473,7 +472,7 @@ public abstract class BasicDeserializerFactory
             AnnotatedParameter param = candidate.parameter(i);
             JacksonInject.Value injectId = candidate.injection(i);
             if (injectId != null) {
-                properties[i] = constructCreatorProperty(ctxt, beanDesc, null, i, param, injectId);
+                properties[i] = constructCreatorProperty(ctxt, beanDesc, null, i, param, injectId, false);
                 continue;
             }
             if (ix < 0) {
@@ -518,7 +517,6 @@ public abstract class BasicDeserializerFactory
             JacksonInject.Value injectId = candidate.injection(i);
             AnnotatedParameter param = candidate.parameter(i);
             PropertyName name = candidate.paramName(i);
-
             if (name == null) {
                 // 21-Sep-2017, tatu: Looks like we want to block accidental use of Unwrapped,
                 //   as that will not work with Creators well at all
@@ -534,7 +532,6 @@ public abstract class BasicDeserializerFactory
                                 anySetterIndex, i);
                     }
                     anySetterIndex = i;
-                    // no-op
                 } else {
                     // Must be injectable or have name; without either won't work
                     if ((name == null) && (injectId == null)) {
@@ -619,7 +616,7 @@ i, candidate);
      * a logical property passed via Creator (constructor or static
      * factory method)
      *
-     * @since 2.19
+     * @since 2.18
      */
     protected SettableBeanProperty constructCreatorProperty(DeserializationContext ctxt,
             BeanDescription beanDesc, PropertyName name, int index,
@@ -677,7 +674,7 @@ i, candidate);
     }
 
     /**
-     * @deprecated since 2.19, use {@link #constructCreatorProperty(DeserializationContext, BeanDescription,
+     * @deprecated since 2.18, use {@link #constructCreatorProperty(DeserializationContext, BeanDescription,
      * PropertyName, int, AnnotatedParameter, JacksonInject.Value, boolean)} instead.
      */
     @Deprecated
@@ -688,28 +685,6 @@ i, candidate);
         throws JsonMappingException
     {
         return constructCreatorProperty(ctxt, beanDesc, name, index, param, injectable, false);
-    }
-
-    private PropertyName _findParamName(AnnotatedParameter param, AnnotationIntrospector intr)
-    {
-        if (intr != null) {
-            PropertyName name = intr.findNameForDeserialization(param);
-            if (name != null) {
-                // 16-Nov-2020, tatu: One quirk, wrt [databind#2932]; may get "use implicit"
-                //    marker; should not return that
-                if (!name.isEmpty()) {
-                    return name;
-                }
-            }
-            // 14-Apr-2014, tatu: Need to also consider possible implicit name
-            //  (for JDK8, or via paranamer)
-
-            String str = intr.findImplicitPropertyName(param);
-            if (str != null && !str.isEmpty()) {
-                return PropertyName.construct(str);
-            }
-        }
-        return null;
     }
 
     /**

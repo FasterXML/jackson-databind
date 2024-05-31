@@ -119,7 +119,7 @@ public abstract class SettableAnyProperty
     }
 
     /**
-     * @since 2.19
+     * @since 2.18
      */
     public static SettableAnyProperty constructForMapParameter(DeserializationContext ctxt,
             BeanProperty property,
@@ -135,7 +135,7 @@ public abstract class SettableAnyProperty
             mapType = LinkedHashMap.class;
         }
         ValueInstantiator vi = JDKValueInstantiators.findStdValueInstantiator(ctxt.getConfig(), mapType);
-        return new MapParameterAnyProperty(property, field, valueType,
+        return new MapParamAnyProperty(property, field, valueType,
                 keyDeser, valueDeser, typeDeser,
                 vi);
     }
@@ -462,34 +462,39 @@ public abstract class SettableAnyProperty
     }
 
     /**
-     * @since 2.19
+     * [databind#562] Allow @JsonAnySetter on Creator constructor
+     *
+     * @since 2.18
      */
-    protected static class MapParameterAnyProperty extends SettableAnyProperty
+    protected static class MapParamAnyProperty extends SettableAnyProperty
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
 
         protected final ValueInstantiator _valueInstantiator;
 
-        public MapParameterAnyProperty(BeanProperty property,
-                                       AnnotatedMember field, JavaType valueType,
-                                       KeyDeserializer keyDeser,
-                                       JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
-                                       ValueInstantiator inst) {
+        public MapParamAnyProperty(BeanProperty property,
+                AnnotatedMember field, JavaType valueType,
+                KeyDeserializer keyDeser,
+                JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
+                ValueInstantiator inst)
+        {
             super(property, field, valueType,
-                keyDeser, valueDeser, typeDeser);
+                    keyDeser, valueDeser, typeDeser);
             _valueInstantiator = Objects.requireNonNull(inst, "ValueInstantiator for MapParameterAnyProperty cannot be `null`");
         }
 
         @Override
-        public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
-            return new MapParameterAnyProperty(_property, _setter, _type,
+        public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser)
+        {
+            return new MapParamAnyProperty(_property, _setter, _type,
                 _keyDeserializer, deser, _valueTypeDeserializer,
                 _valueInstantiator);
         }
 
         @Override
-        protected void _set(Object instance, Object propName, Object value) throws Exception {
+        protected void _set(Object instance, Object propName, Object value) throws Exception
+        {
             throw new UnsupportedOperationException("Cannot set any properties for constructor parameter of type `Map`");
         }
 

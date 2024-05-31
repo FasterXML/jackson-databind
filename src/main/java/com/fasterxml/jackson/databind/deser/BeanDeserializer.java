@@ -497,7 +497,6 @@ public class BeanDeserializer
                 continue;
             }
             // "any property"?
-
             if (_anySetter != null) {
                 try {
                     buffer.bufferAnySetter(ctxt, p, creator, propName);

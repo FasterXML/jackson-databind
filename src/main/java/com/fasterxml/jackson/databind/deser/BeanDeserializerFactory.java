@@ -664,6 +664,7 @@ ClassUtil.name(propName)));
         }
     }
 
+    // since 2.18
     private AnnotatedMember _findCreatorPropWithAnySetter(DeserializationContext ctxt, SettableBeanProperty[] creatorProps) {
         if (creatorProps != null) {
             AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
@@ -838,23 +839,22 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     valueType, null, mutator,
                     PropertyMetadata.STD_OPTIONAL);
 
+        // [databind#562] Allow @JsonAnySetter in creators
         } else if (mutator instanceof AnnotatedParameter){
             AnnotatedParameter af = (AnnotatedParameter) mutator;
             // get the type from the content type of the map object
             JavaType fieldType = af.getType();
-            // 31-Jul-2022, tatu: Not just Maps any more but also JsonNode, so:
-            if (fieldType.isMapLikeType()) {
-                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
-                keyType = fieldType.getKeyType();
-                valueType = fieldType.getContentType();
-                prop = new BeanProperty.Std(PropertyName.NO_NAME,
-                    fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
-                isMapParam = true;
-            } else {
+            if (!fieldType.isMapLikeType()) {
                 return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
                     "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
                     ClassUtil.getTypeDescription(fieldType)));
             }
+            fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+            keyType = fieldType.getKeyType();
+            valueType = fieldType.getContentType();
+            prop = new BeanProperty.Std(PropertyName.NO_NAME,
+                fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+            isMapParam = true;
         } else if (isField) {
             AnnotatedField af = (AnnotatedField) mutator;
             // get the type from the content type of the map object
@@ -916,6 +916,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             return SettableAnyProperty.constructForMapField(ctxt,
                     prop, mutator, valueType, keyDeser, deser, typeDeser);
         }
+       // [databind#562] Allow @JsonAnySetter in creators
         if (isMapParam) {
             return SettableAnyProperty.constructForMapParameter(ctxt,
                     prop, mutator, valueType, keyDeser, deser, typeDeser);

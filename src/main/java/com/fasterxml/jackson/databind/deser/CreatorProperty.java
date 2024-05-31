@@ -79,12 +79,12 @@ public class CreatorProperty
     /**
      * Marker flag to indicate that current property is used to handle "any setter" via `@JsonAnySetter`.
      *
-     * @since 2.19
+     * @since 2.18
      */
     protected final boolean _isAnySetter;
 
     /**
-     * @since 2.19
+     * @since 2.18
      */
     protected CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
@@ -97,12 +97,12 @@ public class CreatorProperty
         _creatorIndex = index;
         _injectableValue = injectable;
         _fallbackSetter = null;
-        _isAnySetter = isAnySetter; // [databind#562] since 2.19
+        _isAnySetter = isAnySetter; // [databind#562] since 2.18
     }
 
     /**
      * @since 2.11
-     * @deprecated since 2.19. use factory later version instead.
+     * @deprecated since 2.18. use later version instead.
      */
     @Deprecated
     protected CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
@@ -148,7 +148,7 @@ public class CreatorProperty
      * @param index Index of this property within creator invocation
      * @param isAnySetter Marker flag to indicate that current property is used to handle "any setter" via `@JsonAnySetter`.
      *                    
-     * @since 2.19
+     * @since 2.18
      */
     public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
@@ -163,7 +163,7 @@ public class CreatorProperty
 
     /**
      * @since 2.11
-     * @deprecated since 2.19. use later version instead.
+     * @deprecated since 2.18. use later version instead.
      */
     @Deprecated
     public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
@@ -186,7 +186,7 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
-        _isAnySetter = src._isAnySetter; // [databind#562] since 2.19
+        _isAnySetter = src._isAnySetter; // [databind#562] since 2.18
     }
 
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser,
@@ -197,7 +197,7 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
-        _isAnySetter = src._isAnySetter; // [databind#562] since 2.19
+        _isAnySetter = src._isAnySetter; // [databind#562] since 2.18
     }
 
     @Override
@@ -364,7 +364,7 @@ public class CreatorProperty
     //  public boolean isInjectionOnly() { return false; }
 
     /**
-     * @since 2.19
+     * @since 2.18
      */
     public boolean isAnySetter() {
         return _isAnySetter;
@@ -406,11 +406,11 @@ public class CreatorProperty
     }
 
     /**
-     * @since 2.19
+     * @since 2.18
      */
     public Map<Object, Object> initMap(DeserializationContext context, SettableAnyProperty anySetter)
         throws IOException
     {
-        return ((SettableAnyProperty.MapParameterAnyProperty) anySetter).initMap(context);
+        return ((SettableAnyProperty.MapParamAnyProperty) anySetter).initMap(context);
     }
 }

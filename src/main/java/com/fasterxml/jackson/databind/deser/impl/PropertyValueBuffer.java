@@ -80,14 +80,14 @@ public class PropertyValueBuffer
     /**
      * [databind#562]: Allow use of `@JsonAnySetter` in `@JsonCreator`
      *
-     * @since 2.19
+     * @since 2.18
      */
     protected final SettableAnyProperty _anySetter;
 
     /**
      * [databind#562]: Allow use of `@JsonAnySetter` in `@JsonCreator`
      *
-     * @since 2.19
+     * @since 2.18
      */
     private Map<Object, Object> _anySetterMap;
 
@@ -115,7 +115,7 @@ public class PropertyValueBuffer
 
     /**
      *
-     * @deprecated Since 2.19, use later version instead.
+     * @deprecated since 2.18, use later version instead.
      */
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
             ObjectIdReader oir)
@@ -204,12 +204,12 @@ public class PropertyValueBuffer
                 }
             }
         }
-        // [databind#562] since 2.19 : Respect @JsonAnySetter in @JsonCreator
+        // [databind#562] since 2.18 : Respect @JsonAnySetter in @JsonCreator
         if (_anySetter != null) {
             for (int i = 0; i < creatorParams.length; i++) {
                 if (props[i].getMember() == _anySetter.getProperty().getMember()) {
                     creatorParams[i] = _anySetterMap;
-                   break;
+                    break;
                 }
             }
         }
@@ -348,7 +348,7 @@ public class PropertyValueBuffer
     }
 
     /**
-     * @since 2.19
+     * @since 2.18
      */
     public void bufferAnySetter(DeserializationContext ctxt, JsonParser p, PropertyBasedCreator creator, String propName)
         throws IOException {
@@ -357,7 +357,7 @@ public class PropertyValueBuffer
             CreatorProperty cp = creator.findAnySetterProperty();
             if (cp == null) {
                 ctxt.reportBadDefinition(creator.getClass(),
-                    "Invalid configuration: no creator property with 'any-setter' annotation found");
+                   "Invalid configuration: no creator property with 'any-setter' annotation found");
             }
             try {
                 _anySetterMap = cp.initMap(_context, _anySetter);

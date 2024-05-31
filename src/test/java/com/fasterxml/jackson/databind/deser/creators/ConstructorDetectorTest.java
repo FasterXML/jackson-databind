@@ -1,19 +1,16 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
-import java.lang.annotation.*;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
@@ -23,25 +20,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 // Tests for [databind#1498], [databind#3241] (Jackson 2.12)
 public class ConstructorDetectorTest extends DatabindTestUtil
 {
-    // Helper annotation to work around lack of implicit name access with Jackson 2.x
-    @Target(ElementType.PARAMETER)
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface ImplicitName {
-        String value();
-    }
-
-    // And annotation introspector to make use of it
-    @SuppressWarnings("serial")
-    static class CtorNameIntrospector extends JacksonAnnotationIntrospector
-    {
-        @Override
-        public String findImplicitPropertyName(//MapperConfig<?> config,
-                AnnotatedMember member) {
-            final ImplicitName ann = member.getAnnotation(ImplicitName.class);
-            return (ann == null) ? null : ann.value();
-        }
-    }
-
     static class SingleArgNotAnnotated {
         protected int v;
 
@@ -310,7 +288,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
 
     private JsonMapper.Builder mapperBuilder() {
         return JsonMapper.builder()
-                .annotationIntrospector(new CtorNameIntrospector());
+                .annotationIntrospector(new ImplicitNameIntrospector());
     }
 
     private ObjectMapper mapperFor(ConstructorDetector cd) {

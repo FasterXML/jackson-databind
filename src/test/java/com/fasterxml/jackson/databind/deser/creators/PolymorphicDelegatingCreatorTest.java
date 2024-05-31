@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TestPolymorphicDelegating
+public class PolymorphicDelegatingCreatorTest
 {
     // For [databind#580]
 

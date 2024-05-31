@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for verifying that it is possible to annotate
  * various kinds of things with {@link JsonCreator} annotation.
  */
-public class TestPolymorphicCreators extends DatabindTestUtil
+public class PolymorphicPropsCreatorsTest extends DatabindTestUtil
 {
     static class Animal
     {

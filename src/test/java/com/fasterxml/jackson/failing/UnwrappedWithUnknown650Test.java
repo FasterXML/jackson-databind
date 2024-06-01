@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class TestUnwrappedWithUnknown650 extends DatabindTestUtil {
+class UnwrappedWithUnknown650Test extends DatabindTestUtil {
     static class A {
         @JsonUnwrapped
         public B b;

@@ -675,7 +675,7 @@ ClassUtil.name(propName)));
             for (SettableBeanProperty prop : creatorProps) {
                 AnnotatedMember member = prop.getMember();
                 if (member != null && Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(member))) {
-                    return constructAnySetter(ctxt, beanDesc, member);
+                    return constructCreatorPropertyAnySetter(ctxt, beanDesc, member);
                 }
             }
         }
@@ -840,21 +840,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
                     valueType, null, mutator,
                     PropertyMetadata.STD_OPTIONAL);
-        // [databind#562] Allow @JsonAnySetter in creators
-        } else if (mutator instanceof AnnotatedParameter){
-            AnnotatedParameter af = (AnnotatedParameter) mutator;
-            // get the type from the content type of the map object
-            JavaType fieldType = af.getType();
-            if (!fieldType.isMapLikeType()) {
-                return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
-                    "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
-                    ClassUtil.getTypeDescription(fieldType)));
-            }
-            fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
-            keyType = fieldType.getKeyType();
-            valueType = fieldType.getContentType();
-            prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                    fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+
         } else if (isField) {
             AnnotatedField af = (AnnotatedField) mutator;
             // get the type from the content type of the map object
@@ -915,16 +901,65 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         if (isField) {
             return SettableAnyProperty.constructForMapField(ctxt,
                     prop, mutator, valueType, keyDeser, deser, typeDeser);
-        } else if (mutator instanceof AnnotatedParameter) {
-           // [databind#562] Allow @JsonAnySetter in creators
-            return SettableAnyProperty.constructForMapParameter(ctxt,
-                    prop, mutator, valueType, keyDeser, deser, typeDeser);
-        } else {
-         return SettableAnyProperty.constructForMethod(ctxt,
-                prop, mutator, valueType, keyDeser, deser, typeDeser);
         }
+        return SettableAnyProperty.constructForMethod(ctxt,
+                prop, mutator, valueType, keyDeser, deser, typeDeser);
     }
 
+    /**
+     * @param mutator Instance of {@link AnnotatedParameter} that should represent any-setter parameter.
+     */
+    @SuppressWarnings("unchecked")
+    protected SettableAnyProperty constructCreatorPropertyAnySetter(DeserializationContext ctxt,
+            BeanDescription beanDesc, AnnotatedMember mutator)
+        throws JsonMappingException
+    {
+        if (!(mutator instanceof AnnotatedParameter)){
+            ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                    "Unrecognized mutator type for any-setter: %s",
+                    ClassUtil.nameOf(mutator.getClass())));
+        }
+        AnnotatedParameter af = (AnnotatedParameter) mutator;
+        // get the type from the content type of the map object
+        JavaType fieldType = af.getType();
+        if (!fieldType.isMapLikeType()) {
+            return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
+                ClassUtil.getTypeDescription(fieldType)));
+        }
+        fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+        JavaType keyType = fieldType.getKeyType();
+        JavaType valueType = fieldType.getContentType();
+        BeanProperty prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+
+        // First: see if there are explicitly specified
+        // and then possible direct deserializer override on accessor
+        KeyDeserializer keyDeser = findKeyDeserializerFromAnnotation(ctxt, mutator);
+        if (keyDeser == null) {
+            keyDeser = keyType.getValueHandler();
+        }
+        if (keyDeser == null) {
+            keyDeser = ctxt.findKeyDeserializer(keyType, prop);
+        } else {
+            if (keyDeser instanceof ContextualKeyDeserializer) {
+                keyDeser = ((ContextualKeyDeserializer) keyDeser)
+                        .createContextual(ctxt, prop);
+            }
+        }
+        JsonDeserializer<Object> deser = findContentDeserializerFromAnnotation(ctxt, mutator);
+        if (deser == null) {
+            deser = valueType.getValueHandler();
+        }
+        if (deser != null) {
+            // As per [databind#462] need to ensure we contextualize deserializer before passing it on
+            deser = (JsonDeserializer<Object>) ctxt.handlePrimaryContextualization(deser, prop, valueType);
+        }
+        TypeDeserializer typeDeser = valueType.getTypeHandler();
+        // [databind#562] Allow @JsonAnySetter in creators
+        return SettableAnyProperty.constructForMapParameter(ctxt,
+                prop, mutator, valueType, keyDeser, deser, typeDeser);
+    }
 
 
     /**

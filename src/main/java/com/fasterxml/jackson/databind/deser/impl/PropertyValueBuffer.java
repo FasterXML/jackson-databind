@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 import java.util.BitSet;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -208,11 +206,11 @@ public class PropertyValueBuffer
 
         // [databind#562] since 2.18 : Respect @JsonAnySetter in @JsonCreator
         if ((_anySetter != null) && (_anySetter.getParameterIndex() >= 0)) {
-            Map<Object, Object> anySetterMap = new HashMap<>();
+            Object anySetterParameterObject = _anySetter.createParameterObject();
             for (PropertyValue pv = this.buffered(); pv != null; pv = pv.next) {
-                pv.assign(anySetterMap);
+                pv.assign(anySetterParameterObject);
             }
-            _creatorParameters[_anySetter.getParameterIndex()] = anySetterMap;
+            _creatorParameters[_anySetter.getParameterIndex()] = anySetterParameterObject;
             // mark as consumed, so current PropertyValueBuffer does not get reused.
             _consumed = true;
         }

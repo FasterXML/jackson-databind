@@ -914,24 +914,43 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             BeanDescription beanDesc, AnnotatedMember mutator)
         throws JsonMappingException
     {
-        if (!(mutator instanceof AnnotatedParameter)){
-            ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+        JavaType keyType;
+        JavaType valueType;
+        BeanProperty prop;
+        int creatorIndex = -1;
+
+        if (mutator instanceof AnnotatedParameter){
+            AnnotatedParameter af = (AnnotatedParameter) mutator;
+            // get the type from the content type of the map object
+            JavaType fieldType = af.getType();
+            if (fieldType.hasRawClass(JsonNode.class) || fieldType.hasRawClass(ObjectNode.class)) {
+                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+                // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
+                valueType = ctxt.constructType(JsonNode.class);
+                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+
+                // Unlike with more complicated types, here we do not allow any annotation
+                // overrides etc but instead short-cut handling:
+                return SettableAnyProperty.constructForJsonNodeParameter(ctxt, prop, mutator, valueType,
+                        ctxt.findRootValueDeserializer(valueType), af.getIndex());
+            } else if (fieldType.isMapLikeType()) {
+                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+                keyType = fieldType.getKeyType();
+                valueType = fieldType.getContentType();
+                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+            } else {
+                return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                    "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
+                    ClassUtil.getTypeDescription(fieldType)));
+            }
+            creatorIndex = af.getIndex();
+        } else {
+            return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
                     "Unrecognized mutator type for any-setter: %s",
                     ClassUtil.nameOf(mutator.getClass())));
         }
-        AnnotatedParameter af = (AnnotatedParameter) mutator;
-        // get the type from the content type of the map object
-        JavaType fieldType = af.getType();
-        if (!fieldType.isMapLikeType()) {
-            return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
-                "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
-                ClassUtil.getTypeDescription(fieldType)));
-        }
-        fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
-        JavaType keyType = fieldType.getKeyType();
-        JavaType valueType = fieldType.getContentType();
-        BeanProperty prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
 
         // First: see if there are explicitly specified
         // and then possible direct deserializer override on accessor
@@ -958,7 +977,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         TypeDeserializer typeDeser = valueType.getTypeHandler();
         // [databind#562] Allow @JsonAnySetter in creators
         return SettableAnyProperty.constructForMapParameter(ctxt,
-                prop, mutator, valueType, keyDeser, deser, typeDeser, af.getIndex());
+                prop, mutator, valueType, keyDeser, deser, typeDeser, creatorIndex);
     }
 
 

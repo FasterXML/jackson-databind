@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -136,6 +137,12 @@ public abstract class SettableAnyProperty
         return new MapParamAnyProperty(property, field, valueType, keyDeser, valueDeser, typeDeser, vi, parameterIndex);
     }
 
+    public static SettableAnyProperty constructForJsonNodeParameter(DeserializationContext ctxt, BeanProperty prop,
+            AnnotatedMember mutator, JavaType valueType, JsonDeserializer<Object> valueDeser, int parameterIndex
+    ) {
+        return new JsonNodeParameterAnyProperty(prop, mutator, valueType, valueDeser, ctxt.getNodeFactory(), parameterIndex);
+    }
+
 
     // Abstract @since 2.14
     public abstract SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser);
@@ -186,6 +193,15 @@ public abstract class SettableAnyProperty
      * @since 2.18
      */
     public int getParameterIndex() { return -1; }
+
+    /**
+     * Create an instance of value to set any properties.
+     *
+     * @since 2.18
+     */
+    public Object createParameterObject() {
+        throw new UnsupportedOperationException("Cannot call createProperty() on "+getClass().getName());
+    }
 
     /*
     /**********************************************************
@@ -507,6 +523,60 @@ public abstract class SettableAnyProperty
         public int getParameterIndex() {
             return _parameterIndex;
         }
+
+        @Override
+        public Object createParameterObject() {
+            return new HashMap<>();
+        }
+    }
+
+    /**
+     * @since 2.18
+     */
+    protected static class JsonNodeParameterAnyProperty extends SettableAnyProperty
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        protected final JsonNodeFactory _nodeFactory;
+
+        protected final int _parameterIndex;
+
+        public JsonNodeParameterAnyProperty(BeanProperty property, AnnotatedMember field, JavaType valueType,
+                JsonDeserializer<Object> valueDeser, JsonNodeFactory nodeFactory, int parameterIndex)
+        {
+            super(property, field, valueType, null, valueDeser, null);
+            _nodeFactory = nodeFactory;
+            _parameterIndex = parameterIndex;
+        }
+
+
+        // Let's override since this is much simpler with JsonNodes
+        @Override
+        public Object deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException
+        {
+            return _valueDeserializer.deserialize(p, ctxt);
+        }
+
+        @Override
+        protected void _set(Object instance, Object propName, Object value)
+                throws Exception
+        {
+            ObjectNode objectNode = (ObjectNode) instance;
+            objectNode.set((String) propName, (JsonNode) value);
+        }
+
+        // Should not get called but...
+        @Override
+        public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) { return this; }
+
+        @Override
+        public int getParameterIndex() { return _parameterIndex; }
+
+        @Override
+        public Object createParameterObject() { return _nodeFactory.objectNode(); }
+
     }
 
 }

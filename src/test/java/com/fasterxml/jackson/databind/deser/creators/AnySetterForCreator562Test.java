@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -19,11 +20,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class AnySetterForCreator562Test extends DatabindTestUtil
 {
-    // [databind#562]
     static class POJO562
     {
         String a;
-
         Map<String,Object> stuff;
 
         @JsonCreator
@@ -35,7 +34,20 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
         }
     }
 
-    // [databind#562]: failing case
+    static class PojoWithNodeAnySetter
+    {
+        String a;
+        JsonNode anySetterNode;
+
+        @JsonCreator
+        public PojoWithNodeAnySetter(@JsonProperty("a") String a,
+            @JsonAnySetter JsonNode leftovers
+        ) {
+            this.a = a;
+            anySetterNode = leftovers;
+        }
+    }
+
     static class MultipleAny562
     {
         @JsonCreator
@@ -46,11 +58,9 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
         }
     }
 
-    // [databind#562]
     static class PojoWithDisabled
     {
         String a;
-
         Map<String,Object> stuff;
 
         @JsonCreator
@@ -64,7 +74,6 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // [databind#562]
     @Test
     public void anySetterViaCreator562() throws Exception
     {
@@ -81,7 +90,17 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
         assertEquals(expected, pojo.stuff);
     }
 
-    // [databind#562]
+    @Test
+    public void testNodeAnySetterViaCreator562() throws Exception
+    {
+        PojoWithNodeAnySetter pojo = MAPPER.readValue(
+                a2q("{'a':'value', 'b':42, 'c': 111}"),
+                PojoWithNodeAnySetter.class);
+
+        assertEquals("value", pojo.a);
+        assertEquals(a2q("{'c':111,'b':42}"), pojo.anySetterNode + "");
+    }
+
     @Test
     public void testWithFailureConfigs562() throws Exception
     {
@@ -116,7 +135,6 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
         }
     }
 
-    // [databind#562]
     @Test
     public void testAnySetterViaCreator562FailForDup() throws Exception
     {
@@ -129,7 +147,6 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
         }
     }
 
-    // [databind#562]
     @Test
     public void testAnySetterViaCreator562Disabled() throws Exception
     {

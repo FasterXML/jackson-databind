@@ -1778,6 +1778,11 @@ Ulf Dreyer (u3r@github)
  * Reported #4085: `@JsonView` does not work on class-level for records
   (2.18.0)
 
+Mark Herkrath (herkrath@github)
+ * Reported #4356: `BeanDeserializerModifier::updateBuilder()` doesn't work for
+   beans with Creator methods
+  (2.18.0)
+
 David Moten (davidmoten@github)
  * Contributed #4453: Allow JSON Integer to deserialize into a single-arg constructor of
    parameter type `double`

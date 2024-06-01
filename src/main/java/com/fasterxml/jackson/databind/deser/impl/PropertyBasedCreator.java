@@ -195,7 +195,17 @@ public final class PropertyBasedCreator
      */
     public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir) {
-        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir);
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, null);
+    }
+
+    /**
+     * Method called when starting to build a bean instance.
+     *
+     * @since 2.18 (added SettableAnyProperty parameter)
+     */
+    public PropertyValueBuffer startBuildingWithAnySetter(JsonParser p, DeserializationContext ctxt,
+            ObjectIdReader oir, SettableAnyProperty anySetter) {
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter);
     }
 
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
@@ -214,17 +224,6 @@ public final class PropertyBasedCreator
         }
         return bean;
     }
-
-    /**
-     * Method called when starting to build a bean instance.
-     *
-     * @since 2.18 (added SettableAnyProperty parameter)
-     */
-    public PropertyValueBuffer startBuildingWithAnySetter(JsonParser p, DeserializationContext ctxt,
-            ObjectIdReader oir, SettableAnyProperty anySetter) {
-        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter);
-    }
-
 
     /*
     /**********************************************************

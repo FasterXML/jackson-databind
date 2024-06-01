@@ -114,6 +114,7 @@ public class PropertyValueBuffer
         _anySetter = anySetter;
     }
 
+    @Deprecated // since 2.18
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
             ObjectIdReader oir)
     {

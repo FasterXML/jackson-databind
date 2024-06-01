@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.databind.deser.bean;
 
 import java.util.Iterator;
 

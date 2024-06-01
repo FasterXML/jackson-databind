@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+// [databind#562] Allow @JsonAnySetter on Creator constructors
 public class AnySetterForCreator562Test extends DatabindTestUtil
 {
     static class POJO562

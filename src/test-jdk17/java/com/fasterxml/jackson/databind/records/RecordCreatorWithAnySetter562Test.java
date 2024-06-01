@@ -12,10 +12,12 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class RecordCreatorWithAnySetter562Test extends DatabindTestUtil
+// [databind#562] Allow @JsonAnySetter on Creator constructors
+public class RecordCreatorWithAnySetter562Test
+        extends DatabindTestUtil
 {
-
-    record RecordWithAnySetterCtor(int id, Map<String, Integer> additionalProperties) {
+    record RecordWithAnySetterCtor(int id,
+                                   Map<String, Integer> additionalProperties) {
         @JsonCreator
         public RecordWithAnySetterCtor(@JsonProperty("regular") int id,
                                        @JsonAnySetter Map<String, Integer> additionalProperties

@@ -84,7 +84,7 @@ public class PropertyValueBuffer
 
     /**
      * Flag that indicates whether this buffer has been consumed, meaning
-     * that all properties have been read and assigned to the creator.
+     * that all properties have been read and assigned.
      *
      * @since 2.18
      */
@@ -100,7 +100,7 @@ public class PropertyValueBuffer
      * @since 2.18
      */
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
-            ObjectIdReader oir, SettableAnyProperty creatorAnySetter)
+            ObjectIdReader oir, SettableAnyProperty anySetter)
     {
         _parser = p;
         _context = ctxt;
@@ -112,7 +112,7 @@ public class PropertyValueBuffer
         } else {
             _paramsSeenBig = new BitSet();
         }
-        _anySetter = creatorAnySetter;
+        _anySetter = anySetter;
     }
 
     @Deprecated // since 2.18
@@ -301,7 +301,7 @@ public class PropertyValueBuffer
 
     protected PropertyValue buffered() {
         if (_consumed) {
-            return PropertyValue.empty();
+            return null;
         }
         return _buffered;
     }

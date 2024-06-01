@@ -89,7 +89,7 @@ public class PropertyValueBuffer
      *
      * @since 2.18
      */
-    private Map<Object, Object> _anySetterMap;
+    private Map<Object, Object> _anyPropertyMap;
 
     /*
     /**********************************************************
@@ -208,7 +208,7 @@ public class PropertyValueBuffer
         if (_anySetter != null) {
             for (int i = 0; i < creatorParams.length; i++) {
                 if (props[i].getMember() == _anySetter.getProperty().getMember()) {
-                    creatorParams[i] = _anySetterMap;
+                    creatorParams[i] = _anyPropertyMap;
                     break;
                 }
             }
@@ -353,18 +353,18 @@ public class PropertyValueBuffer
     public void bufferAnySetter(DeserializationContext ctxt, JsonParser p, PropertyBasedCreator creator, String propName)
         throws IOException {
         // Only called once, to initialize map
-        if (_anySetterMap == null) {
+        if (_anyPropertyMap == null) {
             CreatorProperty cp = creator.findAnySetterProperty();
             if (cp == null) {
                 ctxt.reportBadDefinition(creator.getClass(),
                    "Invalid configuration: no creator property with 'any-setter' annotation found");
             }
             try {
-                _anySetterMap = cp.initMap(_context, _anySetter);
+                _anyPropertyMap = cp.createAnyPropertyMap(_context, _anySetter);
             } catch (IOException e) {
                 _context.reportInputMismatch(cp, e.getMessage());
             }
         }
-        _anySetterMap.put(propName, _anySetter.deserialize(p, ctxt));
+        _anyPropertyMap.put(propName, _anySetter.deserialize(p, ctxt));
     }
 }

@@ -408,7 +408,7 @@ public class CreatorProperty
     /**
      * @since 2.18
      */
-    public Map<Object, Object> initMap(DeserializationContext context, SettableAnyProperty anySetter)
+    public Map<Object, Object> createAnyPropertyMap(DeserializationContext context, SettableAnyProperty anySetter)
         throws IOException
     {
         return ((SettableAnyProperty.MapParamAnyProperty) anySetter).createAnyPropertyMap(context);

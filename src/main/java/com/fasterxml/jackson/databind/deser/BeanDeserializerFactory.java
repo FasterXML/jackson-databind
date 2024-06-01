@@ -543,12 +543,9 @@ ClassUtil.name(propName)));
         }
 
         // Also, do we have a fallback "any" setter?
-        AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
-        AnnotatedMember creatorPropWithAnySetter = _findCreatorPropWithAnySetter(creatorProps, ctxt.getAnnotationIntrospector());
+        SettableAnyProperty anySetter = _resolveAnySetter(ctxt, beanDesc, creatorProps);
         if (anySetter != null) {
-            builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetter));
-        } else if (creatorPropWithAnySetter != null) {
-            builder.setAnySetter(constructAnySetter(ctxt, beanDesc, creatorPropWithAnySetter));
+            builder.setAnySetter(anySetter);
         } else {
             // 23-Jan-2018, tatu: although [databind#1805] would suggest we should block
             //   properties regardless, for now only consider unless there's any setter...
@@ -664,16 +661,25 @@ ClassUtil.name(propName)));
         }
     }
 
-    private AnnotatedMember _findCreatorPropWithAnySetter(SettableBeanProperty[] creatorProps, AnnotationIntrospector ai)
+    // since 2.18
+    private SettableAnyProperty _resolveAnySetter(DeserializationContext ctxt, BeanDescription beanDesc,
+                                                      SettableBeanProperty[] creatorProps) throws JsonMappingException
     {
+        // Find the regular method/field level any-setter
+        AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
+        if (anySetter != null) {
+            return constructAnySetter(ctxt, beanDesc, anySetter);
+        }
+        // else look for any-setter via @JsonCreator
         if (creatorProps != null) {
             for (SettableBeanProperty prop : creatorProps) {
                 AnnotatedMember member = prop.getMember();
-                if (member != null && Boolean.TRUE.equals(ai.hasAnySetter(member))) {
-                    return member;
+                if (member != null && Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(member))) {
+                    return constructAnySetter(ctxt, beanDesc, member);
                 }
             }
         }
+        // not found, that's fine, too
         return null;
     }
 
@@ -918,6 +924,8 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 prop, mutator, valueType, keyDeser, deser, typeDeser);
         }
     }
+
+
 
     /**
      * Method that will construct a regular bean property setter using

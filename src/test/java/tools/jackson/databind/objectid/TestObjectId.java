@@ -111,24 +111,28 @@ public class TestObjectId extends DatabindTestUtil
             use = JsonTypeInfo.Id.NAME,
             property = "type",
             defaultImpl = JsonMapSchema.class)
-      @JsonSubTypes({
-            @JsonSubTypes.Type(value = JsonMapSchema.class, name = "map"),
-            @JsonSubTypes.Type(value = JsonJdbcSchema.class, name = "jdbc") })
-      public static abstract class JsonSchema {
-          public String name;
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value = JsonMapSchema.class, name = "map"),
+        @JsonSubTypes.Type(value = JsonJdbcSchema.class, name = "jdbc") })
+    public static abstract class JsonSchema {
+        public String name;
     }
 
     static class JsonMapSchema extends JsonSchema { }
 
     static class JsonJdbcSchema extends JsonSchema { }
 
+    static class JsonRoot1083 {
+        public List<JsonSchema> schemas = new ArrayList<JsonSchema>();
+    }
+    
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testColumnMetadata() throws Exception
@@ -175,17 +179,15 @@ public class TestObjectId extends DatabindTestUtil
     @Test
     public void testObjectAndTypeId() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-
         Bar inputRoot = new Bar();
         Foo inputChild = new Foo();
         inputRoot.next = inputChild;
         inputChild.ref = inputRoot;
 
-        String json = mapper.writerWithDefaultPrettyPrinter()
+        String json = MAPPER.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(inputRoot);
 
-        BaseEntity resultRoot = mapper.readValue(json, BaseEntity.class);
+        BaseEntity resultRoot = MAPPER.readValue(json, BaseEntity.class);
         assertNotNull(resultRoot);
         assertTrue(resultRoot instanceof Bar);
         Bar first = (Bar) resultRoot;
@@ -197,15 +199,11 @@ public class TestObjectId extends DatabindTestUtil
         assertSame(first, second.ref);
     }
 
-    public static class JsonRoot {
-        public final List<JsonSchema> schemas = new ArrayList<JsonSchema>();
-    }
-
     @Test
     public void testWithFieldsInBaseClass1083() throws Exception {
           final String json = a2q("{'schemas': [{\n"
               + "  'name': 'FoodMart'\n"
               + "}]}\n");
-          MAPPER.readValue(json, JsonRoot.class);
+          MAPPER.readValue(json, JsonRoot1083.class);
     }
 }

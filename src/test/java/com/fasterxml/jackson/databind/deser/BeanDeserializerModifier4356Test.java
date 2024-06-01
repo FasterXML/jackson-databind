@@ -75,7 +75,9 @@ class BeanDeserializerModifier4356Test
         }
     }
 
-    private final ObjectMapper MAPPER = jsonMapperBuilder().addModule(getSimpleModuleWithDeserializerModifier()).build();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .addModule(getSimpleModuleWithDeserializerModifier())
+            .build();
 
     // passes
     @Test

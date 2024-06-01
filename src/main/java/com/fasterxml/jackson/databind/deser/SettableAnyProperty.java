@@ -134,7 +134,7 @@ public abstract class SettableAnyProperty
             mapType = LinkedHashMap.class;
         }
         ValueInstantiator vi = JDKValueInstantiators.findStdValueInstantiator(ctxt.getConfig(), mapType);
-        return new MapParamAnyProperty(property, field, valueType, keyDeser, valueDeser, typeDeser, vi, parameterIndex);
+        return new MapParameterAnyProperty(property, field, valueType, keyDeser, valueDeser, typeDeser, vi, parameterIndex);
     }
 
     public static SettableAnyProperty constructForJsonNodeParameter(DeserializationContext ctxt, BeanProperty prop,
@@ -488,7 +488,7 @@ public abstract class SettableAnyProperty
      *
      * @since 2.18
      */
-    protected static class MapParamAnyProperty extends SettableAnyProperty
+    protected static class MapParameterAnyProperty extends SettableAnyProperty
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
@@ -497,7 +497,7 @@ public abstract class SettableAnyProperty
 
         protected final int _parameterIndex;
 
-        public MapParamAnyProperty(BeanProperty property, AnnotatedMember field, JavaType valueType,
+        public MapParameterAnyProperty(BeanProperty property, AnnotatedMember field, JavaType valueType,
                 KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
                 ValueInstantiator inst, int parameterIndex)
         {
@@ -509,7 +509,7 @@ public abstract class SettableAnyProperty
         @Override
         public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser)
         {
-            return new MapParamAnyProperty(_property, _setter, _type, _keyDeserializer, deser,
+            return new MapParameterAnyProperty(_property, _setter, _type, _keyDeserializer, deser,
                     _valueTypeDeserializer, _valueInstantiator, _parameterIndex);
         }
 

@@ -528,8 +528,8 @@ public abstract class BasicDeserializerFactory
                 if (unwrapper != null) {
                     _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
                 }
-                if  ((name == null) && (injectId == null)) {
-                    // Must be injectable or have name; without either won't work
+                // Must be injectable or have name; without either won't work
+                if ((name == null) && (injectId == null)) {
                     ctxt.reportBadTypeDefinition(beanDesc,
 "Argument #%d of Creator %s has no property name (and is not Injectable): can not use as property-based Creator",
 i, candidate);

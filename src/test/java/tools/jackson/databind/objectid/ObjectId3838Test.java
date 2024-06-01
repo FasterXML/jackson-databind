@@ -37,7 +37,8 @@ public class ObjectId3838Test extends DatabindTestUtil
 
     @JsonIdentityInfo(property = "id", generator = ObjectIdGenerators.PropertyGenerator.class)
     static class CreatorBased implements ResultGetter {
-        private final String id;
+        // NOTE: must NOT be `final` unless `MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS` enabled
+        private String id;
 
         @JsonCreator
         CreatorBased(@JsonProperty(value = "id") String id) {
@@ -66,7 +67,8 @@ public class ObjectId3838Test extends DatabindTestUtil
 
     @JsonIdentityInfo(property = "id", generator = ObjectIdGenerators.PropertyGenerator.class)
     static class StaticFactoryMethodBased implements ResultGetter {
-        private final String id;
+        // NOTE: must NOT be `final` unless `MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS` enabled
+        private String id;
 
         private StaticFactoryMethodBased(String id) {
             this.id = id;
@@ -89,7 +91,9 @@ public class ObjectId3838Test extends DatabindTestUtil
 
     @JsonIdentityInfo(property = "id", generator = ObjectIdGenerators.PropertyGenerator.class)
     static class MultiArgConstructorBased implements ResultGetter {
-        private final String id;
+        // NOTE: must NOT be `final` unless `MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS` enabled
+        private String id;
+
         private final int value;
 
         @JsonCreator

@@ -499,8 +499,8 @@ public abstract class SettableAnyProperty
 
         public MapParamAnyProperty(BeanProperty property, AnnotatedMember field, JavaType valueType,
                 KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
-                ValueInstantiator inst, int parameterIndex
-        ) {
+                ValueInstantiator inst, int parameterIndex)
+        {
             super(property, field, valueType, keyDeser, valueDeser, typeDeser);
             _valueInstantiator = Objects.requireNonNull(inst, "ValueInstantiator for MapParameterAnyProperty cannot be `null`");
             _parameterIndex = parameterIndex;
@@ -520,17 +520,16 @@ public abstract class SettableAnyProperty
         }
 
         @Override
-        public int getParameterIndex() {
-            return _parameterIndex;
-        }
+        public int getParameterIndex() { return _parameterIndex; }
 
         @Override
-        public Object createParameterObject() {
-            return new HashMap<>();
-        }
+        public Object createParameterObject() { return new HashMap<>(); }
+
     }
 
     /**
+     * [databind#562] Allow @JsonAnySetter on Creator constructor
+     *
      * @since 2.18
      */
     protected static class JsonNodeParameterAnyProperty extends SettableAnyProperty
@@ -562,8 +561,7 @@ public abstract class SettableAnyProperty
         protected void _set(Object instance, Object propName, Object value)
                 throws Exception
         {
-            ObjectNode objectNode = (ObjectNode) instance;
-            objectNode.set((String) propName, (JsonNode) value);
+            ((ObjectNode) instance).set((String) propName, (JsonNode) value);
         }
 
         // Should not get called but...

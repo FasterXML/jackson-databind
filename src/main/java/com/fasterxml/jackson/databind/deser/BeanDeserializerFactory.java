@@ -833,7 +833,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         final boolean isField = mutator instanceof AnnotatedField;
         // [databind#562] Allow @JsonAnySetter on Creator constructor
         final boolean isParameter = mutator instanceof AnnotatedParameter;
-        int creatorIndex = -1;
+        int parameterIndex = -1;
 
         if (mutator instanceof AnnotatedMethod) {
             // we know it's a 2-arg method, second arg is the value
@@ -876,8 +876,9 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             }
         } else if (isParameter) {
             AnnotatedParameter af = (AnnotatedParameter) mutator;
-            // get the type from the content type of the map object
             JavaType fieldType = af.getType();
+            parameterIndex = af.getIndex();
+
             if (fieldType.hasRawClass(JsonNode.class) || fieldType.hasRawClass(ObjectNode.class)) {
                 fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
                 // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
@@ -888,7 +889,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 // Unlike with more complicated types, here we do not allow any annotation
                 // overrides etc but instead short-cut handling:
                 return SettableAnyProperty.constructForJsonNodeParameter(ctxt, prop, mutator, valueType,
-                        ctxt.findRootValueDeserializer(valueType), af.getIndex());
+                        ctxt.findRootValueDeserializer(valueType), parameterIndex);
             } else if (fieldType.isMapLikeType()) {
                 fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
                 keyType = fieldType.getKeyType();
@@ -900,7 +901,6 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
                     ClassUtil.getTypeDescription(fieldType)));
             }
-            creatorIndex = af.getIndex();
         } else {
             return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
                     "Unrecognized mutator type for any-setter: %s",
@@ -936,7 +936,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         }
         if (isParameter) {
             return SettableAnyProperty.constructForMapParameter(ctxt,
-                    prop, mutator, valueType, keyDeser, deser, typeDeser, creatorIndex);
+                    prop, mutator, valueType, keyDeser, deser, typeDeser, parameterIndex);
         }
         return SettableAnyProperty.constructForMethod(ctxt,
                 prop, mutator, valueType, keyDeser, deser, typeDeser);

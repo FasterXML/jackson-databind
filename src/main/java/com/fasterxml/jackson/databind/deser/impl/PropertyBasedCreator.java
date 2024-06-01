@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 
@@ -213,6 +214,17 @@ public final class PropertyBasedCreator
         }
         return bean;
     }
+
+    /**
+     * Method called when starting to build a bean instance.
+     *
+     * @since 2.18 (added SettableAnyProperty parameter)
+     */
+    public PropertyValueBuffer startBuildingWithAnySetter(JsonParser p, DeserializationContext ctxt,
+            ObjectIdReader oir, SettableAnyProperty anySetter) {
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter);
+    }
+
 
     /*
     /**********************************************************

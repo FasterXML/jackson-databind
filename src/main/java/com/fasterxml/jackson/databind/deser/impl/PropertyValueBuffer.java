@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 import java.util.BitSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -75,14 +77,29 @@ public class PropertyValueBuffer
      */
     protected Object _idValue;
 
+    /**
+     * [databind#562]: Allow use of `@JsonAnySetter` in `@JsonCreator`
+     *
+     * @since 2.18
+     */
+    protected final SettableAnyProperty _anySetter;
+
+    /**
+     * Flag that indicates whether this buffer has been consumed.
+     */
+    protected boolean _consumed;
+
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
+    /**
+     * @since 2.18
+     */
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
-            ObjectIdReader oir)
+            ObjectIdReader oir, SettableAnyProperty anySetter)
     {
         _parser = p;
         _context = ctxt;
@@ -94,7 +111,15 @@ public class PropertyValueBuffer
         } else {
             _paramsSeenBig = new BitSet();
         }
+        _anySetter = anySetter;
     }
+
+    public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
+            ObjectIdReader oir)
+    {
+        this(p, ctxt, paramCount, oir, null);
+    }
+
 
     /**
      * Returns {@code true} if the given property was seen in the JSON source by
@@ -145,7 +170,7 @@ public class PropertyValueBuffer
      * then whole JSON Object has been processed,
      */
     public Object[] getParameters(SettableBeanProperty[] props)
-        throws JsonMappingException
+        throws JsonMappingException, IOException
     {
         // quick check to see if anything else is needed
         if (_paramsNeeded > 0) {
@@ -173,6 +198,22 @@ public class PropertyValueBuffer
                     _context.reportInputMismatch(prop,
                             "Null value for creator property '%s' (index %d); `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES` enabled",
                             prop.getName(), props[ix].getCreatorIndex());
+                }
+            }
+        }
+
+        // [databind#562] since 2.18 : Respect @JsonAnySetter in @JsonCreator
+        if (_anySetter != null) {
+            for (int i = 0; i < _creatorParameters.length; i++) {
+                if (_creatorParameters[i] == null) {
+                    // anySetter should know about index
+                    Map<Object, Object> anySetterMap = new HashMap<>();
+                    for (PropertyValue pv = this.buffered(); pv != null; pv = pv.next) {
+                        pv.assign(anySetterMap);
+                    }
+                    _creatorParameters[i] = anySetterMap;
+                    _consumed = true;
+                    break;
                 }
             }
         }
@@ -261,7 +302,12 @@ public class PropertyValueBuffer
         return bean;
     }
 
-    protected PropertyValue buffered() { return _buffered; }
+    protected PropertyValue buffered() {
+        if (_consumed) {
+            return PropertyValue.empty();
+        }
+        return _buffered;
+    }
 
     public boolean isComplete() { return _paramsNeeded <= 0; }
 

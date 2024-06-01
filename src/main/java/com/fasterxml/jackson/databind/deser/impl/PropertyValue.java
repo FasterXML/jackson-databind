@@ -24,6 +24,10 @@ public abstract class PropertyValue
         this.value = value;
     }
 
+    public static PropertyValue empty() {
+        return Empty.INSTANCE;
+    }
+
     /**
      * Method called to assign stored value of this property to specified
      * bean instance
@@ -111,6 +115,29 @@ public abstract class PropertyValue
             throws IOException
         {
             ((java.util.Map<Object,Object>) bean).put(_key, value);
+        }
+    }
+
+    /**
+     * Property value type used do nothing
+     */
+    private final static class Empty
+        extends PropertyValue
+    {
+
+        public static final PropertyValue INSTANCE = new Empty();
+
+        private Empty()
+        {
+            super(null, null);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public void assign(Object bean)
+            throws IOException
+        {
+            // no-op
         }
     }
 }

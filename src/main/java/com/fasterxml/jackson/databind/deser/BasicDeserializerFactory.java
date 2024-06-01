@@ -508,20 +508,28 @@ public abstract class BasicDeserializerFactory
     {
         final int paramCount = candidate.paramCount();
         SettableBeanProperty[] properties = new SettableBeanProperty[paramCount];
+        boolean anySetterFound = false;
 
         for (int i = 0; i < paramCount; ++i) {
             JacksonInject.Value injectId = candidate.injection(i);
             AnnotatedParameter param = candidate.parameter(i);
             PropertyName name = candidate.paramName(i);
-            if (name == null) {
+            boolean isAnySetter = Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(param));
+            if (isAnySetter) {
+                if (anySetterFound) {
+                    ctxt.reportBadTypeDefinition(beanDesc, "More than one 'any-setter' specified");
+                } else {
+                    anySetterFound = true;
+                }
+            } else if (name == null) {
                 // 21-Sep-2017, tatu: Looks like we want to block accidental use of Unwrapped,
                 //   as that will not work with Creators well at all
                 NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
                     _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
                 }
-                // Must be injectable or have name; without either won't work
-                if ((name == null) && (injectId == null)) {
+                if  ((name == null) && (injectId == null)) {
+                    // Must be injectable or have name; without either won't work
                     ctxt.reportBadTypeDefinition(beanDesc,
 "Argument #%d of Creator %s has no property name (and is not Injectable): can not use as property-based Creator",
 i, candidate);

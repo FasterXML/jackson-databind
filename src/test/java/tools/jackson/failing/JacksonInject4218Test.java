@@ -8,10 +8,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class JacksonInject4218Test
+// [databind#4218]
+class JacksonInject4218Test extends DatabindTestUtil
 {
     static class Dto {
         @JacksonInject("id")
@@ -46,10 +48,11 @@ class JacksonInject4218Test
         }
     }
 
+    // [databind#4218]
     @Test
-    void test() throws Exception
+    void injectFail4218() throws Exception
     {
-        ObjectReader reader = new JsonMapper()
+        ObjectReader reader = newJsonMapper()
                 .readerFor(Dto.class)
                 .with(new MyInjectableValues());
 

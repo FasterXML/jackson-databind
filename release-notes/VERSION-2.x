@@ -18,6 +18,9 @@ Project: jackson-databind
 #4119: Exception when deserialization uses a record with a constructor
   property with `access=READ_ONLY`
  (reported by @Mochis)
+#4356: `BeanDeserializerModifier::updateBuilder()` doesn't work for
+  beans with Creator methods
+ (reported by Mark H)
 #4452: `@JsonProperty` not serializing field names properly
   on `@JsonCreator` in Record
  (reported by @Incara)

@@ -58,6 +58,13 @@ public class BeanDeserializerBuilder
         = new LinkedHashMap<String, SettableBeanProperty>();
 
     /**
+     * Parameters of the primary properties-based Creator, if any.
+     *
+     * @since 2.18
+     */
+    protected SettableBeanProperty[] _propsBasedCreatorParams;
+
+    /**
      * Value injectors for deserialization
      */
     protected List<ValueInjector> _injectables;
@@ -146,6 +153,7 @@ public class BeanDeserializerBuilder
         _ignorableProps = src._ignorableProps;
         _includableProps = src._includableProps;
         _valueInstantiator = src._valueInstantiator;
+        _propsBasedCreatorParams = src._propsBasedCreatorParams;
         _objectIdReader = src._objectIdReader;
 
         _anySetter = src._anySetter;
@@ -174,7 +182,14 @@ public class BeanDeserializerBuilder
      * Method for adding a new property or replacing a property.
      */
     public void addOrReplaceProperty(SettableBeanProperty prop, boolean allowOverride) {
-        _properties.put(prop.getName(), prop);
+        SettableBeanProperty oldProp = _properties.put(prop.getName(), prop);
+        if ((oldProp != null) && (_propsBasedCreatorParams != null)) {
+            for (int i = 0, len = _propsBasedCreatorParams.length; i < len; ++i) {
+                if (_propsBasedCreatorParams[i] == oldProp) {
+                    _propsBasedCreatorParams[i] = prop;
+                }
+            }
+        }
     }
 
     /**
@@ -293,6 +308,7 @@ public class BeanDeserializerBuilder
 
     public void setValueInstantiator(ValueInstantiator inst) {
         _valueInstantiator = inst;
+        _propsBasedCreatorParams = inst.getFromObjectArguments(_config);
     }
 
     public void setObjectIdReader(ObjectIdReader r) {

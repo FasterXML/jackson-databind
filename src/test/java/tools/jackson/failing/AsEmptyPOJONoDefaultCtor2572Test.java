@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 // [databind#2572]: "empty" setter, POJO with no 0-arg constructor
 class AsEmptyPOJONoDefaultCtor2572Test extends DatabindTestUtil {
     static class Outer {
@@ -31,12 +33,13 @@ class AsEmptyPOJONoDefaultCtor2572Test extends DatabindTestUtil {
         }
     }
 
+    // [databind#2572]
     @Test
-    void jackson() throws Exception {
+    void emptyForTypeThatCannotBeInstantiated() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultNullHandling(h -> h.withOverrides(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.AS_EMPTY)))
                 .build();
         final String json = mapper.writeValueAsString(new Outer(new Inner("inner")));
-        mapper.readValue(json, Outer.class);
+        assertNotNull(mapper.readValue(json, Outer.class));
     }
 }

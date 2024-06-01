@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 //  setter/builder is on Builder class, but it is called after
 //  building completes, i.e. on wrong class.
 
-//  building completes, i.e. on wrong class.
-
 class BuilderWithBackRef2686Test extends DatabindTestUtil {
     // [databind#2686]
     public static class Container {

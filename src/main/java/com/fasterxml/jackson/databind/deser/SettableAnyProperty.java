@@ -200,7 +200,7 @@ public abstract class SettableAnyProperty
      * @since 2.18
      */
     public Object createParameterObject() {
-        throw new UnsupportedOperationException("Cannot call createProperty() on "+getClass().getName());
+        throw new UnsupportedOperationException("Cannot call createParameterObject() on " + getClass().getName());
     }
 
     /*
@@ -549,7 +549,6 @@ public abstract class SettableAnyProperty
             _nodeFactory = nodeFactory;
             _parameterIndex = parameterIndex;
         }
-
 
         // Let's override since this is much simpler with JsonNodes
         @Override

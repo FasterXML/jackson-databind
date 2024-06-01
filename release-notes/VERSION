@@ -57,6 +57,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #3601: Change `Optional` deserialization from "absent" value into `null`, from "empty"
 #4160: Deprecate `DefaultTyping.EVERYTHING` in `2.x` and remove in `3.0`
 #4381: Prevent construction of `null`-valued `JsonNode`s (like `TextNode`)
+#4552: Change `MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS` default to `false` for 3.0
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)
 - Default for `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES` changed to `false` for 3.0

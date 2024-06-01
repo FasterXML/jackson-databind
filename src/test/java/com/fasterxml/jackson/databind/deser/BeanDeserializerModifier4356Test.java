@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -75,7 +75,9 @@ class BeanDeserializerModifier4356Test
         }
     }
 
-    private final ObjectMapper MAPPER = jsonMapperBuilder().addModule(getSimpleModuleWithDeserializerModifier()).build();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .addModule(getSimpleModuleWithDeserializerModifier())
+            .build();
 
     // passes
     @Test

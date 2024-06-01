@@ -2,6 +2,8 @@ package tools.jackson.failing;
 
 import java.beans.ConstructorProperties;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
@@ -61,6 +63,7 @@ public class Creator2008Test extends DatabindTestUtil
 
     private ObjectMapper objectMapper = newJsonMapper();
 
+    @Test
     public void testSimple() throws Exception {
         String json = "{\"jacksonAge\":30,\"jacksonName\":\"changyong\"}";
 

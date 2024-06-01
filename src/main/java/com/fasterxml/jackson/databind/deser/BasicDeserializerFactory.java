@@ -539,7 +539,7 @@ i, candidate);
                 }
             }
             properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId,
-                    anySetterIndex >= 0);
+                    anySetterIndex == i);
         }
         creators.addPropertyCreator(candidate.creator(), true, properties);
     }

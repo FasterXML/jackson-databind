@@ -499,7 +499,7 @@ public abstract class SettableAnyProperty
         }
 
         @SuppressWarnings("unchecked")
-        protected Map<Object, Object> initMap(DeserializationContext ctxt)
+        protected Map<Object, Object> createAnyPropertyMap(DeserializationContext ctxt)
             throws IOException
         {
             return  (Map<Object, Object>) _valueInstantiator.createUsingDefault(ctxt);

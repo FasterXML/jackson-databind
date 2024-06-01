@@ -544,7 +544,7 @@ ClassUtil.name(propName)));
 
         // Also, do we have a fallback "any" setter?
         AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
-        AnnotatedMember creatorPropWithAnySetter = _findCreatorPropWithAnySetter(ctxt, creatorProps);
+        AnnotatedMember creatorPropWithAnySetter = _findCreatorPropWithAnySetter(creatorProps);
         if (anySetter != null) {
             builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetter));
         } else if (creatorPropWithAnySetter != null) {
@@ -561,6 +561,7 @@ ClassUtil.name(propName)));
                 }
             }
         }
+
         final boolean useGettersAsSetters = ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS)
                 && ctxt.isEnabled(MapperFeature.AUTO_DETECT_GETTERS);
 
@@ -665,15 +666,11 @@ ClassUtil.name(propName)));
     }
 
     // since 2.18
-    private AnnotatedMember _findCreatorPropWithAnySetter(DeserializationContext ctxt, SettableBeanProperty[] creatorProps) {
+    private AnnotatedMember _findCreatorPropWithAnySetter(SettableBeanProperty[] creatorProps) {
         if (creatorProps != null) {
-            AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
             for (SettableBeanProperty prop : creatorProps) {
-                AnnotatedMember m = prop.getMember();
-                if (m != null) {
-                    if (Boolean.TRUE.equals(ai.hasAnySetter(m))) {
-                        return prop.getMember();
-                    }
+                if (((CreatorProperty) prop).isAnySetter()) {
+                    return prop.getMember();
                 }
             }
         }

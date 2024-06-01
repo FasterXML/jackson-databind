@@ -411,6 +411,6 @@ public class CreatorProperty
     public Map<Object, Object> initMap(DeserializationContext context, SettableAnyProperty anySetter)
         throws IOException
     {
-        return ((SettableAnyProperty.MapParamAnyProperty) anySetter).initMap(context);
+        return ((SettableAnyProperty.MapParamAnyProperty) anySetter).createAnyPropertyMap(context);
     }
 }

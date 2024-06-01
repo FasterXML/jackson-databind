@@ -15,7 +15,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TestSetterlessProperties501 extends DatabindTestUtil {
+class SetterlessProperties501Test extends DatabindTestUtil {
     static class Poly {
         public int id;
 

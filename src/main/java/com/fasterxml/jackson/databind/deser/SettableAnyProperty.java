@@ -118,15 +118,13 @@ public abstract class SettableAnyProperty
                 ctxt.getNodeFactory());
     }
 
-        /**
+    /**
      * @since 2.18
      */
     public static SettableAnyProperty constructForMapParameter(DeserializationContext ctxt,
-            BeanProperty property,
-            AnnotatedMember field, JavaType valueType,
-            KeyDeserializer keyDeser,
-            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
-    {
+            BeanProperty property, AnnotatedMember field, JavaType valueType, KeyDeserializer keyDeser,
+            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser, int parameterIndex
+    ) {
         Class<?> mapType = field.getRawType();
         // 02-Aug-2022, tatu: Ideally would be resolved to a concrete type by caller but
         //    alas doesn't appear to happen. Nor does `BasicDeserializerFactory` expose method
@@ -135,9 +133,7 @@ public abstract class SettableAnyProperty
             mapType = LinkedHashMap.class;
         }
         ValueInstantiator vi = JDKValueInstantiators.findStdValueInstantiator(ctxt.getConfig(), mapType);
-        return new MapParamAnyProperty(property, field, valueType,
-                keyDeser, valueDeser, typeDeser,
-                vi);
+        return new MapParamAnyProperty(property, field, valueType, keyDeser, valueDeser, typeDeser, vi, parameterIndex);
     }
 
 
@@ -182,6 +178,14 @@ public abstract class SettableAnyProperty
      * @since 2.14
      */
     public String getPropertyName() { return _property.getName(); }
+
+    /**
+     * Accessor for parameterIndex.
+     * @return -1 if not a parameterized setter, otherwise index of parameter
+     *
+     * @since 2.18
+     */
+    public int getParameterIndex() { return -1; }
 
     /*
     /**********************************************************
@@ -475,23 +479,22 @@ public abstract class SettableAnyProperty
 
         protected final ValueInstantiator _valueInstantiator;
 
-        public MapParamAnyProperty(BeanProperty property,
-                AnnotatedMember field, JavaType valueType,
-                KeyDeserializer keyDeser,
-                JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
-                ValueInstantiator inst)
-        {
-            super(property, field, valueType,
-                    keyDeser, valueDeser, typeDeser);
+        protected final int _parameterIndex;
+
+        public MapParamAnyProperty(BeanProperty property, AnnotatedMember field, JavaType valueType,
+                KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
+                ValueInstantiator inst, int parameterIndex
+        ) {
+            super(property, field, valueType, keyDeser, valueDeser, typeDeser);
             _valueInstantiator = Objects.requireNonNull(inst, "ValueInstantiator for MapParameterAnyProperty cannot be `null`");
+            _parameterIndex = parameterIndex;
         }
 
         @Override
         public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser)
         {
-            return new MapParamAnyProperty(_property, _setter, _type,
-                _keyDeserializer, deser, _valueTypeDeserializer,
-                _valueInstantiator);
+            return new MapParamAnyProperty(_property, _setter, _type, _keyDeserializer, deser,
+                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex);
         }
 
         @Override
@@ -500,6 +503,10 @@ public abstract class SettableAnyProperty
             ((Map<Object, Object>) instance).put(propName, value);
         }
 
+        @Override
+        public int getParameterIndex() {
+            return _parameterIndex;
+        }
     }
 
 }

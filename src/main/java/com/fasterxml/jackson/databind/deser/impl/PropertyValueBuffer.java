@@ -85,7 +85,10 @@ public class PropertyValueBuffer
     protected final SettableAnyProperty _anySetter;
 
     /**
-     * Flag that indicates whether this buffer has been consumed.
+     * Flag that indicates whether this buffer has been consumed, meaning
+     * that all properties have been read and assigned to the creator.
+     *
+     * @since 2.18
      */
     protected boolean _consumed;
 
@@ -99,7 +102,7 @@ public class PropertyValueBuffer
      * @since 2.18
      */
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
-            ObjectIdReader oir, SettableAnyProperty anySetter)
+            ObjectIdReader oir, SettableAnyProperty creatorAnySetter)
     {
         _parser = p;
         _context = ctxt;
@@ -111,7 +114,7 @@ public class PropertyValueBuffer
         } else {
             _paramsSeenBig = new BitSet();
         }
-        _anySetter = anySetter;
+        _anySetter = creatorAnySetter;
     }
 
     @Deprecated // since 2.18
@@ -204,19 +207,14 @@ public class PropertyValueBuffer
         }
 
         // [databind#562] since 2.18 : Respect @JsonAnySetter in @JsonCreator
-        if (_anySetter != null) {
-            for (int i = 0; i < _creatorParameters.length; i++) {
-                if (_creatorParameters[i] == null) {
-                    // anySetter should know about index
-                    Map<Object, Object> anySetterMap = new HashMap<>();
-                    for (PropertyValue pv = this.buffered(); pv != null; pv = pv.next) {
-                        pv.assign(anySetterMap);
-                    }
-                    _creatorParameters[i] = anySetterMap;
-                    _consumed = true;
-                    break;
-                }
+        if ((_anySetter != null) && (_anySetter.getParameterIndex() >= 0)) {
+            Map<Object, Object> anySetterMap = new HashMap<>();
+            for (PropertyValue pv = this.buffered(); pv != null; pv = pv.next) {
+                pv.assign(anySetterMap);
             }
+            _creatorParameters[_anySetter.getParameterIndex()] = anySetterMap;
+            // mark as consumed, so current PropertyValueBuffer does not get reused.
+            _consumed = true;
         }
         return _creatorParameters;
     }

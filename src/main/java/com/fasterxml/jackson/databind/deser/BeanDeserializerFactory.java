@@ -958,7 +958,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         TypeDeserializer typeDeser = valueType.getTypeHandler();
         // [databind#562] Allow @JsonAnySetter in creators
         return SettableAnyProperty.constructForMapParameter(ctxt,
-                prop, mutator, valueType, keyDeser, deser, typeDeser);
+                prop, mutator, valueType, keyDeser, deser, typeDeser, af.getIndex());
     }
 
 

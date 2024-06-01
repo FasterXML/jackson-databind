@@ -78,9 +78,9 @@ public enum MapperFeature
      * rules; if disabled, such fields are NOT used as mutators except if
      * explicitly annotated for such use.
      *<p>
-     * Feature is enabled by default, for backwards compatibility reasons.
+     * Feature is disabled by default in Jackson 3.x, in 2.x it was enabled by default.
      */
-    ALLOW_FINAL_FIELDS_AS_MUTATORS(true),
+    ALLOW_FINAL_FIELDS_AS_MUTATORS(false),
 
     /**
      * Feature that determines whether member mutators (fields and

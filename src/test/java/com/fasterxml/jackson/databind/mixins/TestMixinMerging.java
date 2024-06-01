@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.databind.mixins;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestMixinMerging extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestMixinMerging extends DatabindTestUtil
 {
     public interface Contact {
         String getCity();
@@ -35,6 +40,7 @@ public class TestMixinMerging extends BaseMapTest
      */
 
     // for [databind#515]
+    @Test
     public void testDisappearingMixins515() throws Exception
     {
         SimpleModule module = new SimpleModule("Test");

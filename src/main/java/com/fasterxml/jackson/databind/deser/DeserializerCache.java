@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.util.HashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
@@ -51,6 +52,12 @@ public final class DeserializerCache
      */
     protected final HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
         = new HashMap<JavaType, JsonDeserializer<Object>>(8);
+
+
+    /**
+     * We hold an explicit lock while creating deserializers to avoid creating duplicates.
+     */
+    private final ReentrantLock _incompleteDeserializersLock = new ReentrantLock();
 
     /*
     /**********************************************************
@@ -246,7 +253,9 @@ public final class DeserializerCache
          * limitations necessary to ensure that only completely initialized ones
          * are visible and used.
          */
-        synchronized (_incompleteDeserializers) {
+        try {
+            _incompleteDeserializersLock.lock();
+
             // Ok, then: could it be that due to a race condition, deserializer can now be found?
             JsonDeserializer<Object> deser = _findCachedDeserializer(type);
             if (deser != null) {
@@ -269,6 +278,8 @@ public final class DeserializerCache
                     _incompleteDeserializers.clear();
                 }
             }
+        } finally {
+            _incompleteDeserializersLock.unlock();
         }
     }
 
@@ -406,7 +417,7 @@ public final class DeserializerCache
                 // Ideally we'd determine it bit later on (to allow custom handler checks)
                 // but that won't work for other reasons. So do it here.
                 // (read: rewrite for 3.0)
-                JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+                JsonFormat.Value format = beanDesc.findExpectedFormat();
                 if (format.getShape() != JsonFormat.Shape.OBJECT) {
                     MapLikeType mlt = (MapLikeType) type;
                     if (mlt instanceof MapType) {
@@ -421,7 +432,7 @@ public final class DeserializerCache
                  *   (to allow custom handler checks), but that won't work for other
                  *   reasons. So do it here.
                  */
-                JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+                JsonFormat.Value format = beanDesc.findExpectedFormat();
                 if (format.getShape() != JsonFormat.Shape.OBJECT) {
                     CollectionLikeType clt = (CollectionLikeType) type;
                     if (clt instanceof CollectionType) {

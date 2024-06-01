@@ -3,17 +3,22 @@ package com.fasterxml.jackson.databind.introspect;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for checking handling of some of {@link MapperFeature}s
  * and {@link SerializationFeature}s for serialization.
  */
 public class VisibilityForSerializationTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /**
      * Class with one explicitly defined getter, one name-based
@@ -79,6 +84,7 @@ public class VisibilityForSerializationTest
     /**********************************************************
      */
 
+    @Test
     public void testGlobalAutoDetection() throws IOException
     {
         // First: auto-detection enabled (default):
@@ -98,6 +104,7 @@ public class VisibilityForSerializationTest
         assertTrue(result.containsKey("x"));
     }
 
+    @Test
     public void testPerClassAutoDetection() throws IOException
     {
         // First: class-level auto-detection disabling
@@ -116,6 +123,7 @@ public class VisibilityForSerializationTest
         assertTrue(result.containsKey("y"));
     }
 
+    @Test
     public void testPerClassAutoDetectionForIsGetter() throws IOException
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -129,6 +137,7 @@ public class VisibilityForSerializationTest
     }
 
     // Simple test verifying that chainable methods work ok...
+    @Test
     public void testConfigChainability()
     {
         ObjectMapper m = new ObjectMapper();
@@ -142,6 +151,7 @@ public class VisibilityForSerializationTest
         assertFalse(m.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
     }
 
+    @Test
     public void testVisibilityFeatures() throws Exception
     {
         ObjectMapper om = jsonMapperBuilder()

@@ -1,16 +1,21 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
     /*
     /**********************************************************
     /* Set up
@@ -60,6 +65,7 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
     /**********************************************************
      */
 
+    @Test
     public void testDeserializeParentPositiveWithTypeId() throws Exception {
         String json = a2q("{'_class': '_cat', 'name': 'Cat-in-the-hat'} ");
 
@@ -68,6 +74,7 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
         assertEquals("Cat-in-the-hat", cat.name);
     }
 
+    @Test
     public void testDeserializeParentNegativeWithOutTypeId() throws Exception {
         String json = a2q("{'name': 'cat'} ");
 
@@ -78,6 +85,7 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
         }
     }
 
+    @Test
     public void testDeserializedAsConcreteTypeSuccessfulWithOutPropertySet() throws Exception {
         String json = a2q("{'name': 'cat'} ");
 
@@ -86,6 +94,7 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
         assertEquals("cat", cat.name);
     }
 
+    @Test
     public void testDeserializationWrapperWithDefaultTyping() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(SimpleBall.class)
@@ -104,6 +113,7 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
         assertEquals(BasketBall.class, wrapper.value.getClass());
     }
 
+    @Test
     public void testDeserializationBaseClassWithDefaultTyping() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(SimpleBall.class)

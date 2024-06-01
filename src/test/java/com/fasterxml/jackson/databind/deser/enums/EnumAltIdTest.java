@@ -10,10 +10,8 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -91,6 +89,32 @@ public class EnumAltIdTest
         B,
         @JsonAlias({"multipleAliases1", "multipleAliases2"})
         C;
+    }
+
+    // [databind#4481]: override for "unknown as null"
+    enum Color {
+        RED, BLUE
+    }
+
+    static class Book4481 {
+        @JsonFormat(without = JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+        public Color color;
+    }
+
+    enum Types {
+        @JsonEnumDefaultValue
+        DEFAULT_TYPE,
+        FAST, SLOW
+    }
+
+    static class SpeedWithoutDefaultOverride {
+        @JsonFormat(without = JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+        public Types type;
+    }
+
+    static class SpeedWithDefaultOverride {
+        @JsonFormat(with = JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+        public Types type;
     }
 
     /*
@@ -303,5 +327,58 @@ public class EnumAltIdTest
           .readValue(JSON);
         assertEquals(1, pojo.value.size());
         assertTrue(pojo.value.contains(MyEnum2352_3.B));
+    }
+
+    /**
+     * Test to verify that configuration via
+     * {@link com.fasterxml.jackson.annotation.JsonFormat.Feature#READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE}
+     * takes precedence over global configuration.
+     */
+    @Test
+    public void testJsonEnumDefaultValueOverrideOverGlobalConfig() throws Exception {
+        final String UNKNOWN_JSON = a2q("{'type':'OOPS!'}");
+
+        // First, global configuration is ENABLED and JsonFeature configuration is DISABLED
+        // So the test should fail
+        try {
+            JsonMapper.builder()
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .build()
+                .readValue(UNKNOWN_JSON, SpeedWithoutDefaultOverride.class);
+            fail();
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot deserialize value of type");
+            verifyException(e, "not one of the values accepted for Enum class");
+        }
+
+        // Second, global configuration is DISABLED and JsonFeature configuration is ENABLED
+        // So the test should pass
+        SpeedWithDefaultOverride pojo = JsonMapper.builder()
+            .disable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+            .build()
+            .readValue(UNKNOWN_JSON, SpeedWithDefaultOverride.class);
+
+        assertEquals(Types.DEFAULT_TYPE, pojo.type);
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, other
+    /**********************************************************
+     */
+
+    // [databind#4481]
+    @Test
+    public void testDefaultFromNullOverride4481() throws Exception
+    {
+        try {
+            Book4481 book = MAPPER.readerFor(Book4481.class)
+                    .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                    .readValue("{\"color\":\"WHITE\"}");
+            fail("Should have failed; got: "+book.color);
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot deserialize value of type ");
+            verifyException(e, "not one of the values accepted for Enum class");
+        }
     }
 }

@@ -1,16 +1,18 @@
 package com.fasterxml.jackson.databind.views;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static org.junit.Assert.assertEquals;
 import java.io.IOException;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import org.junit.jupiter.api.Test;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.assertEquals;
 
 // for [databind#507], supporting default views
-public class DefaultViewTest
+public class DefaultViewTest extends DatabindTestUtil
 {
     // Classes that represent views
     static class ViewA { }

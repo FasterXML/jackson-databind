@@ -1,12 +1,10 @@
 package com.fasterxml.jackson.databind.testutil;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -28,16 +26,16 @@ public class DatabindTestUtil
     /**********************************************************************
      */
 
-    protected static final int SAMPLE_SPEC_VALUE_WIDTH = 800;
-    protected static final int SAMPLE_SPEC_VALUE_HEIGHT = 600;
-    protected static final String SAMPLE_SPEC_VALUE_TITLE = "View from 15th Floor";
-    protected static final String SAMPLE_SPEC_VALUE_TN_URL = "http://www.example.com/image/481989943";
-    protected static final int SAMPLE_SPEC_VALUE_TN_HEIGHT = 125;
-    protected static final String SAMPLE_SPEC_VALUE_TN_WIDTH = "100";
-    protected static final int SAMPLE_SPEC_VALUE_TN_ID1 = 116;
-    protected static final int SAMPLE_SPEC_VALUE_TN_ID2 = 943;
-    protected static final int SAMPLE_SPEC_VALUE_TN_ID3 = 234;
-    protected static final int SAMPLE_SPEC_VALUE_TN_ID4 = 38793;
+    public static final int SAMPLE_SPEC_VALUE_WIDTH = 800;
+    public static final int SAMPLE_SPEC_VALUE_HEIGHT = 600;
+    public static final String SAMPLE_SPEC_VALUE_TITLE = "View from 15th Floor";
+    public static final String SAMPLE_SPEC_VALUE_TN_URL = "http://www.example.com/image/481989943";
+    public static final int SAMPLE_SPEC_VALUE_TN_HEIGHT = 125;
+    public static final String SAMPLE_SPEC_VALUE_TN_WIDTH = "100";
+    public static final int SAMPLE_SPEC_VALUE_TN_ID1 = 116;
+    public static final int SAMPLE_SPEC_VALUE_TN_ID2 = 943;
+    public static final int SAMPLE_SPEC_VALUE_TN_ID3 = 234;
+    public static final int SAMPLE_SPEC_VALUE_TN_ID4 = 38793;
 
     public static final String SAMPLE_DOC_JSON_SPEC =
         "{\n"
@@ -272,6 +270,27 @@ public class DatabindTestUtil
         }
     }
 
+    public static class MapWrapper<K,V>
+    {
+        public Map<K,V> map;
+
+        public MapWrapper() { }
+        public MapWrapper(Map<K,V> m) {
+            map = m;
+        }
+        public MapWrapper(K key, V value) {
+            map = new LinkedHashMap<>();
+            map.put(key, value);
+        }
+    }
+
+    public static class BogusSchema implements FormatSchema {
+        @Override
+        public String getSchemaType() {
+            return "TestFormat";
+        }
+    }
+
     /*
     /**********************************************************************
     /* Factory methods
@@ -285,6 +304,14 @@ public class DatabindTestUtil
             SHARED_MAPPER = newJsonMapper();
         }
         return SHARED_MAPPER;
+    }
+
+    protected static ObjectWriter objectWriter() {
+        return sharedMapper().writer();
+    }
+
+    protected static ObjectReader objectReader() {
+        return sharedMapper().reader();
     }
 
     public static TypeFactory newTypeFactory() {
@@ -401,5 +428,59 @@ public class DatabindTestUtil
         assertEquals(str, str2, "String access via getText(), getTextXxx() must be the same");
 
         return str;
+    }
+
+    /*
+    /**********************************************************
+    /* JDK ser/deser
+    /**********************************************************
+     */
+
+    public static byte[] jdkSerialize(Object o)
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream(2000);
+        try (ObjectOutputStream obOut = new ObjectOutputStream(bytes)) {
+            obOut.writeObject(o);
+            obOut.close();
+            return bytes.toByteArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T jdkDeserialize(byte[] raw)
+    {
+        try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw))) {
+            return (T) objIn.readObject();
+        } catch (ClassNotFoundException e) {
+            fail("Missing class: "+e.getMessage());
+            return null;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods, other
+    /**********************************************************************
+     */
+
+    public static TimeZone getUTCTimeZone() {
+        return TimeZone.getTimeZone("GMT");
+    }
+
+
+    protected JsonParser createParserUsingReader(String input)
+        throws IOException
+    {
+        return createParserUsingReader(new JsonFactory(), input);
+    }
+
+    protected JsonParser createParserUsingReader(JsonFactory f, String input)
+        throws IOException
+    {
+        return f.createParser(new StringReader(input));
     }
 }

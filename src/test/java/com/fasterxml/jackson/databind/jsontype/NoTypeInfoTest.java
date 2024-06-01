@@ -1,12 +1,18 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class NoTypeInfoTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class NoTypeInfoTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use=JsonTypeInfo.Id.NONE)
     @JsonDeserialize(as=NoType.class)
@@ -23,6 +29,7 @@ public class NoTypeInfoTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testWithIdNone() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()

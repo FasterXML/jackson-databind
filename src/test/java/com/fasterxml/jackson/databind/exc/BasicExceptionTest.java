@@ -132,6 +132,7 @@ public class BasicExceptionTest
 
     // [databind#2128]: ensure Location added once and only once
     // [databind#2482]: ensure Location is the original one
+    // [core#1173]: ... and needs to be correct column, too
     @Test
     public void testLocationAddition() throws Exception
     {
@@ -146,8 +147,9 @@ public class BasicExceptionTest
                 fail("Should only get one 'at [' marker, got "+(str.length-1)+", source: "+msg);
             }
             JsonLocation loc = e.getLocation();
-//          String expectedLocation = "line: 4, column: 4";
+//          String expectedLocation = "line: 4, column: 3";
             assertEquals(4, loc.getLineNr());
+            // 12-Feb-2024, tatu: varies depending on whether [core#1173] is fixed or not...
             assertEquals(3, loc.getColumnNr());
         }
     }

@@ -251,7 +251,7 @@ public abstract class BeanDeserializerBase
             ;
 
         // Any transformation we may need to apply?
-        final JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+        final JsonFormat.Value format = beanDesc.findExpectedFormat();
         _serializationShape = format.getShape();
 
         _needViewProcesing = hasViews;

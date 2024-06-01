@@ -2,23 +2,30 @@ package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.nio.charset.StandardCharsets;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 // Mostly for [databind#1425]; not in optimal place (as it also has
 // tree-access tests), but has to do for now
-public class Base64DecodingTest extends BaseMapTest
+public class Base64DecodingTest
 {
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     private final byte[] HELLO_BYTES = "hello".getBytes(StandardCharsets.UTF_8);
     private final String BASE64_HELLO = "aGVsbG8=";
 
     // for [databind#1425]
+    @Test
     public void testInvalidBase64() throws Exception
     {
         byte[] b = MAPPER.readValue(q(BASE64_HELLO), byte[].class);
-        assertEquals(HELLO_BYTES, b);
+        assertArrayEquals(HELLO_BYTES, b);
 
         _testInvalidBase64(MAPPER, BASE64_HELLO+"!");
         _testInvalidBase64(MAPPER, BASE64_HELLO+"!!");

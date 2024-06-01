@@ -415,18 +415,25 @@ public class EnumDeserializer
                 // [databind#149]: Allow use of 'String' indexes as well -- unless prohibited (as per above)
                 char c = name.charAt(0);
                 if (c >= '0' && c <= '9') {
-                    try {
-                        int index = Integer.parseInt(name);
-                        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-                            return ctxt.handleWeirdStringValue(_enumClass(), name,
+                    // [databind#4403]: cannot prevent "Stringified" numbers as Enum
+                    // index yet (might need combination of "Does format have Numbers"
+                    // (XML does not f.ex) and new `EnumFeature`. But can disallow "001" etc.
+                    if (c == '0' && name.length() > 1) {
+                        ;
+                    } else {
+                        try {
+                            int index = Integer.parseInt(name);
+                            if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+                                return ctxt.handleWeirdStringValue(_enumClass(), name,
 "value looks like quoted Enum index, but `MapperFeature.ALLOW_COERCION_OF_SCALARS` prevents use"
-                                    );
+                                        );
+                            }
+                            if (index >= 0 && index < _enumsByIndex.length) {
+                                return _enumsByIndex[index];
+                            }
+                        } catch (NumberFormatException e) {
+                            // fine, ignore, was not an integer
                         }
-                        if (index >= 0 && index < _enumsByIndex.length) {
-                            return _enumsByIndex[index];
-                        }
-                    } catch (NumberFormatException e) {
-                        // fine, ignore, was not an integer
                     }
                 }
             }
@@ -479,14 +486,24 @@ public class EnumDeserializer
 
     // @since 2.15
     protected boolean useNullForUnknownEnum(DeserializationContext ctxt) {
-        return Boolean.TRUE.equals(_useNullForUnknownEnum)
-          || ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        if (_useNullForUnknownEnum != null) {
+            return _useNullForUnknownEnum;
+        }
+        return ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
     }
 
     // @since 2.15
     protected boolean useDefaultValueForUnknownEnum(DeserializationContext ctxt) {
-        return (_enumDefaultValue != null)
-          && (Boolean.TRUE.equals(_useDefaultValueForUnknownEnum)
-          || ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE));
+        // If we have a default value...
+        if (_enumDefaultValue != null) {
+            // Check if FormatFeature overrides exist first
+            if (_useDefaultValueForUnknownEnum != null) {
+                return _useDefaultValueForUnknownEnum;
+            }
+            // Otherwise, check the global setting
+            return ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        }
+        // No default value? then false
+        return false;
     }
 }

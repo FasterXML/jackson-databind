@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharTypes;
@@ -164,13 +165,15 @@ e.getMessage()),
         if (o == this) return true;
         if (o == null) return false;
         if (o instanceof TextNode) {
-            return ((TextNode) o)._value.equals(_value);
+            return Objects.equals(((TextNode) o)._value, _value);
         }
         return false;
     }
 
     @Override
-    public int hashCode() { return _value.hashCode(); }
+    public int hashCode() {
+        return Objects.hashCode(_value);
+    }
 
     @Deprecated // since 2.10
     protected static void appendQuoted(StringBuilder sb, String content)

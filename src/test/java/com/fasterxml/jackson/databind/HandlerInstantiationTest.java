@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -18,7 +20,11 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public class HandlerInstantiationTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
+
+public class HandlerInstantiationTest
 {
     /*
     /**********************************************************************
@@ -227,6 +233,7 @@ public class HandlerInstantiationTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -235,6 +242,7 @@ public class HandlerInstantiationTest extends BaseMapTest
         assertEquals("abc:123", result.value);
     }
 
+    @Test
     public void testKeyDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -244,6 +252,7 @@ public class HandlerInstantiationTest extends BaseMapTest
         assertEquals("{\"KEY\":\"b\"}", mapper.writeValueAsString(map));
     }
 
+    @Test
     public void testSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -251,6 +260,7 @@ public class HandlerInstantiationTest extends BaseMapTest
         assertEquals(q("xyz:456"), mapper.writeValueAsString(new MyBean("456")));
     }
 
+    @Test
     public void testTypeIdResolver() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

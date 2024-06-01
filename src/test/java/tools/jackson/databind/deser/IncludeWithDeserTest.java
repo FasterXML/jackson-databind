@@ -85,7 +85,7 @@ public class IncludeWithDeserTest
     static class MapWrapper
     {
         @JsonIncludeProperties({"a"})
-        public final HashMap<String, Integer> value = new HashMap<String, Integer>();
+        public HashMap<String, Integer> value;
     }
 
     @JsonIncludeProperties({"foo", "bar"})
@@ -183,6 +183,7 @@ public class IncludeWithDeserTest
     public void testMapWrapper() throws Exception
     {
         MapWrapper result = MAPPER.readValue(a2q("{'value': {'a': 2, 'b': 3}}"), MapWrapper.class);
+        assertNotNull(result.value);
         assertEquals(2, result.value.get("a").intValue());
         assertFalse(result.value.containsKey("b"));
     }

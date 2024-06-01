@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.objectid.TestObjectId.Employee;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.failing.TestObjectIdDeserialization.EnumMapCompany.FooEnum;
+import com.fasterxml.jackson.failing.ObjectIdDeserializationFailTest.EnumMapCompany.FooEnum;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * code (2.4), are included here. Other cases moved to successfully
  * passing tests.
  */
-class TestObjectIdDeserialization extends DatabindTestUtil {
+class ObjectIdDeserializationFailTest extends DatabindTestUtil {
     static class ArrayCompany {
         public Employee[] employees;
     }

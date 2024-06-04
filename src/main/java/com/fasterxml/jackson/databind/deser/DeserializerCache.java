@@ -253,9 +253,8 @@ public final class DeserializerCache
          * limitations necessary to ensure that only completely initialized ones
          * are visible and used.
          */
+        _incompleteDeserializersLock.lock();
         try {
-            _incompleteDeserializersLock.lock();
-
             // Ok, then: could it be that due to a race condition, deserializer can now be found?
             JsonDeserializer<Object> deser = _findCachedDeserializer(type);
             if (deser != null) {

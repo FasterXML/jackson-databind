@@ -58,6 +58,7 @@ public class EnumSerializationMixinTest extends DatabindTestUtil
     @Test
     public void testSerialization() throws Exception {
         ObjectMapper mixinMapper = jsonMapperBuilder()
+                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
                 .addMixIn(EnumBaseA.class, EnumMixinA.class).build();
 
         // equal name(), different toString() value

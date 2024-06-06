@@ -161,7 +161,8 @@ public class EnumSerializationTest
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING).build();
 
     @Test
     public void testSimple() throws Exception
@@ -257,7 +258,9 @@ public class EnumSerializationTest
     public void testAsIndex() throws Exception
     {
         // By default, serialize using name
-        ObjectMapper m = newJsonMapper();
+        ObjectMapper m = jsonMapperBuilder()
+                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .build();
         assertFalse(m.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX));
         assertEquals(q("B"), m.writeValueAsString(TestEnum.B));
 
@@ -293,7 +296,9 @@ public class EnumSerializationTest
 
     @Test
     public void testEnumMapSerDefault() throws Exception {
-        final ObjectMapper mapper = newJsonMapper();
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .build();
         EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
         m.put(LC749Enum.A, "value");
         assertEquals("{\"A\":\"value\"}", mapper.writeValueAsString(m));

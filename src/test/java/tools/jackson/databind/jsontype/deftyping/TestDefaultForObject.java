@@ -106,7 +106,9 @@ public class TestDefaultForObject
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+            .build();
 
     /**
      * Unit test that verifies that a bean is stored with type information,
@@ -248,6 +250,7 @@ public class TestDefaultForObject
 
         // and then with it
         ObjectMapper m = jsonMapperBuilder()
+                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
         String json = m.writeValueAsString(input);

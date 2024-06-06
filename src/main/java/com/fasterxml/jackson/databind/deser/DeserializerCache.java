@@ -41,7 +41,7 @@ public final class DeserializerCache
     /**
      * We will also cache some dynamically constructed deserializers;
      * specifically, ones that are expensive to construct.
-     * This currently means bean, Enum and container deserializers.
+     * This currently means POJO, Enum and Container deserializers.
      */
     protected final LookupCache<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
 

@@ -1243,7 +1243,10 @@ public abstract class BasicSerializerFactory
             BeanPropertyDefinition property = it.next();
             JavaType propType = property.getPrimaryType();
             // is the property a self-reference?
-            if (propType.isEnumType() && propType.isTypeOrSubTypeOf(aClass)) {
+            if (propType.isEnumType() && propType.isTypeOrSubTypeOf(aClass)
+                    // [databind#4564] Since 2.16.3, Enum's should allow self as field, so let's remove only if static.
+                    && property.getAccessor().isStatic())
+            {
                 it.remove();
             }
         }

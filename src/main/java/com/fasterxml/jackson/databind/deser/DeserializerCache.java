@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.util.HashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
@@ -51,6 +52,15 @@ public final class DeserializerCache
      */
     protected final HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
         = new HashMap<JavaType, JsonDeserializer<Object>>(8);
+
+
+    /**
+     * We hold an explicit lock while creating deserializers to avoid creating duplicates.
+     * Guards {@link #_incompleteDeserializers}.
+     *
+     * @since 2.17
+     */
+    private final ReentrantLock _incompleteDeserializersLock = new ReentrantLock();
 
     /*
     /**********************************************************
@@ -162,10 +172,9 @@ public final class DeserializerCache
             // If not, need to request factory to construct (or recycle)
             deser = _createAndCacheValueDeserializer(ctxt, factory, propertyType);
             if (deser == null) {
-                /* Should we let caller handle it? Let's have a helper method
-                 * decide it; can throw an exception, or return a valid
-                 * deserializer
-                 */
+                // Should we let caller handle it? Let's have a helper method
+                // decide it; can throw an exception, or return a valid
+                // deserializer
                 deser = _handleUnknownValueDeserializer(ctxt, propertyType);
             }
         }
@@ -204,9 +213,8 @@ public final class DeserializerCache
             DeserializerFactory factory, JavaType type)
         throws JsonMappingException
     {
-        /* Note: mostly copied from findValueDeserializer, except for
-         * handling of unknown types
-         */
+        // Note: mostly copied from findValueDeserializer, except for
+        // handling of unknown types
         JsonDeserializer<Object> deser = _findCachedDeserializer(type);
         if (deser == null) {
             deser = _createAndCacheValueDeserializer(ctxt, factory, type);
@@ -245,7 +253,8 @@ public final class DeserializerCache
         // Only one thread to construct deserializers at any given point in time;
         // limitations necessary to ensure that only completely initialized ones
         // are visible and used.
-        synchronized (_incompleteDeserializers) {
+        _incompleteDeserializersLock.lock();
+        try {
             // Ok, then: could it be that due to a race condition, deserializer can now be found?
             JsonDeserializer<Object> deser = _findCachedDeserializer(type);
             if (deser != null) {
@@ -268,6 +277,8 @@ public final class DeserializerCache
                     _incompleteDeserializers.clear();
                 }
             }
+        } finally {
+            _incompleteDeserializersLock.unlock();
         }
     }
 

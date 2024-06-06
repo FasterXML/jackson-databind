@@ -396,9 +396,9 @@ public enum DeserializationFeature implements ConfigFeature
      * Note: this feature should usually have same value
      * as {@link SerializationFeature#WRITE_ENUMS_USING_TO_STRING}.
      *<p>
-     * Feature is disabled by default.
+     * Feature is enabled by default.
      */
-    READ_ENUMS_USING_TO_STRING(false),
+    READ_ENUMS_USING_TO_STRING(true),
 
     /**
      * Feature that allows unknown Enum values to be parsed as {@code null} values.

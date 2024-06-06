@@ -615,6 +615,7 @@ public class EnumDeserializationTest
     public void testDeserWithToString1161() throws Exception
     {
         Enum1161 result = MAPPER.readerFor(Enum1161.class)
+                .without(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 .readValue(q("A"));
         assertSame(Enum1161.A, result);
 

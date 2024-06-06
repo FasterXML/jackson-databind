@@ -2,7 +2,6 @@ name: CIFuzz
 on:
   pull_request:
     branches:
-    - master
     - "2.18"
 
 permissions:

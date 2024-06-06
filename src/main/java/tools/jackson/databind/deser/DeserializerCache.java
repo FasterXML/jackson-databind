@@ -58,6 +58,7 @@ public final class DeserializerCache
 
     /**
      * We hold an explicit lock while creating deserializers to avoid creating duplicates.
+     * Guards {@link #_incompleteDeserializers}.
      */
     private final ReentrantLock _incompleteDeserializersLock = new ReentrantLock();
 
@@ -75,9 +76,6 @@ public final class DeserializerCache
         _cachedDeserializers = cache;
     }
 
-    /**
-     * @since 2.16
-     */
     public DeserializerCache emptyCopy() {
         return new DeserializerCache(_cachedDeserializers.emptyCopy());
     }
@@ -159,10 +157,9 @@ public final class DeserializerCache
             // If not, need to request factory to construct (or recycle)
             deser = _createAndCacheValueDeserializer(ctxt, factory, propertyType);
             if (deser == null) {
-                /* Should we let caller handle it? Let's have a helper method
-                 * decide it; can throw an exception, or return a valid
-                 * deserializer
-                 */
+                // Should we let caller handle it? Let's have a helper method
+                // decide it; can throw an exception, or return a valid
+                // deserializer
                 deser = _handleUnknownValueDeserializer(ctxt, propertyType);
             }
         }
@@ -539,8 +536,6 @@ public final class DeserializerCache
     /**
      * Helper method used to prevent both caching and cache lookups for structured
      * types that have custom value handlers
-     *
-     * @since 2.8.11
      */
     private boolean _hasCustomHandlers(JavaType t) {
         if (t.isContainerType()) {

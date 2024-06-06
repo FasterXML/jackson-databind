@@ -8,11 +8,6 @@ Project: jackson-databind
 
 -
 
-2.17.2 (not yet released)
-
-#4561: Issues using jackson-databind 2.17.1 with Reactor
- (reported by @wdallastella)
-
 2.17.1 (04-May-2024)
 
 #4428: `ByteBuddy` scope went beyond `test` in version 2.17.0

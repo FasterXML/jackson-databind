@@ -55,7 +55,7 @@ jobs:
     - name: Extract project Maven version
       id: projectVersion
       if: ${{ !matrix.is_windows }}
-      run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.3.0:evaluate -DforceStdout -Dexpression=project.version -q)" >> $GITHUB_OUTPUT
+      run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.4.1:evaluate -DforceStdout -Dexpression=project.version -q)" >> $GITHUB_OUTPUT
     - name: Verify Android SDK Compatibility
       if: ${{ matrix.release_build }}
       run: ./mvnw -B -q -ff -ntp -DskipTests animal-sniffer:check

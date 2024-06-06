@@ -4,7 +4,8 @@ on:
     branches:
     - "2.18"
 
-permissions: {}
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }} @ ${{ github.ref }}

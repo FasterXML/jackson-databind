@@ -276,7 +276,7 @@ public enum SerializationFeature implements ConfigFeature
      * Note: this feature should usually have same value
      * as {@link DeserializationFeature#READ_ENUMS_USING_TO_STRING}.
      *<p>
-     * Feature is enabled by default.
+     * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
      */
     WRITE_ENUMS_USING_TO_STRING(true),
 

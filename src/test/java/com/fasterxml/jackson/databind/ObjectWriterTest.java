@@ -132,6 +132,7 @@ public class ObjectWriterTest
         assertEquals(a2q("{'type':'B','b':-5}"), json);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testCanSerialize() throws Exception
     {

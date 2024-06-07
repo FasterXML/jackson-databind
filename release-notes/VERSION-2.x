@@ -43,6 +43,7 @@ Project: jackson-databind
 #4545: Unexpected deserialization behavior with `@JsonCreator`,
   `@JsonProperty` and javac `-parameters`
  (reported by Alexandre J)
+#4570: Deprecate `ObjectMapper.canDeserialize()`/`ObjectMapper.canSerialize()`
 
 2.17.2 (not yet released)
 

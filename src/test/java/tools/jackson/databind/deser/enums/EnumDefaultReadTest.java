@@ -91,7 +91,9 @@ public class EnumDefaultReadTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+            .build();
 
     @Test
     public void testWithoutCustomFeatures() throws Exception

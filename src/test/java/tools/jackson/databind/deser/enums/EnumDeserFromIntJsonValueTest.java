@@ -8,7 +8,7 @@ import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 public class EnumDeserFromIntJsonValueTest
 {
@@ -44,7 +44,8 @@ public class EnumDeserFromIntJsonValueTest
         Bean1850LongField(long x) { this.x = x; }
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING).build();
 
     // [databind#1850] pass tests
 
@@ -60,6 +61,7 @@ public class EnumDeserFromIntJsonValueTest
     public void testEnumFromInt1850Field() throws Exception
     {
         String json = MAPPER.writeValueAsString(Bean1850IntField.A);
+
         Bean1850IntField e2 = MAPPER.readValue(json, Bean1850IntField.class);
         assertEquals(Bean1850IntField.A, e2);
     }

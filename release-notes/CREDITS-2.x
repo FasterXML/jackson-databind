@@ -1742,6 +1742,10 @@ Stephane Bailliez (sbailliez@github)
    leads to `InvalidDefinitionException`: Multiple fields representing property
   (2.16.2)
 
+Guillaume Jardillier (Mugiwara84@github)
+ * Reported #4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
+  (2.16.3)
+
 Muhammad Khalikov (mukham12@github)
  * Contributed fix for #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
    implement `java.io.Serializable`

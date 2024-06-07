@@ -388,15 +388,15 @@ public enum DeserializationFeature implements ConfigFeature
     ACCEPT_FLOAT_AS_INT(true),
 
     /**
-     * Feature that determines standard deserialization mechanism used for
-     * Enum values: if enabled, Enums are assumed to have been serialized  using
-     * return value of <code>Enum.toString()</code>;
-     * if disabled, return value of <code>Enum.name()</code> is assumed to have been used.
+     * Feature that determines the deserialization mechanism used for
+     * Enum values: if enabled, Enums are assumed to have been serialized using
+     * return value of {@code Enum.toString()};
+     * if disabled, return value of {@code Enum.name()} is assumed to have been used.
      *<p>
      * Note: this feature should usually have same value
      * as {@link SerializationFeature#WRITE_ENUMS_USING_TO_STRING}.
      *<p>
-     * Feature is enabled by default.
+     * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
      */
     READ_ENUMS_USING_TO_STRING(true),
 

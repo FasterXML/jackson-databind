@@ -1208,7 +1208,7 @@ public abstract class BasicSerializerFactory
             ((BasicBeanDescription) beanDesc).removeProperty("declaringClass");
             // [databind#2787]: remove self-referencing enum fields introduced by annotation flattening of mixins
             if (type.isEnumType()){
-                _removeEnumSelfReferences(((BasicBeanDescription) beanDesc));
+                _removeEnumSelfReferences(beanDesc);
             }
             // returning null will mean that eventually BeanSerializer gets constructed
             return null;
@@ -1226,24 +1226,28 @@ public abstract class BasicSerializerFactory
     }
 
     /**
-     * Helper method used for serialization {@link Enum} as {@link JsonFormat.Shape#OBJECT}. Removes any 
-     * self-referencing properties from its bean description before it is transformed into a JSON Object 
-     * as configured by {@link JsonFormat.Shape#OBJECT}.
+     * Helper method used for serialization {@link Enum} as {@link JsonFormat.Shape#OBJECT}.
+     * Removes any  self-referencing properties from its bean description before it is
+     * transformed into a JSON Object as configured by {@link JsonFormat.Shape#OBJECT}.
      * <p>
-     * Internally, this method iterates through {@link BeanDescription#findProperties()} and removes self.
+     * Internally, this method iterates through {@link BeanDescription#findProperties()}
+     * and removes self references.
      *
      * @param beanDesc the bean description to remove Enum properties from.
      *
      * @since 2.16
      */
-    private void _removeEnumSelfReferences(BasicBeanDescription beanDesc) {
+    private void _removeEnumSelfReferences(BeanDescription beanDesc) {
         Class<?> aClass = ClassUtil.findEnumType(beanDesc.getBeanClass());
         Iterator<BeanPropertyDefinition> it = beanDesc.findProperties().iterator();
         while (it.hasNext()) {
             BeanPropertyDefinition property = it.next();
             JavaType propType = property.getPrimaryType();
             // is the property a self-reference?
-            if (propType.isEnumType() && propType.isTypeOrSubTypeOf(aClass)) {
+            if (propType.isEnumType() && propType.isTypeOrSubTypeOf(aClass)
+                    // [databind#4564] Since 2.16.3, Enum's should allow self as field, so let's remove only if static.
+                    && property.getAccessor().isStatic())
+            {
                 it.remove();
             }
         }

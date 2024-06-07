@@ -1738,3 +1738,7 @@ Stephane Bailliez (sbailliez@github)
  * Reported #4409: Deserialization of enums with name defined with different cases
    leads to `InvalidDefinitionException`: Multiple fields representing property
   (2.16.2)
+
+Guillaume Jardillier (Mugiwara84@github)
+ * Reported #4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
+  (2.16.3)

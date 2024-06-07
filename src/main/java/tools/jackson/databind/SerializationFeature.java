@@ -276,9 +276,9 @@ public enum SerializationFeature implements ConfigFeature
      * Note: this feature should usually have same value
      * as {@link DeserializationFeature#READ_ENUMS_USING_TO_STRING}.
      *<p>
-     * Feature is disabled by default.
+     * Feature is enabled by default.
      */
-    WRITE_ENUMS_USING_TO_STRING(false),
+    WRITE_ENUMS_USING_TO_STRING(true),
 
     /**
      * Feature that determines whether Java Enum values are serialized

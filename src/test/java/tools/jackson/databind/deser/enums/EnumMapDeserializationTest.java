@@ -312,7 +312,9 @@ public class EnumMapDeserializationTest
         map.put(MyEnum2457.A, "1");
         map.put(MyEnum2457.B, "2");
         assertEquals(a2q("{'A':'1','B':'2'}"),
-                MAPPER.writeValueAsString(map));
+                MAPPER.writer()
+                        .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                        .writeValueAsString(map));
 
         // But should be able to override
         assertEquals(a2q("{'"+MyEnum2457.A.toString()+"':'1','"+MyEnum2457.B.toString()+"':'2'}"),
@@ -335,7 +337,9 @@ public class EnumMapDeserializationTest
         map.put(MyEnum2457Base.A, "1");
         map.put(MyEnum2457Base.B, "2");
         assertEquals(a2q("{'a_mixin':'1','b_mixin':'2'}"),
-                mixinMapper.writeValueAsString(map));
+                mixinMapper.writer()
+                        .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                        .writeValueAsString(map));
 
         // But should be able to override
         assertEquals(a2q("{'"+MyEnum2457Base.A.toString()+"':'1','"+MyEnum2457Base.B.toString()+"':'2'}"),

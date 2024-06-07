@@ -96,7 +96,8 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING).build();
 
     @Test
     public void testMapWithEnumKeys() throws Exception

@@ -22,7 +22,7 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
     /**********************************************************
     */
 
-    final ObjectMapper MAPPER = newJsonMapper();
+    final ObjectMapper MAPPER = jsonMapperBuilder().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build();
 
     @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
     static enum EnumFlavorA {
@@ -117,7 +117,9 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
         EnumMap<EnumSauceB, String> enums = new EnumMap<EnumSauceB, String>(EnumSauceB.class);
         enums.put(EnumSauceB.MAYO_NEZZ, "value");
 
-        String str = MAPPER.writeValueAsString(enums);
+        String str = MAPPER.writer()
+                .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .writeValueAsString(enums);
 
         assertEquals(a2q("{'mayoNezz':'value'}"), str);
     }

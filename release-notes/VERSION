@@ -60,6 +60,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #4552: Change `MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS` default to `false` for 3.0
 #4566: Enable `DeserializationFeature.READ_ENUMS_USING_TO_STRING` by default (3.0)
  (contributed by Joo-Hyuk K)
+#4567: Enable `SerializationFeature.WRITE_ENUMS_USING_TO_STRING` by default (3.0)
+ (contributed by Joo-Hyuk K)
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)
 - Default for `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES` changed to `false` for 3.0

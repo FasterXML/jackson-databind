@@ -343,7 +343,10 @@ public class EnumCreatorTest
     @Test
     public void testEnumCreators1291() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder().disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING).build();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .build();
         String json = mapper.writeValueAsString(Enum1291.V2);
         Enum1291 result = mapper.readValue(json, Enum1291.class);
         assertSame(Enum1291.V2, result);

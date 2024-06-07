@@ -1739,6 +1739,10 @@ Stephane Bailliez (sbailliez@github)
    leads to `InvalidDefinitionException`: Multiple fields representing property
   (2.16.2)
 
+Guillaume Jardillier (Mugiwara84@github)
+ * Reported #4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
+  (2.16.3)
+
 Muhammad Khalikov (mukham12@github)
  * Contributed fix for #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
    implement `java.io.Serializable`
@@ -1770,4 +1774,3 @@ Oddbjørn Kvalsund (oddbjornkvalsund@github)
  * Reported, contributed fix for #4430: Use `ReentrantLock` instead of `synchronized`
    in `DeserializerCache` to avoid deadlock on pinning
   (2.17.1)
-

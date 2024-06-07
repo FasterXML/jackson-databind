@@ -6,7 +6,7 @@ databind core component, version 2.x
 
 Author: Tatu Saloranta, tatu.saloranta@iki.fi
 
-VIP contributors (with partial listing below):
+Co-Authors (with only partial listings below):
 
 * Joo Hyuk Kim (JooHyukKim@github)
 * PJ Fanning (pjfanning@github)

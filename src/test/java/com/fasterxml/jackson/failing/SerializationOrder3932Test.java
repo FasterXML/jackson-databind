@@ -135,7 +135,8 @@ public class SerializationOrder3932Test
         NestedClassTwo nestedTwo = new NestedClassTwo("2", "111110");
         NestedClassOne nestedOne = new NestedClassOne("1", "test@records.com", nestedTwo);
         final String output = MAPPER.writeValueAsString(nestedOne);
-        final String expected = "{\"id\":\"1\",\"email\":\"test@records.com\",\"nestedProperty\":{\"id\":\"2\",\"passport\":\"111110\"}}";
+        final String expected = a2q(
+                "{'id':'1','email':'test@records.com','nestedProperty':{'id':'2','passport':'111110'}}");
         assertEquals(expected, output);
     }
 
@@ -145,7 +146,8 @@ public class SerializationOrder3932Test
         NestedClassOneWithDuplicatedJsonPropertyAnnotations nestedOne = new NestedClassOneWithDuplicatedJsonPropertyAnnotations(
             "1", "test@records.com", nestedTwo);
         final String output = MAPPER.writeValueAsString(nestedOne);
-        final String expected = "{\"id\":\"1\",\"email\":\"test@records.com\",\"nestedProperty\":{\"id\":\"2\",\"passport\":\"111110\"}}";
+        final String expected = a2q(
+                "{'id':'1','email':'test@records.com','nestedProperty':{'id':'2','passport':'111110'}}");
         assertEquals(expected, output);
     }
 }

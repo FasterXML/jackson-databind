@@ -43,6 +43,12 @@ Project: jackson-databind
 #4545: Unexpected deserialization behavior with `@JsonCreator`,
   `@JsonProperty` and javac `-parameters`
  (reported by Alexandre J)
+#4570: Deprecate `ObjectMapper.canDeserialize()`/`ObjectMapper.canSerialize()`
+
+2.17.2 (not yet released)
+
+#4561: Issues using jackson-databind 2.17.1 with Reactor
+ (reported by @wdallastella)
 
 2.17.1 (04-May-2024)
 
@@ -121,6 +127,12 @@ Project: jackson-databind
 #4416: Deprecate `JsonNode.asText(String)`
  (suggested by András P)
 - JUnit5 upgraded to 5.10.1
+
+2.16.3 (not yet released)
+
+#4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
+ (reported by Guillaume J)
+ (fix contributed by Joo-Hyuk K)
 
 2.16.2 (09-Mar-2024)
 

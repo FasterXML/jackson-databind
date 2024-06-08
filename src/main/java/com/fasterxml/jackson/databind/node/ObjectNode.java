@@ -54,11 +54,10 @@ public class ObjectNode
     @Override
     public ObjectNode deepCopy()
     {
-        ObjectNode ret = new ObjectNode(_nodeFactory);
-
-        for (Map.Entry<String, JsonNode> entry: _children.entrySet())
+        ObjectNode ret = objectNode();
+        for (Map.Entry<String, JsonNode> entry: _children.entrySet()) {
             ret._children.put(entry.getKey(), entry.getValue().deepCopy());
-
+        }
         return ret;
     }
 

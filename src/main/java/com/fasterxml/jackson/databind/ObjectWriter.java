@@ -1210,6 +1210,13 @@ public class ObjectWriter
         acceptJsonFormatVisitor(_config.constructType(type), visitor);
     }
 
+    /**
+     * Method that can be called to check whether {@code ObjectWriter} thinks
+     * it could serialize an instance of given Class.
+     *
+     * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
+     */
+    @Deprecated // @since 2.18
     public boolean canSerialize(Class<?> type) {
         _assertNotNull("type", type);
         return _serializerProvider().hasSerializerFor(type, null);
@@ -1220,7 +1227,10 @@ public class ObjectWriter
      * and optionally why (as per {@link Throwable} returned).
      *
      * @since 2.3
+     *
+     * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
      */
+    @Deprecated // @since 2.18
     public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
         _assertNotNull("type", type);
         return _serializerProvider().hasSerializerFor(type, cause);

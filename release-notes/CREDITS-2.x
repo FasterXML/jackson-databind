@@ -6,7 +6,7 @@ databind core component, version 2.x
 
 Author: Tatu Saloranta, tatu.saloranta@iki.fi
 
-VIP contributors (with partial listing below):
+Co-Authors (with only partial listings below):
 
 * Joo Hyuk Kim (JooHyukKim@github)
 * PJ Fanning (pjfanning@github)
@@ -1741,6 +1741,10 @@ Stephane Bailliez (sbailliez@github)
  * Reported #4409: Deserialization of enums with name defined with different cases
    leads to `InvalidDefinitionException`: Multiple fields representing property
   (2.16.2)
+
+Guillaume Jardillier (Mugiwara84@github)
+ * Reported #4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
+  (2.16.3)
 
 Muhammad Khalikov (mukham12@github)
  * Contributed fix for #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`

@@ -2,10 +2,10 @@ name: CIFuzz
 on:
   pull_request:
     branches:
-    - master
-    - "2.17"
+    - "2.18"
 
-permissions: {}
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }} @ ${{ github.ref }}

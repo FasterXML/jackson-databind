@@ -818,15 +818,16 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
      * for handling unknown bean properties, given a method that
      * has been designated as such setter.
      *
-     * @param mutator Either 2-argument method (setter, with key and value), or Field
-     *     that contains Map; either way accessor used for passing "any values"
+     * @param mutator Either a 2-argument method (setter, with key and value),
+     *    or a Field or (as of 2.18) Constructor Parameter of type Map or JsonNode/Object;
+     *    either way accessor used for passing "any values"
      */
     @SuppressWarnings("unchecked")
     protected SettableAnyProperty constructAnySetter(DeserializationContext ctxt,
             BeanDescription beanDesc, AnnotatedMember mutator)
         throws JsonMappingException
     {
-        //find the java type based on the annotated setter method or setter field
+        // find the java type based on the annotated setter method or setter field
         BeanProperty prop;
         JavaType keyType;
         JavaType valueType;
@@ -840,6 +841,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             AnnotatedMethod am = (AnnotatedMethod) mutator;
             keyType = am.getParameterType(0);
             valueType = am.getParameterType(1);
+            // Need to resolve for possible generic types (like Maps, Collections)
             valueType = resolveMemberAndTypeAnnotations(ctxt, mutator, valueType);
             prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
                     valueType, null, mutator,

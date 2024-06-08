@@ -878,30 +878,30 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             }
         } else if (isParameter) {
             AnnotatedParameter af = (AnnotatedParameter) mutator;
-            JavaType fieldType = af.getType();
+            JavaType paramType = af.getType();
             parameterIndex = af.getIndex();
 
-            if (fieldType.hasRawClass(JsonNode.class) || fieldType.hasRawClass(ObjectNode.class)) {
-                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+            if (paramType.isMapLikeType()) {
+                paramType = resolveMemberAndTypeAnnotations(ctxt, mutator, paramType);
+                keyType = paramType.getKeyType();
+                valueType = paramType.getContentType();
+                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                        paramType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+            } else if (paramType.hasRawClass(JsonNode.class) || paramType.hasRawClass(ObjectNode.class)) {
+                paramType = resolveMemberAndTypeAnnotations(ctxt, mutator, paramType);
                 // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
                 valueType = ctxt.constructType(JsonNode.class);
                 prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+                        paramType, null, mutator, PropertyMetadata.STD_OPTIONAL);
 
                 // Unlike with more complicated types, here we do not allow any annotation
                 // overrides etc but instead short-cut handling:
                 return SettableAnyProperty.constructForJsonNodeParameter(ctxt, prop, mutator, valueType,
                         ctxt.findRootValueDeserializer(valueType), parameterIndex);
-            } else if (fieldType.isMapLikeType()) {
-                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
-                keyType = fieldType.getKeyType();
-                valueType = fieldType.getContentType();
-                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
             } else {
                 return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
                     "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
-                    ClassUtil.getTypeDescription(fieldType)));
+                    ClassUtil.getTypeDescription(paramType)));
             }
         } else {
             return ctxt.reportBadDefinition(beanDesc.getType(), String.format(

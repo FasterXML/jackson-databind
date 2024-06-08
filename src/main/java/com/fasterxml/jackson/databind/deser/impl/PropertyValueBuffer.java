@@ -82,14 +82,6 @@ public class PropertyValueBuffer
      */
     protected final SettableAnyProperty _anySetter;
 
-    /**
-     * Flag that indicates whether this buffer has been consumed, meaning
-     * that all properties have been read and assigned.
-     *
-     * @since 2.18
-     */
-    protected boolean _consumed;
-
     /*
     /**********************************************************
     /* Life-cycle
@@ -208,11 +200,9 @@ public class PropertyValueBuffer
         if ((_anySetter != null) && (_anySetter.getParameterIndex() >= 0)) {
             Object anySetterParameterObject = _anySetter.createParameterObject();
             for (PropertyValue pv = this.buffered(); pv != null; pv = pv.next) {
-                pv.assign(anySetterParameterObject);
+                pv.setValue(anySetterParameterObject);
             }
             _creatorParameters[_anySetter.getParameterIndex()] = anySetterParameterObject;
-            // mark as consumed, so current PropertyValueBuffer does not get reused.
-            _consumed = true;
         }
         return _creatorParameters;
     }
@@ -299,12 +289,7 @@ public class PropertyValueBuffer
         return bean;
     }
 
-    protected PropertyValue buffered() {
-        if (_consumed) {
-            return null;
-        }
-        return _buffered;
-    }
+    protected PropertyValue buffered() { return _buffered; }
 
     public boolean isComplete() { return _paramsNeeded <= 0; }
 
@@ -351,5 +336,9 @@ public class PropertyValueBuffer
 
     public void bufferMapProperty(Object key, Object value) {
         _buffered = new PropertyValue.Map(_buffered, value, key);
+    }
+
+    public void bufferAnyParameterProperty(SettableAnyProperty prop, String propName, Object value) {
+        _buffered = new PropertyValue.AnyParameter(_buffered, value, prop, propName);
     }
 }

@@ -1,9 +1,14 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
 
-public class NameTransformerTest extends BaseMapTest
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class NameTransformerTest extends DatabindTestUtil
 {
+    @Test
     public void testSimpleTransformer() throws Exception
     {
         NameTransformer xfer;

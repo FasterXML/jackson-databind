@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser.jdk;
 import java.io.*;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -12,12 +12,17 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
+
+
 /**
  * This unit test suite tries to verify that the "Native" java type
  * mapper can properly re-construct Java array objects from Json arrays.
  */
 public class ArrayDeserializationTest
-    extends BaseMapTest
 {
     public final static class Bean1
     {
@@ -142,6 +147,7 @@ public class ArrayDeserializationTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testUntypedArray() throws Exception
     {
 
@@ -160,6 +166,7 @@ public class ArrayDeserializationTest
         assertEquals(Double.valueOf(2.0), result[4]);
     }
 
+    @Test
     public void testIntegerArray() throws Exception
     {
         final int LEN = 90000;
@@ -186,6 +193,7 @@ public class ArrayDeserializationTest
     }
 
     // [JACKSON-620]: allow "" to mean 'null' for Arrays, List and Maps
+    @Test
     public void testFromEmptyString() throws Exception
     {
         ObjectReader r = MAPPER.reader()
@@ -196,6 +204,7 @@ public class ArrayDeserializationTest
     }
 
     // [JACKSON-620]: allow "" to mean 'null' for Arrays, List and Maps
+    @Test
     public void testFromEmptyString2() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(Product.class)
@@ -212,6 +221,7 @@ public class ArrayDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testUntypedArrayOfArrays() throws Exception
     {
         // to get "untyped" default map-to-map, pass Object[].class
@@ -244,6 +254,7 @@ public class ArrayDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testStringArray() throws Exception
     {
         final String[] STRS = new String[] {
@@ -273,6 +284,7 @@ public class ArrayDeserializationTest
         assertNull(result[0]);
     }
 
+    @Test
     public void testCharArray() throws Exception
     {
         final String TEST_STR = "Let's just test it? Ok!";
@@ -290,6 +302,7 @@ public class ArrayDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testBooleanArray() throws Exception
     {
         boolean[] result = MAPPER.readValue("[ true, false, false ]", boolean[].class);
@@ -300,6 +313,7 @@ public class ArrayDeserializationTest
         assertFalse(result[2]);
     }
 
+    @Test
     public void testByteArrayAsNumbers() throws Exception
     {
         final int LEN = 37000;
@@ -325,6 +339,7 @@ public class ArrayDeserializationTest
         assertEquals(0, result[LEN]);
     }
 
+    @Test
     public void testByteArrayAsBase64() throws Exception
     {
         /* Hmmh... let's use JsonGenerator here, to hopefully ensure we
@@ -354,6 +369,7 @@ public class ArrayDeserializationTest
      * And then bit more challenging case; let's try decoding
      * multiple byte arrays from an array...
      */
+    @Test
     public void testByteArraysAsBase64() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -384,11 +400,12 @@ public class ArrayDeserializationTest
         assertEquals(entryCount, result.length);
         for (int i = 0; i < entryCount; ++i) {
             byte[] b = result[i];
-            assertArrayEquals("Comparing entry #"+i+"/"+entryCount,entries[i], b);
+            assertArrayEquals(entries[i], b, "Comparing entry #"+i+"/"+entryCount);
         }
     }
 
     // [JACKSON-763]
+    @Test
     public void testByteArraysWith763() throws Exception
     {
         String[] input = new String[] { "YQ==", "Yg==", "Yw==" };
@@ -398,6 +415,7 @@ public class ArrayDeserializationTest
         assertEquals("c", new String(data[2], "US-ASCII"));
     }
 
+    @Test
     public void testShortArray() throws Exception
     {
         final int LEN = 31001; // fits in signed 16-bit
@@ -421,6 +439,7 @@ public class ArrayDeserializationTest
         }
     }
 
+    @Test
     public void testIntArray() throws Exception
     {
         final int LEN = 70000;
@@ -446,6 +465,7 @@ public class ArrayDeserializationTest
         }
     }
 
+    @Test
     public void testLongArray() throws Exception
     {
         final int LEN = 12300;
@@ -469,6 +489,7 @@ public class ArrayDeserializationTest
         }
     }
 
+    @Test
     public void testDoubleArray() throws Exception
     {
         final int LEN = 7000;
@@ -496,6 +517,7 @@ public class ArrayDeserializationTest
         }
     }
 
+    @Test
     public void testFloatArray() throws Exception
     {
         final int LEN = 7000;
@@ -526,6 +548,7 @@ public class ArrayDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testBeanArray()
         throws Exception
     {
@@ -558,6 +581,7 @@ public class ArrayDeserializationTest
      */
 
     // for [databind#890]
+    @Test
     public void testByteArrayTypeOverride890() throws Exception
     {
         HiddenBinaryBean890 result = MAPPER.readValue(
@@ -573,6 +597,7 @@ public class ArrayDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testCustomDeserializers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

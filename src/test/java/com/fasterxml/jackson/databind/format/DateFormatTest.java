@@ -3,10 +3,15 @@ package com.fasterxml.jackson.databind.format;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class DateFormatTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class DateFormatTest extends DatabindTestUtil
 {
     protected static class DateWrapper {
         public Date value;
@@ -16,6 +21,7 @@ public class DateFormatTest extends BaseMapTest
         public DateWrapper(Date v) { value = v; }
     }
 
+    @Test
     public void testTypeDefaults() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();

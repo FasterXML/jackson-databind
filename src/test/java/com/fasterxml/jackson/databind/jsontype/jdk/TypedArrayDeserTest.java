@@ -3,15 +3,20 @@ package com.fasterxml.jackson.databind.jsontype.jdk;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import static org.junit.Assert.assertArrayEquals;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TypedArrayDeserTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -45,6 +50,7 @@ public class TypedArrayDeserTest
     /**********************************************************
      */
 
+    @Test
     public void testIntList() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -64,6 +70,7 @@ public class TypedArrayDeserTest
      * as property. That would not work (since there's no JSON Object to
      * add property in), so it will basically be same as using WRAPPER_ARRAY
      */
+    @Test
     public void testBooleanListAsProp() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -77,6 +84,7 @@ public class TypedArrayDeserTest
         assertEquals(Boolean.FALSE, result.get(1));
     }
 
+    @Test
     public void testLongListAsWrapper() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -100,6 +108,7 @@ public class TypedArrayDeserTest
     /**********************************************************
      */
 
+    @Test
     public void testLongArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

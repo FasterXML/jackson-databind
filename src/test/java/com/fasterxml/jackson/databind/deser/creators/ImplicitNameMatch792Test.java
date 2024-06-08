@@ -1,13 +1,21 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class ImplicitNameMatch792Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
+
+public class ImplicitNameMatch792Test
 {
     // Simple introspector that gives generated "ctorN" names for constructor
     // parameters
@@ -50,6 +58,9 @@ public class ImplicitNameMatch792Test extends BaseMapTest
         public int getValue() { return x; }
     }
 
+    // 17-May-2024, tatu: [databind#4515] This is not a valid test; commenting
+    //    out; to be removed in near future (after 2.18)
+    /*
     static class ReadWriteBean
     {
         private int value;
@@ -66,6 +77,7 @@ public class ImplicitNameMatch792Test extends BaseMapTest
             throw new RuntimeException("Should have used constructor for 'value' not setter");
         }
     }
+    */
 
     // Bean that should only serialize 'value', but deserialize both
     static class PasswordBean
@@ -91,6 +103,7 @@ public class ImplicitNameMatch792Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = sharedMapper();
 
+    @Test
     public void testBindingOfImplicitCreatorNames() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -99,18 +112,26 @@ public class ImplicitNameMatch792Test extends BaseMapTest
         assertEquals(a2q("{'first':'a','other':3}"), json);
     }
 
+    @Test
     public void testImplicitWithSetterGetter() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean2());
         assertEquals(a2q("{'stuff':3}"), json);
     }
 
+    // 17-May-2024, tatu: [databind#4515] This is not a valid test; commenting
+    //    out; to be removed in near future (after 2.18)
+    // 30-May-2024, tatu: Hmmh. Actually passes if commented out... should reconsider?
+    /*
+    @Test
     public void testReadWriteWithPrivateField() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ReadWriteBean(3));
         assertEquals("{\"value\":3}", json);
     }
+    */
 
+    @Test
     public void testWriteOnly() throws Exception
     {
         PasswordBean bean = MAPPER.readValue(a2q("{'value':7,'password':'foo'}"),

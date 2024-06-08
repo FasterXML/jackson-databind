@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -14,12 +16,17 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.BogusSchema;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
 /**
  * Unit tests for checking features added to {@link ObjectWriter}, such
  * as adding of explicit pretty printer.
  */
 public class ObjectWriterTest
-    extends BaseMapTest
 {
     static class CloseableValue implements Closeable
     {
@@ -59,6 +66,7 @@ public class ObjectWriterTest
     /**********************************************************
      */
 
+    @Test
     public void testPrettyPrinter() throws Exception
     {
         ObjectWriter writer = MAPPER.writer();
@@ -80,6 +88,7 @@ public class ObjectWriterTest
         assertEquals("{\"a\":1}", writer.writeValueAsString(data));
     }
 
+    @Test
     public void testPrefetch() throws Exception
     {
         ObjectWriter writer = MAPPER.writer();
@@ -88,6 +97,7 @@ public class ObjectWriterTest
         assertTrue(writer.hasPrefetchedSerializer());
     }
 
+    @Test
     public void testObjectWriterFeatures() throws Exception
     {
         ObjectWriter writer = MAPPER.writer()
@@ -100,6 +110,7 @@ public class ObjectWriterTest
                 .writeValueAsString(map));
     }
 
+    @Test
     public void testObjectWriterWithNode() throws Exception
     {
         ObjectNode stuff = MAPPER.createObjectNode();
@@ -109,6 +120,7 @@ public class ObjectWriterTest
         assertEquals("{\"a\":5}", json);
     }
 
+    @Test
     public void testPolymorphicWithTyping() throws Exception
     {
         ObjectWriter writer = MAPPER.writerFor(PolyBase.class);
@@ -120,12 +132,15 @@ public class ObjectWriterTest
         assertEquals(a2q("{'type':'B','b':-5}"), json);
     }
 
+    @SuppressWarnings("deprecation")
+    @Test
     public void testCanSerialize() throws Exception
     {
         assertTrue(MAPPER.writer().canSerialize(String.class));
         assertTrue(MAPPER.writer().canSerialize(String.class, null));
     }
 
+    @Test
     public void testNoPrefetch() throws Exception
     {
         ObjectWriter w = MAPPER.writer()
@@ -136,6 +151,7 @@ public class ObjectWriterTest
         assertEquals("3", out.toString("UTF-8"));
     }
 
+    @Test
     public void testWithCloseCloseable() throws Exception
     {
         ObjectWriter w = MAPPER.writer()
@@ -158,6 +174,7 @@ public class ObjectWriterTest
         input.close();
     }
 
+    @Test
     public void testViewSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
@@ -170,6 +187,7 @@ public class ObjectWriterTest
         assertSame(newW, newW.with(Locale.CANADA));
     }
 
+    @Test
     public void testMiscSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
@@ -199,6 +217,7 @@ public class ObjectWriterTest
         }
     }
 
+    @Test
     public void testRootValueSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
@@ -229,6 +248,7 @@ public class ObjectWriterTest
         assertNotSame(w, newW);
     }
 
+    @Test
     public void testFeatureSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
@@ -260,6 +280,7 @@ public class ObjectWriterTest
                 SerializationFeature.EAGER_SERIALIZER_FETCH));
     }
 
+    @Test
     public void testGeneratorFeatures() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
@@ -280,6 +301,7 @@ public class ObjectWriterTest
     /**********************************************************
      */
 
+    @Test
     public void testArgumentChecking() throws Exception
     {
         final ObjectWriter w = MAPPER.writer();
@@ -291,6 +313,7 @@ public class ObjectWriterTest
         }
     }
 
+    @Test
     public void testSchema() throws Exception
     {
         try {

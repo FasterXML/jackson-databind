@@ -5,12 +5,15 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case that covers both failing-by-regression tests and passing tests.
@@ -18,7 +21,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * <a href="https://github.com/FasterXML/jackson-databind/issues/3906">
  * [databind#3906]: Regression: 2.15.0 breaks deserialization for records when mapper.setVisibility(ALL, NONE);</a>
  */
-public class RecordDeserialization3906Test extends BaseMapTest
+public class RecordDeserialization3906Test extends DatabindTestUtil
 {
     record Record3906(String string, int integer) {
     }
@@ -43,6 +46,7 @@ public class RecordDeserialization3906Test extends BaseMapTest
      */
 
     // minimal config for reproduction
+    @Test
     public void testEmptyJsonToRecordMiminal() throws JsonProcessingException {
         ObjectMapper mapper = newJsonMapper();
         mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
@@ -53,6 +57,7 @@ public class RecordDeserialization3906Test extends BaseMapTest
     }
 
     // actual config used reproduction
+    @Test
     public void testEmptyJsonToRecordActualImpl() throws JsonProcessingException {
         ObjectMapper mapper = newJsonMapper();
         mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
@@ -70,6 +75,7 @@ public class RecordDeserialization3906Test extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testEmptyJsonToRecordWorkAround() throws JsonProcessingException {
         ObjectMapper mapper = newJsonMapper();
         mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
@@ -80,6 +86,7 @@ public class RecordDeserialization3906Test extends BaseMapTest
         assertEquals(new Record3906(null, 0), recordDeser);
     }
 
+    @Test
     public void testEmptyJsonToRecordCreatorsVisibile() throws JsonProcessingException {
         ObjectMapper mapper = newJsonMapper();
         mapper.setVisibility(PropertyAccessor.CREATOR, Visibility.NON_PRIVATE);
@@ -88,6 +95,8 @@ public class RecordDeserialization3906Test extends BaseMapTest
         assertEquals(new Record3906(null, 0), recordDeser);
     }
 
+    @SuppressWarnings("serial")
+    @Test
     public void testEmptyJsonToRecordUsingModule() throws JsonProcessingException {
         ObjectMapper mapper = jsonMapperBuilder().addModule(new SimpleModule() {
             @Override
@@ -109,6 +118,7 @@ public class RecordDeserialization3906Test extends BaseMapTest
         assertEquals(new Record3906(null, 0), recordDeser);
     }
 
+    @Test
     public void testEmptyJsonToRecordDirectAutoDetectConfig() throws JsonProcessingException {
         ObjectMapper mapper = newJsonMapper();
 
@@ -116,6 +126,7 @@ public class RecordDeserialization3906Test extends BaseMapTest
         assertEquals(new Record3906Annotated(null, 0), recordDeser);
     }
 
+    @Test
     public void testEmptyJsonToRecordJsonCreator() throws JsonProcessingException {
         ObjectMapper mapper = newJsonMapper();
 
@@ -123,6 +134,8 @@ public class RecordDeserialization3906Test extends BaseMapTest
         assertEquals(new Record3906Creator(null, 0), recordDeser);
     }
 
+    @SuppressWarnings("serial")
+    @Test
     public void testEmptyJsonToRecordUsingModuleOther() throws JsonProcessingException {
         ObjectMapper mapper = jsonMapperBuilder().addModule(
                 new SimpleModule() {

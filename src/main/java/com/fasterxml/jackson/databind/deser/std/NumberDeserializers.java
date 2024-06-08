@@ -652,9 +652,13 @@ public class NumberDeserializers
             if (_checkTextualNull(ctxt, text)) {
                 return (Float) getNullValue(ctxt);
             }
-            try {
-                return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-            } catch (IllegalArgumentException iae) { }
+            // 09-Dec-2023, tatu: To avoid parser having to validate input, pre-validate:
+            if (NumberInput.looksLikeValidNumber(text)) {
+                p.streamReadConstraints().validateFPLength(text.length());
+                try {
+                    return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+                } catch (IllegalArgumentException iae) { }
+            }
             return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid `Float` value");
         }
@@ -751,10 +755,13 @@ public class NumberDeserializers
             if (_checkTextualNull(ctxt, text)) {
                 return (Double) getNullValue(ctxt);
             }
-            p.streamReadConstraints().validateFPLength(text.length());
-            try {
-                return _parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-            } catch (IllegalArgumentException iae) { }
+            // 09-Dec-2023, tatu: To avoid parser having to validate input, pre-validate:
+            if (NumberInput.looksLikeValidNumber(text)) {
+                p.streamReadConstraints().validateFPLength(text.length());
+                try {
+                    return _parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+                } catch (IllegalArgumentException iae) { }
+            }
             return (Double) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid `Double` value");
         }
@@ -843,30 +850,31 @@ public class NumberDeserializers
                 return Double.NaN;
             }
             try {
-                if (!_isIntNumber(text)) {
+                if (_isIntNumber(text)) {
+                    p.streamReadConstraints().validateIntegerLength(text.length());
+                    if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
+                        return NumberInput.parseBigInteger(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                    }
+                    long value = NumberInput.parseLong(text);
+                    if (!ctxt.isEnabled(DeserializationFeature.USE_LONG_FOR_INTS)) {
+                        if (value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE) {
+                            return Integer.valueOf((int) value);
+                        }
+                    }
+                    return value;
+                }
+                // 09-Dec-2023, tatu: To avoid parser having to validate input, pre-validate:
+                if (NumberInput.looksLikeValidNumber(text)) {
                     p.streamReadConstraints().validateFPLength(text.length());
                     if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                         return NumberInput.parseBigDecimal(
                                 text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
                     }
-                    return Double.valueOf(
-                            NumberInput.parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER)));
+                    return NumberInput.parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
                 }
-                p.streamReadConstraints().validateIntegerLength(text.length());
-                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-                    return NumberInput.parseBigInteger(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-                }
-                long value = NumberInput.parseLong(text);
-                if (!ctxt.isEnabled(DeserializationFeature.USE_LONG_FOR_INTS)) {
-                    if (value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE) {
-                        return Integer.valueOf((int) value);
-                    }
-                }
-                return Long.valueOf(value);
-            } catch (IllegalArgumentException iae) {
-                return ctxt.handleWeirdStringValue(_valueClass, text,
-                        "not a valid number");
-            }
+            } catch (IllegalArgumentException iae) { }
+            return ctxt.handleWeirdStringValue(_valueClass, text,
+                    "not a valid number");
         }
 
         /**
@@ -966,10 +974,12 @@ public class NumberDeserializers
                 // note: no need to call `coerce` as this is never primitive
                 return getNullValue(ctxt);
             }
-            p.streamReadConstraints().validateIntegerLength(text.length());
-            try {
-                return NumberInput.parseBigInteger(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-            } catch (IllegalArgumentException iae) { }
+            if (_isIntNumber(text)) {
+                p.streamReadConstraints().validateIntegerLength(text.length());
+                try {
+                    return NumberInput.parseBigInteger(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                } catch (IllegalArgumentException iae) { }
+            }
             return (BigInteger) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid representation");
         }
@@ -1036,10 +1046,13 @@ public class NumberDeserializers
                 // note: no need to call `coerce` as this is never primitive
                 return getNullValue(ctxt);
             }
-            p.streamReadConstraints().validateFPLength(text.length());
-            try {
-                return NumberInput.parseBigDecimal(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-            } catch (IllegalArgumentException iae) { }
+            // 09-Dec-2023, tatu: To avoid parser having to validate input, pre-validate:
+            if (NumberInput.looksLikeValidNumber(text)) {
+                p.streamReadConstraints().validateFPLength(text.length());
+                try {
+                    return NumberInput.parseBigDecimal(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                } catch (IllegalArgumentException iae) { }
+            }
             return (BigDecimal) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid representation");
         }

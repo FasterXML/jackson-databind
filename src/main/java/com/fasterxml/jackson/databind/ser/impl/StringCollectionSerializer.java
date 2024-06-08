@@ -88,7 +88,7 @@ public class StringCollectionSerializer
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
-        g.setCurrentValue(value);
+        g.assignCurrentValue(value);
         serializeContents(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }

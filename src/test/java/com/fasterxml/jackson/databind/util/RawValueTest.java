@@ -1,10 +1,15 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonSerializable;
+import org.junit.jupiter.api.Test;
 
-public class RawValueTest extends BaseMapTest
+import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class RawValueTest extends DatabindTestUtil
 {
+    @Test
     public void testEquality()
     {
         RawValue raw1 = new RawValue("foo");

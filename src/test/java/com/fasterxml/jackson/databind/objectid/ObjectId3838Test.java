@@ -1,13 +1,17 @@
 package com.fasterxml.jackson.databind.objectid;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#3838]: Difference in the handling of ObjectId-property in JsonIdentityInfo depending on the deserialization route.
-public class ObjectId3838Test extends BaseMapTest
+public class ObjectId3838Test extends DatabindTestUtil
 {
     interface ResultGetter {
         String result();
@@ -169,6 +173,7 @@ public class ObjectId3838Test extends BaseMapTest
         {IntSequencedBean.class, "{'id':-1,'value':'great'}"}
     };
 
+    @Test
     public void testUniformHandlingForMissingObjectId() throws Exception
     {
         for (Object[] classAndJsonStrEntry : CLASS_AND_JSON_STRING) {

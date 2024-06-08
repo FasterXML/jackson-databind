@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.jsontype.ext;
 
 import java.util.UUID;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -12,9 +14,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("hiding")
-public class ExternalTypeCustomResolverTest extends BaseMapTest
+public class ExternalTypeCustomResolverTest extends DatabindTestUtil
 {
     // [databind#1288]
     public static class ClassesWithoutBuilder {
@@ -78,8 +83,6 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             public void setDescription(String description) {
                 this.description = description;
             }
-
-
         }
 
         public static class EncryptedCreditCardDetails implements PaymentDetails {
@@ -95,7 +98,6 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             public void setName (String name) {
                 this.name = name;
             }
-
         }
 
         public enum FormOfPayment {
@@ -417,6 +419,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             .build();
 
     // [databind#1288]
+    @Test
     public void testExternalWithCustomResolver() throws Exception
     {
         // given
@@ -431,6 +434,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
     }
 
     // [databind#1288]
+    @Test
     public void testExternalWithCustomResolverAndBuilder() throws Exception
     {
         final String asJson2 = a2q(

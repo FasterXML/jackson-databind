@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,7 +12,12 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class MultiArgConstructorTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
+public class MultiArgConstructorTest
 {
     static class MultiArgCtorBean
     {
@@ -63,6 +70,7 @@ public class MultiArgConstructorTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testMultiArgVisible() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
@@ -76,6 +84,7 @@ public class MultiArgConstructorTest extends BaseMapTest
     }
 
     // But besides visibility, also allow overrides
+    @Test
     public void testMultiArgWithPartialOverride() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
@@ -90,6 +99,7 @@ public class MultiArgConstructorTest extends BaseMapTest
 
     // but let's also ensure that it is possible to prevent use of that constructor
     // with different visibility
+    @Test
     public void testMultiArgNotVisible() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();

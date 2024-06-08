@@ -1,24 +1,22 @@
 package com.fasterxml.jackson.databind;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.introspect.*;
-import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Basic container for information gathered by {@link ClassIntrospector} to
  * help in constructing serializers and deserializers.
- * Note that the main implementation type is
+ * Note that the one implementation type is
  * {@link com.fasterxml.jackson.databind.introspect.BasicBeanDescription},
- * meaning that it is safe to upcast to this type.
+ * meaning that it is safe to upcast to that type.
  */
 public abstract class BeanDescription
 {
@@ -83,26 +81,6 @@ public abstract class BeanDescription
     public abstract boolean hasKnownClassAnnotations();
 
     /**
-     * Accessor for type bindings that may be needed to fully resolve
-     * types of member object, such as return and argument types of
-     * methods and constructors, and types of fields.
-     *
-     * @deprecated Since 2.7, should not need to access bindings directly
-     */
-    @Deprecated
-    public abstract TypeBindings bindingsForBeanType();
-
-    /**
-     * Method for resolving given JDK type, using this bean as the
-     * generic type resolution context.
-     *
-     * @deprecated Since 2.8, should simply call <code>getType</code> of
-     *    property accessor directly.
-     */
-    @Deprecated
-    public abstract JavaType resolveType(java.lang.reflect.Type jdkType);
-
-    /**
      * Method for accessing collection of annotations the bean
      * class has.
      */
@@ -129,17 +107,9 @@ public abstract class BeanDescription
      */
     public abstract List<BeanPropertyDefinition> findBackReferences();
 
-    /**
-     * Method for locating all back-reference properties (setters, fields) bean has
-     *
-     * @deprecated Since 2.9 use {@link #findBackReferences()} instead
-     */
-    @Deprecated
-    public abstract Map<String,AnnotatedMember> findBackReferenceProperties();
-
     /*
     /**********************************************************
-    /* Basic API for finding creator members
+    /* Basic API for finding Creators, related information
     /**********************************************************
      */
 
@@ -197,16 +167,13 @@ public abstract class BeanDescription
     public abstract AnnotatedConstructor findDefaultConstructor();
 
     /**
-     * @deprecated Since 2.13: instead use {@link #getConstructors()}, filter.
+     * Method that is replacing earlier Creator introspection access methods.
+     *
+     * @since 2.18
+     *
+     * @return Container for introspected Creator candidates, if any
      */
-    @Deprecated
-    public abstract Constructor<?> findSingleArgConstructor(Class<?>... argTypes);
-
-    /**
-     * @deprecated Since 2.13: instead use {@link #getFactoryMethods()}, filter.
-     */
-    @Deprecated
-    public abstract Method findFactoryMethod(Class<?>... expArgTypes);
+    public abstract PotentialCreators getPotentialCreators();
 
     /*
     /**********************************************************
@@ -256,33 +223,6 @@ public abstract class BeanDescription
 
     public abstract AnnotatedMethod findMethod(String name, Class<?>[] paramTypes);
 
-    @Deprecated // since 2.9
-    public abstract AnnotatedMethod findJsonValueMethod();
-
-    /**
-     * @deprecated Since 2.9: use {@link #findAnySetterAccessor} instead
-     */
-    @Deprecated
-    public AnnotatedMethod findAnySetter() {
-        AnnotatedMember m = findAnySetterAccessor();
-        if (m instanceof AnnotatedMethod) {
-            return (AnnotatedMethod) m;
-        }
-        return null;
-    }
-
-    /**
-     * @deprecated Since 2.9: use {@link #findAnySetterAccessor} instead
-     */
-    @Deprecated
-    public AnnotatedMember findAnySetterField() {
-        AnnotatedMember m = findAnySetterAccessor();
-        if (m instanceof AnnotatedField) {
-            return m;
-        }
-        return null;
-    }
-
     /*
     /**********************************************************
     /* Basic API, class configuration
@@ -305,9 +245,25 @@ public abstract class BeanDescription
      * defined by defaults and possible annotations.
      * Note that this may be further refined by per-property annotations.
      *
-     * @since 2.1
+     * @since 2.17
      */
-    public abstract JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue);
+    public abstract JsonFormat.Value findExpectedFormat();
+
+    /**
+     * @since 2.1
+     * @deprecated Since 2.17 use {@link #findExpectedFormat()}
+     */
+    @Deprecated // since 2.17
+    public JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue) {
+        JsonFormat.Value v = findExpectedFormat();
+        if (defValue == null) {
+            return v;
+        }
+        if (v == null)  {
+            return defValue;
+        }
+        return defValue.withOverrides(v);
+    }
 
     /**
      * Method for finding {@link Converter} used for serializing instances

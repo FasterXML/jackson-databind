@@ -2,12 +2,18 @@ package com.fasterxml.jackson.databind.deser.merge;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 // for [databind#1844]
-public class MapMerge1844Test extends BaseMapTest
+public class MapMerge1844Test
 {
     static class TestMap1844 {
         public Map<String, Integer> getMapStringInteger() {
@@ -34,6 +40,7 @@ public class MapMerge1844Test extends BaseMapTest
     }
 
     // for [databind#1844]
+    @Test
     public void testMap1844() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();

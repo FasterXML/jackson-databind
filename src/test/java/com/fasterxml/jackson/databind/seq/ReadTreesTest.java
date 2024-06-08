@@ -2,10 +2,15 @@ package com.fasterxml.jackson.databind.seq;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ReadTreesTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ReadTreesTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -19,6 +24,7 @@ public class ReadTreesTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testReadTreeSequence() throws Exception
     {
         final String INPUT = a2q(
@@ -59,6 +65,7 @@ public class ReadTreesTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testReadPOJOHandleFail() throws Exception
     {
         final String INPUT = a2q(

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.*;
@@ -34,7 +35,10 @@ import com.fasterxml.jackson.databind.type.*;
  * but have no effect.
  */
 public abstract class BeanSerializerModifier
+    implements Serializable // @since 2.17
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Method called by {@link BeanSerializerFactory} with tentative set
      * of discovered properties.

@@ -5,16 +5,20 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonKey;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests focusing on {@code JsonValue} and newer {@code JsonKey}
 // annotation handling
-public class MapKeyAnnotationsTest extends BaseMapTest
+public class MapKeyAnnotationsTest extends DatabindTestUtil
 {
     // [databind#47]
     public static class Wat
@@ -120,6 +124,7 @@ public class MapKeyAnnotationsTest extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#47]
+    @Test
     public void testMapJsonValueKey47() throws Exception
     {
         WatMap input = new WatMap();
@@ -130,6 +135,7 @@ public class MapKeyAnnotationsTest extends BaseMapTest
     }
 
     // [databind#943]
+    @Test
     public void testDynamicMapKeys() throws Exception
     {
         Map<Object,Integer> stuff = new LinkedHashMap<Object,Integer>();
@@ -140,6 +146,7 @@ public class MapKeyAnnotationsTest extends BaseMapTest
     }
 
     // [databind#2306]
+    @Test
     public void testMapKeyWithJsonValue() throws Exception
     {
         final Map<JsonValue2306Key, String> map = Collections.singletonMap(
@@ -149,6 +156,7 @@ public class MapKeyAnnotationsTest extends BaseMapTest
     }
 
     // [databind#2871]
+    @Test
     public void testClassAsKey() throws Exception {
         Outer outer = new Outer(new Inner("innerKey", "innerValue"));
         Map<Outer, String> map = Collections.singletonMap(outer, "value");
@@ -157,6 +165,7 @@ public class MapKeyAnnotationsTest extends BaseMapTest
     }
 
     // [databind#2871]
+    @Test
     public void testClassAsValue() throws Exception {
         Map<String, Outer> mapA = Collections.singletonMap("key", new Outer(new Inner("innerKey", "innerValue")));
         String actual = MAPPER.writeValueAsString(mapA);
@@ -164,6 +173,7 @@ public class MapKeyAnnotationsTest extends BaseMapTest
     }
 
     // [databind#2871]
+    @Test
     public void testNoKeyOuter() throws Exception {
         Map<String, NoKeyOuter> mapA = Collections.singletonMap("key", new NoKeyOuter(new Inner("innerKey", "innerValue")));
         String actual = MAPPER.writeValueAsString(mapA);

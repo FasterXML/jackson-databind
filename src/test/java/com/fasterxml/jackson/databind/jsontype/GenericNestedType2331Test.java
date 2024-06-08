@@ -4,10 +4,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.*;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#2331]
-public class GenericNestedType2331Test extends BaseMapTest
+public class GenericNestedType2331Test extends DatabindTestUtil
 {
     static class SuperNode<T> { }
     static class SuperTestClass { }
@@ -31,6 +35,7 @@ public class GenericNestedType2331Test extends BaseMapTest
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Test
     public void testGeneric2331() throws Exception {
         Node root = new Node();
         root.children.add(new Node());

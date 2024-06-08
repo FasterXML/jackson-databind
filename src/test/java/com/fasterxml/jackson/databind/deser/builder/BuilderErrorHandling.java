@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.builder;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import com.fasterxml.jackson.databind.*;
@@ -7,7 +9,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 
-public class BuilderErrorHandling extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class BuilderErrorHandling
 {
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     static class ValueClassXY
@@ -104,6 +110,7 @@ public class BuilderErrorHandling extends BaseMapTest
             .disable(DeserializationFeature.WRAP_EXCEPTIONS)
             .build();
 
+    @Test
     public void testUnknownProperty() throws Exception
     {
         // first, default failure
@@ -122,6 +129,7 @@ public class BuilderErrorHandling extends BaseMapTest
         assertEquals(5, result._y);
     }
 
+    @Test
     public void testWrongShape() throws Exception
     {
         try {
@@ -136,6 +144,7 @@ public class BuilderErrorHandling extends BaseMapTest
 
     // [databind#2938]
 
+    @Test
     public void testSuccessfulValidatingBuilder() throws Exception
     {
         ValidatingValue result = MAPPER.readValue(a2q("{'a':'1','b':'2'}"), ValidatingValue.class);
@@ -143,6 +152,7 @@ public class BuilderErrorHandling extends BaseMapTest
         assertEquals("2", result.second);
     }
 
+    @Test
     public void testFailingValidatingBuilderWithExceptionWrapping() throws Exception
     {
         try {
@@ -154,6 +164,7 @@ public class BuilderErrorHandling extends BaseMapTest
         }
     }
 
+    @Test
     public void testFailingValidatingBuilderWithExceptionWrappingFromTree() throws Exception
     {
         try {
@@ -166,6 +177,7 @@ public class BuilderErrorHandling extends BaseMapTest
         }
     }
 
+    @Test
     public void testFailingValidatingBuilderWithoutExceptionWrapping() throws Exception
     {
         try {
@@ -177,6 +189,7 @@ public class BuilderErrorHandling extends BaseMapTest
         }
     }
 
+    @Test
     public void testFailingValidatingBuilderWithoutExceptionWrappingFromTree() throws Exception
     {
         try {

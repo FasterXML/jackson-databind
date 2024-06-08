@@ -182,6 +182,8 @@ public class PropertyBuilder
             }
             if (valueToSuppress == null) {
                 suppressNulls = true;
+                // [databind#4464] NON_DEFAULT does not work with NON_EMPTY for custom serializer
+                valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
             } else {
                 if (valueToSuppress.getClass().isArray()) {
                     valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
@@ -282,7 +284,7 @@ public class PropertyBuilder
             // Must be a super type to be usable
             Class<?> rawDeclared = declaredType.getRawClass();
             if (serClass.isAssignableFrom(rawDeclared)) {
-                ; // fine as is
+                // fine as is
             } else {
                 /* 18-Nov-2010, tatu: Related to fixing [JACKSON-416], an issue with such
                  *   check is that for deserialization more specific type makes sense;

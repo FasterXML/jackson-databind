@@ -5,7 +5,9 @@ import java.util.*;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -338,7 +340,7 @@ _containerType,
         throws IOException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        p.setCurrentValue(result);
+        p.assignCurrentValue(result);
 
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         // Let's offline handling of values with Object Ids (simplifies code here)
@@ -359,6 +361,10 @@ _containerType,
                     value = valueDes.deserialize(p, ctxt);
                 } else {
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                }
+                if (value == null) {
+                    _tryToAddNull(p, ctxt, result);
+                    continue;
                 }
                 result.add(value);
 
@@ -412,6 +418,10 @@ _containerType,
             } else {
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
+            if (value == null) {
+                _tryToAddNull(p, ctxt, result);
+                return result;
+            }
         } catch (Exception e) {
             boolean wrap = ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
             if (!wrap) {
@@ -433,7 +443,7 @@ _containerType,
             return handleNonArray(p, ctxt, result);
         }
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        p.setCurrentValue(result);
+        p.assignCurrentValue(result);
 
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
@@ -454,6 +464,9 @@ _containerType,
                 } else {
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
+                if (value == null && _skipNullValues) {
+                    continue;
+                }
                 referringAccumulator.add(value);
             } catch (UnresolvedForwardReference reference) {
                 Referring ref = referringAccumulator.handleUnresolvedReference(reference);
@@ -469,6 +482,29 @@ _containerType,
         return result;
     }
 
+    /**
+     * {@code java.util.TreeSet} (and possibly other {@link Collection} types) does not
+     * allow addition of {@code null} values, so isolate handling here.
+     *
+     * @since 2.17
+     */
+    protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt, Collection<?> set)
+        throws IOException
+    {
+        if (_skipNullValues) {
+            return;
+        }
+
+        // Ideally we'd have better idea of where nulls are accepted, but first
+        // let's just produce something better than NPE:
+        try {
+            set.add(null);
+        } catch (NullPointerException e) {
+            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
+                    "`java.util.Collection` of type %s does not accept `null` values",
+                    ClassUtil.getTypeDescription(getValueType(ctxt)));
+        }
+    }    
     /**
      * Helper class for dealing with Object Id references for values contained in
      * collections being deserialized.

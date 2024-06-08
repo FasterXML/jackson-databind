@@ -3,17 +3,22 @@ package com.fasterxml.jackson.databind.ser;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.util.RawValue;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tests functioning of {@link JsonRawValue}
  * annotation with bean serialization.
  */
 public class RawValueTest
-    extends com.fasterxml.jackson.databind.BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /*********************************************************
@@ -27,7 +32,7 @@ public class RawValueTest
     {
         protected final T _value;
 
-        protected ClassGetter(T value) { _value = value;}
+        protected ClassGetter(T v) { _value = v;}
 
         public T getNonRaw() { return _value; }
 
@@ -53,8 +58,9 @@ public class RawValueTest
     /*********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleStringGetter() throws Exception
     {
         String value = "abc";
@@ -63,6 +69,7 @@ public class RawValueTest
         assertEquals(expected, result);
     }
 
+    @Test
     public void testSimpleNonStringGetter() throws Exception
     {
         int value = 123;
@@ -71,6 +78,7 @@ public class RawValueTest
         assertEquals(expected, result);
     }
 
+    @Test
     public void testNullStringGetter() throws Exception
     {
         String result = MAPPER.writeValueAsString(new ClassGetter<String>(null));
@@ -78,6 +86,7 @@ public class RawValueTest
         assertEquals(expected, result);
     }
 
+    @Test
     public void testWithValueToTree() throws Exception
     {
         JsonNode w = MAPPER.valueToTree(new RawWrapped("{ }"));
@@ -86,6 +95,7 @@ public class RawValueTest
     }
 
     // for [databind#743]
+    @Test
     public void testRawFromMapToTree() throws Exception
     {
         RawValue myType = new RawValue("Jackson");

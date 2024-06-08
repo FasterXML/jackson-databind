@@ -1,15 +1,19 @@
 package com.fasterxml.jackson.databind.struct;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Reda.Housni-Alaoui
  */
-public class BackReference1878Test extends BaseMapTest
+public class BackReference1878Test extends DatabindTestUtil
 {
     static class Child {
         @JsonBackReference
@@ -21,8 +25,9 @@ public class BackReference1878Test extends BaseMapTest
         public Child a;
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testChildDeserialization() throws Exception {
         Child child = MAPPER.readValue("{\"b\": {}}", Child.class);
         assertNotNull(child.b);

@@ -331,7 +331,7 @@ handledType().getName()));
         Object pojo = roid.resolve();
         if (pojo == null) { // not yet; should wait...
             throw new UnresolvedForwardReference(p,
-                    "Could not resolve Object Id ["+id+"] -- unresolved forward-reference?", p.getCurrentLocation(), roid);
+                    "Could not resolve Object Id ["+id+"] -- unresolved forward-reference?", p.currentLocation(), roid);
         }
         return pojo;
     }

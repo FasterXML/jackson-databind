@@ -18,7 +18,7 @@ Naming of classes uses word 'JSON' in many places even though there is no actual
 | Artifact | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind) |
 | OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-databind)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind?utm_source=maven-com-fasterxml-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=readme) |
 | Javadocs | [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-databind.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind) |
-| Code coverage (2.16) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=2.16)](https://codecov.io/github/FasterXML/jackson-databind?branch=2.16) |
+| Code coverage (2.17) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=2.17)](https://codecov.io/github/FasterXML/jackson-databind?branch=2.17) |
 | OpenSSF Score | [![OpenSSF  Scorecard](https://api.securityscorecards.dev/projects/github.com/FasterXML/jackson-databind/badge)](https://securityscorecards.dev/viewer/?uri=github.com/FasterXML/jackson-databind) |
 
 # Get it!
@@ -31,7 +31,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>2.14.2</jackson.version>
+  <jackson.version>2.17.1</jackson.version>
   ...
 </properties>
 
@@ -83,6 +83,8 @@ List is incomplete due to compatibility checker addition being done for Jackson 
 * 2.14: Android SDK 26+
 * 2.15: Android SDK 26+
 * 2.16: Android SDK 26+
+* 2.17: Android SDK 26+
+* 2.18: (planned) Android SDK 26+
 
 for information on Android SDK versions to Android Release names see [https://en.wikipedia.org/wiki/Android_version_history]
 
@@ -330,9 +332,9 @@ public class MyBean {
 }
 ```
 
-There are other mechanisms to use for systematic naming changes: see [Custom Naming Convention](https://github.com/FasterXML/jackson-databind/wiki/JacksonCustomNamingConvention) for details.
+There are other mechanisms to use for systematic naming changes, including use of "Naming Strategy" (via `@JsonNaming` annotation).
 
-Note, too, that you can use [Mix-in Annotations](https://github.com/FasterXML/jackson-databind/wiki/JacksonMixinAnnotations) to associate all annotations.
+You can use [Mix-in Annotations](https://github.com/FasterXML/jackson-docs/wiki/JacksonMixinAnnotations) to associate any and all Jackson-provided annotations.
 
 ### Annotations: Ignoring properties
 

@@ -1,13 +1,19 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests wrt [databind#1983]
-public class JsonTypeInfoCaseInsensitive1983Test extends BaseMapTest
+public class JsonTypeInfoCaseInsensitive1983Test extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
             property = "Operation")
@@ -25,6 +31,7 @@ public class JsonTypeInfoCaseInsensitive1983Test extends BaseMapTest
     // verify failures when exact matching required:
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testReadMixedCaseSubclass() throws Exception
     {
         final String serialised = "{\"Operation\":\"NoTeQ\"}";
@@ -46,6 +53,7 @@ public class JsonTypeInfoCaseInsensitive1983Test extends BaseMapTest
         assertEquals(NotEqual.class, result.getClass());
     }
 
+    @Test
     public void testReadMixedCasePropertyName() throws Exception
     {
         final String serialised = "{\"oPeRaTioN\":\"notEq\"}";

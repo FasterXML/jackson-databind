@@ -2,38 +2,42 @@ package com.fasterxml.jackson.failing;
 
 import java.beans.ConstructorProperties;
 
-import com.fasterxml.jackson.annotation.*;
+import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class BackReference1516Test extends BaseMapTest
-{
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+class BackReference1516Test extends DatabindTestUtil {
     static class ParentWithCreator {
         String id, name;
 
         @JsonManagedReference
         ChildObject1 child;
 
-        @ConstructorProperties({ "id", "name", "child" })
+        @ConstructorProperties({"id", "name", "child"})
         public ParentWithCreator(String id, String name,
-                ChildObject1 child) {
+                                 ChildObject1 child) {
             this.id = id;
             this.name = name;
             this.child = child;
         }
     }
 
-    static class ChildObject1
-    {
+    static class ChildObject1 {
         public String id, name;
 
         @JsonBackReference
         public ParentWithCreator parent;
 
-        @ConstructorProperties({ "id", "name", "parent" })
+        @ConstructorProperties({"id", "name", "parent"})
         public ChildObject1(String id, String name,
-                ParentWithCreator parent) {
+                            ParentWithCreator parent) {
             this.id = id;
             this.name = name;
             this.parent = parent;
@@ -47,38 +51,31 @@ public class BackReference1516Test extends BaseMapTest
         public ChildObject2 child;
     }
 
-    static class ChildObject2
-    {
+    static class ChildObject2 {
         public String id, name;
 
         @JsonBackReference
         public ParentWithoutCreator parent;
 
-        @ConstructorProperties({ "id", "name", "parent" })
+        @ConstructorProperties({"id", "name", "parent"})
         public ChildObject2(String id, String name,
-                ParentWithoutCreator parent) {
+                            ParentWithoutCreator parent) {
             this.id = id;
             this.name = name;
             this.parent = parent;
         }
     }
 
-    /*
-    /**********************************************************
-    /* Test methods
-    /**********************************************************
-     */
-
     private final ObjectMapper MAPPER = newJsonMapper();
 
     private final String PARENT_CHILD_JSON = a2q(
-"{ 'id': 'abc',\n"+
-"  'name': 'Bob',\n"+
-"  'child': { 'id': 'def', 'name':'Bert' }\n"+
-"}");
+            "{ 'id': 'abc',\n" +
+                    "  'name': 'Bob',\n" +
+                    "  'child': { 'id': 'def', 'name':'Bert' }\n" +
+                    "}");
 
-    public void testWithParentCreator() throws Exception
-    {
+    @Test
+    void withParentCreator() throws Exception {
         ParentWithCreator result = MAPPER.readValue(PARENT_CHILD_JSON,
                 ParentWithCreator.class);
         assertNotNull(result);
@@ -86,8 +83,8 @@ public class BackReference1516Test extends BaseMapTest
         assertSame(result, result.child.parent);
     }
 
-    public void testWithParentNoCreator() throws Exception
-    {
+    @Test
+    void withParentNoCreator() throws Exception {
         ParentWithoutCreator result = MAPPER.readValue(PARENT_CHILD_JSON,
                 ParentWithoutCreator.class);
         assertNotNull(result);

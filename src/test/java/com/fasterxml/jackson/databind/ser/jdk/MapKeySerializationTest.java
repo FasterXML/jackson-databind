@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -18,8 +20,11 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class MapKeySerializationTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MapKeySerializationTest extends DatabindTestUtil
 {
     public static class KarlSerializer extends JsonSerializer<String>
     {
@@ -127,23 +132,26 @@ public class MapKeySerializationTest extends BaseMapTest
     /**********************************************************
      */
 
-    final private ObjectMapper MAPPER = objectMapper();
+    final private ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testNotKarl() throws IOException {
         final String serialized = MAPPER.writeValueAsString(new NotKarlBean());
         assertEquals("{\"map\":{\"Not Karl\":1}}", serialized);
     }
 
+    @Test
     public void testKarl() throws IOException {
         final String serialized = MAPPER.writeValueAsString(new KarlBean());
         assertEquals("{\"map\":{\"Karl\":1}}", serialized);
     }
 
     // [databind#75]: caching of KeySerializers
+    @Test
     public void testBoth() throws IOException
     {
         // Let's NOT use shared one, to ensure caching starts from clean slate
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         final String value1 = mapper.writeValueAsString(new NotKarlBean());
         assertEquals("{\"map\":{\"Not Karl\":1}}", value1);
         final String value2 = mapper.writeValueAsString(new KarlBean());
@@ -151,10 +159,11 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // Test custom key serializer for enum
+    @Test
     public void testCustomForEnum() throws IOException
     {
         // cannot use shared mapper as we are registering a module
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
         mapper.registerModule(mod);
@@ -163,9 +172,10 @@ public class MapKeySerializationTest extends BaseMapTest
         assertEquals("{\"stuff\":{\"xxxB\":\"bar\"}}", json);
     }
 
+    @Test
     public void testCustomNullSerializers() throws IOException
     {
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         mapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer("NULL-KEY"));
         mapper.getSerializerProvider().setNullValueSerializer(new NullValueSerializer("NULL"));
         Map<String,Integer> input = new HashMap<>();
@@ -176,6 +186,7 @@ public class MapKeySerializationTest extends BaseMapTest
         assertEquals("[1,\"NULL\",true]", json);
     }
 
+    @Test
     public void testCustomEnumInnerMapKey() throws Exception {
         Map<Outer, Object> outerMap = new HashMap<Outer, Object>();
         Map<ABC, Map<String, String>> map = new EnumMap<ABC, Map<String, String>>(ABC.class);
@@ -183,7 +194,7 @@ public class MapKeySerializationTest extends BaseMapTest
         innerMap.put("one", "1");
         map.put(ABC.A, innerMap);
         outerMap.put(Outer.inner, map);
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.setMixInAnnotation(ABC.class, ABCMixin.class);
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
@@ -196,9 +207,10 @@ public class MapKeySerializationTest extends BaseMapTest
         assertEquals("xxxA", key);
     }
 
+    @Test
     public void testDefaultKeySerializer() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         m.getSerializerProvider().setDefaultKeySerializer(new DefaultKeySerializer());
         Map<String,String> map = new HashMap<String,String>();
         map.put("a", "b");
@@ -206,6 +218,7 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // [databind#682]
+    @Test
     public void testClassKey() throws IOException
     {
         Map<Class<?>,Integer> map = new LinkedHashMap<Class<?>,Integer>();
@@ -216,6 +229,7 @@ public class MapKeySerializationTest extends BaseMapTest
 
     // [databind#838]
     @SuppressWarnings("deprecation")
+    @Test
     public void testUnWrappedMapWithKeySerializer() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
@@ -235,8 +249,9 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // [databind#838]
+    @Test
     public void testUnWrappedMapWithDefaultType() throws Exception{
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
         mapper.registerModule(mod);
@@ -257,6 +272,7 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // [databind#1552]
+    @Test
     public void testMapsWithBinaryKeys() throws Exception
     {
         byte[] binary = new byte[] { 1, 2, 3, 4, 5 };
@@ -276,6 +292,7 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // [databind#1679]
+    @Test
     public void testMapKeyRecursion1679() throws Exception
     {
         Map<Object, Object> objectMap = new HashMap<Object, Object>();

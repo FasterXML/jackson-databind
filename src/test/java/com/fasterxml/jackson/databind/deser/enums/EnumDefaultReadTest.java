@@ -2,12 +2,18 @@ package com.fasterxml.jackson.databind.deser.enums;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
-public class EnumDefaultReadTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class EnumDefaultReadTest
 {
     enum SimpleEnum {
         ZERO,
@@ -84,8 +90,10 @@ public class EnumDefaultReadTest extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    private final ObjectMapper MAPPER = new ObjectMapper();
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
     public void testWithoutCustomFeatures() throws Exception
     {
         final ObjectReader r = MAPPER.reader();
@@ -119,6 +127,7 @@ public class EnumDefaultReadTest extends BaseMapTest
         _verifyFailingDeserialization(r, "2", CustomEnumWithDefault.class);
     }
 
+    @Test
     public void testWithFailOnNumbers() throws Exception
     {
         ObjectReader r = MAPPER.reader()
@@ -153,6 +162,7 @@ public class EnumDefaultReadTest extends BaseMapTest
         _verifyFailingDeserialization(r, "2", CustomEnumWithDefault.class);
     }
 
+    @Test
     public void testWithReadUnknownAsDefault() throws Exception
     {
         ObjectReader r = MAPPER.reader()
@@ -187,6 +197,7 @@ public class EnumDefaultReadTest extends BaseMapTest
         _verifyOkDeserialization(r, "2", CustomEnumWithDefault.class, CustomEnumWithDefault.ZERO);
     }
 
+    @Test
     public void testWithFailOnNumbersAndReadUnknownAsDefault()
         throws Exception
     {
@@ -234,6 +245,7 @@ public class EnumDefaultReadTest extends BaseMapTest
     }
 
     // [databind#3171]: Ensure "" gets returned as Default Value, not coerced
+    @Test
     public void testEmptyStringAsDefault() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(SimpleEnumWithDefault.class)
@@ -273,7 +285,8 @@ public class EnumDefaultReadTest extends BaseMapTest
             /* Expected. */
         }
     }
-    
+
+    @Test
     public void testEnumDefaultValueViaMixin() throws Exception 
     {
         ObjectMapper mixinMapper = jsonMapperBuilder()
@@ -284,7 +297,8 @@ public class EnumDefaultReadTest extends BaseMapTest
         assertEquals(BaseEnumDefault.Z, 
                 mixinMapper.readValue(q("UNKNOWN"), BaseEnumDefault.class));
     }
-    
+
+    @Test
     public void testFirstEnumDefaultValueViaMixin() throws Exception 
     {
         ObjectMapper mixinMapper = jsonMapperBuilder()

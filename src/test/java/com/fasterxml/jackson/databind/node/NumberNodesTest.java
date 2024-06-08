@@ -7,6 +7,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Basic tests for {@link JsonNode} implementations that
@@ -16,6 +19,7 @@ public class NumberNodesTest extends NodeTestBase
 {
     private final ObjectMapper MAPPER = objectMapper();
 
+    @Test
     public void testShort()
     {
         ShortNode n = ShortNode.valueOf((short) 1);
@@ -40,6 +44,7 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(ShortNode.valueOf(Short.MIN_VALUE).canConvertToLong());
     }
 
+    @Test
     public void testIntViaMapper() throws Exception
     {
         int value = -90184;
@@ -69,6 +74,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(result, IntNode.valueOf(value));
     }
 
+    @Test
     public void testInt()
     {
         IntNode n = IntNode.valueOf(1);
@@ -96,6 +102,7 @@ public class NumberNodesTest extends NodeTestBase
 
     }
 
+    @Test
     public void testLong()
     {
         LongNode n = LongNode.valueOf(1L);
@@ -124,6 +131,7 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(LongNode.valueOf(Long.MIN_VALUE).canConvertToLong());
     }
 
+    @Test
     public void testLongViaMapper() throws Exception
     {
         // need to use something beyond 32-bit value space
@@ -153,6 +161,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(result, LongNode.valueOf(value));
     }
 
+    @Test
     public void testDouble() throws Exception
     {
         DoubleNode n = DoubleNode.valueOf(0.25);
@@ -185,6 +194,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals("-0.0", String.valueOf(n.doubleValue()));
     }
 
+    @Test
     public void testDoubleViaMapper() throws Exception
     {
         double value = 3.04;
@@ -213,6 +223,7 @@ public class NumberNodesTest extends NodeTestBase
     }
 
     // @since 2.2
+    @Test
     public void testFloat()
     {
         FloatNode n = FloatNode.valueOf(0.45f);
@@ -254,6 +265,7 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(FloatNode.valueOf(Integer.MIN_VALUE).canConvertToLong());
     }
 
+    @Test
     public void testDecimalNode() throws Exception
     {
         DecimalNode n = DecimalNode.valueOf(BigDecimal.ONE);
@@ -311,6 +323,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(result, DecimalNode.valueOf(value));
     }
 
+    @Test
     public void testDecimalNodeEqualsHashCode()
     {
         // We want DecimalNodes with equivalent _numeric_ values to be equal;
@@ -336,6 +349,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(node3, node4);
     }
 
+    @Test
     public void testBigIntegerNode() throws Exception
     {
         BigIntegerNode n = BigIntegerNode.valueOf(BigInteger.ONE);
@@ -378,6 +392,7 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(BigIntegerNode.valueOf(BigInteger.valueOf(Long.MIN_VALUE)).canConvertToLong());
     }
 
+    @Test
     public void testBigDecimalAsPlain() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
@@ -398,6 +413,7 @@ public class NumberNodesTest extends NodeTestBase
     }
 
     // Related to [databind#333]
+    @Test
     public void testCanonicalNumbers() throws Exception
     {
         JsonNodeFactory f = new JsonNodeFactory();

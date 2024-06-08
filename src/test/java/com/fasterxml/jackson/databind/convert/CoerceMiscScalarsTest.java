@@ -1,28 +1,24 @@
 package com.fasterxml.jackson.databind.convert;
 
 import java.io.File;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 import java.nio.charset.Charset;
-import java.util.Calendar;
-import java.util.Currency;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-public class CoerceMiscScalarsTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class CoerceMiscScalarsTest
 {
     private final ObjectMapper DEFAULT_MAPPER = sharedMapper();
 
@@ -54,6 +50,7 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testScalarDefaultsFromEmpty() throws Exception
     {
         // mostly as null, with some exceptions
@@ -84,6 +81,7 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testScalarEmptyToNull() throws Exception
     {
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, File.class);
@@ -100,6 +98,7 @@ public class CoerceMiscScalarsTest extends BaseMapTest
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, InetSocketAddress.class);
     }
 
+    @Test
     public void testScalarEmptyToEmpty() throws Exception
     {
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, File.class);
@@ -122,6 +121,7 @@ public class CoerceMiscScalarsTest extends BaseMapTest
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, InetSocketAddress.class);
     }
 
+    @Test
     public void testScalarEmptyToTryConvert() throws Exception
     {
         // Should be same as `AsNull` for most but not all
@@ -151,6 +151,7 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testScalarsFailFromEmpty() throws Exception
     {
         _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, File.class);
@@ -176,6 +177,7 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     // UUID is quite compatible, but not exactly due to historical reasons;
     // also uses custom subtype, so test separately
 
+    @Test
     public void testUUIDCoercions() throws Exception
     {
         // Coerce to `null` both by default, "TryConvert" and explicit
@@ -200,6 +202,7 @@ public class CoerceMiscScalarsTest extends BaseMapTest
 
     // StringBuilder is its own special type, since it naturally maps
     // from String values, hence separate testing
+    @Test
     public void testStringBuilderCoercions() throws Exception
     {
         // should result in an "empty" StringBuilder for all valid settings
@@ -217,7 +220,7 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     }
 
     // Date, Calendar also included here for convenience
-
+    @Test
     public void testLegacyDateTimeCoercions() throws Exception
     {
         // Coerce to `null` both by default, "TryConvert" and explicit

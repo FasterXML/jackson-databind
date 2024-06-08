@@ -2,13 +2,17 @@ package com.fasterxml.jackson.databind.mixins;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#2795]: Regression in 2.11.0, no mix-ins for JDK collections
-public class MixinForCreators2795Test extends BaseMapTest
+public class MixinForCreators2795Test extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     static class UnmodifiableCollectionMixin {
@@ -16,9 +20,10 @@ public class MixinForCreators2795Test extends BaseMapTest
         public UnmodifiableCollectionMixin(final Collection<?> collection) { }
     }
 
+    @Test
     public void testMixinWithUnmmodifiableCollection() throws Exception
     {
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(Collections.unmodifiableCollection(Collections.emptyList()).getClass(),
                         UnmodifiableCollectionMixin.class)
                 .build();
@@ -29,8 +34,8 @@ public class MixinForCreators2795Test extends BaseMapTest
         final Collection<String> unmodifiableCollection = Collections.unmodifiableCollection(strings);
         final byte[] bytes = mapper.writeValueAsBytes(unmodifiableCollection);
 
-        final Collection<?> collection = mapper.readValue(bytes, Collection.class);
+        final Collection<?> result = mapper.readValue(bytes, Collection.class);
 
-        assertEquals(2, collection.size());
+        assertEquals(2, result.size());
     }
 }

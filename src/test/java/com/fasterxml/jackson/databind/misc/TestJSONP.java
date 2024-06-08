@@ -2,12 +2,17 @@ package com.fasterxml.jackson.databind.misc;
 
 import java.util.Arrays;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestJSONP
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class Base {
         public String a;
@@ -23,6 +28,7 @@ public class TestJSONP
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testSimpleScalars() throws Exception
     {
         assertEquals("callback(\"abc\")",
@@ -33,6 +39,7 @@ public class TestJSONP
                 MAPPER.writeValueAsString(new JSONPObject("dummy", null)));
     }
 
+    @Test
     public void testSimpleBean() throws Exception
     {
         assertEquals("xxx({\"a\":\"123\",\"b\":\"456\"})",
@@ -44,6 +51,7 @@ public class TestJSONP
      * Test to ensure that it is possible to force a static type for wrapped
      * value.
      */
+    @Test
     public void testWithType() throws Exception
     {
         Object ob = new Impl("abc", "def");
@@ -52,6 +60,7 @@ public class TestJSONP
                 MAPPER.writeValueAsString(new JSONPObject("do", ob, type)));
     }
 
+    @Test
     public void testGeneralWrapping() throws Exception
     {
         JSONWrappedObject input = new JSONWrappedObject("/*Foo*/", "\n// the end",

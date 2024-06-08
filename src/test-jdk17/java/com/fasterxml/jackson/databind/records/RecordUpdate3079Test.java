@@ -1,10 +1,14 @@
 package com.fasterxml.jackson.databind.records;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 
 // see failing test
-public class RecordUpdate3079Test extends BaseMapTest
+public class RecordUpdate3079Test extends DatabindTestUtil
 {
     public record IdNameRecord(int id, String name) { }
 
@@ -18,6 +22,7 @@ public class RecordUpdate3079Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#3079]: also: should be able to Record valued property
+    @Test
     public void testRecordAsPropertyUpdate() throws Exception
     {
         IdNameRecord origRecord = new IdNameRecord(123, "Bob");

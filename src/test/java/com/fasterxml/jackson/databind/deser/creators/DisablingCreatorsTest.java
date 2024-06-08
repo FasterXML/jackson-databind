@@ -1,15 +1,21 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Tests to ensure one can disable {@link JsonCreator} annotations.
  */
-public class DisablingCreatorsTest extends BaseMapTest
+public class DisablingCreatorsTest
 {
      static class ConflictingCreators {
           @JsonCreator(mode=JsonCreator.Mode.PROPERTIES)
@@ -35,6 +41,7 @@ public class DisablingCreatorsTest extends BaseMapTest
      /**********************************************************
       */
 
+     @Test
      public void testDisabling() throws Exception
      {
           final ObjectMapper mapper = newJsonMapper();

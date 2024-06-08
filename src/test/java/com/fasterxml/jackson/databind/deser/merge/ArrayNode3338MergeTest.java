@@ -1,12 +1,19 @@
 package com.fasterxml.jackson.databind.deser.merge;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 // [databind#3338]
-public class ArrayNode3338MergeTest extends BaseMapTest
+public class ArrayNode3338MergeTest
 {
+    @Test
     public void testEnabledArrayNodeMerge() throws Exception {
         final ObjectMapper mapperWithMerge = sharedMapper();
 
@@ -25,6 +32,7 @@ public class ArrayNode3338MergeTest extends BaseMapTest
         assertEquals(expected, merged);
     }
 
+    @Test
     public void testDisabledArrayNodeMerge() throws Exception {
         ObjectMapper mapperNoArrayMerge = jsonMapperBuilder()
                 .withConfigOverride(ArrayNode.class,
@@ -63,6 +71,7 @@ public class ArrayNode3338MergeTest extends BaseMapTest
        return mapper.readerForUpdating(mergeTarget).readValue(updateNode);
     }
 
+    @Test
     public void testEnabledObjectNodeMerge() throws Exception {
         final ObjectMapper mapperWithMerge = sharedMapper();
 
@@ -83,6 +92,7 @@ public class ArrayNode3338MergeTest extends BaseMapTest
         assertEquals(expected, merged);
     }
 
+    @Test
     public void testDisabledObjectNodeMerge() throws Exception {
         ObjectMapper mapperNoObjectMerge = jsonMapperBuilder()
                 .withConfigOverride(ObjectNode.class,

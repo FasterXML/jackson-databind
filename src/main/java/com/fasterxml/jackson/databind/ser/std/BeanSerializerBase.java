@@ -128,7 +128,7 @@ public abstract class BeanSerializerBase
             _anyGetterWriter = builder.getAnyGetter();
             _propertyFilterId = builder.getFilterId();
             _objectIdWriter = builder.getObjectIdWriter();
-            final JsonFormat.Value format = builder.getBeanDescription().findExpectedFormat(null);
+            final JsonFormat.Value format = builder.getBeanDescription().findExpectedFormat();
             _serializationShape = format.getShape();
         }
     }
@@ -646,7 +646,7 @@ public abstract class BeanSerializerBase
 
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
         typeSer.writeTypePrefix(gen, typeIdDef);
-        gen.setCurrentValue(bean); // [databind#878]
+        gen.assignCurrentValue(bean); // [databind#878]
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, gen, provider);
         } else {
@@ -711,7 +711,7 @@ public abstract class BeanSerializerBase
 
         typeSer.writeTypePrefix(g, typeIdDef);
         // 08-Jul-2021, tatu: Moved here from earlier place, wrt [databind#3160]
-        g.setCurrentValue(bean); // [databind#631]
+        g.assignCurrentValue(bean); // [databind#631]
         objectId.writeAsField(g, provider, w);
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, g, provider);

@@ -2,11 +2,16 @@ package com.fasterxml.jackson.databind.views;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ViewsWithSchemaTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class ViewsWithSchemaTest extends DatabindTestUtil
 {
     interface ViewBC { }
     interface ViewAB { }
@@ -52,6 +57,7 @@ public class ViewsWithSchemaTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testSchemaWithViews() throws Exception
     {
         ListingVisitor v = new ListingVisitor();
@@ -65,6 +71,7 @@ public class ViewsWithSchemaTest extends BaseMapTest
         assertEquals(Arrays.asList("a", "b"), v.names);
     }
 
+    @Test
     public void testSchemaWithoutViews() throws Exception
     {
         ListingVisitor v = new ListingVisitor();

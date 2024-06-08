@@ -2,14 +2,19 @@ package com.fasterxml.jackson.databind.interop;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.StreamReadCapability;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Mostly for XML but can be tested via JSON with some trickery
-public class UntypedObjectWithDupsTest extends BaseMapTest
+public class UntypedObjectWithDupsTest extends DatabindTestUtil
 {
     private final ObjectMapper JSON_MAPPER = newJsonMapper();
 
@@ -29,6 +34,7 @@ public class UntypedObjectWithDupsTest extends BaseMapTest
             + "}");
 
     // Testing the baseline non-merging behavior
+    @Test
     public void testDocWithDupsNoMerging() throws Exception
     {
         _verifyDupsNoMerging(Object.class);
@@ -36,12 +42,14 @@ public class UntypedObjectWithDupsTest extends BaseMapTest
     }
 
     // For [dataformat-xml#???]
+    @Test
     public void testDocWithDupsAsUntyped() throws Exception
     {
         _verifyDupsAreMerged(Object.class);
     }
 
     // For [dataformat-xml#498] / [databind#3484]
+    @Test
     public void testDocWithDupsAsMap() throws Exception
     {
         _verifyDupsAreMerged(Map.class);
@@ -49,6 +57,7 @@ public class UntypedObjectWithDupsTest extends BaseMapTest
 
     // And also verify that Maps with values other than `Object` will
     // NOT try merging no matter what
+    @Test
     public void testDocWithDupsAsNonUntypedMap() throws Exception
     {
         final String DOC = a2q("{'key':'a','key':'b'}");

@@ -1,8 +1,13 @@
 package com.fasterxml.jackson.databind.deser.enums;
 
-import com.fasterxml.jackson.databind.*;
+import org.junit.jupiter.api.Test;
 
-public class EnumWithNullToString4355Test extends BaseMapTest
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class EnumWithNullToString4355Test extends DatabindTestUtil
 {
     // [databind#4355]
     enum Enum4355 {
@@ -25,8 +30,11 @@ public class EnumWithNullToString4355Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#4355]
+    @Test
     public void testWithNullToString() throws Exception
     {
-        assertEquals("\"ALPHA\"", MAPPER.writeValueAsString(Enum4355.ALPHA));        
+        assertEquals(q("ALPHA"), MAPPER.writeValueAsString(Enum4355.ALPHA));
+        assertEquals(q("BETA"), MAPPER.writeValueAsString(Enum4355.BETA));
+        assertEquals(q("UNDEFINED"), MAPPER.writeValueAsString(Enum4355.UNDEFINED));
     }
 }

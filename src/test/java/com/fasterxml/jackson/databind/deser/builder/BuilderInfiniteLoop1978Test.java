@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.builder;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
@@ -7,7 +9,9 @@ import com.fasterxml.jackson.databind.*;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-public class BuilderInfiniteLoop1978Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class BuilderInfiniteLoop1978Test
 {
     static class Builder
     {
@@ -85,6 +89,7 @@ public class BuilderInfiniteLoop1978Test extends BaseMapTest
      */
 
     // for [databind#1978]
+    @Test
     public void testInfiniteLoop1978() throws Exception
     {
         String json = "{\"sub.el1\":34,\"sub.el2\":\"some text\"}";

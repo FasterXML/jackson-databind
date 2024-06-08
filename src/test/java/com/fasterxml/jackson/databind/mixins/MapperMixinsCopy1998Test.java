@@ -2,11 +2,16 @@ package com.fasterxml.jackson.databind.mixins;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class MapperMixinsCopy1998Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MapperMixinsCopy1998Test extends DatabindTestUtil
 {
     final static String FULLMODEL="{\"format\":\"1.0\",\"child\":{\"type\":\"CHILD_B\",\"name\":\"testB\"},\"notVisible\":\"should not be present\"}";
     final static String EXPECTED="{\"format\":\"1.0\",\"child\":{\"name\":\"testB\"}}";
@@ -89,6 +94,7 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testB_KO() throws Exception
     {
         final ObjectMapper DEFAULT = defaultMapper();

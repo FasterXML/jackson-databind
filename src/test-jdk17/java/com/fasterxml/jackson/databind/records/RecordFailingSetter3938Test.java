@@ -2,8 +2,13 @@ package com.fasterxml.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
-public class RecordFailingSetter3938Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class RecordFailingSetter3938Test extends DatabindTestUtil
 {
     private final static String ERROR_3938_PREFIX = "Non-null 'options' not allowed for ";
 
@@ -23,6 +28,7 @@ public class RecordFailingSetter3938Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#3938]: Should detect and use setters too
+    @Test
     public void testFailingSetter3939() throws Exception
     {
         final ObjectReader R = MAPPER.readerFor(Command3938.class);

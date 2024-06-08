@@ -1189,7 +1189,7 @@ public abstract class DeserializationContext
                     return key;
                 }
                 throw weirdStringException(keyValue, keyClass, String.format(
-                        "DeserializationProblemHandler.handleWeirdStringValue() for type %s returned value of type %s",
+                        "DeserializationProblemHandler.handleWeirdKey() for type %s returned value of type %s",
                         ClassUtil.getClassDescription(keyClass),
                         ClassUtil.getClassDescription(key)
                 ));
@@ -1857,11 +1857,12 @@ trailingToken, ClassUtil.nameOf(targetType)
      *
      * @since 2.9
      */
+    @Override // since 2.18
     public <T> T reportBadTypeDefinition(BeanDescription bean,
-            String msg, Object... msgArgs) throws JsonMappingException {
-        msg = _format(msg, msgArgs);
+            String msg, Object... msgArgs) throws JsonMappingException
+    {
         String beanDesc = ClassUtil.nameOf(bean.getBeanClass());
-        msg = String.format("Invalid type definition for type %s: %s", beanDesc, msg);
+        msg = String.format("Invalid type definition for type %s: %s", beanDesc, _format(msg, msgArgs));
         throw InvalidDefinitionException.from(_parser, msg, bean, null);
     }
 

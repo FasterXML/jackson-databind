@@ -1,17 +1,24 @@
 package com.fasterxml.jackson.databind.deser.enums;
 
+import java.util.EnumMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
-import java.util.EnumMap;
-import java.util.Map;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class EnumDeserilizationFeatureOrderTest extends BaseMapTest
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
+
+public class EnumDeserilizationFeatureOrderTest
 {
     /*
     /**********************************************************
@@ -46,6 +53,7 @@ public class EnumDeserilizationFeatureOrderTest extends BaseMapTest
      */
 
 
+    @Test
     public void testDeserUnknownUsingDefaultBeforeAsNull() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumFruit.class)
@@ -57,6 +65,7 @@ public class EnumDeserilizationFeatureOrderTest extends BaseMapTest
         assertEquals(EnumFruit.LEMON, simpleEnumA);
     }
 
+    @Test
     public void testDeserUnknownUsingDefaultBeforeAsNullFlip() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumFruit.class)
@@ -68,6 +77,7 @@ public class EnumDeserilizationFeatureOrderTest extends BaseMapTest
         assertEquals(EnumFruit.LEMON, simpleEnumA);
     }
 
+    @Test
     public void testDeserUnknownAsNull() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumFruit.class)
@@ -78,6 +88,7 @@ public class EnumDeserilizationFeatureOrderTest extends BaseMapTest
         assertEquals(null, simpleEnumA);
     }
 
+    @Test
     public void testDeserWithAliasUsingDefault() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumLetter.class)
@@ -89,6 +100,7 @@ public class EnumDeserilizationFeatureOrderTest extends BaseMapTest
         assertEquals(EnumLetter.B, defaulted);
     }
 
+    @Test
     public void testDeserWithAliasAsNull() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumLetter.class)
@@ -99,6 +111,7 @@ public class EnumDeserilizationFeatureOrderTest extends BaseMapTest
         assertEquals(null, defaulted);
     }
 
+    @Test
     public void testDeserUnknownEnumMapKeyUsingDefault() throws Exception {
         String JSON = a2q("{ 'UNknownWhatEver': 'fresh!'}");
         ObjectReader reader = MAPPER
@@ -112,6 +125,7 @@ public class EnumDeserilizationFeatureOrderTest extends BaseMapTest
         assertEquals("fresh!", result.get(EnumFruit.LEMON));
     }
 
+    @Test
     public void testDeserUnknownEnumMapKeyAsNull() throws Exception {
         String JSON = a2q("{ 'UNknownWhatEver': 'fresh!'}");
         ObjectReader reader = MAPPER
@@ -125,6 +139,7 @@ public class EnumDeserilizationFeatureOrderTest extends BaseMapTest
         assertTrue(result.isEmpty());
     }
 
+    @Test
     public void testDeserUnknownMapKeyUsingDefault() throws Exception {
         String JSON = a2q("{ 'UNknownWhatEver': 'fresh!'}");
         ObjectReader reader = MAPPER
@@ -138,6 +153,7 @@ public class EnumDeserilizationFeatureOrderTest extends BaseMapTest
         assertEquals("fresh!", result.get(EnumFruit.LEMON));
     }
 
+    @Test
     public void testDeserUnknownMapKeyAsNull() throws Exception {
         // Arrange
         String JSON = a2q("{ 'UNknownWhatEver': 'fresh!'}");

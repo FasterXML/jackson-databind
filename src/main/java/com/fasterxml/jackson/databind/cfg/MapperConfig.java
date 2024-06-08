@@ -691,6 +691,11 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         return _base.getCacheProvider();
     }
 
+    /**
+     * @since 2.18 (in DeserializationConfig-only since 2.12)
+     */
+    public abstract ConstructorDetector getConstructorDetector();
+
     /*
     /**********************************************************
     /* Methods for instantiating handlers

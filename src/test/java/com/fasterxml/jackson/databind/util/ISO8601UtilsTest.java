@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.Calendar;
@@ -10,15 +8,23 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 @SuppressWarnings("deprecation")
-public class ISO8601UtilsTest extends BaseMapTest
+public class ISO8601UtilsTest extends DatabindTestUtil
 {
     private Date date;
     private Date dateWithoutTime;
     private Date dateZeroMillis;
     private Date dateZeroSecondAndMillis;
 
-    @Override
+    @BeforeEach
     public void setUp() {
         Calendar cal = new GregorianCalendar(2007, 8 - 1, 13, 19, 51, 23);
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -36,11 +42,13 @@ public class ISO8601UtilsTest extends BaseMapTest
 
     }
 
+    @Test
     public void testFormat() {
         String result = ISO8601Utils.format(date);
         assertEquals("2007-08-13T19:51:23Z", result);
     }
 
+    @Test
     public void testFormatMillis() {
         String result = ISO8601Utils.format(date, true);
         assertEquals("2007-08-13T19:51:23.789Z", result);
@@ -49,6 +57,7 @@ public class ISO8601UtilsTest extends BaseMapTest
         assertEquals("2007-08-13T19:51:23Z", result);
     }
 
+    @Test
     public void testFormatTimeZone() {
         String result = ISO8601Utils.format(date, false, TimeZone.getTimeZone("GMT+02:00"));
         assertEquals("2007-08-13T21:51:23+02:00", result);
@@ -58,6 +67,7 @@ public class ISO8601UtilsTest extends BaseMapTest
         assertEquals("2007-08-13T19:51:23.789Z", result);
     }
 
+    @Test
     public void testParse() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("2007-08-13T19:51:23.789Z", new ParsePosition(0));
         assertEquals(date, d);
@@ -69,6 +79,7 @@ public class ISO8601UtilsTest extends BaseMapTest
         assertEquals(date, d);
     }
 
+    @Test
     public void testParseShortDate() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("20070813T19:51:23.789Z", new ParsePosition(0));
         assertEquals(date, d);
@@ -80,6 +91,7 @@ public class ISO8601UtilsTest extends BaseMapTest
         assertEquals(date, d);
     }
 
+    @Test
     public void testParseShortTime() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("2007-08-13T195123.789Z", new ParsePosition(0));
         assertEquals(date, d);
@@ -91,6 +103,7 @@ public class ISO8601UtilsTest extends BaseMapTest
         assertEquals(date, d);
     }
 
+    @Test
     public void testParseShortDateTime() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("20070813T195123.789Z", new ParsePosition(0));
         assertEquals(date, d);
@@ -102,6 +115,7 @@ public class ISO8601UtilsTest extends BaseMapTest
         assertEquals(date, d);
     }
 
+    @Test
     public void testParseWithoutTime() throws ParseException {
         Date d = ISO8601Utils.parse("2007-08-13Z", new ParsePosition(0));
         assertEquals(dateWithoutTime, d);
@@ -116,6 +130,7 @@ public class ISO8601UtilsTest extends BaseMapTest
         assertEquals(dateWithoutTime, d);
     }
 
+    @Test
     public void testParseOptional() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("2007-08-13T19:51Z", new ParsePosition(0));
         assertEquals(dateZeroSecondAndMillis, d);
@@ -127,6 +142,7 @@ public class ISO8601UtilsTest extends BaseMapTest
         assertEquals(dateZeroSecondAndMillis, d);
     }
 
+    @Test
     public void testParseRfc3339Examples() throws java.text.ParseException {
         // Two digit milliseconds.
         Date d = ISO8601Utils.parse("1985-04-12T23:20:50.52Z", new ParsePosition(0));
@@ -148,6 +164,7 @@ public class ISO8601UtilsTest extends BaseMapTest
         assertEquals(newDate(1937, 1, 1, 12, 0, 27, 870, 20), d);
     }
 
+    @Test
     public void testFractionalSeconds() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("1970-01-01T00:00:00.9Z", new ParsePosition(0));
         assertEquals(newDate(1970, 1, 1, 0, 0, 0, 900, 0), d);
@@ -183,6 +200,7 @@ public class ISO8601UtilsTest extends BaseMapTest
         assertEquals(newDate(1970, 1, 1, 0, 0, 0, 214, 2 * 60), d);
     }
 
+    @Test
     public void testDecimalWithoutDecimalPointButNoFractionalSeconds() throws java.text.ParseException {
         try {
             ISO8601Utils.parse("1970-01-01T00:00:00.Z", new ParsePosition(0));

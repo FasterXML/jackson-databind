@@ -1,12 +1,21 @@
 package com.fasterxml.jackson.databind.deser.builder;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-public class BuilderAdvancedTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class BuilderAdvancedTest
 {
     @JsonDeserialize(builder=InjectableBuilderXY.class)
     static class InjectableXY
@@ -88,6 +97,7 @@ public class BuilderAdvancedTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testWithInjectable() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -101,6 +111,7 @@ public class BuilderAdvancedTest extends BaseMapTest
         assertEquals("stuffValue", bean._stuff);
     }
 
+    @Test
     public void testWithExternalTypeId() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();

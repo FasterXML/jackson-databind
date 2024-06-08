@@ -2,11 +2,16 @@ package com.fasterxml.jackson.databind.deser.filter;
 
 import java.beans.ConstructorProperties;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.*;
 
-public class IgnoreCreatorProp1317Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class IgnoreCreatorProp1317Test
 {
     static class Testing {
         @JsonIgnore
@@ -40,8 +45,9 @@ public class IgnoreCreatorProp1317Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testThatJsonIgnoreWorksWithConstructorProperties() throws Exception {
-        ObjectMapper om = objectMapper();
+        ObjectMapper om = newJsonMapper();
         Testing testing = new Testing("shouldBeIgnored", "notIgnore");
         String json = om.writeValueAsString(testing);
 //        System.out.println(json);

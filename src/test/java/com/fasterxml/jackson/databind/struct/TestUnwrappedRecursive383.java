@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.databind.struct;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // Problem with recursive definition of unwrapping
-public class TestUnwrappedRecursive383 extends BaseMapTest
+public class TestUnwrappedRecursive383 extends DatabindTestUtil
 {
     // [databind#383]
     static class RecursivePerson {
@@ -20,8 +25,9 @@ public class TestUnwrappedRecursive383 extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testRecursiveUsage() throws Exception
     {
         final String JSON = "{ 'name': 'Bob', 'age': 45, 'gender': 0, 'child.name': 'Bob jr', 'child.age': 15 }";

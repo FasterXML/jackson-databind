@@ -345,7 +345,11 @@ public class CreatorProperty
     // since 2.9
     private void _reportMissingSetter(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        final String msg = "No fallback setter/field defined for creator property "+ClassUtil.name(getName());
+        String clsDesc = (_annotated == null) ? "UNKNOWN TYPE"
+                : ClassUtil.getClassDescription(_annotated.getOwner().getDeclaringClass());
+        final String msg = String.format(
+                "No fallback setter/field defined for creator property %s (of %s)",
+                        ClassUtil.name(getName()), clsDesc);
         // Hmmmh. Should we return quietly (NOP), or error?
         // Perhaps better to throw an exception, since it's generally an error.
         if (ctxt != null ) {

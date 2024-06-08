@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,7 +77,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void anySetterViaCreator562() throws Exception
+    public void mapAnySetterViaCreator562() throws Exception
     {
         Map<String, Object> expected = new HashMap<>();
         expected.put("b", Integer.valueOf(42));
@@ -89,6 +90,11 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
         assertEquals("value", pojo.a);
         assertEquals(expected, pojo.stuff);
+
+        // Should also initialize any-setter-Map even if no contents
+        pojo = MAPPER.readValue(a2q("{'a':'value2'}"), POJO562.class);
+        assertEquals("value2", pojo.a);
+        assertEquals(new HashMap<>(), pojo.stuff);
     }
 
     @Test
@@ -103,20 +109,23 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    public void testWithFailureConfigs562() throws Exception
+    public void testAnyMapWithNullCreatorProp() throws Exception
     {
         ObjectMapper failOnNullMapper = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES).build();
 
-        try {
-            failOnNullMapper.readValue(a2q("{'a':'value'}"), POJO562.class);
-            fail("Should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Null value for creator property ''");
-        }
+        // 08-Jun-2024, tatu: Should be fine as we get empty Map for "no any setters"
+        POJO562 value = failOnNullMapper.readValue(a2q("{'a':'value'}"), POJO562.class);
+        assertEquals(Collections.emptyMap(), value.stuff);
+    }
 
+    @Test
+    public void testAnyMapWithMissingCreatorProp() throws Exception
+    {
         ObjectMapper failOnMissingMapper = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES).build();
+
+        // Actually missing (no any props encountered)
         try {
             failOnMissingMapper.readValue(a2q("{'a':'value'}"), POJO562.class);
             fail("Should not pass");
@@ -124,6 +133,14 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
             verifyException(e, "Missing creator property ''");
         }
 
+        // But should NOT fail if we did find at least one...
+        POJO562 value = failOnMissingMapper.readValue(a2q("{'a':'value','b':'x'}"), POJO562.class);
+        assertEquals(Collections.singletonMap("b", "x"), value.stuff);
+    }
+
+    @Test
+    public void testAnyMapWithNullOrMissingCreatorProp() throws Exception
+    {
         ObjectMapper failOnBothMapper = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)
             .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
@@ -154,7 +171,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
         try {
             MAPPER.readValue(a2q("{'a':'value', 'b':42, 'c': 111}"),
                 PojoWithDisabled.class);
-            fail();
+            fail("Should not pass");
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Invalid type definition for type");
             verifyException(e, "has no property name (and is not Injectable): can not use as property-based Creator");

@@ -76,7 +76,7 @@ public class PropertyValueBuffer
     protected Object _idValue;
 
     /**
-     * [databind#562]: Allow use of `@JsonAnySetter` in `@JsonCreator`
+     * "Any setter" property; a Creator parameter (via {@code @JsonAnySetter})
      *
      * @since 2.18
      */
@@ -113,7 +113,6 @@ public class PropertyValueBuffer
     {
         this(p, ctxt, paramCount, oir, null);
     }
-
 
     /**
      * Returns {@code true} if the given property was seen in the JSON source by
@@ -184,7 +183,14 @@ public class PropertyValueBuffer
                 }
             }
         }
-
+        // [databind#562] since 2.18 : Respect @JsonAnySetter in @JsonCreator
+        if ((_anySetter != null) && (_anySetter.getParameterIndex() >= 0)) {
+            Object anySetterParameterObject = _anySetter.createParameterObject();
+            for (PropertyValue pv = this.buffered(); pv != null; pv = pv.next) {
+                pv.setValue(anySetterParameterObject);
+            }
+            _creatorParameters[_anySetter.getParameterIndex()] = anySetterParameterObject;
+        }
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             for (int ix = 0; ix < props.length; ++ix) {
                 if (_creatorParameters[ix] == null) {
@@ -194,15 +200,6 @@ public class PropertyValueBuffer
                             prop.getName(), props[ix].getCreatorIndex());
                 }
             }
-        }
-
-        // [databind#562] since 2.18 : Respect @JsonAnySetter in @JsonCreator
-        if ((_anySetter != null) && (_anySetter.getParameterIndex() >= 0)) {
-            Object anySetterParameterObject = _anySetter.createParameterObject();
-            for (PropertyValue pv = this.buffered(); pv != null; pv = pv.next) {
-                pv.setValue(anySetterParameterObject);
-            }
-            _creatorParameters[_anySetter.getParameterIndex()] = anySetterParameterObject;
         }
         return _creatorParameters;
     }

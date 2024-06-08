@@ -90,10 +90,14 @@ public class BinaryNode
     }
 
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
-        jg.writeBinary(provider.getConfig().getBase64Variant(),
+        if (_data == null) {
+            g.writeNull();
+            return;
+        }
+        g.writeBinary(provider.getConfig().getBase64Variant(),
                 _data, 0, _data.length);
     }
 
@@ -102,10 +106,17 @@ public class BinaryNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof BinaryNode)) {
-            return false;
+        if (o instanceof BinaryNode) {
+            byte[] otherData = ((BinaryNode) o)._data;
+            if (_data == otherData) {
+                return true;
+            }
+            if ((_data == null) || (otherData == null)) {
+                return false;
+            }
+            return Arrays.equals(_data, otherData);
         }
-        return Arrays.equals(((BinaryNode) o)._data, _data);
+        return false;
     }
 
     @Override

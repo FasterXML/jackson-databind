@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.node.TestTreeDeserialization.Bean;
+import com.fasterxml.jackson.databind.node.TreeDeserializationTest.Bean;
 
 /**
  * This unit test suite tries to verify that ObjectMapper

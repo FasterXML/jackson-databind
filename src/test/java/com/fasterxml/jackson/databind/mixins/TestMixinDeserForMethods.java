@@ -3,12 +3,17 @@ package com.fasterxml.jackson.databind.mixins;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMixinDeserForMethods
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -42,6 +47,7 @@ public class TestMixinDeserForMethods
      * Unit test that verifies that we can mix in @JsonAnySetter
      * annotation, as expected.
      */
+    @Test
     public void testWithAnySetter() throws IOException
     {
         ObjectMapper m = new ObjectMapper();

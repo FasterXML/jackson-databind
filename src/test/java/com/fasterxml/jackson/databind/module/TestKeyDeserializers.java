@@ -2,11 +2,16 @@ package com.fasterxml.jackson.databind.module;
 
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestKeyDeserializers extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestKeyDeserializers extends DatabindTestUtil
 {
     static class FooKeyDeserializer extends KeyDeserializer
     {
@@ -29,6 +34,7 @@ public class TestKeyDeserializers extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testKeyDeserializers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

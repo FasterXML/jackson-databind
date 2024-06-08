@@ -3,11 +3,16 @@ package com.fasterxml.jackson.databind.objectid;
 import java.net.URI;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestObjectIdWithEquals extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestObjectIdWithEquals extends DatabindTestUtil
 {
     @JsonPropertyOrder({"id","bars","otherBars"})
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id", scope=Foo.class)
@@ -79,6 +84,7 @@ public class TestObjectIdWithEquals extends BaseMapTest
     /******************************************************
      */
 
+    @Test
     public void testSimpleEquals() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -108,6 +114,7 @@ public class TestObjectIdWithEquals extends BaseMapTest
         assertEquals(foo.id, foo2.id);
     }
 
+    @Test
     public void testEqualObjectIdsExternal() throws Exception
     {
         Element element = new Element();

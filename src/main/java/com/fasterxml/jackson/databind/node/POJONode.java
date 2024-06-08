@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonSerializable;
@@ -56,7 +57,8 @@ public class POJONode
     @Override
     public String asText() { return (_value == null) ? "null" : _value.toString(); }
 
-    @Override public String asText(String defaultValue) {
+    @Override
+    public String asText(String defaultValue) {
         return (_value == null) ? defaultValue : _value.toString();
     }
 
@@ -156,5 +158,7 @@ public class POJONode
     }
 
     @Override
-    public int hashCode() { return _value.hashCode(); }
+    public int hashCode() {
+        return Objects.hashCode(_value);
+    }
 }

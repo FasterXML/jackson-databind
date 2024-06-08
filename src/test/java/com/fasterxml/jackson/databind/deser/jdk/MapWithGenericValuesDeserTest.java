@@ -2,15 +2,19 @@ package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @SuppressWarnings("serial")
 public class MapWithGenericValuesDeserTest
-    extends BaseMapTest
 {
     /*
     /**********************************************************
@@ -81,6 +85,7 @@ public class MapWithGenericValuesDeserTest
     /**
      * Verifying that sub-classing works ok wrt generics information
      */
+    @Test
     public void testMapSubClass() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -93,6 +98,7 @@ public class MapWithGenericValuesDeserTest
         assertEquals(Boolean.TRUE, bw.b);
     }
 
+    @Test
     public void testMapWrapper() throws Exception
     {
         StringMap value = new ObjectMapper().readValue
@@ -102,6 +108,7 @@ public class MapWithGenericValuesDeserTest
         assertEquals(Long.valueOf(9), value.getEntries().get("a"));
     }
 
+    @Test
     public void testIntermediateTypes() throws Exception
     {
         StringStringWrapperMap result = new ObjectMapper().readValue
@@ -122,6 +129,7 @@ public class MapWithGenericValuesDeserTest
     /**
      * Verifying that sub-classing works ok wrt generics information
      */
+    @Test
     public void testAnnotatedMap() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -141,6 +149,7 @@ public class MapWithGenericValuesDeserTest
     /**********************************************************
      */
 
+    @Test
     public void testKeyViaCtor() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -154,6 +163,7 @@ public class MapWithGenericValuesDeserTest
         assertEquals("a", ((KeyTypeCtor) key).value);
     }
 
+    @Test
     public void testKeyViaFactory() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

@@ -1,14 +1,19 @@
 package com.fasterxml.jackson.databind.jsontype.deftyping;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests to verify functionality to pass "base type" for serializing
 // polymorphic types (ones where output contains Type Id to allow later
 // deserialization deserialization), separate from fully forcing
 // actual type of value being serialized.
-public class DefaultWithBaseType1093Test extends BaseMapTest
+public class DefaultWithBaseType1093Test extends DatabindTestUtil
 {
     // [databind#1093]
     static class Point1093 {
@@ -22,6 +27,7 @@ public class DefaultWithBaseType1093Test extends BaseMapTest
     }
 
     // [databind#1093]
+    @Test
     public void testWithDefaultTyping() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()

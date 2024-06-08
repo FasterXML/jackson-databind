@@ -5,13 +5,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class DefaultTypeAbstractMapping3235Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class DefaultTypeAbstractMapping3235Test extends DatabindTestUtil
 {
     // [databind#3235]
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
@@ -26,6 +31,7 @@ public class DefaultTypeAbstractMapping3235Test extends BaseMapTest
     }
 
     // [databind#3235]
+    @Test
     public void testForAbstractTypeMapping() throws Exception
     {
         // [databind#3235]

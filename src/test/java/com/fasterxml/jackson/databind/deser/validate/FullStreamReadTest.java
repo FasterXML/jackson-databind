@@ -2,20 +2,26 @@ package com.fasterxml.jackson.databind.deser.validate;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
 /**
  * Test for validating {@link com.fasterxml.jackson.databind.DeserializationFeature#FAIL_ON_TRAILING_TOKENS}.
  */
-public class FullStreamReadTest extends BaseMapTest
+public class FullStreamReadTest
 {
     private final static String JSON_OK_ARRAY = " [ 1, 2, 3]    ";
     private final static String JSON_OK_ARRAY_WITH_COMMENT = JSON_OK_ARRAY + " // stuff ";
@@ -34,6 +40,7 @@ public class FullStreamReadTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testMapperAcceptTrailing() throws Exception
     {
         assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
@@ -59,6 +66,7 @@ public class FullStreamReadTest extends BaseMapTest
         assertNull(MAPPER.readValue(JSON_FAIL_NULL, Object.class));
     }
 
+    @Test
     public void testMapperFailOnTrailing() throws Exception
     {
         // but things change if we enforce checks
@@ -111,6 +119,7 @@ public class FullStreamReadTest extends BaseMapTest
                 .readValue(JSON_OK_ARRAY_WITH_COMMENT));
     }
 
+    @Test
     public void testMapperFailOnTrailingWithNull() throws Exception
     {
         final ObjectMapper strict = newJsonMapper()
@@ -166,6 +175,7 @@ public class FullStreamReadTest extends BaseMapTest
         assertNull(ob);
     }
 
+    @Test
     public void testReaderAcceptTrailing() throws Exception
     {
         ObjectReader R = MAPPER.reader();
@@ -180,6 +190,7 @@ public class FullStreamReadTest extends BaseMapTest
         _verifyCollection((List<?>)rColl.readValue(JSON_FAIL_ARRAY));
     }
 
+    @Test
     public void testReaderFailOnTrailing() throws Exception
     {
         ObjectReader strictR = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
@@ -238,6 +249,7 @@ public class FullStreamReadTest extends BaseMapTest
         _verifyArray(strictRWithComments.readTree(JSON_OK_ARRAY_WITH_COMMENT));
     }
 
+    @Test
     public void testReaderFailOnTrailingWithNull() throws Exception
     {
         ObjectReader strictR = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);

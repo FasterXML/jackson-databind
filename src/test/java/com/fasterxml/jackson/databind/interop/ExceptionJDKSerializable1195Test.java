@@ -3,10 +3,16 @@ package com.fasterxml.jackson.databind.interop;
 import java.io.*;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ExceptionJDKSerializable1195Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class ExceptionJDKSerializable1195Test extends DatabindTestUtil
 {
     static class ClassToRead {
         public int x;
@@ -22,6 +28,7 @@ public class ExceptionJDKSerializable1195Test extends BaseMapTest
 
     final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testExceptionSerializabilitySimple() throws Exception
     {
         try {
@@ -40,6 +47,7 @@ public class ExceptionJDKSerializable1195Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testExceptionSerializabilityStructured() throws Exception
     {
         try {

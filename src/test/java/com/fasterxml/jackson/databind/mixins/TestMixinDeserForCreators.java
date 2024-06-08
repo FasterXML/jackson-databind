@@ -2,12 +2,17 @@ package com.fasterxml.jackson.databind.mixins;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMixinDeserForCreators
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -109,6 +114,7 @@ public class TestMixinDeserForCreators
     /**********************************************************
      */
 
+    @Test
     public void testForConstructor() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
@@ -117,6 +123,7 @@ public class TestMixinDeserForCreators
         assertEquals("?...", result._a);
     }
 
+    @Test
     public void testForFactoryAndCtor() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
@@ -133,6 +140,7 @@ public class TestMixinDeserForCreators
         assertEquals("stringX", result._a);
     }
 
+    @Test
     public void testFactoryDelegateMixIn() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
@@ -142,6 +150,7 @@ public class TestMixinDeserForCreators
     }
 
     // [databind#2020]
+    @Test
     public void testFactoryPropertyMixin() throws Exception
     {
         ObjectMapper objectMapper = new ObjectMapper();

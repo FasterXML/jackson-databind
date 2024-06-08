@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.EnumWithSubClass;
 
 /**
  * Unit tests for verifying serialization of simple basic non-structured

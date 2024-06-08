@@ -2,10 +2,18 @@ package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.StringWrapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.IntWrapper;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 @SuppressWarnings("serial")
-public class MapDeser2757Test extends BaseMapTest
+public class MapDeser2757Test
 {
     static class MyMap extends LinkedHashMap<String, String> {
         public MyMap() { }
@@ -17,6 +25,7 @@ public class MapDeser2757Test extends BaseMapTest
     }
 
     // [databind#2757]: should allow deserialization as Map despite conflicting setters
+    @Test
     public void testCanDeserializeMap() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()

@@ -1,15 +1,20 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests verifying handling of potential and actual
  * conflicts, regarding property handling.
  */
-public class TestPropertyConflicts extends BaseMapTest
+public class TestPropertyConflicts extends DatabindTestUtil
 {
     // error message for conflicting getters sub-optimal
     static class BeanWithConflict
@@ -87,11 +92,14 @@ public class TestPropertyConflicts extends BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
     public void testFailWithDupProps() throws Exception
     {
         BeanWithConflict bean = new BeanWithConflict();
         try {
-            String json = objectWriter().writeValueAsString(bean);
+            String json = MAPPER.writer().writeValueAsString(bean);
             fail("Should have failed due to conflicting accessor definitions; got JSON = "+json);
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Conflicting getter definitions");
@@ -99,20 +107,22 @@ public class TestPropertyConflicts extends BaseMapTest
     }
 
     // [databind#238]: ok to have getter, "isGetter"
+    @Test
     public void testRegularAndIsGetter() throws Exception
     {
-        final ObjectWriter writer = objectWriter();
+        final ObjectWriter writer = MAPPER.writer();
 
         // first, serialize without probs:
         assertEquals("{\"value\":4}", writer.writeValueAsString(new Getters1A()));
         assertEquals("{\"value\":4}", writer.writeValueAsString(new Getters1B()));
 
         // and similarly, deserialize
-        ObjectMapper mapper = objectMapper();
+        ObjectMapper mapper = newJsonMapper();
         assertEquals(1, mapper.readValue("{\"value\":1}", Getters1A.class).value);
         assertEquals(2, mapper.readValue("{\"value\":2}", Getters1B.class).value);
     }
 
+    @Test
     public void testInferredNameConflictsWithGetters() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -122,6 +132,7 @@ public class TestPropertyConflicts extends BaseMapTest
         assertEquals(a2q("{'name':'Bob'}"), json);
     }
 
+    @Test
     public void testInferredNameConflictsWithSetters() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -130,6 +141,7 @@ public class TestPropertyConflicts extends BaseMapTest
         assertNotNull(inf);
     }
 
+    @Test
     public void testIssue541() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(

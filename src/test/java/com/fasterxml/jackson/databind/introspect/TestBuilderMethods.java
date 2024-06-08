@@ -2,9 +2,14 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.*;
+import org.junit.jupiter.api.Test;
 
-public class TestBuilderMethods extends BaseMapTest
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestBuilderMethods extends DatabindTestUtil
 {
     static class SimpleBuilder
     {
@@ -24,6 +29,7 @@ public class TestBuilderMethods extends BaseMapTest
 
     private final ObjectMapper mapper = new ObjectMapper();
 
+    @Test
     public void testSimple()
     {
         POJOPropertiesCollector coll = collector(SimpleBuilder.class);

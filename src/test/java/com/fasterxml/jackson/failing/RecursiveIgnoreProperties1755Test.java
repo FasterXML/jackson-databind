@@ -3,11 +3,17 @@ package com.fasterxml.jackson.failing;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class RecursiveIgnoreProperties1755Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class RecursiveIgnoreProperties1755Test extends DatabindTestUtil
 {
     // for [databind#1755]
     static class JackBase1755 {
@@ -29,10 +35,16 @@ public class RecursiveIgnoreProperties1755Test extends BaseMapTest
         public String value;
     }
 
-    // for [databind#1755]
+    // for [databind#4417]
+    static class Item4417 {
+        @JsonIgnoreProperties({ "whatever" })
+        public List<Item4417> items;
+    }
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    // for [databind#1755]
+    @Test
     public void testRecursiveIgnore1755() throws Exception
     {
         final String JSON = a2q("{\n"
@@ -61,5 +73,14 @@ public class RecursiveIgnoreProperties1755Test extends BaseMapTest
                 +"}");
         JackExt value = MAPPER.readValue(JSON, JackExt.class);
         assertNotNull(value);
+    }
+
+    // for [databind#4417]
+    @Test
+    public void testRecursiveIgnore4417() throws Exception
+    {
+        Item4417 result = MAPPER.readValue(a2q("{'items': [{'items': []}]}"),
+                Item4417.class);
+        assertEquals(1, result.items.size(), 1);
     }
 }

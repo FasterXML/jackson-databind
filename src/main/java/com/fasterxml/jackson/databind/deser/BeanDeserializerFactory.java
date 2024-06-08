@@ -909,6 +909,10 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     ClassUtil.nameOf(mutator.getClass())));
         }
 
+        // NOTE: code from now on is for `Map` valued Any properties (JsonNode/ObjectNode
+        // already returned; unsupported types threw Exception), if we have Field/Ctor-Parameter
+        // any-setter -- or, basically Any supported type (if Method)
+
         // First: see if there are explicitly specified
         // and then possible direct deserializer override on accessor
         KeyDeserializer keyDeser = findKeyDeserializerFromAnnotation(ctxt, mutator);

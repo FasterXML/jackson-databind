@@ -1194,7 +1194,6 @@ public class ObjectMapper
         return registerModules(findModules());
     }
 
-
     /*
     /**********************************************************
     /* Factory methods for creating JsonGenerators (added in 2.11)

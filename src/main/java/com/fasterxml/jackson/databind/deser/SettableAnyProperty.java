@@ -195,7 +195,7 @@ public abstract class SettableAnyProperty
     public int getParameterIndex() { return -1; }
 
     /**
-     * Create an instance of value to set any properties.
+     * Create an instance of value to pass through Creator parameter.
      *
      * @since 2.18
      */
@@ -566,7 +566,9 @@ public abstract class SettableAnyProperty
 
         // Should not get called but...
         @Override
-        public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) { return this; }
+        public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
+            throw new UnsupportedOperationException("Cannot call withValueDeserializer() on " + getClass().getName());
+        }
 
         @Override
         public int getParameterIndex() { return _parameterIndex; }

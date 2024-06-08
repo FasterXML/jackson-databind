@@ -431,15 +431,15 @@ public class BeanDeserializer
             if (buffer.readIdProperty(propName) && creatorProp == null) {
                 continue;
             }
-            // creator property?
+            // Creator property?
             if (creatorProp != null) {
-                // Last creator property to set?
                 Object value;
                 if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
                 }
                 value = _deserializeWithErrorWrapping(p, ctxt, creatorProp);
+                // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, value)) {
                     p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;

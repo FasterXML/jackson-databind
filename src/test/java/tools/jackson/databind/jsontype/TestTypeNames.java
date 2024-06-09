@@ -72,7 +72,7 @@ public class TestTypeNames extends DatabindTestUtil
         // static type on serialization. If we had root static types,
         // could use those; but at the moment root type is dynamic
 
-        assertEquals("[{\"doggy\":{\"name\":\"Spot\",\"ageInYears\":3}}]",
+        assertEquals("[{\"doggy\":{\"ageInYears\":3,\"name\":\"Spot\"}}]",
                 MAPPER.writeValueAsString(new Animal[] { new Dog("Spot", 3) }));
         assertEquals("[{\"MaineCoon\":{\"name\":\"Belzebub\",\"purrs\":true}}]",
                 MAPPER.writeValueAsString(new Animal[] { new MaineCoon("Belzebub", true)}));

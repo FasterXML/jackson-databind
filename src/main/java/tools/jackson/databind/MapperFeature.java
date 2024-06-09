@@ -277,10 +277,11 @@ public enum MapperFeature
      *<p>
      * Note: does <b>not</b> apply to {@link java.util.Map} serialization (since
      * entries are not considered Bean/POJO properties.
+     *
      *<p>
-     * Feature is disabled by default.
+     * Feature is enabled by default.
      */
-    SORT_PROPERTIES_ALPHABETICALLY(false),
+    SORT_PROPERTIES_ALPHABETICALLY(true),
 
     /**
      * Feature that defines whether Creator properties (ones passed through

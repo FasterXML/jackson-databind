@@ -150,7 +150,7 @@ public class SerializationOrderTest
 
     @Test
     public void testImplicitOrderByCreator() throws Exception {
-        assertEquals("{\"c\":1,\"a\":2,\"b\":0}",
+        assertEquals("{\"a\":2,\"c\":1,\"b\":0}",
                 MAPPER.writeValueAsString(new BeanWithCreator(1, 2)));
     }
 

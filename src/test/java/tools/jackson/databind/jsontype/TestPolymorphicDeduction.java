@@ -71,8 +71,8 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   /**********************************************************
    */
 
-  private static final String deadCatJson = a2q("{'name':'Felix','causeOfDeath':'entropy'}");
-  private static final String liveCatJson = a2q("{'name':'Felix','angry':true}");
+  private static final String deadCatJson = a2q("{'causeOfDeath':'entropy','name':'Felix'}");
+  private static final String liveCatJson = a2q("{'angry':true,'name':'Felix'}");
   private static final String luckyCatJson = a2q("{'name':'Felix','angry':true,'lives':8}");
   private static final String ambiguousCatJson = a2q("{'name':'Felix','age':2}");
   private static final String fleabagJson = a2q("{}");

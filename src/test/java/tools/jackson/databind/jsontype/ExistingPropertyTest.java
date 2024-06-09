@@ -267,16 +267,16 @@ public class ExistingPropertyTest extends DatabindTestUtil
     private static final String fruitListJson = "[" + pinguoJson + "," + mandarinJson + "]";
 
     private static final Cat beelzebub = new Cat("Beelzebub", "tabby");
-    private static final String beelzebubJson = "{\"name\":\"Beelzebub\",\"furColor\":\"tabby\",\"type\":\"kitty\"}";
+    private static final String beelzebubJson = "{\"furColor\":\"tabby\",\"name\":\"Beelzebub\",\"type\":\"kitty\"}";
     private static final Dog rover = new Dog("Rover", 42);
-    private static final String roverJson = "{\"name\":\"Rover\",\"boneCount\":42,\"type\":\"doggie\"}";
+    private static final String roverJson = "{\"boneCount\":42,\"name\":\"Rover\",\"type\":\"doggie\"}";
     private static final AnimalWrapper beelzebubWrapper = new AnimalWrapper(beelzebub);
     private static final String beelzebubWrapperJson = "{\"animal\":" + beelzebubJson + "}";
     private static final List<Animal> animalList = Arrays.asList(beelzebub, rover);
     private static final String animalListJson = "[" + beelzebubJson + "," + roverJson + "]";
 
     private static final Camry camry = new Camry("Sweet Ride", "candy-apple-red");
-    private static final String camryJson = "{\"name\":\"Sweet Ride\",\"exteriorColor\":\"candy-apple-red\",\"type\":\"camry\"}";
+    private static final String camryJson = "{\"exteriorColor\":\"candy-apple-red\",\"name\":\"Sweet Ride\",\"type\":\"camry\"}";
     private static final Accord accord = new Accord("Road Rage", 6);
     private static final String accordJson = "{\"name\":\"Road Rage\",\"speakerCount\":6,\"type\":\"accord\"}";
     private static final CarWrapper camryWrapper = new CarWrapper(camry);

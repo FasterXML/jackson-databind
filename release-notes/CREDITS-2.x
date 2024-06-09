@@ -150,6 +150,8 @@ Chris Cleveland:
 Benson Margulies:
   * Reported #467: Unwanted POJO's embedded in tree via serialization to tree
    (2.4.0)
+  * Reported #562: Allow `@JsonAnySetter` to flow through Creators
+   (2.18.0)
   * Reported #601: ClassCastException for a custom serializer for enum key in `EnumMap`
    (2.4.4)
   * Contributed 944: Failure to use custom deserializer for key deserializer

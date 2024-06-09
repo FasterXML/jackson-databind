@@ -533,9 +533,9 @@ ClassUtil.name(propName)));
         }
 
         // Also, do we have a fallback "any" setter?
-        AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
+        SettableAnyProperty anySetter = _resolveAnySetter(ctxt, beanDesc, creatorProps);
         if (anySetter != null) {
-            builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetter));
+            builder.setAnySetter(anySetter);
         } else {
             // 23-Jan-2018, tatu: although [databind#1805] would suggest we should block
             //   properties regardless, for now only consider unless there's any setter...
@@ -653,6 +653,28 @@ ClassUtil.name(propName)));
         }
     }
 
+    // since 2.18
+    private SettableAnyProperty _resolveAnySetter(DeserializationContext ctxt,
+            BeanDescription beanDesc, SettableBeanProperty[] creatorProps)
+    {
+        // Find the regular method/field level any-setter
+        AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
+        if (anySetter != null) {
+            return constructAnySetter(ctxt, beanDesc, anySetter);
+        }
+        // else look for any-setter via @JsonCreator
+        if (creatorProps != null) {
+            for (SettableBeanProperty prop : creatorProps) {
+                AnnotatedMember member = prop.getMember();
+                if (member != null && Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(ctxt.getConfig(), member))) {
+                    return constructAnySetter(ctxt, beanDesc, member);
+                }
+            }
+        }
+        // not found, that's fine, too
+        return null;
+    }
+
     private boolean _isSetterlessType(Class<?> rawType) {
         // May also need to consider getters
         // for Map/Collection properties; but with lowest precedence
@@ -754,24 +776,29 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
      * for handling unknown bean properties, given a method that
      * has been designated as such setter.
      *
-     * @param mutator Either 2-argument method (setter, with key and value), or Field
-     *     that contains Map; either way accessor used for passing "any values"
+     * @param mutator Either a 2-argument method (setter, with key and value),
+     *    or a Field or (as of 2.18) Constructor Parameter of type Map or JsonNode/Object;
+     *    either way accessor used for passing "any values"
      */
     @SuppressWarnings("unchecked")
     protected SettableAnyProperty constructAnySetter(DeserializationContext ctxt,
             BeanDescription beanDesc, AnnotatedMember mutator)
     {
-        //find the java type based on the annotated setter method or setter field
+        // find the java type based on the annotated setter method or setter field
         BeanProperty prop;
         JavaType keyType;
         JavaType valueType;
         final boolean isField = mutator instanceof AnnotatedField;
+        // [databind#562] Allow @JsonAnySetter on Creator constructor
+        final boolean isParameter = mutator instanceof AnnotatedParameter;
+        int parameterIndex = -1;
 
         if (mutator instanceof AnnotatedMethod) {
             // we know it's a 2-arg method, second arg is the value
             AnnotatedMethod am = (AnnotatedMethod) mutator;
             keyType = am.getParameterType(0);
             valueType = am.getParameterType(1);
+            // Need to resolve for possible generic types (like Maps, Collections)
             valueType = resolveMemberAndTypeAnnotations(ctxt, mutator, valueType);
             prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
                     valueType, null, mutator,
@@ -806,11 +833,43 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                         "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
                         ClassUtil.getTypeDescription(fieldType)));
             }
+        } else if (isParameter) {
+            AnnotatedParameter af = (AnnotatedParameter) mutator;
+            JavaType paramType = af.getType();
+            parameterIndex = af.getIndex();
+
+            if (paramType.isMapLikeType()) {
+                paramType = resolveMemberAndTypeAnnotations(ctxt, mutator, paramType);
+                keyType = paramType.getKeyType();
+                valueType = paramType.getContentType();
+                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                        paramType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+            } else if (paramType.hasRawClass(JsonNode.class) || paramType.hasRawClass(ObjectNode.class)) {
+                paramType = resolveMemberAndTypeAnnotations(ctxt, mutator, paramType);
+                // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
+                valueType = ctxt.constructType(JsonNode.class);
+                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                        paramType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+
+                // Unlike with more complicated types, here we do not allow any annotation
+                // overrides etc but instead short-cut handling:
+                return SettableAnyProperty.constructForJsonNodeParameter(ctxt, prop, mutator, valueType,
+                        ctxt.findRootValueDeserializer(valueType), parameterIndex);
+            } else {
+                return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                    "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
+                    ClassUtil.getTypeDescription(paramType)));
+            }
         } else {
             return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
                     "Unrecognized mutator type for any-setter: %s",
                     ClassUtil.nameOf(mutator.getClass())));
         }
+
+        // NOTE: code from now on is for `Map` valued Any properties (JsonNode/ObjectNode
+        // already returned; unsupported types threw Exception), if we have Field/Ctor-Parameter
+        // any-setter -- or, basically Any supported type (if Method)
+
         // First: see if there are explicitly specified
         // and then possible direct deserializer override on accessor
         KeyDeserializer keyDeser = findKeyDeserializerFromAnnotation(ctxt, mutator);
@@ -837,6 +896,10 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         if (isField) {
             return SettableAnyProperty.constructForMapField(ctxt,
                     prop, mutator, valueType, keyDeser, deser, typeDeser);
+        }
+        if (isParameter) {
+            return SettableAnyProperty.constructForMapParameter(ctxt,
+                    prop, mutator, valueType, keyDeser, deser, typeDeser, parameterIndex);
         }
         return SettableAnyProperty.constructForMethod(ctxt,
                 prop, mutator, valueType, keyDeser, deser, typeDeser);

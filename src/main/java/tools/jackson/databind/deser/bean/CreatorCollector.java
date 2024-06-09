@@ -176,6 +176,7 @@ public class CreatorCollector
                     String name = properties[i].getName();
                     // Need to consider Injectables, which may not have
                     // a name at all, and need to be skipped
+                    // (same for possible AnySetter)
                     if (name.isEmpty() && (properties[i].getInjectableValueId() != null)) {
                         continue;
                     }

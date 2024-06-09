@@ -5,6 +5,7 @@ import java.util.*;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.SettableAnyProperty;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
@@ -176,7 +177,18 @@ public final class PropertyBasedCreator
      */
     public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir) {
-        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir);
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, null);
+    }
+
+    /**
+     * Method called when starting to build a bean instance.
+     *
+     * @since 2.18 (added SettableAnyProperty parameter)
+     */
+    public PropertyValueBuffer startBuildingWithAnySetter(JsonParser p, DeserializationContext ctxt,
+            ObjectIdReader oir, SettableAnyProperty anySetter
+    ) {
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter);
     }
 
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer)

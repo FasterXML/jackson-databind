@@ -462,12 +462,22 @@ public abstract class BasicDeserializerFactory
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         final int paramCount = candidate.paramCount();
         SettableBeanProperty[] properties = new SettableBeanProperty[paramCount];
+        int anySetterIx = -1;
 
         for (int i = 0; i < paramCount; ++i) {
             JacksonInject.Value injectId = candidate.injection(i);
             AnnotatedParameter param = candidate.parameter(i);
             PropertyName name = candidate.paramName(i);
-            if (name == null) {
+            boolean isAnySetter = Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(config, param));
+            if (isAnySetter) {
+                if (anySetterIx >= 0) {
+                    ctxt.reportBadTypeDefinition(beanDesc,
+                            "More than one 'any-setter' specified (parameter #%d vs #%d)",
+                            anySetterIx, i);
+                } else {
+                    anySetterIx = i;
+                }
+            } else if (name == null) {
                 // 21-Sep-2017, tatu: Looks like we want to block accidental use of Unwrapped,
                 //   as that will not work with Creators well at all
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(config, param);

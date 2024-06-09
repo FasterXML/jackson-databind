@@ -83,7 +83,8 @@ public class PropertyValueBuffer
     protected final SettableAnyProperty _anyParamSetter;
 
     /**
-     * If "Any-setter-via-Creator" exists, we will need to buffer values to feed it
+     * If "Any-setter-via-Creator" exists, we will need to buffer values to feed it,
+     * separate from regular, non-creator properties (see {@code _buffered}).
      *
      * @since 2.18
      */
@@ -111,7 +112,12 @@ public class PropertyValueBuffer
         } else {
             _paramsSeenBig = new BitSet();
         }
-        _anyParamSetter = anyParamSetter;
+        // Only care about Creator-bound Any setters:
+        if ((anyParamSetter == null) || (anyParamSetter.getParameterIndex() < 0)) {
+            _anyParamSetter = null;
+        } else {
+            _anyParamSetter = anyParamSetter;
+        }
     }
 
     @Deprecated // since 2.18
@@ -191,7 +197,7 @@ public class PropertyValueBuffer
             }
         }
         // [databind#562] since 2.18 : Respect @JsonAnySetter in @JsonCreator
-        if ((_anyParamSetter != null) && (_anyParamSetter.getParameterIndex() >= 0)) {
+        if (_anyParamSetter != null) {
             Object anySetterParameterObject = _anyParamSetter.createParameterObject();
             for (PropertyValue pv = _anyParamBuffered; pv != null; pv = pv.next) {
                 pv.setValue(anySetterParameterObject);
@@ -213,6 +219,17 @@ public class PropertyValueBuffer
 
     protected Object _findMissing(SettableBeanProperty prop) throws JsonMappingException
     {
+        // 08-Jun-2024: [databind#562] AnySetters are bit special
+        if (_anyParamSetter != null) {
+            if (prop.getCreatorIndex() == _anyParamSetter.getParameterIndex()) {
+                // Ok if anything buffered
+                if (_anyParamBuffered != null) {
+                    // ... will be assigned by caller later on, for now return null
+                    return null;
+                }
+            }
+        }
+
         // First: do we have injectable value?
         Object injectableValueId = prop.getInjectableValueId();
         if (injectableValueId != null) {

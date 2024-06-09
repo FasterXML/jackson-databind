@@ -76,11 +76,18 @@ public class PropertyValueBuffer
     protected Object _idValue;
 
     /**
-     * "Any setter" property; a Creator parameter (via {@code @JsonAnySetter})
+     * "Any setter" property bound to a Creator parameter (via {@code @JsonAnySetter})
      *
      * @since 2.18
      */
-    protected final SettableAnyProperty _anySetter;
+    protected final SettableAnyProperty _anyParamSetter;
+
+    /**
+     * If "Any-setter-via-Creator" exists, we will need to buffer values to feed it
+     *
+     * @since 2.18
+     */
+    protected PropertyValue _anyParamBuffered;
 
     /*
     /**********************************************************
@@ -92,7 +99,7 @@ public class PropertyValueBuffer
      * @since 2.18
      */
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
-            ObjectIdReader oir, SettableAnyProperty anySetter)
+            ObjectIdReader oir, SettableAnyProperty anyParamSetter)
     {
         _parser = p;
         _context = ctxt;
@@ -104,7 +111,7 @@ public class PropertyValueBuffer
         } else {
             _paramsSeenBig = new BitSet();
         }
-        _anySetter = anySetter;
+        _anyParamSetter = anyParamSetter;
     }
 
     @Deprecated // since 2.18
@@ -184,12 +191,12 @@ public class PropertyValueBuffer
             }
         }
         // [databind#562] since 2.18 : Respect @JsonAnySetter in @JsonCreator
-        if ((_anySetter != null) && (_anySetter.getParameterIndex() >= 0)) {
-            Object anySetterParameterObject = _anySetter.createParameterObject();
-            for (PropertyValue pv = this.buffered(); pv != null; pv = pv.next) {
+        if ((_anyParamSetter != null) && (_anyParamSetter.getParameterIndex() >= 0)) {
+            Object anySetterParameterObject = _anyParamSetter.createParameterObject();
+            for (PropertyValue pv = _anyParamBuffered; pv != null; pv = pv.next) {
                 pv.setValue(anySetterParameterObject);
             }
-            _creatorParameters[_anySetter.getParameterIndex()] = anySetterParameterObject;
+            _creatorParameters[_anyParamSetter.getParameterIndex()] = anySetterParameterObject;
         }
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             for (int ix = 0; ix < props.length; ++ix) {
@@ -335,7 +342,8 @@ public class PropertyValueBuffer
         _buffered = new PropertyValue.Map(_buffered, value, key);
     }
 
+    // @since 2.18
     public void bufferAnyParameterProperty(SettableAnyProperty prop, String propName, Object value) {
-        _buffered = new PropertyValue.AnyParameter(_buffered, value, prop, propName);
+        _anyParamBuffered = new PropertyValue.AnyParameter(_anyParamBuffered, value, prop, propName);
     }
 }

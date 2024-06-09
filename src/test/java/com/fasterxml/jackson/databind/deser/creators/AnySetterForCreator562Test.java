@@ -36,6 +36,22 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
         }
     }
 
+    static class POJO562WithField
+    {
+        String a;
+        Map<String,Object> stuff;
+
+        public String b;
+        
+        @JsonCreator
+        public POJO562WithField(@JsonProperty("a") String a,
+            @JsonAnySetter Map<String, Object> leftovers
+        ) {
+            this.a = a;
+            stuff = leftovers;
+        }
+    }
+
     static class PojoWithNodeAnySetter
     {
         String a;
@@ -91,10 +107,33 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
         assertEquals("value", pojo.a);
         assertEquals(expected, pojo.stuff);
 
+        // Should be fine to vary ordering too
+        pojo = MAPPER.readValue(a2q(
+                "{'b':42, 'a':'value', 'c': 111}"
+                ),
+                POJO562.class);
+
+        assertEquals("value", pojo.a);
+        assertEquals(expected, pojo.stuff);
+        
         // Should also initialize any-setter-Map even if no contents
         pojo = MAPPER.readValue(a2q("{'a':'value2'}"), POJO562.class);
         assertEquals("value2", pojo.a);
         assertEquals(new HashMap<>(), pojo.stuff);
+
+    }
+
+    // Creator and non-Creator props AND any-setter ought to be fine too
+    @Test
+    public void mapAnySetterViaCreatorAndField() throws Exception
+    {
+        POJO562WithField pojo = MAPPER.readValue(
+                a2q("{'a':'value', 'b':'xyz', 'c': 'abc'}"),
+                POJO562WithField.class);
+
+        assertEquals("value", pojo.a);
+        assertEquals("xyz", pojo.b);
+        assertEquals(Collections.singletonMap("c", "abc"), pojo.stuff);
     }
 
     @Test

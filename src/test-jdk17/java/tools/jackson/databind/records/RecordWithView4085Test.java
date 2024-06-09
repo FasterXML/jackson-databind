@@ -22,7 +22,7 @@ public class RecordWithView4085Test extends DatabindTestUtil
     public void testRecordWithView4085() throws Exception
     {
         final Record4085 input = new Record4085(1, 2);
-        final String EXP = a2q("{'total':1,'current':2}");
+        final String EXP = a2q("{'current':2,'total':1}");
         final ObjectWriter w = newJsonMapper().writer();
 
         // by default, all properties included, without view

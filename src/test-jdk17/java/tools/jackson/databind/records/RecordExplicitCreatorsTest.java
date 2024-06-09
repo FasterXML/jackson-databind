@@ -153,7 +153,7 @@ public class RecordExplicitCreatorsTest extends DatabindTestUtil
         } catch (DatabindException e) {
             verifyException(e, "Unrecognized property \"id\"");
             verifyException(e, "RecordWithTwoJsonPropertyWithoutJsonCreator");
-            verifyException(e, "2 known properties: \"the_id\", \"the_email\"");
+            verifyException(e, "2 known properties: \"the_email\", \"the_id\"");
         }
     }
 

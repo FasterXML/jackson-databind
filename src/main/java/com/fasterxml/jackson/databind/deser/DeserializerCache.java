@@ -42,7 +42,7 @@ public final class DeserializerCache
     /**
      * We will also cache some dynamically constructed deserializers;
      * specifically, ones that are expensive to construct.
-     * This currently means bean, Enum and container deserializers.
+     * This currently means POJO, Enum and Container deserializers.
      */
     protected final LookupCache<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
 
@@ -56,6 +56,9 @@ public final class DeserializerCache
 
     /**
      * We hold an explicit lock while creating deserializers to avoid creating duplicates.
+     * Guards {@link #_incompleteDeserializers}.
+     *
+     * @since 2.17
      */
     private final ReentrantLock _incompleteDeserializersLock = new ReentrantLock();
 
@@ -170,10 +173,9 @@ public final class DeserializerCache
             // If not, need to request factory to construct (or recycle)
             deser = _createAndCacheValueDeserializer(ctxt, factory, propertyType);
             if (deser == null) {
-                /* Should we let caller handle it? Let's have a helper method
-                 * decide it; can throw an exception, or return a valid
-                 * deserializer
-                 */
+                // Should we let caller handle it? Let's have a helper method
+                // decide it; can throw an exception, or return a valid
+                // deserializer
                 deser = _handleUnknownValueDeserializer(ctxt, propertyType);
             }
         }

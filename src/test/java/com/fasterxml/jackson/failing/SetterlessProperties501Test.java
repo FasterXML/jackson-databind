@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TestSetterlessProperties501 extends DatabindTestUtil {
+class SetterlessProperties501Test extends DatabindTestUtil {
     static class Poly {
         public int id;
 

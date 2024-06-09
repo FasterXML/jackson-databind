@@ -75,14 +75,32 @@ public class PropertyValueBuffer
      */
     protected Object _idValue;
 
+    /**
+     * "Any setter" property bound to a Creator parameter (via {@code @JsonAnySetter})
+     *
+     * @since 2.18
+     */
+    protected final SettableAnyProperty _anyParamSetter;
+
+    /**
+     * If "Any-setter-via-Creator" exists, we will need to buffer values to feed it,
+     * separate from regular, non-creator properties (see {@code _buffered}).
+     *
+     * @since 2.18
+     */
+    protected PropertyValue _anyParamBuffered;
+
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
+    /**
+     * @since 2.18
+     */
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
-            ObjectIdReader oir)
+            ObjectIdReader oir, SettableAnyProperty anyParamSetter)
     {
         _parser = p;
         _context = ctxt;
@@ -94,6 +112,19 @@ public class PropertyValueBuffer
         } else {
             _paramsSeenBig = new BitSet();
         }
+        // Only care about Creator-bound Any setters:
+        if ((anyParamSetter == null) || (anyParamSetter.getParameterIndex() < 0)) {
+            _anyParamSetter = null;
+        } else {
+            _anyParamSetter = anyParamSetter;
+        }
+    }
+
+    @Deprecated // since 2.18
+    public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
+            ObjectIdReader oir)
+    {
+        this(p, ctxt, paramCount, oir, null);
     }
 
     /**
@@ -145,7 +176,7 @@ public class PropertyValueBuffer
      * then whole JSON Object has been processed,
      */
     public Object[] getParameters(SettableBeanProperty[] props)
-        throws JsonMappingException
+        throws JsonMappingException, IOException
     {
         // quick check to see if anything else is needed
         if (_paramsNeeded > 0) {
@@ -165,7 +196,14 @@ public class PropertyValueBuffer
                 }
             }
         }
-
+        // [databind#562] since 2.18 : Respect @JsonAnySetter in @JsonCreator
+        if (_anyParamSetter != null) {
+            Object anySetterParameterObject = _anyParamSetter.createParameterObject();
+            for (PropertyValue pv = _anyParamBuffered; pv != null; pv = pv.next) {
+                pv.setValue(anySetterParameterObject);
+            }
+            _creatorParameters[_anyParamSetter.getParameterIndex()] = anySetterParameterObject;
+        }
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             for (int ix = 0; ix < props.length; ++ix) {
                 if (_creatorParameters[ix] == null) {
@@ -181,6 +219,17 @@ public class PropertyValueBuffer
 
     protected Object _findMissing(SettableBeanProperty prop) throws JsonMappingException
     {
+        // 08-Jun-2024: [databind#562] AnySetters are bit special
+        if (_anyParamSetter != null) {
+            if (prop.getCreatorIndex() == _anyParamSetter.getParameterIndex()) {
+                // Ok if anything buffered
+                if (_anyParamBuffered != null) {
+                    // ... will be assigned by caller later on, for now return null
+                    return null;
+                }
+            }
+        }
+
         // First: do we have injectable value?
         Object injectableValueId = prop.getInjectableValueId();
         if (injectableValueId != null) {
@@ -308,5 +357,10 @@ public class PropertyValueBuffer
 
     public void bufferMapProperty(Object key, Object value) {
         _buffered = new PropertyValue.Map(_buffered, value, key);
+    }
+
+    // @since 2.18
+    public void bufferAnyParameterProperty(SettableAnyProperty prop, String propName, Object value) {
+        _anyParamBuffered = new PropertyValue.AnyParameter(_anyParamBuffered, value, prop, propName);
     }
 }

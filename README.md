@@ -31,7 +31,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>2.16.0</jackson.version>
+  <jackson.version>2.17.1</jackson.version>
   ...
 </properties>
 
@@ -83,6 +83,8 @@ List is incomplete due to compatibility checker addition being done for Jackson 
 * 2.14: Android SDK 26+
 * 2.15: Android SDK 26+
 * 2.16: Android SDK 26+
+* 2.17: Android SDK 26+
+* 2.18: (planned) Android SDK 26+
 
 for information on Android SDK versions to Android Release names see [https://en.wikipedia.org/wiki/Android_version_history]
 

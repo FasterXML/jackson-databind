@@ -6,7 +6,7 @@ databind core component, version 2.x
 
 Author: Tatu Saloranta, tatu.saloranta@iki.fi
 
-VIP contributors (with partial listing below):
+Co-Authors (with only partial listings below):
 
 * Joo Hyuk Kim (JooHyukKim@github)
 * PJ Fanning (pjfanning@github)
@@ -150,6 +150,8 @@ Chris Cleveland:
 Benson Margulies:
   * Reported #467: Unwanted POJO's embedded in tree via serialization to tree
    (2.4.0)
+  * Reported #562: Allow `@JsonAnySetter` to flow through Creators
+   (2.18.0)
   * Reported #601: ClassCastException for a custom serializer for enum key in `EnumMap`
    (2.4.4)
   * Contributed 944: Failure to use custom deserializer for key deserializer
@@ -1742,6 +1744,10 @@ Stephane Bailliez (sbailliez@github)
    leads to `InvalidDefinitionException`: Multiple fields representing property
   (2.16.2)
 
+Guillaume Jardillier (Mugiwara84@github)
+ * Reported #4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
+  (2.16.3)
+
 Muhammad Khalikov (mukham12@github)
  * Contributed fix for #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
    implement `java.io.Serializable`
@@ -1776,6 +1782,11 @@ Oddbjørn Kvalsund (oddbjornkvalsund@github)
 
 Ulf Dreyer (u3r@github)
  * Reported #4085: `@JsonView` does not work on class-level for records
+  (2.18.0)
+
+Mark Herkrath (herkrath@github)
+ * Reported #4356: `BeanDeserializerModifier::updateBuilder()` doesn't work for
+   beans with Creator methods
   (2.18.0)
 
 David Moten (davidmoten@github)

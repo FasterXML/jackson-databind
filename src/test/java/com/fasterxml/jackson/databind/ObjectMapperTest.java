@@ -401,6 +401,7 @@ public class ObjectMapperTest
     }
 
     // For [databind#703], [databind#978]
+    @SuppressWarnings("deprecation")
     @Test
     public void testNonSerializabilityOfObject()
     {
@@ -420,6 +421,7 @@ public class ObjectMapperTest
     }
 
     // for [databind#756]
+    @SuppressWarnings("deprecation")
     @Test
     public void testEmptyBeanSerializability()
     {
@@ -432,6 +434,7 @@ public class ObjectMapperTest
     }
 
     // for [databind#2749]: just to check there's no NPE; method really not useful
+    @SuppressWarnings("deprecation")
     @Test
     public void testCanDeserialize()
     {

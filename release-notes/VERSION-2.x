@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
+#562: Allow `@JsonAnySetter` to flow through Creators
+ (reported by Benson M)
+ (fix by Joo-Hyuk K)
 #806: Problem with `NamingStrategy`, creator methods with implicit names
 #2977: Incompatible `FAIL_ON_MISSING_PRIMITIVE_PROPERTIES` and
   field level `@JsonProperty`
@@ -18,6 +21,9 @@ Project: jackson-databind
 #4119: Exception when deserialization uses a record with a constructor
   property with `access=READ_ONLY`
  (reported by @Mochis)
+#4356: `BeanDeserializerModifier::updateBuilder()` doesn't work for
+  beans with Creator methods
+ (reported by Mark H)
 #4452: `@JsonProperty` not serializing field names properly
   on `@JsonCreator` in Record
  (reported by @Incara)
@@ -40,6 +46,12 @@ Project: jackson-databind
 #4545: Unexpected deserialization behavior with `@JsonCreator`,
   `@JsonProperty` and javac `-parameters`
  (reported by Alexandre J)
+#4570: Deprecate `ObjectMapper.canDeserialize()`/`ObjectMapper.canSerialize()`
+
+2.17.2 (not yet released)
+
+#4561: Issues using jackson-databind 2.17.1 with Reactor
+ (reported by @wdallastella)
 
 2.17.1 (04-May-2024)
 
@@ -118,6 +130,12 @@ Project: jackson-databind
 #4416: Deprecate `JsonNode.asText(String)`
  (suggested by András P)
 - JUnit5 upgraded to 5.10.1
+
+2.16.3 (not yet released)
+
+#4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
+ (reported by Guillaume J)
+ (fix contributed by Joo-Hyuk K)
 
 2.16.2 (09-Mar-2024)
 

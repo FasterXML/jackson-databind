@@ -508,7 +508,7 @@ public abstract class BasicDeserializerFactory
     {
         final int paramCount = candidate.paramCount();
         SettableBeanProperty[] properties = new SettableBeanProperty[paramCount];
-        boolean anySetterFound = false;
+        int anySetterIx = -1;
 
         for (int i = 0; i < paramCount; ++i) {
             JacksonInject.Value injectId = candidate.injection(i);
@@ -516,10 +516,12 @@ public abstract class BasicDeserializerFactory
             PropertyName name = candidate.paramName(i);
             boolean isAnySetter = Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(param));
             if (isAnySetter) {
-                if (anySetterFound) {
-                    ctxt.reportBadTypeDefinition(beanDesc, "More than one 'any-setter' specified");
+                if (anySetterIx >= 0) {
+                    ctxt.reportBadTypeDefinition(beanDesc,
+                            "More than one 'any-setter' specified (parameter #%d vs #%d)",
+                            anySetterIx, i);
                 } else {
-                    anySetterFound = true;
+                    anySetterIx = i;
                 }
             } else if (name == null) {
                 // 21-Sep-2017, tatu: Looks like we want to block accidental use of Unwrapped,

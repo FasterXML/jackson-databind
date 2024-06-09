@@ -513,6 +513,7 @@ public abstract class SettableAnyProperty
                     _valueTypeDeserializer, _valueInstantiator, _parameterIndex);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         protected void _set(Object instance, Object propName, Object value)
         {

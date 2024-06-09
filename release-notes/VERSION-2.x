@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
+#562: Allow `@JsonAnySetter` to flow through Creators
+ (reported by Benson M)
+ (fix by Joo-Hyuk K)
 #806: Problem with `NamingStrategy`, creator methods with implicit names
 #2977: Incompatible `FAIL_ON_MISSING_PRIMITIVE_PROPERTIES` and
   field level `@JsonProperty`

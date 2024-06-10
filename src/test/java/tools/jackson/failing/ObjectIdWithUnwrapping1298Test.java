@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Test case for https://github.com/FasterXML/jackson-databind/issues/1298
-class TestObjectIdWithUnwrapping1298 extends DatabindTestUtil {
+class ObjectIdWithUnwrapping1298Test extends DatabindTestUtil {
     static Long nextId = 1L;
 
     public static final class ListOfParents {
@@ -49,7 +49,7 @@ class TestObjectIdWithUnwrapping1298 extends DatabindTestUtil {
 
         public Child(@JsonProperty("name") String name) {
             this.name = name;
-            this.id = TestObjectIdWithUnwrapping1298.nextId++;
+            this.id = ObjectIdWithUnwrapping1298Test.nextId++;
         }
     }
 

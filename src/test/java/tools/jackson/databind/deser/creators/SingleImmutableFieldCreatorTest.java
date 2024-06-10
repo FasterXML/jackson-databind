@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser.bean.creators;
+package tools.jackson.databind.deser.creators;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -82,9 +82,9 @@ public class SingleImmutableFieldCreatorTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();

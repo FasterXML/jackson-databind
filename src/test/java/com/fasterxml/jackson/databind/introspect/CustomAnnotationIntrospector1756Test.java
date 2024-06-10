@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.introspect;
 import java.io.IOException;
 import java.lang.annotation.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
@@ -10,9 +12,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("serial")
-public class CustomAnnotationIntrospector1756Test extends BaseMapTest
+public class CustomAnnotationIntrospector1756Test extends DatabindTestUtil
 {
     @Target({ElementType.PARAMETER, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
@@ -109,6 +114,7 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testIssue1756() throws Exception
     {
         Issue1756Module m = new Issue1756Module();

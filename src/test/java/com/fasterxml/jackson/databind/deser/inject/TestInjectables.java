@@ -1,9 +1,16 @@
 package com.fasterxml.jackson.databind.deser.inject;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
-public class TestInjectables extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class TestInjectables
 {
     static class InjectedBean
     {
@@ -53,6 +60,7 @@ public class TestInjectables extends BaseMapTest
         public int value;
     }
 
+    // [databind#471]
     static class Bean471 {
 
         protected final Object constructorInjected;
@@ -92,6 +100,7 @@ public class TestInjectables extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimple() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
@@ -107,6 +116,7 @@ public class TestInjectables extends BaseMapTest
         assertEquals(37L, bean.third);
     }
 
+    @Test
     public void testWithCtors() throws Exception
     {
         CtorBean bean = MAPPER.readerFor(CtorBean.class)
@@ -117,6 +127,7 @@ public class TestInjectables extends BaseMapTest
         assertEquals("Bubba", bean.name);
     }
 
+    @Test
     public void testTwoInjectablesViaCreator() throws Exception
     {
         CtorBean2 bean = MAPPER.readerFor(CtorBean2.class)
@@ -129,6 +140,7 @@ public class TestInjectables extends BaseMapTest
     }
 
     // [databind#471]
+    @Test
     public void testIssue471() throws Exception
     {
         final Object constructorInjected = "constructorInjected";
@@ -159,6 +171,7 @@ public class TestInjectables extends BaseMapTest
     }
 
     // [databind#77]
+    @Test
     public void testTransientField() throws Exception
     {
         TransientBean bean = MAPPER.readerFor(TransientBean.class)

@@ -1,7 +1,14 @@
 package com.fasterxml.jackson.databind;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
 // Tests for verifying [databind#3572]
-public class BoundsChecksForInputTest extends BaseMapTest
+public class BoundsChecksForInputTest
 {
     interface ByteBackedCreation {
         void call(byte[] data, int offset, int len) throws Exception;
@@ -20,6 +27,7 @@ public class BoundsChecksForInputTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testBoundsWithByteArrayInput() throws Exception {
         _testBoundsWithByteArrayInput(
                 (data,offset,len)->MAPPER.createParser(data, offset, len));
@@ -80,6 +88,7 @@ public class BoundsChecksForInputTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testBoundsWithCharArrayInput() throws Exception {
         testBoundsWithCharArrayInput(
                 (data,offset,len)->MAPPER.createParser(data, offset, len));

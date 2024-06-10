@@ -2,13 +2,17 @@ package com.fasterxml.jackson.failing;
 
 import java.util.Objects;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#2572]: "empty" setter, POJO with no 0-arg constructor
-public class AsEmptyPOJONoDefaultCtor2572Test extends BaseMapTest
-{
+class AsEmptyPOJONoDefaultCtor2572Test extends DatabindTestUtil {
     static class Outer {
         @JsonProperty("inner")
         private final Inner inner;
@@ -29,10 +33,13 @@ public class AsEmptyPOJONoDefaultCtor2572Test extends BaseMapTest
         }
     }
 
-    public void testJackson() throws Exception {
-        ObjectMapper mapper = new ObjectMapper()
-                .setDefaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.AS_EMPTY));
+    // [databind#2572]
+    @Test
+    void emptyForTypeThatCannotBeInstantiated() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.AS_EMPTY))
+                .build();
         final String json = mapper.writeValueAsString(new Outer(new Inner("inner")));
-        mapper.readValue(json, Outer.class);
+        assertNotNull(mapper.readValue(json, Outer.class));
     }
 }

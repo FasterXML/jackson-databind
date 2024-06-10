@@ -2,15 +2,18 @@ package com.fasterxml.jackson.databind.util;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClassResolver;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class EnumValuesTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+public class EnumValuesTest extends DatabindTestUtil
 {
     enum ABC {
         A("A"),
@@ -27,6 +30,7 @@ public class EnumValuesTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testConstructFromName() {
         SerializationConfig cfg = MAPPER.getSerializationConfig()
                 .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
@@ -39,6 +43,7 @@ public class EnumValuesTest extends BaseMapTest
         assertEquals(3, values.internalMap().size());
     }
 
+    @Test
     public void testConstructWithToString() {
         SerializationConfig cfg = MAPPER.getSerializationConfig()
                 .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
@@ -51,6 +56,7 @@ public class EnumValuesTest extends BaseMapTest
         assertEquals(3, values.internalMap().size());
     }
 
+    @Test
     public void testEnumResolverNew()
     {
         AnnotatedClass annotatedClass = resolve(MAPPER, ABC.class);
@@ -67,6 +73,7 @@ public class EnumValuesTest extends BaseMapTest
     }
 
     // [databind#3053]
+    @Test
     public void testConstructFromNameLowerCased() {
         SerializationConfig cfg = MAPPER.getSerializationConfig()
             .with(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);

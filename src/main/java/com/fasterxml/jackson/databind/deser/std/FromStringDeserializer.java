@@ -12,6 +12,7 @@ import java.util.IllformedLocaleException;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.VersionUtil;
@@ -255,7 +256,7 @@ _coercedTypeDesc());
         if (act == CoercionAction.AsEmpty) {
             return getEmptyValue(ctxt);
         }
-        // 09-Jun-2020, tatu: semantics for `TryConvert` are bit interesting due to
+        // 09-Jun-2020, tatu: semantics for `TryConvert` are a bit interesting due to
         //    historical reasons
         return _deserializeFromEmptyStringDefault(ctxt);
     }
@@ -329,10 +330,20 @@ _coercedTypeDesc());
                 return ctxt.getTypeFactory().constructFromCanonical(value);
             case STD_CURRENCY:
                 // will throw IAE if unknown:
-                return Currency.getInstance(value);
+                try {
+                    return Currency.getInstance(value);
+                } catch (IllegalArgumentException e) {
+                    // Looks like there is no more information
+                    return ctxt.handleWeirdStringValue(_valueClass, value,
+                            "Unrecognized currency");
+                }
             case STD_PATTERN:
-                // will throw IAE (or its subclass) if malformed
-                return Pattern.compile(value);
+                try {
+                    return Pattern.compile(value);
+                } catch (PatternSyntaxException e) {
+                    return ctxt.handleWeirdStringValue(_valueClass, value,
+                            "Invalid Pattern, problem: "+e.getDescription());
+                }
             case STD_LOCALE:
                 return _deserializeLocale(value, ctxt);
             case STD_CHARSET:
@@ -395,7 +406,7 @@ _coercedTypeDesc());
         // @since 2.13.1
         @Override
         protected boolean _shouldTrim() {
-            // 04-Dec-2021, tatu: For [databund#3290]
+            // 04-Dec-2021, tatu: For [databind#3290]
             return (_kind != STD_PATTERN);
         }
 

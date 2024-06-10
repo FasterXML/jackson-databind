@@ -1,18 +1,27 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.databind.BaseTest;
+import org.junit.jupiter.api.Test;
 
-public class ExceptionUtilTest extends BaseTest {
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class ExceptionUtilTest extends DatabindTestUtil
+{
+    @Test
     public void testNoClassDefError() {
         //next line should be a no-op
         ExceptionUtil.rethrowIfFatal(new NoClassDefFoundError("fake"));
     }
 
+    @Test
     public void testExceptionInInitializerError() {
         //next line should be a no-op
         ExceptionUtil.rethrowIfFatal(new ExceptionInInitializerError("fake"));
     }
 
+    @Test
     public void testOutOfMemoryError() {
         try {
             ExceptionUtil.rethrowIfFatal(new OutOfMemoryError("fake"));
@@ -22,6 +31,7 @@ public class ExceptionUtilTest extends BaseTest {
         }
     }
 
+    @Test
     public void testVerifyError() {
         try {
             ExceptionUtil.rethrowIfFatal(new VerifyError("fake"));

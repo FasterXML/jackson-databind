@@ -2,15 +2,20 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite verifies that static fields and methods are
  * ignored wrt serialization
  */
 public class TestStatics
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -44,6 +49,7 @@ public class TestStatics
     /**********************************************************
      */
 
+    @Test
     public void testStaticFields() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -52,6 +58,7 @@ public class TestStatics
         assertEquals(Integer.valueOf(1), result.get("x"));
     }
 
+    @Test
     public void testStaticMethods() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

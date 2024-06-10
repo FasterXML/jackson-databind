@@ -2,12 +2,18 @@ package com.fasterxml.jackson.databind.deser.merge;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.*;
 
-public class MapMergeTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class MapMergeTest
 {
     static class MergedMap
     {
@@ -55,6 +61,7 @@ public class MapMergeTest extends BaseMapTest
             .setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
     ;
 
+    @Test
     public void testShallowMapMerging() throws Exception
     {
         final String JSON = a2q("{'values':{'c':'y','d':null}}");
@@ -71,6 +78,7 @@ public class MapMergeTest extends BaseMapTest
         assertEquals("x", v.values.get("a"));
     }
 
+    @Test
     public void testShallowNonStringMerging() throws Exception
     {
         final String JSON = a2q("{'values':{'72':'b','666':null}}");
@@ -87,6 +95,7 @@ public class MapMergeTest extends BaseMapTest
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testDeeperMapMerging() throws Exception
     {
         // first, create base Map
@@ -118,6 +127,7 @@ public class MapMergeTest extends BaseMapTest
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testMapMergingWithArray() throws Exception
     {
         // first, create base Map
@@ -151,6 +161,7 @@ public class MapMergeTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testDefaultDeepMapMerge() throws Exception
     {
         // First: deep merge should be enabled by default
@@ -164,6 +175,7 @@ public class MapMergeTest extends BaseMapTest
         assertEquals(Arrays.asList("a", "b"), resultList);
     }
 
+    @Test
     public void testDisabledMergeViaGlobal() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
@@ -181,6 +193,7 @@ public class MapMergeTest extends BaseMapTest
         assertEquals(Arrays.asList("b"), resultList);
     }
 
+    @Test
     public void testDisabledMergeByType() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();

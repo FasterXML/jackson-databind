@@ -79,7 +79,7 @@ public abstract class JsonNode
          * Mode in which all incompatible node types may be replaced, including
          * Array and Object nodes where necessary.
          */
-        ALL;
+        ALL
     }
 
     /*
@@ -517,8 +517,7 @@ public abstract class JsonNode
      * literals 'true' and 'false').
      * For other types, always returns false.
      *
-     * @return Textual value this node contains, iff it is a textual
-     *   json node (comes from JSON String value entry)
+     * @return Boolean value this node contains, if any; otherwise always <code>false</code>
      */
     public boolean booleanValue() { return false; }
 
@@ -631,11 +630,15 @@ public abstract class JsonNode
     public abstract String asText();
 
     /**
-     * Method similar to {@link #asText()}, except that it will return
-     * <code>defaultValue</code> in cases where null value would be returned;
-     * either for missing nodes (trying to access missing property, or element
-     * at invalid item for array) or explicit nulls.
+     * Returns the text value of this node or the provided {@code defaultValue} if this node
+     * does not have a text value. Useful for nodes that are {@link MissingNode} or
+     * {@link com.fasterxml.jackson.databind.node.NullNode}, ensuring a default value is returned instead of null or missing indicators.
      *
+     *<p>
+     * NOTE: This was deprecated in 2.17.0, but as discussed through [databind#4471], was un-deprecated in 2.17.1.
+     *
+     * @param defaultValue The default value to return if this node's text value is absent.
+     * @return The text value of this node, or defaultValue if the text value is absent.
      * @since 2.4
      */
     public String asText(String defaultValue) {
@@ -1044,9 +1047,12 @@ public abstract class JsonNode
      */
 
     /**
-     * Method for finding a JSON Object field with specified name in this
+     * Method for finding the first JSON Object field with specified name in this
      * node or its child nodes, and returning value it has.
      * If no matching field is found in this node or its descendants, returns null.
+     *<p>
+     * Note that traversal is done in document order (that is, order in which
+     * nodes are iterated if using {@link JsonNode#elements()})
      *
      * @param fieldName Name of field to look for
      *
@@ -1055,8 +1061,10 @@ public abstract class JsonNode
     public abstract JsonNode findValue(String fieldName);
 
     /**
-     * Method for finding JSON Object fields with specified name, and returning
-     * found ones as a List. Note that sub-tree search ends if a field is found,
+     * Method for finding JSON Object fields with specified name -- both immediate
+     * child values and descendants -- and returning
+     * found ones as a {@link List}.
+     * Note that sub-tree search ends when matching field is found,
      * so possible children of result nodes are <b>not</b> included.
      * If no matching fields are found in this node or its descendants, returns
      * an empty List.

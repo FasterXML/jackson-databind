@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -12,7 +10,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -245,13 +242,6 @@ public class BasicBeanDescription extends BeanDescription
                 : _propCollector.getJsonKeyAccessor();
     }
 
-    @Override
-    @Deprecated // since 2.9
-    public AnnotatedMethod findJsonValueMethod() {
-        return (_propCollector == null) ? null
-                : _propCollector.getJsonValueMethod();
-    }
-
     @Override // since 2.9
     public AnnotatedMember findJsonValueAccessor() {
         return (_propCollector == null) ? null
@@ -276,20 +266,6 @@ public class BasicBeanDescription extends BeanDescription
     @Override
     public Annotations getClassAnnotations() {
         return _classInfo.getAnnotations();
-    }
-
-    @Override
-    @Deprecated // since 2.7
-    public TypeBindings bindingsForBeanType() {
-        return _type.getBindings();
-    }
-
-    @Override
-    @Deprecated // since 2.8
-    public JavaType resolveType(java.lang.reflect.Type jdkType) {
-        // 06-Sep-2020, tatu: Careful wrt [databind#2846][databind#2821],
-        //     call new method added in 2.12
-        return _config.getTypeFactory().resolveMemberType(jdkType, _type.getBindings());
     }
 
     @Override
@@ -365,6 +341,14 @@ anyField.getName()));
     }
 
     @Override
+    public PotentialCreators getPotentialCreators() {
+        if (_propCollector == null) {
+            return new PotentialCreators();
+        }
+        return _propCollector.getPotentialCreators();
+    }
+    
+    @Override
     public Object instantiateBean(boolean fixAccess) {
         AnnotatedConstructor ac = _classInfo.getDefaultConstructor();
         if (ac == null) {
@@ -405,30 +389,13 @@ anyField.getName()));
     /**********************************************************
      */
 
-    @Override
-    public JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue)
+    @Override // since 2.17
+    public JsonFormat.Value findExpectedFormat()
     {
-        // 15-Apr-2016, tatu: Let's check both per-type defaults and annotations; per-type
-        //   defaults having higher precedence, so start with that
-        if (_annotationIntrospector != null) {
-            JsonFormat.Value v = _annotationIntrospector.findFormat(_classInfo);
-            if (v != null) {
-                if (defValue == null) {
-                    defValue = v;
-                } else {
-                    defValue = defValue.withOverrides(v);
-                }
-            }
+        if (_propCollector == null) {
+            return JsonFormat.Value.empty();
         }
-        JsonFormat.Value v = _config.getDefaultPropertyFormat(_classInfo.getRawType());
-        if (v != null) {
-            if (defValue == null) {
-                defValue = v;
-            } else {
-                defValue = defValue.withOverrides(v);
-            }
-        }
-        return defValue;
+        return _propCollector.getFormatOverrides();
     }
 
     @Override // since 2.9
@@ -545,21 +512,6 @@ anyField.getName()));
         return result;
     }
 
-    @Deprecated // since 2.9
-    @Override
-    public Map<String,AnnotatedMember> findBackReferenceProperties()
-    {
-        List<BeanPropertyDefinition> props = findBackReferences();
-        if (props == null) {
-            return null;
-        }
-        Map<String,AnnotatedMember> result = new HashMap<>();
-        for (BeanPropertyDefinition prop : props) {
-            result.put(prop.getName(), prop.getMutator());
-        }
-        return result;
-    }
-
     /*
     /**********************************************************
     /* Introspection for deserialization, factories
@@ -611,45 +563,6 @@ anyField.getName()));
             return Collections.emptyList();
         }
         return result;
-    }
-
-    @Override
-    @Deprecated // since 2.13
-    public Constructor<?> findSingleArgConstructor(Class<?>... argTypes)
-    {
-        for (AnnotatedConstructor ac : _classInfo.getConstructors()) {
-            // This list is already filtered to only include accessible
-            if (ac.getParameterCount() == 1) {
-                Class<?> actArg = ac.getRawParameterType(0);
-                for (Class<?> expArg : argTypes) {
-                    if (expArg == actArg) {
-                        return ac.getAnnotated();
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
-    @Deprecated // since 2.13
-    public Method findFactoryMethod(Class<?>... expArgTypes)
-    {
-        // So, of all single-arg static methods:
-        for (AnnotatedMethod am : _classInfo.getFactoryMethods()) {
-            // 24-Oct-2016, tatu: Better ensure it only takes 1 arg, no matter what
-            if (isFactoryMethod(am) && am.getParameterCount() == 1) {
-                // And must take one of expected arg types (or supertype)
-                Class<?> actualArgType = am.getRawParameterType(0);
-                for (Class<?> expArgType : expArgTypes) {
-                    // And one that matches what we would pass in
-                    if (actualArgType.isAssignableFrom(expArgType)) {
-                        return am.getAnnotated();
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     protected boolean isFactoryMethod(AnnotatedMethod am)
@@ -727,22 +640,6 @@ anyField.getName()));
         return null;
     }
 
-    /**
-     * @deprecated since 2.8
-     */
-    @Deprecated // since 2.8, not used at least since 2.7
-    protected PropertyName _findCreatorPropertyName(AnnotatedParameter param)
-    {
-        PropertyName name = _annotationIntrospector.findNameForDeserialization(param);
-        if (name == null || name.isEmpty()) {
-            String str = _annotationIntrospector.findImplicitPropertyName(param);
-            if (str != null && !str.isEmpty()) {
-                name = PropertyName.construct(str);
-            }
-        }
-        return name;
-    }
-
     /*
     /**********************************************************
     /* Introspection for deserialization, other
@@ -775,44 +672,6 @@ anyField.getName()));
     public String findClassDescription() {
         return (_annotationIntrospector == null) ?
                 null : _annotationIntrospector.findClassDescription(_classInfo);
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods for field introspection
-    /**********************************************************
-     */
-
-    /**
-     * @param ignoredProperties (optional) names of properties to ignore;
-     *   any fields that would be recognized as one of these properties
-     *   is ignored.
-     * @param forSerialization If true, will collect serializable property
-     *    fields; if false, deserializable
-     *
-     * @return Ordered Map with logical property name as key, and
-     *    matching field as value.
-     *
-     * @deprecated Since 2.7.2, does not seem to be used?
-     */
-    @Deprecated
-    public LinkedHashMap<String,AnnotatedField> _findPropertyFields(
-            Collection<String> ignoredProperties, boolean forSerialization)
-    {
-        LinkedHashMap<String,AnnotatedField> results = new LinkedHashMap<String,AnnotatedField>();
-        for (BeanPropertyDefinition property : _properties()) {
-            AnnotatedField f = property.getField();
-            if (f != null) {
-                String name = property.getName();
-                if (ignoredProperties != null) {
-                    if (ignoredProperties.contains(name)) {
-                        continue;
-                    }
-                }
-                results.put(name, f);
-            }
-        }
-        return results;
     }
 
     /*

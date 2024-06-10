@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.objectid;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -7,11 +9,14 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test to verify handling of Object Id deserialization
  */
-public class TestObjectIdSerialization extends BaseMapTest
+public class TestObjectIdSerialization extends DatabindTestUtil
 {
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
     static class Identifiable
@@ -188,8 +193,9 @@ public class TestObjectIdSerialization extends BaseMapTest
 
     private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"next\":1,\"value\":13}";
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleSerializationClass() throws Exception
     {
         Identifiable src = new Identifiable(13);
@@ -208,6 +214,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     // Bit more complex, due to extra wrapping etc:
     private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"next\":{\"node\":1},\"value\":7}}";
 
+    @Test
     public void testSimpleSerializationProperty() throws Exception
     {
         IdWrapper src = new IdWrapper(7);
@@ -223,6 +230,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     }
 
     // [databind#370]
+    @Test
     public void testEmptyObjectWithId() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
@@ -230,6 +238,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         assertEquals(a2q("{'@id':1}"), json);
     }
 
+    @Test
     public void testSerializeWithOpaqueStringId() throws Exception
     {
         StringIdentifiable ob1 = new StringIdentifiable(12);
@@ -266,6 +275,7 @@ public class TestObjectIdSerialization extends BaseMapTest
 
     private final static String EXP_CUSTOM_PROP = "{\"customId\":123,\"next\":123,\"value\":-19}";
     // Test for verifying that custom
+    @Test
     public void testCustomPropertyForClass() throws Exception
     {
         IdentifiableWithProp src = new IdentifiableWithProp(123, -19);
@@ -283,6 +293,7 @@ public class TestObjectIdSerialization extends BaseMapTest
 
     private final static String EXP_CUSTOM_PROP_VIA_REF = "{\"node\":{\"id\":123,\"next\":{\"node\":123},\"value\":7}}";
     // Test for verifying that custom
+    @Test
     public void testCustomPropertyViaProperty() throws Exception
     {
         IdWrapperCustom src = new IdWrapperCustom(123, 7);
@@ -296,12 +307,14 @@ public class TestObjectIdSerialization extends BaseMapTest
         assertEquals(EXP_CUSTOM_PROP_VIA_REF, json);
     }
 
+    @Test
     public void testAlwaysAsId() throws Exception
     {
         String json = MAPPER.writeValueAsString(new AlwaysContainer());
         assertEquals("{\"a\":1,\"b\":2}", json);
     }
 
+    @Test
     public void testAlwaysIdForTree() throws Exception
     {
         TreeNode root = new TreeNode(null, 1, "root");
@@ -316,6 +329,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     }
 
     //for [databind#1150]
+    @Test
     public void testNullStringPropertyId() throws Exception
     {
         IdentifiableStringId value = MAPPER.readValue
@@ -330,6 +344,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     /*****************************************************
      */
 
+    @Test
     public void testInvalidProp() throws Exception
     {
         try {

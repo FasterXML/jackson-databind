@@ -1,16 +1,18 @@
 package com.fasterxml.jackson.databind.jsontype.deftyping;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestDefaultWithCreators
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static abstract class Job
     {
@@ -65,6 +67,7 @@ public class TestDefaultWithCreators
     /**********************************************************
      */
 
+    @Test
     public void testWithCreators() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
@@ -84,6 +87,7 @@ public class TestDefaultWithCreators
     }
 
     // [databind#1385]
+    @Test
     public void testWithCreatorAndJsonValue() throws Exception
     {
         final byte[] BYTES = new byte[] { 1, 2, 3, 4, 5 };
@@ -98,6 +102,6 @@ public class TestDefaultWithCreators
         assertNotNull(result.value);
         assertEquals(Bean1385.class, result.value.getClass());
         Bean1385 b = (Bean1385) result.value;
-        Assert.assertArrayEquals(BYTES, b.raw);
+        assertArrayEquals(BYTES, b.raw);
     }
  }

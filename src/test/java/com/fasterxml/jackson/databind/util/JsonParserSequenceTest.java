@@ -1,19 +1,23 @@
 package com.fasterxml.jackson.databind.util;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
-import com.fasterxml.jackson.databind.BaseMapTest;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class JsonParserSequenceTest extends BaseMapTest {
-
-    private final ObjectMapper MAPPER = objectMapper();
+public class JsonParserSequenceTest extends DatabindTestUtil
+{
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /**
      * Verifies fix for [core#372]
      */
     @SuppressWarnings("resource")
+    @Test
     public void testJsonParserSequenceOverridesSkipChildren() throws Exception
     {
         // Create parser from TokenBuffer containing an incomplete JSON object

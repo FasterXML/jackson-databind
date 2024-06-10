@@ -3,14 +3,20 @@ package com.fasterxml.jackson.databind.jsontype.deftyping;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonTypeResolver;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class DefaultTypeResolverForLong2753Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class DefaultTypeResolverForLong2753Test extends DatabindTestUtil
 {
     static class Data {
         private Long key;
@@ -35,6 +41,7 @@ public class DefaultTypeResolverForLong2753Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testDefaultTypingWithLong() throws Exception
     {
         Data data = new Data(1L);

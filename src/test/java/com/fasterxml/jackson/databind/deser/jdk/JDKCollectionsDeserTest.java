@@ -2,17 +2,24 @@ package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
  * Tests for special collection/map types via `java.util.Collections`
  */
-public class JDKCollectionsDeserTest extends BaseMapTest
+public class JDKCollectionsDeserTest
 {
     static class XBean {
         public int x;
@@ -30,6 +37,7 @@ public class JDKCollectionsDeserTest extends BaseMapTest
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     // And then a round-trip test for singleton collections
+    @Test
     public void testSingletonCollections() throws Exception
     {
         final TypeReference<List<XBean>> xbeanListType = new TypeReference<List<XBean>>() { };
@@ -48,6 +56,7 @@ public class JDKCollectionsDeserTest extends BaseMapTest
     }
 
     // [databind#1868]: Verify class name serialized as is
+    @Test
     public void testUnmodifiableSet() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -63,5 +72,18 @@ public class JDKCollectionsDeserTest extends BaseMapTest
         Set<?> result = mapper.readValue(json, Set.class);
         assertNotNull(result);
         assertEquals(1, result.size());
+    }
+
+    // [databind#4262]: Handle problem of `null`s for `TreeSet`
+    @Test
+    public void testNullsWithTreeSet() throws Exception
+    {
+        try {
+            MAPPER.readValue("[ \"acb\", null, 123 ]", TreeSet.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "`java.util.Collection` of type ");
+            verifyException(e, " does not accept `null` values");
+        }
     }
 }

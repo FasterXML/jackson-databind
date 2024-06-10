@@ -1,29 +1,41 @@
 package com.fasterxml.jackson.failing;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class NoTypeInfo1654Test extends BaseMapTest
-{
-    // [databind#1654]
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class NoTypeInfo1654Test extends DatabindTestUtil {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     static class Value1654 {
         public int x;
 
-        protected Value1654() { }
-        public Value1654(int x) { this.x = x; }
+        protected Value1654() {
+        }
+
+        public Value1654(int x) {
+            this.x = x;
+        }
     }
 
     static class Value1654TypedContainer {
         public List<Value1654> values;
 
-        protected Value1654TypedContainer() { }
+        protected Value1654TypedContainer() {
+        }
+
         public Value1654TypedContainer(Value1654... v) {
             values = Arrays.asList(v);
         }
@@ -34,7 +46,9 @@ public class NoTypeInfo1654Test extends BaseMapTest
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public List<Value1654> values;
 
-        protected Value1654UntypedContainer() { }
+        protected Value1654UntypedContainer() {
+        }
+
         public Value1654UntypedContainer(Value1654... v) {
             values = Arrays.asList(v);
         }
@@ -48,17 +62,11 @@ public class NoTypeInfo1654Test extends BaseMapTest
         }
     }
 
-    /*
-    /**********************************************************
-    /* Test methods
-    /**********************************************************
-     */
-
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1654]
-    public void testNoTypeElementOverride() throws Exception
-    {
+    @Test
+    void noTypeElementOverride() throws Exception {
         // egular typed case
         String json = MAPPER.writeValueAsString(new Value1654TypedContainer(
                 new Value1654(1),
@@ -71,8 +79,8 @@ public class NoTypeInfo1654Test extends BaseMapTest
     }
 
     // [databind#1654]
-    public void testNoTypeInfoOverrideSer() throws Exception
-    {
+    @Test
+    void noTypeInfoOverrideSer() throws Exception {
         Value1654UntypedContainer cont = new Value1654UntypedContainer(
                 new Value1654(3),
                 new Value1654(7)
@@ -82,12 +90,12 @@ public class NoTypeInfo1654Test extends BaseMapTest
     }
 
     // [databind#1654]
-    public void testNoTypeInfoOverrideDeser() throws Exception
-    {
+    @Test
+    void noTypeInfoOverrideDeser() throws Exception {
         // and then actual failing case
         final String noTypeJson = a2q(
                 "{'values':[{'x':3},{'x': 7}] }"
-                );
+        );
         Value1654UntypedContainer unResult = MAPPER.readValue(noTypeJson, Value1654UntypedContainer.class);
         assertEquals(2, unResult.values.size());
         assertEquals(7, unResult.values.get(1).x);

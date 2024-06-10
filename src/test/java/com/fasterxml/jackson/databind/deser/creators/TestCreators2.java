@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -13,7 +15,12 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 
-public class TestCreators2 extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
+public class TestCreators2
 {
     static class HashTest
     {
@@ -188,6 +195,7 @@ public class TestCreators2 extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testExceptionFromConstructor() throws Exception
     {
         try {
@@ -208,6 +216,7 @@ public class TestCreators2 extends BaseMapTest
         }
     }
 
+    @Test
     public void testSimpleConstructor() throws Exception
     {
         HashTest test = MAPPER.readValue("{\"type\":\"custom\",\"bytes\":\"abc\" }", HashTest.class);
@@ -215,6 +224,7 @@ public class TestCreators2 extends BaseMapTest
         assertEquals("abc", new String(test.bytes, "UTF-8"));
     }
 
+    @Test
     public void testMissingPrimitives() throws Exception
     {
         Primitives p = MAPPER.readValue("{}", Primitives.class);
@@ -223,6 +233,7 @@ public class TestCreators2 extends BaseMapTest
         assertEquals(0.0, p.d);
     }
 
+    @Test
     public void testJackson431() throws Exception
     {
         final Test431Container foo = MAPPER.readValue(
@@ -236,6 +247,7 @@ public class TestCreators2 extends BaseMapTest
     }
 
     // Catch and re-throw exceptions that Creator methods throw
+    @Test
     public void testJackson438() throws Exception
     {
         Exception e = null;
@@ -258,6 +270,7 @@ public class TestCreators2 extends BaseMapTest
         verifyException(e, "don't like that name");
     }
 
+    @Test
     public void testCreatorWithDupNames() throws Exception
     {
         try {
@@ -270,6 +283,7 @@ public class TestCreators2 extends BaseMapTest
         }
     }
 
+    @Test
     public void testCreatorMultipleArgumentWithoutAnnotation() throws Exception {
         AutoDetectConstructorBean value = MAPPER.readValue("{\"bar\":\"bar\",\"foo\":\"foo\"}",
                 AutoDetectConstructorBean.class);
@@ -277,6 +291,7 @@ public class TestCreators2 extends BaseMapTest
         assertEquals("foo", value.foo);
     }
 
+    @Test
     public void testIgnoredSingleArgCtor() throws Exception
     {
         try {
@@ -287,6 +302,7 @@ public class TestCreators2 extends BaseMapTest
         }
     }
 
+    @Test
     public void testAbstractFactory() throws Exception
     {
         AbstractBase bean = MAPPER.readValue("{\"a\":3}", AbstractBase.class);
@@ -296,6 +312,7 @@ public class TestCreators2 extends BaseMapTest
         assertEquals(Integer.valueOf(3), impl.props.get("a"));
     }
 
+    @Test
     public void testCreatorProperties() throws Exception
     {
         Issue700Bean value = MAPPER.readValue("{ \"item\" : \"foo\" }", Issue700Bean.class);
@@ -303,6 +320,7 @@ public class TestCreators2 extends BaseMapTest
     }
 
     // [databind#1476]
+    @Test
     public void testConstructorChoice() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         MultiPropCreator1476 pojo = mapper.readValue("{ \"intField\": 1, \"stringField\": \"foo\" }",

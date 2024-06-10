@@ -2,13 +2,18 @@ package com.fasterxml.jackson.databind.ser.jdk;
 
 import java.math.BigDecimal;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.StreamWriteFeature;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class BigDecimalPlain2230Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class BigDecimalPlain2230Test extends DatabindTestUtil
 {
     static class BigDecimalAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
@@ -18,8 +23,9 @@ public class BigDecimalPlain2230Test extends BaseMapTest
         public BigDecimalAsString(BigDecimal v) { value = v; }
     }
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testBigIntegerAsPlainTest() throws Exception
     {
         final String NORM_VALUE = "0.0000000005";

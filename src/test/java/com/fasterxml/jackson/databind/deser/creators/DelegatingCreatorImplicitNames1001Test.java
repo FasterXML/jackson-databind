@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -8,7 +10,9 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class DelegatingCreatorImplicitNames1001Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class DelegatingCreatorImplicitNames1001Test
 {
     static class D
     {
@@ -66,6 +70,7 @@ public class DelegatingCreatorImplicitNames1001Test extends BaseMapTest
     }
 
     // Baseline test to show how things should work
+    @Test
     public void testWithoutNamedParameters() throws Exception
     {
         ObjectMapper sut = new ObjectMapper();
@@ -80,6 +85,7 @@ public class DelegatingCreatorImplicitNames1001Test extends BaseMapTest
     }
 
     // And then case that fails with [databind#1001]
+    @Test
     public void testWithNamedParameters() throws Exception
     {
         ObjectMapper sut = new ObjectMapper()

@@ -2,11 +2,14 @@ package com.fasterxml.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#3102]
-public class RecordTypeInfo3342Test extends BaseMapTest
+public class RecordTypeInfo3342Test extends DatabindTestUtil
 {
     public enum SpiceLevel {
         LOW,
@@ -36,6 +39,7 @@ public class RecordTypeInfo3342Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSerializeDeserializeJsonSubType_LOW() throws Exception {
         Example record = new Example(SpiceLevel.LOW, new LowSpiceTolerance("Tomato"));
 
@@ -46,6 +50,7 @@ public class RecordTypeInfo3342Test extends BaseMapTest
         assertEquals(record, value);
     }
 
+    @Test
     public void testSerializeDeserializeJsonSubType_HIGH() throws Exception {
         Example record = new Example(SpiceLevel.HIGH, new HighSpiceTolerance("Chilli"));
 

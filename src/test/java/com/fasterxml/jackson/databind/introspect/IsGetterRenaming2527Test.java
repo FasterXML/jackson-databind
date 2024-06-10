@@ -3,13 +3,18 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.Collections;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 // [databind#2527] Support Kotlin-style "is" properties
-public class IsGetterRenaming2527Test extends BaseMapTest
+public class IsGetterRenaming2527Test extends DatabindTestUtil
 {
     static class POJO2527 {
         boolean isEnabled;
@@ -36,7 +41,7 @@ public class IsGetterRenaming2527Test extends BaseMapTest
     }
 
     static class POJO2527Creator {
-        final boolean isEnabled;
+        boolean isEnabled;
 
         public POJO2527Creator(@JsonProperty("enabled") boolean b) {
             isEnabled = b;
@@ -68,6 +73,7 @@ public class IsGetterRenaming2527Test extends BaseMapTest
             .annotationIntrospector(new MyIntrospector())
             .build();
 
+    @Test
     public void testIsPropertiesStdKotlin() throws Exception
     {
         POJO2527 input = new POJO2527(true);
@@ -81,6 +87,7 @@ public class IsGetterRenaming2527Test extends BaseMapTest
         assertEquals(input.isEnabled, output.isEnabled);
     }
 
+    @Test
     public void testIsPropertiesWithPublicField() throws Exception
     {
         POJO2527PublicField input = new POJO2527PublicField(true);
@@ -94,6 +101,7 @@ public class IsGetterRenaming2527Test extends BaseMapTest
         assertEquals(input.isEnabled, output.isEnabled);
     }
 
+    @Test
     public void testIsPropertiesViaCreator() throws Exception
     {
         POJO2527Creator input = new POJO2527Creator(true);

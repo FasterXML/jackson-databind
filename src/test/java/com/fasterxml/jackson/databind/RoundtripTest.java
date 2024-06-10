@@ -1,11 +1,19 @@
 package com.fasterxml.jackson.databind;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.testutil.MediaItem;
 
-public class RoundtripTest extends BaseMapTest
-{
-    private final ObjectMapper MAPPER = new ObjectMapper();
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class RoundtripTest
+{
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
     public void testMedaItemRoundtrip() throws Exception
     {
         MediaItem.Content c = new MediaItem.Content();

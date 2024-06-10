@@ -4,11 +4,16 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class UnwrapSingleArrayMiscTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
 {
     private final ObjectMapper UNWRAPPING_MAPPER = jsonMapperBuilder()
             .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
@@ -20,6 +25,7 @@ public class UnwrapSingleArrayMiscTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSimplePOJOUnwrapping() throws Exception
     {
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(IntWrapper.class);
@@ -41,6 +47,7 @@ public class UnwrapSingleArrayMiscTest extends BaseMapTest
      */
 
     // [databind#2767]: should work for Maps, too
+    @Test
     public void testSimpleMapUnwrapping() throws Exception
     {
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(Map.class);
@@ -55,6 +62,7 @@ public class UnwrapSingleArrayMiscTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testEnumMapUnwrapping() throws Exception
     {
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(new TypeReference<EnumMap<ABC,Integer>>() { });

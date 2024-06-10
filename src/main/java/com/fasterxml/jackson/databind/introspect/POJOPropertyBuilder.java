@@ -391,7 +391,11 @@ public class POJOPropertyBuilder
 
     @Override
     public boolean couldDeserialize() {
-        return (_ctorParameters != null) || (_setters != null) || (_fields != null);
+        return (_ctorParameters != null)
+            || (_setters != null)
+            || ((_fields != null)
+                // [databind#736] Since 2.16 : Fix `REQUIRE_SETTERS_FOR_GETTERS` taking no effect
+                && (_anyVisible(_fields)));
     }
 
     @Override
@@ -836,6 +840,19 @@ public class POJOPropertyBuilder
         return (v == null) ? JsonInclude.Value.empty() : v;
     }
 
+    // since 2.17
+    @Override
+    public List<PropertyName> findAliases() {
+        AnnotatedMember ann = getPrimaryMember();
+        if (ann != null) {
+            List<PropertyName> propertyNames = _annotationIntrospector.findPropertyAliases(ann);
+            if (propertyNames != null) {
+                return propertyNames;
+            }
+        }
+        return Collections.emptyList();
+    }
+
     public JsonProperty.Access findAccess() {
         return fromMemberAnnotationsExcept(new WithMember<JsonProperty.Access>() {
             @Override
@@ -922,10 +939,9 @@ public class POJOPropertyBuilder
     public JsonProperty.Access removeNonVisible(boolean inferMutators,
             POJOPropertiesCollector parent)
     {
-        /* 07-Jun-2015, tatu: With 2.6, we will allow optional definition
-         *  of explicit access type for property; if not "AUTO", it will
-         *  dictate how visibility checks are applied.
-         */
+        // 07-Jun-2015, tatu: With 2.6, we will allow optional definition
+        //  of explicit access type for property; if not "AUTO", it will
+        //  dictate how visibility checks are applied.
         JsonProperty.Access acc = findAccess();
         if (acc == null) {
             acc = JsonProperty.Access.AUTO;

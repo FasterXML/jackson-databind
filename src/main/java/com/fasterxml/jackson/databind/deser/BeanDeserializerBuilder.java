@@ -58,6 +58,13 @@ public class BeanDeserializerBuilder
         = new LinkedHashMap<String, SettableBeanProperty>();
 
     /**
+     * Parameters of the primary properties-based Creator, if any.
+     *
+     * @since 2.18
+     */
+    protected SettableBeanProperty[] _propsBasedCreatorParams;
+
+    /**
      * Value injectors for deserialization
      */
     protected List<ValueInjector> _injectables;
@@ -146,6 +153,7 @@ public class BeanDeserializerBuilder
         _ignorableProps = src._ignorableProps;
         _includableProps = src._includableProps;
         _valueInstantiator = src._valueInstantiator;
+        _propsBasedCreatorParams = src._propsBasedCreatorParams;
         _objectIdReader = src._objectIdReader;
 
         _anySetter = src._anySetter;
@@ -174,7 +182,14 @@ public class BeanDeserializerBuilder
      * Method for adding a new property or replacing a property.
      */
     public void addOrReplaceProperty(SettableBeanProperty prop, boolean allowOverride) {
-        _properties.put(prop.getName(), prop);
+        SettableBeanProperty oldProp = _properties.put(prop.getName(), prop);
+        if ((oldProp != null) && (_propsBasedCreatorParams != null)) {
+            for (int i = 0, len = _propsBasedCreatorParams.length; i < len; ++i) {
+                if (_propsBasedCreatorParams[i] == oldProp) {
+                    _propsBasedCreatorParams[i] = prop;
+                }
+            }
+        }
     }
 
     /**
@@ -295,6 +310,7 @@ public class BeanDeserializerBuilder
 
     public void setValueInstantiator(ValueInstantiator inst) {
         _valueInstantiator = inst;
+        _propsBasedCreatorParams = inst.getFromObjectArguments(_config);
     }
 
     public void setObjectIdReader(ObjectIdReader r) {
@@ -576,18 +592,15 @@ public class BeanDeserializerBuilder
     protected Map<String,List<PropertyName>> _collectAliases(Collection<SettableBeanProperty> props)
     {
         Map<String,List<PropertyName>> mapping = null;
-        AnnotationIntrospector intr = _config.getAnnotationIntrospector();
-        if (intr != null) {
-            for (SettableBeanProperty prop : props) {
-                List<PropertyName> aliases = intr.findPropertyAliases(prop.getMember());
-                if ((aliases == null) || aliases.isEmpty()) {
-                    continue;
-                }
-                if (mapping == null) {
-                    mapping = new HashMap<>();
-                }
-                mapping.put(prop.getName(), aliases);
+        for (SettableBeanProperty prop : props) {
+            List<PropertyName> aliases = prop.findAliases(_config);
+            if ((aliases == null) || aliases.isEmpty()) {
+                continue;
             }
+            if (mapping == null) {
+                mapping = new HashMap<>();
+            }
+            mapping.put(prop.getName(), aliases);
         }
         if (mapping == null) {
             return Collections.emptyMap();
@@ -599,7 +612,7 @@ public class BeanDeserializerBuilder
     protected boolean _findCaseInsensitivity() {
         // 07-May-2020, tatu: First find combination of per-type config overrides (higher
         //   precedence) and per-type annotations (lower):
-        JsonFormat.Value format = _beanDesc.findExpectedFormat(null);
+        JsonFormat.Value format = _beanDesc.findExpectedFormat();
         // and see if any of those has explicit definition; if not, use global baseline default
         Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
         return (B == null) ? _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)

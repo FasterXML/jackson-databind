@@ -7,13 +7,17 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class UnwrapSingleArrayScalarsTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
 {
     static class BooleanBean {
         public boolean v;
@@ -31,7 +35,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         public double v;
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     private final ObjectReader NO_UNWRAPPING_READER = MAPPER.reader();
     private final ObjectReader UNWRAPPING_READER = MAPPER.reader()
@@ -43,6 +47,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testBooleanPrimitiveArrayUnwrap() throws Exception
     {
         // [databind#381]
@@ -73,6 +78,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testIntPrimitiveArrayUnwrap() throws Exception
     {
         try {
@@ -108,6 +114,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
 
     }
 
+    @Test
     public void testLongPrimitiveArrayUnwrap() throws Exception
     {
         final ObjectReader unwrapR = UNWRAPPING_READER.forType(LongBean.class);
@@ -144,6 +151,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         assertEquals(0, array[0]);
     }
 
+    @Test
     public void testDoubleAsArray() throws Exception
     {
         final ObjectReader unwrapR = UNWRAPPING_READER.forType(DoubleBean.class);
@@ -181,6 +189,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         assertEquals(0d, array[0]);
     }
 
+    @Test
     public void testSingleElementScalarArrays() throws Exception {
         final int intTest = 932832;
         final double doubleTest = 32.3234;
@@ -235,6 +244,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         assertEquals(Boolean.TRUE, booleanWrapperTrueValue);
     }
 
+    @Test
     public void testSingleElementArrayDisabled() throws Exception {
         try {
             NO_UNWRAPPING_READER.readValue("[42]", Integer.class);
@@ -327,6 +337,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testMultiValueArrayException() throws IOException {
         _verifyMultiValueArrayFail("[42,42]", Integer.class);
         _verifyMultiValueArrayFail("[42,42]", Integer.TYPE);
@@ -352,6 +363,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSingleStringWrapped() throws Exception
     {
         String value = "FOO!";
@@ -374,6 +386,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         assertEquals(value, result);
     }
 
+    @Test
     public void testBigDecimal() throws Exception
     {
         BigDecimal value = new BigDecimal("0.001");
@@ -399,6 +412,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testBigInteger() throws Exception
     {
         BigInteger value = new BigInteger("-1234567890123456789012345567809");
@@ -423,6 +437,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testClassAsArray() throws Exception
     {
         Class<?> result = UNWRAPPING_READER
@@ -445,6 +460,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         assertEquals(String.class, result);
     }
 
+    @Test
     public void testURIAsArray() throws Exception
     {
         final URI value = new URI("http://foo.com");
@@ -459,6 +475,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         _verifyMultiValueArrayFail("[\""+value.toString()+"\",\""+value.toString()+"\"]", URI.class);
     }
 
+    @Test
     public void testUUIDAsArray() throws Exception
     {
         final String uuidStr = "76e6d183-5f68-4afa-b94a-922c1fdb83f8";

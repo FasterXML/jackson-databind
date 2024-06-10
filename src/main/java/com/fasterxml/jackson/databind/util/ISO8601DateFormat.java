@@ -20,8 +20,8 @@ public class ISO8601DateFormat extends DateFormat
     private static final long serialVersionUID = 1L;
 
     public ISO8601DateFormat() {
-        this.numberFormat = new DecimalFormat();;
-        this.calendar = new GregorianCalendar();;
+        this.numberFormat = new DecimalFormat();
+        this.calendar = new GregorianCalendar();
     }
 
     @Override

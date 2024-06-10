@@ -68,7 +68,6 @@ public abstract class AnnotationIntrospector
              * {@link com.fasterxml.jackson.annotation.JsonBackReference}
              */
             BACK_REFERENCE
-            ;
         }
 
         private final Type _type;
@@ -319,10 +318,6 @@ public abstract class AnnotationIntrospector
     /**
      * Method for finding information about properties to ignore either by
      * name, or by more general specification ("ignore all unknown").
-     * This method combines multiple aspects of ignorals and deprecates
-     * earlier methods such as
-     * {@link #findPropertiesToIgnore(Annotated, boolean)} and
-     * {@link #findIgnoreUnknownProperties(AnnotatedClass)}.
      *
      * @param config Configuration settings in effect (for serialization or deserialization)
      * @param ann Annotated entity (Class, Accessor) to introspect
@@ -411,35 +406,6 @@ public abstract class AnnotationIntrospector
      * @since 2.7
      */
     public String findClassDescription(AnnotatedClass ac) { return null; }
-
-    /**
-     * @param forSerialization True if requesting properties to ignore for serialization;
-     *   false if for deserialization
-     * @param ac Annotated class to introspect
-     *
-     * @return Array of names of properties to ignore
-     *
-     * @since 2.6
-     *
-     * @deprecated Since 2.8, use {@link #findPropertyIgnoralByName} instead
-     */
-    @Deprecated // since 2.8
-    public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
-        return null;
-    }
-
-    /**
-     * Method for checking whether an annotation indicates that all unknown properties
-     * should be ignored.
-     *
-     * @param ac Annotated class to introspect
-     *
-     * @return True if class has something indicating "ignore [all] unknown properties"
-     *
-     * @deprecated Since 2.8, use {@link #findPropertyIgnoralByName} instead
-     */
-    @Deprecated // since 2.8
-    public Boolean findIgnoreUnknownProperties(AnnotatedClass ac) { return null; }
 
     /**
      * @param ac Annotated class to introspect
@@ -1144,7 +1110,7 @@ public abstract class AnnotationIntrospector
      */
     @Deprecated
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
-        ;
+        ; // do nothing
     }
 
     /**
@@ -1487,8 +1453,9 @@ public abstract class AnnotationIntrospector
      * @since 2.9
      */
     public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated ann) {
-        // 13-Sep-2016, tatu: for backwards compatibility, implement using delegation
-        ///   (remove from version AFTER 2.9)
+        // 13-May-2024, tatu: Before 2.18, used to delegate to deprecated methods
+        //   like so: no longer with 2.18
+        /*
         if (hasCreatorAnnotation(ann)) {
             JsonCreator.Mode mode = findCreatorBinding(ann);
             if (mode == null) {
@@ -1496,6 +1463,7 @@ public abstract class AnnotationIntrospector
             }
             return mode;
         }
+        */
         return null;
     }
 

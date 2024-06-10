@@ -5,16 +5,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class NestedCollectionsTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class NestedCollectionsTest
 {
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     // Tests from [databind#4149] to show problems wrt [databind#4122]
 
+    @Test
     public void testMapOfLists() throws Exception
     {
         List<Integer> l1 = Arrays.asList(1, 2);
@@ -27,6 +33,7 @@ public class NestedCollectionsTest extends BaseMapTest
                 new TypeReference<Map<?, List<?>>>() {}));
     }
 
+    @Test
     public void testMapOfMaps() throws Exception
     {
         HashMap<Object, Object> src = new HashMap<>();

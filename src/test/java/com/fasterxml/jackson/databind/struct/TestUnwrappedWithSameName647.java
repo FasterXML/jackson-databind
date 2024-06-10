@@ -1,9 +1,14 @@
 package com.fasterxml.jackson.databind.struct;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestUnwrappedWithSameName647 extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestUnwrappedWithSameName647 extends DatabindTestUtil
 {
     static class UnwrappedWithSamePropertyName {
         public MailHolder mail;
@@ -18,8 +23,9 @@ public class TestUnwrappedWithSameName647 extends BaseMapTest
         public String mail;
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testUnwrappedWithSamePropertyName() throws Exception {
         final String JSON = "{'mail': {'mail': 'the mail text'}}";
         UnwrappedWithSamePropertyName result = MAPPER.readValue(a2q(JSON), UnwrappedWithSamePropertyName.class);

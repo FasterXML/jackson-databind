@@ -7,16 +7,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 // for [databind#2404]
 public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
+    extends DatabindTestUtil
 {
     /**
      * Base class - external property for Fruit subclasses.
@@ -238,7 +237,7 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
             reader.readValue(json);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            BaseMapTest.verifyException(e, "Missing property 'fruit' for external type id 'type'");
+            verifyException(e, "Missing property 'fruit' for external type id 'type'");
         }
     }
 }

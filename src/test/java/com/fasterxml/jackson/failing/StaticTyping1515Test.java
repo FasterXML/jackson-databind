@@ -3,12 +3,17 @@ package com.fasterxml.jackson.failing;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.junit.jupiter.api.Test;
 
-public class StaticTyping1515Test extends BaseMapTest
-{
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class StaticTyping1515Test extends DatabindTestUtil {
     static abstract class Base {
         public int a = 1;
     }
@@ -26,7 +31,7 @@ public class StaticTyping1515Test extends BaseMapTest
         public int b = 4;
     }
 
-    @JsonPropertyOrder({ "value", "aValue", "dValue" })
+    @JsonPropertyOrder({"value", "aValue", "dValue"})
     static class Issue515Singles {
         public Base value = new Derived();
 
@@ -36,40 +41,40 @@ public class StaticTyping1515Test extends BaseMapTest
         public BaseDynamic dValue = new DerivedDynamic();
     }
 
-    @JsonPropertyOrder({ "list", "aList", "dList" })
+    @JsonPropertyOrder({"list", "aList", "dList"})
     static class Issue515Lists {
-        public List<Base> list = new ArrayList<>(); {
+        public List<Base> list = new ArrayList<>();
+
+        {
             list.add(new Derived());
         }
 
         @JsonSerialize(typing = JsonSerialize.Typing.DYNAMIC)
-        public List<Base> aList = new ArrayList<>(); {
+        public List<Base> aList = new ArrayList<>();
+
+        {
             aList.add(new Derived());
         }
 
-        public List<BaseDynamic> dList = new ArrayList<>(); {
+        public List<BaseDynamic> dList = new ArrayList<>();
+
+        {
             dList.add(new DerivedDynamic());
         }
     }
-
-    /*
-    /**********************************************************
-    /* Test methods
-    /**********************************************************
-     */
 
     private final ObjectMapper STAT_MAPPER = jsonMapperBuilder()
             .enable(MapperFeature.USE_STATIC_TYPING)
             .build();
 
-    public void testStaticTypingForProperties() throws Exception
-    {
+    @Test
+    void staticTypingForProperties() throws Exception {
         String json = STAT_MAPPER.writeValueAsString(new Issue515Singles());
         assertEquals(a2q("{'value':{'a':1},'aValue':{'a':1,'b':2},'dValue':{'a':3,'b':4}}"), json);
     }
 
-    public void testStaticTypingForLists() throws Exception
-    {
+    @Test
+    void staticTypingForLists() throws Exception {
         String json = STAT_MAPPER.writeValueAsString(new Issue515Lists());
         assertEquals(a2q("{'list':[{'a':1}],'aList':[{'a':1,'b':2}],'dList:[{'a':3,'b':4}]}"), json);
     }

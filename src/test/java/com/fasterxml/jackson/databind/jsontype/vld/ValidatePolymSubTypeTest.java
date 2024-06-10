@@ -1,10 +1,16 @@
 package com.fasterxml.jackson.databind.jsontype.vld;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests to verify working of customizable {@PolymorphicTypeValidator},
@@ -12,7 +18,7 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
  *
  * @since 2.10
  */
-public class ValidatePolymSubTypeTest extends BaseMapTest
+public class ValidatePolymSubTypeTest extends DatabindTestUtil
 {
     // // // Value types
 
@@ -138,6 +144,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
 
     // // With Name check
 
+    @Test
     public void testWithDefaultTypingNameAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
@@ -145,11 +152,13 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
         assertEquals(inputValue, result.value);
     }
 
+    @Test
     public void testWithDefaultTypingNameDenyExplicit() throws Exception
     {
         _verifyBadDefaultValue(MAPPER_DEF_TYPING_NAME_CHECK);
     }
 
+    @Test
     public void testWithDefaultTypingNameDenyDefault() throws Exception
     {
         _verifyMehDefaultValue(MAPPER_DEF_TYPING_NAME_CHECK);
@@ -157,6 +166,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
 
     // // With Class check
 
+    @Test
     public void testWithDefaultTypingClassAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
@@ -164,11 +174,13 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
         assertEquals(inputValue, result.value);
     }
 
+    @Test
     public void testWithDefaultTypingClassDenyExplicit() throws Exception
     {
         _verifyBadDefaultValue(MAPPER_DEF_TYPING_CLASS_CHECK);
     }
 
+    @Test
     public void testWithDefaultTypingClassDenyDefault() throws Exception
     {
         _verifyMehDefaultValue(MAPPER_DEF_TYPING_CLASS_CHECK);
@@ -182,6 +194,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
 
     // // With Name
 
+    @Test
     public void testWithAnnotationNameAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
@@ -189,11 +202,13 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
         assertEquals(inputValue, result.value);
     }
 
+    @Test
     public void testWithAnnotationNameDenyExplicit() throws Exception
     {
         _verifyBadAnnotatedValue(MAPPER_EXPLICIT_NAME_CHECK);
     }
 
+    @Test
     public void testWithAnnotationNameDenyDefault() throws Exception
     {
         _verifyMehAnnotatedValue(MAPPER_EXPLICIT_NAME_CHECK);
@@ -201,6 +216,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
 
     // // With Class
 
+    @Test
     public void testWithAnnotationClassAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
@@ -208,11 +224,13 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
         assertEquals(inputValue, result.value);
     }
 
+    @Test
     public void testWithAnnotationClassDenyExplicit() throws Exception
     {
         _verifyBadAnnotatedValue(MAPPER_EXPLICIT_CLASS_CHECK);
     }
 
+    @Test
     public void testWithAnnotationClassDenyDefault() throws Exception
     {
         _verifyMehAnnotatedValue(MAPPER_EXPLICIT_CLASS_CHECK);
@@ -226,6 +244,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
 
     // // With Name
 
+    @Test
     public void testWithAnnotationMinClassNameAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
@@ -233,11 +252,13 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
         assertEquals(inputValue, result.value);
     }
 
+    @Test
     public void testWithAnnotationMinClassNameDenyExplicit() throws Exception
     {
         _verifyBadAnnotatedMinValue(MAPPER_EXPLICIT_NAME_CHECK);
     }
 
+    @Test
     public void testWithAnnotationMinClassNameDenyDefault() throws Exception
     {
         _verifyMehAnnotatedMinValue(MAPPER_EXPLICIT_NAME_CHECK);
@@ -245,6 +266,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
 
     // // With Class
 
+    @Test
     public void testWithAnnotationMinClassClassAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
@@ -252,11 +274,13 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
         assertEquals(inputValue, result.value);
     }
 
+    @Test
     public void testWithAnnotationMinClassClassDenyExplicit() throws Exception
     {
         _verifyBadAnnotatedMinValue(MAPPER_EXPLICIT_CLASS_CHECK);
     }
 
+    @Test
     public void testWithAnnotationMinClassClassDenyDefault() throws Exception
     {
         _verifyMehAnnotatedMinValue(MAPPER_EXPLICIT_CLASS_CHECK);

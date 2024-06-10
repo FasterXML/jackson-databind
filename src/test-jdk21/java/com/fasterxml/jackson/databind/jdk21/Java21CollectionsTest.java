@@ -2,11 +2,13 @@ package com.fasterxml.jackson.databind.jdk21;
 
 import java.util.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class Java21CollectionsTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class Java21CollectionsTest extends DatabindTestUtil
 {
     // [databind#4089]
     record SequencedCollections(

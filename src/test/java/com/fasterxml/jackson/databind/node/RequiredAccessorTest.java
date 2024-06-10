@@ -1,12 +1,17 @@
 package com.fasterxml.jackson.databind.node;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.databind.BaseMapTest;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RequiredAccessorTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -23,10 +28,12 @@ public class RequiredAccessorTest
         ));
     }
 
+    @Test
     public void testIMPORTANT() {
         _checkRequiredAtFail(TEST_OBJECT, "/data/weird/and/more", "/weird/and/more");
     }
 
+    @Test
     public void testRequiredAtObjectOk() throws Exception {
         assertNotNull(TEST_OBJECT.requiredAt("/array"));
         assertNotNull(TEST_OBJECT.requiredAt("/array/0"));
@@ -35,6 +42,7 @@ public class RequiredAccessorTest
         assertEquals(2, TEST_OBJECT.requiredAt("/array/1/misc/1").intValue());
     }
 
+    @Test
     public void testRequiredAtArrayOk() throws Exception {
         assertTrue(TEST_ARRAY.requiredAt("/0").isBoolean());
         assertTrue(TEST_ARRAY.requiredAt("/1").isObject());
@@ -42,6 +50,7 @@ public class RequiredAccessorTest
         assertNotNull(TEST_ARRAY.requiredAt("/1/data/vector/1"));
     }
 
+    @Test
     public void testRequiredAtFailOnObjectBasic() throws Exception {
         _checkRequiredAtFail(TEST_OBJECT, "/0", "/0");
         _checkRequiredAtFail(TEST_OBJECT, "/bogus", "/bogus");
@@ -52,6 +61,7 @@ public class RequiredAccessorTest
         _checkRequiredAtFail(TEST_OBJECT, "/data/primary/more", "/more");
     }
 
+    @Test
     public void testRequiredAtFailOnArray() throws Exception {
         _checkRequiredAtFail(TEST_ARRAY, "/1/data/vector/25", "/25");
         _checkRequiredAtFail(TEST_ARRAY, "/0/data/x", "/data/x");
@@ -66,6 +76,7 @@ public class RequiredAccessorTest
         }
     }
 
+    @Test
     public void testSimpleRequireOk() throws Exception {
         // first basic working accessors on node itself
         assertSame(TEST_OBJECT, TEST_OBJECT.require());
@@ -88,6 +99,7 @@ public class RequiredAccessorTest
         }
     }
 
+    @Test
     public void testSimpleRequireFail() throws Exception {
         try {
             TEST_OBJECT.required("bogus");
@@ -105,6 +117,7 @@ public class RequiredAccessorTest
     }
 
     // [databind#3005]
+    @Test
     public void testRequiredAtFailOnObjectScalar3005() throws Exception
     {
         JsonNode n = MAPPER.readTree("{\"simple\":5}");

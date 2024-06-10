@@ -2,10 +2,15 @@ package com.fasterxml.jackson.databind.ser.filter;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for checking that alternative settings for
@@ -13,7 +18,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * as expected.
  */
 public class JsonInclude1327Test
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     static class Issue1327BeanEmpty {
@@ -32,6 +37,7 @@ public class JsonInclude1327Test
      */
 
     // for [databind#1327]
+    @Test
     public void testClassDefaultsForEmpty() throws Exception {
         ObjectMapper om = new ObjectMapper();
         om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -43,6 +49,7 @@ public class JsonInclude1327Test
         }
     }
 
+    @Test
     public void testClassDefaultsForAlways() throws Exception {
         ObjectMapper om = new ObjectMapper();
         om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);

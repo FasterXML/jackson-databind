@@ -2,13 +2,18 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // mostly for [databind#1033]
-public class SetterConflictTest extends BaseMapTest
+public class SetterConflictTest extends DatabindTestUtil
 {
     // Should prefer primitives over Strings, more complex types, by default
     static class Issue1033Bean {
@@ -59,6 +64,7 @@ public class SetterConflictTest extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1033]
+    @Test
     public void testSetterPriority() throws Exception
     {
         Issue1033Bean bean = MAPPER.readValue(a2q("{'value':42}"),
@@ -67,6 +73,7 @@ public class SetterConflictTest extends BaseMapTest
     }
 
     // [databind#2979]
+    @Test
     public void testConflictingSetters() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -78,6 +85,7 @@ public class SetterConflictTest extends BaseMapTest
     }
 
     // [databind#3125]
+    @Test
     public void testDuplicateSetterResolutionOk() throws Exception
     {
         POJOPropertiesCollector coll = collector(MAPPER, DupSetter3125Bean.class,
@@ -98,6 +106,7 @@ public class SetterConflictTest extends BaseMapTest
     }
 
     // [databind#3125]: caught case
+    @Test
     public void testDuplicateSetterResolutionFail() throws Exception
     {
         try {

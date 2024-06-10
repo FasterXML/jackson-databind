@@ -1,33 +1,26 @@
 package com.fasterxml.jackson.databind.deser.lazy;
 
+import java.math.BigDecimal;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.core.io.NumberInput;
-
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import static org.powermock.api.mockito.PowerMockito.*;
-
-import java.math.BigDecimal;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mockStatic;
 
 /**
  * Tests to verify that skipping of unknown/unmapped works such that
  * "expensive" numbers (all floating-point, {@code BigInteger}) is avoided.
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(fullyQualifiedNames = "com.fasterxml.jackson.core.io.NumberInput")
-public class LazyIgnoralForNumbers3730Test extends BaseMapTest
+public class LazyIgnoralForNumbers3730Test
 {
     static class ExtractFieldsNoDefaultConstructor3730 {
         private final String s;
@@ -99,105 +92,123 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
 
+    @SuppressWarnings("deprecation")
+    @Test
     public void testIgnoreBigInteger() throws Exception
     {
-        final String MOCK_MSG = "mock: deliberate failure for parseBigInteger";
-        mockStatic(NumberInput.class);
-        when(NumberInput.parseBigInteger(Mockito.anyString()))
-                .thenThrow(new IllegalStateException(MOCK_MSG));
-        when(NumberInput.parseBigInteger(Mockito.anyString(), Mockito.anyBoolean()))
-                .thenThrow(new IllegalStateException(MOCK_MSG));
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < 999; i++) {
-            stringBuilder.append(7);
-        }
-        final String testBigInteger = stringBuilder.toString();
-        final String json = genJson(testBigInteger);
-        ExtractFieldsNoDefaultConstructor3730 ef =
-                MAPPER.readValue(json, ExtractFieldsNoDefaultConstructor3730.class);
-        assertNotNull(ef);
-        // Ok but then let's ensure method IS called, if field is actually mapped,
-        // first to Number
-        try {
-            Object ob = STRICT_MAPPER.readValue(json, UnwrappedWithNumber.class);
-            fail("Should throw exception with mocking: instead got: "+MAPPER.writeValueAsString(ob));
-        } catch (DatabindException e) {
-            verifyMockException(e, MOCK_MSG);
+        try (MockedStatic<NumberInput> mocked = mockStatic(NumberInput.class)) {
+            // Set up, mock NumberInput.parseBigInteger() to throw exception
+            final String MOCK_MSG = "mock: deliberate failure for parseBigInteger";
+            mocked.when(() -> NumberInput.parseBigInteger(Mockito.anyString()))
+                    .thenThrow(new IllegalStateException(MOCK_MSG));
+            mocked.when(() -> NumberInput.parseBigInteger(Mockito.anyString(), Mockito.anyBoolean()))
+                    .thenThrow(new IllegalStateException(MOCK_MSG));
+
+            // Then start testing!
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < 999; i++) {
+                stringBuilder.append(7);
+            }
+            final String testBigInteger = stringBuilder.toString();
+            final String json = genJson(testBigInteger);
+            ExtractFieldsNoDefaultConstructor3730 ef =
+                    MAPPER.readValue(json, ExtractFieldsNoDefaultConstructor3730.class);
+            assertNotNull(ef);
+            // Ok but then let's ensure method IS called, if field is actually mapped,
+            // first to Number
+            try {
+                Object ob = STRICT_MAPPER.readValue(json, UnwrappedWithNumber.class);
+                fail("Should throw exception with mocking: instead got: "+MAPPER.writeValueAsString(ob));
+            } catch (DatabindException e) {
+                verifyMockException(e, MOCK_MSG);
+            }
         }
     }
 
+    @SuppressWarnings("deprecation")
+    @Test
     public void testIgnoreFPValuesDefault() throws Exception
     {
-        final String MOCK_MSG = "mock: deliberate failure for parseDouble";
-        // With default settings we would parse Doubles, so check
-        mockStatic(NumberInput.class);
-        when(NumberInput.parseDouble(Mockito.anyString()))
+        try (MockedStatic<NumberInput> mocked = mockStatic(NumberInput.class)) {
+            // Set up, mock NumberInput.parseDouble() to throw exception
+            final String MOCK_MSG = "mock: deliberate failure for parseDouble";
+            // With default settings we would parse Doubles, so check
+            mocked.when(() -> NumberInput.parseDouble(Mockito.anyString()))
                 .thenThrow(new IllegalStateException(MOCK_MSG));
-        when(NumberInput.parseDouble(Mockito.anyString(), Mockito.anyBoolean()))
+            mocked.when(() -> NumberInput.parseDouble(Mockito.anyString(), Mockito.anyBoolean()))
                 .thenThrow(new IllegalStateException(MOCK_MSG));
-        final String json = genJson("0.25");
-        ExtractFieldsNoDefaultConstructor3730 ef =
+
+            // Then start testing!
+            final String json = genJson("0.25");
+            ExtractFieldsNoDefaultConstructor3730 ef =
                 MAPPER.readValue(json, ExtractFieldsNoDefaultConstructor3730.class);
-        assertNotNull(ef);
+            assertNotNull(ef);
 
-        // Ok but then let's ensure method IS called, if field is actually mapped
-        // First, to "Number"
-        try {
-            STRICT_MAPPER.readValue(json, UnwrappedWithNumber.class);
-            fail("Should throw exception with mocking!");
-        } catch (DatabindException e) {
-            verifyMockException(e, MOCK_MSG);
-        }
+            // Ok but then let's ensure method IS called, if field is actually mapped
+            // First, to "Number"
+            try {
+                STRICT_MAPPER.readValue(json, UnwrappedWithNumber.class);
+                fail("Should throw exception with mocking!");
+            } catch (DatabindException e) {
+                verifyMockException(e, MOCK_MSG);
+            }
 
-        // And then to "double"
-        // 01-Feb-2023, tatu: Not quite working, yet:
-        try {
-            STRICT_MAPPER.readValue(json, UnwrappedWithDouble.class);
-            fail("Should throw exception with mocking!");
-        } catch (DatabindException e) {
-            e.printStackTrace();
-            verifyMockException(e, MOCK_MSG);
+            // And then to "double"
+            // 01-Feb-2023, tatu: Not quite working, yet:
+            try {
+                STRICT_MAPPER.readValue(json, UnwrappedWithDouble.class);
+                fail("Should throw exception with mocking!");
+            } catch (DatabindException e) {
+                e.printStackTrace();
+                verifyMockException(e, MOCK_MSG);
+            }
         }
     }
 
+    @SuppressWarnings("deprecation")
+    @Test
     public void testIgnoreFPValuesBigDecimal() throws Exception
     {
-        final String MOCK_MSG = "mock: deliberate failure for parseBigDecimal";
-        ObjectReader reader = MAPPER
-                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-                .readerFor(ExtractFieldsNoDefaultConstructor3730.class);
-
-        // Now should get calls to `parseBigDecimal`... eventually
-        mockStatic(NumberInput.class);
-        when(NumberInput.parseBigDecimal(Mockito.anyString()))
+        try (MockedStatic<NumberInput> mock = mockStatic(NumberInput.class)) {
+            // Set up, mock NumberInput.parseBigDecimal() to throw exception
+            // Now should get calls to `parseBigDecimal`... eventually
+            final String MOCK_MSG = "mock: deliberate failure for parseBigDecimal";
+            // With default settings we would parse Doubles, so check
+            mock.when(() -> NumberInput.parseBigDecimal(Mockito.anyString()))
                 .thenThrow(new IllegalStateException(MOCK_MSG));
-        when(NumberInput.parseBigDecimal(Mockito.anyString(), Mockito.anyBoolean()))
+            mock.when(() -> NumberInput.parseBigDecimal(Mockito.anyString(), Mockito.anyBoolean()))
                 .thenThrow(new IllegalStateException(MOCK_MSG));
 
-        final String json = genJson("0.25");
-        ExtractFieldsNoDefaultConstructor3730 ef =
-                reader.readValue(genJson(json));
-        assertNotNull(ef);
+            // Then start testing!
+            ObjectReader reader = MAPPER
+            .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+            .readerFor(ExtractFieldsNoDefaultConstructor3730.class);
 
-        // But then ensure we'll fail with unknown (except does it work with unwrapped?)
-        reader = reader.with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+            final String json = genJson("0.25");
+            ExtractFieldsNoDefaultConstructor3730 ef =
+                    reader.readValue(genJson(json));
+            assertNotNull(ef);
 
-        // Ok but then let's ensure method IS called, if field is actually mapped
-        // First to Number
-        try {
-            reader.forType(UnwrappedWithNumber.class).readValue(json);
-            fail("Should throw exception with mocking!");
-        } catch (DatabindException e) {
-            verifyMockException(e, MOCK_MSG);
-        }
+            // But then ensure we'll fail with unknown (except does it work with unwrapped?)
+            reader = reader.with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-        // And then to "BigDecimal"
-        // 01-Feb-2023, tatu: Not quite working, yet:
-        try {
-            reader.forType(UnwrappedWithBigDecimal.class).readValue(json);
-            fail("Should throw exception with mocking!");
-        } catch (DatabindException e) {
-            verifyMockException(e, MOCK_MSG);
+            // Ok but then let's ensure method IS called, if field is actually mapped
+            // First to Number
+            try {
+                reader.forType(UnwrappedWithNumber.class).readValue(json);
+                fail("Should throw exception with mocking!");
+            } catch (DatabindException e) {
+                verifyMockException(e, MOCK_MSG);
+            }
+
+            // And then to "BigDecimal"
+            // 01-Feb-2023, tatu: Not quite working, yet:
+            try {
+                reader.forType(UnwrappedWithBigDecimal.class).readValue(json);
+                fail("Should throw exception with mocking!");
+            } catch (DatabindException e) {
+                verifyMockException(e, MOCK_MSG);
+            }
         }
     }
 

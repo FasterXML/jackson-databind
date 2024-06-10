@@ -1,14 +1,15 @@
 package com.fasterxml.jackson.databind.cfg;
 
+import java.util.List;
+import java.util.HashMap;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
 import com.fasterxml.jackson.databind.util.TypeKey;
-import java.util.List;
-import org.junit.Test;
-
-import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("serial")
 public class CacheProviderTest
 {
-
     static class RandomBean {
         public int point;
     }
@@ -121,6 +121,7 @@ public class CacheProviderTest
             return new LRUMap<>(16, 64);
         }
 
+        @Override
         public LookupCache<TypeKey, JsonSerializer<Object>> forSerializerCache(SerializationConfig config) {
             return _cache;
         }
@@ -154,6 +155,7 @@ public class CacheProviderTest
             return _cache;
         }
 
+        @Override
         public LookupCache<TypeKey, JsonSerializer<Object>> forSerializerCache(SerializationConfig config) {
             return new LRUMap<>(16, 64);
         }

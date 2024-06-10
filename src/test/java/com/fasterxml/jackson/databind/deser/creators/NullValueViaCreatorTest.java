@@ -3,13 +3,21 @@ package com.fasterxml.jackson.databind.deser.creators;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 
-public class NullValueViaCreatorTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
+public class NullValueViaCreatorTest
 {
     protected static class Container {
         Contained<String> contained;
@@ -94,6 +102,7 @@ public class NullValueViaCreatorTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testUsesDeserializersNullValue() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new TestModule());
@@ -102,6 +111,7 @@ public class NullValueViaCreatorTest extends BaseMapTest
     }
 
     // [databind#597]: ensure that a useful exception is thrown
+    @Test
     public void testCreatorReturningNull() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = "{ \"type\" : \"     \", \"id\" : \"000c0ffb-a0d6-4d2e-a379-4aeaaf283599\" }";

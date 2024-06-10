@@ -330,14 +330,12 @@ public abstract class SettableBeanProperty
      *
      * @since 2.8.3
      */
-    public void fixAccess(DeserializationConfig config) {
-        ;
-    }
+    public void fixAccess(DeserializationConfig config) { /* nop */ }
 
     /**
      * @since 2.9.4
      */
-    public void markAsIgnorable() { }
+    public void markAsIgnorable() { /* nop */ }
 
     /**
      * @since 2.9.4

@@ -2,15 +2,23 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.Collections;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class DeserializationConfigTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class DeserializationConfigTest extends DatabindTestUtil
 {
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testFeatureDefaults()
     {
         ObjectMapper m = new ObjectMapper();
@@ -29,6 +37,7 @@ public class DeserializationConfigTest extends BaseMapTest
         assertTrue(cfg.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
     }
 
+    @Test
     public void testBasicFeatures() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();
@@ -56,6 +65,7 @@ public class DeserializationConfigTest extends BaseMapTest
                 DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES));
     }
 
+    @Test
     public void testParserFeatures() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();
@@ -68,6 +78,7 @@ public class DeserializationConfigTest extends BaseMapTest
                 JsonReadFeature.ALLOW_MISSING_VALUES));
     }
 
+    @Test
     public void testFormatFeatures() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();
@@ -83,6 +94,7 @@ public class DeserializationConfigTest extends BaseMapTest
      * hit the limit, need to change implementation -- this test just
      * gives low-water mark
      */
+    @Test
     public void testEnumIndexes()
     {
         int max = 0;
@@ -95,6 +107,7 @@ public class DeserializationConfigTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testOverrideIntrospectors()
     {
         ObjectMapper m = new ObjectMapper();
@@ -105,6 +118,7 @@ public class DeserializationConfigTest extends BaseMapTest
         assertNull(cfg.getAnnotationIntrospector());
     }
 
+    @Test
     public void testMisc() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();

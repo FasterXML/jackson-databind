@@ -5,6 +5,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -24,7 +26,11 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class ObjectReaderTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class ObjectReaderTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -42,6 +48,7 @@ public class ObjectReaderTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSimpleViaParser() throws Exception
     {
         final String JSON = "[1]";
@@ -52,6 +59,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertTrue(ob instanceof List<?>);
     }
 
+    @Test
     public void testSimpleAltSources() throws Exception
     {
         final String JSON = "[1]";
@@ -76,6 +84,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     // [databind#2693]: convenience read methods:
+    @Test
     public void testReaderForArrayOf() throws Exception
     {
         Object value = MAPPER.readerForArrayOf(ABC.class)
@@ -88,6 +97,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     // [databind#2693]: convenience read methods:
+    @Test
     public void testReaderForListOf() throws Exception
     {
         Object value = MAPPER.readerForListOf(ABC.class)
@@ -97,6 +107,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     // [databind#2693]: convenience read methods:
+    @Test
     public void testReaderForMapOf() throws Exception
     {
         Object value = MAPPER.readerForMapOf(ABC.class)
@@ -105,6 +116,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(Collections.singletonMap("key", ABC.B), value);
     }
 
+    @Test
     public void testNodeHandling() throws Exception
     {
         JsonNodeFactory nodes = new JsonNodeFactory(true);
@@ -121,6 +133,7 @@ public class ObjectReaderTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testParserFeaturesComments() throws Exception
     {
         final String JSON = "[ /* foo */ 7 ]";
@@ -144,6 +157,7 @@ public class ObjectReaderTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testParserFeaturesCtrlChars() throws Exception
     {
         String FIELD = "a\tb";
@@ -180,6 +194,7 @@ public class ObjectReaderTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testFeatureSettings() throws Exception
     {
         ObjectReader r = MAPPER.reader();
@@ -211,6 +226,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertFalse(r3.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
     }
 
+    @Test
     public void testFeatureSettingsDeprecated() throws Exception
     {
         final ObjectReader r = MAPPER.reader();
@@ -234,6 +250,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertFalse(r3.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
     }
 
+    @Test
     public void testMiscSettings() throws Exception
     {
         ObjectReader r = MAPPER.reader();
@@ -266,6 +283,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testDeprecatedSettings() throws Exception
     {
         ObjectReader r = MAPPER.reader();
@@ -280,6 +298,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertSame(newR, newR.withRootName(PropertyName.construct("foo")));
     }
 
+    @Test
     public void testNoPrefetch() throws Exception
     {
         ObjectReader r = MAPPER.reader()
@@ -289,6 +308,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     // @since 2.10
+    @Test
     public void testGetValueType() throws Exception
     {
         ObjectReader r = MAPPER.reader();
@@ -298,6 +318,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(MAPPER.constructType(String.class), r.getValueType());
     }
 
+    @Test
     public void testParserConfigViaReader() throws Exception
     {
         try (JsonParser p = MAPPER.reader()
@@ -313,6 +334,7 @@ public class ObjectReaderTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testGeneratorConfigViaReader() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -329,6 +351,7 @@ public class ObjectReaderTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testNoPointerLoading() throws Exception {
         final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
 
@@ -339,6 +362,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(1234, pojo.name.get("value"));
     }
 
+    @Test
     public void testPointerLoading() throws Exception {
         final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
 
@@ -349,6 +373,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(1234, pojo.name.get("value"));
     }
 
+    @Test
     public void testPointerLoadingAsJsonNode() throws Exception {
         final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
 
@@ -359,6 +384,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals("{\"value\":1234}", node.get("name").toString());
     }
 
+    @Test
     public void testPointerLoadingMappingIteratorOne() throws Exception {
         final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
 
@@ -374,6 +400,7 @@ public class ObjectReaderTest extends BaseMapTest
         itr.close();
     }
 
+    @Test
     public void testPointerLoadingMappingIteratorMany() throws Exception {
         final String source = "{\"foo\":{\"bar\":{\"caller\":[{\"name\":{\"value\":1234}}, {\"name\":{\"value\":5678}}]}}}";
 
@@ -397,6 +424,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     // [databind#1637]
+    @Test
     public void testPointerWithArrays() throws Exception
     {
         final String json = a2q("{\n'wrapper1': {\n" +
@@ -426,6 +454,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     // [databind#2636]
+    @Test
     public void testCanPassResultToOverloadedMethod() throws Exception {
         final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
 
@@ -449,6 +478,7 @@ public class ObjectReaderTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testTreeToValue() throws Exception
     {
         ArrayNode n = MAPPER.createArrayNode();
@@ -463,6 +493,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals("xyz", arr[0]);
     }
 
+    @Test
     public void testCodecUnsupportedWrites() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(String.class);
@@ -489,6 +520,7 @@ public class ObjectReaderTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testMissingType() throws Exception
     {
         ObjectReader r = MAPPER.reader();
@@ -500,6 +532,7 @@ public class ObjectReaderTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testSchema() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(String.class);
@@ -519,6 +552,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     // For [databind#2297]
+    @Test
     public void testUnknownFields() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder().addHandler(new DeserializationProblemHandler(){
@@ -545,6 +579,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     // [databind#3699]: custom object node classes
+    @Test
     public void testCustomObjectNode() throws Exception
     {
         ObjectNode defaultNode = (ObjectNode) MAPPER.readTree("{\"x\": 1, \"y\": 2}");
@@ -555,6 +590,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     // [databind#3699]: custom array node classes
+    @Test
     public void testCustomArrayNode() throws Exception
     {
         ArrayNode defaultNode = (ArrayNode) MAPPER.readTree("[{\"x\": 1, \"y\": 2}]");
@@ -813,6 +849,7 @@ public class ObjectReaderTest extends BaseMapTest
 
     // // // Tests for reading from Files
 
+    @Test
     public void testReadValueFromFile() throws Exception {
         File file = _createFileWithNameAndJson(
             "testReadValueFromFile",
@@ -824,6 +861,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertTrue(file.delete());
     }
 
+    @Test
     public void testReadValueFromNonExistentFile() throws Exception {
         File file = new File("SHOULD_NOT_EXIST");
         assertFalse(file.exists());
@@ -836,6 +874,7 @@ public class ObjectReaderTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testInputStreamFromEmptyFile() throws Exception {
         File file = _createFileWithNameAndJson(
             "testInputStreamFromEmptyFile",
@@ -851,6 +890,7 @@ public class ObjectReaderTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testReadValuesFromFile() throws Exception {
         File file = _createFileWithNameAndJson(
             "testReadValuesFromFile",

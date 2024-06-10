@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.*;
@@ -46,7 +47,10 @@ import com.fasterxml.jackson.databind.type.ReferenceType;
  * versions.
  */
 public abstract class BeanDeserializerModifier
+    implements Serializable // @since 2.17
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Method called by {@link BeanDeserializerFactory} when it has collected
      * initial list of {@link BeanPropertyDefinition}s, and done basic by-name

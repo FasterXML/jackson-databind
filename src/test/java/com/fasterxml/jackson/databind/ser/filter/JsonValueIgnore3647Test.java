@@ -1,12 +1,16 @@
 package com.fasterxml.jackson.databind.ser.filter;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#3647] : Support @JsonIgnoreProperties to work with @JsonValue
-public class JsonValueIgnore3647Test extends BaseMapTest
+public class JsonValueIgnore3647Test extends DatabindTestUtil
 {
     final static class Foo3647 {
         public String p1 = "hello";
@@ -68,18 +72,21 @@ public class JsonValueIgnore3647Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testIgnorePropsAndJsonValueAtSameLevel() throws Exception
     {
         assertEquals("{\"p2\":\"world\"}", 
                 MAPPER.writeValueAsString(new Bar3647()));
     }
-    
+
+    @Test
     public void testUnionOfIgnorals() throws Exception
     {
         assertEquals("{}", 
                 MAPPER.writeValueAsString(new Container3647()));
     }
-    
+
+    @Test
     public void testMixinContainerAndJsonValue() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -89,7 +96,8 @@ public class JsonValueIgnore3647Test extends BaseMapTest
         assertEquals("{\"a\":\"hello\"}", 
                 mapper.writeValueAsString(new BaseContainer3647()));
     }
-    
+
+    @Test
     public void testMixinAndJsonValue() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

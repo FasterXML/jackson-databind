@@ -2,17 +2,21 @@ package com.fasterxml.jackson.databind.jsontype.jdk;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("serial")
-public class EnumTypingTest extends BaseMapTest
+public class EnumTypingTest extends DatabindTestUtil
 {
     // note: As.WRAPPER_ARRAY worked initially; but as per [JACKSON-485], As.PROPERTY had issues
     @JsonTypeInfo(use=JsonTypeInfo.Id.MINIMAL_CLASS, include=JsonTypeInfo.As.PROPERTY)
@@ -109,6 +113,7 @@ public class EnumTypingTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testTagList() throws Exception
     {
         TagList list = new TagList();
@@ -122,6 +127,7 @@ public class EnumTypingTest extends BaseMapTest
         assertSame(Tag.B, result.get(1));
     }
 
+    @Test
     public void testEnumInterface() throws Exception
     {
         String json = MAPPER.writeValueAsString(Tag.B);
@@ -129,6 +135,7 @@ public class EnumTypingTest extends BaseMapTest
         assertSame(Tag.B, result);
     }
 
+    @Test
     public void testEnumInterfaceList() throws Exception
     {
         EnumInterfaceList list = new EnumInterfaceList();
@@ -142,6 +149,7 @@ public class EnumTypingTest extends BaseMapTest
         assertSame(Tag.B, result.get(1));
     }
 
+    @Test
     public void testUntypedEnum() throws Exception
     {
         String str = MAPPER.writeValueAsString(new UntypedEnumBean(TestEnum.B));
@@ -154,6 +162,7 @@ public class EnumTypingTest extends BaseMapTest
     }
 
     // for [databind#2605]
+    @Test
     public void testRoundtrip() throws Exception
     {
         EnumContaintingClass<TestEnum> input = new EnumContaintingClass<TestEnum>(TestEnum.B);
@@ -164,6 +173,7 @@ public class EnumTypingTest extends BaseMapTest
     }
 
     // [databind#2775]
+    @Test
     public void testEnumAsSubtypeNoFailOnInvalidTypeId() throws Exception
     {
         final Base2775 testValue = TestEnum2775.VALUE;
@@ -177,6 +187,8 @@ public class EnumTypingTest extends BaseMapTest
     }
 
     // [databind#3796]
+    @SuppressWarnings("deprecation")
+    @Test
     public void testEnumAsPolymorphicViaCreator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

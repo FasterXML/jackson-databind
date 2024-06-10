@@ -2,12 +2,17 @@ package com.fasterxml.jackson.databind.views;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [databind#507], supporting default views
-public class DefaultViewTest extends BaseMapTest
+public class DefaultViewTest extends DatabindTestUtil
 {
     // Classes that represent views
     static class ViewA { }
@@ -32,6 +37,7 @@ public class DefaultViewTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testDeserialization() throws IOException
     {
         final String JSON = a2q("{'a':1,'b':2}");
@@ -56,6 +62,7 @@ public class DefaultViewTest extends BaseMapTest
         assertEquals(result.b, 2);
     }
 
+    @Test
     public void testSerialization() throws IOException
     {
         assertEquals(a2q("{'a':3,'b':5}"),

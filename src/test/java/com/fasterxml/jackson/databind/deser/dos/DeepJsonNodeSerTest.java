@@ -1,15 +1,22 @@
 package com.fasterxml.jackson.databind.deser.dos;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-public class DeepJsonNodeSerTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
+public class DeepJsonNodeSerTest
 {
     private final ObjectMapper NO_LIMITS_MAPPER;
     {
@@ -26,6 +33,7 @@ public class DeepJsonNodeSerTest extends BaseMapTest
     //   the default there is
     private final int TEST_NESTING = StreamWriteConstraints.DEFAULT_MAX_DEPTH + 100;
 
+    @Test
     public void testDeepNodeSerWithStreamingLimits() throws Exception
     {
         JsonNode jsonNode = NO_LIMITS_MAPPER.readTree(_nestedDoc(TEST_NESTING));
@@ -39,6 +47,7 @@ public class DeepJsonNodeSerTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testDeepNodeSerNoStreamingLimits() throws Exception
     {
         JsonNode jsonNode = NO_LIMITS_MAPPER.readTree(_nestedDoc(TEST_NESTING));

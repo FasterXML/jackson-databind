@@ -4,9 +4,132 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.17.0 (not yet released)
+2.18.0 (not yet released)
 
--
+#562: Allow `@JsonAnySetter` to flow through Creators
+ (reported by Benson M)
+ (fix by Joo-Hyuk K)
+#806: Problem with `NamingStrategy`, creator methods with implicit names
+#2977: Incompatible `FAIL_ON_MISSING_PRIMITIVE_PROPERTIES` and
+  field level `@JsonProperty`
+ (reported by @GeorgiPetkov)
+#3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
+  for nullability
+ (reported by @joca-bt)
+#4085: `@JsonView` does not work on class-level for records
+ (reported by Ulf D)
+#4119: Exception when deserialization uses a record with a constructor
+  property with `access=READ_ONLY`
+ (reported by @Mochis)
+#4356: `BeanDeserializerModifier::updateBuilder()` doesn't work for
+  beans with Creator methods
+ (reported by Mark H)
+#4452: `@JsonProperty` not serializing field names properly
+  on `@JsonCreator` in Record
+ (reported by @Incara)
+#4453: Allow JSON Integer to deserialize into a single-arg constructor of
+  parameter type `double`
+ (contributed by David M)
+#4456: Rework locking in `DeserializerCache`
+ (contributed by @pjfanning)
+#4458: Rework synchronized block from `BeanDeserializerBase`
+ (contributed by @pjfanning)
+#4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
+  not called on the serializer
+ (reported by Teodor D)
+ (fix by Joo-Hyuk K)
+#4472: Rework synchronized block in `TypeDeserializerBase`
+ (contributed by @pjfanning)
+#4483: Remove `final` on method BeanSerializer.serialize()
+ (contributed by Matthew L)
+#4515: Rewrite Bean Property Introspection logic in Jackson 2.x
+#4545: Unexpected deserialization behavior with `@JsonCreator`,
+  `@JsonProperty` and javac `-parameters`
+ (reported by Alexandre J)
+#4570: Deprecate `ObjectMapper.canDeserialize()`/`ObjectMapper.canSerialize()`
+
+2.17.2 (not yet released)
+
+#4561: Issues using jackson-databind 2.17.1 with Reactor
+ (reported by @wdallastella)
+
+2.17.1 (04-May-2024)
+
+#4428: `ByteBuddy` scope went beyond `test` in version 2.17.0
+ (reported by Miguel M-R)
+ (fix by Joo-Hyuk K)
+#4430: Use `ReentrantLock` instead of `synchronized` in `DeserializerCache`
+  to avoid deadlock on pinning
+ (reported, fix contributed by Oddbjørn K)
+#4435: Cannot deserialize value of type `java.math.BigDecimal` from
+  String ".05": not a valid representation
+ (reported by @EAlf91)
+ (fix by @pjfanning)
+#4441: `@JsonSetter(nulls = Nulls.SKIP)` doesn't work in some situations
+ (reported by @Asapin)
+ (fix by Joo-Hyuk K)
+#4450: Empty QName deserialized as `null`
+ (reported by @winfriedgerlach)
+#4471: Reconsider deprecation of `JsonNode.asText(defaultValue)`
+ (requested by @aerisnju)
+ (fix by Joo-Hyuk K)
+#4481: Unable to override `DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL`
+  with `JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL`
+ (reported by @luozhenyu)
+#4489: Unable to override `DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE`
+  with `JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE`
+ (fix by Joo-Hyuk K)
+
+2.17.0 (12-Mar-2024)
+
+#437: Support throwing `MismatchedInputException` when deserializing
+  properties that are not part of the view
+ (contributed by Joo-Hyuk K)
+#736: `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS` has no effect
+ (reported by @migel)
+ (fix contributed by Joo-Hyuk K)
+#2543: Introspection includes delegating ctor's only parameter as
+  a property in `BeanDescription`
+ (reported by @nikita2206)
+ (fix contributed by Kyrylo M)
+#4160: Deprecate `DefaultTyping.EVERYTHING` in `2.x` and remove in `3.0`
+ (contributed by Joo-Hyuk K)
+#4194: Add `JsonNodeFeature.FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION` option to
+  fail on attempting to coerce `NaN` into `BigDecimal`
+ (contributed by Joo-Hyuk K)
+#4205: Consider types in `sun.*` package(s) to be JDK (platform) types
+  for purposes of handling
+#4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
+  implement `java.io.Serializable`
+ (fix contributed by Muhammad K)
+#4214: `EnumSet` deserialization does not work when we activate
+  default typing in `ObjectMapper`
+ (reported by @dvhvsekhar)
+#4248: `ThrowableDeserializer` does not handle `null` well for `cause`
+#4250: Add input validation for `NumberDeserializers` deserializers
+ for "stringified" FP numbers
+#4262: Improve handling of `null` insertion failure for `TreeSet`
+#4263: Change `ObjectArrayDeserializer` to use "generic" type parameter
+  (`java.lang.Object`) to remove co-variant return type
+#4299: Some `Collection` and `Map` fallbacks don't work in GraalVM native image
+ (contributed by Eduard D)
+#4309: `@JsonSetter(nulls=...)` handling of `Collection` `null` values during
+  deserialization with `READ_UNKNOWN_ENUM_VALUES_AS_NULL` and `FAIL_ON_INVALID_SUBTYPE` wrong
+ (reported by @ivan-zaitsev)
+ (fix contributed by Joo-Hyuk K)
+#4327: `@JsonAlias` not respected by polymorphic deduction
+ (reported by @k-wall)
+ (fix contributed by Joo-Hyuk K)
+#4337: `AtomicReference` serializer does not support `@JsonSerialize(contentConverter=...)`
+#4364: `@JsonProperty` and equivalents should merge with `AnnotationIntrospectorPair`
+#4394: Better Base64 support for `java.util.UUIDs`
+  without padding
+ (fix contributed by Jesper B)
+#4403: Deserialization of unknown value for enums does not yield default enum value
+ (reported by @dominik-henning)
+#4416: Deprecate `JsonNode.asText(String)`
+ (suggested by András P)
+- JUnit5 upgraded to 5.10.1
 
 2.16.3 (not yet released)
 
@@ -48,7 +171,7 @@ Project: jackson-databind
 
 #1770: Incorrect deserialization for `BigDecimal` numbers
  (reported by @cristian-mocanu-mob)
- (fix contributed by @pjfanning)
+ (fix by @pjfanning)
 #2502: Add a way to configure caches Jackson uses
  (contributed by Joo-Hyuk K)
 #2787: Mix-ins do not work for `Enum`s

@@ -1,14 +1,17 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.util.List;
 import javax.measure.Measure;
 
-import java.util.List;
+import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [databind#636]
-public class NoClassDefFoundWorkaroundTest extends BaseMapTest
+public class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
 {
     public static class Parent {
         public List<Child> child;
@@ -18,6 +21,7 @@ public class NoClassDefFoundWorkaroundTest extends BaseMapTest
         public Measure<?> measure;
     }
 
+    @Test
     public void testClassIsMissing()
     {
         try {
@@ -28,6 +32,7 @@ public class NoClassDefFoundWorkaroundTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testDeserialize() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -41,6 +46,7 @@ public class NoClassDefFoundWorkaroundTest extends BaseMapTest
         assertNotNull(result);
     }
 
+    @Test
     public void testUseMissingClass() throws Exception
     {
         boolean missing = false;
@@ -50,6 +56,6 @@ public class NoClassDefFoundWorkaroundTest extends BaseMapTest
         } catch (NoClassDefFoundError ex) {
             missing = true;
         }
-        assertTrue("cannot instantiate a missing class", missing);
+        assertTrue(missing, "cannot instantiate a missing class");
     }
 }

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-public class TestSetterlessProperty
+public class SetterlessPropertyTest
     extends DatabindTestUtil
 {
     static class ImmutableId {
@@ -99,7 +99,7 @@ public class TestSetterlessProperty
         assertEquals(input.id, output.id);
     }
 
-    // this passes - but with an extra (messy) constructor
+    // in the past, this was a workaround for the first test
     @Test
     public void testSetterlessPropertyWithEmptyConstructor() throws Exception
     {
@@ -113,9 +113,6 @@ public class TestSetterlessProperty
         assertEquals(input.id, output.id);
     }
 
-    // this only passes with MyParamIntrospector
-    // - the JsonCreator annotation only seems to work with MyParamIntrospector
-    // - or presumably with jackson-module-parameter-names registered
     @Test
     public void testSetterlessPropertyWithJsonCreator() throws Exception
     {
@@ -131,7 +128,7 @@ public class TestSetterlessProperty
         assertEquals(input.id, output.id);
     }
 
-    // this passes - but needs an untidy JsonProperty annotation
+    // in the past, this was a workaround for the first test
     @Test
     public void testSetterlessPropertyWithJsonPropertyField() throws Exception
     {
@@ -146,7 +143,6 @@ public class TestSetterlessProperty
         assertEquals(input.id, output.id);
     }
 
-    // this still fails - despite the JsonProperty annotation
     @Test
     public void testSetterlessPropertyWithJsonPropertyConstructor() throws Exception
     {

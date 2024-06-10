@@ -28,6 +28,9 @@ public class SingleImmutableFieldCreatorTest
         }
     }
 
+    // Won't work if parameter names available, as in 3.0 (or param names module)
+    // ... because of the default (no-args) constructor
+    /*
     static class ImmutableIdWithEmptyConstuctor {
         private final int id;
 
@@ -39,6 +42,7 @@ public class SingleImmutableFieldCreatorTest
             return id;
         }
     }
+    */
 
     static class ImmutableIdWithJsonCreatorAnnotation {
         private final int id;
@@ -104,6 +108,9 @@ public class SingleImmutableFieldCreatorTest
         assertEquals(input.id, output.id);
     }
 
+    // Won't work if parameter names available, as in 3.0 (or param names module)
+    // ... because of the default (no-args) constructor
+/*
     // in the past, this was a workaround for the first test
     @Test
     public void testSetterlessPropertyWithEmptyConstructor() throws Exception
@@ -116,6 +123,7 @@ public class SingleImmutableFieldCreatorTest
 
         assertEquals(input.id, output.id);
     }
+    */
 
     @Test
     public void testSetterlessPropertyWithJsonCreator() throws Exception

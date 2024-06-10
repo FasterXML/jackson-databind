@@ -17,7 +17,10 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public class ClassNameIdResolver
     extends TypeIdResolverBase
+    implements java.io.Serializable // @since 2.16.2
 {
+    private static final long serialVersionUID = 1L;
+
     private final static String JAVA_UTIL_PKG = "java.util.";
 
     protected final PolymorphicTypeValidator _subTypeValidator;

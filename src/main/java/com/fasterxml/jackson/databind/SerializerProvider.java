@@ -41,7 +41,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * details are delegated to {@link SerializerFactory} instance.
  *<p>
  * Object life-cycle is such that an initial instance ("blueprint") is created
- * and referenced by {@link ObjectMapper} and {@link ObjectWriter} intances;
+ * and referenced by {@link ObjectMapper} and {@link ObjectWriter} instances;
  * but for actual usage, a configured instance is created by using
  * a create method in sub-class
  * {@link com.fasterxml.jackson.databind.ser.DefaultSerializerProvider}.
@@ -258,6 +258,28 @@ public abstract class SerializerProvider
         _nullValueSerializer = src._nullValueSerializer;
         _nullKeySerializer = src._nullKeySerializer;
 
+        _stdNullValueSerializer = src._stdNullValueSerializer;
+    }
+
+
+    /**
+     * @since 2.16
+     */
+    protected SerializerProvider(SerializerProvider src, SerializerCache serializerCache)
+    {
+        _serializerCache = serializerCache;
+
+        _config = src._config;
+        _serializationView = src._serializationView;
+        _serializerFactory = src._serializerFactory;
+        _attributes = src._attributes;
+
+        _knownSerializers = src._knownSerializers;
+        _unknownTypeSerializer = src._unknownTypeSerializer;
+
+        _nullValueSerializer = src._nullValueSerializer;
+        _nullKeySerializer = src._nullKeySerializer;
+        _keySerializer = src._keySerializer;
         _stdNullValueSerializer = src._stdNullValueSerializer;
     }
 
@@ -947,19 +969,15 @@ public abstract class SerializerProvider
     }
 
     /**
-     * Method called to get the serializer to use for serializing
-     * Map keys that are nulls: this is needed since JSON does not allow
-     * any non-String value as key, including null.
-     *<p>
-     * Typically, returned serializer
-     * will either throw an exception, or use an empty String; but
-     * other behaviors are possible.
-     */
-    /**
-     * Method called to find a serializer to use for null values for given
-     * declared type. Note that type is completely based on declared type,
+     * Method called to find a serializer to serializes Map keys that are nulls, 
+     * as JSON does not allow any non-String value as a key, including null.
+     * Note that type is completely based on declared type,
      * since nulls in Java have no type and thus runtime type cannot be
      * determined.
+     * 
+     * @return JsonSerializer that handles the serialization of null keys, 
+     * usually by throwing an exception or using an empty String,
+     * but other behaviors are also possible.
      *
      * @since 2.0
      */

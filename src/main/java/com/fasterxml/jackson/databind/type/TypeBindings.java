@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.type;
 
-import java.lang.reflect.*;
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.JavaType;
@@ -211,6 +211,28 @@ public class TypeBindings
                 ? new String[1] : Arrays.copyOf(_unboundVariables, len+1);
         names[len] = name;
         return new TypeBindings(_names, _types, names);
+    }
+
+    /**
+     * Create a new instance with the same bindings as this object, except with
+     * the given variable removed. This is used to create generic types that are
+     * "partially raw", i.e. only have some variables bound.
+     *
+     * @since 2.16
+     */
+    public TypeBindings withoutVariable(String name)
+    {
+        int index = Arrays.asList(_names).indexOf(name);
+        if (index == -1) {
+            return this;
+        }
+        String[] newNames = Arrays.copyOf(_names, _names.length - 1);
+        JavaType[] newTypes = Arrays.copyOf(_types, _types.length - 1);
+        if (index != newNames.length) {
+            System.arraycopy(_names, index + 1, newNames, index, newNames.length - index);
+            System.arraycopy(_types, index + 1, newTypes, index, newTypes.length - index);
+        }
+        return new TypeBindings(newNames, newTypes, _unboundVariables);
     }
 
     /*

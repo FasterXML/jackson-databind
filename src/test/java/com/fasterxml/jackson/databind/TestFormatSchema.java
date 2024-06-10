@@ -135,7 +135,7 @@ public class TestFormatSchema extends BaseMapTest
     {
         public GeneratorWithSchema(int features, ObjectCodec codec)
         {
-            super(features, codec);
+            super(features, codec, (IOContext) null);
         }
 
         @Override

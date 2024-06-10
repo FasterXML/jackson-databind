@@ -44,7 +44,8 @@ public class ArrayNode
      */
     public ArrayNode(JsonNodeFactory nf, List<JsonNode> children) {
         super(nf);
-        _children = children;
+        _children = Objects.requireNonNull(children,
+                "Must not pass `null` for 'children' argument");
     }
 
     @Override
@@ -188,9 +189,9 @@ public class ArrayNode
             _withXxxSetArrayElement(index, next);
             return next._withArrayAddTailElement(tail, preferIndex);
         }
-        ArrayNode next = this.arrayNode();
+        ObjectNode next = this.objectNode();
         _withXxxSetArrayElement(index, next);
-        return next._withArrayAddTailElement(tail, preferIndex);
+        return next._withArrayAddTailProperty(tail, preferIndex);
     }
 
     protected void _withXxxSetArrayElement(int index, JsonNode value) {

@@ -224,11 +224,6 @@ public class BeanDeserializer
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
-    @Deprecated // since 2.8; remove unless getting used
-    protected Object _missingToken(JsonParser p, DeserializationContext ctxt) throws IOException {
-        throw ctxt.endOfInputException(handledType());
-    }
-
     /**
      * Secondary deserialization method, called in cases where POJO
      * instance is created as part of deserialization, potentially
@@ -301,9 +296,10 @@ public class BeanDeserializer
         throws IOException
     {
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
-        // [databind#631]: Assign current value, to be accessible by custom serializers
-        p.setCurrentValue(bean);
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+            // [databind#631]: Assign current value, to be accessible by custom serializers
+            // [databind#4184]: but only if we have at least one property
+            p.setCurrentValue(bean);
             String propName = p.currentName();
             do {
                 p.nextToken();
@@ -372,6 +368,11 @@ public class BeanDeserializer
             if (id != null) {
                 _handleTypedObjectId(p, ctxt, bean, id);
             }
+        }
+        // [databind#3838]: since 2.16 Uniform handling of missing objectId
+        // only for the specific "empty JSON Object" case
+        if (_objectIdReader != null && p.hasTokenId(JsonTokenId.ID_END_OBJECT)) {
+            ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
         }
         if (_injectables != null) {
             injectValues(ctxt, bean);
@@ -470,7 +471,9 @@ public class BeanDeserializer
             // weren't removed (to help in creating constructor-backed PropertyCreator)
             // so they ended up in _beanProperties, unlike POJO (whose ignored
             // props are removed)
-            if ((prop != null) && !_beanType.isRecordType()) {
+            if ((prop != null) &&
+                // [databind#3938]: except if it's MethodProperty
+                (!_beanType.isRecordType() || (prop instanceof MethodProperty))) {
                 try {
                     buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 } catch (UnresolvedForwardReference reference) {
@@ -522,8 +525,7 @@ public class BeanDeserializer
         try {
             bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
-            wrapInstantiationProblem(e, ctxt);
-            bean = null; // never gets here
+            return wrapInstantiationProblem(e, ctxt);
         }
         // 13-Apr-2020, tatu: [databind#2678] need to handle injection here
         if (_injectables != null) {
@@ -878,9 +880,8 @@ public class BeanDeserializer
                     if (bean.getClass() != _beanType.getRawClass()) {
                         // !!! 08-Jul-2011, tatu: Could probably support; but for now
                         //   it's too complicated, so bail out
-                        ctxt.reportInputMismatch(creatorProp,
+                        return ctxt.reportInputMismatch(creatorProp,
                                 "Cannot create polymorphic instances with unwrapped values");
-                        return null;
                     }
                     return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
                 }
@@ -925,8 +926,7 @@ public class BeanDeserializer
         try {
             bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
-            wrapInstantiationProblem(e, ctxt);
-            return null; // never gets here
+            return wrapInstantiationProblem(e, ctxt);
         }
         return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
     }

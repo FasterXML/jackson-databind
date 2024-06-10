@@ -758,7 +758,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * to data bind into specified type.
      *<p>
-     * Note that the method does NOT change state of this reader, but
+     * Note that the method does not change state of this reader, but
      * rather construct and returns a newly configured instance.
      *
      * @since 2.5
@@ -782,7 +782,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * to data bind into specified type.
      *<p>
-     * Note that the method does NOT change state of this reader, but
+     * Note that the method does not change state of this reader, but
      * rather construct and returns a newly configured instance.
      *
      * @since 2.5
@@ -795,7 +795,27 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * to data bind into specified type.
      *<p>
-     * Note that the method does NOT change state of this reader, but
+     * <b>WARNING!</b> Note that type resolution from {@link java.lang.reflect.Type}
+     * may fail to properly resolve generic type declarations because it does not
+     * pass any context (like {@code Field} or {@code Method} it is included for;
+     * or encloding {@link Class}).
+     * For this reason you should only use this method if you really know what
+     * you are doing.
+     *<p>
+     * Note that the method does not change state of this reader, but
+     * rather construct and returns a newly configured instance.
+     *
+     * @since 2.16
+     */
+    public ObjectReader forType(java.lang.reflect.Type valueType) {
+        return forType(_config.getTypeFactory().constructType(valueType));
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * to data bind into specified type.
+     *<p>
+     * Note that the method does not change state of this reader, but
      * rather construct and returns a newly configured instance.
      *
      * @since 2.5
@@ -821,7 +841,7 @@ public class ObjectReader
     }
 
     /**
-     * @deprecated since 2.5 Use {@link #forType(Class)} instead
+     * @deprecated since 2.5 Use {@link #forType(java.lang.reflect.Type)} instead
      */
     @Deprecated
     public ObjectReader withType(java.lang.reflect.Type valueType) {

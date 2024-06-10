@@ -145,9 +145,11 @@ class FactoryBasedEnumDeserializer
                 // If value cannot possibly be delegating-creator,
                 if (!_valueInstantiator.canCreateFromString()) {
                     final JavaType targetType = getValueType(ctxt);
-                    ctxt.reportInputMismatch(targetType,
-                        "Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects JSON Object (JsonToken.START_OBJECT), got JsonToken.%s",
-                        ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
+                    final JsonToken t = p.currentToken();
+                    return ctxt.reportInputMismatch(targetType,
+                        "Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects Object Value, got %s (`JsonToken.%s`)",
+                        ClassUtil.getTypeDescription(targetType), _factory,
+                        JsonToken.valueDescFor(t), t.name());
                 }
             }
 
@@ -165,8 +167,12 @@ class FactoryBasedEnumDeserializer
             }
             if ((t == null) || !t.isScalarValue()) {
                 // Could argue we should throw an exception but...
-                value = "";
-                p.skipChildren();
+                // 01-Jun-2023, tatu: And now we will finally do it!
+                final JavaType targetType = getValueType(ctxt);
+                return ctxt.reportInputMismatch(targetType,
+                    "Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects String Value, got %s (`JsonToken.%s`)",
+                    ClassUtil.getTypeDescription(targetType), _factory,
+                    JsonToken.valueDescFor(t), t.name());
             } else {
                 value = p.getValueAsString();
             }

@@ -1,25 +1,19 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-// For [databind#2978]
+import com.fasterxml.jackson.annotation.*;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+// For [databind#2978], [databind#4138]
 public class TestDoubleJsonCreator extends BaseMapTest
 {
     static final class UnionExample {
@@ -213,10 +207,41 @@ public class TestDoubleJsonCreator extends BaseMapTest
         }
     }
 
+    // [databind#4138]
+    @JsonTypeInfo(property = "type", use = JsonTypeInfo.Id.NAME)
+    @JsonSubTypes({
+        @JsonSubTypes.Type(Value4138Impl.class)
+    })
+    abstract static class Value4138Base {
+        public abstract Object[] getAllowedValues();
+    }
+
+    @JsonTypeName("type1")
+    static class Value4138Impl extends Value4138Base {
+        Object[] allowedValues;
+
+        protected Value4138Impl() { }
+
+        public Value4138Impl(Object... allowedValues) {
+            this.allowedValues = allowedValues;
+        }
+
+        @Override
+        public Object[] getAllowedValues() {
+            return allowedValues;
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2978]
-    public void testDeserializationTypeFieldLast() throws IOException {
+    public void testDeserializationTypeFieldLast() throws Exception {
         UnionExample expected = UnionExample.double_(AliasDouble.of(2.0D));
         UnionExample actual = MAPPER.readValue(
                 a2q("{'double': 2.0,'type':'double'}"),
@@ -225,11 +250,30 @@ public class TestDoubleJsonCreator extends BaseMapTest
     }
 
     // [databind#2978]
-    public void testDeserializationTypeFieldFirst() throws IOException {
+    public void testDeserializationTypeFieldFirst() throws Exception {
         UnionExample expected = UnionExample.double_(AliasDouble.of(2.0D));
         UnionExample actual = MAPPER.readValue(
                 a2q("{'type':'double','double': 2.0}"),
                 new TypeReference<UnionExample>() {});
         assertEquals(expected, actual);
+    }
+
+    // [databind#4138]
+    public void testDeserializeFPAsObject() throws Exception
+    {
+        final String JSON = "{\"allowedValues\": [ 1.5, 2.5 ], \"type\": \"type1\"}";
+        // By default, should get Doubles
+        Value4138Base value = MAPPER.readValue(JSON, Value4138Base.class);
+        assertEquals(2, value.getAllowedValues().length);
+        assertEquals(Double.class, value.getAllowedValues()[0].getClass());
+        assertEquals(Double.class, value.getAllowedValues()[1].getClass());
+
+        // but can be changed
+        value = MAPPER.readerFor(Value4138Base.class)
+                .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .readValue(JSON);
+        assertEquals(2, value.getAllowedValues().length);
+        assertEquals(BigDecimal.class, value.getAllowedValues()[0].getClass());
+        assertEquals(BigDecimal.class, value.getAllowedValues()[1].getClass());
     }
 }

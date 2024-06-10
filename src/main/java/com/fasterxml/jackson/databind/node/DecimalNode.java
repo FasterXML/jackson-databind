@@ -126,11 +126,23 @@ public class DecimalNode
         if (o == this) return true;
         if (o == null) return false;
         if (o instanceof DecimalNode) {
-            return ((DecimalNode) o)._value.compareTo(_value) == 0;
+            DecimalNode otherNode = (DecimalNode) o;
+            if (otherNode._value == null) {
+                return _value == null;
+            } else if (_value == null) {
+                return false;
+            }
+            return otherNode._value.compareTo(_value) == 0;
         }
         return false;
     }
 
     @Override
-    public int hashCode() { return Double.valueOf(doubleValue()).hashCode(); }
+    public int hashCode() {
+        if (_value == null) {
+            // we need a stable hash code for _value == null
+            return 0;
+        }
+        return Double.valueOf(doubleValue()).hashCode();
+    }
 }

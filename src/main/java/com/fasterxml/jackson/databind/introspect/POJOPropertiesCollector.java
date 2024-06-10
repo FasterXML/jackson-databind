@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -91,7 +92,7 @@ public class POJOPropertiesCollector
 
     /**
      * A set of "field renamings" that have been discovered, indicating
-     * intended renaming of other accesors: key is the implicit original
+     * intended renaming of other accessors: key is the implicit original
      * name and value intended name to use instead.
      *<p>
      * Note that these renamings are applied earlier than "regular" (explicit)
@@ -437,17 +438,18 @@ public class POJOPropertiesCollector
         LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<String, POJOPropertyBuilder>();
 
         // First: gather basic data
-
+        final boolean isRecord = isRecordType();
         // 15-Jan-2023, tatu: [databind#3736] Let's avoid detecting fields of Records
         //   altogether (unless we find a good reason to detect them)
         // 17-Apr-2023: Need Records' fields for serialization for cases like [databind#3895] & [databind#3628]
-        if (!isRecordType() || _forSerialization) {
+        if (!isRecord || _forSerialization) {
             _addFields(props); // note: populates _fieldRenameMappings
         }
         _addMethods(props);
         // 25-Jan-2016, tatu: Avoid introspecting (constructor-)creators for non-static
         //    inner classes, see [databind#1502]
-        if (!_classDef.isNonStaticInnerClass()) {
+        // 13-May-2023, PJ: Need to avoid adding creators for Records when serializing [databind#3925]
+        if (!_classDef.isNonStaticInnerClass() && !(_forSerialization && isRecord)) {
             _addCreators(props);
         }
 
@@ -611,7 +613,10 @@ public class POJOPropertiesCollector
                     //     only retain if also have ignoral annotations (for name or ignoral)
                     if (transientAsIgnoral) {
                         ignored = true;
-                    } else {
+
+                    // 18-Jul-2023, tatu: [databind#3948] Need to retain if there was explicit
+                    //   ignoral marker
+                    } else if (!ignored) {
                         continue;
                     }
                 }
@@ -761,7 +766,7 @@ public class POJOPropertiesCollector
                 _addGetterMethod(props, m, _annotationIntrospector);
             } else if (argCount == 1) { // setters
                 _addSetterMethod(props, m, _annotationIntrospector);
-            } else if (argCount == 2) { // any getter?
+            } else if (argCount == 2) { // any setter?
                 if (Boolean.TRUE.equals(_annotationIntrospector.hasAnySetter(m))) {
                     if (_anySetters == null) {
                         _anySetters = new LinkedList<AnnotatedMethod>();
@@ -972,12 +977,15 @@ public class POJOPropertiesCollector
             // Otherwise, check ignorals
             if (prop.anyIgnorals()) {
                 // Special handling for Records, as they do not have mutators so relying on constructors
-                // with (mostly)  implicitly-named parameters...
-                if (isRecordType()) {
-                    // ...so can only remove ignored field and/or accessors, not constructor parameters that are needed
-                    // for instantiation...
-                    prop.removeIgnored();
-                    // ...which will then be ignored (the incoming property value) during deserialization
+                // with (mostly) implicitly-named parameters...
+                // 20-Jul-2023, tatu: This can be harmful, see f.ex [databind#3992] so
+                //    only use special handling for deserialization
+
+                if (isRecordType() && !_forSerialization) {
+                      // ...so can only remove ignored field and/or accessors, not constructor parameters that are needed
+                      // for instantiation...
+                      prop.removeIgnored();
+                      // ...which will then be ignored (the incoming property value) during deserialization
                     _collectIgnorals(prop.getName());
                     continue;
                 }
@@ -1116,6 +1124,10 @@ public class POJOPropertiesCollector
     protected void _renameUsing(Map<String, POJOPropertyBuilder> propMap,
             PropertyNamingStrategy naming)
     {
+        // [databind#4409]: Need to skip renaming for Enums, unless Enums are handled as OBJECT format
+        if (_type.isEnumType() && (_findFormatShape() != JsonFormat.Shape.OBJECT)) {
+            return;
+        }
         POJOPropertyBuilder[] props = propMap.values().toArray(new POJOPropertyBuilder[propMap.size()]);
         propMap.clear();
         for (POJOPropertyBuilder prop : props) {
@@ -1162,6 +1174,29 @@ public class POJOPropertiesCollector
             // replace the creatorProperty too, if there is one
             _replaceCreatorProperty(prop, _creatorProperties);
         }
+    }
+
+    /**
+     * Helper method called to check if given property should be renamed using {@link PropertyNamingStrategies}.
+     *<p>
+     * NOTE: copied+simplified version of {@code BasicBeanDescription.findExpectedFormat()}.
+     *
+     * @since 2.16.2
+     */
+    private JsonFormat.Shape _findFormatShape()
+    {
+        JsonFormat.Shape shape = null;
+        JsonFormat.Value format = _annotationIntrospector.findFormat(_classDef);
+        if (format != null) {
+            shape = format.getShape();
+        }
+        JsonFormat.Value defFormat = _config.getDefaultPropertyFormat(_classDef.getRawType());
+        if (defFormat != null) {
+            if (shape == null) {
+                shape = defFormat.getShape();
+            }
+        }
+        return shape;
     }
 
     protected void _renameWithWrappers(Map<String, POJOPropertyBuilder> props)

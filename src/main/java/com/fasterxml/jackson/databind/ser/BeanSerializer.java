@@ -126,6 +126,11 @@ public class BeanSerializer
         return new BeanSerializer(this, properties, filteredProperties);
     }
 
+    @Override // @since 2.16
+    public JsonSerializer<?> withIgnoredProperties(Set<String> toIgnore) {
+        return new BeanSerializer(this, toIgnore, null);
+    }
+
     /**
      * Implementation has to check whether as-array serialization
      * is possible reliably; if (and only if) so, will construct

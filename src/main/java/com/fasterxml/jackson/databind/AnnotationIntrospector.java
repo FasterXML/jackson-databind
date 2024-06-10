@@ -59,7 +59,7 @@ public abstract class AnnotationIntrospector
              * Usually this can be defined by using
              * {@link com.fasterxml.jackson.annotation.JsonManagedReference}
              */
-            MANAGED_REFERENCE
+            MANAGED_REFERENCE,
 
             /**
              * Reference property that Jackson manages by suppressing it during serialization,
@@ -67,7 +67,7 @@ public abstract class AnnotationIntrospector
              * Usually this can be defined by using
              * {@link com.fasterxml.jackson.annotation.JsonBackReference}
              */
-            ,BACK_REFERENCE
+            BACK_REFERENCE
             ;
         }
 
@@ -483,6 +483,20 @@ public abstract class AnnotationIntrospector
     /* Annotations for Polymorphic type handling
     /**********************************************************
     */
+
+    /**
+     * Method for checking whether given Class or Property Accessor specifies
+     * polymorphic type-handling information, to indicate need for polymorphic
+     * handling.
+     *
+     * @param config Effective mapper configuration in use
+     * @param ann Annotated entity to introspect
+     *
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    public JsonTypeInfo.Value findPolymorphicTypeInfo(MapperConfig<?> config, Annotated ann) {
+        return null;
+    }
 
     /**
      * Method for checking if given class has annotations that indicate
@@ -1083,9 +1097,32 @@ public abstract class AnnotationIntrospector
      * @return Array of names to use (possible {@code names} passed as argument)
      *
      * @since 2.7
+     *
+     * @deprecated Since 2.16
      */
+    @Deprecated
     public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         // 18-Oct-2016, tatu: In 2.8 delegated to deprecated method; not so in 2.9 and beyond
+        return names;
+    }
+
+    /**
+     * Finds the explicitly defined name of the given set of {@code Enum} values, if any.
+     * The method overwrites entries in the incoming {@code names} array with the explicit
+     * names found, if any, leaving other entries unmodified.
+     *
+     * @param config the mapper configuration to use
+     * @param annotatedClass the annotated class for which to find the explicit names
+     * @param enumValues the set of {@code Enum} values to find the explicit names for
+     * @param names the matching declared names of enumeration values (with indexes matching
+     *              {@code enumValues} entries)
+     *
+     * @return an array of names to use (possibly {@code names} passed as argument)
+     *
+     * @since 2.16
+     */
+    public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[] names) {
         return names;
     }
 
@@ -1102,9 +1139,49 @@ public abstract class AnnotationIntrospector
      *     added (in indexes matching those of {@code enumValues})
      *
      * @since 2.11
+     *
+     * @deprecated Since 2.16
      */
+    @Deprecated
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
         ;
+    }
+
+    /**
+     * Method that is called to check if there are alternative names (aliases) that can be accepted for entries
+     * in addition to primary names that were introspected earlier, related to {@link #findEnumValues}.
+     * These aliases should be returned in {@code String[][] aliases} passed in as argument. 
+     * The {@code aliases.length} is expected to match the number of {@code Enum} values.
+     *
+     * @param config The configuration of the mapper
+     * @param annotatedClass The annotated class of the enumeration type
+     * @param enumValues The values of the enumeration
+     * @param aliases (in/out) Pre-allocated array where aliases found, if any, may be added (in indexes
+     *     matching those of {@code enumValues})
+     *
+     * @since 2.16
+     */
+    public void findEnumAliases(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[][] aliases) {
+        return;
+    }
+
+    /**
+     * Finds the first Enum value that should be considered as default value 
+     * for unknown Enum values, if present.
+     *
+     * @param ac The Enum class to scan for the default value.
+     * @param enumValues     The Enum values of the Enum class.
+     * @return null if none found or it's not possible to determine one.
+     *
+     * @since 2.16
+     */
+    public Enum<?> findDefaultEnumValue(AnnotatedClass ac, Enum<?>[] enumValues) {
+        // 11-Jul-2023, tatu: [databind#4025] redirect to old method for now (to
+        //    help backwards compatibility)
+        @SuppressWarnings("unchecked")
+        Class<Enum<?>> enumCls = (Class<Enum<?>>) ac.getRawType();
+        return findDefaultEnumValue(enumCls);
     }
 
     /**
@@ -1115,7 +1192,9 @@ public abstract class AnnotationIntrospector
      * @return null if none found or it's not possible to determine one
      *
      * @since 2.8
+     * @deprecated Since 2.16. Use {@link #findDefaultEnumValue(AnnotatedClass, Enum[])} instead.
      */
+    @Deprecated
     public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
         return null;
     }

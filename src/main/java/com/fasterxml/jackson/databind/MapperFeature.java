@@ -40,7 +40,7 @@ public enum MapperFeature implements ConfigFeature
      * and Map to modify the property, without requiring a setter
      * method.
      * This is similar to how JAXB framework sets Collections and
-     * Maps: no setter is involved, just setter.
+     * Maps: no setter is involved, just getter.
      *<p>
      * Note that such getters-as-setters methods have lower
      * precedence than setters, so they are only used if no
@@ -58,6 +58,10 @@ public enum MapperFeature implements ConfigFeature
      * Feature is disabled by default, meaning that existence of `transient`
      * for a field does not necessarily lead to ignoral of getters or setters
      * but just ignoring the use of field for access.
+     *<p>
+     * NOTE! This should have no effect on <b>explicit</b> ignoral annotation
+     * possibly added to {@code transient} fields: those should always have expected
+     * semantics (same as if field was not {@code transient}).
      *
      * @since 2.6
      */
@@ -322,7 +326,7 @@ public enum MapperFeature implements ConfigFeature
      * Feature is enabled by default which means that deserialization does
      * support deserializing types via builders with type parameters (generic types).
      *<p>
-     * See: https://github.com/FasterXML/jackson-databind/issues/921
+     * See: <a href="https://github.com/FasterXML/jackson-databind/issues/921">databind#921</a>
      *
      * @since 2.12
      */
@@ -401,6 +405,11 @@ public enum MapperFeature implements ConfigFeature
      *<p>
      * Note: does <b>not</b> apply to {@link java.util.Map} serialization (since
      * entries are not considered Bean/POJO properties.
+     * <p>
+     * WARNING: Disabling it may have a negative impact on deserialization performance.
+     * When disabled, all properties before the last creator property in the input need to be buffered,
+     * since all creator properties are required to create the instance.
+     * Enabling this feature ensures that there is as little buffering as possible. 
      *<p>
      * Feature is enabled by default.
      *

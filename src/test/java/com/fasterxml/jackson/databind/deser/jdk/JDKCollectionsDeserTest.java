@@ -27,7 +27,7 @@ public class JDKCollectionsDeserTest extends BaseMapTest
     /**********************************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private final static ObjectMapper MAPPER = newJsonMapper();
 
     // And then a round-trip test for singleton collections
     public void testSingletonCollections() throws Exception
@@ -60,15 +60,8 @@ public class JDKCollectionsDeserTest extends BaseMapTest
 
         assertEquals("[\"java.util.Collections$UnmodifiableSet\",[\"a\"]]", json);
 
-        // 04-Jan-2018, tatu: Alas, no way to make this actually work well, at this point.
-         //   In theory could jiggle things back on deser, using one of two ways:
-         //
-         //   1) Do mapping to regular Set/List types (abstract type mapping): would work, but get rid of immutability
-         //   2) Have actually separate deserializer OR ValueInstantiator
-        /*
-        Set<String> result = mapper.readValue(json, Set.class);
+        Set<?> result = mapper.readValue(json, Set.class);
         assertNotNull(result);
         assertEquals(1, result.size());
-        */
     }
 }

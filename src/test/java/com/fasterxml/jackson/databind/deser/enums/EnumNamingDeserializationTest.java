@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser.enums;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,14 +11,8 @@ import java.util.Map;
 
 import static com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
 
-public class EnumNamingDeserializationTest extends BaseMapTest {
-
-    /*
-    /**********************************************************
-    /* Set Up
-    /**********************************************************
-    */
-
+public class EnumNamingDeserializationTest extends BaseMapTest
+{
     private final ObjectMapper MAPPER = newJsonMapper();
     private final ObjectMapper MAPPER_CI = jsonMapperBuilder()
             .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
@@ -55,6 +50,15 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
         PEANUT_BUTTER
     }
 
+    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    static enum EnumFlavorF {
+        PEANUT_BUTTER,
+        @JsonProperty("caramel")
+        SALTED_CARAMEL,
+        @JsonAlias({"darkChocolate", "milkChocolate", "whiteChocolate"})
+        CHOCOLATE;
+    }
+
     static class EnumSauceWrapperBean {
         public EnumSauceC sauce;
 
@@ -74,9 +78,18 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
         Map<String, EnumSauceC> map;
     }
 
+    static enum BaseEnum {
+        REAL_NAME
+    }
+
+    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    static enum MixInEnum {
+        REAL_NAME
+    }
+
     /*
     /**********************************************************
-    /* Test
+    /* Test methods
     /**********************************************************
     */
 
@@ -118,6 +131,25 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
             .readValue(q("PEANUT_BUTTER"));
 
         assertNull(result);
+    }
+
+    public void testEnumNamingWithAliasOrProperty() throws Exception {
+        EnumFlavorF pb = MAPPER.readValue(q("peanutButter"), EnumFlavorF.class);
+        assertEquals(EnumFlavorF.PEANUT_BUTTER, pb);
+
+        EnumFlavorF chocolate = MAPPER.readValue(q("chocolate"), EnumFlavorF.class);
+        assertEquals(EnumFlavorF.CHOCOLATE, chocolate);
+
+        EnumFlavorF milk = MAPPER.readValue(q("milkChocolate"), EnumFlavorF.class);
+        assertEquals(EnumFlavorF.CHOCOLATE, milk);
+
+        EnumFlavorF caramel = MAPPER.readValue(q("caramel"), EnumFlavorF.class);
+        assertEquals(EnumFlavorF.SALTED_CARAMEL, caramel);
+
+        EnumFlavorF badCaramel = MAPPER.readerFor(EnumFlavorF.class)
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .readValue(q("saltedCaramel"));
+        assertNull(badCaramel);
     }
 
     public void testEnumNamingStrategySymmetryReadThenWrite() throws Exception {
@@ -219,5 +251,19 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
         assertEquals(2, result.map.size());
         assertEquals(EnumSauceC.KETCH_UP, result.map.get("lowerSauce"));
         assertEquals(EnumSauceC.MAYO_NEZZ, result.map.get("upperSauce"));
+    }
+
+    public void testEnumMixInDeserializationTest() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(BaseEnum.class, MixInEnum.class)
+                .build();
+        
+        // serialization
+        String ser = mapper.writeValueAsString(BaseEnum.REAL_NAME);
+        assertEquals(q("realName"), ser);
+        
+        // deserialization
+        BaseEnum deser = mapper.readValue(q("realName"), BaseEnum.class);
+        assertEquals(BaseEnum.REAL_NAME, deser);
     }
 }

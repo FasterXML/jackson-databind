@@ -2,14 +2,19 @@ package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.BaseMapTest;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.Test;
 
 public class TestSetterlessProperty
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class ImmutableId {
         private final int id;
@@ -66,6 +71,8 @@ public class TestSetterlessProperty
 
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
     {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public String findImplicitPropertyName(AnnotatedMember param) {
             return "id";
@@ -78,6 +85,7 @@ public class TestSetterlessProperty
     /**********************************************************
      */
 
+    @Test
     public void testSetterlessProperty() throws Exception
     {
         ImmutableId input = new ImmutableId(13);
@@ -92,6 +100,7 @@ public class TestSetterlessProperty
     }
 
     // this passes - but with an extra (messy) constructor
+    @Test
     public void testSetterlessPropertyWithEmptyConstructor() throws Exception
     {
         ImmutableIdWithEmptyConstuctor input = new ImmutableIdWithEmptyConstuctor(13);
@@ -107,6 +116,7 @@ public class TestSetterlessProperty
     // this only passes with MyParamIntrospector
     // - the JsonCreator annotation only seems to work with MyParamIntrospector
     // - or presumably with jackson-module-parameter-names registered
+    @Test
     public void testSetterlessPropertyWithJsonCreator() throws Exception
     {
         ImmutableIdWithJsonCreatorAnnotation input = new ImmutableIdWithJsonCreatorAnnotation(13);
@@ -122,6 +132,7 @@ public class TestSetterlessProperty
     }
 
     // this passes - but needs an untidy JsonProperty annotation
+    @Test
     public void testSetterlessPropertyWithJsonPropertyField() throws Exception
     {
         ImmutableIdWithJsonPropertyConstructorAnnotation input = new ImmutableIdWithJsonPropertyConstructorAnnotation(13);
@@ -136,6 +147,7 @@ public class TestSetterlessProperty
     }
 
     // this still fails - despite the JsonProperty annotation
+    @Test
     public void testSetterlessPropertyWithJsonPropertyConstructor() throws Exception
     {
         ImmutableIdWithJsonPropertyFieldAnnotation input = new ImmutableIdWithJsonPropertyFieldAnnotation(13);

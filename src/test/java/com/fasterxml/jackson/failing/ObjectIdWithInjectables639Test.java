@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 // This is probably impossible to handle, in general case, since
 // there is a cycle for Parent2/Child2... unless special handling
 // could be made to ensure that
-class TestObjectIdWithInjectables639 extends DatabindTestUtil {
+class ObjectIdWithInjectables639Test extends DatabindTestUtil {
     public static final class Context {
     }
 

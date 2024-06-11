@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.StreamWriteConstraints;
-
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -58,7 +58,7 @@ public class CyclicDataSerTest
         try {
             writeAndMap(MAPPER, list);
             fail("expected DatabindException");
-        } catch (DatabindException e) {
+        } catch (StreamConstraintsException e) {
             String exceptionPrefix = String.format("Document nesting depth (%d) exceeds the maximum allowed",
                     StreamWriteConstraints.DEFAULT_MAX_DEPTH + 1);
             assertTrue(e.getMessage().startsWith(exceptionPrefix),

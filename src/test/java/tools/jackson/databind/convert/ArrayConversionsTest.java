@@ -6,6 +6,7 @@ import java.lang.reflect.Array;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 
@@ -107,7 +108,7 @@ public class ArrayConversionsTest
         try {
             MAPPER.convertValue(new int[] { 1000 }, byte[].class);
             fail("Expected an exception");
-        } catch (DatabindException e) {
+        } catch (InputCoercionException e) {
             // 16-Jan-2021, tatu: not sure what is ideal as the underlying source
             //    exception is streaming `InputCoercionException`
 
@@ -118,14 +119,14 @@ public class ArrayConversionsTest
         try {
             MAPPER.convertValue(new int[] { -99999 }, short[].class);
             fail("Expected an exception");
-        } catch (DatabindException e) {
+        } catch (InputCoercionException e) {
             verifyException(e, OVERFLOW_MSG_SHORT);
         }
         // Int overflow
         try {
             MAPPER.convertValue(new long[] { Long.MAX_VALUE }, int[].class);
             fail("Expected an exception");
-        } catch (DatabindException e) {
+        } catch (InputCoercionException e) {
             verifyException(e, OVERFLOW_MSG_INT);
         }
         // Longs need help of BigInteger...
@@ -135,7 +136,7 @@ public class ArrayConversionsTest
         try {
             MAPPER.convertValue(l, long[].class);
             fail("Expected an exception");
-        } catch (DatabindException e) {
+        } catch (InputCoercionException e) {
             verifyException(e, OVERFLOW_MSG_LONG);
         }
     }

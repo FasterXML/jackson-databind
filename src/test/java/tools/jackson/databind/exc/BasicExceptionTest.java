@@ -8,7 +8,7 @@ import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
-
+import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.type.TypeFactory;
@@ -122,7 +122,7 @@ public class BasicExceptionTest
         try {
             MAPPER.readValue(problemJson, Users.class);
             fail("Should not pass");
-        } catch (DatabindException e) { // becomes "generic" due to wrapping for passing path info
+        } catch (StreamReadException e) { // becomes "generic" due to wrapping for passing path info
             String msg = e.getMessage();
             String[] str = msg.split(" at \\[");
             if (str.length != 2) {

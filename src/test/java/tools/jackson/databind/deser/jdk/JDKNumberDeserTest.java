@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.*;
+import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.MismatchedInputException;
@@ -201,7 +202,7 @@ public class JDKNumberDeserTest
         try {
             MAPPER.readValue(json, MyBeanHolder.class);
             fail("should have raised exception");
-        } catch (DatabindException e) {
+        } catch (InputCoercionException e) {
             verifyException(e, "not numeric");
         }
     }
@@ -212,7 +213,7 @@ public class JDKNumberDeserTest
         try {
             MyBeanHolder result = MAPPER.readValue(json, MyBeanHolder.class);
             fail("should have raised exception instead value was set to " + result.defaultValue.value.decimal.toString());
-        } catch (DatabindException e) {
+        } catch (InputCoercionException e) {
             verifyException(e, "not numeric");
         }
     }

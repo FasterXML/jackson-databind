@@ -448,6 +448,6 @@ public abstract class StdSerializer<T>
 
     // @since 3.0
     protected JacksonException _wrapIOFailure(SerializerProvider ctxt, IOException e) {
-        return JacksonIOException.construct(e, ctxt);
+        return JacksonIOException.construct(e, ctxt.getGenerator());
     }
 }

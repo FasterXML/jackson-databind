@@ -313,10 +313,10 @@ public class CollectionDeserTest
 
         try {
             wrappingReader.readValue("[{}]");
-        } catch (DatabindException exc) {
+        } catch (JacksonException exc) {
             assertEquals("I want to catch this exception", exc.getOriginalMessage());
         } catch (RuntimeException exc) {
-            fail("The RuntimeException should have been wrapped with a DatabindException.");
+            fail("The RuntimeException should have been wrapped with a DatabindException, got: "+exc.getClass());
         }
 
         final ObjectReader noWrapReader = MAPPER
@@ -385,7 +385,6 @@ public class CollectionDeserTest
             fail("Should not pass");
         } catch (JacksonException e) {
             verifyException(e, "Custom message");
-            assertEquals(DatabindException.class, e.getClass());
             Throwable rootC = e.getCause();
             assertNotNull(rootC);
             assertEquals(CustomException.class, rootC.getClass());

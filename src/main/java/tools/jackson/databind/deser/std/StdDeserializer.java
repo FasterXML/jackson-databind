@@ -1988,7 +1988,7 @@ handledType().getName());
 
     // @since 3.0
     protected JacksonException _wrapIOFailure(DeserializationContext ctxt, IOException e) {
-        return JacksonIOException.construct(e, ctxt);
+        return JacksonIOException.construct(e, ctxt.getParser());
     }
 
     /*

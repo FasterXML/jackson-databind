@@ -48,14 +48,6 @@ public class DatabindException
         super(msg);
     }
 
-    protected DatabindException(String msg, JsonLocation loc) {
-        this(msg, loc, null);
-    }
-
-    protected DatabindException(String msg, Throwable rootCause) {
-        this(msg, null, rootCause);
-    }
-
     /*
     /**********************************************************************
     /* Life-cycle: simple factory methods (for actual construction)
@@ -82,16 +74,8 @@ public class DatabindException
         return new DatabindException(_parser(ctxt), msg);
     }
 
-    public static DatabindException from(DeserializationContext ctxt, String msg, Throwable t) {
-        return new DatabindException(_parser(ctxt), msg, t);
-    }
-
     private static JsonParser _parser(DeserializationContext ctxt) {
         return (ctxt == null) ? null : ctxt.getParser();
-    }
-
-    public static DatabindException from(SerializerProvider ctxt, String msg) {
-        return new DatabindException(_generator(ctxt), msg);
     }
 
     public static DatabindException from(SerializerProvider ctxt, String msg, Throwable problem) {

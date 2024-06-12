@@ -78,6 +78,10 @@ public class DatabindException
         return (ctxt == null) ? null : ctxt.getParser();
     }
 
+    public static DatabindException from(SerializerProvider ctxt, String msg) {
+        return new DatabindException(_generator(ctxt), msg);
+    }
+
     public static DatabindException from(SerializerProvider ctxt, String msg, Throwable problem) {
         // 17-Aug-2015, tatu: As per [databind#903] this is bit problematic as
         //   SerializerProvider instance does not currently hold on to generator...

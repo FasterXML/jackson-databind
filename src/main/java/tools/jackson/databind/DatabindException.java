@@ -91,49 +91,4 @@ public class DatabindException
     private static JsonGenerator _generator(SerializerProvider ctxt) {
         return (ctxt == null) ? null : ctxt.getGenerator();
     }
-
-    /*
-    /**********************************************************************
-    /* Overridden standard methods
-    /**********************************************************************
-     */
-
-    @Override
-    public String getLocalizedMessage() {
-        return _buildMessage();
-    }
-
-    /**
-     * Method is overridden so that we can properly inject description
-     * of problem path, if such is defined.
-     */
-    @Override
-    public String getMessage() {
-        return _buildMessage();
-    }
-
-    protected String _buildMessage()
-    {
-        // First: if we have no path info, let's just use parent's definition as is
-        String msg = super.getMessage();
-        if (_path == null) {
-            return msg;
-        }
-        StringBuilder sb = (msg == null) ? new StringBuilder() : new StringBuilder(msg);
-        /* 18-Feb-2009, tatu: initially there was a linefeed between
-         *    message and path reference; but unfortunately many systems
-         *   (loggers, junit) seem to assume linefeeds are only added to
-         *   separate stack trace.
-         */
-        sb.append(" (through reference chain: ");
-        sb = getPathReference(sb);
-        sb.append(')');
-        return sb.toString();
-    }
-
-    @Override
-    public String toString()
-    {
-        return getClass().getName()+": "+getMessage();
-    }
 }

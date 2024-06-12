@@ -6,12 +6,17 @@ import java.util.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.Converter;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
@@ -317,5 +322,78 @@ public class TestCustomSerializers extends DatabindTestUtil
 
         assertEquals(a2q("{'id':'ID-2','set':[]}"),
                 writer.writeValueAsString(new Item2475(new HashSet<String>(), "ID-2")));
+    }
+
+    // [databind#4575]
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
+    @JsonSubTypes(
+        {
+            @JsonSubTypes.Type(Sub.class)
+        }
+    )
+    @JsonTypeName("Super")
+    public static class Super {
+        public static final Super NULL = new Super();
+    }
+
+    @JsonTypeName("Sub")
+    public static class Sub extends Super {
+    }
+
+    static class NullSerializer extends StdDelegatingSerializer {
+        public NullSerializer(Converter<Object, ?> converter, JavaType delegateType, JsonSerializer<?> delegateSerializer) {
+            super(converter, delegateType, delegateSerializer);
+        }
+
+        public NullSerializer(TypeFactory typeFactory, JsonSerializer<?> delegateSerializer) {
+            this(
+                new Converter<Object, Object>() {
+                    @Override
+                    public Object convert(Object value) {
+                        return value == Super.NULL ? null : value;
+                    }
+
+                    @Override
+                    public JavaType getInputType(TypeFactory typeFactory) {
+                        return typeFactory.constructType(delegateSerializer.handledType());
+                    }
+
+                    @Override
+                    public JavaType getOutputType(TypeFactory typeFactory) {
+                        return typeFactory.constructType(delegateSerializer.handledType());
+                    }
+                },
+                typeFactory.constructType(delegateSerializer.handledType() == null ? Object.class : delegateSerializer.handledType()),
+                delegateSerializer
+            );
+        }
+
+        @Override
+        protected StdDelegatingSerializer withDelegate(Converter<Object, ?> converter, JavaType delegateType, JsonSerializer<?> delegateSerializer) {
+            return new NullSerializer(converter, delegateType, delegateSerializer);
+        }
+    }
+
+    @Test
+    public void testIssue4575() throws Exception {
+        com.fasterxml.jackson.databind.Module module = new SimpleModule() {
+            {
+                setSerializerModifier(new BeanSerializerModifier() {
+                    @Override
+                    public JsonSerializer<?> modifySerializer(
+                        SerializationConfig config, BeanDescription beanDesc, JsonSerializer<?> serializer
+                    ) {
+                        return new NullSerializer(config.getTypeFactory(), serializer);
+                    }
+                });
+            }
+        };
+
+        ObjectMapper mapper = new ObjectMapper().registerModule(module);
+
+        assertEquals("{\"@type\":\"Super\"}", mapper.writeValueAsString(new Super()));
+        assertEquals("{\"@type\":\"Sub\"}", mapper.writeValueAsString(new Sub()));
+        assertEquals("null", mapper.writeValueAsString(Super.NULL));
     }
 }

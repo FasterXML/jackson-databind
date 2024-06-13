@@ -1,4 +1,4 @@
-name: Trigger downstream builds
+name: Trigger downstream Jackson 2.x builds
 on:
   workflow_call:
     secrets:
@@ -6,7 +6,7 @@ on:
         required: true
 
 jobs:
-  trigger-dep-build:
+  trigger-dep-build-v2:
     name: Trigger downstream builds
     runs-on: ubuntu-latest
 

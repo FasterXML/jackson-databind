@@ -106,24 +106,23 @@ public class BigNumbersDeserTest
     @Test
     public void testNumberStartingWithDot() throws Exception {
         _testNumberWith(".555555555555555555555555555555");
-    }
-
-    // [databind#4435]
-    @Test
-    public void testNumberStartingWithMinusDot() throws Exception {
         _testNumberWith("-.555555555555555555555555555555");
-    }
-
-    // [databind#4435]
-    @Test
-    public void testNumberStartingWithPlusDot() throws Exception {
         _testNumberWith("+.555555555555555555555555555555");
     }
 
+    // [databind#4577]
+    @Test
+    public void testNumberEndingWithDot() throws Exception {
+        _testNumberWith("55.");
+        _testNumberWith("-55.");
+        _testNumberWith("+55.");
+    }
+    
     private void _testNumberWith(String num) throws Exception
     {
+        BigDecimal exp = new BigDecimal(num);
         BigDecimalWrapper w = MAPPER.readValue("{\"number\":\"" + num + "\"}", BigDecimalWrapper.class);
-        assertEquals(new BigDecimal(num), w.number);
+        assertEquals(exp, w.number);
     }
 
     private String generateJson(final String fieldName) {

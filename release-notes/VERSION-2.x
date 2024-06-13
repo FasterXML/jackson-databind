@@ -55,6 +55,9 @@ Project: jackson-databind
 #4575: StdDelegatingSerializer does not consider a Converter that may
   return null for a non-null input
  (reported, fix contributed by Peter L)
+#4577: Cannot deserialize value of type `java.math.BigDecimal` from
+   String "3." (not a valid representation)
+ (reported by @dmelisso)
 
 2.17.1 (04-May-2024)
 

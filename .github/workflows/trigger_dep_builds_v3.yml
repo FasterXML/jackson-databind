@@ -17,6 +17,7 @@ jobs:
       matrix:
         repo:
           - 'FasterXML/jackson-modules-base'
+          - 'FasterXML/jackson-modules-java8'
           - 'FasterXML/jackson-dataformats-binary'
           - 'FasterXML/jackson-dataformats-text'
           - 'FasterXML/jackson-dataformat-xml'

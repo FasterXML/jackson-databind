@@ -1,4 +1,4 @@
-name: Re-build on jackson-core push
+name: Re-build on jackson-core v2 push
 on:
   repository_dispatch:
     types: [jackson-core-pushed]
@@ -34,6 +34,6 @@ jobs:
   trigger-dep-build:
     name: Trigger downstream builds
     needs: [build]
-    uses: ./.github/workflows/trigger_dep_builds.yml
+    uses: ./.github/workflows/trigger_dep_builds_v2.yml
     secrets:
       token: ${{ secrets.REPO_DISPATCH }}

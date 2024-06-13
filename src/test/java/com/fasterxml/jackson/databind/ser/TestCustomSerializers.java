@@ -371,6 +371,7 @@ public class TestCustomSerializers extends DatabindTestUtil
                 writer.writeValueAsString(new Item2475(new HashSet<String>(), "ID-2")));
     }
 
+    // [databind#4575]
     @Test
     public void testIssue4575() throws Exception {
         com.fasterxml.jackson.databind.Module module = new SimpleModule() {

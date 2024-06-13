@@ -1774,3 +1774,8 @@ Oddbjørn Kvalsund (oddbjornkvalsund@github)
  * Reported, contributed fix for #4430: Use `ReentrantLock` instead of `synchronized`
    in `DeserializerCache` to avoid deadlock on pinning
   (2.17.1)
+
+Peter Levart (plevart@github)
+ * Reported, contributed fix for #4575: StdDelegatingSerializer does not consider
+   a Converter that may return null for a non-null input
+  (2.17.2)

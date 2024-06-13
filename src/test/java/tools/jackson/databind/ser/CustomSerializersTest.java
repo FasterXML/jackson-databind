@@ -8,9 +8,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.CharacterEscapes;
@@ -22,6 +20,8 @@ import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.jdk.CollectionSerializer;
 import tools.jackson.databind.ser.std.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.util.Converter;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -189,6 +189,60 @@ public class CustomSerializersTest extends DatabindTestUtil
         }
     }
 
+    // [databind#4575]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
+    @JsonSubTypes(
+        {
+            @JsonSubTypes.Type(Sub4575.class)
+        }
+    )
+    @JsonTypeName("Super")
+    static class Super4575 {
+        public static final Super4575 NULL = new Super4575();
+    }
+
+    @JsonTypeName("Sub")
+    static class Sub4575 extends Super4575 { }
+
+    static class NullSerializer4575 extends StdDelegatingSerializer {
+        public NullSerializer4575(Converter<Object, ?> converter, JavaType delegateType,
+                ValueSerializer<?> delegateSerializer,
+                BeanProperty prop) {
+            super(converter, delegateType, delegateSerializer, prop);
+        }
+
+        public NullSerializer4575(TypeFactory typeFactory, ValueSerializer<?> delegateSerializer,
+                BeanProperty prop) {
+            this(
+                new Converter<Object, Object>() {
+                    @Override
+                    public Object convert(Object value) {
+                        return value == Super4575.NULL ? null : value;
+                    }
+
+                    @Override
+                    public JavaType getInputType(TypeFactory typeFactory) {
+                        return typeFactory.constructType(delegateSerializer.handledType());
+                    }
+
+                    @Override
+                    public JavaType getOutputType(TypeFactory typeFactory) {
+                        return typeFactory.constructType(delegateSerializer.handledType());
+                    }
+                },
+                typeFactory.constructType(delegateSerializer.handledType() == null ? Object.class : delegateSerializer.handledType()),
+                delegateSerializer,
+                prop
+            );
+        }
+
+        @Override
+        protected StdDelegatingSerializer withDelegate(Converter<Object, ?> converter,
+                JavaType delegateType, ValueSerializer<?> delegateSerializer,
+                BeanProperty prop) {
+            return new NullSerializer4575(converter, delegateType, delegateSerializer, prop);
+        }
+    }
 
     /*
     /**********************************************************
@@ -324,5 +378,26 @@ public class CustomSerializersTest extends DatabindTestUtil
 
         assertEquals(a2q("{'id':'ID-2','set':[]}"),
                 writer.writeValueAsString(new Item2475(new HashSet<String>(), "ID-2")));
+    }
+
+    // [databind#4575]
+    @Test
+    public void testIssue4575() throws Exception {
+        SimpleModule module = new SimpleModule().setSerializerModifier(new ValueSerializerModifier() {
+                    @Override
+                    public ValueSerializer<?> modifySerializer(
+                        SerializationConfig config, BeanDescription beanDesc, ValueSerializer<?> serializer
+                    ) {
+                        return new NullSerializer4575(config.getTypeFactory(), serializer, null);
+                    }
+                });
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+
+        assertEquals("{\"@type\":\"Super\"}", mapper.writeValueAsString(new Super4575()));
+        assertEquals("{\"@type\":\"Sub\"}", mapper.writeValueAsString(new Sub4575()));
+        assertEquals("null", mapper.writeValueAsString(Super4575.NULL));
     }
 }

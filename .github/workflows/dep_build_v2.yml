@@ -1,4 +1,4 @@
-name: Re-build on jackson-core push
+name: Re-build on jackson-core v2 push
 on:
   repository_dispatch:
     types: [jackson-core-pushed]

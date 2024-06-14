@@ -107,15 +107,26 @@ public class ObjectMapperTest extends DatabindTestUtil
         ObjectMapper m = newJsonMapper();
 
         // sort-alphabetically is disabled by default:
-        assertFalse(m.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
-        assertTrue(m.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                m.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertEquals(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST.enabledByDefault(),
+                m.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+
         SerializationConfig sc = m.serializationConfig();
-        assertFalse(sc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
-        assertFalse(sc.shouldSortPropertiesAlphabetically());
-        assertTrue(sc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                sc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                sc.shouldSortPropertiesAlphabetically());
+        assertEquals(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST.enabledByDefault(),
+                sc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+
         DeserializationConfig dc = m.deserializationConfig();
-        assertFalse(dc.shouldSortPropertiesAlphabetically());
-        assertTrue(dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                dc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                dc.shouldSortPropertiesAlphabetically());
+        assertEquals(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST.enabledByDefault(),
+                dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
 
         // but when enabled, should be visible:
         m = jsonMapperBuilder()

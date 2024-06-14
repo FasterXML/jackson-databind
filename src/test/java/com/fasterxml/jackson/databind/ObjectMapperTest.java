@@ -289,15 +289,28 @@ public class ObjectMapperTest
     @Test
     public void testConfigForPropertySorting() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
 
-        // sort-alphabetically is disabled by default:
-        assertFalse(m.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                m.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertEquals(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST.enabledByDefault(),
+                m.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+
         SerializationConfig sc = m.getSerializationConfig();
-        assertFalse(sc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
-        assertFalse(sc.shouldSortPropertiesAlphabetically());
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                sc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                sc.shouldSortPropertiesAlphabetically());
+        assertEquals(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST.enabledByDefault(),
+                sc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+
         DeserializationConfig dc = m.getDeserializationConfig();
-        assertFalse(dc.shouldSortPropertiesAlphabetically());
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                dc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                dc.shouldSortPropertiesAlphabetically());
+        assertEquals(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST.enabledByDefault(),
+                dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
 
         // but when enabled, should be visible:
         m = jsonMapperBuilder()

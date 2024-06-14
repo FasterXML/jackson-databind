@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
-
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -265,6 +265,27 @@ public class ObjectMapperTest
                 m2.getDeserializationConfig().getAnnotationIntrospector().getClass());
         assertEquals(MyAnnotationIntrospector.class,
                 m2.getSerializationConfig().getAnnotationIntrospector().getClass());
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, JsonMapper.rebuild()
+    /**********************************************************
+     */
+
+    @Test
+    public void jsonMapperRebuildTest()
+    {
+        JsonMapper m = JsonMapper.builder().build();
+        JsonMapper m2 = m.copy();
+        assertNotSame(m, m2);
+
+        JsonMapper m3 = m2.rebuild()
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .enable(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)
+                .build();
+        assertNotSame(m2, m3);
     }
 
     /*

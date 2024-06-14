@@ -415,6 +415,7 @@ public class CoerceToBooleanTest
         verifyException(e, "Cannot coerce ", "Cannot deserialize value of type ");
 
         JsonParser p = (JsonParser) e.processor();
+        assertNotNull(p);
 
         assertToken(tokenType, p.currentToken());
 

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import tools.jackson.databind.DatabindException;
+import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -67,7 +67,7 @@ public class TestExceptionHandlingWithJsonCreatorDeserialization
         try {
             mapper.readValue(input, Foo.class);
             fail("Upsss! Exception has not been thrown.");
-        } catch (DatabindException ex) {
+        } catch (StreamReadException ex) {
             // then
             assertEquals(THIS+"$Foo[\"bar\"]->"+THIS+"$Bar[\"baz\"]",
                     ex.getPathReference());

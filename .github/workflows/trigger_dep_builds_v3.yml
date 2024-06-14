@@ -1,4 +1,4 @@
-name: Trigger downstream builds
+name: Trigger downstream Jackson 3.x builds
 on:
   workflow_call:
     secrets:
@@ -6,7 +6,7 @@ on:
         required: true
 
 jobs:
-  trigger-dep-build:
+  trigger-dep-build-v3:
     name: Trigger downstream builds
     runs-on: ubuntu-latest
 
@@ -17,6 +17,7 @@ jobs:
       matrix:
         repo:
           - 'FasterXML/jackson-modules-base'
+          - 'FasterXML/jackson-modules-java8'
           - 'FasterXML/jackson-dataformats-binary'
           - 'FasterXML/jackson-dataformats-text'
           - 'FasterXML/jackson-dataformat-xml'
@@ -32,7 +33,7 @@ jobs:
         with:
           token: ${{ secrets.token }}
           repository: ${{ matrix.repo }}
-          event-type: jackson-databind-pushed
+          event-type: jackson-databind-pushed-v3
           # Could push information on what was built but not yet
           client-payload: '{"version": "N/A" }'
       - name: Delay between dispatches

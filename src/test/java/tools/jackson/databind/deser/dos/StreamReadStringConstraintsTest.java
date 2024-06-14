@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.StreamReadConstraints;
-
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -54,7 +54,7 @@ public class StreamReadStringConstraintsTest
         try {
             MAPPER.readValue(generateJson("string", TOO_LONG_STRING_VALUE), StringWrapper.class);
             fail("expected DatabindException");
-        } catch (DatabindException e) {
+        } catch (StreamConstraintsException e) {
             final String message = e.getMessage();
             assertTrue(message.startsWith("String value length"), "unexpected exception message: " + message);
             assertTrue(message.contains("exceeds the maximum allowed ("), "unexpected exception message: " + message);
@@ -67,7 +67,7 @@ public class StreamReadStringConstraintsTest
         try {
             MAPPER.readValue(generateJson("string", TOO_LONG_STRING_VALUE), StringWrapper.class);
             fail("expected JsonMappingException");
-        } catch (DatabindException e) {
+        } catch (StreamConstraintsException e) {
             final String message = e.getMessage();
             // this test fails when the TextBuffer is being resized, so we don't yet know just how big the string is
             // so best not to assert that the String length value in the message is the full 6000000 value

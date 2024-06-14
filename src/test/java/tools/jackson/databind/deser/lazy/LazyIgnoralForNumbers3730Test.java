@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.io.NumberInput;
 
 import tools.jackson.databind.*;
@@ -122,7 +123,7 @@ public class LazyIgnoralForNumbers3730Test
             try {
                 Object ob = STRICT_MAPPER.readValue(json, UnwrappedWithNumber.class);
                 fail("Should throw exception with mocking: instead got: "+MAPPER.writeValueAsString(ob));
-            } catch (DatabindException e) {
+            } catch (JacksonException e) {
                 verifyMockException(e, MOCK_MSG);
             }
         }
@@ -152,7 +153,7 @@ public class LazyIgnoralForNumbers3730Test
             try {
                 STRICT_MAPPER.readValue(json, UnwrappedWithNumber.class);
                 fail("Should throw exception with mocking!");
-            } catch (DatabindException e) {
+            } catch (JacksonException e) {
                 verifyMockException(e, MOCK_MSG);
             }
 
@@ -161,7 +162,7 @@ public class LazyIgnoralForNumbers3730Test
             try {
                 STRICT_MAPPER.readValue(json, UnwrappedWithDouble.class);
                 fail("Should throw exception with mocking!");
-            } catch (DatabindException e) {
+            } catch (JacksonException e) {
                 e.printStackTrace();
                 verifyMockException(e, MOCK_MSG);
             }
@@ -200,7 +201,7 @@ public class LazyIgnoralForNumbers3730Test
             try {
                 reader.forType(UnwrappedWithNumber.class).readValue(json);
                 fail("Should throw exception with mocking!");
-            } catch (DatabindException e) {
+            } catch (JacksonException e) {
                 verifyMockException(e, MOCK_MSG);
             }
 
@@ -209,7 +210,7 @@ public class LazyIgnoralForNumbers3730Test
             try {
                 reader.forType(UnwrappedWithBigDecimal.class).readValue(json);
                 fail("Should throw exception with mocking!");
-            } catch (DatabindException e) {
+            } catch (JacksonException e) {
                 verifyMockException(e, MOCK_MSG);
             }
         }
@@ -224,7 +225,7 @@ public class LazyIgnoralForNumbers3730Test
         return stringBuilder.toString();
     }
 
-    private void verifyMockException(DatabindException e, String expMsg) {
+    private void verifyMockException(JacksonException e, String expMsg) {
         Throwable cause = e.getCause();
         assertEquals(IllegalStateException.class, cause.getClass());
         assertEquals(expMsg, cause.getMessage());

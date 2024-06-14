@@ -136,8 +136,7 @@ public class ObjectReaderTest
         try {
             reader.without(JsonReadFeature.ALLOW_JAVA_COMMENTS).readValue(JSON);
             fail("Should not have passed");
-        } catch (DatabindException e) {
-            // DatabindException since it gets wrapped
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
             verifyException(e, "maybe a (non-standard) comment");
         }

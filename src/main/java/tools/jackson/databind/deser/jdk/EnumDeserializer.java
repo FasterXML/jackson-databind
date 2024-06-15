@@ -62,7 +62,7 @@ public class EnumDeserializer
      * @since 2.16
      */
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
-                            EnumResolver byEnumNamingResolver, EnumResolver toStringResolver)
+            EnumResolver byEnumNamingResolver, EnumResolver toStringResolver)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
@@ -74,7 +74,7 @@ public class EnumDeserializer
         _lookupByToString = toStringResolver == null ? null : toStringResolver.constructLookup();
     }
 
-    protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive,
+    protected EnumDeserializer(EnumDeserializer base, boolean caseInsensitive,
             Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum)
     {
         super(base);

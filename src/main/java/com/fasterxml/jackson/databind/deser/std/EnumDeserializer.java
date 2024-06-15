@@ -79,14 +79,14 @@ public class EnumDeserializer
      */
     public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
     {
-        this(byNameResolver, caseInsensitive, null);
+        this(byNameResolver, Boolean.TRUE.equals(caseInsensitive), null);
     }
 
     /**
      * @since 2.15
      */
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
-                            EnumResolver byEnumNamingResolver)
+            EnumResolver byEnumNamingResolver)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
@@ -107,7 +107,7 @@ public class EnumDeserializer
         _lookupByName = base._lookupByName;
         _enumsByIndex = base._enumsByIndex;
         _enumDefaultValue = base._enumDefaultValue;
-        _caseInsensitive = caseInsensitive;
+        _caseInsensitive = Boolean.TRUE.equals(caseInsensitive);
         _isFromIntValue = base._isFromIntValue;
         _useDefaultValueForUnknownEnum = useDefaultValueForUnknownEnum;
         _useNullForUnknownEnum = useNullForUnknownEnum;

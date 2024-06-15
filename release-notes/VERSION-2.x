@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+Not yet released:
+
+#4581: Incompatible Constructor Parameter Type in `EnumDeserializer`
+ (reported by @Hunter-Lam)
+
 2.15.4 (15-Feb-2024)
 
 #1172: `@JsonView` doesn't work with `@JsonCreator`

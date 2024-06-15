@@ -11,7 +11,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestBaseTypeAsDefault extends DatabindTestUtil
+public class BaseTypeAsDefaultTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
     static class Parent {

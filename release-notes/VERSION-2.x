@@ -5,14 +5,16 @@ Project: jackson-databind
 ------------------------------------------------------------------------
 
 2.17.0 (not yet released)
+Not yet released:
 
--
 
 2.16.3 (not yet released)
 
 #4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
  (reported by Guillaume J)
  (fix contributed by Joo-Hyuk K)
+#4581: Incompatible Constructor Parameter Type in `EnumDeserializer`
+ (reported by @Hunter-Lam)
 
 2.16.2 (09-Mar-2024)
 

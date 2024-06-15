@@ -90,7 +90,9 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   /**********************************************************
    */
 
-  private final ObjectMapper MAPPER = newJsonMapper();
+  private final ObjectMapper MAPPER = jsonMapperBuilder()
+          .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+          .build();
 
   @Test
   public void testSimpleInference() throws Exception {

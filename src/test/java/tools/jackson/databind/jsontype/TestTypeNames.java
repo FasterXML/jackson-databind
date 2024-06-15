@@ -44,7 +44,9 @@ public class TestTypeNames extends DatabindTestUtil
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+            .build();
 
     @Test
     public void testBaseTypeId1616() throws Exception

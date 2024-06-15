@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.JsonParserSequence;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.jsontype.TypeIdResolver;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.TokenBuffer;
 
 /**
@@ -130,7 +132,13 @@ public class AsArrayTypeDeserializer
             // Need to allow even more customized handling, if something unexpected seen...
             // but should there be a way to limit this to likely success cases?
             if (_defaultImpl != null) {
-                return _idResolver.idFromBaseType(ctxt);
+                String id = _idResolver.idFromBaseType(ctxt);
+                if (id == null) {
+                    ctxt.reportBadDefinition(_idResolver.getClass(),
+                            "`idFromBaseType()` (of "
+                            +ClassUtil.classNameOf(_idResolver)+") returned `null`");
+                }
+                return id;
             }
              ctxt.reportWrongTokenException(baseType(), JsonToken.START_ARRAY,
                      "need Array value to contain `As.WRAPPER_ARRAY` type information for class "+baseTypeName());

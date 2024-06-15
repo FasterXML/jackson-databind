@@ -40,7 +40,7 @@ public enum MapperFeature
      * precedence than setters, so they are only used if no
      * setter is found for the Map/Collection property.
      *<p>
-     * Feature is disabled by default since 3.0 (with 2.x was enabled)
+     * Feature is disabled by default since 3.0 (in 2.x was enabled)
      */
     USE_GETTERS_AS_SETTERS(false),
 
@@ -278,9 +278,9 @@ public enum MapperFeature
      * Note: does <b>not</b> apply to {@link java.util.Map} serialization (since
      * entries are not considered Bean/POJO properties.
      *<p>
-     * Feature is disabled by default.
+     * Feature is enabled by default since 3.0 (in 2.x was disabled)
      */
-    SORT_PROPERTIES_ALPHABETICALLY(false),
+    SORT_PROPERTIES_ALPHABETICALLY(true),
 
     /**
      * Feature that defines whether Creator properties (ones passed through

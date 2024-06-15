@@ -43,7 +43,7 @@ class RecordCreatorSerialization4452Test {
     public void testPlain() throws Exception
     {
         String result = OBJECT_MAPPER.writeValueAsString(new PlainTestObject("test", 1));
-        assertEquals("{\"strField\":\"test\",\"intField\":1}", result);
+        assertEquals("{\"intField\":1,\"strField\":\"test\"}", result);
     }
 
     @Test

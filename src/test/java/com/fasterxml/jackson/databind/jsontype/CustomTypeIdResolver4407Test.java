@@ -160,15 +160,20 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     // [databind#4407]: with "as-property" type id
     @Test
-    public void testTypeIdProp4407() throws Exception
+    public void testTypeIdProp4407NonNull() throws Exception
     {
         // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':{'type':'typeX','value':'xyz'}}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407Prop("xyz")));
         assertNotNull(MAPPER.readValue(EXP, Wrapper4407Prop.class));
+    }
 
+    @Test
+    public void testTypeIdProp4407Null() throws Exception
+    {
         // And then null one
+        final String EXP = a2q("{'wrapped':{'type':'typeX','value':'xyz'}}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407PropNull("xyz")));
         assertNotNull(MAPPER.readValue(EXP, Wrapper4407PropNull.class));
@@ -176,15 +181,20 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     // [databind#4407]: with "as-wrapper-array" type id
     @Test
-    public void testTypeIdWrapperArray4407() throws Exception
+    public void testTypeIdWrapperArray4407NonNull() throws Exception
     {
         // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':['typeX',{'value':'xyz'}]}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407WrapperArray("xyz")));
         assertNotNull(MAPPER.readValue(EXP, Wrapper4407WrapperArray.class));
+    }
 
+    @Test
+    public void testTypeIdWrapperArray4407Null() throws Exception
+    {
         // And then null one
+        final String EXP = a2q("{'wrapped':['typeX',{'value':'xyz'}]}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407WrapperArrayNull("xyz")));
         assertNotNull(MAPPER.readValue(EXP, Wrapper4407WrapperArrayNull.class));
@@ -192,15 +202,20 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     // [databind#4407]: with "as-wrapper-object" type id
     @Test
-    public void testTypeIdWrapperObject4407() throws Exception
+    public void testTypeIdWrapperObject4407NonNull() throws Exception
     {
         // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':{'typeX':{'value':'xyz'}}}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407WrapperObject("xyz")));
         assertNotNull(MAPPER.readValue(EXP, Wrapper4407WrapperObject.class));
+    }
 
+    @Test
+    public void testTypeIdWrapperObject4407Null() throws Exception
+    {
         // And then null one
+        final String EXP = a2q("{'wrapped':{'typeX':{'value':'xyz'}}}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407WrapperObjectNull("xyz")));
         assertNotNull(MAPPER.readValue(EXP, Wrapper4407WrapperObjectNull.class));

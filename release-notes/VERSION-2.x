@@ -24,6 +24,7 @@ Project: jackson-databind
 #4356: `BeanDeserializerModifier::updateBuilder()` doesn't work for
   beans with Creator methods
  (reported by Mark H)
+#4407: `null` type id handling does not work with `writeTypePrefix()`
 #4452: `@JsonProperty` not serializing field names properly
   on `@JsonCreator` in Record
  (reported by @Incara)

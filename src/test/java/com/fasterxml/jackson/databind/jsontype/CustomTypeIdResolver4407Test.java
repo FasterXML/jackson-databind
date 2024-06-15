@@ -17,6 +17,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
     static class Wrapper4407Prop {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
                 include = JsonTypeInfo.As.PROPERTY,
+                defaultImpl = Default4407.class,
                 property = "type")
         @JsonTypeIdResolver(Resolver4407_typex.class)
         public Base4407 wrapped;
@@ -30,6 +31,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
     static class Wrapper4407PropNull {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
                 include = JsonTypeInfo.As.PROPERTY,
+                defaultImpl = Default4407.class,
                 property = "type")
         @JsonTypeIdResolver(Resolver4407_null.class)
         public Base4407 wrapped;
@@ -42,7 +44,8 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     static class Wrapper4407WrapperArray {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
-                include = JsonTypeInfo.As.WRAPPER_ARRAY)
+                include = JsonTypeInfo.As.WRAPPER_ARRAY,
+                defaultImpl = Default4407.class)
         @JsonTypeIdResolver(Resolver4407_typex.class)
         public Base4407 wrapped;
 
@@ -54,7 +57,8 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     static class Wrapper4407WrapperArrayNull {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
-                include = JsonTypeInfo.As.WRAPPER_ARRAY)
+                include = JsonTypeInfo.As.WRAPPER_ARRAY,
+                defaultImpl = Default4407.class)
         @JsonTypeIdResolver(Resolver4407_null.class)
         public Base4407 wrapped;
 
@@ -66,7 +70,8 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     static class Wrapper4407WrapperObject {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
-                include = JsonTypeInfo.As.WRAPPER_OBJECT)
+                include = JsonTypeInfo.As.WRAPPER_OBJECT,
+                defaultImpl = Default4407.class)
         @JsonTypeIdResolver(Resolver4407_typex.class)
         public Base4407 wrapped;
 
@@ -78,7 +83,8 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     static class Wrapper4407WrapperObjectNull {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
-                include = JsonTypeInfo.As.WRAPPER_OBJECT)
+                include = JsonTypeInfo.As.WRAPPER_OBJECT,
+                defaultImpl = Default4407.class)
         @JsonTypeIdResolver(Resolver4407_null.class)
         public Base4407 wrapped;
 
@@ -98,6 +104,13 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
         public Impl4407(String v) { value = v; }
     }
 
+    static class Default4407 extends Base4407 {
+        public String value;
+
+        Default4407() { }
+        public Default4407(String v) { value = v; }
+    }
+    
     static class Resolver4407_typex extends Resolver4407Base {
         public Resolver4407_typex() { super("typeX"); }
     }
@@ -128,7 +141,8 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
         @Override
         public String idFromBaseType() {
-            return null;
+            // NOTE: needed for trying to deserialize without type id
+            return "default";
         }
 
         @Override
@@ -166,17 +180,24 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
         final String EXP = a2q("{'wrapped':{'type':'typeX','value':'xyz'}}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407Prop("xyz")));
-        assertNotNull(MAPPER.readValue(EXP, Wrapper4407Prop.class));
+        Wrapper4407Prop result = MAPPER.readValue(EXP, Wrapper4407Prop.class);
+        assertNotNull(result);
+        assertNotNull(result.wrapped);
+        assertEquals(Impl4407.class, result.wrapped.getClass());
     }
 
     @Test
     public void testTypeIdProp4407Null() throws Exception
     {
         // And then null one
-        final String EXP = a2q("{'wrapped':{'type':'typeX','value':'xyz'}}");
+        final String EXP = a2q("{'wrapped':{'value':'xyz'}}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407PropNull("xyz")));
         assertNotNull(MAPPER.readValue(EXP, Wrapper4407PropNull.class));
+        Wrapper4407Prop result = MAPPER.readValue(EXP, Wrapper4407Prop.class);
+        assertNotNull(result);
+        assertNotNull(result.wrapped);
+        assertEquals(Default4407.class, result.wrapped.getClass());
     }
 
     // [databind#4407]: with "as-wrapper-array" type id
@@ -187,17 +208,23 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
         final String EXP = a2q("{'wrapped':['typeX',{'value':'xyz'}]}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407WrapperArray("xyz")));
-        assertNotNull(MAPPER.readValue(EXP, Wrapper4407WrapperArray.class));
+        Wrapper4407WrapperArray result = MAPPER.readValue(EXP, Wrapper4407WrapperArray.class);
+        assertNotNull(result);
+        assertNotNull(result.wrapped);
+        assertEquals(Impl4407.class, result.wrapped.getClass());
     }
 
     @Test
     public void testTypeIdWrapperArray4407Null() throws Exception
     {
         // And then null one
-        final String EXP = a2q("{'wrapped':['typeX',{'value':'xyz'}]}");
+        final String EXP = a2q("{'wrapped':{'value':'xyz'}}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407WrapperArrayNull("xyz")));
-        assertNotNull(MAPPER.readValue(EXP, Wrapper4407WrapperArrayNull.class));
+        Wrapper4407WrapperArray result = MAPPER.readValue(EXP, Wrapper4407WrapperArray.class);
+        assertNotNull(result);
+        assertNotNull(result.wrapped);
+        assertEquals(Default4407.class, result.wrapped.getClass());
     }
 
     // [databind#4407]: with "as-wrapper-object" type id
@@ -208,16 +235,22 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
         final String EXP = a2q("{'wrapped':{'typeX':{'value':'xyz'}}}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407WrapperObject("xyz")));
-        assertNotNull(MAPPER.readValue(EXP, Wrapper4407WrapperObject.class));
+        Wrapper4407WrapperObject result = MAPPER.readValue(EXP, Wrapper4407WrapperObject.class);
+        assertNotNull(result);
+        assertNotNull(result.wrapped);
+        assertEquals(Impl4407.class, result.wrapped.getClass());
     }
 
     @Test
     public void testTypeIdWrapperObject4407Null() throws Exception
     {
         // And then null one
-        final String EXP = a2q("{'wrapped':{'typeX':{'value':'xyz'}}}");
+        final String EXP = a2q("{'wrapped':{'value':'xyz'}}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407WrapperObjectNull("xyz")));
-        assertNotNull(MAPPER.readValue(EXP, Wrapper4407WrapperObjectNull.class));
+        Wrapper4407WrapperObject result = MAPPER.readValue(EXP, Wrapper4407WrapperObject.class);
+        assertNotNull(result);
+        assertNotNull(result.wrapped);
+        assertEquals(Default4407.class, result.wrapped.getClass());
     }
 }

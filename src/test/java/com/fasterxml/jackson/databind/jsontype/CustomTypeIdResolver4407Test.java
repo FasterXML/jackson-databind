@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+// for [databind#4407]
 public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 {
-    // for [databind#4407]
     static class Wrapper4407Prop {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
                 include = JsonTypeInfo.As.PROPERTY,
@@ -23,6 +23,45 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
         Wrapper4407Prop() { }
         public Wrapper4407Prop(String v) {
+            wrapped = new Impl4407(v);
+        }
+    }
+
+    static class Wrapper4407PropNull {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "type")
+        @JsonTypeIdResolver(Resolver4407_null.class)
+        public Base4407 wrapped;
+
+        Wrapper4407PropNull() { }
+        public Wrapper4407PropNull(String v) {
+            wrapped = new Impl4407(v);
+        }
+    }
+
+    static class Wrapper4407WrapperArray {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.WRAPPER_ARRAY,
+                property = "type")
+        @JsonTypeIdResolver(Resolver4407_typex.class)
+        public Base4407 wrapped;
+
+        Wrapper4407WrapperArray() { }
+        public Wrapper4407WrapperArray(String v) {
+            wrapped = new Impl4407(v);
+        }
+    }
+
+    static class Wrapper4407WrapperArrayNull {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.WRAPPER_ARRAY,
+                property = "type")
+        @JsonTypeIdResolver(Resolver4407_null.class)
+        public Base4407 wrapped;
+
+        Wrapper4407WrapperArrayNull() { }
+        public Wrapper4407WrapperArrayNull(String v) {
             wrapped = new Impl4407(v);
         }
     }
@@ -97,13 +136,35 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // [databind#4407]
+    // [databind#4407]: with "as-property" type id
     @Test
     public void testTypeIdProp4407() throws Exception
     {
+        // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':{'type':'typeX','value':'xyz'}}");
         assertEquals(EXP,
                 MAPPER.writeValueAsString(new Wrapper4407Prop("xyz")));
         assertNotNull(MAPPER.readValue(EXP, Wrapper4407Prop.class));
+
+        // And then null one
+        assertEquals(EXP,
+                MAPPER.writeValueAsString(new Wrapper4407PropNull("xyz")));
+        assertNotNull(MAPPER.readValue(EXP, Wrapper4407PropNull.class));
+    }
+
+    // [databind#4407]: with "as-wrapper-array" type id
+    @Test
+    public void testTypeIdWrapperArray4407() throws Exception
+    {
+        // First, check out "normal" case of non-null type id
+        final String EXP = a2q("{'wrapped':['typeX',{'value':'xyz'}]}");
+        assertEquals(EXP,
+                MAPPER.writeValueAsString(new Wrapper4407WrapperArray("xyz")));
+        assertNotNull(MAPPER.readValue(EXP, Wrapper4407WrapperArray.class));
+
+        // And then null one
+        assertEquals(EXP,
+                MAPPER.writeValueAsString(new Wrapper4407WrapperArrayNull("xyz")));
+        assertNotNull(MAPPER.readValue(EXP, Wrapper4407WrapperArrayNull.class));
     }
 }

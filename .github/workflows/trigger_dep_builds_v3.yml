@@ -25,6 +25,8 @@ jobs:
           - 'FasterXML/jackson-datatypes-misc'
           - 'FasterXML/jackson-module-kotlin'
           - 'FasterXML/jackson-module-scala'
+          - 'FasterXML/jackson-jaxrs-providers'
+          - 'FasterXML/jackson-jakarta-rs-providers'
           - 'FasterXML/jackson-integration-tests'
 
     steps:

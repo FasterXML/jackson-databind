@@ -48,6 +48,8 @@ Project: jackson-databind
   `@JsonProperty` and javac `-parameters`
  (reported by Alexandre J)
 #4570: Deprecate `ObjectMapper.canDeserialize()`/`ObjectMapper.canSerialize()`
+#4580: Add `MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER` to use
+  Creator properties' declaration order for sorting
 
 2.17.2 (not yet released)
 

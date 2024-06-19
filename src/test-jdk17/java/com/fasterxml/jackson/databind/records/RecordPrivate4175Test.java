@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jdk17;
+package com.fasterxml.jackson.databind.records;
 
 import java.util.Collections;
 

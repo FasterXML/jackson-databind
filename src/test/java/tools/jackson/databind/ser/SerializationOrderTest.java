@@ -22,7 +22,8 @@ public class SerializationOrderTest
         public int b;
         public int c;
 
-        @JsonCreator public BeanWithCreator(@JsonProperty("c") int c, @JsonProperty("a") int a) {
+        @JsonCreator
+        public BeanWithCreator(@JsonProperty("c") int c, @JsonProperty("a") int a) {
             this.a = a;
             this.c = c;
         }
@@ -150,7 +151,7 @@ public class SerializationOrderTest
 
     @Test
     public void testImplicitOrderByCreator() throws Exception {
-        assertEquals("{\"a\":2,\"c\":1,\"b\":0}",
+        assertEquals("{\"c\":1,\"a\":2,\"b\":0}",
                 MAPPER.writeValueAsString(new BeanWithCreator(1, 2)));
     }
 
@@ -205,19 +206,12 @@ public class SerializationOrderTest
     @Test
     public void testAlphaAndCreatorOrdering() throws Exception
     {
-        assertEquals(a2q("{'a':1,'b':2}"),
-                ALPHA_MAPPER.writeValueAsString(new BeanForGH311(2, 1)));
-    }
-
-    // [databind#4580]
-    @Test
-    public void testAlphaAndCreatorDeclarationOrdering() throws Exception
-    {
-        final ObjectMapper mapper = jsonMapperBuilder()
-                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
-                .enable(MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER)
-                .build();
         assertEquals(a2q("{'b':2,'a':1}"),
+                ALPHA_MAPPER.writeValueAsString(new BeanForGH311(2, 1)));
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
+                .build();
+        assertEquals(a2q("{'a':1,'b':2}"),
                 mapper.writeValueAsString(new BeanForGH311(2, 1)));
     }
 
@@ -240,7 +234,7 @@ public class SerializationOrderTest
         // BUT are sorted within their own category
         assertTrue(ALPHA_MAPPER.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
         assertTrue(ALPHA_MAPPER.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
-        assertEquals(a2q("{'a':3,'c':2,'b':0}"),
+        assertEquals(a2q("{'c':2,'a':3,'b':0}"),
                 ALPHA_MAPPER.writeValueAsString(new BeanForStrictOrdering(2, 3)));
 
         // but can change that

@@ -9,12 +9,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4452] : JsonProperty not serializing field names properly on JsonCreator in record #4452
-class RecordCreatorSerialization4452Test {
-
+class RecordCreatorSerialization4452Test extends DatabindTestUtil
+{
     public record PlainTestObject(
             @JsonProperty("strField") String testFieldName,
             @JsonProperty("intField") Integer testOtherField
@@ -43,7 +44,7 @@ class RecordCreatorSerialization4452Test {
     public void testPlain() throws Exception
     {
         String result = OBJECT_MAPPER.writeValueAsString(new PlainTestObject("test", 1));
-        assertEquals("{\"intField\":1,\"strField\":\"test\"}", result);
+        assertEquals(a2q("{'strField':'test','intField':1}"), result);
     }
 
     @Test

@@ -64,6 +64,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (contributed by Joo-Hyuk K)
 #4572: Change `MapperFeature.SORT_PROPERTIES_ALPHABETICALLY` default to true
  (contributed by Joo-Hyuk K)
+#4589: Remove `MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER` from 3.0;
+  make logic default
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)
 - Default for `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES` changed to `false` for 3.0

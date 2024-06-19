@@ -1531,7 +1531,11 @@ ctor.creator()));
              * so creator properties still fully predate non-creator ones.
              */
             Collection<POJOPropertyBuilder> cr;
-            if (sortAlpha) {
+            // 18-Jun-2024, tatu: [databind#4580] We may want to retain declaration
+            //    order regardless
+            boolean sortCreatorPropsByAlpha = sortAlpha
+                    && !_config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER);
+            if (sortCreatorPropsByAlpha) {
                 TreeMap<String, POJOPropertyBuilder> sorted =
                         new TreeMap<String,POJOPropertyBuilder>();
                 for (POJOPropertyBuilder prop : _creatorProperties) {

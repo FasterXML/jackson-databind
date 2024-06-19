@@ -302,6 +302,23 @@ public enum MapperFeature
      */
     SORT_CREATOR_PROPERTIES_FIRST(true),
 
+    /**
+     * Feature that defines whether Creator properties (ones passed through
+     * constructor or static factory method) should be sorted in their declaration
+     * order if {@link #SORT_CREATOR_PROPERTIES_FIRST} is also enabled.
+     * This is usually used to prevent alphabetic sorting for
+     * Creator properties even if {@link #SORT_PROPERTIES_ALPHABETICALLY} is
+     * enabled for other types of properties.
+     *<p>
+     * NOTE: if {@link #SORT_CREATOR_PROPERTIES_FIRST} is disabled, this feature
+     * has no effect.
+     *<p>
+     * Feature is disabled by default (for backwards compatibility)
+     *
+     * @since 2.18
+     */
+    SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER(false),
+
     /*
     /**********************************************************************
     /* Name-related features

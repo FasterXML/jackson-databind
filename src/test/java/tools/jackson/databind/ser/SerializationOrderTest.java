@@ -205,8 +205,20 @@ public class SerializationOrderTest
     @Test
     public void testAlphaAndCreatorOrdering() throws Exception
     {
-        String json = ALPHA_MAPPER.writeValueAsString(new BeanForGH311(2, 1));
-        assertEquals("{\"a\":1,\"b\":2}", json);
+        assertEquals(a2q("{'a':1,'b':2}"),
+                ALPHA_MAPPER.writeValueAsString(new BeanForGH311(2, 1)));
+    }
+
+    // [databind#4580]
+    @Test
+    public void testAlphaAndCreatorDeclarationOrdering() throws Exception
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .enable(MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER)
+                .build();
+        assertEquals(a2q("{'b':2,'a':1}"),
+                mapper.writeValueAsString(new BeanForGH311(2, 1)));
     }
 
     // [databind#2555]

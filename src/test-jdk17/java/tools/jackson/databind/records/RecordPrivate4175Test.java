@@ -1,4 +1,4 @@
-package tools.jackson.databind.jdk17;
+package tools.jackson.databind.records;
 
 import java.util.Collections;
 

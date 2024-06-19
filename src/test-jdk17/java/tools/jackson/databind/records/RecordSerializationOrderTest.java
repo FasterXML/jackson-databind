@@ -79,21 +79,14 @@ public class RecordSerializationOrderTest extends DatabindTestUtil
     // [databind#4580]
     @Test
     public void testSerializationOrderWrtCreatorAlphabetic() throws Exception {
-        // In 3.0, sorting by Alphabetic enabled by default so
-        assertEquals(a2q("{'a':'a','b':'b','c':'c'}"),
-                MAPPER.writeValueAsString(new CABRecord("c", "a", "b")));
-        // But can disable
+        // In 3.0, sorting by Alphabetic enabled by default BUT it won't affect Creator props
         assertEquals(a2q("{'c':'c','a':'a','b':'b'}"),
+                MAPPER.writeValueAsString(new CABRecord("c", "a", "b")));
+        // Unless we disable Creator-props-first setting:
+        assertEquals(a2q("{'a':'a','b':'b','c':'c'}"),
                 jsonMapperBuilder()
-                    .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                    .disable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
                     .build()
                     .writeValueAsString(new CABRecord("c", "a", "b")));
-        // Except if we tell it not to:
-        assertEquals(a2q("{'c':'c','a':'a','b':'b'}"),
-                jsonMapperBuilder()
-                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
-                .enable(MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER)
-                .build()
-                .writeValueAsString(new CABRecord("c", "a", "b")));
     }
 }

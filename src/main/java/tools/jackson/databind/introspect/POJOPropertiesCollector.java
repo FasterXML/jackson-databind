@@ -1530,24 +1530,9 @@ ctor.creator()));
              * order. Related question of creator vs non-creator is punted for now,
              * so creator properties still fully predate non-creator ones.
              */
-            Collection<POJOPropertyBuilder> cr;
-            // 18-Jun-2024, tatu: [databind#4580] We may want to retain declaration
-            //    order regardless
-            boolean sortCreatorPropsByAlpha = sortAlpha
-                    && !_config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER);
-            if (sortCreatorPropsByAlpha) {
-                TreeMap<String, POJOPropertyBuilder> sorted =
-                        new TreeMap<String,POJOPropertyBuilder>();
-                for (POJOPropertyBuilder prop : _creatorProperties) {
-                    if (prop != null) {
-                        sorted.put(prop.getName(), prop);
-                    }
-                }
-                cr = sorted.values();
-            } else {
-                cr = _creatorProperties;
-            }
-            for (POJOPropertyBuilder prop : cr) {
+            // 18-Jun-2024, tatu: Except in Jackson 3.0, we do NOT sort creator properties
+            //   alphabetically if they are to be sorted before other properties.
+            for (POJOPropertyBuilder prop : _creatorProperties) {
                 if (prop == null) {
                     continue;
                 }

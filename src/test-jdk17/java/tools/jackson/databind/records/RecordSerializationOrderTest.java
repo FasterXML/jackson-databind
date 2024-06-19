@@ -52,7 +52,7 @@ public class RecordSerializationOrderTest extends DatabindTestUtil
         NestedRecordOneWithJsonProperty nestedRecordOne =
                 new NestedRecordOneWithJsonProperty("1", "test@records.com", nestedRecordTwo);
         final String output = MAPPER.writeValueAsString(nestedRecordOne);
-        final String expected = "{\"email\":\"test@records.com\",\"id\":\"1\",\"nestedProperty\":{\"id\":\"2\",\"passport\":\"111110\"}}";
+        final String expected = a2q("{'email':'test@records.com','id':'1','nestedProperty':{'id':'2','passport':'111110'}}");
         assertEquals(expected, output);
     }
 

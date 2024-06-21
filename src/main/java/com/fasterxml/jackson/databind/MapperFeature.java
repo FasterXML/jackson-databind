@@ -429,6 +429,9 @@ public enum MapperFeature implements ConfigFeature
      * has no effect.
      *<p>
      * Feature is disabled by default (for backwards compatibility)
+     *<p>
+     * <strong>WARNING: This feature will be removed in Jackson 3. Instead, the behavior when this
+     * feature is enabled will be the default behavior.</strong>
      *
      * @since 2.18
      */

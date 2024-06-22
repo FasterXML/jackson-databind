@@ -54,7 +54,7 @@ public class CustomDeserializers4225NullCacheTest extends DatabindTestUtil {
     @Test
     public void testGetNullValueIsCached() throws Exception
     {
-        ObjectMapper mapper = objectMapper();
+        ObjectMapper mapper = newJsonMapper();
 
         // First time deserializing null
         verifyGetNullValueInvokedTimes(mapper, 1);

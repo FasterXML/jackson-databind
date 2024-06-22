@@ -16,6 +16,8 @@ Project: jackson-databind
 #4577: Cannot deserialize value of type `java.math.BigDecimal` from
    String "3." (not a valid representation)
  (reported by @dmelisso)
+#4595: No way to explicitly disable wrapping in custom annotation processor
+ (reported by @SimonCockx)
 
 2.17.1 (04-May-2024)
 

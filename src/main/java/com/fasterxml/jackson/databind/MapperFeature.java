@@ -428,7 +428,10 @@ public enum MapperFeature implements ConfigFeature
      * NOTE: if {@link #SORT_CREATOR_PROPERTIES_FIRST} is disabled, this feature
      * has no effect.
      *<p>
-     * Feature is disabled by default (for backwards compatibility)
+     * Feature is disabled by default (for backwards compatibility) in 2.x
+     *<p>
+     * <strong>NOTE: This feature will be removed in Jackson 3: the default behavior
+     * will be same as if this feature was enabled.</strong>
      *
      * @since 2.18
      */

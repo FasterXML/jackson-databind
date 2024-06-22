@@ -97,11 +97,12 @@ public abstract class JsonDeserializer<T>
      *<p>
      * <strong>Handling null values (JsonToken.VALUE_NULL)</strong>
      * <br>
-     *  : Note that this method is never called for JSON null literal to avoid
-     * every deserializer from having to do null-handling.
-     * Instead, {@link JsonDeserializer#getNullValue(DeserializationContext)}
-     * method is called to produce null value. To influence handling nulls,
-     * custom deserializers are asked to override {@link JsonDeserializer#getNullValue(DeserializationContext)}
+     * : Note that this method is never called for the JSON null literal to avoid
+     * every deserializer from having to handle null values. Instead, the
+     * {@link JsonDeserializer#getNullValue(DeserializationContext)} method
+     * is called to produce a null value. To influence null handling,
+     * custom deserializers should override
+     * {@link JsonDeserializer#getNullValue(DeserializationContext)}
      * or {@link JsonDeserializer#getNullAccessPattern()}.
      *
      * @param p Parser used for reading JSON content

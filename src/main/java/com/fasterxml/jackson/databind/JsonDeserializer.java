@@ -95,10 +95,16 @@ public abstract class JsonDeserializer<T>
      * fails, event that was not recognized or usable, which may be
      * the same event as the one it pointed to upon call).
      *<p>
-     * Note that this method is never called for JSON null literal,
-     * and thus deserializers need (and should) not check for it.
+     * <strong>Handling null values (JsonToken.VALUE_NULL)</strong>
+     * <br>
+     *  : Note that this method is never called for JSON null literal to avoid
+     * every deserializer from having to do null-handling.
+     * Instead, {@link JsonDeserializer#getNullValue(DeserializationContext)}
+     * method is called to produce null value. To influence handling nulls,
+     * custom deserializers are asked to override {@link JsonDeserializer#getNullValue(DeserializationContext)}
+     * or {@link JsonDeserializer#getNullAccessPattern()}.
      *
-     * @param p Parsed used for reading JSON content
+     * @param p Parser used for reading JSON content
      * @param ctxt Context that can be used to access information about
      *   this deserialization activity.
      *

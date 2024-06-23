@@ -82,6 +82,9 @@ public class PropertyName
                 return NO_NAME;
             }
             */
+            // 22-Jun-2024, tatu: This is hopeful not problematic as marker
+            //   value should only be provided by AnnotationIntrospector etc,
+            //   but not stored in Deserializer/Serializer instances.
         }
         return this;
     }
@@ -122,6 +125,10 @@ public class PropertyName
             return name2;
         }
         if (name2 == null) {
+            return name1;
+        }
+        // 22-Jun-2024, tatu: [databind#4595] Should not merge NO_NAME
+        if (name1 == NO_NAME) {
             return name1;
         }
         String ns = _nonEmpty(name1._namespace, name2._namespace);

@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
 public class TokenBufferTest extends DatabindTestUtil
@@ -90,7 +90,7 @@ public class TokenBufferTest extends DatabindTestUtil
         TokenBuffer buf = new TokenBuffer(MAPPER, false);
         try (JsonParser p = buf.asParser()) {
             for (JsonParser.Feature feat : JsonParser.Feature.values()) {
-                assertEquals("Feature "+feat, feat.enabledByDefault(), p.isEnabled(feat));
+                assertEquals(feat.enabledByDefault(), p.isEnabled(feat), "Feature "+feat);
             }
         }
     }

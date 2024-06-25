@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // For [databind#4321]: basic test
 public class BufferRecyclersDatabindTest extends DatabindTestUtil
@@ -56,6 +56,7 @@ public class BufferRecyclersDatabindTest extends DatabindTestUtil
     }
 
     @Test
+    @Deprecated // tests deprecated impl
     public void testParserWithLockFreePool() throws Exception {
         _testParser(JsonRecyclerPools.newLockFreePool());
         _testParser(JsonRecyclerPools.sharedLockFreePool());
@@ -112,6 +113,7 @@ public class BufferRecyclersDatabindTest extends DatabindTestUtil
     }
 
     @Test
+    @Deprecated // tests deprecated impl
     public void testGeneratorWithLockFreePool() throws Exception {
         _testGenerator(JsonRecyclerPools.newLockFreePool());
         _testGenerator(JsonRecyclerPools.sharedLockFreePool());
@@ -151,7 +153,7 @@ public class BufferRecyclersDatabindTest extends DatabindTestUtil
         private static final Predicate<Thread> isVirtual = VirtualPredicate.findIsVirtualPredicate();
 
         private final RecyclerPool<BufferRecycler> nativePool = JsonRecyclerPools.threadLocalPool();
-        private final RecyclerPool<BufferRecycler> virtualPool = JsonRecyclerPools.newLockFreePool();
+        private final RecyclerPool<BufferRecycler> virtualPool = JsonRecyclerPools.newConcurrentDequePool();
 
         @Override
         public BufferRecycler acquirePooled() {

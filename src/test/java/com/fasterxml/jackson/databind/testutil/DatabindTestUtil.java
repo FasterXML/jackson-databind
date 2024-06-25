@@ -1,11 +1,15 @@
 package com.fasterxml.jackson.databind.testutil;
 
 import java.io.*;
+import java.lang.annotation.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -20,6 +24,25 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class DatabindTestUtil
 {
+    // @since 2.18
+    // Helper annotation to work around lack of implicit name access with Jackson 2.x
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    protected @interface ImplicitName {
+        String value();
+    }
+
+    // @since 2.18
+    @SuppressWarnings("serial")
+    static public class ImplicitNameIntrospector extends JacksonAnnotationIntrospector
+    {
+        @Override
+        public String findImplicitPropertyName(//MapperConfig<?> config,
+                AnnotatedMember member) {
+            final ImplicitName ann = member.getAnnotation(ImplicitName.class);
+            return (ann == null) ? null : ann.value();
+        }
+    }
 
     private final static Object SINGLETON_OBJECT = new Object();
 
@@ -354,11 +377,12 @@ public class DatabindTestUtil
      */
 
     public static ObjectMapper newJsonMapper() {
-        return new JsonMapper();
+        return jsonMapperBuilder().build();
     }
 
     public static JsonMapper.Builder jsonMapperBuilder() {
-        return JsonMapper.builder();
+        return JsonMapper.builder()
+                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION);
     }
 
     /*

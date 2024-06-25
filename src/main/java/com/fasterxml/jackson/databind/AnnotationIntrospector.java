@@ -68,7 +68,6 @@ public abstract class AnnotationIntrospector
              * {@link com.fasterxml.jackson.annotation.JsonBackReference}
              */
             BACK_REFERENCE
-            ;
         }
 
         private final Type _type;
@@ -1111,7 +1110,7 @@ public abstract class AnnotationIntrospector
      */
     @Deprecated
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
-        ;
+        ; // do nothing
     }
 
     /**
@@ -1454,8 +1453,9 @@ public abstract class AnnotationIntrospector
      * @since 2.9
      */
     public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated ann) {
-        // 13-Sep-2016, tatu: for backwards compatibility, implement using delegation
-        ///   (remove from version AFTER 2.9)
+        // 13-May-2024, tatu: Before 2.18, used to delegate to deprecated methods
+        //   like so: no longer with 2.18
+        /*
         if (hasCreatorAnnotation(ann)) {
             JsonCreator.Mode mode = findCreatorBinding(ann);
             if (mode == null) {
@@ -1463,6 +1463,7 @@ public abstract class AnnotationIntrospector
             }
             return mode;
         }
+        */
         return null;
     }
 

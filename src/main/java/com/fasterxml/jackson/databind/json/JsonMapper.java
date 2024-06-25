@@ -118,7 +118,7 @@ public class JsonMapper extends ObjectMapper
         return new Builder(new JsonMapper(streamFactory));
     }
 
-    public JsonMapper.Builder  rebuild() {
+    public JsonMapper.Builder rebuild() {
         // 09-Dec-2018, tatu: Not as good as what 3.0 has wrt immutability, but best approximation
         //     we have for 2.x
         return new Builder(this.copy());

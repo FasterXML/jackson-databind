@@ -60,6 +60,11 @@ public final class SerializationConfig
      */
     protected final PrettyPrinter _defaultPrettyPrinter;
 
+    /**
+     * @since 2.18 (only in DeserializationConfig from 2.12)
+     */
+    protected final ConstructorDetector _ctorDetector;
+
     /*
     /**********************************************************
     /* Serialization features
@@ -120,6 +125,7 @@ public final class SerializationConfig
         _serFeatures = SER_FEATURE_DEFAULTS;
         _filterProvider = null;
         _defaultPrettyPrinter = DEFAULT_PRETTY_PRINTER;
+        _ctorDetector = null;
         _generatorFeatures = 0;
         _generatorFeaturesToChange = 0;
         _formatWriteFeatures = 0;
@@ -151,6 +157,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _ctorDetector = src._ctorDetector;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
@@ -170,6 +177,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _ctorDetector = src._ctorDetector;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
@@ -185,6 +193,7 @@ public final class SerializationConfig
         _serFeatures = serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _ctorDetector = src._ctorDetector;
         _generatorFeatures = generatorFeatures;
         _generatorFeaturesToChange = generatorFeatureMask;
         _formatWriteFeatures = formatFeatures;
@@ -197,6 +206,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _ctorDetector = src._ctorDetector;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
@@ -209,6 +219,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = filters;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _ctorDetector = src._ctorDetector;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
@@ -221,6 +232,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _ctorDetector = src._ctorDetector;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
@@ -233,6 +245,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _ctorDetector = src._ctorDetector;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
@@ -248,6 +261,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _ctorDetector = src._ctorDetector;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
@@ -263,6 +277,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _ctorDetector = src._ctorDetector;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
@@ -278,6 +293,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = defaultPP;
+        _ctorDetector = src._ctorDetector;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
@@ -293,6 +309,23 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _ctorDetector = src._ctorDetector;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
+        _formatWriteFeatures = src._formatWriteFeatures;
+        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
+    }
+
+    /**
+     * @since 2.18
+     */
+    protected SerializationConfig(SerializationConfig src, ConstructorDetector ctorDetector)
+    {
+        super(src);
+        _serFeatures = src._serFeatures;
+        _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _ctorDetector = ctorDetector;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
@@ -724,6 +757,16 @@ public final class SerializationConfig
         return (_defaultPrettyPrinter == pp) ? this:  new SerializationConfig(this, pp);
     }
 
+    /**
+     * @since 2.18
+     */
+    public SerializationConfig with(ConstructorDetector ctorDetector) {
+        if (_ctorDetector == ctorDetector) {
+            return this;
+        }
+        return new SerializationConfig(this, ctorDetector);
+    }
+
     /*
     /**********************************************************
     /* Factories for objects configured here
@@ -890,6 +933,14 @@ public final class SerializationConfig
      */
     public PrettyPrinter getDefaultPrettyPrinter() {
         return _defaultPrettyPrinter;
+    }
+
+    @Override // since 2.18
+    public ConstructorDetector getConstructorDetector() {
+        if (_ctorDetector == null) {
+            return ConstructorDetector.DEFAULT;
+        }
+        return _ctorDetector;
     }
 
     /*

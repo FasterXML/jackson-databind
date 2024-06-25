@@ -1,0 +1,43 @@
+name: Trigger downstream Jackson 2.x builds
+on:
+  workflow_call:
+    secrets:
+      token:
+        required: true
+
+jobs:
+  trigger-dep-build-v2:
+    name: Trigger downstream builds
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      # Won't matter a lot but try to make dispatching non-parallel
+      max-parallel: 1
+      matrix:
+        repo:
+          - 'FasterXML/jackson-modules-base'
+          - 'FasterXML/jackson-modules-java8'
+          - 'FasterXML/jackson-dataformats-binary'
+          - 'FasterXML/jackson-dataformats-text'
+          - 'FasterXML/jackson-dataformat-xml'
+          - 'FasterXML/jackson-datatypes-collections'
+          - 'FasterXML/jackson-datatypes-misc'
+          - 'FasterXML/jackson-module-kotlin'
+          - 'FasterXML/jackson-module-scala'
+          - 'FasterXML/jackson-jaxrs-providers'
+          - 'FasterXML/jackson-jakarta-rs-providers'
+          - 'FasterXML/jackson-integration-tests'
+
+    steps:
+      - name: Repository dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.token }}
+          repository: ${{ matrix.repo }}
+          event-type: jackson-databind-pushed
+          # Could push information on what was built but not yet
+          client-payload: '{"version": "N/A" }'
+      - name: Delay between dispatches
+        run: sleep 10s
+        shell: bash

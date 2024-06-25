@@ -5,7 +5,6 @@ on:
     - master
     - "3.0"
     - "2.18"
-    - "2.17"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -14,7 +13,6 @@ on:
     - master
     - "3.0"
     - "2.18"
-    - "2.17"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -27,12 +25,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['8', '11', '17', '21']
-        os: ['ubuntu-20.04']
+        java_version: ['8', '11', '17', '21', '22']
+        os: ['ubuntu-22.04']
+        include:
+          - java_version: '8'
+            os: 'ubuntu-22.04'
+            release_build: 'R'
+          - java_version: '8'
+            os: 'windows-latest'
+            is_windows: 'W'
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
-    - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
+    - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
     - name: Set up JDK
       uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
       with:
@@ -46,27 +51,46 @@ jobs:
         # gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
         # gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
     - name: Build
-      run: ./mvnw -B -ff -ntp clean verify
+      run: ./mvnw -B -ff -ntp verify
     - name: Extract project Maven version
       id: projectVersion
-      run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.3.0:evaluate -DforceStdout -Dexpression=project.version -q)" >> $GITHUB_OUTPUT
+      if: ${{ !matrix.is_windows }}
+      run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.4.1:evaluate -DforceStdout -Dexpression=project.version -q)" >> $GITHUB_OUTPUT
     - name: Verify Android SDK Compatibility
-      if: matrix.java_version == '8'
+      if: ${{ matrix.release_build }}
       run: ./mvnw -B -q -ff -ntp -DskipTests animal-sniffer:check
     - name: Deploy snapshot
-      if: github.event_name != 'pull_request' && matrix.java_version == '8' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
+      if: ${{ github.event_name != 'pull_request' && matrix.release_build && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
       env:
         CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
         CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
         # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       run: ./mvnw -B -q -ff -DskipTests -ntp source:jar deploy
     - name: Generate code coverage
-      if: github.event_name != 'pull_request' && matrix.java_version == '8'
+      if: ${{ github.event_name != 'pull_request' && matrix.release_build }}
       run: ./mvnw -B -q -ff -ntp test
     - name: Publish code coverage
-      if: github.event_name != 'pull_request' && matrix.java_version == '8'
-      uses: codecov/codecov-action@84508663e988701840491b86de86b666e8a86bed # v4.3.0
+      if: ${{ github.event_name != 'pull_request' && matrix.release_build }}
+      uses: codecov/codecov-action@125fc84a9a348dbcf27191600683ec096ec9021c # v4.4.1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./target/site/jacoco/jacoco.xml
         flags: unittests
+
+  trigger-dep-build-v2:
+    name: Trigger v2 dep builds
+    needs: [build]
+    # Only for pushes to default branch
+    if: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
+    uses: ./.github/workflows/trigger_dep_builds_v2.yml
+    secrets:
+      token: ${{ secrets.REPO_DISPATCH }}
+
+  trigger-dep-build-v3:
+    name: Trigger v3 dep builds
+    needs: [build]
+    # Only for pushes to default branch
+    if: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
+    uses: ./.github/workflows/trigger_dep_builds_v3.yml
+    secrets:
+      token: ${{ secrets.REPO_DISPATCH }}

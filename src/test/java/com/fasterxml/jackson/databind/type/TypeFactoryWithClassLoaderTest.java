@@ -59,7 +59,7 @@ public void testUsesCorrectClassLoaderWhenThreadClassLoaderIsNotNull() throws Cl
 	verify(spySut).classForName(any(String.class), any(Boolean.class), eq(classLoader));
 	assertNotNull(clazz);
 	assertEquals(classLoader, spySut.getClassLoader());
-//	Assert.assertEquals(typeModifier,spySut._modifiers[0]);
+//	assertEquals(typeModifier,spySut._modifiers[0]);
 }
 
 @Test

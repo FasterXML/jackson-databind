@@ -5,7 +5,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,7 +14,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -392,11 +391,11 @@ public class DateSerializationTest
     }
 
     private void serialize(ObjectMapper mapper, Object date, String expected) throws IOException {
-        Assert.assertEquals(q(expected), mapper.writeValueAsString(date));
+        assertEquals(q(expected), mapper.writeValueAsString(date));
     }
 
     private void serialize(ObjectWriter w, Object date, String expected) throws IOException {
-        Assert.assertEquals(q(expected), w.writeValueAsString(date));
+        assertEquals(q(expected), w.writeValueAsString(date));
     }
 
     private String zoneOffset(String raw) {

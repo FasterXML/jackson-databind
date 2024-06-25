@@ -415,7 +415,9 @@ public class BeanDeserializer
         throws IOException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = (_anySetter != null)
+            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter)
+            : creator.startBuilding(p, ctxt, _objectIdReader);
         TokenBuffer unknown = null;
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
@@ -429,15 +431,15 @@ public class BeanDeserializer
             if (buffer.readIdProperty(propName) && creatorProp == null) {
                 continue;
             }
-            // creator property?
+            // Creator property?
             if (creatorProp != null) {
-                // Last creator property to set?
                 Object value;
                 if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
                 }
                 value = _deserializeWithErrorWrapping(p, ctxt, creatorProp);
+                // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, value)) {
                     p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
@@ -497,7 +499,7 @@ public class BeanDeserializer
             // "any property"?
             if (_anySetter != null) {
                 try {
-                    buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                    buffer.bufferAnyParameterProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
                 } catch (Exception e) {
                     wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }
@@ -1044,9 +1046,7 @@ public class BeanDeserializer
                 // first: let's check to see if this might be part of value with external type id:
                 // 11-Sep-2015, tatu: Important; do NOT pass buffer as last arg, but null,
                 //   since it is not the bean
-                if (ext.handlePropertyValue(p, ctxt, propName, null)) {
-                    ;
-                } else {
+                if (!ext.handlePropertyValue(p, ctxt, propName, null)) {
                     // Last creator property to set?
                     if (buffer.assignParameter(creatorProp,
                             _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {

@@ -6,7 +6,7 @@ databind core component, version 2.x
 
 Author: Tatu Saloranta, tatu.saloranta@iki.fi
 
-VIP contributors (with partial listing below):
+Co-Authors (with only partial listings below):
 
 * Joo Hyuk Kim (JooHyukKim@github)
 * PJ Fanning (pjfanning@github)
@@ -150,6 +150,8 @@ Chris Cleveland:
 Benson Margulies:
   * Reported #467: Unwanted POJO's embedded in tree via serialization to tree
    (2.4.0)
+  * Reported #562: Allow `@JsonAnySetter` to flow through Creators
+   (2.18.0)
   * Reported #601: ClassCastException for a custom serializer for enum key in `EnumMap`
    (2.4.4)
   * Contributed 944: Failure to use custom deserializer for key deserializer
@@ -1052,7 +1054,10 @@ João Guerra (joca-bt@github)
   (2.11.1)
  * Reported #3227: Content `null` handling not working for root values
   (2.13.0)
- * Reported #3690: Incorrect target type for arrays when disabling coercion
+ * Reported #3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
+   for nullability
+  (2.18.0)
+* Reported #3690: Incorrect target type for arrays when disabling coercion
   (2.15.0)
  * Reported #3924: Incorrect target type when disabling coercion, trying to deserialize
     String from Array/Object
@@ -1739,6 +1744,10 @@ Stephane Bailliez (sbailliez@github)
    leads to `InvalidDefinitionException`: Multiple fields representing property
   (2.16.2)
 
+Guillaume Jardillier (Mugiwara84@github)
+ * Reported #4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
+  (2.16.3)
+
 Muhammad Khalikov (mukham12@github)
  * Contributed fix for #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
    implement `java.io.Serializable`
@@ -1771,6 +1780,20 @@ Oddbjørn Kvalsund (oddbjornkvalsund@github)
    in `DeserializerCache` to avoid deadlock on pinning
   (2.17.1)
 
+Peter Levart (plevart@github)
+ * Reported, contributed fix for #4575: StdDelegatingSerializer does not consider
+   a Converter that may return null for a non-null input
+  (2.17.2)
+
+Ulf Dreyer (u3r@github)
+ * Reported #4085: `@JsonView` does not work on class-level for records
+  (2.18.0)
+
+Mark Herkrath (herkrath@github)
+ * Reported #4356: `BeanDeserializerModifier::updateBuilder()` doesn't work for
+   beans with Creator methods
+  (2.18.0)
+
 David Moten (davidmoten@github)
  * Contributed #4453: Allow JSON Integer to deserialize into a single-arg constructor of
    parameter type `double`
@@ -1783,4 +1806,9 @@ Teodor Danciu (teodord@github)
 
 Matthew Luckam (mluckam@github)
  * Contributed #4483: Remove `final` on method BeanSerializer.serialize()
+  (2.18.0)
+
+Alexandre Jacob (ajacob@github)
+ * Reported #4545: Unexpected deserialization behavior with `@JsonCreator`,
+   `@JsonProperty` and javac `-parameters`
   (2.18.0)

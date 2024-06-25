@@ -58,8 +58,7 @@ public class ArrayNode
     @Override
     public ArrayNode deepCopy()
     {
-        ArrayNode ret = new ArrayNode(_nodeFactory);
-
+        ArrayNode ret = arrayNode(_children.size());
         for (JsonNode element: _children)
             ret._children.add(element.deepCopy());
 

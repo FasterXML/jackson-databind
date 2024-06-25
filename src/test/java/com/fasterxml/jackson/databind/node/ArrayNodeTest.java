@@ -10,10 +10,12 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.util.RawValue;
+
 import org.junit.jupiter.api.Test;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Additional tests for {@link ArrayNode} container class.

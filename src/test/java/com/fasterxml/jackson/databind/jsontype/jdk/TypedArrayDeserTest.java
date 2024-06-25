@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import com.fasterxml.jackson.annotation.*;
 

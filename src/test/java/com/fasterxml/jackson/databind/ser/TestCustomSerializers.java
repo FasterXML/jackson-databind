@@ -9,9 +9,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
@@ -25,6 +23,8 @@ import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -191,6 +191,55 @@ public class TestCustomSerializers extends DatabindTestUtil
         }
     }
 
+    // [databind#4575]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
+    @JsonSubTypes(
+        {
+            @JsonSubTypes.Type(Sub4575.class)
+        }
+    )
+    @JsonTypeName("Super")
+    static class Super4575 {
+        public static final Super4575 NULL = new Super4575();
+    }
+
+    @JsonTypeName("Sub")
+    static class Sub4575 extends Super4575 { }
+
+    static class NullSerializer4575 extends StdDelegatingSerializer {
+        public NullSerializer4575(Converter<Object, ?> converter, JavaType delegateType, JsonSerializer<?> delegateSerializer) {
+            super(converter, delegateType, delegateSerializer);
+        }
+
+        public NullSerializer4575(TypeFactory typeFactory, JsonSerializer<?> delegateSerializer) {
+            this(
+                new Converter<Object, Object>() {
+                    @Override
+                    public Object convert(Object value) {
+                        return value == Super4575.NULL ? null : value;
+                    }
+
+                    @Override
+                    public JavaType getInputType(TypeFactory typeFactory) {
+                        return typeFactory.constructType(delegateSerializer.handledType());
+                    }
+
+                    @Override
+                    public JavaType getOutputType(TypeFactory typeFactory) {
+                        return typeFactory.constructType(delegateSerializer.handledType());
+                    }
+                },
+                typeFactory.constructType(delegateSerializer.handledType() == null ? Object.class : delegateSerializer.handledType()),
+                delegateSerializer
+            );
+        }
+
+        @Override
+        protected StdDelegatingSerializer withDelegate(Converter<Object, ?> converter, JavaType delegateType, JsonSerializer<?> delegateSerializer) {
+            return new NullSerializer4575(converter, delegateType, delegateSerializer);
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -214,7 +263,6 @@ public class TestCustomSerializers extends DatabindTestUtil
     @Test
     public void testCustomLists() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         JsonSerializer<?> ser = new CollectionSerializer(null, false, null, null);
         final JsonSerializer<Object> collectionSerializer = (JsonSerializer<Object>) ser;
@@ -231,7 +279,9 @@ public class TestCustomSerializers extends DatabindTestUtil
                 }
             }
         });
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         assertEquals("null", mapper.writeValueAsString(new ArrayList<Object>()));
     }
 
@@ -239,7 +289,6 @@ public class TestCustomSerializers extends DatabindTestUtil
     @Test
     public void testDelegating() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(new StdDelegatingSerializer(Immutable.class,
                 new StdConverter<Immutable, Map<String,Integer>>() {
@@ -252,7 +301,9 @@ public class TestCustomSerializers extends DatabindTestUtil
                         return map;
                     }
         }));
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
     }
 
@@ -290,8 +341,9 @@ public class TestCustomSerializers extends DatabindTestUtil
 
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new UCStringSerializer());
-        ObjectMapper mapper = new ObjectMapper()
-                .registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
 
         assertEquals(q("FOOBAR"), mapper.writeValueAsString("foobar"));
         assertEquals(a2q("['FOO',null]"),
@@ -317,5 +369,30 @@ public class TestCustomSerializers extends DatabindTestUtil
 
         assertEquals(a2q("{'id':'ID-2','set':[]}"),
                 writer.writeValueAsString(new Item2475(new HashSet<String>(), "ID-2")));
+    }
+
+    // [databind#4575]
+    @Test
+    public void testIssue4575() throws Exception {
+        com.fasterxml.jackson.databind.Module module = new SimpleModule() {
+            {
+                setSerializerModifier(new BeanSerializerModifier() {
+                    @Override
+                    public JsonSerializer<?> modifySerializer(
+                        SerializationConfig config, BeanDescription beanDesc, JsonSerializer<?> serializer
+                    ) {
+                        return new NullSerializer4575(config.getTypeFactory(), serializer);
+                    }
+                });
+            }
+        };
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+
+        assertEquals("{\"@type\":\"Super\"}", mapper.writeValueAsString(new Super4575()));
+        assertEquals("{\"@type\":\"Sub\"}", mapper.writeValueAsString(new Sub4575()));
+        assertEquals("null", mapper.writeValueAsString(Super4575.NULL));
     }
 }

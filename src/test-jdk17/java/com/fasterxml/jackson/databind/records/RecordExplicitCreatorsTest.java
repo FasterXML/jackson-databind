@@ -197,18 +197,15 @@ public class RecordExplicitCreatorsTest extends DatabindTestUtil
         }
     }
 
+    // 23-May-2024, tatu: Logic changed as part of [databind#4515]: explicit properties-based
+    //   Creator does NOT block implicit delegating Creators. So formerly (pre-2.18) failing
+    //   case is now expected to pass.
     @Test
     public void testDeserializeUsingImplicitFactoryMethod_WhenJsonCreatorConstructorExists_WillFail() throws Exception {
-        try {
-            MAPPER.readValue("123", RecordWithJsonPropertyWithJsonCreator.class);
-
-            fail("should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot construct instance");
-            verifyException(e, "RecordWithJsonPropertyWithJsonCreator");
-            verifyException(e, "although at least one Creator exists");
-            verifyException(e, "no int/Int-argument constructor/factory method");
-        }
+        RecordWithJsonPropertyWithJsonCreator value = MAPPER.readValue("123",
+                RecordWithJsonPropertyWithJsonCreator.class);
+        assertEquals(123, value.id());
+        assertEquals("JsonCreatorConstructor", value.name());
     }
 
     /*
@@ -235,12 +232,12 @@ public class RecordExplicitCreatorsTest extends DatabindTestUtil
     @Test
     public void testDeserializeUsingDisabledConstructors_WillFail() throws Exception {
         try {
-            MAPPER.readValue("{\"id\":123,\"name\":\"Bobby\"}", RecordWithDisabledJsonCreator.class);
-
+            MAPPER.readValue("{\"id\":123,\"name\":\"Bobby\"}",
+                    RecordWithDisabledJsonCreator.class);
             fail("should not pass");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "Cannot construct instance");
             verifyException(e, "RecordWithDisabledJsonCreator");
+            verifyException(e, "Cannot construct instance");
             verifyException(e, "no Creators, like default constructor, exist");
             verifyException(e, "cannot deserialize from Object value");
         }
@@ -299,44 +296,33 @@ public class RecordExplicitCreatorsTest extends DatabindTestUtil
 
     @Test
     public void testDeserializeMultipleConstructorsRecord_WithExplicitAndImplicitParameterNames_WithJsonCreator() throws Exception {
-        MAPPER.setAnnotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector());
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
+                .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
+                .build();
 
-        RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator value = MAPPER.readValue(
+        RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator value = mapper.readValue(
                 "{\"id_only\":123,\"email\":\"bob@example.com\"}",
                 RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator.class);
         assertEquals(new RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator(123, "bob@example.com"), value);
     }
 
     /**
-     * This test-case is just for documentation purpose:
-     * GOTCHA: The problem is there are two usable constructors:
-     * <ol>
-     *   <li>Canonical constructor</li>
-     *   <li>Non-canonical constructor with JsonProperty parameter</li>
-     * </ol>
-     * ...so Jackson-Databind decided NOT to choose any.  To overcome this, annotate JsonCreator on the non-canonical
-     * constructor.
-     * <p/>
-     * Similar behaviour is observed if a JavaBean has two usable constructors.
+     * This test used to fail before 2.18; but with Bean Property introspection
+     * rewrite now works!
      *
      * @see #testDeserializeUsingJsonCreatorConstructor()
      * @see #testDeserializeUsingCanonicalConstructor_WhenJsonCreatorConstructorExists_WillFail()
      */
     @Test
     public void testDeserializeMultipleConstructorsRecord_WithExplicitAndImplicitParameterNames() throws Exception {
-        MAPPER.setAnnotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector());
-
-        try {
-            MAPPER.readValue(
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
+                .build();
+        RecordWithJsonPropertyAndImplicitPropertyWithoutJsonCreator value = mapper.readValue(
                     "{\"id_only\":123,\"email\":\"bob@example.com\"}",
                     RecordWithJsonPropertyAndImplicitPropertyWithoutJsonCreator.class);
-
-            fail("should not pass");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Cannot construct instance");
-            verifyException(e, "RecordWithJsonPropertyAndImplicitPropertyWithoutJsonCreator");
-            verifyException(e, "no Creators, like default constructor, exist");
-            verifyException(e, "cannot deserialize from Object value");
-        }
+        assertEquals(123, value.id);
+        assertEquals("bob@example.com", value.email);
     }
 }

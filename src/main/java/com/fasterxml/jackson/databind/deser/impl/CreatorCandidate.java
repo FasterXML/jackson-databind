@@ -59,6 +59,7 @@ public final class CreatorCandidate
         return null;
     }
 
+    @Deprecated // since 2.18 (remove from 2.19 or later)
     public PropertyName findImplicitParamName(int i) {
         String str = _intr.findImplicitPropertyName(_params[i].annotated);
         if (str != null && !str.isEmpty()) {
@@ -67,12 +68,8 @@ public final class CreatorCandidate
         return null;
     }
 
-    /**
-     * Specialized accessor that finds index of the one and only parameter
-     * with NO injection and returns that; or, if none or more than one found,
-     * returns -1.
-     */
-    public int findOnlyParamWithoutInjection()
+    @Deprecated // since 2.18 (remove from 2.19 or later)
+    public int findOnlyParamWithoutInjectionX()
     {
         int missing = -1;
         for (int i = 0; i < _paramCount; ++i) {

@@ -1194,7 +1194,6 @@ public class ObjectMapper
         return registerModules(findModules());
     }
 
-
     /*
     /**********************************************************
     /* Factory methods for creating JsonGenerators (added in 2.11)
@@ -2305,6 +2304,8 @@ public class ObjectMapper
      */
     public ObjectMapper setConstructorDetector(ConstructorDetector cd) {
         _deserializationConfig = _deserializationConfig.with(cd);
+        // since 2.18
+        _serializationConfig = _serializationConfig.with(cd);
         return this;
     }
 
@@ -3634,7 +3635,10 @@ public class ObjectMapper
      * @return True if mapper can find a serializer for instances of
      *  given class (potentially serializable), false otherwise (not
      *  serializable)
+     *
+     * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
      */
+    @Deprecated // @since 2.18
     public boolean canSerialize(Class<?> type) {
         return _serializerProvider(getSerializationConfig()).hasSerializerFor(type, null);
     }
@@ -3645,7 +3649,10 @@ public class ObjectMapper
      * serializer: this may be useful in figuring out what the actual problem is.
      *
      * @since 2.3
+     *
+     * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
      */
+    @Deprecated // @since 2.18
     public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
         return _serializerProvider(getSerializationConfig()).hasSerializerFor(type, cause);
     }
@@ -3666,7 +3673,10 @@ public class ObjectMapper
      * @return True if mapper can find a serializer for instances of
      *  given class (potentially serializable), false otherwise (not
      *  serializable)
+     *
+     * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
      */
+    @Deprecated // @since 2.18
     public boolean canDeserialize(JavaType type)
     {
         return createDeserializationContext(null,
@@ -3679,7 +3689,10 @@ public class ObjectMapper
      * serializer: this may be useful in figuring out what the actual problem is.
      *
      * @since 2.3
+     *
+     * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
      */
+    @Deprecated // @since 2.18
     public boolean canDeserialize(JavaType type, AtomicReference<Throwable> cause)
     {
         return createDeserializationContext(null,
@@ -3688,8 +3701,7 @@ public class ObjectMapper
 
     /*
     /**********************************************************
-    /* Extended Public API, deserialization,
-    /* convenience methods
+    /* Extended Public API, deserialization, convenience methods
     /**********************************************************
      */
 

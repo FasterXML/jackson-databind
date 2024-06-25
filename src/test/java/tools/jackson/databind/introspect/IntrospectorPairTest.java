@@ -187,7 +187,7 @@ public class IntrospectorPairTest extends DatabindTestUtil
          */
 
         @Override
-        public PropertyName findWrapperName(Annotated ann) {
+        public PropertyName findWrapperName(MapperConfig<?> config, Annotated ann) {
             return (PropertyName) values.get("findWrapperName");
         }
 
@@ -383,7 +383,7 @@ public class IntrospectorPairTest extends DatabindTestUtil
         final PropertyName NAME_NO_NS = PropertyName.construct("other", null);
 
         assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
-                .findClassDescription(null));
+                .findClassDescription(null, null));
 
         // First: basic merging of namespace/localname info
         IntrospectorWithMap intr1 = new IntrospectorWithMap()
@@ -391,9 +391,9 @@ public class IntrospectorPairTest extends DatabindTestUtil
         IntrospectorWithMap intr2 = new IntrospectorWithMap()
                 .add("findWrapperName", NAME_NO_NS);
         assertSame(NAME_WITH_NS,
-                new AnnotationIntrospectorPair(intr1, intr2).findWrapperName(null));
+                new AnnotationIntrospectorPair(intr1, intr2).findWrapperName(null, null));
         assertEquals(PropertyName.construct("other", "ns"),
-                new AnnotationIntrospectorPair(intr2, intr1).findWrapperName(null));
+                new AnnotationIntrospectorPair(intr2, intr1).findWrapperName(null, null));
 
         // [databind#4595]: NO_NAME should be retained, not merged
         intr1 = new IntrospectorWithMap()
@@ -401,9 +401,9 @@ public class IntrospectorPairTest extends DatabindTestUtil
         intr2 = new IntrospectorWithMap()
                 .add("findWrapperName", NAME_WITH_NS);
         assertSame(PropertyName.NO_NAME,
-                new AnnotationIntrospectorPair(intr1, intr2).findWrapperName(null));
+                new AnnotationIntrospectorPair(intr1, intr2).findWrapperName(null, null));
         assertSame(NAME_WITH_NS,
-                new AnnotationIntrospectorPair(intr2, intr1).findWrapperName(null));
+                new AnnotationIntrospectorPair(intr2, intr1).findWrapperName(null, null));
     }
 
     /*

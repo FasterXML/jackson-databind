@@ -1641,7 +1641,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     return null;
                 }
             }
-            _currToken = _segment.type(_segmentPtr);
+            _updateToken(_segment.type(_segmentPtr));
             // Field name? Need to update context
             if (_currToken == JsonToken.FIELD_NAME) {
                 Object ob = _currentObject();
@@ -1672,7 +1672,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             int ptr = _segmentPtr+1;
             if ((ptr < Segment.TOKENS_PER_SEGMENT) && (_segment.type(ptr) == JsonToken.FIELD_NAME)) {
                 _segmentPtr = ptr;
-                _currToken = JsonToken.FIELD_NAME;
+                _updateToken(JsonToken.FIELD_NAME);
                 Object ob = _segment.get(ptr); // inlined _currentObject();
                 String name = (ob instanceof String) ? ((String) ob) : ob.toString();
                 _parsingContext.setCurrentName(name);

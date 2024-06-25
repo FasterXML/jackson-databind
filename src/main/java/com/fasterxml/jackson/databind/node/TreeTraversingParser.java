@@ -92,7 +92,7 @@ public class TreeTraversingParser extends ParserMinimalBase
         if (!_closed) {
             _closed = true;
             _nodeCursor = null;
-            _currToken = null;
+            _updateTokenToNull();
         }
     }
 
@@ -105,7 +105,7 @@ public class TreeTraversingParser extends ParserMinimalBase
     @Override
     public JsonToken nextToken() throws IOException
     {
-        _currToken = _nodeCursor.nextToken();
+        _updateToken(_nodeCursor.nextToken());
         if (_currToken == null) {
             _closed = true; // if not already set
             return null;
@@ -133,10 +133,10 @@ public class TreeTraversingParser extends ParserMinimalBase
     {
         if (_currToken == JsonToken.START_OBJECT) {
             _nodeCursor = _nodeCursor.getParent();
-            _currToken = JsonToken.END_OBJECT;
+            _updateToken(JsonToken.END_OBJECT);
         } else if (_currToken == JsonToken.START_ARRAY) {
             _nodeCursor = _nodeCursor.getParent();
-            _currToken = JsonToken.END_ARRAY;
+            _updateToken(JsonToken.END_ARRAY);
         }
         return this;
     }

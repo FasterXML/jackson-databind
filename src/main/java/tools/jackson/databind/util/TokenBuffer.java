@@ -1600,7 +1600,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         {
             // If we are closed, nothing more to do
             if (_closed || (_segment == null)) {
-                _currToken = null;
+                _updateTokenToNull();
                 return null;
             }
 
@@ -1609,11 +1609,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 _segmentPtr = 0;
                 _segment = _segment.next();
                 if (_segment == null) {
-                    _currToken = null;
+                    _updateTokenToNull();
                     return null;
                 }
             }
-            _currToken = _segment.type(_segmentPtr);
+            _updateToken(_segment.type(_segmentPtr));
             // Property name? Need to update context
             if (_currToken == JsonToken.PROPERTY_NAME) {
                 Object ob = _currentObject();
@@ -1644,7 +1644,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             int ptr = _segmentPtr+1;
             if ((ptr < Segment.TOKENS_PER_SEGMENT) && (_segment.type(ptr) == JsonToken.PROPERTY_NAME)) {
                 _segmentPtr = ptr;
-                _currToken = JsonToken.PROPERTY_NAME;
+                _updateToken(JsonToken.PROPERTY_NAME);
                 Object ob = _segment.get(ptr); // inlined _currentObject();
                 String name = (ob instanceof String) ? ((String) ob) : ob.toString();
                 _parsingContext.setCurrentName(name);

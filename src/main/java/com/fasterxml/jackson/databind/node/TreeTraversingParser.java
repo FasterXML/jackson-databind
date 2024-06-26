@@ -105,7 +105,7 @@ public class TreeTraversingParser extends ParserMinimalBase
     @Override
     public JsonToken nextToken() throws IOException
     {
-        _updateToken(_nodeCursor.nextToken());
+        _nullSafeUpdateToken(_nodeCursor.nextToken());
         if (_currToken == null) {
             _closed = true; // if not already set
             return null;

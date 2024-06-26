@@ -114,7 +114,7 @@ public class TreeTraversingParser
     @Override
     public JsonToken nextToken()
     {
-        _updateToken(_nodeCursor.nextToken());
+        _nullSafeUpdateToken(_nodeCursor.nextToken());
         if (_currToken == null) {
             _closed = true; // if not already set
             return null;

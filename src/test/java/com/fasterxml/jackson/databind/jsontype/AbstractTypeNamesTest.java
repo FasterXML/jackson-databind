@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * Unit tests for checking how combination of interfaces, implementation
  * classes are handled, with respect to type names.
  */
-public class TestAbstractTypeNames  extends DatabindTestUtil
+public class AbstractTypeNamesTest  extends DatabindTestUtil
 {
     @JsonTypeName("Employee")
     public interface Employee extends User {

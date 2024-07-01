@@ -104,29 +104,25 @@ public class BigNumbersDeserTest
 
     // [databind#4435]
     @Test
-    public void testNumberStartingWithDot() throws Exception
-    {
-        String num = ".555555555555555555555555555555";
-        BigDecimalWrapper w = MAPPER.readValue("{\"number\":\"" + num + "\"}", BigDecimalWrapper.class);
-        assertEquals(new BigDecimal(num), w.number);
+    public void testNumberStartingWithDot() throws Exception {
+        _testNumberWith(".555555555555555555555555555555");
+        _testNumberWith("-.555555555555555555555555555555");
+        _testNumberWith("+.555555555555555555555555555555");
     }
 
-    // [databind#4435]
+    // [databind#4577]
     @Test
-    public void testNumberStartingWithMinusDot() throws Exception
-    {
-        String num = "-.555555555555555555555555555555";
-        BigDecimalWrapper w = MAPPER.readValue("{\"number\":\"" + num + "\"}", BigDecimalWrapper.class);
-        assertEquals(new BigDecimal(num), w.number);
+    public void testNumberEndingWithDot() throws Exception {
+        _testNumberWith("55.");
+        _testNumberWith("-55.");
+        _testNumberWith("+55.");
     }
-
-    // [databind#4435]
-    @Test
-    public void testNumberStartingWithPlusDot() throws Exception
+    
+    private void _testNumberWith(String num) throws Exception
     {
-        String num = "+.555555555555555555555555555555";
+        BigDecimal exp = new BigDecimal(num);
         BigDecimalWrapper w = MAPPER.readValue("{\"number\":\"" + num + "\"}", BigDecimalWrapper.class);
-        assertEquals(new BigDecimal(num), w.number);
+        assertEquals(exp, w.number);
     }
 
     private String generateJson(final String fieldName) {

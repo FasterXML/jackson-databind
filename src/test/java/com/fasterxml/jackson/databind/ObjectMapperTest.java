@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
-
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -269,6 +269,27 @@ public class ObjectMapperTest
 
     /*
     /**********************************************************
+    /* Test methods, JsonMapper.rebuild()
+    /**********************************************************
+     */
+
+    @Test
+    public void jsonMapperRebuildTest()
+    {
+        JsonMapper m = JsonMapper.builder().build();
+        JsonMapper m2 = m.copy();
+        assertNotSame(m, m2);
+
+        JsonMapper m3 = m2.rebuild()
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .enable(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)
+                .build();
+        assertNotSame(m2, m3);
+    }
+
+    /*
+    /**********************************************************
     /* Test methods, other
     /**********************************************************
      */
@@ -289,15 +310,28 @@ public class ObjectMapperTest
     @Test
     public void testConfigForPropertySorting() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
 
-        // sort-alphabetically is disabled by default:
-        assertFalse(m.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                m.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertEquals(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST.enabledByDefault(),
+                m.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+
         SerializationConfig sc = m.getSerializationConfig();
-        assertFalse(sc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
-        assertFalse(sc.shouldSortPropertiesAlphabetically());
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                sc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                sc.shouldSortPropertiesAlphabetically());
+        assertEquals(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST.enabledByDefault(),
+                sc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+
         DeserializationConfig dc = m.getDeserializationConfig();
-        assertFalse(dc.shouldSortPropertiesAlphabetically());
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                dc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertEquals(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.enabledByDefault(),
+                dc.shouldSortPropertiesAlphabetically());
+        assertEquals(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST.enabledByDefault(),
+                dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
 
         // but when enabled, should be visible:
         m = jsonMapperBuilder()

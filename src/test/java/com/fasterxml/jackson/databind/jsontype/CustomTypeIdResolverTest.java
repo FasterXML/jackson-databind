@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TestCustomTypeIdResolver extends DatabindTestUtil
+public class CustomTypeIdResolverTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use=Id.CUSTOM, include=As.WRAPPER_OBJECT)
     @JsonTypeIdResolver(CustomResolver.class)

@@ -209,6 +209,17 @@ public class IntrospectorPairTest extends DatabindTestUtil
 
         /*
         /******************************************************
+        /* General member (field, method/constructor) annotations
+        /******************************************************
+         */
+
+        @Override
+        public PropertyName findWrapperName(Annotated ann) {
+            return (PropertyName) values.get("findWrapperName");
+        }
+
+        /*
+        /******************************************************
         /* Serialization introspection
         /******************************************************
          */
@@ -385,6 +396,42 @@ public class IntrospectorPairTest extends DatabindTestUtil
     }
 
     // // // 3 deprecated methods, skip
+
+    /*
+    /**********************************************************
+    /* Test methods, general member annotations
+    /**********************************************************
+     */
+
+    @Test
+    public void testFindWrapperName() throws Exception
+    {
+        final PropertyName NAME_WITH_NS = PropertyName.construct("simple", "ns");
+        final PropertyName NAME_NO_NS = PropertyName.construct("other", null);
+
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .findClassDescription(null));
+
+        // First: basic merging of namespace/localname info
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findWrapperName", NAME_WITH_NS);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findWrapperName", NAME_NO_NS);
+        assertSame(NAME_WITH_NS,
+                new AnnotationIntrospectorPair(intr1, intr2).findWrapperName(null));
+        assertEquals(PropertyName.construct("other", "ns"),
+                new AnnotationIntrospectorPair(intr2, intr1).findWrapperName(null));
+
+        // [databind#4595]: NO_NAME should be retained, not merged
+        intr1 = new IntrospectorWithMap()
+                .add("findWrapperName", PropertyName.NO_NAME);
+        intr2 = new IntrospectorWithMap()
+                .add("findWrapperName", NAME_WITH_NS);
+        assertSame(PropertyName.NO_NAME,
+                new AnnotationIntrospectorPair(intr1, intr2).findWrapperName(null));
+        assertSame(NAME_WITH_NS,
+                new AnnotationIntrospectorPair(intr2, intr1).findWrapperName(null));
+    }
 
     /*
     /**********************************************************

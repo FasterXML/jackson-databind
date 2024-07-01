@@ -1,10 +1,12 @@
 package com.fasterxml.jackson.databind.records;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -12,17 +14,19 @@ public class RecordSerializationOrderTest extends DatabindTestUtil
 {
     record NestedRecordOne(String id, String email, NestedRecordTwo nestedRecordTwo) {}
     record NestedRecordOneWithJsonProperty(String id, String email,
-                                           @JsonProperty("nestedProperty") NestedRecordTwo nestedRecordTwo) {}
+            @JsonProperty("nestedProperty") NestedRecordTwo nestedRecordTwo) {}
     record NestedRecordOneWithJsonPropertyIndex(@JsonProperty(index = 2) String id,
-                                                @JsonProperty(index = 0) String email,
-                                                @JsonProperty(value = "nestedProperty", index = 1) NestedRecordTwo nestedRecordTwo) {}
+            @JsonProperty(index = 0) String email,
+            @JsonProperty(value = "nestedProperty", index = 1) NestedRecordTwo nestedRecordTwo) {}
 
     @JsonPropertyOrder({"email", "nestedProperty", "id"})
     record NestedRecordOneWithJsonPropertyOrder(String id,
-                                                String email,
-                                                @JsonProperty(value = "nestedProperty") NestedRecordTwo nestedRecordTwo) {}
+            String email,
+            @JsonProperty(value = "nestedProperty") NestedRecordTwo nestedRecordTwo) {}
 
     record NestedRecordTwo(String id, String passport) {}
+
+    record CABRecord(String c, String a, String b) {}
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -69,5 +73,26 @@ public class RecordSerializationOrderTest extends DatabindTestUtil
         final String output = MAPPER.writeValueAsString(nestedRecordOne);
         final String expected = "{\"email\":\"test@records.com\",\"nestedProperty\":{\"id\":\"2\",\"passport\":\"111110\"},\"id\":\"1\"}";
         assertEquals(expected, output);
+    }
+
+    // [databind#4580]
+    @Test
+    public void testSerializationOrderWrtCreatorAlphabetic() throws Exception {
+        // By default, in Creator property order
+        assertEquals(a2q("{'c':'c','a':'a','b':'b'}"),
+                MAPPER.writeValueAsString(new CABRecord("c", "a", "b")));
+        // But alphabetic sorting affects Creator, without other settings
+        assertEquals(a2q("{'a':'a','b':'b','c':'c'}"),
+                jsonMapperBuilder()
+                    .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                    .build()
+                    .writeValueAsString(new CABRecord("c", "a", "b")));
+        // Except if we tell it not to:
+        assertEquals(a2q("{'c':'c','a':'a','b':'b'}"),
+                jsonMapperBuilder()
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .enable(MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER)
+                .build()
+                .writeValueAsString(new CABRecord("c", "a", "b")));
     }
 }

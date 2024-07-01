@@ -24,6 +24,7 @@ Project: jackson-databind
 #4356: `BeanDeserializerModifier::updateBuilder()` doesn't work for
   beans with Creator methods
  (reported by Mark H)
+#4407: `null` type id handling does not work with `writeTypePrefix()`
 #4452: `@JsonProperty` not serializing field names properly
   on `@JsonCreator` in Record
  (reported by @Incara)
@@ -47,11 +48,21 @@ Project: jackson-databind
   `@JsonProperty` and javac `-parameters`
  (reported by Alexandre J)
 #4570: Deprecate `ObjectMapper.canDeserialize()`/`ObjectMapper.canSerialize()`
+#4580: Add `MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER` to use
+  Creator properties' declaration order for sorting
 
 2.17.2 (not yet released)
 
 #4561: Issues using jackson-databind 2.17.1 with Reactor
  (reported by @wdallastella)
+#4575: StdDelegatingSerializer does not consider a Converter that may
+  return null for a non-null input
+ (reported, fix contributed by Peter L)
+#4577: Cannot deserialize value of type `java.math.BigDecimal` from
+   String "3." (not a valid representation)
+ (reported by @dmelisso)
+#4595: No way to explicitly disable wrapping in custom annotation processor
+ (reported by @SimonCockx)
 
 2.17.1 (04-May-2024)
 
@@ -136,6 +147,8 @@ Project: jackson-databind
 #4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
  (reported by Guillaume J)
  (fix contributed by Joo-Hyuk K)
+#4581: Incompatible Constructor Parameter Type in `EnumDeserializer`
+ (reported by @Hunter-Lam)
 
 2.16.2 (09-Mar-2024)
 

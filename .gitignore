@@ -23,3 +23,6 @@ syntax: glob
 *.ipr
 *.iws
 /target
+
+# Other/local
+/gh-workflows

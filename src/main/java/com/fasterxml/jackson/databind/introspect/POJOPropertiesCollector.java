@@ -550,8 +550,8 @@ public class POJOPropertiesCollector
                         _anySetterField = new LinkedList<>();
                     }
                     _anySetterField.add(f);
+                    continue;
                 }
-                continue;
             }
             String implName = ai.findImplicitPropertyName(f);
             if (implName == null) {
@@ -1049,7 +1049,6 @@ ctor.creator()));
                 _anyGetters = new LinkedList<>();
             }
             _anyGetters.add(m);
-            return;
         }
         // @JsonKey?
         if (Boolean.TRUE.equals(ai.hasAsKey(_config, m))) {

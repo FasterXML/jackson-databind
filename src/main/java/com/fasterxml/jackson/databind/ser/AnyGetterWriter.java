@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ser.std.MapSerializer;
  * for serializing {@link com.fasterxml.jackson.annotation.JsonAnyGetter} annotated
  * (Map) properties
  */
-public class AnyGetterWriter
+public class AnyGetterWriter extends BeanPropertyWriter
 {
     protected final BeanProperty _property;
 
@@ -25,16 +25,30 @@ public class AnyGetterWriter
 
     protected MapSerializer _mapSerializer;
 
+    /**
+     * @since 2.19
+     */
     @SuppressWarnings("unchecked")
-    public AnyGetterWriter(BeanProperty property,
+    public AnyGetterWriter(BeanPropertyWriter parent, BeanProperty property,
             AnnotatedMember accessor, JsonSerializer<?> serializer)
     {
+        super(parent);
         _accessor = accessor;
         _property = property;
         _serializer = (JsonSerializer<Object>) serializer;
         if (serializer instanceof MapSerializer) {
             _mapSerializer = (MapSerializer) serializer;
         }
+    }
+
+    /**
+     * @deprecated Since 2.19, use one that takes {@link BeanPropertyWriter} instead.
+     */
+    @SuppressWarnings("unchecked")
+    public AnyGetterWriter(BeanProperty property,
+            AnnotatedMember accessor, JsonSerializer<?> serializer)
+    {
+        this(null, property, accessor, serializer);
     }
 
     /**
@@ -63,6 +77,11 @@ public class AnyGetterWriter
             return;
         }
         _serializer.serialize(value, gen, provider);
+    }
+
+    @Override
+    public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception {
+        getAndSerialize(bean, gen, prov);
     }
 
     /**

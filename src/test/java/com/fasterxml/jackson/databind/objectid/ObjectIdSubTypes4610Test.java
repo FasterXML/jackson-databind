@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ObjectIdSubTypes4607Test extends DatabindTestUtil
+public class ObjectIdSubTypes4610Test extends DatabindTestUtil
 {
     // Unused @JsonIdentityInfo
     @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)

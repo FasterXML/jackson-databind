@@ -31,10 +31,7 @@ public class ObjectIdSubTypes4607Test extends DatabindTestUtil
     @Test
     public void shouldHandleTypeDefinitionJson() throws Exception {
         final ObjectMapper mapper = newJsonMapper();
-        String input = "{" +
-                "        \"@type\": \"number\"   " +
-                "      }";
-        TypeDefinition model = mapper.readValue(input, TypeDefinition.class);
+        TypeDefinition model = mapper.readValue("{ \"@type\": \"number\" }", TypeDefinition.class);
         Assertions.assertInstanceOf(NumberTypeDefinition.class, model);
     }
 }

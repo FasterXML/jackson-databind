@@ -50,6 +50,9 @@ Project: jackson-databind
 #4570: Deprecate `ObjectMapper.canDeserialize()`/`ObjectMapper.canSerialize()`
 #4580: Add `MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER` to use
   Creator properties' declaration order for sorting
+#4602: Possible wrong use of _arrayDelegateDeserializer in
+  BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
+ (reported by Eduard G)
 
 2.17.2 (not yet released)
 

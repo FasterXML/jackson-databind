@@ -1482,7 +1482,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     protected Object deserializeFromObjectUsingNonDefault(JsonParser p,
             DeserializationContext ctxt) throws IOException
     {
-        final JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+        // 02-Jul-2024, tatu: [databind#4602] Need to tweak regular and "array" delegating
+        //   Creator handling
+        final JsonDeserializer<Object> delegateDeser = _delegateDeserializer(p);
         if (delegateDeser != null) {
             final Object bean = _valueInstantiator.createUsingDelegate(ctxt,
                     delegateDeser.deserialize(p, ctxt));
@@ -1505,7 +1507,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         // 01-May-2022, tatu: [databind#3417] special handling for (Graal) native images
         if (NativeImageUtil.needsReflectionConfiguration(raw)) {
             return ctxt.handleMissingInstantiator(raw, null, p,
-                    "cannot deserialize from Object value (no delegate- or property-based Creator): this appears to be a native image, in which case you may need to configure reflection for the class that is to be deserialized");
+"cannot deserialize from Object value (no delegate- or property-based Creator): this appears to be a native image, in which case you may need to configure reflection for the class that is to be deserialized");
         }
         return ctxt.handleMissingInstantiator(raw, getValueInstantiator(), p,
 "cannot deserialize from Object value (no delegate- or property-based Creator)");
@@ -1708,6 +1710,26 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             deser = _arrayDelegateDeserializer;
         }
         return deser;
+    }
+
+    /**
+     * Alternate to {@link #_delegateDeserializer()} which will only consider
+     * {@code _arrayDelegateDeserializer} if given {@link JsonParser} points to
+     * {@link JsonToken#START_ARRAY} token.
+     *
+     * @since 2.18
+     */
+    protected final JsonDeserializer<Object> _delegateDeserializer(JsonParser p) {
+        if (_delegateDeserializer == null) {
+            // Note! Will not call `JsonParser.isExpectedArrayToken()` as that could
+            // "transform" `JsonToken.START_OBJECT` into `JsonToken.START_ARRAY` and
+            // here there is no strong expectation of Array value
+            if ((_arrayDelegateDeserializer != null)
+                    && p.hasToken(JsonToken.START_ARRAY)) {
+                return _arrayDelegateDeserializer;
+            }
+        }
+        return _delegateDeserializer;
     }
 
     /*

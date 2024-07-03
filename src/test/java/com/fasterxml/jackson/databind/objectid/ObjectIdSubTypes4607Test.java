@@ -11,12 +11,12 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ObjectIdSubTypes4607Test extends DatabindTestUtil
 {
+    // Unused @JsonIdentityInfo
     @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     @JsonSubTypes({

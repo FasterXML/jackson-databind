@@ -2,19 +2,16 @@ package com.fasterxml.jackson.failing;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static com.fasterxml.jackson.databind.BaseMapTest.newJsonMapper;
+import com.fasterxml.jackson.annotation.*;
 
-public class TypeId4607Test {
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
+public class ObjectIdSubTypes4607Test extends DatabindTestUtil
+{
     @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     @JsonSubTypes({
@@ -31,16 +28,13 @@ public class TypeId4607Test {
     static class NumberTypeDefinition implements TypeDefinition {
     }
 
-    private static final ObjectMapper mapper = newJsonMapper();
-
     @Test
     public void shouldHandleTypeDefinitionJson() throws Exception {
+        final ObjectMapper mapper = newJsonMapper();
         String input = "{" +
                 "        \"@type\": \"number\"   " +
                 "      }";
-
         TypeDefinition model = mapper.readValue(input, TypeDefinition.class);
-
         Assertions.assertInstanceOf(NumberTypeDefinition.class, model);
     }
 }

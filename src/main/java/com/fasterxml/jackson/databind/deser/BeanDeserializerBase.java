@@ -1724,9 +1724,13 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             // Note! Will not call `JsonParser.isExpectedArrayToken()` as that could
             // "transform" `JsonToken.START_OBJECT` into `JsonToken.START_ARRAY` and
             // here there is no strong expectation of Array value
-            if ((_arrayDelegateDeserializer != null)
-                    && p.hasToken(JsonToken.START_ARRAY)) {
-                return _arrayDelegateDeserializer;
+            if (_arrayDelegateDeserializer != null) {
+                // Alas, need bit elaborate logic: either JSON Array, OR no
+                // Properties-based Creator
+                if (p.hasToken(JsonToken.START_ARRAY)
+                        || (_propertyBasedCreator == null)) {
+                    return _arrayDelegateDeserializer;
+                }
             }
         }
         return _delegateDeserializer;

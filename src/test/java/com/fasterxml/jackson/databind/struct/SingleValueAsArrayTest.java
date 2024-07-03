@@ -19,8 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SingleValueAsArrayTest extends DatabindTestUtil
 {
-    private static final String JSON = "[{\"message\":\"messageHere\"}]";
-
     static class Bean1421A
     {
         List<Messages> bs = Collections.emptyList();
@@ -77,8 +75,10 @@ public class SingleValueAsArrayTest extends DatabindTestUtil
     @Test
     public void testSuccessfulDeserializationOfObjectWithChainedArrayCreators() throws IOException
     {
-        Bean1421A result = MAPPER.readValue(JSON, Bean1421A.class);
+        Bean1421A result = MAPPER.readValue("[{\"message\":\"messageHere\"}]", Bean1421A.class);
         assertNotNull(result);
+        assertNotNull(result.bs);
+        assertEquals(1, result.bs.size());
     }
 
     @Test

@@ -1812,3 +1812,8 @@ Alexandre Jacob (ajacob@github)
  * Reported #4545: Unexpected deserialization behavior with `@JsonCreator`,
    `@JsonProperty` and javac `-parameters`
   (2.18.0)
+
+Eduard Gomoliako (Gems@github)
+ * Reported #4602: Possible wrong use of _arrayDelegateDeserializer in
+   BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
+  (2.18.0)

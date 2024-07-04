@@ -1779,3 +1779,8 @@ Peter Levart (plevart@github)
  * Reported, contributed fix for #4575: StdDelegatingSerializer does not consider
    a Converter that may return null for a non-null input
   (2.17.2)
+
+Susan Witts (susanw1@github)
+ * Reported #4607: `MismatchedInput`: No Object Id found for an instance of X to
+   assign to property '@id'
+  (2.17.2)

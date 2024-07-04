@@ -18,6 +18,9 @@ Project: jackson-databind
  (reported by @dmelisso)
 #4595: No way to explicitly disable wrapping in custom annotation processor
  (reported by @SimonCockx)
+#4607: `MismatchedInput`: No Object Id found for an instance of X to
+  assign to property '@id'
+ (reported by Susan W)
 #4610: `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` does not work when
  used with Polymorphic type handling
  (fix by Joo-Hyuk K)

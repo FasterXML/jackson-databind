@@ -372,6 +372,7 @@ public class BeanDeserializer
         // [databind#3838]: since 2.16 Uniform handling of missing objectId
         // only for the specific "empty JSON Object" case
         if (_objectIdReader != null && p.hasTokenId(JsonTokenId.ID_END_OBJECT)) {
+            // [databind#4610]: check if we are to skip failure
             if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)) {
                 ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
             }

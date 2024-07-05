@@ -54,7 +54,7 @@ Project: jackson-databind
   BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
  (reported by Eduard G)
 
-2.17.2 (not yet released)
+2.17.2 (05-Jul-2024)
 
 #4561: Issues using jackson-databind 2.17.1 with Reactor
  (reported by @wdallastella)

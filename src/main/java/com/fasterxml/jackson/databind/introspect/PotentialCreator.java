@@ -19,6 +19,9 @@ public class PotentialCreator
     
     private final AnnotatedWithParams creator;
 
+    /**
+     * Declared Mode of the creator, if explicitly annotated; {@code null} otherwise
+     */
     private JsonCreator.Mode creatorMode;
 
     private PropertyName[] implicitParamNames;
@@ -35,9 +38,6 @@ public class PotentialCreator
             JsonCreator.Mode cm)
     {
         creator = cr;
-        if (cm == null) {
-            cm = JsonCreator.Mode.DEFAULT;
-        }
         creatorMode = cm;
     }
 
@@ -51,9 +51,6 @@ public class PotentialCreator
      * @return This creator instance
      */
     public PotentialCreator overrideMode(JsonCreator.Mode mode) {
-        if (mode == null) {
-            mode = JsonCreator.Mode.DEFAULT;
-        }
         creatorMode = mode;
         return this;
     }
@@ -141,7 +138,22 @@ public class PotentialCreator
         return creator;
     }
 
+    /**
+     * @return Mode declared for this Creator by annotation, if any; {@code null}
+     *    if not annotated
+     */
     public JsonCreator.Mode creatorMode() {
+        return creatorMode;
+    }
+
+    /**
+     * Same as {@link #creatorMode()} except that if {@code null} was to be
+     * returned, will instead return {@code JsonCreator.Mode.DEFAULT}/
+     */
+    public JsonCreator.Mode creatorModeOrDefault() {
+        if (creatorMode == null) {
+            return JsonCreator.Mode.DEFAULT;
+        }
         return creatorMode;
     }
 

@@ -734,13 +734,13 @@ public class POJOPropertiesCollector
     private boolean _isDelegatingConstructor(PotentialCreator ctor)
     {
         // First things first: could be 
-        switch (ctor.creatorMode()) {
+        switch (ctor.creatorModeOrDefault()) {
         case DELEGATING:
             return true;
         case DISABLED:
         case PROPERTIES:
             return false;
-        default:
+        default: // case DEFAULT:
         }
 
         // Only consider single-arg case, for now
@@ -797,7 +797,7 @@ public class POJOPropertiesCollector
         while (it.hasNext()) {
             // explicit mode? Retain (for now)
             PotentialCreator ctor = it.next();
-            if (ctor.creatorMode() != null) {
+            if (ctor.creatorMode() != JsonCreator.Mode.DEFAULT) {
                 continue;
             }
             // Do not trim canonical either

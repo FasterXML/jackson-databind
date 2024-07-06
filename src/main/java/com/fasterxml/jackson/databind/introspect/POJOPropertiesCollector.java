@@ -797,7 +797,7 @@ public class POJOPropertiesCollector
         while (it.hasNext()) {
             // explicit mode? Retain (for now)
             PotentialCreator ctor = it.next();
-            if (ctor.creatorMode() != JsonCreator.Mode.DEFAULT) {
+            if (ctor.creatorMode() != null) {
                 continue;
             }
             // Do not trim canonical either

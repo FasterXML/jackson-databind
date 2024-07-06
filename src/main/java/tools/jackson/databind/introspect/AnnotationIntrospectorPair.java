@@ -634,7 +634,11 @@ public class AnnotationIntrospectorPair
         return _primary.refineDeserializationType(config, a, t);
     }
 
-    // // // Deserialization: class annotations
+    /*
+    /**********************************************************************
+    /* Deserialization: value instantiation, Creators
+    /**********************************************************************
+     */
 
     @Override
     public Object findValueInstantiator(MapperConfig<?> config, AnnotatedClass ac) {
@@ -654,7 +658,17 @@ public class AnnotationIntrospectorPair
         return (result == null) ? _secondary.findPOJOBuilderConfig(config, ac) : result;
     }
 
-    // // // Deserialization: method annotations
+    @Override
+    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
+        JsonCreator.Mode mode = _primary.findCreatorAnnotation(config, a);
+        return (mode == null) ? _secondary.findCreatorAnnotation(config, a) : mode;
+    }
+
+    /*
+    /**********************************************************************
+    /* Deserialization: other property annotations
+    /**********************************************************************
+     */
 
     @Override
     public PropertyName findNameForDeserialization(MapperConfig<?> config, Annotated a)
@@ -688,12 +702,6 @@ public class AnnotationIntrospectorPair
             b = _secondary.findMergeInfo(config, a);
         }
         return b;
-    }
-
-    @Override
-    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
-        JsonCreator.Mode mode = _primary.findCreatorAnnotation(config, a);
-        return (mode == null) ? _secondary.findCreatorAnnotation(config, a) : mode;
     }
 
     protected boolean _isExplicitClassOrOb(Object maybeCls, Class<?> implicit) {

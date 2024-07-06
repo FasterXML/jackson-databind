@@ -1095,7 +1095,7 @@ public abstract class AnnotationIntrospector
 
     /*
     /**********************************************************************
-    /* Deserialization: class annotations
+    /* Deserialization: value instantiation, Creators
     /**********************************************************************
      */
 
@@ -1134,9 +1134,26 @@ public abstract class AnnotationIntrospector
         return null;
     }
 
+    /**
+     * Method called to check whether potential Creator (constructor or static factory
+     * method) has explicit annotation to indicate it as actual Creator; and if so,
+     * which {@link com.fasterxml.jackson.annotation.JsonCreator.Mode} to use.
+     *<p>
+     * NOTE: caller needs to consider possibility of both `null` (no annotation found)
+     * and {@link com.fasterxml.jackson.annotation.JsonCreator.Mode#DISABLED} (annotation found,
+     * but disabled); latter is necessary as marker in case multiple introspectors are chained,
+     * as well as possibly as when using mix-in annotations.
+     *
+     * @param config Configuration settings in effect (for serialization or deserialization)
+     * @param a Annotated accessor (usually constructor or static method) to check
+     */
+    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
+        return null;
+    }
+
     /*
     /**********************************************************************
-    /* Deserialization: property annotations
+    /* Deserialization: other property annotations
     /**********************************************************************
      */
 
@@ -1183,23 +1200,6 @@ public abstract class AnnotationIntrospector
      * Method for finding merge settings for property, if any.
      */
     public Boolean findMergeInfo(MapperConfig<?> config, Annotated a) {
-        return null;
-    }
-
-    /**
-     * Method called to check whether potential Creator (constructor or static factory
-     * method) has explicit annotation to indicate it as actual Creator; and if so,
-     * which {@link com.fasterxml.jackson.annotation.JsonCreator.Mode} to use.
-     *<p>
-     * NOTE: caller needs to consider possibility of both `null` (no annotation found)
-     * and {@link com.fasterxml.jackson.annotation.JsonCreator.Mode#DISABLED} (annotation found,
-     * but disabled); latter is necessary as marker in case multiple introspectors are chained,
-     * as well as possibly as when using mix-in annotations.
-     *
-     * @param config Configuration settings in effect (for serialization or deserialization)
-     * @param a Annotated accessor (usually constructor or static method) to check
-     */
-    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
         return null;
     }
 

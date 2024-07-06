@@ -19,7 +19,7 @@ public class PotentialCreator
     
     private final AnnotatedWithParams creator;
 
-    private final JsonCreator.Mode creatorMode;
+    private JsonCreator.Mode creatorMode;
 
     private PropertyName[] implicitParamNames;
     
@@ -35,7 +35,27 @@ public class PotentialCreator
             JsonCreator.Mode cm)
     {
         creator = cr;
+        if (cm == null) {
+            cm = JsonCreator.Mode.DEFAULT;
+        }
         creatorMode = cm;
+    }
+
+    /**
+     * Method that can be called to change the {@code creatorMode} this
+     * Creator has: typically used to "mark" Creator as {@code JsonCreator.Mode.DELEGATING}
+     * or {@code JsonCreator.Mode.PROPERTIES} when further information is gathered).
+     *
+     * @param mode Mode to set {@code creatorMode} to
+     *
+     * @return This creator instance
+     */
+    public PotentialCreator overrideMode(JsonCreator.Mode mode) {
+        if (mode == null) {
+            mode = JsonCreator.Mode.DEFAULT;
+        }
+        creatorMode = mode;
+        return this;
     }
 
     /*

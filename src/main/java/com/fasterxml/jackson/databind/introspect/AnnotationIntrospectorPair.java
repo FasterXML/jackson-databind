@@ -735,9 +735,23 @@ public class AnnotationIntrospectorPair
         return (mode == null) ? _secondary.findCreatorAnnotation(config, a) : mode;
     }
 
+    @Override
+    public PotentialCreator findCanonicalCreator(MapperConfig<?> config,
+            AnnotatedClass valueClass,
+            List<PotentialCreator> declaredConstructors,
+            List<PotentialCreator> declaredFactories) {
+        PotentialCreator canonical = _primary.findCanonicalCreator(config,
+                valueClass, declaredConstructors, declaredFactories);
+        if (canonical == null) {
+            canonical = _secondary.findCanonicalCreator(config,
+                    valueClass, declaredConstructors, declaredFactories);
+        }
+        return canonical;
+    }
+    
     /*
     /**********************************************************************
-    /* Deserialization: other method annotations
+    /* Deserialization: other property annotations
     /**********************************************************************
      */
 

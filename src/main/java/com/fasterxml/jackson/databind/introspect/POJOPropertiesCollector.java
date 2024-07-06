@@ -655,15 +655,15 @@ public class POJOPropertiesCollector
         if (_isRecordType) {
             canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, constructors);
         } else {
-            // !!! TODO: fetch Canonical for Kotlin, Scala, via AnnotationIntrospector?
-            canonical = null;
+            canonical = _annotationIntrospector.findCanonicalCreator(_config, _classDef,
+                    constructors, factories);
         }
 
         // Next: remove creators marked as explicitly disabled
         _removeDisabledCreators(constructors);
         _removeDisabledCreators(factories);
         // And then remove non-annotated static methods that do not look like factories
-        _removeNonFactoryStaticMethods(factories);
+        _removeNonFactoryStaticMethods(factories, canonical);
 
         // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
@@ -682,12 +682,12 @@ public class POJOPropertiesCollector
         }
 
         // But if no annotation-based Creators found, find/use canonical Creator
-        // (JDK 17 Record/Scala/Kotlin)
+        // (Scala/Kotlin/Lombok?)
         if (!creators.hasPropertiesBased()) {
-            // for Records:
             if (canonical != null) {
                 // ... but only process if still included as a candidate
-                if (constructors.remove(canonical)) {
+                if (constructors.remove(canonical)
+                        || factories.remove(canonical)) {
                     // But wait! Could be delegating
                     if (_isDelegatingConstructor(canonical)) {
                         creators.addExplicitDelegating(canonical);
@@ -733,6 +733,16 @@ public class POJOPropertiesCollector
     // looks like delegating one
     private boolean _isDelegatingConstructor(PotentialCreator ctor)
     {
+        // First things first: could be 
+        switch (ctor.creatorMode()) {
+        case DELEGATING:
+            return true;
+        case DISABLED:
+        case PROPERTIES:
+            return false;
+        default:
+        }
+
         // Only consider single-arg case, for now
         if (ctor.paramCount() == 1) {
             // Main thing: @JsonValue makes it delegating:
@@ -779,7 +789,8 @@ public class POJOPropertiesCollector
         }
     }
 
-    private void _removeNonFactoryStaticMethods(List<PotentialCreator> ctors)
+    private void _removeNonFactoryStaticMethods(List<PotentialCreator> ctors,
+            PotentialCreator canonical)
     {
         final Class<?> rawType = _type.getRawClass();
         Iterator<PotentialCreator> it = ctors.iterator();
@@ -787,6 +798,10 @@ public class POJOPropertiesCollector
             // explicit mode? Retain (for now)
             PotentialCreator ctor = it.next();
             if (ctor.creatorMode() != null) {
+                continue;
+            }
+            // Do not trim canonical either
+            if (canonical == ctor) {
                 continue;
             }
             // Copied from `BasicBeanDescription.isFactoryMethod()`

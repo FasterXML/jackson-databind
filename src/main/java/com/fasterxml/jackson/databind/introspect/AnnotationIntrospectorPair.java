@@ -689,7 +689,11 @@ public class AnnotationIntrospectorPair
         return _primary.refineDeserializationType(config, a, t);
     }
 
-    // // // Deserialization: class annotations
+    /*
+    /**********************************************************************
+    /* Deserialization: value instantiation, Creators
+    /**********************************************************************
+     */
 
     @Override
     public Object findValueInstantiator(AnnotatedClass ac) {
@@ -709,7 +713,33 @@ public class AnnotationIntrospectorPair
         return (result == null) ? _secondary.findPOJOBuilderConfig(ac) : result;
     }
 
-    // // // Deserialization: method annotations
+    @Override
+    @Deprecated // since 2.9
+    public boolean hasCreatorAnnotation(Annotated a) {
+        return _primary.hasCreatorAnnotation(a) || _secondary.hasCreatorAnnotation(a);
+    }
+
+    @Override
+    @Deprecated // since 2.9
+    public JsonCreator.Mode findCreatorBinding(Annotated a) {
+        JsonCreator.Mode mode = _primary.findCreatorBinding(a);
+        if (mode != null) {
+            return mode;
+        }
+        return _secondary.findCreatorBinding(a);
+    }
+
+    @Override
+    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
+        JsonCreator.Mode mode = _primary.findCreatorAnnotation(config, a);
+        return (mode == null) ? _secondary.findCreatorAnnotation(config, a) : mode;
+    }
+
+    /*
+    /**********************************************************************
+    /* Deserialization: other method annotations
+    /**********************************************************************
+     */
 
     @Override
     public PropertyName findNameForDeserialization(Annotated a)
@@ -745,27 +775,6 @@ public class AnnotationIntrospectorPair
         return b;
     }
 
-    @Override
-    @Deprecated // since 2.9
-    public boolean hasCreatorAnnotation(Annotated a) {
-        return _primary.hasCreatorAnnotation(a) || _secondary.hasCreatorAnnotation(a);
-    }
-
-    @Override
-    @Deprecated // since 2.9
-    public JsonCreator.Mode findCreatorBinding(Annotated a) {
-        JsonCreator.Mode mode = _primary.findCreatorBinding(a);
-        if (mode != null) {
-            return mode;
-        }
-        return _secondary.findCreatorBinding(a);
-    }
-
-    @Override
-    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
-        JsonCreator.Mode mode = _primary.findCreatorAnnotation(config, a);
-        return (mode == null) ? _secondary.findCreatorAnnotation(config, a) : mode;
-    }
 
     @Override
     @Deprecated // since 2.9

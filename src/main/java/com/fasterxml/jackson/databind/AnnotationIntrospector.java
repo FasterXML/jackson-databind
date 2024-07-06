@@ -1314,7 +1314,7 @@ public abstract class AnnotationIntrospector
 
     /*
     /**********************************************************
-    /* Deserialization: class annotations
+    /* Deserialization: value instantiation, Creators
     /**********************************************************
      */
 
@@ -1362,76 +1362,6 @@ public abstract class AnnotationIntrospector
      * @since 2.0
      */
     public JsonPOJOBuilder.Value findPOJOBuilderConfig(AnnotatedClass ac) {
-        return null;
-    }
-
-    /*
-    /**********************************************************
-    /* Deserialization: property annotations
-    /**********************************************************
-     */
-
-    /**
-     * Method for checking whether given property accessors (method,
-     * field) has an annotation that suggests property name to use
-     * for deserialization (reading JSON into POJOs).
-     * Should return null if no annotation
-     * is found; otherwise a non-null name (possibly
-     * {@link PropertyName#USE_DEFAULT}, which means "use default heuristics").
-     *
-     * @param ann Annotated entity to check
-     *
-     * @return Name to use if found; {@code null} if not.
-     *
-     * @since 2.1
-     */
-    public PropertyName findNameForDeserialization(Annotated ann) {
-        return null;
-    }
-
-    /**
-     * Method for checking whether given method has an annotation
-     * that suggests that the method is to serve as "any setter";
-     * method to be used for setting values of any properties for
-     * which no dedicated setter method is found.
-     *
-     * @param ann Annotated entity to check
-     *
-     * @return {@code Boolean.TRUE} or {@code Boolean.FALSE} if explicit
-     *   "any setter" marker found; {@code null} otherwise.
-     *
-     * @since 2.9
-     */
-    public Boolean hasAnySetter(Annotated ann) {
-        return null;
-    }
-
-    /**
-     * Method for finding possible settings for property, given annotations
-     * on an accessor.
-     *
-     * @param ann Annotated entity to check
-     *
-     * @return Setter info value found, if any;
-     *   {@code JsonSetter.Value.empty()} if none (should not return {@code null})
-     *
-     * @since 2.9
-     */
-    public JsonSetter.Value findSetterInfo(Annotated ann) {
-        return JsonSetter.Value.empty();
-    }
-
-    /**
-     * Method for finding merge settings for property, if any.
-     *
-     * @param ann Annotated entity to check
-     *
-     * @return {@code Boolean.TRUE} or {@code Boolean.FALSE} if explicit
-     *    merge enable/disable found; {@code null} otherwise.
-     *
-     * @since 2.9
-     */
-    public Boolean findMergeInfo(Annotated ann) {
         return null;
     }
 
@@ -1501,6 +1431,76 @@ public abstract class AnnotationIntrospector
      */
     @Deprecated
     public JsonCreator.Mode findCreatorBinding(Annotated ann) {
+        return null;
+    }
+
+    /*
+    /**********************************************************
+    /* Deserialization: other property annotations
+    /**********************************************************
+     */
+
+    /**
+     * Method for checking whether given property accessors (method,
+     * field) has an annotation that suggests property name to use
+     * for deserialization (reading JSON into POJOs).
+     * Should return null if no annotation
+     * is found; otherwise a non-null name (possibly
+     * {@link PropertyName#USE_DEFAULT}, which means "use default heuristics").
+     *
+     * @param ann Annotated entity to check
+     *
+     * @return Name to use if found; {@code null} if not.
+     *
+     * @since 2.1
+     */
+    public PropertyName findNameForDeserialization(Annotated ann) {
+        return null;
+    }
+
+    /**
+     * Method for checking whether given method has an annotation
+     * that suggests that the method is to serve as "any setter";
+     * method to be used for setting values of any properties for
+     * which no dedicated setter method is found.
+     *
+     * @param ann Annotated entity to check
+     *
+     * @return {@code Boolean.TRUE} or {@code Boolean.FALSE} if explicit
+     *   "any setter" marker found; {@code null} otherwise.
+     *
+     * @since 2.9
+     */
+    public Boolean hasAnySetter(Annotated ann) {
+        return null;
+    }
+
+    /**
+     * Method for finding possible settings for property, given annotations
+     * on an accessor.
+     *
+     * @param ann Annotated entity to check
+     *
+     * @return Setter info value found, if any;
+     *   {@code JsonSetter.Value.empty()} if none (should not return {@code null})
+     *
+     * @since 2.9
+     */
+    public JsonSetter.Value findSetterInfo(Annotated ann) {
+        return JsonSetter.Value.empty();
+    }
+
+    /**
+     * Method for finding merge settings for property, if any.
+     *
+     * @param ann Annotated entity to check
+     *
+     * @return {@code Boolean.TRUE} or {@code Boolean.FALSE} if explicit
+     *    merge enable/disable found; {@code null} otherwise.
+     *
+     * @since 2.9
+     */
+    public Boolean findMergeInfo(Annotated ann) {
         return null;
     }
 

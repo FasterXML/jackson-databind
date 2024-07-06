@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import com.fasterxml.jackson.databind.jdk14.JDK14Util;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -747,9 +748,19 @@ public class POJOPropertiesCollector
         }
 
         PropertyName pn = _annotationIntrospector.findNameForDeserialization(param);
-        boolean expl = (pn != null && !pn.isEmpty());
+        boolean expl = (pn != null) && !pn.isEmpty();
         if (!expl) {
             if (impl.isEmpty()) {
+                boolean unwrapping = _annotationIntrospector.findUnwrappingNameTransformer(param) != null;
+                if (unwrapping) {
+                    // We can still use this unwrapping property, as the name does not matter.
+                    // We just have to use the placeholder.
+                    PropertyName name = UnwrappedPropertyHandler.creatorParamName(param._index);
+                    POJOPropertyBuilder prop = _property(props, name);
+                    prop.addCtor(param, name, false, true, false);
+                    _creatorProperties.add(prop);
+                }
+
                 // Important: if neither implicit nor explicit name, cannot make use of
                 // this creator parameter -- may or may not be a problem, verified at a later point.
                 return;

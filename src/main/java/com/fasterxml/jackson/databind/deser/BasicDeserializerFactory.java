@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.deser.impl.CreatorCandidate;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
 import com.fasterxml.jackson.databind.deser.impl.JDKValueInstantiators;
 import com.fasterxml.jackson.databind.deser.impl.JavaUtilCollectionsDeserializers;
+import com.fasterxml.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
@@ -51,12 +52,6 @@ public abstract class BasicDeserializerFactory
     private final static Class<?> CLASS_ITERABLE = Iterable.class;
     private final static Class<?> CLASS_MAP_ENTRY = Map.Entry.class;
     private final static Class<?> CLASS_SERIALIZABLE = Serializable.class;
-
-    /**
-     * We need a placeholder for creator properties that don't have name
-     * but are marked with `@JsonWrapped` annotation.
-     */
-    protected final static PropertyName UNWRAPPED_CREATOR_PARAM_NAME = new PropertyName("@JsonUnwrapped");
 
     /*
     /**********************************************************
@@ -556,11 +551,8 @@ index, owner, defs[index], propDef);
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
-                    /*
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.creatorParamName(i), i, param, null);
                     ++explicitNameCount;
-                    */
                     continue;
                 }
                 // One more thing: implicit names are ok iff ctor has creator annotation
@@ -738,11 +730,8 @@ nonAnnotatedParamIndex, ctor);
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
-                    /*
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.creatorParamName(i), i, param, null);
                     ++implicitNameCount;
-                    */
                     continue;
                 }
                 // One more thing: implicit names are ok iff ctor has creator annotation
@@ -872,11 +861,8 @@ nonAnnotatedParamIndex, ctor);
                 //   as that will not work with Creators well at all
                 NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
-                    /*
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
-                    ++explicitNameCount;
-                    */
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.creatorParamName(i), i, param, null);
+                    continue;
                 }
                 name = candidate.findImplicitParamName(i);
                 _validateNamedPropertyParameter(ctxt, beanDesc, candidate, i,
@@ -1166,17 +1152,6 @@ candidate.creator());
 "Argument #%d of constructor %s has no property name (and is not Injectable): can not use as property-based Creator",
 paramIndex, candidate);
         }
-    }
-
-    // 01-Dec-2016, tatu: As per [databind#265] we cannot yet support passing
-    //   of unwrapped values through creator properties, so fail fast
-    protected void _reportUnwrappedCreatorProperty(DeserializationContext ctxt,
-            BeanDescription beanDesc, AnnotatedParameter param)
-        throws JsonMappingException
-    {
-        ctxt.reportBadTypeDefinition(beanDesc,
-"Cannot define Creator parameter %d as `@JsonUnwrapped`: combination not yet supported",
-                param.getIndex());
     }
 
     /**

@@ -644,14 +644,14 @@ public class POJOPropertiesCollector
         final PotentialCreators creators = _potentialCreators;
 
         // First, resolve explicit annotations for all potential Creators
-        // (but do NOT filter out DISABLED ones yet!)
+        // (note: will skip ones annotated as DISABLED)
         List<PotentialCreator> constructors = _collectCreators(_classDef.getConstructors());
         List<PotentialCreator> factories = _collectCreators(_classDef.getFactoryMethods());
 
-        final PotentialCreator canonical;
-
-        // Find and mark "canonical" constructor for Records.
+        // Then find and mark the "canonical" constructor (if one exists):
+        // for Java Records and potentially other types too ("data classes":
         // Needs to be done early to get implicit names populated
+        final PotentialCreator canonical;
         if (_isRecordType) {
             canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, constructors);
         } else {
@@ -659,9 +659,6 @@ public class POJOPropertiesCollector
                     constructors, factories);
         }
 
-        // Next: remove creators marked as explicitly disabled
-        _removeDisabledCreators(constructors);
-        _removeDisabledCreators(factories);
         // And then remove non-annotated static methods that do not look like factories
         _removeNonFactoryStaticMethods(factories, canonical);
 
@@ -762,7 +759,10 @@ public class POJOPropertiesCollector
         for (AnnotatedWithParams ctor : ctors) {
             JsonCreator.Mode creatorMode = _useAnnotations
                     ? _annotationIntrospector.findCreatorAnnotation(_config, ctor) : null;
-            result.add(new PotentialCreator(ctor, creatorMode));
+            // 06-Jul-2024, tatu: Let's immediately drop ones marked for ignoral
+            if (creatorMode != JsonCreator.Mode.DISABLED) {
+                result.add(new PotentialCreator(ctor, creatorMode));
+            }
         }
         return (result == null) ? Collections.emptyList() : result;
     }

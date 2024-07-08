@@ -648,14 +648,14 @@ public class POJOPropertiesCollector
         List<PotentialCreator> constructors = _collectCreators(_classDef.getConstructors());
         List<PotentialCreator> factories = _collectCreators(_classDef.getFactoryMethods());
 
-        // Then find and mark the "canonical" constructor (if one exists):
-        // for Java Records and potentially other types too ("data classes":
+        // Then find what is the Primary Constructor (if one exists for type):
+        // for Java Records and potentially other types too ("data classes"):
         // Needs to be done early to get implicit names populated
         final PotentialCreator canonical;
         if (_isRecordType) {
             canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, constructors);
         } else {
-            canonical = _annotationIntrospector.findCanonicalCreator(_config, _classDef,
+            canonical = _annotationIntrospector.findPrimaryCreator(_config, _classDef,
                     constructors, factories);
         }
 
@@ -678,10 +678,10 @@ public class POJOPropertiesCollector
             _addCreatorsWithAnnotatedNames(creators, constructors);
         }
 
-        // But if no annotation-based Creators found, find/use canonical Creator
-        // (Scala/Kotlin/Lombok?)
-        if (!creators.hasPropertiesBased()) {
-            if (canonical != null) {
+        // But if no annotation-based Creators found, find/use Primary Creator
+        // detected earlier, if any
+        if (canonical != null) {
+            if (!creators.hasPropertiesBased()) {
                 // ... but only process if still included as a candidate
                 if (constructors.remove(canonical)
                         || factories.remove(canonical)) {
@@ -689,7 +689,7 @@ public class POJOPropertiesCollector
                     if (_isDelegatingConstructor(canonical)) {
                         creators.addExplicitDelegating(canonical);
                     } else {
-                        creators.setPropertiesBased(_config, canonical, "canonical");
+                        creators.setPropertiesBased(_config, canonical, "Primary");
                     }
                 }
             }
@@ -765,17 +765,6 @@ public class POJOPropertiesCollector
             }
         }
         return (result == null) ? Collections.emptyList() : result;
-    }
-
-    private void _removeDisabledCreators(List<PotentialCreator> ctors)
-    {
-        Iterator<PotentialCreator> it = ctors.iterator();
-        while (it.hasNext()) {
-            // explicitly prevented? Remove
-            if (it.next().creatorMode() == JsonCreator.Mode.DISABLED) {
-                it.remove();
-            }
-        }
     }
 
     private void _removeNonVisibleCreators(List<PotentialCreator> ctors)

@@ -1398,19 +1398,20 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * Method called to check if introspector is able to detect so-called Canonical
-     * creator: primary Creator to use when no explicit annotation found
+     * Method called to check if introspector is able to detect so-called Primary
+     * Creator: Creator to select for use when no explicit annotation is found
      * (via {@link #findCreatorAnnotation}).
-     * This is the case for example for Java Record types (but for which handling
-     * is in-built); but is specifically true for various "Data" classes by frameworks like
-     * Lombok and JVM languages like Kotlin and Scala (case classes).
+     * This is the case for example for Java Record types which have so-called
+     * canonical constructor; but it is also true for various "Data" classes by frameworks
+     * like Lombok and JVM languages like Kotlin and Scala (case classes).
      * If introspector can determine that one of given {@link PotentialCreator}s should
      * be considered canonical, it should return it; if not, should return {@code null}.
      *<p>
      * NOTE: when returning chosen Creator, it may be necessary to mark its "mode"
      * with {@link PotentialCreator#overrideMode} (especially for "delegating" creators).
      *<p>
-     * NOTE: method is NOT called for Java Record types.
+     * NOTE: method is NOT called for Java Record types; selection of canonical constructor
+     * as the Primary creator is handled by {@link POJOPropertiesCollector}
      *
      * @param config Configuration settings in effect (for deserialization)
      * @param valueClass Class being instantiated and defines Creators passed
@@ -1422,7 +1423,7 @@ public abstract class AnnotationIntrospector
      *
      * @since 2.18
      */
-    public PotentialCreator findCanonicalCreator(MapperConfig<?> config,
+    public PotentialCreator findPrimaryCreator(MapperConfig<?> config,
             AnnotatedClass valueClass,
             List<PotentialCreator> declaredConstructors,
             List<PotentialCreator> declaredFactories) {

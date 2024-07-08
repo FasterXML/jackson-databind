@@ -736,14 +736,14 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public PotentialCreator findCanonicalCreator(MapperConfig<?> config,
+    public PotentialCreator findPrimaryCreator(MapperConfig<?> config,
             AnnotatedClass valueClass,
             List<PotentialCreator> declaredConstructors,
             List<PotentialCreator> declaredFactories) {
-        PotentialCreator canonical = _primary.findCanonicalCreator(config,
+        PotentialCreator canonical = _primary.findPrimaryCreator(config,
                 valueClass, declaredConstructors, declaredFactories);
         if (canonical == null) {
-            canonical = _secondary.findCanonicalCreator(config,
+            canonical = _secondary.findPrimaryCreator(config,
                     valueClass, declaredConstructors, declaredFactories);
         }
         return canonical;

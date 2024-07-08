@@ -651,11 +651,11 @@ public class POJOPropertiesCollector
         // Then find what is the Primary Constructor (if one exists for type):
         // for Java Records and potentially other types too ("data classes"):
         // Needs to be done early to get implicit names populated
-        final PotentialCreator canonical;
+        final PotentialCreator primary;
         if (_isRecordType) {
-            canonical = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, constructors);
+            primary = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, constructors);
         } else {
-            canonical = _annotationIntrospector.findPrimaryCreator(_config, _classDef,
+            primary = _annotationIntrospector.findPrimaryCreator(_config, _classDef,
                     constructors, factories);
         }
         // Next: remove creators marked as explicitly disabled
@@ -663,7 +663,7 @@ public class POJOPropertiesCollector
         _removeDisabledCreators(factories);
         
         // And then remove non-annotated static methods that do not look like factories
-        _removeNonFactoryStaticMethods(factories, canonical);
+        _removeNonFactoryStaticMethods(factories, primary);
 
         // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
@@ -683,16 +683,16 @@ public class POJOPropertiesCollector
 
         // But if no annotation-based Creators found, find/use Primary Creator
         // detected earlier, if any
-        if (canonical != null) {
+        if (primary != null) {
             if (!creators.hasPropertiesBased()) {
                 // ... but only process if still included as a candidate
-                if (constructors.remove(canonical)
-                        || factories.remove(canonical)) {
+                if (constructors.remove(primary)
+                        || factories.remove(primary)) {
                     // But wait! Could be delegating
-                    if (_isDelegatingConstructor(canonical)) {
-                        creators.addExplicitDelegating(canonical);
+                    if (_isDelegatingConstructor(primary)) {
+                        creators.addExplicitDelegating(primary);
                     } else {
-                        creators.setPropertiesBased(_config, canonical, "Primary");
+                        creators.setPropertiesBased(_config, primary, "Primary");
                     }
                 }
             }
@@ -720,12 +720,12 @@ public class POJOPropertiesCollector
 
         // And finally add logical properties for the One Properties-based
         // creator selected (if any):
-        PotentialCreator primary = creators.propertiesBased;
-        if (primary == null) {
+        PotentialCreator propsCtor = creators.propertiesBased;
+        if (propsCtor == null) {
             _creatorProperties = Collections.emptyList();
         } else {
             _creatorProperties = new ArrayList<>();
-            _addCreatorParams(props, primary, _creatorProperties);
+            _addCreatorParams(props, propsCtor, _creatorProperties);
         }
     }
 

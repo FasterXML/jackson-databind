@@ -55,14 +55,18 @@ public class CanonicalCreator4584Test extends DatabindTestUtil
         }
     }
 
-    static class DelegatingCanonicalFindingIntrospector extends ImplicitNameIntrospector
+    static class PrimaryCreatorFindingIntrospector extends ImplicitNameIntrospector
     {
         private static final long serialVersionUID = 1L;
 
-        private final Class<?> _argType;
+        private final Class<?>[] _argTypes;
 
-        public DelegatingCanonicalFindingIntrospector(Class<?> argType) {
-            _argType = argType;
+        private JsonCreator.Mode _mode;
+
+        public PrimaryCreatorFindingIntrospector(JsonCreator.Mode mode,
+                Class<?>... argTypes) {
+            _mode = mode;
+            _argTypes = argTypes;
         }
 
         @Override
@@ -78,12 +82,20 @@ public class CanonicalCreator4584Test extends DatabindTestUtil
             System.err.println("findCanonicalCreator DONE for: "+valueClass.getRawType());
             List<PotentialCreator> combo = new ArrayList<>(declaredConstructors);
             combo.addAll(declaredFactories);
+            final int argCount = _argTypes.length;
             for (PotentialCreator ctor : combo) {
-                if (ctor.paramCount() == 1
-                        && _argType == ctor.param(0).getRawType()) {
+                if (ctor.paramCount() == argCount) {
+                    int i = 0;
+                    for (; i < argCount; ++i) {
+                        if (_argTypes[i] != ctor.param(i).getRawType()) {
+                            break;
+                        }
+                    }
+                    if (i == argCount) {
 System.err.println("MATCH! "+ctor);
-                    ctor.overrideMode(JsonCreator.Mode.DELEGATING);
-                    return ctor;
+                        ctor.overrideMode(_mode);
+                        return ctor;
+                    }
                 }
             }
             System.err.println("No MATCH! ");
@@ -102,7 +114,8 @@ System.err.println("MATCH! "+ctor);
     public void testCanonicalConstructorPropertiesCreator() throws Exception
     {
         assertEquals(POJO4584.factoryString("List[0]"),
-                readerWith(new DelegatingCanonicalFindingIntrospector(List.class))
+                readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.PROPERTIES,
+                        List.class))
                     .readValue(a2q("{'x':[ ]}")));
     }
     */
@@ -116,16 +129,18 @@ System.err.println("MATCH! "+ctor);
     @Test
     public void testCanonicalConstructorDelegatingIntCreator() throws Exception
     {
-        assertEquals(POJO4584.factoryString("List[3]"),
-                readerWith(new DelegatingCanonicalFindingIntrospector(List.class))
-                    .readValue(a2q("[1, 2, 3]")));
+        assertEquals(POJO4584.factoryString("int[42]"),
+                readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.DELEGATING,
+                        Integer.TYPE))
+                    .readValue(a2q("42")));
     }
     
     @Test
     public void testCanonicalConstructorDelegatingListCreator() throws Exception
     {
         assertEquals(POJO4584.factoryString("List[3]"),
-                readerWith(new DelegatingCanonicalFindingIntrospector(List.class))
+                readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.DELEGATING,
+                        List.class))
                     .readValue(a2q("[1, 2, 3]")));
     }
 
@@ -133,7 +148,8 @@ System.err.println("MATCH! "+ctor);
     public void testCanonicalConstructorDelegatingArrayCreator() throws Exception
     {
         assertEquals(POJO4584.factoryString("Array[1]"),
-                readerWith(new DelegatingCanonicalFindingIntrospector(Object[].class))
+                readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.DELEGATING,
+                        Object[].class))
                     .readValue(a2q("[true]")));
     }
 

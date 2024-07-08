@@ -644,7 +644,7 @@ public class POJOPropertiesCollector
         final PotentialCreators creators = _potentialCreators;
 
         // First, resolve explicit annotations for all potential Creators
-        // (note: will skip ones annotated as DISABLED)
+        // (but do NOT filter out DISABLED ones yet!)
         List<PotentialCreator> constructors = _collectCreators(_classDef.getConstructors());
         List<PotentialCreator> factories = _collectCreators(_classDef.getFactoryMethods());
 
@@ -658,7 +658,10 @@ public class POJOPropertiesCollector
             canonical = _annotationIntrospector.findPrimaryCreator(_config, _classDef,
                     constructors, factories);
         }
-
+        // Next: remove creators marked as explicitly disabled
+        _removeDisabledCreators(constructors);
+        _removeDisabledCreators(factories);
+        
         // And then remove non-annotated static methods that do not look like factories
         _removeNonFactoryStaticMethods(factories, canonical);
 
@@ -759,12 +762,21 @@ public class POJOPropertiesCollector
         for (AnnotatedWithParams ctor : ctors) {
             JsonCreator.Mode creatorMode = _useAnnotations
                     ? _annotationIntrospector.findCreatorAnnotation(_config, ctor) : null;
-            // 06-Jul-2024, tatu: Let's immediately drop ones marked for ignoral
-            if (creatorMode != JsonCreator.Mode.DISABLED) {
-                result.add(new PotentialCreator(ctor, creatorMode));
-            }
+            // 06-Jul-2024, tatu: Can't yet drop DISABLED ones; add all (for now)
+            result.add(new PotentialCreator(ctor, creatorMode));
         }
         return (result == null) ? Collections.emptyList() : result;
+    }
+
+    private void _removeDisabledCreators(List<PotentialCreator> ctors)
+    {
+        Iterator<PotentialCreator> it = ctors.iterator();
+        while (it.hasNext()) {
+            // explicitly prevented? Remove
+            if (it.next().creatorMode() == JsonCreator.Mode.DISABLED) {
+                it.remove();
+            }
+        }
     }
 
     private void _removeNonVisibleCreators(List<PotentialCreator> ctors)

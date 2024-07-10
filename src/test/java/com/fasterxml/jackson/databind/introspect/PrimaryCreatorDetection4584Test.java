@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 // explicitly annotated)
 //
 // @since 2.18
-public class CanonicalCreator4584Test extends DatabindTestUtil
+public class PrimaryCreatorDetection4584Test extends DatabindTestUtil
 {
     static class POJO4584 {
         final String value;

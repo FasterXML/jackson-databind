@@ -740,15 +740,15 @@ public class AnnotationIntrospectorPair
             AnnotatedClass valueClass,
             List<PotentialCreator> declaredConstructors,
             List<PotentialCreator> declaredFactories) {
-        PotentialCreator canonical = _primary.findPrimaryCreator(config,
+        PotentialCreator primary = _primary.findPrimaryCreator(config,
                 valueClass, declaredConstructors, declaredFactories);
-        if (canonical == null) {
-            canonical = _secondary.findPrimaryCreator(config,
+        if (primary == null) {
+            primary = _secondary.findPrimaryCreator(config,
                     valueClass, declaredConstructors, declaredFactories);
         }
-        return canonical;
+        return primary;
     }
-    
+
     /*
     /**********************************************************************
     /* Deserialization: other property annotations

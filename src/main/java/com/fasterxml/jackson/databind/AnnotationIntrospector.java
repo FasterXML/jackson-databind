@@ -1405,13 +1405,13 @@ public abstract class AnnotationIntrospector
      * canonical constructor; but it is also true for various "Data" classes by frameworks
      * like Lombok and JVM languages like Kotlin and Scala (case classes).
      * If introspector can determine that one of given {@link PotentialCreator}s should
-     * be considered canonical, it should return it; if not, should return {@code null}.
+     * be considered Primary, it should return it; if not, should return {@code null}.
      *<p>
      * NOTE: when returning chosen Creator, it may be necessary to mark its "mode"
      * with {@link PotentialCreator#overrideMode} (especially for "delegating" creators).
      *<p>
-     * NOTE: method is NOT called for Java Record types; selection of canonical constructor
-     * as the Primary creator is handled by {@link POJOPropertiesCollector}
+     * NOTE: method is NOT called for Java Record types; selection of the canonical constructor
+     * as the Primary creator is handled directly by {@link POJOPropertiesCollector}
      *
      * @param config Configuration settings in effect (for deserialization)
      * @param valueClass Class being instantiated and defines Creators passed

@@ -76,10 +76,8 @@ public class CanonicalCreator4584Test extends DatabindTestUtil
                 List<PotentialCreator> declaredFactories)
         {
             if (valueClass.getRawType() != POJO4584.class) {
-                System.err.println("findCanonicalCreator SKIPPED for: "+valueClass.getRawType());
                 return null;
             }
-            System.err.println("findCanonicalCreator DONE for: "+valueClass.getRawType());
             List<PotentialCreator> combo = new ArrayList<>(declaredConstructors);
             combo.addAll(declaredFactories);
             final int argCount = _argTypes.length;
@@ -92,13 +90,11 @@ public class CanonicalCreator4584Test extends DatabindTestUtil
                         }
                     }
                     if (i == argCount) {
-System.err.println("MATCH! "+ctor);
                         ctor.overrideMode(_mode);
                         return ctor;
                     }
                 }
             }
-            System.err.println("No MATCH! ");
             return null;
         }
     }
@@ -109,16 +105,25 @@ System.err.println("MATCH! "+ctor);
     /**********************************************************************
      */
 
-    /*
     @Test
-    public void testCanonicalConstructorPropertiesCreator() throws Exception
+    public void testCanonicalConstructor1ArgPropertiesCreator() throws Exception
     {
-        assertEquals(POJO4584.factoryString("List[0]"),
+        // Instead of delegating, try denoting List-taking 1-arg one:
+        assertEquals(POJO4584.factoryString("List[2]"),
                 readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.PROPERTIES,
                         List.class))
-                    .readValue(a2q("{'x':[ ]}")));
+                    .readValue(a2q("{'list':[ 1, 2]}")));
     }
-    */
+
+    @Test
+    public void testCanonicalConstructor2ArgPropertiesCreator() throws Exception
+    {
+        // Mark the "true" canonical
+        assertEquals(POJO4584.factoryString("abc"),
+                readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.PROPERTIES,
+                        String.class, Integer.TYPE))
+                    .readValue(a2q("{'bogus':12, 'v':'abc' }")));
+    }
 
     /*
     /**********************************************************************

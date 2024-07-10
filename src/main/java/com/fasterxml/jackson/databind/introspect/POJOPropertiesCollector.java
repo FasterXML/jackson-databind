@@ -798,7 +798,7 @@ public class POJOPropertiesCollector
         while (it.hasNext()) {
             // explicit mode? Retain (for now)
             PotentialCreator ctor = it.next();
-            if (ctor.creatorMode() != null) {
+            if (ctor.isAnnotated()) {
                 continue;
             }
             // Do not trim canonical either
@@ -836,7 +836,7 @@ public class POJOPropertiesCollector
 
             // If no explicit annotation, skip for now (may be discovered
             // at a later point)
-            if (ctor.creatorMode() == null) {
+            if (!ctor.isAnnotated()) {
                 continue;
             }
 

@@ -55,6 +55,39 @@ public class CanonicalCreator4584Test extends DatabindTestUtil
         }
     }
 
+    // Let's also ensure that explicit annotation trumps Primary
+    static class POJO4584Annotated {
+        String value;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        POJO4584Annotated(@ImplicitName("v") String v, @ImplicitName("bogus") int bogus) {
+            value = v;
+        }
+
+        POJO4584Annotated(@ImplicitName("i") int i, @ImplicitName("foobar") String f) {
+            throw new Error("Should NOT get called!");
+        }
+
+        public static POJO4584Annotated wrongInt(@ImplicitName("i") int i) {
+            throw new Error("Should NOT get called!");
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static POJO4584Annotated factoryString(String v) {
+            return new POJO4584Annotated(v, 0);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof POJO4584Annotated) && Objects.equals(((POJO4584Annotated) o).value, value);
+        }
+
+        @Override
+        public String toString() {
+            return "'"+value+"'";
+        }
+    }
+
     static class PrimaryCreatorFindingIntrospector extends ImplicitNameIntrospector
     {
         private static final long serialVersionUID = 1L;
@@ -63,10 +96,20 @@ public class CanonicalCreator4584Test extends DatabindTestUtil
 
         private JsonCreator.Mode _mode;
 
+        private final String _factoryName;
+        
         public PrimaryCreatorFindingIntrospector(JsonCreator.Mode mode,
                 Class<?>... argTypes) {
             _mode = mode;
+            _factoryName = null;
             _argTypes = argTypes;
+        }
+
+        public PrimaryCreatorFindingIntrospector(JsonCreator.Mode mode,
+                String factoryName) {
+            _mode = mode;
+            _factoryName = factoryName;
+            _argTypes = new Class<?>[0];
         }
 
         @Override
@@ -75,9 +118,22 @@ public class CanonicalCreator4584Test extends DatabindTestUtil
                 List<PotentialCreator> declaredConstructors,
                 List<PotentialCreator> declaredFactories)
         {
-            if (valueClass.getRawType() != POJO4584.class) {
+            // Apply to all test POJOs here but nothing else
+            if (!valueClass.getRawType().toString().contains("4584")) {
                 return null;
             }
+
+            if (_factoryName != null) {
+                for (PotentialCreator ctor : declaredFactories) {
+                    if (ctor.creator().getName().equals(_factoryName)) {
+                        System.err.println("For "+valueClass.getRawType().getName()+" -> ('"+_factoryName+"') "+ctor);
+                        return ctor;
+                    }
+                }
+                System.err.println("For "+valueClass.getRawType().getName()+" -> ('"+_factoryName+"') NULL");
+                return null;
+            }
+
             List<PotentialCreator> combo = new ArrayList<>(declaredConstructors);
             combo.addAll(declaredFactories);
             final int argCount = _argTypes.length;
@@ -101,7 +157,7 @@ public class CanonicalCreator4584Test extends DatabindTestUtil
 
     /*
     /**********************************************************************
-    /* Test methods; properties-based Creators
+    /* Test methods; simple properties-based Creators
     /**********************************************************************
      */
 
@@ -113,6 +169,12 @@ public class CanonicalCreator4584Test extends DatabindTestUtil
                 readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.PROPERTIES,
                         List.class))
                     .readValue(a2q("{'list':[ 1, 2]}")));
+
+        // ok to map from empty Object too
+        assertEquals(POJO4584.factoryString("List[-1]"),
+                readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.PROPERTIES,
+                        List.class))
+                    .readValue(a2q("{}")));
     }
 
     @Test
@@ -123,11 +185,17 @@ public class CanonicalCreator4584Test extends DatabindTestUtil
                 readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.PROPERTIES,
                         String.class, Integer.TYPE))
                     .readValue(a2q("{'bogus':12, 'v':'abc' }")));
+
+        // ok to map from empty Object too
+        assertEquals(POJO4584.factoryString(null),
+                readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.PROPERTIES,
+                        String.class, Integer.TYPE))
+                    .readValue(a2q("{}")));
     }
 
     /*
     /**********************************************************************
-    /* Test methods; delegation-based Creators
+    /* Test methods; simple delegation-based Creators
     /**********************************************************************
      */
 
@@ -156,6 +224,34 @@ public class CanonicalCreator4584Test extends DatabindTestUtil
                 readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.DELEGATING,
                         Object[].class))
                     .readValue(a2q("[true]")));
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods; deal with explicitly annotated types
+    /**********************************************************************
+     */
+
+    // Here we test to ensure that
+
+    @Test
+    public void testDelegatingVsExplicit() throws Exception
+    {
+        assertEquals(POJO4584Annotated.factoryString("abc"),
+                mapperWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.DELEGATING,
+                        "wrongInt"))
+                .readerFor(POJO4584Annotated.class)
+                .readValue(a2q("{'v':'abc','bogus':3}")));
+    }
+
+    @Test
+    public void testPropertiesBasedVsExplicit() throws Exception
+    {
+        assertEquals(POJO4584Annotated.factoryString("abc"),
+                mapperWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.PROPERTIES,
+                        Integer.TYPE, String.class))
+                .readerFor(POJO4584Annotated.class)
+                .readValue(a2q("{'v':'abc','bogus':3}")));
     }
 
     /*

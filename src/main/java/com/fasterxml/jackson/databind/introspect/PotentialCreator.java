@@ -17,16 +17,18 @@ public class PotentialCreator
 {
     private static final PropertyName[] NO_NAMES = new PropertyName[0];
     
-    private final AnnotatedWithParams creator;
+    private final AnnotatedWithParams _creator;
+
+    private final boolean _isAnnotated;
 
     /**
      * Declared Mode of the creator, if explicitly annotated; {@code null} otherwise
      */
-    private JsonCreator.Mode creatorMode;
+    private JsonCreator.Mode _creatorMode;
 
-    private PropertyName[] implicitParamNames;
+    private PropertyName[] _implicitParamNames;
     
-    private PropertyName[] explicitParamNames;
+    private PropertyName[] _explicitParamNames;
 
     /**
      * Parameter definitions if (and only if) this represents a
@@ -37,8 +39,9 @@ public class PotentialCreator
     public PotentialCreator(AnnotatedWithParams cr,
             JsonCreator.Mode cm)
     {
-        creator = cr;
-        creatorMode = cm;
+        _creator = cr;
+        _isAnnotated = (cm != null);
+        _creatorMode = (cm == null) ? JsonCreator.Mode.DEFAULT : cm;
     }
 
     /**
@@ -51,7 +54,7 @@ public class PotentialCreator
      * @return This creator instance
      */
     public PotentialCreator overrideMode(JsonCreator.Mode mode) {
-        creatorMode = mode;
+        _creatorMode = mode;
         return this;
     }
 
@@ -68,30 +71,30 @@ public class PotentialCreator
 
     public PotentialCreator introspectParamNames(MapperConfig<?> config)
     {
-        if (implicitParamNames != null) {
+        if (_implicitParamNames != null) {
             return this;
         }
-        final int paramCount = creator.getParameterCount();
+        final int paramCount = _creator.getParameterCount();
 
         if (paramCount == 0) {
-            implicitParamNames = explicitParamNames = NO_NAMES;
+            _implicitParamNames = _explicitParamNames = NO_NAMES;
             return this;
         }
 
-        explicitParamNames = new PropertyName[paramCount];
-        implicitParamNames = new PropertyName[paramCount];
+        _explicitParamNames = new PropertyName[paramCount];
+        _implicitParamNames = new PropertyName[paramCount];
 
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         for (int i = 0; i < paramCount; ++i) {
-            AnnotatedParameter param = creator.getParameter(i);
+            AnnotatedParameter param = _creator.getParameter(i);
 
             String rawImplName = intr.findImplicitPropertyName(param);
             if (rawImplName != null && !rawImplName.isEmpty()) {
-                implicitParamNames[i] = PropertyName.construct(rawImplName);
+                _implicitParamNames[i] = PropertyName.construct(rawImplName);
             }
             PropertyName explName = intr.findNameForDeserialization(param);
             if (explName != null && !explName.isEmpty()) {
-                explicitParamNames[i] = explName;
+                _explicitParamNames[i] = explName;
             }
         }
         return this;
@@ -104,25 +107,25 @@ public class PotentialCreator
     public PotentialCreator introspectParamNames(MapperConfig<?> config,
            PropertyName[] implicits)
     {
-        if (implicitParamNames != null) {
+        if (_implicitParamNames != null) {
             return this;
         }
-        final int paramCount = creator.getParameterCount();
+        final int paramCount = _creator.getParameterCount();
         if (paramCount == 0) {
-            implicitParamNames = explicitParamNames = NO_NAMES;
+            _implicitParamNames = _explicitParamNames = NO_NAMES;
             return this;
         }
 
-        explicitParamNames = new PropertyName[paramCount];
-        implicitParamNames = implicits;
+        _explicitParamNames = new PropertyName[paramCount];
+        _implicitParamNames = implicits;
 
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         for (int i = 0; i < paramCount; ++i) {
-            AnnotatedParameter param = creator.getParameter(i);
+            AnnotatedParameter param = _creator.getParameter(i);
 
             PropertyName explName = intr.findNameForDeserialization(param);
             if (explName != null && !explName.isEmpty()) {
-                explicitParamNames[i] = explName;
+                _explicitParamNames[i] = explName;
             }
         }
         return this;
@@ -134,8 +137,12 @@ public class PotentialCreator
     /**********************************************************************
      */
 
+    public boolean isAnnotated() {
+        return _isAnnotated;
+    }
+
     public AnnotatedWithParams creator() {
-        return creator;
+        return _creator;
     }
 
     /**
@@ -143,7 +150,7 @@ public class PotentialCreator
      *    if not annotated
      */
     public JsonCreator.Mode creatorMode() {
-        return creatorMode;
+        return _creatorMode;
     }
 
     /**
@@ -151,23 +158,23 @@ public class PotentialCreator
      * returned, will instead return {@code JsonCreator.Mode.DEFAULT}/
      */
     public JsonCreator.Mode creatorModeOrDefault() {
-        if (creatorMode == null) {
+        if (_creatorMode == null) {
             return JsonCreator.Mode.DEFAULT;
         }
-        return creatorMode;
+        return _creatorMode;
     }
 
     public int paramCount() {
-        return creator.getParameterCount();
+        return _creator.getParameterCount();
     }
 
     public AnnotatedParameter param(int ix) {
-        return creator.getParameter(ix);
+        return _creator.getParameter(ix);
     }
 
     public boolean hasExplicitNames() {
-        for (int i = 0, end = explicitParamNames.length; i < end; ++i) {
-            if (explicitParamNames[i] != null) {
+        for (int i = 0, end = _explicitParamNames.length; i < end; ++i) {
+            if (_explicitParamNames[i] != null) {
                 return true;
             }
         }
@@ -175,16 +182,16 @@ public class PotentialCreator
     }
 
     public boolean hasNameFor(int ix) {
-        return (explicitParamNames[ix] != null)
-                || (implicitParamNames[ix] != null);
+        return (_explicitParamNames[ix] != null)
+                || (_implicitParamNames[ix] != null);
     }
 
     public boolean hasNameOrInjectForAllParams(MapperConfig<?> config)
     {
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        for (int i = 0, end = implicitParamNames.length; i < end; ++i) {
+        for (int i = 0, end = _implicitParamNames.length; i < end; ++i) {
             if (!hasNameFor(i)) {
-                if (intr == null || intr.findInjectableValue(creator.getParameter(i)) == null) {
+                if (intr == null || intr.findInjectableValue(_creator.getParameter(i)) == null) {
                     return false;
                 }
             }
@@ -193,15 +200,15 @@ public class PotentialCreator
     }
 
     public PropertyName explicitName(int ix) {
-        return explicitParamNames[ix];
+        return _explicitParamNames[ix];
     }
 
     public PropertyName implicitName(int ix) {
-        return implicitParamNames[ix];
+        return _implicitParamNames[ix];
     }
 
     public String implicitNameSimple(int ix) {
-        PropertyName pn = implicitParamNames[ix];
+        PropertyName pn = _implicitParamNames[ix];
         return (pn == null) ? null : pn.getSimpleName();
     }
 
@@ -221,7 +228,7 @@ public class PotentialCreator
     // For troubleshooting
     @Override
     public String toString() {
-        return "(mode="+creatorMode+")"+creator;
+        return "(mode="+_creatorMode+")"+_creator;
     }
 }
 

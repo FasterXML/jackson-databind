@@ -126,11 +126,9 @@ public class PrimaryCreatorDetection4584Test extends DatabindTestUtil
             if (_factoryName != null) {
                 for (PotentialCreator ctor : declaredFactories) {
                     if (ctor.creator().getName().equals(_factoryName)) {
-                        System.err.println("For "+valueClass.getRawType().getName()+" -> ('"+_factoryName+"') "+ctor);
                         return ctor;
                     }
                 }
-                System.err.println("For "+valueClass.getRawType().getName()+" -> ('"+_factoryName+"') NULL");
                 return null;
             }
 

@@ -1398,14 +1398,18 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * Method called to check if introspector is able to detect so-called Primary
-     * Creator: Creator to select for use when no explicit annotation is found
-     * (via {@link #findCreatorAnnotation}).
-     * This is the case for example for Java Record types which have so-called
-     * canonical constructor; but it is also true for various "Data" classes by frameworks
-     * like Lombok and JVM languages like Kotlin and Scala (case classes).
+     * Method called to check if introspector can find a Creator it considers
+     * the "Default Creator": Creator to use as the primary, when no Creator has
+     * explicit annotation ({@link #findCreatorAnnotation} returns {@code null}).
+     * Examples of default creators include the canonical constructor defined by
+     * Java Records; "Data" classes by frameworks
+     * like Lombok and JVM languages like Kotlin and Scala (case classes) also have
+     * similar concepts.
      * If introspector can determine that one of given {@link PotentialCreator}s should
-     * be considered Primary, it should return it; if not, should return {@code null}.
+     * be considered the default, it should return it; if not, should return {@code null}.
+     * Note that core databind functionality may call this method even in the presence of
+     * explicitly annotated creators; and may or may not use Creator returned depending
+     * on other criteria.
      *<p>
      * NOTE: when returning chosen Creator, it may be necessary to mark its "mode"
      * with {@link PotentialCreator#overrideMode} (especially for "delegating" creators).
@@ -1414,16 +1418,16 @@ public abstract class AnnotationIntrospector
      * as the Primary creator is handled directly by {@link POJOPropertiesCollector}
      *
      * @param config Configuration settings in effect (for deserialization)
-     * @param valueClass Class being instantiated and defines Creators passed
+     * @param valueClass Class being instantiated; defines Creators passed
      * @param declaredConstructors Constructors value class declares
      * @param declaredFactories Factory methods value class declares
      *
-     * @return The one Canonical Creator to use for {@code valueClass}, if it can be
+     * @return Default Creator to possibly use for {@code valueClass}, if one can be
      *    determined; {@code null} if not.
      *
      * @since 2.18
      */
-    public PotentialCreator findPrimaryCreator(MapperConfig<?> config,
+    public PotentialCreator findDefaultCreator(MapperConfig<?> config,
             AnnotatedClass valueClass,
             List<PotentialCreator> declaredConstructors,
             List<PotentialCreator> declaredFactories) {

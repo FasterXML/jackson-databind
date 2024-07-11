@@ -602,7 +602,7 @@ public class POJOPropertiesCollector
         if (_isRecordType) {
             primary = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, constructors);
         } else {
-            primary = _annotationIntrospector.findPrimaryCreator(_config, _classDef,
+            primary = _annotationIntrospector.findDefaultCreator(_config, _classDef,
                     constructors, factories);
         }
         // Next: remove creators marked as explicitly disabled

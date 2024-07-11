@@ -665,17 +665,17 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public PotentialCreator findPrimaryCreator(MapperConfig<?> config,
+    public PotentialCreator findDefaultCreator(MapperConfig<?> config,
             AnnotatedClass valueClass,
             List<PotentialCreator> declaredConstructors,
             List<PotentialCreator> declaredFactories) {
-        PotentialCreator primary = _primary.findPrimaryCreator(config,
+        PotentialCreator defCtor = _primary.findDefaultCreator(config,
                 valueClass, declaredConstructors, declaredFactories);
-        if (primary == null) {
-            primary = _secondary.findPrimaryCreator(config,
+        if (defCtor == null) {
+            defCtor = _secondary.findDefaultCreator(config,
                     valueClass, declaredConstructors, declaredFactories);
         }
-        return primary;
+        return defCtor;
     }
 
     /*

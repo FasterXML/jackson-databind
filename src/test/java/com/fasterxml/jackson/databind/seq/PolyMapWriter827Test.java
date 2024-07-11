@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -52,6 +51,6 @@ public class PolyMapWriter827Test extends DatabindTestUtil
 
         final ObjectWriter writer = mapper.writerFor(new TypeReference<Map<CustomKey,String>>() { });
         String json = writer.writeValueAsString(map);
-        Assert.assertEquals("[\"java.util.HashMap\",{\"foo,1\":\"bar\"}]", json);
+        assertEquals("[\"java.util.HashMap\",{\"foo,1\":\"bar\"}]", json);
     }
 }

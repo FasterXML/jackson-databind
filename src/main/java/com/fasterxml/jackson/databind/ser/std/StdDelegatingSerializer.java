@@ -174,6 +174,11 @@ public class StdDelegatingSerializer
         // 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
         //    let's give it a chance?
         Object delegateValue = convertValue(value);
+        // consider null (to be consistent with serialize method above)
+        if (delegateValue == null) {
+            provider.defaultSerializeNull(gen);
+            return;
+        }
         JsonSerializer<Object> ser = _delegateSerializer;
         if (ser == null) {
             ser = _findSerializer(value, provider);

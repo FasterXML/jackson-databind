@@ -414,6 +414,12 @@ public abstract class DatabindContext
         return reportBadDefinition(constructType(type), msg);
     }
 
+    /**
+     * @since 2.18
+     */
+    public abstract <T> T reportBadTypeDefinition(BeanDescription bean,
+            String msg, Object... msgArgs) throws JsonMappingException;
+
     /*
     /**********************************************************
     /* Helper methods

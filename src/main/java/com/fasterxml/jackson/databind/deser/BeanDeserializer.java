@@ -363,6 +363,8 @@ public class BeanDeserializer
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.assignCurrentValue(bean);
+
+        // First: do we have native Object Ids (like YAML)?
         if (p.canReadObjectId()) {
             Object id = p.getObjectId();
             if (id != null) {
@@ -370,9 +372,13 @@ public class BeanDeserializer
             }
         }
         // [databind#3838]: since 2.16 Uniform handling of missing objectId
-        // only for the specific "empty JSON Object" case
-        if (_objectIdReader != null && p.hasTokenId(JsonTokenId.ID_END_OBJECT)) {
-            ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
+        // only for the specific "empty JSON Object" case (and only for non-Native
+        // Object Ids, see [databind#4607]
+        else if (_objectIdReader != null && p.hasTokenId(JsonTokenId.ID_END_OBJECT)) {
+            // [databind#4610]: check if we are to skip failure
+            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)) {
+                ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
+            }
         }
         if (_injectables != null) {
             injectValues(ctxt, bean);
@@ -415,7 +421,9 @@ public class BeanDeserializer
         throws IOException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = (_anySetter != null)
+            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter)
+            : creator.startBuilding(p, ctxt, _objectIdReader);
         TokenBuffer unknown = null;
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
@@ -429,15 +437,15 @@ public class BeanDeserializer
             if (buffer.readIdProperty(propName) && creatorProp == null) {
                 continue;
             }
-            // creator property?
+            // Creator property?
             if (creatorProp != null) {
-                // Last creator property to set?
                 Object value;
                 if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
                 }
                 value = _deserializeWithErrorWrapping(p, ctxt, creatorProp);
+                // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, value)) {
                     p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
@@ -497,7 +505,7 @@ public class BeanDeserializer
             // "any property"?
             if (_anySetter != null) {
                 try {
-                    buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                    buffer.bufferAnyParameterProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
                 } catch (Exception e) {
                     wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }
@@ -1044,9 +1052,7 @@ public class BeanDeserializer
                 // first: let's check to see if this might be part of value with external type id:
                 // 11-Sep-2015, tatu: Important; do NOT pass buffer as last arg, but null,
                 //   since it is not the bean
-                if (ext.handlePropertyValue(p, ctxt, propName, null)) {
-                    ;
-                } else {
+                if (!ext.handlePropertyValue(p, ctxt, propName, null)) {
                     // Last creator property to set?
                     if (buffer.assignParameter(creatorProp,
                             _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {

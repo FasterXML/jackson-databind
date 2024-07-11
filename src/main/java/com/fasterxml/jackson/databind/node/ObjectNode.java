@@ -54,11 +54,10 @@ public class ObjectNode
     @Override
     public ObjectNode deepCopy()
     {
-        ObjectNode ret = new ObjectNode(_nodeFactory);
-
-        for (Map.Entry<String, JsonNode> entry: _children.entrySet())
+        ObjectNode ret = objectNode();
+        for (Map.Entry<String, JsonNode> entry: _children.entrySet()) {
             ret._children.put(entry.getKey(), entry.getValue().deepCopy());
-
+        }
         return ret;
     }
 
@@ -546,7 +545,9 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      */
     protected Map<String, JsonNode> _contentsToSerialize(SerializerProvider ctxt) {
         if (ctxt.isEnabled(JsonNodeFeature.WRITE_PROPERTIES_SORTED)) {
-            if (!_children.isEmpty()) {
+            if (!_children.isEmpty()
+                    // 02-Jun-2024, tatu: Avoid unnecessary copy for custom impls
+                    && !(_children instanceof TreeMap<?,?>)) {
                 return new TreeMap<>(_children);
             }
         }

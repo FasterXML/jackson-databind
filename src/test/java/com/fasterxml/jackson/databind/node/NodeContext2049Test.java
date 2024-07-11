@@ -11,9 +11,13 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.std.CollectionDeserializer;
 import com.fasterxml.jackson.databind.deser.std.DelegatingDeserializer;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import org.junit.jupiter.api.Test;
 
-public class NodeContext2049Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+public class NodeContext2049Test extends DatabindTestUtil
 {
     public interface HasParent {
         void setParent(Parent parent);
@@ -167,6 +171,7 @@ public class NodeContext2049Test extends BaseMapTest
             "     }\n" +
             "}";
 
+    @Test
     public void testReadNoBuffering() throws IOException {
         Parent obj = objectMapper.readerFor(Parent.class).readValue(JSON);
         assertSame(obj, obj.singleChild.getParent());
@@ -175,6 +180,7 @@ public class NodeContext2049Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testReadFromTree() throws IOException {
         JsonNode tree = objectMapper.readTree(JSON);
         Parent obj = objectMapper.reader().forType(Parent.class).readValue(tree);

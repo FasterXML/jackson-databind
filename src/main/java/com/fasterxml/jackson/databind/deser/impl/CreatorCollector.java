@@ -179,11 +179,12 @@ public class CreatorCollector
         if (verifyNonDup(creator, C_PROPS, explicit)) {
             // Better ensure we have no duplicate names either...
             if (properties.length > 1) {
-                HashMap<String, Integer> names = new HashMap<String, Integer>();
+                HashMap<String, Integer> names = new HashMap<>();
                 for (int i = 0, len = properties.length; i < len; ++i) {
                     String name = properties[i].getName();
                     // Need to consider Injectables, which may not have
                     // a name at all, and need to be skipped
+                    // (same for possible AnySetter)
                     if (name.isEmpty() && (properties[i].getInjectableValueId() != null)) {
                         continue;
                     }
@@ -320,9 +321,7 @@ public class CreatorCollector
                     if (_isEnumValueOf(newOne)) {
                         return false; // ignore
                     }
-                    if (_isEnumValueOf(oldOne)) {
-                        ;
-                    } else {
+                    if (!_isEnumValueOf(oldOne)) {
                         _reportDuplicateCreator(typeIndex, explicit, oldOne, newOne);
                     }
                 }
@@ -332,7 +331,6 @@ public class CreatorCollector
                     return false;
                 } else if (oldType.isAssignableFrom(newType)) {
                     // new type more specific, use it
-                    ;
                     // 23-Feb-2021, tatu: due to [databind#3062], backwards-compatibility,
                     //   let's allow "primitive/Wrapper" case and tie-break in favor
                     //   of PRIMITIVE argument (null would never map to scalar creators,

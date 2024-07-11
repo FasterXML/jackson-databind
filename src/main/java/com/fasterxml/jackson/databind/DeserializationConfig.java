@@ -914,6 +914,7 @@ public final class DeserializationConfig
     /**
      * @since 2.12
      */
+    @Override // since 2.18
     public ConstructorDetector getConstructorDetector() {
         if (_ctorDetector == null) {
             return ConstructorDetector.DEFAULT;
@@ -951,15 +952,6 @@ public final class DeserializationConfig
     public BeanDescription introspectForBuilder(JavaType builderType, BeanDescription valueTypeDesc) {
         return getClassIntrospector().forDeserializationWithBuilder(this,
                 builderType, this, valueTypeDesc);
-    }
-
-    /**
-     * @since 2.0
-     * @deprecated Since 2.12 - use variant that takes both builder and value type
-     */
-    @Deprecated
-    public BeanDescription introspectForBuilder(JavaType type) {
-        return getClassIntrospector().forDeserializationWithBuilder(this, type, this);
     }
 
     /*

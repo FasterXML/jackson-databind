@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newTypeFactory;
@@ -492,9 +492,9 @@ public class TypeFactoryTest
         JavaType mapIntString = tf.constructType(new TypeReference<Map<Integer,String>>() {});
         assertNotEquals(mapStringInt, mapIntString);
         assertNotEquals(
-                "hashCode should depend on parameter order",
                 mapStringInt.hashCode(),
-                mapIntString.hashCode());
+                mapIntString.hashCode(),
+                "hashCode should depend on parameter order");
 
         JavaType mapStringString = tf.constructType(new TypeReference<Map<String,String>>() {});
         JavaType mapIntInt = tf.constructType(new TypeReference<Map<Integer,Integer>>() {});
@@ -808,8 +808,8 @@ public class TypeFactoryTest
 
         assertNotEquals(charSequenceClass, numberClass);
         assertNotEquals(
-                "hash values should be distributed",
-                charSequenceClass.hashCode(), numberClass.hashCode());
+                charSequenceClass.hashCode(), numberClass.hashCode(),
+                "hash values should be distributed");
     }
 
     private void assertEqualsAndHash(JavaType t1, JavaType t2) {

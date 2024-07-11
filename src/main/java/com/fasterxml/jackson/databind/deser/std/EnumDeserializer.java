@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -19,7 +20,6 @@ import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
 import com.fasterxml.jackson.databind.util.EnumResolver;
-import java.util.Optional;
 
 /**
  * Deserializer class that can deserialize instances of
@@ -83,7 +83,7 @@ public class EnumDeserializer
     @Deprecated
     public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
     {
-        this(byNameResolver, caseInsensitive, null, null);
+        this(byNameResolver, Boolean.TRUE.equals(caseInsensitive), null);
     }
 
     /**
@@ -92,7 +92,7 @@ public class EnumDeserializer
      */
     @Deprecated
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
-                            EnumResolver byEnumNamingResolver)
+            EnumResolver byEnumNamingResolver)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
@@ -108,7 +108,7 @@ public class EnumDeserializer
      * @since 2.16
      */
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
-                            EnumResolver byEnumNamingResolver, EnumResolver toStringResolver)
+            EnumResolver byEnumNamingResolver, EnumResolver toStringResolver)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
@@ -130,7 +130,7 @@ public class EnumDeserializer
         _lookupByName = base._lookupByName;
         _enumsByIndex = base._enumsByIndex;
         _enumDefaultValue = base._enumDefaultValue;
-        _caseInsensitive = caseInsensitive;
+        _caseInsensitive = Boolean.TRUE.equals(caseInsensitive);
         _isFromIntValue = base._isFromIntValue;
         _useDefaultValueForUnknownEnum = useDefaultValueForUnknownEnum;
         _useNullForUnknownEnum = useNullForUnknownEnum;
@@ -419,7 +419,7 @@ public class EnumDeserializer
                     // index yet (might need combination of "Does format have Numbers"
                     // (XML does not f.ex) and new `EnumFeature`. But can disallow "001" etc.
                     if (c == '0' && name.length() > 1) {
-                        ;
+                        ; // skip
                     } else {
                         try {
                             int index = Integer.parseInt(name);
@@ -486,14 +486,24 @@ public class EnumDeserializer
 
     // @since 2.15
     protected boolean useNullForUnknownEnum(DeserializationContext ctxt) {
-        return Boolean.TRUE.equals(_useNullForUnknownEnum)
-          || ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        if (_useNullForUnknownEnum != null) {
+            return _useNullForUnknownEnum;
+        }
+        return ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
     }
 
     // @since 2.15
     protected boolean useDefaultValueForUnknownEnum(DeserializationContext ctxt) {
-        return (_enumDefaultValue != null)
-          && (Boolean.TRUE.equals(_useDefaultValueForUnknownEnum)
-          || ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE));
+        // If we have a default value...
+        if (_enumDefaultValue != null) {
+            // Check if FormatFeature overrides exist first
+            if (_useDefaultValueForUnknownEnum != null) {
+                return _useDefaultValueForUnknownEnum;
+            }
+            // Otherwise, check the global setting
+            return ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        }
+        // No default value? then false
+        return false;
     }
 }

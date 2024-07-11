@@ -6,6 +6,9 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NullNodeTest extends NodeTestBase
 {
@@ -22,6 +25,7 @@ public class NullNodeTest extends NodeTestBase
 
     private final ObjectMapper MAPPER = sharedMapper();
 
+    @Test
     public void testBasicsWithNullNode() throws Exception
     {
         // Let's use something that doesn't add much beyond JsonNode base
@@ -48,6 +52,9 @@ public class NullNodeTest extends NodeTestBase
         assertEquals(0L, n.longValue());
         assertEquals(BigDecimal.ZERO, n.decimalValue());
         assertEquals(BigInteger.ZERO, n.bigIntegerValue());
+        // may be odd but...
+        assertEquals("null", n.asText());
+        assertEquals("fallback", n.asText("fallback"));
 
         assertEquals(0, n.size());
         assertTrue(n.isEmpty());
@@ -63,6 +70,7 @@ public class NullNodeTest extends NodeTestBase
         assertNodeNumbersForNonNumeric(n);
     }
 
+    @Test
     public void testNullHandling() throws Exception
     {
         // First, a stand-alone null
@@ -86,6 +94,7 @@ public class NullNodeTest extends NodeTestBase
         assertTrue(n.isNull());
     }
 
+    @Test
     public void testNullSerialization() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -93,6 +102,7 @@ public class NullNodeTest extends NodeTestBase
         assertEquals("null", sw.toString());
     }
 
+    @Test
     public void testNullHandlingCovariance() throws Exception
     {
         String JSON = "{\"object\" : null, \"array\" : null }";
@@ -106,6 +116,7 @@ public class NullNodeTest extends NodeTestBase
     }
 
     @SuppressWarnings("unlikely-arg-type")
+    @Test
     public void testNullEquality() throws Exception
     {
         JsonNode n = MAPPER.nullNode();

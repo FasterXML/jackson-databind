@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -117,6 +119,31 @@ public abstract class SettableAnyProperty
                 ctxt.getNodeFactory());
     }
 
+    /**
+     * @since 2.18
+     */
+    public static SettableAnyProperty constructForMapParameter(DeserializationContext ctxt,
+            BeanProperty property, AnnotatedMember field, JavaType valueType, KeyDeserializer keyDeser,
+            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser, int parameterIndex
+    ) {
+        Class<?> mapType = field.getRawType();
+        // 02-Aug-2022, tatu: Ideally would be resolved to a concrete type by caller but
+        //    alas doesn't appear to happen. Nor does `BasicDeserializerFactory` expose method
+        //    for finding default or explicit mappings.
+        if (mapType == Map.class) {
+            mapType = LinkedHashMap.class;
+        }
+        ValueInstantiator vi = JDKValueInstantiators.findStdValueInstantiator(ctxt.getConfig(), mapType);
+        return new MapParameterAnyProperty(property, field, valueType, keyDeser, valueDeser, typeDeser, vi, parameterIndex);
+    }
+
+    public static SettableAnyProperty constructForJsonNodeParameter(DeserializationContext ctxt, BeanProperty prop,
+            AnnotatedMember mutator, JavaType valueType, JsonDeserializer<Object> valueDeser, int parameterIndex
+    ) {
+        return new JsonNodeParameterAnyProperty(prop, mutator, valueType, valueDeser, ctxt.getNodeFactory(), parameterIndex);
+    }
+
+
     // Abstract @since 2.14
     public abstract SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser);
 
@@ -158,6 +185,23 @@ public abstract class SettableAnyProperty
      * @since 2.14
      */
     public String getPropertyName() { return _property.getName(); }
+
+    /**
+     * Accessor for parameterIndex.
+     * @return -1 if not a parameterized setter, otherwise index of parameter
+     *
+     * @since 2.18
+     */
+    public int getParameterIndex() { return -1; }
+
+    /**
+     * Create an instance of value to pass through Creator parameter.
+     *
+     * @since 2.18
+     */
+    public Object createParameterObject() {
+        throw new UnsupportedOperationException("Cannot call createParameterObject() on " + getClass().getName());
+    }
 
     /*
     /**********************************************************
@@ -437,4 +481,102 @@ public abstract class SettableAnyProperty
             return this;
         }
     }
+
+
+    /**
+     * [databind#562] Allow @JsonAnySetter on Creator constructor
+     *
+     * @since 2.18
+     */
+    protected static class MapParameterAnyProperty extends SettableAnyProperty
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        protected final ValueInstantiator _valueInstantiator;
+
+        protected final int _parameterIndex;
+
+        public MapParameterAnyProperty(BeanProperty property, AnnotatedMember field, JavaType valueType,
+                KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
+                ValueInstantiator inst, int parameterIndex)
+        {
+            super(property, field, valueType, keyDeser, valueDeser, typeDeser);
+            _valueInstantiator = Objects.requireNonNull(inst, "ValueInstantiator for MapParameterAnyProperty cannot be `null`");
+            _parameterIndex = parameterIndex;
+        }
+
+        @Override
+        public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser)
+        {
+            return new MapParameterAnyProperty(_property, _setter, _type, _keyDeserializer, deser,
+                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void _set(Object instance, Object propName, Object value)
+        {
+            ((Map<Object, Object>) instance).put(propName, value);
+        }
+
+        @Override
+        public int getParameterIndex() { return _parameterIndex; }
+
+        @Override
+        public Object createParameterObject() { return new HashMap<>(); }
+
+    }
+
+    /**
+     * [databind#562] Allow @JsonAnySetter on Creator constructor
+     *
+     * @since 2.18
+     */
+    protected static class JsonNodeParameterAnyProperty extends SettableAnyProperty
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        protected final JsonNodeFactory _nodeFactory;
+
+        protected final int _parameterIndex;
+
+        public JsonNodeParameterAnyProperty(BeanProperty property, AnnotatedMember field, JavaType valueType,
+                JsonDeserializer<Object> valueDeser, JsonNodeFactory nodeFactory, int parameterIndex)
+        {
+            super(property, field, valueType, null, valueDeser, null);
+            _nodeFactory = nodeFactory;
+            _parameterIndex = parameterIndex;
+        }
+
+        // Let's override since this is much simpler with JsonNodes
+        @Override
+        public Object deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException
+        {
+            return _valueDeserializer.deserialize(p, ctxt);
+        }
+
+        @Override
+        protected void _set(Object instance, Object propName, Object value)
+                throws Exception
+        {
+            ((ObjectNode) instance).set((String) propName, (JsonNode) value);
+        }
+
+        // Should not get called but...
+        @Override
+        public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
+            throw new UnsupportedOperationException("Cannot call withValueDeserializer() on " + getClass().getName());
+        }
+
+        @Override
+        public int getParameterIndex() { return _parameterIndex; }
+
+        @Override
+        public Object createParameterObject() { return _nodeFactory.objectNode(); }
+
+    }
+
 }

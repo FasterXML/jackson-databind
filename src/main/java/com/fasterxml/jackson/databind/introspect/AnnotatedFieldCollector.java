@@ -124,7 +124,8 @@ public class AnnotatedFieldCollector
 
     private boolean _isIncludableField(Field f)
     {
-        // [databind#2787]: Allow `Enum` mixins
+        // [databind#2787]: To allow `Enum` mixins, need to include Enum constants even
+        //  to they are static fields, not instance ones.
         if (f.isEnumConstant()) {
             return true;
         }
@@ -132,10 +133,9 @@ public class AnnotatedFieldCollector
         if (f.isSynthetic()) {
             return false;
         }
-        // Static fields are never included. Transient are (since 2.6), for
-        // purpose of propagating removal
-        int mods = f.getModifiers();
-        if (Modifier.isStatic(mods)) {
+        // Static fields are never included (except for above-mentioned Enum constants.
+        // Transient are (since 2.6), for  purpose of propagating removal
+        if (Modifier.isStatic(f.getModifiers())) {
             return false;
         }
         return true;

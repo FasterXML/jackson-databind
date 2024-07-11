@@ -1,15 +1,20 @@
 package com.fasterxml.jackson.databind.node;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 /**
  * Simple tests to verify that [JACKSON-707] is implemented correctly.
  */
-public class JsonNodeDeepCopyTest extends BaseMapTest
+public class JsonNodeDeepCopyTest extends DatabindTestUtil
 {
     private final ObjectMapper mapper = new ObjectMapper();
 
+    @Test
     public void testWithObjectSimple()
     {
         ObjectNode root = mapper.createObjectNode();
@@ -30,6 +35,7 @@ public class JsonNodeDeepCopyTest extends BaseMapTest
         assertEquals(2, copy.size());
     }
 
+    @Test
     public void testWithArraySimple()
     {
         ArrayNode root = mapper.createArrayNode();
@@ -50,6 +56,7 @@ public class JsonNodeDeepCopyTest extends BaseMapTest
         assertEquals(2, copy.size());
     }
 
+    @Test
     public void testWithNested()
     {
         ObjectNode root = mapper.createObjectNode();

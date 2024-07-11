@@ -18,10 +18,10 @@
  ****************************************************************/
 package com.fasterxml.jackson.databind.util.internal;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 //copied from https://github.com/apache/cayenne/blob/b156addac1c8e4079fa88e977fee609210c5da69/cayenne-server/src/test/java/org/apache/cayenne/util/concurrentlinkedhashmap/ConcurrentLinkedHashMapTest.java
 public class PrivateMaxEntriesMapTest {

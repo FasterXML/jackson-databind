@@ -1,11 +1,15 @@
 package com.fasterxml.jackson.databind.testutil;
 
 import java.io.*;
+import java.lang.annotation.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -13,13 +17,35 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Class containing test utility methods.
- * The methods are migrated from {@link BaseMapTest} and {@link BaseTest},
+ * The methods are migrated from {@code BaseMapTest} and {@code BaseTest},
  * as part of JUnit 5 migration.
  *
  * @since 2.17
  */
 public class DatabindTestUtil
 {
+    // @since 2.18
+    // Helper annotation to work around lack of implicit name access with Jackson 2.x
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    protected @interface ImplicitName {
+        String value();
+    }
+
+    // @since 2.18
+    @SuppressWarnings("serial")
+    static public class ImplicitNameIntrospector extends JacksonAnnotationIntrospector
+    {
+        @Override
+        public String findImplicitPropertyName(//MapperConfig<?> config,
+                AnnotatedMember member) {
+            final ImplicitName ann = member.getAnnotation(ImplicitName.class);
+            return (ann == null) ? null : ann.value();
+        }
+    }
+
+    private final static Object SINGLETON_OBJECT = new Object();
+
     /*
     /**********************************************************************
     /* A sample documents
@@ -351,11 +377,12 @@ public class DatabindTestUtil
      */
 
     public static ObjectMapper newJsonMapper() {
-        return new JsonMapper();
+        return jsonMapperBuilder().build();
     }
 
     public static JsonMapper.Builder jsonMapperBuilder() {
-        return JsonMapper.builder();
+        return JsonMapper.builder()
+                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION);
     }
 
     /*
@@ -429,6 +456,20 @@ public class DatabindTestUtil
         if (!expType.isAssignableFrom(cls)) {
             fail("Expected type "+expType.getName()+", got "+cls.getName());
         }
+    }
+
+    /**
+     * Helper method for verifying 3 basic cookie cutter cases;
+     * identity comparison (true), and against null (false),
+     * or object of different type (false)
+     */
+    protected void assertStandardEquals(Object o)
+    {
+        assertTrue(o.equals(o));
+        assertFalse(o.equals(null));
+        assertFalse(o.equals(SINGLETON_OBJECT));
+        // just for fun, let's also call hash code...
+        o.hashCode();
     }
 
     /**

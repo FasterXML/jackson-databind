@@ -41,7 +41,7 @@ public class IsGetterRenaming2527Test extends DatabindTestUtil
     }
 
     static class POJO2527Creator {
-        final boolean isEnabled;
+        boolean isEnabled;
 
         public POJO2527Creator(@JsonProperty("enabled") boolean b) {
             isEnabled = b;

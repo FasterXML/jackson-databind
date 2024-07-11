@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ViewsWithSchemaTest extends DatabindTestUtil
 {

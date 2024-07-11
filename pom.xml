@@ -53,6 +53,9 @@
     <version.android.sdk>26</version.android.sdk>
     <version.android.sdk.signature>0.5.1</version.android.sdk.signature>
 
+    <version.bytebuddy>1.14.13</version.bytebuddy>
+    <version.mockito>4.11.0</version.mockito>
+
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
     <!-- fix for databind#2299: using jackson-databind in an OSGi environment under Android --> 
@@ -65,12 +68,26 @@
     <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
-    <version.powermock>2.0.9</version.powermock>
-
     <!-- for Reproducible Builds -->
     <project.build.outputTimestamp>2024-02-27T01:47:51Z</project.build.outputTimestamp>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <!-- We need to specify later Bytebuddy version because Mockito 4.11.0 depends on earlier
+           Bytebuddy which does not support JDK 21, since 2.17-->
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${version.bytebuddy}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy-agent</artifactId>
+        <version>${version.bytebuddy}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
     <!-- Builds on core streaming API; also needs core annotations -->
     <dependency>
@@ -90,13 +107,13 @@
 
     <!-- Test dependencies -->
     <dependency>
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
+      <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency> <!-- added in 2.16 -->
@@ -129,21 +146,13 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>4.11.0</version>
+      <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-inline</artifactId>
-      <version>4.11.0</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- We need to specify later Bytebuddy version because Mockito 4.11.0 depends on earlier Bytebuddy which
-    does not support JDK 21, since 2.17-->
-    <dependency>
-      <groupId>net.bytebuddy</groupId>
-      <artifactId>byte-buddy</artifactId>
-      <version>1.14.9</version>
+      <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -395,7 +404,7 @@
       <!-- And different set up for JDK 21 -->
       <id>java21</id>
       <activation>
-        <jdk>21</jdk>
+        <jdk>[21,)</jdk>
       </activation>
       <build>
         <plugins>

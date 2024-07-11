@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("deprecation")
 public class ISO8601DateFormatTest extends DatabindTestUtil

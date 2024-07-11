@@ -20,14 +20,15 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 // Misc Creator tests, part 3
 public class TestCreators3
 {
-    static final class Foo {
+    // [databind#541]
+    static final class Value541 {
 
         @JsonProperty("foo")
         protected Map<Integer, Bar> foo;
         @JsonProperty("anumber")
         protected long anumber;
 
-        public Foo() {
+        public Value541() {
             anumber = 0;
         }
 
@@ -151,9 +152,6 @@ public class TestCreators3
                 MapperFeature.AUTO_DETECT_IS_GETTERS,
                 MapperFeature.AUTO_DETECT_SETTERS,
                 MapperFeature.USE_GETTERS_AS_SETTERS)
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .serializationInclusion(JsonInclude.Include.NON_NULL)
         .build();
 
         final String JSON = "{\n"
@@ -169,20 +167,15 @@ public class TestCreators3
                 + "            \"stuff\": [\n"
                 + "              \"c\", \"d\" \n"
                 + "            ]   \n"
-                + "        },\n"
-                + "        \"2\": {\n"
-                + "            \"p\": 2000,\n"
-                + "            \"stuff\": [\n"
-                + "            ]   \n"
                 + "        }\n"
                 + "    },\n"
                 + "    \"anumber\": 25385874\n"
                 + "}";
 
-        Foo obj = mapper.readValue(JSON, Foo.class);
+        Value541 obj = mapper.readValue(JSON, Value541.class);
         assertNotNull(obj);
         assertNotNull(obj.foo);
-        assertEquals(3, obj.foo.size());
+        assertEquals(2, obj.foo.size());
         assertEquals(25385874L, obj.getAnumber());
     }
 

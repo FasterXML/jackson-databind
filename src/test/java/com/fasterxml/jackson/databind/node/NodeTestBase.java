@@ -2,9 +2,11 @@ package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-abstract class NodeTestBase extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+abstract class NodeTestBase extends DatabindTestUtil
 {
     protected void assertNodeNumbersForNonNumeric(JsonNode n)
     {

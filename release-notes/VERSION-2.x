@@ -6,17 +6,101 @@ Project: jackson-databind
 
 2.18.0 (not yet released)
 
--
+#562: Allow `@JsonAnySetter` to flow through Creators
+ (reported by Benson M)
+ (fix by Joo-Hyuk K)
+#806: Problem with `NamingStrategy`, creator methods with implicit names
+#2977: Incompatible `FAIL_ON_MISSING_PRIMITIVE_PROPERTIES` and
+  field level `@JsonProperty`
+ (reported by @GeorgiPetkov)
+#3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
+  for nullability
+ (reported by @joca-bt)
+#4085: `@JsonView` does not work on class-level for records
+ (reported by Ulf D)
+#4119: Exception when deserialization uses a record with a constructor
+  property with `access=READ_ONLY`
+ (reported by @Mochis)
+#4356: `BeanDeserializerModifier::updateBuilder()` doesn't work for
+  beans with Creator methods
+ (reported by Mark H)
+#4407: `null` type id handling does not work with `writeTypePrefix()`
+#4452: `@JsonProperty` not serializing field names properly
+  on `@JsonCreator` in Record
+ (reported by @Incara)
+#4453: Allow JSON Integer to deserialize into a single-arg constructor of
+  parameter type `double`
+ (contributed by David M)
+#4456: Rework locking in `DeserializerCache`
+ (contributed by @pjfanning)
+#4458: Rework synchronized block from `BeanDeserializerBase`
+ (contributed by @pjfanning)
+#4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
+  not called on the serializer
+ (reported by Teodor D)
+ (fix by Joo-Hyuk K)
+#4472: Rework synchronized block in `TypeDeserializerBase`
+ (contributed by @pjfanning)
+#4483: Remove `final` on method BeanSerializer.serialize()
+ (contributed by Matthew L)
+#4515: Rewrite Bean Property Introspection logic in Jackson 2.x
+#4545: Unexpected deserialization behavior with `@JsonCreator`,
+  `@JsonProperty` and javac `-parameters`
+ (reported by Alexandre J)
+#4570: Deprecate `ObjectMapper.canDeserialize()`/`ObjectMapper.canSerialize()`
+#4580: Add `MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER` to use
+  Creator properties' declaration order for sorting
+#4584: Provide extension point for detecting "primary" Constructor for Kotlin
+  (and similar) data classes
+#4602: Possible wrong use of _arrayDelegateDeserializer in
+  BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
+ (reported by Eduard G)
 
-2.17.1 (not yet released)
+2.17.2 (05-Jul-2024)
+
+#4561: Issues using jackson-databind 2.17.1 with Reactor
+ (reported by @wdallastella)
+#4575: StdDelegatingSerializer does not consider a Converter that may
+  return null for a non-null input
+ (reported, fix contributed by Peter L)
+#4577: Cannot deserialize value of type `java.math.BigDecimal` from
+   String "3." (not a valid representation)
+ (reported by @dmelisso)
+#4595: No way to explicitly disable wrapping in custom annotation processor
+ (reported by @SimonCockx)
+#4607: `MismatchedInput`: No Object Id found for an instance of X to
+  assign to property '@id'
+ (reported by Susan W)
+#4610: `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` does not work when
+ used with Polymorphic type handling
+ (fix by Joo-Hyuk K)
+
+2.17.1 (04-May-2024)
 
 #4428: `ByteBuddy` scope went beyond `test` in version 2.17.0
  (reported by Miguel M-R)
  (fix by Joo-Hyuk K)
+#4430: Use `ReentrantLock` instead of `synchronized` in `DeserializerCache`
+  to avoid deadlock on pinning
+ (reported, fix contributed by Oddbjørn K)
 #4435: Cannot deserialize value of type `java.math.BigDecimal` from
   String ".05": not a valid representation
  (reported by @EAlf91)
  (fix by @pjfanning)
+#4441: `@JsonSetter(nulls = Nulls.SKIP)` doesn't work in some situations
+ (reported by @Asapin)
+ (fix by Joo-Hyuk K)
+#4450: Empty QName deserialized as `null`
+ (reported by @winfriedgerlach)
+#4471: Reconsider deprecation of `JsonNode.asText(defaultValue)`
+ (requested by @aerisnju)
+ (fix by Joo-Hyuk K)
+#4481: Unable to override `DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL`
+  with `JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL`
+ (reported by @luozhenyu)
+#4489: Unable to override `DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE`
+  with `JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE`
+ (fix by Joo-Hyuk K)
 
 2.17.0 (12-Mar-2024)
 
@@ -68,6 +152,14 @@ Project: jackson-databind
 #4416: Deprecate `JsonNode.asText(String)`
  (suggested by András P)
 - JUnit5 upgraded to 5.10.1
+
+2.16.3 (not yet released)
+
+#4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
+ (reported by Guillaume J)
+ (fix contributed by Joo-Hyuk K)
+#4581: Incompatible Constructor Parameter Type in `EnumDeserializer`
+ (reported by @Hunter-Lam)
 
 2.16.2 (09-Mar-2024)
 

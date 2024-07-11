@@ -50,8 +50,13 @@ Project: jackson-databind
 #4570: Deprecate `ObjectMapper.canDeserialize()`/`ObjectMapper.canSerialize()`
 #4580: Add `MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER` to use
   Creator properties' declaration order for sorting
+#4584: Provide extension point for detecting "primary" Constructor for Kotlin
+  (and similar) data classes
+#4602: Possible wrong use of _arrayDelegateDeserializer in
+  BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
+ (reported by Eduard G)
 
-2.17.2 (not yet released)
+2.17.2 (05-Jul-2024)
 
 #4561: Issues using jackson-databind 2.17.1 with Reactor
  (reported by @wdallastella)
@@ -63,6 +68,12 @@ Project: jackson-databind
  (reported by @dmelisso)
 #4595: No way to explicitly disable wrapping in custom annotation processor
  (reported by @SimonCockx)
+#4607: `MismatchedInput`: No Object Id found for an instance of X to
+  assign to property '@id'
+ (reported by Susan W)
+#4610: `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` does not work when
+ used with Polymorphic type handling
+ (fix by Joo-Hyuk K)
 
 2.17.1 (04-May-2024)
 

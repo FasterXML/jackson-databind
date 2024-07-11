@@ -28,6 +28,10 @@ public class RecordSerializationOrderTest extends DatabindTestUtil
 
     record CABRecord(String c, String a, String b) {}
 
+    record JsonPropertyRecord(@JsonProperty("aa") int a, int b) {}
+
+    record JsonPropertyRecord2(int a, @JsonProperty("bb") int b) {}
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
@@ -42,6 +46,22 @@ public class RecordSerializationOrderTest extends DatabindTestUtil
         NestedRecordOne nestedRecordOne = new NestedRecordOne("1", "test@records.com", nestedRecordTwo);
         final String output = MAPPER.writeValueAsString(nestedRecordOne);
         final String expected = "{\"id\":\"1\",\"email\":\"test@records.com\",\"nestedRecordTwo\":{\"id\":\"2\",\"passport\":\"111110\"}}";
+        assertEquals(expected, output);
+    }
+
+    @Test
+    public void testBasicSerializationOrderWithJsonProperty() throws Exception {
+        JsonPropertyRecord jsonPropertyRecord = new JsonPropertyRecord(1, 2);
+        final String output = MAPPER.writeValueAsString(jsonPropertyRecord);
+        final String expected = "{\"aa\":1,\"b\":2}";
+        assertEquals(expected, output);
+    }
+
+    @Test
+    public void testBasicSerializationOrderWithJsonProperty2() throws Exception {
+        JsonPropertyRecord2 jsonPropertyRecord = new JsonPropertyRecord2(1, 2);
+        final String output = MAPPER.writeValueAsString(jsonPropertyRecord);
+        final String expected = "{\"a\":1,\"bb\":2}";
         assertEquals(expected, output);
     }
 

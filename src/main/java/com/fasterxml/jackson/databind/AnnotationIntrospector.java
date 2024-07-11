@@ -1314,7 +1314,7 @@ public abstract class AnnotationIntrospector
 
     /*
     /**********************************************************
-    /* Deserialization: class annotations
+    /* Deserialization: value instantiation, Creators
     /**********************************************************
      */
 
@@ -1365,9 +1365,115 @@ public abstract class AnnotationIntrospector
         return null;
     }
 
+    /**
+     * Method called to check whether potential Creator (constructor or static factory
+     * method) has explicit annotation to indicate it as actual Creator; and if so,
+     * which {@link com.fasterxml.jackson.annotation.JsonCreator.Mode} to use.
+     *<p>
+     * NOTE: caller needs to consider possibility of both `null` (no annotation found)
+     * and {@link com.fasterxml.jackson.annotation.JsonCreator.Mode#DISABLED} (annotation found,
+     * but disabled); latter is necessary as marker in case multiple introspectors are chained,
+     * as well as possibly as when using mix-in annotations.
+     *
+     * @param config Configuration settings in effect (for serialization or deserialization)
+     * @param ann Annotated accessor (usually constructor or static method) to check
+     *
+     * @return Creator mode found, if any; {@code null} if none
+     *
+     * @since 2.9
+     */
+    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated ann) {
+        // 13-May-2024, tatu: Before 2.18, used to delegate to deprecated methods
+        //   like so: no longer with 2.18
+        /*
+        if (hasCreatorAnnotation(ann)) {
+            JsonCreator.Mode mode = findCreatorBinding(ann);
+            if (mode == null) {
+                mode = JsonCreator.Mode.DEFAULT;
+            }
+            return mode;
+        }
+        */
+        return null;
+    }
+
+    /**
+     * Method called to check if introspector can find a Creator it considers
+     * the "Default Creator": Creator to use as the primary, when no Creator has
+     * explicit annotation ({@link #findCreatorAnnotation} returns {@code null}).
+     * Examples of default creators include the canonical constructor defined by
+     * Java Records; "Data" classes by frameworks
+     * like Lombok and JVM languages like Kotlin and Scala (case classes) also have
+     * similar concepts.
+     * If introspector can determine that one of given {@link PotentialCreator}s should
+     * be considered the default, it should return it; if not, should return {@code null}.
+     * Note that core databind functionality may call this method even in the presence of
+     * explicitly annotated creators; and may or may not use Creator returned depending
+     * on other criteria.
+     *<p>
+     * NOTE: when returning chosen Creator, it may be necessary to mark its "mode"
+     * with {@link PotentialCreator#overrideMode} (especially for "delegating" creators).
+     *<p>
+     * NOTE: method is NOT called for Java Record types; selection of the canonical constructor
+     * as the Primary creator is handled directly by {@link POJOPropertiesCollector}
+     *
+     * @param config Configuration settings in effect (for deserialization)
+     * @param valueClass Class being instantiated; defines Creators passed
+     * @param declaredConstructors Constructors value class declares
+     * @param declaredFactories Factory methods value class declares
+     *
+     * @return Default Creator to possibly use for {@code valueClass}, if one can be
+     *    determined; {@code null} if not.
+     *
+     * @since 2.18
+     */
+    public PotentialCreator findDefaultCreator(MapperConfig<?> config,
+            AnnotatedClass valueClass,
+            List<PotentialCreator> declaredConstructors,
+            List<PotentialCreator> declaredFactories) {
+        return null;
+    }
+
+    /**
+     * Method for checking whether given annotated item (method, constructor)
+     * has an annotation
+     * that suggests that the method is a "creator" (aka factory)
+     * method to be used for construct new instances of deserialized
+     * values.
+     *
+     * @param ann Annotated entity to check
+     *
+     * @return True if such annotation is found (and is not disabled),
+     *   false otherwise
+     *
+     * @deprecated Since 2.9 use {@link #findCreatorAnnotation} instead.
+     */
+    @Deprecated
+    public boolean hasCreatorAnnotation(Annotated ann) {
+        return false;
+    }
+
+    /**
+     * Method for finding indication of creator binding mode for
+     * a creator (something for which {@link #hasCreatorAnnotation} returns
+     * true), for cases where there may be ambiguity (currently: single-argument
+     * creator with implicit but no explicit name for the argument).
+     *
+     * @param ann Annotated entity to check
+     *
+     * @return Creator mode found, if any; {@code null} if none
+     *
+     * @since 2.5
+     * @deprecated Since 2.9 use {@link #findCreatorAnnotation} instead.
+     */
+    @Deprecated
+    public JsonCreator.Mode findCreatorBinding(Annotated ann) {
+        return null;
+    }
+
     /*
     /**********************************************************
-    /* Deserialization: property annotations
+    /* Deserialization: other property annotations
     /**********************************************************
      */
 
@@ -1432,75 +1538,6 @@ public abstract class AnnotationIntrospector
      * @since 2.9
      */
     public Boolean findMergeInfo(Annotated ann) {
-        return null;
-    }
-
-    /**
-     * Method called to check whether potential Creator (constructor or static factory
-     * method) has explicit annotation to indicate it as actual Creator; and if so,
-     * which {@link com.fasterxml.jackson.annotation.JsonCreator.Mode} to use.
-     *<p>
-     * NOTE: caller needs to consider possibility of both `null` (no annotation found)
-     * and {@link com.fasterxml.jackson.annotation.JsonCreator.Mode#DISABLED} (annotation found,
-     * but disabled); latter is necessary as marker in case multiple introspectors are chained,
-     * as well as possibly as when using mix-in annotations.
-     *
-     * @param config Configuration settings in effect (for serialization or deserialization)
-     * @param ann Annotated accessor (usually constructor or static method) to check
-     *
-     * @return Creator mode found, if any; {@code null} if none
-     *
-     * @since 2.9
-     */
-    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated ann) {
-        // 13-May-2024, tatu: Before 2.18, used to delegate to deprecated methods
-        //   like so: no longer with 2.18
-        /*
-        if (hasCreatorAnnotation(ann)) {
-            JsonCreator.Mode mode = findCreatorBinding(ann);
-            if (mode == null) {
-                mode = JsonCreator.Mode.DEFAULT;
-            }
-            return mode;
-        }
-        */
-        return null;
-    }
-
-    /**
-     * Method for checking whether given annotated item (method, constructor)
-     * has an annotation
-     * that suggests that the method is a "creator" (aka factory)
-     * method to be used for construct new instances of deserialized
-     * values.
-     *
-     * @param ann Annotated entity to check
-     *
-     * @return True if such annotation is found (and is not disabled),
-     *   false otherwise
-     *
-     * @deprecated Since 2.9 use {@link #findCreatorAnnotation} instead.
-     */
-    @Deprecated
-    public boolean hasCreatorAnnotation(Annotated ann) {
-        return false;
-    }
-
-    /**
-     * Method for finding indication of creator binding mode for
-     * a creator (something for which {@link #hasCreatorAnnotation} returns
-     * true), for cases where there may be ambiguity (currently: single-argument
-     * creator with implicit but no explicit name for the argument).
-     *
-     * @param ann Annotated entity to check
-     *
-     * @return Creator mode found, if any; {@code null} if none
-     *
-     * @since 2.5
-     * @deprecated Since 2.9 use {@link #findCreatorAnnotation} instead.
-     */
-    @Deprecated
-    public JsonCreator.Mode findCreatorBinding(Annotated ann) {
         return null;
     }
 

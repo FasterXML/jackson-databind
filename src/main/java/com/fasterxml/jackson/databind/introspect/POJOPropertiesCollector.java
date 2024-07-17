@@ -674,13 +674,6 @@ public class POJOPropertiesCollector
                     creators.hasPropertiesBased());
         }
 
-        // If no Explicitly annotated creators found, look
-        // for ones with explicitly-named ({@code @JsonProperty}) parameters
-        if (!creators.hasPropertiesBased()) {
-            // only discover constructor Creators?
-            _addCreatorsWithAnnotatedNames(creators, constructors);
-        }
-
         // But if no annotation-based Creators found, find/use Primary Creator
         // detected earlier, if any
         if (primary != null) {
@@ -696,6 +689,13 @@ public class POJOPropertiesCollector
                     }
                 }
             }
+        }
+
+        // If no Explicitly annotated creators (or Default one) found, look
+        // for ones with explicitly-named ({@code @JsonProperty}) parameters
+        if (!creators.hasPropertiesBased()) {
+            // only discover constructor Creators?
+            _addCreatorsWithAnnotatedNames(creators, constructors);
         }
 
         // One more thing: if neither explicit (constructor or factory) nor

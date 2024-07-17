@@ -10,17 +10,16 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#562] Allow @JsonAnySetter on Creator constructors
 public class RecordCreatorWithAnySetter562Test
         extends DatabindTestUtil
 {
     record RecordWithAnySetterCtor(int id,
-                                   Map<String, Integer> additionalProperties) {
+            Map<String, Integer> additionalProperties) {
         @JsonCreator
         public RecordWithAnySetterCtor(@JsonProperty("regular") int id,
-                                       @JsonAnySetter Map<String, Integer> additionalProperties
+                @JsonAnySetter Map<String, Integer> additionalProperties
         ) {
             this.id = id;
             this.additionalProperties = additionalProperties;
@@ -52,5 +51,4 @@ public class RecordCreatorWithAnySetter562Test
         assertEquals(Integer.valueOf(-1), result.additionalProperties.get("extra"));
         assertEquals(2, result.additionalProperties.size());
     }
-
 }

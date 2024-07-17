@@ -14,12 +14,12 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.Assert.assertEquals;
 
-// Tests for [databind#4584]: extension point for discovering "Canonical"
+// Tests for [databind#4584]: extension point for discovering "Default"
 // Creator (primary Creator, usually constructor, used in case no creator
 // explicitly annotated)
 //
 // @since 2.18
-public class PrimaryCreatorDetection4584Test extends DatabindTestUtil
+public class DefaultCreatorDetection4584Test extends DatabindTestUtil
 {
     static class POJO4584 {
         final String value;

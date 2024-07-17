@@ -1,11 +1,11 @@
 package tools.jackson.databind.introspect;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
@@ -19,28 +19,32 @@ import static org.junit.Assert.assertEquals;
 // @since 2.18
 public class DefaultCreatorResolution4620Test extends DatabindTestUtil
 {
-    static class PrimaryCreatorFindingIntrospector extends ImplicitNameIntrospector
+    static class POJO4620 {
+        String value;
+
+        public POJO4620(@JsonProperty("int") int i) {
+            throw new RuntimeException("Should not get called");
+        }
+
+        public POJO4620(@JsonProperty("str") String str, @JsonProperty("int") int v) {
+            value = str + "/" + v;
+        }
+
+        public POJO4620(@JsonProperty("str") String str,
+                @JsonProperty("int") int v,
+                @JsonProperty("long") long l) {
+            throw new RuntimeException("Should not get called");
+        }
+    }
+
+    static class PrimaryConstructorFindingIntrospector extends ImplicitNameIntrospector
     {
         private static final long serialVersionUID = 1L;
 
         private final Class<?>[] _argTypes;
 
-        private JsonCreator.Mode _mode;
-
-        private final String _factoryName;
-        
-        public PrimaryCreatorFindingIntrospector(JsonCreator.Mode mode,
-                Class<?>... argTypes) {
-            _mode = mode;
-            _factoryName = null;
+        public PrimaryConstructorFindingIntrospector(Class<?>... argTypes) {
             _argTypes = argTypes;
-        }
-
-        public PrimaryCreatorFindingIntrospector(JsonCreator.Mode mode,
-                String factoryName) {
-            _mode = mode;
-            _factoryName = factoryName;
-            _argTypes = new Class<?>[0];
         }
 
         @Override
@@ -50,23 +54,12 @@ public class DefaultCreatorResolution4620Test extends DatabindTestUtil
                 List<PotentialCreator> declaredFactories)
         {
             // Apply to all test POJOs here but nothing else
-            if (!valueClass.getRawType().toString().contains("4584")) {
+            if (!valueClass.getRawType().toString().contains("4620")) {
                 return null;
             }
 
-            if (_factoryName != null) {
-                for (PotentialCreator ctor : declaredFactories) {
-                    if (ctor.creator().getName().equals(_factoryName)) {
-                        return ctor;
-                    }
-                }
-                return null;
-            }
-
-            List<PotentialCreator> combo = new ArrayList<>(declaredConstructors);
-            combo.addAll(declaredFactories);
             final int argCount = _argTypes.length;
-            for (PotentialCreator ctor : combo) {
+            for (PotentialCreator ctor : declaredConstructors) {
                 if (ctor.paramCount() == argCount) {
                     int i = 0;
                     for (; i < argCount; ++i) {
@@ -75,7 +68,7 @@ public class DefaultCreatorResolution4620Test extends DatabindTestUtil
                         }
                     }
                     if (i == argCount) {
-                        ctor.overrideMode(_mode);
+                        ctor.overrideMode(JsonCreator.Mode.PROPERTIES);
                         return ctor;
                     }
                 }
@@ -93,7 +86,11 @@ public class DefaultCreatorResolution4620Test extends DatabindTestUtil
     @Test
     public void testCanonicalConstructor1ArgPropertiesCreator() throws Exception
     {
-        // TODO
+        // Select the "middle one"
+        POJO4620 result = readerWith(new PrimaryConstructorFindingIntrospector(
+                String.class, Integer.TYPE))
+                .readValue(a2q("{'str':'value', 'int':42}"));
+        assertEquals("value/42", result.value);
     }
 
     /*
@@ -102,11 +99,9 @@ public class DefaultCreatorResolution4620Test extends DatabindTestUtil
     /**********************************************************************
      */
 
-    /*
     private ObjectReader readerWith(AnnotationIntrospector intr) {
-        return mapperWith(intr).readerFor(POJO4584.class);
+        return mapperWith(intr).readerFor(POJO4620.class);
     }
-    */
 
     private ObjectMapper mapperWith(AnnotationIntrospector intr) {
         return JsonMapper.builder()

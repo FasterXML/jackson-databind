@@ -621,11 +621,11 @@ public class POJOPropertiesCollector
                     creators.hasPropertiesBased());
         }
 
-        // If no Explicitly annotated creators found, look
+        // If no Explicitly annotated creators (or Default one) found, look
         // for ones with explicitly-named ({@code @JsonProperty}) parameters
         if (!creators.hasPropertiesBased()) {
             // only discover constructor Creators?
-            _addCreatorsWithAnnotatedNames(creators, constructors);
+            _addCreatorsWithAnnotatedNames(creators, constructors, primary);
         }
 
         // But if no annotation-based Creators found, find/use Primary Creator
@@ -869,21 +869,40 @@ ctor.creator()));
     }
 
     private void _addCreatorsWithAnnotatedNames(PotentialCreators collector,
-            List<PotentialCreator> ctors)
+            List<PotentialCreator> ctors, PotentialCreator defaultCtor)
     {
+        final List<PotentialCreator> found = _findCreatorsWithAnnotatedNames(ctors);
+        // 16-Jul-2024, tatu: [databind#4620] If Default Creator found, it
+        //    will be used to resolve candidate to use, if any
+        if (defaultCtor != null) {
+            if (found.contains(defaultCtor)) {
+                collector.setPropertiesBased(_config, defaultCtor, "implicit");
+                return;
+            }
+        }
+        for (PotentialCreator ctor : found) {
+            collector.setPropertiesBased(_config, ctor, "implicit");
+        }
+    }
+
+    private List<PotentialCreator> _findCreatorsWithAnnotatedNames(List<PotentialCreator> ctors)
+    {
+        List<PotentialCreator> found = null;
         Iterator<PotentialCreator> it = ctors.iterator();
         while (it.hasNext()) {
             PotentialCreator ctor = it.next();
-
             // Ok: existence of explicit (annotated) names infers properties-based:
             ctor.introspectParamNames(_config);
             if (!ctor.hasExplicitNames()) {
                 continue;
             }
             it.remove();
-
-            collector.setPropertiesBased(_config, ctor, "implicit");
+            if (found == null) {
+                found = new ArrayList<>(4);
+            }
+            found.add(ctor);
         }
+        return (found == null) ? Collections.emptyList() : found;
     }
 
     private boolean _addImplicitConstructor(PotentialCreators collector,

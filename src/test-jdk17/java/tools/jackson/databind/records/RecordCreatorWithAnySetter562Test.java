@@ -17,10 +17,10 @@ public class RecordCreatorWithAnySetter562Test
         extends DatabindTestUtil
 {
     record RecordWithAnySetterCtor(int id,
-                                   Map<String, Integer> additionalProperties) {
+            Map<String, Integer> additionalProperties) {
         @JsonCreator
         public RecordWithAnySetterCtor(@JsonProperty("regular") int id,
-                                       @JsonAnySetter Map<String, Integer> additionalProperties
+                @JsonAnySetter Map<String, Integer> additionalProperties
         ) {
             this.id = id;
             this.additionalProperties = additionalProperties;
@@ -52,5 +52,4 @@ public class RecordCreatorWithAnySetter562Test
         assertEquals(Integer.valueOf(-1), result.additionalProperties.get("extra"));
         assertEquals(2, result.additionalProperties.size());
     }
-
 }

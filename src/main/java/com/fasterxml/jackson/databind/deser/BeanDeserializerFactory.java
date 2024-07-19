@@ -977,8 +977,12 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     beanDesc.getClassAnnotations(), (AnnotatedMethod) mutator);
         } else {
             // 08-Sep-2016, tatu: wonder if we should verify it is `AnnotatedField` to be safe?
-            prop = new FieldProperty(propDef, type, typeDeser,
-                    beanDesc.getClassAnnotations(), (AnnotatedField) mutator);
+            AnnotatedField field = (AnnotatedField) mutator;
+            if (field.isImmutable()) {
+                // [databind#3736] Pointless to create a SettableBeanProperty for an immutable field
+                return null;
+            }
+            prop = new FieldProperty(propDef, type, typeDeser, beanDesc.getClassAnnotations(), field);
         }
         JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, mutator);
         if (deser == null) {

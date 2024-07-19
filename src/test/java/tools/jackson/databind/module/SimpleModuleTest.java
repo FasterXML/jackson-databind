@@ -211,7 +211,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     @Test
     public void testWithoutModule()
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = jsonMapperBuilder().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
         // first: serialization failure:
         try {
             mapper.writeValueAsString(new CustomBean("foo", 3));

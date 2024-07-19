@@ -301,8 +301,9 @@ public class AnySetterTest extends DatabindTestUtil
     public void testAnySetterDisable() throws Exception
     {
         try {
-            MAPPER.readValue(a2q("{'value':3}"),
-                    MapImitatorDisabled.class);
+            MAPPER.readerFor(MapImitatorDisabled.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(a2q("{'value':3}"));
             fail("Should not pass");
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized property \"value\"");

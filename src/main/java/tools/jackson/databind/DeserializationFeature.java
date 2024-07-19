@@ -115,7 +115,7 @@ public enum DeserializationFeature implements ConfigFeature
      * {@link DatabindException} will be thrown if an unknown property
      * is encountered).
      */
-    FAIL_ON_UNKNOWN_PROPERTIES(true),
+    FAIL_ON_UNKNOWN_PROPERTIES(false),
 
     /**
      * Feature that determines whether encountering of JSON null

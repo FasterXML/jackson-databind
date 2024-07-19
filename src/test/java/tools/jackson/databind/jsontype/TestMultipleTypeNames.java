@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
@@ -17,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 // Tests for [databind#2761] (and [annotations#171]
 public class TestMultipleTypeNames extends DatabindTestUtil
 {
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     // common classes
     static class MultiTypeName { }
@@ -156,7 +158,9 @@ public class TestMultipleTypeNames extends DatabindTestUtil
         // TC 2 : incorrect serialisation
         json = "{\"data\": [{\"type\":\"a\", \"data\": {\"x\": 2.2}}, {\"type\":\"b\", \"data\": {\"y\": 5.3}}, {\"type\":\"c\", \"data\": {\"y\": 9.8}}]}";
         try  {
-            MAPPER.readValue(json, WrapperForNameAndNamesTest.class);
+            MAPPER.readerFor(WrapperForNameAndNamesTest.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(json);
             fail("This serialisation should fail 'coz of x being float");
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized property \"data\"");

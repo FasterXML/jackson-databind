@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
@@ -151,7 +152,9 @@ public class IgnorePropertyOnDeserTest
 
         // First, fail without overrides
         try {
-            MAPPER.readValue(DOC, Point.class);
+            MAPPER.readerFor(Point.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(DOC);
             fail("Should not pass");
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "foobar"); // message varies between 2.x and 3.x

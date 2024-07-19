@@ -74,7 +74,7 @@ public class SetterlessPropertiesDeserTest
     @Test
     public void testSimpleSetterlessCollectionFailure() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = jsonMapperBuilder().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
         assertFalse(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
 
         // and now this should fail
@@ -108,6 +108,7 @@ public class SetterlessPropertiesDeserTest
     {
         ObjectMapper m = jsonMapperBuilder()
                 .disable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();
         // so this should fail now without a setter
         try {

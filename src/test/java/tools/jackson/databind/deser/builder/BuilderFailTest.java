@@ -8,9 +8,7 @@ import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
 import static org.junit.jupiter.api.Assertions.fail;
-
-import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class BuilderFailTest
 {
@@ -68,7 +66,8 @@ public class BuilderFailTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     @Test
     public void testBuilderMethodReturnInvalidType() throws Exception

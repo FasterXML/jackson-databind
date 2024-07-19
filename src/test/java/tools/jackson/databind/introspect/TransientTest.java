@@ -142,8 +142,9 @@ public class TransientTest extends DatabindTestUtil
     public void testTransientToPrune() throws Exception
     {
         try {
-            TransientToPrune result = MAPPER.readValue("{\"a\":3}",
-                    TransientToPrune.class);
+            TransientToPrune result = MAPPER.readerFor(TransientToPrune.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue("{\"a\":3}");
             fail("Should not pass, got: "+result);
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized", "\"a\"");

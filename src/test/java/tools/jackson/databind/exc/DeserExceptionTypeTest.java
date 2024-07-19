@@ -48,7 +48,9 @@ public class DeserExceptionTypeTest
     {
         UnrecognizedPropertyException exc = null;
         try {
-            MAPPER.readValue("{\"bar\":3}", Bean.class);
+            MAPPER.readerFor(Bean.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue("{\"bar\":3}");
         } catch (UnrecognizedPropertyException e) {
             exc = e;
         }

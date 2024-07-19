@@ -162,7 +162,9 @@ public class UnknownPropertyDeserTest
     public void testUnknownHandlingDefault() throws Exception
     {
         try {
-            MAPPER.readValue(JSON_UNKNOWN_FIELD, TestBean.class);
+            MAPPER.readerFor(TestBean.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(JSON_UNKNOWN_FIELD);
             fail("Should not pass");
         } catch (UnrecognizedPropertyException jex) {
             verifyException(jex, "Unrecognized property \"foo\"");

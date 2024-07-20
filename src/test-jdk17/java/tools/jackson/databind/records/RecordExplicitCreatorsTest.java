@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidDefinitionException;
@@ -106,6 +107,7 @@ public class RecordExplicitCreatorsTest extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS) // So that test cases don't have to assert weird error messages
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
 
     /*

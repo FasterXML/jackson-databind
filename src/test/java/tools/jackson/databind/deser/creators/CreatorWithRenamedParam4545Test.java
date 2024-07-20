@@ -53,7 +53,9 @@ public class CreatorWithRenamedParam4545Test
         String jsonPayload = a2q("{ 'key1': 'val1', 'key2': 'val2'}");
 
         try {
-            MAPPER.readValue(jsonPayload, Payload4545.class);
+            MAPPER.readerFor(Payload4545.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(jsonPayload);
             fail("Should not pass");
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized");

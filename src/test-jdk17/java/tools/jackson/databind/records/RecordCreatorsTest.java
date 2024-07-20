@@ -43,7 +43,7 @@ public class RecordCreatorsTest extends DatabindTestUtil
         public String accessValueForTest() { return value; }
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     /*
     /**********************************************************************

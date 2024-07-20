@@ -295,7 +295,9 @@ public class TestPOJOAsArray extends DatabindTestUtil
     {
         String json = "{\"value\":[true,\"Foobar\",42,13, false]}";
         try {
-            MAPPER.readValue(json, PojoAsArrayWrapper.class);
+            MAPPER.readerFor(PojoAsArrayWrapper.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(json);
             fail("should not pass with extra element");
         } catch (MismatchedInputException e) {
             verifyException(e, "Unexpected JSON values");

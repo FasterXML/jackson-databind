@@ -49,7 +49,8 @@ public class AccessorNamingForBuilderTest extends DatabindTestUtil
     public void testAccessorCustomWithMethod() throws Exception
     {
         final String json = a2q("{'x':28,'y':72}");
-        final ObjectMapper vanillaMapper = newJsonMapper();
+        final ObjectMapper vanillaMapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
         // First: without custom strategy, will fail:
         try {

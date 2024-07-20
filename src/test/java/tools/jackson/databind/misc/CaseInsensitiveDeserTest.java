@@ -133,7 +133,8 @@ public class CaseInsensitiveDeserTest extends DatabindTestUtil
         final String JSON = "{\"Value1\" : {\"nAme\" : \"fruit\", \"vALUe\" : \"apple\"}, \"valUE2\" : {\"NAME\" : \"color\", \"value\" : \"red\"}}";
 
         // first, verify default settings which do not accept improper case
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
         assertFalse(mapper.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
         try {
             mapper.readValue(JSON, Issue476Bean.class);
@@ -233,8 +234,9 @@ public class CaseInsensitiveDeserTest extends DatabindTestUtil
 
         // and finally, more complicated; should be possible to force sensitivity:
         try {
-            /*CaseSensitiveRoleContainer r =*/ MAPPER.readValue(CONTAINED,
-                    CaseSensitiveRoleContainer.class);
+            /*CaseSensitiveRoleContainer r =*/ jsonMapperBuilder()
+                    .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build()
+                    .readValue(CONTAINED, CaseSensitiveRoleContainer.class);
             fail("Should not pass");
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized ");

@@ -7,6 +7,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.0 (not yet released)
 
+#493: Change `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES` default to `false`
+ (contributed by Joo-Hyuk K)
 #1058: Add a way to pass std and format-specific parser/generator flags during
   parser/generation construction
 #1600: Serializing locale with underscore, not standard hyphen

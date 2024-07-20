@@ -32,7 +32,9 @@ public class ReadRecoveryTest extends DatabindTestUtil
     public void testRootBeans() throws Exception
     {
         final String JSON = a2q("{'a':3} {'x':5}");
-        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
+        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class)
+                .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValues(JSON);
         // First one should be fine
         assertTrue(it.hasNextValue());
         Bean bean = it.nextValue();
@@ -58,7 +60,9 @@ public class ReadRecoveryTest extends DatabindTestUtil
     {
         final String JSON = a2q("{'a':3}{'a':27,'foo':[1,2],'b':{'x':3}}  {'a':1,'b':2} ");
 
-        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
+        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class)
+                .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValues(JSON);
         Bean bean = it.nextValue();
 
         assertNotNull(bean);
@@ -88,7 +92,9 @@ public class ReadRecoveryTest extends DatabindTestUtil
     {
         final String JSON = a2q("[{'a':3},{'a':27,'foo':[1,2],'b':{'x':3}}  ,{'a':1,'b':2}  ]");
 
-        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
+        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class)
+                .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValues(JSON);
         Bean bean = it.nextValue();
 
         assertNotNull(bean);

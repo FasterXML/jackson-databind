@@ -217,8 +217,9 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
     {
         // With 3.0 different fail type, message since we do we get parameter name info
         try {
-            MAPPER.readValue(a2q("{'a':'value', 'b':42, 'c': 111}"),
-                PojoWithDisabled.class);
+            MAPPER.readerFor(PojoWithDisabled.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(a2q("{'a':'value', 'b':42, 'c': 111}"));
             fail("Should not pass");
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized property \"b\"");

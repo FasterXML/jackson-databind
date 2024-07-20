@@ -125,7 +125,7 @@ public class IncludeWithDeserTest
     @Test
     public void testIncludeIgnoredAndUnrecognizedField() throws Exception
     {
-        ObjectReader r = MAPPER.readerFor(OnlyY.class);
+        ObjectReader r = MAPPER.readerFor(OnlyY.class).with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
         // First, fine to get "y" only:
         OnlyY result = r.readValue(a2q("{'x':3, 'y': 4}"));

@@ -226,7 +226,8 @@ public class PropertyMergeTest
         // and finally with extra, failing
         try {
             MAPPER.readerForUpdating(input)
-                .readValue("[9, 8, 14]");
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue("[9, 8, 14]");
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "expected at most 2 properties");

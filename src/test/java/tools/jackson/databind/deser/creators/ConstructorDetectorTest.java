@@ -145,8 +145,9 @@ public class ConstructorDetectorTest extends DatabindTestUtil
         // 23-May-2024, tatu: Will fail differently with [databind#4515]; default
         //   constructor available, implicit ones ignored
         try {
-            MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
-                SingleArg2CtorsNotAnnotated.class);
+            MAPPER_PROPS.readerFor(SingleArg2CtorsNotAnnotated.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(a2q("{'value' : 137 }"));
             fail("Should not pass");
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "\"value\"");

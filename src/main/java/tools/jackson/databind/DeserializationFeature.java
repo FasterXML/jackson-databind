@@ -110,12 +110,12 @@ public enum DeserializationFeature implements ConfigFeature
      * This setting only takes effect after all other handling
      * methods for unknown properties have been tried, and
      * property remains unhandled.
+     * Enabling this feature means that a {@link DatabindException}
+     * will be thrown if an unknown property is encountered.
      *<p>
-     * Feature is enabled by default (meaning that a
-     * {@link DatabindException} will be thrown if an unknown property
-     * is encountered).
+     * Feature is disabled by default as of Jackson 3.0 (in 2.x it was enabled).
      */
-    FAIL_ON_UNKNOWN_PROPERTIES(true),
+    FAIL_ON_UNKNOWN_PROPERTIES(false),
 
     /**
      * Feature that determines whether encountering of JSON null

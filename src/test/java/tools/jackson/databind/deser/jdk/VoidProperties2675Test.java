@@ -27,10 +27,13 @@ public class VoidProperties2675Test
     /**********************************************************************
      */
 
-    private final ObjectMapper VOID_MAPPER = sharedMapper();
+    private final ObjectMapper VOID_MAPPER = jsonMapperBuilder()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
 
     private final ObjectMapper NO_VOID_MAPPER = jsonMapperBuilder()
             .disable(MapperFeature.ALLOW_VOID_VALUED_PROPERTIES)
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
 
     @Test

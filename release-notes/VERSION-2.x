@@ -55,6 +55,8 @@ Project: jackson-databind
 #4602: Possible wrong use of _arrayDelegateDeserializer in
   BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
  (reported by Eduard G)
+#4617: Record property serialization order not preserved
+ (reported by @GeorgiPetkov)
 
 2.17.2 (05-Jul-2024)
 

@@ -57,12 +57,6 @@ Project: jackson-databind
  (reported by Eduard G)
 #4617: Record property serialization order not preserved
  (reported by @GeorgiPetkov)
-#4626: `@JsonIgnore` on Record property ignored for deserialization, if there
-  is getter override
- (contributed by @yihtserns)
-#4630: `@JsonIncludeProperties`, `@JsonIgnoreProperties` ignored when serializing Records,
-  if there is getter override
- (contributed by @yihtserns)
 
 2.17.2 (05-Jul-2024)
 

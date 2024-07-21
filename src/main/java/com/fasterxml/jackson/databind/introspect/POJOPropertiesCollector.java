@@ -550,6 +550,8 @@ public class POJOPropertiesCollector
                         _anySetterField = new LinkedList<>();
                     }
                     _anySetterField.add(f);
+                    // 20-July-2024: [databind#4396]: Skip the rest of processing, but only
+                    //    for "any-setter', not any-getter
                     continue;
                 }
             }
@@ -1084,6 +1086,8 @@ ctor.creator()));
                 _anyGetters = new LinkedList<>();
             }
             _anyGetters.add(m);
+            // 20-Jul-2024: [databind#4396] Do not stop processing here
+            //   (used to return)
         }
         // @JsonKey?
         if (Boolean.TRUE.equals(ai.hasAsKey(_config, m))) {

@@ -128,14 +128,6 @@ public final class AnnotatedField
      */
     public boolean isTransient() { return Modifier.isTransient(getModifiers()); }
 
-    /**
-     * @since 2.18
-     */
-    public boolean isImmutable() {
-        // Records' fields can't mutated via reflection (JDK-8247517)
-        return _typeContext.resolveType(getDeclaringClass()).isRecordType();
-    }
-
     @Override
     public int hashCode() {
         return Objects.hashCode(_field);

@@ -52,4 +52,14 @@ public class RecordWithIgnoreOverride3992Test extends DatabindTestUtil
         HelloRecord result = MAPPER.readValue(json, HelloRecord.class);
         assertNotNull(result);
     }
+
+    // [databind#4626]
+    @Test
+    public void testDeserialize() throws Exception {
+        HelloRecord expected = new HelloRecord("hello", null);
+
+        assertEquals(expected, MAPPER.readValue(a2q("{'text':'hello'}"), HelloRecord.class));
+        assertEquals(expected, MAPPER.readValue(a2q("{'text':'hello','hidden':null}"), HelloRecord.class));
+        assertEquals(expected, MAPPER.readValue(a2q("{'text':'hello','hidden':{'all': []}}"), HelloRecord.class));
+    }
 }

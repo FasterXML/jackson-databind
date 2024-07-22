@@ -54,7 +54,7 @@ public class TreeTraversingParser extends ParserMinimalBase
 
     public TreeTraversingParser(JsonNode n, ObjectCodec codec)
     {
-        super(0);
+        super(StreamReadConstraints.defaults());
         _objectCodec = codec;
         _nodeCursor = new NodeCursor.RootCursor(n, null);
     }

@@ -10,6 +10,7 @@ Co-Authors (with only partial listings below):
 
 * Joo Hyuk Kim (JooHyukKim@github)
 * PJ Fanning (pjfanning@github)
+* Sim Yih Tsern (yihtsern@github)
 
 ----------------------------------------------------------------------------
 

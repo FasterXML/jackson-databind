@@ -39,7 +39,7 @@ public class RecordWithIgnoreOverride3992Test extends DatabindTestUtil
 
     // [databind#3992]
     @Test
-    public void testHelloRecord() throws Exception {
+    public void testHelloRecord3992() throws Exception {
         Recursion beanWithRecursion = new Recursion();
         beanWithRecursion.add(beanWithRecursion);
         String json = MAPPER.writer()
@@ -53,7 +53,7 @@ public class RecordWithIgnoreOverride3992Test extends DatabindTestUtil
 
     // [databind#4626]
     @Test
-    public void testDeserialize() throws Exception {
+    public void testDeserializeWithOverride4626() throws Exception {
         HelloRecord expected = new HelloRecord("hello", null);
 
         assertEquals(expected, MAPPER.readValue(a2q("{'text':'hello'}"), HelloRecord.class));

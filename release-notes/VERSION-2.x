@@ -59,6 +59,9 @@ Project: jackson-databind
  (reported by Eduard G)
 #4617: Record property serialization order not preserved
  (reported by @GeorgiPetkov)
+#4634: `@JsonAnySetter` not working when annotated on both constructor
+  parameter & field
+ (contributed by Sim Y-T)
 
 2.17.2 (05-Jul-2024)
 

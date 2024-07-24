@@ -19,6 +19,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#562] Allow @JsonAnySetter on Creator constructors
@@ -38,13 +39,29 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
         }
     }
 
+    static class POJO562WithAnnotationOnBothCtorParamAndField
+    {
+        String a;
+        @JsonAnySetter
+        Map<String,Object> stuffFromField;
+        Map<String,Object> stuffFromConstructor;
+
+        @JsonCreator
+        public POJO562WithAnnotationOnBothCtorParamAndField(@JsonProperty("a") String a,
+                                                            @JsonAnySetter Map<String, Object> leftovers
+        ) {
+            this.a = a;
+            stuffFromConstructor = leftovers;
+        }
+    }
+
     static class POJO562WithField
     {
         String a;
         Map<String,Object> stuff;
 
         public String b;
-        
+
         @JsonCreator
         public POJO562WithField(@JsonProperty("a") String a,
             @JsonAnySetter Map<String, Object> leftovers
@@ -117,12 +134,32 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
         assertEquals("value", pojo.a);
         assertEquals(expected, pojo.stuff);
-        
+
         // Should also initialize any-setter-Map even if no contents
         pojo = MAPPER.readValue(a2q("{'a':'value2'}"), POJO562.class);
         assertEquals("value2", pojo.a);
         assertEquals(new HashMap<>(), pojo.stuff);
+    }
 
+    // [databind#4634]
+    @Test
+    public void mapAnySetterViaCreatorWhenBothCreatorAndFieldAreAnnotated() throws Exception
+    {
+        Map<String, Object> expected = new HashMap<>();
+        expected.put("b", Integer.valueOf(42));
+        expected.put("c", Integer.valueOf(111));
+
+        POJO562WithAnnotationOnBothCtorParamAndField pojo = MAPPER.readValue(a2q(
+                "{'a':'value', 'b':42, 'c': 111}"
+                ),
+                POJO562WithAnnotationOnBothCtorParamAndField.class);
+
+        assertEquals("value", pojo.a);
+        assertEquals(expected, pojo.stuffFromConstructor);
+        // In an ideal world, maybe exception should be thrown for annotating both field + constructor parameter,
+        // but that scenario is possible in this imperfect world e.g. annotating `@JsonAnySetter` on a Record component
+        // will cause that annotation to be (auto)propagated to both the field & constructor parameter (& accessor method)
+        assertNull(pojo.stuffFromField);
     }
 
     // Creator and non-Creator props AND any-setter ought to be fine too

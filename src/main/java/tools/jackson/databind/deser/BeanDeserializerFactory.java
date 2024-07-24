@@ -657,12 +657,7 @@ ClassUtil.name(propName)));
     private SettableAnyProperty _resolveAnySetter(DeserializationContext ctxt,
             BeanDescription beanDesc, SettableBeanProperty[] creatorProps)
     {
-        // Find the regular method/field level any-setter
-        AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
-        if (anySetter != null) {
-            return constructAnySetter(ctxt, beanDesc, anySetter);
-        }
-        // else look for any-setter via @JsonCreator
+        // Look for any-setter via @JsonCreator
         if (creatorProps != null) {
             for (SettableBeanProperty prop : creatorProps) {
                 AnnotatedMember member = prop.getMember();
@@ -670,6 +665,11 @@ ClassUtil.name(propName)));
                     return constructAnySetter(ctxt, beanDesc, member);
                 }
             }
+        }
+        // else find the regular method/field level any-setter
+        AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
+        if (anySetter != null) {
+            return constructAnySetter(ctxt, beanDesc, anySetter);
         }
         // not found, that's fine, too
         return null;

@@ -63,7 +63,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     static class SingleArgDouble {
         protected double v;
 
-        SingleArgDouble() { v = -1.0f; }
+        SingleArgDouble() { v = -1.0; }
 
         public SingleArgDouble(@ImplicitName("value") double value) {
             v = value;

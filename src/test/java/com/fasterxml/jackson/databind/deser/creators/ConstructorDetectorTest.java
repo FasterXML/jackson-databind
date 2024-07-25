@@ -29,6 +29,16 @@ public class ConstructorDetectorTest extends DatabindTestUtil
             v = value;
         }
     }
+    
+    static class SingleArgByte {
+        protected byte v;
+
+        SingleArgByte() { v = -1; }
+
+        public SingleArgByte(@ImplicitName("value") byte value) {
+            v = value;
+        }
+    }
 
     static class SingleArgShort {
         protected short v;
@@ -157,6 +167,14 @@ public class ConstructorDetectorTest extends DatabindTestUtil
         SingleArgNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'value' : 137.0 }"),
             SingleArgNotAnnotated.class);
         assertEquals(137, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesByte() throws Exception
+    {
+        SingleArgByte value = MAPPER_PROPS.readValue(a2q("{'value' : -99 }"),
+            SingleArgByte.class);
+        assertEquals(-99, value.v);
     }
 
     @Test

@@ -485,9 +485,9 @@ public class POJOPropertiesCollector
             property.trimByVisibility();
         }
 
-        // 22-Jul-2024, tatu: And now drop Record Fields once their effect (annotations)
-        //    have worn off
-        if (_isRecordType) {
+        // 22-Jul-2024, tatu: And now drop Record Fields once their effect
+        //   (annotations) has been applied. But just for deserialization
+        if (_isRecordType && !_forSerialization) {
             for (POJOPropertyBuilder property : props.values()) {
                 property.removeFields();
             }

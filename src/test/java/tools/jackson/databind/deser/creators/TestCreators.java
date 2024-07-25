@@ -408,9 +408,6 @@ public class TestCreators
         assertEquals(str, bean.value);
     }
 
-    // 18-May-2024, tatu: Need to disable for now wrt [databind#4515]:
-    //    handling seems inconsistent wrt Constructor/Factory precedence,
-    //    will tackle at a later point -- this is the last JDK8 fail
     @Test
     public void testConstructorAndFactoryCreator() throws Exception
     {

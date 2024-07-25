@@ -27,10 +27,6 @@ class ObjectIdDeserializationFailTest extends DatabindTestUtil {
         public Employee[] employees;
     }
 
-    static class ArrayBlockingQueueCompany {
-        public ArrayBlockingQueue<Employee> employees;
-    }
-
     static class EnumMapCompany {
         public EnumMap<FooEnum, Employee> employees;
 
@@ -63,21 +59,6 @@ class ObjectIdDeserializationFailTest extends DatabindTestUtil {
         assertEquals(3, company.employees.length);
         Employee firstEmployee = company.employees[0];
         Employee secondEmployee = company.employees[1];
-        assertEmployees(firstEmployee, secondEmployee);
-    }
-
-    // Do a specific test for ArrayBlockingQueue since it has its own deser.
-    @Test
-    void forwardReferenceInQueue() throws Exception {
-        String json = "{\"employees\":["
-                + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
-                + "2,"
-                + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
-                + "]}";
-        ArrayBlockingQueueCompany company = mapper.readValue(json, ArrayBlockingQueueCompany.class);
-        assertEquals(3, company.employees.size());
-        Employee firstEmployee = company.employees.take();
-        Employee secondEmployee = company.employees.take();
         assertEmployees(firstEmployee, secondEmployee);
     }
 

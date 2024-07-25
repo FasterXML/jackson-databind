@@ -29,7 +29,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
             v = value;
         }
     }
-    
+
     static class SingleArgByte {
         protected byte v;
 

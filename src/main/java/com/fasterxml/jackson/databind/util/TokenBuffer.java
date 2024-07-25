@@ -1471,11 +1471,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         protected ObjectCodec _codec;
 
         /**
-         * @since 2.15
-         */
-        protected StreamReadConstraints _streamReadConstraints;
-
-        /**
          * @since 2.3
          */
         protected final boolean _hasNativeTypeIds;
@@ -1543,11 +1538,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             // 25-Jun-2022, tatu: Ideally would pass parser flags along (as
             //    per [databund#3528]) but for now make sure not to clear the flags
             //    but let defaults be used
-            super();
+            super(streamReadConstraints);
             _segment = firstSeg;
             _segmentPtr = -1; // not yet read
             _codec = codec;
-            _streamReadConstraints = streamReadConstraints;
             _parsingContext = TokenBufferReadContext.createRootContext(parentContext);
             _hasNativeTypeIds = hasNativeTypeIds;
             _hasNativeObjectIds = hasNativeObjectIds;

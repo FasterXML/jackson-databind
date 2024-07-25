@@ -16,6 +16,8 @@ Project: jackson-databind
 #3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
   for nullability
  (reported by @joca-bt)
+#3439: Java Record `@JsonAnySetter` value is null after deserialization
+ (reported by @oujesky)
 #4085: `@JsonView` does not work on class-level for records
  (reported by Ulf D)
 #4119: Exception when deserialization uses a record with a constructor
@@ -55,6 +57,11 @@ Project: jackson-databind
 #4602: Possible wrong use of _arrayDelegateDeserializer in
   BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
  (reported by Eduard G)
+#4617: Record property serialization order not preserved
+ (reported by @GeorgiPetkov)
+#4634: `@JsonAnySetter` not working when annotated on both constructor
+  parameter & field
+ (contributed by Sim Y-T)
 
 2.17.2 (05-Jul-2024)
 

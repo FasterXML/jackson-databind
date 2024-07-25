@@ -2,7 +2,10 @@ package com.fasterxml.jackson.databind.records;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.Failing;
 import org.junit.jupiter.api.Test;
+
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,5 +38,18 @@ public class RecordUpdate3079Test extends DatabindTestUtil
         assertEquals("Gary", result.value.name());
         assertSame(orig, result);
         assertNotSame(origRecord, result.value);
+    }
+
+    @Failing // 01-Dec-2022, tatu: Alas, fails on JDK 17
+    // [databind#3079]: Should be able to Record value directly
+    @Test
+    public void testDirectRecordUpdate() throws Exception {
+        RecordUpdate3079Test.IdNameRecord orig = new RecordUpdate3079Test.IdNameRecord(123, "Bob");
+        RecordUpdate3079Test.IdNameRecord result = MAPPER.updateValue(orig,
+                Collections.singletonMap("id", 137));
+        assertNotNull(result);
+        assertEquals(137, result.id());
+        assertEquals("Bob", result.name());
+        assertNotSame(orig, result);
     }
 }

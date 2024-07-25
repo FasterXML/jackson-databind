@@ -30,17 +30,6 @@ class NoTypeInfo1654Test extends DatabindTestUtil {
         }
     }
 
-    static class Value1654TypedContainer {
-        public List<Value1654> values;
-
-        protected Value1654TypedContainer() {
-        }
-
-        public Value1654TypedContainer(Value1654... v) {
-            values = Arrays.asList(v);
-        }
-    }
-
     static class Value1654UntypedContainer {
         @JsonDeserialize(contentUsing = Value1654Deserializer.class)
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
@@ -63,20 +52,6 @@ class NoTypeInfo1654Test extends DatabindTestUtil {
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
-
-    // [databind#1654]
-    @Test
-    void noTypeElementOverride() throws Exception {
-        // egular typed case
-        String json = MAPPER.writeValueAsString(new Value1654TypedContainer(
-                new Value1654(1),
-                new Value1654(2),
-                new Value1654(3)
-        ));
-        Value1654TypedContainer result = MAPPER.readValue(json, Value1654TypedContainer.class);
-        assertEquals(3, result.values.size());
-        assertEquals(2, result.values.get(1).x);
-    }
 
     // [databind#1654]
     @Test

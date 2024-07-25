@@ -1311,8 +1311,8 @@ ctor.creator()));
     {
         // 15-Jan-2023, tatu: Avoid pulling in mutators for Records; Fields mostly
         //    since there should not be setters.
-        final boolean inferMutators = _isRecordType
-                && _config.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS);
+        // 22-Jul-2024, tatu: Actually do pull them to fix [databind#4630]
+        final boolean inferMutators = _config.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS);
         Iterator<POJOPropertyBuilder> it = props.values().iterator();
 
         while (it.hasNext()) {

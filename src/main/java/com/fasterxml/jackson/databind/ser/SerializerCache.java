@@ -97,7 +97,7 @@ public final class SerializerCache
     /**********************************************************
      */
 
-    public synchronized int size() {
+    public int size() {
         return _sharedMap.size();
     }
 
@@ -107,30 +107,22 @@ public final class SerializerCache
      */
     public JsonSerializer<Object> untypedValueSerializer(Class<?> type)
     {
-        synchronized (this) {
-            return _sharedMap.get(new TypeKey(type, false));
-        }
+        return _sharedMap.get(new TypeKey(type, false));
     }
 
     public JsonSerializer<Object> untypedValueSerializer(JavaType type)
     {
-        synchronized (this) {
-            return _sharedMap.get(new TypeKey(type, false));
-        }
+        return _sharedMap.get(new TypeKey(type, false));
     }
 
     public JsonSerializer<Object> typedValueSerializer(JavaType type)
     {
-        synchronized (this) {
-            return _sharedMap.get(new TypeKey(type, true));
-        }
+        return _sharedMap.get(new TypeKey(type, true));
     }
 
     public JsonSerializer<Object> typedValueSerializer(Class<?> cls)
     {
-        synchronized (this) {
-            return _sharedMap.get(new TypeKey(cls, true));
-        }
+        return _sharedMap.get(new TypeKey(cls, true));
     }
 
     /*

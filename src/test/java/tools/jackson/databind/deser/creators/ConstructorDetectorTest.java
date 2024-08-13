@@ -29,6 +29,56 @@ public class ConstructorDetectorTest extends DatabindTestUtil
         }
     }
 
+    static class SingleArgByte {
+        protected byte v;
+
+        SingleArgByte() { v = -1; }
+
+        public SingleArgByte(@ImplicitName("value") byte value) {
+            v = value;
+        }
+    }
+
+    static class SingleArgShort {
+        protected short v;
+
+        SingleArgShort() { v = -1; }
+
+        public SingleArgShort(@ImplicitName("value") short value) {
+            v = value;
+        }
+    }
+
+    static class SingleArgLong {
+        protected long v;
+
+        SingleArgLong() { v = -1; }
+
+        public SingleArgLong(@ImplicitName("value") long value) {
+            v = value;
+        }
+    }
+
+    static class SingleArgFloat {
+        protected float v;
+
+        SingleArgFloat() { v = -1.0f; }
+
+        public SingleArgFloat(@ImplicitName("value") float value) {
+            v = value;
+        }
+    }
+
+    static class SingleArgDouble {
+        protected double v;
+
+        SingleArgDouble() { v = -1.0; }
+
+        public SingleArgDouble(@ImplicitName("value") double value) {
+            v = value;
+        }
+    }
+
     static class SingleArgNoMode {
         protected int v;
 
@@ -108,6 +158,55 @@ public class ConstructorDetectorTest extends DatabindTestUtil
         SingleArgNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
                 SingleArgNotAnnotated.class);
         assertEquals(137, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesNonAnnotatedDecimal() throws Exception
+    {
+        SingleArgNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'value' : 137.0 }"),
+            SingleArgNotAnnotated.class);
+        assertEquals(137, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesByte() throws Exception
+    {
+        SingleArgByte value = MAPPER_PROPS.readValue(a2q("{'value' : -99 }"),
+            SingleArgByte.class);
+        assertEquals(-99, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesShort() throws Exception
+    {
+        SingleArgShort value = MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
+            SingleArgShort.class);
+        assertEquals(137, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesLong() throws Exception
+    {
+        String val = Long.toString(Long.MAX_VALUE);
+        SingleArgLong value = MAPPER_PROPS.readValue(a2q("{'value' : " + val + " }"),
+            SingleArgLong.class);
+        assertEquals(Long.MAX_VALUE, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesFloat() throws Exception
+    {
+        SingleArgFloat value = MAPPER_PROPS.readValue(a2q("{'value' : 136.99 }"),
+            SingleArgFloat.class);
+        assertEquals(136.99f, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesDouble() throws Exception
+    {
+        SingleArgDouble value = MAPPER_PROPS.readValue(a2q("{'value' : 999999999999999999.99 }"),
+            SingleArgDouble.class);
+        assertEquals(999999999999999999.99, value.v);
     }
 
     @Test

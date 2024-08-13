@@ -20,14 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class EnumNamingStrategiesTest extends DatabindTestUtil {
 
     /**
-     * Test casess for {@link com.fasterxml.jackson.databind.EnumNamingStrategies.CamelCaseStrategy}.
+     * Test cases for {@link com.fasterxml.jackson.databind.EnumNamingStrategies.LowerCamelCaseStrategy}.
      *
      * <p>
      * Each <code>Object[]</code> element is composed of <code>{input, expectedOutput}</code>.
      *
      * @since 2.15
      */
-    final static List<String[]> CAMEL_CASE_NAME_TRANSLATIONS = Arrays.asList(new String[][]{
+    final static List<String[]> LOWER_CAMEL_CASE_NAME_TRANSLATIONS = Arrays.asList(new String[][]{
             // Empty values
             {null, null},
             {"", ""},
@@ -116,18 +116,18 @@ public class EnumNamingStrategiesTest extends DatabindTestUtil {
 
     /**
      * Unit test to verify the implementation of
-     * {@link com.fasterxml.jackson.databind.EnumNamingStrategies.CamelCaseStrategy#convertEnumToExternalName(String)}
+     * {@link com.fasterxml.jackson.databind.EnumNamingStrategies.LowerCamelCaseStrategy#convertEnumToExternalName(String)}
      * without the context of an ObjectMapper.
      *
      * @since 2.15
      */
     @Test
-    public void testCamelCaseStrategyStandAlone() {
-        for (String[] pair : CAMEL_CASE_NAME_TRANSLATIONS) {
+    public void testLowerCamelCaseStrategyStandAlone() {
+        for (String[] pair : LOWER_CAMEL_CASE_NAME_TRANSLATIONS) {
             final String input = pair[0];
             final String expected = pair[1];
 
-            String actual = EnumNamingStrategies.CamelCaseStrategy.INSTANCE
+            String actual = EnumNamingStrategies.LOWER_CAMEL_CASE
                     .convertEnumToExternalName(input);
 
             assertEquals(expected, actual);

@@ -10,9 +10,44 @@ public class EnumNamingStrategies {
     private EnumNamingStrategies() {}
 
     /**
+     * Words other than first are capitalized and no separator is used between words.
+     * See {@link EnumNamingStrategies.LowerCamelCaseStrategy} for details.
+     *<p>
+     * Example external property names would be "numberValue", "namingStrategy", "theDefiniteProof".
+     */
+    public static final EnumNamingStrategy LOWER_CAMEL_CASE = LowerCamelCaseStrategy.INSTANCE;
+
+    /**
+     * Words are capitalized and no separator is used between words.
+     * See {@link EnumNamingStrategies.UpperCamelCaseStrategy} for details.
+     *<p>
+     * Example external property names would be "NumberValue", "NamingStrategy", "TheDefiniteProof".
+     */
+    public static final EnumNamingStrategy UPPER_CAMEL_CASE = UpperCamelCaseStrategy.INSTANCE;
+
+    /**
+     * @since 2.15
+     * @deprecated Since 2.19 use {@link LowerCamelCaseStrategy} instead.
+     */
+    @Deprecated(since = "2.19", forRemoval = true)
+    public static class CamelCaseStrategy implements EnumNamingStrategy {
+        /**
+         * An instance of {@link LowerCamelCaseStrategy} for reuse.
+         *
+         * @since 2.15
+         */
+        public static final LowerCamelCaseStrategy INSTANCE = new LowerCamelCaseStrategy();
+
+        @Override
+        public String convertEnumToExternalName(String enumName) {
+            return LOWER_CAMEL_CASE.convertEnumToExternalName(enumName);
+        }
+    }
+
+    /**
      * <p>
      * An implementation of {@link EnumNamingStrategy} that converts enum names in the typical upper
-     * snake case format to camel case format. This implementation follows three rules
+     * snake case format to lower camel case format. This implementation follows three rules
      * described below.
      *
      * <ol>
@@ -20,7 +55,7 @@ public class EnumNamingStrategies {
      * regardless of its original case (upper or lower).</li>
      * <li>converts any character NOT preceded by an underscore into a lower case character,
      * regardless of its original case (upper or lower).</li>
-     * <li>converts contiguous sequence of underscores into a single underscore.</li>
+     * <li>removes all underscores.</li>
      * </ol>
      *
      * WARNING: Naming conversion conflicts caused by underscore usage should be handled by client.
@@ -29,7 +64,7 @@ public class EnumNamingStrategies {
      *
      * <p>
      * These rules result in the following example conversions from upper snakecase names
-     * to camelcase names.
+     * to lower camelcase names.
      * <ul>
      * <li>"USER_NAME" is converted into "userName"</li>
      * <li>"USER______NAME" is converted into "userName"</li>
@@ -43,19 +78,19 @@ public class EnumNamingStrategies {
      * <li>"Username" is converted into "username"</li>
      * </ul>
      *
-     * @since 2.15
+     * @since 2.19
      */
-    public static class CamelCaseStrategy implements EnumNamingStrategy {
+    public static class LowerCamelCaseStrategy implements EnumNamingStrategy {
 
         /**
-         * An intance of {@link CamelCaseStrategy} for reuse.
+         * An instance of {@link LowerCamelCaseStrategy} for reuse.
          *
-         * @since 2.15
+         * @since 2.19
          */
-        public static final CamelCaseStrategy INSTANCE = new CamelCaseStrategy();
+        public static final LowerCamelCaseStrategy INSTANCE = new LowerCamelCaseStrategy();
 
         /**
-         * @since 2.15
+         * @since 2.19
          */
         @Override
         public String convertEnumToExternalName(String enumName) {
@@ -104,7 +139,7 @@ public class EnumNamingStrategies {
                 return word;
             }
             return new StringBuilder(length)
-                    .append(charToUpperCaseIfLower(word.charAt(0)))
+                    .append(Character.toUpperCase(word.charAt(0)))
                     .append(toLowerCase(word.substring(1)))
                     .toString();
         }
@@ -113,17 +148,62 @@ public class EnumNamingStrategies {
             int length = string.length();
             StringBuilder builder = new StringBuilder(length);
             for (int i = 0; i < length; i++) {
-                builder.append(charToLowerCaseIfUpper(string.charAt(i)));
+                builder.append(Character.toLowerCase(string.charAt(i)));
             }
             return builder.toString();
         }
+    }
 
-        private static char charToUpperCaseIfLower(char c) {
-            return Character.isLowerCase(c) ? Character.toUpperCase(c) : c;
-        }
+    /**
+     * <p>
+     * An implementation of {@link EnumNamingStrategy} that converts enum names in the typical upper
+     * snake case format to upper camel case format. This implementation follows three rules
+     * described below.
+     *
+     * <ol>
+     * <li>converts any character preceded by an underscore into upper case character,
+     * regardless of its original case (upper or lower).</li>
+     * <li>converts any character NOT preceded by an underscore into a lower case character,
+     * regardless of its original case (upper or lower).</li>
+     * <li>converts the first char in the string, regardless of any underscores, to uppercase</li>
+     * <li>removes all underscores.</li>
+     * </ol>
+     *
+     * WARNING: Naming conversion conflicts caused by underscore usage should be handled by client.
+     * e.g. Both <code>PEANUT_BUTTER</code>, <code>PEANUT__BUTTER</code> are converted into "PeanutButter".
+     * And "PeanutButter" will be deserialized into enum with smaller <code>Enum.ordinal()</code> value.
+     *
+     * <p>
+     * These rules result in the following example conversions from upper snakecase names
+     * to upper camelcase names.
+     * <ul>
+     * <li>"USER_NAME" is converted into "UserName"</li>
+     * <li>"USER______NAME" is converted into "UserName"</li>
+     * <li>"USERNAME" is converted into "Username"</li>
+     * <li>"User__Name" is converted into "UserName"</li>
+     * <li>"_user_name" is converted into "UserName"</li>
+     * <li>"_user_name_s" is converted into "UserNameS"</li>
+     * <li>"__Username" is converted into "Username"</li>
+     * <li>"__username" is converted into "Username"</li>
+     * <li>"username" is converted into "Username"</li>
+     * <li>"Username" is converted into "Username"</li>
+     * </ul>
+     *
+     * @since 2.19
+     */
+    public static class UpperCamelCaseStrategy implements EnumNamingStrategy {
 
-        private static char charToLowerCaseIfUpper(char c) {
-            return Character.isUpperCase(c) ? Character.toLowerCase(c) : c;
+        /**
+         * An instance of {@link LowerCamelCaseStrategy} for reuse.
+         *
+         * @since 2.19
+         */
+        public static final UpperCamelCaseStrategy INSTANCE = new UpperCamelCaseStrategy();
+
+        @Override
+        public String convertEnumToExternalName(String enumName) {
+            var lowerCamelCase = LOWER_CAMEL_CASE.convertEnumToExternalName(enumName);
+            return PropertyNamingStrategies.UpperCamelCaseStrategy.INSTANCE.translate(lowerCamelCase);
         }
     }
 }

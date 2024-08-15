@@ -36,11 +36,11 @@ public class EnumNamingStrategies {
     @Deprecated
     public static class CamelCaseStrategy implements EnumNamingStrategy {
         /**
-         * An instance of {@link LowerCamelCaseStrategy} for reuse.
+         * An instance of {@link CamelCaseStrategy} for reuse.
          *
          * @since 2.15
          */
-        public static final LowerCamelCaseStrategy INSTANCE = new LowerCamelCaseStrategy();
+        public static final CamelCaseStrategy INSTANCE = new CamelCaseStrategy();
 
         @Override
         public String convertEnumToExternalName(String enumName) {

@@ -14,6 +14,8 @@ public class EnumNamingStrategies {
      * See {@link EnumNamingStrategies.LowerCamelCaseStrategy} for details.
      *<p>
      * Example external property names would be "numberValue", "namingStrategy", "theDefiniteProof".
+     *
+     * @since 2.19
      */
     public static final EnumNamingStrategy LOWER_CAMEL_CASE = LowerCamelCaseStrategy.INSTANCE;
 
@@ -22,6 +24,8 @@ public class EnumNamingStrategies {
      * See {@link EnumNamingStrategies.UpperCamelCaseStrategy} for details.
      *<p>
      * Example external property names would be "NumberValue", "NamingStrategy", "TheDefiniteProof".
+     *
+     * @since 2.19
      */
     public static final EnumNamingStrategy UPPER_CAMEL_CASE = UpperCamelCaseStrategy.INSTANCE;
 
@@ -29,7 +33,7 @@ public class EnumNamingStrategies {
      * @since 2.15
      * @deprecated Since 2.19 use {@link LowerCamelCaseStrategy} instead.
      */
-    @Deprecated(since = "2.19", forRemoval = true)
+    @Deprecated
     public static class CamelCaseStrategy implements EnumNamingStrategy {
         /**
          * An instance of {@link LowerCamelCaseStrategy} for reuse.
@@ -202,7 +206,7 @@ public class EnumNamingStrategies {
 
         @Override
         public String convertEnumToExternalName(String enumName) {
-            var lowerCamelCase = LOWER_CAMEL_CASE.convertEnumToExternalName(enumName);
+            String lowerCamelCase = LOWER_CAMEL_CASE.convertEnumToExternalName(enumName);
             return PropertyNamingStrategies.UpperCamelCaseStrategy.INSTANCE.translate(lowerCamelCase);
         }
     }

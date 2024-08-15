@@ -364,7 +364,7 @@ public abstract class PropertyNamingStrategies
      * Conversion from internal name like "someOtherValue" would be into external name
      * if "someothervalue".
      */
-    public static class  LowerCaseStrategy extends NamingBase
+    public static class LowerCaseStrategy extends NamingBase
     {
         private static final long serialVersionUID = 2L;
 

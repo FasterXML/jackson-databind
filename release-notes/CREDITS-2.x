@@ -1825,5 +1825,5 @@ Eduard Gomoliako (Gems@github)
   (2.18.0)
 
 Lars Benedetto (lbenedetto@github)
- * Contributed #4660: Add `UpperCamelCase` `EnumNamingStrategy`
+ * Contributed #4663: Add `UpperCamelCase` naming strategy to `EnumNamingStrategies`
   (2.18.0)

@@ -1,14 +1,15 @@
 package com.fasterxml.jackson.databind;
 
+import java.util.Locale;
+
 /**
  * A container class for implementations of the {@link EnumNamingStrategy} interface.
  *
  * @since 2.15
  */
-public class EnumNamingStrategies {
-
-    private EnumNamingStrategies() {
-    }
+public class EnumNamingStrategies
+{
+    private EnumNamingStrategies() { }
 
     /**
      * Words other than first are capitalized and no separator is used between words.
@@ -16,7 +17,7 @@ public class EnumNamingStrategies {
      * <p>
      * Example "ENUM_NAME" would be converted to "enumName".
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static final EnumNamingStrategy LOWER_CAMEL_CASE = LowerCamelCaseStrategy.INSTANCE;
 
@@ -27,7 +28,7 @@ public class EnumNamingStrategies {
      * <p>
      * Example "ENUM_NAME" would be converted to "EnumName".
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static final EnumNamingStrategy UPPER_CAMEL_CASE = UpperCamelCaseStrategy.INSTANCE;
 
@@ -37,7 +38,7 @@ public class EnumNamingStrategies {
      * <p>
      * Example "ENUM_NAME" would be converted to "enum_name".
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static final EnumNamingStrategy SNAKE_CASE = SnakeCaseStrategy.INSTANCE;
 
@@ -47,7 +48,7 @@ public class EnumNamingStrategies {
      * <p>
      * Example "ENUM_NAME" would be converted to "ENUM_NAME", but "__ENUM_NAME_" would also be converted to "ENUM_NAME".
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static final EnumNamingStrategy UPPER_SNAKE_CASE = UpperSnakeCaseStrategy.INSTANCE;
 
@@ -57,7 +58,7 @@ public class EnumNamingStrategies {
      * <p>
      * Example "ENUM_NAME" would be converted to "enumname".
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static final EnumNamingStrategy LOWER_CASE = LowerCaseStrategy.INSTANCE;
 
@@ -67,7 +68,7 @@ public class EnumNamingStrategies {
      * <p>
      * Example "ENUM_NAME" would be converted to "enum-name".
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static final EnumNamingStrategy KEBAB_CASE = KebabCaseStrategy.INSTANCE;
 
@@ -78,13 +79,13 @@ public class EnumNamingStrategies {
      * <p>
      * Example "ENUM_NAME" would be converted to "enum.name".
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static final EnumNamingStrategy LOWER_DOT_CASE = LowerDotCaseStrategy.INSTANCE;
 
     /**
      * @since 2.15
-     * @deprecated Since 2.19 use {@link LowerCamelCaseStrategy} instead.
+     * @deprecated Since 2.18 use {@link LowerCamelCaseStrategy} instead.
      */
     @Deprecated
     public static class CamelCaseStrategy implements EnumNamingStrategy {
@@ -134,19 +135,19 @@ public class EnumNamingStrategies {
      * <li>"Username" is converted into "username"</li>
      * </ul>
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static class LowerCamelCaseStrategy implements EnumNamingStrategy {
 
         /**
          * An instance of {@link LowerCamelCaseStrategy} for reuse.
          *
-         * @since 2.19
+         * @since 2.18
          */
         public static final LowerCamelCaseStrategy INSTANCE = new LowerCamelCaseStrategy();
 
         /**
-         * @since 2.19
+         * @since 2.18
          */
         @Override
         public String convertEnumToExternalName(String enumName) {
@@ -180,14 +181,14 @@ public class EnumNamingStrategies {
      * <li>"Username" is converted into "Username"</li>
      * </ul>
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static class UpperCamelCaseStrategy implements EnumNamingStrategy {
 
         /**
          * An instance of {@link LowerCamelCaseStrategy} for reuse.
          *
-         * @since 2.19
+         * @since 2.18
          */
         public static final UpperCamelCaseStrategy INSTANCE = new UpperCamelCaseStrategy();
 
@@ -223,14 +224,14 @@ public class EnumNamingStrategies {
      * <li>"Username" is converted into "username"</li>
      * </ul>
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static class SnakeCaseStrategy implements EnumNamingStrategy {
 
         /**
          * An instance of {@link SnakeCaseStrategy} for reuse.
          *
-         * @since 2.19
+         * @since 2.18
          */
         public static final SnakeCaseStrategy INSTANCE = new SnakeCaseStrategy();
 
@@ -266,14 +267,14 @@ public class EnumNamingStrategies {
      * <li>"Username" is converted into "USERNAME"</li>
      * </ul>
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static class UpperSnakeCaseStrategy extends SnakeCaseStrategy {
 
         /**
          * An instance of {@link UpperSnakeCaseStrategy} for reuse.
          *
-         * @since 2.19
+         * @since 2.18
          */
         public static final UpperSnakeCaseStrategy INSTANCE = new UpperSnakeCaseStrategy();
 
@@ -309,14 +310,14 @@ public class EnumNamingStrategies {
      * <li>"Username" is converted into "username"</li>
      * </ul>
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static class LowerCaseStrategy implements EnumNamingStrategy {
 
         /**
          * An instance of {@link LowerCaseStrategy} for reuse.
          *
-         * @since 2.19
+         * @since 2.18
          */
         public static final LowerCaseStrategy INSTANCE = new LowerCaseStrategy();
 
@@ -352,14 +353,14 @@ public class EnumNamingStrategies {
      * <li>"Username" is converted into "username"</li>
      * </ul>
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static class KebabCaseStrategy implements EnumNamingStrategy {
 
         /**
          * An instance of {@link KebabCaseStrategy} for reuse.
          *
-         * @since 2.19
+         * @since 2.18
          */
         public static final KebabCaseStrategy INSTANCE = new KebabCaseStrategy();
 
@@ -395,14 +396,14 @@ public class EnumNamingStrategies {
      * <li>"Username" is converted into "username"</li>
      * </ul>
      *
-     * @since 2.19
+     * @since 2.18
      */
     public static class LowerDotCaseStrategy implements EnumNamingStrategy {
 
         /**
          * An instance of {@link LowerDotCaseStrategy} for reuse.
          *
-         * @since 2.19
+         * @since 2.18
          */
         public static final LowerDotCaseStrategy INSTANCE = new LowerDotCaseStrategy();
 
@@ -418,7 +419,7 @@ public class EnumNamingStrategies {
      * @param enumName the enum name to be normalized
      * @return the normalized enum name
      */
-    private static String toBeanName(String enumName) {
+    static String toBeanName(String enumName) {
         if (enumName == null) {
             return null;
         }
@@ -433,7 +434,7 @@ public class EnumNamingStrategies {
             if (lastSeparatorIdx != -1) {
                 if (iterationCnt == 0) {
                     out = new StringBuilder(enumName.length() + 4 * UNDERSCORE.length());
-                    out.append(enumName.substring(iterationCnt, lastSeparatorIdx).toLowerCase());
+                    out.append(enumName.substring(iterationCnt, lastSeparatorIdx).toLowerCase(Locale.ROOT));
                 } else {
                     out.append(normalizeWord(enumName.substring(iterationCnt, lastSeparatorIdx)));
                 }
@@ -442,7 +443,7 @@ public class EnumNamingStrategies {
         } while (lastSeparatorIdx != -1);
 
         if (iterationCnt == 0) {
-            return enumName.toLowerCase();
+            return enumName.toLowerCase(Locale.ROOT);
         }
         out.append(normalizeWord(enumName.substring(iterationCnt)));
         return out.toString();

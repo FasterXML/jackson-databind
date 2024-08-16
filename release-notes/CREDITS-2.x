@@ -1823,3 +1823,7 @@ Eduard Gomoliako (Gems@github)
  * Reported #4602: Possible wrong use of _arrayDelegateDeserializer in
    BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
   (2.18.0)
+
+Lars Benedetto (lbenedetto@github)
+ * Contributed #4660: Add `UpperCamelCase` `EnumNamingStrategy`
+  (2.18.0)

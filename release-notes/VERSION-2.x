@@ -68,8 +68,6 @@ Project: jackson-databind
 #4634: `@JsonAnySetter` not working when annotated on both constructor
   parameter & field
  (contributed by Sim Y-T)
-#4663: Add `UpperCamelCase` naming strategy to `EnumNamingStrategies`
- (contributed by Lars B)
 
 2.17.2 (05-Jul-2024)
 

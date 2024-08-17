@@ -117,6 +117,32 @@ public class TestTypeNames extends DatabindTestUtil
             }
         }
     }
+
+    @Test
+    public void testInheritingDifferentJsonType() {
+        ObjectMapper mapper = new ObjectMapper();
+        Collection<NamedType> subtypes = new StdSubtypeResolver().collectAndResolveSubtypesByTypeId(
+                mapper.getDeserializationConfig(),
+                // note: `null` is fine here as `AnnotatedMember`:
+                null,
+                mapper.constructType(Animal.class));
+        boolean containsHumanity2 = false;
+        boolean containsHumanity3 = false;
+        for (NamedType type : subtypes) {
+            Class<?> clz = type.getType();
+            if (clz == Humanity.class) {
+                fail("Type '"+Humanity.class+"' shouldn't be resolved");
+            }
+            if (clz == Humanity2.class) {
+                containsHumanity2 = true;
+            }
+            if (clz == Humanity3.class) {
+                containsHumanity3 = true;
+            }
+        }
+        assertTrue(containsHumanity2, "Type '"+Humanity2.class+"' must be resolved");
+        assertTrue(containsHumanity3, "Type '"+Humanity3.class+"' must be resolved");
+    }
 }
 
 /*
@@ -128,7 +154,10 @@ public class TestTypeNames extends DatabindTestUtil
 @JsonTypeInfo(use=Id.NAME, include=As.WRAPPER_OBJECT)
 @JsonSubTypes({
     @Type(value=Dog.class, name="doggy"),
-    @Type(Cat.class) /* defaults to "TestTypedNames$Cat" then */
+    @Type(Cat.class), /* defaults to "TestTypedNames$Cat" then */
+    @Type(value = Mammal.class, name = "mammal"),
+    @Type(value = Mammal2.class, name = "mammal2"),
+    @Type(value = Mammal3.class, name = "mammal3")
 })
 class Animal
 {
@@ -207,3 +236,37 @@ class Persian extends Cat {
     }
 }
 
+@JsonTypeInfo(use = Id.NAME, property = "mammalType")
+@JsonSubTypes({
+    @Type(value = Humanity.class, name = "humanity")
+})
+class Mammal extends Animal {
+    public String mammalType;
+}
+
+class Humanity extends Mammal {
+
+}
+
+@JsonSubTypes({
+        @Type(value = Humanity2.class, name = "humanity2")
+})
+class Mammal2 extends Animal {
+
+}
+
+class Humanity2 extends Mammal {
+
+}
+
+@JsonTypeInfo(use=Id.NAME, include=As.WRAPPER_OBJECT)
+@JsonSubTypes({
+        @Type(value = Humanity3.class, name = "humanity3")
+})
+class Mammal3 extends Animal {
+
+}
+
+class Humanity3 extends Mammal {
+
+}

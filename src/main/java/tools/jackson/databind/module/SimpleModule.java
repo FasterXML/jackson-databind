@@ -285,6 +285,7 @@ public class SimpleModule
      * Possible earlier addition of a serializer for a given Class will be replaced.
      * <p>
      * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
+     * @see #addKeySerializer(Class, JsonSerializer) is used to register key serializers (for Map keys)
      */
     public SimpleModule addSerializer(ValueSerializer<?> ser)
     {
@@ -309,6 +310,7 @@ public class SimpleModule
      * Possible earlier addition of a serializer for a given Class will be replaced.
      * <p>
      * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
+     * @see #addKeySerializer(Class, JsonSerializer) is used to register key serializers (for Map keys)
      */
     public <T> SimpleModule addSerializer(Class<? extends T> type, ValueSerializer<T> ser)
     {
@@ -352,6 +354,7 @@ public class SimpleModule
      * Possible earlier addition of a serializer for a given Class will be replaced.
      * <p>
      * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
+     * @see #addKeyDeserializer(Class, KeyDeserializer)  is used to register key deserializers (for Map keys)
      */
     public <T> SimpleModule addDeserializer(Class<T> type, ValueDeserializer<? extends T> deser)
     {

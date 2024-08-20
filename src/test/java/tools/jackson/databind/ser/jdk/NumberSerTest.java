@@ -1,7 +1,9 @@
 package tools.jackson.databind.ser.jdk;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +11,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -78,6 +84,36 @@ public class NumberSerTest extends DatabindTestUtil
         public Number value;
 
         public NumberWrapper(Number v) { value = v; }
+    }
+
+    static class BigDecimalHolder {
+        private final BigDecimal value;
+
+        public BigDecimalHolder(String num) {
+            value = new BigDecimal(num);
+        }
+
+        public BigDecimal getValue() {
+            return value;
+        }
+    }
+
+    static class BigDecimalAsStringSerializer extends ValueSerializer<BigDecimal> {
+        private final DecimalFormat df = new DecimalFormat("0.0");
+
+        @Override
+        public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers) {
+            gen.writeString(df.format(value));
+        }
+    }
+
+    static class BigDecimalAsNumberSerializer extends ValueSerializer<BigDecimal> {
+        private final DecimalFormat df = new DecimalFormat("0.0");
+
+        @Override
+        public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers) {
+            gen.writeNumber(df.format(value));
+        }
     }
 
     /*
@@ -170,5 +206,21 @@ public class NumberSerTest extends DatabindTestUtil
         assertEquals(a2q("{'value':0.05}"), MAPPER.writeValueAsString(new NumberWrapper(Double.valueOf(0.05))));
         assertEquals(a2q("{'value':123}"), MAPPER.writeValueAsString(new NumberWrapper(BigInteger.valueOf(123))));
         assertEquals(a2q("{'value':0.025}"), MAPPER.writeValueAsString(new NumberWrapper(BigDecimal.valueOf(0.025))));
+    }
+
+    @Test
+    public void testCustomSerializationBigDecimalAsString() throws Exception {
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(BigDecimal.class, new BigDecimalAsStringSerializer());
+        ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
+        assertEquals(a2q("{'value':'2.0'}"), mapper.writeValueAsString(new BigDecimalHolder("2")));
+    }
+
+    @Test
+    public void testCustomSerializationBigDecimalAsNumber() throws Exception {
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(BigDecimal.class, new BigDecimalAsNumberSerializer());
+        ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
+        assertEquals(a2q("{'value':2.0}"), mapper.writeValueAsString(new BigDecimalHolder("2")));
     }
 }

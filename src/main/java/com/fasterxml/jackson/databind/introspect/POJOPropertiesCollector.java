@@ -438,9 +438,9 @@ public class POJOPropertiesCollector
         //   altogether (unless we find a good reason to detect them)
         // 17-Apr-2023: Need Records' fields for serialization for cases
         //   like [databind#3628], [databind#3895] and [databind#3992]
-        if (!isRecordType() || _forSerialization) {
-            _addFields(props); // note: populates _fieldRenameMappings
-        }
+        // 22-Jul-2024, tatu: ... and for deserialization sometimes too [databind#4626]
+        _addFields(props); // note: populates _fieldRenameMappings
+
         _addMethods(props);
         // 25-Jan-2016, tatu: Avoid introspecting (constructor-)creators for non-static
         //    inner classes, see [databind#1502]
@@ -455,7 +455,7 @@ public class POJOPropertiesCollector
         // since logic relies on knowing exactly which accessor has which annotation
         _removeUnwantedProperties(props);
         // and then remove unneeded accessors (wrt read-only, read-write)
-        _removeUnwantedAccessor(props);
+        _removeUnwantedAccessors(props);
 
         // Rename remaining properties
         _renameProperties(props);
@@ -483,6 +483,14 @@ public class POJOPropertiesCollector
         // type (getter, setter etc) if there is visibility difference
         for (POJOPropertyBuilder property : props.values()) {
             property.trimByVisibility();
+        }
+
+        // 22-Jul-2024, tatu: And now drop Record Fields once their effect
+        //   (annotations) has been applied. But just for deserialization
+        if (_isRecordType && !_forSerialization) {
+            for (POJOPropertyBuilder property : props.values()) {
+                property.removeFields();
+            }
         }
 
         // and, if required, apply wrapper name: note, MUST be done after
@@ -1302,12 +1310,12 @@ ctor.creator()));
      * based on read/write settings and rules for "pulling in" accessors
      * (or not).
      */
-    protected void _removeUnwantedAccessor(Map<String, POJOPropertyBuilder> props)
+    protected void _removeUnwantedAccessors(Map<String, POJOPropertyBuilder> props)
     {
         // 15-Jan-2023, tatu: Avoid pulling in mutators for Records; Fields mostly
         //    since there should not be setters.
-        final boolean inferMutators = !isRecordType()
-                && _config.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS);
+        // 22-Jul-2024, tatu: Actually do pull them to fix [databind#4630]
+        final boolean inferMutators = _config.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS);
         Iterator<POJOPropertyBuilder> it = props.values().iterator();
 
         while (it.hasNext()) {

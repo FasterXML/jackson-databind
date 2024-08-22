@@ -197,6 +197,7 @@ public abstract class Module
          *
          * @param d Object that can be called to find deserializer for types supported
          *   by module (null returned for non-supported types)
+         * @see #addKeyDeserializers is used to register key deserializers (for Map keys)
          */
         public void addDeserializers(Deserializers d);
 
@@ -213,6 +214,7 @@ public abstract class Module
          *
          * @param s Object that can be called to find serializer for types supported
          *   by module (null returned for non-supported types)
+         * @see #addKeySerializers is used to register key serializers (for Map keys)
          */
         public void addSerializers(Serializers s);
 

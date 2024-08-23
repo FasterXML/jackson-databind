@@ -3,8 +3,8 @@ package tools.jackson.databind;
 /**
  * A container class for implementations of the {@link EnumNamingStrategy} interface.
  */
-public class EnumNamingStrategies {
-
+public class EnumNamingStrategies
+{
     private EnumNamingStrategies() {}
 
     /**
@@ -41,8 +41,8 @@ public class EnumNamingStrategies {
      * <li>"Username" is converted into "username"</li>
      * </ul>
      */
-    public static class CamelCaseStrategy implements EnumNamingStrategy {
-
+    public static class CamelCaseStrategy implements EnumNamingStrategy
+    {
         /**
          * An instance of {@link CamelCaseStrategy} for reuse.
          */

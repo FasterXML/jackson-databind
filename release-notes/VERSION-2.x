@@ -68,6 +68,8 @@ Project: jackson-databind
 #4634: `@JsonAnySetter` not working when annotated on both constructor
   parameter & field
  (contributed by Sim Y-T)
+#4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
+ (reported by Mathijs V)
 
 2.17.2 (05-Jul-2024)
 

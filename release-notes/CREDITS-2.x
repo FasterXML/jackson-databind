@@ -1823,3 +1823,7 @@ Eduard Gomoliako (Gems@github)
  * Reported #4602: Possible wrong use of _arrayDelegateDeserializer in
    BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
   (2.18.0)
+
+Mathijs Vogelzang (mathijs81@github)
+ * Reported #4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
+  (2.18.0)

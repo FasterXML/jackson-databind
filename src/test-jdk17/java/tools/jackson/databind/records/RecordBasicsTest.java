@@ -295,6 +295,23 @@ public class RecordBasicsTest extends DatabindTestUtil
 
     /*
     /**********************************************************************
+    /* Test method(s), MapperFeature.REQUIRE_SETTERS_FOR_GETTERS
+    /**********************************************************************
+     */
+
+    // [databind#4678]
+    @Test
+    public void testSerializeWithSettersForGetters() throws Exception {
+        ObjectMapper mapperWithSetters = JsonMapper.builder()
+                .configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true)
+                .build();
+        var input = new SimpleRecord(123, "Bob");
+        assertEquals(MAPPER.writeValueAsString(input),
+                mapperWithSetters.writeValueAsString(input));
+    }
+
+    /*
+    /**********************************************************************
     /* Internal helper methods
     /**********************************************************************
      */

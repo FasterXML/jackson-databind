@@ -16,6 +16,8 @@ import tools.jackson.core.io.NumberInput;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedMethod;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.EnumResolver;
@@ -375,7 +377,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
 
         /**
          * Look up map with <b>key</b> as <code>Enum.name()</code> converted by
-         * {@link EnumNamingStrategy#convertEnumToExternalName(String)}
+         * {@link EnumNamingStrategy#convertEnumToExternalName(MapperConfig, AnnotatedClass, String)}
          * and <b>value</b> as Enums.
          *
          * @since 2.15

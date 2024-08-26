@@ -207,7 +207,9 @@ public class EnumResolver implements java.io.Serializable
             Enum<?> anEnum = enumConstants[i];
             String name = names[i];
             if (name == null) {
-                name = enumNamingStrategy.convertEnumToExternalName(anEnum.name());
+                name = enumNamingStrategy.convertEnumToExternalName(config,
+                        annotatedClass,
+                        anEnum.name());
             }
             map.put(name, anEnum);
             String[] aliases = allAliases[i];

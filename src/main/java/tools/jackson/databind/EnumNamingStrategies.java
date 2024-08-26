@@ -1,5 +1,8 @@
 package tools.jackson.databind;
 
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedClass;
+
 /**
  * A container class for implementations of the {@link EnumNamingStrategy} interface.
  */
@@ -49,7 +52,9 @@ public class EnumNamingStrategies
         public static final CamelCaseStrategy INSTANCE = new CamelCaseStrategy();
 
         @Override
-        public String convertEnumToExternalName(String enumName) {
+        public String convertEnumToExternalName(MapperConfig<?> config, AnnotatedClass cls,
+                String enumName)
+        {
             if (enumName == null) {
                 return null;
             }

@@ -11,9 +11,11 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
+import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedMethod;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
@@ -53,7 +55,7 @@ public class EnumDeserializer
 
     /**
      * Look up map with <b>key</b> as <code>Enum.name()</code> converted by
-     * {@link EnumNamingStrategy#convertEnumToExternalName(String)}
+     * {@link EnumNamingStrategy#convertEnumToExternalName(MapperConfig, AnnotatedClass, String)}
      * and <b>value</b> as Enums.
      */
     protected final CompactStringObjectMap _lookupByEnumNaming;

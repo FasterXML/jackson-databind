@@ -144,7 +144,8 @@ public final class EnumValues
             Enum<?> enumValue = enumConstants[i];
             String name = names[i];
             if (name == null) {
-                name = namingStrategy.convertEnumToExternalName(enumValue.name());
+                name = namingStrategy.convertEnumToExternalName(config, annotatedClass,
+                        enumValue.name());
             }
             if (useLowerCase) {
                 name = name.toLowerCase();

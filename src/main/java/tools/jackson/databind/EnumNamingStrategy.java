@@ -2,7 +2,6 @@ package tools.jackson.databind;
 
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass;
-import tools.jackson.databind.introspect.AnnotatedMethod;
 
 /**
  * Defines how the string representation of an enum is converted into an external property name for mapping

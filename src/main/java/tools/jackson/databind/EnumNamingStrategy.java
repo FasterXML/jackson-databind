@@ -15,7 +15,7 @@ public interface EnumNamingStrategy {
      *
      * @param enumName the name of the enum value to translate
      * @param config the mapper configuration
-     * @param cls the annotated class
+     * @param cls the Enum class
      *
      * @return the external property name that corresponds to the given <code>enumName</code>
      * according to the implementation of this {@link EnumNamingStrategy}.

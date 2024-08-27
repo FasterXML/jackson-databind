@@ -6,6 +6,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.EnumNamingStrategies;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -112,7 +113,7 @@ public class EnumNamingStrategiesTest extends DatabindTestUtil
 
     /**
      * Unit test to verify the implementation of
-     * {@link tools.jackson.databind.EnumNamingStrategies.CamelCaseStrategy#convertEnumToExternalName(String)}
+     * {@link tools.jackson.databind.EnumNamingStrategies.CamelCaseStrategy#convertEnumToExternalName(MapperConfig, AnnotatedClass, String)}
      * without the context of an ObjectMapper.
      */
     @Test
@@ -122,7 +123,7 @@ public class EnumNamingStrategiesTest extends DatabindTestUtil
             final String expected = pair[1];
 
             String actual = EnumNamingStrategies.CamelCaseStrategy.INSTANCE
-                    .convertEnumToExternalName(input);
+                    .convertEnumToExternalName(null, null, input);
 
             assertEquals(expected, actual);
         }

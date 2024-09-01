@@ -934,6 +934,10 @@ public class BeanDeserializer
             }
         }
 
+        // We could still have some unset creator properties that are unwrapped. These have to be processed last, because 'tokens' contains
+        // all the properties that remain after regular deserialization.
+        buffer = _unwrappedPropertyHandler.processUnwrappedCreatorProperties(p, ctxt, buffer, tokens);
+
         // We hit END_OBJECT, so:
         Object bean;
         try {

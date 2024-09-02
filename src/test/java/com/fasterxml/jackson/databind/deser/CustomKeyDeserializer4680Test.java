@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+// [databind#4680] Custom key deserialiser registered for `Object.class` is ignored on nested JSON
 public class CustomKeyDeserializer4680Test
 {
 
@@ -54,9 +55,9 @@ public class CustomKeyDeserializer4680Test
         // depth 1 works as expected
         Assertions.assertEquals("Erik", result.get("name_"));
 
-        // depth 2 does NOT work as expected
+        // before fix, depth 2 does NOT work as expected
         Map<String, Object> addressMap = (Map<String, Object>) result.get("address_");
-        // null?? Fails here
+        // before fix, null?? Fails here
         Assertions.assertEquals("Elvirastr", addressMap.get("street_"));
         Map<String, Object> cityMap = (Map<String, Object>) addressMap.get("city_");
         Assertions.assertEquals(1, cityMap.get("id_"));

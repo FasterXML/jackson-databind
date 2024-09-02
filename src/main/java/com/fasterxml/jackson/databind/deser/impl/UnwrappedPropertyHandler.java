@@ -18,6 +18,9 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class UnwrappedPropertyHandler
 {
+    /**
+     * @since 2.18
+     */
     protected final List<SettableBeanProperty> _creatorProperties;
     protected final List<SettableBeanProperty> _properties;
 

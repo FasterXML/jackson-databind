@@ -26,11 +26,19 @@ public class UnwrappedPropertyHandler
         _properties = new ArrayList<>();
     }
 
+    @Deprecated // since 2.18
+    protected UnwrappedPropertyHandler(List<SettableBeanProperty> props) {
+        this(new ArrayList<>(), props);
+    }
+
     protected UnwrappedPropertyHandler(List<SettableBeanProperty> creatorProps, List<SettableBeanProperty> props) {
         _creatorProperties = creatorProps;
         _properties = props;
     }
 
+    /**
+     * @since 2.18
+     */
     public void addCreatorProperty(SettableBeanProperty property) {
         _creatorProperties.add(property);
     }
@@ -62,6 +70,9 @@ public class UnwrappedPropertyHandler
         return newProps;
     }
 
+    /**
+     * @since 2.18
+     */
     public PropertyValueBuffer processUnwrappedCreatorProperties(
             JsonParser originalParser,
             DeserializationContext ctxt,
@@ -91,8 +102,10 @@ public class UnwrappedPropertyHandler
     }
 
     /**
-     * We need a placeholder for creator properties that don't have a name,
+     * Generates a placeholder name for creator properties that don't have a name,
      * but are marked with `@JsonWrapped` annotation.
+     *
+     * @since 2.18
      */
     public static PropertyName creatorParamName(int index) {
         return new PropertyName("@JsonUnwrapped/" + index);

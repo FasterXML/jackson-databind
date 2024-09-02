@@ -713,6 +713,14 @@ public class BeanPropertyMap
     /**********************************************************
      */
 
+    /**
+     * @deprecated since 1.18 in favor of {@link SettableBeanProperty#unwrapped(NameTransformer)}
+     */
+    @Deprecated
+    protected SettableBeanProperty _rename(SettableBeanProperty prop, NameTransformer xf) {
+        return prop.unwrapped(xf);
+    }
+
     protected void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
         throws IOException
     {

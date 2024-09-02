@@ -178,6 +178,8 @@ public final class PropertyBasedCreator
     /**
      * Mutant factory method for constructing a map where the names of all properties
      * are transformed using the given {@link NameTransformer}.
+     *
+     * @since 1.18
      */
     public PropertyBasedCreator renameAll(NameTransformer transformer)
     {

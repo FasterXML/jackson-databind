@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
+import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
@@ -49,6 +50,13 @@ public class UntypedObjectDeserializer
     protected JsonDeserializer<Object> _numberDeserializer;
 
     /**
+     * Object.class may also have custom key deserializer
+     *
+     * @since 2.19
+     */
+    private KeyDeserializer _customKeyDeserializer;
+
+    /**
      * If {@link java.util.List} has been mapped to non-default implementation,
      * we'll store type here
      *
@@ -74,7 +82,7 @@ public class UntypedObjectDeserializer
      */
     @Deprecated
     public UntypedObjectDeserializer() {
-        this(null, null);
+        this(null, (JavaType) null);
     }
 
     public UntypedObjectDeserializer(JavaType listType, JavaType mapType) {
@@ -96,6 +104,7 @@ public class UntypedObjectDeserializer
         _numberDeserializer = (JsonDeserializer<Object>) numberDeser;
         _listType = base._listType;
         _mapType = base._mapType;
+        _customKeyDeserializer = base._customKeyDeserializer;
         _nonMerging = base._nonMerging;
     }
 
@@ -112,7 +121,25 @@ public class UntypedObjectDeserializer
         _numberDeserializer = base._numberDeserializer;
         _listType = base._listType;
         _mapType = base._mapType;
+        _customKeyDeserializer = base._customKeyDeserializer;
         _nonMerging = nonMerging;
+    }
+
+    /**
+     * @since 2.19
+     */
+    protected UntypedObjectDeserializer(UntypedObjectDeserializer base,
+            KeyDeserializer keyDeser)
+    {
+        super(Object.class);
+        _mapDeserializer = base._mapDeserializer;
+        _listDeserializer = base._listDeserializer;
+        _stringDeserializer = base._stringDeserializer;
+        _numberDeserializer = base._numberDeserializer;
+        _listType = base._listType;
+        _mapType = base._mapType;
+        _nonMerging = base._nonMerging;
+        _customKeyDeserializer = keyDeser;
     }
 
     /*
@@ -191,18 +218,32 @@ public class UntypedObjectDeserializer
         // 14-Jun-2017, tatu: [databind#1625]: may want to block merging, for root value
         boolean preventMerge = (property == null)
                 && Boolean.FALSE.equals(ctxt.getConfig().getDefaultMergeable(Object.class));
+        // 31-Aug-2024: [databind#4680] Allow custom key deserializer for Object.class deserialization
+        KeyDeserializer keyDeser = ctxt.findKeyDeserializer(SimpleType.constructUnsafe(Object.class), property);
         // 20-Apr-2014, tatu: If nothing custom, let's use "vanilla" instance,
         //     simpler and can avoid some of delegation
         if ((_stringDeserializer == null) && (_numberDeserializer == null)
                 && (_mapDeserializer == null) && (_listDeserializer == null)
                 &&  getClass() == UntypedObjectDeserializer.class) {
-            return UntypedObjectDeserializerNR.instance(preventMerge);
+            if (keyDeser == null) {
+                return UntypedObjectDeserializerNR.instance(preventMerge);
+            }
         }
 
+        UntypedObjectDeserializer untyped  = null;
         if (preventMerge != _nonMerging) {
-            return new UntypedObjectDeserializer(this, preventMerge);
+            untyped = new UntypedObjectDeserializer(this, preventMerge);
         }
-
+        if (keyDeser != null) {
+            if (untyped == null) {
+                untyped = new UntypedObjectDeserializer(this, keyDeser);
+            } else {
+                untyped = new UntypedObjectDeserializer(untyped, keyDeser);
+            }
+        }
+        if (untyped != null) {
+            return untyped;
+        }
         return this;
     }
 
@@ -496,6 +537,8 @@ public class UntypedObjectDeserializer
         if (key1 == null) {
             // empty map might work; but caller may want to modify... so better just give small modifiable
             return new LinkedHashMap<>(2);
+        } else {
+            key1 = (String) _customKeyDeserializer.deserializeKey(key1, ctxt);
         }
         // minor optimization; let's handle 1 and 2 entry cases separately
         // 24-Mar-2015, tatu: Ideally, could use one of 'nextXxx()' methods, but for
@@ -508,6 +551,8 @@ public class UntypedObjectDeserializer
             LinkedHashMap<String, Object> result = new LinkedHashMap<>(2);
             result.put(key1, value1);
             return result;
+        } else {
+            key2 = (String) _customKeyDeserializer.deserializeKey(key2, ctxt);
         }
         p.nextToken();
         Object value2 = deserialize(p, ctxt);

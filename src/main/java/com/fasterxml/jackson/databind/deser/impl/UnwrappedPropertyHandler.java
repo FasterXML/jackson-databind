@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 public class UnwrappedPropertyHandler
 {
     /**
-     * @since 2.18
+     * @since 2.19
      */
     protected final List<SettableBeanProperty> _creatorProperties;
     protected final List<SettableBeanProperty> _properties;
@@ -29,7 +29,7 @@ public class UnwrappedPropertyHandler
         _properties = new ArrayList<>();
     }
 
-    @Deprecated // since 2.18
+    @Deprecated // since 2.19
     protected UnwrappedPropertyHandler(List<SettableBeanProperty> props) {
         this(new ArrayList<>(), props);
     }
@@ -40,7 +40,7 @@ public class UnwrappedPropertyHandler
     }
 
     /**
-     * @since 2.18
+     * @since 2.19
      */
     public void addCreatorProperty(SettableBeanProperty property) {
         _creatorProperties.add(property);
@@ -74,7 +74,7 @@ public class UnwrappedPropertyHandler
     }
 
     /**
-     * @since 2.18
+     * @since 2.19
      */
     public PropertyValueBuffer processUnwrappedCreatorProperties(
             JsonParser originalParser,
@@ -108,7 +108,7 @@ public class UnwrappedPropertyHandler
      * Generates a placeholder name for creator properties that don't have a name,
      * but are marked with `@JsonWrapped` annotation.
      *
-     * @since 2.18
+     * @since 2.19
      */
     public static PropertyName creatorParamName(int index) {
         return new PropertyName("@JsonUnwrapped/" + index);

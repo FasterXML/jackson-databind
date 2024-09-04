@@ -17,18 +17,18 @@ public final class MemberKey
 
     public MemberKey(Method m)
     {
-        this(m.getName(), m.getParameterTypes());
+        this(m.getName(), m.getParameterCount() > 0 ? m.getParameterTypes() : NO_CLASSES);
     }
 
     public MemberKey(Constructor<?> ctor)
     {
-        this("", ctor.getParameterTypes());
+        this("", ctor.getParameterCount() > 0 ? ctor.getParameterTypes() : NO_CLASSES);
     }
 
     public MemberKey(String name, Class<?>[] argTypes)
     {
         _name = name;
-        _argTypes = (argTypes == null) ? NO_CLASSES : argTypes;
+        _argTypes = (argTypes == null || argTypes.length == 0) ? NO_CLASSES : argTypes;
     }
 
     public String getName() {

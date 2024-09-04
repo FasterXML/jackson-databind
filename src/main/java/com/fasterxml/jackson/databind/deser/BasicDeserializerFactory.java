@@ -468,6 +468,10 @@ public abstract class BasicDeserializerFactory
         int ix = -1;
         final int argCount = candidate.paramCount();
         SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
+        if (argCount == 0) {
+            creators.addPropertyCreator(candidate.creator(), true, properties);
+            return true;
+        }
         for (int i = 0; i < argCount; ++i) {
             AnnotatedParameter param = candidate.parameter(i);
             JacksonInject.Value injectId = candidate.injection(i);

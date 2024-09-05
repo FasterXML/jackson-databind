@@ -10,7 +10,6 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-// 04-Sep-2024, tatu: Appears to pass on 3.0?
 public class ExternalTypeIdDup1410Test extends DatabindTestUtil
 {
     enum EnvironmentEventSource { BACKEND; }
@@ -83,7 +82,9 @@ public class ExternalTypeIdDup1410Test extends DatabindTestUtil
 
     @Test
     void dupProps() throws Exception {
-        ObjectMapper mapper = newJsonMapper();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
         EnvironmentEvent event = new BackendEvent("foo", "hello", "bar", null);
         String ser = mapper
                 .writerWithDefaultPrettyPrinter()

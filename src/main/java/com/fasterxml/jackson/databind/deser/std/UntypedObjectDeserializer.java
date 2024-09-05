@@ -220,21 +220,21 @@ public class UntypedObjectDeserializer
                 && Boolean.FALSE.equals(ctxt.getConfig().getDefaultMergeable(Object.class));
         // 31-Aug-2024: [databind#4680] Allow custom key deserializer for Object.class deserialization
         KeyDeserializer keyDeser = ctxt.findKeyDeserializer(SimpleType.constructUnsafe(Object.class), property);
+        boolean isStdImpl = ClassUtil.isJacksonStdImpl(keyDeser);
         // 20-Apr-2014, tatu: If nothing custom, let's use "vanilla" instance,
         //     simpler and can avoid some of delegation
         if ((_stringDeserializer == null) && (_numberDeserializer == null)
                 && (_mapDeserializer == null) && (_listDeserializer == null)
-                &&  getClass() == UntypedObjectDeserializer.class) {
-            if (keyDeser == null) {
-                return UntypedObjectDeserializerNR.instance(preventMerge);
-            }
+                &&  getClass() == UntypedObjectDeserializer.class
+                &&  isStdImpl) {
+            return UntypedObjectDeserializerNR.instance(preventMerge);
         }
 
         UntypedObjectDeserializer untyped  = null;
         if (preventMerge != _nonMerging) {
             untyped = new UntypedObjectDeserializer(this, preventMerge);
         }
-        if (keyDeser != null) {
+        if (!isStdImpl) {
             if (untyped == null) {
                 untyped = new UntypedObjectDeserializer(this, keyDeser);
             } else {

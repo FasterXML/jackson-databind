@@ -537,7 +537,7 @@ public class UntypedObjectDeserializer
         if (key1 == null) {
             // empty map might work; but caller may want to modify... so better just give small modifiable
             return new LinkedHashMap<>(2);
-        } else {
+        } else if (_customKeyDeserializer != null) {
             key1 = (String) _customKeyDeserializer.deserializeKey(key1, ctxt);
         }
         // minor optimization; let's handle 1 and 2 entry cases separately
@@ -551,7 +551,7 @@ public class UntypedObjectDeserializer
             LinkedHashMap<String, Object> result = new LinkedHashMap<>(2);
             result.put(key1, value1);
             return result;
-        } else {
+        } else if (_customKeyDeserializer != null) {
             key2 = (String) _customKeyDeserializer.deserializeKey(key2, ctxt);
         }
         p.nextToken();

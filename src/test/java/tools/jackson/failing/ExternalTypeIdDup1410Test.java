@@ -10,6 +10,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+// 04-Sep-2024, tatu: Appears to pass on 3.0?
 public class ExternalTypeIdDup1410Test extends DatabindTestUtil
 {
     enum EnvironmentEventSource { BACKEND; }

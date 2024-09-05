@@ -10,6 +10,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+// 04-Sep-2024, tatu: Passes on 3.0 somehow; fails on 2.18
 class JsonIgnoreProperties2803Test extends DatabindTestUtil {
     // [databind#2803]
     static class Building2803 {

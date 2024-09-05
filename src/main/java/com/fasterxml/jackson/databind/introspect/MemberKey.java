@@ -28,7 +28,7 @@ public final class MemberKey
     public MemberKey(String name, Class<?>[] argTypes)
     {
         _name = name;
-        _argTypes = (argTypes == null || argTypes.length == 0) ? NO_CLASSES : argTypes;
+        _argTypes = (argTypes == null) ? NO_CLASSES : argTypes;
     }
 
     public String getName() {

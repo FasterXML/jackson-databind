@@ -468,7 +468,10 @@ public abstract class BasicDeserializerFactory
         int ix = -1;
         final int argCount = candidate.paramCount();
         SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
+        // [databind#4688]: Should still accept 0-arg (explicitly delegated) creator
+        //   for backwards-compatibility (worked in 2.17 and before)
         if (argCount == 0) {
+            // "Convert" to property-based since that works well
             creators.addPropertyCreator(candidate.creator(), true, properties);
             return true;
         }

@@ -1,18 +1,18 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 // [databind#4688]
-public class SingletonDelegatingCreatorTest
+public class SingletonDelegatingCreatorTest extends DatabindTestUtil
 {
-
     static final class NoFieldSingletonWithDelegatingCreator {
-        private static final NoFieldSingletonWithDelegatingCreator INSTANCE = new NoFieldSingletonWithDelegatingCreator();
+        static final NoFieldSingletonWithDelegatingCreator INSTANCE = new NoFieldSingletonWithDelegatingCreator();
 
         private NoFieldSingletonWithDelegatingCreator() {}
 
@@ -23,7 +23,7 @@ public class SingletonDelegatingCreatorTest
     }
 
     static final class NoFieldSingletonWithPropertiesCreator {
-        private static final NoFieldSingletonWithPropertiesCreator INSTANCE = new NoFieldSingletonWithPropertiesCreator();
+        static final NoFieldSingletonWithPropertiesCreator INSTANCE = new NoFieldSingletonWithPropertiesCreator();
 
         private NoFieldSingletonWithPropertiesCreator() {}
 
@@ -34,7 +34,7 @@ public class SingletonDelegatingCreatorTest
     }
 
     static final class NoFieldSingletonWithDefaultCreator {
-        private static final NoFieldSingletonWithDefaultCreator INSTANCE = new NoFieldSingletonWithDefaultCreator();
+        static final NoFieldSingletonWithDefaultCreator INSTANCE = new NoFieldSingletonWithDefaultCreator();
 
         private NoFieldSingletonWithDefaultCreator() {}
 

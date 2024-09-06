@@ -70,6 +70,8 @@ Project: jackson-databind
  (contributed by Sim Y-T)
 #4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
  (reported by Mathijs V)
+#4688: Should allow deserializing with no-arg `@JsonCreator(mode = DELEGATING)`
+ (contributed by Carter K)
 
 2.17.2 (05-Jul-2024)
 

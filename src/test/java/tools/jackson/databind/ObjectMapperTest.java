@@ -7,6 +7,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
+import java.util.stream.IntStream;
 import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
@@ -98,6 +99,28 @@ public class ObjectMapperTest extends DatabindTestUtil
                 .build();
         assertNull(m.getInjectableValues());
         assertSame(nf, m.getNodeFactory());
+    }
+
+    @Test
+    public void testCollector()
+    {
+        final ObjectMapper objectMapper = new ObjectMapper();
+
+        final JsonNode jsonNodeResult = IntStream.range(0, 10)
+            .mapToObj(i -> {
+                ObjectNode objectNode = objectMapper.createObjectNode();
+                objectNode.put("testString", "example");
+                objectNode.put("testNumber", i);
+                objectNode.put("testBoolean", true);
+
+                return objectNode;
+            })
+            .collect(objectMapper.toJsonNode());
+
+        System.out.println(jsonNodeResult.toPrettyString());
+
+        assertEquals(10, jsonNodeResult.size());
+        jsonNodeResult.forEach(jsonNode -> assertFalse(jsonNode.isEmpty()));
     }
 
     // Test to ensure that we can check property ordering defaults...

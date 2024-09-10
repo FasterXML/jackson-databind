@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collector;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
@@ -561,6 +562,31 @@ public class ObjectMapper
      */
     public Collection<JacksonModule> getRegisteredModules() {
         return _savedBuilderState.modules();
+    }
+
+    /*
+    /**********************************************************************
+    /* Collectors for Stream support.
+    /**********************************************************************
+    */
+
+    /**
+     * Creates a {@link Collector} that collects {@link JsonNode} elements into an {@link ArrayNode}.
+     * <p>
+     * This method uses this instance of {@link ObjectMapper} to create an empty {@link ArrayNode} and then adds each
+     * {@link JsonNode} to it.
+     * </p>
+     *
+     * @return a {@link Collector} that collects {@link JsonNode} elements into an {@link ArrayNode}
+     *
+     * @since 3.0
+     */
+    public Collector<JsonNode, ArrayNode, ArrayNode> toJsonNode() {
+        return Collector.of(
+            this::createArrayNode, // supplier
+            ArrayNode::add, // accumulator
+            ArrayNode::addAll // combiner
+        );
     }
 
     /*

@@ -13,6 +13,9 @@ Project: jackson-databind
 #2977: Incompatible `FAIL_ON_MISSING_PRIMITIVE_PROPERTIES` and
   field level `@JsonProperty`
  (reported by @GeorgiPetkov)
+#3120: Return `ListIterator` from `ArrayNode.elements()`
+ (requested by @ludgerb)
+ (fix by Joo-Hyuk K)
 #3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
   for nullability
  (reported by @joca-bt)

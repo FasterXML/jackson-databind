@@ -20,6 +20,7 @@ public class BigDecimalParsing4694Test extends DatabindTestUtil
         }
         BIG_DEC_STR = sb.toString();
     }
+    private final BigDecimal BIG_DEC = new BigDecimal(BIG_DEC_STR);
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -27,15 +28,13 @@ public class BigDecimalParsing4694Test extends DatabindTestUtil
     @Test
     public void bigDecimal4694FromString() throws Exception
     {
-        assertEquals(new BigDecimal(BIG_DEC_STR),
-                MAPPER.readValue(BIG_DEC_STR, BigDecimal.class));
+        assertEquals(BIG_DEC, MAPPER.readValue(BIG_DEC_STR, BigDecimal.class));
     }
 
     @Test
     public void bigDecimal4694FromBytes() throws Exception
     {
         byte[] b = utf8Bytes(BIG_DEC_STR);
-        assertEquals(new BigDecimal(BIG_DEC_STR),
-                MAPPER.readValue(b, 0, b.length, BigDecimal.class));
+        assertEquals(BIG_DEC, MAPPER.readValue(b, 0, b.length, BigDecimal.class));
     }
 }

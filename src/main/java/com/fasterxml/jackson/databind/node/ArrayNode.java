@@ -246,6 +246,13 @@ public class ArrayNode
     @Override // since 2.10
     public boolean isEmpty() { return _children.isEmpty(); }
 
+    /**
+     * {@inheritDoc}
+     *<p>
+     * NOTE: actual underlying implementation returns {@link java.util.ListIterator}
+     * from {@link java.util.List#listIterator()} that contains elements, since Jackson 2.18
+     * (before was only generic {@link java.util.Iterator}).
+     */
     @Override
     public Iterator<JsonNode> elements() {
         return _children.listIterator();

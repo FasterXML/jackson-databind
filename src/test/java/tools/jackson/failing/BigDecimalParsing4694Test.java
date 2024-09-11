@@ -1,0 +1,41 @@
+package tools.jackson.failing;
+
+import java.math.BigDecimal;
+
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.assertEquals;
+
+public class BigDecimalParsing4694Test extends DatabindTestUtil
+{
+    private final String BIG_DEC_STR;
+    {
+        StringBuilder sb = new StringBuilder("-1234.");
+        // Above 500 chars we get a problem:
+        for (int i = 520; --i >= 0; ) {
+            sb.append('0');
+        }
+        BIG_DEC_STR = sb.toString();
+    }
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    // [databind#4694]: decoded wrong by jackson-core/FDP for over 500 char numbers
+    @Test
+    public void bigDecimal4694FromString() throws Exception
+    {
+        assertEquals(new BigDecimal(BIG_DEC_STR),
+                MAPPER.readValue(BIG_DEC_STR, BigDecimal.class));
+    }
+
+    @Test
+    public void bigDecimal4694FromBytes() throws Exception
+    {
+        byte[] b = utf8Bytes(BIG_DEC_STR);
+        assertEquals(new BigDecimal(BIG_DEC_STR),
+                MAPPER.readValue(b, 0, b.length, BigDecimal.class));
+    }
+}

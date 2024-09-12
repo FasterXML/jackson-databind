@@ -1,7 +1,8 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -14,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 // different from 2.10 in that no exception thrown and databind quietly just
 // left `null` for Beans as `null` even if "EMPTY" was indicated by configuration.
 class JsonSetter2572Test extends DatabindTestUtil {
+
     static class Outer {
         @JsonProperty("inner")
         final Inner inner;
@@ -34,6 +36,7 @@ class JsonSetter2572Test extends DatabindTestUtil {
         }
     }
 
+    @JacksonTestFailureExpected
     @Test
     void setterWithEmpty() throws Exception {
         /*
@@ -48,7 +51,6 @@ class JsonSetter2572Test extends DatabindTestUtil {
         Outer result = mapper.readValue(json, Outer.class);
         assertNotNull(result);
         assertNotNull(result.inner); // converted to "empty" bean
-
-//System.err.println("Final -> "+mapper.writeValueAsString(result));
     }
+
 }

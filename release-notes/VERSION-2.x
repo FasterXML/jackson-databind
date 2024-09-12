@@ -13,6 +13,9 @@ Project: jackson-databind
 #2977: Incompatible `FAIL_ON_MISSING_PRIMITIVE_PROPERTIES` and
   field level `@JsonProperty`
  (reported by @GeorgiPetkov)
+#3120: Return `ListIterator` from `ArrayNode.elements()`
+ (requested by @ludgerb)
+ (fix by Joo-Hyuk K)
 #3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
   for nullability
  (reported by @joca-bt)
@@ -70,6 +73,8 @@ Project: jackson-databind
  (contributed by Sim Y-T)
 #4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
  (reported by Mathijs V)
+#4688: Should allow deserializing with no-arg `@JsonCreator(mode = DELEGATING)`
+ (contributed by Carter K)
 
 2.17.2 (05-Jul-2024)
 

@@ -75,6 +75,8 @@ Project: jackson-databind
  (reported by Mathijs V)
 #4688: Should allow deserializing with no-arg `@JsonCreator(mode = DELEGATING)`
  (contributed by Carter K)
+#4694: Deserializing `BigDecimal` with large number of decimals result in incorrect value
+ (reported by @lnthai2002)
 
 2.17.2 (05-Jul-2024)
 

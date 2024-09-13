@@ -11,6 +11,8 @@ import tools.jackson.databind.node.JsonNodeFactory;
  * <p>
  * This class is not meant to be instantiated and serves only as a utility class.
  * </p>
+ *
+ * @since 2.18
  */
 public class JacksonCollectors {
 

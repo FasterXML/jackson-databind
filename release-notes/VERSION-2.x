@@ -77,6 +77,8 @@ Project: jackson-databind
  (contributed by Carter K)
 #4694: Deserializing `BigDecimal` with large number of decimals result in incorrect value
  (reported by @lnthai2002)
+#4699: Add extra `writeNumber()` method in `TokenBuffer`
+ (contributed by @pjfanning)
 
 2.17.2 (05-Jul-2024)
 

@@ -986,6 +986,27 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         return this;
     }
 
+    /**
+     * Write method that can be used for custom numeric types that can
+     * not be (easily?) converted to "standard" Java number types.
+     * Because numbers are not surrounded by double quotes, regular
+     * {@link #writeString} method can not be used; nor
+     * {@link #writeRaw} because that does not properly handle
+     * value separators needed in Array or Object contexts.
+     *
+     * @param encodedValue Textual (possibly formatted) number representation to write
+     * @param isInteger Whether value should be considered an integer
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
+     * @since 2.18
+     */
+    public void writeNumber(String encodedValue, boolean isInteger) throws IOException {
+        _appendValue(
+            isInteger ? JsonToken.VALUE_NUMBER_INT : JsonToken.VALUE_NUMBER_FLOAT,
+            encodedValue);
+    }
+
     private void writeLazyInteger(Object encodedValue) {
         _appendValue(JsonToken.VALUE_NUMBER_INT, encodedValue);
     }
@@ -1815,8 +1836,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public int getIntValue()
         {
-            Number n = (_currToken == JsonToken.VALUE_NUMBER_INT) ?
-                    ((Number) _currentObject()) : _numberValue(NR_INT, false);
+            final Number n = _numberValue(NR_INT, false);
             if ((n instanceof Integer) || _smallerThanInt(n)) {
                 return n.intValue();
             }
@@ -1825,8 +1845,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         @Override
         public long getLongValue() {
-            Number n = (_currToken == JsonToken.VALUE_NUMBER_INT) ?
-                    ((Number) _currentObject()) : _numberValue(NR_LONG, false);
+            final Number n = _numberValue(NR_LONG, false);
             if ((n instanceof Long) || _smallerThanLong(n)) {
                 return n.longValue();
             }

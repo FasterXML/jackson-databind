@@ -962,7 +962,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      * {@link #writeRaw} because that does not properly handle
      * value separators needed in Array or Object contexts.
      *
-     * @param encodedValue Textual (possibly format) number representation to write
+     * @param encodedValue Textual (possibly formatted) number representation to write
      * @param isInteger Whether value should be considered an integer
      *
      * @throws IOException if there is either an underlying I/O problem or encoding

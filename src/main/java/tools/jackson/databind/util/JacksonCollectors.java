@@ -3,6 +3,7 @@ package tools.jackson.databind.util;
 import java.util.stream.Collector;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeCreator;
 import tools.jackson.databind.node.JsonNodeFactory;
 
 /**
@@ -25,9 +26,11 @@ public class JacksonCollectors {
      * </p>
      *
      * @return a {@link Collector} that collects {@link JsonNode} elements into an {@link ArrayNode}
+     *
+     * @since 2.18
      */
     public static Collector<JsonNode, ArrayNode, ArrayNode> toJsonNode() {
-        final JsonNodeFactory jsonNodeFactory = new JsonNodeFactory();
+        final JsonNodeCreator jsonNodeFactory = JsonNodeFactory.instance;
 
         return Collector.of(
             jsonNodeFactory::arrayNode, // supplier

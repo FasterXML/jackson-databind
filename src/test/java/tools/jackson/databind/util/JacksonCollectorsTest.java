@@ -27,8 +27,6 @@ public class JacksonCollectorsTest {
             })
             .collect(JacksonCollectors.toJsonNode());
 
-        System.out.println(jsonNodeResult.toPrettyString());
-
         assertEquals(10, jsonNodeResult.size());
         jsonNodeResult.forEach(jsonNode -> assertFalse(jsonNode.isEmpty()));
     }

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,6 +19,7 @@ class PolymorphicArrays3194Test extends DatabindTestUtil {
         public Object[][] value;
     }
 
+    @JacksonTestFailureExpected
     @Test
     void twoDimensionalArrayMapping() throws Exception {
         PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()

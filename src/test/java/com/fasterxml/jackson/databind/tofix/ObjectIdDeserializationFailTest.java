@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.objectid.TestObjectId.Employee;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 import com.fasterxml.jackson.databind.tofix.ObjectIdDeserializationFailTest.EnumMapCompany.FooEnum;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,6 +53,7 @@ class ObjectIdDeserializationFailTest extends DatabindTestUtil {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
+    @JacksonTestFailureExpected
     @Test
     void forwardReferenceInArray() throws Exception {
         String json = "{\"employees\":["
@@ -81,6 +83,7 @@ class ObjectIdDeserializationFailTest extends DatabindTestUtil {
         assertEmployees(firstEmployee, secondEmployee);
     }
 
+    @JacksonTestFailureExpected
     @Test
     void forwardReferenceInEnumMap()
             throws Exception {
@@ -96,6 +99,7 @@ class ObjectIdDeserializationFailTest extends DatabindTestUtil {
         assertEmployees(firstEmployee, secondEmployee);
     }
 
+    @JacksonTestFailureExpected
     @Test
     void forwardReferenceWithDefensiveCopy()
             throws Exception {

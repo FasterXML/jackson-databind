@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -22,6 +23,7 @@ class UnwrappedWithUnknown650Test extends DatabindTestUtil {
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @JacksonTestFailureExpected
     @Test
     void failOnUnknownPropertyUnwrapped() throws Exception {
         assertTrue(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));

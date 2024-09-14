@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -43,6 +44,7 @@ class RecursiveIgnoreProperties1755Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // for [databind#1755]
+    @JacksonTestFailureExpected
     @Test
     void recursiveIgnore1755() throws Exception
     {
@@ -75,6 +77,7 @@ class RecursiveIgnoreProperties1755Test extends DatabindTestUtil
     }
 
     // for [databind#4417]
+    @JacksonTestFailureExpected
     @Test
     void recursiveIgnore4417() throws Exception
     {

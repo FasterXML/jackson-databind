@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.tofix;
 
 import java.beans.ConstructorProperties;
 
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -90,6 +91,7 @@ class BuilderWithBackRef2686Test extends DatabindTestUtil {
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @JacksonTestFailureExpected
     @Test
     void buildWithBackRefs2686() throws Exception {
         Container container = new Container();

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.tofix;
 
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -36,6 +37,7 @@ class AnySetterAsCreatorFallback1401Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1401]
+    @JacksonTestFailureExpected
     @Test
     void creatorNoSetter() throws Exception
     {

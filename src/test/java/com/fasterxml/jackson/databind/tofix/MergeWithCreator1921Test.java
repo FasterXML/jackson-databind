@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -66,6 +67,7 @@ class MergeWithCreator1921Test extends DatabindTestUtil {
         }
     }
 
+    @JacksonTestFailureExpected
     @Test
     void mergeWithCreator() throws Exception {
         final String JSON = "{ \"validity\": { \"validFrom\": \"2018-02-01\", \"validTo\": \"2018-01-31\" } }";

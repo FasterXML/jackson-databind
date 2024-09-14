@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -57,6 +58,7 @@ class JsonTypeIdConflict3681Test extends DatabindTestUtil {
      *  private interface C extends A, B {}
      * </pre>
      */
+    @JacksonTestFailureExpected
     @Test
     void failureWithTypeIdConflict() throws Exception {
         WrapperC c = MAPPER.readValue(a2q("{'c': {'type': 'c_impl'}}"), WrapperC.class);

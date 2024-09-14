@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -54,6 +55,7 @@ class ParsingContextExtTypeId2747Test extends DatabindTestUtil {
     }
 
     // [databind#2747]
+    @JacksonTestFailureExpected
     @Test
     void locationAccessWithExtTypeId() throws Exception {
         ObjectReader objectReader = newJsonMapper().readerFor(Wrapper.class);

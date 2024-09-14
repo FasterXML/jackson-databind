@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.tofix;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -34,6 +35,7 @@ class AsEmptyPOJONoDefaultCtor2572Test extends DatabindTestUtil {
     }
 
     // [databind#2572]
+    @JacksonTestFailureExpected
     @Test
     void emptyForTypeThatCannotBeInstantiated() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.failing;
+package com.fasterxml.jackson.databind.tofix;
 
 import java.util.Collections;
 
@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.records.RecordUpdate3079Test;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,6 +18,7 @@ public class RecordUpdate3079FailingTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#3079]: Should be able to Record value directly
+    @JacksonTestFailureExpected
     @Test
     public void testDirectRecordUpdate() throws Exception
     {

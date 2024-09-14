@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.math.BigDecimal;
 

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 // This is probably impossible to handle, in general case, since
 // there is a cycle for Parent2/Child2... unless special handling
@@ -64,6 +65,7 @@ class ObjectIdWithInjectables639Test extends DatabindTestUtil {
         }
     }
 
+    @JacksonTestFailureExpected
     @Test
     void objectIdWithInjectables() throws Exception {
         ObjectMapper mapper = new ObjectMapper();

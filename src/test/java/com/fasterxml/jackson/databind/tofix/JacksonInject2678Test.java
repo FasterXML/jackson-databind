@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -40,6 +41,7 @@ class JacksonInject2678Test extends DatabindTestUtil {
     }
 
     // [databind#2678]
+    @JacksonTestFailureExpected
     @Test
     void readValueInjectables() throws Exception {
         final InjectableValues injectableValues =

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -25,6 +26,7 @@ class DefaultTypingOverride1391Test extends DatabindTestUtil {
         public Collection<String> stuff = Collections.emptyList();
     }
 
+    @JacksonTestFailureExpected
     @Test
     void collectionWithOverride() throws Exception {
         final ObjectMapper mapper = JsonMapper.builder()

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,6 +42,7 @@ class ExternalTypeIdWithUnwrapped2039Test extends DatabindTestUtil {
         public boolean bool;
     }
 
+    @JacksonTestFailureExpected
     @Test
     void externalWithUnwrapped2039() throws Exception {
         final ObjectMapper mapper = newJsonMapper();

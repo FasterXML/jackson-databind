@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -34,6 +35,7 @@ class ObjectIdWithInjectable639Test extends DatabindTestUtil {
     }
 
     // for [databind#639]
+    @JacksonTestFailureExpected
     @Test
     void objectIdWithInjectable() throws Exception {
         ObjectMapper mapper = new ObjectMapper()

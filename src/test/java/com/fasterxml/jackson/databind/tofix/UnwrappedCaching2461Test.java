@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -38,6 +39,7 @@ class UnwrappedCaching2461Test extends DatabindTestUtil {
     }
 
     // [databind#2461]
+    @JacksonTestFailureExpected
     @Test
     void unwrappedCaching() throws Exception {
         final InnerContainer inner = new InnerContainer(new Base("12345"));

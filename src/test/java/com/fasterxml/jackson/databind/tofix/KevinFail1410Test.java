@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -79,6 +80,7 @@ class KevinFail1410Test extends DatabindTestUtil {
         }
     }
 
+    @JacksonTestFailureExpected
     @Test
     void dupProps() throws Exception {
         ObjectMapper mapper = newJsonMapper();

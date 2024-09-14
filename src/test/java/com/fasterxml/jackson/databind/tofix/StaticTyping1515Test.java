@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -67,12 +68,14 @@ class StaticTyping1515Test extends DatabindTestUtil {
             .enable(MapperFeature.USE_STATIC_TYPING)
             .build();
 
+    @JacksonTestFailureExpected
     @Test
     void staticTypingForProperties() throws Exception {
         String json = STAT_MAPPER.writeValueAsString(new Issue515Singles());
         assertEquals(a2q("{'value':{'a':1},'aValue':{'a':1,'b':2},'dValue':{'a':3,'b':4}}"), json);
     }
 
+    @JacksonTestFailureExpected
     @Test
     void staticTypingForLists() throws Exception {
         String json = STAT_MAPPER.writeValueAsString(new Issue515Lists());

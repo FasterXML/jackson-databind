@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -206,6 +207,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil {
     /**
      * Fails : Original test
      */
+    @JacksonTestFailureExpected
     @Test
     void original() throws Exception {
         String json = "{" +
@@ -238,6 +240,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil {
     /**
      * Fails : Lean version that fails and Without getters and setters
      */
+    @JacksonTestFailureExpected
     @Test
     void leanWithoutGetterAndSetters() throws Exception {
         String json = a2q("{" +

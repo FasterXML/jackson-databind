@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -29,6 +30,7 @@ class JsonIgnoreProperties2803Test extends DatabindTestUtil {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2803]
+    @JacksonTestFailureExpected
     @Test
     void ignoreProps2803() throws Exception {
         final String DOC = "{\"lobby\":{\"id\":\"L1\"}}";

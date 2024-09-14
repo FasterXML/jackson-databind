@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -43,6 +44,7 @@ class AnyGetterSorting518Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @JacksonTestFailureExpected
     @Test
     void anyBeanWithSort() throws Exception
     {

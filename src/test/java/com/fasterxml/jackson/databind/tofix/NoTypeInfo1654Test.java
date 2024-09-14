@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -79,6 +80,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil {
     }
 
     // [databind#1654]
+    @JacksonTestFailureExpected
     @Test
     void noTypeInfoOverrideSer() throws Exception {
         Value1654UntypedContainer cont = new Value1654UntypedContainer(
@@ -90,6 +92,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil {
     }
 
     // [databind#1654]
+    @JacksonTestFailureExpected
     @Test
     void noTypeInfoOverrideDeser() throws Exception {
         // and then actual failing case

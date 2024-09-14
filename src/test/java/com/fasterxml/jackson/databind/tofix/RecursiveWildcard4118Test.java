@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -55,6 +56,7 @@ class RecursiveWildcard4118Test extends DatabindTestUtil {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // for [databind#4118]
+    @JacksonTestFailureExpected
     @Test
     void recursiveWildcard4118() throws Exception {
         Tree<?> tree = MAPPER.readValue("[[[]]]", new TypeReference<Tree<?>>() {
@@ -66,6 +68,7 @@ class RecursiveWildcard4118Test extends DatabindTestUtil {
     }
 
     // for [databind#4118]
+    @JacksonTestFailureExpected
     @Test
     void deserWildcard4118() throws Exception {
         // Given

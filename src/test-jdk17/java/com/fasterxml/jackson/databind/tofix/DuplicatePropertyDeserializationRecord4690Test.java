@@ -1,7 +1,9 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.tofix;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,6 +19,7 @@ public class DuplicatePropertyDeserializationRecord4690Test
 
     private final ObjectMapper mapper = newJsonMapper();
 
+    @JacksonTestFailureExpected
     @Test
     void testDuplicatePropertyDeserialization() throws Exception {
         final String json = a2q("{'first':'value','first':'value2'}");

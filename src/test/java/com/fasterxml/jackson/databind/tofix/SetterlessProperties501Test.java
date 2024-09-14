@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,6 +56,7 @@ class SetterlessProperties501Test extends DatabindTestUtil {
     }
 
     // For [databind#501]
+    @JacksonTestFailureExpected
     @Test
     void setterlessWithPolymorphic() throws Exception {
         Issue501Bean input = new Issue501Bean("a", new Poly(13));

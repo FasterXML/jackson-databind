@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.tofix;
 
 import java.beans.ConstructorProperties;
 
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -74,6 +75,7 @@ class BackReference1516Test extends DatabindTestUtil {
                     "  'child': { 'id': 'def', 'name':'Bert' }\n" +
                     "}");
 
+    @JacksonTestFailureExpected
     @Test
     void withParentCreator() throws Exception {
         ParentWithCreator result = MAPPER.readValue(PARENT_CHILD_JSON,

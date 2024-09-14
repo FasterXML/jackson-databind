@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
 
 class SetterlessList2692Test extends DatabindTestUtil {
     static class DataBean {
@@ -35,6 +36,7 @@ class SetterlessList2692Test extends DatabindTestUtil {
         }
     }
 
+    @JacksonTestFailureExpected
     @Test
     void issue2692() throws Exception {
         ObjectMapper om = newJsonMapper();

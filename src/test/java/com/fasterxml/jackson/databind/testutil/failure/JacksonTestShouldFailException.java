@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.testutil.failing;
+package com.fasterxml.jackson.databind.testutil.failure;
 
 /**
  * Exception used to alert that a test is passing, but should be failing.

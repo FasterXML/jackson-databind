@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 class SetterlessList2692Test extends DatabindTestUtil {
     static class DataBean {

@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.tofix;
 
 import java.beans.ConstructorProperties;
 
-import com.fasterxml.jackson.databind.testutil.failing.JacksonTestFailureExpected;
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;

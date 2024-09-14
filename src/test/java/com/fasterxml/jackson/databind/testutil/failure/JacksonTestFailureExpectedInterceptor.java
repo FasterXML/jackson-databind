@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.testutil.failing;
+package com.fasterxml.jackson.databind.testutil.failure;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;

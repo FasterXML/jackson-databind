@@ -1829,3 +1829,8 @@ Eduard Gomoliako (Gems@github)
 Mathijs Vogelzang (mathijs81@github)
  * Reported #4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
   (2.18.0)
+
+Rikkarth (rikkarth@github)
+ * Contributed #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
+  (2.18.0)
+

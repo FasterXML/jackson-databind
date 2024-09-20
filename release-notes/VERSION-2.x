@@ -13,6 +13,9 @@ Project: jackson-databind
 #2977: Incompatible `FAIL_ON_MISSING_PRIMITIVE_PROPERTIES` and
   field level `@JsonProperty`
  (reported by @GeorgiPetkov)
+#3120: Return `ListIterator` from `ArrayNode.elements()`
+ (requested by @ludgerb)
+ (fix by Joo-Hyuk K)
 #3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
   for nullability
  (reported by @joca-bt)
@@ -72,6 +75,10 @@ Project: jackson-databind
  (reported by Mathijs V)
 #4688: Should allow deserializing with no-arg `@JsonCreator(mode = DELEGATING)`
  (contributed by Carter K)
+#4694: Deserializing `BigDecimal` with large number of decimals result in incorrect value
+ (reported by @lnthai2002)
+#4699: Add extra `writeNumber()` method in `TokenBuffer`
+ (contributed by @pjfanning)
 
 2.17.2 (05-Jul-2024)
 

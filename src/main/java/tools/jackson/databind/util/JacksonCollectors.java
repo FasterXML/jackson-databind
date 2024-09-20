@@ -14,12 +14,7 @@ import tools.jackson.databind.node.JsonNodeFactory;
  *
  * @since 2.18
  */
-public class JacksonCollectors {
-
-    private JacksonCollectors() {
-        throw new UnsupportedOperationException("Utility class cannot be instantiated.");
-    }
-
+public abstract class JacksonCollectors {
     /**
      * Creates a {@link Collector} that collects {@link JsonNode} elements into an {@link ArrayNode}.
      * <p>
@@ -28,16 +23,16 @@ public class JacksonCollectors {
      * </p>
      *
      * @return a {@link Collector} that collects {@link JsonNode} elements into an {@link ArrayNode}
-     *
-     * @since 2.18
      */
     public static Collector<JsonNode, ArrayNode, ArrayNode> toJsonNode() {
-        final JsonNodeCreator jsonNodeFactory = JsonNodeFactory.instance;
+        return toJsonNode(JsonNodeFactory.instance);
+    }
 
+    public static Collector<JsonNode, ArrayNode, ArrayNode> toJsonNode(JsonNodeCreator nodeCreator) {
         return Collector.of(
-            jsonNodeFactory::arrayNode, // supplier
-            ArrayNode::add, // accumulator
-            ArrayNode::addAll // combiner
-        );
+                nodeCreator::arrayNode, // supplier
+                ArrayNode::add, // accumulator
+                ArrayNode::addAll // combiner
+            );
     }
 }

@@ -72,6 +72,8 @@ Project: jackson-databind
  (reported by Mathijs V)
 #4688: Should allow deserializing with no-arg `@JsonCreator(mode = DELEGATING)`
  (contributed by Carter K)
+#4709: Add `JacksonCollectors` with `toArrayNode()` implementation
+ (contributed by @rikkarth)
 
 2.17.2 (05-Jul-2024)
 

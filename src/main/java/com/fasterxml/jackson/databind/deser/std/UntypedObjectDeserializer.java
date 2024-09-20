@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
-import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
@@ -219,14 +218,14 @@ public class UntypedObjectDeserializer
         boolean preventMerge = (property == null)
                 && Boolean.FALSE.equals(ctxt.getConfig().getDefaultMergeable(Object.class));
         // 31-Aug-2024: [databind#4680] Allow custom key deserializer for Object.class deserialization
-        KeyDeserializer keyDeser = ctxt.findKeyDeserializer(SimpleType.constructUnsafe(Object.class), property);
-        boolean isStdImpl = ClassUtil.isJacksonStdImpl(keyDeser);
+        KeyDeserializer keyDeser = ctxt.findKeyDeserializer(ctxt.constructType(Object.class), property);
+        boolean isStdKeyDeserImpl = ClassUtil.isJacksonStdImpl(keyDeser);
         // 20-Apr-2014, tatu: If nothing custom, let's use "vanilla" instance,
         //     simpler and can avoid some of delegation
         if ((_stringDeserializer == null) && (_numberDeserializer == null)
                 && (_mapDeserializer == null) && (_listDeserializer == null)
                 &&  getClass() == UntypedObjectDeserializer.class
-                &&  isStdImpl) {
+                &&  isStdKeyDeserImpl) {
             return UntypedObjectDeserializerNR.instance(preventMerge);
         }
 
@@ -234,7 +233,7 @@ public class UntypedObjectDeserializer
         if (preventMerge != _nonMerging) {
             untyped = new UntypedObjectDeserializer(this, preventMerge);
         }
-        if (!isStdImpl) {
+        if (!isStdKeyDeserImpl) {
             if (untyped == null) {
                 untyped = new UntypedObjectDeserializer(this, keyDeser);
             } else {

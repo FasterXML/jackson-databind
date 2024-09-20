@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 public class JacksonCollectorsTest {
 
     @Test
-    public void testToJsonArray()
+    public void testToArrayNode()
     {
         final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -25,7 +25,7 @@ public class JacksonCollectorsTest {
 
                 return objectNode;
             })
-            .collect(JacksonCollectors.toJsonArray());
+            .collect(JacksonCollectors.toArrayNode());
 
         assertEquals(10, jsonNodeResult.size());
         jsonNodeResult.forEach(jsonNode -> assertFalse(jsonNode.isEmpty()));

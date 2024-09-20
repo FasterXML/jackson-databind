@@ -24,11 +24,11 @@ public abstract class JacksonCollectors {
      *
      * @return a {@link Collector} that collects {@link JsonNode} elements into an {@link ArrayNode}
      */
-    public static Collector<JsonNode, ArrayNode, ArrayNode> toJsonArray() {
-        return toJsonArray(JsonNodeFactory.instance);
+    public static Collector<JsonNode, ArrayNode, ArrayNode> toArrayNode() {
+        return toArrayNode(JsonNodeFactory.instance);
     }
 
-    public static Collector<JsonNode, ArrayNode, ArrayNode> toJsonArray(JsonNodeCreator nodeCreator) {
+    public static Collector<JsonNode, ArrayNode, ArrayNode> toArrayNode(JsonNodeCreator nodeCreator) {
         return Collector.of(
                 nodeCreator::arrayNode, // supplier
                 ArrayNode::add, // accumulator

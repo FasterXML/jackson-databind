@@ -218,32 +218,30 @@ public class UntypedObjectDeserializer
         boolean preventMerge = (property == null)
                 && Boolean.FALSE.equals(ctxt.getConfig().getDefaultMergeable(Object.class));
         // 31-Aug-2024: [databind#4680] Allow custom key deserializer for Object.class deserialization
-        KeyDeserializer keyDeser = ctxt.findKeyDeserializer(ctxt.constructType(Object.class), property);
-        boolean isStdKeyDeserImpl = ClassUtil.isJacksonStdImpl(keyDeser);
+        KeyDeserializer customKeyDeser = ctxt.findKeyDeserializer(ctxt.constructType(Object.class), property);
+        // but make sure to ignore standard/default key deserializer (perf optimization)
+        if (customKeyDeser != null) {
+            if (ClassUtil.isJacksonStdImpl(customKeyDeser)) {
+                customKeyDeser = null;
+            }
+        }
         // 20-Apr-2014, tatu: If nothing custom, let's use "vanilla" instance,
         //     simpler and can avoid some of delegation
         if ((_stringDeserializer == null) && (_numberDeserializer == null)
                 && (_mapDeserializer == null) && (_listDeserializer == null)
-                &&  getClass() == UntypedObjectDeserializer.class
-                &&  isStdKeyDeserImpl) {
+                && (customKeyDeser == null)
+                &&  getClass() == UntypedObjectDeserializer.class) {
             return UntypedObjectDeserializerNR.instance(preventMerge);
         }
 
-        UntypedObjectDeserializer untyped  = null;
+        UntypedObjectDeserializer deser = this;
         if (preventMerge != _nonMerging) {
-            untyped = new UntypedObjectDeserializer(this, preventMerge);
+            deser = new UntypedObjectDeserializer(deser, preventMerge);
         }
-        if (!isStdKeyDeserImpl) {
-            if (untyped == null) {
-                untyped = new UntypedObjectDeserializer(this, keyDeser);
-            } else {
-                untyped = new UntypedObjectDeserializer(untyped, keyDeser);
-            }
+        if (customKeyDeser != null) {
+            deser = new UntypedObjectDeserializer(deser, customKeyDeser);
         }
-        if (untyped != null) {
-            return untyped;
-        }
-        return this;
+        return deser;
     }
 
     /*

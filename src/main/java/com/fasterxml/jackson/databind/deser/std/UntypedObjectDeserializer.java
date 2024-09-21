@@ -534,9 +534,8 @@ public class UntypedObjectDeserializer
         if (key1 == null) {
             // empty map might work; but caller may want to modify... so better just give small modifiable
             return new LinkedHashMap<>(2);
-        } else if (_customKeyDeserializer != null) {
-            key1 = (String) _customKeyDeserializer.deserializeKey(key1, ctxt);
         }
+        key1 = _customDeserializeKey(key1, ctxt);
         // minor optimization; let's handle 1 and 2 entry cases separately
         // 24-Mar-2015, tatu: Ideally, could use one of 'nextXxx()' methods, but for
         //   that we'd need new method(s) in JsonDeserializer. So not quite yet.
@@ -548,9 +547,9 @@ public class UntypedObjectDeserializer
             LinkedHashMap<String, Object> result = new LinkedHashMap<>(2);
             result.put(key1, value1);
             return result;
-        } else if (_customKeyDeserializer != null) {
-            key2 = (String) _customKeyDeserializer.deserializeKey(key2, ctxt);
         }
+        key2 = _customDeserializeKey(key2, ctxt);
+
         p.nextToken();
         Object value2 = deserialize(p, ctxt);
 
@@ -564,6 +563,8 @@ public class UntypedObjectDeserializer
             }
             return result;
         }
+        key = _customDeserializeKey(key, ctxt);
+
         // And then the general case; default map size is 16
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
         result.put(key1, value1);
@@ -578,10 +579,26 @@ public class UntypedObjectDeserializer
             final Object oldValue = result.put(key, newValue);
             if (oldValue != null) {
                 return _mapObjectWithDups(p, ctxt, result, key, oldValue, newValue,
-                        p.nextFieldName());
+                        _customDeserializeKey(p.nextFieldName(), ctxt));
             }
-        } while ((key = p.nextFieldName()) != null);
+        } while ((key = _customDeserializeKey(p.nextFieldName(), ctxt)) != null);
         return result;
+    }
+
+    /**
+     * Helper function to allow custom key deserialization.
+     *
+     * @returns Custom-deserialized key if custom key deserializer is set and
+     *           key is not null otherwise the original key.
+     * @since 2.18
+     */
+    private String _customDeserializeKey(String key, DeserializationContext ctxt) throws IOException {
+        if (key != null) {
+            if (_customKeyDeserializer != null) {
+                return (String) _customKeyDeserializer.deserializeKey(key, ctxt);
+            }
+        }
+        return key;
     }
 
     // @since 2.12 (wrt [databind#2733]

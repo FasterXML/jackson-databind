@@ -1,11 +1,12 @@
 package com.fasterxml.jackson.databind.tofix;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
-
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -16,19 +17,19 @@ public class JsonUnwrappedInconsistentSerialization4697Test
 {
     public static class First {
         @JsonUnwrapped(prefix = "")
-        public Thrid thrid = new Thrid();
+        public Third thrid = new Third();
     }
 
     public static class Second {
         @JsonUnwrapped(prefix = "fromSecond")
-        public Thrid thrid = new Thrid();
+        public Third thrid = new Third();
     }
 
-    public static class Thrid {
+    public static class Third {
         @JsonUnwrapped(prefix = "fromThird")
         public Common common = new Common();
 
-        public Thrid() {
+        public Third() {
             this.common.a = "a";
             this.common.b = "b";
         }

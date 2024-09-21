@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.databind.tofix;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,6 +64,7 @@ public class BuilderAdvanced2580Test
      */
 
     // [databind#2580]: regression somewhere
+    @JacksonTestFailureExpected
     @Test
     public void testWithExternalTypeId() throws Exception
     {

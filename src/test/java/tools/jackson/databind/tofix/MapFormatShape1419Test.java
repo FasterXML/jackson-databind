@@ -1,6 +1,8 @@
-package tools.jackson.failing;
+package tools.jackson.databind.tofix;
 
 import java.util.*;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -8,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -64,9 +67,11 @@ public class MapFormatShape1419Test extends DatabindTestUtil
     /**********************************************************
      */
 
-    final private ObjectMapper MAPPER = objectMapper();
+    final private ObjectMapper MAPPER = newJsonMapper();
 
     // Can't yet use per-property overrides at all, see [databind#1419]
+    @JacksonTestFailureExpected
+    @Test
     public void testSerializeAsPOJOViaProperty() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Container(1,0,3));
@@ -74,6 +79,7 @@ public class MapFormatShape1419Test extends DatabindTestUtil
                 result);
     }
 
+    @Test
     public void testSerializeNaturalViaOverride() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Override(123));

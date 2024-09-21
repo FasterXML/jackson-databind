@@ -29,7 +29,7 @@ class MapEntryFormat1419Test extends DatabindTestUtil {
         }
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @JacksonTestFailureExpected
     @Test

@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.databind.tofix;
 
 import java.util.UUID;
 
@@ -15,6 +15,7 @@ import tools.jackson.databind.annotation.JsonTypeIdResolver;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -442,6 +443,7 @@ public class ExternalTypeCustomResolver1288Test extends DatabindTestUtil
     }
 
     // [databind#1288]
+    @JacksonTestFailureExpected
     @Test
     public void testExternalWithCustomResolverAndBuilder() throws Exception
     {

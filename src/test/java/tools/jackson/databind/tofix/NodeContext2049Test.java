@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.databind.tofix;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,6 +14,7 @@ import tools.jackson.databind.deser.jdk.CollectionDeserializer;
 import tools.jackson.databind.deser.std.DelegatingDeserializer;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import tools.jackson.databind.type.CollectionLikeType;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -84,12 +85,12 @@ public class NodeContext2049Test extends DatabindTestUtil
         }
 
         @Override
-        public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws JacksonException {
-             Object retValue = super.deserialize(jp, ctxt);
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+             Object retValue = super.deserialize(p, ctxt);
              if (retValue instanceof HasParent) {
                   HasParent obj = (HasParent) retValue;
                   Parent parent = null;
-                  TokenStreamContext parsingContext = jp.streamReadContext();
+                  TokenStreamContext parsingContext = p.streamReadContext();
                   while (parent == null && parsingContext != null) {
                        Object currentValue = parsingContext.currentValue();
                        if (currentValue != null && currentValue instanceof Parent) {
@@ -184,6 +185,7 @@ public class NodeContext2049Test extends DatabindTestUtil
             "     }\n" +
             "}";
 
+    @JacksonTestFailureExpected
     @Test
     public void testReadNoBuffering() throws Exception {
         Parent obj = objectMapper.readerFor(Parent.class).readValue(JSON);
@@ -193,6 +195,7 @@ public class NodeContext2049Test extends DatabindTestUtil
         }
     }
 
+    @JacksonTestFailureExpected
     @Test
     public void testReadFromTree() throws Exception {
         JsonNode tree = objectMapper.readTree(JSON);

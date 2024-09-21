@@ -588,8 +588,8 @@ public class UntypedObjectDeserializer
     /**
      * Helper function to allow custom key deserialization.
      *
-     * @returns Custom-deserialized key if custom key deserializer is set and
-     *           key is not null otherwise the original key.
+     * @returns Custom-deserialized key if both custom key deserializer is set and
+     *           key is not null. Otherwise the original key.
      * @since 2.18
      */
     private String _customDeserializeKey(String key, DeserializationContext ctxt) throws IOException {

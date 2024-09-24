@@ -849,6 +849,8 @@ Carter Kozak (carterkozak@github)
   * Contributed #3876: `TypeFactory` cache performance degradation with
     `constructSpecializedType()`
    (2.15.0)
+  * Contributed #4688: Should allow deserializing with no-arg `@JsonCreator(mode = DELEGATING)`
+   (2.18.0)
 
 Reinhard Prechtl (dnno@github)
   * Reported #2034: Serialization problem with type specialization of nested generic types
@@ -1823,3 +1825,12 @@ Eduard Gomoliako (Gems@github)
  * Reported #4602: Possible wrong use of _arrayDelegateDeserializer in
    BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
   (2.18.0)
+
+Mathijs Vogelzang (mathijs81@github)
+ * Reported #4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
+  (2.18.0)
+
+Rikkarth (rikkarth@github)
+ * Contributed #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
+  (2.18.0)
+

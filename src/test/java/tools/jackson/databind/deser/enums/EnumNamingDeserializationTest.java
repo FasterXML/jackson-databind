@@ -291,4 +291,17 @@ public class EnumNamingDeserializationTest
         BaseEnum deser = mapper.readValue(q("realName"), BaseEnum.class);
         assertEquals(BaseEnum.REAL_NAME, deser);
     }
+
+    @Test
+    void testUseEnumMappingStrategySetInMapper() {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enumNamingStrategy(EnumNamingStrategies.CamelCaseStrategy.INSTANCE)
+                .build();
+
+        BaseEnum result = mapper.readValue(q("realName"), BaseEnum.class);
+        assertEquals(BaseEnum.REAL_NAME, result);
+
+        String resultString = mapper.writeValueAsString(result);
+        assertEquals(q("realName"), resultString);
+    }
 }

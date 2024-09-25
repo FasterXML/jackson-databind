@@ -231,7 +231,7 @@ public class EnumSerializer
             AnnotatedClass annotatedClass) {
         Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
-            namingDef, config.canOverrideAccessModifiers());
+            namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
         return enumNamingStrategy == null ? null : EnumValues.constructUsingEnumNamingStrategy(
             config, annotatedClass, enumNamingStrategy);
     }

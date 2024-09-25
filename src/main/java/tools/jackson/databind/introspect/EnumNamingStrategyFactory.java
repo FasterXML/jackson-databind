@@ -14,17 +14,16 @@ public class EnumNamingStrategyFactory
      *
      * @param namingDef                  subclass of {@link EnumNamingStrategy} to initialize an instance of.
      * @param canOverrideAccessModifiers whether to override access modifiers when instantiating the naming strategy.
-     *
+     * @param defaultNamingStrategy      configured global {@link EnumNamingStrategy} to use in case {@code namingDef} is not provided.
      * @return an instance of {@link EnumNamingStrategy} if {@code namingDef} is a subclass of {@link EnumNamingStrategy},
      * {@code null} if {@code namingDef} is {@code null},
      * and an instance of {@link EnumNamingStrategy} if {@code namingDef} already is one.
-     *
      * @throws IllegalArgumentException if {@code namingDef} is not an instance of {@link java.lang.Class} or
      *                                  not a subclass of {@link EnumNamingStrategy}.
      */
-    public static EnumNamingStrategy createEnumNamingStrategyInstance(Object namingDef, boolean canOverrideAccessModifiers) {
+    public static EnumNamingStrategy createEnumNamingStrategyInstance(Object namingDef, boolean canOverrideAccessModifiers, EnumNamingStrategy defaultNamingStrategy) {
         if (namingDef == null) {
-            return null;
+            return defaultNamingStrategy;
         }
         if (namingDef instanceof EnumNamingStrategy) {
             return (EnumNamingStrategy) namingDef;

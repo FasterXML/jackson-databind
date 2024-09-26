@@ -14,14 +14,34 @@ public class EnumNamingStrategyFactory
      *
      * @param namingDef                  subclass of {@link EnumNamingStrategy} to initialize an instance of.
      * @param canOverrideAccessModifiers whether to override access modifiers when instantiating the naming strategy.
+     * @return an instance of {@link EnumNamingStrategy} if {@code namingDef} is a subclass of {@link EnumNamingStrategy},
+     * {@code null} if {@code namingDef} is {@code null},
+     * and an instance of {@link EnumNamingStrategy} if {@code namingDef} already is one.
+     * @throws IllegalArgumentException if {@code namingDef} is not an instance of {@link java.lang.Class} or
+     *                                  not a subclass of {@link EnumNamingStrategy}.
+     *
+     * @deprecated Since 2.19, use variant that takes {@link EnumNamingStrategy} instead.
+     */
+    public static EnumNamingStrategy createEnumNamingStrategyInstance(Object namingDef, boolean canOverrideAccessModifiers) {
+        return createEnumNamingStrategyInstance(namingDef, canOverrideAccessModifiers, null);
+    }
+
+    /**
+     * Factory method for creating an instance of {@link EnumNamingStrategy} from a provided {@code namingDef}.
+     *
+     * @param namingDef                  subclass of {@link EnumNamingStrategy} to initialize an instance of.
+     * @param canOverrideAccessModifiers whether to override access modifiers when instantiating the naming strategy.
      * @param defaultNamingStrategy      configured global {@link EnumNamingStrategy} to use in case {@code namingDef} is not provided.
      * @return an instance of {@link EnumNamingStrategy} if {@code namingDef} is a subclass of {@link EnumNamingStrategy},
      * {@code null} if {@code namingDef} is {@code null},
      * and an instance of {@link EnumNamingStrategy} if {@code namingDef} already is one.
      * @throws IllegalArgumentException if {@code namingDef} is not an instance of {@link java.lang.Class} or
      *                                  not a subclass of {@link EnumNamingStrategy}.
+     *
+     * @since 2.19
      */
-    public static EnumNamingStrategy createEnumNamingStrategyInstance(Object namingDef, boolean canOverrideAccessModifiers, EnumNamingStrategy defaultNamingStrategy) {
+    public static EnumNamingStrategy createEnumNamingStrategyInstance(Object namingDef, boolean canOverrideAccessModifiers,
+                                                                      EnumNamingStrategy defaultNamingStrategy) {
         if (namingDef == null) {
             return defaultNamingStrategy;
         }

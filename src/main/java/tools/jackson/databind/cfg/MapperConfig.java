@@ -193,6 +193,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         return _base.getPropertyNamingStrategy();
     }
 
+    /**
+     * @since 2.19
+     */
     public final EnumNamingStrategy getEnumNamingStrategy() {
         return _base.getEnumNamingStrategy();
     }

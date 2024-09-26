@@ -1243,6 +1243,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * @param s Strategy instance to use
      *
      * @return Builder instance itself to allow chaining
+     *
+     * @since 2.19
      */
     public B enumNamingStrategy(EnumNamingStrategy s) {
         _baseSettings = _baseSettings.with(s);

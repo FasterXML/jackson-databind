@@ -141,6 +141,9 @@ public final class BaseSettings
     /**********************************************************************
      */
 
+    /**
+     * @since 2.19
+     */
     public BaseSettings(AnnotationIntrospector ai, PropertyNamingStrategy pns,
                         EnumNamingStrategy ens, AccessorNamingStrategy.Provider accNaming,
                         TypeResolverBuilder<?> defaultTyper, PolymorphicTypeValidator ptv,
@@ -163,6 +166,22 @@ public final class BaseSettings
         _cacheProvider = cacheProvider;
         _nodeFactory = nodeFactory;
         _ctorDetector = ctorDetector;
+    }
+
+    /**
+     * @deprecated Since 2.19, use variant that takes {@link EnumNamingStrategy} instead.
+     */
+    @Deprecated
+    public BaseSettings(AnnotationIntrospector ai,
+                        PropertyNamingStrategy pns, AccessorNamingStrategy.Provider accNaming,
+                        TypeResolverBuilder<?> defaultTyper, PolymorphicTypeValidator ptv,
+                        DateFormat dateFormat, HandlerInstantiator hi,
+                        Locale locale, TimeZone tz, Base64Variant defaultBase64,
+                        CacheProvider cacheProvider, JsonNodeFactory nodeFactory,
+                        ConstructorDetector ctorDetector)
+    {
+        this(ai, pns, null, accNaming, defaultTyper, ptv, dateFormat, hi, locale, tz,
+                defaultBase64, cacheProvider, nodeFactory, ctorDetector);
     }
 
     /*
@@ -197,6 +216,9 @@ public final class BaseSettings
                 _timeZone, _defaultBase64, _cacheProvider, _nodeFactory, _ctorDetector);
     }
 
+    /**
+     * @since 2.19
+     */
     public BaseSettings with(EnumNamingStrategy ens) {
         if (_propertyNamingStrategy == ens) {
             return this;

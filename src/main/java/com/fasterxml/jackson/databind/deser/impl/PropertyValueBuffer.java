@@ -5,9 +5,11 @@ import java.util.BitSet;
 
 import com.fasterxml.jackson.core.JsonParser;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
@@ -135,6 +137,11 @@ public class PropertyValueBuffer
      */
     public final boolean hasParameter(SettableBeanProperty prop)
     {
+        if (_anyParamSetter != null) {
+            if (prop.getCreatorIndex() == _anyParamSetter.getParameterIndex()) {
+                return true;
+            }
+        }
         if (_paramsSeenBig == null) {
             return ((_paramsSeen >> prop.getCreatorIndex()) & 1) == 1;
         }
@@ -159,6 +166,16 @@ public class PropertyValueBuffer
             value = _creatorParameters[prop.getCreatorIndex()];
         } else {
             value = _creatorParameters[prop.getCreatorIndex()] = _findMissing(prop);
+        }
+        // 28-Sep-2024 : [databind#4508] Support any-setter flowing through creator
+        if ((value == null) && (_anyParamSetter != null )
+                && (prop.getCreatorIndex() == _anyParamSetter.getParameterIndex())) {
+            try {
+                value = _createAndSetAnySetterValue();
+            } catch (IOException e) {
+                // do-nothing here?
+                throw JsonMappingException.fromUnexpectedIOE(e);
+            }
         }
         if (value == null && _context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             return _context.reportInputMismatch(prop,
@@ -198,11 +215,7 @@ public class PropertyValueBuffer
         }
         // [databind#562] since 2.18 : Respect @JsonAnySetter in @JsonCreator
         if (_anyParamSetter != null) {
-            Object anySetterParameterObject = _anyParamSetter.createParameterObject();
-            for (PropertyValue pv = _anyParamBuffered; pv != null; pv = pv.next) {
-                pv.setValue(anySetterParameterObject);
-            }
-            _creatorParameters[_anyParamSetter.getParameterIndex()] = anySetterParameterObject;
+            _creatorParameters[_anyParamSetter.getParameterIndex()] = _createAndSetAnySetterValue();
         }
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             for (int ix = 0; ix < props.length; ++ix) {
@@ -215,6 +228,20 @@ public class PropertyValueBuffer
             }
         }
         return _creatorParameters;
+    }
+
+    /**
+     * Helper method called to create and set any values buffered for "any setter"
+     *
+     * @since 2.18
+     */
+    private Object _createAndSetAnySetterValue() throws IOException
+    {
+        Object anySetterParameterObject = _anyParamSetter.createParameterObject();
+        for (PropertyValue pv = _anyParamBuffered; pv != null; pv = pv.next) {
+            pv.setValue(anySetterParameterObject);
+        }
+        return anySetterParameterObject;
     }
 
     protected Object _findMissing(SettableBeanProperty prop) throws JsonMappingException

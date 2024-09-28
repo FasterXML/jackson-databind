@@ -81,6 +81,9 @@ Project: jackson-databind
  (contributed by @pjfanning)
 #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
  (contributed by @rikkarth)
+#4508: Deserialized JsonAnySetter field in Kotlin data class is null #4508
+ (reported by @MaximValeev)
+ (fix by Joo-Hyuk K)
 
 2.17.2 (05-Jul-2024)
 

@@ -137,6 +137,7 @@ public class PropertyValueBuffer
      */
     public final boolean hasParameter(SettableBeanProperty prop)
     {
+        // 28-Sep-2024 : [databind#4508] Support any-setter flowing through creator
         if (_anyParamSetter != null) {
             if (prop.getCreatorIndex() == _anyParamSetter.getParameterIndex()) {
                 return true;

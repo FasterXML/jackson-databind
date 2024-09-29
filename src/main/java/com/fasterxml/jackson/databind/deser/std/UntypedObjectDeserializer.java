@@ -217,7 +217,7 @@ public class UntypedObjectDeserializer
         // 14-Jun-2017, tatu: [databind#1625]: may want to block merging, for root value
         boolean preventMerge = (property == null)
                 && Boolean.FALSE.equals(ctxt.getConfig().getDefaultMergeable(Object.class));
-        // 31-Aug-2024: [databind#4680] Allow custom key deserializer for Object.class deserialization
+        // Since 2.19, 31-Aug-2024: [databind#4680] Allow custom key deserializer for Object.class deserialization
         KeyDeserializer customKeyDeser = ctxt.findKeyDeserializer(ctxt.constructType(Object.class), property);
         // but make sure to ignore standard/default key deserializer (perf optimization)
         if (customKeyDeser != null) {
@@ -238,6 +238,7 @@ public class UntypedObjectDeserializer
         if (preventMerge != _nonMerging) {
             deser = new UntypedObjectDeserializer(deser, preventMerge);
         }
+        // Since 2.19, 31-Aug-2024: [databind#4680] Allow custom key deserializer for Object.class deserialization
         if (customKeyDeser != null) {
             deser = new UntypedObjectDeserializer(deser, customKeyDeser);
         }
@@ -590,7 +591,6 @@ public class UntypedObjectDeserializer
      *
      * @returns Custom-deserialized key if both custom key deserializer is set and
      *           key is not null. Otherwise the original key.
-     * @since 2.18
      */
     private String _customDeserializeKey(String key, DeserializationContext ctxt) throws IOException {
         if (key != null) {

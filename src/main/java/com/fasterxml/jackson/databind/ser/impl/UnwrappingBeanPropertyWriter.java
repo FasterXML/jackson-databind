@@ -224,4 +224,9 @@ public class UnwrappingBeanPropertyWriter
         _dynamicSerializers = _dynamicSerializers.newWith(type, serializer);
         return serializer;
     }
+
+    @Override
+    public boolean needToResetSerialization() {
+        return true;
+    }
 }

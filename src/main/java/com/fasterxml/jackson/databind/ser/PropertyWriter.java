@@ -101,6 +101,13 @@ public abstract class PropertyWriter
      */
 
     /**
+     * A way to reset serialization to correctly populate serializer
+     */
+    public boolean needToResetSerialization() {
+        return false;
+    }
+
+    /**
      * The main serialization method called by filter when property is to be written normally.
      */
     public abstract void serializeAsField(Object value, JsonGenerator jgen, SerializerProvider provider)

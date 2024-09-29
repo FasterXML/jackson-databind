@@ -224,7 +224,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
         _declaredType = declaredType;
         _serializer = (JsonSerializer<Object>) ser;
-        _dynamicSerializers = (ser == null) ? emptyForProperties() : null;
+        _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyForProperties() : null;
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
 
@@ -326,9 +326,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                     base._internalSettings);
         }
         _cfgSerializationType = base._cfgSerializationType;
-        if(base instanceof UnwrappingBeanPropertyWriter) {
-            _dynamicSerializers =
-                    emptyForProperties();
+        if (base.needToResetSerialization()) {
+            _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         } else {
             _dynamicSerializers = base._dynamicSerializers;
         }
@@ -356,9 +355,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                     base._internalSettings);
         }
         _cfgSerializationType = base._cfgSerializationType;
-        if(base instanceof UnwrappingBeanPropertyWriter) {
-            _dynamicSerializers =
-                    emptyForProperties();
+        if (base.needToResetSerialization()) {
+            _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         } else {
             _dynamicSerializers = base._dynamicSerializers;
         }
@@ -470,7 +468,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
             _field = null;
         }
         if (_serializer == null) {
-            _dynamicSerializers = emptyForProperties();
+            _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         }
         return this;
     }
@@ -999,3 +997,4 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         sb.append(')');
         return sb.toString();
     }
+}

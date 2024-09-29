@@ -38,7 +38,7 @@ import static com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap.empt
 @JacksonStdImpl
 // since 2.6. NOTE: sub-classes typically are not
 public class BeanPropertyWriter extends PropertyWriter // which extends
-        // `ConcreteBeanPropertyBase`
+                                                       // `ConcreteBeanPropertyBase`
         implements java.io.Serializable // since 2.6
 {
     // As of 2.7
@@ -209,11 +209,11 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     @SuppressWarnings("unchecked")
     public BeanPropertyWriter(BeanPropertyDefinition propDef,
-                              AnnotatedMember member, Annotations contextAnnotations,
-                              JavaType declaredType,
-                              JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
-                              boolean suppressNulls, Object suppressableValue,
-                              Class<?>[] includeInViews)
+            AnnotatedMember member, Annotations contextAnnotations,
+            JavaType declaredType,
+            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            boolean suppressNulls, Object suppressableValue,
+            Class<?>[] includeInViews)
     {
         super(propDef);
         _member = member;
@@ -224,8 +224,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
         _declaredType = declaredType;
         _serializer = (JsonSerializer<Object>) ser;
-        _dynamicSerializers = (ser == null) ? PropertySerializerMap
-                .emptyForProperties() : null;
+        _dynamicSerializers = (ser == null) ? emptyForProperties() : null;
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
 
@@ -251,10 +250,10 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     @Deprecated // Since 2.9
     public BeanPropertyWriter(BeanPropertyDefinition propDef,
-                              AnnotatedMember member, Annotations contextAnnotations,
-                              JavaType declaredType,
-                              JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
-                              boolean suppressNulls, Object suppressableValue)
+            AnnotatedMember member, Annotations contextAnnotations,
+            JavaType declaredType,
+            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            boolean suppressNulls, Object suppressableValue)
     {
         this(propDef, member, contextAnnotations, declaredType,
                 ser, typeSer, serType, suppressNulls, suppressableValue,
@@ -363,7 +362,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         } else {
             _dynamicSerializers = base._dynamicSerializers;
         }
-        _suppressNulls = base._suppressNulls;
+		_suppressNulls = base._suppressNulls;
         _suppressableValue = base._suppressableValue;
         _includeInViews = base._includeInViews;
         _typeSerializer = base._typeSerializer;
@@ -471,7 +470,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
             _field = null;
         }
         if (_serializer == null) {
-            _dynamicSerializers = PropertySerializerMap.emptyForProperties();
+            _dynamicSerializers = emptyForProperties();
         }
         return this;
     }
@@ -524,7 +523,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     // @since 2.3 -- needed so it can be overridden by unwrapping writer
     protected void _depositSchemaProperty(ObjectNode propertiesNode,
-                                          JsonNode schemaNode) {
+            JsonNode schemaNode) {
         propertiesNode.set(getName(), schemaNode);
     }
 
@@ -694,7 +693,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     @Override
     public void serializeAsField(Object bean, JsonGenerator gen,
-                                 SerializerProvider prov) throws Exception {
+            SerializerProvider prov) throws Exception {
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean)
                 : _accessorMethod.invoke(bean, (Object[]) null);
@@ -756,7 +755,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     @Override
     public void serializeAsOmittedField(Object bean, JsonGenerator gen,
-                                        SerializerProvider prov) throws Exception {
+            SerializerProvider prov) throws Exception {
         if (!gen.canOmitFields()) {
             gen.writeOmittedField(_name.getValue());
         }
@@ -771,7 +770,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     @Override
     public void serializeAsElement(Object bean, JsonGenerator gen,
-                                   SerializerProvider prov) throws Exception {
+            SerializerProvider prov) throws Exception {
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean)
                 : _accessorMethod.invoke(bean, (Object[]) null);
@@ -797,7 +796,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         if (_suppressableValue != null) {
             if (MARKER_FOR_EMPTY == _suppressableValue) {
                 if (ser.isEmpty(prov, value)) { // can NOT suppress entries in
-                    // tabular output
+                                                // tabular output
                     serializeAsPlaceholder(bean, gen, prov);
                     return;
                 }
@@ -830,7 +829,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     @Override
     public void serializeAsPlaceholder(Object bean, JsonGenerator gen,
-                                       SerializerProvider prov) throws Exception {
+            SerializerProvider prov) throws Exception {
         if (_nullSerializer != null) {
             _nullSerializer.serialize(null, gen, prov);
         } else {
@@ -847,7 +846,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     // Also part of BeanProperty implementation
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor v,
-                                      SerializerProvider provider) throws JsonMappingException {
+            SerializerProvider provider) throws JsonMappingException {
         if (v != null) {
             if (isRequired()) {
                 v.property(this);
@@ -873,7 +872,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     @Override
     @Deprecated
     public void depositSchemaProperty(ObjectNode propertiesNode,
-                                      SerializerProvider provider) throws JsonMappingException {
+            SerializerProvider provider) throws JsonMappingException {
         JavaType propType = getSerializationType();
         // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas
         // it doesn't...
@@ -947,7 +946,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      *         is no way handle it
      */
     protected boolean _handleSelfReference(Object bean, JsonGenerator gen,
-                                           SerializerProvider prov, JsonSerializer<?> ser)
+            SerializerProvider prov, JsonSerializer<?> ser)
             throws IOException
     {
         if (!ser.usesObjectId()) {
@@ -1000,4 +999,3 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         sb.append(')');
         return sb.toString();
     }
-}

@@ -224,7 +224,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
         _declaredType = declaredType;
         _serializer = (JsonSerializer<Object>) ser;
-        _dynamicSerializers = (ser == null) ? emptyForProperties() : null;
+        _dynamicSerializers = (ser == null) ? PropertySerializerMap
+                .emptyForProperties() : null;
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
 
@@ -326,7 +327,6 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                     base._internalSettings);
         }
         _cfgSerializationType = base._cfgSerializationType;
-        //Need to clean deserializer in case of nested unwrapping bean properties
         if(base instanceof UnwrappingBeanPropertyWriter) {
             _dynamicSerializers =
                     emptyForProperties();
@@ -357,7 +357,6 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                     base._internalSettings);
         }
         _cfgSerializationType = base._cfgSerializationType;
-        //Need to clean deserializer in case of nested unwrapping bean properties
         if(base instanceof UnwrappingBeanPropertyWriter) {
             _dynamicSerializers =
                     emptyForProperties();
@@ -472,7 +471,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
             _field = null;
         }
         if (_serializer == null) {
-            _dynamicSerializers = emptyForProperties();
+            _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         }
         return this;
     }

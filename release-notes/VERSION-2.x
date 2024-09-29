@@ -4,7 +4,9 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.18.0 (not yet released)
+2.17.3 (not yet released)
+
+#4718: Should not fail on trying to serialize `java.time.DateTimeException`
 
 2.17.2 (05-Jul-2024)
 

@@ -233,8 +233,6 @@ public class PropertyValueBuffer
 
     /**
      * Helper method called to create and set any values buffered for "any setter"
-     *
-     * @since 2.18
      */
     private Object _createAndSetAnySetterValue() throws IOException
     {

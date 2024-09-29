@@ -5,11 +5,9 @@ import java.util.BitSet;
 
 import com.fasterxml.jackson.core.JsonParser;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
@@ -137,16 +135,24 @@ public class PropertyValueBuffer
      */
     public final boolean hasParameter(SettableBeanProperty prop)
     {
-        // 28-Sep-2024 : [databind#4508] Support any-setter flowing through creator
-        if (_anyParamSetter != null) {
-            if (prop.getCreatorIndex() == _anyParamSetter.getParameterIndex()) {
+        final int ix = prop.getCreatorIndex();
+
+        if (_paramsSeenBig == null) {
+            if (((_paramsSeen >> ix) & 1) == 1) {
+                return true;
+            }
+        } else {
+            if (_paramsSeenBig.get(ix)) {
                 return true;
             }
         }
-        if (_paramsSeenBig == null) {
-            return ((_paramsSeen >> prop.getCreatorIndex()) & 1) == 1;
+        // 28-Sep-2024 : [databind#4508] Support any-setter flowing through creator
+        if (_anyParamSetter != null) {
+            if (ix == _anyParamSetter.getParameterIndex()) {
+                return true;
+            }
         }
-        return _paramsSeenBig.get(prop.getCreatorIndex());
+        return false;
     }
 
     /**
@@ -171,12 +177,7 @@ public class PropertyValueBuffer
         // 28-Sep-2024 : [databind#4508] Support any-setter flowing through creator
         if ((value == null) && (_anyParamSetter != null )
                 && (prop.getCreatorIndex() == _anyParamSetter.getParameterIndex())) {
-            try {
-                value = _createAndSetAnySetterValue();
-            } catch (IOException e) {
-                // do-nothing here?
-                throw JsonMappingException.fromUnexpectedIOE(e);
-            }
+            value = _createAndSetAnySetterValue();
         }
         if (value == null && _context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             return _context.reportInputMismatch(prop,
@@ -234,11 +235,20 @@ public class PropertyValueBuffer
     /**
      * Helper method called to create and set any values buffered for "any setter"
      */
-    private Object _createAndSetAnySetterValue() throws IOException
+    private Object _createAndSetAnySetterValue() throws JsonMappingException
     {
         Object anySetterParameterObject = _anyParamSetter.createParameterObject();
         for (PropertyValue pv = _anyParamBuffered; pv != null; pv = pv.next) {
-            pv.setValue(anySetterParameterObject);
+            try {
+                pv.setValue(anySetterParameterObject);
+
+            // Since one of callers only exposes JsonMappingException, but pv.setValue()
+            // nominally leaks IOException, need to do this unfortunate conversion
+            } catch (JsonMappingException e) {
+                throw e;
+            } catch (IOException e) {
+                throw JsonMappingException.fromUnexpectedIOE(e);
+            }
         }
         return anySetterParameterObject;
     }

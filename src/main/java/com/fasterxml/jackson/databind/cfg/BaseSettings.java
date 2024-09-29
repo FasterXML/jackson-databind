@@ -186,6 +186,7 @@ public final class BaseSettings
         _accessorNaming = accNaming;
         _cacheProvider = cacheProvider;
     }
+
     /**
      * @since 2.16
      * @deprecated Since 2.19, use variant that takes {@link EnumNamingStrategy} instead.

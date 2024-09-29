@@ -564,6 +564,20 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     /**
      * Method for constructing and returning a new instance with different
+     * {@link EnumNamingStrategy}
+     * to use.
+     *<p>
+     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
+     * if directly calling this method.
+     *
+     * @since 2.19
+     */
+    public final T with(EnumNamingStrategy ens) {
+        return _withBase(_base.withEnumNamingStrategy(ens));
+    }
+
+    /**
+     * Method for constructing and returning a new instance with different
      * {@link PropertyNamingStrategy}
      * to use.
      *

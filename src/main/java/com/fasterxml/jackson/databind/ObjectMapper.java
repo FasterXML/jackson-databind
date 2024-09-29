@@ -1751,6 +1751,24 @@ public class ObjectMapper
     }
 
     /**
+     * Method for setting custom enum naming strategy to use.
+     *
+     * @since 2.19
+     */
+    public ObjectMapper setEnumNamingStrategy(EnumNamingStrategy s) {
+        _serializationConfig = _serializationConfig.with(s);
+        _deserializationConfig = _deserializationConfig.with(s);
+        return this;
+    }
+
+    /**
+     * @since 2.19
+     */
+    public EnumNamingStrategy getEnumNamingStrategy() {
+        return _serializationConfig.getEnumNamingStrategy();
+    }
+
+    /**
      * Method for setting custom accessor naming strategy to use.
      *
      * @since 2.12

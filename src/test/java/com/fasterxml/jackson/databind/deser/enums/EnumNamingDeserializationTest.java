@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.enums;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
@@ -290,5 +291,18 @@ public class EnumNamingDeserializationTest
         // deserialization
         BaseEnum deser = mapper.readValue(q("realName"), BaseEnum.class);
         assertEquals(BaseEnum.REAL_NAME, deser);
+    }
+
+    @Test
+    void testUseEnumMappingStrategySetInMapper() throws JsonProcessingException {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enumNamingStrategy(EnumNamingStrategies.CamelCaseStrategy.INSTANCE)
+                .build();
+
+        BaseEnum result = mapper.readValue(q("realName"), BaseEnum.class);
+        assertEquals(BaseEnum.REAL_NAME, result);
+
+        String resultString = mapper.writeValueAsString(result);
+        assertEquals(q("realName"), resultString);
     }
 }

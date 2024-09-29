@@ -4,7 +4,14 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.18.0 (not yet released)
+2.18.1 (WIP-2024)
+
+#4508: Deserialized JsonAnySetter field in Kotlin data class is null
+ (reported by @MaximValeev)
+ (fix by Joo-Hyuk K)
+#4718: Should not fail on trying to serialize `java.time.DateTimeException`
+
+2.18.0 (26-Sep-2024)
 
 #562: Allow `@JsonAnySetter` to flow through Creators
  (reported by Benson M)
@@ -81,6 +88,10 @@ Project: jackson-databind
  (contributed by @pjfanning)
 #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
  (contributed by @rikkarth)
+
+2.17.3 (not yet released)
+
+#4718: Should not fail on trying to serialize `java.time.DateTimeException`
 
 2.17.2 (05-Jul-2024)
 

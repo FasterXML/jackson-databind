@@ -9,6 +9,7 @@ Project: jackson-databind
 #4508: Deserialized JsonAnySetter field in Kotlin data class is null
  (reported by @MaximValeev)
  (fix by Joo-Hyuk K)
+#4718: Should not fail on trying to serialize `java.time.DateTimeException`
 
 2.18.0 (26-Sep-2024)
 

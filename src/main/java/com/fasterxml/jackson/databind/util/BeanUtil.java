@@ -304,6 +304,10 @@ public class BeanUtil
             if (className.indexOf('.', 10) >= 0) {
                 return null;
             }
+            // [databind#4718]: Also don't worry about Exception type(s)
+            if (type.isTypeOrSubTypeOf(Throwable.class)) {
+                return null;
+            }
             typeName =  "Java 8 date/time";
             moduleName = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310";
         } else if (isJodaTimeClass(className)) {

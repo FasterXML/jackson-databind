@@ -1,5 +1,6 @@
 package tools.jackson.databind.interop;
 
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -82,5 +83,20 @@ public class DateJava8FallbacksTest extends DatabindTestUtil
                 assertSame(time, result[0]);
             }
         }
+    }
+
+    // [databind#4718]: should not block serialization of `DateTimeException`
+    @Test
+    public void testAllowExceptionSer() throws Exception {
+        String json = MAPPER.writeValueAsString(new DateTimeException("Test!"));
+        assertTrue(MAPPER.readTree(json).isObject());
+    }
+
+    // [databind#4718]: should not block deserialization of `DateTimeException`
+    @Test
+    public void testAllowExceptionDeser() throws Exception {
+        DateTimeException exc = MAPPER.readValue("{\"message\":\"test!\"}",
+                DateTimeException.class);
+        assertNotNull(exc);
     }
 }

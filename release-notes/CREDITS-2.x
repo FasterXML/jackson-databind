@@ -1834,3 +1834,6 @@ Rikkarth (rikkarth@github)
  * Contributed #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
   (2.18.0)
 
+Maxim Valeev (@MaximValeev)
+ * Reported #4508: Deserialized JsonAnySetter field in Kotlin data class is null
+  (2.18.1)

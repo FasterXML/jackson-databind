@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.18.1 (WIP-2024)
 
-#4508: Deserialized JsonAnySetter field in Kotlin data class is null #4508
+#4508: Deserialized JsonAnySetter field in Kotlin data class is null
  (reported by @MaximValeev)
  (fix by Joo-Hyuk K)
 

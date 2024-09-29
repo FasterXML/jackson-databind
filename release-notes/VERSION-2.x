@@ -8,6 +8,12 @@ Project: jackson-databind
 
 -
 
+2.18.1 (WIP-2024)
+
+#4508: Deserialized JsonAnySetter field in Kotlin data class is null
+ (reported by @MaximValeev)
+ (fix by Joo-Hyuk K)
+
 2.18.0 (26-Sep-2024)
 
 #562: Allow `@JsonAnySetter` to flow through Creators

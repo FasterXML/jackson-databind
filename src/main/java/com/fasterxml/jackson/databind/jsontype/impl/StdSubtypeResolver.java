@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -174,7 +175,7 @@ public class StdSubtypeResolver
         NamedType rootType = new NamedType(rawBase, null);
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,
                 rawBase);
-        _collectAndResolveByTypeId(ac, rootType, config, typesHandled, byName);
+        _collectAndResolveByTypeId(null, ac, rootType, config, typesHandled, byName);
 
         // then with definitions from property
         if (property != null) {
@@ -182,7 +183,7 @@ public class StdSubtypeResolver
             if (st != null) {
                 for (NamedType nt : st) {
                     ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config, nt.getType());
-                    _collectAndResolveByTypeId(ac, nt, config, typesHandled, byName);
+                    _collectAndResolveByTypeId(null, ac, nt, config, typesHandled, byName);
                 }
             }
         }
@@ -193,7 +194,7 @@ public class StdSubtypeResolver
                 if (rawBase.isAssignableFrom(subtype.getType())) { // yes
                     AnnotatedClass curr = AnnotatedClassResolver.resolveWithoutSuperTypes(config,
                             subtype.getType());
-                    _collectAndResolveByTypeId(curr, subtype, config, typesHandled, byName);
+                    _collectAndResolveByTypeId(null, curr, subtype, config, typesHandled, byName);
                 }
             }
         }
@@ -209,7 +210,7 @@ public class StdSubtypeResolver
         Map<String,NamedType> byName = new LinkedHashMap<String,NamedType>();
 
         NamedType rootType = new NamedType(rawBase, null);
-        _collectAndResolveByTypeId(baseType, rootType, config, typesHandled, byName);
+        _collectAndResolveByTypeId(null, baseType, rootType, config, typesHandled, byName);
 
         if (_registeredSubtypes != null) {
             for (NamedType subtype : _registeredSubtypes) {
@@ -217,7 +218,7 @@ public class StdSubtypeResolver
                 if (rawBase.isAssignableFrom(subtype.getType())) { // yes
                     AnnotatedClass curr = AnnotatedClassResolver.resolveWithoutSuperTypes(config,
                             subtype.getType());
-                    _collectAndResolveByTypeId(curr, subtype, config, typesHandled, byName);
+                    _collectAndResolveByTypeId(null, curr, subtype, config, typesHandled, byName);
                 }
             }
         }
@@ -276,11 +277,20 @@ public class StdSubtypeResolver
      * Method called to find subtypes for a specific type (class), using
      * type id as the unique key (in case of conflicts).
      */
-    protected void _collectAndResolveByTypeId(AnnotatedClass annotatedType, NamedType namedType,
+    protected void _collectAndResolveByTypeId(JsonTypeInfo.Value rootTypeInfo, AnnotatedClass annotatedType, NamedType namedType,
             MapperConfig<?> config,
             Set<Class<?>> typesHandled, Map<String,NamedType> byName)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        if (rootTypeInfo != null) {
+            JsonTypeInfo.Value currentTi = ai.findPolymorphicTypeInfo(config, annotatedType);
+            if (currentTi != null && !currentTi.equals(rootTypeInfo)) {
+                // we shouldn't resolve it if a subtypes is defined with @JsonTypeInfo and
+                // its definition is not compatible with the superclass.
+                return;
+            }
+        }
+
         if (!namedType.hasName()) {
             String name = ai.findTypeName(annotatedType);
             if (name != null) {
@@ -295,10 +305,11 @@ public class StdSubtypeResolver
         if (typesHandled.add(namedType.getType())) {
             Collection<NamedType> st = ai.findSubtypes(annotatedType);
             if (st != null && !st.isEmpty()) {
+                rootTypeInfo = rootTypeInfo == null ? ai.findPolymorphicTypeInfo(config, annotatedType) : rootTypeInfo;
                 for (NamedType subtype : st) {
                     AnnotatedClass subtypeClass = AnnotatedClassResolver.resolveWithoutSuperTypes(config,
                             subtype.getType());
-                    _collectAndResolveByTypeId(subtypeClass, subtype, config, typesHandled, byName);
+                    _collectAndResolveByTypeId(rootTypeInfo, subtypeClass, subtype, config, typesHandled, byName);
                 }
             }
         }

@@ -6,7 +6,9 @@ Project: jackson-databind
 
 2.19.0 (not yet released)
 
--
+#4680: Custom key deserialiser registered for Object.class is ignored on nested JSON
+ (reported by @devdanylo)
+ (fix by Joo-Hyuk K)
 
 2.18.1 (WIP-2024)
 

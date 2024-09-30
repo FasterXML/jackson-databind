@@ -99,14 +99,6 @@ public abstract class PropertyWriter
     /* Serialization methods, regular output
     /**********************************************************
      */
-
-    /**
-     * A way to reset serialization to correctly populate serializer
-     */
-    public boolean needToResetSerialization() {
-        return false;
-    }
-
     /**
      * The main serialization method called by filter when property is to be written normally.
      */

@@ -326,11 +326,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                     base._internalSettings);
         }
         _cfgSerializationType = base._cfgSerializationType;
-        if (base.needToResetSerialization()) {
-            _dynamicSerializers = PropertySerializerMap.emptyForProperties();
-        } else {
-            _dynamicSerializers = base._dynamicSerializers;
-        }
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _suppressNulls = base._suppressNulls;
         _suppressableValue = base._suppressableValue;
         _includeInViews = base._includeInViews;
@@ -355,11 +351,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                     base._internalSettings);
         }
         _cfgSerializationType = base._cfgSerializationType;
-        if (base.needToResetSerialization()) {
-            _dynamicSerializers = PropertySerializerMap.emptyForProperties();
-        } else {
-            _dynamicSerializers = base._dynamicSerializers;
-        }
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
 		_suppressNulls = base._suppressNulls;
         _suppressableValue = base._suppressableValue;
         _includeInViews = base._includeInViews;

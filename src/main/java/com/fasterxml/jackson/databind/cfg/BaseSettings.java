@@ -69,6 +69,8 @@ public final class BaseSettings
 
     /**
      * Custom enum naming strategy in use, if any.
+     *
+     * @since 2.19
      */
     protected final EnumNamingStrategy _enumNamingStrategy;
 

@@ -48,7 +48,7 @@ public class EnumNamingStrategyFactory {
      * @param defaultNamingStrategy      configured global {@link EnumNamingStrategy} to use in case {@code namingDef} is not provided.
      *
      * @return an instance of {@link EnumNamingStrategy} if {@code namingDef} is a subclass of {@link EnumNamingStrategy},
-     * {@code null} if {@code namingDef} is {@code null},
+     * {@code defaultNamingStrategy} if {@code namingDef} is {@code null},
      * and an instance of {@link EnumNamingStrategy} if {@code namingDef} already is one.
      *
      * @throws IllegalArgumentException if {@code namingDef} is not an instance of {@link java.lang.Class} or

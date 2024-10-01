@@ -99,6 +99,7 @@ public abstract class PropertyWriter
     /* Serialization methods, regular output
     /**********************************************************
      */
+
     /**
      * The main serialization method called by filter when property is to be written normally.
      */

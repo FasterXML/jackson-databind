@@ -24,8 +24,6 @@ import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
-import static com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap.emptyForProperties;
-
 /**
  * Base bean property handler class, which implements common parts of
  * reflection-based functionality for accessing a property value and serializing
@@ -352,7 +350,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         }
         _cfgSerializationType = base._cfgSerializationType;
         _dynamicSerializers = PropertySerializerMap.emptyForProperties();
-		_suppressNulls = base._suppressNulls;
+        _suppressNulls = base._suppressNulls;
         _suppressableValue = base._suppressableValue;
         _includeInViews = base._includeInViews;
         _typeSerializer = base._typeSerializer;

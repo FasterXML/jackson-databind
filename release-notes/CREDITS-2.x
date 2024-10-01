@@ -1837,3 +1837,11 @@ Rikkarth (rikkarth@github)
 Maxim Valeev (@MaximValeev)
  * Reported #4508: Deserialized JsonAnySetter field in Kotlin data class is null
   (2.18.1)
+
+@SandeepGaur2016
+
+ * Contributed fix for #2461: Nested `@JsonUnwrapped` property names not correctly handled
+  (2.19.0)
+ * Contributed fix for #4697: Inconsistent serialization with `@JsonUnwrapped` annotation
+   using shared vs. new `ObjectMapper` instances
+  (2.19.0)

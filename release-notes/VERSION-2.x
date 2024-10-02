@@ -6,7 +6,9 @@ Project: jackson-databind
 
 2.19.0 (not yet released)
 
--
+#4674: Allow setting global enum naming strategy similar to property naming strategy
+ (requested by @hajdamak)
+ (contributed by Konstantin M)
 
 2.18.1 (WIP-2024)
 

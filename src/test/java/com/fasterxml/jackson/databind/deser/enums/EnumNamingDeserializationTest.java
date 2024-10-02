@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser.enums;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
@@ -294,7 +293,7 @@ public class EnumNamingDeserializationTest
     }
 
     @Test
-    void testUseEnumMappingStrategySetInMapper() throws JsonProcessingException {
+    void testUseEnumMappingStrategySetInMapper() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .enumNamingStrategy(EnumNamingStrategies.CamelCaseStrategy.INSTANCE)
                 .build();

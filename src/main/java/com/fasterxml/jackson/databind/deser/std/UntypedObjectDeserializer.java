@@ -611,10 +611,12 @@ public class UntypedObjectDeserializer
     }
 
     /**
-     * Helper function to allow custom key deserialization.
+     * Helper function to allow custom key deserialization without null handling.
+     * Similar to {@link #_customDeserializeNullableKey(String, DeserializationContext), but
+     * null handling is done by the caller.
      *
-     * @returns Custom-deserialized key if both custom key deserializer is set and
-     *           key is not null. Otherwise the original key.
+     * @returns Custom-deserialized key if both custom key deserializer is set.
+     *          Otherwise the original key.
      */
     private String _customDeserializeKey(String key, DeserializationContext ctxt) throws IOException {
         if (_customKeyDeserializer != null) {
@@ -623,6 +625,14 @@ public class UntypedObjectDeserializer
         return key;
     }
 
+    /**
+     * Helper function to allow custom key deserialization with null handling.
+     * Similar to {@link #_customDeserializeKey(String, DeserializationContext), but instead
+     * only returns custom-deserialized key if key is not null.
+     *
+     * @returns Custom-deserialized key if both custom key deserializer is set and key is not null.
+     *          Otherwise the original key.
+     */
     private String _customDeserializeNullableKey(String key, DeserializationContext ctxt) throws IOException {
         if (_customKeyDeserializer != null) {
             if (key != null) {

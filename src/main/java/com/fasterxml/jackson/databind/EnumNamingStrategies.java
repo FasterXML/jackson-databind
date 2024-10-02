@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.databind.util.NamingStrategy;
+import com.fasterxml.jackson.databind.util.NamingStrategyImpls;
 
 import java.util.Locale;
 
@@ -86,9 +86,9 @@ public class EnumNamingStrategies
     public static final EnumNamingStrategy LOWER_DOT_CASE = LowerDotCaseStrategy.INSTANCE;
 
     public abstract static class DelegatingEnumNamingStrategy implements EnumNamingStrategy {
-        private final NamingStrategy strategy;
+        private final NamingStrategyImpls strategy;
 
-        protected DelegatingEnumNamingStrategy(NamingStrategy strategy) {
+        protected DelegatingEnumNamingStrategy(NamingStrategyImpls strategy) {
             this.strategy = strategy;
         }
 
@@ -169,7 +169,7 @@ public class EnumNamingStrategies
         public static final CamelCaseStrategy INSTANCE = new CamelCaseStrategy();
 
         protected CamelCaseStrategy() {
-            super(NamingStrategy.LOWER_CAMEL_CASE);
+            super(NamingStrategyImpls.LOWER_CAMEL_CASE);
         }
     }
 
@@ -218,7 +218,7 @@ public class EnumNamingStrategies
         public static final LowerCamelCaseStrategy INSTANCE = new LowerCamelCaseStrategy();
 
         protected LowerCamelCaseStrategy() {
-            super(NamingStrategy.LOWER_CAMEL_CASE);
+            super(NamingStrategyImpls.LOWER_CAMEL_CASE);
         }
     }
 
@@ -260,7 +260,7 @@ public class EnumNamingStrategies
         public static final UpperCamelCaseStrategy INSTANCE = new UpperCamelCaseStrategy();
 
         protected UpperCamelCaseStrategy() {
-            super(NamingStrategy.UPPER_CAMEL_CASE);
+            super(NamingStrategyImpls.UPPER_CAMEL_CASE);
         }
     }
 
@@ -302,7 +302,7 @@ public class EnumNamingStrategies
         public static final SnakeCaseStrategy INSTANCE = new SnakeCaseStrategy();
 
         protected SnakeCaseStrategy() {
-            super(NamingStrategy.SNAKE_CASE);
+            super(NamingStrategyImpls.SNAKE_CASE);
         }
     }
 
@@ -344,7 +344,7 @@ public class EnumNamingStrategies
         public static final UpperSnakeCaseStrategy INSTANCE = new UpperSnakeCaseStrategy();
 
         protected UpperSnakeCaseStrategy() {
-            super(NamingStrategy.UPPER_SNAKE_CASE);
+            super(NamingStrategyImpls.UPPER_SNAKE_CASE);
         }
     }
 
@@ -386,7 +386,7 @@ public class EnumNamingStrategies
         public static final LowerCaseStrategy INSTANCE = new LowerCaseStrategy();
 
         protected LowerCaseStrategy() {
-            super(NamingStrategy.LOWER_CASE);
+            super(NamingStrategyImpls.LOWER_CASE);
         }
     }
 
@@ -428,7 +428,7 @@ public class EnumNamingStrategies
         public static final KebabCaseStrategy INSTANCE = new KebabCaseStrategy();
 
         protected KebabCaseStrategy() {
-            super(NamingStrategy.KEBAB_CASE);
+            super(NamingStrategyImpls.KEBAB_CASE);
         }
     }
 
@@ -470,7 +470,7 @@ public class EnumNamingStrategies
         public static final LowerDotCaseStrategy INSTANCE = new LowerDotCaseStrategy();
 
         protected LowerDotCaseStrategy() {
-            super(NamingStrategy.LOWER_DOT_CASE);
+            super(NamingStrategyImpls.LOWER_DOT_CASE);
         }
     }
 }

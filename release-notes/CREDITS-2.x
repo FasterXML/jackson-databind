@@ -1837,3 +1837,8 @@ Rikkarth (rikkarth@github)
 Maxim Valeev (@MaximValeev)
  * Reported #4508: Deserialized JsonAnySetter field in Kotlin data class is null
   (2.18.1)
+
+
+Lars Benedetto (@lbenedetto)
+ * Contributed #4676: Support other enum naming strategies than camelCase
+  (2.19.0)

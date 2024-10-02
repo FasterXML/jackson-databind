@@ -1,6 +1,11 @@
 package com.fasterxml.jackson.databind.util;
 
-public enum NamingStrategy {
+/**
+ * Container for standard naming strategy implementations, specifically
+ * used by property naming strategies (see {@link com.fasterxml.jackson.databind.PropertyNamingStrategies})
+ * and enum naming strategies (see {@link com.fasterxml.jackson.databind.EnumNamingStrategies}).
+ */
+public enum NamingStrategyImpls {
   /**
    * beanName -> beanName
    */
@@ -118,7 +123,7 @@ public enum NamingStrategy {
   /**
    * Helper method to share implementation between snake and dotted case.
    */
-  private static String translateLowerCaseWithSeparator(final String beanName, final char separator) {
+  static String translateLowerCaseWithSeparator(final String beanName, final char separator) {
     if (beanName == null || beanName.isEmpty()) {
       return beanName;
     }

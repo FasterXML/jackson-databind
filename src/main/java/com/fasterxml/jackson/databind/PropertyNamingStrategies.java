@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
-import com.fasterxml.jackson.databind.util.NamingStrategy;
+import com.fasterxml.jackson.databind.util.NamingStrategyImpls;
 
 /**
  * Container for standard {@link PropertyNamingStrategy} implementations
@@ -195,7 +195,7 @@ public abstract class PropertyNamingStrategies
         @Override
         public String translate(String input)
         {
-            return NamingStrategy.SNAKE_CASE.translate(input);
+            return NamingStrategyImpls.SNAKE_CASE.translate(input);
         }
     }
 
@@ -218,7 +218,7 @@ public abstract class PropertyNamingStrategies
 
         @Override
         public String translate(String input) {
-            return NamingStrategy.UPPER_SNAKE_CASE.translate(input);
+            return NamingStrategyImpls.UPPER_SNAKE_CASE.translate(input);
         }
     }
 
@@ -238,7 +238,7 @@ public abstract class PropertyNamingStrategies
 
         @Override
         public String translate(String input) {
-            return NamingStrategy.LOWER_CAMEL_CASE.translate(input);
+            return NamingStrategyImpls.LOWER_CAMEL_CASE.translate(input);
         }
     }
 
@@ -276,7 +276,7 @@ public abstract class PropertyNamingStrategies
          */
         @Override
         public String translate(String input) {
-            return NamingStrategy.UPPER_CAMEL_CASE.translate(input);
+            return NamingStrategyImpls.UPPER_CAMEL_CASE.translate(input);
         }
     }
 
@@ -298,7 +298,7 @@ public abstract class PropertyNamingStrategies
 
         @Override
         public String translate(String input) {
-            return NamingStrategy.LOWER_CASE.translate(input);
+            return NamingStrategyImpls.LOWER_CASE.translate(input);
         }
     }
 
@@ -320,7 +320,7 @@ public abstract class PropertyNamingStrategies
 
         @Override
         public String translate(String input) {
-            return NamingStrategy.KEBAB_CASE.translate(input);
+            return NamingStrategyImpls.KEBAB_CASE.translate(input);
         }
     }
 
@@ -341,7 +341,7 @@ public abstract class PropertyNamingStrategies
 
         @Override
         public String translate(String input){
-            return NamingStrategy.LOWER_DOT_CASE.translate(input);
+            return NamingStrategyImpls.LOWER_DOT_CASE.translate(input);
         }
     }
 }

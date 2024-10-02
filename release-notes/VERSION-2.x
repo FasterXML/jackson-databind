@@ -6,7 +6,9 @@ Project: jackson-databind
 
 2.19.0 (not yet released)
 
--
+#4676: Support other enum naming strategies than camelCase
+ (requested by @hajdamak)
+ (contributed by Lars B)
 
 2.18.1 (WIP-2024)
 

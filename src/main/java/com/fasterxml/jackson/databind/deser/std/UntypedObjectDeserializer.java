@@ -580,25 +580,10 @@ public class UntypedObjectDeserializer
             final Object oldValue = result.put(key, newValue);
             if (oldValue != null) {
                 return _mapObjectWithDups(p, ctxt, result, key, oldValue, newValue,
-                        _customDeserializeKey(p.nextFieldName(), ctxt));
+                        _customDeserializeNullableKey(p.nextFieldName(), ctxt));
             }
-        } while ((key = _customDeserializeKey(p.nextFieldName(), ctxt)) != null);
+        } while ((key = _customDeserializeNullableKey(p.nextFieldName(), ctxt)) != null);
         return result;
-    }
-
-    /**
-     * Helper function to allow custom key deserialization.
-     *
-     * @returns Custom-deserialized key if both custom key deserializer is set and
-     *           key is not null. Otherwise the original key.
-     */
-    private String _customDeserializeKey(String key, DeserializationContext ctxt) throws IOException {
-        if (_customKeyDeserializer != null) {
-            if (key != null) {
-                return (String) _customKeyDeserializer.deserializeKey(key, ctxt);
-            }
-        }
-        return key;
     }
 
     // @since 2.12 (wrt [databind#2733]
@@ -619,10 +604,32 @@ public class UntypedObjectDeserializer
             if ((oldValue != null) && squashDups) {
                 _squashDups(result, key, oldValue, newValue);
             }
-            nextKey = p.nextFieldName();
+            nextKey = _customDeserializeNullableKey(p.nextFieldName(), ctxt);
         }
 
         return result;
+    }
+
+    /**
+     * Helper function to allow custom key deserialization.
+     *
+     * @returns Custom-deserialized key if both custom key deserializer is set and
+     *           key is not null. Otherwise the original key.
+     */
+    private String _customDeserializeKey(String key, DeserializationContext ctxt) throws IOException {
+        if (_customKeyDeserializer != null) {
+            return (String) _customKeyDeserializer.deserializeKey(key, ctxt);
+        }
+        return key;
+    }
+
+    private String _customDeserializeNullableKey(String key, DeserializationContext ctxt) throws IOException {
+        if (_customKeyDeserializer != null) {
+            if (key != null) {
+                return (String) _customKeyDeserializer.deserializeKey(key, ctxt);
+            }
+        }
+        return key;
     }
 
     @SuppressWarnings("unchecked")

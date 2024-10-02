@@ -9,6 +9,9 @@ Project: jackson-databind
 #4674: Allow setting global enum naming strategy similar to property naming strategy
  (requested by @hajdamak)
  (contributed by Konstantin M)
+#4676: Support other enum naming strategies than camelCase
+ (requested by @hajdamak)
+ (contributed by Lars B)
 
 2.18.1 (WIP-2024)
 

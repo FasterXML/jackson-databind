@@ -23,7 +23,7 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
 
     final ObjectMapper MAPPER = newJsonMapper();
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumFlavorA {
         CHOCOLATE_CHIPS,
         HOT_CHEETOS;
@@ -34,7 +34,7 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
         }
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumSauceB {
         KETCH_UP,
         MAYO_NEZZ;
@@ -46,14 +46,14 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
         SRIRACHA_MAYO;
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumFlavorD {
         _PEANUT_BUTTER,
         PEANUT__BUTTER,
         PEANUT_BUTTER
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumFlavorE {
         PEANUT_BUTTER,
         @JsonProperty("almond")

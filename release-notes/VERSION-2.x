@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.19.0 (not yet released)
 
+#4676: Support other enum naming strategies than camelCase
+ (requested by @hajdamak)
+ (contributed by Lars B)
 #4680: Custom key deserialiser registered for Object.class is ignored on nested JSON
  (reported by @devdanylo)
  (fix by Joo-Hyuk K)

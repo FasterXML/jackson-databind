@@ -9,6 +9,9 @@ Project: jackson-databind
 #2461: Nested `@JsonUnwrapped` property names not correctly handled
  (reported by @plovell)
  (fix contributed by @SandeepGaur2016)
+#4676: Support other enum naming strategies than camelCase
+ (requested by @hajdamak)
+ (contributed by Lars 
 #4697: Inconsistent serialization with `@JsonUnwrapped` annotation
   using shared vs. new `ObjectMapper` instances
  (fix contributed by @SandeepGaur2016)

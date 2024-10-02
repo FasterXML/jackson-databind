@@ -238,7 +238,7 @@ public class UntypedObjectDeserializer
         if (preventMerge != _nonMerging) {
             deser = new UntypedObjectDeserializer(deser, preventMerge);
         }
-        // Since 2.19, 31-Aug-2024: [databind#4680] Allow custom key deserializer for Object.class deserialization
+        // [databind#4680] Allow custom key deserializer
         if (customKeyDeser != null) {
             deser = new UntypedObjectDeserializer(deser, customKeyDeser);
         }
@@ -593,8 +593,8 @@ public class UntypedObjectDeserializer
      *           key is not null. Otherwise the original key.
      */
     private String _customDeserializeKey(String key, DeserializationContext ctxt) throws IOException {
-        if (key != null) {
-            if (_customKeyDeserializer != null) {
+        if (_customKeyDeserializer != null) {
+            if (key != null) {
                 return (String) _customKeyDeserializer.deserializeKey(key, ctxt);
             }
         }

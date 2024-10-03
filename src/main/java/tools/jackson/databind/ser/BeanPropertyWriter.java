@@ -214,8 +214,7 @@ public class BeanPropertyWriter
 
         _declaredType = declaredType;
         _serializer = (ValueSerializer<Object>) ser;
-        _dynamicSerializers = (ser == null) ? PropertySerializerMap
-                .emptyForProperties() : null;
+        _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyForProperties() : null;
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
 
@@ -298,7 +297,7 @@ public class BeanPropertyWriter
                     base._internalSettings);
         }
         _cfgSerializationType = base._cfgSerializationType;
-        _dynamicSerializers = base._dynamicSerializers;
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _suppressNulls = base._suppressNulls;
         _suppressableValue = base._suppressableValue;
         _includeInViews = base._includeInViews;
@@ -323,7 +322,7 @@ public class BeanPropertyWriter
                     base._internalSettings);
         }
         _cfgSerializationType = base._cfgSerializationType;
-        _dynamicSerializers = base._dynamicSerializers;
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _suppressNulls = base._suppressNulls;
         _suppressableValue = base._suppressableValue;
         _includeInViews = base._includeInViews;

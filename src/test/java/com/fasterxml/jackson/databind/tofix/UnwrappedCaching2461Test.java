@@ -39,7 +39,6 @@ class UnwrappedCaching2461Test extends DatabindTestUtil {
     }
 
     // [databind#2461]
-    @JacksonTestFailureExpected
     @Test
     void unwrappedCaching() throws Exception {
         final InnerContainer inner = new InnerContainer(new Base("12345"));

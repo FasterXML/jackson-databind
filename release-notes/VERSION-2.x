@@ -6,12 +6,15 @@ Project: jackson-databind
 
 2.19.0 (not yet released)
 
+#2461: Nested `@JsonUnwrapped` property names not correctly handled
+ (reported by @plovell)
+ (fix contributed by @SandeepGaur2016)
 #4674: Allow setting global enum naming strategy similar to property naming strategy
  (requested by @hajdamak)
  (contributed by Konstantin M)
 #4676: Support other enum naming strategies than camelCase
  (requested by @hajdamak)
- (contributed by Lars B)
+ (contributed by Lars 
 
 2.18.1 (WIP-2024)
 

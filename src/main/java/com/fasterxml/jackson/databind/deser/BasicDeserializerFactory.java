@@ -363,7 +363,7 @@ public abstract class BasicDeserializerFactory
 
         // [databind#4724] since 2.18.1 Let's iterate creators in reverse because collection of creators
         //                   via POJOPropertiesCollector is done starting with ones with higher priority.
-k        for (int i = potentials.size(); --i >= 0; ) {
+        for (int i = potentials.size(); --i >= 0; ) {
             PotentialCreator ctor = potentials.get(i);
             added |= _addExplicitDelegatingCreator(ctxt, beanDesc, creators,
                     CreatorCandidate.construct(intr, ctor.creator(), null));

@@ -35,13 +35,16 @@ public class JsonUnwrappedInconsistentSerialization4697Test
         }
     }
 
+    public static class AnotherFirst {
+        public Third thrid = new Third();
+    }
+
     public static class Common {
         public String a;
         public String b;
         public Common() {}
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void testInconsistentSer() throws Exception {
         First first = new First();
@@ -51,6 +54,21 @@ public class JsonUnwrappedInconsistentSerialization4697Test
         ObjectMapper secondMapper = newJsonMapper();
 
         firstMapper.writeValueAsString(first);
+        firstMapper.writeValueAsString(second);
+        assertEquals(
+                firstMapper.writeValueAsString(second),
+                secondMapper.writeValueAsString(second));
+    }
+    @Test
+    public void testInconsistentSer1() throws Exception {
+        AnotherFirst first = new AnotherFirst();
+        Second second = new Second();
+
+        ObjectMapper firstMapper = newJsonMapper();
+        ObjectMapper secondMapper = newJsonMapper();
+
+        firstMapper.writeValueAsString(first);
+        firstMapper.writeValueAsString(second);
         assertEquals(
                 firstMapper.writeValueAsString(second),
                 secondMapper.writeValueAsString(second));

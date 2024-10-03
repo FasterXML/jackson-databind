@@ -1842,9 +1842,6 @@ Maxim Valeev (@MaximValeev)
 
  * Contributed fix for #2461: Nested `@JsonUnwrapped` property names not correctly handled
   (2.19.0)
- * Contributed fix for #4697: Inconsistent serialization with `@JsonUnwrapped` annotation
-   using shared vs. new `ObjectMapper` instances
-  (2.19.0)
 
 Lars Benedetto (@lbenedetto)
  * Contributed #4676: Support other enum naming strategies than camelCase

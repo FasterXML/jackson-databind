@@ -240,7 +240,7 @@ ObjectMapper mapper = ...;
 File jsonFile = new File("test.json");
 // note: method added in Jackson 2.11 (earlier would need to use
 // mapper.getFactory().createGenerator(...)
-JsonGenerator g = f.createGenerator(jsonFile, JsonEncoding.UTF8);
+JsonGenerator g = mapper.createGenerator(jsonFile, JsonEncoding.UTF8);
 // write JSON: { "message" : "Hello world!" }
 g.writeStartObject();
 g.writeStringField("message", "Hello world!");

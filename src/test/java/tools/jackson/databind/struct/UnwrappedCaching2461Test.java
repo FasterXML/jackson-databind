@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.struct;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -54,7 +53,7 @@ class UnwrappedCaching2461Test extends DatabindTestUtil {
 
         final ObjectMapper mapperOrder2 = newJsonMapper();
         assertEquals(EXP_INNER, mapperOrder2.writeValueAsString(inner));
-        //  Will fail here
+        //  Used to fail here
         assertEquals(EXP_OUTER, mapperOrder2.writeValueAsString(outer));
     }
 }

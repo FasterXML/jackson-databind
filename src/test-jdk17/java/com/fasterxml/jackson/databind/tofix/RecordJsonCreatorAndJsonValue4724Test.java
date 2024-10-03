@@ -34,7 +34,6 @@ public class RecordJsonCreatorAndJsonValue4724Test
         }
     }
 
-    @JacksonTestFailureExpected
     @Test
     void deserialization() throws Exception {
         newJsonMapper().readValue("\"\"", Something.class);

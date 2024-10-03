@@ -1858,7 +1858,7 @@ factory.toString()));
     {
         Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
-                namingDef, config.canOverrideAccessModifiers());
+                namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
         return enumNamingStrategy == null ? null
                 : EnumResolver.constructUsingEnumNamingStrategy(config, annotatedClass, enumNamingStrategy);
     }
@@ -1875,7 +1875,7 @@ factory.toString()));
             AnnotatedClass annotatedClass) {
         Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
-            namingDef, config.canOverrideAccessModifiers());
+            namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
         return enumNamingStrategy == null ? null
             : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);
     }

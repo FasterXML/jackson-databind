@@ -308,7 +308,6 @@ public abstract class BeanDeserializerBase
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
-        _propertyBasedCreator = src._propertyBasedCreator;
 
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
@@ -320,6 +319,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         UnwrappedPropertyHandler uph = src._unwrappedPropertyHandler;
+        PropertyBasedCreator pbc = src._propertyBasedCreator;
 
         if (unwrapper != null) {
             // delegate further unwraps, if any
@@ -327,8 +327,10 @@ public abstract class BeanDeserializerBase
                 uph = uph.renameAll(unwrapper);
             }
             // and handle direct unwrapping as well:
+            _propertyBasedCreator = pbc != null ? pbc.renameAll(unwrapper) : null;
             _beanProperties = src._beanProperties.renameAll(unwrapper);
         } else {
+            _propertyBasedCreator = pbc;
             _beanProperties = src._beanProperties;
         }
         _unwrappedPropertyHandler = uph;
@@ -579,7 +581,13 @@ public abstract class BeanDeserializerBase
                     if (unwrapped == null) {
                         unwrapped = new UnwrappedPropertyHandler();
                     }
-                    unwrapped.addProperty(prop);
+
+                    if (prop instanceof CreatorProperty) {
+                        unwrapped.addCreatorProperty(prop);
+                    } else {
+                        unwrapped.addProperty(prop);
+                    }
+
                     // 12-Dec-2014, tatu: As per [databind#647], we will have problems if
                     //    the original property is left in place. So let's remove it now.
                     // 25-Mar-2017, tatu: Wonder if this could be problematic wrt creators?
@@ -1005,20 +1013,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * property: these require special handling.
      */
     protected NameTransformer _findPropertyUnwrapper(DeserializationContext ctxt,
-            SettableBeanProperty prop)
-        throws JsonMappingException
-    {
+            SettableBeanProperty prop) {
         AnnotatedMember am = prop.getMember();
         if (am != null) {
             NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(am);
             if (unwrapper != null) {
-                // 01-Dec-2016, tatu: As per [databind#265] we cannot yet support passing
-                //   of unwrapped values through creator properties, so fail fast
-                if (prop instanceof CreatorProperty) {
-                    ctxt.reportBadDefinition(getValueType(), String.format(
-                            "Cannot define Creator property \"%s\" as `@JsonUnwrapped`: combination not yet supported",
-                            prop.getName()));
-                }
                 return unwrapper;
             }
         }

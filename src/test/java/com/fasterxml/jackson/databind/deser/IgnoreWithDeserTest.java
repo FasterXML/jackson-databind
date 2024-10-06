@@ -3,13 +3,13 @@ package com.fasterxml.jackson.databind.deser;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.IgnoredPropertyException;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
  * This unit test suite that tests use of {@link JsonIgnore}

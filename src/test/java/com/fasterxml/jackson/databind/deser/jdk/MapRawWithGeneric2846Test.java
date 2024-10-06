@@ -5,12 +5,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class MapRawWithGeneric2846Test
 {

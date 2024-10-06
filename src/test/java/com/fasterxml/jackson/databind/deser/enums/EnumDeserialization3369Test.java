@@ -6,9 +6,8 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EnumDeserialization3369Test
 {

@@ -7,15 +7,13 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MapKeyDeserialization3143Test
 {

@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -20,9 +19,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HandlerInstantiationTest
 {

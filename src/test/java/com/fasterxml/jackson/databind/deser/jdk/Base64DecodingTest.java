@@ -7,9 +7,8 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // Mostly for [databind#1425]; not in optimal place (as it also has
 // tree-access tests), but has to do for now

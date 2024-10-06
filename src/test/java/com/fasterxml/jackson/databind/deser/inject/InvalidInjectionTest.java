@@ -7,9 +7,8 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class InvalidInjectionTest
 {

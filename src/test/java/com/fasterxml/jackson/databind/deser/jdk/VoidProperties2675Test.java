@@ -6,9 +6,8 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#2675]: Void-valued "properties"
 public class VoidProperties2675Test

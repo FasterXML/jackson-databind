@@ -14,9 +14,8 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test custom value instantiators.

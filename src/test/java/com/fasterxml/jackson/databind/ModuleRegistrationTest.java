@@ -5,10 +5,9 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ModuleRegistrationTest
 {

@@ -1,17 +1,16 @@
 package com.fasterxml.jackson.databind.convert;
 
+import java.lang.reflect.Array;
 import java.math.*;
 import java.util.*;
-import java.lang.reflect.Array;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ArrayConversionsTest
 {

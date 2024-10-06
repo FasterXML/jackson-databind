@@ -1,17 +1,17 @@
 package com.fasterxml.jackson.databind.deser;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.IgnoredPropertyException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite that tests use of {@link com.fasterxml.jackson.annotation.JsonIncludeProperties}

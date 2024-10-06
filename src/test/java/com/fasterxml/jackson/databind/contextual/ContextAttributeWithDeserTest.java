@@ -10,9 +10,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ContextAttributeWithDeserTest
 {

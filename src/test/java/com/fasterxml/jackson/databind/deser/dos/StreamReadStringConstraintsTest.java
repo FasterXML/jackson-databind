@@ -4,14 +4,12 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.StreamReadConstraints;
-
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for <a href="https://github.com/FasterXML/jackson-core/issues/863">databind#863</a>"

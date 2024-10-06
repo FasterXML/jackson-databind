@@ -11,9 +11,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.databind.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4316] : NPE when deserializing JsonAnySetter in Throwable
 public class ExceptionWithAnySetter4316Test

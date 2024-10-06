@@ -8,10 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 // For [databind#1501], [databind#1502], [databind#1503]; mostly to
 // test that for non-static inner classes constructors are ignored

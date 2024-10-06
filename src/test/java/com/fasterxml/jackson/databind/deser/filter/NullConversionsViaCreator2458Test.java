@@ -9,12 +9,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+
 import com.fasterxml.jackson.databind.*;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 public class NullConversionsViaCreator2458Test
 {

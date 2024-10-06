@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -17,10 +18,9 @@ import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 @SuppressWarnings("serial")
 public class BeanDeserializerTest

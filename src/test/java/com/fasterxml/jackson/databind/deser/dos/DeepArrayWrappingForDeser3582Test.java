@@ -6,10 +6,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class DeepArrayWrappingForDeser3582Test
 {

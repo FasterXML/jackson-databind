@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
@@ -14,10 +15,9 @@ import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NullHandlingDeserTest
 {

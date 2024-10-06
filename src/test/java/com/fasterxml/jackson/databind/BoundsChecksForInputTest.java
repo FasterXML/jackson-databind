@@ -2,10 +2,9 @@ package com.fasterxml.jackson.databind;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests for verifying [databind#3572]
 public class BoundsChecksForInputTest

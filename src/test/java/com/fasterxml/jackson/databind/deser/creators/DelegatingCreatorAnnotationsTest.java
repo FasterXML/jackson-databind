@@ -8,15 +8,13 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.core.JsonParser;
-
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests for problems uncovered with [databind#2016]; related to
 // `@JsonDeserialize` modifications to type, deserializer(s)

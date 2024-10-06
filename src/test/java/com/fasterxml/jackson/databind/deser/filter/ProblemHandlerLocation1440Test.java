@@ -6,14 +6,14 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Test(s) to verify [databind#1440]
 public class ProblemHandlerLocation1440Test

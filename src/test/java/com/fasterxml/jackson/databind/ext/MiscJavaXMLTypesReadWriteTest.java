@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ext;
 
 import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;

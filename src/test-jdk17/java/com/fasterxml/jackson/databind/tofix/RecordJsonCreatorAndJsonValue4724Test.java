@@ -1,11 +1,12 @@
 package com.fasterxml.jackson.databind.tofix;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
-
-import org.junit.jupiter.api.Test;
 
 // [databind#4724] Deserialization behavior change with Java Records, JsonCreator and JsonValue between 2.17.2 => 2.18.0
 public class RecordJsonCreatorAndJsonValue4724Test

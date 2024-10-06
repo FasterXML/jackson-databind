@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.databind.exc;
 
-import com.fasterxml.jackson.annotation.*;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // for [databind#1794]
 public class StackTraceElementTest

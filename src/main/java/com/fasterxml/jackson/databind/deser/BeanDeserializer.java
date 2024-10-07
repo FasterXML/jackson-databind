@@ -505,7 +505,12 @@ public class BeanDeserializer
             // "any property"?
             if (_anySetter != null) {
                 try {
-                    buffer.bufferAnyParameterProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                    // [databind#4639] Since 2.18.1 AnySetter might not part of the creator, but just some field.
+                    if (_anySetter.isFieldType()) {
+                        buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                    } else {
+                        buffer.bufferAnyParameterProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                    }
                 } catch (Exception e) {
                     wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }

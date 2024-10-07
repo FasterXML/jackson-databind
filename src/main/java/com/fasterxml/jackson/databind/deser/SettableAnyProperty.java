@@ -203,6 +203,13 @@ public abstract class SettableAnyProperty
         throw new UnsupportedOperationException("Cannot call createParameterObject() on " + getClass().getName());
     }
 
+    /**
+     * Method called to check whether this property is field
+     *
+     * @since 2.18.1
+     */
+    public boolean isFieldType() { return _setterIsField; }
+
     /*
     /**********************************************************
     /* Public API, deserialization

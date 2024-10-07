@@ -53,7 +53,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected final static BaseSettings DEFAULT_BASE_SETTINGS = new BaseSettings(
             DEFAULT_ANNOTATION_INTROSPECTOR,
-            null, DEFAULT_ACCESSOR_NAMING,
+            null, null, DEFAULT_ACCESSOR_NAMING,
             null, // no default typing, by default
             DEFAULT_TYPE_VALIDATOR, // and polymorphic type by class won't pass either
             StdDateFormat.instance, null,
@@ -1232,6 +1232,19 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * @return Builder instance itself to allow chaining
      */
     public B propertyNamingStrategy(PropertyNamingStrategy s) {
+        _baseSettings = _baseSettings.with(s);
+        return _this();
+    }
+
+    /**
+     * Method for configuring {@link EnumNamingStrategy} to use for adapting
+     * POJO enum names (internal) into content property names (external)
+     *
+     * @param s Strategy instance to use
+     *
+     * @return Builder instance itself to allow chaining
+     */
+    public B enumNamingStrategy(EnumNamingStrategy s) {
         _baseSettings = _baseSettings.with(s);
         return _this();
     }

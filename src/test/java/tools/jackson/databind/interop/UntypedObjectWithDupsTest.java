@@ -8,9 +8,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.StreamReadCapability;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.core.util.JsonParserDelegate;
-
 import tools.jackson.databind.*;
-
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

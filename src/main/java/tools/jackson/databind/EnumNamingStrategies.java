@@ -4,7 +4,6 @@ import java.util.Locale;
 
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass;
-
 import tools.jackson.databind.util.NamingStrategyImpls;
 
 /**

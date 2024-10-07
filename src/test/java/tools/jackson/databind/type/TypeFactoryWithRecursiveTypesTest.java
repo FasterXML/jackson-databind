@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // https://github.com/FasterXML/jackson-databind/issues/1647

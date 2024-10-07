@@ -13,7 +13,6 @@ import tools.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 /**

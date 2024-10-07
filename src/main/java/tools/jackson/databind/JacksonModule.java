@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.function.UnaryOperator;
 
 import tools.jackson.core.*;
@@ -12,8 +13,6 @@ import tools.jackson.databind.ser.Serializers;
 import tools.jackson.databind.ser.ValueSerializerModifier;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.type.TypeModifier;
-
-import java.util.Collections;
 
 /**
  * Simple interface for extensions that can be registered with {@link ObjectMapper}

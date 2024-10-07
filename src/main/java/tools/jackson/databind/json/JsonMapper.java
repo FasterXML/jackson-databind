@@ -7,7 +7,6 @@ import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.cfg.MapperBuilderState;
-
 import tools.jackson.databind.cfg.PackageVersion;
 
 /**

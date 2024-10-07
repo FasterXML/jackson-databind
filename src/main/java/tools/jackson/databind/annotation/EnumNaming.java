@@ -1,11 +1,11 @@
 package tools.jackson.databind.annotation;
 
-import tools.jackson.databind.EnumNamingStrategy;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import tools.jackson.databind.EnumNamingStrategy;
 
 /**
  * Annotation that can be used to indicate a {@link EnumNamingStrategy}

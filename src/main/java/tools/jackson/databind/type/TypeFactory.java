@@ -1,5 +1,6 @@
 package tools.jackson.databind.type;
 
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.BaseStream;
@@ -7,7 +8,6 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import java.lang.reflect.*;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.Snapshottable;

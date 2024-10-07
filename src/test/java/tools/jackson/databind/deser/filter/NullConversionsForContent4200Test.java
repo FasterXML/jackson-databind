@@ -10,7 +10,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidNullException;
 
 import static org.junit.jupiter.api.Assertions.fail;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 // [databind#4200]: Nulls.FAIL not taken into account with DELEGATING creator

@@ -10,12 +10,10 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.json.JsonWriteFeature;
-
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializerProvider;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
-import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;

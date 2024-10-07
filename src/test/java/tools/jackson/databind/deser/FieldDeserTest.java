@@ -10,7 +10,6 @@ import tools.jackson.databind.annotation.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
@@ -74,6 +73,7 @@ public class FieldDeserTest
     }
 
     abstract static class Abstract { }
+
     static class Concrete extends Abstract
     {
         String value;

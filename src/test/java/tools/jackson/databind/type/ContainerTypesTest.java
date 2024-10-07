@@ -10,7 +10,6 @@ import tools.jackson.databind.util.SimpleLookupCache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 // for [databind#1415]

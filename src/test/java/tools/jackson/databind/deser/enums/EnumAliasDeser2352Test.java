@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static tools.jackson.databind.testutil.DatabindTestUtil.q;
 

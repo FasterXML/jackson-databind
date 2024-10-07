@@ -5,11 +5,10 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.testutil.DatabindTestUtil.StringWrapper;
 import tools.jackson.databind.testutil.DatabindTestUtil.IntWrapper;
+import tools.jackson.databind.testutil.DatabindTestUtil.StringWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 @SuppressWarnings("serial")

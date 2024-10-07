@@ -11,7 +11,6 @@ import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.Assert.assertThrows;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class OptionalNumbersTest

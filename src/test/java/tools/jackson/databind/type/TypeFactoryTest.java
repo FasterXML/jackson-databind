@@ -7,13 +7,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.type.TypeReference;
-
 import tools.jackson.databind.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.newTypeFactory;
 import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 

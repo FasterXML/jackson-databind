@@ -1,11 +1,11 @@
 package tools.jackson.databind.ext;
 
 import java.io.StringReader;
-import javax.xml.parsers.DocumentBuilderFactory;
 
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
-import org.xml.sax.InputSource;
 import org.w3c.dom.*;
+import org.xml.sax.InputSource;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;

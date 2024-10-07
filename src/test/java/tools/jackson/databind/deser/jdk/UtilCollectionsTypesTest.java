@@ -12,7 +12,6 @@ import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 // Unit tests for [databind#1868], [databind#1880], [databind#2265]

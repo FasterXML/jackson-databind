@@ -18,7 +18,6 @@ import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;

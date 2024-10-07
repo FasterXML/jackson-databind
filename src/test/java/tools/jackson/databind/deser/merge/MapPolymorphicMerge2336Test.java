@@ -11,7 +11,6 @@ import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
 
 public class MapPolymorphicMerge2336Test

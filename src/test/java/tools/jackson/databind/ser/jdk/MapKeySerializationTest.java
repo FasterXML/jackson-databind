@@ -14,14 +14,13 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.core.Base64Variants;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.type.TypeReference;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.jsontype.TypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import tools.jackson.databind.module.SimpleModule;
-import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 

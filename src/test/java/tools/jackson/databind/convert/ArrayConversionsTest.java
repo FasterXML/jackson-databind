@@ -1,8 +1,8 @@
 package tools.jackson.databind.convert;
 
+import java.lang.reflect.Array;
 import java.math.*;
 import java.util.*;
-import java.lang.reflect.Array;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +11,6 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class ArrayConversionsTest

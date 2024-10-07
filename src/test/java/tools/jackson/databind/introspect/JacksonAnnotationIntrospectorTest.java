@@ -4,14 +4,12 @@ import java.io.StringWriter;
 import java.util.*;
 
 import javax.xml.namespace.QName;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.*;
 import tools.jackson.databind.cfg.MapperConfig;

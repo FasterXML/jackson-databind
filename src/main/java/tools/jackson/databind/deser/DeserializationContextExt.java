@@ -4,8 +4,8 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;

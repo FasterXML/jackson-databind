@@ -1,13 +1,13 @@
 package tools.jackson.databind.deser.creators.jdk8;
 
+import java.util.*;
+
+import org.junit.*;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.type.*;
 import tools.jackson.databind.*;
-
-import org.junit.*;
-
-import java.util.*;
 
 import static org.assertj.core.api.BDDAssertions.*;
 

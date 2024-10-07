@@ -9,8 +9,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.databind.EnumNamingStrategy;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static tools.jackson.databind.EnumNamingStrategies.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static tools.jackson.databind.EnumNamingStrategies.*;
 
 /**
  * Test case to verify functioning of standard

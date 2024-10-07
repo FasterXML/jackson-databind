@@ -17,7 +17,6 @@ import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**

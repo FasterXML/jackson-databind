@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.TokenStreamContext;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.ser.PropertyWriter;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
-
 import tools.jackson.databind.testutil.DatabindTestUtil.Point;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

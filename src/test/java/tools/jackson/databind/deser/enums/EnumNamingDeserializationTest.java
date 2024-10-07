@@ -14,7 +14,6 @@ import tools.jackson.databind.annotation.EnumNaming;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
 import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 

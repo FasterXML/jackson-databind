@@ -8,7 +8,6 @@ import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 public class ExceptionPathTest

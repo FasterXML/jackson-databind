@@ -3,7 +3,6 @@ package tools.jackson.databind.ser;
 import java.util.concurrent.atomic.AtomicReference;
 
 import tools.jackson.core.util.Snapshottable;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
 import tools.jackson.databind.util.LookupCache;

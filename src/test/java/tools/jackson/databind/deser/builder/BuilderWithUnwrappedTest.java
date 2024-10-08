@@ -12,7 +12,6 @@ import tools.jackson.databind.annotation.JsonPOJOBuilder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 
 public class BuilderWithUnwrappedTest

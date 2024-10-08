@@ -14,7 +14,6 @@ import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 public class BasicExceptionTest

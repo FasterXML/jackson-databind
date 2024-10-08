@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.JacksonException;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
@@ -14,7 +13,6 @@ import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.type.LogicalType;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class CoercePojosTest

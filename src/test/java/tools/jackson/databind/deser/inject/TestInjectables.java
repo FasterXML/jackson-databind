@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;

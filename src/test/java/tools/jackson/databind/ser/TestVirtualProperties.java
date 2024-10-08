@@ -7,14 +7,13 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.core.JsonGenerator;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonAppend;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.BeanPropertyDefinition;
-import tools.jackson.databind.util.Annotations;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.util.Annotations;
 
 import static org.junit.jupiter.api.Assertions.*;
 

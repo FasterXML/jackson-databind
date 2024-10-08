@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 public class FactoryAndConstructor2962Test

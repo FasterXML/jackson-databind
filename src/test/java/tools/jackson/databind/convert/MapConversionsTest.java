@@ -10,7 +10,6 @@ import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 public class MapConversionsTest

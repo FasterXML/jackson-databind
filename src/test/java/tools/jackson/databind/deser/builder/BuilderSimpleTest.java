@@ -14,7 +14,6 @@ import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.introspect.NopAnnotationIntrospector;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class BuilderSimpleTest

@@ -2,17 +2,16 @@ package tools.jackson.databind.tofix;
 
 import java.util.Map;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
-
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 // [databind#4680] Custom key deserialiser registered for `Object.class` is ignored on nested JSON
 public class CustomObjectKeyDeserializer4680Test

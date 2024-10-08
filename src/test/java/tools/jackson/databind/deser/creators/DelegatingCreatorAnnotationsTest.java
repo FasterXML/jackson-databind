@@ -8,14 +8,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // Tests for problems uncovered with [databind#2016]; related to

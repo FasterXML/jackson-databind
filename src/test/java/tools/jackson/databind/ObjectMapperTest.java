@@ -1,7 +1,5 @@
 package tools.jackson.databind;
 
-import tools.jackson.core.type.TypeReference;
-
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -14,8 +12,8 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.MinimalPrettyPrinter;
-
 import tools.jackson.databind.cfg.DeserializationContexts;
 import tools.jackson.databind.deser.DeserializerCache;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;

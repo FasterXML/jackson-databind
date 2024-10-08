@@ -8,7 +8,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 // Mostly for [databind#1425]; not in optimal place (as it also has

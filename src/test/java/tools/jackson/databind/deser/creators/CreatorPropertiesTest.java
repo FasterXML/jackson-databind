@@ -13,7 +13,6 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class CreatorPropertiesTest

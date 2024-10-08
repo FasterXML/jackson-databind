@@ -1,8 +1,8 @@
 package tools.jackson.databind.util;
 
-import tools.jackson.core.util.Snapshottable;
-
 import java.util.function.BiConsumer;
+
+import tools.jackson.core.util.Snapshottable;
 
 /**
  * An interface describing the required API for the Jackson-Databind Type cache.

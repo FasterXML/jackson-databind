@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.Version;
 import tools.jackson.core.type.TypeReference;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 

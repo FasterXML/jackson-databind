@@ -11,7 +11,6 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 
 // for [databind#1807]

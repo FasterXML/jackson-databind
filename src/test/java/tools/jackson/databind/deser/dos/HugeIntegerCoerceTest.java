@@ -9,7 +9,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.fail;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.ABC;
 import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 

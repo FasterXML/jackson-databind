@@ -1,8 +1,8 @@
 package tools.jackson.databind.deser;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.*;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -11,7 +11,6 @@ import tools.jackson.databind.exc.IgnoredPropertyException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**

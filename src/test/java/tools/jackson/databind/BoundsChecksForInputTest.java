@@ -1,11 +1,10 @@
 package tools.jackson.databind;
 
-import tools.jackson.core.exc.StreamReadException;
-
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import tools.jackson.core.exc.StreamReadException;
 
+import static org.junit.jupiter.api.Assertions.fail;
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 

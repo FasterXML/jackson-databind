@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.*;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.BeanDeserializerBuilder;
 import tools.jackson.databind.deser.SettableBeanProperty;
@@ -23,7 +22,6 @@ import tools.jackson.databind.type.MapType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 @SuppressWarnings("serial")

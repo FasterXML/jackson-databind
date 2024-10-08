@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.json.JsonWriteFeature;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.ser.std.*;

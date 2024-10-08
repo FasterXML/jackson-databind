@@ -1,12 +1,12 @@
 package tools.jackson.databind.jsontype;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.core.util.VersionUtil;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.SerializerProvider;
-
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Interface for serializing type information regarding instances of specified

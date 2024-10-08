@@ -10,13 +10,11 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.type.TypeReference;
-
 import tools.jackson.databind.*;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class EnumAltIdTest

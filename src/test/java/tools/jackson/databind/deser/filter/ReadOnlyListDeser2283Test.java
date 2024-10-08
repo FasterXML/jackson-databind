@@ -11,7 +11,6 @@ import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 // [databind#2283]: ignore read-only Lists even if "getter-as-setter" enabled

@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.core.exc.InputCoercionException;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.testutil.DatabindTestUtil;

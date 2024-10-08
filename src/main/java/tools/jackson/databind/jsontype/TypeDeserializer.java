@@ -1,12 +1,12 @@
 package tools.jackson.databind.jsontype;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
-
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 /**
  * Interface for deserializing type information from JSON content, to

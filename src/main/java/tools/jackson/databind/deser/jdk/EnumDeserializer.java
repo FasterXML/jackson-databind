@@ -6,7 +6,6 @@ import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.*;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.CoercionAction;

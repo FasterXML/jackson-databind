@@ -6,12 +6,11 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 // For [databind#4214]

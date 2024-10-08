@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // [databind#4071]: Ignore "message" for custom exceptions with only default constructor

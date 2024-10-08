@@ -3,13 +3,13 @@ package tools.jackson.databind.deser.merge;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class NodeMergeTest

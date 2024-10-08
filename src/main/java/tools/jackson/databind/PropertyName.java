@@ -1,13 +1,13 @@
 package tools.jackson.databind;
 
+import java.util.Objects;
+
 import tools.jackson.core.SerializableString;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.util.InternCache;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.FullyNamed;
-
-import java.util.Objects;
 
 /**
  * Simple value class used for containing names of properties as defined

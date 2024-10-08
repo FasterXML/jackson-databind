@@ -3,14 +3,14 @@ package com.fasterxml.jackson.databind.deser.merge;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NodeMergeTest
 {

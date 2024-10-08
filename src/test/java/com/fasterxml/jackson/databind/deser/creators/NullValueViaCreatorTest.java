@@ -12,10 +12,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 public class NullValueViaCreatorTest
 {

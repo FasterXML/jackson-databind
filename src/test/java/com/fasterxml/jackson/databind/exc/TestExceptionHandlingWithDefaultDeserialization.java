@@ -7,10 +7,9 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 public class TestExceptionHandlingWithDefaultDeserialization
 {

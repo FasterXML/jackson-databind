@@ -5,11 +5,11 @@ import java.beans.ConstructorProperties;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.databind.*;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class IgnoreCreatorProp1317Test
 {

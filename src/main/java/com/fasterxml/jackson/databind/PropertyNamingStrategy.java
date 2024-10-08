@@ -1,11 +1,11 @@
 package com.fasterxml.jackson.databind;
 
+import java.util.logging.Logger;
+
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
-
-import java.util.logging.Logger;
 
 /**
  * Class that defines how names of JSON properties ("external names")

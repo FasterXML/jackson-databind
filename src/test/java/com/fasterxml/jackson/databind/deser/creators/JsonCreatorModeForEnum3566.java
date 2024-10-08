@@ -6,10 +6,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /* [databind#3566]: `Enum` with `JsonFormat.Shape.OBJECT` fails to deserialize using `JsonCreator.Mode.DELEGATING` ONLY
  * when also has `JsonCreator.Mode.PROPERTIES` (while with Pojo does not).

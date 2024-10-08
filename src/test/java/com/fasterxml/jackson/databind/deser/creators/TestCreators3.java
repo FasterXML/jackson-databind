@@ -12,10 +12,9 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // Misc Creator tests, part 3
 public class TestCreators3

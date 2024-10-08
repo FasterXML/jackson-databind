@@ -13,10 +13,9 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class SingleArgCreatorTest
 {

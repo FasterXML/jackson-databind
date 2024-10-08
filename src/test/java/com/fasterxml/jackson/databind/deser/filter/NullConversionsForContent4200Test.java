@@ -5,12 +5,12 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#4200]: Nulls.FAIL not taken into account with DELEGATING creator
 public class NullConversionsForContent4200Test

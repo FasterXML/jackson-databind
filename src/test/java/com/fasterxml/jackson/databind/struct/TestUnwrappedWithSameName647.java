@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.struct;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 

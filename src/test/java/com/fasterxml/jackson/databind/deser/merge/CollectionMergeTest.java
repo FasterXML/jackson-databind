@@ -7,15 +7,13 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonMerge;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.ABC;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CollectionMergeTest
 {

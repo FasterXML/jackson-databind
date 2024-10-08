@@ -3,9 +3,10 @@ package com.fasterxml.jackson.databind.node;
 import java.io.StringReader;
 import java.util.Iterator;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 

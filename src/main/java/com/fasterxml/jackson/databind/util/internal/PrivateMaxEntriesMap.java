@@ -15,10 +15,6 @@
  */
 package com.fasterxml.jackson.databind.util.internal;
 
-import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainStatus.IDLE;
-import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainStatus.PROCESSING;
-import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainStatus.REQUIRED;
-
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -40,6 +36,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainStatus.IDLE;
+import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainStatus.PROCESSING;
+import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainStatus.REQUIRED;
 
 /**
  * A hash table supporting full concurrency of retrievals, adjustable expected

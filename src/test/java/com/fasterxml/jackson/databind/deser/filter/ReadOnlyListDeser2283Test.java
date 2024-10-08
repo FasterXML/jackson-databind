@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.*;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 // [databind#2283]: ignore read-only Lists even if "getter-as-setter" enabled
 public class ReadOnlyListDeser2283Test

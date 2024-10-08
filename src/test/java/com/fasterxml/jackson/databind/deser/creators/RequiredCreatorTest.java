@@ -1,15 +1,15 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
-import com.fasterxml.jackson.annotation.*;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class RequiredCreatorTest
 {

@@ -5,12 +5,11 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.StringWrapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.IntWrapper;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.StringWrapper;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("serial")
 public class MapDeser2757Test

@@ -8,7 +8,6 @@ import java.util.Collection;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.format.*;
 import com.fasterxml.jackson.core.io.MergedStream;
-
 import com.fasterxml.jackson.databind.*;
 
 /**

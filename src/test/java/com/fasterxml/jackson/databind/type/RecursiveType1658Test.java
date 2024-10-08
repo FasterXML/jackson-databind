@@ -2,18 +2,18 @@ package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 public class RecursiveType1658Test
 {

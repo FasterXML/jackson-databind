@@ -9,10 +9,9 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
 
 public class MapPolymorphicMerge2336Test
 {

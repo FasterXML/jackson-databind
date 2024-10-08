@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.lang.reflect.Type;
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;

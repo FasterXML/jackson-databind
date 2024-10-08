@@ -1847,5 +1847,5 @@ Konstantin Maliuga (@badoken)
   (2.19.0)
 
 Lars Benedetto (@lbenedetto)
- * Contributed #4676: Support other enum naming strategies than camelCas
+ * Contributed #4676: Support other enum naming strategies than camelCase
   (2.19.0)

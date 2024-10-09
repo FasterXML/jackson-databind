@@ -22,6 +22,9 @@ Project: jackson-databind
  (reported by @MaximValeev)
  (fix by Joo-Hyuk K)
 #4718: Should not fail on trying to serialize `java.time.DateTimeException`
+#4724: Deserialization behavior change with Records, `@JsonCreator` and
+  `@JsonValue` between 2.17 and 2.18
+ (reported by Antti L)
 
 2.18.0 (26-Sep-2024)
 

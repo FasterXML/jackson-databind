@@ -56,6 +56,11 @@ public class PotentialCreators
     /**********************************************************************
      */
 
+    // @since 2.18.1
+    public boolean hasDelegating() {
+        return (explicitDelegating != null) && !explicitDelegating.isEmpty();
+    }
+    
     public boolean hasPropertiesBased() {
         return (propertiesBased != null);
     }

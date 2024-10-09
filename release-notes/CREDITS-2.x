@@ -1670,6 +1670,9 @@ Antti Lampinen (arlampin@github)
   * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
     and is marked `Access.WRITE_ONLY`
    (2.15.1)
+  * Reported #4724: Deserialization behavior change with Records, `@JsonCreator` and
+   `@JsonValue` between 2.17 and 2.18
+   (2.18.1)
 
 Dmitry Bolotin (dbolotin@github)
   * Reported #1172: `@JsonView` doesn't work with `@JsonCreator`
@@ -1834,3 +1837,6 @@ Rikkarth (rikkarth@github)
  * Contributed #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
   (2.18.0)
 
+Maxim Valeev (@MaximValeev)
+ * Reported #4508: Deserialized JsonAnySetter field in Kotlin data class is null
+  (2.18.1)

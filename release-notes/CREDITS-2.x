@@ -1670,6 +1670,9 @@ Antti Lampinen (arlampin@github)
   * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
     and is marked `Access.WRITE_ONLY`
    (2.15.1)
+  * Reported #4724: Deserialization behavior change with Records, `@JsonCreator` and
+   `@JsonValue` between 2.17 and 2.18
+   (2.18.1)
 
 Dmitry Bolotin (dbolotin@github)
   * Reported #1172: `@JsonView` doesn't work with `@JsonCreator`
@@ -1847,5 +1850,5 @@ Konstantin Maliuga (@badoken)
   (2.19.0)
 
 Lars Benedetto (@lbenedetto)
- * Contributed #4676: Support other enum naming strategies than camelCas
+ * Contributed #4676: Support other enum naming strategies than camelCase
   (2.19.0)

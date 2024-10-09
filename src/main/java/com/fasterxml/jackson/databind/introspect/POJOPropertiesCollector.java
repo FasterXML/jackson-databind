@@ -689,17 +689,22 @@ public class POJOPropertiesCollector
             _addCreatorsWithAnnotatedNames(creators, constructors, defaultCreator);
         }
 
-        // But if no annotation-based Creators found, find/use Primary Creator
+        // But if no annotation-based Creators found, find/use Default Creator
         // detected earlier, if any
         if (defaultCreator != null) {
-            if (!creators.hasPropertiesBased()) {
-                // ... but only process if still included as a candidate
-                if (constructors.remove(defaultCreator)
-                        || factories.remove(defaultCreator)) {
-                    // But wait! Could be delegating
-                    if (_isDelegatingConstructor(defaultCreator)) {
+            // ... but only process if still included as a candidate
+            if (constructors.remove(defaultCreator)
+                    || factories.remove(defaultCreator)) {
+                // and then consider delegating- vs properties-based
+                if (_isDelegatingConstructor(defaultCreator)) {
+                    // 08-Oct-2024, tatu: [databind#4724] Only add if no explicit
+                    //    candidates added
+                    if (!creators.hasDelegating()) {
+                        // ... not technically explicit but simpler this way
                         creators.addExplicitDelegating(defaultCreator);
-                    } else {
+                    }
+                } else { // default creator is properties-based
+                    if (!creators.hasPropertiesBased()) {
                         creators.setPropertiesBased(_config, defaultCreator, "Primary");
                     }
                 }

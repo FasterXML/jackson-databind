@@ -698,7 +698,12 @@ public class POJOPropertiesCollector
                         || factories.remove(defaultCreator)) {
                     // But wait! Could be delegating
                     if (_isDelegatingConstructor(defaultCreator)) {
-                        creators.addExplicitDelegating(defaultCreator);
+                        // 08-Oct-2024, tatu: [databind#4724] Only add if no explicit
+                        //    candidates added
+                        if (!creators.hasDelegating()) {
+                            // ... not technically explicit but simpler this way
+                            creators.addExplicitDelegating(defaultCreator);
+                        }
                     } else {
                         creators.setPropertiesBased(_config, defaultCreator, "Primary");
                     }

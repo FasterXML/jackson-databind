@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.records;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 // [databind#4724] Deserialization behavior change with Java Records, JsonCreator and JsonValue between 2.17.2 => 2.18.0
-public class RecordJsonCreatorAndJsonValue4724Test
+public class RecordCreatorWithJsonValue4724Test
     extends DatabindTestUtil
 {
     public record Something(String value) {

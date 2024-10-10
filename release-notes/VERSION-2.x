@@ -21,6 +21,10 @@ Project: jackson-databind
 #4508: Deserialized JsonAnySetter field in Kotlin data class is null
  (reported by @MaximValeev)
  (fix by Joo-Hyuk K)
+#4639: @JsonAnySetter on field ignoring unrecognized properties if they are
+  declared before the last recognized properties in JSON
+ (reported by Sim Y-T)
+ (fix by Joo-Hyuk K)
 #4718: Should not fail on trying to serialize `java.time.DateTimeException`
 #4724: Deserialization behavior change with Records, `@JsonCreator` and
   `@JsonValue` between 2.17 and 2.18

@@ -277,8 +277,6 @@ public final class TypeFactory
      * <code>java.lang.Object</code>.
      */
     public static JavaType unknownType() {
-        // 11-Oct-2024, tatu: Used to call via "defaultInstance()" pre-2.19 but
-        //   since we have static object to refer, just return directly
         return CORE_TYPE_OBJECT;
     }
 
@@ -302,8 +300,10 @@ public final class TypeFactory
         } else if (t instanceof WildcardType) {
             return rawClass(((WildcardType) t).getUpperBounds()[0]);
         }
-        // fallback
-        return defaultInstance().constructType(t).getRawClass();
+        // 11-Oct-2024, tatu: In 2.x used to call `defaultInstance().constructType(t).getRawClass()`
+        //   but does not appear necessary.
+        throw new IllegalArgumentException("Do not know how get `rawClass` out of: "
+                +ClassUtil.classNameOf(t));
     }
 
     /*
@@ -1212,10 +1212,6 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         return new SimpleType(raw, bindings, superClass, superInterfaces);
     }
 
-    /**
-     * @deprecated Since 2.19
-     */
-    @Deprecated // since 2.19
     protected JavaType _unknownType() {
         return CORE_TYPE_OBJECT;
     }

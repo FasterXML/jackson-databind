@@ -153,7 +153,7 @@ public class HandlerInstantiationTest
         public JavaType typeFromId(DatabindContext context, String id)
         {
             if (id.equals(_id)) {
-                return TypeFactory.defaultInstance().constructType(TypeIdBean.class);
+                return context.constructType(TypeIdBean.class);
             }
             return null;
         }

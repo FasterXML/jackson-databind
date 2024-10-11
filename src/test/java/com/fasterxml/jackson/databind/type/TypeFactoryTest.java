@@ -8,19 +8,17 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newTypeFactory;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
-
 /**
  * Simple tests to verify that the {@link TypeFactory} constructs
  * type information as expected.
  */
-public class TypeFactoryTest
+public class TypeFactoryTest extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -108,7 +106,7 @@ public class TypeFactoryTest
                 Date.class,
         };
 
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         for (Class<?> clz : classes) {
             assertSame(clz, tf.constructType(clz).getRawClass());
             assertSame(clz, tf.constructType(clz).getRawClass());
@@ -127,7 +125,7 @@ public class TypeFactoryTest
                 Calendar[].class,
         };
 
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         for (Class<?> clz : classes) {
             assertSame(clz, tf.constructType(clz).getRawClass());
             Class<?> elemType = clz.getComponentType();
@@ -139,7 +137,7 @@ public class TypeFactoryTest
     @Test
     public void testProperties()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(Properties.class);
         assertEquals(MapType.class, t.getClass());
         assertSame(Properties.class, t.getRawClass());
@@ -173,7 +171,7 @@ public class TypeFactoryTest
     @Test
     public void testParametricTypes()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         // first, simple class based
         final JavaType t = tf.constructParametrizedType(ArrayList.class, Collection.class, String.class); // ArrayList<String>
         assertEquals(CollectionType.class, t.getClass());
@@ -221,7 +219,7 @@ public class TypeFactoryTest
     @Test
     public void testInvalidParametricTypes()
     {
-        final TypeFactory tf = TypeFactory.defaultInstance();
+        final TypeFactory tf = defaultTypeFactory();
         final JavaType strC = tf.constructType(String.class);
 
         // ensure that we can't create invalid combinations
@@ -246,7 +244,7 @@ public class TypeFactoryTest
     @Test
     public void testCanonicalNames()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(java.util.Calendar.class);
         String can = t.toCanonical();
         assertEquals("java.util.Calendar", can);
@@ -299,7 +297,7 @@ public class TypeFactoryTest
     @Test
     public void testCanonicalWithSpaces()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         Object objects = new TreeMap<Object, Object>() { }; // to get subtype
         String reflectTypeName = objects.getClass().getGenericSuperclass().toString();
         JavaType t1 = tf.constructType(objects.getClass().getGenericSuperclass());
@@ -313,7 +311,7 @@ public class TypeFactoryTest
     @Test
     public void testMalicousCanonical()
     {
-        final TypeFactory tf = TypeFactory.defaultInstance();
+        final TypeFactory tf = defaultTypeFactory();
 
         // First: too deep nesting
         final int NESTING = TypeParser.MAX_TYPE_NESTING + 100;
@@ -354,7 +352,7 @@ public class TypeFactoryTest
     public void testCollections()
     {
         // Ok, first: let's test what happens when we pass 'raw' Collection:
-        final TypeFactory tf = TypeFactory.defaultInstance();
+        final TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(ArrayList.class);
         assertEquals(CollectionType.class, t.getClass());
         assertSame(ArrayList.class, t.getRawClass());
@@ -388,7 +386,7 @@ public class TypeFactoryTest
     @Test
     public void testCollectionsWithBindings()
     {
-        final TypeFactory tf = TypeFactory.defaultInstance();
+        final TypeFactory tf = defaultTypeFactory();
         TypeBindings tb = TypeBindings.create(Set.class, new JavaType[] {
                 tf.constructType(String.class) });
         JavaType t = tf.constructType(ArrayList.class, tb);
@@ -560,7 +558,7 @@ public class TypeFactoryTest
     @Test
     public void testMapTypesRaw()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType type = tf.constructType(HashMap.class);
         assertEquals(MapType.class, type.getClass());
         MapType mapType = (MapType) type;
@@ -571,7 +569,7 @@ public class TypeFactoryTest
     @Test
     public void testMapTypesAdvanced()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType type = tf.constructType(MyMap.class);
         assertEquals(MapType.class, type.getClass());
         MapType mapType = (MapType) type;
@@ -597,7 +595,7 @@ public class TypeFactoryTest
     @Test
     public void testMapTypesSneaky()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType type = tf.constructType(IntLongMap.class);
         assertEquals(MapType.class, type.getClass());
         MapType mapType = (MapType) type;
@@ -611,7 +609,7 @@ public class TypeFactoryTest
     @Test
     public void testSneakyFieldTypes() throws Exception
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         Field field = SneakyBean.class.getDeclaredField("intMap");
         JavaType type = tf.constructType(field.getGenericType());
         assertEquals(MapType.class, type.getClass());
@@ -664,7 +662,7 @@ public class TypeFactoryTest
     @Test
     public void testAtomicArrayRefParameters()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType type = tf.constructType(new TypeReference<AtomicReference<long[]>>() { });
         JavaType[] params = tf.findTypeParameters(type, AtomicReference.class);
         assertNotNull(params);
@@ -677,7 +675,7 @@ public class TypeFactoryTest
     @Test
     public void testMapEntryResolution()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(StringIntMapEntry.class);
         JavaType mapEntryType = t.findSuperType(Map.Entry.class);
         assertNotNull(mapEntryType);
@@ -696,7 +694,7 @@ public class TypeFactoryTest
     @Test
     public void testRawCollections()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType type = tf.constructRawCollectionType(ArrayList.class);
         assertTrue(type.isContainerType());
         assertEquals(TypeFactory.unknownType(), type.getContentType());
@@ -713,7 +711,7 @@ public class TypeFactoryTest
     @Test
     public void testRawMaps()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType type = tf.constructRawMapType(HashMap.class);
         assertTrue(type.isContainerType());
         assertEquals(TypeFactory.unknownType(), type.getKeyType());
@@ -740,7 +738,7 @@ public class TypeFactoryTest
     @Test
     public void testMoreSpecificType()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
 
         JavaType t1 = tf.constructCollectionType(Collection.class, Object.class);
         JavaType t2 = tf.constructCollectionType(List.class, Object.class);
@@ -763,7 +761,7 @@ public class TypeFactoryTest
     @Test
     public void testCacheClearing()
     {
-        TypeFactory tf = TypeFactory.defaultInstance().withModifier(null);
+        TypeFactory tf = defaultTypeFactory().withModifier(null);
         assertEquals(0, tf._typeCache.size());
         tf.constructType(getClass());
         // 19-Oct-2015, tatu: This is pretty fragile but
@@ -776,7 +774,7 @@ public class TypeFactoryTest
     @Test
     public void testRawMapType()
     {
-        TypeFactory tf = TypeFactory.defaultInstance().withModifier(null); // to get a new copy
+        TypeFactory tf = defaultTypeFactory().withModifier(null); // to get a new copy
 
         JavaType type = tf.constructParametricType(Wrapper1297.class, Map.class);
         assertNotNull(type);
@@ -786,7 +784,7 @@ public class TypeFactoryTest
     // for [databind#3443]
     @Test
     public void testParameterizedClassType() {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
 
         JavaType t = tf.constructType(new TypeReference<Class<? extends CharSequence>>() { });
 
@@ -798,7 +796,7 @@ public class TypeFactoryTest
     // for [databind#3876]
     @Test
     public void testParameterizedSimpleType() {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
 
         JavaType charSequenceClass = tf.constructType(new TypeReference<Class<? extends CharSequence>>() { });
         JavaType numberClass = tf.constructType(new TypeReference<Class<? extends Number>>() { });

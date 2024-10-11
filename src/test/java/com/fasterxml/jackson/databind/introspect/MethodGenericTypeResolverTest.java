@@ -5,11 +5,12 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.type.TypeBindings;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MethodGenericTypeResolverTest extends DatabindTestUtil {
 
     private static final TypeResolutionContext EMPTY_CONTEXT =
-            new TypeResolutionContext.Empty(TypeFactory.defaultInstance());
+            new TypeResolutionContext.Empty(defaultTypeFactory());
 
     public static <T> AtomicReference<T> simple(T input) {
         throw new UnsupportedOperationException();

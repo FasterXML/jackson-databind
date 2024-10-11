@@ -7,12 +7,13 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 @SuppressWarnings("serial")
-public class TypeResolutionTest
+public class TypeResolutionTest extends DatabindTestUtil
 {
     public static class LongValuedMap<K> extends HashMap<K, Long> { }
 
@@ -41,7 +42,7 @@ public class TypeResolutionTest
     @Test
     public void testMaps()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(new TypeReference<LongValuedMap<String>>() { });
         MapType type = (MapType) t;
         assertSame(LongValuedMap.class, type.getRawClass());
@@ -52,7 +53,7 @@ public class TypeResolutionTest
     @Test
     public void testListViaTypeRef()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(new TypeReference<MyLongList<Integer>>() {});
         CollectionType type = (CollectionType) t;
         assertSame(MyLongList.class, type.getRawClass());
@@ -62,7 +63,7 @@ public class TypeResolutionTest
     @Test
     public void testListViaClass()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(LongList.class);
         JavaType type = (CollectionType) t;
         assertSame(LongList.class, type.getRawClass());
@@ -72,7 +73,7 @@ public class TypeResolutionTest
     @Test
     public void testGeneric()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
 
         // First, via simple sub-class
         JavaType t = tf.constructType(DoubleRange.class);

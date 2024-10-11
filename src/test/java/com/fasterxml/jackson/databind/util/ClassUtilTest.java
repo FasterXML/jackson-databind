@@ -243,7 +243,7 @@ public class ClassUtilTest extends DatabindTestUtil
         final String stringExp = "`java.lang.String`";
         assertEquals(stringExp, ClassUtil.getClassDescription("foo"));
         assertEquals(stringExp, ClassUtil.getClassDescription(String.class));
-        final JavaType stringType = TypeFactory.defaultInstance().constructType(String.class);
+        final JavaType stringType = defaultTypeFactory().constructType(String.class);
         assertEquals(stringExp, ClassUtil.getTypeDescription(stringType));
         final JavaType mapType = TypeFactory.defaultInstance().constructType(
                 new TypeReference<Map<String, Integer>>() { });
@@ -254,7 +254,7 @@ public class ClassUtilTest extends DatabindTestUtil
     @Test
     public void testSubtypes()
     {
-        final JavaType stringType = TypeFactory.defaultInstance().constructType(String.class);
+        final JavaType stringType = defaultTypeFactory().constructType(String.class);
         List<JavaType> supers = ClassUtil.findSuperTypes(stringType, Object.class, false);
         assertEquals(Collections.emptyList(), supers);
 

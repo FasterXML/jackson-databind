@@ -1403,16 +1403,11 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         return new SimpleType(raw, bindings, superClass, superInterfaces);
     }
 
-    /**
-     * @deprecated Since 2.19
-     */
-    @Deprecated // since 2.19
     protected JavaType _unknownType() {
-        /* 15-Sep-2015, tatu: Prior to 2.7, we constructed new instance for each call.
-         *    This may have been due to potential mutability of the instance; but that
-         *    should not be issue any more, and creation is somewhat wasteful. So let's
-         *    try reusing singleton/flyweight instance.
-         */
+        // 15-Sep-2015, tatu: Prior to 2.7, we constructed new instance for each call.
+        //    This may have been due to potential mutability of the instance; but that
+        //    should not be issue any more, and creation is somewhat wasteful. So let's
+        //    try reusing singleton/fly-weight instance.
         return CORE_TYPE_OBJECT;
     }
 

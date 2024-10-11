@@ -1,8 +1,9 @@
 package tools.jackson.databind.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.JavaType;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.UnlimitedLookupCache;
 import tools.jackson.databind.type.TypeFactory;
 
@@ -10,7 +11,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class UnlimitedLookupCacheTest {
+public class UnlimitedLookupCacheTest
+    extends DatabindTestUtil
+{
     @Test
     public void testCache() {
         UnlimitedLookupCache<Long, String> cache = new UnlimitedLookupCache<>(4);
@@ -29,7 +32,7 @@ public class UnlimitedLookupCacheTest {
     public void testCompatibility()
     {
         UnlimitedLookupCache<Object, JavaType> cache = new UnlimitedLookupCache<>(4);
-        TypeFactory tf = TypeFactory.defaultInstance().withCache(cache);
+        TypeFactory tf = defaultTypeFactory().withCache(cache);
         assertNotNull(tf); // just to get rid of warning
 
         //TODO find way to inject the `tf` instance into an ObjectMapper (via MapperBuilder?)

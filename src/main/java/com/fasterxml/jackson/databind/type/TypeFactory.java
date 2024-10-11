@@ -316,7 +316,9 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * <code>java.lang.Object</code>.
      */
     public static JavaType unknownType() {
-        return defaultInstance()._unknownType();
+        // 11-Oct-2024, tatu: Used to call via "defaultInstance()" pre-2.19 but
+        //   since we have static object to refer, just return directly
+        return CORE_TYPE_OBJECT;
     }
 
     /**
@@ -1401,6 +1403,10 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         return new SimpleType(raw, bindings, superClass, superInterfaces);
     }
 
+    /**
+     * @deprecated Since 2.19
+     */
+    @Deprecated // since 2.19
     protected JavaType _unknownType() {
         /* 15-Sep-2015, tatu: Prior to 2.7, we constructed new instance for each call.
          *    This may have been due to potential mutability of the instance; but that

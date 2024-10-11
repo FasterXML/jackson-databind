@@ -13,7 +13,6 @@ import tools.jackson.databind.deser.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.AnnotatedWithParams;
 import tools.jackson.databind.module.SimpleModule;
-import tools.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 

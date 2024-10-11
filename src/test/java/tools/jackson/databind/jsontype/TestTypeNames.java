@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.impl.StdSubtypeResolver;
-import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;

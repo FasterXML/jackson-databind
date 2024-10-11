@@ -18,11 +18,11 @@ public class AnySetterFieldWithCreator4639Test
 {
 
     public static class Bean {
-        private int b;
-        private int d;
+        int b;
+        int d;
 
         @JsonAnySetter
-        private Map<String, ?> any;
+        Map<String, ?> any;
 
         @JsonCreator
         public Bean(@JsonProperty("b") int b, @JsonProperty("d") int d) {

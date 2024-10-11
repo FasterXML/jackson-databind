@@ -67,7 +67,7 @@ public final class ArrayType
     @Override
     public ArrayType withContentTypeHandler(Object h)
     {
-        if (h == _componentType.<Object>getTypeHandler()) {
+        if (h == _componentType.getTypeHandler()) {
             return this;
         }
         return new ArrayType(_componentType.withTypeHandler(h), _bindings, _emptyArray,
@@ -84,7 +84,7 @@ public final class ArrayType
 
     @Override
     public ArrayType withContentValueHandler(Object h) {
-        if (h == _componentType.<Object>getValueHandler()) {
+        if (h == _componentType.getValueHandler()) {
             return this;
         }
         return new ArrayType(_componentType.withValueHandler(h), _bindings, _emptyArray,

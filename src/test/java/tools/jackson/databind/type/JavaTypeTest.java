@@ -11,7 +11,9 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.type.TypeReference;
+
 import tools.jackson.databind.JavaType;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Simple tests to verify that {@link JavaType} types work to
  * some degree
  */
-public class JavaTypeTest
+public class JavaTypeTest extends DatabindTestUtil
 {
     static class BaseType { }
 
@@ -74,7 +76,7 @@ public class JavaTypeTest
     @Test
     public void testLocalType728() throws Exception
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         Method m = Issue728.class.getMethod("method", CharSequence.class);
         assertNotNull(m);
 
@@ -96,7 +98,7 @@ public class JavaTypeTest
     @Test
     public void testSimpleClass()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType baseType = tf.constructType(BaseType.class);
         assertSame(BaseType.class, baseType.getRawClass());
         assertTrue(baseType.hasRawClass(BaseType.class));
@@ -122,7 +124,7 @@ public class JavaTypeTest
     @Test
     public void testArrayType()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType arrayT = ArrayType.construct(tf.constructType(String.class), null);
         assertNotNull(arrayT);
         assertTrue(arrayT.isContainerType());
@@ -146,7 +148,7 @@ public class JavaTypeTest
     @Test
     public void testMapType()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType mapT = tf.constructType(HashMap.class);
         assertTrue(mapT.isContainerType());
         assertFalse(mapT.isIterationType());
@@ -169,7 +171,7 @@ public class JavaTypeTest
     @Test
     public void testEnumType()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType enumT = tf.constructType(MyEnum.class);
         // JDK actually works fine with "basic" Enum types...
         assertTrue(enumT.getRawClass().isEnum());
@@ -222,7 +224,7 @@ public class JavaTypeTest
     @Test
     public void testJavaTypeAsJLRType()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType t1 = tf.constructType(getClass());
         // should just get it back as-is:
         JavaType t2 = tf.constructType(t1);
@@ -233,7 +235,7 @@ public class JavaTypeTest
     @Test
     public void testGenericSignature1194() throws Exception
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         Method m;
         JavaType t;
 
@@ -256,7 +258,7 @@ public class JavaTypeTest
     @Test
     public void testAnchorTypeForRefTypes() throws Exception
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType t  = tf.constructType(AtomicStringReference.class);
         assertTrue(t.isReferenceType());
         assertTrue(t.hasContentType());
@@ -272,7 +274,7 @@ public class JavaTypeTest
     @Test
     public void testObjectToReferenceSpecialization() throws Exception
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType base = tf.constructType(Object.class);
         assertTrue(base.isJavaLangObject());
 
@@ -285,7 +287,7 @@ public class JavaTypeTest
     @Test
     public void testConstructReferenceType() throws Exception
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         // do AtomicReference<Long>
         final JavaType refdType = tf.constructType(Long.class);
         JavaType t  = tf.constructReferenceType(AtomicReference.class, refdType);
@@ -306,7 +308,7 @@ public class JavaTypeTest
     @Test
     public void testIterationTypesDirect() throws Exception
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
 
         // First, type-erased types
         _verifyIteratorType(tf.constructType(Iterator.class),
@@ -336,7 +338,7 @@ public class JavaTypeTest
     @Test
     public void testIterationTypesFromValues() throws Exception
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         List<String> strings = Arrays.asList("foo", "bar");
         // We will get type-erased, alas, so:
         Iterator<String> stringIT = strings.iterator();
@@ -351,7 +353,7 @@ public class JavaTypeTest
     @Test
     public void testIterationSubTypes() throws Exception
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         _verifyIteratorType(tf.constructType(StringIterator.class),
                 StringIterator.class, String.class);
         _verifyIteratorType(tf.constructType(StringStream.class),

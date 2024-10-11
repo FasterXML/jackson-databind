@@ -10,9 +10,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import tools.jackson.core.JsonParser;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
-import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -224,7 +224,7 @@ public class TestTypedDeserialization
                         "@classy", Fish.class.getName())
                 +", null\n]";
 
-        JavaType expType = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Animal.class);
+        JavaType expType = defaultTypeFactory().constructCollectionType(ArrayList.class, Animal.class);
         List<Animal> animals = MAPPER.readValue(JSON, expType);
         assertNotNull(animals);
         assertEquals(4, animals.size());

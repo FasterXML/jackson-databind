@@ -11,13 +11,11 @@ import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.BeanPropertyDefinition;
-import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-
-public class BasicExceptionTest
+public class BasicExceptionTest extends DatabindTestUtil
 {
     static class User {
         public String user;
@@ -32,7 +30,7 @@ public class BasicExceptionTest
     @Test
     public void testBadDefinition() throws Exception
     {
-        JavaType t = TypeFactory.defaultInstance().constructType(String.class);
+        JavaType t = defaultTypeFactory().constructType(String.class);
         JsonParser p = MAPPER.createParser("[]");
         InvalidDefinitionException e = new InvalidDefinitionException(p,
                "Testing", t);

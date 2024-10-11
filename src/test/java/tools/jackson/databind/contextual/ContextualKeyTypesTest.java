@@ -9,18 +9,16 @@ import tools.jackson.core.Version;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.ContextualKeyDeserializer;
 import tools.jackson.databind.module.SimpleModule;
-import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 /**
  * Tests to ensure that we can do contextual key serializers and
  * deserializers as well as value ser/deser.
  */
-public class ContextualKeyTypesTest
+public class ContextualKeyTypesTest extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -98,7 +96,7 @@ public class ContextualKeyTypesTest
                 .build();
         Map<String,Object> input = new HashMap<String,Object>();
         input.put("a", Integer.valueOf(3));
-        String json = mapper.writerFor(TypeFactory.defaultInstance().constructMapType(HashMap.class, String.class, Object.class))
+        String json = mapper.writerFor(defaultTypeFactory().constructMapType(HashMap.class, String.class, Object.class))
             .writeValueAsString(input);
         assertEquals("{\"prefix:a\":3}", json);
     }

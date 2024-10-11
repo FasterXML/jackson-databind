@@ -183,7 +183,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
 
   @Test
   public void testListInference() throws Exception {
-    JavaType listOfCats = TypeFactory.defaultInstance().constructParametricType(List.class, Cat.class);
+    JavaType listOfCats = defaultTypeFactory().constructParametricType(List.class, Cat.class);
     List<Cat> boxes = MAPPER.readValue(arrayOfCatsJson, listOfCats);
     assertTrue(boxes.get(0) instanceof LiveCat);
     assertTrue(boxes.get(1) instanceof DeadCat);
@@ -191,7 +191,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
 
   @Test
   public void testMapInference() throws Exception {
-    JavaType mapOfCats = TypeFactory.defaultInstance().constructParametricType(Map.class, String.class, Cat.class);
+    JavaType mapOfCats = defaultTypeFactory().constructParametricType(Map.class, String.class, Cat.class);
     Map<String, Cat> map = MAPPER.readValue(mapOfCatsJson, mapOfCats);
     assertEquals(1, map.size());
     assertTrue(map.entrySet().iterator().next().getValue() instanceof LiveCat);
@@ -279,7 +279,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   @Test
   public void testSimpleSerialization() throws Exception {
     // Given:
-    JavaType listOfCats = TypeFactory.defaultInstance().constructParametricType(List.class, Cat.class);
+    JavaType listOfCats = defaultTypeFactory().constructParametricType(List.class, Cat.class);
     List<Cat> list = MAPPER.readValue(arrayOfCatsJson, listOfCats);
     Cat cat = list.get(0);
     // When:
@@ -291,7 +291,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   @Test
   public void testListSerialization() throws Exception {
     // Given:
-    JavaType listOfCats = TypeFactory.defaultInstance().constructParametricType(List.class, Cat.class);
+    JavaType listOfCats = defaultTypeFactory().constructParametricType(List.class, Cat.class);
     List<Cat> list = MAPPER.readValue(arrayOfCatsJson, listOfCats);
     // When:
     String json = MAPPER.writeValueAsString(list);

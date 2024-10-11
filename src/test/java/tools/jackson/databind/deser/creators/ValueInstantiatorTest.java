@@ -254,7 +254,7 @@ public class ValueInstantiatorTest
 
         @Override
         public JavaType getDelegateType(DeserializationConfig config) {
-            return TypeFactory.defaultInstance().constructType(Object.class);
+            return defaultTypeFactory().constructType(Object.class);
         }
 
         @Override

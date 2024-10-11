@@ -243,7 +243,7 @@ public class ClassUtilTest extends DatabindTestUtil
         final String stringExp = "`java.lang.String`";
         assertEquals(stringExp, ClassUtil.getClassDescription("foo"));
         assertEquals(stringExp, ClassUtil.getClassDescription(String.class));
-        final JavaType stringType = TypeFactory.defaultInstance().constructType(String.class);
+        final JavaType stringType = defaultTypeFactory().constructType(String.class);
         assertEquals(stringExp, ClassUtil.getTypeDescription(stringType));
         final JavaType mapType = TypeFactory.defaultInstance().constructType(
                 new TypeReference<Map<String, Integer>>() { });

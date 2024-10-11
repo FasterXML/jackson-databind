@@ -221,7 +221,7 @@ public class SerializeUsingJDKTest
     @Test
     public void testTypeFactory() throws Exception
     {
-        TypeFactory orig = TypeFactory.defaultInstance();
+        TypeFactory orig = defaultTypeFactory();
         JavaType t = orig.constructType(JavaType.class);
         assertNotNull(t);
 

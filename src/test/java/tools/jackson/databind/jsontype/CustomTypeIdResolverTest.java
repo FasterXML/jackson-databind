@@ -106,7 +106,7 @@ public class CustomTypeIdResolverTest extends DatabindTestUtil
         public JavaType typeFromId(DatabindContext context, String id)
         {
             if ("*".equals(id)) {
-                return TypeFactory.defaultInstance().constructType(subType);
+                return context.constructType(subType);
             }
             return null;
         }

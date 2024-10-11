@@ -6,13 +6,14 @@ import java.util.HashMap;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.JavaType;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // [databind#3108]: canonical type description for non-generic subtypes
 @SuppressWarnings("serial")
-public class TypeFactory3108Test
+public class TypeFactory3108Test extends DatabindTestUtil
 {
     static class StringList3108 extends ArrayList<String> {}
 
@@ -22,14 +23,15 @@ public class TypeFactory3108Test
 
     static class ConcreteType3108 extends ParamType3108<Integer> {}
 
+    private final TypeFactory TF = defaultTypeFactory();
+
     // [databind#3108] with custom Collection
     @Test
     public void testCanonicalWithCustomCollection()
     {
-        final TypeFactory tf = TypeFactory.defaultInstance();
-        JavaType stringListType = tf.constructType(StringList3108.class);
+        JavaType stringListType = TF.constructType(StringList3108.class);
         String canonical = stringListType.toCanonical();
-        JavaType type = tf.constructFromCanonical(canonical);
+        JavaType type = TF.constructFromCanonical(canonical);
         assertEquals(StringList3108.class, type.getRawClass());
         assertTrue(type.isCollectionLikeType());
     }
@@ -38,10 +40,9 @@ public class TypeFactory3108Test
     @Test
     public void testCanonicalWithCustomMap()
     {
-        final TypeFactory tf = TypeFactory.defaultInstance();
-        JavaType stringListType = tf.constructType(StringStringMap3108.class);
+        JavaType stringListType = TF.constructType(StringStringMap3108.class);
         String canonical = stringListType.toCanonical();
-        JavaType type = tf.constructFromCanonical(canonical);
+        JavaType type = TF.constructFromCanonical(canonical);
         assertEquals(StringStringMap3108.class, type.getRawClass());
         assertTrue(type.isMapLikeType());
     }
@@ -50,10 +51,9 @@ public class TypeFactory3108Test
     @Test
     public void testCanonicalWithCustomGenericType()
     {
-        final TypeFactory tf = TypeFactory.defaultInstance();
-        JavaType stringListType = tf.constructType(ConcreteType3108.class);
+        JavaType stringListType = TF.constructType(ConcreteType3108.class);
         String canonical = stringListType.toCanonical();
-        JavaType type = tf.constructFromCanonical(canonical);
+        JavaType type = TF.constructFromCanonical(canonical);
         assertEquals(ConcreteType3108.class, type.getRawClass());
     }
 }

@@ -342,6 +342,8 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
             return rawClass(((WildcardType) t).getUpperBounds()[0]);
         }
         // fallback
+        // 12-Oct-2024, tatu: Seems unnecessary (replacing with throw does not
+        //   fail any tests), but left for 2.x, changed in 3.0
         return defaultInstance().constructType(t).getRawClass();
     }
 

@@ -32,7 +32,7 @@ public class StringArraySerializer
 
     /**
      * Value serializer to use, if it's not the standard one
-     * (if it is we can optimize serialization a lot)
+     * (if it is we can optimize serialization significantly)
      */
     protected final ValueSerializer<Object> _elementSerializer;
 

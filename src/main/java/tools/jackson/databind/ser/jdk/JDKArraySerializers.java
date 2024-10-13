@@ -21,17 +21,17 @@ import tools.jackson.databind.type.TypeFactory;
 public class JDKArraySerializers
 {
     protected final static HashMap<String, ValueSerializer<?>> _arraySerializers =
-        new HashMap<String, ValueSerializer<?>>();
+        new HashMap<>();
     static {
         // Arrays of various types (including common object types)
-        _arraySerializers.put(boolean[].class.getName(), new JDKArraySerializers.BooleanArraySerializer());
+        _arraySerializers.put(boolean[].class.getName(), new BooleanArraySerializer());
         _arraySerializers.put(byte[].class.getName(), new ByteArraySerializer());
-        _arraySerializers.put(char[].class.getName(), new JDKArraySerializers.CharArraySerializer());
-        _arraySerializers.put(short[].class.getName(), new JDKArraySerializers.ShortArraySerializer());
-        _arraySerializers.put(int[].class.getName(), new JDKArraySerializers.IntArraySerializer());
-        _arraySerializers.put(long[].class.getName(), new JDKArraySerializers.LongArraySerializer());
-        _arraySerializers.put(float[].class.getName(), new JDKArraySerializers.FloatArraySerializer());
-        _arraySerializers.put(double[].class.getName(), new JDKArraySerializers.DoubleArraySerializer());
+        _arraySerializers.put(char[].class.getName(), new CharArraySerializer());
+        _arraySerializers.put(short[].class.getName(), new ShortArraySerializer());
+        _arraySerializers.put(int[].class.getName(), new IntArraySerializer());
+        _arraySerializers.put(long[].class.getName(), new LongArraySerializer());
+        _arraySerializers.put(float[].class.getName(), new FloatArraySerializer());
+        _arraySerializers.put(double[].class.getName(), new DoubleArraySerializer());
     }
 
     protected JDKArraySerializers() { }
@@ -42,6 +42,12 @@ public class JDKArraySerializers
      */
     public static ValueSerializer<?> findStandardImpl(Class<?> cls) {
         return _arraySerializers.get(cls.getName());
+    }
+
+    // @since 2.19
+    @SuppressWarnings("deprecation")
+    static JavaType simpleElementType(Class<?> elemClass) {
+        return TypeFactory.defaultInstance().uncheckedSimpleType(elemClass);
     }
 
     /*
@@ -86,8 +92,7 @@ public class JDKArraySerializers
         extends ArraySerializerBase<boolean[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
-        @SuppressWarnings("deprecation")
-        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Boolean.class);
+        private final static JavaType VALUE_TYPE = simpleElementType(Boolean.TYPE);
 
         public BooleanArraySerializer() { super(boolean[].class); }
 
@@ -164,8 +169,7 @@ public class JDKArraySerializers
     public static class ShortArraySerializer extends TypedPrimitiveArraySerializer<short[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
-        @SuppressWarnings("deprecation")
-        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Short.TYPE);
+        private final static JavaType VALUE_TYPE = simpleElementType(Short.TYPE);
 
         public ShortArraySerializer() { super(short[].class); }
         public ShortArraySerializer(ShortArraySerializer src, BeanProperty prop,
@@ -298,8 +302,7 @@ public class JDKArraySerializers
     public static class IntArraySerializer extends ArraySerializerBase<int[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
-        @SuppressWarnings("deprecation")
-        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Integer.TYPE);
+        private final static JavaType VALUE_TYPE = simpleElementType(Integer.TYPE);
 
         public IntArraySerializer() { super(int[].class); }
 
@@ -375,8 +378,7 @@ public class JDKArraySerializers
     public static class LongArraySerializer extends TypedPrimitiveArraySerializer<long[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
-        @SuppressWarnings("deprecation")
-        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Long.TYPE);
+        private final static JavaType VALUE_TYPE = simpleElementType(Long.TYPE);
 
         public LongArraySerializer() { super(long[].class); }
         public LongArraySerializer(LongArraySerializer src, BeanProperty prop,
@@ -442,8 +444,7 @@ public class JDKArraySerializers
     public static class FloatArraySerializer extends TypedPrimitiveArraySerializer<float[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
-        @SuppressWarnings("deprecation")
-        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Float.TYPE);
+        private final static JavaType VALUE_TYPE = simpleElementType(Float.TYPE);
 
         public FloatArraySerializer() {
             super(float[].class);
@@ -512,8 +513,7 @@ public class JDKArraySerializers
     public static class DoubleArraySerializer extends ArraySerializerBase<double[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
-        @SuppressWarnings("deprecation")
-        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Double.TYPE);
+        private final static JavaType VALUE_TYPE = simpleElementType(Double.TYPE);
 
         public DoubleArraySerializer() { super(double[].class); }
 

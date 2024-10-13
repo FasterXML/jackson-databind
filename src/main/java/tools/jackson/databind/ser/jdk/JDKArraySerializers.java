@@ -44,10 +44,8 @@ public class JDKArraySerializers
         return _arraySerializers.get(cls.getName());
     }
 
-    // @since 2.19
-    @SuppressWarnings("deprecation")
     static JavaType simpleElementType(Class<?> elemClass) {
-        return TypeFactory.defaultInstance().uncheckedSimpleType(elemClass);
+        return TypeFactory.unsafeSimpleType(elemClass);
     }
 
     /*

@@ -550,10 +550,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
-     * Overridable method for changing default {@link SubtypeResolver} instance to use
+     * Overridable method for changing default {@link TypeFactory} instance to use
      */
     protected TypeFactory _defaultTypeFactory() {
-        return TypeFactory.defaultInstance();
+        return TypeFactory.createDefaultInstance();
     }
 
     public ClassIntrospector classIntrospector() {

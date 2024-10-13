@@ -45,6 +45,8 @@ public class DatabindTestUtil
 
     private final static Object SINGLETON_OBJECT = new Object();
 
+    private final static TypeFactory DEFAULT_TYPE_FACTORY = TypeFactory.createDefaultInstance();
+
     /*
     /**********************************************************************
     /* A sample documents
@@ -561,7 +563,7 @@ public class DatabindTestUtil
     // Separated out since "default" TypeFactory instance handling differs
     // between 2.x and 3.x
     public static TypeFactory defaultTypeFactory() {
-        return TypeFactory.defaultInstance();
+        return DEFAULT_TYPE_FACTORY;
     }
 
     protected JsonParser createParserUsingReader(String input)

@@ -1,5 +1,6 @@
 package tools.jackson.databind.type;
 
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.BaseStream;
@@ -7,7 +8,6 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import java.lang.reflect.*;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.Snapshottable;
@@ -61,8 +61,7 @@ import tools.jackson.databind.util.*;
  *   </li>
  *</ul>
  */
-@SuppressWarnings({"rawtypes" })
-public final class TypeFactory
+public class TypeFactory
     implements Snapshottable<TypeFactory>,
         java.io.Serializable
 {
@@ -810,6 +809,7 @@ public final class TypeFactory
      * NOTE: type modifiers are NOT called on Collection type itself; but are called
      * for contained types.
      */
+    @SuppressWarnings({"rawtypes" })
     public CollectionType constructCollectionType(Class<? extends Collection> collectionClass,
             Class<?> elementClass) {
         return constructCollectionType(collectionClass,
@@ -822,6 +822,7 @@ public final class TypeFactory
      * NOTE: type modifiers are NOT called on Collection type itself; but are called
      * for contained types.
      */
+    @SuppressWarnings({"rawtypes" })
     public CollectionType constructCollectionType(Class<? extends Collection> collectionClass,
             JavaType elementType)
     {
@@ -873,6 +874,7 @@ public final class TypeFactory
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
      */
+    @SuppressWarnings({"rawtypes" })
     public MapType constructMapType(Class<? extends Map> mapClass,
             Class<?> keyClass, Class<?> valueClass) {
         JavaType kt, vt;
@@ -890,6 +892,7 @@ public final class TypeFactory
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself.
      */
+    @SuppressWarnings({"rawtypes" })
     public MapType constructMapType(Class<? extends Map> mapClass, JavaType keyType, JavaType valueType) {
         TypeBindings bindings = TypeBindings.createIfNeeded(mapClass, new JavaType[] { keyType, valueType });
         MapType result = (MapType) _fromClass(null, mapClass, bindings);
@@ -1057,6 +1060,7 @@ public final class TypeFactory
      *<p>
      * This method should only be used if parameterization is completely unavailable.
      */
+    @SuppressWarnings({"rawtypes" })
     public CollectionType constructRawCollectionType(Class<? extends Collection> collectionClass) {
         return constructCollectionType(collectionClass, unknownType());
     }
@@ -1087,6 +1091,7 @@ public final class TypeFactory
      *<p>
      * This method should only be used if parameterization is completely unavailable.
      */
+    @SuppressWarnings({"rawtypes" })
     public MapType constructRawMapType(Class<? extends Map> mapClass) {
         return constructMapType(mapClass, unknownType(), unknownType());
     }

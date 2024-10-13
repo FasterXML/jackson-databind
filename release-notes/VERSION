@@ -68,6 +68,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (contributed by Joo-Hyuk K)
 #4589: Remove `MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER` from 3.0;
   make logic default
+#4659: Remove use of global static `TypeFactory` singleton from 3.0
 #4664: Change `EnumNamingStrategy.convertEnumToExternalName()` to take `MapperConfig` argument-
  (contributed by Joo-Hyuk K)
 - Remove `MappingJsonFactory`

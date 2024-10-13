@@ -1,11 +1,6 @@
 package com.fasterxml.jackson.databind.type;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.BaseStream;
@@ -18,10 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.util.ArrayBuilders;
-import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.LRUMap;
-import com.fasterxml.jackson.databind.util.LookupCache;
+import com.fasterxml.jackson.databind.util.*;
 
 /**
  * Class used for creating concrete {@link JavaType} instances,
@@ -70,7 +62,6 @@ import com.fasterxml.jackson.databind.util.LookupCache;
  *   </li>
  *</ul>
  */
-@SuppressWarnings({"rawtypes" })
 public class TypeFactory // note: was final in 2.9, removed from 2.10
     implements java.io.Serializable
 {
@@ -78,8 +69,6 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
 
     /**
      * Default size used to construct {@link #_typeCache}.
-     *
-     * Used to be passed inline.
      *
      * @since 2.16
      */
@@ -221,6 +210,14 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         _modifiers = mods;
         _classLoader = classLoader;
     }
+
+    /**
+     * Method used to construct a new default/standard {@code TypeFactory}
+     * instance; an instance which has no custom configuration.
+     *
+     * @since 2.19
+     */
+    public static TypeFactory createDefaultInstance() { return new TypeFactory(); }
 
     /**
      * "Mutant factory" method which will construct a new instance with specified
@@ -923,6 +920,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * NOTE: type modifiers are NOT called on Collection type itself; but are called
      * for contained types.
      */
+    @SuppressWarnings({"rawtypes" })
     public CollectionType constructCollectionType(Class<? extends Collection> collectionClass,
             Class<?> elementClass) {
         return constructCollectionType(collectionClass,
@@ -935,6 +933,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * NOTE: type modifiers are NOT called on Collection type itself; but are called
      * for contained types.
      */
+    @SuppressWarnings({"rawtypes" })
     public CollectionType constructCollectionType(Class<? extends Collection> collectionClass,
             JavaType elementType)
     {
@@ -986,6 +985,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
      */
+    @SuppressWarnings({"rawtypes" })
     public MapType constructMapType(Class<? extends Map> mapClass,
             Class<?> keyClass, Class<?> valueClass) {
         JavaType kt, vt;
@@ -1003,6 +1003,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself.
      */
+    @SuppressWarnings({"rawtypes" })
     public MapType constructMapType(Class<? extends Map> mapClass, JavaType keyType, JavaType valueType) {
         TypeBindings bindings = TypeBindings.createIfNeeded(mapClass, new JavaType[] { keyType, valueType });
         MapType result = (MapType) _fromClass(null, mapClass, bindings);
@@ -1232,6 +1233,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      *<p>
      * This method should only be used if parameterization is completely unavailable.
      */
+    @SuppressWarnings({"rawtypes" })
     public CollectionType constructRawCollectionType(Class<? extends Collection> collectionClass) {
         return constructCollectionType(collectionClass, unknownType());
     }
@@ -1262,6 +1264,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      *<p>
      * This method should only be used if parameterization is completely unavailable.
      */
+    @SuppressWarnings({"rawtypes" })
     public MapType constructRawMapType(Class<? extends Map> mapClass) {
         return constructMapType(mapClass, unknownType(), unknownType());
     }

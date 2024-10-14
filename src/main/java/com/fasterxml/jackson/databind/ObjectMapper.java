@@ -409,7 +409,7 @@ public class ObjectMapper
     protected final static BaseSettings DEFAULT_BASE = new BaseSettings(
             null, // cannot share global ClassIntrospector any more (2.5+)
             DEFAULT_ANNOTATION_INTROSPECTOR,
-             null, TypeFactory.defaultInstance(),
+            null, null, TypeFactory.defaultInstance(),
             null, StdDateFormat.instance, null,
             Locale.getDefault(),
             null, // to indicate "use Jackson default TimeZone" (UTC since Jackson 2.7)

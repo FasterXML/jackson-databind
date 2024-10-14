@@ -5,15 +5,15 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Simple tests to verify for generic type binding functionality
  * implemented by {@link TypeBindings} class.
  */
-public class TypeBindingsTest
+public class TypeBindingsTest extends DatabindTestUtil
 {
     static class AbstractType<A,B> { }
 
@@ -43,7 +43,7 @@ public class TypeBindingsTest
     /**********************************************************
      */
 
-    private final TypeFactory DEFAULT_TF = TypeFactory.defaultInstance();
+    private final TypeFactory DEFAULT_TF = defaultTypeFactory();
 
     @Test
     public void testInnerType() throws Exception

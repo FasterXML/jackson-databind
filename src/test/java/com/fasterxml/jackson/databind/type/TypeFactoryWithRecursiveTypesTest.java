@@ -7,13 +7,13 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 // https://github.com/FasterXML/jackson-databind/issues/1647
-public class TypeFactoryWithRecursiveTypesTest
+public class TypeFactoryWithRecursiveTypesTest extends DatabindTestUtil
 {
     static interface IFace<T> { }
 
@@ -29,7 +29,7 @@ public class TypeFactoryWithRecursiveTypesTest
 
     @Test
     public void testBasePropertiesIncludedWhenSerializingSubWhenSubTypeLoadedAfterBaseType() throws IOException {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         tf.constructType(Base.class);
         tf.constructType(Sub.class);
         Sub sub = new Sub();

@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -151,7 +150,7 @@ public class HandlerInstantiationTest
         public JavaType typeFromId(DatabindContext context, String id)
         {
             if (id.equals(_id)) {
-                return TypeFactory.defaultInstance().constructType(TypeIdBean.class);
+                return context.constructType(TypeIdBean.class);
             }
             return null;
         }

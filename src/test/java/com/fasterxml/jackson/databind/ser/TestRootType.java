@@ -166,7 +166,7 @@ public class TestRootType
     public void testJackson398() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
-        JavaType collectionType = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, BaseClass398.class);
+        JavaType collectionType = defaultTypeFactory().constructCollectionType(ArrayList.class, BaseClass398.class);
         List<TestClass398> typedList = new ArrayList<TestClass398>();
         typedList.add(new TestClass398());
 

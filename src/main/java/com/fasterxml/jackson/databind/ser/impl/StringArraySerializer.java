@@ -37,7 +37,7 @@ public class StringArraySerializer
 
     /**
      * Value serializer to use, if it's not the standard one
-     * (if it is we can optimize serialization a lot)
+     * (if it is we can optimize serialization significantly)
      */
     protected final JsonSerializer<Object> _elementSerializer;
 
@@ -84,10 +84,9 @@ public class StringArraySerializer
             BeanProperty property)
         throws JsonMappingException
     {
-        /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
-         *    checking here since we finally know for sure the property,
-         *    and it may have overrides
-         */
+        // 29-Sep-2012, tatu: Actually, we need to do much more contextual
+        //    checking here since we finally know for sure the property,
+        //    and it may have overrides
         JsonSerializer<?> ser = null;
 
         // First: if we have a property, may have property-annotation overrides

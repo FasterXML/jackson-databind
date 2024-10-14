@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -63,7 +62,7 @@ public class TestGenericListSerialization
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
                 .build();
 
-        JavaType rootType = TypeFactory.defaultInstance().constructType(new TypeReference<JSONResponse<List<Parent>>>() { });
+        JavaType rootType = defaultTypeFactory().constructType(new TypeReference<JSONResponse<List<Parent>>>() { });
         byte[] json = mapper.writerFor(rootType).writeValueAsBytes(input);
 
         JSONResponse<List<Parent>> out = mapper.readValue(json, 0, json.length, rootType);

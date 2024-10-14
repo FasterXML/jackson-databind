@@ -209,7 +209,6 @@
           </classpathDependencyExcludes>
           <excludes>
             <exclude>tools.jackson.databind.MapperFootprintTest</exclude>
-            <exclude>**/failing/**/*.java</exclude>
           </excludes>
           <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
                   ... although not 100% sure this makes much difference TBH

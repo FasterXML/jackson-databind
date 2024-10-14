@@ -45,6 +45,8 @@ public class DatabindTestUtil
 
     private final static Object SINGLETON_OBJECT = new Object();
 
+    private final static TypeFactory DEFAULT_TYPE_FACTORY = TypeFactory.createDefaultInstance();
+
     /*
     /**********************************************************************
     /* A sample documents
@@ -362,7 +364,7 @@ public class DatabindTestUtil
 
     public static TypeFactory newTypeFactory() {
         // this is a work-around; no null modifier added
-        return TypeFactory.defaultInstance().withModifier(null);
+        return defaultTypeFactory().withModifier(null);
     }
 
     /*
@@ -558,6 +560,11 @@ public class DatabindTestUtil
         return TimeZone.getTimeZone("GMT");
     }
 
+    // Separated out since "default" TypeFactory instance handling differs
+    // between 2.x and 3.x
+    public static TypeFactory defaultTypeFactory() {
+        return DEFAULT_TYPE_FACTORY;
+    }
 
     protected JsonParser createParserUsingReader(String input)
         throws JacksonException

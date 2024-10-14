@@ -14,7 +14,6 @@ import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.TypeNameIdResolver;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
-import tools.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -128,7 +127,7 @@ public class TestDefaultForMaps
         subtypes.add(new NamedType(HashMap.class, "HMap"));
         ObjectMapper mapper = new ObjectMapper();
         return TypeNameIdResolver.construct(mapper.deserializationConfig(),
-                TypeFactory.defaultInstance().constructType(Object.class), subtypes, forSerialization, !forSerialization);
+                defaultTypeFactory().constructType(Object.class), subtypes, forSerialization, !forSerialization);
     }
 
     @Test

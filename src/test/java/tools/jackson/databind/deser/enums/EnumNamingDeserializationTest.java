@@ -14,14 +14,14 @@ import tools.jackson.databind.annotation.EnumNaming;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class EnumNamingDeserializationTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
     private final ObjectMapper CI_MAPPER = jsonMapperBuilder()
-            .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
+            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
             .build();
 
     @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
@@ -289,5 +289,18 @@ public class EnumNamingDeserializationTest
         // deserialization
         BaseEnum deser = mapper.readValue(q("realName"), BaseEnum.class);
         assertEquals(BaseEnum.REAL_NAME, deser);
+    }
+
+    @Test
+    void testUseEnumMappingStrategySetInMapper() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enumNamingStrategy(EnumNamingStrategies.LowerCamelCaseStrategy.INSTANCE)
+                .build();
+
+        BaseEnum result = mapper.readValue(q("realName"), BaseEnum.class);
+        assertEquals(BaseEnum.REAL_NAME, result);
+
+        String resultString = mapper.writeValueAsString(result);
+        assertEquals(q("realName"), resultString);
     }
 }

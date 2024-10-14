@@ -1670,6 +1670,9 @@ Antti Lampinen (arlampin@github)
   * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
     and is marked `Access.WRITE_ONLY`
    (2.15.1)
+  * Reported #4724: Deserialization behavior change with Records, `@JsonCreator` and
+   `@JsonValue` between 2.17 and 2.18
+   (2.18.1)
 
 Dmitry Bolotin (dbolotin@github)
   * Reported #1172: `@JsonView` doesn't work with `@JsonCreator`
@@ -1838,9 +1841,17 @@ Maxim Valeev (@MaximValeev)
  * Reported #4508: Deserialized JsonAnySetter field in Kotlin data class is null
   (2.18.1)
 
-@SandeepGaur2016
+wrongwrong (@k163377)
+ * Contributed #4749: Fixed problem in StdDelegatingSerializer#serializeWithType where final serializer lookup was done
+   on the pre-converted value when _delegateSerializer was null
+  (2.18.1)
 
+@SandeepGaur2016
  * Contributed fix for #2461: Nested `@JsonUnwrapped` property names not correctly handled
+  (2.19.0)
+
+Konstantin Maliuga (@badoken)
+ * Contributed #4674: Allow setting global enum naming strategy similar to property naming strategy
   (2.19.0)
 
 Lars Benedetto (@lbenedetto)

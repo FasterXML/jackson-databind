@@ -58,7 +58,7 @@ public class TestTypeModifierNameResolution extends DatabindTestUtil
     public void testTypeModiferNameResolution() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .typeFactory(TypeFactory.defaultInstance().withModifier(new CustomTypeModifier()))
+                .typeFactory(defaultTypeFactory().withModifier(new CustomTypeModifier()))
                 .addMixIn(MyType.class, Mixin.class)
                 .build();
 

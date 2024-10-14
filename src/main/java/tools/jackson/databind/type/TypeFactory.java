@@ -61,8 +61,7 @@ import tools.jackson.databind.util.*;
  *   </li>
  *</ul>
  */
-@SuppressWarnings({"rawtypes" })
-public final class TypeFactory
+public class TypeFactory
     implements Snapshottable<TypeFactory>,
         java.io.Serializable
 {
@@ -74,13 +73,6 @@ public final class TypeFactory
     public static final int DEFAULT_MAX_CACHE_SIZE = 200;
 
     private final static JavaType[] NO_TYPES = new JavaType[0];
-
-    /**
-     * Globally shared singleton. Not accessed directly; non-core
-     * code should use per-ObjectMapper instance (via configuration objects).
-     * Core Jackson code uses {@link #defaultInstance} for accessing it.
-     */
-    protected final static TypeFactory instance = new TypeFactory();
 
     protected final static TypeBindings EMPTY_BINDINGS = TypeBindings.emptyBindings();
 
@@ -161,7 +153,10 @@ public final class TypeFactory
     protected final TypeModifier[] _modifiers;
 
     /**
-     * ClassLoader used by this factory [databind#624].
+     * ClassLoader used by this factory.
+     *<p>
+     * See <a href="https://github.com/FasterXML/jackson-databind/issues/624">[databind#624]</a>
+     * for details.
      */
     protected final ClassLoader _classLoader;
 
@@ -171,8 +166,9 @@ public final class TypeFactory
     /**********************************************************************
      */
 
-    private TypeFactory() {
-        this(new SimpleLookupCache<Object,JavaType>(16, DEFAULT_MAX_CACHE_SIZE));
+    // NOTE: was private in Jackson 2.x
+    public TypeFactory() {
+        this(new SimpleLookupCache<>(16, DEFAULT_MAX_CACHE_SIZE));
     }
 
     protected TypeFactory(LookupCache<Object,JavaType> typeCache) {
@@ -186,6 +182,16 @@ public final class TypeFactory
         _modifiers = mods;
         _classLoader = classLoader;
     }
+
+    /**
+     * Method used to construct a new default/standard {@code TypeFactory}
+     * instance; an instance which has
+     * no custom configuration. Used by {@code ObjectMapper} to
+     * get the default factory when constructed.
+     *
+     * @since 3.0
+     */
+    public static TypeFactory createDefaultInstance() { return new TypeFactory(); }
 
     /**
      * Need to make a copy on snapshot() to avoid accidental leakage via cache.
@@ -243,13 +249,6 @@ public final class TypeFactory
     }
 
     /**
-     * Method used to access the globally shared instance, which has
-     * no custom configuration. Used by <code>ObjectMapper</code> to
-     * get the default factory when constructed.
-     */
-    public static TypeFactory defaultInstance() { return instance; }
-
-    /**
      * Method that will clear up any cached type definitions that may
      * be cached by this {@link TypeFactory} instance.
      * This method should not be commonly used, that is, only use it
@@ -277,7 +276,7 @@ public final class TypeFactory
      * <code>java.lang.Object</code>.
      */
     public static JavaType unknownType() {
-        return defaultInstance()._unknownType();
+        return CORE_TYPE_OBJECT;
     }
 
     /**
@@ -300,8 +299,31 @@ public final class TypeFactory
         } else if (t instanceof WildcardType) {
             return rawClass(((WildcardType) t).getUpperBounds()[0]);
         }
-        // fallback
-        return defaultInstance().constructType(t).getRawClass();
+        // 11-Oct-2024, tatu: In 2.x used to call `defaultInstance().constructType(t).getRawClass()`
+        //   but does not appear necessary.
+        throw new IllegalArgumentException("Do not know how get `rawClass` out of: "
+                +ClassUtil.classNameOf(t));
+    }
+
+    // 12-Oct-2024, tatu: not ideal but has to do for now -- maybe can re-factor somehow
+    //   before 3.0 release?
+    /**
+     * Method by core databind for constructing "simple" {@link JavaType}s in cases
+     * where there is no access to {@link TypeFactory} AND it is known that full
+     * resolution of the type is not needed (generally when type is just a placeholder).
+     * NOT TO BE USED by application code!
+     *
+     * @since 3.0
+     */
+    public static JavaType unsafeSimpleType(Class<?> cls) {
+        // 18-Oct-2015, tatu: Not sure how much problem missing super-type info is here
+        // Copied from `_constructSimple()`:
+        JavaType t = _findWellKnownSimple(cls);
+        if (t == null) {
+            // copied from `_newSimpleType()`
+            return new SimpleType(cls, EMPTY_BINDINGS, null, null);
+        }
+        return t;
     }
 
     /*
@@ -746,20 +768,13 @@ public final class TypeFactory
      *
      * @param type Type of a {@link java.lang.reflect.Member} to resolve
      * @param contextBindings Type bindings from the context, often class in which
-     *     member declared but may be subtype of that type (to bind actual bound
-     *     type parametrers). Not used if {@code type} is of type {@code Class<?>}.
+     *     member declared but may be sub-type of that type (to bind actual bound
+     *     type parameters). Not used if {@code type} is of type {@code Class<?>}.
      *
      * @return Fully resolved type
      */
     public JavaType resolveMemberType(Type type, TypeBindings contextBindings) {
         return _fromAny(null, type, contextBindings);
-    }
-
-    // 20-Apr-2018, tatu: Really should get rid of this...
-    @Deprecated // since 2.8
-    public JavaType uncheckedSimpleType(Class<?> cls) {
-        // 18-Oct-2015, tatu: Not sure how much problem missing super-type info is here
-        return _constructSimple(cls, EMPTY_BINDINGS, null, null);
     }
 
     /*
@@ -794,6 +809,7 @@ public final class TypeFactory
      * NOTE: type modifiers are NOT called on Collection type itself; but are called
      * for contained types.
      */
+    @SuppressWarnings({"rawtypes" })
     public CollectionType constructCollectionType(Class<? extends Collection> collectionClass,
             Class<?> elementClass) {
         return constructCollectionType(collectionClass,
@@ -806,6 +822,7 @@ public final class TypeFactory
      * NOTE: type modifiers are NOT called on Collection type itself; but are called
      * for contained types.
      */
+    @SuppressWarnings({"rawtypes" })
     public CollectionType constructCollectionType(Class<? extends Collection> collectionClass,
             JavaType elementType)
     {
@@ -857,6 +874,7 @@ public final class TypeFactory
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
      */
+    @SuppressWarnings({"rawtypes" })
     public MapType constructMapType(Class<? extends Map> mapClass,
             Class<?> keyClass, Class<?> valueClass) {
         JavaType kt, vt;
@@ -874,6 +892,7 @@ public final class TypeFactory
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself.
      */
+    @SuppressWarnings({"rawtypes" })
     public MapType constructMapType(Class<? extends Map> mapClass, JavaType keyType, JavaType valueType) {
         TypeBindings bindings = TypeBindings.createIfNeeded(mapClass, new JavaType[] { keyType, valueType });
         MapType result = (MapType) _fromClass(null, mapClass, bindings);
@@ -1041,6 +1060,7 @@ public final class TypeFactory
      *<p>
      * This method should only be used if parameterization is completely unavailable.
      */
+    @SuppressWarnings({"rawtypes" })
     public CollectionType constructRawCollectionType(Class<? extends Collection> collectionClass) {
         return constructCollectionType(collectionClass, unknownType());
     }
@@ -1071,6 +1091,7 @@ public final class TypeFactory
      *<p>
      * This method should only be used if parameterization is completely unavailable.
      */
+    @SuppressWarnings({"rawtypes" })
     public MapType constructRawMapType(Class<? extends Map> mapClass) {
         return constructMapType(mapClass, unknownType(), unknownType());
     }
@@ -1219,7 +1240,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
      * type is one of common, "well-known" types, instances of which are
      * pre-constructed and do not need dynamic caching.
      */
-    protected JavaType _findWellKnownSimple(Class<?> clz) {
+    protected static JavaType _findWellKnownSimple(Class<?> clz) {
         if (clz.isPrimitive()) {
             if (clz == CLS_BOOL) return CORE_TYPE_BOOL;
             if (clz == CLS_INT) return CORE_TYPE_INT;

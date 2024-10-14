@@ -12,14 +12,13 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.TypeBindings;
-import tools.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MethodGenericTypeResolverTest extends DatabindTestUtil
 {
     private static final TypeResolutionContext EMPTY_CONTEXT =
-            new TypeResolutionContext.Empty(TypeFactory.defaultInstance());
+            new TypeResolutionContext.Empty(defaultTypeFactory());
 
     public static <T> AtomicReference<T> simple(T input) {
         throw new UnsupportedOperationException();

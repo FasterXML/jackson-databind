@@ -90,7 +90,7 @@ public class TestTypeNames extends DatabindTestUtil
         };
         String json = MAPPER.writeValueAsString(input);
         List<Animal> output = MAPPER.readValue(json,
-                TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Animal.class));
+                defaultTypeFactory().constructCollectionType(ArrayList.class, Animal.class));
         assertEquals(input.length, output.size());
         for (int i = 0, len = input.length; i < len; ++i) {
             assertEquals(input[i], output.get(i), "Entry #"+i+" differs, input = '"+json+"'");

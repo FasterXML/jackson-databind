@@ -17,7 +17,6 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.jsontype.TypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
-import tools.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static tools.jackson.databind.testutil.DatabindTestUtil.q;
@@ -150,7 +149,7 @@ public class HandlerInstantiationTest
         public JavaType typeFromId(DatabindContext context, String id)
         {
             if (id.equals(_id)) {
-                return TypeFactory.defaultInstance().constructType(TypeIdBean.class);
+                return context.constructType(TypeIdBean.class);
             }
             return null;
         }

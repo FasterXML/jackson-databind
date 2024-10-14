@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.records;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,13 +6,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 // [databind#4724] Deserialization behavior change with Java Records, JsonCreator and JsonValue between 2.17.2 => 2.18.0
-public class RecordJsonCreatorAndJsonValue4724Test
+public class RecordCreatorWithJsonValue4724Test
     extends DatabindTestUtil
 {
-
     public record Something(String value) {
         public Something {
             if (value == null || value.isEmpty()) {
@@ -20,6 +18,7 @@ public class RecordJsonCreatorAndJsonValue4724Test
             }
         }
 
+        // should be considered Delegating due to @JsonValue later on
         @JsonCreator
         public static Something of(String value) {
             if (value.isEmpty()) {
@@ -35,10 +34,8 @@ public class RecordJsonCreatorAndJsonValue4724Test
         }
     }
 
-    @JacksonTestFailureExpected
     @Test
     void deserialization() throws Exception {
         newJsonMapper().readValue("\"\"", Something.class);
     }
-
 }

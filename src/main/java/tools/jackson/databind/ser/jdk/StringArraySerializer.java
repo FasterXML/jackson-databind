@@ -26,14 +26,13 @@ public class StringArraySerializer
     /* Note: not clean in general, but we are betting against
      * anyone re-defining properties of String.class here...
      */
-    @SuppressWarnings("deprecation")
-    private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(String.class);
+    private final static JavaType VALUE_TYPE = TypeFactory.unsafeSimpleType(String.class);
 
     public final static StringArraySerializer instance = new StringArraySerializer();
 
     /**
      * Value serializer to use, if it's not the standard one
-     * (if it is we can optimize serialization a lot)
+     * (if it is we can optimize serialization significantly)
      */
     protected final ValueSerializer<Object> _elementSerializer;
 

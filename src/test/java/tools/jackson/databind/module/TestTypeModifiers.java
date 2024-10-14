@@ -216,11 +216,11 @@ public class TestTypeModifiers extends DatabindTestUtil
      */
 
     private final ObjectMapper MY_TYPE_MAPPER = jsonMapperBuilder()
-            .typeFactory(TypeFactory.defaultInstance().withModifier(new MyTypeModifier()))
+            .typeFactory(defaultTypeFactory().withModifier(new MyTypeModifier()))
             .build();
 
     private final ObjectMapper MAPPER_WITH_MODIFIER = jsonMapperBuilder()
-            .typeFactory(TypeFactory.defaultInstance().withModifier(new MyTypeModifier()))
+            .typeFactory(defaultTypeFactory().withModifier(new MyTypeModifier()))
             .addModule(new ModifierModule())
             .build();
 
@@ -263,7 +263,7 @@ public class TestTypeModifiers extends DatabindTestUtil
     public void testTypeResolutionForRecursive() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .typeFactory(TypeFactory.defaultInstance().withModifier(new MyTypeModifier()))
+                .typeFactory(defaultTypeFactory().withModifier(new MyTypeModifier()))
                 .build();
         assertNotNull(mapper.readTree("{}"));
     }

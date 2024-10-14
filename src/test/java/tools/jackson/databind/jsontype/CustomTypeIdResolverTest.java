@@ -13,7 +13,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -105,7 +104,7 @@ public class CustomTypeIdResolverTest extends DatabindTestUtil
         public JavaType typeFromId(DatabindContext context, String id)
         {
             if ("*".equals(id)) {
-                return TypeFactory.defaultInstance().constructType(subType);
+                return context.constructType(subType);
             }
             return null;
         }

@@ -13,7 +13,6 @@ import tools.jackson.databind.deser.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.AnnotatedWithParams;
 import tools.jackson.databind.module.SimpleModule;
-import tools.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
@@ -253,7 +252,7 @@ public class ValueInstantiatorTest
 
         @Override
         public JavaType getDelegateType(DeserializationConfig config) {
-            return TypeFactory.defaultInstance().constructType(Object.class);
+            return defaultTypeFactory().constructType(Object.class);
         }
 
         @Override

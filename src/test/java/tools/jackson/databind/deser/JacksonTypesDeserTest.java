@@ -59,7 +59,7 @@ public class JacksonTypesDeserTest
     @Test
     public void testJavaType() throws Exception
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         // first simple type:
         String json = MAPPER.writeValueAsString(tf.constructType(String.class));
         assertEquals(q(java.lang.String.class.getName()), json);
@@ -128,7 +128,7 @@ public class JacksonTypesDeserTest
 
     public void testJavaTypeDeser() throws Exception
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         // first simple type:
         String json = MAPPER.writeValueAsString(tf.constructType(String.class));
         assertEquals(q(java.lang.String.class.getName()), json);

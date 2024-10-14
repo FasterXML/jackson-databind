@@ -9,16 +9,29 @@ Project: jackson-databind
 #2461: Nested `@JsonUnwrapped` property names not correctly handled
  (reported by @plovell)
  (fix contributed by @SandeepGaur2016)
+#4674: Allow setting global enum naming strategy similar to property naming strategy
+ (requested by @hajdamak)
+ (contributed by Konstantin M)
 #4676: Support other enum naming strategies than camelCase
  (requested by @hajdamak)
  (contributed by Lars 
 
 2.18.1 (WIP-2024)
 
+#4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
+  with the wrong argument
+ (fix by wrongwrong)
 #4508: Deserialized JsonAnySetter field in Kotlin data class is null
  (reported by @MaximValeev)
  (fix by Joo-Hyuk K)
+#4639: @JsonAnySetter on field ignoring unrecognized properties if they are
+  declared before the last recognized properties in JSON
+ (reported by Sim Y-T)
+ (fix by Joo-Hyuk K)
 #4718: Should not fail on trying to serialize `java.time.DateTimeException`
+#4724: Deserialization behavior change with Records, `@JsonCreator` and
+  `@JsonValue` between 2.17 and 2.18
+ (reported by Antti L)
 
 2.18.0 (26-Sep-2024)
 

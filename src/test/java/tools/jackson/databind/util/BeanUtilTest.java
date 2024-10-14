@@ -18,7 +18,7 @@ public class BeanUtilTest extends DatabindTestUtil
     @Test
     public void testGetDefaultValue()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         // For collection/array/Map types, should give `NOT_EMPTY`:
         assertEquals(JsonInclude.Include.NON_EMPTY,
                 BeanUtil.getDefaultValue(tf.constructType(Map.class)));

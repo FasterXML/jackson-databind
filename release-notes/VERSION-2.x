@@ -18,6 +18,9 @@ Project: jackson-databind
 
 2.18.1 (WIP-2024)
 
+#4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
+  with the wrong argument
+ (fix by wrongwrong)
 #4508: Deserialized JsonAnySetter field in Kotlin data class is null
  (reported by @MaximValeev)
  (fix by Joo-Hyuk K)

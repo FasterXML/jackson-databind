@@ -12,6 +12,7 @@ import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // Test case for a regression in 3.0, worked in 2.11

@@ -6,6 +6,7 @@ import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class CoerceNaNStringToNumberTest

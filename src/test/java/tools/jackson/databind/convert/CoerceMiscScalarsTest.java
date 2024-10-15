@@ -15,6 +15,7 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.exc.MismatchedInputException;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class CoerceMiscScalarsTest

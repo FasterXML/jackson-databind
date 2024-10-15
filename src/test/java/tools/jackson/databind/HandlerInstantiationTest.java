@@ -19,6 +19,7 @@ import tools.jackson.databind.jsontype.TypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.q;
 
 public class HandlerInstantiationTest

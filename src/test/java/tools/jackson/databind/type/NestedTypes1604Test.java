@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // for [databind#1604]

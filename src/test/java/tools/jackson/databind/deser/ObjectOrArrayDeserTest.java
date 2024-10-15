@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 public class ObjectOrArrayDeserTest

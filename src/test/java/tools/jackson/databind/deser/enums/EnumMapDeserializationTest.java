@@ -14,6 +14,7 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 @SuppressWarnings("serial")

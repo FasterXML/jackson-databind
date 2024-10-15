@@ -20,6 +20,7 @@ import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.module.SimpleModule;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 

@@ -9,6 +9,7 @@ import tools.jackson.databind.cfg.ContextAttributes;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class ContextAttributeWithDeserTest

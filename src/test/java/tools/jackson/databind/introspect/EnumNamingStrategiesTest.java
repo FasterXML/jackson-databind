@@ -10,6 +10,7 @@ import tools.jackson.databind.EnumNamingStrategy;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static tools.jackson.databind.EnumNamingStrategies.*;
 
 /**

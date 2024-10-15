@@ -12,6 +12,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidNullException;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 // For [databind#1402]; configurable null handling, for contents of

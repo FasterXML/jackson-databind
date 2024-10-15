@@ -11,6 +11,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 // for [databind#1392] (regression in 2.7 due to separation of array-delegating creator)

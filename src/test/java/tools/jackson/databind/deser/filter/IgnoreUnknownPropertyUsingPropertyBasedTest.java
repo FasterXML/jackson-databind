@@ -11,6 +11,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 public class IgnoreUnknownPropertyUsingPropertyBasedTest

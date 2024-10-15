@@ -8,6 +8,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 public class MapRawWithGeneric2846Test

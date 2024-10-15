@@ -7,6 +7,7 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 // [databind#3338]

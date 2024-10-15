@@ -22,6 +22,7 @@ import tools.jackson.databind.type.MapType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 @SuppressWarnings("serial")

@@ -10,8 +10,9 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static com.fasterxml.jackson.annotation.JsonTypeInfo.*;
 import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.annotation.JsonTypeInfo.*;
 
 public class TestTypedSerialization
     extends DatabindTestUtil

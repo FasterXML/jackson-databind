@@ -12,6 +12,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
 import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 

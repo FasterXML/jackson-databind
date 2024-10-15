@@ -16,9 +16,10 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.TypeFactory;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import static com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.DEDUCTION;
-import static org.junit.jupiter.api.Assertions.*;
 
 // for [databind#43], deduction-based polymorphism
 public class TestPolymorphicDeduction extends DatabindTestUtil {

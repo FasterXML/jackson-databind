@@ -9,6 +9,7 @@ import tools.jackson.databind.JavaType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.newTypeFactory;
 import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 

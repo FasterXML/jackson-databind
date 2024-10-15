@@ -13,6 +13,7 @@ import tools.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 public class RecursiveType1658Test

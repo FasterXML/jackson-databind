@@ -20,9 +20,10 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 
 /**
  * Test cases to verify that it is possible to define deserializers

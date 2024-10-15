@@ -8,10 +8,11 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 public class PropertyAliasTest
 {

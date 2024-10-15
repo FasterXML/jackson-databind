@@ -9,10 +9,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 // [databind#4327] JsonAlias should respsect with Polymorphic Deduction
 public class JsonAliasWithDeduction4327RecordTest

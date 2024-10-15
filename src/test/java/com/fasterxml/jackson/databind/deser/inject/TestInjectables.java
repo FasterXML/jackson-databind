@@ -6,9 +6,10 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class TestInjectables
 {

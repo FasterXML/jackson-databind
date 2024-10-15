@@ -6,8 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
 
 // Tests for [databind#2539] for checking whether given (raw) type has explicit
 // deserializer associated

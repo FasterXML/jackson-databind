@@ -4,8 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // [databind#4071]: Ignore "message" for custom exceptions with only default constructor
 @SuppressWarnings("serial")

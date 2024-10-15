@@ -6,9 +6,10 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Test(s) for "big" creators; ones with at least 32 arguments (sic!).
 // Needed because codepaths diverge wrt handling of bitset

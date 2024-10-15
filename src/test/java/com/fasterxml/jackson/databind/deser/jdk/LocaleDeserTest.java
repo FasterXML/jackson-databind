@@ -9,10 +9,11 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
 
 // Tests for `java.util.Locale`
 public class LocaleDeserTest

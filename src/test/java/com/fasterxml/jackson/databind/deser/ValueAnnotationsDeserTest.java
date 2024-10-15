@@ -10,9 +10,10 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tests use of "value" Annotations;

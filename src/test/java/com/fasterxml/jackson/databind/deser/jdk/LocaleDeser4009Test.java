@@ -6,8 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // [databind#4009] Locale "" is deserialised as NULL if ACCEPT_EMPTY_STRING_AS_NULL_OBJECT is true
 public class LocaleDeser4009Test

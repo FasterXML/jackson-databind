@@ -8,8 +8,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.IntWrapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.StringWrapper;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 @SuppressWarnings("serial")
 public class MapDeser2757Test

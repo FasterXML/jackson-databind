@@ -11,9 +11,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class DelegatingArrayCreatorsTest
 {

@@ -17,8 +17,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 
 /**
  * Additional `java.util.Date` deserialization tests for cases where `ObjectMapper`

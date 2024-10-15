@@ -6,9 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests to ensure that use of "updateValue()" will fail with builder-based deserializers.

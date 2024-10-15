@@ -22,9 +22,10 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.EnumWithSubClass;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import static com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("serial")
 public class EnumDeserializationTest

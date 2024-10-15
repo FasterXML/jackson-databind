@@ -9,8 +9,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.ABC;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 // for [databind#2157]
 public class HugeIntegerCoerceTest

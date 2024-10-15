@@ -4,9 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#3234]
 public class CoerceEmptyToInt3234Test

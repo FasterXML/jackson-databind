@@ -8,8 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 
 public class BuilderWithCreatorTest
 {

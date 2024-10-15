@@ -7,10 +7,11 @@ import com.fasterxml.jackson.annotation.Nulls;
 
 import com.fasterxml.jackson.databind.*;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // for [databind#1402]; configurable null handling, specifically with SKIP
 public class NullConversionsSkipTest {

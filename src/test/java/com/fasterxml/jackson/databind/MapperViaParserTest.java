@@ -11,9 +11,10 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.assertToken;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class MapperViaParserTest
 {

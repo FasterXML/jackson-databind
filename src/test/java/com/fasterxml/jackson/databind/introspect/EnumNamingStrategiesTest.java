@@ -9,8 +9,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.fasterxml.jackson.databind.EnumNamingStrategy;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static com.fasterxml.jackson.databind.EnumNamingStrategies.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.EnumNamingStrategies.*;
 
 /**
  * Test case to verify functioning of standard

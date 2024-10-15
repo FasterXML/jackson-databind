@@ -9,9 +9,10 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NamingStrategyViaCreator556Test
 {

@@ -7,10 +7,11 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newTypeFactory;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newTypeFactory;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 // for [databind#1604], [databind#2577]
 public class TypeFactory1604Test

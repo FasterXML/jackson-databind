@@ -9,9 +9,10 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 
 // for [databind#1807]
 public class MapDeserializerCachingTest

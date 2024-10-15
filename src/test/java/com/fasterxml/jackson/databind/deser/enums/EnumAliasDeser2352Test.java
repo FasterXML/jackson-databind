@@ -7,9 +7,10 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 import com.fasterxml.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EnumAliasDeser2352Test
 {

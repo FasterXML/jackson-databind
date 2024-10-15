@@ -9,9 +9,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BuilderDeserializationTest2486
 {

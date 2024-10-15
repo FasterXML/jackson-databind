@@ -10,9 +10,10 @@ import com.fasterxml.jackson.databind.testutil.UnlimitedLookupCache;
 import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 // for [databind#1415]
 public class ContainerTypesTest

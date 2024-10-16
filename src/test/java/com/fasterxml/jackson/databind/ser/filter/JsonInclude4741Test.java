@@ -16,7 +16,7 @@ public class JsonInclude4741Test
         public String value = null;
     }
 
-    private ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     void testSerialization() throws Exception

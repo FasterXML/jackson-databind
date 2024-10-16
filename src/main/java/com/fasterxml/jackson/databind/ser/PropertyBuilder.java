@@ -182,11 +182,9 @@ public class PropertyBuilder
             }
             if (valueToSuppress == null) {
                 suppressNulls = true;
-                // [databind#4471] Since 2.18.1 Different behavior when Include.NON_DEFAULT setting is used on
-                //                POJO vs global setting, as per documentation.
-                boolean isGloballyConfigured = _config.getDefaultInclusion(actualType.getRawClass(), rawPropertyType)
-                        .getValueInclusion() == JsonInclude.Include.NON_DEFAULT;
-                if (isGloballyConfigured) {
+                // [databind#4471] Different behavior when Include.NON_DEFAULT
+                //   setting is used on POJO vs global setting, as per documentation.
+                if (!_useRealPropertyDefaults) {
                     // [databind#4464] NON_DEFAULT does not work with NON_EMPTY for custom serializer
                     valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
                 }

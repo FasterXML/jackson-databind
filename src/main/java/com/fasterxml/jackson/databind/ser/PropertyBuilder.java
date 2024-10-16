@@ -183,8 +183,12 @@ public class PropertyBuilder
             }
             if (valueToSuppress == null) {
                 suppressNulls = true;
-                // [databind#4464] NON_DEFAULT does not work with NON_EMPTY for custom serializer
-                valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
+                // [databind#4471] Different behavior when Include.NON_DEFAULT
+                //   setting is used on POJO vs global setting, as per documentation.
+                if (!_useRealPropertyDefaults) {
+                    // [databind#4464] NON_DEFAULT does not work with NON_EMPTY for custom serializer
+                    valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
+                }
             } else {
                 if (valueToSuppress.getClass().isArray()) {
                     valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);

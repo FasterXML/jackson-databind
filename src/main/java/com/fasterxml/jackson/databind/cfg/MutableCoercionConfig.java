@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.cfg;
 
+import java.util.function.Consumer;
+
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.LogicalType;
-
-import java.util.function.Consumer;
 
 /**
  * Mutable version of {@link CoercionConfig} (or rather, extended API)

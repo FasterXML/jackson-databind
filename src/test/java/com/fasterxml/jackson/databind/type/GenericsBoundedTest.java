@@ -3,8 +3,9 @@ package com.fasterxml.jackson.databind.type;
 import java.io.Serializable;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.core.JsonParser;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;

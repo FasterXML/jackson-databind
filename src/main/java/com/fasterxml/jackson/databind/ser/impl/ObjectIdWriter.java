@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;

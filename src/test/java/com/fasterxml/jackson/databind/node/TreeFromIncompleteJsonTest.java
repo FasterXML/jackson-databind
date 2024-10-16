@@ -2,11 +2,12 @@ package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import org.junit.jupiter.api.Test;
 
 public class TreeFromIncompleteJsonTest extends DatabindTestUtil
 {

@@ -4,11 +4,11 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.EnumNamingStrategy;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
  * Helper class used to resolve String values (either JSON Object field

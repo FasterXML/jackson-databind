@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ext;
 import java.sql.Blob;
 
 import javax.sql.rowset.serial.SerialBlob;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.Base64Variants;

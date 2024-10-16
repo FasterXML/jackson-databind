@@ -5,7 +5,6 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

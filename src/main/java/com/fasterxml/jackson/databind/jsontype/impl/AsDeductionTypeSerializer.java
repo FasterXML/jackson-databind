@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;

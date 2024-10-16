@@ -1,12 +1,13 @@
 package com.fasterxml.jackson.databind.seq;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

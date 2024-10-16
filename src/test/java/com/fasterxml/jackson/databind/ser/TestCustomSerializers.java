@@ -5,7 +5,6 @@ import java.io.StringWriter;
 import java.util.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
@@ -13,7 +12,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;

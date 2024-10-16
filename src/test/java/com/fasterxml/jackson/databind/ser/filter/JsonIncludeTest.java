@@ -104,6 +104,19 @@ public class JsonIncludeTest
         }
     }
 
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    static class NonDefaultBean4741 {
+        private String value = null;
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
     static class NonEmptyString {
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
         public String value;
@@ -366,6 +379,15 @@ public class JsonIncludeTest
         // [databind#1417]
         assertEquals(a2q("{}"),
                 mapper.writeValueAsString(new Issue1351NonBean(0)));
+    }
+
+    // [databind#4741]
+    public void testSerialization4741() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        NonDefaultBean4741 bean = new NonDefaultBean4741();
+        bean.setValue("");
+        assertEquals(a2q("{'value':''}"), mapper.writeValueAsString(bean));
     }
 
     // [databind#1550]

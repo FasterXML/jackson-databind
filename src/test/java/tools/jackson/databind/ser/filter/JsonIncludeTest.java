@@ -104,17 +104,10 @@ public class JsonIncludeTest
         }
     }
 
+    // [databind#4741]
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     static class NonDefaultBean4741 {
-        private String value = null;
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
+        public String value = null;
     }
 
     static class NonEmptyString {
@@ -387,12 +380,12 @@ public class JsonIncludeTest
     }
 
     // [databind#4741]
+    @Test
     public void testSerialization4741() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         NonDefaultBean4741 bean = new NonDefaultBean4741();
-        bean.setValue("");
-        assertEquals(a2q("{'value':''}"), mapper.writeValueAsString(bean));
+        bean.value = "";
+        assertEquals(a2q("{'value':''}"), MAPPER.writeValueAsString(bean));
     }
 
     // [databind#1550]

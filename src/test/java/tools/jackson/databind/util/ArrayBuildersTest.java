@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.ArrayBuilders.BooleanBuilder;
 import tools.jackson.databind.util.ArrayBuilders.ByteBuilder;
 import tools.jackson.databind.util.ArrayBuilders.DoubleBuilder;
@@ -12,7 +13,6 @@ import tools.jackson.databind.util.ArrayBuilders.FloatBuilder;
 import tools.jackson.databind.util.ArrayBuilders.IntBuilder;
 import tools.jackson.databind.util.ArrayBuilders.LongBuilder;
 import tools.jackson.databind.util.ArrayBuilders.ShortBuilder;
-import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 

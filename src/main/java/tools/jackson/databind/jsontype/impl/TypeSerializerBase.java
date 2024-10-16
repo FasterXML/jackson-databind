@@ -6,7 +6,6 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
-
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.SerializerProvider;

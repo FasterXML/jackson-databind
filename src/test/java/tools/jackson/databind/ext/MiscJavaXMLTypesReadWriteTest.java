@@ -2,13 +2,12 @@ package tools.jackson.databind.ext;
 
 import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
-
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
-import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 

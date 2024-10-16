@@ -9,11 +9,10 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.type.TypeReference;
-
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 

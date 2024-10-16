@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.type.TypeReference;
-
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 

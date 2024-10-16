@@ -6,7 +6,6 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.ser.std.StdSerializer;

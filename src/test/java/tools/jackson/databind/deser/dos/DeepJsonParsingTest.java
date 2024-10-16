@@ -1,17 +1,14 @@
 package tools.jackson.databind.deser.dos;
 
-import tools.jackson.core.json.JsonFactory;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.exc.StreamConstraintsException;
-
+import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class DeepJsonParsingTest extends DatabindTestUtil

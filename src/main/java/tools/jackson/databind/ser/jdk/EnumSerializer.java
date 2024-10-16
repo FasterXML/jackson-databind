@@ -1,14 +1,13 @@
 package tools.jackson.databind.ser.jdk;
 
 import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.Objects;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import tools.jackson.core.*;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.introspect.AnnotatedClass;

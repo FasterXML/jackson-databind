@@ -13,7 +13,6 @@ import tools.jackson.core.tree.ArrayTreeNode;
 import tools.jackson.core.tree.ObjectTreeNode;
 import tools.jackson.core.type.ResolvedType;
 import tools.jackson.core.type.TypeReference;
-
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;

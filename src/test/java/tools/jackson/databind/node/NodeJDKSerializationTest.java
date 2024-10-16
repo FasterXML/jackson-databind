@@ -5,7 +5,6 @@ import java.io.*;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
-
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;

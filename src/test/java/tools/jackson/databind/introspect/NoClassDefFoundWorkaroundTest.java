@@ -1,8 +1,8 @@
 package tools.jackson.databind.introspect;
 
 import java.util.List;
-import javax.measure.Measure;
 
+import javax.measure.Measure;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;

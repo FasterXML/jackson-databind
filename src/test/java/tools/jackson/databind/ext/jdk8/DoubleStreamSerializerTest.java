@@ -1,12 +1,12 @@
 package tools.jackson.databind.ext.jdk8;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.stream.DoubleStream;
 
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class DoubleStreamSerializerTest extends StreamTestBase
 {

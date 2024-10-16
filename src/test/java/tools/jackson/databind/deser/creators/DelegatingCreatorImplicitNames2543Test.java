@@ -2,6 +2,8 @@ package tools.jackson.databind.deser.creators;
 
 import java.util.Objects;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -10,8 +12,6 @@ import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

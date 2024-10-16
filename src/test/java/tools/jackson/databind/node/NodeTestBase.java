@@ -1,7 +1,6 @@
 package tools.jackson.databind.node;
 
 import tools.jackson.databind.JsonNode;
-
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;

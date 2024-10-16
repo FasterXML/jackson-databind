@@ -4,8 +4,8 @@ import java.util.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
-import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedClass;
+import tools.jackson.databind.introspect.AnnotatedMember;
 
 /**
  * Helper class used to resolve String values (either JSON Object field

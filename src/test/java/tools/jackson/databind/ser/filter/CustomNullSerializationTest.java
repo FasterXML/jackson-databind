@@ -1,7 +1,6 @@
 package tools.jackson.databind.ser.filter;
 
 import tools.jackson.core.*;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.cfg.GeneratorSettings;

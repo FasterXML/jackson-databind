@@ -2,8 +2,8 @@ package tools.jackson.databind.struct;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;

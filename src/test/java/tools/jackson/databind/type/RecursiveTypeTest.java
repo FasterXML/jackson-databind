@@ -1,8 +1,8 @@
 package tools.jackson.databind.type;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.*;
+
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;

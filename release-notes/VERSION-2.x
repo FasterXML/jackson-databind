@@ -18,6 +18,10 @@ Project: jackson-databind
 
 2.18.1 (WIP-2024)
 
+#4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
+  are not included in json if default is `null`
+ (reported by @ragnhov)
+ (fix by Joo-Hyuk K)
 #4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
   with the wrong argument
  (fix by wrongwrong)

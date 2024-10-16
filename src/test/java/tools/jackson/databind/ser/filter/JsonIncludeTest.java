@@ -1,6 +1,5 @@
 package tools.jackson.databind.ser.filter;
 
-import java.io.IOException;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -154,8 +153,19 @@ public class JsonIncludeTest
         public NonDefaultCalendar(Calendar v) { super(v); }
     }
 
-    // [databind#1351]
+    // [databind#1327]
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    static class Issue1327BeanEmpty {
+        public List<String> myList = new ArrayList<String>();
+    }
 
+    // [databind#1327]
+    static class Issue1327BeanAlways {
+        @JsonInclude(JsonInclude.Include.ALWAYS)
+        public List<String> myList = new ArrayList<String>();
+    }
+
+    // [databind#1351]
     static class Issue1351Bean
     {
         public final String first;
@@ -208,7 +218,7 @@ public class JsonIncludeTest
     final private ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testGlobal() throws IOException
+    public void testGlobal() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SimpleBean());
         assertEquals(2, result.size());
@@ -218,7 +228,7 @@ public class JsonIncludeTest
     }
 
     @Test
-    public void testNonNullByClass() throws IOException
+    public void testNonNullByClass() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new NoNullsBean());
         assertEquals(1, result.size());
@@ -229,7 +239,7 @@ public class JsonIncludeTest
     }
 
     @Test
-    public void testNonDefaultByClass() throws IOException
+    public void testNonDefaultByClass() throws Exception
     {
         NonDefaultBean bean = new NonDefaultBean();
         // need to change one of defaults
@@ -244,7 +254,7 @@ public class JsonIncludeTest
 
     // [databind#998]
     @Test
-    public void testNonDefaultByClassNoCtor() throws IOException
+    public void testNonDefaultByClassNoCtor() throws Exception
     {
         NonDefaultBeanXYZ bean = new NonDefaultBeanXYZ(1, 2, 0);
         String json = MAPPER.writeValueAsString(bean);
@@ -252,7 +262,7 @@ public class JsonIncludeTest
     }
 
     @Test
-    public void testMixedMethod() throws IOException
+    public void testMixedMethod() throws Exception
     {
         MixedBean bean = new MixedBean();
         bean._a = "xyz";
@@ -271,20 +281,20 @@ public class JsonIncludeTest
     }
 
     @Test
-    public void testDefaultForEmptyList() throws IOException
+    public void testDefaultForEmptyList() throws Exception
     {
         assertEquals("{}", MAPPER.writeValueAsString(new ListBean()));
     }
 
-    // NON_DEFAULT shoud work for arrays too
+    // NON_DEFAULT should work for arrays too
     @Test
-    public void testNonEmptyDefaultArray() throws IOException
+    public void testNonEmptyDefaultArray() throws Exception
     {
         assertEquals("{}", MAPPER.writeValueAsString(new ArrayBean()));
     }
 
     @Test
-    public void testDefaultForIntegers() throws IOException
+    public void testDefaultForIntegers() throws Exception
     {
         assertEquals("{}", MAPPER.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(0))));
         assertEquals("{\"i2\":1}", MAPPER.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(1))));
@@ -292,7 +302,7 @@ public class JsonIncludeTest
     }
 
     @Test
-    public void testEmptyInclusionScalars() throws IOException
+    public void testEmptyInclusionScalars() throws Exception
     {
         ObjectMapper defMapper = MAPPER;
         ObjectMapper inclMapper = jsonMapperBuilder()
@@ -320,6 +330,33 @@ public class JsonIncludeTest
         IntWrapper zero = new IntWrapper(0);
         assertEquals("{\"i\":0}", defMapper.writeValueAsString(zero));
         assertEquals("{\"i\":0}", inclMapper.writeValueAsString(zero));
+    }
+
+    // for [databind#1327]
+    @Test
+    public void test1327ClassDefaultsForEmpty() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .build();
+
+        final String jsonString = mapper.writeValueAsString(new Issue1327BeanEmpty());
+
+        if (jsonString.contains("myList")) {
+            fail("Should not contain `myList`: "+jsonString);
+        }
+    }
+
+    @Test
+    public void test1327ClassDefaultsForAlways() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
+
+        final String jsonString = mapper.writeValueAsString(new Issue1327BeanAlways());
+
+        if (!jsonString.contains("myList")) {
+            fail("Should contain `myList` with Include.ALWAYS: "+jsonString);
+        }
     }
 
     // [databind#1351], [databind#1417]

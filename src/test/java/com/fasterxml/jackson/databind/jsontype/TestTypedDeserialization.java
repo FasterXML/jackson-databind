@@ -220,7 +220,7 @@ public class TestTypedDeserialization
             +asJSONObjectValueString(m, "@classy", Fish.class.getName())
             +", null\n]";
 
-        JavaType expType = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Animal.class);
+        JavaType expType = defaultTypeFactory().constructCollectionType(ArrayList.class, Animal.class);
         List<Animal> animals = m.readValue(JSON, expType);
         assertNotNull(animals);
         assertEquals(4, animals.size());

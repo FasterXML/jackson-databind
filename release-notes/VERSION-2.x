@@ -4,7 +4,40 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.18.0 (not yet released)
+2.19.0 (not yet released)
+
+#2461: Nested `@JsonUnwrapped` property names not correctly handled
+ (reported by @plovell)
+ (fix contributed by @SandeepGaur2016)
+#4674: Allow setting global enum naming strategy similar to property naming strategy
+ (requested by @hajdamak)
+ (contributed by Konstantin M)
+#4676: Support other enum naming strategies than camelCase
+ (requested by @hajdamak)
+ (contributed by Lars 
+
+2.18.1 (WIP-2024)
+
+#4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
+  are not included in json if default is `null`
+ (reported by @ragnhov)
+ (fix by Joo-Hyuk K)
+#4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
+  with the wrong argument
+ (fix by wrongwrong)
+#4508: Deserialized JsonAnySetter field in Kotlin data class is null
+ (reported by @MaximValeev)
+ (fix by Joo-Hyuk K)
+#4639: @JsonAnySetter on field ignoring unrecognized properties if they are
+  declared before the last recognized properties in JSON
+ (reported by Sim Y-T)
+ (fix by Joo-Hyuk K)
+#4718: Should not fail on trying to serialize `java.time.DateTimeException`
+#4724: Deserialization behavior change with Records, `@JsonCreator` and
+  `@JsonValue` between 2.17 and 2.18
+ (reported by Antti L)
+
+2.18.0 (26-Sep-2024)
 
 #562: Allow `@JsonAnySetter` to flow through Creators
  (reported by Benson M)
@@ -13,6 +46,9 @@ Project: jackson-databind
 #2977: Incompatible `FAIL_ON_MISSING_PRIMITIVE_PROPERTIES` and
   field level `@JsonProperty`
  (reported by @GeorgiPetkov)
+#3120: Return `ListIterator` from `ArrayNode.elements()`
+ (requested by @ludgerb)
+ (fix by Joo-Hyuk K)
 #3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
   for nullability
  (reported by @joca-bt)
@@ -70,6 +106,18 @@ Project: jackson-databind
  (contributed by Sim Y-T)
 #4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
  (reported by Mathijs V)
+#4688: Should allow deserializing with no-arg `@JsonCreator(mode = DELEGATING)`
+ (contributed by Carter K)
+#4694: Deserializing `BigDecimal` with large number of decimals result in incorrect value
+ (reported by @lnthai2002)
+#4699: Add extra `writeNumber()` method in `TokenBuffer`
+ (contributed by @pjfanning)
+#4709: Add `JacksonCollectors` with `toArrayNode()` implementation
+ (contributed by @rikkarth)
+
+2.17.3 (not yet released)
+
+#4718: Should not fail on trying to serialize `java.time.DateTimeException`
 
 2.17.2 (05-Jul-2024)
 

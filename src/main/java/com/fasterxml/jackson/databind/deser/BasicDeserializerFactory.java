@@ -453,6 +453,13 @@ public abstract class BasicDeserializerFactory
         int ix = -1;
         final int argCount = candidate.paramCount();
         SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
+        // [databind#4688]: Should still accept 0-arg (explicitly delegated) creator
+        //   for backwards-compatibility (worked in 2.17 and before)
+        if (argCount == 0) {
+            // "Convert" to property-based since that works well
+            creators.addPropertyCreator(candidate.creator(), true, properties);
+            return true;
+        }
         for (int i = 0; i < argCount; ++i) {
             AnnotatedParameter param = candidate.parameter(i);
             JacksonInject.Value injectId = candidate.injection(i);
@@ -1825,7 +1832,7 @@ factory.toString()));
     {
         Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
-                namingDef, config.canOverrideAccessModifiers());
+                namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
         return enumNamingStrategy == null ? null
                 : EnumResolver.constructUsingEnumNamingStrategy(config, annotatedClass, enumNamingStrategy);
     }
@@ -1842,7 +1849,7 @@ factory.toString()));
             AnnotatedClass annotatedClass) {
         Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
-            namingDef, config.canOverrideAccessModifiers());
+            namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
         return enumNamingStrategy == null ? null
             : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);
     }

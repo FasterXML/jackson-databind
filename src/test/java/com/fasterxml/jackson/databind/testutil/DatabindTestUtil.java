@@ -367,7 +367,7 @@ public class DatabindTestUtil
 
     public static TypeFactory newTypeFactory() {
         // this is a work-around; no null modifier added
-        return TypeFactory.defaultInstance().withModifier(null);
+        return defaultTypeFactory().withModifier(null);
     }
 
     /*
@@ -560,6 +560,11 @@ public class DatabindTestUtil
         return TimeZone.getTimeZone("GMT");
     }
 
+    // Separated out since "default" TypeFactory instance handling differs
+    // between 2.x and 3.x
+    public static TypeFactory defaultTypeFactory() {
+        return TypeFactory.defaultInstance();
+    }
 
     protected JsonParser createParserUsingReader(String input)
         throws IOException

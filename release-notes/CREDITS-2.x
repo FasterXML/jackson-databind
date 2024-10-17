@@ -849,6 +849,8 @@ Carter Kozak (carterkozak@github)
   * Contributed #3876: `TypeFactory` cache performance degradation with
     `constructSpecializedType()`
    (2.15.0)
+  * Contributed #4688: Should allow deserializing with no-arg `@JsonCreator(mode = DELEGATING)`
+   (2.18.0)
 
 Reinhard Prechtl (dnno@github)
   * Reported #2034: Serialization problem with type specialization of nested generic types
@@ -1668,6 +1670,9 @@ Antti Lampinen (arlampin@github)
   * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
     and is marked `Access.WRITE_ONLY`
    (2.15.1)
+  * Reported #4724: Deserialization behavior change with Records, `@JsonCreator` and
+   `@JsonValue` between 2.17 and 2.18
+   (2.18.1)
 
 Dmitry Bolotin (dbolotin@github)
   * Reported #1172: `@JsonView` doesn't work with `@JsonCreator`
@@ -1827,3 +1832,28 @@ Eduard Gomoliako (Gems@github)
 Mathijs Vogelzang (mathijs81@github)
  * Reported #4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
   (2.18.0)
+
+Rikkarth (rikkarth@github)
+ * Contributed #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
+  (2.18.0)
+
+Maxim Valeev (@MaximValeev)
+ * Reported #4508: Deserialized JsonAnySetter field in Kotlin data class is null
+  (2.18.1)
+
+wrongwrong (@k163377)
+ * Contributed #4749: Fixed problem in StdDelegatingSerializer#serializeWithType where final serializer lookup was done
+   on the pre-converted value when _delegateSerializer was null
+  (2.18.1)
+
+@SandeepGaur2016
+ * Contributed fix for #2461: Nested `@JsonUnwrapped` property names not correctly handled
+  (2.19.0)
+
+Konstantin Maliuga (@badoken)
+ * Contributed #4674: Allow setting global enum naming strategy similar to property naming strategy
+  (2.19.0)
+
+Lars Benedetto (@lbenedetto)
+ * Contributed #4676: Support other enum naming strategies than camelCase
+  (2.19.0)

@@ -1,15 +1,16 @@
 package com.fasterxml.jackson.databind.ser.jdk;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.EnumNaming;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-
 import java.util.EnumMap;
 import java.util.EnumSet;
 
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.EnumNaming;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 

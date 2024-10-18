@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToEmptyObjectSerializer;

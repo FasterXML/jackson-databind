@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
-
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 

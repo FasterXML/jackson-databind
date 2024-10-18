@@ -3,7 +3,6 @@ package tools.jackson.databind.ser;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.Base64Variants;
-
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 

@@ -10,8 +10,8 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 

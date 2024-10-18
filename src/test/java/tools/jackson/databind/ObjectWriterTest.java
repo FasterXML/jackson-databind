@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonWriteFeature;
-
 import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.*;

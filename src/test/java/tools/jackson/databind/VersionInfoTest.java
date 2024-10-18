@@ -4,11 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.Version;
 import tools.jackson.core.Versioned;
-
+import tools.jackson.databind.cfg.PackageVersion;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import tools.jackson.databind.json.JsonMapper;
-
-import tools.jackson.databind.cfg.PackageVersion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

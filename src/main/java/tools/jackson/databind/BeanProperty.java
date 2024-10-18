@@ -6,14 +6,13 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Value;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.FullyNamed;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Bean properties are logical entities that represent data

@@ -6,16 +6,15 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 import tools.jackson.core.*;
-
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import static tools.jackson.databind.testutil.DatabindTestUtil.IntWrapper;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static tools.jackson.databind.testutil.DatabindTestUtil.q;
-import static tools.jackson.databind.testutil.DatabindTestUtil.IntWrapper;
 
 /**
  * This unit test suite tests use of basic Annotations for

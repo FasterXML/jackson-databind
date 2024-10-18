@@ -1,7 +1,5 @@
 package tools.jackson.databind.ext.jdk8;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
@@ -11,7 +9,10 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import tools.jackson.core.type.TypeReference;
+
+import static org.junit.Assert.*;
 
 public class StreamSerializerTest extends StreamTestBase
 {

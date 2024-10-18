@@ -74,6 +74,7 @@ public class FieldDeserTest
     }
 
     abstract static class Abstract { }
+
     static class Concrete extends Abstract
     {
         String value;

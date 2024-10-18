@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 

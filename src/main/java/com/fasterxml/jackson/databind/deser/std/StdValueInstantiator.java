@@ -135,6 +135,9 @@ public class StdValueInstantiator
         _delegateArguments = delegateArgs;
         _withArgsCreator = withArgsCreator;
         _constructorArguments = constructorArgs;
+        if (_defaultCreator == null) {
+            _defaultCreator = withArgsCreator;
+        }
     }
 
     public void configureFromArraySettings(

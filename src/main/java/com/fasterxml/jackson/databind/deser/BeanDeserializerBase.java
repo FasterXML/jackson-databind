@@ -645,7 +645,7 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         }
 
         // And now that we know CreatorProperty instances are also resolved can finally create the creator:
-        if (creatorProps != null) {
+        if (creatorProps != null && creatorProps.length > 0) {
             _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator,
                     creatorProps, _beanProperties);
         }

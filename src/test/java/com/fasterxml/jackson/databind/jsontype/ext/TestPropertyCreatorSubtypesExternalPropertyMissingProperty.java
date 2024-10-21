@@ -136,7 +136,7 @@ class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
      * Deserialization tests for external type id property present
      */
     @Test
-    void testDeserializationPresent() throws Exception {
+    void deserializationPresent() throws Exception {
         checkOrangeBox(BOX_READER_PASS);
         checkAppleBox(BOX_READER_PASS);
 
@@ -148,7 +148,7 @@ class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
      * Deserialization tests for external type id property null
      */
     @Test
-    void testDeserializationNull() throws Exception {
+    void deserializationNull() throws Exception {
         checkOrangeBoxNull(BOX_READER_PASS, orangeBoxNullJson);
         checkAppleBoxNull(BOX_READER_PASS, appleBoxNullJson);
 
@@ -160,7 +160,7 @@ class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
      * Deserialization tests for external type id property empty
      */
     @Test
-    void testDeserializationEmpty() throws Exception {
+    void deserializationEmpty() throws Exception {
         checkOrangeBoxEmpty(BOX_READER_PASS, orangeBoxEmptyJson);
         checkAppleBoxEmpty(BOX_READER_PASS, appleBoxEmptyJson);
 
@@ -172,7 +172,7 @@ class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
      * Deserialization tests for external type id property missing
      */
     @Test
-    void testDeserializationMissing() throws Exception {
+    void deserializationMissing() throws Exception {
         checkOrangeBoxNull(BOX_READER_PASS, orangeBoxMissingJson);
         checkAppleBoxNull(BOX_READER_PASS, appleBoxMissingJson);
 

@@ -32,14 +32,14 @@ class CoerceEmptyToInt3234Test
     // // // Ints
 
     @Test
-    void testSimpleIntFromEmpty() throws Exception
+    void simpleIntFromEmpty() throws Exception
     {
         BasicIntWrapper w = READER_INT_BASIC.readValue(a2q("{'value':''}"));
         assertEquals(0, w.value);
     }
 
     @Test
-    void testSimpleIntFromBlank() throws Exception
+    void simpleIntFromBlank() throws Exception
     {
         BasicIntWrapper w = READER_INT_BASIC.readValue(a2q("{'value':' '}"));
         assertEquals(0, w.value);
@@ -48,14 +48,14 @@ class CoerceEmptyToInt3234Test
     // // // Long
 
     @Test
-    void testSimpleLongFromEmpty() throws Exception
+    void simpleLongFromEmpty() throws Exception
     {
         BasicLongWrapper w = READER_LONG_BASIC.readValue(a2q("{'value':''}"));
         assertEquals(0L, w.value);
     }
 
     @Test
-    void testSimpleLongFromBlank() throws Exception
+    void simpleLongFromBlank() throws Exception
     {
         BasicLongWrapper w = READER_LONG_BASIC.readValue(a2q("{'value':' '}"));
         assertEquals(0L, w.value);
@@ -64,14 +64,14 @@ class CoerceEmptyToInt3234Test
     // // // Double
 
     @Test
-    void testSimpleDoublegFromEmpty() throws Exception
+    void simpleDoublegFromEmpty() throws Exception
     {
         BasicDoubleWrapper w = READER_DOUBLE_BASIC.readValue(a2q("{'value':''}"));
         assertEquals((double) 0, w.value);
     }
 
     @Test
-    void testSimpleDoubleFromBlank() throws Exception
+    void simpleDoubleFromBlank() throws Exception
     {
         BasicDoubleWrapper w = READER_DOUBLE_BASIC.readValue(a2q("{'value':' '}"));
         assertEquals((double) 0, w.value);

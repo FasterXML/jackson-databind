@@ -88,7 +88,7 @@ class PojoAsArray646Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testWithCustomTypeId() throws Exception {
+    void withCustomTypeId() throws Exception {
 
         List<TheItem.NestedItem> nestedList = new ArrayList<TheItem.NestedItem>();
         nestedList.add(new TheItem.NestedItem("foo1"));

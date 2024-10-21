@@ -101,7 +101,7 @@ class SkipNulls4441Test
             "}");
 
     @Test
-    void testFields() throws Exception {
+    void fields() throws Exception {
         // Passes
         // For some reason, if most-inner "list1" field is null in the end, it works
         _testFieldNullSkip(NULL_ENDING_JSON);
@@ -111,7 +111,7 @@ class SkipNulls4441Test
     }
 
     @Test
-    void testMethods() throws Exception {
+    void methods() throws Exception {
         // Passes
         // For some reason, if most-inner "list1" field is null in the end, it works
         _testMethodNullSkip(NULL_ENDING_JSON);

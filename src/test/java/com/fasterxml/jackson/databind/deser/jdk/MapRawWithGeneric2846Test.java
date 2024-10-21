@@ -25,7 +25,7 @@ class MapRawWithGeneric2846Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testIssue2821Part2() throws Exception {
+    void issue2821Part2() throws Exception {
         final String JSON = "{ \"map\": { \"key\": \"value\" } }";
         GenericEntity<SimpleEntity> genericEntity = MAPPER.readValue(JSON,
                 new TypeReference<GenericEntity<SimpleEntity>>() {});

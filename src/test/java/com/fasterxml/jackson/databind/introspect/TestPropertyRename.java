@@ -65,14 +65,14 @@ class TestPropertyRename extends DatabindTestUtil
      */
 
     @Test
-    void testCreatorPropRenameWithIgnore() throws Exception
+    void creatorPropRenameWithIgnore() throws Exception
     {
         Bean323WithIgnore input = new Bean323WithIgnore(7);
         assertEquals("{\"b\":7}", objectWriter().writeValueAsString(input));
     }
 
     @Test
-    void testCreatorPropRenameWithCleave() throws Exception
+    void creatorPropRenameWithCleave() throws Exception
     {
         assertEquals("{\"a\":7,\"b\":7}",
         		objectWriter().writeValueAsString(new Bean323WithExplicitCleave1(7)));

@@ -94,7 +94,7 @@ class MapPolymorphicMerge2336Test
 
     // [databind#2336]
     @Test
-    void testPolymorphicMapMerge() throws Exception
+    void polymorphicMapMerge() throws Exception
     {
         // first let's just get some valid JSON
         SomeOtherClass baseValue = new SomeOtherClass("house");

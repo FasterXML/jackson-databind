@@ -54,7 +54,7 @@ class PolymorphicViaRefTypeTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testPolymorphicAtomicRefProperty() throws Exception
+    void polymorphicAtomicRefProperty() throws Exception
     {
         TypeInfoAtomic data = new TypeInfoAtomic();
         data.value = new AtomicReference<BaseForAtomic>(new ImplForAtomic(42));
@@ -68,7 +68,7 @@ class PolymorphicViaRefTypeTest extends DatabindTestUtil
     }
 
     @Test
-    void testAtomicRefViaDefaultTyping() throws Exception
+    void atomicRefViaDefaultTyping() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

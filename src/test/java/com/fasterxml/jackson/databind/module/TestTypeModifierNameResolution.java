@@ -50,7 +50,7 @@ class TestTypeModifierNameResolution extends DatabindTestUtil
 
     // Expect that the TypeModifier kicks in when the type id is written.
     @Test
-    void testTypeModiferNameResolution() throws Exception
+    void typeModiferNameResolution() throws Exception
 	{
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new CustomTypeModifier()));

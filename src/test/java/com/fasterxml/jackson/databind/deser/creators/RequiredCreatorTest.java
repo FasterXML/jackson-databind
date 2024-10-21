@@ -66,7 +66,7 @@ class RequiredCreatorTest
     private final ObjectReader POINT_READER = MAPPER.readerFor(FascistPoint.class);
 
     @Test
-    void testRequiredAnnotatedParam() throws Exception
+    void requiredAnnotatedParam() throws Exception
     {
         FascistPoint p;
 
@@ -93,7 +93,7 @@ class RequiredCreatorTest
     }
 
     @Test
-    void testRequiredGloballyParam() throws Exception
+    void requiredGloballyParam() throws Exception
     {
         FascistPoint p;
 
@@ -114,7 +114,7 @@ class RequiredCreatorTest
 
     // [databind#2591]
     @Test
-    void testRequiredViaParameter2591() throws Exception
+    void requiredViaParameter2591() throws Exception
     {
         final String input = a2q("{'status':'OK', 'message':'Sent Successfully!'}");
         try {

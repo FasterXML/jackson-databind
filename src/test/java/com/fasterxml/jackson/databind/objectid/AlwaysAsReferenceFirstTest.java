@@ -71,7 +71,7 @@ class AlwaysAsReferenceFirstTest extends DatabindTestUtil
 
     // [databind#1255]
     @Test
-    void testIssue1255() throws Exception
+    void issue1255() throws Exception
     {
         Foo mo = new Foo();
         mo.bar1 = new Bar();
@@ -85,7 +85,7 @@ class AlwaysAsReferenceFirstTest extends DatabindTestUtil
 
     // [databind#1607]
     @Test
-    void testIssue1607() throws Exception
+    void issue1607() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ReallyAlwaysContainer());
         assertEquals(a2q("{'alwaysClass':1,'alwaysProp':2}"), json);

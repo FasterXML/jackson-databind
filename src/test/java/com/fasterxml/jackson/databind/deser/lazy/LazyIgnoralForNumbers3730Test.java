@@ -95,7 +95,7 @@ class LazyIgnoralForNumbers3730Test
 
     @SuppressWarnings("deprecation")
     @Test
-    void testIgnoreBigInteger() throws Exception
+    void ignoreBigInteger() throws Exception
     {
         try (MockedStatic<NumberInput> mocked = mockStatic(NumberInput.class)) {
             // Set up, mock NumberInput.parseBigInteger() to throw exception
@@ -128,7 +128,7 @@ class LazyIgnoralForNumbers3730Test
 
     @SuppressWarnings("deprecation")
     @Test
-    void testIgnoreFPValuesDefault() throws Exception
+    void ignoreFPValuesDefault() throws Exception
     {
         try (MockedStatic<NumberInput> mocked = mockStatic(NumberInput.class)) {
             // Set up, mock NumberInput.parseDouble() to throw exception
@@ -168,7 +168,7 @@ class LazyIgnoralForNumbers3730Test
 
     @SuppressWarnings("deprecation")
     @Test
-    void testIgnoreFPValuesBigDecimal() throws Exception
+    void ignoreFPValuesBigDecimal() throws Exception
     {
         try (MockedStatic<NumberInput> mock = mockStatic(NumberInput.class)) {
             // Set up, mock NumberInput.parseBigDecimal() to throw exception

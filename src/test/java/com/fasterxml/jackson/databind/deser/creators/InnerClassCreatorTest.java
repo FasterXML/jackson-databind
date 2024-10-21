@@ -67,7 +67,7 @@ class InnerClassCreatorTest
 
     // Used to trigger `ArrayIndexOutOfBoundsException` for missing creator property index
     @Test
-    void testIssue1501() throws Exception
+    void issue1501() throws Exception
     {
         String ser = MAPPER.writeValueAsString(new Something1501(false));
         try {
@@ -81,7 +81,7 @@ class InnerClassCreatorTest
     }
 
     @Test
-    void testIssue1502() throws Exception
+    void issue1502() throws Exception
     {
         String ser = MAPPER.writeValueAsString(new Something1502(null));
         try {
@@ -95,7 +95,7 @@ class InnerClassCreatorTest
     }
 
     @Test
-    void testIssue1503() throws Exception
+    void issue1503() throws Exception
     {
         String ser = MAPPER.writeValueAsString(new Outer1503());
         Outer1503 result = MAPPER.readValue(ser, Outer1503.class);

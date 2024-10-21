@@ -24,7 +24,7 @@ class ArrayConversionsTest
     final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testNullXform() throws Exception
+    void nullXform() throws Exception
     {
         /* when given null, null should be returned without conversion
          * (Java null has no type)
@@ -40,7 +40,7 @@ class ArrayConversionsTest
      * not necessarily same) output
      */
     @Test
-    void testArrayIdentityTransforms() throws Exception
+    void arrayIdentityTransforms() throws Exception
     {
         // first integral types
         // (note: byte[] is ok, even if it goes to base64 and back)
@@ -54,7 +54,7 @@ class ArrayConversionsTest
     }
 
     @Test
-    void testByteArrayFrom() throws Exception
+    void byteArrayFrom() throws Exception
     {
         /* Note: byte arrays are tricky, since they are considered
          * binary data primarily, not as array of numbers. Hence
@@ -66,7 +66,7 @@ class ArrayConversionsTest
     }
 
     @Test
-    void testShortArrayToX() throws Exception
+    void shortArrayToX() throws Exception
     {
         short[] data = shorts();
         verifyShortArrayConversion(data, byte[].class);
@@ -75,7 +75,7 @@ class ArrayConversionsTest
     }
 
     @Test
-    void testIntArrayToX() throws Exception
+    void intArrayToX() throws Exception
     {
         int[] data = ints();
         verifyIntArrayConversion(data, byte[].class);
@@ -89,7 +89,7 @@ class ArrayConversionsTest
     }
 
     @Test
-    void testLongArrayToX() throws Exception
+    void longArrayToX() throws Exception
     {
         long[] data = longs();
         verifyLongArrayConversion(data, byte[].class);
@@ -102,7 +102,7 @@ class ArrayConversionsTest
     }
 
     @Test
-    void testOverflows()
+    void overflows()
     {
         // Byte overflow
         try {

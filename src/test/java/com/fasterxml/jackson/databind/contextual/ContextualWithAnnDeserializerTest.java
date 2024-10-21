@@ -72,7 +72,7 @@ class ContextualWithAnnDeserializerTest
 
     // ensure that direct associations also work
     @Test
-    void testAnnotatedContextual() throws Exception
+    void annotatedContextual() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         AnnotatedContextualClassBean bean = mapper.readValue(

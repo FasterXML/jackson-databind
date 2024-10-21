@@ -110,7 +110,7 @@ class TestObjectId extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testColumnMetadata() throws Exception
+    void columnMetadata() throws Exception
     {
         ColumnMetadata col = new ColumnMetadata("Billy", "employee", "comment");
         Wrapper w = new Wrapper();
@@ -132,7 +132,7 @@ class TestObjectId extends DatabindTestUtil
 
     // For [databind#188]
     @Test
-    void testMixedRefsIssue188() throws Exception
+    void mixedRefsIssue188() throws Exception
     {
         Company comp = new Company();
         Employee e1 = new Employee(1, "First", null);
@@ -152,7 +152,7 @@ class TestObjectId extends DatabindTestUtil
     }
 
     @Test
-    void testObjectAndTypeId() throws Exception
+    void objectAndTypeId() throws Exception
     {
         Bar inputRoot = new Bar();
         Foo inputChild = new Foo();
@@ -175,7 +175,7 @@ class TestObjectId extends DatabindTestUtil
     }
 
     @Test
-    void testWithFieldsInBaseClass1083() throws Exception {
+    void withFieldsInBaseClass1083() throws Exception {
           final String json = a2q("{'schemas': [{\n"
               + "  'name': 'FoodMart'\n"
               + "}]}\n");

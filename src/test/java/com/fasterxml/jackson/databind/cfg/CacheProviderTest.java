@@ -183,7 +183,7 @@ class CacheProviderTest
      */
 
     @Test
-    void testDefaultCacheProviderConfigDeserializerCache() throws Exception
+    void defaultCacheProviderConfigDeserializerCache() throws Exception
     {
         CacheProvider cacheProvider = DefaultCacheProvider.builder()
                 .maxDeserializerCacheSize(1234)
@@ -195,7 +195,7 @@ class CacheProviderTest
     }
 
     @Test
-    void testDefaultCacheProviderConfigDeserializerCacheSizeZero() throws Exception
+    void defaultCacheProviderConfigDeserializerCacheSizeZero() throws Exception
     {
         CacheProvider cacheProvider = DefaultCacheProvider.builder()
                 .maxDeserializerCacheSize(0)
@@ -208,7 +208,7 @@ class CacheProviderTest
     }
 
     @Test
-    void testCustomCacheProviderConfig() throws Exception
+    void customCacheProviderConfig() throws Exception
     {
         SimpleTestCache cache = new SimpleTestCache(123);
         ObjectMapper mapper = JsonMapper.builder()
@@ -220,7 +220,7 @@ class CacheProviderTest
     }
 
     @Test
-    void testDefaultCacheProviderSharesCache() throws Exception
+    void defaultCacheProviderSharesCache() throws Exception
     {
         // Arrange
         // 1. shared CacheProvider
@@ -244,7 +244,7 @@ class CacheProviderTest
     }
 
     @Test
-    void testBuilderValueValidation() throws Exception
+    void builderValueValidation() throws Exception
     {
         // success cases
         DefaultCacheProvider.builder()

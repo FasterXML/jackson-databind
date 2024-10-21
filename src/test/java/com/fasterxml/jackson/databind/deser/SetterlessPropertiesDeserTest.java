@@ -55,7 +55,7 @@ class SetterlessPropertiesDeserTest
      */
 
     @Test
-    void testSimpleSetterlessCollectionOk()
+    void simpleSetterlessCollectionOk()
             throws Exception
     {
         CollectionBean result = new ObjectMapper().readValue
@@ -71,7 +71,7 @@ class SetterlessPropertiesDeserTest
      * deserialization fail for setterless bean
      */
     @Test
-    void testSimpleSetterlessCollectionFailure()
+    void simpleSetterlessCollectionFailure()
             throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -95,7 +95,7 @@ class SetterlessPropertiesDeserTest
     }
 
     @Test
-    void testSimpleSetterlessMapOk()
+    void simpleSetterlessMapOk()
             throws Exception
     {
         MapBean result = new ObjectMapper().readValue
@@ -107,7 +107,7 @@ class SetterlessPropertiesDeserTest
     }
 
     @Test
-    void testSimpleSetterlessMapFailure()
+    void simpleSetterlessMapFailure()
             throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -127,7 +127,7 @@ class SetterlessPropertiesDeserTest
      * field for same property.
      */
     @Test
-    void testSetterlessPrecedence() throws Exception
+    void setterlessPrecedence() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_GETTERS_AS_SETTERS, true)

@@ -103,7 +103,7 @@ class AbstractTypeNamesTest  extends DatabindTestUtil
      */
 
     @Test
-    void testEmptyCollection() throws Exception
+    void emptyCollection() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
@@ -133,7 +133,7 @@ class AbstractTypeNamesTest  extends DatabindTestUtil
 
     // [JACKSON-584]: change anonymous non-static inner type into static type:
     @Test
-    void testInnerClassWithType() throws Exception
+    void innerClassWithType() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

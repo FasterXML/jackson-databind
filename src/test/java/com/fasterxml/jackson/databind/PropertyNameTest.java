@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 class PropertyNameTest
 {
     @Test
-    void testMerging() {
+    void merging() {
         PropertyName name1 = PropertyName.construct("name1", "ns1");
         PropertyName name2 = PropertyName.construct("name2", "ns2");
         PropertyName empty = PropertyName.construct("", null);

@@ -60,7 +60,7 @@ class AbstractContainerTypingTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testAbstractLists() throws Exception
+    void abstractLists() throws Exception
     {
         ListWrapper w = new ListWrapper();
         w.list.add("x");
@@ -75,7 +75,7 @@ class AbstractContainerTypingTest extends DatabindTestUtil
     }
 
     @Test
-    void testAbstractMaps() throws Exception
+    void abstractMaps() throws Exception
     {
         MapWrapper w = new MapWrapper();
         w.map.put("key1", "name1");

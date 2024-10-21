@@ -43,13 +43,13 @@ class ISO8601UtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testFormat() {
+    void format() {
         String result = ISO8601Utils.format(date);
         assertEquals("2007-08-13T19:51:23Z", result);
     }
 
     @Test
-    void testFormatMillis() {
+    void formatMillis() {
         String result = ISO8601Utils.format(date, true);
         assertEquals("2007-08-13T19:51:23.789Z", result);
 
@@ -58,7 +58,7 @@ class ISO8601UtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testFormatTimeZone() {
+    void formatTimeZone() {
         String result = ISO8601Utils.format(date, false, TimeZone.getTimeZone("GMT+02:00"));
         assertEquals("2007-08-13T21:51:23+02:00", result);
         result = ISO8601Utils.format(date, true, TimeZone.getTimeZone("GMT+02:00"));
@@ -68,7 +68,7 @@ class ISO8601UtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testParse() throws java.text.ParseException {
+    void parse() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("2007-08-13T19:51:23.789Z", new ParsePosition(0));
         assertEquals(date, d);
 
@@ -80,7 +80,7 @@ class ISO8601UtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testParseShortDate() throws java.text.ParseException {
+    void parseShortDate() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("20070813T19:51:23.789Z", new ParsePosition(0));
         assertEquals(date, d);
 
@@ -92,7 +92,7 @@ class ISO8601UtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testParseShortTime() throws java.text.ParseException {
+    void parseShortTime() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("2007-08-13T195123.789Z", new ParsePosition(0));
         assertEquals(date, d);
 
@@ -104,7 +104,7 @@ class ISO8601UtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testParseShortDateTime() throws java.text.ParseException {
+    void parseShortDateTime() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("20070813T195123.789Z", new ParsePosition(0));
         assertEquals(date, d);
 
@@ -116,7 +116,7 @@ class ISO8601UtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testParseWithoutTime() throws ParseException {
+    void parseWithoutTime() throws ParseException {
         Date d = ISO8601Utils.parse("2007-08-13Z", new ParsePosition(0));
         assertEquals(dateWithoutTime, d);
 
@@ -131,7 +131,7 @@ class ISO8601UtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testParseOptional() throws java.text.ParseException {
+    void parseOptional() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("2007-08-13T19:51Z", new ParsePosition(0));
         assertEquals(dateZeroSecondAndMillis, d);
 
@@ -143,7 +143,7 @@ class ISO8601UtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testParseRfc3339Examples() throws java.text.ParseException {
+    void parseRfc3339Examples() throws java.text.ParseException {
         // Two digit milliseconds.
         Date d = ISO8601Utils.parse("1985-04-12T23:20:50.52Z", new ParsePosition(0));
         assertEquals(newDate(1985, 4, 12, 23, 20, 50, 520, 0), d);
@@ -165,7 +165,7 @@ class ISO8601UtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testFractionalSeconds() throws java.text.ParseException {
+    void fractionalSeconds() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("1970-01-01T00:00:00.9Z", new ParsePosition(0));
         assertEquals(newDate(1970, 1, 1, 0, 0, 0, 900, 0), d);
 
@@ -201,7 +201,7 @@ class ISO8601UtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testDecimalWithoutDecimalPointButNoFractionalSeconds() throws java.text.ParseException {
+    void decimalWithoutDecimalPointButNoFractionalSeconds() throws java.text.ParseException {
         try {
             ISO8601Utils.parse("1970-01-01T00:00:00.Z", new ParsePosition(0));
             fail();

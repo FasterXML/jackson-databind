@@ -55,7 +55,7 @@ class ContextAttributeWithDeserTest
     final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimplePerCall() throws Exception
+    void simplePerCall() throws Exception
     {
         final String INPUT = a2q("[{'value':'a'},{'value':'b'}]");
         TestPOJO[] pojos = MAPPER.readerFor(TestPOJO[].class).readValue(INPUT);
@@ -71,7 +71,7 @@ class ContextAttributeWithDeserTest
     }
 
     @Test
-    void testSimpleDefaults() throws Exception
+    void simpleDefaults() throws Exception
     {
         final String INPUT = a2q("{'value':'x'}");
         TestPOJO pojo = MAPPER.readerFor(TestPOJO.class)
@@ -87,7 +87,7 @@ class ContextAttributeWithDeserTest
     }
 
     @Test
-    void testHierarchic() throws Exception
+    void hierarchic() throws Exception
     {
         final String INPUT = a2q("[{'value':'x'},{'value':'y'}]");
         ObjectReader r = MAPPER.readerFor(TestPOJO[].class).withAttribute(KEY, Integer.valueOf(2));
@@ -105,7 +105,7 @@ class ContextAttributeWithDeserTest
 
     // [databind#3001]
     @Test
-    void testDefaultsViaMapper() throws Exception
+    void defaultsViaMapper() throws Exception
     {
         final String INPUT = a2q("{'value':'x'}");
         ContextAttributes attrs = ContextAttributes.getEmpty()

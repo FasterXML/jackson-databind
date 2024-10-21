@@ -28,7 +28,7 @@ class BackReference1878Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testChildDeserialization() throws Exception {
+    void childDeserialization() throws Exception {
         Child child = MAPPER.readValue("{\"b\": {}}", Child.class);
         assertNotNull(child.b);
     }

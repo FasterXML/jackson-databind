@@ -19,7 +19,7 @@ class SchemaWithUUIDTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testUUIDSchema() throws Exception
+    void uuidSchema() throws Exception
     {
         final AtomicReference<JsonValueFormat> format = new AtomicReference<>();
 

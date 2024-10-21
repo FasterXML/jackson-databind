@@ -52,7 +52,7 @@ class MapConversionsTest
      * Test that verifies that we can go between couple of types of Maps...
      */
     @Test
-    void testMapToMap()
+    void mapToMap()
     {
         Map<String,Integer> input = new LinkedHashMap<String,Integer>();
         input.put("A", Integer.valueOf(3));
@@ -72,7 +72,7 @@ class MapConversionsTest
     }
 
     @Test
-    void testMapToBean()
+    void mapToBean()
     {
         EnumMap<AB,String> map = new EnumMap<AB,String>(AB.class);
         map.put(AB.A, "17");
@@ -83,7 +83,7 @@ class MapConversionsTest
     }
 
     @Test
-    void testBeanToMap()
+    void beanToMap()
     {
         Bean bean = new Bean();
         bean.A = 129;
@@ -96,7 +96,7 @@ class MapConversionsTest
 
     // [Issue#287]: Odd problems with `Object` type, static typing
     @Test
-    void testIssue287() throws Exception
+    void issue287() throws Exception
     {
         // use local instance to ensure no caching affects it:
         final ObjectMapper mapper = new ObjectMapper();
@@ -107,7 +107,7 @@ class MapConversionsTest
 
     // [databind#810]
     @Test
-    void testMapToProperties() throws Exception
+    void mapToProperties() throws Exception
     {
         Bean bean = new Bean();
         bean.A = 129;

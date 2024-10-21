@@ -112,7 +112,7 @@ class IncludeWithDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleInclude() throws Exception
+    void simpleInclude() throws Exception
     {
         OnlyYAndZ result = MAPPER.readValue(
                 a2q("{ 'x':1, '_x': 1, 'y':2, 'z':3 }"),
@@ -123,7 +123,7 @@ class IncludeWithDeserTest
     }
 
     @Test
-    void testIncludeIgnoredAndUnrecognizedField() throws Exception
+    void includeIgnoredAndUnrecognizedField() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(OnlyY.class);
 
@@ -157,7 +157,7 @@ class IncludeWithDeserTest
     }
 
     @Test
-    void testMergeInclude() throws Exception
+    void mergeInclude() throws Exception
     {
         OnlyYWrapperForOnlyYAndZ onlyY = MAPPER.readValue(
                 a2q("{'onlyY': {'x': 2, 'y':3, 'z': 4}}"),
@@ -169,7 +169,7 @@ class IncludeWithDeserTest
     }
 
     @Test
-    void testListInclude() throws Exception
+    void listInclude() throws Exception
     {
         IncludeForListValuesY result = MAPPER.readValue(
                 a2q("{'onlyYs':[{ 'x':1, 'y' : 2, 'z': 3 }]}"),
@@ -180,7 +180,7 @@ class IncludeWithDeserTest
     }
 
     @Test
-    void testMapWrapper() throws Exception
+    void mapWrapper() throws Exception
     {
         MapWrapper result = MAPPER.readValue(a2q("{'value': {'a': 2, 'b': 3}}"), MapWrapper.class);
         assertNotNull(result.value);
@@ -189,7 +189,7 @@ class IncludeWithDeserTest
     }
 
     @Test
-    void testMyMap() throws Exception
+    void myMap() throws Exception
     {
         MyMap result = MAPPER.readValue(a2q("{'a': 2, 'b': 3}"), MyMap.class);
         assertEquals("2", result.get("a"));
@@ -197,7 +197,7 @@ class IncludeWithDeserTest
     }
 
     @Test
-    void testForwardReferenceAnySetterComboWithInclude() throws Exception
+    void forwardReferenceAnySetterComboWithInclude() throws Exception
     {
         String json = a2q("{'@id':1, 'foo':2, 'foo2':2, 'bar':{'@id':2, 'foo':1}}");
         AnySetterObjectId value = MAPPER.readValue(json, AnySetterObjectId.class);

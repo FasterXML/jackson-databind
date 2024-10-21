@@ -58,7 +58,7 @@ class RaceCondition738Test extends DatabindTestUtil
      */
 
     @Test
-    void testRepeatedly() throws Exception {
+    void repeatedly() throws Exception {
         final int COUNT = 3000;
         for (int i = 0; i < COUNT; i++) {
             runOnce(i, COUNT);

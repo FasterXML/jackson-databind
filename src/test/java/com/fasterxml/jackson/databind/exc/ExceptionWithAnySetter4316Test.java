@@ -38,7 +38,7 @@ class ExceptionWithAnySetter4316Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testWithAnySetter() throws Exception
+    void withAnySetter() throws Exception
     {
         Problem problem = new Problem();
         problem.additionalProperties.put("key", "value");
@@ -50,7 +50,7 @@ class ExceptionWithAnySetter4316Test
 
     // Map with ignored props keys specified in @JsonIgnoreProperties
     @Test
-    void testWithAnySetterAndIgnoralsPut() throws Exception
+    void withAnySetterAndIgnoralsPut() throws Exception
     {
         // Given
         ProblemWithIgnorals problem = new ProblemWithIgnorals();
@@ -74,7 +74,7 @@ class ExceptionWithAnySetter4316Test
 
     // With ignorals
     @Test
-    void testWithAnySetterAndIgnoralSimple() throws Exception
+    void withAnySetterAndIgnoralSimple() throws Exception
     {
         // Given
         ProblemWithIgnorals problem = new ProblemWithIgnorals();
@@ -91,7 +91,7 @@ class ExceptionWithAnySetter4316Test
 
     // With Include.NON_NULL
     @Test
-    void testWithAnySetterButEmptyIncludedFalse() throws Exception
+    void withAnySetterButEmptyIncludedFalse() throws Exception
     {
         Problem problem = new Problem();
         problem.additionalProperties.put("exclude", null);

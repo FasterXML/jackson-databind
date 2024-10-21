@@ -58,7 +58,7 @@ class RecursiveTypeTest extends DatabindTestUtil
 
     // for [databind#1301]
     @Test
-    void testRecursiveType()
+    void recursiveType()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType type = tf.constructType(HashTree.class);
@@ -79,7 +79,7 @@ class RecursiveTypeTest extends DatabindTestUtil
 
     // [databind#938]
     @Test
-    void testRecursivePair() throws Exception
+    void recursivePair() throws Exception
     {
         JavaType t = MAPPER.constructType(ImmutablePair.class);
 
@@ -97,7 +97,7 @@ class RecursiveTypeTest extends DatabindTestUtil
 
     // for [databind#1301]
     @Test
-    void testJavaTypeToString() throws Exception
+    void javaTypeToString() throws Exception
     {
         TypeFactory tf = MAPPER.getTypeFactory();
         String desc = tf.constructType(DataDefinition.class).toString();
@@ -113,7 +113,7 @@ class RecursiveTypeTest extends DatabindTestUtil
 
     // for [databind#1647]
     @Test
-    void testSuperClassWithReferencedJavaType() {
+    void superClassWithReferencedJavaType() {
         TypeFactory tf = MAPPER.getTypeFactory();
         tf.constructType(Base.class); // must be constructed before sub to set the cache correctly
         JavaType subType = tf.constructType(Sub.class);

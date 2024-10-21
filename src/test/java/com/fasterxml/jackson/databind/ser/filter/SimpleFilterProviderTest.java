@@ -59,7 +59,7 @@ class SimpleFilterProviderTest extends DatabindTestUtil
      */
 
     @Test
-    void testAddFilterLastOneRemains() throws Exception {
+    void addFilterLastOneRemains() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", SimpleBeanPropertyFilter.serializeAll())
                 .addFilter("filterB", SimpleBeanPropertyFilter.filterOutAllExcept());
@@ -71,7 +71,7 @@ class SimpleFilterProviderTest extends DatabindTestUtil
     }
 
     @Test
-    void testAddFilterLastOneRemainsFlip() throws Exception {
+    void addFilterLastOneRemainsFlip() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", SimpleBeanPropertyFilter.filterOutAllExcept("a"))
                 .addFilter("filterB", SimpleBeanPropertyFilter.serializeAll());
@@ -88,7 +88,7 @@ class SimpleFilterProviderTest extends DatabindTestUtil
     }
 
     @Test
-    void testAddFilterWithEmptyStringId() throws Exception {
+    void addFilterWithEmptyStringId() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("", SimpleBeanPropertyFilter.filterOutAllExcept("d"));
         AnyBeanC bean = new AnyBeanC(null, "D is filtered");
@@ -104,7 +104,7 @@ class SimpleFilterProviderTest extends DatabindTestUtil
     }
 
     @Test
-    void testAddingNullFilter2ThrowsException() throws Exception {
+    void addingNullFilter2ThrowsException() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", null);
         ObjectWriter writer = MAPPER.writer(prov);
@@ -119,7 +119,7 @@ class SimpleFilterProviderTest extends DatabindTestUtil
     }
 
     @Test
-    void testAddingNullFilterIdThrowsException() throws Exception {
+    void addingNullFilterIdThrowsException() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter(null, SimpleBeanPropertyFilter.serializeAll());
         ObjectWriter writer = MAPPER.writer(prov);

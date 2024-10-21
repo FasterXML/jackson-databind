@@ -103,7 +103,7 @@ class NullValueViaCreatorTest
      */
 
     @Test
-    void testUsesDeserializersNullValue() throws Exception {
+    void usesDeserializersNullValue() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new TestModule());
         Container container = mapper.readValue("{}", Container.class);
@@ -112,7 +112,7 @@ class NullValueViaCreatorTest
 
     // [databind#597]: ensure that a useful exception is thrown
     @Test
-    void testCreatorReturningNull() throws IOException {
+    void creatorReturningNull() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = "{ \"type\" : \"     \", \"id\" : \"000c0ffb-a0d6-4d2e-a379-4aeaaf283599\" }";
         try {

@@ -24,7 +24,7 @@ class SqlDateDeserializationTest
 
     @SuppressWarnings("deprecation")
     @Test
-    void testDateSql() throws Exception
+    void dateSql() throws Exception
     {
         java.sql.Date value = new java.sql.Date(0L);
         value.setYear(99); // 1999
@@ -62,7 +62,7 @@ class SqlDateDeserializationTest
     }
 
     @Test
-    void testDatesWithEmptyStrings() throws Exception
+    void datesWithEmptyStrings() throws Exception
     {
         assertNull(MAPPER.readValue(q(""), java.sql.Date.class));
     }

@@ -24,7 +24,7 @@ class DOMTypeReadWriteTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testSerializeSimpleNonNS() throws Exception
+    void serializeSimpleNonNS() throws Exception
     {
         // Let's just parse first, easiest
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse
@@ -41,7 +41,7 @@ class DOMTypeReadWriteTest extends DatabindTestUtil
     }
 
     @Test
-    void testSerializeSimpleDefaultNS() throws Exception
+    void serializeSimpleDefaultNS() throws Exception
     {
         // Let's just parse first, easiest
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse
@@ -58,7 +58,7 @@ class DOMTypeReadWriteTest extends DatabindTestUtil
     }
 
     @Test
-    void testDeserializeNonNS() throws Exception
+    void deserializeNonNS() throws Exception
     {
         for (int i = 0; i < 2; ++i) {
             Document doc;
@@ -90,7 +90,7 @@ class DOMTypeReadWriteTest extends DatabindTestUtil
     }
 
     @Test
-    void testDeserializeNS() throws Exception
+    void deserializeNS() throws Exception
     {
         Document doc = MAPPER.readValue(q(SIMPLE_XML_NS), Document.class);
         Element root = doc.getDocumentElement();

@@ -173,7 +173,7 @@ class TestCustomEnumKeyDeserializer extends DatabindTestUtil
 
     // Test passing with the fix
     @Test
-    void testWithEnumKeys() throws Exception {
+    void withEnumKeys() throws Exception {
         ObjectMapper plainObjectMapper = new ObjectMapper();
         JsonNode tree = plainObjectMapper.readTree(a2q("{'red' : [ 'a', 'b']}"));
 
@@ -210,7 +210,7 @@ class TestCustomEnumKeyDeserializer extends DatabindTestUtil
 
     // [databind#1441]
     @Test
-    void testCustomEnumKeySerializerWithPolymorphic() throws IOException
+    void customEnumKeySerializerWithPolymorphic() throws IOException
     {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addDeserializer(SuperTypeEnum.class, new JsonDeserializer<SuperTypeEnum>() {
@@ -233,7 +233,7 @@ class TestCustomEnumKeyDeserializer extends DatabindTestUtil
     // [databind#1445]
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    void testCustomEnumValueAndKeyViaModifier() throws IOException
+    void customEnumValueAndKeyViaModifier() throws IOException
     {
         SimpleModule module = new SimpleModule();
         module.setDeserializerModifier(new BeanDeserializerModifier() {

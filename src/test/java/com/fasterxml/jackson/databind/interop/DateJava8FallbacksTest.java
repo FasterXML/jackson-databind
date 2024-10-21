@@ -31,7 +31,7 @@ class DateJava8FallbacksTest extends DatabindTestUtil
 
     // Test to prevent serialization as POJO, without Java 8 date/time module:
     @Test
-    void testPreventSerialization() throws Exception
+    void preventSerialization() throws Exception
     {
         try {
             String json = MAPPER.writerWithDefaultPrettyPrinter()
@@ -44,7 +44,7 @@ class DateJava8FallbacksTest extends DatabindTestUtil
     }
 
     @Test
-    void testBetterDeserializationError() throws Exception
+    void betterDeserializationError() throws Exception
     {
         try {
             OffsetDateTime result = MAPPER.readValue(" 0 ", OffsetDateTime.class);
@@ -57,7 +57,7 @@ class DateJava8FallbacksTest extends DatabindTestUtil
 
     // But, [databind#3091], allow deser from JsonToken.VALUE_EMBEDDED_OBJECT
     @Test
-    void testAllowAsEmbedded() throws Exception
+    void allowAsEmbedded() throws Exception
     {
         OffsetDateTime time = OffsetDateTime.ofInstant(Instant.now(),
                 ZoneId.of("Z"));
@@ -87,14 +87,14 @@ class DateJava8FallbacksTest extends DatabindTestUtil
 
     // [databind#4718]: should not block serialization of `DateTimeException`
     @Test
-    void testAllowExceptionSer() throws Exception {
+    void allowExceptionSer() throws Exception {
         String json = MAPPER.writeValueAsString(new DateTimeException("Test!"));
         assertTrue(MAPPER.readTree(json).isObject());
     }
 
     // [databind#4718]: should not block deserialization of `DateTimeException`
     @Test
-    void testAllowExceptionDeser() throws Exception {
+    void allowExceptionDeser() throws Exception {
         DateTimeException exc = MAPPER.readValue("{\"message\":\"test!\"}",
                 DateTimeException.class);
         assertNotNull(exc);

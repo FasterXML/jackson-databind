@@ -54,7 +54,7 @@ class TestMixinInheritance
      */
 
     @Test
-    void testMixinFieldInheritance() throws IOException
+    void mixinFieldInheritance() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addMixIn(Beano.class, BeanoMixinSub.class);
@@ -68,7 +68,7 @@ class TestMixinInheritance
     }
 
     @Test
-    void testMixinMethodInheritance() throws IOException
+    void mixinMethodInheritance() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addMixIn(Beano2.class, BeanoMixinSub2.class);

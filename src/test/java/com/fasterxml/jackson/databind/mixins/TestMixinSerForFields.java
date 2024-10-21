@@ -62,7 +62,7 @@ class TestMixinSerForFields
      */
 
     @Test
-    void testFieldMixInsTopLevel() throws IOException
+    void fieldMixInsTopLevel() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result;
@@ -83,7 +83,7 @@ class TestMixinSerForFields
     }
 
     @Test
-    void testMultipleFieldMixIns() throws IOException
+    void multipleFieldMixIns() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         // ordering here shouldn't matter really...

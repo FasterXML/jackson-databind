@@ -34,14 +34,14 @@ class MiscJavaXMLTypesReadWriteTest
      */
 
     @Test
-    void testQNameSer() throws Exception
+    void qNameSer() throws Exception
     {
         QName qn = new QName("http://abc", "tag", "prefix");
         assertEquals(q(qn.toString()), MAPPER.writeValueAsString(qn));
     }
 
     @Test
-    void testDurationSer() throws Exception
+    void durationSer() throws Exception
     {
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         // arbitrary value
@@ -50,7 +50,7 @@ class MiscJavaXMLTypesReadWriteTest
     }
 
     @Test
-    void testXMLGregorianCalendarSerAndDeser() throws Exception
+    void xmlGregorianCalendarSerAndDeser() throws Exception
     {
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         XMLGregorianCalendar cal = dtf.newXMLGregorianCalendar
@@ -98,7 +98,7 @@ class MiscJavaXMLTypesReadWriteTest
 
     // First things first: must be able to load the deserializers...
     @Test
-    void testDeserializerLoading()
+    void deserializerLoading()
     {
         CoreXMLDeserializers sers = new CoreXMLDeserializers();
         TypeFactory f = defaultTypeFactory();
@@ -108,7 +108,7 @@ class MiscJavaXMLTypesReadWriteTest
     }
 
     @Test
-    void testQNameDeser() throws Exception
+    void qNameDeser() throws Exception
     {
         QName qn = new QName("http://abc", "tag", "prefix");
         String qstr = qn.toString();
@@ -122,7 +122,7 @@ class MiscJavaXMLTypesReadWriteTest
     }
 
     @Test
-    void testXMLGregorianCalendarDeser() throws Exception
+    void xmlGregorianCalendarDeser() throws Exception
     {
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         XMLGregorianCalendar cal = dtf.newXMLGregorianCalendar
@@ -133,7 +133,7 @@ class MiscJavaXMLTypesReadWriteTest
     }
 
     @Test
-    void testDurationDeser() throws Exception
+    void durationDeser() throws Exception
     {
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         // arbitrary value, like... say, 27d5h15m59s
@@ -151,7 +151,7 @@ class MiscJavaXMLTypesReadWriteTest
 
 
     @Test
-    void testPolymorphicXMLGregorianCalendar() throws Exception
+    void polymorphicXMLGregorianCalendar() throws Exception
     {
         XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar
                 (1974, 10, 10, 18, 15, 17, 123, 0);

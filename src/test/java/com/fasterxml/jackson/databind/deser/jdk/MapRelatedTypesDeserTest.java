@@ -22,7 +22,7 @@ class MapRelatedTypesDeserTest
      */
 
     @Test
-    void testMapEntrySimpleTypes() throws Exception
+    void mapEntrySimpleTypes() throws Exception
     {
         List<Map.Entry<String,Long>> stuff = MAPPER.readValue(a2q("[{'a':15},{'b':42}]"),
                 new TypeReference<List<Map.Entry<String,Long>>>() { });
@@ -34,7 +34,7 @@ class MapRelatedTypesDeserTest
     }
 
     @Test
-    void testMapEntryWithStringBean() throws Exception
+    void mapEntryWithStringBean() throws Exception
     {
         List<Map.Entry<Integer,StringWrapper>> stuff = MAPPER.readValue(a2q("[{'28':'Foo'},{'13':'Bar'}]"),
                 new TypeReference<List<Map.Entry<Integer,StringWrapper>>>() { });
@@ -48,7 +48,7 @@ class MapRelatedTypesDeserTest
     }
 
     @Test
-    void testMapEntryFail() throws Exception
+    void mapEntryFail() throws Exception
     {
         try {
             /*List<Map.Entry<Integer,StringWrapper>> stuff =*/ MAPPER.readValue(a2q("[{'28':'Foo','13':'Bar'}]"),
@@ -67,7 +67,7 @@ class MapRelatedTypesDeserTest
 
     // [databind#810]
     @Test
-    void testReadProperties() throws Exception
+    void readProperties() throws Exception
     {
         Properties props = MAPPER.readValue(a2q("{'a':'foo', 'b':123, 'c':true}"),
                 Properties.class);
@@ -79,7 +79,7 @@ class MapRelatedTypesDeserTest
 
     // JDK singletonMap
     @Test
-    void testSingletonMapRoundtrip() throws Exception
+    void singletonMapRoundtrip() throws Exception
     {
         final TypeReference<Map<String,IntWrapper>> type = new TypeReference<Map<String,IntWrapper>>() { };
 

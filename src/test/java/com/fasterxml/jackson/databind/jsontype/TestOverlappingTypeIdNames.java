@@ -39,7 +39,7 @@ class TestOverlappingTypeIdNames extends DatabindTestUtil
     final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testOverlappingNameDeser() throws Exception
+    void overlappingNameDeser() throws Exception
     {
         Base312 value;
 
@@ -57,7 +57,7 @@ class TestOverlappingTypeIdNames extends DatabindTestUtil
     }
 
     @Test
-    void testOverlappingNameSer() throws Exception
+    void overlappingNameSer() throws Exception
     {
         assertEquals(a2q("{'type':'a','value':1}"),
                 MAPPER.writeValueAsString(new Impl312B1()));

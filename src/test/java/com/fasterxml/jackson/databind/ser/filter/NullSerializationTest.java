@@ -91,13 +91,13 @@ class NullSerializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimple() throws Exception
+    void simple() throws Exception
     {
         assertEquals("null", MAPPER.writeValueAsString(null));
     }
 
     @Test
-    void testOverriddenDefaultNulls() throws Exception
+    void overriddenDefaultNulls() throws Exception
     {
         DefaultSerializerProvider sp = new DefaultSerializerProvider.Impl();
         sp.setNullValueSerializer(new NullSerializer());
@@ -107,7 +107,7 @@ class NullSerializationTest
     }
 
     @Test
-    void testCustomNulls() throws Exception
+    void customNulls() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.setSerializerProvider(new MyNullProvider());
@@ -117,7 +117,7 @@ class NullSerializationTest
 
     // #281
     @Test
-    void testCustomNullForTrees() throws Exception
+    void customNullForTrees() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         root.putNull("a");
@@ -134,7 +134,7 @@ class NullSerializationTest
     }
 
     @Test
-    void testNullSerializerForProperty() throws Exception
+    void nullSerializerForProperty() throws Exception
     {
         assertEquals("{\"a\":\"foobar\"}", MAPPER.writeValueAsString(new BeanWithNullProps()));
     }

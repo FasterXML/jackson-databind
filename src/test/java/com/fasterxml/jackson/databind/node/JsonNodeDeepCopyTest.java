@@ -16,7 +16,7 @@ class JsonNodeDeepCopyTest extends DatabindTestUtil
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    void testWithObjectSimple()
+    void withObjectSimple()
     {
         ObjectNode root = mapper.createObjectNode();
         root.put("a", 3);
@@ -37,7 +37,7 @@ class JsonNodeDeepCopyTest extends DatabindTestUtil
     }
 
     @Test
-    void testWithArraySimple()
+    void withArraySimple()
     {
         ArrayNode root = mapper.createArrayNode();
         root.add("a");
@@ -58,7 +58,7 @@ class JsonNodeDeepCopyTest extends DatabindTestUtil
     }
 
     @Test
-    void testWithNested()
+    void withNested()
     {
         ObjectNode root = mapper.createObjectNode();
         ObjectNode leafObject = root.putObject("ob");

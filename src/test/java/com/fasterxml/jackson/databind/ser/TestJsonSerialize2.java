@@ -125,7 +125,7 @@ class TestJsonSerialize2
 
     // test value annotation applied to List value class
     @Test
-    void testSerializedAsListWithClassAnnotations() throws IOException
+    void serializedAsListWithClassAnnotations() throws IOException
     {
         SimpleValueList list = new SimpleValueList();
         list.add(new ActualValue("foo"));
@@ -134,7 +134,7 @@ class TestJsonSerialize2
 
     // test value annotation applied to Map value class
     @Test
-    void testSerializedAsMapWithClassAnnotations() throws IOException
+    void serializedAsMapWithClassAnnotations() throws IOException
     {
         SimpleValueMap map = new SimpleValueMap();
         map.put(new SimpleKey("x"), new ActualValue("y"));
@@ -143,7 +143,7 @@ class TestJsonSerialize2
 
     // test Serialization annotation with List
     @Test
-    void testSerializedAsListWithClassSerializer() throws IOException
+    void serializedAsListWithClassSerializer() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         SimpleValueListWithSerializer list = new SimpleValueListWithSerializer();
@@ -152,14 +152,14 @@ class TestJsonSerialize2
     }
 
     @Test
-    void testSerializedAsListWithPropertyAnnotations() throws IOException
+    void serializedAsListWithPropertyAnnotations() throws IOException
     {
         ListWrapperSimple input = new ListWrapperSimple("bar");
         assertEquals("{\"values\":[{\"value\":\"bar\"}]}", MAPPER.writeValueAsString(input));
     }
 
     @Test
-    void testSerializedAsMapWithClassSerializer() throws IOException
+    void serializedAsMapWithClassSerializer() throws IOException
     {
         SimpleValueMapWithSerializer map = new SimpleValueMapWithSerializer();
         map.put(new SimpleKey("abc"), new ActualValue("123"));
@@ -167,7 +167,7 @@ class TestJsonSerialize2
     }
 
     @Test
-    void testSerializedAsMapWithPropertyAnnotations() throws IOException
+    void serializedAsMapWithPropertyAnnotations() throws IOException
     {
         MapWrapperSimple input = new MapWrapperSimple("a", "b");
         assertEquals("{\"values\":{\"toString:a\":{\"value\":\"b\"}}}",
@@ -175,21 +175,21 @@ class TestJsonSerialize2
     }
 
     @Test
-    void testSerializedAsListWithPropertyAnnotations2() throws IOException
+    void serializedAsListWithPropertyAnnotations2() throws IOException
     {
         ListWrapperWithSerializer input = new ListWrapperWithSerializer("abc");
         assertEquals("{\"values\":[\"value abc\"]}", MAPPER.writeValueAsString(input));
     }
 
     @Test
-    void testSerializedAsMapWithPropertyAnnotations2() throws IOException
+    void serializedAsMapWithPropertyAnnotations2() throws IOException
     {
         MapWrapperWithSerializer input = new MapWrapperWithSerializer("foo", "b");
         assertEquals("{\"values\":{\"key foo\":\"value b\"}}", MAPPER.writeValueAsString(input));
     }
 
     @Test
-    void testEmptyInclusionContainers() throws IOException
+    void emptyInclusionContainers() throws IOException
     {
         ObjectMapper defMapper = MAPPER;
         ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -211,7 +211,7 @@ class TestJsonSerialize2
     }
 
     @Test
-    void testNullSerializer() throws Exception
+    void nullSerializer() throws Exception
     {
         String json = MAPPER.writeValueAsString(new NullBean());
         assertEquals("{\"value\":null}", json);

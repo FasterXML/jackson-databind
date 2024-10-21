@@ -40,24 +40,24 @@ class CoerceEnumTest
      */
 
     @Test
-    void testLegacyDefaults() throws Exception
+    void legacyDefaults() throws Exception
     {
         // first, verify default settings which do not accept empty String:
         assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
     }
 
     @Test
-    void testEnumFromEmptyGlobalConfig() throws Exception {
+    void enumFromEmptyGlobalConfig() throws Exception {
         _testEnumFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
 
     @Test
-    void testEnumFromEmptyLogicalTypeConfig() throws Exception {
+    void enumFromEmptyLogicalTypeConfig() throws Exception {
         _testEnumFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
 
     @Test
-    void testEnumFromEmptyPhysicalTypeConfig() throws Exception {
+    void enumFromEmptyPhysicalTypeConfig() throws Exception {
         _testEnumFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
 
@@ -68,17 +68,17 @@ class CoerceEnumTest
      */
 
     @Test
-    void testEnumFromBlankGlobalConfig() throws Exception {
+    void enumFromBlankGlobalConfig() throws Exception {
         _testEnumFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_BLANK, Boolean.TRUE);
     }
 
     @Test
-    void testEnumFromBlankLogicalTypeConfig() throws Exception {
+    void enumFromBlankLogicalTypeConfig() throws Exception {
         _testEnumFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_BLANK, Boolean.TRUE);
     }
 
     @Test
-    void testEnumFromBlankPhysicalTypeConfig() throws Exception {
+    void enumFromBlankPhysicalTypeConfig() throws Exception {
         _testEnumFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_BLANK, Boolean.TRUE);
     }
 
@@ -89,7 +89,7 @@ class CoerceEnumTest
      */
 
     @Test
-    void testEnumFromIntFailLegacy() throws Exception
+    void enumFromIntFailLegacy() throws Exception
     {
         final ObjectReader r = MAPPER.readerFor(EnumCoerce.class);
 
@@ -107,7 +107,7 @@ class CoerceEnumTest
     }
 
     @Test
-    void testEnumFromIntAsNull() throws Exception
+    void enumFromIntAsNull() throws Exception
     {
         final String json = "1";
         ObjectMapper mapper;
@@ -123,7 +123,7 @@ class CoerceEnumTest
     }
 
     @Test
-    void testEnumFromIntAsEmpty() throws Exception
+    void enumFromIntAsEmpty() throws Exception
     {
         final String json = "1";
         ObjectMapper mapper;
@@ -139,7 +139,7 @@ class CoerceEnumTest
     }
 
     @Test
-    void testEnumFromIntCoerce() throws Exception
+    void enumFromIntCoerce() throws Exception
     {
         final String json = "1";
         ObjectMapper mapper;
@@ -156,7 +156,7 @@ class CoerceEnumTest
     }
 
     @Test
-    void testEnumFromIntFailCoercionConfig() throws Exception
+    void enumFromIntFailCoercionConfig() throws Exception
     {
         final String json = "1";
         ObjectMapper mapper;

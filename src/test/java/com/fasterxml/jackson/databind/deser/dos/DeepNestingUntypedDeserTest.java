@@ -30,7 +30,7 @@ class DeepNestingUntypedDeserTest
 
 
     @Test
-    void testFormerlyTooDeepUntypedWithArray() throws Exception
+    void formerlyTooDeepUntypedWithArray() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
         Object ob = MAPPER.readValue(doc, Object.class);
@@ -44,7 +44,7 @@ class DeepNestingUntypedDeserTest
     }
 
     @Test
-    void testFormerlyTooDeepUntypedWithObject() throws Exception
+    void formerlyTooDeepUntypedWithObject() throws Exception
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
         Object ob = MAPPER.readValue(doc, Object.class);

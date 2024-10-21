@@ -66,7 +66,7 @@ class CurrentObject3160Test extends DatabindTestUtil
 
     // [databind#2475]
     @Test
-    void testIssue2475() throws Exception
+    void issue2475() throws Exception
     {
         SimpleFilterProvider provider = new SimpleFilterProvider().addFilter("myFilter",
                 new MyFilter3160());

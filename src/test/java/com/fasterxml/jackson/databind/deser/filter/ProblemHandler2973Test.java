@@ -41,7 +41,7 @@ class ProblemHandler2973Test
 
     // [databind#2973]
     @Test
-    void testUnexpectedToken2973() throws Exception
+    void unexpectedToken2973() throws Exception
     {
         // First: without handler, should get certain failure
         ObjectMapper mapper = sharedMapper();

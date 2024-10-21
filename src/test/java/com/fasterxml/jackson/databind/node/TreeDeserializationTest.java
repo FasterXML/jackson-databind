@@ -30,7 +30,7 @@ class TreeDeserializationTest
      */
 
     @Test
-    void testObjectNodeEquality()
+    void objectNodeEquality()
     {
         ObjectNode n1 = new ObjectNode(null);
         ObjectNode n2 = new ObjectNode(null);
@@ -50,7 +50,7 @@ class TreeDeserializationTest
     }
 
     @Test
-    void testReadFromString() throws Exception
+    void readFromString() throws Exception
     {
         String json = "{\"field\":\"{\\\"name\\\":\\\"John Smith\\\"}\"}";
         ObjectMapper mapper = new ObjectMapper();

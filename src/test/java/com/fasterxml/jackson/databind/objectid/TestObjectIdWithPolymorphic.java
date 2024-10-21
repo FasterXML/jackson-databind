@@ -114,7 +114,7 @@ class TestObjectIdWithPolymorphic extends DatabindTestUtil
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    void testPolymorphicRoundtrip() throws Exception
+    void polymorphicRoundtrip() throws Exception
     {
         // create simple 2 node loop:
         Impl in1 = new Impl(123, 456);
@@ -137,7 +137,7 @@ class TestObjectIdWithPolymorphic extends DatabindTestUtil
     }
 
     @Test
-    void testIssue811() throws Exception
+    void issue811() throws Exception
     {
         ObjectMapper om = new ObjectMapper();
         om.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);

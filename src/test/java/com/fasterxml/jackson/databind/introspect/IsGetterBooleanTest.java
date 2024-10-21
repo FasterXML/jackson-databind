@@ -48,7 +48,7 @@ class IsGetterBooleanTest extends DatabindTestUtil
 
     // [databind#3609]
     @Test
-    void testAllowIntIsGetter() throws Exception
+    void allowIntIsGetter() throws Exception
     {
         ObjectMapper MAPPER = jsonMapperBuilder()
                 .enable(MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN)
@@ -67,7 +67,7 @@ class IsGetterBooleanTest extends DatabindTestUtil
 
     // [databind#3609]
     @Test
-    void testDisallowIntIsGetter() throws Exception
+    void disallowIntIsGetter() throws Exception
     {
         ObjectMapper MAPPER = jsonMapperBuilder()
                 .disable(MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN)
@@ -83,7 +83,7 @@ class IsGetterBooleanTest extends DatabindTestUtil
 
     // [databind#3836]
     @Test
-    void testBooleanReference() throws Exception
+    void booleanReference() throws Exception
     {
         assertEquals(a2q("{'atomic':true}"),
                 sharedMapper().writeValueAsString(new POJO3836_AR()));
@@ -91,7 +91,7 @@ class IsGetterBooleanTest extends DatabindTestUtil
 
     // [databind#3836]
     @Test
-    void testAtomicBoolean() throws Exception
+    void atomicBoolean() throws Exception
     {
         assertEquals(a2q("{'atomic':true}"),
                 sharedMapper().writeValueAsString(new POJO3836_AB()));

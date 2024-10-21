@@ -76,7 +76,7 @@ class TestDefaultForMaps
      */
 
     @Test
-    void testJackson428() throws Exception
+    void jackson428() throws Exception
     {
         ObjectMapper serMapper = new ObjectMapper();
 
@@ -130,7 +130,7 @@ class TestDefaultForMaps
     }
 
     @Test
-    void testList() throws Exception
+    void list() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -148,7 +148,7 @@ class TestDefaultForMaps
     }
 
     @Test
-    void testMap() throws Exception
+    void map() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,

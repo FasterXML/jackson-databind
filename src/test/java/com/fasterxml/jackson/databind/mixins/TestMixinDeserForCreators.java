@@ -115,7 +115,7 @@ class TestMixinDeserForCreators
      */
 
     @Test
-    void testForConstructor() throws IOException
+    void forConstructor() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(BaseClassWithPrivateCtor.class, MixInForPrivate.class);
@@ -124,7 +124,7 @@ class TestMixinDeserForCreators
     }
 
     @Test
-    void testForFactoryAndCtor() throws IOException
+    void forFactoryAndCtor() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         BaseClass result;
@@ -141,7 +141,7 @@ class TestMixinDeserForCreators
     }
 
     @Test
-    void testFactoryDelegateMixIn() throws IOException
+    void factoryDelegateMixIn() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(StringWrapper.class, StringWrapperMixIn.class);
@@ -151,7 +151,7 @@ class TestMixinDeserForCreators
 
     // [databind#2020]
     @Test
-    void testFactoryPropertyMixin() throws Exception
+    void factoryPropertyMixin() throws Exception
     {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixIn(Pair2020.class, MyPairMixIn8.class);

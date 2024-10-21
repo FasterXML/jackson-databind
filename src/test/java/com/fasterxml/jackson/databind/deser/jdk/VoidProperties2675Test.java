@@ -34,7 +34,7 @@ class VoidProperties2675Test
             .build();
 
     @Test
-    void testVoidBeanSerialization() throws Exception
+    void voidBeanSerialization() throws Exception
     {
         // By default (2.x), not enabled:
         try {
@@ -49,7 +49,7 @@ class VoidProperties2675Test
     }
 
     @Test
-    void testVoidBeanDeserialization() throws Exception {
+    void voidBeanDeserialization() throws Exception {
         final String DOC = "{\"value\":null}";
         VoidBean result;
 

@@ -35,7 +35,7 @@ class TypeAliasesTest
 
     // Reproducing [databind#743]
     @Test
-    void testAliasResolutionIssue743() throws Exception
+    void aliasResolutionIssue743() throws Exception
     {
         String s3 = "{\"dataObj\" : [ \"one\", \"two\", \"three\" ] }";
         ObjectMapper m = new ObjectMapper();

@@ -72,7 +72,7 @@ class NamingStrategyViaCreator556Test
     private final static String CTOR_JSON = a2q("{ 'MyAge' : 42,  'MyName' : 'NotMyRealName' }");
 
     @Test
-    void testRenameViaCtor() throws Exception
+    void renameViaCtor() throws Exception
     {
         RenamingCtorBean bean = MAPPER.readValue(CTOR_JSON, RenamingCtorBean.class);
         assertEquals(42, bean.myAge);
@@ -80,7 +80,7 @@ class NamingStrategyViaCreator556Test
     }
 
     @Test
-    void testRenameViaFactory() throws Exception
+    void renameViaFactory() throws Exception
     {
         RenamedFactoryBean bean = MAPPER.readValue(CTOR_JSON, RenamedFactoryBean.class);
         assertEquals(42, bean.myAge);

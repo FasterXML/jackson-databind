@@ -195,7 +195,7 @@ class ContextualDeserializationTest
             .build();
 
     @Test
-    void testSimple() throws Exception
+    void simple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -212,7 +212,7 @@ class ContextualDeserializationTest
     }
 
     @Test
-    void testSimpleWithAnnotations() throws Exception
+    void simpleWithAnnotations() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
         ContextualBean bean = mapper.readValue("{\"a\":\"1\",\"b\":\"2\"}", ContextualBean.class);
@@ -226,7 +226,7 @@ class ContextualDeserializationTest
     }
 
     @Test
-    void testSimpleWithClassAnnotations() throws Exception
+    void simpleWithClassAnnotations() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
         ContextualClassBean bean = mapper.readValue("{\"a\":\"1\",\"b\":\"2\"}", ContextualClassBean.class);
@@ -239,7 +239,7 @@ class ContextualDeserializationTest
     }
 
     @Test
-    void testAnnotatedCtor() throws Exception
+    void annotatedCtor() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
         ContextualCtorBean bean = mapper.readValue("{\"a\":\"foo\",\"b\":\"bar\"}", ContextualCtorBean.class);
@@ -252,7 +252,7 @@ class ContextualDeserializationTest
     }
 
     @Test
-    void testAnnotatedArray() throws Exception
+    void annotatedArray() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
         ContextualArrayBean bean = mapper.readValue("{\"beans\":[\"x\"]}", ContextualArrayBean.class);
@@ -266,7 +266,7 @@ class ContextualDeserializationTest
     }
 
     @Test
-    void testAnnotatedList() throws Exception
+    void annotatedList() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
         ContextualListBean bean = mapper.readValue("{\"beans\":[\"x\"]}", ContextualListBean.class);
@@ -281,7 +281,7 @@ class ContextualDeserializationTest
     }
 
     @Test
-    void testAnnotatedMap() throws Exception
+    void annotatedMap() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
         ContextualMapBean bean = mapper.readValue("{\"beans\":{\"a\":\"b\"}}", ContextualMapBean.class);
@@ -303,7 +303,7 @@ class ContextualDeserializationTest
 
     // for [databind#165]
     @Test
-    void testContextualType() throws Exception {
+    void contextualType() throws Exception {
         GenericBean bean = new ObjectMapper().readValue(a2q("{'stuff':{'1':'b'}}"),
                 GenericBean.class);
         assertNotNull(bean.stuff);

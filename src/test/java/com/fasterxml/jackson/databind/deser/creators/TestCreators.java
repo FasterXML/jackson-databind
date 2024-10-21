@@ -327,7 +327,7 @@ class TestCreators
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleConstructor() throws Exception
+    void simpleConstructor() throws Exception
     {
         ConstructorBean bean = MAPPER.readValue("{ \"x\" : 42 }", ConstructorBean.class);
         assertEquals(42, bean.x);
@@ -335,7 +335,7 @@ class TestCreators
 
     // [JACKSON-850]
     @Test
-    void testNoArgsFactory() throws Exception
+    void noArgsFactory() throws Exception
     {
         NoArgFactoryBean value = MAPPER.readValue("{\"y\":13}", NoArgFactoryBean.class);
         assertEquals(13, value.y);
@@ -343,7 +343,7 @@ class TestCreators
     }
 
     @Test
-    void testSimpleDoubleConstructor() throws Exception
+    void simpleDoubleConstructor() throws Exception
     {
         Double exp = Double.valueOf("0.25");
         DoubleConstructorBean bean = MAPPER.readValue(exp.toString(), DoubleConstructorBean.class);
@@ -351,7 +351,7 @@ class TestCreators
     }
 
     @Test
-    void testSimpleBooleanConstructor() throws Exception
+    void simpleBooleanConstructor() throws Exception
     {
         BooleanConstructorBean bean = MAPPER.readValue(" true ", BooleanConstructorBean.class);
         assertEquals(Boolean.TRUE, bean.b);
@@ -361,7 +361,7 @@ class TestCreators
     }
 
     @Test
-    void testSimpleBigIntegerConstructor() throws Exception
+    void simpleBigIntegerConstructor() throws Exception
     {
         // 10-Dec-2020, tatu: Small (magnitude) values will NOT trigger path
         //   we want; must use something outside of Long range...
@@ -372,7 +372,7 @@ class TestCreators
     }
 
     @Test
-    void testSimpleBigDecimalConstructor() throws Exception
+    void simpleBigDecimalConstructor() throws Exception
     {
         // 10-Dec-2020, tatu: not sure we can ever trigger this with JSON;
         //    but should be possible to handle via TokenBuffer?
@@ -389,14 +389,14 @@ class TestCreators
     }
 
     @Test
-    void testSimpleFactory() throws Exception
+    void simpleFactory() throws Exception
     {
         FactoryBean bean = MAPPER.readValue("{ \"f\" : 0.25 }", FactoryBean.class);
         assertEquals(0.25, bean.d);
     }
 
     @Test
-    void testLongFactory() throws Exception
+    void longFactory() throws Exception
     {
         long VALUE = 123456789000L;
         LongFactoryBean bean = MAPPER.readValue(String.valueOf(VALUE), LongFactoryBean.class);
@@ -404,7 +404,7 @@ class TestCreators
     }
 
     @Test
-    void testStringFactory() throws Exception
+    void stringFactory() throws Exception
     {
         String str = "abc";
         StringFactoryBean bean = MAPPER.readValue(q(str), StringFactoryBean.class);
@@ -412,7 +412,7 @@ class TestCreators
     }
 
     @Test
-    void testStringFactoryAlt() throws Exception
+    void stringFactoryAlt() throws Exception
     {
         String str = "xyz";
         FromStringBean bean = MAPPER.readValue(q(str), FromStringBean.class);
@@ -420,7 +420,7 @@ class TestCreators
     }
 
     @Test
-    void testConstructorAndFactoryCreator() throws Exception
+    void constructorAndFactoryCreator() throws Exception
     {
         CreatorBeanWithBoth bean = MAPPER.readValue
             ("{ \"a\" : \"xyz\", \"x\" : 12 }", CreatorBeanWithBoth.class);
@@ -429,7 +429,7 @@ class TestCreators
     }
 
     @Test
-    void testConstructorAndProps() throws Exception
+    void constructorAndProps() throws Exception
     {
         ConstructorAndPropsBean bean = MAPPER.readValue
             ("{ \"a\" : \"1\", \"b\": 2, \"c\" : true }", ConstructorAndPropsBean.class);
@@ -439,7 +439,7 @@ class TestCreators
     }
 
     @Test
-    void testFactoryAndProps() throws Exception
+    void factoryAndProps() throws Exception
     {
         FactoryAndPropsBean bean = MAPPER.readValue
             ("{ \"a\" : [ false, true, false ], \"b\": 2, \"c\" : -1 }", FactoryAndPropsBean.class);
@@ -458,7 +458,7 @@ class TestCreators
      * they use different JSON type as input
      */
     @Test
-    void testMultipleCreators() throws Exception
+    void multipleCreators() throws Exception
     {
         MultiBean bean = MAPPER.readValue("123", MultiBean.class);
         assertEquals(Integer.valueOf(123), bean.value);
@@ -475,7 +475,7 @@ class TestCreators
      */
 
     @Test
-    void testDeferredConstructorAndProps() throws Exception
+    void deferredConstructorAndProps() throws Exception
     {
         DeferredConstructorAndPropsBean bean = MAPPER.readValue
             ("{ \"propB\" : \"...\", \"createA\" : [ 1 ], \"propA\" : null }",
@@ -489,7 +489,7 @@ class TestCreators
     }
 
     @Test
-    void testDeferredFactoryAndProps() throws Exception
+    void deferredFactoryAndProps() throws Exception
     {
         DeferredFactoryAndPropsBean bean = MAPPER.readValue
             ("{ \"prop\" : \"1\", \"ctor\" : \"2\" }", DeferredFactoryAndPropsBean.class);
@@ -504,7 +504,7 @@ class TestCreators
      */
 
     @Test
-    void testFactoryCreatorWithMixin() throws Exception
+    void factoryCreatorWithMixin() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(CreatorBeanWithBoth.class, MixIn.class)
@@ -516,7 +516,7 @@ class TestCreators
     }
 
     @Test
-    void testFactoryCreatorWithRenamingMixin() throws Exception
+    void factoryCreatorWithRenamingMixin() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(FactoryBean.class, FactoryBeanMixIn.class);
@@ -533,7 +533,7 @@ class TestCreators
      */
 
     @Test
-    void testMapWithConstructor() throws Exception
+    void mapWithConstructor() throws Exception
     {
         MapWithCtor result = MAPPER.readValue
             ("{\"text\":\"abc\", \"entry\":true, \"number\":123, \"xy\":\"yx\"}",
@@ -548,7 +548,7 @@ class TestCreators
     }
 
     @Test
-    void testMapWithFactory() throws Exception
+    void mapWithFactory() throws Exception
     {
         MapWithFactory result = MAPPER.readValue
             ("{\"x\":\"...\",\"b\":true  }",
@@ -565,7 +565,7 @@ class TestCreators
      */
 
     @Test
-    void testBrokenConstructor() throws Exception
+    void brokenConstructor() throws Exception
     {
         try {
             /*BrokenBean bean =*/ MAPPER.readValue("{ \"x\" : 42 }", BrokenBean.class);

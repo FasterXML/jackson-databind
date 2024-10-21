@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class PrivateMaxEntriesMapTest {
 
     @Test
-    void testPutGet() {
+    void putGet() {
         PrivateMaxEntriesMap<String, Object> m = new PrivateMaxEntriesMap.Builder<String, Object>()
                 .maximumCapacity(10).build();
 
@@ -43,7 +43,7 @@ class PrivateMaxEntriesMapTest {
     }
 
     @Test
-    void testLRU() {
+    void lru() {
         PrivateMaxEntriesMap<String, Object> m = new PrivateMaxEntriesMap.Builder<String, Object>()
                 .maximumCapacity(5).build();
 

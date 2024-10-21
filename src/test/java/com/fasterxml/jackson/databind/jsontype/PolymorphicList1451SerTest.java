@@ -26,7 +26,7 @@ class PolymorphicList1451SerTest extends DatabindTestUtil
     private final String CLASS_NAME = getClass().getSimpleName();
 
     @Test
-    void testCollectionWithTypeInfo() throws Exception {
+    void collectionWithTypeInfo() throws Exception {
         ObjectMapper mapper = new ObjectMapper()
                 .disable(SerializationFeature.EAGER_SERIALIZER_FETCH)
 //                .disable(DeserializationFeature.EAGER_DESERIALIZER_FETCH)

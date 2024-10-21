@@ -188,7 +188,7 @@ class AnyGetterTest extends DatabindTestUtil
 
     // [databind#1458]: Allow `@JsonAnyGetter` on fields too
     @Test
-    void testDynaFieldBean() throws Exception
+    void dynaFieldBean() throws Exception
     {
         DynaFieldBean b = new DynaFieldBean();
         b.id = 123;
@@ -209,7 +209,7 @@ class AnyGetterTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleAnyBean() throws Exception
+    void simpleAnyBean() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean());
         Map<?,?> map = MAPPER.readValue(json, Map.class);
@@ -219,7 +219,7 @@ class AnyGetterTest extends DatabindTestUtil
     }
 
     @Test
-    void testAnyOnly() throws Exception
+    void anyOnly() throws Exception
     {
         ObjectMapper m;
 
@@ -237,7 +237,7 @@ class AnyGetterTest extends DatabindTestUtil
     }
 
     @Test
-    void testAnyDisabling() throws Exception
+    void anyDisabling() throws Exception
     {
         String json = MAPPER.writeValueAsString(new NotEvenAnyBean());
         assertEquals(a2q("{'value':42}"), json);
@@ -245,7 +245,7 @@ class AnyGetterTest extends DatabindTestUtil
 
     // Trying to repro [databind#577]
     @Test
-    void testAnyWithNull() throws Exception
+    void anyWithNull() throws Exception
     {
         MapAsAny input = new MapAsAny();
         input.add("bar", null);
@@ -254,7 +254,7 @@ class AnyGetterTest extends DatabindTestUtil
     }
 
     @Test
-    void testIssue705() throws Exception
+    void issue705() throws Exception
     {
         Issue705Bean input = new Issue705Bean("key", "value");
         String json = MAPPER.writeValueAsString(input);
@@ -263,7 +263,7 @@ class AnyGetterTest extends DatabindTestUtil
 
     // [databind#1124]
     @Test
-    void testAnyGetterWithValueSerializer() throws Exception
+    void anyGetterWithValueSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Bean1124 input = new Bean1124();
@@ -274,7 +274,7 @@ class AnyGetterTest extends DatabindTestUtil
 
     // [databind#2592]
     @Test
-    void testAnyGetterWithMapperDefaultIncludeNonEmpty() throws Exception
+    void anyGetterWithMapperDefaultIncludeNonEmpty() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
                 .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -288,7 +288,7 @@ class AnyGetterTest extends DatabindTestUtil
 
     // [databind#2592]
     @Test
-    void testAnyGetterWithMapperDefaultIncludeNonEmptyAndFilterOnBean() throws Exception
+    void anyGetterWithMapperDefaultIncludeNonEmptyAndFilterOnBean() throws Exception
     {
         FilterProvider filters = new SimpleFilterProvider()
                 .addFilter("Bean2592", SimpleBeanPropertyFilter.serializeAllExcept("something"));
@@ -306,7 +306,7 @@ class AnyGetterTest extends DatabindTestUtil
 
     // [databind#2592]
     @Test
-    void testAnyGetterWithPropertyIncludeNonEmpty() throws Exception
+    void anyGetterWithPropertyIncludeNonEmpty() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Bean2592PropertyIncludeNonEmpty input = new Bean2592PropertyIncludeNonEmpty();
@@ -319,7 +319,7 @@ class AnyGetterTest extends DatabindTestUtil
 
     // [databind#2592]
     @Test
-    void testAnyGetterConfigIncludeNonEmpty() throws Exception
+    void anyGetterConfigIncludeNonEmpty() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Map.class, incl -> incl.setInclude(

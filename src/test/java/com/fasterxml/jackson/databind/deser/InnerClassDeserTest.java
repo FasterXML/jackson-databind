@@ -38,7 +38,7 @@ class InnerClassDeserTest
      */
 
     @Test
-    void testSimpleNonStaticInner() throws Exception
+    void simpleNonStaticInner() throws Exception
     {
         // Let's actually verify by first serializing, then deserializing back
         ObjectMapper mapper = new ObjectMapper();

@@ -92,7 +92,7 @@ class TestPOJOAsArrayAdvanced extends DatabindTestUtil
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testWithView() throws Exception
+    void withView() throws Exception
     {
         // Ok, first, ensure that serializer will "black out" filtered properties
         AsArrayWithView input = new AsArrayWithView();
@@ -112,7 +112,7 @@ class TestPOJOAsArrayAdvanced extends DatabindTestUtil
     }
 
     @Test
-    void testWithViewAndCreator() throws Exception
+    void withViewAndCreator() throws Exception
     {
         AsArrayWithViewAndCreator result = MAPPER.readerFor(AsArrayWithViewAndCreator.class)
                 .withView(ViewB.class)
@@ -124,7 +124,7 @@ class TestPOJOAsArrayAdvanced extends DatabindTestUtil
     }
 
     @Test
-    void testWithCreatorsOrdered() throws Exception
+    void withCreatorsOrdered() throws Exception
     {
         CreatorAsArray input = new CreatorAsArray(3, 4);
         input.a = 1;
@@ -144,7 +144,7 @@ class TestPOJOAsArrayAdvanced extends DatabindTestUtil
 
     // Same as above, but ordering of properties different...
     @Test
-    void testWithCreatorsShuffled() throws Exception
+    void withCreatorsShuffled() throws Exception
     {
         CreatorAsArrayShuffled input = new CreatorAsArrayShuffled(3, 4);
         input.a = 1;

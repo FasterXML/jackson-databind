@@ -52,7 +52,7 @@ class InjectableWithoutDeser962Test
 
     // [databind#962]
     @Test
-    void testInjected() throws Exception
+    void injected() throws Exception
     {
         InjectMe im = new InjectMe(true);
         ObjectMapper mapper = new ObjectMapper()

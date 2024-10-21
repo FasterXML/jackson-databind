@@ -79,7 +79,7 @@ class OverloadedMethodsDeserTest
      * version; more specific method should be used.
      */
     @Test
-    void testSpecialization() throws Exception
+    void specialization() throws Exception
     {
         ArrayListBean bean = MAPPER.readValue
             ("{\"list\":[\"a\",\"b\",\"c\"]}", ArrayListBean.class);
@@ -96,7 +96,7 @@ class OverloadedMethodsDeserTest
      * as long as there are no in-class conflicts.
      */
     @Test
-    void testOverride() throws Exception
+    void override() throws Exception
     {
         WasNumberBean bean = MAPPER.readValue
             ("{\"value\" : \"abc\"}", WasNumberBean.class);
@@ -106,7 +106,7 @@ class OverloadedMethodsDeserTest
 
     // for [JACKSON-739]
     @Test
-    void testConflictResolution() throws Exception
+    void conflictResolution() throws Exception
     {
         Overloaded739 bean = MAPPER.readValue
                 ("{\"value\":\"abc\"}", Overloaded739.class);
@@ -124,7 +124,7 @@ class OverloadedMethodsDeserTest
      * For genuine setter conflict, an exception is to be thrown.
      */
     @Test
-    void testSetterConflict() throws Exception
+    void setterConflict() throws Exception
     {
     	try {
     	MAPPER.readValue("{ }", ConflictBean.class);

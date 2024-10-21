@@ -21,7 +21,7 @@ class DeepArrayWrappingForDeser3582Test
             .build();
 
     @Test
-    void testArrayWrapping() throws Exception
+    void arrayWrapping() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ", "{}");
         try {

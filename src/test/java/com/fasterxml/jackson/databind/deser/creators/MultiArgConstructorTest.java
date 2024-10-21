@@ -71,7 +71,7 @@ class MultiArgConstructorTest
      */
 
     @Test
-    void testMultiArgVisible() throws Exception
+    void multiArgVisible() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());
@@ -85,7 +85,7 @@ class MultiArgConstructorTest
 
     // But besides visibility, also allow overrides
     @Test
-    void testMultiArgWithPartialOverride() throws Exception
+    void multiArgWithPartialOverride() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());
@@ -100,7 +100,7 @@ class MultiArgConstructorTest
     // but let's also ensure that it is possible to prevent use of that constructor
     // with different visibility
     @Test
-    void testMultiArgNotVisible() throws Exception
+    void multiArgNotVisible() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());

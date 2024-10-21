@@ -225,7 +225,7 @@ class TestTypeModifiers extends DatabindTestUtil
      * Basic test for ensuring that we can get "xxx-like" types recognized.
      */
     @Test
-    void testMapLikeTypeConstruction() throws Exception
+    void mapLikeTypeConstruction() throws Exception
     {
         JavaType type = MAPPER_WITH_MODIFIER.constructType(MyMapLikeType.class);
         assertTrue(type.isMapLikeType());
@@ -239,7 +239,7 @@ class TestTypeModifiers extends DatabindTestUtil
     }
 
     @Test
-    void testMapLikeTypeViaParametric() throws Exception
+    void mapLikeTypeViaParametric() throws Exception
     {
         // [databind#2796]: should refine with another call too
         JavaType type = MAPPER_WITH_MODIFIER.getTypeFactory().constructParametricType(MapMarker.class,
@@ -257,7 +257,7 @@ class TestTypeModifiers extends DatabindTestUtil
     // [databind#2395] Can trigger problem this way too
     // NOTE: oddly enough, seems to ONLY fail
     @Test
-    void testTypeResolutionForRecursive() throws Exception
+    void typeResolutionForRecursive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule() {
@@ -270,7 +270,7 @@ class TestTypeModifiers extends DatabindTestUtil
     }
 
     @Test
-    void testCollectionLikeTypeConstruction() throws Exception
+    void collectionLikeTypeConstruction() throws Exception
     {
         JavaType type = MAPPER_WITH_MODIFIER.constructType(MyCollectionLikeType.class);
         assertTrue(type.isCollectionLikeType());
@@ -280,7 +280,7 @@ class TestTypeModifiers extends DatabindTestUtil
     }
 
     @Test
-    void testCollectionLikeSerialization() throws Exception
+    void collectionLikeSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
@@ -289,7 +289,7 @@ class TestTypeModifiers extends DatabindTestUtil
     }
 
     @Test
-    void testMapLikeSerialization() throws Exception
+    void mapLikeSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
@@ -300,7 +300,7 @@ class TestTypeModifiers extends DatabindTestUtil
 
 
     @Test
-    void testCollectionLikeDeserialization() throws Exception
+    void collectionLikeDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
@@ -312,7 +312,7 @@ class TestTypeModifiers extends DatabindTestUtil
     }
 
     @Test
-    void testMapLikeDeserialization() throws Exception
+    void mapLikeDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));

@@ -32,7 +32,7 @@ class UUIDSerializationTest extends DatabindTestUtil
 
     // Verify that efficient UUID codec won't mess things up:
     @Test
-    void testBasicUUIDs() throws IOException
+    void basicUUIDs() throws IOException
     {
         // first, couple of generated UUIDs:
         for (String value : new String[] {
@@ -66,7 +66,7 @@ class UUIDSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testShapeOverrides() throws Exception
+    void shapeOverrides() throws Exception
     {
         final String nullUUIDStr = "00000000-0000-0000-0000-000000000000";
         final UUID nullUUID = UUID.fromString(nullUUIDStr);

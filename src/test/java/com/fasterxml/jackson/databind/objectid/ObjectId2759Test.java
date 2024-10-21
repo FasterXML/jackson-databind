@@ -60,7 +60,7 @@ class ObjectId2759Test extends DatabindTestUtil
     }
 
     @Test
-    void testObjectId2759() throws Exception
+    void objectId2759() throws Exception
     {
         Hive hive = new Hive(100500L, "main hive");
         hive.addBee(new Bee(1L, hive));

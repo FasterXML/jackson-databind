@@ -33,7 +33,7 @@ class TestInferredMutators extends DatabindTestUtil
 
     // for #190
     @Test
-    void testFinalFieldIgnoral() throws Exception
+    void finalFieldIgnoral() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // default value is 'enabled', for backwards compatibility
@@ -51,7 +51,7 @@ class TestInferredMutators extends DatabindTestUtil
 
     // for #195
     @Test
-    void testDeserializationInference() throws Exception
+    void deserializationInference() throws Exception
     {
         final String JSON = "{\"x\":2}";
         ObjectMapper mapper = new ObjectMapper();

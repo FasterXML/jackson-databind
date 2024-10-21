@@ -98,7 +98,7 @@ class NestedTypes1604Test
     private final ObjectMapper objectMapper = newJsonMapper();
 
     @Test
-    void testIssue1604Simple() throws Exception
+    void issue1604Simple() throws Exception
     {
         List<Inner> inners = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
@@ -114,7 +114,7 @@ class NestedTypes1604Test
    }
 
     @Test
-    void testIssue1604Subtype() throws Exception
+    void issue1604Subtype() throws Exception
     {
         List<Inner> inners = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
@@ -126,7 +126,7 @@ class NestedTypes1604Test
    }
 
     @Test
-    void testIssue1604Sneaky() throws Exception
+    void issue1604Sneaky() throws Exception
     {
         List<Inner> inners = new ArrayList<>();
         for (int i = 0; i < 2; i++) {

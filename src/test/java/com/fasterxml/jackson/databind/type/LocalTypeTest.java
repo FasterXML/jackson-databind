@@ -26,7 +26,7 @@ class LocalTypeTest
 
     // [databind#609]
     @Test
-    void testLocalPartialType609() throws Exception {
+    void localPartialType609() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         EntityContainer input = new EntityContainer();

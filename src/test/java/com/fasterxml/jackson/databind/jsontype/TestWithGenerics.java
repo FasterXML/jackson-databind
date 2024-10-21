@@ -142,7 +142,7 @@ class TestWithGenerics extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testWrapperWithGetter() throws Exception
+    void wrapperWithGetter() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
         String json = MAPPER.writeValueAsString(new ContainerWithGetter<Animal>(dog));
@@ -152,7 +152,7 @@ class TestWithGenerics extends DatabindTestUtil
     }
 
     @Test
-    void testWrapperWithField() throws Exception
+    void wrapperWithField() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
         String json = MAPPER.writeValueAsString(new ContainerWithField<Animal>(dog));
@@ -162,7 +162,7 @@ class TestWithGenerics extends DatabindTestUtil
     }
 
     @Test
-    void testWrapperWithExplicitType() throws Exception
+    void wrapperWithExplicitType() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
         ContainerWithGetter<Animal> c2 = new ContainerWithGetter<Animal>(dog);
@@ -174,7 +174,7 @@ class TestWithGenerics extends DatabindTestUtil
     }
 
     @Test
-    void testJackson387() throws Exception
+    void jackson387() throws Exception
     {
         ObjectMapper om = new ObjectMapper();
         om.activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -211,7 +211,7 @@ class TestWithGenerics extends DatabindTestUtil
     }
 
     @Test
-    void testJackson430() throws Exception
+    void jackson430() throws Exception
     {
         ObjectMapper om = new ObjectMapper();
 //        om.getSerializationConfig().setSerializationInclusion( Inclusion.NON_NULL );
@@ -230,7 +230,7 @@ class TestWithGenerics extends DatabindTestUtil
 
     // [Issue#543]
     @Test
-    void testValueWithMoreGenericParameters() throws Exception
+    void valueWithMoreGenericParameters() throws Exception
     {
         WrappedContainerWithField wrappedContainerWithField = new WrappedContainerWithField();
         wrappedContainerWithField.animalContainer = new ContainerWithTwoAnimals<Dog,Dog>(new Dog("d1",1), new Dog("d2",2));

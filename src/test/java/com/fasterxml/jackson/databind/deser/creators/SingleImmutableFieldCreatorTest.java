@@ -89,7 +89,7 @@ class SingleImmutableFieldCreatorTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSetterlessProperty() throws Exception
+    void setterlessProperty() throws Exception
     {
         ImmutableId input = new ImmutableId(13);
         ObjectMapper m = jsonMapperBuilder()
@@ -105,7 +105,7 @@ class SingleImmutableFieldCreatorTest
 
     // in the past, this was a workaround for the first test
     @Test
-    void testSetterlessPropertyWithEmptyConstructor() throws Exception
+    void setterlessPropertyWithEmptyConstructor() throws Exception
     {
         ImmutableIdWithEmptyConstuctor input = new ImmutableIdWithEmptyConstuctor(13);
         String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(input);
@@ -117,7 +117,7 @@ class SingleImmutableFieldCreatorTest
     }
 
     @Test
-    void testSetterlessPropertyWithJsonCreator() throws Exception
+    void setterlessPropertyWithJsonCreator() throws Exception
     {
         ImmutableIdWithJsonCreatorAnnotation input = new ImmutableIdWithJsonCreatorAnnotation(13);
         ObjectMapper m = jsonMapperBuilder()
@@ -134,7 +134,7 @@ class SingleImmutableFieldCreatorTest
 
     // in the past, this was a workaround for the first test
     @Test
-    void testSetterlessPropertyWithJsonPropertyField() throws Exception
+    void setterlessPropertyWithJsonPropertyField() throws Exception
     {
         ImmutableIdWithJsonPropertyConstructorAnnotation input = new ImmutableIdWithJsonPropertyConstructorAnnotation(13);
         String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(input);
@@ -147,7 +147,7 @@ class SingleImmutableFieldCreatorTest
     }
 
     @Test
-    void testSetterlessPropertyWithJsonPropertyConstructor() throws Exception
+    void setterlessPropertyWithJsonPropertyConstructor() throws Exception
     {
         ImmutableIdWithJsonPropertyFieldAnnotation input = new ImmutableIdWithJsonPropertyFieldAnnotation(13);
         ObjectMapper m = jsonMapperBuilder()

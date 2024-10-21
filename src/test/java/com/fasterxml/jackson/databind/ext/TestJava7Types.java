@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TestJava7Types extends DatabindTestUtil
 {
     @Test
-    void testPathRoundtrip() throws Exception
+    void pathRoundtrip() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -33,7 +33,7 @@ class TestJava7Types extends DatabindTestUtil
 
     // [databind#1688]:
     @Test
-    void testPolymorphicPath() throws Exception
+    void polymorphicPath() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

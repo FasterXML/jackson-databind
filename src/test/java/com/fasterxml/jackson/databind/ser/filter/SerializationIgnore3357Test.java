@@ -36,7 +36,7 @@ class SerializationIgnore3357Test extends DatabindTestUtil
 
     // [databind#3357]: Precedence of @JsonIgnore over @JsonProperty
     @Test
-    void testPropertyVsIgnore3357() throws Exception
+    void propertyVsIgnore3357() throws Exception
     {
         String json = MAPPER.writeValueAsString(new IgnoreAndProperty3357());
         assertEquals("{\"toInclude\":2}", json);

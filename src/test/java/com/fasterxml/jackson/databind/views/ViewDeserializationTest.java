@@ -71,7 +71,7 @@ class ViewDeserializationTest extends DatabindTestUtil
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    void testSimple() throws Exception
+    void simple() throws Exception
     {
         // by default, should have it all...
         Bean bean = mapper
@@ -106,7 +106,7 @@ class ViewDeserializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testWithoutDefaultInclusion() throws Exception
+    void withoutDefaultInclusion() throws Exception
     {
         // without active view, all included still:
         DefaultsBean bean = mapper
@@ -128,7 +128,7 @@ class ViewDeserializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testWithCreatorAndViews() throws Exception
+    void withCreatorAndViews() throws Exception
     {
         ViewsAndCreatorBean result;
 

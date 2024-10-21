@@ -320,7 +320,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
      * outside the context of an ObjectMapper.
      */
     @Test
-    void testLowerCaseStrategyStandAlone()
+    void lowerCaseStrategyStandAlone()
     {
         for (Object[] pair : SNAKE_CASE_NAME_TRANSLATIONS) {
             String translatedJavaName = PropertyNamingStrategies.SNAKE_CASE.nameForField(null, null,
@@ -330,7 +330,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
     }
 
     @Test
-    void testLowerCaseTranslations() throws Exception
+    void lowerCaseTranslations() throws Exception
     {
         // First serialize
         String json = _lcWithUnderscoreMapper.writeValueAsString(new PersonBean("Joe", "Sixpack", 42));
@@ -344,7 +344,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
     }
 
     @Test
-    void testLowerCaseAcronymsTranslations() throws Exception
+    void lowerCaseAcronymsTranslations() throws Exception
     {
         // First serialize
         String json = _lcWithUnderscoreMapper.writeValueAsString(new Acronyms("world wide web", "http://jackson.codehaus.org", "/path1/,/path2/"));
@@ -358,7 +358,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
     }
 
     @Test
-    void testLowerCaseOtherNonStandardNamesTranslations() throws Exception
+    void lowerCaseOtherNonStandardNamesTranslations() throws Exception
     {
         // First serialize
         String json = _lcWithUnderscoreMapper.writeValueAsString(new OtherNonStandardNames("Results", "_User", "___", "$User"));
@@ -373,7 +373,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
     }
 
     @Test
-    void testLowerCaseUnchangedNames() throws Exception
+    void lowerCaseUnchangedNames() throws Exception
     {
         // First serialize
         String json = _lcWithUnderscoreMapper.writeValueAsString(new UnchangedNames("from_user", "_user", "from$user", "from7user", "_x"));
@@ -390,7 +390,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
 
     // [databind#3368]
     @Test
-    void testSnakeCase3368() throws Exception
+    void snakeCase3368() throws Exception
     {
         String test = "    {\n" +
 "      \"time_zone\": {\n" +
@@ -410,7 +410,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
      */
 
     @Test
-    void testUpperSnakeCaseStrategyStandAlone()
+    void upperSnakeCaseStrategyStandAlone()
     {
         for (Object[] pair : UPPER_SNAKE_CASE_NAME_TRANSLATIONS) {
             String translatedJavaName = PropertyNamingStrategies.UPPER_SNAKE_CASE
@@ -420,7 +420,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
     }
 
     @Test
-    void testUpperSnakeCaseTranslations() throws Exception
+    void upperSnakeCaseTranslations() throws Exception
     {
         // First serialize
         String json = _ucWithUnderscoreMapper
@@ -447,7 +447,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
      * outside the context of an ObjectMapper.
      */
     @Test
-    void testPascalCaseStandAlone()
+    void pascalCaseStandAlone()
     {
         assertEquals("UserName", PropertyNamingStrategies.UPPER_CAMEL_CASE.nameForField(null, null, "userName"));
         assertEquals("User", PropertyNamingStrategies.UPPER_CAMEL_CASE.nameForField(null, null, "User"));
@@ -460,7 +460,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
 
     // [databind#428]
     @Test
-    void testIssue428PascalWithOverrides() throws Exception
+    void issue428PascalWithOverrides() throws Exception
     {
         String json = new ObjectMapper()
                 .setPropertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
@@ -478,7 +478,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
 
     // For [databind#461]
     @Test
-    void testSimpleLowerCase() throws Exception
+    void simpleLowerCase() throws Exception
     {
         final BoringBean input = new BoringBean();
         ObjectMapper m = newJsonMapper();
@@ -494,7 +494,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
      */
 
     @Test
-    void testKebabCaseStrategyStandAlone()
+    void kebabCaseStrategyStandAlone()
     {
         assertEquals("some-value",
                 PropertyNamingStrategies.KEBAB_CASE.nameForField(null, null, "someValue"));
@@ -509,7 +509,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleKebabCase() throws Exception
+    void simpleKebabCase() throws Exception
     {
         final FirstNameBean input = new FirstNameBean("Bob");
         ObjectMapper m = new ObjectMapper()
@@ -529,7 +529,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
      */
 
     @Test
-    void testLowerCaseWithDotsStrategyStandAlone()
+    void lowerCaseWithDotsStrategyStandAlone()
     {
         assertEquals("some.value",
                 PropertyNamingStrategies.LOWER_DOT_CASE.nameForField(null, null, "someValue"));
@@ -544,7 +544,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleLowerCaseWithDots() throws Exception
+    void simpleLowerCaseWithDots() throws Exception
     {
         final ObjectMapper m = jsonMapperBuilder()
             .propertyNamingStrategy(PropertyNamingStrategies.LOWER_DOT_CASE)
@@ -568,7 +568,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
      * Test [databind#815], problems with ObjectNode, naming strategy
      */
     @Test
-    void testNamingWithObjectNode() throws Exception
+    void namingWithObjectNode() throws Exception
     {
         ObjectMapper m = new ObjectMapper()
             .setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CASE);
@@ -584,7 +584,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
     }
 
     @Test
-    void testExplicitRename() throws Exception
+    void explicitRename() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
@@ -616,7 +616,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
 
     // Also verify that "no naming strategy" should be ok
     @Test
-    void testExplicitNoNaming() throws Exception
+    void explicitNoNaming() throws Exception
     {
         assertEquals(a2q("{'someValue':3}"),
                 VANILLA_MAPPER.writeValueAsString(new DefaultNaming()));
@@ -625,7 +625,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
     // Try to reproduce [databind#3102] but with regular POJO. Oddly,
     // does not actually fail.
     @Test
-    void testNamingViaConstructorParams() throws Exception
+    void namingViaConstructorParams() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new ParamNameIntrospector())
@@ -638,7 +638,7 @@ class TestNamingStrategyStd extends DatabindTestUtil
     }
 
     @Test
-    void testNamingStrategiesHandlingNullAndEmpty() {
+    void namingStrategiesHandlingNullAndEmpty() {
         PropertyNamingStrategies.NamingBase[] strategies = new PropertyNamingStrategies.NamingBase[]{
             PropertyNamingStrategies.UpperSnakeCaseStrategy.INSTANCE,
             PropertyNamingStrategies.LowerCaseStrategy.INSTANCE,

@@ -100,14 +100,14 @@ class DelegatingArrayCreatorsTest
 
     // [databind#1804]
     @Test
-    void testDelegatingArray1804() throws Exception {
+    void delegatingArray1804() throws Exception {
         MyType thing = MAPPER.readValue("[]", MyType.class);
         assertNotNull(thing);
     }
 
     // [databind#2324]
     @Test
-    void testDeserializeBagOfStrings() throws Exception {
+    void deserializeBagOfStrings() throws Exception {
         WithBagOfStrings2324 result = MAPPER.readerFor(WithBagOfStrings2324.class)
                 .readValue("{\"strings\": [ \"a\", \"b\", \"c\"]}");
         assertEquals(3, result.getStrings().size());
@@ -115,7 +115,7 @@ class DelegatingArrayCreatorsTest
 
     // [databind#2324]
     @Test
-    void testDeserializeBagOfPOJOs() throws Exception {
+    void deserializeBagOfPOJOs() throws Exception {
         WithBagOfValues2324 result = MAPPER.readerFor(WithBagOfValues2324.class)
                 .readValue("{\"values\": [ \"a\", \"b\", \"c\"]}");
         assertEquals(3, result.getValues().size());
@@ -123,7 +123,7 @@ class DelegatingArrayCreatorsTest
     }
 
     @Test
-    void testInvalidTwoArrayDelegating() throws Exception {
+    void invalidTwoArrayDelegating() throws Exception {
         try {
             /*MultipleArrayDelegators result =*/ MAPPER.readerFor(MultipleArrayDelegators.class)
                 .readValue("[ ]");

@@ -43,7 +43,7 @@ class CreatorWithObjectIdTest
     }
 
     @Test
-    void testObjectIdWithCreator() throws Exception
+    void objectIdWithCreator() throws Exception
     {
         A a = new A("123", "A");
 

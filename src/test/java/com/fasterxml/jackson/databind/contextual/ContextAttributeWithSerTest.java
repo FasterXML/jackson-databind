@@ -57,7 +57,7 @@ class ContextAttributeWithSerTest
     final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimplePerCall() throws Exception
+    void simplePerCall() throws Exception
     {
         final String EXP = a2q("[{'value':'0:a'},{'value':'1:b'}]");
         ObjectWriter w = MAPPER.writer();
@@ -70,7 +70,7 @@ class ContextAttributeWithSerTest
     }
 
     @Test
-    void testSimpleDefaults() throws Exception
+    void simpleDefaults() throws Exception
     {
         final String EXP = a2q("{'value':'3:xyz'}");
         final TestPOJO INPUT = new TestPOJO("xyz");
@@ -84,7 +84,7 @@ class ContextAttributeWithSerTest
     }
 
     @Test
-    void testHierarchic() throws Exception
+    void hierarchic() throws Exception
     {
         final TestPOJO[] INPUT = new TestPOJO[] { new TestPOJO("a"), new TestPOJO("b") };
         final String EXP = a2q("[{'value':'2:a'},{'value':'3:b'}]");
@@ -97,7 +97,7 @@ class ContextAttributeWithSerTest
 
     // [databind#3001]
     @Test
-    void testDefaultsViaMapper() throws Exception
+    void defaultsViaMapper() throws Exception
     {
         final TestPOJO[] INPUT = new TestPOJO[] { new TestPOJO("a"), new TestPOJO("b") };
         ContextAttributes attrs = ContextAttributes.getEmpty()

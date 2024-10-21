@@ -56,7 +56,7 @@ class OverrideStrictTypeInfoHandling3877Test extends DatabindTestUtil {
     private final ObjectMapper DEFAULT_MAPPER = JsonMapper.builder().build();
 
     @Test
-    void testMissingTypeId() throws Exception {
+    void missingTypeId() throws Exception {
         // super types fail on missing-id no matter what
         verifyFailureMissingTypeId("{}", FalseCommand.class, ENABLED_MAPPER);
         verifyFailureMissingTypeId("{}", FalseCommand.class, DEFAULT_MAPPER);
@@ -83,7 +83,7 @@ class OverrideStrictTypeInfoHandling3877Test extends DatabindTestUtil {
     }
 
     @Test
-    void testSuccessWhenTypeIdIsProvided() throws Exception {
+    void successWhenTypeIdIsProvided() throws Exception {
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, ENABLED_MAPPER);
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, DEFAULT_MAPPER);
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, DISABLED_MAPPER);

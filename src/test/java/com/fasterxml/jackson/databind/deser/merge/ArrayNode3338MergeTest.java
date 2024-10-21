@@ -14,7 +14,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 class ArrayNode3338MergeTest
 {
     @Test
-    void testEnabledArrayNodeMerge() throws Exception {
+    void enabledArrayNodeMerge() throws Exception {
         final ObjectMapper mapperWithMerge = sharedMapper();
 
         JsonNode merged = _updateTreeWithArray(mapperWithMerge);
@@ -33,7 +33,7 @@ class ArrayNode3338MergeTest
     }
 
     @Test
-    void testDisabledArrayNodeMerge() throws Exception {
+    void disabledArrayNodeMerge() throws Exception {
         ObjectMapper mapperNoArrayMerge = jsonMapperBuilder()
                 .withConfigOverride(ArrayNode.class,
                         cfg -> cfg.setMergeable(false))
@@ -72,7 +72,7 @@ class ArrayNode3338MergeTest
     }
 
     @Test
-    void testEnabledObjectNodeMerge() throws Exception {
+    void enabledObjectNodeMerge() throws Exception {
         final ObjectMapper mapperWithMerge = sharedMapper();
 
         JsonNode merged = _updateTreeWithObject(mapperWithMerge);
@@ -93,7 +93,7 @@ class ArrayNode3338MergeTest
     }
 
     @Test
-    void testDisabledObjectNodeMerge() throws Exception {
+    void disabledObjectNodeMerge() throws Exception {
         ObjectMapper mapperNoObjectMerge = jsonMapperBuilder()
                 .withConfigOverride(ObjectNode.class,
                         cfg -> cfg.setMergeable(false))

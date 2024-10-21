@@ -72,7 +72,7 @@ class SingleValueAsArrayTest extends DatabindTestUtil
     }
 
     @Test
-    void testSuccessfulDeserializationOfObjectWithChainedArrayCreators() throws IOException
+    void successfulDeserializationOfObjectWithChainedArrayCreators() throws IOException
     {
         Bean1421A result = MAPPER.readValue("[{\"message\":\"messageHere\"}]", Bean1421A.class);
         assertNotNull(result);
@@ -81,7 +81,7 @@ class SingleValueAsArrayTest extends DatabindTestUtil
     }
 
     @Test
-    void testWithSingleString() throws Exception {
+    void withSingleString() throws Exception {
         Bean1421B<List<String>> a = MAPPER.readValue(q("test2"),
                 new TypeReference<Bean1421B<List<String>>>() {});
         List<String> expected = new ArrayList<>();
@@ -90,7 +90,7 @@ class SingleValueAsArrayTest extends DatabindTestUtil
     }
 
     @Test
-    void testPrimitives() throws Exception {
+    void primitives() throws Exception {
         int[] i = MAPPER.readValue("16", int[].class);
         assertEquals(1, i.length);
         assertEquals(16, i[0]);

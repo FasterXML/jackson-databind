@@ -78,7 +78,7 @@ class TypedArraySerTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testListWithPolymorphic() throws Exception
+    void listWithPolymorphic() throws Exception
     {
         BeanListWrapper beans = new BeanListWrapper();
         assertEquals("{\"beans\":[{\"@type\":\"bean\",\"x\":0}]}", MAPPER.writeValueAsString(beans));
@@ -88,7 +88,7 @@ class TypedArraySerTest
     }
 
     @Test
-    void testIntList() throws Exception
+    void intList() throws Exception
     {
         TypedList<Integer> input = new TypedList<Integer>();
         input.add(5);
@@ -103,7 +103,7 @@ class TypedArraySerTest
     // add property in), so it should revert to method used with
     // ARRAY_WRAPPER method.
     @Test
-    void testStringListAsProp() throws Exception
+    void stringListAsProp() throws Exception
     {
         TypedListAsProp<String> input = new TypedListAsProp<String>();
         input.add("a");
@@ -113,7 +113,7 @@ class TypedArraySerTest
     }
 
     @Test
-    void testStringListAsObjectWrapper() throws Exception
+    void stringListAsObjectWrapper() throws Exception
     {
         TypedListAsWrapper<Boolean> input = new TypedListAsWrapper<Boolean>();
         input.add(true);
@@ -134,7 +134,7 @@ class TypedArraySerTest
      */
 
     @Test
-    void testIntArray() throws Exception
+    void intArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(int[].class, WrapperMixIn.class);
@@ -150,7 +150,7 @@ class TypedArraySerTest
      */
 
     @Test
-    void testGenericArray() throws Exception
+    void genericArray() throws Exception
     {
         final A[] input = new A[] { new B() };
         final String EXP = "[{\"BB\":{\"value\":2}}]";

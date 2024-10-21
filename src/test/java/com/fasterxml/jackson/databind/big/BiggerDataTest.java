@@ -81,7 +81,7 @@ class BiggerDataTest
 	private final ObjectMapper MAPPER = JsonMapper.builder().build();
 
     @Test
-    void testReading() throws Exception
+    void reading() throws Exception
 	{
 		Citm citm = MAPPER.readValue(getClass().getResourceAsStream("/data/citm_catalog.json"),
 				Citm.class);
@@ -106,7 +106,7 @@ class BiggerDataTest
 	}
 
     @Test
-    void testRoundTrip() throws Exception
+    void roundTrip() throws Exception
 	{
 		Citm citm = MAPPER.readValue(getClass().getResourceAsStream("/data/citm_catalog.json"),
 				Citm.class);

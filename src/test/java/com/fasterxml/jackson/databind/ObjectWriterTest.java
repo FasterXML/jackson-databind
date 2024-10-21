@@ -67,7 +67,7 @@ class ObjectWriterTest
      */
 
     @Test
-    void testPrettyPrinter() throws Exception
+    void prettyPrinter() throws Exception
     {
         ObjectWriter writer = MAPPER.writer();
         HashMap<String, Integer> data = new HashMap<String,Integer>();
@@ -89,7 +89,7 @@ class ObjectWriterTest
     }
 
     @Test
-    void testPrefetch() throws Exception
+    void prefetch() throws Exception
     {
         ObjectWriter writer = MAPPER.writer();
         assertFalse(writer.hasPrefetchedSerializer());
@@ -98,7 +98,7 @@ class ObjectWriterTest
     }
 
     @Test
-    void testObjectWriterFeatures() throws Exception
+    void objectWriterFeatures() throws Exception
     {
         ObjectWriter writer = MAPPER.writer()
                 .without(JsonWriteFeature.QUOTE_FIELD_NAMES);
@@ -111,7 +111,7 @@ class ObjectWriterTest
     }
 
     @Test
-    void testObjectWriterWithNode() throws Exception
+    void objectWriterWithNode() throws Exception
     {
         ObjectNode stuff = MAPPER.createObjectNode();
         stuff.put("a", 5);
@@ -121,7 +121,7 @@ class ObjectWriterTest
     }
 
     @Test
-    void testPolymorphicWithTyping() throws Exception
+    void polymorphicWithTyping() throws Exception
     {
         ObjectWriter writer = MAPPER.writerFor(PolyBase.class);
         String json;
@@ -134,14 +134,14 @@ class ObjectWriterTest
 
     @SuppressWarnings("deprecation")
     @Test
-    void testCanSerialize() throws Exception
+    void canSerialize() throws Exception
     {
         assertTrue(MAPPER.writer().canSerialize(String.class));
         assertTrue(MAPPER.writer().canSerialize(String.class, null));
     }
 
     @Test
-    void testNoPrefetch() throws Exception
+    void noPrefetch() throws Exception
     {
         ObjectWriter w = MAPPER.writer()
                 .without(SerializationFeature.EAGER_SERIALIZER_FETCH);
@@ -152,7 +152,7 @@ class ObjectWriterTest
     }
 
     @Test
-    void testWithCloseCloseable() throws Exception
+    void withCloseCloseable() throws Exception
     {
         ObjectWriter w = MAPPER.writer()
                 .with(SerializationFeature.CLOSE_CLOSEABLE);
@@ -175,7 +175,7 @@ class ObjectWriterTest
     }
 
     @Test
-    void testViewSettings() throws Exception
+    void viewSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
         ObjectWriter newW = w.withView(String.class);
@@ -188,7 +188,7 @@ class ObjectWriterTest
     }
 
     @Test
-    void testMiscSettings() throws Exception
+    void miscSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
         assertSame(MAPPER.getFactory(), w.getFactory());
@@ -218,7 +218,7 @@ class ObjectWriterTest
     }
 
     @Test
-    void testRootValueSettings() throws Exception
+    void rootValueSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
 
@@ -249,7 +249,7 @@ class ObjectWriterTest
     }
 
     @Test
-    void testFeatureSettings() throws Exception
+    void featureSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
         assertFalse(w.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
@@ -281,7 +281,7 @@ class ObjectWriterTest
     }
 
     @Test
-    void testGeneratorFeatures() throws Exception
+    void generatorFeatures() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
         assertNotSame(w, w.with(JsonWriteFeature.ESCAPE_NON_ASCII));
@@ -302,7 +302,7 @@ class ObjectWriterTest
      */
 
     @Test
-    void testArgumentChecking() throws Exception
+    void argumentChecking() throws Exception
     {
         final ObjectWriter w = MAPPER.writer();
         try {
@@ -314,7 +314,7 @@ class ObjectWriterTest
     }
 
     @Test
-    void testSchema() throws Exception
+    void schema() throws Exception
     {
         try {
             MAPPER.writerFor(String.class)

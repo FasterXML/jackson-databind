@@ -27,7 +27,7 @@ class NodeFeaturesTest extends DatabindTestUtil
     private final String JSON_WITH_NULL = a2q("{'nvl':null}");
 
     @Test
-    void testDefaultSettings() throws Exception
+    void defaultSettings() throws Exception
     {
         assertTrue(READER.isEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
         assertFalse(READER.without(JsonNodeFeature.READ_NULL_PROPERTIES)
@@ -39,7 +39,7 @@ class NodeFeaturesTest extends DatabindTestUtil
     }
 
     @Test
-    void testImplicitVsExplicit()
+    void implicitVsExplicit()
     {
         DatatypeFeatures dfs = DatatypeFeatures.defaultFeatures();
         assertTrue(dfs.isEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
@@ -70,7 +70,7 @@ class NodeFeaturesTest extends DatabindTestUtil
 
     // [databind#3421]
     @Test
-    void testReadNulls() throws Exception
+    void readNulls() throws Exception
     {
         // so by default we'll get null included
         assertEquals(DOC_WITH_NULL, READER.readTree(JSON_WITH_NULL));
@@ -95,7 +95,7 @@ class NodeFeaturesTest extends DatabindTestUtil
 
     // [databind#3476]
     @Test
-    void testWriteNulls() throws Exception
+    void writeNulls() throws Exception
     {
         // so by default we'll get null written
         assertEquals(JSON_WITH_NULL, WRITER.writeValueAsString(DOC_WITH_NULL));
@@ -127,7 +127,7 @@ class NodeFeaturesTest extends DatabindTestUtil
 
     // [databind#3476]
     @Test
-    void testWriteSortedProperties() throws Exception
+    void writeSortedProperties() throws Exception
     {
         assertFalse(WRITER.isEnabled(JsonNodeFeature.WRITE_PROPERTIES_SORTED));
 

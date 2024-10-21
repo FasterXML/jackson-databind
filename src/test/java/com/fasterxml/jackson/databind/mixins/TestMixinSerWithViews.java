@@ -165,7 +165,7 @@ class TestMixinSerWithViews
      */
 
     @Test
-    void testDataBindingUsage() throws Exception
+    void dataBindingUsage() throws Exception
     {
       ObjectMapper objectMapper = createObjectMapper();
       ObjectWriter objectWriter = objectMapper.writerWithView(Views.View.class).withDefaultPrettyPrinter();
@@ -176,7 +176,7 @@ class TestMixinSerWithViews
     }
 
     @Test
-    void testIssue560() throws Exception
+    void issue560() throws Exception
     {
         A a = new A("myname", 29, "mysurname");
 

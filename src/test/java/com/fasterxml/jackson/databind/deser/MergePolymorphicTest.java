@@ -42,14 +42,14 @@ class MergePolymorphicTest
             .build();
 
     @Test
-    void testPolymorphicNewObject() throws Exception {
+    void polymorphicNewObject() throws Exception {
         Root root = MAPPER.readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm child A\" }}", Root.class);
         assertTrue(root.child instanceof ChildA);
         assertEquals("I'm child A", ((ChildA) root.child).name);
     }
 
     @Test
-    void testPolymorphicFromNullToNewObject() throws Exception {
+    void polymorphicFromNullToNewObject() throws Exception {
         Root root = new Root();
         MAPPER.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm the new name\" }}");
         assertTrue(root.child instanceof ChildA);
@@ -57,7 +57,7 @@ class MergePolymorphicTest
     }
 
     @Test
-    void testPolymorphicFromObjectToNull() throws Exception {
+    void polymorphicFromObjectToNull() throws Exception {
         Root root = new Root();
         ChildA childA = new ChildA();
         childA.name = "I'm child A";
@@ -67,7 +67,7 @@ class MergePolymorphicTest
     }
 
     @Test
-    void testPolymorphicPropertyCanBeMerged() throws Exception {
+    void polymorphicPropertyCanBeMerged() throws Exception {
         Root root = new Root();
         ChildA childA = new ChildA();
         childA.name = "I'm child A";
@@ -78,7 +78,7 @@ class MergePolymorphicTest
     }
 
     @Test
-    void testPolymorphicPropertyTypeCanNotBeChanged() throws Exception {
+    void polymorphicPropertyTypeCanNotBeChanged() throws Exception {
         Root root = new Root();
         ChildA childA = new ChildA();
         childA.name = "I'm child A";

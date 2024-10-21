@@ -14,13 +14,13 @@ class ObjectBufferTest extends DatabindTestUtil
      * First a test that treats results as plain old Object[]
      */
     @Test
-    void testUntyped()
+    void untyped()
     {
         _testObjectBuffer(null);
     }
 
     @Test
-    void testTyped()
+    void typed()
     {
         _testObjectBuffer(Integer.class);
     }

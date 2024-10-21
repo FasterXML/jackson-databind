@@ -21,7 +21,7 @@ class MixinForCreators2795Test extends DatabindTestUtil
     }
 
     @Test
-    void testMixinWithUnmmodifiableCollection() throws Exception
+    void mixinWithUnmmodifiableCollection() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(Collections.unmodifiableCollection(Collections.emptyList()).getClass(),

@@ -28,7 +28,7 @@ class DefaultWithBaseType1093Test extends DatabindTestUtil
 
     // [databind#1093]
     @Test
-    void testWithDefaultTyping() throws Exception
+    void withDefaultTyping() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

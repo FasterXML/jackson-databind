@@ -30,7 +30,7 @@ class NoTypeInfoTest extends DatabindTestUtil
      */
 
     @Test
-    void testWithIdNone() throws Exception
+    void withIdNone() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
             .activateDefaultTyping(NoCheckSubTypeValidator.instance)

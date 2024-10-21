@@ -305,7 +305,7 @@ class ExistingPropertyTest extends DatabindTestUtil
      * Fruits - serialization tests for simple property on sub-classes
      */
     @Test
-    void testExistingPropertySerializationFruits() throws Exception
+    void existingPropertySerializationFruits() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, pinguo);
         assertEquals(3, result.size());
@@ -336,7 +336,7 @@ class ExistingPropertyTest extends DatabindTestUtil
      * Fruits - deserialization tests for simple property on sub-classes
      */
     @Test
-    void testSimpleClassAsExistingPropertyDeserializationFruits() throws Exception
+    void simpleClassAsExistingPropertyDeserializationFruits() throws Exception
     {
         Fruit pinguoDeserialized = MAPPER.readValue(pinguoJson, Fruit.class);
         assertTrue(pinguoDeserialized instanceof Apple);
@@ -372,7 +372,7 @@ class ExistingPropertyTest extends DatabindTestUtil
      * Animals - serialization tests for abstract method in base class
      */
     @Test
-    void testExistingPropertySerializationAnimals() throws Exception
+    void existingPropertySerializationAnimals() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, beelzebub);
         assertEquals(3, result.size());
@@ -403,7 +403,7 @@ class ExistingPropertyTest extends DatabindTestUtil
      * Animals - deserialization tests for abstract method in base class
      */
     @Test
-    void testSimpleClassAsExistingPropertyDeserializationAnimals() throws Exception
+    void simpleClassAsExistingPropertyDeserializationAnimals() throws Exception
     {
         Animal beelzebubDeserialized = MAPPER.readValue(beelzebubJson, Animal.class);
         assertTrue(beelzebubDeserialized instanceof Cat);
@@ -436,7 +436,7 @@ class ExistingPropertyTest extends DatabindTestUtil
      * Cars - serialization tests for no abstract method or type variable in base class
      */
     @Test
-    void testExistingPropertySerializationCars() throws Exception
+    void existingPropertySerializationCars() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, camry);
         assertEquals(3, result.size());
@@ -467,7 +467,7 @@ class ExistingPropertyTest extends DatabindTestUtil
      * Cars - deserialization tests for no abstract method or type variable in base class
      */
     @Test
-    void testSimpleClassAsExistingPropertyDeserializationCars() throws Exception
+    void simpleClassAsExistingPropertyDeserializationCars() throws Exception
     {
         Car camryDeserialized = MAPPER.readValue(camryJson, Camry.class);
         assertTrue(camryDeserialized instanceof Camry);
@@ -499,7 +499,7 @@ class ExistingPropertyTest extends DatabindTestUtil
 
     // for [databind#1635]: simple usage
     @Test
-    void testExistingEnumTypeId() throws Exception
+    void existingEnumTypeId() throws Exception
     {
         Bean1635 result = MAPPER.readValue(a2q("{'value':3, 'type':'A'}"),
                 Bean1635.class);
@@ -512,7 +512,7 @@ class ExistingPropertyTest extends DatabindTestUtil
     // for [databind#1635]: verify that `defaultImpl` does not block assignment of
     // type id
     @Test
-    void testExistingEnumTypeIdViaDefault() throws Exception
+    void existingEnumTypeIdViaDefault() throws Exception
     {
         Bean1635 result = MAPPER.readValue(a2q("{'type':'C'}"),
                 Bean1635.class);
@@ -522,7 +522,7 @@ class ExistingPropertyTest extends DatabindTestUtil
 
     // [databind#2785]
     @Test
-    void testCopyOfSubtypeResolver2785() throws Exception {
+    void copyOfSubtypeResolver2785() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper().copy();
         objectMapper.registerSubtypes(Impl2785.class);
         Object result = objectMapper.readValue("{ \"packetType\": \"myType\" }", Base2785.class);
@@ -531,19 +531,19 @@ class ExistingPropertyTest extends DatabindTestUtil
 
     // [databind#3271]: verify that `null` token does not become "null" String
     @Test
-    void testDeserializationWithValidType() throws Exception {
+    void deserializationWithValidType() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":\"square\"}", Shape3271.class);
         assertEquals("square", deserShape.getType());
     }
 
     @Test
-    void testDeserializationWithInvalidType() throws Exception {
+    void deserializationWithInvalidType() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":\"invalid\"}", Shape3271.class);
         assertEquals("invalid", deserShape.getType());
     }
 
     @Test
-    void testDeserializationNull() throws Exception {
+    void deserializationNull() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":null}", Shape3271.class);
         assertNull(deserShape.getType()); // error: "expected null, but was:<null>"
     }

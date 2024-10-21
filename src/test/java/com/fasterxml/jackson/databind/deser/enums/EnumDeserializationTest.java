@@ -288,7 +288,7 @@ class EnumDeserializationTest
     protected final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testSimple() throws Exception
+    void simple() throws Exception
     {
         // First "good" case with Strings
         String JSON = "\"OK\" \"RULES\"  null";
@@ -322,7 +322,7 @@ class EnumDeserializationTest
      * example is TimeUnit
      */
     @Test
-    void testComplexEnum() throws Exception
+    void complexEnum() throws Exception
     {
         String json = MAPPER.writeValueAsString(TimeUnit.SECONDS);
         assertEquals(q("SECONDS"), json);
@@ -334,7 +334,7 @@ class EnumDeserializationTest
      * Testing to see that annotation override works
      */
     @Test
-    void testAnnotated() throws Exception
+    void annotated() throws Exception
     {
         AnnotatedTestEnum e = MAPPER.readValue("\"JACKSON\"", AnnotatedTestEnum.class);
         /* dummy deser always returns value OK, independent of input;
@@ -344,14 +344,14 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testSubclassedEnums() throws Exception
+    void subclassedEnums() throws Exception
     {
         EnumWithSubClass value = MAPPER.readValue("\"A\"", EnumWithSubClass.class);
         assertEquals(EnumWithSubClass.A, value);
     }
 
     @Test
-    void testToStringEnums() throws Exception
+    void toStringEnums() throws Exception
     {
         // can't reuse global one due to reconfig
         ObjectMapper m = new ObjectMapper();
@@ -361,7 +361,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testNumbersToEnums() throws Exception
+    void numbersToEnums() throws Exception
     {
         // by default numbers are fine:
         assertFalse(MAPPER.getDeserializationConfig().isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
@@ -391,7 +391,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testEnumsWithIndex() throws Exception
+    void enumsWithIndex() throws Exception
     {
         String json = MAPPER.writer()
                 .with(SerializationFeature.WRITE_ENUMS_USING_INDEX)
@@ -402,7 +402,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testEnumsWithJsonValue() throws Exception
+    void enumsWithJsonValue() throws Exception
     {
         // first, enum as is
         EnumWithJsonValue e = MAPPER.readValue(q("foo"), EnumWithJsonValue.class);
@@ -429,7 +429,7 @@ class EnumDeserializationTest
     // Ability to ignore unknown Enum values:
 
     @Test
-    void testAllowUnknownEnumValuesReadAsNull() throws Exception
+    void allowUnknownEnumValuesReadAsNull() throws Exception
     {
         // cannot use shared mapper when changing configs...
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
@@ -441,7 +441,7 @@ class EnumDeserializationTest
 
     // [databind#1642]
     @Test
-    void testAllowUnknownEnumValuesReadAsNullWithCreatorMethod() throws Exception
+    void allowUnknownEnumValuesReadAsNullWithCreatorMethod() throws Exception
     {
         // cannot use shared mapper when changing configs...
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
@@ -450,7 +450,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testAllowUnknownEnumValuesForEnumSets() throws Exception
+    void allowUnknownEnumValuesForEnumSets() throws Exception
     {
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
         EnumSet<TestEnum> result = reader.forType(new TypeReference<EnumSet<TestEnum>>() { })
@@ -459,7 +459,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testAllowUnknownEnumValuesAsMapKeysReadAsNull() throws Exception
+    void allowUnknownEnumValuesAsMapKeysReadAsNull() throws Exception
     {
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
         ClassWithEnumMapKey result = reader.forType(ClassWithEnumMapKey.class)
@@ -468,7 +468,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testDoNotAllowUnknownEnumValuesAsMapKeysWhenReadAsNullDisabled() throws Exception
+    void doNotAllowUnknownEnumValuesAsMapKeysWhenReadAsNullDisabled() throws Exception
     {
         assertFalse(MAPPER.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL));
          try {
@@ -482,7 +482,7 @@ class EnumDeserializationTest
 
     // [databind#141]: allow mapping of empty String into null
     @Test
-    void testEnumsWithEmpty() throws Exception
+    void enumsWithEmpty() throws Exception
     {
        final ObjectMapper mapper = new ObjectMapper();
        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
@@ -491,7 +491,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testGenericEnumDeserialization() throws Exception
+    void genericEnumDeserialization() throws Exception
     {
        final ObjectMapper mapper = new ObjectMapper();
        SimpleModule module = new SimpleModule("foobar");
@@ -503,7 +503,7 @@ class EnumDeserializationTest
 
     // [databind#381]
     @Test
-    void testUnwrappedEnum() throws Exception {
+    void unwrappedEnum() throws Exception {
         assertEquals(TestEnum.JACKSON,
                 MAPPER.readerFor(TestEnum.class)
                     .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
@@ -511,7 +511,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testUnwrappedEnumException() throws Exception {
+    void unwrappedEnumException() throws Exception {
         final ObjectMapper mapper = newJsonMapper();
         mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
         try {
@@ -526,7 +526,7 @@ class EnumDeserializationTest
 
     // [databind#149]: 'stringified' indexes for enums
     @Test
-    void testIndexAsString() throws Exception
+    void indexAsString() throws Exception
     {
         // first, regular index ought to work fine
         TestEnum en = MAPPER.readValue("2", TestEnum.class);
@@ -552,7 +552,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testEnumWithJsonPropertyRename() throws Exception
+    void enumWithJsonPropertyRename() throws Exception
     {
         String json = MAPPER.writeValueAsString(new EnumWithPropertyAnno[] {
                 EnumWithPropertyAnno.B, EnumWithPropertyAnno.A
@@ -568,7 +568,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testEnumWithJsonPropertyRenameWithToString() throws Exception {
+    void enumWithJsonPropertyRenameWithToString() throws Exception {
         EnumWithPropertyAnno a = MAPPER.readerFor(EnumWithPropertyAnno.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 .readValue(q("a"));
@@ -595,7 +595,7 @@ class EnumDeserializationTest
      * {@link #testEnumWithJsonPropertyRename()}
      */
     @Test
-    void testEnumWithJsonPropertyRenameMixin() throws Exception
+    void enumWithJsonPropertyRenameMixin() throws Exception
     {
         ObjectMapper mixinMapper = jsonMapperBuilder()
                 .addMixIn(EnumWithPropertyAnnoBase.class, EnumWithPropertyAnnoMixin.class)
@@ -615,7 +615,7 @@ class EnumDeserializationTest
 
     // [databind#1161], unable to switch READ_ENUMS_USING_TO_STRING
     @Test
-    void testDeserWithToString1161() throws Exception
+    void deserWithToString1161() throws Exception
     {
         Enum1161 result = MAPPER.readerFor(Enum1161.class)
                 .readValue(q("A"));
@@ -634,7 +634,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testEnumWithDefaultAnnotation() throws Exception {
+    void enumWithDefaultAnnotation() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
@@ -643,7 +643,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testEnumWithDefaultAnnotationUsingIndexInBound1() throws Exception {
+    void enumWithDefaultAnnotationUsingIndexInBound1() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
@@ -652,7 +652,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testEnumWithDefaultAnnotationUsingIndexInBound2() throws Exception {
+    void enumWithDefaultAnnotationUsingIndexInBound2() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
@@ -661,7 +661,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testEnumWithDefaultAnnotationUsingIndexSameAsLength() throws Exception {
+    void enumWithDefaultAnnotationUsingIndexSameAsLength() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
@@ -670,7 +670,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testEnumWithDefaultAnnotationUsingIndexOutOfBound() throws Exception {
+    void enumWithDefaultAnnotationUsingIndexOutOfBound() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
@@ -679,7 +679,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testEnumWithDefaultAnnotationWithConstructor() throws Exception {
+    void enumWithDefaultAnnotationWithConstructor() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
@@ -688,7 +688,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testExceptionFromCustomEnumKeyDeserializer() throws Exception {
+    void exceptionFromCustomEnumKeyDeserializer() throws Exception {
         ObjectMapper mapper = newJsonMapper()
                 .registerModule(new EnumModule());
         try {
@@ -702,7 +702,7 @@ class EnumDeserializationTest
 
     // [databind#2164]
     @Test
-    void testWrapExceptions() throws Exception
+    void wrapExceptions() throws Exception
     {
         // By default, wrap:
         try {
@@ -728,7 +728,7 @@ class EnumDeserializationTest
 
     // [databind#2309]
     @Test
-    void testEnumToStringNull2309() throws Exception
+    void enumToStringNull2309() throws Exception
     {
         Enum2309 value = MAPPER.readerFor(Enum2309.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
@@ -738,7 +738,7 @@ class EnumDeserializationTest
 
     // [databind#2873] -- take case-sensitivity into account for Enum-as-Map-keys too
     @Test
-    void testEnumValuesCaseSensitivity() throws Exception {
+    void enumValuesCaseSensitivity() throws Exception {
         try {
             MAPPER.readValue("{\"map\":{\"JACkson\":\"val\"}}", ClassWithEnumMapKey.class);
             fail("Should not pass by default");
@@ -750,7 +750,7 @@ class EnumDeserializationTest
 
     // [databind#2873] -- take case-sensitivity into account for Enum-as-Map-keys too
     @Test
-    void testAllowCaseInsensitiveEnumValues() throws Exception {
+    void allowCaseInsensitiveEnumValues() throws Exception {
         ObjectMapper m = jsonMapperBuilder()
                 .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
                 .build();
@@ -762,7 +762,7 @@ class EnumDeserializationTest
 
     // [databind#3006]
     @Test
-    void testIssue3006() throws Exception
+    void issue3006() throws Exception
     {
         assertEquals(Operation3006.ONE, MAPPER.readValue("1", Operation3006.class));
         assertEquals(Operation3006.ONE, MAPPER.readValue(q("1"), Operation3006.class));
@@ -771,7 +771,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testEnumFeature_EnumIndexAsKey() throws Exception {
+    void enumFeatureEnumIndexAsKey() throws Exception {
         ObjectReader reader = MAPPER.reader()
             .with(EnumFeature.READ_ENUM_KEYS_USING_INDEX);
 
@@ -781,7 +781,7 @@ class EnumDeserializationTest
     }
 
     @Test
-    void testEnumFeature_symmetric_to_writing() throws Exception {
+    void enumFeatureSymmetricToWriting() throws Exception {
         ClassWithEnumMapKey obj = new ClassWithEnumMapKey();
         Map<TestEnum, String> objMap = new HashMap<>();
         objMap.put(TestEnum.JACKSON, "I AM FOR REAL");
@@ -802,7 +802,7 @@ class EnumDeserializationTest
 
 
     @Test
-    void testEnumFeature_READ_ENUM_KEYS_USING_INDEX_isDisabledByDefault() {
+    void enumFeatureREADENUMKEYSUSINGINDEXIsDisabledByDefault() {
         ObjectReader READER = MAPPER.reader();
         assertFalse(READER.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
         assertFalse(READER.without(EnumFeature.READ_ENUM_KEYS_USING_INDEX)

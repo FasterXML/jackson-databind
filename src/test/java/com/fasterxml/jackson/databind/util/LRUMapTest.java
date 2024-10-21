@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class LRUMapTest extends DatabindTestUtil
 {
     @Test
-    void testPutGet() {
+    void putGet() {
         LRUMap<String, Integer> m = new LRUMap<>(5, 5);
 
         assertEquals(0, m.size());
@@ -25,7 +25,7 @@ class LRUMapTest extends DatabindTestUtil
     }
 
     @Test
-    void testEviction() {
+    void eviction() {
         LRUMap<String, Integer> m = new LRUMap<>(5, 5);
 
         assertEquals(0, m.size());
@@ -51,7 +51,7 @@ class LRUMapTest extends DatabindTestUtil
     }
 
     @Test
-    void testJDKSerialization() throws Exception
+    void jdkSerialization() throws Exception
     {
         final int maxEntries = 32;
         LRUMap<String,Integer> map = new LRUMap<String,Integer>(16, maxEntries);

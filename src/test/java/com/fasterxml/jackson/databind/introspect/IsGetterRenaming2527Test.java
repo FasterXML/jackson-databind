@@ -75,7 +75,7 @@ class IsGetterRenaming2527Test extends DatabindTestUtil
             .build();
 
     @Test
-    void testIsPropertiesStdKotlin() throws Exception
+    void isPropertiesStdKotlin() throws Exception
     {
         POJO2527 input = new POJO2527(true);
         final String json = MAPPER.writeValueAsString(input);
@@ -89,7 +89,7 @@ class IsGetterRenaming2527Test extends DatabindTestUtil
     }
 
     @Test
-    void testIsPropertiesWithPublicField() throws Exception
+    void isPropertiesWithPublicField() throws Exception
     {
         POJO2527PublicField input = new POJO2527PublicField(true);
         final String json = MAPPER.writeValueAsString(input);
@@ -103,7 +103,7 @@ class IsGetterRenaming2527Test extends DatabindTestUtil
     }
 
     @Test
-    void testIsPropertiesViaCreator() throws Exception
+    void isPropertiesViaCreator() throws Exception
     {
         POJO2527Creator input = new POJO2527Creator(true);
         final String json = MAPPER.writeValueAsString(input);

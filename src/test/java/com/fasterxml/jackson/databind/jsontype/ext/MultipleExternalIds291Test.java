@@ -62,7 +62,7 @@ class MultipleExternalIds291Test extends DatabindTestUtil
 
     // [databind#291]
     @Test
-    void testMultipleValuesSingleExtId() throws Exception
+    void multipleValuesSingleExtId() throws Exception
     {
         // first with ext-id before values
         _testMultipleValuesSingleExtId(

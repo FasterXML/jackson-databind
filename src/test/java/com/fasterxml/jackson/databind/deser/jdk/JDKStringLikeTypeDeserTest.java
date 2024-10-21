@@ -72,7 +72,7 @@ class JDKStringLikeTypeDeserTest
 
     // [databind#239]
     @Test
-    void testByteBuffer() throws Exception
+    void byteBuffer() throws Exception
     {
         byte[] INPUT = new byte[] { 1, 3, 9, -1, 6 };
         String exp = MAPPER.writeValueAsString(INPUT);
@@ -86,7 +86,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testCharset() throws Exception
+    void charset() throws Exception
     {
         Charset UTF8 = Charset.forName("UTF-8");
         assertSame(UTF8, MAPPER.readValue(q("UTF-8"), Charset.class));
@@ -111,7 +111,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testClassWithParams() throws IOException
+    void classWithParams() throws IOException
     {
         String json = MAPPER.writeValueAsString(new ParamClassBean("Foobar"));
 
@@ -121,7 +121,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testCurrency() throws IOException
+    void currency() throws IOException
     {
         Currency usd = Currency.getInstance("USD");
         assertEquals(usd, MAPPER.readValue(q("USD"), Currency.class));
@@ -136,7 +136,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testFile() throws Exception
+    void file() throws Exception
     {
         // Not portable etc... has to do:
         File src = new File("/test").getAbsoluteFile();
@@ -149,7 +149,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testLocale() throws IOException
+    void locale() throws IOException
     {
         assertEquals(new Locale("en"), MAPPER.readValue(q("en"), Locale.class));
         assertEquals(new Locale("es", "ES"), MAPPER.readValue(q("es_ES"), Locale.class));
@@ -160,7 +160,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testCharSequence() throws IOException
+    void charSequence() throws IOException
     {
         CharSequence cs = MAPPER.readValue("\"abc\"", CharSequence.class);
         assertEquals(String.class, cs.getClass());
@@ -168,7 +168,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testInetAddress() throws IOException
+    void inetAddress() throws IOException
     {
         InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
@@ -180,7 +180,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testInetSocketAddress() throws IOException
+    void inetSocketAddress() throws IOException
     {
         InetSocketAddress address = MAPPER.readValue(q("127.0.0.1"), InetSocketAddress.class);
         assertEquals("127.0.0.1", address.getAddress().getHostAddress());
@@ -206,7 +206,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testPattern() throws IOException
+    void pattern() throws IOException
     {
         Pattern exp = Pattern.compile("abc:\\s?(\\d+)");
         // Ok: easiest way is to just serialize first; problem
@@ -234,7 +234,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testStackTraceElement() throws Exception
+    void stackTraceElement() throws Exception
     {
         StackTraceElement elem = null;
         try {
@@ -255,7 +255,7 @@ class JDKStringLikeTypeDeserTest
 
     // [databind#429]
     @Test
-    void testStackTraceElementWithCustom() throws Exception
+    void stackTraceElementWithCustom() throws Exception
     {
         // first, via bean that contains StackTraceElement
         StackTraceBean bean = MAPPER.readValue(a2q("{'Location':'foobar'}"),
@@ -287,21 +287,21 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testStringBuilder() throws Exception
+    void stringBuilder() throws Exception
     {
         StringBuilder sb = MAPPER.readValue(q("abc"), StringBuilder.class);
         assertEquals("abc", sb.toString());
     }
 
     @Test
-    void testStringBuffer() throws Exception
+    void stringBuffer() throws Exception
     {
         StringBuffer sb = MAPPER.readValue(q("abc"), StringBuffer.class);
         assertEquals("abc", sb.toString());
     }
 
     @Test
-    void testURI() throws Exception
+    void uri() throws Exception
     {
         final ObjectReader reader = MAPPER.readerFor(URI.class);
         final URI value = new URI("http://foo.com");
@@ -317,7 +317,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testURL() throws Exception
+    void url() throws Exception
     {
         URL exp = new URL("http://foo.com");
         assertEquals(exp, MAPPER.readValue("\""+exp.toString()+"\"", URL.class));
@@ -344,7 +344,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testUUID() throws Exception
+    void uuid() throws Exception
     {
         final String NULL_UUID = "00000000-0000-0000-0000-000000000000";
         final ObjectReader r = MAPPER.readerFor(UUID.class);
@@ -381,7 +381,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testUUIDInvalid() throws Exception
+    void uuidInvalid() throws Exception
     {
         // and finally, exception handling too [databind#1000], for invalid cases
         try {
@@ -400,7 +400,7 @@ class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    void testUUIDAux() throws Exception
+    void uuidAux() throws Exception
     {
         final UUID value = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
 

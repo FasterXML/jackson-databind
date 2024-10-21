@@ -37,7 +37,7 @@ class ObjectIdWithInjectables538Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testWithInjectables538() throws Exception
+    void withInjectables538() throws Exception
     {
         A a = new A("a");
         B b = new B("b");

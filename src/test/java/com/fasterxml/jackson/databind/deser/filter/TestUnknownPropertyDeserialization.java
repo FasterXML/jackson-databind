@@ -161,7 +161,7 @@ class TestUnknownPropertyDeserialization
      * is encountered
      */
     @Test
-    void testUnknownHandlingDefault() throws Exception
+    void unknownHandlingDefault() throws Exception
     {
         try {
             MAPPER.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
@@ -176,7 +176,7 @@ class TestUnknownPropertyDeserialization
      * {@link DeserializationProblemHandler}.
      */
     @Test
-    void testUnknownHandlingIgnoreWithHandler() throws Exception
+    void unknownHandlingIgnoreWithHandler() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.clearProblemHandlers();
@@ -193,7 +193,7 @@ class TestUnknownPropertyDeserialization
      * {@link DeserializationProblemHandler} and an ObjectReader.
      */
     @Test
-    void testUnknownHandlingIgnoreWithHandlerAndObjectReader() throws Exception
+    void unknownHandlingIgnoreWithHandlerAndObjectReader() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.clearProblemHandlers();
@@ -209,7 +209,7 @@ class TestUnknownPropertyDeserialization
      * error reporting for unknown properties.
      */
     @Test
-    void testUnknownHandlingIgnoreWithFeature() throws Exception
+    void unknownHandlingIgnoreWithFeature() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -226,7 +226,7 @@ class TestUnknownPropertyDeserialization
     }
 
     @Test
-    void testWithClassIgnore() throws Exception
+    void withClassIgnore() throws Exception
     {
         IgnoreSome result = MAPPER.readValue("{ \"a\":1,\"b\":2,\"c\":\"x\",\"d\":\"y\"}",
                 IgnoreSome.class);
@@ -240,7 +240,7 @@ class TestUnknownPropertyDeserialization
 
     /// @since 1.4
     @Test
-    void testClassIgnoreWithMap() throws Exception
+    void classIgnoreWithMap() throws Exception
     {
         // Let's actually use incompatible types for "a" and "d"; should not matter when ignored
         IgnoreMap result = MAPPER.readValue
@@ -258,7 +258,7 @@ class TestUnknownPropertyDeserialization
     }
 
     @Test
-    void testClassWithIgnoreUnknown() throws Exception
+    void classWithIgnoreUnknown() throws Exception
     {
         IgnoreUnknown result = MAPPER.readValue
             ("{\"b\":3,\"c\":[1,2],\"x\":{ },\"a\":-3}", IgnoreUnknown.class);
@@ -266,7 +266,7 @@ class TestUnknownPropertyDeserialization
     }
 
     @Test
-    void testAnySetterWithFailOnUnknownDisabled() throws Exception
+    void anySetterWithFailOnUnknownDisabled() throws Exception
     {
         IgnoreUnknownAnySetter value = MAPPER.readValue("{\"x\":\"y\", \"a\":\"b\"}",  IgnoreUnknownAnySetter.class);
         assertNotNull(value);
@@ -274,7 +274,7 @@ class TestUnknownPropertyDeserialization
     }
 
     @Test
-    void testUnwrappedWithFailOnUnknownDisabled() throws Exception
+    void unwrappedWithFailOnUnknownDisabled() throws Exception
     {
       IgnoreUnknownUnwrapped value = MAPPER.readValue("{\"a\":1, \"b\":2}",  IgnoreUnknownUnwrapped.class);
       assertNotNull(value);
@@ -287,7 +287,7 @@ class TestUnknownPropertyDeserialization
      * skipping of matching properties.
      */
     @Test
-    void testClassWithUnknownAndIgnore() throws Exception
+    void classWithUnknownAndIgnore() throws Exception
     {
         // should be ok: "a" and "b" ignored, "c" mapped:
         ImplicitIgnores result = MAPPER.readValue
@@ -304,7 +304,7 @@ class TestUnknownPropertyDeserialization
     }
 
     @Test
-    void testPropertyIgnoral() throws Exception
+    void propertyIgnoral() throws Exception
     {
         XYZWrapper1 result = MAPPER.readValue("{\"value\":{\"y\":2,\"x\":1,\"z\":3}}", XYZWrapper1.class);
         assertEquals(2, result.value.y);
@@ -312,7 +312,7 @@ class TestUnknownPropertyDeserialization
     }
 
     @Test
-    void testPropertyIgnoralWithClass() throws Exception
+    void propertyIgnoralWithClass() throws Exception
     {
         XYZWrapper2 result = MAPPER.readValue("{\"value\":{\"y\":2,\"x\":1,\"z\":3}}",
                 XYZWrapper2.class);
@@ -320,7 +320,7 @@ class TestUnknownPropertyDeserialization
     }
 
     @Test
-    void testPropertyIgnoralForMap() throws Exception
+    void propertyIgnoralForMap() throws Exception
     {
         MapWithoutX result = MAPPER.readValue("{\"values\":{\"x\":1,\"y\":2}}", MapWithoutX.class);
         assertNotNull(result.values);
@@ -329,7 +329,7 @@ class TestUnknownPropertyDeserialization
     }
 
     @Test
-    void testIssue987() throws Exception
+    void issue987() throws Exception
     {
         ObjectMapper jsonMapper = newJsonMapper();
         jsonMapper.addHandler(new DeserializationProblemHandler() {

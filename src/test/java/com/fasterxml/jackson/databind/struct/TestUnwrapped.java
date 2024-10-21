@@ -153,14 +153,14 @@ class TestUnwrapped extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleUnwrappingSerialize() throws Exception {
+    void simpleUnwrappingSerialize() throws Exception {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         assertEquals("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
                 mapper.writeValueAsString(new Unwrapping("Tatu", 1, 2)));
     }
 
     @Test
-    void testDeepUnwrappingSerialize() throws Exception {
+    void deepUnwrappingSerialize() throws Exception {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         assertEquals("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
                 mapper.writeValueAsString(new DeepUnwrapping("Tatu", 1, 2)));
@@ -173,7 +173,7 @@ class TestUnwrapped extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleUnwrappedDeserialize() throws Exception
+    void simpleUnwrappedDeserialize() throws Exception
     {
         Unwrapping bean = MAPPER.readValue("{\"name\":\"Tatu\",\"y\":7,\"x\":-13}",
                 Unwrapping.class);
@@ -185,7 +185,7 @@ class TestUnwrapped extends DatabindTestUtil
     }
 
     @Test
-    void testDoubleUnwrapping() throws Exception
+    void doubleUnwrapping() throws Exception
     {
         TwoUnwrappedProperties bean = MAPPER.readValue("{\"first\":\"Joe\",\"y\":7,\"last\":\"Smith\",\"x\":-13}",
                 TwoUnwrappedProperties.class);
@@ -200,7 +200,7 @@ class TestUnwrapped extends DatabindTestUtil
     }
 
     @Test
-    void testDeepUnwrapping() throws Exception
+    void deepUnwrapping() throws Exception
     {
         DeepUnwrapping bean = MAPPER.readValue("{\"x\":3,\"name\":\"Bob\",\"y\":27}",
                 DeepUnwrapping.class);
@@ -214,7 +214,7 @@ class TestUnwrapped extends DatabindTestUtil
     }
 
     @Test
-    void testUnwrappedDeserializeWithCreator() throws Exception
+    void unwrappedDeserializeWithCreator() throws Exception
     {
         UnwrappingWithCreator bean = MAPPER.readValue("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
                 UnwrappingWithCreator.class);
@@ -226,7 +226,7 @@ class TestUnwrapped extends DatabindTestUtil
     }
 
     @Test
-    void testIssue615() throws Exception
+    void issue615() throws Exception
     {
         Parent input = new Parent("name");
         String json = MAPPER.writeValueAsString(input);
@@ -235,7 +235,7 @@ class TestUnwrapped extends DatabindTestUtil
     }
 
     @Test
-    void testUnwrappedAsPropertyIndicator() throws Exception
+    void unwrappedAsPropertyIndicator() throws Exception
     {
         Inner inner = new Inner();
         inner.animal = "Zebra";
@@ -252,7 +252,7 @@ class TestUnwrapped extends DatabindTestUtil
 
     // [databind#1493]: case-insensitive handling
     @Test
-    void testCaseInsensitiveUnwrap() throws Exception
+    void caseInsensitiveUnwrap() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
@@ -263,7 +263,7 @@ class TestUnwrapped extends DatabindTestUtil
 
     // [databind#2088]: accidental skipping of values
     @Test
-    void testIssue2088UnwrappedFieldsAfterLastCreatorProp() throws Exception
+    void issue2088UnwrappedFieldsAfterLastCreatorProp() throws Exception
     {
         Issue2088Bean bean = MAPPER.readValue("{\"x\":1,\"a\":2,\"y\":3,\"b\":4}", Issue2088Bean.class);
         assertEquals(1, bean.x);

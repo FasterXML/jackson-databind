@@ -21,7 +21,7 @@ class TestSerializerProvider
     }
 
     @Test
-    void testFindExplicit() throws IOException
+    void findExplicit() throws IOException
     {
         ObjectMapper mapper = newJsonMapper();
         SerializationConfig config = mapper.getSerializationConfig();

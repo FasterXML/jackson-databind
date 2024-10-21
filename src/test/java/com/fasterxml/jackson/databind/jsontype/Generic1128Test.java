@@ -52,7 +52,7 @@ class Generic1128Test extends DatabindTestUtil
     static class DevMContainer extends ContainerBase<DevM>{ }
 
     @Test
-    void testIssue1128() throws Exception
+    void issue1128() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);

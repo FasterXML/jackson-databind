@@ -39,7 +39,7 @@ class PolymorphicUpdateValueTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testPolymorphicTest() throws Exception
+    void polymorphicTest() throws Exception
     {
          Child c = new Child();
          c.w = 10;

@@ -114,7 +114,7 @@ class MapEntryFormatTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testInclusion() throws Exception
+    void inclusion() throws Exception
     {
         assertEquals(a2q("{'entry':{'a':'b'}}"),
                 MAPPER.writeValueAsString(new EmptyEntryWrapper("a", "b")));
@@ -134,7 +134,7 @@ class MapEntryFormatTest extends DatabindTestUtil
     }
 
     @Test
-    void testInclusionWithReference() throws Exception
+    void inclusionWithReference() throws Exception
     {
         assertEquals(a2q("{'entry':{'a':'b'}}"),
                 MAPPER.writeValueAsString(new EntryWithNonAbsentWrapper("a", "b")));
@@ -153,7 +153,7 @@ class MapEntryFormatTest extends DatabindTestUtil
      */
 
     @Test
-    void testAsNaturalRoundtrip() throws Exception
+    void asNaturalRoundtrip() throws Exception
     {
         BeanWithMapEntry input = new BeanWithMapEntry("foo" ,"bar");
         String json = MAPPER.writeValueAsString(input);
@@ -165,7 +165,7 @@ class MapEntryFormatTest extends DatabindTestUtil
 
     // should work via class annotation
     @Test
-    void testAsObjectRoundtrip() throws Exception
+    void asObjectRoundtrip() throws Exception
     {
         MapEntryAsObject input = new MapEntryAsObject("foo" ,"bar");
         String json = MAPPER.writeValueAsString(input);
@@ -181,7 +181,7 @@ class MapEntryFormatTest extends DatabindTestUtil
 
     // [databind#1895]
     @Test
-    void testDefaultShapeOverride() throws Exception
+    void defaultShapeOverride() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Map.Entry.class, cfg ->

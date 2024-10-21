@@ -87,7 +87,7 @@ class TestIgnoredTypes extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testIgnoredType() throws Exception
+    void ignoredType() throws Exception
     {
         // First: should be ok in general, even though couldn't build deserializer (due to non-static inner class):
         NonIgnoredType bean = MAPPER.readValue("{\"value\":13}", NonIgnoredType.class);
@@ -101,7 +101,7 @@ class TestIgnoredTypes extends DatabindTestUtil
     }
 
     @Test
-    void testSingleWithMixins() throws Exception {
+    void singleWithMixins() throws Exception {
         SimpleModule module = new SimpleModule();
         module.setMixInAnnotation(Person.class, PersonMixin.class);
         ObjectMapper mapper = jsonMapperBuilder()
@@ -113,7 +113,7 @@ class TestIgnoredTypes extends DatabindTestUtil
     }
 
     @Test
-    void testListWithMixins() throws Exception {
+    void listWithMixins() throws Exception {
         SimpleModule module = new SimpleModule();
         module.setMixInAnnotation(Person.class, PersonMixin.class);
         ObjectMapper mapper = jsonMapperBuilder()
@@ -126,7 +126,7 @@ class TestIgnoredTypes extends DatabindTestUtil
     }
 
     @Test
-    void testIgnoreUsingConfigOverride() throws Exception
+    void ignoreUsingConfigOverride() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
         mapper.configOverride(Wrapped.class).setIsIgnoredType(true);
@@ -143,7 +143,7 @@ class TestIgnoredTypes extends DatabindTestUtil
 
     // [databind#2893]
     @Test
-    void testIgnoreTypeViaInterface() throws Exception
+    void ignoreTypeViaInterface() throws Exception
     {
         assertEquals(a2q("{'x':13}"), MAPPER.writeValueAsString(new ContainsIgnorable()));
     }

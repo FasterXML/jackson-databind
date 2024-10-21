@@ -72,7 +72,7 @@ class UnwrappedCreatorParam265Test extends DatabindTestUtil
 
     // For [databind#265]: handle problem by throwing exception
     @Test
-    void testUnwrappedWithUnnamedCreatorParam() throws Exception
+    void unwrappedWithUnnamedCreatorParam() throws Exception
     {
         JPersonWithoutName person = new JPersonWithoutName("MyName", new JAddress("main street", "springfield", "WA"));
         ObjectMapper mapper = newJsonMapper();
@@ -91,7 +91,7 @@ class UnwrappedCreatorParam265Test extends DatabindTestUtil
 
     // For [databind#265]: handle problem by throwing exception
     @Test
-    void testUnwrappedWithNamedCreatorParam() throws Exception
+    void unwrappedWithNamedCreatorParam() throws Exception
     {
         JPersonWithName person = new JPersonWithName("MyName", new JAddress("main street", "springfield", "WA"));
         ObjectMapper mapper = newJsonMapper();

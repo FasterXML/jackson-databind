@@ -226,7 +226,7 @@ class ContextualSerializationTest
     // Test to verify that contextual serializer can make use of property
     // (method, field) annotations.
     @Test
-    void testMethodAnnotations() throws Exception
+    void methodAnnotations() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -238,7 +238,7 @@ class ContextualSerializationTest
     // Test to verify that contextual serializer can also use annotations
     // for enclosing class.
     @Test
-    void testClassAnnotations() throws Exception
+    void classAnnotations() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -248,7 +248,7 @@ class ContextualSerializationTest
     }
 
     @Test
-    void testWrappedBean() throws Exception
+    void wrappedBean() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -259,7 +259,7 @@ class ContextualSerializationTest
 
     // Serializer should get passed property context even if contained in an array.
     @Test
-    void testMethodAnnotationInArray() throws Exception
+    void methodAnnotationInArray() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -271,7 +271,7 @@ class ContextualSerializationTest
 
     // Serializer should get passed property context even if contained in a Collection.
     @Test
-    void testMethodAnnotationInList() throws Exception
+    void methodAnnotationInList() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -283,7 +283,7 @@ class ContextualSerializationTest
 
     // Serializer should get passed property context even if contained in a Collection.
     @Test
-    void testMethodAnnotationInMap() throws Exception
+    void methodAnnotationInMap() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -295,7 +295,7 @@ class ContextualSerializationTest
     }
 
     @Test
-    void testContextualViaAnnotation() throws Exception
+    void contextualViaAnnotation() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         AnnotatedContextualBean bean = new AnnotatedContextualBean("abc");
@@ -303,7 +303,7 @@ class ContextualSerializationTest
     }
 
     @Test
-    void testResolveOnContextual() throws Exception
+    void resolveOnContextual() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new ContextualAndResolvable());
@@ -317,7 +317,7 @@ class ContextualSerializationTest
     }
 
     @Test
-    void testContextualArrayElement() throws Exception
+    void contextualArrayElement() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         ContextualArrayElementBean beans = new ContextualArrayElementBean("456");
@@ -326,7 +326,7 @@ class ContextualSerializationTest
 
     // Test to verify aspects of [databind#2429]
     @Test
-    void testRootContextualization2429() throws Exception
+    void rootContextualization2429() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test", Version.unknownVersion())

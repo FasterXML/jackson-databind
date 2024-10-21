@@ -52,7 +52,7 @@ class ExternalTypeIdWithIgnoreUnknownTest extends DatabindTestUtil
 
     // [databind#2611]
     @Test
-    void testDeserialization() throws Exception
+    void deserialization() throws Exception
     {
         final String data = a2q("[{'type': 'test','data': {},'additional': {}}]");
 

@@ -419,7 +419,7 @@ class ExternalTypeCustomResolverTest extends DatabindTestUtil
 
     // [databind#1288]
     @Test
-    void testExternalWithCustomResolver() throws Exception
+    void externalWithCustomResolver() throws Exception
     {
         // given
         final String asJson1 = a2q(
@@ -434,7 +434,7 @@ class ExternalTypeCustomResolverTest extends DatabindTestUtil
 
     // [databind#1288]
     @Test
-    void testExternalWithCustomResolverAndBuilder() throws Exception
+    void externalWithCustomResolverAndBuilder() throws Exception
     {
         final String asJson2 = a2q(
 "{'form_of_payment':'INSTRUMENTED_CREDIT_CARD',\n"

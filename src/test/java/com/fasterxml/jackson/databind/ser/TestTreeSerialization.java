@@ -27,7 +27,7 @@ class TestTreeSerialization
 
     @SuppressWarnings("unchecked")
     @Test
-    void testSimpleViaObjectMapper()
+    void simpleViaObjectMapper()
             throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -61,7 +61,7 @@ class TestTreeSerialization
      */
     @SuppressWarnings("unchecked")
     @Test
-    void testPOJOString()
+    void pojoString()
             throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -79,7 +79,7 @@ class TestTreeSerialization
 
     @SuppressWarnings("unchecked")
     @Test
-    void testPOJOIntArray()
+    void pojoIntArray()
             throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -103,7 +103,7 @@ class TestTreeSerialization
 
     @SuppressWarnings("unchecked")
     @Test
-    void testPOJOBean()
+    void pojoBean()
             throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();

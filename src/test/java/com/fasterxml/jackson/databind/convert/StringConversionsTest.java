@@ -34,7 +34,7 @@ class StringConversionsTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testSimple()
+    void simple()
     {
         assertEquals(Boolean.TRUE, MAPPER.convertValue("true", Boolean.class));
         assertEquals(Integer.valueOf(-3), MAPPER.convertValue("-3", Integer.class));
@@ -50,7 +50,7 @@ class StringConversionsTest
     }
 
     @Test
-    void testStringsToInts()
+    void stringsToInts()
     {
         // let's verify our "neat trick" actually works...
         assertArrayEquals(new int[] { 1, 2, 3, 4, -1, 0 },
@@ -58,7 +58,7 @@ class StringConversionsTest
     }
 
     @Test
-    void testBytesToBase64AndBack() throws Exception
+    void bytesToBase64AndBack() throws Exception
     {
         byte[] input = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
         String encoded = MAPPER.convertValue(input, String.class);
@@ -74,7 +74,7 @@ class StringConversionsTest
     }
 
     @Test
-    void testBytestoCharArray() throws Exception
+    void bytestoCharArray() throws Exception
     {
         byte[] input = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
         // first, do baseline encoding
@@ -85,13 +85,13 @@ class StringConversionsTest
     }
 
     @Test
-    void testLowerCasingSerializer() throws Exception
+    void lowerCasingSerializer() throws Exception
     {
         assertEquals("{\"value\":\"abc\"}", MAPPER.writeValueAsString(new StringWrapperWithConvert("ABC")));
     }
 
     @Test
-    void testLowerCasingDeserializer() throws Exception
+    void lowerCasingDeserializer() throws Exception
     {
         StringWrapperWithConvert value = MAPPER.readValue("{\"value\":\"XyZ\"}", StringWrapperWithConvert.class);
         assertNotNull(value);

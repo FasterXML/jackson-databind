@@ -31,7 +31,7 @@ class JDKNumberLeniencyTest
             .build();
 
     @Test
-    void testBooleanLeniencyInts() throws Exception
+    void booleanLeniencyInts() throws Exception
     {
         // First: read from integers fine by default
         assertEquals(Boolean.TRUE, VANILLA_MAPPER.readValue("1", Boolean.class));

@@ -12,7 +12,7 @@ class ToStringForNodesTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = objectMapper();
 
     @Test
-    void testObjectNode() throws Exception
+    void objectNode() throws Exception
     {
         _verifyToStrings(MAPPER.readTree("{ \"key\" : 1, \"b\" : \"x\", \"array\" : [ 1, false ] }"));
         final ObjectNode n = MAPPER.createObjectNode().put("msg", "hello world");
@@ -23,7 +23,7 @@ class ToStringForNodesTest extends DatabindTestUtil
     }
 
     @Test
-    void testArrayNode() throws Exception
+    void arrayNode() throws Exception
     {
         _verifyToStrings(MAPPER.readTree("[ 1, true, null, [ \"abc\",3], { } ]"));
         final ArrayNode n = MAPPER.createArrayNode().add(0.25).add(true);
@@ -32,7 +32,7 @@ class ToStringForNodesTest extends DatabindTestUtil
     }
 
     @Test
-    void testBinaryNode() throws Exception
+    void binaryNode() throws Exception
     {
         _verifyToStrings(MAPPER.getNodeFactory().binaryNode(new byte[] { 1, 2, 3, 4, 6 }));
     }

@@ -30,7 +30,7 @@ class TestBuilderMethods extends DatabindTestUtil
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    void testSimple()
+    void simple()
     {
         POJOPropertiesCollector coll = collector(SimpleBuilder.class);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();

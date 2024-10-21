@@ -38,7 +38,7 @@ class CoerceNaNStringToNumberTest
      */
 
     @Test
-    void testDoublePrimitiveNonNumeric() throws Exception
+    void doublePrimitiveNonNumeric() throws Exception
     {
         // first, simple case:
         // bit tricky with binary fps but...
@@ -54,7 +54,7 @@ class CoerceNaNStringToNumberTest
     }
 
     @Test
-    void testDoublePrimFromNaNCoercionDisabled() throws Exception
+    void doublePrimFromNaNCoercionDisabled() throws Exception
     {
         // first, simple case:
         double value = Double.POSITIVE_INFINITY;
@@ -69,7 +69,7 @@ class CoerceNaNStringToNumberTest
     }
 
     @Test
-    void testDoubleWrapperFromNaNCoercionDisabled() throws Exception
+    void doubleWrapperFromNaNCoercionDisabled() throws Exception
     {
         double value = Double.POSITIVE_INFINITY;
         Double dv = MAPPER_NO_COERCION.readValue(q(String.valueOf(value)), Double.class);
@@ -77,7 +77,7 @@ class CoerceNaNStringToNumberTest
     }
 
     @Test
-    void testFloatPrimitiveNonNumeric() throws Exception
+    void floatPrimitiveNonNumeric() throws Exception
     {
         // bit tricky with binary fps but...
         float value = Float.POSITIVE_INFINITY;
@@ -92,7 +92,7 @@ class CoerceNaNStringToNumberTest
     }
 
     @Test
-    void testFloatPriFromNaNCoercionDisabled() throws Exception
+    void floatPriFromNaNCoercionDisabled() throws Exception
     {
         // first, simple case:
         float value = Float.POSITIVE_INFINITY;
@@ -107,7 +107,7 @@ class CoerceNaNStringToNumberTest
     }
 
     @Test
-    void testFloatWrapperFromNaNCoercionDisabled() throws Exception
+    void floatWrapperFromNaNCoercionDisabled() throws Exception
     {
         float value = Float.POSITIVE_INFINITY;
         Float dv = MAPPER_NO_COERCION.readValue(q(String.valueOf(value)), Float.class);

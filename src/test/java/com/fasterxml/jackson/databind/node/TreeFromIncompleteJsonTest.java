@@ -14,7 +14,7 @@ class TreeFromIncompleteJsonTest extends DatabindTestUtil
     final private ObjectMapper MAPPER = objectMapper(); // shared is fine
 
     @Test
-    void testErrorHandling() throws IOException {
+    void errorHandling() throws IOException {
 
       String json = "{\"A\":{\"B\":\n";
       JsonParser parser = MAPPER.createParser(json);

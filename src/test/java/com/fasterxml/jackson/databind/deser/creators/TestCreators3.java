@@ -142,7 +142,7 @@ class TestCreators3
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testCreator541() throws Exception
+    void creator541() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(
@@ -181,7 +181,7 @@ class TestCreators3
 
     // [databind#421]
     @Test
-    void testMultiCtor421() throws Exception
+    void multiCtor421() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());
@@ -194,25 +194,25 @@ class TestCreators3
 
     // [databind#1853]
     @Test
-    void testSerialization() throws Exception {
+    void serialization() throws Exception {
         assertEquals(q("testProduct"),
                 MAPPER.writeValueAsString(new Product1853(false, "testProduct")));
     }
 
     @Test
-    void testDeserializationFromObject() throws Exception {
+    void deserializationFromObject() throws Exception {
         final String EXAMPLE_DATA = "{\"name\":\"dummy\",\"other\":{},\"errors\":{}}";
         assertEquals("PROP:dummy", MAPPER.readValue(EXAMPLE_DATA, Product1853.class).getName());
     }
 
     @Test
-    void testDeserializationFromString() throws Exception {
+    void deserializationFromString() throws Exception {
         assertEquals("DELEG:testProduct",
                 MAPPER.readValue(q("testProduct"), Product1853.class).getName());
     }
 
     @Test
-    void testDeserializationFromWrappedString() throws Exception {
+    void deserializationFromWrappedString() throws Exception {
         Product1853 result = MAPPER.readerFor(Product1853.class)
                 .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .readValue("[\"testProduct\"]");

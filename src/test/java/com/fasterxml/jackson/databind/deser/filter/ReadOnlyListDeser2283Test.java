@@ -49,7 +49,7 @@ class ReadOnlyListDeser2283Test
             .configure(MapperFeature.USE_GETTERS_AS_SETTERS, true).build();
 
     @Test
-    void testRenamedToSameOnGetter() throws Exception
+    void renamedToSameOnGetter() throws Exception
     {
         assertEquals("{\"list\":[]}",
                 MAPPER.writeValueAsString(new RenamedToSameOnGetter()));
@@ -59,7 +59,7 @@ class ReadOnlyListDeser2283Test
     }
 
     @Test
-    void testRenamedToDifferentOnGetter() throws Exception
+    void renamedToDifferentOnGetter() throws Exception
     {
         assertEquals("{\"renamedList\":[]}",
                 MAPPER.writeValueAsString(new RenamedToDifferentOnGetter()));
@@ -69,7 +69,7 @@ class ReadOnlyListDeser2283Test
     }
 
     @Test
-    void testRenamedOnClass() throws Exception
+    void renamedOnClass() throws Exception
     {
         assertEquals("{\"renamedList\":[]}",
                 MAPPER.writeValueAsString(new RenamedOnClass()));

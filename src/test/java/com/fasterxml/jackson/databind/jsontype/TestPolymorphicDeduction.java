@@ -98,7 +98,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
           .build();
 
     @Test
-    void testSimpleInference() throws Exception {
+    void simpleInference() throws Exception {
     Cat cat = MAPPER.readValue(liveCatJson, Cat.class);
     assertTrue(cat instanceof LiveCat);
     assertSame(cat.getClass(), LiveCat.class);
@@ -113,7 +113,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testSimpleInferenceOfEmptySubtype() throws Exception {
+    void simpleInferenceOfEmptySubtype() throws Exception {
     // Given:
     ObjectMapper mapper = MAPPER;
     // When:
@@ -123,7 +123,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testSimpleInferenceOfEmptySubtypeDoesntMatchNull() throws Exception {
+    void simpleInferenceOfEmptySubtypeDoesntMatchNull() throws Exception {
     // Given:
     ObjectMapper mapper = MAPPER;
     // When:
@@ -133,7 +133,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testCaseInsensitiveInference() throws Exception {
+    void caseInsensitiveInference() throws Exception {
     Cat cat = JsonMapper.builder() // Don't use shared mapper!
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
       .build()
@@ -158,7 +158,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
 //  }
 
     @Test
-    void testContainedInference() throws Exception {
+    void containedInference() throws Exception {
     Box box = MAPPER.readValue(box1Json, Box.class);
     assertTrue(box.feline instanceof LiveCat);
     assertSame(box.feline.getClass(), LiveCat.class);
@@ -173,7 +173,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testContainedInferenceOfEmptySubtype() throws Exception {
+    void containedInferenceOfEmptySubtype() throws Exception {
     Box box = MAPPER.readValue(box3Json, Box.class);
     assertTrue(box.feline instanceof Fleabag);
 
@@ -185,7 +185,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testListInference() throws Exception {
+    void listInference() throws Exception {
     JavaType listOfCats = defaultTypeFactory().constructParametricType(List.class, Cat.class);
     List<Cat> boxes = MAPPER.readValue(arrayOfCatsJson, listOfCats);
     assertTrue(boxes.get(0) instanceof LiveCat);
@@ -193,7 +193,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testMapInference() throws Exception {
+    void mapInference() throws Exception {
     JavaType mapOfCats = defaultTypeFactory().constructParametricType(Map.class, String.class, Cat.class);
     Map<String, Cat> map = MAPPER.readValue(mapOfCatsJson, mapOfCats);
     assertEquals(1, map.size());
@@ -201,14 +201,14 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testArrayInference() throws Exception {
+    void arrayInference() throws Exception {
     Cat[] boxes = MAPPER.readValue(arrayOfCatsJson, Cat[].class);
     assertTrue(boxes[0] instanceof LiveCat);
     assertTrue(boxes[1] instanceof DeadCat);
   }
 
     @Test
-    void testIgnoreProperties() throws Exception {
+    void ignoreProperties() throws Exception {
     Cat cat = MAPPER.reader()
       .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
       .readValue(luckyCatJson, Cat.class);
@@ -223,7 +223,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testAmbiguousClasses() throws Exception {
+    void ambiguousClasses() throws Exception {
     try {
       ObjectMapper mapper = JsonMapper.builder() // Don't use shared mapper!
               .registerSubtypes(AnotherLiveCat.class)
@@ -238,7 +238,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testAmbiguousProperties() throws Exception {
+    void ambiguousProperties() throws Exception {
     try {
       /*Cat cat =*/ MAPPER.readValue(ambiguousCatJson, Cat.class);
       fail("Should not get here");
@@ -248,7 +248,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testFailOnInvalidSubtype() throws Exception {
+    void failOnInvalidSubtype() throws Exception {
     // Given:
     JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
       .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
@@ -264,7 +264,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testDefaultImpl() throws Exception {
+    void defaultImpl() throws Exception {
     // Given:
     JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
       .addMixIn(Cat.class, CatMixin.class)
@@ -280,7 +280,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testSimpleSerialization() throws Exception {
+    void simpleSerialization() throws Exception {
     // Given:
     JavaType listOfCats = defaultTypeFactory().constructParametricType(List.class, Cat.class);
     List<Cat> list = MAPPER.readValue(arrayOfCatsJson, listOfCats);
@@ -292,7 +292,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
   }
 
     @Test
-    void testListSerialization() throws Exception {
+    void listSerialization() throws Exception {
     // Given:
     JavaType listOfCats = defaultTypeFactory().constructParametricType(List.class, Cat.class);
     List<Cat> list = MAPPER.readValue(arrayOfCatsJson, listOfCats);
@@ -304,14 +304,14 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
 
     // [databind#3711]
     @Test
-    void testWithPojoAsJsonValue() throws Exception
+    void withPojoAsJsonValue() throws Exception
   {
       assertEquals(q("value"), MAPPER.writeValueAsString(new Bean3711()));
   }
 
     // [databind#3711]
     @Test
-    void testWithEnum() throws Exception
+    void withEnum() throws Exception
   {
       assertEquals(q("B"), MAPPER.writeValueAsString(Enum3711.B));
   }

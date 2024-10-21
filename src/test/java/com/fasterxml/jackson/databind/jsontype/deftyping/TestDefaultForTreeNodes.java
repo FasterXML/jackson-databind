@@ -31,7 +31,7 @@ class TestDefaultForTreeNodes extends DatabindTestUtil
             .build();
 
     @Test
-    void testValueAsStringWithDefaultTyping() throws Exception
+    void valueAsStringWithDefaultTyping() throws Exception
     {
         Foo foo = new Foo("baz");
         String json = DEFAULT_MAPPER.writeValueAsString(foo);
@@ -41,7 +41,7 @@ class TestDefaultForTreeNodes extends DatabindTestUtil
     }
 
     @Test
-    void testValueToTreeWithDefaultTyping() throws Exception
+    void valueToTreeWithDefaultTyping() throws Exception
     {
         Foo foo = new Foo("baz");
         JsonNode jsonNode = DEFAULT_MAPPER.valueToTree(foo);

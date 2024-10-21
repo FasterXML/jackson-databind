@@ -66,7 +66,7 @@ class TestEmptyClass
      * annotation (which indicates type is serializable)
      */
     @Test
-    void testEmptyWithAnnotations() throws Exception
+    void emptyWithAnnotations() throws Exception
     {
         // First: without annotations, should complain
         try {
@@ -89,7 +89,7 @@ class TestEmptyClass
      * serializing empty classes, too
      */
     @Test
-    void testEmptyWithFeature() throws Exception
+    void emptyWithFeature() throws Exception
     {
         // should be enabled by default
         assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
@@ -99,7 +99,7 @@ class TestEmptyClass
 
     // [JACKSON-695], JsonSerializer.isEmpty()
     @Test
-    void testCustomNoEmpty() throws Exception
+    void customNoEmpty() throws Exception
     {
         // first non-empty:
         assertEquals("{\"value\":123}", mapper.writeValueAsString(new NonZeroWrapper(123)));

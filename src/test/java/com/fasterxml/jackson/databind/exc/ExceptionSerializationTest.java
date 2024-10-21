@@ -52,7 +52,7 @@ class ExceptionSerializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimple() throws Exception
+    void simple() throws Exception
     {
         String TEST = "test exception";
         Map<String,Object> result = writeAndMap(MAPPER, new Exception(TEST));
@@ -77,7 +77,7 @@ class ExceptionSerializationTest
 
     // to double-check [databind#1413]
     @Test
-    void testSimpleOther() throws Exception
+    void simpleOther() throws Exception
     {
         JsonParser p = MAPPER.createParser("{ }");
         InvalidFormatException exc = InvalidFormatException.from(p, "Test", getClass(), String.class);
@@ -89,7 +89,7 @@ class ExceptionSerializationTest
     // for [databind#877]
     @SuppressWarnings("unchecked")
     @Test
-    void testIgnorals() throws Exception
+    void ignorals() throws Exception
     {
         ExceptionWithIgnoral input = new ExceptionWithIgnoral("foobar");
         input.initCause(new IOException("surprise!"));
@@ -124,7 +124,7 @@ class ExceptionSerializationTest
 
     // [databind#1368]
     @Test
-    void testDatabindExceptionSerialization() throws IOException {
+    void databindExceptionSerialization() throws IOException {
         Exception e = null;
         // cant deserialize due to unexpected constructor
         try {
@@ -146,7 +146,7 @@ class ExceptionSerializationTest
 
     // [databind#3275]
     @Test
-    void testSerializeWithNamingStrategy() throws IOException {
+    void serializeWithNamingStrategy() throws IOException {
         final ObjectMapper mapper = JsonMapper.builder()
                 .propertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
                 .build();

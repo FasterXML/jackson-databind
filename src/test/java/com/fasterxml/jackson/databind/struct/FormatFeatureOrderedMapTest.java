@@ -32,7 +32,7 @@ class FormatFeatureOrderedMapTest extends DatabindTestUtil
 
     // [databind#1232]: allow forcing sorting on Map keys
     @Test
-    void testOrderedMaps() throws Exception {
+    void orderedMaps() throws Exception {
         SortedKeysMap map = new SortedKeysMap()
             .put("b", 2)
             .put("a", 1);

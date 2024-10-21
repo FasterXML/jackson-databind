@@ -82,7 +82,7 @@ class TestPolymorphicWithDefaultImpl1565 extends DatabindTestUtil
 
     // [databind#1565]
     @Test
-    void testIncompatibleDefaultImpl1565() throws Exception
+    void incompatibleDefaultImpl1565() throws Exception
     {
         String value = "{\"typeInfo\": \"derived\", \"name\": \"John\", \"description\": \"Owner\"}";
         CDerived1565 result = MAPPER.readValue(value, CDerived1565.class);
@@ -91,7 +91,7 @@ class TestPolymorphicWithDefaultImpl1565 extends DatabindTestUtil
 
     // [databind#1861]
     @Test
-    void testWithIncompatibleTargetType1861() throws Exception
+    void withIncompatibleTargetType1861() throws Exception
     {
         // Should allow deserialization even if `defaultImpl` incompatible
         Impl1861A result = MAPPER.readValue(a2q("{'type':'a','base':'foo','valueA':3}"),

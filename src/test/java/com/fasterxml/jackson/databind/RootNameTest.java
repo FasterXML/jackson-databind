@@ -35,7 +35,7 @@ class RootNameTest
      */
 
     @Test
-    void testRootViaMapper() throws Exception
+    void rootViaMapper() throws Exception
     {
         ObjectMapper mapper = rootMapper();
         String json = mapper.writeValueAsString(new Bean());
@@ -52,7 +52,7 @@ class RootNameTest
     }
 
     @Test
-    void testRootViaMapperFails() throws Exception
+    void rootViaMapperFails() throws Exception
     {
         final ObjectMapper mapper = rootMapper();
         // First kind of fail, wrong name
@@ -90,7 +90,7 @@ class RootNameTest
     }
 
     @Test
-    void testRootViaReaderFails() throws Exception
+    void rootViaReaderFails() throws Exception
     {
         final ObjectReader reader = rootMapper().readerFor(Bean.class);
         // First kind of fail, wrong name
@@ -128,7 +128,7 @@ class RootNameTest
     }
 
     @Test
-    void testRootViaWriterAndReader() throws Exception
+    void rootViaWriterAndReader() throws Exception
     {
         ObjectMapper mapper = rootMapper();
         String json = mapper.writer().writeValueAsString(new Bean());
@@ -138,7 +138,7 @@ class RootNameTest
     }
 
     @Test
-    void testReconfiguringOfWrapping() throws Exception
+    void reconfiguringOfWrapping() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // default: no wrapping
@@ -167,7 +167,7 @@ class RootNameTest
     }
 
     @Test
-    void testRootUsingExplicitConfig() throws Exception
+    void rootUsingExplicitConfig() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         ObjectWriter writer = mapper.writer().withRootName("wrapper");

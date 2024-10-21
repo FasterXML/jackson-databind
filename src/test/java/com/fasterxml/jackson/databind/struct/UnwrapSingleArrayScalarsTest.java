@@ -48,7 +48,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
      */
 
     @Test
-    void testBooleanPrimitiveArrayUnwrap() throws Exception
+    void booleanPrimitiveArrayUnwrap() throws Exception
     {
         // [databind#381]
         final ObjectReader r = UNWRAPPING_READER.forType(BooleanBean.class);
@@ -79,7 +79,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
      */
 
     @Test
-    void testIntPrimitiveArrayUnwrap() throws Exception
+    void intPrimitiveArrayUnwrap() throws Exception
     {
         try {
             NO_UNWRAPPING_READER.forType(IntBean.class)
@@ -115,7 +115,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
     }
 
     @Test
-    void testLongPrimitiveArrayUnwrap() throws Exception
+    void longPrimitiveArrayUnwrap() throws Exception
     {
         final ObjectReader unwrapR = UNWRAPPING_READER.forType(LongBean.class);
         final ObjectReader noUnwrapR = NO_UNWRAPPING_READER.forType(LongBean.class);
@@ -152,7 +152,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
     }
 
     @Test
-    void testDoubleAsArray() throws Exception
+    void doubleAsArray() throws Exception
     {
         final ObjectReader unwrapR = UNWRAPPING_READER.forType(DoubleBean.class);
         final ObjectReader noUnwrapR = NO_UNWRAPPING_READER.forType(DoubleBean.class);
@@ -190,7 +190,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleElementScalarArrays() throws Exception {
+    void singleElementScalarArrays() throws Exception {
         final int intTest = 932832;
         final double doubleTest = 32.3234;
         final long longTest = 2374237428374293423L;
@@ -245,7 +245,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleElementArrayDisabled() throws Exception {
+    void singleElementArrayDisabled() throws Exception {
         try {
             NO_UNWRAPPING_READER.readValue("[42]", Integer.class);
             fail("Single value array didn't throw an exception");
@@ -338,7 +338,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
     }
 
     @Test
-    void testMultiValueArrayException() throws IOException {
+    void multiValueArrayException() throws IOException {
         _verifyMultiValueArrayFail("[42,42]", Integer.class);
         _verifyMultiValueArrayFail("[42,42]", Integer.TYPE);
         _verifyMultiValueArrayFail("[42342342342342,42342342342342]", Long.class);
@@ -364,7 +364,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
      */
 
     @Test
-    void testSingleStringWrapped() throws Exception
+    void singleStringWrapped() throws Exception
     {
         String value = "FOO!";
         try {
@@ -387,7 +387,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
     }
 
     @Test
-    void testBigDecimal() throws Exception
+    void bigDecimal() throws Exception
     {
         BigDecimal value = new BigDecimal("0.001");
         ObjectReader r = NO_UNWRAPPING_READER.forType(BigDecimal.class);
@@ -413,7 +413,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
     }
 
     @Test
-    void testBigInteger() throws Exception
+    void bigInteger() throws Exception
     {
         BigInteger value = new BigInteger("-1234567890123456789012345567809");
         BigInteger result = NO_UNWRAPPING_READER.readValue(value.toString(), BigInteger.class);
@@ -438,7 +438,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
     }
 
     @Test
-    void testClassAsArray() throws Exception
+    void classAsArray() throws Exception
     {
         Class<?> result = UNWRAPPING_READER
                     .forType(Class.class)
@@ -461,7 +461,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
     }
 
     @Test
-    void testURIAsArray() throws Exception
+    void uriAsArray() throws Exception
     {
         final URI value = new URI("http://foo.com");
         try {
@@ -476,7 +476,7 @@ class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
     }
 
     @Test
-    void testUUIDAsArray() throws Exception
+    void uuidAsArray() throws Exception
     {
         final String uuidStr = "76e6d183-5f68-4afa-b94a-922c1fdb83f8";
         UUID uuid = UUID.fromString(uuidStr);

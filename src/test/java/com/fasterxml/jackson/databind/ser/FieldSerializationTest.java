@@ -141,7 +141,7 @@ class FieldSerializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleAutoDetect() throws Exception
+    void simpleAutoDetect() throws Exception
     {
         SimpleFieldBean bean = new SimpleFieldBean();
         // let's set x, leave y as is
@@ -154,7 +154,7 @@ class FieldSerializationTest
 
     @SuppressWarnings("unchecked")
     @Test
-    void testSimpleAnnotation() throws Exception
+    void simpleAnnotation() throws Exception
     {
         SimpleFieldBean2 bean = new SimpleFieldBean2();
         bean.values = new String[] { "a", "b" };
@@ -167,7 +167,7 @@ class FieldSerializationTest
     }
 
     @Test
-    void testTransientAndStatic() throws Exception
+    void transientAndStatic() throws Exception
     {
         TransientBean bean = new TransientBean();
         Map<String,Object> result = writeAndMap(MAPPER, bean);
@@ -176,7 +176,7 @@ class FieldSerializationTest
     }
 
     @Test
-    void testNoAutoDetect() throws Exception
+    void noAutoDetect() throws Exception
     {
         NoAutoDetectBean bean = new NoAutoDetectBean();
         bean._z = -4;
@@ -191,7 +191,7 @@ class FieldSerializationTest
      * getter has precendence over field.
      */
     @Test
-    void testMethodPrecedence() throws Exception
+    void methodPrecedence() throws Exception
     {
         FieldAndMethodBean bean = new FieldAndMethodBean();
         bean.z = 9;
@@ -204,7 +204,7 @@ class FieldSerializationTest
      * as long as there are no intra-class conflicts.
      */
     @Test
-    void testOkDupFields() throws Exception
+    void okDupFields() throws Exception
     {
         OkDupFieldBean bean = new OkDupFieldBean(1, 2);
         Map<String,Object> json = writeAndMap(MAPPER, bean);
@@ -214,7 +214,7 @@ class FieldSerializationTest
     }
 
     @Test
-    void testIssue240() throws Exception
+    void issue240() throws Exception
     {
         Item240 bean = new Item240("a12", null);
         assertEquals(MAPPER.writeValueAsString(bean), "{\"id\":\"a12\"}");
@@ -227,7 +227,7 @@ class FieldSerializationTest
      */
 
     @Test
-    void testFailureDueToDups() throws Exception
+    void failureDueToDups() throws Exception
     {
         try {
             String json = MAPPER.writeValueAsString(new DupFieldBean());
@@ -240,7 +240,7 @@ class FieldSerializationTest
     // 21-Jan-2021, tatu: Resolvable as of 2.13 (and much earlier) since explicitly
     //    annotated one takes precedence
     @Test
-    void testResolvedDuplicate() throws Exception
+    void resolvedDuplicate() throws Exception
     {
         String json = MAPPER.writeValueAsString(new DupFieldBean2());
         assertEquals(json, a2q("{'z':4}"));

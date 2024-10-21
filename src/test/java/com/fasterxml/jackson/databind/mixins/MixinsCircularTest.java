@@ -34,7 +34,7 @@ class MixinsCircularTest extends DatabindTestUtil {
      */
 
     @Test
-    void testPojoMixinDeserialization() throws Exception {
+    void pojoMixinDeserialization() throws Exception {
         ObjectMapper mxMapper = jsonMapperBuilder()
             .addMixIn(First.class, Second.class)
             .addMixIn(Second.class, Third.class)
@@ -55,7 +55,7 @@ class MixinsCircularTest extends DatabindTestUtil {
     }
 
     @Test
-    void testPojoMixinSerialization() throws Exception {
+    void pojoMixinSerialization() throws Exception {
         ObjectMapper mxMapper = jsonMapperBuilder()
             .addMixIn(First.class, Second.class)
             .addMixIn(Second.class, Third.class)

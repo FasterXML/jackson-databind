@@ -37,7 +37,7 @@ class GenericNestedType2331Test extends DatabindTestUtil
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    void testGeneric2331() throws Exception {
+    void generic2331() throws Exception {
         Node root = new Node();
         root.children.add(new Node());
 

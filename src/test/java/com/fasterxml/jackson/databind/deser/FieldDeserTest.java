@@ -96,7 +96,7 @@ class FieldDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleAutoDetect() throws Exception
+    void simpleAutoDetect() throws Exception
     {
         SimpleFieldBean result = MAPPER.readValue("{ \"x\" : -13 }",
                 SimpleFieldBean.class);
@@ -105,7 +105,7 @@ class FieldDeserTest
     }
 
     @Test
-    void testSimpleAnnotation() throws Exception
+    void simpleAnnotation() throws Exception
     {
         SimpleFieldBean2 bean = MAPPER.readValue("{ \"values\" : [ \"x\", \"y\" ] }",
                 SimpleFieldBean2.class);
@@ -117,7 +117,7 @@ class FieldDeserTest
     }
 
     @Test
-    void testNoAutoDetect() throws Exception
+    void noAutoDetect() throws Exception
     {
         NoAutoDetectBean bean = MAPPER.readValue("{ \"z\" : 7 }",
                 NoAutoDetectBean.class);
@@ -125,7 +125,7 @@ class FieldDeserTest
     }
 
     @Test
-    void testTypeAnnotation() throws Exception
+    void typeAnnotation() throws Exception
     {
         AbstractWrapper w = MAPPER.readValue("{ \"value\" : \"abc\" }",
                 AbstractWrapper.class);
@@ -136,7 +136,7 @@ class FieldDeserTest
     }
 
     @Test
-    void testResolvedDups1() throws Exception
+    void resolvedDups1() throws Exception
     {
         DupFieldBean result = MAPPER.readValue(a2q("{'z':3}"), DupFieldBean.class);
         assertEquals(3, result._z);
@@ -144,7 +144,7 @@ class FieldDeserTest
     }
 
     @Test
-    void testFailingDups2() throws Exception
+    void failingDups2() throws Exception
     {
         // Fails because both fields have explicit annotation
         try {
@@ -156,7 +156,7 @@ class FieldDeserTest
     }
 
     @Test
-    void testOkFieldOverride() throws Exception
+    void okFieldOverride() throws Exception
     {
         OkDupFieldBean result = MAPPER.readValue("{ \"x\" : 1, \"y\" : 2 }",
                 OkDupFieldBean.class);

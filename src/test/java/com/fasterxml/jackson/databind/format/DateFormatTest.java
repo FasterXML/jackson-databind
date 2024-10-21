@@ -23,7 +23,7 @@ class DateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    void testTypeDefaults() throws Exception
+    void typeDefaults() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.configOverride(Date.class)

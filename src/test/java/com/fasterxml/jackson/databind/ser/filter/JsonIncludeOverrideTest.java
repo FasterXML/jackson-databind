@@ -58,7 +58,7 @@ class JsonIncludeOverrideTest
     }
 
     @Test
-    void testPropConfigOverridesForInclude() throws IOException
+    void propConfigOverridesForInclude() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         // First, with defaults, both included:
@@ -81,7 +81,7 @@ class JsonIncludeOverrideTest
     }
 
     @Test
-    void testOverrideForIncludeAsPropertyNonNull() throws Exception
+    void overrideForIncludeAsPropertyNonNull() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // First, with defaults, all but NON_NULL annotated included
@@ -106,7 +106,7 @@ class JsonIncludeOverrideTest
     }
 
     @Test
-    void testOverrideForIncludeAsPropertyAlways() throws Exception
+    void overrideForIncludeAsPropertyAlways() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // First, with defaults, only ALWAYS annotated included
@@ -131,7 +131,7 @@ class JsonIncludeOverrideTest
     }
 
     @Test
-    void testOverridesForIncludeAndIncludeAsPropertyNonNull() throws Exception
+    void overridesForIncludeAndIncludeAsPropertyNonNull() throws Exception
     {
         // First, with ALWAYS override on containing bean, all included
         JsonIncludeOverrideTest.MixedTypeNonNullBean nullValues = new JsonIncludeOverrideTest.MixedTypeNonNullBean();
@@ -165,7 +165,7 @@ class JsonIncludeOverrideTest
     }
 
     @Test
-    void testOverridesForIncludeAndIncludeAsPropertyAlways() throws Exception
+    void overridesForIncludeAndIncludeAsPropertyAlways() throws Exception
     {
         // First, with NON_NULL override on containing bean, empty
         JsonIncludeOverrideTest.MixedTypeAlwaysBean nullValues = new JsonIncludeOverrideTest.MixedTypeAlwaysBean();

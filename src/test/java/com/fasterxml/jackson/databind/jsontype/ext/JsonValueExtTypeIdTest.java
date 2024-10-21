@@ -73,7 +73,7 @@ class JsonValueExtTypeIdTest extends DatabindTestUtil
     final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testDoubleMetadata() throws IOException {
+    void doubleMetadata() throws IOException {
         DoubleMetadata doub = new DoubleMetadata();
         String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":1234.25,\"@type\":\"doubleValue\"}]}";
         String json = MAPPER.writeValueAsString(doub);
@@ -81,7 +81,7 @@ class JsonValueExtTypeIdTest extends DatabindTestUtil
     }
 
     @Test
-    void testDecimalMetadata() throws IOException{
+    void decimalMetadata() throws IOException{
         DecimalMetadata dec = new DecimalMetadata();
         String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":111.1,\"@type\":\"decimalValue\"}]}";
         String json = MAPPER.writeValueAsString(dec);

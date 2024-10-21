@@ -197,7 +197,7 @@ class TestObjectIdSerialization extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleSerializationClass() throws Exception
+    void simpleSerializationClass() throws Exception
     {
         Identifiable src = new Identifiable(13);
         src.next = src;
@@ -216,7 +216,7 @@ class TestObjectIdSerialization extends DatabindTestUtil
     private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"next\":{\"node\":1},\"value\":7}}";
 
     @Test
-    void testSimpleSerializationProperty() throws Exception
+    void simpleSerializationProperty() throws Exception
     {
         IdWrapper src = new IdWrapper(7);
         src.node.next = src;
@@ -232,7 +232,7 @@ class TestObjectIdSerialization extends DatabindTestUtil
 
     // [databind#370]
     @Test
-    void testEmptyObjectWithId() throws Exception
+    void emptyObjectWithId() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new EmptyObject());
@@ -240,7 +240,7 @@ class TestObjectIdSerialization extends DatabindTestUtil
     }
 
     @Test
-    void testSerializeWithOpaqueStringId() throws Exception
+    void serializeWithOpaqueStringId() throws Exception
     {
         StringIdentifiable ob1 = new StringIdentifiable(12);
         StringIdentifiable ob2 = new StringIdentifiable(34);
@@ -278,7 +278,7 @@ class TestObjectIdSerialization extends DatabindTestUtil
 
     // Test for verifying that custom
     @Test
-    void testCustomPropertyForClass() throws Exception
+    void customPropertyForClass() throws Exception
     {
         IdentifiableWithProp src = new IdentifiableWithProp(123, -19);
         src.next = src;
@@ -297,7 +297,7 @@ class TestObjectIdSerialization extends DatabindTestUtil
 
     // Test for verifying that custom
     @Test
-    void testCustomPropertyViaProperty() throws Exception
+    void customPropertyViaProperty() throws Exception
     {
         IdWrapperCustom src = new IdWrapperCustom(123, 7);
         src.node.next = src;
@@ -311,14 +311,14 @@ class TestObjectIdSerialization extends DatabindTestUtil
     }
 
     @Test
-    void testAlwaysAsId() throws Exception
+    void alwaysAsId() throws Exception
     {
         String json = MAPPER.writeValueAsString(new AlwaysContainer());
         assertEquals("{\"a\":1,\"b\":2}", json);
     }
 
     @Test
-    void testAlwaysIdForTree() throws Exception
+    void alwaysIdForTree() throws Exception
     {
         TreeNode root = new TreeNode(null, 1, "root");
         TreeNode leaf = new TreeNode(root, 2, "leaf");
@@ -333,7 +333,7 @@ class TestObjectIdSerialization extends DatabindTestUtil
 
     //for [databind#1150]
     @Test
-    void testNullStringPropertyId() throws Exception
+    void nullStringPropertyId() throws Exception
     {
         IdentifiableStringId value = MAPPER.readValue
                 (a2q("{'value':3, 'next':null, 'id':null}"), IdentifiableStringId.class);
@@ -348,7 +348,7 @@ class TestObjectIdSerialization extends DatabindTestUtil
      */
 
     @Test
-    void testInvalidProp() throws Exception
+    void invalidProp() throws Exception
     {
         try {
             MAPPER.writeValueAsString(new Broken());

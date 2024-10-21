@@ -50,7 +50,7 @@ class CustomPTVMatchersTest extends DatabindTestUtil
      */
 
     @Test
-    void testCustomBaseMatchers() throws Exception
+    void customBaseMatchers() throws Exception
     {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(new BasicPolymorphicTypeValidator.TypeMatcher() {
@@ -83,7 +83,7 @@ class CustomPTVMatchersTest extends DatabindTestUtil
     }
 
     @Test
-    void testCustomSubtypeMatchers() throws Exception
+    void customSubtypeMatchers() throws Exception
     {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(new BasicPolymorphicTypeValidator.TypeMatcher() {

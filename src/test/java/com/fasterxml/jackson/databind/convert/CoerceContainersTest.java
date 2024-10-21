@@ -35,7 +35,7 @@ class CoerceContainersTest
      */
 
     @Test
-    void testScalarCollections() throws Exception
+    void scalarCollections() throws Exception
     {
         final JavaType listType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<List<Double>>() { });
@@ -59,7 +59,7 @@ class CoerceContainersTest
     }
 
     @Test
-    void testStringCollections() throws Exception
+    void stringCollections() throws Exception
     {
         final JavaType listType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<List<String>>() { });
@@ -76,7 +76,7 @@ class CoerceContainersTest
      */
 
     @Test
-    void testScalarMap() throws Exception
+    void scalarMap() throws Exception
     {
         final JavaType mapType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<Map<Long, Boolean>>() { });
@@ -87,7 +87,7 @@ class CoerceContainersTest
     }
 
     @Test
-    void testEnumMap() throws Exception
+    void enumMap() throws Exception
     {
         final JavaType mapType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<EnumMap<ABC, Boolean>>() { });
@@ -104,7 +104,7 @@ class CoerceContainersTest
      */
 
     @Test
-    void testObjectArray() throws Exception
+    void objectArray() throws Exception
     {
         final JavaType arrayType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<Object[]>() { });
@@ -115,7 +115,7 @@ class CoerceContainersTest
     }
 
     @Test
-    void testStringArray() throws Exception
+    void stringArray() throws Exception
     {
         final JavaType arrayType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<String[]>() { });
@@ -126,7 +126,7 @@ class CoerceContainersTest
     }
 
     @Test
-    void testBooleanArray() throws Exception
+    void booleanArray() throws Exception
     {
         _verifyNoCoercion(boolean[].class);
         boolean[] result = _readWithCoercion(boolean[].class);
@@ -135,7 +135,7 @@ class CoerceContainersTest
     }
 
     @Test
-    void testIntArray() throws Exception
+    void intArray() throws Exception
     {
         _verifyNoCoercion(int[].class);
         int[] result = _readWithCoercion(int[].class);
@@ -144,7 +144,7 @@ class CoerceContainersTest
     }
 
     @Test
-    void testLongArray() throws Exception
+    void longArray() throws Exception
     {
         _verifyNoCoercion(long[].class);
         long[] result = _readWithCoercion(long[].class);
@@ -153,7 +153,7 @@ class CoerceContainersTest
     }
 
     @Test
-    void testFloatArray() throws Exception
+    void floatArray() throws Exception
     {
         _verifyNoCoercion(float[].class);
         float[] result = _readWithCoercion(float[].class);
@@ -162,7 +162,7 @@ class CoerceContainersTest
     }
 
     @Test
-    void testDoubleArray() throws Exception
+    void doubleArray() throws Exception
     {
         _verifyNoCoercion(double[].class);
         double[] result = _readWithCoercion(double[].class);
@@ -171,7 +171,7 @@ class CoerceContainersTest
     }
 
     @Test
-    void testPOJOArray() throws Exception
+    void pojoArray() throws Exception
     {
         _verifyNoCoercion(StringWrapper[].class);
         StringWrapper[] result = _readWithCoercion(StringWrapper[].class);

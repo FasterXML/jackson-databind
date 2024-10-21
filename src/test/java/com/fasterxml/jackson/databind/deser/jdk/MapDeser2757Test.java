@@ -26,7 +26,7 @@ class MapDeser2757Test
 
     // [databind#2757]: should allow deserialization as Map despite conflicting setters
     @Test
-    void testCanDeserializeMap() throws Exception
+    void canDeserializeMap() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .build();

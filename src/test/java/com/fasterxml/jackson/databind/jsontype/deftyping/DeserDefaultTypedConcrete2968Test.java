@@ -28,7 +28,7 @@ class DeserDefaultTypedConcrete2968Test extends DatabindTestUtil {
     }
 
     @Test
-    void testDeserializationConcreteClassWithDefaultTyping() throws Exception {
+    void deserializationConcreteClassWithDefaultTyping() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(SimpleBall.class)
             .build();

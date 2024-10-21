@@ -21,7 +21,7 @@ class BeanDescriptionTest extends DatabindTestUtil
     }
 
     @Test
-    void testClassDesc() throws Exception
+    void classDesc() throws Exception
     {
         BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(DocumentedBean.class));
         assertEquals(CLASS_DESC, beanDesc.findClassDescription());

@@ -130,7 +130,7 @@ class AnnotationUsingTest
     // Unit test to verify that {@link JsonDeserialize#using} annotation works
     // when applied to a class
     @Test
-    void testClassDeserializer() throws Exception
+    void classDeserializer() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         ValueClass result = m.readValue("  123  ", ValueClass.class);
@@ -140,7 +140,7 @@ class AnnotationUsingTest
     // Unit test to verify that {@link JsonDeserialize#using} annotation works
     // when applied to a Method
     @Test
-    void testMethodDeserializer() throws Exception
+    void methodDeserializer() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // note: since it's part of method, must parse from Object struct
@@ -159,7 +159,7 @@ class AnnotationUsingTest
      */
 
     @Test
-    void testArrayContentUsing() throws Exception
+    void arrayContentUsing() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         ArrayBean result = m.readValue(" { \"values\" : [ 1, 2, 3 ] } ", ArrayBean.class);
@@ -176,7 +176,7 @@ class AnnotationUsingTest
     }
 
     @Test
-    void testListContentUsing() throws Exception
+    void listContentUsing() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         ListBean result = m.readValue(" { \"values\" : [ 1, 2, 3 ] } ", ListBean.class);
@@ -193,7 +193,7 @@ class AnnotationUsingTest
     }
 
     @Test
-    void testMapContentUsing() throws Exception
+    void mapContentUsing() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         MapBean result = m.readValue(" { \"values\" : { \"a\": 1, \"b\":2 } } ", MapBean.class);
@@ -208,7 +208,7 @@ class AnnotationUsingTest
     }
 
     @Test
-    void testMapKeyUsing() throws Exception
+    void mapKeyUsing() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         MapKeyBean result = m.readValue(" { \"values\" : { \"a\": true } } ", MapKeyBean.class);
@@ -223,7 +223,7 @@ class AnnotationUsingTest
 
     // @since 1.8
     @Test
-    void testRootValueWithCustomKey() throws Exception
+    void rootValueWithCustomKey() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         MapKeyMap result = m.readValue(" { \"a\": 13 } ", MapKeyMap.class);

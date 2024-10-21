@@ -118,21 +118,21 @@ class AccessorNamingStrategyTest extends DatabindTestUtil
             .build();
 
     @Test
-    void testGetterNaming() throws Exception
+    void getterNaming() throws Exception
     {
         assertEquals(a2q("{'X':3,'Z':true}"),
                 MAPPER.writeValueAsString(new GetterBean2800_XZ()));
     }
 
     @Test
-    void testSetterNaming() throws Exception
+    void setterNaming() throws Exception
     {
         SetterBean2800_Y result = MAPPER.readValue(a2q("{'Y':42}"), SetterBean2800_Y.class);
         assertEquals(42, result.yyy);
     }
 
     @Test
-    void testFieldNaming() throws Exception
+    void fieldNaming() throws Exception
     {
         // first serialization
         assertEquals(a2q("{'x':1}"),
@@ -154,7 +154,7 @@ class AccessorNamingStrategyTest extends DatabindTestUtil
 
     // Test to verify that the base naming impl works as advertised
     @Test
-    void testBaseAccessorNaming() throws Exception
+    void baseAccessorNaming() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .accessorNaming(new BaseNamingProvider())
@@ -170,7 +170,7 @@ class AccessorNamingStrategyTest extends DatabindTestUtil
      */
 
     @Test
-    void testBaseAccessorCustomGetter() throws Exception
+    void baseAccessorCustomGetter() throws Exception
     {
         // First: without customizations, see "y"
         ObjectMapper mapper = JsonMapper.builder()
@@ -191,7 +191,7 @@ class AccessorNamingStrategyTest extends DatabindTestUtil
     }
 
     @Test
-    void testBaseAccessorCustomSetter() throws Exception
+    void baseAccessorCustomSetter() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
@@ -214,7 +214,7 @@ class AccessorNamingStrategyTest extends DatabindTestUtil
      */
 
     @Test
-    void testFirstLetterConfigs() throws Exception
+    void firstLetterConfigs() throws Exception
     {
         final FirstLetterVariesBean input = new FirstLetterVariesBean();
         final String STD_EXP = a2q("{'4Roses':42,'land':true,'value':31337}");

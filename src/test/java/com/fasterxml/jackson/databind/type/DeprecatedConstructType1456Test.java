@@ -31,7 +31,7 @@ class DeprecatedConstructType1456Test
 
     @SuppressWarnings("deprecation")
     @Test
-    void testGenericResolutionUsingDeprecated() throws Exception
+    void genericResolutionUsingDeprecated() throws Exception
     {
         Method proceed = BaseController.class.getMethod("process", BaseEntity.class);
         Type entityType = proceed.getGenericParameterTypes()[0];
@@ -42,7 +42,7 @@ class DeprecatedConstructType1456Test
 
     // and this is how new code should resolve types if at all possible
     @Test
-    void testGenericParameterViaClass() throws Exception
+    void genericParameterViaClass() throws Exception
     {
         BeanDescription desc = MAPPER.getDeserializationConfig().introspect(
                 MAPPER.constructType(ImplController.class));

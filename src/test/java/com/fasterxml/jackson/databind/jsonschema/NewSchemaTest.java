@@ -218,7 +218,7 @@ class NewSchemaTest extends DatabindTestUtil
      * if basic POJO type/serializer traversal had issues.
      */
     @Test
-    void testBasicTraversal() throws Exception
+    void basicTraversal() throws Exception
     {
         MAPPER.acceptJsonFormatVisitor(POJO.class, new BogusJsonFormatVisitorWrapper());
         MAPPER.acceptJsonFormatVisitor(POJOWithScalars.class, new BogusJsonFormatVisitorWrapper());
@@ -232,7 +232,7 @@ class NewSchemaTest extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleEnum() throws Exception
+    void simpleEnum() throws Exception
     {
         final Set<String> values = new TreeSet<String>();
         ObjectWriter w = MAPPER.writer(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
@@ -262,7 +262,7 @@ class NewSchemaTest extends DatabindTestUtil
     }
 
     @Test
-    void testEnumWithJsonValue() throws Exception
+    void enumWithJsonValue() throws Exception
     {
         final Set<String> values = new TreeSet<String>();
         MAPPER.acceptJsonFormatVisitor(TestEnumWithJsonValue.class,
@@ -292,7 +292,7 @@ class NewSchemaTest extends DatabindTestUtil
 
     //  Ensure JsonValueFormat serializes/deserializes as expected
     @Test
-    void testJsonValueFormatHandling() throws Exception
+    void jsonValueFormatHandling() throws Exception
     {
         // first: serialize using 'toString()', not name
         final String EXP = q("host-name");
@@ -304,7 +304,7 @@ class NewSchemaTest extends DatabindTestUtil
 
     // [databind#1045], regression wrt BigDecimal
     @Test
-    void testSimpleNumbers() throws Exception
+    void simpleNumbers() throws Exception
     {
         final StringBuilder sb = new StringBuilder();
 

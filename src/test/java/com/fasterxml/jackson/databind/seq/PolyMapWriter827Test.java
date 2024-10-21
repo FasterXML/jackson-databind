@@ -34,7 +34,7 @@ class PolyMapWriter827Test extends DatabindTestUtil
     }
 
     @Test
-    void testPolyCustomKeySerializer() throws Exception
+    void polyCustomKeySerializer() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,

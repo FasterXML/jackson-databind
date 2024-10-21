@@ -20,7 +20,7 @@ class DeserializerFactoryTest
 
     // [databind#2539]: check existence of deserializer for type
     @Test
-    void testJDKScalarDeserializerExistence() throws Exception
+    void jdkScalarDeserializerExistence() throws Exception
     {
         // First verify some basic types
         _verifyIsFound(String.class);
@@ -42,7 +42,7 @@ class DeserializerFactoryTest
     }
 
     @Test
-    void testJDKContainerDeserializerExistence() throws Exception
+    void jdkContainerDeserializerExistence() throws Exception
     {
         // Both general and specific container types should be considered supported
         _verifyIsFound(Collection.class);
@@ -57,7 +57,7 @@ class DeserializerFactoryTest
     }
 
     @Test
-    void testJDKArraysOfExistence() throws Exception
+    void jdkArraysOfExistence() throws Exception
     {
         // Similarly, array types of all supported types should be allowed
         _verifyIsFound(String[].class);
@@ -67,7 +67,7 @@ class DeserializerFactoryTest
     }
 
     @Test
-    void testNoDeserTypes() throws Exception
+    void noDeserTypes() throws Exception
     {
         // Types for which we should NOT have explicit deserializer
 

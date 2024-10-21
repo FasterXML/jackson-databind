@@ -85,7 +85,7 @@ class BasicPTVTest extends DatabindTestUtil
 
     // First: test simple Base-type-as-class allowing
     @Test
-    void testAllowByBaseClass() throws Exception {
+    void allowByBaseClass() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(BaseValue.class)
                 .build();
@@ -121,7 +121,7 @@ class BasicPTVTest extends DatabindTestUtil
 
     // Then subtype-prefix
     @Test
-    void testAllowByBaseClassPrefix() throws Exception {
+    void allowByBaseClassPrefix() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType("com.fasterxml.")
                 .build();
@@ -147,7 +147,7 @@ class BasicPTVTest extends DatabindTestUtil
 
     // Then subtype-pattern
     @Test
-    void testAllowByBaseClassPattern() throws Exception {
+    void allowByBaseClassPattern() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(Pattern.compile("\\w+\\.fasterxml\\..+"))
                 .build();
@@ -173,7 +173,7 @@ class BasicPTVTest extends DatabindTestUtil
 
     // And finally, block by specific direct-match base type
     @Test
-    void testDenyByBaseClass() throws Exception {
+    void denyByBaseClass() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 // indicate that all subtypes `BaseValue` would be fine
                 .allowIfBaseType(BaseValue.class)
@@ -201,7 +201,7 @@ class BasicPTVTest extends DatabindTestUtil
      */
 
     @Test
-    void testAllowBySubClass() throws Exception {
+    void allowBySubClass() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(ValueB.class)
                 .build();
@@ -226,7 +226,7 @@ class BasicPTVTest extends DatabindTestUtil
     }
 
     @Test
-    void testAllowBySubClassPrefix() throws Exception {
+    void allowBySubClassPrefix() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(ValueB.class.getName())
                 .build();
@@ -251,7 +251,7 @@ class BasicPTVTest extends DatabindTestUtil
     }
 
     @Test
-    void testAllowBySubClassPattern() throws Exception {
+    void allowBySubClassPattern() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(Pattern.compile(Pattern.quote(ValueB.class.getName())))
                 .build();

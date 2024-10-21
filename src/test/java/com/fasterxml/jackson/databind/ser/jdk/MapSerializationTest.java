@@ -107,7 +107,7 @@ class MapSerializationTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testUsingObjectWriter() throws IOException
+    void usingObjectWriter() throws IOException
     {
         ObjectWriter w = MAPPER.writerFor(Object.class);
         Map<String,Object> map = new LinkedHashMap<String,Object>();
@@ -117,14 +117,14 @@ class MapSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testMapSerializer() throws IOException
+    void mapSerializer() throws IOException
     {
         assertEquals("\"{a=b, c=d}\"", MAPPER.writeValueAsString(new PseudoMap("a", "b", "c", "d")));
     }
 
     // problems with map entries, values
     @Test
-    void testMapKeySetValuesSerialization() throws IOException
+    void mapKeySetValuesSerialization() throws IOException
     {
         Map<String,String> map = new HashMap<String,String>();
         map.put("a", "b");
@@ -146,7 +146,7 @@ class MapSerializationTest extends DatabindTestUtil
 
     // sort Map entries by key
     @Test
-    void testOrderByKey() throws IOException
+    void orderByKey() throws IOException
     {
         ObjectMapper m = newJsonMapper();
         assertFalse(m.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS));
@@ -162,7 +162,7 @@ class MapSerializationTest extends DatabindTestUtil
 
     // related to [databind#1411]
     @Test
-    void testOrderByWithNulls() throws IOException
+    void orderByWithNulls() throws IOException
     {
         ObjectWriter sortingW = MAPPER.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
         // 16-Oct-2016, tatu: but mind the null key, if any
@@ -180,7 +180,7 @@ class MapSerializationTest extends DatabindTestUtil
 
     // [Databind#335]
     @Test
-    void testOrderByKeyViaProperty() throws IOException
+    void orderByKeyViaProperty() throws IOException
     {
         MapOrderingBean input = new MapOrderingBean("c", "b", "a");
         String json = MAPPER.writeValueAsString(input);
@@ -189,7 +189,7 @@ class MapSerializationTest extends DatabindTestUtil
 
     // [Databind#565]
     @Test
-    void testMapEntry() throws IOException
+    void mapEntry() throws IOException
     {
         StringIntMapEntry input = new StringIntMapEntry("answer", 42);
         String json = MAPPER.writeValueAsString(input);
@@ -208,7 +208,7 @@ class MapSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testMapEntryWrapper() throws IOException
+    void mapEntryWrapper() throws IOException
     {
         StringIntMapEntryWrapper input = new StringIntMapEntryWrapper("answer", 42);
         String json = MAPPER.writeValueAsString(input);
@@ -217,7 +217,7 @@ class MapSerializationTest extends DatabindTestUtil
 
     // [databind#691]
     @Test
-    void testNullJsonMapping691() throws Exception
+    void nullJsonMapping691() throws Exception
     {
         MapWithTypedValues input = new MapWithTypedValues();
         input.put("id", "Test");
@@ -231,7 +231,7 @@ class MapSerializationTest extends DatabindTestUtil
 
     // [databind#691]
     @Test
-    void testNullJsonInTypedMap691() throws Exception {
+    void nullJsonInTypedMap691() throws Exception {
         Map<String, String> map = new HashMap<String, String>();
         map.put("NULL", null);
 
@@ -243,7 +243,7 @@ class MapSerializationTest extends DatabindTestUtil
 
     // [databind#1513]
     @Test
-    void testConcurrentMaps() throws Exception
+    void concurrentMaps() throws Exception
     {
         final ObjectWriter w = MAPPER.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
 

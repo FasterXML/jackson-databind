@@ -24,7 +24,7 @@ class ThreadSafety1759Test extends DatabindTestUtil
      */
 
     @Test
-    void testCalendarForDeser() throws Exception
+    void calendarForDeser() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
 

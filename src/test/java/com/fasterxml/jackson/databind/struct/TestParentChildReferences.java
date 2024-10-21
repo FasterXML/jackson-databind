@@ -205,7 +205,7 @@ class TestParentChildReferences
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleRefs() throws Exception
+    void simpleRefs() throws Exception
     {
         SimpleTreeNode root = new SimpleTreeNode("root");
         SimpleTreeNode child = new SimpleTreeNode("kid");
@@ -224,7 +224,7 @@ class TestParentChildReferences
 
     // [JACKSON-693]
     @Test
-    void testSimpleRefsWithGetter() throws Exception
+    void simpleRefsWithGetter() throws Exception
     {
         SimpleTreeNode2 root = new SimpleTreeNode2("root");
         SimpleTreeNode2 child = new SimpleTreeNode2("kid");
@@ -242,7 +242,7 @@ class TestParentChildReferences
     }
 
     @Test
-    void testFullRefs() throws Exception
+    void fullRefs() throws Exception
     {
         FullTreeNode root = new FullTreeNode("root");
         FullTreeNode child1 = new FullTreeNode("kid1");
@@ -271,7 +271,7 @@ class TestParentChildReferences
     }
 
     @Test
-    void testArrayOfRefs() throws Exception
+    void arrayOfRefs() throws Exception
     {
         NodeArray root = new NodeArray();
         ArrayNode node1 = new ArrayNode("a");
@@ -290,7 +290,7 @@ class TestParentChildReferences
     }
 
     @Test
-    void testListOfRefs() throws Exception
+    void listOfRefs() throws Exception
     {
         NodeList root = new NodeList();
         NodeForList node1 = new NodeForList("a");
@@ -309,7 +309,7 @@ class TestParentChildReferences
     }
 
     @Test
-    void testMapOfRefs() throws Exception
+    void mapOfRefs() throws Exception
     {
         NodeMap root = new NodeMap();
         NodeForMap node1 = new NodeForMap("a");
@@ -334,7 +334,7 @@ class TestParentChildReferences
 
     // for [JACKSON-368]
     @Test
-    void testAbstract368() throws Exception
+    void abstract368() throws Exception
     {
         AbstractNode parent = new ConcreteNode("p");
         AbstractNode child = new ConcreteNode("c");
@@ -356,7 +356,7 @@ class TestParentChildReferences
     }
 
     @Test
-    void testIssue693() throws Exception
+    void issue693() throws Exception
     {
         Parent parent = new Parent();
         parent.addChild(new Child("foo"));
@@ -369,7 +369,7 @@ class TestParentChildReferences
     }
 
     @Test
-    void testIssue708() throws Exception
+    void issue708() throws Exception
     {
         Advertisement708 ad = MAPPER.readValue("{\"title\":\"Hroch\",\"photos\":[{\"id\":3}]}", Advertisement708.class);
         assertNotNull(ad);

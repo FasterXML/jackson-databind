@@ -53,7 +53,7 @@ class EnumDeserialization3369Test
 
     // [databind#3369]
     @Test
-    void testReadEnums3369() throws Exception
+    void readEnums3369() throws Exception
     {
         final ObjectReader R = newJsonMapper().readerFor(Data3369.class);
 

@@ -33,7 +33,7 @@ class SqlBlobSerializationTest extends DatabindTestUtil
      */
 
     @Test
-    void testSqlBlobSerializer() throws Exception
+    void sqlBlobSerializer() throws Exception
     {
         ObjectMapper m = newJsonMapper();
         String testWord = "TestObject1";

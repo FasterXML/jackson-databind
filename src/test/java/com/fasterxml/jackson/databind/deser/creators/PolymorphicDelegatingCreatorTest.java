@@ -45,7 +45,7 @@ class PolymorphicDelegatingCreatorTest
      */
 
     @Test
-    void testAbstractDelegateWithCreator() throws Exception
+    void abstractDelegateWithCreator() throws Exception
     {
         Issue580Bean input = new Issue580Bean(new Issue580Impl(13));
         ObjectMapper mapper = new ObjectMapper();

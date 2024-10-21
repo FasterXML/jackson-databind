@@ -69,7 +69,7 @@ class AnnotatedPolymorphicValidationTest
             .build();
 
     @Test
-    void testPolymorphicWithUnsafeBaseType() throws IOException
+    void polymorphicWithUnsafeBaseType() throws IOException
     {
         final String JSON = a2q("{'value':10}");
         // by default, we should NOT be allowed to deserialize due to unsafe base type

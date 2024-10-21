@@ -243,7 +243,7 @@ class FormatSchemaTest
      */
 
     @Test
-    void testFormatForParsers() throws Exception
+    void formatForParsers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper(new FactoryWithSchema());
         MySchema s = new MySchema();
@@ -258,7 +258,7 @@ class FormatSchemaTest
     }
 
     @Test
-    void testFormatForGenerators() throws Exception
+    void formatForGenerators() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper(new FactoryWithSchema());
         MySchema s = new MySchema();

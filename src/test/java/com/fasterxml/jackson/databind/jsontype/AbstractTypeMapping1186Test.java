@@ -39,7 +39,7 @@ class AbstractTypeMapping1186Test extends DatabindTestUtil
     }
 
     @Test
-    void testDeserializeMyContainer() throws Exception {
+    void deserializeMyContainer() throws Exception {
         SimpleModule module = new SimpleModule().addAbstractTypeMapping(IContainer.class, MyContainer.class);
         final ObjectMapper mapper = new ObjectMapper().registerModule(module);
         String json = "{\"ts\": [ { \"msg\": \"hello\"} ] }";

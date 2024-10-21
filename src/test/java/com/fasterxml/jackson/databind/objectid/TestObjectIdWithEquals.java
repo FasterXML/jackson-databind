@@ -86,7 +86,7 @@ class TestObjectIdWithEquals extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleEquals() throws Exception
+    void simpleEquals() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // Verify default state too
@@ -116,7 +116,7 @@ class TestObjectIdWithEquals extends DatabindTestUtil
     }
 
     @Test
-    void testEqualObjectIdsExternal() throws Exception
+    void equalObjectIdsExternal() throws Exception
     {
         Element element = new Element();
         element.uri = URI.create("URI");

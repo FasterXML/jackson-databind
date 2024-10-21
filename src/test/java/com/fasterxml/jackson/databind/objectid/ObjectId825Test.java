@@ -36,7 +36,7 @@ class ObjectId825Test extends DatabindTestUtil
             .build();
 
     @Test
-    void testDeserialize() throws Exception {
+    void deserialize() throws Exception {
         TestA a = new TestA();
         a.oidString = "oidA";
 

@@ -187,7 +187,7 @@ class UpdateViaObjectReaderTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testBeanUpdate() throws Exception
+    void beanUpdate() throws Exception
     {
         Bean bean = new Bean();
         assertEquals("b", bean.b);
@@ -225,7 +225,7 @@ class UpdateViaObjectReaderTest
     }
 
     @Test
-    void testListUpdate() throws Exception
+    void listUpdate() throws Exception
     {
         List<String> strs = new ArrayList<String>();
         strs.add("a");
@@ -240,7 +240,7 @@ class UpdateViaObjectReaderTest
     }
 
     @Test
-    void testMapUpdate() throws Exception
+    void mapUpdate() throws Exception
     {
         Map<String,String> strs = new HashMap<String,String>();
         strs.put("a", "a");
@@ -257,7 +257,7 @@ class UpdateViaObjectReaderTest
     // Test for [JACKSON-717] -- ensure 'readValues' also does update
     @SuppressWarnings("resource")
     @Test
-    void testUpdateSequence() throws Exception
+    void updateSequence() throws Exception
     {
         XYBean toUpdate = new XYBean();
         Iterator<XYBean> it = MAPPER.readerForUpdating(toUpdate).readValues(
@@ -286,7 +286,7 @@ class UpdateViaObjectReaderTest
 
     // [JACKSON-824]
     @Test
-    void testUpdatingWithViews() throws Exception
+    void updatingWithViews() throws Exception
     {
         Updateable bean = new Updateable();
         bean.num = 100;
@@ -302,7 +302,7 @@ class UpdateViaObjectReaderTest
 
     // [databind#744]
     @Test
-    void testIssue744() throws Exception
+    void issue744() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
@@ -363,7 +363,7 @@ class UpdateViaObjectReaderTest
 
     // [databind#3814]
     @Test
-    void testReaderForUpdating3814() throws Exception {
+    void readerForUpdating3814() throws Exception {
         // Arrange
         JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));
         Bean3814A obj = new Bean3814A(25);
@@ -378,7 +378,7 @@ class UpdateViaObjectReaderTest
 
     // [databind#3814]
     @Test
-    void testReaderForUpdating3814DoesNotOverride() throws Exception {
+    void readerForUpdating3814DoesNotOverride() throws Exception {
         // Arrange
         JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));
         Bean3814B obj = new Bean3814B(25);

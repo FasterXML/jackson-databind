@@ -70,7 +70,7 @@ class TwoCreators4602Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testThatPropertiesCreatorIsUsed() throws Exception
+    void thatPropertiesCreatorIsUsed() throws Exception
     {
         final String json = "{ \"bean\":{ \"list\":[ \"a\", \"b\", \"c\"], \"inner\":{ \"name\": \"inner\" }}}";
 
@@ -84,7 +84,7 @@ class TwoCreators4602Test
     }
 
     @Test
-    void testThatDelegatingCreatorIsUsed() throws Exception
+    void thatDelegatingCreatorIsUsed() throws Exception
     {
         OuterBean4602 result = MAPPER.readValue("{ \"bean\": [ \"a\", \"b\", \"c\"] }",
                 OuterBean4602.class);

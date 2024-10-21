@@ -53,7 +53,7 @@ class BigCreatorTest
     private final ObjectReader BIGGIE_READER = sharedMapper().readerFor(Biggie.class);
 
     @Test
-    void testBigPartial() throws Exception
+    void bigPartial() throws Exception
     {
         Biggie value = BIGGIE_READER.readValue(a2q(
                 "{'v7':7, 'v8':8,'v29':29, 'v35':35}"

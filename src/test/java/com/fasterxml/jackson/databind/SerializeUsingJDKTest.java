@@ -114,7 +114,7 @@ class SerializeUsingJDKTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testConfigs() throws Exception
+    void configs() throws Exception
     {
         byte[] base = jdkSerialize(MAPPER.getDeserializationConfig().getBaseSettings());
         assertNotNull(jdkDeserialize(base));
@@ -136,7 +136,7 @@ class SerializeUsingJDKTest
 
     // for [databind#899]
     @Test
-    void testEnumHandlers() throws Exception
+    void enumHandlers() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         // ensure we have serializers and/or deserializers, first
@@ -170,7 +170,7 @@ class SerializeUsingJDKTest
     }
 
     @Test
-    void testObjectWriter() throws Exception
+    void objectWriter() throws Exception
     {
         ObjectWriter origWriter = MAPPER.writer();
         final String EXP_JSON = "{\"x\":2,\"y\":3}";
@@ -185,7 +185,7 @@ class SerializeUsingJDKTest
     }
 
     @Test
-    void testObjectReader() throws Exception
+    void objectReader() throws Exception
     {
         ObjectReader origReader = MAPPER.readerFor(MyPojo.class);
         String JSON = "{\"x\":1,\"y\":2}";
@@ -206,7 +206,7 @@ class SerializeUsingJDKTest
     }
 
     @Test
-    void testObjectMapper() throws Exception
+    void objectMapper() throws Exception
     {
         final String EXP_JSON = "{\"x\":2,\"y\":3}";
         final MyPojo p = new MyPojo(2, 3);
@@ -227,7 +227,7 @@ class SerializeUsingJDKTest
     }
 
     @Test
-    void testTypeFactory() throws Exception
+    void typeFactory() throws Exception
     {
         TypeFactory orig = defaultTypeFactory();
         JavaType t = orig.constructType(JavaType.class);
@@ -242,7 +242,7 @@ class SerializeUsingJDKTest
 
     // [databind#4303]
     @Test
-    void testObjectReaderSerializationWithPolymorphism()
+    void objectReaderSerializationWithPolymorphism()
             throws Exception
     {
         Class<?>[] classes = new Class<?>[] {

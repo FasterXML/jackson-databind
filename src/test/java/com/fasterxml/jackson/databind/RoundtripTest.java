@@ -14,7 +14,7 @@ class RoundtripTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testMedaItemRoundtrip() throws Exception
+    void medaItemRoundtrip() throws Exception
     {
         MediaItem.Content c = new MediaItem.Content();
         c.setBitrate(9600);

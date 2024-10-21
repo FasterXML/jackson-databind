@@ -35,7 +35,7 @@ class TestKeyDeserializers extends DatabindTestUtil
      */
 
     @Test
-    void testKeyDeserializers() throws Exception
+    void keyDeserializers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());

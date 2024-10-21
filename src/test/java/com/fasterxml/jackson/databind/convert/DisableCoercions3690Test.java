@@ -37,7 +37,7 @@ class DisableCoercions3690Test
 
     // [databind#3690]
     @Test
-    void testCoercionFail3690() throws Exception
+    void coercionFail3690() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .withCoercionConfigDefaults(config -> {
@@ -63,7 +63,7 @@ class DisableCoercions3690Test
 
     // [databind#3924]
     @Test
-    void testFailMessage3924() throws Exception {
+    void failMessage3924() throws Exception {
         // Arrange : Building a strict ObjectMapper.
         ObjectMapper mapper = jsonMapperBuilder()
                 .withCoercionConfigDefaults(config -> {

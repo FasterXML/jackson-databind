@@ -115,49 +115,49 @@ class EnumFormatShapeTest
     // Tests for JsonFormat.shape
 
     @Test
-    void testEnumAsObjectValid() throws Exception {
+    void enumAsObjectValid() throws Exception {
         assertEquals("{\"value\":\"a1\"}", MAPPER.writeValueAsString(PoNUM.A));
     }
 
     @Test
-    void testEnumAsIndexViaAnnotations() throws Exception {
+    void enumAsIndexViaAnnotations() throws Exception {
         assertEquals("{\"text\":0}", MAPPER.writeValueAsString(new PoNUMContainer()));
     }
 
     // As of 2.5, use of Shape.ARRAY is legal alias for "write as number"
     @Test
-    void testEnumAsObjectBroken() throws Exception
+    void enumAsObjectBroken() throws Exception
     {
         assertEquals("0", MAPPER.writeValueAsString(PoAsArray.A));
     }
 
     // [databind#572]
     @Test
-    void testOverrideEnumAsString() throws Exception {
+    void overrideEnumAsString() throws Exception {
         assertEquals("{\"value\":\"B\"}", MAPPER.writeValueAsString(new PoOverrideAsString()));
     }
 
     @Test
-    void testOverrideEnumAsNumber() throws Exception {
+    void overrideEnumAsNumber() throws Exception {
         assertEquals("{\"value\":1}", MAPPER.writeValueAsString(new PoOverrideAsNumber()));
     }
 
     // for [databind#1543]
     @Test
-    void testEnumValueAsNumber() throws Exception {
+    void enumValueAsNumber() throws Exception {
         assertEquals(String.valueOf(Color.GREEN.ordinal()),
                 MAPPER.writeValueAsString(Color.GREEN));
     }
 
     @Test
-    void testEnumPropertyAsNumber() throws Exception {
+    void enumPropertyAsNumber() throws Exception {
         assertEquals(String.format(a2q("{'color':%s}"), Color.GREEN.ordinal()),
                 MAPPER.writeValueAsString(new ColorWrapper(Color.GREEN)));
     }
 
     // [databind#2365]
     @Test
-    void testEnumWithNamingStrategy() throws Exception {
+    void enumWithNamingStrategy() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .build();
@@ -167,7 +167,7 @@ class EnumFormatShapeTest
 
     // [databind#2576]
     @Test
-    void testEnumWithMethodOverride() throws Exception {
+    void enumWithMethodOverride() throws Exception {
         String stringResult = MAPPER.writeValueAsString(Enum2576.ATTRIBUTES);
         Map<?,?> result = MAPPER.readValue(stringResult, Map.class);
         Map<String,String> exp = Collections.singletonMap("key", "attributes");

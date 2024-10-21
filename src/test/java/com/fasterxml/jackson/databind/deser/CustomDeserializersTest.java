@@ -419,7 +419,7 @@ class CustomDeserializersTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testCustomBeanDeserializer() throws Exception
+    void customBeanDeserializer() throws Exception
     {
         String json = "{\"beans\":[{\"c\":{\"a\":10,\"b\":20},\"d\":\"hello, tatu\"}]}";
         TestBeans beans = MAPPER.readValue(json, TestBeans.class);
@@ -461,7 +461,7 @@ class CustomDeserializersTest
 
     // [Issue#87]: delegating deserializer
     @Test
-    void testDelegating() throws Exception
+    void delegating() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -486,7 +486,7 @@ class CustomDeserializersTest
 
     // [databind#623]
     @Test
-    void testJsonNodeDelegating() throws Exception
+    void jsonNodeDelegating() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(Immutable.class,
@@ -507,7 +507,7 @@ class CustomDeserializersTest
     }
 
     @Test
-    void testIssue882() throws Exception
+    void issue882() throws Exception
     {
         Model original = new Model(Collections.singletonMap(new CustomKey(123), "test"));
         String json = MAPPER.writeValueAsString(original);
@@ -519,7 +519,7 @@ class CustomDeserializersTest
 
     // [#337]: convenience methods for custom deserializers to use
     @Test
-    void testContextReadValue() throws Exception
+    void contextReadValue() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -540,7 +540,7 @@ class CustomDeserializersTest
 
     // [#631]: "current value" access
     @Test
-    void testCurrentValueAccess() throws Exception
+    void currentValueAccess() throws Exception
     {
         Issue631Bean bean = MAPPER.readValue(a2q("{'prop':'stuff'}"),
                 Issue631Bean.class);
@@ -549,7 +549,7 @@ class CustomDeserializersTest
     }
 
     @Test
-    void testCustomStringDeser() throws Exception
+    void customStringDeser() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper().registerModule(
                 new SimpleModule().addDeserializer(String.class, new UCStringDeserializer())
@@ -561,7 +561,7 @@ class CustomDeserializersTest
     }
 
     @Test
-    void testDelegatingDeserializer() throws Exception
+    void delegatingDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper().registerModule(
                 new DelegatingModuleImpl());
@@ -571,7 +571,7 @@ class CustomDeserializersTest
 
     // [databind#2392]
     @Test
-    void testModifyingCustomDeserializer() throws Exception
+    void modifyingCustomDeserializer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule()
@@ -593,7 +593,7 @@ class CustomDeserializersTest
 
     // [databind#2452]
     @Test
-    void testCustomDeserializerWithReadTree() throws Exception
+    void customDeserializerWithReadTree() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule()
@@ -610,7 +610,7 @@ class CustomDeserializersTest
 
     // [databind#3002]
     @Test
-    void testCustomDeserializerWithReadTreeAsValue() throws Exception
+    void customDeserializerWithReadTreeAsValue() throws Exception
     {
         final String json = a2q("{'point':{'x':13, 'y':-4}, 'name':'Foozibald' }");
         NamedPoint result = MAPPER.readValue(json, NamedPoint.class);
@@ -633,7 +633,7 @@ class CustomDeserializersTest
 
     // [databind#3748]
     @Test
-    void testBasicDelegatingDeser() throws Exception
+    void basicDelegatingDeser() throws Exception
     {
         Delegating3748 deser = new Delegating3748();
         assertEquals("absent", deser.getAbsentValue(null));

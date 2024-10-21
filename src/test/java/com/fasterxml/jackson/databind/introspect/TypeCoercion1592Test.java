@@ -30,7 +30,7 @@ class TypeCoercion1592Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testTypeCoercion1592() throws Exception
+    void typeCoercion1592() throws Exception
     {
         // first, serialize
         MAPPER.writeValueAsString(new Bean1592());

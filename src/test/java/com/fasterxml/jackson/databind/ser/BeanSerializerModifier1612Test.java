@@ -54,7 +54,7 @@ class BeanSerializerModifier1612Test extends DatabindTestUtil
      */
 
     @Test
-    void testIssue1612() throws Exception
+    void issue1612() throws Exception
     {
         SimpleModule mod = new SimpleModule();
         mod.setSerializerModifier(new Modifier1612());

@@ -65,7 +65,7 @@ class DeserConcurrencyTest
      */
 
     @Test
-    void testDeserializerResolution() throws Exception
+    void deserializerResolution() throws Exception
     {
         /* Let's repeat couple of times, just to be sure; thread timing is not
          * exact science; plus caching plays a role too

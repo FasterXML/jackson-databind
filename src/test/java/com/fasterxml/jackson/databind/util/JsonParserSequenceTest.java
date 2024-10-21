@@ -17,7 +17,7 @@ class JsonParserSequenceTest extends DatabindTestUtil
      */
     @SuppressWarnings("resource")
     @Test
-    void testJsonParserSequenceOverridesSkipChildren() throws Exception
+    void jsonParserSequenceOverridesSkipChildren() throws Exception
     {
         // Create parser from TokenBuffer containing an incomplete JSON object
         TokenBuffer buf1 = new TokenBuffer(MAPPER, false);

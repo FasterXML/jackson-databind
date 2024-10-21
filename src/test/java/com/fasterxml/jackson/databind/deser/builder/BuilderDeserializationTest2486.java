@@ -111,28 +111,28 @@ class BuilderDeserializationTest2486
     //
     // I left some notes in BeanDeserializerBase as to behavior.
     @Test
-    void testPOJOWithArrayCreatorFromObjectRepresentation() throws Exception {
+    void pojoWithArrayCreatorFromObjectRepresentation() throws Exception {
         final String json = a2q("{ 'index': 123 }");
         final MyPOJOWithArrayCreator deserialized = MAPPER.readValue(json, MyPOJOWithArrayCreator.class);
         assertEquals(123, deserialized.getIndex());
     }
 
     @Test
-    void testPOJOWithArrayCreatorFromArrayRepresentation() throws Exception {
+    void pojoWithArrayCreatorFromArrayRepresentation() throws Exception {
         final String json = "[123]";
         final MyPOJOWithArrayCreator deserialized = MAPPER.readValue(json, MyPOJOWithArrayCreator.class);
         assertEquals(123, deserialized.getIndex());
     }
 
     @Test
-    void testPOJOWithPrimitiveCreatorFromObjectRepresentation() throws Exception {
+    void pojoWithPrimitiveCreatorFromObjectRepresentation() throws Exception {
         final String json = a2q("{ 'index': 123 }");
         final MyPOJOWithPrimitiveCreator deserialized = MAPPER.readValue(json, MyPOJOWithPrimitiveCreator.class);
         assertEquals(123, deserialized.getIndex());
     }
 
     @Test
-    void testPOJOWithPrimitiveCreatorFromPrimitiveRepresentation() throws Exception {
+    void pojoWithPrimitiveCreatorFromPrimitiveRepresentation() throws Exception {
         final String json ="123";
         final MyPOJOWithPrimitiveCreator deserialized = MAPPER.readValue(json, MyPOJOWithPrimitiveCreator.class);
         assertEquals(123, deserialized.getIndex());
@@ -145,28 +145,28 @@ class BuilderDeserializationTest2486
     // from an object shape in the presence of a @JsonCreator accepting an array
     // is not specific to the use of Builders as an intermediary.
     @Test
-    void testPOJOBuilderWithArrayCreatorFromObjectRepresentation() throws Exception {
+    void pojoBuilderWithArrayCreatorFromObjectRepresentation() throws Exception {
         final String json = a2q("{ 'index': 123 }");
         final MyPOJOWithArrayCreator.Builder deserialized = MAPPER.readValue(json, MyPOJOWithArrayCreator.Builder.class);
         assertEquals(123, deserialized.index);
     }
 
     @Test
-    void testPOJOBuilderWithArrayCreatorFromArrayRepresentation() throws Exception {
+    void pojoBuilderWithArrayCreatorFromArrayRepresentation() throws Exception {
         final String json = "[123]";
         final MyPOJOWithArrayCreator.Builder deserialized = MAPPER.readValue(json, MyPOJOWithArrayCreator.Builder.class);
         assertEquals(123, deserialized.index);
     }
 
     @Test
-    void testPOJOBuilderWithPrimitiveCreatorFromObjectRepresentation() throws Exception {
+    void pojoBuilderWithPrimitiveCreatorFromObjectRepresentation() throws Exception {
         final String json = a2q("{ 'index': 123 }");
         final MyPOJOWithPrimitiveCreator.Builder deserialized = MAPPER.readValue(json, MyPOJOWithPrimitiveCreator.Builder.class);
         assertEquals(123, deserialized.index);
     }
 
     @Test
-    void testPOJOBuilderWithPrimitiveCreatorFromPrimitiveRepresentation() throws Exception {
+    void pojoBuilderWithPrimitiveCreatorFromPrimitiveRepresentation() throws Exception {
         final String json = "123";
         final MyPOJOWithPrimitiveCreator.Builder deserialized = MAPPER.readValue(json, MyPOJOWithPrimitiveCreator.Builder.class);
         assertEquals(123, deserialized.index);

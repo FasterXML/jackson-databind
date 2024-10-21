@@ -104,7 +104,7 @@ class SubTypeResolutionTest extends DatabindTestUtil
 
     // [databind#1964]
     @Test
-    void testTypeCompatibility1964() throws Exception
+    void typeCompatibility1964() throws Exception
     {
         // Important! Must use raw type since assignment requires effectively
         // casting due incompatible type parameters.
@@ -125,7 +125,7 @@ class SubTypeResolutionTest extends DatabindTestUtil
 
     // [databind#2034]
     @Test
-    void testTypeSpecialization2034() throws Exception
+    void typeSpecialization2034() throws Exception
     {
         MetaModel<Dummy, Dummy> metaModel = new MetaModel<>();
         metaModel.describeList("a1");
@@ -136,7 +136,7 @@ class SubTypeResolutionTest extends DatabindTestUtil
 
     // [databind#2632]: fail to specialize type-erased
     @Test
-    void testSpecializeIncompatibleRawType() throws Exception
+    void specializeIncompatibleRawType() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Foo());
         assertNotNull(json);

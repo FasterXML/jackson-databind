@@ -22,7 +22,7 @@ class FloatDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testFloatPrimitive() throws Exception
+    void floatPrimitive() throws Exception
     {
         assertEquals(7.038531e-26f, MAPPER.readValue("\"7.038531e-26\"", float.class));
         assertEquals(1.1999999f, MAPPER.readValue("\"1.199999988079071\"", float.class));
@@ -32,7 +32,7 @@ class FloatDeserTest
     }
 
     @Test
-    void testFloatClass() throws Exception
+    void floatClass() throws Exception
     {
         assertEquals(Float.valueOf(7.038531e-26f), MAPPER.readValue("\"7.038531e-26\"", Float.class));
         assertEquals(Float.valueOf(1.1999999f), MAPPER.readValue("\"1.199999988079071\"", Float.class));
@@ -42,7 +42,7 @@ class FloatDeserTest
     }
 
     @Test
-    void testArrayOfFloatPrimitives() throws Exception
+    void arrayOfFloatPrimitives() throws Exception
     {
         StringBuilder sb = new StringBuilder();
         sb.append('[')
@@ -61,7 +61,7 @@ class FloatDeserTest
 
     // for [jackson-core#757]
     @Test
-    void testBigArrayOfFloatPrimitives() throws Exception {
+    void bigArrayOfFloatPrimitives() throws Exception {
         try (InputStream stream = FloatDeserTest.class.getResourceAsStream("/data/float-array-755.txt")) {
             float[] floats = MAPPER.readValue(stream, float[].class);
             assertEquals(1004, floats.length);
@@ -73,7 +73,7 @@ class FloatDeserTest
     }
 
     @Test
-    void testArrayOfFloats() throws Exception
+    void arrayOfFloats() throws Exception
     {
         StringBuilder sb = new StringBuilder();
         sb.append('[')

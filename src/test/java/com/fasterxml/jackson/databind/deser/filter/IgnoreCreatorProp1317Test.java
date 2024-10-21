@@ -47,7 +47,7 @@ class IgnoreCreatorProp1317Test
     }
 
     @Test
-    void testThatJsonIgnoreWorksWithConstructorProperties() throws Exception {
+    void thatJsonIgnoreWorksWithConstructorProperties() throws Exception {
         ObjectMapper om = newJsonMapper();
         Testing testing = new Testing("shouldBeIgnored", "notIgnore");
         String json = om.writeValueAsString(testing);

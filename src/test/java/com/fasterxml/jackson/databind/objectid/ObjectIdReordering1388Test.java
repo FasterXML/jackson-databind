@@ -49,7 +49,7 @@ class ObjectIdReordering1388Test extends DatabindTestUtil
 
 
     @Test
-    void testDeserializationFinalClassJSOG() throws Exception
+    void deserializationFinalClassJSOG() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         final UUID id = UUID.fromString("a59aa02c-fe3c-43f8-9b5a-5fe01878a818");

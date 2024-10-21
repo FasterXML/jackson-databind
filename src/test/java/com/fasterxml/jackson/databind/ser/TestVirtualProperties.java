@@ -96,7 +96,7 @@ class TestVirtualProperties extends DatabindTestUtil
     private final ObjectWriter WRITER = objectWriter();
 
     @Test
-    void testAttributeProperties() throws Exception
+    void attributeProperties() throws Exception
     {
         Map<String,Object> stuff = new LinkedHashMap<String,Object>();
         stuff.put("x", 3);
@@ -114,7 +114,7 @@ class TestVirtualProperties extends DatabindTestUtil
     }
 
     @Test
-    void testAttributePropInclusion() throws Exception
+    void attributePropInclusion() throws Exception
     {
         // first, with desc
         String json = WRITER.withAttribute("desc", "nice")
@@ -132,7 +132,7 @@ class TestVirtualProperties extends DatabindTestUtil
     }
 
     @Test
-    void testCustomProperties() throws Exception
+    void customProperties() throws Exception
     {
         String json = WRITER.withAttribute("desc", "nice")
                 .writeValueAsString(new CustomVBean());

@@ -182,7 +182,7 @@ class CustomTypeIdResolverTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testCustomTypeIdResolver() throws Exception
+    void customTypeIdResolver() throws Exception
     {
         List<JavaType> types = new ArrayList<JavaType>();
         CustomResolver.initTypes = types;
@@ -202,7 +202,7 @@ class CustomTypeIdResolverTest extends DatabindTestUtil
     }
 
     @Test
-    void testCustomWithExternal() throws Exception
+    void customWithExternal() throws Exception
     {
         ExtBeanWrapper w = new ExtBeanWrapper();
         w.value = new ExtBeanImpl(12);
@@ -217,7 +217,7 @@ class CustomTypeIdResolverTest extends DatabindTestUtil
 
     // for [databind#1270]
     @Test
-    void testPolymorphicTypeViaCustom() throws Exception {
+    void polymorphicTypeViaCustom() throws Exception {
         Base1270<Poly1> req = new Base1270<Poly1>();
         Poly1 o = new Poly1();
         o.val = "optionValue";

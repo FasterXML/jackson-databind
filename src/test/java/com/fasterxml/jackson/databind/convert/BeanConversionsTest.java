@@ -128,7 +128,7 @@ class BeanConversionsTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testBeanConvert()
+    void beanConvert()
     {
         // should have no problems convert between compatible beans...
         PointStrings input = new PointStrings("37", "-9");
@@ -142,7 +142,7 @@ class BeanConversionsTest
     // For [JACKSON-371]; verify that we know property that caused issue...
     // (note: not optimal place for test, but will have to do for now)
     @Test
-    void testErrorReporting() throws Exception
+    void errorReporting() throws Exception
     {
         //String json = "{\"boolProp\":\"oops\"}";
         // First: unknown property
@@ -161,7 +161,7 @@ class BeanConversionsTest
     }
 
     @Test
-    void testIssue458() throws Exception
+    void issue458() throws Exception
     {
         ObjectWrapper a = new ObjectWrapper("foo");
         ObjectWrapper b = new ObjectWrapper(a);
@@ -172,7 +172,7 @@ class BeanConversionsTest
 
     // should work regardless of wrapping...
     @Test
-    void testWrapping() throws Exception
+    void wrapping() throws Exception
     {
         ObjectMapper wrappingMapper = new ObjectMapper();
         wrappingMapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
@@ -196,7 +196,7 @@ class BeanConversionsTest
 
     // [Issue-11]: simple cast, for POJOs etc
     @Test
-    void testConvertUsingCast() throws Exception
+    void convertUsingCast() throws Exception
     {
         String str = new String("foo");
         CharSequence seq = str;
@@ -218,7 +218,7 @@ class BeanConversionsTest
      * Need to test "shortcuts" introduced by [databind#11]
      */
     @Test
-    void testIssue11() throws Exception
+    void issue11() throws Exception
     {
         // then some other no-op conversions
         StringBuilder SB = new StringBuilder("test");
@@ -265,7 +265,7 @@ class BeanConversionsTest
     }
 
     @Test
-    void testConversionIssue288() throws Exception
+    void conversionIssue288() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ConvertingBean(1, 2));
         // must be  {"a":2,"b":4}
@@ -274,7 +274,7 @@ class BeanConversionsTest
 
     // Test null conversions from [databind#1433]
     @Test
-    void testConversionIssue1433() throws Exception
+    void conversionIssue1433() throws Exception
     {
         assertNull(MAPPER.convertValue(null, Object.class));
         assertNull(MAPPER.convertValue(null, PointZ.class));

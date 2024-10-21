@@ -53,7 +53,7 @@ class TestExceptionsDuringWriting
      * JacksonExceptions are caught and wrapped.
      */
     @Test
-    void testCatchAndRethrow()
+    void catchAndRethrow()
             throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -87,7 +87,7 @@ class TestExceptionsDuringWriting
      * but are passed through as is.
      */
     @Test
-    void testExceptionWithSimpleMapper()
+    void exceptionWithSimpleMapper()
             throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -100,7 +100,7 @@ class TestExceptionsDuringWriting
     }
 
     @Test
-    void testExceptionWithMapperAndGenerator()
+    void exceptionWithMapperAndGenerator()
             throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -115,7 +115,7 @@ class TestExceptionsDuringWriting
     }
 
     @Test
-    void testExceptionWithGeneratorMapping()
+    void exceptionWithGeneratorMapping()
             throws Exception
     {
         JsonFactory f = new MappingJsonFactory();

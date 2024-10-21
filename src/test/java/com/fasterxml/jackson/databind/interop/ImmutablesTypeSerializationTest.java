@@ -428,7 +428,7 @@ class ImmutablesTypeSerializationTest
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testImmutablesSimpleDeserialization() throws IOException {
+    void immutablesSimpleDeserialization() throws IOException {
         Account expected = ImmutableAccount.builder()
                 .id(1L)
                 .name("foo")
@@ -438,7 +438,7 @@ class ImmutablesTypeSerializationTest
     }
 
     @Test
-    void testImmutablesSimpleRoundTrip() throws IOException {
+    void immutablesSimpleRoundTrip() throws IOException {
         Account original = ImmutableAccount.builder()
                 .id(1L)
                 .name("foo")
@@ -449,7 +449,7 @@ class ImmutablesTypeSerializationTest
     }
 
     @Test
-    void testImmutablesSimpleGenericDeserialization() throws IOException {
+    void immutablesSimpleGenericDeserialization() throws IOException {
         Key<Account> expected = ImmutableKey.<Account>builder()
                 .id(ImmutableAccount.builder()
                         .id(1L)
@@ -463,7 +463,7 @@ class ImmutablesTypeSerializationTest
     }
 
     @Test
-    void testImmutablesSimpleGenericRoundTrip() throws IOException {
+    void immutablesSimpleGenericRoundTrip() throws IOException {
         Key<Account> original = ImmutableKey.<Account>builder()
                 .id(ImmutableAccount.builder()
                         .id(1L)
@@ -476,7 +476,7 @@ class ImmutablesTypeSerializationTest
     }
 
     @Test
-    void testImmutablesMultipleTypeParametersDeserialization() throws IOException {
+    void immutablesMultipleTypeParametersDeserialization() throws IOException {
         Entry<Key<Account>, Account> expected = ImmutableEntry.<Key<Account>, Account>builder()
                 .key(ImmutableKey.<Account>builder()
                         .id(ImmutableAccount.builder()
@@ -496,7 +496,7 @@ class ImmutablesTypeSerializationTest
     }
 
     @Test
-    void testImmutablesMultipleTypeParametersRoundTrip() throws IOException {
+    void immutablesMultipleTypeParametersRoundTrip() throws IOException {
         Entry<Key<Account>, Account> original = ImmutableEntry.<Key<Account>, Account>builder()
                 .key(ImmutableKey.<Account>builder()
                         .id(ImmutableAccount.builder()

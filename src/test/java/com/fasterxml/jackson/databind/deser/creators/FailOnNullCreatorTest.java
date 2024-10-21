@@ -35,7 +35,7 @@ class FailOnNullCreatorTest
     private final ObjectReader POINT_READER = sharedMapper().readerFor(Person.class);
 
     @Test
-    void testRequiredNonNullParam() throws Exception
+    void requiredNonNullParam() throws Exception
     {
         Person p;
         // First: fine if feature is not enabled

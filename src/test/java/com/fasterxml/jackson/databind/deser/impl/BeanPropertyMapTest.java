@@ -27,7 +27,7 @@ class BeanPropertyMapTest
     // Highly specialized test in which we get couple of hash collisions for
     // small (16) hash map
     @Test
-    void testArrayOutOfBounds884() throws Exception
+    void arrayOutOfBounds884() throws Exception
     {
         List<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>();
         PropertyMetadata md = PropertyMetadata.STD_REQUIRED;

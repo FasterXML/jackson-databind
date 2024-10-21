@@ -35,7 +35,7 @@ class UntypedObjectWithDupsTest extends DatabindTestUtil
 
     // Testing the baseline non-merging behavior
     @Test
-    void testDocWithDupsNoMerging() throws Exception
+    void docWithDupsNoMerging() throws Exception
     {
         _verifyDupsNoMerging(Object.class);
         _verifyDupsNoMerging(Map.class);
@@ -43,14 +43,14 @@ class UntypedObjectWithDupsTest extends DatabindTestUtil
 
     // For [dataformat-xml#???]
     @Test
-    void testDocWithDupsAsUntyped() throws Exception
+    void docWithDupsAsUntyped() throws Exception
     {
         _verifyDupsAreMerged(Object.class);
     }
 
     // For [dataformat-xml#498] / [databind#3484]
     @Test
-    void testDocWithDupsAsMap() throws Exception
+    void docWithDupsAsMap() throws Exception
     {
         _verifyDupsAreMerged(Map.class);
     }
@@ -58,7 +58,7 @@ class UntypedObjectWithDupsTest extends DatabindTestUtil
     // And also verify that Maps with values other than `Object` will
     // NOT try merging no matter what
     @Test
-    void testDocWithDupsAsNonUntypedMap() throws Exception
+    void docWithDupsAsNonUntypedMap() throws Exception
     {
         final String DOC = a2q("{'key':'a','key':'b'}");
         assertEquals(a2q("{'key':'b'}"),

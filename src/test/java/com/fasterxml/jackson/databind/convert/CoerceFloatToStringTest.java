@@ -39,19 +39,19 @@ class CoerceFloatToStringTest
             .build();
 
     @Test
-    void testDefaultFloatToStringCoercion() throws JsonProcessingException
+    void defaultFloatToStringCoercion() throws JsonProcessingException
     {
         assertSuccessfulFloatToStringCoercionWith(DEFAULT_MAPPER);
     }
 
     @Test
-    void testCoerceConfigToConvert() throws JsonProcessingException
+    void coerceConfigToConvert() throws JsonProcessingException
     {
         assertSuccessfulFloatToStringCoercionWith(MAPPER_TRY_CONVERT);
     }
 
     @Test
-    void testCoerceConfigToNull() throws JsonProcessingException
+    void coerceConfigToNull() throws JsonProcessingException
     {
         assertNull(MAPPER_TO_NULL.readValue("1.2", String.class));
         StringWrapper w = MAPPER_TO_NULL.readValue("{\"str\": -5.3}", StringWrapper.class);
@@ -62,7 +62,7 @@ class CoerceFloatToStringTest
     }
 
     @Test
-    void testCoerceConfigToEmpty() throws JsonProcessingException
+    void coerceConfigToEmpty() throws JsonProcessingException
     {
         assertEquals("", MAPPER_TO_EMPTY.readValue("3.5", String.class));
         StringWrapper w = MAPPER_TO_EMPTY.readValue("{\"str\": -5.3}", StringWrapper.class);
@@ -73,7 +73,7 @@ class CoerceFloatToStringTest
     }
 
     @Test
-    void testCoerceConfigToFail() throws JsonProcessingException
+    void coerceConfigToFail() throws JsonProcessingException
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, String.class, "3.5");
         _verifyCoerceFail(MAPPER_TO_FAIL, StringWrapper.class, "{\"str\": -5.3}", "string");

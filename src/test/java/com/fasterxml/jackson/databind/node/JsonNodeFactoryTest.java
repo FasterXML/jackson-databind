@@ -28,7 +28,7 @@ class JsonNodeFactoryTest extends NodeTestBase
     }
 
     @Test
-    void testSimpleCreation()
+    void simpleCreation()
     {
         JsonNodeFactory f = MAPPER.getNodeFactory();
 
@@ -64,7 +64,7 @@ class JsonNodeFactoryTest extends NodeTestBase
     //    Tree Model!
 
     @Test
-    void testSortingObjectNode() throws Exception
+    void sortingObjectNode() throws Exception
    {
        final String SIMPLE_INPUT = "{\"b\":2,\"a\":1}";
 
@@ -87,7 +87,7 @@ class JsonNodeFactoryTest extends NodeTestBase
    }
 
     @Test
-    void testBigDecimalNormalization_enabled_by_default() throws Exception
+    void bigDecimalNormalizationEnabledByDefault() throws Exception
    {
       final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
       final BigDecimal NORMALIZED = NON_NORMALIZED.stripTrailingZeros();
@@ -99,7 +99,7 @@ class JsonNodeFactoryTest extends NodeTestBase
 
     // 06-Nov-2022, tatu: Wasn't being tested, oddly enough
     @Test
-    void testBigDecimalNormalization_when_disabled() throws Exception
+    void bigDecimalNormalizationWhenDisabled() throws Exception
    {
        final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
 
@@ -114,7 +114,7 @@ class JsonNodeFactoryTest extends NodeTestBase
 
     @SuppressWarnings("deprecation")
     @Test
-    void testBigDecimalNormalizationLEGACY() throws Exception
+    void bigDecimalNormalizationLEGACY() throws Exception
    {
        final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
 

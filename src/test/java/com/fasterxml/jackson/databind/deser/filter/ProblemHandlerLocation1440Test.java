@@ -120,7 +120,7 @@ class ProblemHandlerLocation1440Test
      */
 
     @Test
-    void testIncorrectContext() throws Exception
+    void incorrectContext() throws Exception
     {
         // need invalid to trigger problem:
         final String invalidInput = a2q(

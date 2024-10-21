@@ -143,7 +143,7 @@ class TestPOJOAsArray extends DatabindTestUtil
      * Test that verifies that property annotation works
      */
     @Test
-    void testReadSimplePropertyValue() throws Exception
+    void readSimplePropertyValue() throws Exception
     {
         String json = "{\"value\":[true,\"Foobar\",42,13]}";
         PojoAsArrayWrapper p = MAPPER.readValue(json, PojoAsArrayWrapper.class);
@@ -158,7 +158,7 @@ class TestPOJOAsArray extends DatabindTestUtil
      * Test that verifies that Class annotation works
      */
     @Test
-    void testReadSimpleRootValue() throws Exception
+    void readSimpleRootValue() throws Exception
     {
         String json = "[false,\"Bubba\",1,2]";
         FlatPojo p = MAPPER.readValue(json, FlatPojo.class);
@@ -172,7 +172,7 @@ class TestPOJOAsArray extends DatabindTestUtil
      * Test that verifies that property annotation works
      */
     @Test
-    void testWriteSimplePropertyValue() throws Exception
+    void writeSimplePropertyValue() throws Exception
     {
         String json = MAPPER.writeValueAsString(new PojoAsArrayWrapper("Foobar", 42, 13, true));
         // will have wrapper POJO, then POJO-as-array..
@@ -183,7 +183,7 @@ class TestPOJOAsArray extends DatabindTestUtil
      * Test that verifies that Class annotation works
      */
     @Test
-    void testWriteSimpleRootValue() throws Exception
+    void writeSimpleRootValue() throws Exception
     {
         String json = MAPPER.writeValueAsString(new FlatPojo("Bubba", 1, 2, false));
         // will have wrapper POJO, then POJO-as-array..
@@ -192,7 +192,7 @@ class TestPOJOAsArray extends DatabindTestUtil
 
     // [Issue#223]
     @Test
-    void testNullColumn() throws Exception
+    void nullColumn() throws Exception
     {
         assertEquals("[null,\"bar\"]", MAPPER.writeValueAsString(new TwoStringsBean()));
     }
@@ -204,7 +204,7 @@ class TestPOJOAsArray extends DatabindTestUtil
      */
 
     @Test
-    void testSerializeAsArrayWithSingleProperty() throws Exception {
+    void serializeAsArrayWithSingleProperty() throws Exception {
         ObjectMapper mapper = newJsonMapper();
         mapper.enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         String json = mapper.writeValueAsString(new SingleBean());
@@ -212,7 +212,7 @@ class TestPOJOAsArray extends DatabindTestUtil
     }
 
     @Test
-    void testBeanAsArrayUnwrapped() throws Exception
+    void beanAsArrayUnwrapped() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
@@ -228,7 +228,7 @@ class TestPOJOAsArray extends DatabindTestUtil
      */
 
     @Test
-    void testAnnotationOverride() throws Exception
+    void annotationOverride() throws Exception
     {
         // by default, POJOs become JSON Objects;
         assertEquals("{\"value\":{\"x\":1,\"y\":2}}", MAPPER.writeValueAsString(new A()));
@@ -242,7 +242,7 @@ class TestPOJOAsArray extends DatabindTestUtil
     }
 
     @Test
-    void testWithMaps() throws Exception
+    void withMaps() throws Exception
     {
         AsArrayWithMap input = new AsArrayWithMap(1, 2);
         String json = MAPPER.writeValueAsString(input);
@@ -254,7 +254,7 @@ class TestPOJOAsArray extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleWithIndex() throws Exception
+    void simpleWithIndex() throws Exception
     {
         // as POJO:
 //        CreatorWithIndex value = MAPPER.readValue(aposToQuotes("{'b':1,'a':2}"),
@@ -265,7 +265,7 @@ class TestPOJOAsArray extends DatabindTestUtil
     }
 
     @Test
-    void testWithConfigOverrides() throws Exception
+    void withConfigOverrides() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(NonAnnotatedXY.class,
@@ -287,7 +287,7 @@ class TestPOJOAsArray extends DatabindTestUtil
      */
 
     @Test
-    void testUnknownExtraProp() throws Exception
+    void unknownExtraProp() throws Exception
     {
         String json = "{\"value\":[true,\"Foobar\",42,13, false]}";
         try {

@@ -146,7 +146,7 @@ class TestCreatorsDelegating
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testBooleanDelegate() throws Exception
+    void booleanDelegate() throws Exception
     {
         // should obviously work with booleans...
         BooleanBean bb = MAPPER.readValue("true", BooleanBean.class);
@@ -158,7 +158,7 @@ class TestCreatorsDelegating
     }
 
     @Test
-    void testIntegerDelegate() throws Exception
+    void integerDelegate() throws Exception
     {
         IntegerBean bb = MAPPER.readValue("-13", IntegerBean.class);
         assertEquals(Integer.valueOf(-13), bb.value);
@@ -169,7 +169,7 @@ class TestCreatorsDelegating
     }
 
     @Test
-    void testLongDelegate() throws Exception
+    void longDelegate() throws Exception
     {
         LongBean bb = MAPPER.readValue("11", LongBean.class);
         assertEquals(Long.valueOf(11L), bb.value);
@@ -181,7 +181,7 @@ class TestCreatorsDelegating
 
     // should also work with delegate model (single non-annotated arg)
     @Test
-    void testWithCtorAndDelegate() throws Exception
+    void withCtorAndDelegate() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setInjectableValues(new InjectableValues.Std()
@@ -198,7 +198,7 @@ class TestCreatorsDelegating
     }
 
     @Test
-    void testWithFactoryAndDelegate() throws Exception
+    void withFactoryAndDelegate() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setInjectableValues(new InjectableValues.Std()
@@ -217,7 +217,7 @@ class TestCreatorsDelegating
 
     // [databind#592]
     @Test
-    void testDelegateWithTokenBuffer() throws Exception
+    void delegateWithTokenBuffer() throws Exception
     {
         Value592 value = MAPPER.readValue("{\"a\":1,\"b\":2}", Value592.class);
         assertNotNull(value);
@@ -239,7 +239,7 @@ class TestCreatorsDelegating
 
     @SuppressWarnings("unchecked")
     @Test
-    void testIssue465() throws Exception
+    void issue465() throws Exception
     {
         final String JSON = "{\"A\":12}";
 
@@ -264,7 +264,7 @@ class TestCreatorsDelegating
 
     // [databind#2353]: allow delegating and properties-based
     @Test
-    void testMultipleCreators2353() throws Exception
+    void multipleCreators2353() throws Exception
     {
         // first, test delegating
         SuperToken2353 result = MAPPER.readValue(q("Bob"), SuperToken2353.class);

@@ -16,7 +16,7 @@ class NumberToIntegralConversionTest extends DatabindTestUtil
     private final JsonNodeFactory NODES = MAPPER.getNodeFactory();
 
     @Test
-    void testFloatToIntegrals() throws Exception
+    void floatToIntegrals() throws Exception
     {
         assertTrue(NODES.numberNode(0f).canConvertToExactIntegral());
         assertTrue(NODES.numberNode((float) 0).canConvertToExactIntegral());
@@ -27,7 +27,7 @@ class NumberToIntegralConversionTest extends DatabindTestUtil
     }
 
     @Test
-    void testDoubleToIntegrals() throws Exception
+    void doubleToIntegrals() throws Exception
     {
         assertTrue(NODES.numberNode(0d).canConvertToExactIntegral());
         assertTrue(NODES.numberNode((double) 0).canConvertToExactIntegral());
@@ -42,7 +42,7 @@ class NumberToIntegralConversionTest extends DatabindTestUtil
     }
 
     @Test
-    void testNaNsToIntegrals() throws Exception
+    void naNsToIntegrals() throws Exception
     {
         assertFalse(NODES.numberNode(Float.NaN).canConvertToExactIntegral());
         assertFalse(NODES.numberNode(Float.NEGATIVE_INFINITY).canConvertToExactIntegral());
@@ -54,7 +54,7 @@ class NumberToIntegralConversionTest extends DatabindTestUtil
     }
 
     @Test
-    void testBigDecimalToIntegrals() throws Exception
+    void bigDecimalToIntegrals() throws Exception
     {
         assertTrue(NODES.numberNode(BigDecimal.ZERO).canConvertToExactIntegral());
         assertTrue(NODES.numberNode(BigDecimal.TEN).canConvertToExactIntegral());

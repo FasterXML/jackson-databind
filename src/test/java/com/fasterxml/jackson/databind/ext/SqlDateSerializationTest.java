@@ -44,7 +44,7 @@ class SqlDateSerializationTest extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    void testSqlDate() throws IOException
+    void sqlDate() throws IOException
     {
         // use date 1999-04-01 (note: months are 0-based, use constant)
         final java.sql.Date date99 = new java.sql.Date(99, Calendar.APRIL, 1);
@@ -73,7 +73,7 @@ class SqlDateSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testSqlTime() throws IOException
+    void sqlTime() throws IOException
     {
         java.sql.Time time = new java.sql.Time(0L);
         // not 100% sure what we should expect wrt timezone, but what serializes
@@ -82,7 +82,7 @@ class SqlDateSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testSqlTimestamp() throws IOException
+    void sqlTimestamp() throws IOException
     {
         java.sql.Timestamp input = new java.sql.Timestamp(0L);
         // just should produce same output as standard `java.util.Date`:
@@ -92,7 +92,7 @@ class SqlDateSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testPatternWithSqlDate() throws Exception
+    void patternWithSqlDate() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // `java.sql.Date` applies system default zone (and not UTC)
@@ -106,7 +106,7 @@ class SqlDateSerializationTest extends DatabindTestUtil
 
     // [databind#2064]
     @Test
-    void testSqlDateConfigOverride() throws Exception
+    void sqlDateConfigOverride() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.setTimeZone(TimeZone.getDefault());

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PropertyMetadataTest extends DatabindTestUtil
 {
     @Test
-    void testPropertyName()
+    void propertyName()
     {
         PropertyName name = PropertyName.NO_NAME;
 
@@ -48,7 +48,7 @@ class PropertyMetadataTest extends DatabindTestUtil
     }
 
     @Test
-    void testPropertyMetadata()
+    void propertyMetadata()
     {
         PropertyMetadata md = PropertyMetadata.STD_OPTIONAL;
         assertNull(md.getValueNulls());

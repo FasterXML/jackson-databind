@@ -65,14 +65,14 @@ class TestAnnotationMerging extends DatabindTestUtil
      */
 
     @Test
-    void testSharedNames() throws Exception
+    void sharedNames() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         assertEquals("{\"x\":6}", mapper.writeValueAsString(new SharedName(6)));
     }
 
     @Test
-    void testSharedNamesFromGetterToSetter() throws Exception
+    void sharedNamesFromGetterToSetter() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new SharedName2());
@@ -82,7 +82,7 @@ class TestAnnotationMerging extends DatabindTestUtil
     }
 
     @Test
-    void testSharedTypeInfo() throws Exception
+    void sharedTypeInfo() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new Wrapper(13L));
@@ -91,7 +91,7 @@ class TestAnnotationMerging extends DatabindTestUtil
     }
 
     @Test
-    void testSharedTypeInfoWithCtor() throws Exception
+    void sharedTypeInfoWithCtor() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new TypeWrapper(13L));

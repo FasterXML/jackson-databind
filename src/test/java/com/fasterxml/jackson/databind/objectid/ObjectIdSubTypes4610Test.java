@@ -47,7 +47,7 @@ class ObjectIdSubTypes4610Test extends DatabindTestUtil
     }
 
     @Test
-    void testRoundTrip() throws Exception {
+    void roundTrip() throws Exception {
         // Ser
         String JSON = MAPPER.writeValueAsString(new NumberTypeDefinition());
         assertTrue(JSON.contains("@id"));

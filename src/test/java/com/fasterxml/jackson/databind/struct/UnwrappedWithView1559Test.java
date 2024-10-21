@@ -31,7 +31,7 @@ class UnwrappedWithView1559Test extends DatabindTestUtil
 
     // for [databind#1559]
     @Test
-    void testCanSerializeSimpleWithDefaultView() throws Exception {
+    void canSerializeSimpleWithDefaultView() throws Exception {
         String json = jsonMapperBuilder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
                 .build()
                 .writeValueAsString(new Health());

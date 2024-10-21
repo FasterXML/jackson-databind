@@ -23,7 +23,7 @@ class UntypedSerializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testFromArray() throws Exception
+    void fromArray() throws Exception
     {
         ArrayList<Object> doc = new ArrayList<Object>();
         doc.add("Elem1");
@@ -70,7 +70,7 @@ class UntypedSerializationTest
     }
 
     @Test
-    void testFromMap() throws Exception
+    void fromMap() throws Exception
     {
         LinkedHashMap<String,Object> doc = new LinkedHashMap<String,Object>();
 
@@ -107,7 +107,7 @@ class UntypedSerializationTest
     }
 
     @Test
-    void testSimpleGenerationMaps() throws Exception
+    void simpleGenerationMaps() throws Exception
     {
         assertEquals(a2q("{'msg':'Hello, world!'}"),
                 MAPPER.writeValueAsString(Collections.singletonMap("msg", "Hello, world!")));
@@ -117,14 +117,14 @@ class UntypedSerializationTest
     }
 
     @Test
-    void testSimpleGenerationCollections() throws Exception
+    void simpleGenerationCollections() throws Exception
     {
         assertEquals("[true,137,\"stuff\"]",
                 MAPPER.writeValueAsString(Arrays.asList(true, 137, "stuff")));
     }
 
     @Test
-    void testRawValues() throws Exception
+    void rawValues() throws Exception
     {
         final String innerJson =
                 MAPPER.writeValueAsString(Collections.singletonMap("msg", "hello!"));

@@ -27,7 +27,7 @@ class NullNodeTest extends NodeTestBase
     private final ObjectMapper MAPPER = sharedMapper();
 
     @Test
-    void testBasicsWithNullNode() throws Exception
+    void basicsWithNullNode() throws Exception
     {
         // Let's use something that doesn't add much beyond JsonNode base
         NullNode n = NullNode.instance;
@@ -72,7 +72,7 @@ class NullNodeTest extends NodeTestBase
     }
 
     @Test
-    void testNullHandling() throws Exception
+    void nullHandling() throws Exception
     {
         // First, a stand-alone null
         JsonNode n = MAPPER.readTree("null");
@@ -96,7 +96,7 @@ class NullNodeTest extends NodeTestBase
     }
 
     @Test
-    void testNullSerialization() throws Exception
+    void nullSerialization() throws Exception
     {
         StringWriter sw = new StringWriter();
         MAPPER.writeValue(sw, NullNode.instance);
@@ -104,7 +104,7 @@ class NullNodeTest extends NodeTestBase
     }
 
     @Test
-    void testNullHandlingCovariance() throws Exception
+    void nullHandlingCovariance() throws Exception
     {
         String JSON = "{\"object\" : null, \"array\" : null }";
         CovarianceBean bean = MAPPER.readValue(JSON, CovarianceBean.class);
@@ -118,7 +118,7 @@ class NullNodeTest extends NodeTestBase
 
     @SuppressWarnings("unlikely-arg-type")
     @Test
-    void testNullEquality() throws Exception
+    void nullEquality() throws Exception
     {
         JsonNode n = MAPPER.nullNode();
         assertTrue(n.isNull());

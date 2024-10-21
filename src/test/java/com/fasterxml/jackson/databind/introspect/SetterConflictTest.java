@@ -65,7 +65,7 @@ class SetterConflictTest extends DatabindTestUtil
 
     // [databind#1033]
     @Test
-    void testSetterPriority() throws Exception
+    void setterPriority() throws Exception
     {
         Issue1033Bean bean = MAPPER.readValue(a2q("{'value':42}"),
                 Issue1033Bean.class);
@@ -74,7 +74,7 @@ class SetterConflictTest extends DatabindTestUtil
 
     // [databind#2979]
     @Test
-    void testConflictingSetters() throws Exception
+    void conflictingSetters() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE)
@@ -86,7 +86,7 @@ class SetterConflictTest extends DatabindTestUtil
 
     // [databind#3125]
     @Test
-    void testDuplicateSetterResolutionOk() throws Exception
+    void duplicateSetterResolutionOk() throws Exception
     {
         POJOPropertiesCollector coll = collector(MAPPER, DupSetter3125Bean.class,
                 false);
@@ -107,7 +107,7 @@ class SetterConflictTest extends DatabindTestUtil
 
     // [databind#3125]: caught case
     @Test
-    void testDuplicateSetterResolutionFail() throws Exception
+    void duplicateSetterResolutionFail() throws Exception
     {
         try {
             MAPPER.readValue(a2q("{'value':'foo'}"),

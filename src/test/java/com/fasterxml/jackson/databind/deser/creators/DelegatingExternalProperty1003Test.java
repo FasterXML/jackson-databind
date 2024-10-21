@@ -50,7 +50,7 @@ class DelegatingExternalProperty1003Test extends DatabindTestUtil
 
     // [databind#1003]
     @Test
-    void testExtrnalPropertyDelegatingCreator() throws Exception
+    void extrnalPropertyDelegatingCreator() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
 

@@ -51,7 +51,7 @@ class CoerceMiscScalarsTest
      */
 
     @Test
-    void testScalarDefaultsFromEmpty() throws Exception
+    void scalarDefaultsFromEmpty() throws Exception
     {
         // mostly as null, with some exceptions
 
@@ -82,7 +82,7 @@ class CoerceMiscScalarsTest
      */
 
     @Test
-    void testScalarEmptyToNull() throws Exception
+    void scalarEmptyToNull() throws Exception
     {
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, File.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, URL.class);
@@ -99,7 +99,7 @@ class CoerceMiscScalarsTest
     }
 
     @Test
-    void testScalarEmptyToEmpty() throws Exception
+    void scalarEmptyToEmpty() throws Exception
     {
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, File.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, URL.class);
@@ -122,7 +122,7 @@ class CoerceMiscScalarsTest
     }
 
     @Test
-    void testScalarEmptyToTryConvert() throws Exception
+    void scalarEmptyToTryConvert() throws Exception
     {
         // Should be same as `AsNull` for most but not all
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, File.class);
@@ -152,7 +152,7 @@ class CoerceMiscScalarsTest
      */
 
     @Test
-    void testScalarsFailFromEmpty() throws Exception
+    void scalarsFailFromEmpty() throws Exception
     {
         _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, File.class);
         _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, URL.class);
@@ -178,7 +178,7 @@ class CoerceMiscScalarsTest
     // also uses custom subtype, so test separately
 
     @Test
-    void testUUIDCoercions() throws Exception
+    void uuidCoercions() throws Exception
     {
         // Coerce to `null` both by default, "TryConvert" and explicit
         _testScalarEmptyToNull(DEFAULT_MAPPER, UUID.class);
@@ -203,7 +203,7 @@ class CoerceMiscScalarsTest
     // StringBuilder is its own special type, since it naturally maps
     // from String values, hence separate testing
     @Test
-    void testStringBuilderCoercions() throws Exception
+    void stringBuilderCoercions() throws Exception
     {
         // should result in an "empty" StringBuilder for all valid settings
         _checkEmptyStringBuilder(DEFAULT_MAPPER.readValue(JSON_EMPTY, StringBuilder.class));
@@ -221,7 +221,7 @@ class CoerceMiscScalarsTest
 
     // Date, Calendar also included here for convenience
     @Test
-    void testLegacyDateTimeCoercions() throws Exception
+    void legacyDateTimeCoercions() throws Exception
     {
         // Coerce to `null` both by default, "TryConvert" and explicit
         _testScalarEmptyToNull(DEFAULT_MAPPER, Calendar.class);

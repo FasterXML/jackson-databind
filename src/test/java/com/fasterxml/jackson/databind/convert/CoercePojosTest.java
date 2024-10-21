@@ -43,7 +43,7 @@ class CoercePojosTest
      */
 
     @Test
-    void testPOJOFromEmptyStringLegacy() throws Exception
+    void pojoFromEmptyStringLegacy() throws Exception
     {
         // first, verify default settings which do not accept empty String:
         assertFalse(MAPPER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT));
@@ -56,19 +56,19 @@ class CoercePojosTest
     }
 
     @Test
-    void testPOJOFromEmptyGlobalConfig() throws Exception
+    void pojoFromEmptyGlobalConfig() throws Exception
     {
         _testPOJOFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
 
     @Test
-    void testPOJOFromEmptyLogicalTypeConfig() throws Exception
+    void pojoFromEmptyLogicalTypeConfig() throws Exception
     {
         _testPOJOFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
 
     @Test
-    void testPOJOFromEmptyPhysicalTypeConfig() throws Exception
+    void pojoFromEmptyPhysicalTypeConfig() throws Exception
     {
         _testPOJOFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
@@ -76,7 +76,7 @@ class CoercePojosTest
     // [databind#3676] Alternative test for "Mode.PROPERTIES" variant where we
     //  have no "default" constructor
     @Test
-    void testPOJOFromEmptyWithProperties() throws Exception
+    void pojoFromEmptyWithProperties() throws Exception
     {
         // Then coerce as empty
         ObjectMapper mapper = jsonMapperBuilder()
@@ -97,19 +97,19 @@ class CoercePojosTest
      */
 
     @Test
-    void testPOJOFromBlankGlobalConfig() throws Exception
+    void pojoFromBlankGlobalConfig() throws Exception
     {
         _testPOJOFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_BLANK, Boolean.TRUE);
     }
 
     @Test
-    void testPOJOFromBlankLogicalTypeConfig() throws Exception
+    void pojoFromBlankLogicalTypeConfig() throws Exception
     {
         _testPOJOFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_BLANK, Boolean.TRUE);
     }
 
     @Test
-    void testPOJOFromBlankPhysicalTypeConfig() throws Exception
+    void pojoFromBlankPhysicalTypeConfig() throws Exception
     {
         _testPOJOFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_BLANK, Boolean.TRUE);
     }

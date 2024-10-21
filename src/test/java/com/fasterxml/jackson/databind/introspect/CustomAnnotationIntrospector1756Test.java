@@ -116,7 +116,7 @@ class CustomAnnotationIntrospector1756Test extends DatabindTestUtil
     }
 
     @Test
-    void testIssue1756() throws Exception
+    void issue1756() throws Exception
     {
         Issue1756Module m = new Issue1756Module();
         m.addAbstractTypeMapping(Foobar.class, FoobarImpl.class);

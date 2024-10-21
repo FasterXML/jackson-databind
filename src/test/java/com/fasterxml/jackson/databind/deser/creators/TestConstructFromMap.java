@@ -74,7 +74,7 @@ class TestConstructFromMap
      */
 
     @Test
-    void testViaConstructor() throws Exception
+    void viaConstructor() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         ConstructorFromMap result = m.readValue
@@ -84,7 +84,7 @@ class TestConstructFromMap
     }
 
     @Test
-    void testViaFactory() throws Exception
+    void viaFactory() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         FactoryFromPoint result = m.readValue("{ \"x\" : 3, \"y\" : 4 }", FactoryFromPoint.class);
@@ -93,7 +93,7 @@ class TestConstructFromMap
     }
 
     @Test
-    void testViaFactoryUsingString() throws Exception
+    void viaFactoryUsingString() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         FactoryFromDecimalString result = m.readValue("\"12.57\"", FactoryFromDecimalString.class);

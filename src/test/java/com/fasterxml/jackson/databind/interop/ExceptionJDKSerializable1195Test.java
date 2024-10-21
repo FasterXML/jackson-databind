@@ -29,7 +29,7 @@ class ExceptionJDKSerializable1195Test extends DatabindTestUtil
     final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testExceptionSerializabilitySimple() throws Exception
+    void exceptionSerializabilitySimple() throws Exception
     {
         try {
             MAPPER.readValue("{\"x\": \"B\"}", ClassToRead.class);
@@ -48,7 +48,7 @@ class ExceptionJDKSerializable1195Test extends DatabindTestUtil
     }
 
     @Test
-    void testExceptionSerializabilityStructured() throws Exception
+    void exceptionSerializabilityStructured() throws Exception
     {
         try {
             MAPPER.readValue("{\"classesToRead\": [{\"x\": 1}, {\"x\": \"B\"}]}",

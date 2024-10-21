@@ -95,7 +95,7 @@ class MapperMixinsCopy1998Test extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    void testB_KO() throws Exception
+    void bKo() throws Exception
     {
         final ObjectMapper DEFAULT = defaultMapper();
         MyModelRoot myModelInstance = new MyModelRoot();

@@ -28,7 +28,7 @@ class TypeFactoryWithRecursiveTypesTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testBasePropertiesIncludedWhenSerializingSubWhenSubTypeLoadedAfterBaseType() throws IOException {
+    void basePropertiesIncludedWhenSerializingSubWhenSubTypeLoadedAfterBaseType() throws IOException {
         TypeFactory tf = defaultTypeFactory();
         tf.constructType(Base.class);
         tf.constructType(Sub.class);

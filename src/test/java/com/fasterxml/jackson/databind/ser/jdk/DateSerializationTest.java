@@ -103,7 +103,7 @@ class DateSerializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testDateNumeric() throws IOException
+    void dateNumeric() throws IOException
     {
         // default is to output time stamps...
         assertTrue(MAPPER.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
@@ -113,7 +113,7 @@ class DateSerializationTest
     }
 
     @Test
-    void testDateISO8601() throws IOException
+    void dateISO8601() throws IOException
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
@@ -134,7 +134,7 @@ class DateSerializationTest
 
     // [databind#2167]: beyond year 9999 needs special handling
     @Test
-    void testDateISO8601_10k() throws IOException
+    void dateISO860110k() throws IOException
     {
         ObjectWriter w = MAPPER.writer()
                 .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -147,7 +147,7 @@ class DateSerializationTest
 
     // [databind#2167]: dates before Common Era (CE), that is, BCE, need special care:
     @Test
-    void testDateISO8601_BCE() throws IOException
+    void dateISO8601BCE() throws IOException
     {
         ObjectWriter w = MAPPER.writer()
                 .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -165,7 +165,7 @@ class DateSerializationTest
      * Use a default TZ other than UTC. Dates must be serialized using that TZ.
      */
     @Test
-    void testDateISO8601_customTZ() throws IOException
+    void dateISO8601CustomTZ() throws IOException
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
@@ -183,7 +183,7 @@ class DateSerializationTest
      * See [databind#1744], [databind#2643]
      */
     @Test
-    void testDateISO8601_colonInTZ() throws IOException
+    void dateISO8601ColonInTZ() throws IOException
     {
         // with [databind#2643], default now is to include
         StdDateFormat dateFormat = new StdDateFormat();
@@ -200,7 +200,7 @@ class DateSerializationTest
     }
 
     @Test
-    void testDateOther() throws IOException
+    void dateOther() throws IOException
     {
         ObjectMapper mapper = newJsonMapper();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
@@ -212,7 +212,7 @@ class DateSerializationTest
     }
 
     @Test
-    void testTimeZone() throws IOException
+    void timeZone() throws IOException
     {
         TimeZone input = TimeZone.getTimeZone("PST");
         String json = MAPPER.writeValueAsString(input);
@@ -220,14 +220,14 @@ class DateSerializationTest
     }
 
     @Test
-    void testTimeZoneInBean() throws IOException
+    void timeZoneInBean() throws IOException
     {
         String json = MAPPER.writeValueAsString(new TimeZoneBean("PST"));
         assertEquals("{\"tz\":\"PST\"}", json);
     }
 
     @Test
-    void testDateUsingObjectWriter() throws IOException
+    void dateUsingObjectWriter() throws IOException
     {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
         TimeZone tz = TimeZone.getTimeZone("PST");
@@ -245,7 +245,7 @@ class DateSerializationTest
     }
 
     @Test
-    void testDatesAsMapKeys() throws IOException
+    void datesAsMapKeys() throws IOException
     {
         ObjectMapper mapper = newJsonMapper();
         Map<Date,Integer> map = new HashMap<Date,Integer>();
@@ -260,7 +260,7 @@ class DateSerializationTest
     }
 
     @Test
-    void testDateWithJsonFormat() throws Exception
+    void dateWithJsonFormat() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         String json;
@@ -293,7 +293,7 @@ class DateSerializationTest
      * that timezone on format, regardless of TimeZone format had.
      */
     @Test
-    void testWithTimeZoneOverride() throws Exception
+    void withTimeZoneOverride() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd/HH:mm z"));
@@ -321,7 +321,7 @@ class DateSerializationTest
      * when this shape is not explicitly set with a <code>@JsonFormat</code> annotation
      */
     @Test
-    void testDateDefaultShape() throws Exception
+    void dateDefaultShape() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         // No @JsonFormat => default to user config
@@ -367,7 +367,7 @@ class DateSerializationTest
 
     // [databind#1648]: contextual default format should be used
     @Test
-    void testFormatWithoutPattern() throws Exception
+    void formatWithoutPattern() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss"));

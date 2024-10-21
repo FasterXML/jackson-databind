@@ -40,7 +40,7 @@ class MapDeserializerCachingTest
      */
 
     @Test
-    void testCachedSerialize() throws IOException {
+    void cachedSerialize() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         String json = a2q("{'data':{'1st':'onedata','2nd':'twodata'}}");
 

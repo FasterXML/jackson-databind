@@ -43,7 +43,7 @@ class TestCreatorsWithIdentity
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     @Test
-    void testSimple() throws IOException
+    void simple() throws IOException
 	{
 	    String parentStr = "{\"id\" : \"1\", \"parentProp\" : \"parent\"}";
 	    String childStr = "{\"childProp\" : \"child\", \"parent\" : " + parentStr + "}";

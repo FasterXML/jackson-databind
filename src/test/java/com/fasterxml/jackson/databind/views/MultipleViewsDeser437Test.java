@@ -83,7 +83,7 @@ class MultipleViewsDeser437Test extends DatabindTestUtil
         .disable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES).build();
 
     @Test
-    void testDeserWithMultipleViews() throws Exception
+    void deserWithMultipleViews() throws Exception
     {
         final String json = a2q("{'nonViewField':'nonViewFieldValue'," +
             "'view1Field':'view1FieldValue'," +
@@ -95,7 +95,7 @@ class MultipleViewsDeser437Test extends DatabindTestUtil
     }
 
     @Test
-    void testDeserMultipleViewsWithBuilders() throws Exception
+    void deserMultipleViewsWithBuilders() throws Exception
     {
         final String json = a2q("{'x':5,'y':10,'z':0}");
 

@@ -27,13 +27,13 @@ class ISO8601DateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    void testFormat() {
+    void format() {
         String result = df.format(date);
         assertEquals("2007-08-13T19:51:23Z", result);
     }
 
     @Test
-    void testParse() throws Exception {
+    void parse() throws Exception {
         Date result = df.parse("2007-08-13T19:51:23Z");
         assertEquals(date, result);
 
@@ -49,7 +49,7 @@ class ISO8601DateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    void testPartialParse() throws Exception {
+    void partialParse() throws Exception {
         java.text.ParsePosition pos = new java.text.ParsePosition(0);
         String timestamp = "2007-08-13T19:51:23Z";
         Date result = df.parse(timestamp + "hello", pos);
@@ -59,13 +59,13 @@ class ISO8601DateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    void testCloneObject() throws Exception {
+    void cloneObject() throws Exception {
         DateFormat clone = (DateFormat)df.clone();
         assertSame(df, clone);
     }
 
     @Test
-    void testHashCodeEquals() throws Exception {
+    void hashCodeEquals() throws Exception {
         // for [databind#1130]
         DateFormat defaultDF = StdDateFormat.instance;
         defaultDF.hashCode();

@@ -16,7 +16,7 @@ class LocaleDeser4009Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testLocaleWithFeatureDisabled() throws Exception 
+    void localeWithFeatureDisabled() throws Exception 
     {
         assertEquals(Locale.ROOT,
                 MAPPER.readerFor(Locale.class)
@@ -25,7 +25,7 @@ class LocaleDeser4009Test
     }
 
     @Test
-    void testLocaleWithFeatureEnabled() throws Exception 
+    void localeWithFeatureEnabled() throws Exception 
     {
         // 06-Jul-2023, tatu: as per [databind#4009] should not become 'null'
         //   just because

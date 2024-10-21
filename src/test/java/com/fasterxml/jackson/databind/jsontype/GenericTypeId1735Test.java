@@ -44,7 +44,7 @@ class GenericTypeId1735Test extends DatabindTestUtil
 
     // Existing checks should kick in fine
     @Test
-    void testSimpleTypeCheck1735() throws Exception
+    void simpleTypeCheck1735() throws Exception
     {
         try {
             MAPPER.readValue(a2q(
@@ -59,7 +59,7 @@ class GenericTypeId1735Test extends DatabindTestUtil
 
     // but this was not being verified early enough
     @Test
-    void testNestedTypeCheck1735() throws Exception
+    void nestedTypeCheck1735() throws Exception
     {
         try {
             MAPPER.readValue(a2q(

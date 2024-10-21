@@ -114,7 +114,7 @@ class MapKeyDeserializationTest
     final private ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testBooleanMapKeyDeserialization() throws Exception
+    void booleanMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Boolean, String>> type = new TypeReference<MapWrapper<Boolean, String>>() { };
         MapWrapper<?,?> result = MAPPER.readValue(a2q("{'map':{'true':'foobar'}}"), type);
@@ -128,7 +128,7 @@ class MapKeyDeserializationTest
     }
 
     @Test
-    void testByteMapKeyDeserialization() throws Exception
+    void byteMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Byte, String>> type = new TypeReference<MapWrapper<Byte, String>>() { };
         MapWrapper<?,?> result = MAPPER.readValue(a2q("{'map':{'13':'foobar'}}"), type);
@@ -137,7 +137,7 @@ class MapKeyDeserializationTest
     }
 
     @Test
-    void testShortMapKeyDeserialization() throws Exception
+    void shortMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Short, String>> type = new TypeReference<MapWrapper<Short, String>>() { };
         MapWrapper<?,?> result = MAPPER.readValue(a2q("{'map':{'13':'foobar'}}"), type);
@@ -146,7 +146,7 @@ class MapKeyDeserializationTest
     }
 
     @Test
-    void testIntegerMapKeyDeserialization() throws Exception
+    void integerMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Integer, String>> type = new TypeReference<MapWrapper<Integer, String>>() { };
         MapWrapper<?,?> result = MAPPER.readValue(a2q("{'map':{'-3':'foobar'}}"), type);
@@ -155,7 +155,7 @@ class MapKeyDeserializationTest
     }
 
     @Test
-    void testLongMapKeyDeserialization() throws Exception
+    void longMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Long, String>> type = new TypeReference<MapWrapper<Long, String>>() { };
         MapWrapper<?,?> result = MAPPER.readValue(a2q("{'map':{'42':'foobar'}}"), type);
@@ -164,7 +164,7 @@ class MapKeyDeserializationTest
     }
 
     @Test
-    void testFloatMapKeyDeserialization() throws Exception
+    void floatMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Float, String>> type = new TypeReference<MapWrapper<Float, String>>() { };
         MapWrapper<?,?> result = MAPPER.readValue(a2q("{'map':{'3.5':'foobar'}}"), type);
@@ -173,7 +173,7 @@ class MapKeyDeserializationTest
     }
 
     @Test
-    void testDoubleMapKeyDeserialization() throws Exception
+    void doubleMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Double, String>> type = new TypeReference<MapWrapper<Double, String>>() { };
         MapWrapper<?,?> result = MAPPER.readValue(a2q("{'map':{'0.25':'foobar'}}"), type);
@@ -188,7 +188,7 @@ class MapKeyDeserializationTest
      */
 
     @Test
-    void testDeserializeKeyViaFactory() throws Exception
+    void deserializeKeyViaFactory() throws Exception
     {
         Map<FullName, Double> map =
             MAPPER.readValue("{\"first.last\": 42}",
@@ -201,7 +201,7 @@ class MapKeyDeserializationTest
     }
 
     @Test
-    void testByteArrayMapKeyDeserialization() throws Exception
+    void byteArrayMapKeyDeserialization() throws Exception
     {
         byte[] binary = new byte[] { 1, 2, 4, 8, 16, 33, 79 };
         String encoded = Base64Variants.MIME.encode(binary);
@@ -218,7 +218,7 @@ class MapKeyDeserializationTest
 
     // [databind#2725]
     @Test
-    void testEnumWithCreatorMapKeyDeserialization() throws Exception
+    void enumWithCreatorMapKeyDeserialization() throws Exception
     {
         final Map<TestEnum2725, String> input = Collections.singletonMap(TestEnum2725.FOO, "Hello");
         final String json = MAPPER.writeValueAsString(input);
@@ -231,7 +231,7 @@ class MapKeyDeserializationTest
 
     // [databind#2158]
     @Test
-    void testDeserializeInvalidKey() throws Exception
+    void deserializeInvalidKey() throws Exception
     {
         try {
             MAPPER.readValue("{ \"\": 0 }", MAP_TYPE_2158);
@@ -243,7 +243,7 @@ class MapKeyDeserializationTest
 
     // [databind#2158]
     @Test
-    void testNormalizeKey() throws Exception
+    void normalizeKey() throws Exception
     {
         assertEquals(Collections.singletonMap(DummyDto2158.fromValue("foo"), 0),
                 MAPPER.readValue("{ \"FOO\": 0 }", MAP_TYPE_2158));

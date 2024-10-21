@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class CompactStringObjectMapTest extends DatabindTestUtil
 {
     @Test
-    void testBig()
+    void big()
     {
         Map<String,String> all = new LinkedHashMap<>();
         for (int i = 0; i < 1000; ++i) {

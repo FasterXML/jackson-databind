@@ -64,7 +64,7 @@ class CollectionMergeTest
             .build();
 
     @Test
-    void testCollectionMerging() throws Exception
+    void collectionMerging() throws Exception
     {
         CollectionWrapper w = MAPPER.readValue(a2q("{'bag':['b']}"), CollectionWrapper.class);
         assertEquals(2, w.bag.size());
@@ -73,7 +73,7 @@ class CollectionMergeTest
     }
 
     @Test
-    void testListMerging() throws Exception
+    void listMerging() throws Exception
     {
         MergedList w = MAPPER.readValue(a2q("{'values':['x']}"), MergedList.class);
         assertEquals(2, w.values.size());
@@ -83,7 +83,7 @@ class CollectionMergeTest
 
     // Test that uses generic type
     @Test
-    void testGenericListMerging() throws Exception
+    void genericListMerging() throws Exception
     {
         Collection<String> l = new ArrayList<>();
         l.add("foo");
@@ -101,7 +101,7 @@ class CollectionMergeTest
     }
 
     @Test
-    void testEnumSetMerging() throws Exception
+    void enumSetMerging() throws Exception
     {
         MergedEnumSet result = MAPPER.readValue(a2q("{'abc':['A']}"), MergedEnumSet.class);
         assertEquals(2, result.abc.size());

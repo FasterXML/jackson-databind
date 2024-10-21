@@ -30,7 +30,7 @@ class TestJSONP
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testSimpleScalars() throws Exception
+    void simpleScalars() throws Exception
     {
         assertEquals("callback(\"abc\")",
                 MAPPER.writeValueAsString(new JSONPObject("callback", "abc")));
@@ -41,7 +41,7 @@ class TestJSONP
     }
 
     @Test
-    void testSimpleBean() throws Exception
+    void simpleBean() throws Exception
     {
         assertEquals("xxx({\"a\":\"123\",\"b\":\"456\"})",
                 MAPPER.writeValueAsString(new JSONPObject("xxx",
@@ -53,7 +53,7 @@ class TestJSONP
      * value.
      */
     @Test
-    void testWithType() throws Exception
+    void withType() throws Exception
     {
         Object ob = new Impl("abc", "def");
         JavaType type = MAPPER.constructType(Base.class);
@@ -62,7 +62,7 @@ class TestJSONP
     }
 
     @Test
-    void testGeneralWrapping() throws Exception
+    void generalWrapping() throws Exception
     {
         JSONWrappedObject input = new JSONWrappedObject("/*Foo*/", "\n// the end",
                 Arrays.asList());

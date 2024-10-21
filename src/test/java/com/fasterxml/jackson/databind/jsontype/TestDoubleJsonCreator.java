@@ -245,7 +245,7 @@ class TestDoubleJsonCreator extends DatabindTestUtil
 
     // [databind#2978]
     @Test
-    void testDeserializationTypeFieldLast() throws Exception {
+    void deserializationTypeFieldLast() throws Exception {
         UnionExample expected = UnionExample.double_(AliasDouble.of(2.0D));
         UnionExample actual = MAPPER.readValue(
                 a2q("{'double': 2.0,'type':'double'}"),
@@ -255,7 +255,7 @@ class TestDoubleJsonCreator extends DatabindTestUtil
 
     // [databind#2978]
     @Test
-    void testDeserializationTypeFieldFirst() throws Exception {
+    void deserializationTypeFieldFirst() throws Exception {
         UnionExample expected = UnionExample.double_(AliasDouble.of(2.0D));
         UnionExample actual = MAPPER.readValue(
                 a2q("{'type':'double','double': 2.0}"),
@@ -265,7 +265,7 @@ class TestDoubleJsonCreator extends DatabindTestUtil
 
     // [databind#4138]
     @Test
-    void testDeserializeFPAsObject() throws Exception
+    void deserializeFPAsObject() throws Exception
     {
         final String JSON = "{\"allowedValues\": [ 1.5, 2.5 ], \"type\": \"type1\"}";
         // By default, should get Doubles

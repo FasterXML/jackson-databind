@@ -32,7 +32,7 @@ class JsonTypeInfoCaseInsensitive1983Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testReadMixedCaseSubclass() throws Exception
+    void readMixedCaseSubclass() throws Exception
     {
         final String serialised = "{\"Operation\":\"NoTeQ\"}";
 
@@ -54,7 +54,7 @@ class JsonTypeInfoCaseInsensitive1983Test extends DatabindTestUtil
     }
 
     @Test
-    void testReadMixedCasePropertyName() throws Exception
+    void readMixedCasePropertyName() throws Exception
     {
         final String serialised = "{\"oPeRaTioN\":\"notEq\"}";
         // first: mismatch with property name unless case-sensitivity disabled:

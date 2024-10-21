@@ -31,7 +31,7 @@ class AbsentNodeViaCreator3214Test extends DatabindTestUtil
 
     // [databind#3214]
     @Test
-    void testNullFromMissingNodeParameter() throws Exception
+    void nullFromMissingNodeParameter() throws Exception
     {
         Pojo3214 p = MAPPER.readValue("{}", Pojo3214.class);
         if (p.fromCtor != null) {

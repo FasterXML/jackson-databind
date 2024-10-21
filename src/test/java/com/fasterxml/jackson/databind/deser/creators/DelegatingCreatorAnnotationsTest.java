@@ -75,7 +75,7 @@ class DelegatingCreatorAnnotationsTest
 
     // [databind#2016]
     @Test
-    void testDelegatingWithAs() throws Exception
+    void delegatingWithAs() throws Exception
     {
         Wrapper2016As actual = MAPPER.readValue("123", Wrapper2016As.class);
         assertEquals(Date.class, actual.value.getClass());
@@ -83,7 +83,7 @@ class DelegatingCreatorAnnotationsTest
 
     // [databind#2016]
     @Test
-    void testDelegatingWithContentAs() throws Exception
+    void delegatingWithContentAs() throws Exception
     {
         Wrapper2016ContentAs actual = MAPPER.readValue("[123]", Wrapper2016ContentAs.class);
         List<Object> l = actual.value;
@@ -93,7 +93,7 @@ class DelegatingCreatorAnnotationsTest
 
     // [databind#2021]
     @Test
-    void testCustomDeserForDelegating() throws Exception
+    void customDeserForDelegating() throws Exception
     {
         DelegatingWithCustomDeser2021 actual = MAPPER.readValue(" true ", DelegatingWithCustomDeser2021.class);
         assertEquals(DelegatingWithCustomDeser2021.DEFAULT, actual.value);

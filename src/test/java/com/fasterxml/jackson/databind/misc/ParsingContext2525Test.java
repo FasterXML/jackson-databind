@@ -31,7 +31,7 @@ class ParsingContext2525Test extends DatabindTestUtil
      */
 
     @Test
-    void testAllWithRegularParser() throws Exception
+    void allWithRegularParser() throws Exception
     {
         try (JsonParser p = MAPPER.createParser(MINIMAL_ARRAY_DOC)) {
             _testSimpleArrayUsingPathAsPointer(p);
@@ -51,7 +51,7 @@ class ParsingContext2525Test extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleArrayWithBuffer() throws Exception
+    void simpleArrayWithBuffer() throws Exception
     {
         try (TokenBuffer buf = _readAsTokenBuffer(MINIMAL_ARRAY_DOC)) {
             _testSimpleArrayUsingPathAsPointer(buf.asParser());
@@ -59,7 +59,7 @@ class ParsingContext2525Test extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleObjectWithBuffer() throws Exception
+    void simpleObjectWithBuffer() throws Exception
     {
         try (TokenBuffer buf = _readAsTokenBuffer(MINIMAL_OBJECT_DOC)) {
             _testSimpleObjectUsingPathAsPointer(buf.asParser());
@@ -67,7 +67,7 @@ class ParsingContext2525Test extends DatabindTestUtil
     }
 
     @Test
-    void testFullDocWithBuffer() throws Exception
+    void fullDocWithBuffer() throws Exception
     {
         try (TokenBuffer buf = _readAsTokenBuffer(FULL_DOC)) {
             _testFullDocUsingPathAsPointer(buf.asParser());
@@ -92,7 +92,7 @@ class ParsingContext2525Test extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleArrayWithTree() throws Exception
+    void simpleArrayWithTree() throws Exception
     {
         JsonNode root = MAPPER.readTree(MINIMAL_ARRAY_DOC);
         try (JsonParser p = root.traverse(null)) {
@@ -101,7 +101,7 @@ class ParsingContext2525Test extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleObjectWithTree() throws Exception
+    void simpleObjectWithTree() throws Exception
     {
         JsonNode root = MAPPER.readTree(MINIMAL_OBJECT_DOC);
         try (JsonParser p = root.traverse(null)) {
@@ -110,7 +110,7 @@ class ParsingContext2525Test extends DatabindTestUtil
     }
 
     @Test
-    void testFullDocWithTree() throws Exception
+    void fullDocWithTree() throws Exception
     {
         JsonNode root = MAPPER.readTree(FULL_DOC);
         try (JsonParser p = root.traverse(null)) {

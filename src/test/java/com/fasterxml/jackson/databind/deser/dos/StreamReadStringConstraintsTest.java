@@ -48,7 +48,7 @@ class StreamReadStringConstraintsTest
     }
 
     @Test
-    void testBigString() throws Exception
+    void bigString() throws Exception
     {
         try {
             MAPPER.readValue(generateJson("string", TOO_LONG_STRING_VALUE), StringWrapper.class);
@@ -61,7 +61,7 @@ class StreamReadStringConstraintsTest
     }
 
     @Test
-    void testBiggerString() throws Exception
+    void biggerString() throws Exception
     {
         try {
             MAPPER.readValue(generateJson("string", TOO_LONG_STRING_VALUE), StringWrapper.class);
@@ -76,7 +76,7 @@ class StreamReadStringConstraintsTest
     }
 
     @Test
-    void testUnlimitedString() throws Exception
+    void unlimitedString() throws Exception
     {
         final int len = TOO_LONG_STRING_VALUE;
         StringWrapper sw = newJsonMapperWithUnlimitedStringSizeSupport()

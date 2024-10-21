@@ -16,7 +16,7 @@ class UnresolvedForwardReferenceTest
     private final JsonFactory JSON_F = newJsonMapper().getFactory();
 
     @Test
-    void testWithAndWithoutStackTraces() throws Exception
+    void withAndWithoutStackTraces() throws Exception
     {
         try (JsonParser p = JSON_F.createParser("{}")) {
             UnresolvedForwardReference e = new UnresolvedForwardReference(p, "test");

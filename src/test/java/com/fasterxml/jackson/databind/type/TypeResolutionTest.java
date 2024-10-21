@@ -42,7 +42,7 @@ class TypeResolutionTest extends DatabindTestUtil
      */
 
     @Test
-    void testMaps()
+    void maps()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(new TypeReference<LongValuedMap<String>>() { });
@@ -53,7 +53,7 @@ class TypeResolutionTest extends DatabindTestUtil
     }
 
     @Test
-    void testListViaTypeRef()
+    void listViaTypeRef()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(new TypeReference<MyLongList<Integer>>() {});
@@ -63,7 +63,7 @@ class TypeResolutionTest extends DatabindTestUtil
     }
 
     @Test
-    void testListViaClass()
+    void listViaClass()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(LongList.class);
@@ -73,7 +73,7 @@ class TypeResolutionTest extends DatabindTestUtil
     }
 
     @Test
-    void testGeneric()
+    void generic()
     {
         TypeFactory tf = defaultTypeFactory();
 

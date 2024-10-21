@@ -37,7 +37,7 @@ class JDKCollectionsDeserTest
 
     // And then a round-trip test for singleton collections
     @Test
-    void testSingletonCollections() throws Exception
+    void singletonCollections() throws Exception
     {
         final TypeReference<List<XBean>> xbeanListType = new TypeReference<List<XBean>>() { };
 
@@ -56,7 +56,7 @@ class JDKCollectionsDeserTest
 
     // [databind#1868]: Verify class name serialized as is
     @Test
-    void testUnmodifiableSet() throws Exception
+    void unmodifiableSet() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -75,7 +75,7 @@ class JDKCollectionsDeserTest
 
     // [databind#4262]: Handle problem of `null`s for `TreeSet`
     @Test
-    void testNullsWithTreeSet() throws Exception
+    void nullsWithTreeSet() throws Exception
     {
         try {
             MAPPER.readValue("[ \"acb\", null, 123 ]", TreeSet.class);

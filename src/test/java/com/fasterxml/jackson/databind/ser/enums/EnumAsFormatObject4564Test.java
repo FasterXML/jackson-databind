@@ -42,7 +42,7 @@ class EnumAsFormatObject4564Test
     private final ObjectMapper MAPPER = new JsonMapper();
 
     @Test
-    void testEnumAsFormatObject() throws JsonProcessingException {
+    void enumAsFormatObject() throws JsonProcessingException {
         List<Level> levels = new ArrayList<>();
         levels.add(Level.LEVEL1);
         levels.add(Level.LEVEL2);

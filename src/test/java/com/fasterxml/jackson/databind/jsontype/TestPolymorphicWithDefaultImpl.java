@@ -155,7 +155,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testDeserializationWithObject() throws Exception
+    void deserializationWithObject() throws Exception
     {
         Inter inter = MAPPER.readerFor(Inter.class).readValue("{\"type\": \"mine\", \"blah\": [\"a\", \"b\", \"c\"]}");
         assertTrue(inter instanceof MyInter);
@@ -164,7 +164,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     }
 
     @Test
-    void testDeserializationWithString() throws Exception
+    void deserializationWithString() throws Exception
     {
         Inter inter = MAPPER.readerFor(Inter.class).readValue("\"a,b,c,d\"");
         assertTrue(inter instanceof LegacyInter);
@@ -172,7 +172,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     }
 
     @Test
-    void testDeserializationWithArray() throws Exception
+    void deserializationWithArray() throws Exception
     {
         Inter inter = MAPPER.readerFor(Inter.class).readValue("[\"a\", \"b\", \"c\", \"d\"]");
         assertTrue(inter instanceof LegacyInter);
@@ -180,7 +180,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     }
 
     @Test
-    void testDeserializationWithArrayOfSize2() throws Exception
+    void deserializationWithArrayOfSize2() throws Exception
     {
         Inter inter = MAPPER.readerFor(Inter.class).readValue("[\"a\", \"b\"]");
         assertTrue(inter instanceof LegacyInter);
@@ -189,7 +189,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
 
     // [databind#148]
     @Test
-    void testDefaultAsNoClass() throws Exception
+    void defaultAsNoClass() throws Exception
     {
         Object ob = MAPPER.readerFor(DefaultWithNoClass.class).readValue("{ }");
         assertNull(ob);
@@ -199,7 +199,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
 
     // same, with 2.5 and Void.class
     @Test
-    void testDefaultAsVoid() throws Exception
+    void defaultAsVoid() throws Exception
     {
         Object ob = MAPPER.readerFor(DefaultWithVoidAsDefault.class).readValue("{ }");
         assertNull(ob);
@@ -209,7 +209,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
 
     // [databind#148]
     @Test
-    void testBadTypeAsNull() throws Exception
+    void badTypeAsNull() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(MysteryPolymorphic.class)
                 .without(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
@@ -221,7 +221,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
 
     // [databind#511]
     @Test
-    void testInvalidTypeId511() throws Exception {
+    void invalidTypeId511() throws Exception {
         ObjectReader reader = MAPPER.reader().without(
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE,
                 DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
@@ -236,7 +236,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
 
     // [databind#656]
     @Test
-    void testDefaultImplWithObjectWrapper() throws Exception
+    void defaultImplWithObjectWrapper() throws Exception
     {
         BaseFor656 value = MAPPER.readValue(a2q("{'foobar':{'a':3}}"), BaseFor656.class);
         assertNotNull(value);
@@ -245,7 +245,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     }
 
     @Test
-    void testUnknownTypeIDRecovery() throws Exception
+    void unknownTypeIDRecovery() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(CallRecord.class).without(
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
@@ -264,7 +264,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     }
 
     @Test
-    void testUnknownClassAsSubtype() throws Exception
+    void unknownClassAsSubtype() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
@@ -276,7 +276,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     }
 
     @Test
-    void testWithoutEmptyStringAsNullObject1533() throws Exception
+    void withoutEmptyStringAsNullObject1533() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(AsPropertyWrapper.class)
                 .without(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
@@ -290,7 +290,7 @@ class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
 
     // [databind#1533]
     @Test
-    void testWithEmptyStringAsNullObject1533() throws Exception
+    void withEmptyStringAsNullObject1533() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(AsPropertyWrapper.class)
                 .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);

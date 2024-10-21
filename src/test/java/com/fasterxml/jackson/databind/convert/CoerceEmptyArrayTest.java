@@ -72,7 +72,7 @@ class CoerceEmptyArrayTest
      */
 
     @Test
-    void testSettings() {
+    void settings() {
         assertFalse(DEFAULT_MAPPER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
         assertFalse(DEFAULT_READER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
         assertTrue(READER_WITH_ARRAYS.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
@@ -86,7 +86,7 @@ class CoerceEmptyArrayTest
 
     // [databind#540]
     @Test
-    void testPOJOFromEmptyArray() throws Exception
+    void pojoFromEmptyArray() throws Exception
     {
         final Class<?> targetType = Bean.class;
 
@@ -123,7 +123,7 @@ class CoerceEmptyArrayTest
      */
 
     @Test
-    void testMapFromEmptyArray() throws Exception
+    void mapFromEmptyArray() throws Exception
     {
         final Class<?> targetType = Map.class;
 
@@ -140,7 +140,7 @@ class CoerceEmptyArrayTest
     }
 
     @Test
-    void testEnumMapFromEmptyArray() throws Exception
+    void enumMapFromEmptyArray() throws Exception
     {
         final JavaType targetType = DEFAULT_READER.getTypeFactory()
                 .constructType(new TypeReference<EnumMap<DatabindTestUtil.ABC,String>>() { });
@@ -159,7 +159,7 @@ class CoerceEmptyArrayTest
      */
 
     @Test
-    void testNumbersFromEmptyArray() throws Exception
+    void numbersFromEmptyArray() throws Exception
     {
         for (Class<?> targetType : new Class<?>[] {
             Boolean.class, Character.class,
@@ -193,7 +193,7 @@ class CoerceEmptyArrayTest
     }
 
     @Test
-    void testOtherScalarsFromEmptyArray() throws Exception
+    void otherScalarsFromEmptyArray() throws Exception
     {
         for (Class<?> targetType : new Class<?>[] {
             String.class, StringBuilder.class,

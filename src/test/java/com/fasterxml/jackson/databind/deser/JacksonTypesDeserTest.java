@@ -23,7 +23,7 @@ class JacksonTypesDeserTest
     private final ObjectMapper MAPPER = sharedMapper();
 
     @Test
-    void testJsonLocation() throws Exception
+    void jsonLocation() throws Exception
     {
         // note: source reference is untyped, only String guaranteed to work
         JsonLocation loc = new JsonLocation(ContentReference.rawReference("whatever"),
@@ -44,7 +44,7 @@ class JacksonTypesDeserTest
 
     // doesn't really belong here but...
     @Test
-    void testJsonLocationProps()
+    void jsonLocationProps()
     {
         JsonLocation loc = new JsonLocation(null,  -1, -1, 100, 13);
         assertTrue(loc.equals(loc));
@@ -57,7 +57,7 @@ class JacksonTypesDeserTest
     }
 
     @Test
-    void testJavaType() throws Exception
+    void javaType() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         // first simple type:
@@ -74,7 +74,7 @@ class JacksonTypesDeserTest
      * automatically, using the "standard" JSON sample document
      */
     @Test
-    void testTokenBufferWithSample() throws Exception
+    void tokenBufferWithSample() throws Exception
     {
         // First, try standard sample doc:
         TokenBuffer result = MAPPER.readValue(SAMPLE_DOC_JSON_SPEC, TokenBuffer.class);
@@ -84,7 +84,7 @@ class JacksonTypesDeserTest
 
     @SuppressWarnings("resource")
     @Test
-    void testTokenBufferWithSequence() throws Exception
+    void tokenBufferWithSequence() throws Exception
     {
         // and then sequence of other things
         JsonParser jp = MAPPER.createParser("[ 32, [ 1 ], \"abc\", { \"a\" : true } ]");
@@ -128,7 +128,7 @@ class JacksonTypesDeserTest
 
     // [databind#2398]
     @Test
-    void testDeeplyNestedArrays() throws Exception
+    void deeplyNestedArrays() throws Exception
     {
         JsonFactory jsonFactory = JsonFactory.builder()
                 .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
@@ -143,7 +143,7 @@ class JacksonTypesDeserTest
     }
 
     @Test
-    void testDeeplyNestedObjects() throws Exception
+    void deeplyNestedObjects() throws Exception
     {
         JsonFactory jsonFactory = JsonFactory.builder()
                 .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())

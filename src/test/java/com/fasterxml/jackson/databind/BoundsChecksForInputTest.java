@@ -28,7 +28,7 @@ class BoundsChecksForInputTest
      */
 
     @Test
-    void testBoundsWithByteArrayInput() throws Exception {
+    void boundsWithByteArrayInput() throws Exception {
         _testBoundsWithByteArrayInput(
                 (data,offset,len)->MAPPER.createParser(data, offset, len));
         _testBoundsWithByteArrayInput(
@@ -89,7 +89,7 @@ class BoundsChecksForInputTest
      */
 
     @Test
-    void testBoundsWithCharArrayInput() throws Exception {
+    void boundsWithCharArrayInput() throws Exception {
         testBoundsWithCharArrayInput(
                 (data,offset,len)->MAPPER.createParser(data, offset, len));
         testBoundsWithCharArrayInput(

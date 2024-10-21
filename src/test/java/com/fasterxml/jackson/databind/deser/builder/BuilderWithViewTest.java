@@ -87,7 +87,7 @@ class BuilderWithViewTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testSimpleViews() throws Exception
+    void simpleViews() throws Exception
     {
         final String json = a2q("{'x':5,'y':10}");
         ValueClassXY resultX = MAPPER.readerFor(ValueClassXY.class)
@@ -104,7 +104,7 @@ class BuilderWithViewTest
     }
 
     @Test
-    void testCreatorViews() throws Exception
+    void creatorViews() throws Exception
     {
         final String json = a2q("{'x':5,'y':10,'bogus':false}");
         CreatorValueXY resultX = MAPPER.readerFor(CreatorValueXY.class)

@@ -22,7 +22,7 @@ class SimpleModuleArgCheckTest extends DatabindTestUtil
      */
 
     @Test
-    void testInvalidForDeserializers() throws Exception
+    void invalidForDeserializers() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
                 (Map<Class<?>,JsonDeserializer<?>>) null);
@@ -49,7 +49,7 @@ class SimpleModuleArgCheckTest extends DatabindTestUtil
      */
 
     @Test
-    void testInvalidForSerializers() throws Exception
+    void invalidForSerializers() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
                 (List<JsonSerializer<?>>) null);
@@ -83,7 +83,7 @@ class SimpleModuleArgCheckTest extends DatabindTestUtil
      */
 
     @Test
-    void testInvalidAbstractTypeMapping() throws Exception
+    void invalidAbstractTypeMapping() throws Exception
     {
         // just for funsies let's use more esoteric constructor
         Map<Class<?>,JsonDeserializer<?>>  desers = Collections.emptyMap();
@@ -106,7 +106,7 @@ class SimpleModuleArgCheckTest extends DatabindTestUtil
     }
 
     @Test
-    void testInvalidSubtypeMappings() throws Exception
+    void invalidSubtypeMappings() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
                 null, null);
@@ -126,7 +126,7 @@ class SimpleModuleArgCheckTest extends DatabindTestUtil
     }
 
     @Test
-    void testInvalidValueInstantiator() throws Exception
+    void invalidValueInstantiator() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
 
@@ -145,7 +145,7 @@ class SimpleModuleArgCheckTest extends DatabindTestUtil
     }
 
     @Test
-    void testInvalidMixIn() throws Exception
+    void invalidMixIn() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
 

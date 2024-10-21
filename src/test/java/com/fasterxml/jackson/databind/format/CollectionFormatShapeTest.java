@@ -51,7 +51,7 @@ class CollectionFormatShapeTest extends DatabindTestUtil
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testListAsObjectRoundtrip() throws Exception
+    void listAsObjectRoundtrip() throws Exception
     {
         // First, serialize a "POJO-List"
         CollectionAsPOJO list = new CollectionAsPOJO();

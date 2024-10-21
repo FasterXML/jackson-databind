@@ -77,7 +77,7 @@ class JsonFilterTest extends DatabindTestUtil
     }
 
     @Test
-    void testCheckSiblingContextFilter() {
+    void checkSiblingContextFilter() {
         FilterProvider prov = new SimpleFilterProvider().addFilter("checkSiblingContextFilter",
                 new CheckSiblingContextFilter());
 
@@ -137,7 +137,7 @@ class JsonFilterTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleInclusionFilter() throws Exception
+    void simpleInclusionFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
                 SimpleBeanPropertyFilter.filterOutAllExcept("a"));
@@ -150,7 +150,7 @@ class JsonFilterTest extends DatabindTestUtil
     }
 
     @Test
-    void testIncludeAllFilter() throws Exception
+    void includeAllFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
                 SimpleBeanPropertyFilter.serializeAll());
@@ -158,7 +158,7 @@ class JsonFilterTest extends DatabindTestUtil
     }
 
     @Test
-    void testExcludeAllFilter() throws Exception
+    void excludeAllFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
             SimpleBeanPropertyFilter.filterOutAll());
@@ -166,7 +166,7 @@ class JsonFilterTest extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleExclusionFilter() throws Exception
+    void simpleExclusionFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
                 SimpleBeanPropertyFilter.serializeAllExcept("a"));
@@ -175,7 +175,7 @@ class JsonFilterTest extends DatabindTestUtil
 
     // should handle missing case gracefully
     @Test
-    void testMissingFilter() throws Exception
+    void missingFilter() throws Exception
     {
         // First: default behavior should be to throw an exception
         try {
@@ -195,7 +195,7 @@ class JsonFilterTest extends DatabindTestUtil
 
     // defaulting, as per [JACKSON-449]
     @Test
-    void testDefaultFilter() throws Exception
+    void defaultFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().setDefaultFilter(SimpleBeanPropertyFilter.filterOutAllExcept("b"));
         assertEquals("{\"b\":\"b\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
@@ -203,7 +203,7 @@ class JsonFilterTest extends DatabindTestUtil
 
     // [databind#89] combining @JsonIgnore, @JsonProperty
     @Test
-    void testIssue89() throws Exception
+    void issue89() throws Exception
     {
         Pod pod = new Pod();
         pod.username = "Bob";
@@ -220,7 +220,7 @@ class JsonFilterTest extends DatabindTestUtil
 
     // Wrt [databind#306]
     @Test
-    void testFilterOnProperty() throws Exception
+    void filterOnProperty() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider()
             .addFilter("RootFilter", SimpleBeanPropertyFilter.filterOutAllExcept("a"))
@@ -231,7 +231,7 @@ class JsonFilterTest extends DatabindTestUtil
     }
 
     @Test
-    void testAllFiltersWithSameOutput() throws Exception
+    void allFiltersWithSameOutput() throws Exception
     {
         // Setup
         SimpleBeanPropertyFilter[] allPossibleFilters = new SimpleBeanPropertyFilter[]{

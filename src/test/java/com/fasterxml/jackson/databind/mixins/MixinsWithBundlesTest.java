@@ -41,7 +41,7 @@ class MixinsWithBundlesTest extends DatabindTestUtil
     }
 
     @Test
-    void testMixinWithBundles() throws Exception
+    void mixinWithBundles() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper().addMixIn(Foo.class, FooMixin.class);
         String result = mapper.writeValueAsString(new Foo("result"));

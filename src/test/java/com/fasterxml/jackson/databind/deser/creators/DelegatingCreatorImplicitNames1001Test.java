@@ -72,7 +72,7 @@ class DelegatingCreatorImplicitNames1001Test
 
     // Baseline test to show how things should work
     @Test
-    void testWithoutNamedParameters() throws Exception
+    void withoutNamedParameters() throws Exception
     {
         ObjectMapper sut = new ObjectMapper();
 
@@ -87,7 +87,7 @@ class DelegatingCreatorImplicitNames1001Test
 
     // And then case that fails with [databind#1001]
     @Test
-    void testWithNamedParameters() throws Exception
+    void withNamedParameters() throws Exception
     {
         ObjectMapper sut = new ObjectMapper()
             .setAnnotationIntrospector(new CreatorNameIntrospector());

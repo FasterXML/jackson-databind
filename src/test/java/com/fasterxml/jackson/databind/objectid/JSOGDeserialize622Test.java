@@ -201,7 +201,7 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
 
     // Basic for [databind#622]
     @Test
-    void testStructJSOGRef() throws Exception
+    void structJSOGRef() throws Exception
     {
         IdentifiableExampleJSOG result = MAPPER.readValue(EXP_EXAMPLE_JSOG,
                 IdentifiableExampleJSOG.class);
@@ -211,7 +211,7 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
 
     // polymorphic alternative for [databind#622]
     @Test
-    void testPolymorphicRoundTrip() throws Exception
+    void polymorphicRoundTrip() throws Exception
     {
         JSOGWrapper w = new JSOGWrapper(15);
         // create a nice little loop
@@ -232,7 +232,7 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
 
     // polymorphic alternative for [databind#669]
     @Test
-    void testAlterativePolymorphicRoundTrip669() throws Exception
+    void alterativePolymorphicRoundTrip669() throws Exception
     {
         Outer outer = new Outer();
         outer.foo = "foo";

@@ -110,7 +110,7 @@ class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleBuilder() throws Exception
+    void simpleBuilder() throws Exception
     {
         // Ok, first, ensure that serializer will "black out" filtered properties
         ValueClassXY value = MAPPER.readValue("[1,2]", ValueClassXY.class);
@@ -120,7 +120,7 @@ class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
 
     // Won't work, but verify exception
     @Test
-    void testBuilderWithUpdate() throws Exception
+    void builderWithUpdate() throws Exception
     {
         // Ok, first, simple case of all values being present
         try {
@@ -143,7 +143,7 @@ class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
 
     // test to ensure @JsonCreator also works
     @Test
-    void testWithCreator() throws Exception
+    void withCreator() throws Exception
     {
         CreatorValue value = MAPPER.readValue("[1,2,3]", CreatorValue.class);
         assertEquals(1, value.a);
@@ -168,7 +168,7 @@ class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
     }
 
     @Test
-    void testWithCreatorAndView() throws Exception
+    void withCreatorAndView() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(CreatorValue.class);
         CreatorValue value;
@@ -193,7 +193,7 @@ class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
      */
 
     @Test
-    void testUnknownExtraProp() throws Exception
+    void unknownExtraProp() throws Exception
     {
         String json = "[1, 2, 3, 4]";
         try {

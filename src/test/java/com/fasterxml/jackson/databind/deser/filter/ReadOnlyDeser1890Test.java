@@ -82,7 +82,7 @@ class ReadOnlyDeser1890Test
 
     // [databind#95]
     @Test
-    void testReadOnlyProps95() throws Exception
+    void readOnlyProps95() throws Exception
    {
        ObjectMapper m = new ObjectMapper();
        String json = m.writeValueAsString(new ReadOnly95Bean());
@@ -95,7 +95,7 @@ class ReadOnlyDeser1890Test
 
     // [databind#1890]
     @Test
-    void testDeserializeAnnotationsOneField() throws Exception {
+    void deserializeAnnotationsOneField() throws Exception {
        PersonAnnotations person = MAPPER.readerFor(PersonAnnotations.class)
                .readValue("{\"testEnum\":\"abc\"}");
        // can not remain as is, so becomes `null`
@@ -104,7 +104,7 @@ class ReadOnlyDeser1890Test
    }
 
     @Test
-    void testDeserializeAnnotationsTwoFields() throws Exception {
+    void deserializeAnnotationsTwoFields() throws Exception {
        PersonAnnotations person = MAPPER.readerFor(PersonAnnotations.class)
                .readValue("{\"testEnum\":\"xyz\",\"name\":\"changyong\"}");
        // can not remain as is, so becomes `null`
@@ -113,14 +113,14 @@ class ReadOnlyDeser1890Test
    }
 
     @Test
-    void testDeserializeOneField() throws Exception {
+    void deserializeOneField() throws Exception {
        Person person = MAPPER.readValue("{\"testEnum\":\"\"}", Person.class);
        assertEquals(TestEnum.DEFAULT, person.getTestEnum());
        assertNull(person.name);
    }
 
     @Test
-    void testDeserializeTwoFields() throws Exception {
+    void deserializeTwoFields() throws Exception {
        Person person = MAPPER.readValue("{\"testEnum\":\"\",\"name\":\"changyong\"}",
                Person.class);
        assertEquals(TestEnum.DEFAULT, person.getTestEnum());

@@ -46,7 +46,7 @@ class TypeBindingsTest extends DatabindTestUtil
     private final TypeFactory DEFAULT_TF = defaultTypeFactory();
 
     @Test
-    void testInnerType() throws Exception
+    void innerType() throws Exception
     {
         JavaType type = DEFAULT_TF.constructType(InnerGenericTyping.InnerClass.class);
         assertEquals(MapType.class, type.getClass());
@@ -60,14 +60,14 @@ class TypeBindingsTest extends DatabindTestUtil
 
     // for [databind#76]
     @Test
-    void testRecursiveType()
+    void recursiveType()
     {
         JavaType type = DEFAULT_TF.constructType(HashTree.class);
         assertNotNull(type);
     }
 
     @Test
-    void testBindingsBasics()
+    void bindingsBasics()
     {
         TypeBindings b = TypeBindings.create(Collection.class,
                 TypeFactory.unknownType());
@@ -83,7 +83,7 @@ class TypeBindingsTest extends DatabindTestUtil
     }
 
     @Test
-    void testInvalidBindings()
+    void invalidBindings()
     {
         JavaType unknown = TypeFactory.unknownType();
         try {
@@ -97,7 +97,7 @@ class TypeBindingsTest extends DatabindTestUtil
 
     // for [databind#3876]
     @Test
-    void testEqualityAndHashCode()
+    void equalityAndHashCode()
     {
         JavaType stringType = DEFAULT_TF.constructType(String.class);
         JavaType integerType = DEFAULT_TF.constructType(Integer.class);

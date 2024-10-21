@@ -94,39 +94,39 @@ class TestJsonSerializeAs extends DatabindTestUtil
     private final ObjectWriter WRITER = objectWriter();
 
     @Test
-    void testSerializeAsInClass() throws IOException {
+    void serializeAsInClass() throws IOException {
         assertEquals("{\"foo\":42}", WRITER.writeValueAsString(new FooImpl()));
     }
 
     @Test
-    void testSerializeAsForArrayProp() throws IOException {
+    void serializeAsForArrayProp() throws IOException {
         assertEquals("{\"foos\":[{\"foo\":42}]}",
                 WRITER.writeValueAsString(new Fooables()));
     }
 
     @Test
-    void testSerializeAsForSimpleProp() throws IOException {
+    void serializeAsForSimpleProp() throws IOException {
         assertEquals("{\"foo\":{\"foo\":42}}",
                 WRITER.writeValueAsString(new FooableWrapper()));
     }
 
     // for [databind#1023]
     @Test
-    void testSerializeWithFieldAnno() throws IOException {
+    void serializeWithFieldAnno() throws IOException {
         assertEquals("{\"foo\":{\"foo\":42}}",
                 WRITER.writeValueAsString(new FooableWithFieldWrapper()));
     }
 
     // for [databind#1178]
     @Test
-    void testSpecializedContentAs() throws IOException {
+    void specializedContentAs() throws IOException {
         assertEquals(a2q("{'values':[{'a':1,'b':2}]}"),
                 WRITER.writeValueAsString(new Bean1178Wrapper(1)));
     }
 
     // for [databind#1231] (and continuation of [databind#1178])
     @Test
-    void testSpecializedAsIntermediate() throws IOException {
+    void specializedAsIntermediate() throws IOException {
         assertEquals(a2q("{'value':{'a':1,'b':2}}"),
                 WRITER.writeValueAsString(new Bean1178Holder()));
     }

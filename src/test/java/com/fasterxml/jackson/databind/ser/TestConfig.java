@@ -61,7 +61,7 @@ class TestConfig
      * gives low-water mark
      */
     @Test
-    void testEnumIndexes()
+    void enumIndexes()
     {
         int max = 0;
 
@@ -74,7 +74,7 @@ class TestConfig
     }
 
     @Test
-    void testDefaults()
+    void defaults()
     {
         SerializationConfig cfg = MAPPER.getSerializationConfig();
 
@@ -99,7 +99,7 @@ class TestConfig
     }
 
     @Test
-    void testOverrideIntrospectors()
+    void overrideIntrospectors()
     {
         SerializationConfig cfg = MAPPER.getSerializationConfig();
         // and finally, ensure we could override introspectors
@@ -109,7 +109,7 @@ class TestConfig
     }
 
     @Test
-    void testMisc()
+    void misc()
     {
         ObjectMapper m = new ObjectMapper();
         m.setDateFormat(null); // just to execute the code path
@@ -117,7 +117,7 @@ class TestConfig
     }
 
     @Test
-    void testIndentation() throws Exception
+    void indentation() throws Exception
     {
         Map<String,Integer> map = new HashMap<String,Integer>();
         map.put("a", Integer.valueOf(2));
@@ -129,7 +129,7 @@ class TestConfig
     }
 
     @Test
-    void testAnnotationsDisabled() throws Exception
+    void annotationsDisabled() throws Exception
     {
         // first: verify that annotation introspection is enabled by default
         assertTrue(MAPPER.isEnabled(MapperFeature.USE_ANNOTATIONS));
@@ -147,7 +147,7 @@ class TestConfig
      * Test for verifying working of [JACKSON-191]
      */
     @Test
-    void testProviderConfig() throws Exception
+    void providerConfig() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         DefaultSerializerProvider prov = (DefaultSerializerProvider) mapper.getSerializerProvider();
@@ -174,7 +174,7 @@ class TestConfig
 
     // Test for [Issue#12]
     @Test
-    void testIndentWithPassedGenerator() throws Exception
+    void indentWithPassedGenerator() throws Exception
     {
         Indentable input = new Indentable();
         assertEquals("{\"a\":3}", MAPPER.writeValueAsString(input));
@@ -201,7 +201,7 @@ class TestConfig
     }
 
     @Test
-    void testNoAccessOverrides() throws Exception
+    void noAccessOverrides() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
             .disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)
@@ -210,7 +210,7 @@ class TestConfig
     }
 
     @Test
-    void testDateFormatConfig() throws Exception
+    void dateFormatConfig() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         TimeZone tz1 = TimeZone.getTimeZone("America/Los_Angeles");

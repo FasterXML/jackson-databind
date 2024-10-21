@@ -21,28 +21,28 @@ class CustomExceptionDeser4071Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testCustomException() throws Exception
+    void customException() throws Exception
     {
         String exStr = MAPPER.writeValueAsString(new CustomThrowable4071());
         assertNotNull(MAPPER.readValue(exStr, CustomThrowable4071.class));
     }
 
     @Test
-    void testCustomRuntimeException() throws Exception
+    void customRuntimeException() throws Exception
     {
         String exStr = MAPPER.writeValueAsString(new CustomRuntimeException4071());
         assertNotNull(MAPPER.readValue(exStr, CustomRuntimeException4071.class));
     }
 
     @Test
-    void testCustomCheckedException() throws Exception
+    void customCheckedException() throws Exception
     {
         String exStr = MAPPER.writeValueAsString(new CustomCheckedException4071());
         assertNotNull(MAPPER.readValue(exStr, CustomCheckedException4071.class));
     }
 
     @Test
-    void testDeserAsThrowable() throws Exception
+    void deserAsThrowable() throws Exception
     {
         _testDeserAsThrowable(MAPPER.writeValueAsString(new CustomRuntimeException4071()));
         _testDeserAsThrowable(MAPPER.writeValueAsString(new CustomCheckedException4071()));

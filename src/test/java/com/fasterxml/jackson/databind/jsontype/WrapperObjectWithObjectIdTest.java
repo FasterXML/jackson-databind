@@ -73,7 +73,7 @@ class WrapperObjectWithObjectIdTest extends DatabindTestUtil
     }
 
     @Test
-    void testSimple() throws Exception
+    void simple() throws Exception
     {
         Company comp = new Company();
         comp.addComputer(new DesktopComputer("computer-1", "Bangkok"));

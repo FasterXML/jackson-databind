@@ -69,7 +69,7 @@ class BuilderWithUnwrappedSingleArray2608Test
 
     // [databind#2608]
     @Test
-    void testDeserializationAndFail() throws Exception {
+    void deserializationAndFail() throws Exception {
         final ObjectMapper mapper = JsonMapper.builder()
                 .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();

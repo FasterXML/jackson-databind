@@ -93,7 +93,7 @@ class CreatorPropertiesTest
 
     // [databind#905]
     @Test
-    void testCreatorPropertiesAnnotation() throws Exception
+    void creatorPropertiesAnnotation() throws Exception
     {
         Issue905Bean b = MAPPER.readValue(a2q("{'y':3,'x':2}"),
                 Issue905Bean.class);
@@ -103,7 +103,7 @@ class CreatorPropertiesTest
 
     // [databind#1122]
     @Test
-    void testPossibleNamingConflict() throws Exception
+    void possibleNamingConflict() throws Exception
     {
         String json = "{\"bar\":3}";
         Ambiguity amb = MAPPER.readValue(json, Ambiguity.class);
@@ -113,7 +113,7 @@ class CreatorPropertiesTest
 
     // [databind#1371]: MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES
     @Test
-    void testConstructorPropertiesInference() throws Exception
+    void constructorPropertiesInference() throws Exception
     {
         final String JSON = a2q("{'x':3,'y':5}");
 
@@ -135,7 +135,7 @@ class CreatorPropertiesTest
 
     // [databind#3252]: ensure full skipping of ignored properties
     @Test
-    void testSkipNonScalar3252() throws Exception
+    void skipNonScalar3252() throws Exception
     {
         List<Value3252> testData = MAPPER.readValue(a2q(
 "[\n"+

@@ -245,7 +245,7 @@ class ProblemHandlerTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testWeirdKeyHandling() throws Exception
+    void weirdKeyHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new WeirdKeyHandler(7))
@@ -259,7 +259,7 @@ class ProblemHandlerTest
     }
 
     @Test
-    void testWeirdNumberHandling() throws Exception
+    void weirdNumberHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new WeirdNumberHandler(SingleValuedEnum.A))
@@ -269,7 +269,7 @@ class ProblemHandlerTest
     }
 
     @Test
-    void testWeirdStringHandling() throws Exception
+    void weirdStringHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new WeirdStringHandler(SingleValuedEnum.A))
@@ -286,7 +286,7 @@ class ProblemHandlerTest
 
     // [databind#3784]: Base64 decoding
     @Test
-    void testWeirdStringForBase64() throws Exception
+    void weirdStringForBase64() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addHandler(new WeirdStringHandler(new byte[0]))
@@ -302,7 +302,7 @@ class ProblemHandlerTest
     }
 
     @Test
-    void testInvalidTypeId() throws Exception
+    void invalidTypeId() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new UnknownTypeIdHandler(BaseImpl.class))
@@ -314,7 +314,7 @@ class ProblemHandlerTest
     }
 
     @Test
-    void testInvalidClassAsId() throws Exception
+    void invalidClassAsId() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new UnknownTypeIdHandler(Base2Impl.class))
@@ -328,7 +328,7 @@ class ProblemHandlerTest
     // 2.9: missing type id, distinct from unknown
 
     @Test
-    void testMissingTypeId() throws Exception
+    void missingTypeId() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new MissingTypeIdHandler(BaseImpl.class))
@@ -340,7 +340,7 @@ class ProblemHandlerTest
     }
 
     @Test
-    void testMissingClassAsId() throws Exception
+    void missingClassAsId() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new MissingTypeIdHandler(Base2Impl.class))
@@ -353,7 +353,7 @@ class ProblemHandlerTest
 
     // verify that by default we get special exception type
     @Test
-    void testInvalidTypeIdFail() throws Exception
+    void invalidTypeIdFail() throws Exception
     {
         try {
             MAPPER.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
@@ -367,7 +367,7 @@ class ProblemHandlerTest
     }
 
     @Test
-    void testInstantiationExceptionHandling() throws Exception
+    void instantiationExceptionHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new InstantiationProblemHandler(BustedCtor.INST))
@@ -378,7 +378,7 @@ class ProblemHandlerTest
     }
 
     @Test
-    void testMissingInstantiatorHandling() throws Exception
+    void missingInstantiatorHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new MissingInstantiationHandler(new NoDefaultCtor(13)))
@@ -389,7 +389,7 @@ class ProblemHandlerTest
     }
 
     @Test
-    void testUnexpectedTokenHandling() throws Exception
+    void unexpectedTokenHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new WeirdTokenHandler(Integer.valueOf(13)))

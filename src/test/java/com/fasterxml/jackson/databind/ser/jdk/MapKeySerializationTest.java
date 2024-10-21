@@ -134,20 +134,20 @@ class MapKeySerializationTest extends DatabindTestUtil
     final private ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testNotKarl() throws IOException {
+    void notKarl() throws IOException {
         final String serialized = MAPPER.writeValueAsString(new NotKarlBean());
         assertEquals("{\"map\":{\"Not Karl\":1}}", serialized);
     }
 
     @Test
-    void testKarl() throws IOException {
+    void karl() throws IOException {
         final String serialized = MAPPER.writeValueAsString(new KarlBean());
         assertEquals("{\"map\":{\"Karl\":1}}", serialized);
     }
 
     // [databind#75]: caching of KeySerializers
     @Test
-    void testBoth() throws IOException
+    void both() throws IOException
     {
         // Let's NOT use shared one, to ensure caching starts from clean slate
         final ObjectMapper mapper = newJsonMapper();
@@ -159,7 +159,7 @@ class MapKeySerializationTest extends DatabindTestUtil
 
     // Test custom key serializer for enum
     @Test
-    void testCustomForEnum() throws IOException
+    void customForEnum() throws IOException
     {
         // cannot use shared mapper as we are registering a module
         final ObjectMapper mapper = newJsonMapper();
@@ -172,7 +172,7 @@ class MapKeySerializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testCustomNullSerializers() throws IOException
+    void customNullSerializers() throws IOException
     {
         final ObjectMapper mapper = newJsonMapper();
         mapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer("NULL-KEY"));
@@ -186,7 +186,7 @@ class MapKeySerializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testCustomEnumInnerMapKey() throws Exception {
+    void customEnumInnerMapKey() throws Exception {
         Map<Outer, Object> outerMap = new HashMap<Outer, Object>();
         Map<ABC, Map<String, String>> map = new EnumMap<ABC, Map<String, String>>(ABC.class);
         Map<String, String> innerMap = new HashMap<String, String>();
@@ -207,7 +207,7 @@ class MapKeySerializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testDefaultKeySerializer() throws IOException
+    void defaultKeySerializer() throws IOException
     {
         ObjectMapper m = newJsonMapper();
         m.getSerializerProvider().setDefaultKeySerializer(new DefaultKeySerializer());
@@ -218,7 +218,7 @@ class MapKeySerializationTest extends DatabindTestUtil
 
     // [databind#682]
     @Test
-    void testClassKey() throws IOException
+    void classKey() throws IOException
     {
         Map<Class<?>,Integer> map = new LinkedHashMap<Class<?>,Integer>();
         map.put(String.class, 2);
@@ -229,7 +229,7 @@ class MapKeySerializationTest extends DatabindTestUtil
     // [databind#838]
     @SuppressWarnings("deprecation")
     @Test
-    void testUnWrappedMapWithKeySerializer() throws Exception{
+    void unWrappedMapWithKeySerializer() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
         final ObjectMapper mapper = new ObjectMapper()
@@ -249,7 +249,7 @@ class MapKeySerializationTest extends DatabindTestUtil
 
     // [databind#838]
     @Test
-    void testUnWrappedMapWithDefaultType() throws Exception{
+    void unWrappedMapWithDefaultType() throws Exception{
         final ObjectMapper mapper = newJsonMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
@@ -272,7 +272,7 @@ class MapKeySerializationTest extends DatabindTestUtil
 
     // [databind#1552]
     @Test
-    void testMapsWithBinaryKeys() throws Exception
+    void mapsWithBinaryKeys() throws Exception
     {
         byte[] binary = new byte[] { 1, 2, 3, 4, 5 };
 
@@ -292,7 +292,7 @@ class MapKeySerializationTest extends DatabindTestUtil
 
     // [databind#1679]
     @Test
-    void testMapKeyRecursion1679() throws Exception
+    void mapKeyRecursion1679() throws Exception
     {
         Map<Object, Object> objectMap = new HashMap<Object, Object>();
         objectMap.put(new Object(), "foo");

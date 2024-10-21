@@ -121,7 +121,7 @@ class IncludePropsForSerTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testExplicitIncludeWithBean() throws Exception
+    void explicitIncludeWithBean() throws Exception
     {
         IncludeSome value = new IncludeSome();
         Map<String, Object> result = writeAndMap(MAPPER, value);
@@ -135,7 +135,7 @@ class IncludePropsForSerTest extends DatabindTestUtil
     }
 
     @Test
-    void testExplicitIncludeWithMap() throws Exception
+    void explicitIncludeWithMap() throws Exception
     {
         // test simulating need to filter out metadata like class name
         MyMap value = new MyMap();
@@ -149,7 +149,7 @@ class IncludePropsForSerTest extends DatabindTestUtil
     }
 
     @Test
-    void testIncludeViaOnlyProps() throws Exception
+    void includeViaOnlyProps() throws Exception
     {
         assertEquals("{\"value\":{\"y\":2}}",
                 MAPPER.writeValueAsString(new WrapperWithPropInclude()));
@@ -157,20 +157,20 @@ class IncludePropsForSerTest extends DatabindTestUtil
 
     // Also: should be fine even if nominal type is `java.lang.Object`
     @Test
-    void testIncludeViaPropForUntyped() throws Exception
+    void includeViaPropForUntyped() throws Exception
     {
         assertEquals("{\"value\":{\"x\":1}}",
                 MAPPER.writeValueAsString(new WrapperWithPropIncludeUntyped()));
     }
 
     @Test
-    void testIncludeWithMapProperty() throws Exception
+    void includeWithMapProperty() throws Exception
     {
         assertEquals("{\"value\":{\"a\":1}}", MAPPER.writeValueAsString(new MapWrapper()));
     }
 
     @Test
-    void testIncludeViaPropsAndClass() throws Exception
+    void includeViaPropsAndClass() throws Exception
     {
         assertEquals("{\"value\":{\"x\":1}}",
                 MAPPER.writeValueAsString(new WrapperWithPropInclude2()));
@@ -179,7 +179,7 @@ class IncludePropsForSerTest extends DatabindTestUtil
     // for [databind#1060]
     // Ensure that `@JsonIncludeProperties` applies to POJOs within lists, too
     @Test
-    void testIncludeForListValues() throws Exception
+    void includeForListValues() throws Exception
     {
         // should apply to elements
         assertEquals(a2q("{'coordinates':[{'x':1}]}"),
@@ -191,7 +191,7 @@ class IncludePropsForSerTest extends DatabindTestUtil
     }
 
     @Test
-    void testIgnoreWithInclude() throws Exception
+    void ignoreWithInclude() throws Exception
     {
         assertEquals("{\"value\":{\"x\":1}}", MAPPER.writeValueAsString(new WrapperWithPropIgnore()));
     }

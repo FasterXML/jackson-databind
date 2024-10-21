@@ -32,7 +32,7 @@ class EmptyArrayBlockingQueueDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testEmptyBlockingQueue() throws Exception
+    void emptyBlockingQueue() throws Exception
     {
         String json = MAPPER.writeValueAsString(new RemoteEntity());
         Entity entity = MAPPER.readValue(json, Entity.class);

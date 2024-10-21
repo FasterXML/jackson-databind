@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MissingNodeTest extends NodeTestBase
 {
     @Test
-    void testMissing()
+    void missing()
     {
         MissingNode n = MissingNode.getInstance();
         assertTrue(n.isMissingNode());
@@ -40,7 +40,7 @@ class MissingNodeTest extends NodeTestBase
      */
     @SuppressWarnings("unused")
     @Test
-    void testMissingViaMapper() throws Exception
+    void missingViaMapper() throws Exception
     {
         String JSON = "[ { }, [ ] ]";
         JsonNode result = objectMapper().readTree(new StringReader(JSON));

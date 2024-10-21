@@ -98,7 +98,7 @@ class IgnorePropertyOnDeserTest
 
     // [databind#426]
     @Test
-    void testIssue426() throws Exception
+    void issue426() throws Exception
     {
         final String JSON = a2q("{'userId': 9, 'firstName': 'Mike' }");
         User result = MAPPER.readerFor(User.class).readValue(JSON);
@@ -109,7 +109,7 @@ class IgnorePropertyOnDeserTest
 
     // [databind#1217]
     @Test
-    void testIgnoreOnProperty1217() throws Exception
+    void ignoreOnProperty1217() throws Exception
     {
         TestIgnoreObject result = MAPPER.readValue(
                 a2q("{'obj':{'x': 10, 'y': 20}, 'obj2':{'x': 10, 'y': 20}}"),
@@ -132,7 +132,7 @@ class IgnorePropertyOnDeserTest
 
     // [databind#1217]
     @Test
-    void testIgnoreViaConfigOverride1217() throws Exception
+    void ignoreViaConfigOverride1217() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
             .withConfigOverride(Point.class,
@@ -146,7 +146,7 @@ class IgnorePropertyOnDeserTest
 
     // [databind#3721]
     @Test
-    void testIgnoreUnknownViaConfigOverride() throws Exception
+    void ignoreUnknownViaConfigOverride() throws Exception
     {
         final String DOC = a2q("{'x':2,'foobar':3}");
 
@@ -171,7 +171,7 @@ class IgnorePropertyOnDeserTest
 
     // [databind#1595]
     @Test
-    void testIgnoreGetterNotSetter1595() throws Exception
+    void ignoreGetterNotSetter1595() throws Exception
     {
         Simple1595 config = new Simple1595();
         config.setId(123);
@@ -184,7 +184,7 @@ class IgnorePropertyOnDeserTest
 
     // [databind#2627]
     @Test
-    void testIgnoreUnknownOnField() throws IOException
+    void ignoreUnknownOnField() throws IOException
     {
         String json = "{\"value\": {\"name\": \"my_name\", \"extra\": \"val\"}, \"type\":\"Json\"}";
         MyPojoValue value = MAPPER.readValue(json, MyPojoValue.class);

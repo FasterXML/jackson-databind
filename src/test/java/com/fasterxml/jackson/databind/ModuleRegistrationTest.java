@@ -14,7 +14,7 @@ class ModuleRegistrationTest
 {
 
     @Test
-    void testCopyHasSameRegisteredModulesInDifferentSetInstances() {
+    void copyHasSameRegisteredModulesInDifferentSetInstances() {
         ObjectMapper originalMapper = newJsonMapper();
         originalMapper.registerModule(_testModuleWithId("first"));
         originalMapper.registerModule(_testModuleWithId("second"));
@@ -38,7 +38,7 @@ class ModuleRegistrationTest
     }
 
     @Test
-    void testRegisterNullModuleFails() {
+    void registerNullModuleFails() {
         ObjectMapper objectMapper = newJsonMapper();
         try {
             objectMapper.registerModule(null);
@@ -49,7 +49,7 @@ class ModuleRegistrationTest
     }
 
     @Test
-    void testRegisterModuleWithNullNameFails() {
+    void registerModuleWithNullNameFails() {
         ObjectMapper objectMapper = newJsonMapper();
         try {
             objectMapper.registerModule(new Module() {
@@ -73,7 +73,7 @@ class ModuleRegistrationTest
     }
 
     @Test
-    void testRegisterModuleWithNullVersionFails() {
+    void registerModuleWithNullVersionFails() {
         ObjectMapper objectMapper = newJsonMapper();
         try {
             objectMapper.registerModule(new Module() {

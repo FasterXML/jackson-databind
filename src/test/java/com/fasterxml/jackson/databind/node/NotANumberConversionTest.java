@@ -16,7 +16,7 @@ class NotANumberConversionTest extends DatabindTestUtil
             .build();
 
     @Test
-    void testBigDecimalWithNaN() throws Exception
+    void bigDecimalWithNaN() throws Exception
     {
         JsonNode tree = MAPPER.valueToTree(new DoubleWrapper(Double.NaN));
         assertNotNull(tree);
@@ -36,7 +36,7 @@ class NotANumberConversionTest extends DatabindTestUtil
 
     // for [databind#1315]: no accidental coercion to DoubleNode
     @Test
-    void testBigDecimalWithoutNaN() throws Exception
+    void bigDecimalWithoutNaN() throws Exception
     {
         BigDecimal input = new BigDecimal(Double.MIN_VALUE).divide(new BigDecimal(10L));
         JsonNode tree = MAPPER.readTree(input.toString());

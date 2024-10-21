@@ -63,7 +63,7 @@ class MapMergeTest
 
 
     @Test
-    void testShallowMapMerging() throws Exception
+    void shallowMapMerging() throws Exception
     {
         final String JSON = a2q("{'values':{'c':'y','d':null}}");
         MergedMap v = MAPPER.readValue(JSON, MergedMap.class);
@@ -80,7 +80,7 @@ class MapMergeTest
     }
 
     @Test
-    void testShallowNonStringMerging() throws Exception
+    void shallowNonStringMerging() throws Exception
     {
         final String JSON = a2q("{'values':{'72':'b','666':null}}");
         MergedIntMap v = MAPPER.readValue(JSON , MergedIntMap.class);
@@ -97,7 +97,7 @@ class MapMergeTest
 
     @SuppressWarnings("unchecked")
     @Test
-    void testDeeperMapMerging() throws Exception
+    void deeperMapMerging() throws Exception
     {
         // first, create base Map
         MergedMap base = new MergedMap("name", "foobar");
@@ -129,7 +129,7 @@ class MapMergeTest
 
     @SuppressWarnings("unchecked")
     @Test
-    void testMapMergingWithArray() throws Exception
+    void mapMergingWithArray() throws Exception
     {
         // first, create base Map
         MergedMap base = new MergedMap("name", "foobar");
@@ -163,7 +163,7 @@ class MapMergeTest
      */
 
     @Test
-    void testDefaultDeepMapMerge() throws Exception
+    void defaultDeepMapMerge() throws Exception
     {
         // First: deep merge should be enabled by default
         HashMap<String,Object> input = new HashMap<>();
@@ -177,7 +177,7 @@ class MapMergeTest
     }
 
     @Test
-    void testDisabledMergeViaGlobal() throws Exception
+    void disabledMergeViaGlobal() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         // disable merging, globally; does not affect main level
@@ -195,7 +195,7 @@ class MapMergeTest
     }
 
     @Test
-    void testDisabledMergeByType() throws Exception
+    void disabledMergeByType() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         // disable merging for "untyped", that is, `Object.class`

@@ -91,7 +91,7 @@ class ContextualKeyTypesTest extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleKeySer() throws Exception
+    void simpleKeySer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -111,7 +111,7 @@ class ContextualKeyTypesTest extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleKeyDeser() throws Exception
+    void simpleKeyDeser() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class NameTransformerTest extends DatabindTestUtil
 {
     @Test
-    void testSimpleTransformer() throws Exception
+    void simpleTransformer() throws Exception
     {
         NameTransformer xfer;
 

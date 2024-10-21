@@ -49,7 +49,7 @@ class TestUnwrappedWithTypeInfo extends DatabindTestUtil
 
     // [databind#81]
     @Test
-    void testDefaultUnwrappedWithTypeInfo() throws Exception
+    void defaultUnwrappedWithTypeInfo() throws Exception
 	{
 	    Outer outer = new Outer();
 	    outer.setP1("101");
@@ -69,7 +69,7 @@ class TestUnwrappedWithTypeInfo extends DatabindTestUtil
 	}
 
     @Test
-    void testUnwrappedWithTypeInfoAndFeatureDisabled() throws Exception
+    void unwrappedWithTypeInfoAndFeatureDisabled() throws Exception
 	{
 		Outer outer = new Outer();
 		outer.setP1("101");

@@ -20,7 +20,7 @@ class JacksonTypesSerTest
         extends DatabindTestUtil
 {
     @Test
-    void testLocation() throws IOException
+    void location() throws IOException
     {
         File f = new File("/tmp/test.json");
         JsonLocation loc = new JsonLocation(ContentReference.rawReference(f),
@@ -40,7 +40,7 @@ class JacksonTypesSerTest
      * automatically, using the "standard" JSON sample document
      */
     @Test
-    void testTokenBuffer() throws Exception
+    void tokenBuffer() throws Exception
     {
         // First, copy events from known good source (StringReader)
         JsonParser p = createParserUsingReader(SAMPLE_DOC_JSON_SPEC);

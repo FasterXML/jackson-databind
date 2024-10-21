@@ -81,14 +81,14 @@ class ConvertingAbstractSerializer795Test
     private static final ObjectMapper JSON_MAPPER = newJsonMapper();
 
     @Test
-    void testAbstractTypeDeserialization() throws Exception {
+    void abstractTypeDeserialization() throws Exception {
         String test="{\"customField\": \"customString\"}";
         AbstractCustomTypeUser cu = JSON_MAPPER.readValue(test, AbstractCustomTypeUser.class);
         assertNotNull(cu);
     }
 
     @Test
-    void testNonAbstractDeserialization() throws Exception {
+    void nonAbstractDeserialization() throws Exception {
         String test="{\"customField\": \"customString\"}";
         NonAbstractCustomTypeUser cu = JSON_MAPPER.readValue(test, NonAbstractCustomTypeUser.class);
         assertNotNull(cu);

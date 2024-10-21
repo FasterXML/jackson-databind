@@ -109,14 +109,14 @@ class ValidatePolymBaseTypeTest extends DatabindTestUtil
      */
 
     @Test
-    void testAnnotedGood() throws Exception {
+    void annotedGood() throws Exception {
         final String json = MAPPER_ANNOTATED.writeValueAsString(new AnnotatedGoodWrapper());
         // should work ok
         assertNotNull(MAPPER_DEF_TYPING.readValue(json, AnnotatedGoodWrapper.class));
     }
 
     @Test
-    void testAnnotedBad() throws Exception {
+    void annotedBad() throws Exception {
         final String json = MAPPER_ANNOTATED.writeValueAsString(new AnnotatedBadWrapper());
         // should fail
         try {
@@ -136,14 +136,14 @@ class ValidatePolymBaseTypeTest extends DatabindTestUtil
      */
 
     @Test
-    void testDefaultGood() throws Exception {
+    void defaultGood() throws Exception {
         final String json = MAPPER_DEF_TYPING.writeValueAsString(new DefTypeGoodWrapper());
         // should work ok
         assertNotNull(MAPPER_DEF_TYPING.readValue(json, DefTypeGoodWrapper.class));
     }
 
     @Test
-    void testDefaultBad() throws Exception {
+    void defaultBad() throws Exception {
         final String json = MAPPER_DEF_TYPING.writeValueAsString(new DefTypeBadWrapper());
         // should fail
         try {

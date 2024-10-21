@@ -36,7 +36,7 @@ class RecursiveType1658Test
     }
 
     @Test
-    void testRecursive1658() throws Exception
+    void recursive1658() throws Exception
     {
         Tree<String> t = new Tree<String>(Arrays.asList("hello", "world"));
 

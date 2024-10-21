@@ -93,7 +93,7 @@ class TestTypedSerialization
      * class name, written as main-level property name
      */
     @Test
-    void testSimpleClassAsProperty() throws Exception
+    void simpleClassAsProperty() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new Cat("Beelzebub", "tabby"));
         assertEquals(3, result.size());
@@ -108,7 +108,7 @@ class TestTypedSerialization
      * Test inclusion using wrapper style
      */
     @Test
-    void testTypeAsWrapper() throws Exception
+    void typeAsWrapper() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Animal.class, TypeWithWrapper.class);
@@ -127,7 +127,7 @@ class TestTypedSerialization
      * Test inclusion using 2-element array
      */
     @Test
-    void testTypeAsArray() throws Exception
+    void typeAsArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Animal.class, TypeWithArray.class);
@@ -157,7 +157,7 @@ class TestTypedSerialization
      */
     @SuppressWarnings("unchecked")
     @Test
-    void testInArray() throws Exception
+    void inArray() throws Exception
     {
         // ensure we'll use mapper with default configs
         ObjectMapper m = new ObjectMapper();
@@ -191,7 +191,7 @@ class TestTypedSerialization
      * Simple unit test to verify that serializing "empty" beans is ok
      */
     @Test
-    void testEmptyBean() throws Exception
+    void emptyBean() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -202,7 +202,7 @@ class TestTypedSerialization
      * Unit test for [JACKSON-543]
      */
     @Test
-    void testTypedMaps() throws Exception
+    void typedMaps() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
 

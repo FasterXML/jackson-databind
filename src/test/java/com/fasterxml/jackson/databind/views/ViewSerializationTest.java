@@ -89,7 +89,7 @@ class ViewSerializationTest extends DatabindTestUtil
 
     @SuppressWarnings("unchecked")
     @Test
-    void testSimple() throws IOException
+    void simple() throws IOException
     {
         StringWriter sw = new StringWriter();
         // Ok, first, using no view whatsoever; all 3
@@ -140,7 +140,7 @@ class ViewSerializationTest extends DatabindTestUtil
      */
     @SuppressWarnings("unchecked")
     @Test
-    void testDefaultExclusion() throws IOException
+    void defaultExclusion() throws IOException
     {
         MixedBean bean = new MixedBean();
 
@@ -176,14 +176,14 @@ class ViewSerializationTest extends DatabindTestUtil
      * method/field does indicate a property.
      */
     @Test
-    void testImplicitAutoDetection() throws Exception
+    void implicitAutoDetection() throws Exception
     {
         assertEquals("{\"a\":1}",
                 MAPPER.writeValueAsString(new ImplicitBean()));
     }
 
     @Test
-    void testVisibility() throws Exception
+    void visibility() throws Exception
     {
         VisibilityBean bean = new VisibilityBean();
         // Without view setting, should only see "id"

@@ -24,7 +24,7 @@ class BeanNamingTest extends DatabindTestUtil
     }
 
     @Test
-    void testSimple() throws Exception
+    void simple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         assertFalse(mapper.isEnabled(MapperFeature.USE_STD_BEAN_NAMING));

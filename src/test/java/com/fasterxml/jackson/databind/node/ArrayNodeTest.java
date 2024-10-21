@@ -24,7 +24,7 @@ class ArrayNodeTest
         extends DatabindTestUtil
 {
     @Test
-    void testDirectCreation() throws IOException
+    void directCreation() throws IOException
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
 
@@ -108,7 +108,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testDirectCreation2() throws IOException
+    void directCreation2() throws IOException
     {
         JsonNodeFactory f = objectMapper().getNodeFactory();
         ArrayList<JsonNode> list = new ArrayList<>();
@@ -139,7 +139,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testArraySet() throws IOException {
+    void arraySet() throws IOException {
         final ArrayNode array = JsonNodeFactory.instance.arrayNode();
         for (int i = 0; i < 20; i++) {
             array.add("Original Data");
@@ -196,7 +196,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testArrayViaMapper() throws Exception
+    void arrayViaMapper() throws Exception
     {
         final String JSON = "[[[-0.027512,51.503221],[-0.008497,51.503221],[-0.008497,51.509744],[-0.027512,51.509744]]]";
 
@@ -211,7 +211,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testAdds()
+    void adds()
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
         assertNotNull(n.addArray());
@@ -237,7 +237,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testNullAdds()
+    void nullAdds()
     {
         JsonNodeFactory f = objectMapper().getNodeFactory();
         ArrayNode array = f.arrayNode(14);
@@ -261,7 +261,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testAddAllWithNullInCollection()
+    void addAllWithNullInCollection()
     {
         // preparation
         final ArrayNode array = JsonNodeFactory.instance.arrayNode();
@@ -279,7 +279,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testNullInserts()
+    void nullInserts()
     {
         JsonNodeFactory f = objectMapper().getNodeFactory();
         ArrayNode array = f.arrayNode(3);
@@ -305,7 +305,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testNullSet()
+    void nullSet()
     {
         JsonNodeFactory f = objectMapper().getNodeFactory();
         ArrayNode array = f.arrayNode(3);
@@ -341,7 +341,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testNullChecking()
+    void nullChecking()
     {
         ArrayNode a1 = JsonNodeFactory.instance.arrayNode();
         ArrayNode a2 = JsonNodeFactory.instance.arrayNode();
@@ -356,7 +356,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testNullChecking2()
+    void nullChecking2()
     {
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode src = mapper.createArrayNode();
@@ -366,7 +366,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testParser() throws Exception
+    void parser() throws Exception
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
         n.add(123);
@@ -397,7 +397,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testArrayNodeEquality()
+    void arrayNodeEquality()
     {
         ArrayNode n1 = new ArrayNode(null);
         ArrayNode n2 = new ArrayNode(null);
@@ -417,7 +417,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testSimpleArray() throws Exception
+    void simpleArray() throws Exception
     {
         ArrayNode result = objectMapper().createArrayNode();
 
@@ -469,7 +469,7 @@ class ArrayNodeTest
     }
 
     @Test
-    void testSimpleMismatch() throws Exception
+    void simpleMismatch() throws Exception
     {
         ObjectMapper mapper = objectMapper();
         try {

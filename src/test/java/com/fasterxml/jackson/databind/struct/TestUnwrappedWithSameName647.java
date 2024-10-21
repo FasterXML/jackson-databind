@@ -27,7 +27,7 @@ class TestUnwrappedWithSameName647 extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testUnwrappedWithSamePropertyName() throws Exception {
+    void unwrappedWithSamePropertyName() throws Exception {
         final String JSON = "{'mail': {'mail': 'the mail text'}}";
         UnwrappedWithSamePropertyName result = MAPPER.readValue(a2q(JSON), UnwrappedWithSamePropertyName.class);
         assertNotNull(result.mail);

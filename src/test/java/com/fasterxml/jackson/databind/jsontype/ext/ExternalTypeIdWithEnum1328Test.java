@@ -86,7 +86,7 @@ class ExternalTypeIdWithEnum1328Test extends DatabindTestUtil
     }
 
     @Test
-    void testExample() throws Exception {
+    void example() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         String json = mapper.writerWithDefaultPrettyPrinter()

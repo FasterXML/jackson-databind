@@ -28,17 +28,17 @@ class UtilCollectionsTypesTest
      */
 
     @Test
-    void testEmptyList() throws Exception {
+    void emptyList() throws Exception {
         _verifyCollection(Collections.emptyList());
     }
 
     @Test
-    void testEmptySet() throws Exception {
+    void emptySet() throws Exception {
         _verifyCollection(Collections.emptySet());
     }
 
     @Test
-    void testEmptyMap() throws Exception {
+    void emptyMap() throws Exception {
         _verifyMap(Collections.emptyMap());
     }
 
@@ -49,17 +49,17 @@ class UtilCollectionsTypesTest
      */
 
     @Test
-    void testSingletonList() throws Exception {
+    void singletonList() throws Exception {
         _verifyCollection(Collections.singletonList("TheOne"));
     }
 
     @Test
-    void testSingletonSet() throws Exception {
+    void singletonSet() throws Exception {
         _verifyCollection(Collections.singleton("TheOne"));
     }
 
     @Test
-    void testSingletonMap() throws Exception {
+    void singletonMap() throws Exception {
         _verifyMap(Collections.singletonMap("foo", "bar"));
     }
 
@@ -70,13 +70,13 @@ class UtilCollectionsTypesTest
      */
 
     @Test
-    void testUnmodifiableList() throws Exception {
+    void unmodifiableList() throws Exception {
         _verifyCollection(Collections.unmodifiableList(Arrays.asList("first", "second")));
     }
 
     // [databind#2265]
     @Test
-    void testUnmodifiableListFromLinkedList() throws Exception {
+    void unmodifiableListFromLinkedList() throws Exception {
         final List<String> input = new LinkedList<>();
         input.add("first");
         input.add("second");
@@ -91,14 +91,14 @@ class UtilCollectionsTypesTest
     }
 
     @Test
-    void testUnmodifiableSet() throws Exception
+    void unmodifiableSet() throws Exception
     {
         Set<String> input = new LinkedHashSet<>(Arrays.asList("first", "second"));
         _verifyCollection(Collections.unmodifiableSet(input));
     }
 
     @Test
-    void testUnmodifiableMap() throws Exception
+    void unmodifiableMap() throws Exception
     {
         Map<String,String> input = new LinkedHashMap<>();
         input.put("a", "b");
@@ -114,7 +114,7 @@ class UtilCollectionsTypesTest
 
     // [databind#3009]
     @Test
-    void testSynchronizedCollection() throws Exception
+    void synchronizedCollection() throws Exception
     {
         // 07-Jan-2021, tatu: Some oddities, need to inline checking:
         final Collection<?> input = Collections.synchronizedCollection(
@@ -134,21 +134,21 @@ class UtilCollectionsTypesTest
 
     // [databind#3009]
     @Test
-    void testSynchronizedSet() throws Exception {
+    void synchronizedSet() throws Exception {
         Set<String> input = new LinkedHashSet<>(Arrays.asList("first", "second"));
         _verifyCollection(Collections.synchronizedSet(input));
     }
 
     // [databind#3009]
     @Test
-    void testSynchronizedListRandomAccess() throws Exception {
+    void synchronizedListRandomAccess() throws Exception {
         _verifyCollection(Collections.synchronizedList(
                 Arrays.asList("first", "second")));
     }
 
     // [databind#3009]
     @Test
-    void testSynchronizedListLinked() throws Exception {
+    void synchronizedListLinked() throws Exception {
         final List<String> linked = new LinkedList<>();
         linked.add("first");
         linked.add("second");
@@ -158,7 +158,7 @@ class UtilCollectionsTypesTest
 
     // [databind#3009]
     @Test
-    void testSynchronizedMap() throws Exception {
+    void synchronizedMap() throws Exception {
         Map<String,String> input = new LinkedHashMap<>();
         input.put("a", "b");
         input.put("c", "d");
@@ -172,7 +172,7 @@ class UtilCollectionsTypesTest
      */
 
     @Test
-    void testArraysAsList() throws Exception
+    void arraysAsList() throws Exception
     {
         // Here there are no semantics to preserve, so simply check that
         // contents remain the same

@@ -122,7 +122,7 @@ class ViewSerialization2Test extends DatabindTestUtil
      */
 
     @Test
-    void testDataBindingUsage() throws Exception
+    void dataBindingUsage() throws Exception
     {
         ObjectMapper mapper = createMapper();
         String result = serializeWithObjectMapper(new ComplexTestData( ), Views.View.class, mapper);
@@ -130,7 +130,7 @@ class ViewSerialization2Test extends DatabindTestUtil
     }
 
     @Test
-    void testDataBindingUsageWithoutView() throws Exception
+    void dataBindingUsageWithoutView() throws Exception
     {
         ObjectMapper mapper = createMapper();
         String json = serializeWithObjectMapper(new ComplexTestData( ), null, mapper);

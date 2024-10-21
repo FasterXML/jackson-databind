@@ -70,7 +70,7 @@ class ObjectIdWithCreator1261Test
     }
 
     @Test
-    void testObjectIds1261() throws Exception
+    void objectIds1261() throws Exception
     {
          ObjectMapper mapper = jsonMapperBuilder()
                  .enable(SerializationFeature.INDENT_OUTPUT)

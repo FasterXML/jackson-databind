@@ -49,7 +49,7 @@ class EnumDeserFromIntJsonValueTest
     // [databind#1850] pass tests
 
     @Test
-    void testEnumFromInt1850Method() throws Exception
+    void enumFromInt1850Method() throws Exception
     {
         String json = MAPPER.writeValueAsString(Bean1850IntMethod.A);
         Bean1850IntMethod e1 = MAPPER.readValue(json, Bean1850IntMethod.class);
@@ -57,7 +57,7 @@ class EnumDeserFromIntJsonValueTest
     }
 
     @Test
-    void testEnumFromInt1850Field() throws Exception
+    void enumFromInt1850Field() throws Exception
     {
         String json = MAPPER.writeValueAsString(Bean1850IntField.A);
         Bean1850IntField e2 = MAPPER.readValue(json, Bean1850IntField.class);
@@ -65,7 +65,7 @@ class EnumDeserFromIntJsonValueTest
     }
 
     @Test
-    void testEnumFromLong1850Method() throws Exception
+    void enumFromLong1850Method() throws Exception
     {
         String json = MAPPER.writeValueAsString(Bean1850LongMethod.A);
         Bean1850LongMethod e1 = MAPPER.readValue(json, Bean1850LongMethod.class);
@@ -73,7 +73,7 @@ class EnumDeserFromIntJsonValueTest
     }
 
     @Test
-    void testEnumFromLong1850Field() throws Exception
+    void enumFromLong1850Field() throws Exception
     {
         String json = MAPPER.writeValueAsString(Bean1850LongField.A);
         Bean1850LongField e2 = MAPPER.readValue(json, Bean1850LongField.class);

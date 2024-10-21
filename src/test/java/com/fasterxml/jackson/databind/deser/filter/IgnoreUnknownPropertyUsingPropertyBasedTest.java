@@ -63,7 +63,7 @@ class IgnoreUnknownPropertyUsingPropertyBasedTest
   }
 
     @Test
-    void testAnySetterWithFailOnUnknownDisabled() throws Exception {
+    void anySetterWithFailOnUnknownDisabled() throws Exception {
     IgnoreUnknownAnySetter value = MAPPER.readValue("{\"a\":1, \"b\":2, \"x\":3, \"y\": 4}", IgnoreUnknownAnySetter.class);
     assertNotNull(value);
     assertEquals(1, value.a);
@@ -74,7 +74,7 @@ class IgnoreUnknownPropertyUsingPropertyBasedTest
   }
 
     @Test
-    void testUnwrappedWithFailOnUnknownDisabled() throws Exception {
+    void unwrappedWithFailOnUnknownDisabled() throws Exception {
     IgnoreUnknownUnwrapped value = MAPPER.readValue("{\"a\":1, \"b\": 2, \"x\":3, \"y\":4}", IgnoreUnknownUnwrapped.class);
     assertNotNull(value);
     assertEquals(1, value.a);

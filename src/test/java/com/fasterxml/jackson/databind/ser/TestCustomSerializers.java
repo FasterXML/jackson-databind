@@ -247,7 +247,7 @@ class TestCustomSerializers extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testCustomization() throws Exception
+    void customization() throws Exception
     {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixIn(Element.class, ElementMixin.class);
@@ -259,7 +259,7 @@ class TestCustomSerializers extends DatabindTestUtil
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    void testCustomLists() throws Exception
+    void customLists() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         JsonSerializer<?> ser = new CollectionSerializer(null, false, null, null);
@@ -285,7 +285,7 @@ class TestCustomSerializers extends DatabindTestUtil
 
     // [databind#87]: delegating serializer
     @Test
-    void testDelegating() throws Exception
+    void delegating() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(new StdDelegatingSerializer(Immutable.class,
@@ -307,28 +307,28 @@ class TestCustomSerializers extends DatabindTestUtil
 
     // [databind#215]: Allow registering CharacterEscapes via ObjectWriter
     @Test
-    void testCustomEscapes() throws Exception
+    void customEscapes() throws Exception
     {
         assertEquals(q("foo\\u0062\\Ar"),
                 MAPPER.writer(new CustomEscapes()).writeValueAsString("foobar"));
     }
 
     @Test
-    void testNumberSubclass() throws Exception
+    void numberSubclass() throws Exception
     {
         assertEquals(a2q("{'x':42}"),
                 MAPPER.writeValueAsString(new LikeNumber(42)));
     }
 
     @Test
-    void testWithCurrentValue() throws Exception
+    void withCurrentValue() throws Exception
     {
         assertEquals(a2q("{'prop':'Issue631Bean/42'}"),
                 MAPPER.writeValueAsString(new Issue631Bean(42)));
     }
 
     @Test
-    void testWithCustomElements() throws Exception
+    void withCustomElements() throws Exception
     {
         // First variant that uses per-property override
         StringListWrapper wr = new StringListWrapper("a", null, "b");
@@ -356,7 +356,7 @@ class TestCustomSerializers extends DatabindTestUtil
 
     // [databind#2475]
     @Test
-    void testIssue2475() throws Exception {
+    void issue2475() throws Exception {
         SimpleFilterProvider provider = new SimpleFilterProvider().addFilter("myFilter", new MyFilter2475());
         ObjectWriter writer = MAPPER.writer(provider);
 
@@ -371,7 +371,7 @@ class TestCustomSerializers extends DatabindTestUtil
 
     // [databind#4575]
     @Test
-    void testIssue4575() throws Exception {
+    void issue4575() throws Exception {
         com.fasterxml.jackson.databind.Module module = new SimpleModule() {
             {
                 setSerializerModifier(new BeanSerializerModifier() {

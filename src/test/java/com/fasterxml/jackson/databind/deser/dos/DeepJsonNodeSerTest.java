@@ -34,7 +34,7 @@ class DeepJsonNodeSerTest
     private final int TEST_NESTING = StreamWriteConstraints.DEFAULT_MAX_DEPTH + 100;
 
     @Test
-    void testDeepNodeSerWithStreamingLimits() throws Exception
+    void deepNodeSerWithStreamingLimits() throws Exception
     {
         JsonNode jsonNode = NO_LIMITS_MAPPER.readTree(_nestedDoc(TEST_NESTING));
         final ObjectMapper defaultMapper = newJsonMapper();
@@ -48,7 +48,7 @@ class DeepJsonNodeSerTest
     }
 
     @Test
-    void testDeepNodeSerNoStreamingLimits() throws Exception
+    void deepNodeSerNoStreamingLimits() throws Exception
     {
         JsonNode jsonNode = NO_LIMITS_MAPPER.readTree(_nestedDoc(TEST_NESTING));
         String json = NO_LIMITS_MAPPER.writeValueAsString(jsonNode);

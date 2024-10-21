@@ -59,7 +59,7 @@ class TestDefaultForScalars
      * nulls never have type information)
      */
     @Test
-    void testNumericScalars() throws Exception
+    void numericScalars() throws Exception
     {
         // no typing for Integer, Double, yes for others
         assertEquals("[123]", DEFAULT_TYPING_MAPPER.writeValueAsString(new Object[] { Integer.valueOf(123) }));
@@ -69,7 +69,7 @@ class TestDefaultForScalars
     }
 
     @Test
-    void testDateScalars() throws Exception
+    void dateScalars() throws Exception
     {
         long ts = 12345678L;
         assertEquals("[[\"java.util.Date\","+ts+"]]",
@@ -88,7 +88,7 @@ class TestDefaultForScalars
     }
 
     @Test
-    void testMiscScalars() throws Exception
+    void miscScalars() throws Exception
     {
         // no typing for Strings, booleans
         assertEquals("[\"abc\"]", DEFAULT_TYPING_MAPPER.writeValueAsString(new Object[] { "abc" }));
@@ -100,7 +100,7 @@ class TestDefaultForScalars
      * handled,
      */
     @Test
-    void testScalarArrays() throws Exception
+    void scalarArrays() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -129,7 +129,7 @@ class TestDefaultForScalars
 
     // [databind#1395]: prevent attempts at including type info for primitives
     @Test
-    void testDefaultTypingWithLong() throws Exception
+    void defaultTypingWithLong() throws Exception
     {
         Data data = new Data();
         data.key = 1L;
@@ -158,7 +158,7 @@ class TestDefaultForScalars
 
     // [databind#2236]: do need type info for NaN
     @Test
-    void testDefaultTypingWithNaN() throws Exception
+    void defaultTypingWithNaN() throws Exception
     {
         final ObjectWrapperForPoly INPUT = new ObjectWrapperForPoly(Double.POSITIVE_INFINITY);
         final String json = DEFAULT_TYPING_MAPPER.writeValueAsString(INPUT);

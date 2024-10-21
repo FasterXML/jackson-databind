@@ -61,7 +61,7 @@ class CyclicTypeSerTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testLinkedButNotCyclic() throws Exception
+    void linkedButNotCyclic() throws Exception
     {
         Bean last = new Bean(null, "last");
         Bean first = new Bean(last, "first");
@@ -79,7 +79,7 @@ class CyclicTypeSerTest
     }
 
     @Test
-    void testSimpleDirectSelfReference() throws Exception
+    void simpleDirectSelfReference() throws Exception
     {
         Bean selfRef = new Bean(null, "self-refs");
         Bean first = new Bean(selfRef, "first");
@@ -94,7 +94,7 @@ class CyclicTypeSerTest
 
     // [databind#2501]: Should be possible to replace null cyclic ref
     @Test
-    void testReplacedCycle() throws Exception
+    void replacedCycle() throws Exception
     {
         Selfie2501 self1 = new Selfie2501(1);
         self1.parent = self1;

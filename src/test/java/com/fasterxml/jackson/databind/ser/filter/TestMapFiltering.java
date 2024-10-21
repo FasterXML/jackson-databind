@@ -169,7 +169,7 @@ class TestMapFiltering extends DatabindTestUtil
     final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testMapFilteringViaProps() throws Exception
+    void mapFilteringViaProps() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
@@ -178,7 +178,7 @@ class TestMapFiltering extends DatabindTestUtil
     }
 
     @Test
-    void testMapFilteringViaClass() throws Exception
+    void mapFilteringViaClass() throws Exception
     {
         FilteredBean bean = new FilteredBean();
         bean.put("a", 4);
@@ -191,7 +191,7 @@ class TestMapFiltering extends DatabindTestUtil
 
     // [databind#527]
     @Test
-    void testNonNullValueMapViaProp() throws IOException
+    void nonNullValueMapViaProp() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoNullValuesMapContainer()
             .add("a", "foo")
@@ -202,7 +202,7 @@ class TestMapFiltering extends DatabindTestUtil
 
     // [databind#522]
     @Test
-    void testMapFilteringWithAnnotations() throws Exception
+    void mapFilteringWithAnnotations() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
                 new TestMapFilter());
@@ -217,7 +217,7 @@ class TestMapFiltering extends DatabindTestUtil
 
     // [databind#527]
     @Test
-    void testMapNonNullValue() throws IOException
+    void mapNonNullValue() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoNullsStringMap()
             .add("a", "foo")
@@ -228,7 +228,7 @@ class TestMapFiltering extends DatabindTestUtil
 
     // [databind#527]
     @Test
-    void testMapNonEmptyValue() throws IOException
+    void mapNonEmptyValue() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoEmptyStringsMap()
             .add("a", "foo")
@@ -240,7 +240,7 @@ class TestMapFiltering extends DatabindTestUtil
     // Test to ensure absent content of AtomicReference handled properly
     // [databind#527]
     @Test
-    void testMapAbsentValue() throws IOException
+    void mapAbsentValue() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoAbsentStringMap()
             .add("a", "foo")
@@ -250,7 +250,7 @@ class TestMapFiltering extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    void testMapNullSerialization() throws IOException
+    void mapNullSerialization() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         Map<String,String> map = new HashMap<String,String>();
@@ -266,7 +266,7 @@ class TestMapFiltering extends DatabindTestUtil
 
     // [databind#527]
     @Test
-    void testMapWithOnlyEmptyValues() throws IOException
+    void mapWithOnlyEmptyValues() throws IOException
     {
         String json;
 
@@ -283,7 +283,7 @@ class TestMapFiltering extends DatabindTestUtil
     }
 
     @Test
-    void testMapViaGlobalNonEmpty() throws Exception
+    void mapViaGlobalNonEmpty() throws Exception
     {
         // basic Map<String,String> subclass:
         ObjectMapper mapper = new ObjectMapper();
@@ -297,7 +297,7 @@ class TestMapFiltering extends DatabindTestUtil
     }
 
     @Test
-    void testMapViaTypeOverride() throws Exception
+    void mapViaTypeOverride() throws Exception
     {
         // basic Map<String,String> subclass:
         ObjectMapper mapper = new ObjectMapper();

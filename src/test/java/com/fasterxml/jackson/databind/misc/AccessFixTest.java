@@ -27,7 +27,7 @@ class AccessFixTest extends DatabindTestUtil
     // [databind#877]: avoid forcing access to `cause` field of `Throwable`
     // as it is never actually used (always call `initCause()` instead)
     @Test
-    void testCauseOfThrowableIgnoral() throws Exception
+    void causeOfThrowableIgnoral() throws Exception
     {
         final SecurityManager origSecMan = System.getSecurityManager();
         ObjectMapper mapper = jsonMapperBuilder()

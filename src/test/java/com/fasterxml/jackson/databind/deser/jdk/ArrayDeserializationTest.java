@@ -148,7 +148,7 @@ class ArrayDeserializationTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testUntypedArray() throws Exception
+    void untypedArray() throws Exception
     {
 
         // to get "untyped" default map-to-map, pass Object[].class
@@ -167,7 +167,7 @@ class ArrayDeserializationTest
     }
 
     @Test
-    void testIntegerArray() throws Exception
+    void integerArray() throws Exception
     {
         final int LEN = 90000;
 
@@ -194,7 +194,7 @@ class ArrayDeserializationTest
 
     // [JACKSON-620]: allow "" to mean 'null' for Arrays, List and Maps
     @Test
-    void testFromEmptyString() throws Exception
+    void fromEmptyString() throws Exception
     {
         ObjectReader r = MAPPER.reader()
                 .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
@@ -205,7 +205,7 @@ class ArrayDeserializationTest
 
     // [JACKSON-620]: allow "" to mean 'null' for Arrays, List and Maps
     @Test
-    void testFromEmptyString2() throws Exception
+    void fromEmptyString2() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(Product.class)
                 .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
@@ -222,7 +222,7 @@ class ArrayDeserializationTest
      */
 
     @Test
-    void testUntypedArrayOfArrays() throws Exception
+    void untypedArrayOfArrays() throws Exception
     {
         // to get "untyped" default map-to-map, pass Object[].class
         final String JSON = "[[[-0.027512,51.503221],[-0.008497,51.503221],[-0.008497,51.509744],[-0.027512,51.509744]]]";
@@ -255,7 +255,7 @@ class ArrayDeserializationTest
      */
 
     @Test
-    void testStringArray() throws Exception
+    void stringArray() throws Exception
     {
         final String[] STRS = new String[] {
             "a", "b", "abcd", "", "???", "\"quoted\"", "lf: \n",
@@ -285,7 +285,7 @@ class ArrayDeserializationTest
     }
 
     @Test
-    void testCharArray() throws Exception
+    void charArray() throws Exception
     {
         final String TEST_STR = "Let's just test it? Ok!";
         char[] result = MAPPER.readValue("\""+TEST_STR+"\"", char[].class);
@@ -303,7 +303,7 @@ class ArrayDeserializationTest
      */
 
     @Test
-    void testBooleanArray() throws Exception
+    void booleanArray() throws Exception
     {
         boolean[] result = MAPPER.readValue("[ true, false, false ]", boolean[].class);
         assertNotNull(result);
@@ -314,7 +314,7 @@ class ArrayDeserializationTest
     }
 
     @Test
-    void testByteArrayAsNumbers() throws Exception
+    void byteArrayAsNumbers() throws Exception
     {
         final int LEN = 37000;
         StringBuilder sb = new StringBuilder();
@@ -340,7 +340,7 @@ class ArrayDeserializationTest
     }
 
     @Test
-    void testByteArrayAsBase64() throws Exception
+    void byteArrayAsBase64() throws Exception
     {
         /* Hmmh... let's use JsonGenerator here, to hopefully ensure we
          * get proper base64 encoding. Plus, not always using that
@@ -370,7 +370,7 @@ class ArrayDeserializationTest
      * multiple byte arrays from an array...
      */
     @Test
-    void testByteArraysAsBase64() throws Exception
+    void byteArraysAsBase64() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         StringWriter sw = new StringWriter(1000);
@@ -406,7 +406,7 @@ class ArrayDeserializationTest
 
     // [JACKSON-763]
     @Test
-    void testByteArraysWith763() throws Exception
+    void byteArraysWith763() throws Exception
     {
         String[] input = new String[] { "YQ==", "Yg==", "Yw==" };
         byte[][] data = MAPPER.convertValue(input, byte[][].class);
@@ -416,7 +416,7 @@ class ArrayDeserializationTest
     }
 
     @Test
-    void testShortArray() throws Exception
+    void shortArray() throws Exception
     {
         final int LEN = 31001; // fits in signed 16-bit
         StringBuilder sb = new StringBuilder();
@@ -440,7 +440,7 @@ class ArrayDeserializationTest
     }
 
     @Test
-    void testIntArray() throws Exception
+    void intArray() throws Exception
     {
         final int LEN = 70000;
 
@@ -466,7 +466,7 @@ class ArrayDeserializationTest
     }
 
     @Test
-    void testLongArray() throws Exception
+    void longArray() throws Exception
     {
         final int LEN = 12300;
         StringBuilder sb = new StringBuilder();
@@ -490,7 +490,7 @@ class ArrayDeserializationTest
     }
 
     @Test
-    void testDoubleArray() throws Exception
+    void doubleArray() throws Exception
     {
         final int LEN = 7000;
         StringBuilder sb = new StringBuilder();
@@ -518,7 +518,7 @@ class ArrayDeserializationTest
     }
 
     @Test
-    void testFloatArray() throws Exception
+    void floatArray() throws Exception
     {
         final int LEN = 7000;
         StringBuilder sb = new StringBuilder();
@@ -549,7 +549,7 @@ class ArrayDeserializationTest
      */
 
     @Test
-    void testBeanArray()
+    void beanArray()
             throws Exception
     {
         List<Bean1> src = new ArrayList<Bean1>();
@@ -582,7 +582,7 @@ class ArrayDeserializationTest
 
     // for [databind#890]
     @Test
-    void testByteArrayTypeOverride890() throws Exception
+    void byteArrayTypeOverride890() throws Exception
     {
         HiddenBinaryBean890 result = MAPPER.readValue(
                 a2q("{'someBytes':'AQIDBA=='}"), HiddenBinaryBean890.class);
@@ -598,7 +598,7 @@ class ArrayDeserializationTest
      */
 
     @Test
-    void testCustomDeserializers() throws Exception
+    void customDeserializers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule testModule = new SimpleModule("test", Version.unknownVersion());

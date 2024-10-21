@@ -26,7 +26,7 @@ class BeanDeserializerModifier4216Test extends DatabindTestUtil
     }
 
     @Test
-    void testModifierCalledTwice() throws Exception
+    void modifierCalledTwice() throws Exception
     {
         // Given : Configure and construct
         AtomicInteger counter = new AtomicInteger(0);

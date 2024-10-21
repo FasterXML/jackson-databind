@@ -82,7 +82,7 @@ class AnnotatedClassTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testFieldIntrospection()
+    void fieldIntrospection()
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
         JavaType t = MAPPER.constructType(FieldBean.class);
@@ -99,7 +99,7 @@ class AnnotatedClassTest
 
     // For [databind#1005]
     @Test
-    void testConstructorIntrospection()
+    void constructorIntrospection()
     {
         // Need this call to ensure there is a synthetic constructor being generated
         // (not really needed otherwise)
@@ -111,7 +111,7 @@ class AnnotatedClassTest
     }
 
     @Test
-    void testArrayTypeIntrospection() throws Exception
+    void arrayTypeIntrospection() throws Exception
     {
         AnnotatedClass ac = AnnotatedClassResolver.resolve(MAPPER.getSerializationConfig(),
                 MAPPER.constructType(int[].class), null);
@@ -122,7 +122,7 @@ class AnnotatedClassTest
     }
 
     @Test
-    void testIntrospectionWithRawClass() throws Exception
+    void introspectionWithRawClass() throws Exception
     {
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(MAPPER.getSerializationConfig(),
                 String.class, null);

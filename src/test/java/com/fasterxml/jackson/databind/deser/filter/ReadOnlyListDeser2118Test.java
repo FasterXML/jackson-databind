@@ -56,7 +56,7 @@ class ReadOnlyListDeser2118Test
 
     // [databind#2118]
     @Test
-    void testAccessReadOnly() throws Exception {
+    void accessReadOnly() throws Exception {
         String data ="{\"security_group_rules\": [{\"id\": \"id1\"}]}";
 // This would work around the issue:
 //        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);

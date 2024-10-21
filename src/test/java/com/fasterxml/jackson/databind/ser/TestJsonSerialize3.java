@@ -39,7 +39,7 @@ class TestJsonSerialize3 extends DatabindTestUtil
      */
 
     @Test
-    void testCustomContentSerializer() throws Exception
+    void customContentSerializer() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         MyObject object = new MyObject();

@@ -46,7 +46,7 @@ class EnumDeserialization3638Test
      */
 
     @Test
-    void testCaseSensitive() throws Exception {
+    void caseSensitive() throws Exception {
         String json = a2q("{'enumValue':'1'}");
 
         SensitiveBean sensitiveBean = MAPPER.readValue(json, SensitiveBean.class);
@@ -56,7 +56,7 @@ class EnumDeserialization3638Test
 
 
     @Test
-    void testCaseInsensitive() throws Exception {
+    void caseInsensitive() throws Exception {
         String json = a2q("{'enumValue':'1'}");
 
         InsensitiveBean insensitiveBean = MAPPER.readValue(json, InsensitiveBean.class);

@@ -94,7 +94,7 @@ class TestNameConflicts extends DatabindTestUtil
 
     // [Issue#193]
     @Test
-    void testIssue193() throws Exception
+    void issue193() throws Exception
     {
         String json = objectWriter().writeValueAsString(new Bean193(1, 2));
         assertNotNull(json);
@@ -102,14 +102,14 @@ class TestNameConflicts extends DatabindTestUtil
 
     // [Issue#327]
     @Test
-    void testNonConflict() throws Exception
+    void nonConflict() throws Exception
     {
         String json = MAPPER.writeValueAsString(new BogusConflictBean());
         assertEquals(a2q("{'prop1':2,'prop2':1}"), json);
     }
 
     @Test
-    void testHypotheticalGetters() throws Exception
+    void hypotheticalGetters() throws Exception
     {
         String json = objectWriter().writeValueAsString(new MultipleTheoreticalGetters());
         assertEquals(a2q("{'a':3}"), json);
@@ -117,7 +117,7 @@ class TestNameConflicts extends DatabindTestUtil
 
     // for [jackson-core#158]
     @Test
-    void testOverrideName() throws Exception
+    void overrideName() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
         String json = mapper.writeValueAsString(new CoreBean158());

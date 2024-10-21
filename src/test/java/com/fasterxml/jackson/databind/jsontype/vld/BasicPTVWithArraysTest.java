@@ -53,7 +53,7 @@ class BasicPTVWithArraysTest extends DatabindTestUtil
 
     // [databind#2534]: handle Java array-types appropriately wrt validation
     @Test
-    void testAllowBySubClassInArray() throws Exception {
+    void allowBySubClassInArray() throws Exception {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(Good2534.class)
                 .build();

@@ -28,7 +28,7 @@ class TestUnwrappedRecursive383 extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testRecursiveUsage() throws Exception
+    void recursiveUsage() throws Exception
     {
         final String JSON = "{ 'name': 'Bob', 'age': 45, 'gender': 0, 'child.name': 'Bob jr', 'child.age': 15 }";
         RecursivePerson p = MAPPER.readValue(a2q(JSON), RecursivePerson.class);

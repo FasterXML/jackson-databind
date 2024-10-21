@@ -20,7 +20,7 @@ class ArrayBuildersTest extends DatabindTestUtil
 {
     // [databind#157]
     @Test
-    void testInsertInListNoDup()
+    void insertInListNoDup()
     {
         String [] arr = new String[]{"me", "you", "him"};
         String [] newarr;
@@ -39,7 +39,7 @@ class ArrayBuildersTest extends DatabindTestUtil
     }
 
     @Test
-    void testBuilderAccess()
+    void builderAccess()
     {
         ArrayBuilders builders = new ArrayBuilders();
 
@@ -73,7 +73,7 @@ class ArrayBuildersTest extends DatabindTestUtil
     }
 
     @Test
-    void testArrayComparator()
+    void arrayComparator()
     {
         final int[] INT3 = new int[] { 3, 4, 5 };
         Object comp = ArrayBuilders.getArrayComparator(INT3);
@@ -87,7 +87,7 @@ class ArrayBuildersTest extends DatabindTestUtil
     }
 
     @Test
-    void testArraySet()
+    void arraySet()
     {
         HashSet<String> set = ArrayBuilders.arrayToSet(new String[] { "foo", "bar" });
         assertEquals(2, set.size());

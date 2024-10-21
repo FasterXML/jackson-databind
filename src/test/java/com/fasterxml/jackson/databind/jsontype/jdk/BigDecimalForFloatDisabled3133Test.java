@@ -51,7 +51,7 @@ class BigDecimalForFloatDisabled3133Test
 
     // [databind#3133]
     @Test
-    void testDeserializeWithDifferentOrdering3133() throws Exception
+    void deserializeWithDifferentOrdering3133() throws Exception
     {
         // case 1 : type first
         String ordering1 = a2q("{'type': 'MAP','map': { 'doubleValue': 0.1 }}");

@@ -38,7 +38,7 @@ class PolymorphicWithObjectId1551Test extends DatabindTestUtil
     }
 
     @Test
-    void testWithAbstractUsingProp() throws Exception
+    void withAbstractUsingProp() throws Exception
     {
         Car c = new Car();
         c.vehicleId = "123";
@@ -60,7 +60,7 @@ class PolymorphicWithObjectId1551Test extends DatabindTestUtil
     }
 
     @Test
-    void testFailingAbstractUsingProp() throws Exception
+    void failingAbstractUsingProp() throws Exception
     {
         Car c = new Car();
         c.vehicleId = "123";

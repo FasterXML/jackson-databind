@@ -99,7 +99,7 @@ class DateDeserializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testDateUtil() throws Exception
+    void dateUtil() throws Exception
     {
         long now = 123456789L;
         java.util.Date value = new java.util.Date(now);
@@ -116,7 +116,7 @@ class DateDeserializationTest
     }
 
     @Test
-    void testDateUtilWithStringTimestamp() throws Exception
+    void dateUtilWithStringTimestamp() throws Exception
     {
         long now = 1321992375446L;
         /* Should be ok to pass as JSON String, as long
@@ -134,7 +134,7 @@ class DateDeserializationTest
     }
 
     @Test
-    void testDateUtilRFC1123() throws Exception
+    void dateUtilRFC1123() throws Exception
     {
         DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
         // let's use an arbitrary value...
@@ -144,7 +144,7 @@ class DateDeserializationTest
     }
 
     @Test
-    void testDateUtilRFC1123OnNonUSLocales() throws Exception
+    void dateUtilRFC1123OnNonUSLocales() throws Exception
     {
         Locale old = Locale.getDefault();
         Locale.setDefault(Locale.GERMAN);
@@ -160,7 +160,7 @@ class DateDeserializationTest
      * ISO8601 is supported as well
      */
     @Test
-    void testDateUtilISO8601() throws Exception
+    void dateUtilISO8601() throws Exception
     {
         /* let's use simple baseline value, arbitrary date in GMT,
          * using the standard notation
@@ -207,7 +207,7 @@ class DateDeserializationTest
 
     // [Databind#570]
     @Test
-    void testISO8601PartialMilliseconds() throws Exception
+    void iso8601PartialMilliseconds() throws Exception
     {
         String inputStr;
         Date inputDate;
@@ -270,7 +270,7 @@ class DateDeserializationTest
 
     // Also: minutes-part of offset need not be all zeroes: [databind#1788]
     @Test
-    void testISO8601FractionalTimezoneOffset() throws Exception
+    void iso8601FractionalTimezoneOffset() throws Exception
     {
         String inputStr = "1997-07-16T19:20:30.45+01:30";
         java.util.Date inputDate = MAPPER.readValue(q(inputStr), java.util.Date.class);
@@ -287,7 +287,7 @@ class DateDeserializationTest
 
     // [databind#1745]
     @Test
-    void testISO8601FractSecondsLong() throws Exception
+    void iso8601FractSecondsLong() throws Exception
     {
         String inputStr;
         Date inputDate;
@@ -312,7 +312,7 @@ class DateDeserializationTest
     }
 
     @Test
-    void testISO8601MissingSeconds() throws Exception
+    void iso8601MissingSeconds() throws Exception
     {
         String inputStr;
         Date inputDate;
@@ -354,7 +354,7 @@ class DateDeserializationTest
     }
 
     @Test
-    void testDateUtilISO8601NoTimezone() throws Exception
+    void dateUtilISO8601NoTimezone() throws Exception
     {
         // Timezone itself is optional as well...
         String inputStr = "1984-11-13T00:00:09";
@@ -372,7 +372,7 @@ class DateDeserializationTest
 
     // [databind#1657]: no timezone should use configured default
     @Test
-    void testDateUtilISO8601NoTimezoneNonDefault() throws Exception
+    void dateUtilISO8601NoTimezoneNonDefault() throws Exception
     {
         // In first case, no timezone -> SHOULD use configured timezone
         ObjectReader r = MAPPER.readerFor(Date.class);
@@ -396,7 +396,7 @@ class DateDeserializationTest
     // [databind#1722]: combination of `@ConstructorProperties` and `@JsonIgnore`
     //  should work fine.
     @Test
-    void testFormatAndCtors1722() throws Exception
+    void formatAndCtors1722() throws Exception
     {
         Date1722 input = new Date1722(new Date(0L), "bogus");
         String json = MAPPER.writeValueAsString(input);
@@ -406,7 +406,7 @@ class DateDeserializationTest
 
     // [databind#338]
     @Test
-    void testDateUtilISO8601NoMilliseconds() throws Exception
+    void dateUtilISO8601NoMilliseconds() throws Exception
     {
         final String INPUT_STR = "2013-10-31T17:27:00";
         Date inputDate;
@@ -440,7 +440,7 @@ class DateDeserializationTest
     }
 
     @Test
-    void testDateUtilISO8601JustDate() throws Exception
+    void dateUtilISO8601JustDate() throws Exception
     {
         // Plain date (no time)
         String inputStr = "1972-12-28";
@@ -453,7 +453,7 @@ class DateDeserializationTest
     }
 
     @Test
-    void testCalendar() throws Exception
+    void calendar() throws Exception
     {
         // not ideal, to use (ever-changing) current date, but...
         java.util.Calendar value = Calendar.getInstance();
@@ -476,7 +476,7 @@ class DateDeserializationTest
     }
 
     @Test
-    void testCustom() throws Exception
+    void custom() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
@@ -494,7 +494,7 @@ class DateDeserializationTest
      * without need to turn on feature (which may be added in future)
      */
     @Test
-    void testDatesWithEmptyStrings() throws Exception
+    void datesWithEmptyStrings() throws Exception
     {
         assertNull(MAPPER.readValue(q(""), java.util.Date.class));
         assertNull(MAPPER.readValue(q(""), java.util.Calendar.class));
@@ -524,14 +524,14 @@ class DateDeserializationTest
     }
 
     @Test
-    void testTimeZone() throws Exception
+    void timeZone() throws Exception
     {
         TimeZone result = MAPPER.readValue(q("PST"), TimeZone.class);
         assertEquals("PST", result.getID());
     }
 
     @Test
-    void testCustomDateWithAnnotation() throws Exception
+    void customDateWithAnnotation() throws Exception
     {
         final String INPUT = "{\"date\":\"/2005/05/25/\"}";
         DateAsStringBean result = MAPPER.readValue(INPUT, DateAsStringBean.class);
@@ -578,7 +578,7 @@ class DateDeserializationTest
     }
 
     @Test
-    void testCustomCalendarWithAnnotation() throws Exception
+    void customCalendarWithAnnotation() throws Exception
     {
         CalendarAsStringBean cbean = MAPPER.readValue("{\"cal\":\";2007/07/13;\"}",
                 CalendarAsStringBean.class);
@@ -591,7 +591,7 @@ class DateDeserializationTest
     }
 
     @Test
-    void testCustomCalendarWithTimeZone() throws Exception
+    void customCalendarWithTimeZone() throws Exception
     {
         // And then with different TimeZone: CET is +01:00 from GMT -- read as CET
         DateInCETBean cet = MAPPER.readValue("{\"date\":\"2001-01-01,10\"}",
@@ -607,7 +607,7 @@ class DateDeserializationTest
 
     // [databind#1651]
     @Test
-    void testDateEndingWithZNonDefTZ1651() throws Exception
+    void dateEndingWithZNonDefTZ1651() throws Exception
     {
         String json = q("1970-01-01T00:00:00.000Z");
 
@@ -634,7 +634,7 @@ class DateDeserializationTest
 
     // for [databind#204]
     @Test
-    void testContextTimezone() throws Exception
+    void contextTimezone() throws Exception
     {
         String inputStr = "1997-07-16T19:20:30.45+0100";
         final String tzId = "PST";
@@ -682,7 +682,7 @@ class DateDeserializationTest
      */
 
     @Test
-    void testCalendarArrayUnwrap() throws Exception
+    void calendarArrayUnwrap() throws Exception
     {
         ObjectReader reader = new ObjectMapper()
                 .readerFor(CalendarBean.class)
@@ -718,7 +718,7 @@ class DateDeserializationTest
      */
 
     @Test
-    void testLenientJDKDateTypes() throws Exception
+    void lenientJDKDateTypes() throws Exception
     {
         final String JSON = a2q("{'value':'2015-11-32'}");
 
@@ -739,7 +739,7 @@ class DateDeserializationTest
     }
 
     @Test
-    void testLenientJDKDateTypesViaTypeOverride() throws Exception
+    void lenientJDKDateTypesViaTypeOverride() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configOverride(java.util.Date.class)
@@ -755,7 +755,7 @@ class DateDeserializationTest
     }
 
     @Test
-    void testLenientJDKDateTypesViaGlobal() throws Exception
+    void lenientJDKDateTypesViaGlobal() throws Exception
     {
         final String JSON = q("2015-11-32");
 
@@ -794,7 +794,7 @@ class DateDeserializationTest
      */
 
     @Test
-    void testInvalidFormat() throws Exception
+    void invalidFormat() throws Exception
     {
         try {
             MAPPER.readValue(q("foobar"), Date.class);

@@ -91,7 +91,7 @@ class ProblemHandlerUnknownTypeId2221Test
 );
 
     @Test
-    void testWithDeserializationProblemHandler() throws Exception {
+    void withDeserializationProblemHandler() throws Exception {
         final ObjectMapper mapper = new ObjectMapper()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance);
         mapper.addHandler(new DeserializationProblemHandler() {
@@ -107,7 +107,7 @@ class ProblemHandlerUnknownTypeId2221Test
     }
 
     @Test
-    void testWithDisabledFAIL_ON_INVALID_SUBTYPE() throws Exception {
+    void withDisabledFAILONINVALIDSUBTYPE() throws Exception {
         final ObjectMapper mapper = new ObjectMapper()
                 .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)

@@ -19,7 +19,7 @@ class ByteBufferUtilsTest extends DatabindTestUtil
             new byte[] { 1, 2, 3, 4, 5 });
 
     @Test
-    void testByteBufferInput() throws Exception {
+    void byteBufferInput() throws Exception {
         byte[] input = new byte[] { 1, 2, 3 };
         try (ByteBufferBackedInputStream wrapped = new ByteBufferBackedInputStream(ByteBuffer.wrap(input))) {
             assertEquals(3, wrapped.available());
@@ -32,7 +32,7 @@ class ByteBufferUtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testByteBufferOutput() throws Exception {
+    void byteBufferOutput() throws Exception {
         ByteBuffer b = ByteBuffer.wrap(new byte[10]);
         try (ByteBufferBackedOutputStream wrappedOut = new ByteBufferBackedOutputStream(b)) {
             wrappedOut.write(1);
@@ -43,7 +43,7 @@ class ByteBufferUtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testReadFromByteBuffer() throws Exception
+    void readFromByteBuffer() throws Exception
     {
         final ObjectMapper mapper = sharedMapper();
         byte[] bytes = mapper.writeValueAsBytes(TEST_USER);
@@ -56,7 +56,7 @@ class ByteBufferUtilsTest extends DatabindTestUtil
     }
 
     @Test
-    void testWriteToByteBuffer() throws Exception
+    void writeToByteBuffer() throws Exception
     {
         final ObjectMapper mapper = sharedMapper();
         byte[] bytes = mapper.writeValueAsBytes(TEST_USER);

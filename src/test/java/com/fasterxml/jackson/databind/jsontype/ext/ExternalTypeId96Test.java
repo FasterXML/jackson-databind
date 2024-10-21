@@ -50,7 +50,7 @@ class ExternalTypeId96Test extends DatabindTestUtil
      *   know what the best resolution is. For now at least
      */
     @Test
-    void testWithDefaultAndMissing() throws Exception
+    void withDefaultAndMissing() throws Exception
     {
         ExternalBeanWithDefault input = new ExternalBeanWithDefault(13);
         // baseline: include type, verify things work:

@@ -68,7 +68,7 @@ class TestDefaultWithCreators
      */
 
     @Test
-    void testWithCreators() throws Exception
+    void withCreators() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -88,7 +88,7 @@ class TestDefaultWithCreators
 
     // [databind#1385]
     @Test
-    void testWithCreatorAndJsonValue() throws Exception
+    void withCreatorAndJsonValue() throws Exception
     {
         final byte[] BYTES = new byte[] { 1, 2, 3, 4, 5 };
         ObjectMapper mapper = JsonMapper.builder()

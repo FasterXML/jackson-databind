@@ -174,7 +174,7 @@ class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     // [databind#4407]: with "as-property" type id
     @Test
-    void testTypeIdProp4407NonNull() throws Exception
+    void typeIdProp4407NonNull() throws Exception
     {
         // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':{'type':'typeX','value':'xyz'}}");
@@ -187,7 +187,7 @@ class CustomTypeIdResolver4407Test extends DatabindTestUtil
     }
 
     @Test
-    void testTypeIdProp4407Null() throws Exception
+    void typeIdProp4407Null() throws Exception
     {
         // And then null one
         final String EXP = a2q("{'wrapped':{'value':'xyz'}}");
@@ -202,7 +202,7 @@ class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     // [databind#4407]: with "as-wrapper-array" type id
     @Test
-    void testTypeIdWrapperArray4407NonNull() throws Exception
+    void typeIdWrapperArray4407NonNull() throws Exception
     {
         // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':['typeX',{'value':'xyz'}]}");
@@ -215,7 +215,7 @@ class CustomTypeIdResolver4407Test extends DatabindTestUtil
     }
 
     @Test
-    void testTypeIdWrapperArray4407Null() throws Exception
+    void typeIdWrapperArray4407Null() throws Exception
     {
         // And then null one
         final String EXP = a2q("{'wrapped':{'value':'xyz'}}");
@@ -229,7 +229,7 @@ class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     // [databind#4407]: with "as-wrapper-object" type id
     @Test
-    void testTypeIdWrapperObject4407NonNull() throws Exception
+    void typeIdWrapperObject4407NonNull() throws Exception
     {
         // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':{'typeX':{'value':'xyz'}}}");
@@ -242,7 +242,7 @@ class CustomTypeIdResolver4407Test extends DatabindTestUtil
     }
 
     @Test
-    void testTypeIdWrapperObject4407Null() throws Exception
+    void typeIdWrapperObject4407Null() throws Exception
     {
         // And then null one
         final String EXP = a2q("{'wrapped':{'value':'xyz'}}");

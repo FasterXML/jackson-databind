@@ -34,7 +34,7 @@ class ExceptionPathTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testReferenceChainForInnerClass() throws Exception
+    void referenceChainForInnerClass() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Outer());
         try {

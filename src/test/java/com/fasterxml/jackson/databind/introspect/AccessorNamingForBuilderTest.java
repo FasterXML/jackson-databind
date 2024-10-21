@@ -45,7 +45,7 @@ class AccessorNamingForBuilderTest extends DatabindTestUtil
 
     // For [databind#2624]
     @Test
-    void testAccessorCustomWithMethod() throws Exception
+    void accessorCustomWithMethod() throws Exception
     {
         final String json = a2q("{'x':28,'y':72}");
         final ObjectMapper vanillaMapper = newJsonMapper();

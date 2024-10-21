@@ -31,27 +31,27 @@ class UUIDDeserializer4394Test
     }
   
     @Test
-    void testCanDeserializeUUIDFromString() throws Exception {
+    void canDeserializeUUIDFromString() throws Exception {
         assertEquals(TEST_UUID, UUID_DESERIALIZER._deserialize(TEST_UUID.toString(), null));
     }
 
     @Test
-    void testCanDeserializeUUIDFromBase64() throws Exception {
+    void canDeserializeUUIDFromBase64() throws Exception {
         assertEquals(TEST_UUID, UUID_DESERIALIZER._deserialize(Base64.getEncoder().encodeToString(getBytesFromUUID(TEST_UUID)), null));
     }
 
     @Test
-    void testCanDeserializeUUIDFromBase64WithoutPadding() throws Exception {
+    void canDeserializeUUIDFromBase64WithoutPadding() throws Exception {
         assertEquals(TEST_UUID, UUID_DESERIALIZER._deserialize(Base64.getEncoder().withoutPadding().encodeToString(getBytesFromUUID(TEST_UUID)), null));
     }
 
     @Test
-    void testCanDeserializeUUIDFromBase64Url() throws Exception {
+    void canDeserializeUUIDFromBase64Url() throws Exception {
         assertEquals(TEST_UUID, UUID_DESERIALIZER._deserialize(Base64.getUrlEncoder().encodeToString(getBytesFromUUID(TEST_UUID)), null));
     }
 
     @Test
-    void testCanDeserializeUUIDFromBase64UrlWithoutPadding() throws Exception {
+    void canDeserializeUUIDFromBase64UrlWithoutPadding() throws Exception {
         assertEquals(TEST_UUID, UUID_DESERIALIZER._deserialize(Base64.getUrlEncoder().withoutPadding().encodeToString(getBytesFromUUID(TEST_UUID)), null));
     }
 

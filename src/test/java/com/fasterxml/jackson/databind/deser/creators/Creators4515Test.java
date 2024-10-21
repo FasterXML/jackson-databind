@@ -53,7 +53,7 @@ class Creators4515Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testPropsBasedConstructorExplicit() throws Exception
+    void propsBasedConstructorExplicit() throws Exception
     {
         ConstructorBeanPropsExplicit bean = MAPPER.readValue("{ \"x\" : 42 }",
                 ConstructorBeanPropsExplicit.class);
@@ -61,7 +61,7 @@ class Creators4515Test extends DatabindTestUtil
     }
 
     @Test
-    void testPropsBasedConstructorWithName() throws Exception
+    void propsBasedConstructorWithName() throws Exception
     {
         ConstructorBeanPropsWithName bean = MAPPER.readValue("{ \"x\" : 28 }",
                 ConstructorBeanPropsWithName.class);
@@ -75,7 +75,7 @@ class Creators4515Test extends DatabindTestUtil
      */
 
     @Test
-    void testPropsBasedFactoryExplicit() throws Exception
+    void propsBasedFactoryExplicit() throws Exception
     {
         FactoryBeanPropsExplicit bean = MAPPER.readValue("{ \"f\" : 0.5 }",
                 FactoryBeanPropsExplicit.class);

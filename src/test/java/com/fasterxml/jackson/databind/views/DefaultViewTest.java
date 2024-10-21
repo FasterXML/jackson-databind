@@ -41,7 +41,7 @@ class DefaultViewTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testDeserialization() throws IOException
+    void deserialization() throws IOException
     {
         final String JSON = a2q("{'a':1,'b':2}");
 
@@ -66,7 +66,7 @@ class DefaultViewTest extends DatabindTestUtil
     }
 
     @Test
-    void testSerialization() throws IOException
+    void serialization() throws IOException
     {
         assertEquals(a2q("{'a':3,'b':5}"),
                 MAPPER.writeValueAsString(new Defaulting()));

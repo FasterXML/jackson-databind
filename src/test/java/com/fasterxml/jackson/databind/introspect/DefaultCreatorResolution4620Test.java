@@ -84,7 +84,7 @@ class DefaultCreatorResolution4620Test extends DatabindTestUtil
      */
 
     @Test
-    void testCanonicalConstructor1ArgPropertiesCreator() throws Exception
+    void canonicalConstructor1ArgPropertiesCreator() throws Exception
     {
         // Select the "middle one"
         POJO4620 result = readerWith(new PrimaryConstructorFindingIntrospector(

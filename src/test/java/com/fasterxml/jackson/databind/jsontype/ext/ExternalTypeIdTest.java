@@ -298,7 +298,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testSimpleSerialization() throws Exception
+    void simpleSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(ValueBean.class);
@@ -314,7 +314,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
 
     // If trying to use with Class, should just become "PROPERTY" instead:
     @Test
-    void testImproperExternalIdSerialization() throws Exception
+    void improperExternalIdSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         assertEquals("{\"extType\":\"funk\",\"i\":3}",
@@ -323,7 +323,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
 
     // for [databind#942]
     @Test
-    void testExternalTypeIdWithNull() throws Exception
+    void externalTypeIdWithNull() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(ValueBean.class);
@@ -343,7 +343,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleDeserialization() throws Exception
+    void simpleDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(ValueBean.class);
@@ -364,7 +364,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
     // Test for verifying that it's ok to have multiple (say, 3)
     // externally typed things, mixed with other stuff...
     @Test
-    void testMultipleTypeIdsDeserialization() throws Exception
+    void multipleTypeIdsDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(ValueBean.class);
@@ -382,7 +382,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
 
     // Also, it should be ok to use @JsonCreator as well...
     @Test
-    void testExternalTypeWithCreator() throws Exception
+    void externalTypeWithCreator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(ValueBean.class);
@@ -396,7 +396,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
 
     // If trying to use with Class, should just become "PROPERTY" instead:
     @Test
-    void testImproperExternalIdDeserialization() throws Exception
+    void improperExternalIdDeserialization() throws Exception
     {
         FunkyExternalBean result = MAPPER.readValue("{\"extType\":\"funk\",\"i\":3}",
                 FunkyExternalBean.class);
@@ -410,7 +410,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
     }
 
     @Test
-    void testIssue798() throws Exception
+    void issue798() throws Exception
     {
         Base base = new Derived1("derived1 prop val", "base prop val");
         BaseContainer baseContainer = new BaseContainer("bc prop val", base);
@@ -431,7 +431,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
 
     // There seems to be some problems if type is also visible...
     @Test
-    void testIssue831() throws Exception
+    void issue831() throws Exception
     {
         final String JSON = "{ \"petType\": \"dog\",\n"
                 +"\"pet\": { \"name\": \"Pluto\" }\n}";
@@ -445,7 +445,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
     // For [databind#118]
     // Note: String works fine, since no type id will used; other scalar types have issues
     @Test
-    void testWithScalar118() throws Exception
+    void withScalar118() throws Exception
     {
         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new java.util.Date(123L));
         String json = MAPPER.writeValueAsString(input);
@@ -459,7 +459,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
 
     // For [databind#118] using "natural" type(s)
     @Test
-    void testWithNaturalScalar118() throws Exception
+    void withNaturalScalar118() throws Exception
     {
         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(Integer.valueOf(13));
         String json = MAPPER.writeValueAsString(input);
@@ -488,7 +488,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
 
     // For [databind#119]... and bit of [#167] as well
     @Test
-    void testWithAsValue() throws Exception
+    void withAsValue() throws Exception
     {
         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy(12345L));
         String json = MAPPER.writeValueAsString(input);
@@ -505,7 +505,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
 
     // for [databind#222]
     @Test
-    void testExternalTypeWithProp222() throws Exception
+    void externalTypeWithProp222() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         Issue222Bean input = new Issue222Bean(13);
@@ -515,7 +515,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
 
     // [databind#928]
     @Test
-    void testInverseExternalId928() throws Exception
+    void inverseExternalId928() throws Exception
     {
         final String CLASS = Payload928.class.getName();
 
@@ -535,7 +535,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
 
     // for [databind#965]
     @Test
-    void testBigDecimal965() throws Exception
+    void bigDecimal965() throws Exception
     {
         Wrapper965 w = new Wrapper965();
         w.typeEnum = Type965.BIG_DECIMAL;
@@ -560,7 +560,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
     }
 
     @Test
-    void testBigDecimal965StringBased() throws Exception
+    void bigDecimal965StringBased() throws Exception
     {
         Wrapper965 w = new Wrapper965();
         w.typeEnum = Type965.BIG_DECIMAL;
@@ -608,7 +608,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
 
     // for [databind#3008]
     @Test
-    void testIssue3008() throws Exception
+    void issue3008() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(Box3008.class);
         Box3008 deserOrangeBox = r.readValue("{\"type\":null,\"fruit\":null}}");

@@ -90,7 +90,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleField() throws Exception
+    void simpleField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new FieldWrapperBean(new StringWrapper("foo")));
@@ -102,7 +102,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleMethod() throws Exception
+    void simpleMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new FieldWrapperBean(new IntWrapper(37)));
@@ -114,7 +114,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleListField() throws Exception
+    void simpleListField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         FieldWrapperBeanList list = new FieldWrapperBeanList();
@@ -131,7 +131,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleListMethod() throws Exception
+    void simpleListMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         MethodWrapperBeanList list = new MethodWrapperBeanList();
@@ -153,7 +153,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleArrayField() throws Exception
+    void simpleArrayField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         FieldWrapperBeanArray array = new FieldWrapperBeanArray(new
@@ -169,7 +169,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleArrayMethod() throws Exception
+    void simpleArrayMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         MethodWrapperBeanArray array = new MethodWrapperBeanArray(new
@@ -185,7 +185,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleMapField() throws Exception
+    void simpleMapField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         FieldWrapperBeanMap map = new FieldWrapperBeanMap();
@@ -202,7 +202,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleMapMethod() throws Exception
+    void simpleMapMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         MethodWrapperBeanMap map = new MethodWrapperBeanMap();

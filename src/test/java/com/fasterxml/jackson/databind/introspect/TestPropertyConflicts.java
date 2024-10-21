@@ -95,7 +95,7 @@ class TestPropertyConflicts extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testFailWithDupProps() throws Exception
+    void failWithDupProps() throws Exception
     {
         BeanWithConflict bean = new BeanWithConflict();
         try {
@@ -108,7 +108,7 @@ class TestPropertyConflicts extends DatabindTestUtil
 
     // [databind#238]: ok to have getter, "isGetter"
     @Test
-    void testRegularAndIsGetter() throws Exception
+    void regularAndIsGetter() throws Exception
     {
         final ObjectWriter writer = MAPPER.writer();
 
@@ -123,7 +123,7 @@ class TestPropertyConflicts extends DatabindTestUtil
     }
 
     @Test
-    void testInferredNameConflictsWithGetters() throws Exception
+    void inferredNameConflictsWithGetters() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new InferingIntrospector())
@@ -133,7 +133,7 @@ class TestPropertyConflicts extends DatabindTestUtil
     }
 
     @Test
-    void testInferredNameConflictsWithSetters() throws Exception
+    void inferredNameConflictsWithSetters() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new InferingIntrospector());
@@ -142,7 +142,7 @@ class TestPropertyConflicts extends DatabindTestUtil
     }
 
     @Test
-    void testIssue541() throws Exception {
+    void issue541() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(
                 MapperFeature.AUTO_DETECT_CREATORS,

@@ -141,7 +141,7 @@ class MixinForFactoryMethod3220Test
 
     // [databind#3220]
     @Test
-    void testMixin3220() throws Exception
+    void mixin3220() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .addMixIn(Timestamped.class, TimestampedMixin.class)

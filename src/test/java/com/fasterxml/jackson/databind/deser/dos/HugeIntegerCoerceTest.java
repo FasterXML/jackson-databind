@@ -27,7 +27,7 @@ class HugeIntegerCoerceTest
     }
 
     @Test
-    void testMaliciousLongForEnum() throws Exception
+    void maliciousLongForEnum() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
             .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(BIG_NUM_LEN + 10).build())

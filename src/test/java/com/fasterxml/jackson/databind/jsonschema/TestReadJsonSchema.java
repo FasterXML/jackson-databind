@@ -53,7 +53,7 @@ class TestReadJsonSchema
      */
     @SuppressWarnings("deprecation")
     @Test
-    void testDeserializeSimple() throws Exception
+    void deserializeSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         JsonSchema schema = mapper.generateJsonSchema(Schemable.class);

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class JacksonCollectorsTest {
 
     @Test
-    void testToArrayNode()
+    void toArrayNode()
     {
         final ObjectMapper objectMapper = new ObjectMapper();
 

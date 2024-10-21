@@ -46,7 +46,7 @@ class SerializationFeaturesTest
     // Test for [JACKSON-282]
     @SuppressWarnings("resource")
     @Test
-    void testCloseCloseable() throws IOException
+    void closeCloseable() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         // default should be disabled:
@@ -68,7 +68,7 @@ class SerializationFeaturesTest
 
     // Test for [JACKSON-289]
     @Test
-    void testCharArrays() throws IOException
+    void charArrays() throws IOException
     {
         char[] chars = new char[] { 'a','b','c' };
         ObjectMapper m = new ObjectMapper();
@@ -82,7 +82,7 @@ class SerializationFeaturesTest
 
     // Test for [JACKSON-401]
     @Test
-    void testFlushingAutomatic() throws IOException
+    void flushingAutomatic() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE));
@@ -103,7 +103,7 @@ class SerializationFeaturesTest
     }
 
     @Test
-    void testFlushingNotAutomatic() throws IOException
+    void flushingNotAutomatic() throws IOException
     {
         // but should not occur if configured otherwise
         ObjectMapper mapper = new ObjectMapper();
@@ -131,7 +131,7 @@ class SerializationFeaturesTest
     }
 
     @Test
-    void testSingleElementCollections() throws IOException
+    void singleElementCollections() throws IOException
     {
         final ObjectWriter writer = objectWriter().with(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
 

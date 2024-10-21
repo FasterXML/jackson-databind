@@ -51,7 +51,7 @@ class UnwrappedDoubleWithAnySetter3277Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testIsInstanceOfDouble() throws Exception
+    void isInstanceOfDouble() throws Exception
     {
         Holder holder = MAPPER.readValue("{\"value1\": -60.0, \"value2\": -60.0}", Holder.class);
 

@@ -13,7 +13,7 @@ class MapperFootprintTest {
      */
 
     @Test
-    void testMapperFootprint() throws InterruptedException {
+    void mapperFootprint() throws InterruptedException {
         // memory footprint limit for the ObjectMapper
 
         // force gc (see javadoc of GraphLayout.subtract)

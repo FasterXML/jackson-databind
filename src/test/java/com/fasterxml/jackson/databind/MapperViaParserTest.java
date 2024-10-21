@@ -81,7 +81,7 @@ class MapperViaParserTest
      */
 
     @Test
-    void testPojoReading() throws IOException
+    void pojoReading() throws IOException
     {
         JsonFactory jf = new MappingJsonFactory();
         final String JSON = "{ \"x\" : 9 }";
@@ -104,7 +104,7 @@ class MapperViaParserTest
      * Test similar to above, but instead reads a sequence of values
      */
     @Test
-    void testIncrementalPojoReading() throws IOException
+    void incrementalPojoReading() throws IOException
     {
         JsonFactory jf = new MappingJsonFactory();
         final String JSON = "[ 1, true, null, \"abc\" ]";
@@ -138,7 +138,7 @@ class MapperViaParserTest
 
     @SuppressWarnings("resource")
     @Test
-    void testPojoReadingFailing() throws IOException
+    void pojoReadingFailing() throws IOException
     {
         // regular factory can't do it, without a call to setCodec()
         JsonFactory f = new JsonFactory();
@@ -153,7 +153,7 @@ class MapperViaParserTest
     }
 
     @Test
-    void testEscapingUsingMapper() throws Exception
+    void escapingUsingMapper() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                .configure(JsonWriteFeature.ESCAPE_NON_ASCII, true)

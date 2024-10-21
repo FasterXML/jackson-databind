@@ -104,7 +104,7 @@ class ImplicitNameMatch792Test
     private final ObjectMapper MAPPER = sharedMapper();
 
     @Test
-    void testBindingOfImplicitCreatorNames() throws Exception
+    void bindingOfImplicitCreatorNames() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.setAnnotationIntrospector(new ConstructorNameAI());
@@ -113,7 +113,7 @@ class ImplicitNameMatch792Test
     }
 
     @Test
-    void testImplicitWithSetterGetter() throws Exception
+    void implicitWithSetterGetter() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean2());
         assertEquals(a2q("{'stuff':3}"), json);
@@ -132,7 +132,7 @@ class ImplicitNameMatch792Test
     */
 
     @Test
-    void testWriteOnly() throws Exception
+    void writeOnly() throws Exception
     {
         PasswordBean bean = MAPPER.readValue(a2q("{'value':7,'password':'foo'}"),
                 PasswordBean.class);

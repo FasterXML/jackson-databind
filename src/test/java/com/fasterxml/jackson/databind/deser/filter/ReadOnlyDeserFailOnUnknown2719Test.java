@@ -32,7 +32,7 @@ class ReadOnlyDeserFailOnUnknown2719Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testFailOnIgnore() throws Exception
+    void failOnIgnore() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(UserWithReadOnly.class);
 

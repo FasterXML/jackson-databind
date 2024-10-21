@@ -30,7 +30,7 @@ class NoStaticsDeserTest
      */
 
     @Test
-    void testSimpleIgnore() throws Exception
+    void simpleIgnore() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // should not care about static setter...

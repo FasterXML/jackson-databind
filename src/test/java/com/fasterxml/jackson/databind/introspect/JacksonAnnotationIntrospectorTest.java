@@ -168,7 +168,7 @@ class JacksonAnnotationIntrospectorTest
      * tests getting serializer/deserializer instances.
      */
     @Test
-    void testSerializeDeserializeWithJaxbAnnotations() throws Exception
+    void serializeDeserializeWithJaxbAnnotations() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -195,7 +195,7 @@ class JacksonAnnotationIntrospectorTest
     }
 
     @Test
-    void testJsonTypeResolver() throws Exception
+    void jsonTypeResolver() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         JacksonAnnotationIntrospector ai = new JacksonAnnotationIntrospector();
@@ -208,7 +208,7 @@ class JacksonAnnotationIntrospectorTest
     }
 
     @Test
-    void testEnumHandling() throws Exception
+    void enumHandling() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new LcEnumIntrospector());

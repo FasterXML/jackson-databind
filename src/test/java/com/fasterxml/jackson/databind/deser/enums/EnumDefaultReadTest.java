@@ -94,7 +94,7 @@ class EnumDefaultReadTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testWithoutCustomFeatures() throws Exception
+    void withoutCustomFeatures() throws Exception
     {
         final ObjectReader r = MAPPER.reader();
 
@@ -128,7 +128,7 @@ class EnumDefaultReadTest
     }
 
     @Test
-    void testWithFailOnNumbers() throws Exception
+    void withFailOnNumbers() throws Exception
     {
         ObjectReader r = MAPPER.reader()
                 .with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
@@ -163,7 +163,7 @@ class EnumDefaultReadTest
     }
 
     @Test
-    void testWithReadUnknownAsDefault() throws Exception
+    void withReadUnknownAsDefault() throws Exception
     {
         ObjectReader r = MAPPER.reader()
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
@@ -198,7 +198,7 @@ class EnumDefaultReadTest
     }
 
     @Test
-    void testWithFailOnNumbersAndReadUnknownAsDefault()
+    void withFailOnNumbersAndReadUnknownAsDefault()
             throws Exception
     {
         ObjectReader r = MAPPER.reader()
@@ -246,7 +246,7 @@ class EnumDefaultReadTest
 
     // [databind#3171]: Ensure "" gets returned as Default Value, not coerced
     @Test
-    void testEmptyStringAsDefault() throws Exception
+    void emptyStringAsDefault() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(SimpleEnumWithDefault.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
@@ -287,7 +287,7 @@ class EnumDefaultReadTest
     }
 
     @Test
-    void testEnumDefaultValueViaMixin() throws Exception 
+    void enumDefaultValueViaMixin() throws Exception 
     {
         ObjectMapper mixinMapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -299,7 +299,7 @@ class EnumDefaultReadTest
     }
 
     @Test
-    void testFirstEnumDefaultValueViaMixin() throws Exception 
+    void firstEnumDefaultValueViaMixin() throws Exception 
     {
         ObjectMapper mixinMapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)

@@ -84,7 +84,7 @@ class ExternalTypeId2588Test extends DatabindTestUtil
 
     // [databind#2588]
     @Test
-    void testExternalTypeId2588Read() throws Exception
+    void externalTypeId2588Read() throws Exception
     {
         Pet pet;
 
@@ -115,7 +115,7 @@ class ExternalTypeId2588Test extends DatabindTestUtil
     }
 
     @Test
-    void testExternalTypeId2588Write() throws Exception
+    void externalTypeId2588Write() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Pet("cat", new Wolf()));
         assertEquals(a2q("{'animal':{'alive':false},'type':'wolf'}"), json);

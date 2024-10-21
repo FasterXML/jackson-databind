@@ -51,7 +51,7 @@ class CreatorWithNamingStrategyTest
 
     // [databind#2051]
     @Test
-    void testSnakeCaseWithOneArg() throws Exception
+    void snakeCaseWithOneArg() throws Exception
     {
         final String MSG = "1st";
         OneProperty actual = MAPPER.readValue(

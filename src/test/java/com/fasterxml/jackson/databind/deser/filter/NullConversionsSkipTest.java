@@ -63,7 +63,7 @@ class NullConversionsSkipTest {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSkipNullField() throws Exception
+    void skipNullField() throws Exception
     {
         // first, ok if assigning non-null to not-nullable, null for nullable
         NullSkipField result = MAPPER.readValue(a2q("{'noNulls':'foo', 'nullsOk':null}"),
@@ -79,7 +79,7 @@ class NullConversionsSkipTest {
     }
 
     @Test
-    void testSkipNullMethod() throws Exception
+    void skipNullMethod() throws Exception
     {
         NullSkipMethod result = MAPPER.readValue(a2q("{'noNulls':'foo', 'nullsOk':null}"),
                 NullSkipMethod.class);
@@ -94,7 +94,7 @@ class NullConversionsSkipTest {
 
     // for [databind#2015]
     @Test
-    void testEnumAsNullThenSkip() throws Exception
+    void enumAsNullThenSkip() throws Exception
     {
         Pojo2015 p = MAPPER.readerFor(Pojo2015.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
@@ -109,7 +109,7 @@ class NullConversionsSkipTest {
      */
 
     @Test
-    void testSkipNullWithDefaults() throws Exception
+    void skipNullWithDefaults() throws Exception
     {
         String json = a2q("{'value':null}");
         StringValue result = MAPPER.readValue(json, StringValue.class);

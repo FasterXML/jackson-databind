@@ -98,7 +98,7 @@ class BuilderAdvancedTest
      */
 
     @Test
-    void testWithInjectable() throws Exception
+    void withInjectable() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setInjectableValues(new InjectableValues.Std()
@@ -112,7 +112,7 @@ class BuilderAdvancedTest
     }
 
     @Test
-    void testWithExternalTypeId() throws Exception
+    void withExternalTypeId() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         final ExternalBean input = new ExternalBean(new ValueBean(13));

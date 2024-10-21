@@ -118,43 +118,43 @@ class AnnotationBundlesTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testKeepAnnotationBundle() throws Exception
+    void keepAnnotationBundle() throws Exception
     {
         MAPPER.setAnnotationIntrospector(new BundleAnnotationIntrospector());
         assertEquals("{\"important\":42}", MAPPER.writeValueAsString(new InformingHolder()));
     }
 
     @Test
-    void testRecursiveBundlesField() throws Exception {
+    void recursiveBundlesField() throws Exception {
         assertEquals("{\"unimportant\":42}", MAPPER.writeValueAsString(new RecursiveHolder()));
     }
 
     @Test
-    void testRecursiveBundlesMethod() throws Exception {
+    void recursiveBundlesMethod() throws Exception {
         assertEquals("{\"value\":28}", MAPPER.writeValueAsString(new RecursiveHolder2()));
     }
 
     @Test
-    void testRecursiveBundlesConstructor() throws Exception {
+    void recursiveBundlesConstructor() throws Exception {
         RecursiveHolder3 result = MAPPER.readValue("17", RecursiveHolder3.class);
         assertNotNull(result);
         assertEquals(17, result.x);
     }
 
     @Test
-    void testBundledIgnore() throws Exception
+    void bundledIgnore() throws Exception
     {
         assertEquals("{\"foobar\":13}", MAPPER.writeValueAsString(new Bean()));
     }
 
     @Test
-    void testVisibilityBundle() throws Exception
+    void visibilityBundle() throws Exception
     {
         assertEquals("{\"b\":5}", MAPPER.writeValueAsString(new NoAutoDetect()));
     }
 
     @Test
-    void testIssue92() throws Exception
+    void issue92() throws Exception
     {
         assertEquals("{\"_id\":\"abc\"}", MAPPER.writeValueAsString(new Bean92()));
     }

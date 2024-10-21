@@ -89,7 +89,7 @@ class CoerceToBooleanTest
 
     // for [databind#403]
     @Test
-    void testEmptyStringFailForBooleanPrimitive() throws IOException
+    void emptyStringFailForBooleanPrimitive() throws IOException
     {
         final ObjectReader reader = DEFAULT_MAPPER
                 .readerFor(BooleanPrimitiveBean.class)
@@ -104,7 +104,7 @@ class CoerceToBooleanTest
     }
 
     @Test
-    void testStringToBooleanCoercionOk() throws Exception
+    void stringToBooleanCoercionOk() throws Exception
     {
         // first successful coercions. Boolean has a ton...
         _verifyCoerceSuccess(DEFAULT_MAPPER, "1", Boolean.TYPE, Boolean.TRUE);
@@ -134,7 +134,7 @@ class CoerceToBooleanTest
     }
 
     @Test
-    void testStringToBooleanCoercionFail() throws Exception
+    void stringToBooleanCoercionFail() throws Exception
     {
         _verifyRootStringCoerceFail(LEGACY_NONCOERCING_MAPPER, "true", Boolean.TYPE);
         _verifyRootStringCoerceFail(LEGACY_NONCOERCING_MAPPER, "true", Boolean.class);
@@ -189,7 +189,7 @@ class CoerceToBooleanTest
      */
 
     @Test
-    void testIntToBooleanCoercionSuccessPojo() throws Exception
+    void intToBooleanCoercionSuccessPojo() throws Exception
     {
         BooleanPOJO p;
         final ObjectReader r = DEFAULT_MAPPER.readerFor(BooleanPOJO.class);
@@ -206,7 +206,7 @@ class CoerceToBooleanTest
     }
 
     @Test
-    void testIntToBooleanCoercionSuccessRoot() throws Exception
+    void intToBooleanCoercionSuccessRoot() throws Exception
     {
         final ObjectReader br = DEFAULT_MAPPER.readerFor(Boolean.class);
 
@@ -231,7 +231,7 @@ class CoerceToBooleanTest
 
     // Test for verifying that Long values are coerced to boolean correctly as well
     @Test
-    void testLongToBooleanCoercionOk() throws Exception
+    void longToBooleanCoercionOk() throws Exception
     {
         long value = 1L + Integer.MAX_VALUE;
         BooleanWrapper b = DEFAULT_MAPPER.readValue("{\"primitive\" : "+value+", \"wrapper\":"+value+", \"ctor\":"+value+"}",
@@ -259,7 +259,7 @@ class CoerceToBooleanTest
 
     // [databind#2635], [databind#2770]
     @Test
-    void testIntToBooleanCoercionFailBytes() throws Exception
+    void intToBooleanCoercionFailBytes() throws Exception
     {
         _verifyBooleanCoerceFail(a2q("{'value':1}"), true, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
 
@@ -272,7 +272,7 @@ class CoerceToBooleanTest
 
     // [databind#2635], [databind#2770]
     @Test
-    void testIntToBooleanCoercionFailChars() throws Exception
+    void intToBooleanCoercionFailChars() throws Exception
     {
         _verifyBooleanCoerceFail(a2q("{'value':1}"), false, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
 
@@ -290,7 +290,7 @@ class CoerceToBooleanTest
      */
 
     @Test
-    void testIntToNullCoercion() throws Exception
+    void intToNullCoercion() throws Exception
     {
         assertNull(MAPPER_INT_TO_NULL.readValue("0", Boolean.class));
         assertNull(MAPPER_INT_TO_NULL.readValue("1", Boolean.class));
@@ -312,7 +312,7 @@ class CoerceToBooleanTest
     }
 
     @Test
-    void testIntToEmptyCoercion() throws Exception
+    void intToEmptyCoercion() throws Exception
     {
         // "empty" value for Boolean/boolean is False/false
 
@@ -336,7 +336,7 @@ class CoerceToBooleanTest
     }
 
     @Test
-    void testIntToTryCoercion() throws Exception
+    void intToTryCoercion() throws Exception
     {
         // And "TryCoerce" should do what would be typically expected
 
@@ -366,7 +366,7 @@ class CoerceToBooleanTest
      */
 
     @Test
-    void testFailFromInteger() throws Exception
+    void failFromInteger() throws Exception
     {
         _verifyFailFromInteger(MAPPER_TO_FAIL, BooleanPOJO.class, DOC_WITH_0, Boolean.TYPE);
         _verifyFailFromInteger(MAPPER_TO_FAIL, BooleanPOJO.class, DOC_WITH_1, Boolean.TYPE);

@@ -135,7 +135,7 @@ class ConvertingDeserializerTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testClassAnnotationSimple() throws Exception
+    void classAnnotationSimple() throws Exception
     {
         ConvertingBean bean = MAPPER.readerFor(ConvertingBean.class).readValue("[1,2]");
         assertNotNull(bean);
@@ -144,7 +144,7 @@ class ConvertingDeserializerTest
     }
 
     @Test
-    void testClassAnnotationForLists() throws Exception
+    void classAnnotationForLists() throws Exception
     {
         ConvertingBeanContainer container = MAPPER.readerFor(ConvertingBeanContainer.class)
                 .readValue("{\"values\":[[1,2],[3,4]]}");
@@ -155,7 +155,7 @@ class ConvertingDeserializerTest
     }
 
     @Test
-    void testPropertyAnnotationSimple() throws Exception
+    void propertyAnnotationSimple() throws Exception
     {
         PointWrapper wrapper = MAPPER.readerFor(PointWrapper.class).readValue("{\"value\":[3,4]}");
         assertNotNull(wrapper);
@@ -165,7 +165,7 @@ class ConvertingDeserializerTest
     }
 
     @Test
-    void testPropertyAnnotationLowerCasing() throws Exception
+    void propertyAnnotationLowerCasing() throws Exception
     {
         LowerCaseText text = MAPPER.readerFor(LowerCaseText.class).readValue("{\"text\":\"Yay!\"}");
         assertNotNull(text);
@@ -174,7 +174,7 @@ class ConvertingDeserializerTest
     }
 
     @Test
-    void testPropertyAnnotationArrayLC() throws Exception
+    void propertyAnnotationArrayLC() throws Exception
     {
         LowerCaseTextArray texts = MAPPER.readerFor(LowerCaseTextArray.class).readValue("{\"texts\":[\"ABC\"]}");
         assertNotNull(texts);
@@ -184,7 +184,7 @@ class ConvertingDeserializerTest
     }
 
     @Test
-    void testPropertyAnnotationForArrays() throws Exception
+    void propertyAnnotationForArrays() throws Exception
     {
         PointWrapperArray array = MAPPER.readerFor(PointWrapperArray.class)
                 .readValue("{\"values\":[[4,5],[5,4]]}");
@@ -195,7 +195,7 @@ class ConvertingDeserializerTest
     }
 
     @Test
-    void testPropertyAnnotationForLists() throws Exception
+    void propertyAnnotationForLists() throws Exception
     {
         PointWrapperList array = MAPPER.readerFor(PointWrapperList.class)
                 .readValue("{\"values\":[[7,8],[8,7]]}");
@@ -206,7 +206,7 @@ class ConvertingDeserializerTest
     }
 
     @Test
-    void testPropertyAnnotationForMaps() throws Exception
+    void propertyAnnotationForMaps() throws Exception
     {
         PointWrapperMap map = MAPPER.readerFor(PointWrapperMap.class)
                 .readValue("{\"values\":{\"a\":[1,2]}}");
@@ -220,7 +220,7 @@ class ConvertingDeserializerTest
     }
 
     @Test
-    void testPropertyAnnotationForReferences() throws Exception
+    void propertyAnnotationForReferences() throws Exception
     {
         PointWrapperReference w = MAPPER.readerFor(PointWrapperReference.class)
                 .readValue("{\"ref\": [1,2]}");
@@ -234,7 +234,7 @@ class ConvertingDeserializerTest
 
     // [databind#795]
     @Test
-    void testConvertToAbstract() throws Exception
+    void convertToAbstract() throws Exception
     {
         Issue795Bean bean = MAPPER.readerFor(Issue795Bean.class)
                 .readValue("{\"value\":\"1.25\"}");

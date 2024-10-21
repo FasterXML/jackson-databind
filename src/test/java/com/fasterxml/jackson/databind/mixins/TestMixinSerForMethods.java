@@ -105,7 +105,7 @@ class TestMixinSerForMethods
      * that masked methods (fields etc) have.
      */
     @Test
-    void testLeafMixin() throws IOException
+    void leafMixin() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result;
@@ -131,7 +131,7 @@ class TestMixinSerForMethods
      * further by a sub-class) works as expected
      */
     @Test
-    void testIntermediateMixin() throws IOException
+    void intermediateMixin() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result;
@@ -148,7 +148,7 @@ class TestMixinSerForMethods
      * properly "trickle up"
      */
     @Test
-    void testIntermediateMixin2() throws IOException
+    void intermediateMixin2() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addMixIn(EmptyBean.class, MixInForSimple.class);
@@ -158,7 +158,7 @@ class TestMixinSerForMethods
     }
 
     @Test
-    void testSimpleMixInResolverHasMixins() {
+    void simpleMixInResolverHasMixins() {
         SimpleMixInResolver simple = new SimpleMixInResolver(null);
         assertFalse(simple.hasMixIns());
         simple.addLocalDefinition(String.class, Number.class);
@@ -167,7 +167,7 @@ class TestMixinSerForMethods
 
     // [databind#688]
     @Test
-    void testCustomResolver() throws IOException
+    void customResolver() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         MixInResolver res = new ClassIntrospector.MixInResolver() {

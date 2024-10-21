@@ -28,7 +28,7 @@ class BasicExceptionTest extends DatabindTestUtil
     private final JsonFactory JSON_F = MAPPER.getFactory();
 
     @Test
-    void testBadDefinition() throws Exception
+    void badDefinition() throws Exception
     {
         JavaType t = defaultTypeFactory().constructType(String.class);
         JsonParser p = JSON_F.createParser("[]");
@@ -66,7 +66,7 @@ class BasicExceptionTest extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    void testInvalidFormat() throws Exception
+    void invalidFormat() throws Exception
     {
         // deprecated methods should still work:
         InvalidFormatException e = new InvalidFormatException("Testing", Boolean.TRUE,
@@ -83,7 +83,7 @@ class BasicExceptionTest extends DatabindTestUtil
     }
 
     @Test
-    void testIgnoredProperty() throws Exception
+    void ignoredProperty() throws Exception
     {
         // first just construct valid instance with some variations
         JsonParser p = JSON_F.createParser("{ }");
@@ -109,7 +109,7 @@ class BasicExceptionTest extends DatabindTestUtil
     }
 
     @Test
-    void testUnrecognizedProperty() throws Exception
+    void unrecognizedProperty() throws Exception
     {
         JsonParser p = JSON_F.createParser("{ }");
         UnrecognizedPropertyException e = UnrecognizedPropertyException.from(p, this,
@@ -132,7 +132,7 @@ class BasicExceptionTest extends DatabindTestUtil
     // [databind#2482]: ensure Location is the original one
     // [core#1173]: ... and needs to be correct column, too
     @Test
-    void testLocationAddition() throws Exception
+    void locationAddition() throws Exception
     {
         String problemJson = "{\n\t\"userList\" : [\n\t{\n\t user : \"1\"\n\t},\n\t{\n\t \"user\" : \"2\"\n\t}\n\t]\n}";
         try {

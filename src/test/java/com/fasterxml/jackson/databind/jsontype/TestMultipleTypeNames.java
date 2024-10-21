@@ -106,7 +106,7 @@ class TestMultipleTypeNames extends DatabindTestUtil
      */
 
     @Test
-    void testOnlyNames() throws Exception
+    void onlyNames() throws Exception
     {
         String json;
         WrapperForNamesTest w;
@@ -135,7 +135,7 @@ class TestMultipleTypeNames extends DatabindTestUtil
     }
 
     @Test
-    void testNameAndNames() throws Exception
+    void nameAndNames() throws Exception
     {
         String json;
         WrapperForNameAndNamesTest w;
@@ -164,7 +164,7 @@ class TestMultipleTypeNames extends DatabindTestUtil
     }
 
     @Test
-    void testNotUniqueNameAndNames() throws Exception
+    void notUniqueNameAndNames() throws Exception
     {
         String json = "{\"base\": [{\"type\":\"a\", \"data\": {\"x\": 5}}, {\"type\":\"b\", \"data\": {\"y\": 3.1}}, {\"type\":\"c\", \"data\": {\"y\": 33.8}}]}";
 

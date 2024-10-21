@@ -148,7 +148,7 @@ class BuilderWithCreatorTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testWithPropertiesCreator() throws Exception
+    void withPropertiesCreator() throws Exception
     {
         final String json = a2q("{'a':1,'c':3,'b':2}");
         PropertyCreatorValue value = MAPPER.readValue(json, PropertyCreatorValue.class);
@@ -158,7 +158,7 @@ class BuilderWithCreatorTest
     }
 
     @Test
-    void testWithDelegatingStringCreator() throws Exception
+    void withDelegatingStringCreator() throws Exception
     {
         final int EXP = 139;
         IntCreatorValue value = MAPPER.readValue(String.valueOf(EXP),
@@ -167,7 +167,7 @@ class BuilderWithCreatorTest
     }
 
     @Test
-    void testWithDelegatingIntCreator() throws Exception
+    void withDelegatingIntCreator() throws Exception
     {
         final double EXP = -3.75;
         DoubleCreatorValue value = MAPPER.readValue(String.valueOf(EXP),
@@ -176,7 +176,7 @@ class BuilderWithCreatorTest
     }
 
     @Test
-    void testWithDelegatingBooleanCreator() throws Exception
+    void withDelegatingBooleanCreator() throws Exception
     {
         final boolean EXP = true;
         BooleanCreatorValue value = MAPPER.readValue(String.valueOf(EXP),

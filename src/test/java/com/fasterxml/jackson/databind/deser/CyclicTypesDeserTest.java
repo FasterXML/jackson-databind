@@ -69,7 +69,7 @@ class CyclicTypesDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testLinked() throws Exception
+    void linked() throws Exception
     {
         Bean first = MAPPER.readValue
             ("{\"name\":\"first\", \"next\": { "
@@ -85,7 +85,7 @@ class CyclicTypesDeserTest
     }
 
     @Test
-    void testLinkedGeneric() throws Exception
+    void linkedGeneric() throws Exception
     {
         StringLink link = MAPPER.readValue("{\"next\":null}", StringLink.class);
         assertNotNull(link);
@@ -93,7 +93,7 @@ class CyclicTypesDeserTest
     }
 
     @Test
-    void testCycleWith2Classes() throws Exception
+    void cycleWith2Classes() throws Exception
     {
         LinkA a = MAPPER.readValue("{\"next\":{\"a\":null}}", LinkA.class);
         assertNotNull(a.next);
@@ -103,7 +103,7 @@ class CyclicTypesDeserTest
 
     // [Issue#405]: Should be possible to ignore cyclic ref
     @Test
-    void testIgnoredCycle() throws Exception
+    void ignoredCycle() throws Exception
     {
         Selfie405 self1 = new Selfie405(1);
         self1.parent = self1;

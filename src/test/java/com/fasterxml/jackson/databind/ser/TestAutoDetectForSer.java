@@ -50,7 +50,7 @@ class TestAutoDetectForSer
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testDefaults() throws Exception
+    void defaults() throws Exception
     {
         // by default, only public fields and getters are detected
         assertEquals("{\"p1\":\"public\"}",
@@ -60,7 +60,7 @@ class TestAutoDetectForSer
     }
 
     @Test
-    void testProtectedViaAnnotations() throws Exception
+    void protectedViaAnnotations() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new ProtFieldBean());
         assertEquals(2, result.size());
@@ -76,7 +76,7 @@ class TestAutoDetectForSer
     }
 
     @Test
-    void testPrivateUsingGlobals() throws Exception
+    void privateUsingGlobals() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         VisibilityChecker<?> vc = m.getVisibilityChecker();
@@ -101,7 +101,7 @@ class TestAutoDetectForSer
     }
 
     @Test
-    void testBasicSetup() throws Exception
+    void basicSetup() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         VisibilityChecker<?> vc = m.getVisibilityChecker();
@@ -116,7 +116,7 @@ class TestAutoDetectForSer
     }
 
     @Test
-    void testMapperShortcutMethods() throws Exception
+    void mapperShortcutMethods() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);

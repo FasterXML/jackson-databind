@@ -82,7 +82,7 @@ public class TestPolymorphicDeserialization676 extends DatabindTestUtil
      * deserialization will fail at complex type.
      */
     @Test
-    void testDeSerFail() throws IOException {
+    void deSerFail() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
         MapContainer deserMapBad = createDeSerMapContainer(originMap, mapper);
@@ -92,7 +92,7 @@ public class TestPolymorphicDeserialization676 extends DatabindTestUtil
     }
 
     @Test
-    void testDeSerCorrect() throws IOException {
+    void deSerCorrect() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
         Map<String, Object> map = new HashMap<String, Object>();

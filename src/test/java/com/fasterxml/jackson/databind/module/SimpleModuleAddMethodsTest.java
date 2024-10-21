@@ -177,20 +177,20 @@ class SimpleModuleAddMethodsTest extends DatabindTestUtil
     }
 
     @Test
-    void testPojoDeserialization() throws Exception {
+    void pojoDeserialization() throws Exception {
         Dog dog = MAPPER.readValue(a2q("{'name': 'my-dog'}"), Dog.class);
         assertEquals("class-dog", dog.name);
     }
 
     @Test
-    void testPojoSerialization() throws Exception {
+    void pojoSerialization() throws Exception {
         assertEquals(
             a2q("'class-dog'"),
             MAPPER.writeValueAsString(new Dog("my-dog")));
     }
 
     @Test
-    void testRemoveAnnotationUsingMixIn() throws Exception {
+    void removeAnnotationUsingMixIn() throws Exception {
         try {
             MAPPER.readValue(
                 a2q("{'x':1, 'y':2}"), BuildFailBean.class);
@@ -201,7 +201,7 @@ class SimpleModuleAddMethodsTest extends DatabindTestUtil
     }
 
     @Test
-    void testRemoveAnnotationUsingMixInAndOverrideByModule() throws Exception {
+    void removeAnnotationUsingMixInAndOverrideByModule() throws Exception {
         BuildSuccessBean bean = MAPPER.readValue(
             a2q("{'x':1, 'y':2}"), BuildSuccessBean.class);
         assertEquals(7, bean._x);
@@ -209,7 +209,7 @@ class SimpleModuleAddMethodsTest extends DatabindTestUtil
     }
 
     @Test
-    void testDogMapDeserialization() throws Exception {
+    void dogMapDeserialization() throws Exception {
         DogMap map = MAPPER.readValue(a2q("{'simple-dog': 'simple-dog'}"), DogMap.class);
 
         assertEquals(1, map.size());
@@ -220,7 +220,7 @@ class SimpleModuleAddMethodsTest extends DatabindTestUtil
     }
 
     @Test
-    void testDogMapSerialization() throws Exception {
+    void dogMapSerialization() throws Exception {
         DogMap map = new DogMap();
         map.put(new Dog("my-dog"), new Dog("my-dog"));
 
@@ -230,7 +230,7 @@ class SimpleModuleAddMethodsTest extends DatabindTestUtil
     }
 
     @Test
-    void testDogListDeserialization() throws Exception {
+    void dogListDeserialization() throws Exception {
         DogList list = MAPPER.readValue(a2q("['simple-dog']"), DogList.class);
 
         assertEquals(1, list.size());
@@ -240,7 +240,7 @@ class SimpleModuleAddMethodsTest extends DatabindTestUtil
     }
 
     @Test
-    void testDogListSerialization() throws Exception {
+    void dogListSerialization() throws Exception {
         DogList list = new DogList();
         list.add(new Dog("my-dog"));
 

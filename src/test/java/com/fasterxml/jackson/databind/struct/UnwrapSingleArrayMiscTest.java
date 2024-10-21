@@ -26,7 +26,7 @@ class UnwrapSingleArrayMiscTest extends DatabindTestUtil
      */
 
     @Test
-    void testSimplePOJOUnwrapping() throws Exception
+    void simplePOJOUnwrapping() throws Exception
     {
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(IntWrapper.class);
         IntWrapper w = r.readValue(a2q("[{'i':42}]"));
@@ -48,7 +48,7 @@ class UnwrapSingleArrayMiscTest extends DatabindTestUtil
 
     // [databind#2767]: should work for Maps, too
     @Test
-    void testSimpleMapUnwrapping() throws Exception
+    void simpleMapUnwrapping() throws Exception
     {
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(Map.class);
         Map<String,Object> m = r.readValue(a2q("[{'stuff':42}]"));
@@ -63,7 +63,7 @@ class UnwrapSingleArrayMiscTest extends DatabindTestUtil
     }
 
     @Test
-    void testEnumMapUnwrapping() throws Exception
+    void enumMapUnwrapping() throws Exception
     {
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(new TypeReference<EnumMap<ABC,Integer>>() { });
         EnumMap<ABC,Integer> m = r.readValue(a2q("[{'A':42}]"));

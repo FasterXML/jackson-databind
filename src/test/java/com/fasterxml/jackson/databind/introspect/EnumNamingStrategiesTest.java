@@ -138,7 +138,7 @@ class EnumNamingStrategiesTest extends DatabindTestUtil {
      */
     @ParameterizedTest
     @MethodSource("enumNameConversionTestCases")
-    void testEnumNameConversions(EnumNamingStrategy strategy, String input, String output) {
+    void enumNameConversions(EnumNamingStrategy strategy, String input, String output) {
         String actual = strategy.convertEnumToExternalName(input);
         assertEquals(output, actual);
     }

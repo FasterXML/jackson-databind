@@ -56,7 +56,7 @@ class EnumSerializationMixinTest extends DatabindTestUtil
     }
 
     @Test
-    void testSerialization() throws Exception {
+    void serialization() throws Exception {
         ObjectMapper mixinMapper = jsonMapperBuilder()
                 .addMixIn(EnumBaseA.class, EnumMixinA.class).build();
 

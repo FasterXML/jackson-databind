@@ -85,7 +85,7 @@ class DateDeserializationTZTest
      * Test the various timezone/offset representations
      */
     @Test
-    void testDateUtilISO8601_Timezone() throws Exception
+    void dateUtilISO8601Timezone() throws Exception
     {
         // Complete offset, with ':' between hours and minutes
         verify( MAPPER, "2000-01-02T03:04:05.678+01:00", judate(2000, 1, 2,   3, 4, 5, 678, "GMT+1"));
@@ -121,7 +121,7 @@ class DateDeserializationTZTest
      * Test the millis
      */
     @Test
-    void testDateUtilISO8601_DateTimeMillis() throws Exception
+    void dateUtilISO8601DateTimeMillis() throws Exception
     {
         // WITH timezone (from 4 to 0 digits)
     		failure(MAPPER, "2000-01-02T03:04:05.0123456789+01:00");	// at most 9 digits for the millis
@@ -181,7 +181,7 @@ class DateDeserializationTZTest
      * NOTE: millis are not tested here since they are covered by another test case
      */
     @Test
-    void testDateUtilISO8601_DateTime() throws Exception
+    void dateUtilISO8601DateTime() throws Exception
     {
         // Full representation with a timezone
         verify(MAPPER, "2000-01-02T03:04:05+01:00",  judate(2000, 1, 2,   3, 4, 5, 0, "GMT+1"));
@@ -280,7 +280,7 @@ class DateDeserializationTZTest
      * NOTE: time part is not tested here since they it is covered by another test case
      */
     @Test
-    void testDateUtilISO8601_Date() throws Exception
+    void dateUtilISO8601Date() throws Exception
     {
         // Date is constructed with the timezone of the ObjectMapper. Time part is set to zero.
         verify(MAPPER, "2000-01-02", judate(2000, 1, 2,   0, 0, 0, 0, LOCAL_TZ));
@@ -316,7 +316,7 @@ class DateDeserializationTZTest
      * DateTime as numeric representation
      */
     @Test
-    void testDateUtil_Numeric() throws Exception
+    void dateUtilNumeric() throws Exception
     {
         {
             long now = 123456789L;
@@ -351,7 +351,7 @@ class DateDeserializationTZTest
      * Note: may be these cases are already covered by {@link #testDateUtil_Annotation_PatternAndLocale()}
      */
     @Test
-    void testDateUtil_Annotation() throws Exception
+    void dateUtilAnnotation() throws Exception
     {
         // Build the input JSON and expected value
         String json = a2q("{'date':'/2005/05/25/'}");
@@ -386,7 +386,7 @@ class DateDeserializationTZTest
      * Alternate with different combination of Locale and TimeZone.
      */
     @Test
-    void testDateUtil_Annotation_PatternAndLocale() throws Exception
+    void dateUtilAnnotationPatternAndLocale() throws Exception
     {
         // Change the default locale set on the ObjectMapper to something else than the default.
         // This way we know if the default is correctly taken into account
@@ -410,7 +410,7 @@ class DateDeserializationTZTest
      * other than the one set on the ObjectMapper when the JSON doesn't contain any.
      */
     @Test
-    void testDateUtil_Annotation_TimeZone() throws Exception
+    void dateUtilAnnotationTimeZone() throws Exception
     {
         // WITHOUT timezone
         {
@@ -438,7 +438,7 @@ class DateDeserializationTZTest
      * Dates must be constructed with the time zone set on the ObjectMapper.
      */
     @Test
-    void testDateUtil_customDateFormat_withoutTZ() throws Exception
+    void dateUtilCustomDateFormatWithoutTZ() throws Exception
     {
         // FIXME
         //
@@ -491,7 +491,7 @@ class DateDeserializationTZTest
      * of the ObjectMapper.
      */
     @Test
-    void testDateUtil_customDateFormat_withTZ() throws Exception
+    void dateUtilCustomDateFormatWithTZ() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ssZ");

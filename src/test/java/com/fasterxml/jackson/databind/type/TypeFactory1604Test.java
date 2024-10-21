@@ -41,7 +41,7 @@ class TypeFactory1604Test
     static class Right<V> extends Either<Void, V> { }
 
     @Test
-    void testCustomTypesRefinedSimple()
+    void customTypesRefinedSimple()
     {
         TypeFactory tf = newTypeFactory();
         JavaType base = tf.constructType(new TypeReference<Data1604<List<Long>>>() { });
@@ -57,7 +57,7 @@ class TypeFactory1604Test
     }
 
     @Test
-    void testCustomTypesRefinedNested()
+    void customTypesRefinedNested()
     {
         TypeFactory tf = newTypeFactory();
         JavaType base = tf.constructType(new TypeReference<Data1604<List<Long>>>() { });
@@ -73,7 +73,7 @@ class TypeFactory1604Test
     }
 
     @Test
-    void testCustomTypesRefinedSneaky()
+    void customTypesRefinedSneaky()
     {
         TypeFactory tf = newTypeFactory();
         JavaType base = tf.constructType(new TypeReference<Data1604<List<Long>>>() { });
@@ -91,7 +91,7 @@ class TypeFactory1604Test
     }
 
     @Test
-    void testTwoParamSneakyCustom()
+    void twoParamSneakyCustom()
     {
         TypeFactory tf = newTypeFactory();
         JavaType type = tf.constructType(new TypeReference<TwoParam1604<String,List<Long>>>() { });
@@ -116,7 +116,7 @@ class TypeFactory1604Test
 
     // Also: let's not allow mismatching binding
     @Test
-    void testErrorForMismatch()
+    void errorForMismatch()
     {
         TypeFactory tf = newTypeFactory();
         // NOTE: plain `String` NOT `List<String>`
@@ -134,7 +134,7 @@ class TypeFactory1604Test
 
     // [databind#2577]
     @Test
-    void testResolveGenericPartialSubtypes()
+    void resolveGenericPartialSubtypes()
     {
         TypeFactory tf = newTypeFactory();
         JavaType base = tf.constructType(new TypeReference<Either<Object, Object>>() { });

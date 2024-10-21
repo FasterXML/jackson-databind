@@ -38,7 +38,7 @@ class CyclicDataSerTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testLinkedAndCyclic() throws Exception {
+    void linkedAndCyclic() throws Exception {
         CyclicBean bean = new CyclicBean(null, "last");
         bean.assignNext(bean);
         try {
@@ -51,7 +51,7 @@ class CyclicDataSerTest
     }
 
     @Test
-    void testListWithSelfReference() throws Exception {
+    void listWithSelfReference() throws Exception {
         List<Object> list = new ArrayList<>();
         list.add(list);
         try {

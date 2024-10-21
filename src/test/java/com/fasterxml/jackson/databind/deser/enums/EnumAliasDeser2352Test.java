@@ -57,7 +57,7 @@ class EnumAliasDeser2352Test
 
     // for [databind#2352]
     @Test
-    void testEnumWithAlias() throws Exception {
+    void enumWithAlias() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_1.class);
         MyEnum2352_1 nonAliased = reader.readValue(q("A"));
         assertEquals(MyEnum2352_1.A, nonAliased);
@@ -71,7 +71,7 @@ class EnumAliasDeser2352Test
 
     // for [databind#2352]
     @Test
-    void testEnumWithAliasAndToStringSupported() throws Exception {
+    void enumWithAliasAndToStringSupported() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_2.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
         MyEnum2352_2 nonAliased = reader.readValue(q("a"));
@@ -86,7 +86,7 @@ class EnumAliasDeser2352Test
 
     // for [databind#2352]
     @Test
-    void testEnumWithAliasAndDefaultForUnknownValueEnabled() throws Exception {
+    void enumWithAliasAndDefaultForUnknownValueEnabled() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_3.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         MyEnum2352_3 nonAliased = reader.readValue(q("A"));

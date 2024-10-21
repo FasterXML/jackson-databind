@@ -37,7 +37,7 @@ class ObjectIdWithCreator2944Test extends DatabindTestUtil
 
     // [databind#2944]
     @Test
-    void testObjectIdWithCreator() throws Exception {
+    void objectIdWithCreator() throws Exception {
         JsonBean2944 result = MAPPER.readValue(a2q("{'id': 'myId','value': 'myValue'}"),
                 JsonBean2944.class);
         assertNotNull(result);

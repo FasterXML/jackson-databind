@@ -38,17 +38,17 @@ class BufferRecyclersDatabindTest extends DatabindTestUtil
     // // Parsers with RecyclerPools:
 
     @Test
-    void testParserWithThreadLocalPool() throws Exception {
+    void parserWithThreadLocalPool() throws Exception {
         _testParser(JsonRecyclerPools.threadLocalPool());
     }
 
     @Test
-    void testParserWithNopLocalPool() throws Exception {
+    void parserWithNopLocalPool() throws Exception {
         _testParser(JsonRecyclerPools.nonRecyclingPool());
     }
 
     @Test
-    void testParserWithDequeuPool() throws Exception {
+    void parserWithDequeuPool() throws Exception {
         _testParser(JsonRecyclerPools.newConcurrentDequePool());
         _testParser(JsonRecyclerPools.sharedConcurrentDequePool());
     }
@@ -56,19 +56,19 @@ class BufferRecyclersDatabindTest extends DatabindTestUtil
     // tests deprecated impl
     @Test
     @Deprecated
-    void testParserWithLockFreePool() throws Exception {
+    void parserWithLockFreePool() throws Exception {
         _testParser(JsonRecyclerPools.newLockFreePool());
         _testParser(JsonRecyclerPools.sharedLockFreePool());
     }
 
     @Test
-    void testParserWithBoundedPool() throws Exception {
+    void parserWithBoundedPool() throws Exception {
         _testParser(JsonRecyclerPools.newBoundedPool(5));
         _testParser(JsonRecyclerPools.sharedBoundedPool());
     }
 
     @Test
-    void testParserWithHybridPool() throws Exception {
+    void parserWithHybridPool() throws Exception {
         _testParser(new HybridTestPool());
     }
 
@@ -96,17 +96,17 @@ class BufferRecyclersDatabindTest extends DatabindTestUtil
     // // Generators with RecyclerPools:
 
     @Test
-    void testGeneratorWithThreadLocalPool() throws Exception {
+    void generatorWithThreadLocalPool() throws Exception {
         _testGenerator(JsonRecyclerPools.threadLocalPool());
     }
 
     @Test
-    void testGeneratorWithNopLocalPool() throws Exception {
+    void generatorWithNopLocalPool() throws Exception {
         _testGenerator(JsonRecyclerPools.nonRecyclingPool());
     }
 
     @Test
-    void testGeneratorWithDequeuPool() throws Exception {
+    void generatorWithDequeuPool() throws Exception {
         _testGenerator(JsonRecyclerPools.newConcurrentDequePool());
         _testGenerator(JsonRecyclerPools.sharedConcurrentDequePool());
     }
@@ -114,19 +114,19 @@ class BufferRecyclersDatabindTest extends DatabindTestUtil
     // tests deprecated impl
     @Test
     @Deprecated
-    void testGeneratorWithLockFreePool() throws Exception {
+    void generatorWithLockFreePool() throws Exception {
         _testGenerator(JsonRecyclerPools.newLockFreePool());
         _testGenerator(JsonRecyclerPools.sharedLockFreePool());
     }
 
     @Test
-    void testGeneratorWithBoundedPool() throws Exception {
+    void generatorWithBoundedPool() throws Exception {
         _testGenerator(JsonRecyclerPools.newBoundedPool(5));
         _testGenerator(JsonRecyclerPools.sharedBoundedPool());
     }
 
     @Test
-    void testGeneratorWithHybridPool() throws Exception {
+    void generatorWithHybridPool() throws Exception {
         _testGenerator(new HybridTestPool());
     }
 

@@ -108,7 +108,7 @@ class TypedContainerSerTest
      */
 
     @Test
-    void testPolymorphicWithContainer() throws Exception
+    void polymorphicWithContainer() throws Exception
     {
 		Dog dog = new Dog("medor");
 		dog.setBoneCount(3);
@@ -125,7 +125,7 @@ class TypedContainerSerTest
     }
 
     @Test
-    void testIssue329() throws Exception
+    void issue329() throws Exception
     {
         ArrayList<Animal> animals = new ArrayList<Animal>();
         animals.add(new Dog("Spot"));
@@ -137,7 +137,7 @@ class TypedContainerSerTest
     }
 
     @Test
-    void testIssue508() throws Exception
+    void issue508() throws Exception
     {
         List<List<Issue508A>> l = new ArrayList<List<Issue508A>>();
         List<Issue508A> l2 = new ArrayList<Issue508A>();

@@ -51,7 +51,7 @@ class TestStatics
      */
 
     @Test
-    void testStaticFields() throws Exception
+    void staticFields() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         Map<String,Object> result = writeAndMap(m, new FieldBean());
@@ -60,7 +60,7 @@ class TestStatics
     }
 
     @Test
-    void testStaticMethods() throws Exception
+    void staticMethods() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         Map<String,Object> result = writeAndMap(m, new GetterBean());

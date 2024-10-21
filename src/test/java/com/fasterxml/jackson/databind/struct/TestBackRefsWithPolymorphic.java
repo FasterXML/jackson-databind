@@ -213,14 +213,14 @@ class TestBackRefsWithPolymorphic extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testDeserialize() throws IOException
+    void deserialize() throws IOException
     {
         PropertySheet input = MAPPER.readValue(JSON, PropertySheet.class);
         assertEquals(JSON, MAPPER.writeValueAsString(input));
     }
 
     @Test
-    void testSerialize() throws IOException
+    void serialize() throws IOException
     {
         PropertySheet sheet = new PropertySheetImpl();
 

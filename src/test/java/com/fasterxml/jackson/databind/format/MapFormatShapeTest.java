@@ -153,7 +153,7 @@ class MapFormatShapeTest extends DatabindTestUtil
 
     // for [databind#476]: Maps as POJOs
     @Test
-    void testSerializeAsPOJOViaClass() throws Exception
+    void serializeAsPOJOViaClass() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Container(1,2,0));
         assertEquals(a2q("{'a':{'extra':13,'empty':false},'b':{'value':2}}"),
@@ -188,7 +188,7 @@ class MapFormatShapeTest extends DatabindTestUtil
 
     // [databind#1540]
     @Test
-    void testRoundTrip() throws Exception
+    void roundTrip() throws Exception
     {
         Map1540Implementation input = new Map1540Implementation();
         input.property = 55;
@@ -206,7 +206,7 @@ class MapFormatShapeTest extends DatabindTestUtil
 
     // [databind#1554]
     @Test
-    void testDeserializeAsPOJOViaClass() throws Exception
+    void deserializeAsPOJOViaClass() throws Exception
     {
         Map476AsPOJO result = MAPPER.readValue(a2q("{'extra':42}"),
                 Map476AsPOJO.class);

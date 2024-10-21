@@ -67,13 +67,13 @@ class ObjectMapperTest
      */
 
     @Test
-    void testFactoryFeatures()
+    void factoryFeatures()
     {
         assertTrue(MAPPER.isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES));
     }
 
     @Test
-    void testGeneratorFeatures()
+    void generatorFeatures()
     {
         // and also for mapper
         JsonMapper mapper = new JsonMapper();
@@ -90,7 +90,7 @@ class ObjectMapperTest
     }
 
     @Test
-    void testParserFeatures()
+    void parserFeatures()
     {
         // and also for mapper
         ObjectMapper mapper = new ObjectMapper();
@@ -113,7 +113,7 @@ class ObjectMapperTest
 
     // [databind#28]: ObjectMapper.copy()
     @Test
-    void testCopy() throws Exception
+    void copy() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         assertTrue(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
@@ -167,7 +167,7 @@ class ObjectMapperTest
 
     // [databind#1580]
     @Test
-    void testCopyOfConfigOverrides() throws Exception
+    void copyOfConfigOverrides() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         SerializationConfig config = m.getSerializationConfig();
@@ -198,7 +198,7 @@ class ObjectMapperTest
     }
 
     @Test
-    void testCopyWith() throws Exception {
+    void copyWith() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         //configuring some settings to non-defaults
         mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true);
@@ -242,7 +242,7 @@ class ObjectMapperTest
     }
 
     @Test
-    void testFailedCopy() throws Exception
+    void failedCopy() throws Exception
     {
         NoCopyMapper src = new NoCopyMapper();
         try {
@@ -254,7 +254,7 @@ class ObjectMapperTest
     }
 
     @Test
-    void testAnnotationIntrospectorCopying()
+    void annotationIntrospectorCopying()
     {
         ObjectMapper m = new ObjectMapper();
         m.setAnnotationIntrospector(new MyAnnotationIntrospector());
@@ -297,7 +297,7 @@ class ObjectMapperTest
      */
 
     @Test
-    void testProps()
+    void props()
     {
         ObjectMapper m = new ObjectMapper();
         // should have default factory
@@ -310,7 +310,7 @@ class ObjectMapperTest
 
     // Test to ensure that we can check property ordering defaults...
     @Test
-    void testConfigForPropertySorting() throws Exception
+    void configForPropertySorting() throws Exception
     {
         ObjectMapper m = newJsonMapper();
 
@@ -350,7 +350,7 @@ class ObjectMapperTest
 
     // Test to ensure that we can check forced property ordering defaults...
     @Test
-    void testConfigForForcedPropertySorting() throws Exception
+    void configForForcedPropertySorting() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
 
@@ -373,7 +373,7 @@ class ObjectMapperTest
     }
 
     @Test
-    void testJsonFactoryLinkage()
+    void jsonFactoryLinkage()
     {
         // first, implicit factory, giving implicit linkage
         assertSame(MAPPER, MAPPER.getFactory().getCodec());
@@ -386,7 +386,7 @@ class ObjectMapperTest
     }
 
     @Test
-    void testProviderConfig() throws Exception
+    void providerConfig() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         final String JSON = "{ \"x\" : 3 }";
@@ -411,7 +411,7 @@ class ObjectMapperTest
 
     // For [databind#689]
     @Test
-    void testCustomDefaultPrettyPrinter() throws Exception
+    void customDefaultPrettyPrinter() throws Exception
     {
         final ObjectMapper m = new ObjectMapper();
         final int[] input = new int[] { 1, 2 };
@@ -439,7 +439,7 @@ class ObjectMapperTest
     // For [databind#703], [databind#978]
     @SuppressWarnings("deprecation")
     @Test
-    void testNonSerializabilityOfObject()
+    void nonSerializabilityOfObject()
     {
         ObjectMapper m = new ObjectMapper();
         assertFalse(m.canSerialize(Object.class));
@@ -459,7 +459,7 @@ class ObjectMapperTest
     // for [databind#756]
     @SuppressWarnings("deprecation")
     @Test
-    void testEmptyBeanSerializability()
+    void emptyBeanSerializability()
     {
         // with default settings, error
         assertFalse(MAPPER.writer().with(SerializationFeature.FAIL_ON_EMPTY_BEANS)
@@ -472,7 +472,7 @@ class ObjectMapperTest
     // for [databind#2749]: just to check there's no NPE; method really not useful
     @SuppressWarnings("deprecation")
     @Test
-    void testCanDeserialize()
+    void canDeserialize()
     {
         assertTrue(MAPPER.canDeserialize(MAPPER.constructType(EmptyBean.class)));
         assertTrue(MAPPER.canDeserialize(MAPPER.constructType(Object.class)));
@@ -480,7 +480,7 @@ class ObjectMapperTest
 
     // for [databind#898]
     @Test
-    void testSerializerProviderAccess() throws Exception
+    void serializerProviderAccess() throws Exception
     {
         // ensure we have "fresh" instance, just in case
         ObjectMapper mapper = new ObjectMapper();
@@ -492,7 +492,7 @@ class ObjectMapperTest
 
     // for [databind#1074]
     @Test
-    void testCopyOfParserFeatures() throws Exception
+    void copyOfParserFeatures() throws Exception
     {
         // ensure we have "fresh" instance to start with
         ObjectMapper mapper = new ObjectMapper();
@@ -511,7 +511,7 @@ class ObjectMapperTest
 
     // since 2.8
     @Test
-    void testDataOutputViaMapper() throws Exception
+    void dataOutputViaMapper() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         ObjectNode input = MAPPER.createObjectNode();
@@ -533,7 +533,7 @@ class ObjectMapperTest
     // since 2.8
     @SuppressWarnings("unchecked")
     @Test
-    void testDataInputViaMapper() throws Exception
+    void dataInputViaMapper() throws Exception
     {
         byte[] src = "{\"a\":1}".getBytes("UTF-8");
         DataInput input = new DataInputStream(new ByteArrayInputStream(src));
@@ -554,7 +554,7 @@ class ObjectMapperTest
 
     @SuppressWarnings("serial")
     @Test
-    void testRegisterDependentModules() {
+    void registerDependentModules() {
         ObjectMapper objectMapper = newJsonMapper();
 
         final SimpleModule secondModule = new SimpleModule() {
@@ -593,7 +593,7 @@ class ObjectMapperTest
 
     // since 2.12
     @Test
-    void testHasExplicitTimeZone() throws Exception
+    void hasExplicitTimeZone() throws Exception
     {
         final TimeZone DEFAULT_TZ = TimeZone.getTimeZone("UTC");
 

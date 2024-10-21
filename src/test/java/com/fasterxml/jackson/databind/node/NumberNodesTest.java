@@ -46,7 +46,7 @@ class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    void testIntViaMapper() throws Exception
+    void intViaMapper() throws Exception
     {
         int value = -90184;
         JsonNode result = MAPPER.readTree(String.valueOf(value));
@@ -133,7 +133,7 @@ class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    void testLongViaMapper() throws Exception
+    void longViaMapper() throws Exception
     {
         // need to use something beyond 32-bit value space
         long value = 12345678L << 32;
@@ -196,7 +196,7 @@ class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    void testDoubleViaMapper() throws Exception
+    void doubleViaMapper() throws Exception
     {
         double value = 3.04;
         JsonNode result = MAPPER.readTree(String.valueOf(value));
@@ -267,7 +267,7 @@ class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    void testDecimalNode() throws Exception
+    void decimalNode() throws Exception
     {
         DecimalNode n = DecimalNode.valueOf(BigDecimal.ONE);
         assertStandardEquals(n);
@@ -325,7 +325,7 @@ class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    void testDecimalNodeEqualsHashCode()
+    void decimalNodeEqualsHashCode()
     {
         // We want DecimalNodes with equivalent _numeric_ values to be equal;
         // this is not the case for BigDecimal where "1.0" and "1" are not
@@ -351,7 +351,7 @@ class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    void testBigIntegerNode() throws Exception
+    void bigIntegerNode() throws Exception
     {
         BigIntegerNode n = BigIntegerNode.valueOf(BigInteger.ONE);
         assertStandardEquals(n);
@@ -394,7 +394,7 @@ class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    void testBigDecimalAsPlain() throws Exception
+    void bigDecimalAsPlain() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
@@ -415,7 +415,7 @@ class NumberNodesTest extends NodeTestBase
 
     // Related to [databind#333]
     @Test
-    void testCanonicalNumbers() throws Exception
+    void canonicalNumbers() throws Exception
     {
         JsonNodeFactory f = new JsonNodeFactory();
         NumericNode n = f.numberNode(123);

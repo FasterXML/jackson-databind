@@ -85,7 +85,7 @@ class VisibilityForSerializationTest
      */
 
     @Test
-    void testGlobalAutoDetection() throws IOException
+    void globalAutoDetection() throws IOException
     {
         // First: auto-detection enabled (default):
         ObjectMapper m = new ObjectMapper();
@@ -105,7 +105,7 @@ class VisibilityForSerializationTest
     }
 
     @Test
-    void testPerClassAutoDetection() throws IOException
+    void perClassAutoDetection() throws IOException
     {
         // First: class-level auto-detection disabling
         ObjectMapper m = new ObjectMapper();
@@ -124,7 +124,7 @@ class VisibilityForSerializationTest
     }
 
     @Test
-    void testPerClassAutoDetectionForIsGetter() throws IOException
+    void perClassAutoDetectionForIsGetter() throws IOException
     {
         ObjectMapper m = jsonMapperBuilder()
         // class level should override
@@ -138,7 +138,7 @@ class VisibilityForSerializationTest
 
     // Simple test verifying that chainable methods work ok...
     @Test
-    void testConfigChainability()
+    void configChainability()
     {
         ObjectMapper m = new ObjectMapper();
         assertTrue(m.isEnabled(MapperFeature.AUTO_DETECT_SETTERS));
@@ -152,7 +152,7 @@ class VisibilityForSerializationTest
     }
 
     @Test
-    void testVisibilityFeatures() throws Exception
+    void visibilityFeatures() throws Exception
     {
         ObjectMapper om = jsonMapperBuilder()
         // Only use explicitly specified values to be serialized/deserialized (i.e., JSONProperty).

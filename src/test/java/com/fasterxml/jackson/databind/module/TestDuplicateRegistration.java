@@ -35,7 +35,7 @@ class TestDuplicateRegistration extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    void testDuplicateRegistration() throws Exception
+    void duplicateRegistration() throws Exception
     {
         // by default, duplicate registration should be prevented
         ObjectMapper mapper = newJsonMapper();

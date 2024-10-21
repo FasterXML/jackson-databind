@@ -51,7 +51,7 @@ class TestGenericListSerialization
      */
 
     @Test
-    void testSubTypesFor356() throws Exception
+    void subTypesFor356() throws Exception
     {
         JSONResponse<List<Parent>> input = new JSONResponse<List<Parent>>();
 

@@ -167,7 +167,7 @@ class TestVisibleTypeId extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testVisibleWithProperty() throws Exception
+    void visibleWithProperty() throws Exception
     {
         String json = MAPPER.writeValueAsString(new PropertyBean());
         // just default behavior:
@@ -183,7 +183,7 @@ class TestVisibleTypeId extends DatabindTestUtil
     }
 
     @Test
-    void testVisibleWithWrapperArray() throws Exception
+    void visibleWithWrapperArray() throws Exception
     {
         String json = MAPPER.writeValueAsString(new WrapperArrayBean());
         // just default behavior:
@@ -195,7 +195,7 @@ class TestVisibleTypeId extends DatabindTestUtil
     }
 
     @Test
-    void testVisibleWithWrapperObject() throws Exception
+    void visibleWithWrapperObject() throws Exception
     {
         String json = MAPPER.writeValueAsString(new WrapperObjectBean());
         assertEquals("{\"ObjectType\":{\"a\":2}}", json);
@@ -205,28 +205,28 @@ class TestVisibleTypeId extends DatabindTestUtil
     }
 
     @Test
-    void testTypeIdFromProperty() throws Exception
+    void typeIdFromProperty() throws Exception
     {
         assertEquals("{\"type\":\"SomeType\",\"a\":3}",
                 MAPPER.writeValueAsString(new TypeIdFromFieldProperty()));
     }
 
     @Test
-    void testTypeIdFromArray() throws Exception
+    void typeIdFromArray() throws Exception
     {
         assertEquals("[\"SomeType\",{\"a\":3}]",
                 MAPPER.writeValueAsString(new TypeIdFromFieldArray()));
     }
 
     @Test
-    void testTypeIdFromObject() throws Exception
+    void typeIdFromObject() throws Exception
     {
         assertEquals("{\"SomeType\":{\"a\":3}}",
                 MAPPER.writeValueAsString(new TypeIdFromMethodObject()));
     }
 
     @Test
-    void testTypeIdFromExternal() throws Exception
+    void typeIdFromExternal() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ExternalIdWrapper2());
         // Implementation detail: type id written AFTER value, due to constraints
@@ -235,7 +235,7 @@ class TestVisibleTypeId extends DatabindTestUtil
     }
 
     @Test
-    void testIssue263() throws Exception
+    void issue263() throws Exception
     {
         // first, serialize:
         assertEquals("{\"name\":\"bob\",\"age\":41}", MAPPER.writeValueAsString(new I263Impl()));
@@ -252,7 +252,7 @@ class TestVisibleTypeId extends DatabindTestUtil
      *  to how JSON structure is.
      */
     @Test
-    void testVisibleTypeId408() throws Exception
+    void visibleTypeId408() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ExternalBeanWithId(3));
         ExternalBeanWithId result = MAPPER.readValue(json, ExternalBeanWithId.class);
@@ -269,7 +269,7 @@ class TestVisibleTypeId extends DatabindTestUtil
      */
 
     @Test
-    void testInvalidMultipleTypeIds() throws Exception
+    void invalidMultipleTypeIds() throws Exception
     {
         try {
             MAPPER.writeValueAsString(new MultipleIds());

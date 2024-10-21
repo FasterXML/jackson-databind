@@ -44,7 +44,7 @@ class DeserExceptionTypeTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testHandlingOfUnrecognized() throws Exception
+    void handlingOfUnrecognized() throws Exception
     {
         UnrecognizedPropertyException exc = null;
         try {
@@ -66,7 +66,7 @@ class DeserExceptionTypeTest
      * without content.
      */
     @Test
-    void testExceptionWithEmpty() throws Exception
+    void exceptionWithEmpty() throws Exception
     {
         try {
             Object result = MAPPER.readValue("    ", Object.class);
@@ -77,7 +77,7 @@ class DeserExceptionTypeTest
     }
 
     @Test
-    void testExceptionWithIncomplete()
+    void exceptionWithIncomplete()
             throws Exception
     {
         BrokenStringReader r = new BrokenStringReader("[ 1, ", "TEST");
@@ -93,7 +93,7 @@ class DeserExceptionTypeTest
     }
 
     @Test
-    void testExceptionWithEOF() throws Exception
+    void exceptionWithEOF() throws Exception
     {
         JsonParser p = MAPPER.createParser("  3");
 
@@ -117,7 +117,7 @@ class DeserExceptionTypeTest
 
     // [databind#1414]
     @Test
-    void testExceptionForNoCreators() throws Exception
+    void exceptionForNoCreators() throws Exception
     {
         try {
             NoCreatorsBean b = MAPPER.readValue("{}", NoCreatorsBean.class);

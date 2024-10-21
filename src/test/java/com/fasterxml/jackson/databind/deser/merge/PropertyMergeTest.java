@@ -117,7 +117,7 @@ class PropertyMergeTest
             .build();
 
     @Test
-    void testBeanMergingViaProp() throws Exception
+    void beanMergingViaProp() throws Exception
     {
         Config config = MAPPER.readValue(a2q("{'loc':{'b':3}}"), Config.class);
         assertEquals(1, config.loc.a);
@@ -130,7 +130,7 @@ class PropertyMergeTest
     }
 
     @Test
-    void testBeanMergingViaType() throws Exception
+    void beanMergingViaType() throws Exception
     {
         // by default, no merging
         NonMergeConfig config = MAPPER.readValue(a2q("{'loc':{'a':3}}"), NonMergeConfig.class);
@@ -146,7 +146,7 @@ class PropertyMergeTest
     }
 
     @Test
-    void testBeanMergingViaGlobal() throws Exception
+    void beanMergingViaGlobal() throws Exception
     {
         // but with type-overrides
         ObjectMapper mapper = newJsonMapper()
@@ -167,7 +167,7 @@ class PropertyMergeTest
 
     // should even work with no setter
     @Test
-    void testBeanMergingWithoutSetter() throws Exception
+    void beanMergingWithoutSetter() throws Exception
     {
         NoSetterConfig config = MAPPER.readValue(a2q("{'value':{'b':99}}"),
                 NoSetterConfig.class);
@@ -183,7 +183,7 @@ class PropertyMergeTest
 
     // [databind#2280]
     @Test
-    void testBeanMergeUsingConstructors() throws Exception {
+    void beanMergeUsingConstructors() throws Exception {
         ConstructorArgsPojo input = new ConstructorArgsPojo(new ConstructorArgsPojo.MergeablePojo("foo", "bar"));
 
         ConstructorArgsPojo result = MAPPER.setDefaultMergeable(true)
@@ -201,7 +201,7 @@ class PropertyMergeTest
      */
 
     @Test
-    void testBeanAsArrayMerging() throws Exception
+    void beanAsArrayMerging() throws Exception
     {
         ABAsArray input = new ABAsArray();
         input.a = 4;
@@ -244,7 +244,7 @@ class PropertyMergeTest
      */
 
     @Test
-    void testReferenceMerging() throws Exception
+    void referenceMerging() throws Exception
     {
         MergedReference result = MAPPER.readValue(a2q("{'value':'override'}"),
                 MergedReference.class);
@@ -258,7 +258,7 @@ class PropertyMergeTest
      */
 
     @Test
-    void testInvalidPropertyMerge() throws Exception
+    void invalidPropertyMerge() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)

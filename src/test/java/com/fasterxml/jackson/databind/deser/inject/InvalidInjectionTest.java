@@ -32,7 +32,7 @@ class InvalidInjectionTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testInvalidDup() throws Exception
+    void invalidDup() throws Exception
     {
         try {
             MAPPER.readValue("{}", BadBean1.class);

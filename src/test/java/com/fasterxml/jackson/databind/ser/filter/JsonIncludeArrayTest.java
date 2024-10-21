@@ -79,20 +79,20 @@ class JsonIncludeArrayTest extends DatabindTestUtil
     final private ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testByteArray() throws IOException
+    void byteArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyByteArray()));
     }
 
     @Test
-    void testShortArray() throws IOException
+    void shortArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyShortArray()));
         assertEquals("{\"value\":[1]}", MAPPER.writeValueAsString(new NonEmptyShortArray((short) 1)));
     }
 
     @Test
-    void testCharArray() throws IOException
+    void charArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyCharArray()));
         // by default considered to be serialized as String
@@ -104,35 +104,35 @@ class JsonIncludeArrayTest extends DatabindTestUtil
     }
 
     @Test
-    void testIntArray() throws IOException
+    void intArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyIntArray()));
         assertEquals("{\"value\":[2]}", MAPPER.writeValueAsString(new NonEmptyIntArray(2)));
     }
 
     @Test
-    void testLongArray() throws IOException
+    void longArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyLongArray()));
         assertEquals("{\"value\":[3,4]}", MAPPER.writeValueAsString(new NonEmptyLongArray(3, 4)));
     }
 
     @Test
-    void testBooleanArray() throws IOException
+    void booleanArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyBooleanArray()));
         assertEquals("{\"value\":[true,false]}", MAPPER.writeValueAsString(new NonEmptyBooleanArray(true,false)));
     }
 
     @Test
-    void testDoubleArray() throws IOException
+    void doubleArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyDoubleArray()));
         assertEquals("{\"value\":[0.25,-1.0]}", MAPPER.writeValueAsString(new NonEmptyDoubleArray(0.25,-1.0)));
     }
 
     @Test
-    void testFloatArray() throws IOException
+    void floatArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyFloatArray()));
         assertEquals("{\"value\":[0.5]}", MAPPER.writeValueAsString(new NonEmptyFloatArray(0.5f)));

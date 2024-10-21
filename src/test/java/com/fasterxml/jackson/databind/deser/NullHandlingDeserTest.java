@@ -111,7 +111,7 @@ class NullHandlingDeserTest
     }
 
     @Test
-    void testAnySetterNulls() throws Exception {
+    void anySetterNulls() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(String.class, new FunnyNullDeserializer());
@@ -137,7 +137,7 @@ class NullHandlingDeserTest
     }
 
     @Test
-    void testCustomRootNulls() throws Exception
+    void customRootNulls() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -158,7 +158,7 @@ class NullHandlingDeserTest
 
     // [databind#407]
     @Test
-    void testListOfNulls() throws Exception
+    void listOfNulls() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -184,7 +184,7 @@ class NullHandlingDeserTest
 
     // Test for [#407]
     @Test
-    void testMapOfNulls() throws Exception
+    void mapOfNulls() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -208,7 +208,7 @@ class NullHandlingDeserTest
 
     // [databind#1601]
     @Test
-    void testPolymorphicDataNull() throws Exception
+    void polymorphicDataNull() throws Exception
     {
         String typeA =
                 "{\"name\":\"TypeAData\", \"type\":\"TypeA\", \"proxy\":{\"aValue\":\"This works!\"}}";
@@ -226,7 +226,7 @@ class NullHandlingDeserTest
 
     // Test for [databind#3227]
     @Test
-    void testContentsNullFailForMaps() throws Exception
+    void contentsNullFailForMaps() throws Exception
     {
         try {
             CONTENT_NULL_FAIL_MAPPER.readValue("{ \"field\": null, \"property\": 1 }", Map.class);
@@ -245,7 +245,7 @@ class NullHandlingDeserTest
 
     // Test for [databind#3227]
     @Test
-    void testContentsNullFailForCollections() throws Exception
+    void contentsNullFailForCollections() throws Exception
     {
         try {
             CONTENT_NULL_FAIL_MAPPER.readValue("[null, {\"field\": 1}]",
@@ -280,7 +280,7 @@ class NullHandlingDeserTest
 
     // Test for [databind#3227]
     @Test
-    void testContentsNullFailForArrays() throws Exception
+    void contentsNullFailForArrays() throws Exception
     {
         try {
             CONTENT_NULL_FAIL_MAPPER.readValue("[null, {\"field\": 1}]", Object[].class);

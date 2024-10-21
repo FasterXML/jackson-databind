@@ -47,7 +47,7 @@ class NullConversionsForContent4200Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testDelegatingCreatorNulls4200() throws Exception
+    void delegatingCreatorNulls4200() throws Exception
     {
         try {
             MAPPER.readValue(a2q("{'foo': null}"), DelegatingWrapper4200.class);
@@ -58,7 +58,7 @@ class NullConversionsForContent4200Test
     }
 
     @Test
-    void testSetterNulls4200() throws Exception
+    void setterNulls4200() throws Exception
     {
         try {
             MAPPER.readValue(a2q("{'value':{'foo': null}}"),

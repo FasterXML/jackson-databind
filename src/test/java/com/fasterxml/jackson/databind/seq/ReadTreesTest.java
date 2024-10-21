@@ -25,7 +25,7 @@ class ReadTreesTest extends DatabindTestUtil
      */
 
     @Test
-    void testReadTreeSequence() throws Exception
+    void readTreeSequence() throws Exception
     {
         final String INPUT = a2q(
                 "{\"id\":1, \"value\":137 }\n" +
@@ -66,7 +66,7 @@ class ReadTreesTest extends DatabindTestUtil
      */
 
     @Test
-    void testReadPOJOHandleFail() throws Exception
+    void readPOJOHandleFail() throws Exception
     {
         final String INPUT = a2q(
                 "{\"id\":1, \"value\":137 }\n" +

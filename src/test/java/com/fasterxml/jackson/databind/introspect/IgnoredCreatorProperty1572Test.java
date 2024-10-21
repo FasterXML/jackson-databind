@@ -62,7 +62,7 @@ class IgnoredCreatorProperty1572Test extends DatabindTestUtil
 
     // [databind#1572]
     @Test
-    void testIgnoredCtorParam() throws Exception
+    void ignoredCtorParam() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new ImplicitNames());

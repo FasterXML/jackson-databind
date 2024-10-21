@@ -14,7 +14,7 @@ class ScalarConversionTest
 
     // [databind#1433]
     @Test
-    void testConvertValueNullPrimitive() throws Exception
+    void convertValueNullPrimitive() throws Exception
     {
         assertEquals(Byte.valueOf((byte) 0), MAPPER.convertValue(null, Byte.TYPE));
         assertEquals(Short.valueOf((short) 0), MAPPER.convertValue(null, Short.TYPE));
@@ -28,7 +28,7 @@ class ScalarConversionTest
 
     // [databind#1433]
     @Test
-    void testConvertValueNullBoxed() throws Exception
+    void convertValueNullBoxed() throws Exception
     {
         assertNull(MAPPER.convertValue(null, Byte.class));
         assertNull(MAPPER.convertValue(null, Short.class));

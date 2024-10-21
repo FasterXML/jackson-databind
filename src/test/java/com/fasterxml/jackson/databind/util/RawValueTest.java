@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RawValueTest extends DatabindTestUtil
 {
     @Test
-    void testEquality()
+    void equality()
     {
         RawValue raw1 = new RawValue("foo");
         RawValue raw1b = new RawValue("foo");

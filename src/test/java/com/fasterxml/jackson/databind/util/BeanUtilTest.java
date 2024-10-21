@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class BeanUtilTest extends DatabindTestUtil
 {
     @Test
-    void testGetDefaultValue()
+    void getDefaultValue()
     {
         TypeFactory tf = defaultTypeFactory();
         // For collection/array/Map types, should give `NOT_EMPTY`:

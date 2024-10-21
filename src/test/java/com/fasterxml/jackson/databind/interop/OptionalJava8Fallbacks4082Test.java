@@ -26,7 +26,7 @@ class OptionalJava8Fallbacks4082Test extends DatabindTestUtil
 
     // Test to prevent serialization as POJO, without Java 8 date/time module:
     @Test
-    void testPreventSerialization() throws Exception {
+    void preventSerialization() throws Exception {
         _testPreventSerialization(Optional.empty());
         _testPreventSerialization(OptionalInt.of(13));
         _testPreventSerialization(OptionalLong.of(-1L));
@@ -46,7 +46,7 @@ class OptionalJava8Fallbacks4082Test extends DatabindTestUtil
     }
 
     @Test
-    void testBetterDeserializationError() throws Exception
+    void betterDeserializationError() throws Exception
     {
         _testBetterDeserializationError(Optional.class);
         _testBetterDeserializationError(OptionalInt.class);
@@ -67,7 +67,7 @@ class OptionalJava8Fallbacks4082Test extends DatabindTestUtil
 
     // But, [databind#3091], allow deser from JsonToken.VALUE_EMBEDDED_OBJECT
     @Test
-    void testAllowAsEmbedded() throws Exception
+    void allowAsEmbedded() throws Exception
     {
         Optional<Object> optValue = Optional.empty();
         try (TokenBuffer tb = new TokenBuffer((ObjectCodec) null, false)) {

@@ -132,7 +132,7 @@ class SerializationAnnotationsTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleGetter() throws Exception
+    void simpleGetter() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter());
         assertEquals(3, result.size());
@@ -142,7 +142,7 @@ class SerializationAnnotationsTest
     }
 
     @Test
-    void testSimpleGetter2() throws Exception
+    void simpleGetter2() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter2());
         assertEquals(1, result.size());
@@ -151,7 +151,7 @@ class SerializationAnnotationsTest
 
     // testing [JACKSON-120], implied getter
     @Test
-    void testSimpleGetter3() throws Exception
+    void simpleGetter3() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter3());
         assertEquals(1, result.size());
@@ -163,7 +163,7 @@ class SerializationAnnotationsTest
      * as expected
      */
     @Test
-    void testGetterInheritance() throws Exception
+    void getterInheritance() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SubClassBean());
         assertEquals(3, result.size());
@@ -177,7 +177,7 @@ class SerializationAnnotationsTest
      * when applied to a class
      */
     @Test
-    void testClassSerializer() throws Exception
+    void classSerializer() throws Exception
     {
         StringWriter sw = new StringWriter();
         MAPPER.writeValue(sw, new ClassSerializer());
@@ -189,7 +189,7 @@ class SerializationAnnotationsTest
      * when applied to a Method
      */
     @Test
-    void testActiveMethodSerializer() throws Exception
+    void activeMethodSerializer() throws Exception
     {
         StringWriter sw = new StringWriter();
         MAPPER.writeValue(sw, new ClassMethodSerializer(13));
@@ -200,7 +200,7 @@ class SerializationAnnotationsTest
     }
 
     @Test
-    void testInactiveMethodSerializer() throws Exception
+    void inactiveMethodSerializer() throws Exception
     {
         String json = MAPPER.writeValueAsString(new InactiveClassMethodSerializer(8));
         // Here we will get wrapped as an object, since we have

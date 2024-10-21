@@ -45,7 +45,7 @@ class TestExceptionHandlingWithDefaultDeserialization
     }
 
     @Test
-    void testShouldThrowExceptionWithPathReference() throws IOException {
+    void shouldThrowExceptionWithPathReference() throws IOException {
         // given
         ObjectMapper mapper = newJsonMapper();
         String input = "{\"bar\":{\"baz\":{qux:\"quxValue\"))}";

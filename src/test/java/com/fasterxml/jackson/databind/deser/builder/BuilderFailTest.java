@@ -71,7 +71,7 @@ class BuilderFailTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testBuilderMethodReturnInvalidType() throws Exception
+    void builderMethodReturnInvalidType() throws Exception
     {
         final String json = "{\"x\":1}";
         try {
@@ -85,7 +85,7 @@ class BuilderFailTest
     }
 
     @Test
-    void testExtraFields() throws Exception
+    void extraFields() throws Exception
     {
         final String json = a2q("{'x':1,'y':2,'z':3}");
         try {

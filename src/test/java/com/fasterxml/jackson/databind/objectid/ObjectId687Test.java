@@ -73,7 +73,7 @@ class ObjectId687Test extends DatabindTestUtil
 
     // for [databind#687]
     @Test
-    void testSerializeDeserializeWithCreator() throws IOException {
+    void serializeDeserializeWithCreator() throws IOException {
         ReferredWithCreator base = new ReferredWithCreator("label1");
         ReferringToObjWithCreator r = new ReferringToObjWithCreator();
         r.addRef(base);
@@ -93,7 +93,7 @@ class ObjectId687Test extends DatabindTestUtil
     }
 
     @Test
-    void testSerializeDeserializeNoCreator() throws IOException {
+    void serializeDeserializeNoCreator() throws IOException {
         ReferredWithNoCreator base = new ReferredWithNoCreator();
         ReferringToObjWithNoCreator r = new ReferringToObjWithNoCreator();
         r.addRef(base);

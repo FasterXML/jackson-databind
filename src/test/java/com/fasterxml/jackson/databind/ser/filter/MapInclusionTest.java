@@ -69,7 +69,7 @@ class MapInclusionTest extends DatabindTestUtil
 
     // [databind#588]
     @Test
-    void testNonEmptyValueMapViaProp() throws IOException
+    void nonEmptyValueMapViaProp() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoEmptiesMapContainer()
             .add("a", null)
@@ -78,7 +78,7 @@ class MapInclusionTest extends DatabindTestUtil
     }
 
     @Test
-    void testNoNullsMap() throws IOException
+    void noNullsMap() throws IOException
     {
         NoNullsMapContainer input = new NoNullsMapContainer()
                 .add("a", null)
@@ -88,7 +88,7 @@ class MapInclusionTest extends DatabindTestUtil
     }
 
     @Test
-    void testNonEmptyNoNullsMap() throws IOException
+    void nonEmptyNoNullsMap() throws IOException
     {
         NoNullsNotEmptyMapContainer input = new NoNullsNotEmptyMapContainer()
                 .add("a", null)
@@ -104,7 +104,7 @@ class MapInclusionTest extends DatabindTestUtil
 
     // [databind#2909]
     @Test
-    void testMapViaJsonValue() throws Exception
+    void mapViaJsonValue() throws Exception
     {
         assertEquals(a2q("{}"), MAPPER.writeValueAsString(new TopLevel2099()));
     }

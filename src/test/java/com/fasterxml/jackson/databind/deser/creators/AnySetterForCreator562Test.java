@@ -175,7 +175,7 @@ class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    void testNodeAnySetterViaCreator562() throws Exception
+    void nodeAnySetterViaCreator562() throws Exception
     {
         PojoWithNodeAnySetter pojo = MAPPER.readValue(
                 a2q("{'a':'value', 'b':42, 'c': 111}"),
@@ -192,7 +192,7 @@ class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    void testAnyMapWithNullCreatorProp() throws Exception
+    void anyMapWithNullCreatorProp() throws Exception
     {
         ObjectMapper failOnNullMapper = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES).build();
@@ -203,7 +203,7 @@ class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    void testAnyMapWithMissingCreatorProp() throws Exception
+    void anyMapWithMissingCreatorProp() throws Exception
     {
         ObjectMapper failOnMissingMapper = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES).build();
@@ -222,7 +222,7 @@ class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    void testAnyMapWithNullOrMissingCreatorProp() throws Exception
+    void anyMapWithNullOrMissingCreatorProp() throws Exception
     {
         ObjectMapper failOnBothMapper = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)
@@ -237,7 +237,7 @@ class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    void testAnySetterViaCreator562FailForDup() throws Exception
+    void anySetterViaCreator562FailForDup() throws Exception
     {
         try {
             MAPPER.readValue("{}", MultipleAny562.class);
@@ -249,7 +249,7 @@ class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    void testAnySetterViaCreator562Disabled() throws Exception
+    void anySetterViaCreator562Disabled() throws Exception
     {
         try {
             MAPPER.readValue(a2q("{'a':'value', 'b':42, 'c': 111}"),

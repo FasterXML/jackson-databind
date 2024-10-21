@@ -48,7 +48,7 @@ class ReadValuesTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testRootBeans() throws Exception
+    void rootBeans() throws Exception
     {
         for (Source src : Source.values()) {
             _testRootBeans(src);
@@ -116,7 +116,7 @@ class ReadValuesTest extends DatabindTestUtil
     }
 
     @Test
-    void testRootBeansInArray() throws Exception
+    void rootBeansInArray() throws Exception
     {
         final String JSON = "[{\"a\":6}, {\"a\":-7}]";
 
@@ -146,7 +146,7 @@ class ReadValuesTest extends DatabindTestUtil
     }
 
     @Test
-    void testRootMaps() throws Exception
+    void rootMaps() throws Exception
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
         Iterator<Map<?,?>> it = MAPPER.readerFor(Map.class).readValues(JSON);
@@ -171,7 +171,7 @@ class ReadValuesTest extends DatabindTestUtil
      */
 
     @Test
-    void testRootBeansWithParser() throws Exception
+    void rootBeansWithParser() throws Exception
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
         JsonParser jp = MAPPER.createParser(JSON);
@@ -188,7 +188,7 @@ class ReadValuesTest extends DatabindTestUtil
     }
 
     @Test
-    void testRootArraysWithParser() throws Exception
+    void rootArraysWithParser() throws Exception
     {
         final String JSON = "[1][3]";
         JsonParser jp = MAPPER.createParser(JSON);
@@ -210,7 +210,7 @@ class ReadValuesTest extends DatabindTestUtil
     }
 
     @Test
-    void testHasNextWithEndArray() throws Exception {
+    void hasNextWithEndArray() throws Exception {
         final String JSON = "[1,3]";
         JsonParser jp = MAPPER.createParser(JSON);
 
@@ -231,7 +231,7 @@ class ReadValuesTest extends DatabindTestUtil
     }
 
     @Test
-    void testHasNextWithEndArrayManagedParser() throws Exception {
+    void hasNextWithEndArrayManagedParser() throws Exception {
         final String JSON = "[1,3]";
 
         Iterator<Integer> it = MAPPER.readerFor(Integer.class).readValues(JSON);
@@ -252,7 +252,7 @@ class ReadValuesTest extends DatabindTestUtil
      */
 
     @Test
-    void testNonRootBeans() throws Exception
+    void nonRootBeans() throws Exception
     {
         final String JSON = "{\"leaf\":[{\"a\":3},{\"a\":27}]}";
         JsonParser jp = MAPPER.createParser(JSON);
@@ -277,7 +277,7 @@ class ReadValuesTest extends DatabindTestUtil
     }
 
     @Test
-    void testNonRootMapsWithParser() throws Exception
+    void nonRootMapsWithParser() throws Exception
     {
         final String JSON = "[{\"a\":3},{\"a\":27}]";
         JsonParser jp = MAPPER.createParser(JSON);
@@ -303,7 +303,7 @@ class ReadValuesTest extends DatabindTestUtil
     }
 
     @Test
-    void testNonRootMapsWithObjectReader() throws Exception
+    void nonRootMapsWithObjectReader() throws Exception
     {
         String JSON = "[{ \"hi\": \"ho\", \"neighbor\": \"Joe\" },\n"
             +"{\"boy\": \"howdy\", \"huh\": \"what\"}]";
@@ -323,31 +323,31 @@ class ReadValuesTest extends DatabindTestUtil
     }
 
     @Test
-    void testObjectReaderWithJsonParserFastDoubleParser() throws Exception
+    void objectReaderWithJsonParserFastDoubleParser() throws Exception
     {
         testObjectReaderWithFastDoubleParser(true);
     }
 
     @Test
-    void testObjectReaderWithJsonReadFeatureFastDoubleParser() throws Exception
+    void objectReaderWithJsonReadFeatureFastDoubleParser() throws Exception
     {
         testObjectReaderWithFastDoubleParser(false);
     }
 
     @Test
-    void testObjectReaderWithJsonParserFastFloatParser() throws Exception
+    void objectReaderWithJsonParserFastFloatParser() throws Exception
     {
         testObjectReaderWithFastFloatParser(true);
     }
 
     @Test
-    void testObjectReaderWithJsonReadFeatureFastFloatParser() throws Exception
+    void objectReaderWithJsonReadFeatureFastFloatParser() throws Exception
     {
         testObjectReaderWithFastFloatParser(false);
     }
 
     @Test
-    void testNonRootArraysUsingParser() throws Exception
+    void nonRootArraysUsingParser() throws Exception
     {
         final String JSON = "[[1],[3]]";
         JsonParser p = MAPPER.createParser(JSON);
@@ -373,7 +373,7 @@ class ReadValuesTest extends DatabindTestUtil
     }
 
     @Test
-    void testEmptyIterator() throws Exception
+    void emptyIterator() throws Exception
     {
         MappingIterator<Object> empty = MappingIterator.emptyIterator();
 

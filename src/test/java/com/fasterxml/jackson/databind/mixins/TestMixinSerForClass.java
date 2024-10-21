@@ -88,7 +88,7 @@ class TestMixinSerForClass
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testClassMixInsTopLevel() throws IOException
+    void classMixInsTopLevel() throws IOException
     {
         Map<String,Object> result;
 
@@ -114,7 +114,7 @@ class TestMixinSerForClass
     }
 
     @Test
-    void testClassMixInsMidLevel() throws IOException
+    void classMixInsMidLevel() throws IOException
     {
         Map<String,Object> result;
         LeafClass bean = new LeafClass("xyz");
@@ -146,7 +146,7 @@ class TestMixinSerForClass
 
     // [databind#3035]: ability to remove mix-ins:
     @Test
-    void testClassMixInRemoval() throws Exception
+    void classMixInRemoval() throws Exception
     {
         // First, no mix-in
         assertEquals(a2q("{'a':42}"), MAPPER.writeValueAsString(new Bean3035()));

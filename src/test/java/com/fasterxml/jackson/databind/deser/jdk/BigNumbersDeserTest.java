@@ -54,7 +54,7 @@ class BigNumbersDeserTest
     }
 
     @Test
-    void testDoubleUnlimited() throws Exception
+    void doubleUnlimited() throws Exception
     {
         DoubleWrapper dw =
             newJsonMapperWithUnlimitedNumberSizeSupport().readValue(generateJson("d"), DoubleWrapper.class);
@@ -62,7 +62,7 @@ class BigNumbersDeserTest
     }
 
     @Test
-    void testBigDecimal() throws Exception
+    void bigDecimal() throws Exception
     {
         try {
             MAPPER.readValue(generateJson("number"), BigDecimalWrapper.class);
@@ -73,7 +73,7 @@ class BigNumbersDeserTest
     }
 
     @Test
-    void testBigDecimalUnlimited() throws Exception
+    void bigDecimalUnlimited() throws Exception
     {
         BigDecimalWrapper bdw =
                 newJsonMapperWithUnlimitedNumberSizeSupport()
@@ -82,7 +82,7 @@ class BigNumbersDeserTest
     }
 
     @Test
-    void testBigInteger() throws Exception
+    void bigInteger() throws Exception
     {
         try {
             MAPPER.readValue(generateJson("number"), BigIntegerWrapper.class);
@@ -93,7 +93,7 @@ class BigNumbersDeserTest
     }
 
     @Test
-    void testBigIntegerUnlimited() throws Exception
+    void bigIntegerUnlimited() throws Exception
     {
         BigIntegerWrapper bdw =
                 newJsonMapperWithUnlimitedNumberSizeSupport()
@@ -103,7 +103,7 @@ class BigNumbersDeserTest
 
     // [databind#4435]
     @Test
-    void testNumberStartingWithDot() throws Exception {
+    void numberStartingWithDot() throws Exception {
         _testNumberWith(".555555555555555555555555555555");
         _testNumberWith("-.555555555555555555555555555555");
         _testNumberWith("+.555555555555555555555555555555");
@@ -111,7 +111,7 @@ class BigNumbersDeserTest
 
     // [databind#4577]
     @Test
-    void testNumberEndingWithDot() throws Exception {
+    void numberEndingWithDot() throws Exception {
         _testNumberWith("55.");
         _testNumberWith("-55.");
         _testNumberWith("+55.");

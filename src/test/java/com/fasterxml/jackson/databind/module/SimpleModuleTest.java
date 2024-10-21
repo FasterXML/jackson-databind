@@ -243,7 +243,7 @@ class SimpleModuleTest extends DatabindTestUtil
      * serializers for custom types used in tests.
      */
     @Test
-    void testWithoutModule()
+    void withoutModule()
     {
         ObjectMapper mapper = new ObjectMapper();
         // first: serialization failure:
@@ -271,7 +271,7 @@ class SimpleModuleTest extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleBeanSerializer() throws Exception
+    void simpleBeanSerializer() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new CustomBeanSerializer());
@@ -282,7 +282,7 @@ class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleEnumSerializer() throws Exception
+    void simpleEnumSerializer() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new SimpleEnumSerializer());
@@ -294,7 +294,7 @@ class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleInterfaceSerializer() throws Exception
+    void simpleInterfaceSerializer() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new BaseSerializer());
@@ -314,7 +314,7 @@ class SimpleModuleTest extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleBeanDeserializer() throws Exception
+    void simpleBeanDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -326,7 +326,7 @@ class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleEnumDeserializer() throws Exception
+    void simpleEnumDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -337,7 +337,7 @@ class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    void testMultipleModules() throws Exception
+    void multipleModules() throws Exception
     {
         MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
         assertEquals("test1", mod1.getModuleName());
@@ -371,7 +371,7 @@ class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    void testGetRegisteredModules()
+    void getRegisteredModules()
     {
         MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
         AnotherSimpleModule mod2 = new AnotherSimpleModule("test2", Version.unknownVersion());
@@ -413,7 +413,7 @@ class SimpleModuleTest extends DatabindTestUtil
 
     // More [databind#3110] testing
     @Test
-    void testMultipleSimpleModules()
+    void multipleSimpleModules()
     {
         final SimpleModule mod1 = new SimpleModule();
         final SimpleModule mod2 = new SimpleModule();
@@ -453,7 +453,7 @@ class SimpleModuleTest extends DatabindTestUtil
      */
 
     @Test
-    void testMixIns() throws Exception
+    void mixIns() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.setMixInAnnotation(MixableBean.class, MixInForOrder.class);
@@ -467,7 +467,7 @@ class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    void testAccessToMapper() throws Exception
+    void accessToMapper() throws Exception
     {
         ContextVerifierModule module = new ContextVerifierModule();
         ObjectMapper mapper = new ObjectMapper();
@@ -476,7 +476,7 @@ class SimpleModuleTest extends DatabindTestUtil
 
     // [databind#626]
     @Test
-    void testMixIns626() throws Exception
+    void mixIns626() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // no real annotations, but nominally add ones from 'String' to 'Object', just for testing
@@ -486,14 +486,14 @@ class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    void testAutoDiscovery() throws Exception
+    void autoDiscovery() throws Exception
     {
         List<?> mods = ObjectMapper.findModules();
         assertEquals(0, mods.size());
     }
 
     @Test
-    void testAddSerializerTwiceThenOnlyLatestIsKept() throws JsonProcessingException {
+    void addSerializerTwiceThenOnlyLatestIsKept() throws JsonProcessingException {
         SimpleModule module = new SimpleModule()
             .addSerializer(Test3787Bean.class, new Serializer3787A())
             .addSerializer(Test3787Bean.class, new Serializer3787B());
@@ -504,7 +504,7 @@ class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept() throws JsonProcessingException {
+    void addModuleWithSerializerTwiceThenOnlyLatestIsKept() throws JsonProcessingException {
         SimpleModule firstModule = new SimpleModule()
             .addSerializer(Test3787Bean.class, new Serializer3787A());
         SimpleModule secondModule = new SimpleModule()
@@ -521,7 +521,7 @@ class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept_reverseOrder() throws JsonProcessingException {
+    void addModuleWithSerializerTwiceThenOnlyLatestIsKeptReverseOrder() throws JsonProcessingException {
         SimpleModule firstModule = new SimpleModule()
             .addSerializer(Test3787Bean.class, new Serializer3787A());
         SimpleModule secondModule = new SimpleModule()
@@ -535,7 +535,7 @@ class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    void testAddDeserializerTwiceThenOnlyLatestIsKept() throws Exception {
+    void addDeserializerTwiceThenOnlyLatestIsKept() throws Exception {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Test3787Bean.class, new Deserializer3787A())
             .addDeserializer(Test3787Bean.class, new Deserializer3787B());
@@ -550,7 +550,7 @@ class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    void testAddModuleWithDeserializerTwiceThenOnlyLatestIsKept() throws Exception {
+    void addModuleWithDeserializerTwiceThenOnlyLatestIsKept() throws Exception {
         SimpleModule firstModule = new SimpleModule()
             .addDeserializer(Test3787Bean.class, new Deserializer3787A());
         SimpleModule secondModule = new SimpleModule()
@@ -567,7 +567,7 @@ class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    void testAddModuleWithDeserializerTwiceThenOnlyLatestIsKept_reverseOrder() throws Exception {
+    void addModuleWithDeserializerTwiceThenOnlyLatestIsKeptReverseOrder() throws Exception {
         SimpleModule firstModule = new SimpleModule()
             .addDeserializer(Test3787Bean.class, new Deserializer3787A());
         SimpleModule secondModule = new SimpleModule()

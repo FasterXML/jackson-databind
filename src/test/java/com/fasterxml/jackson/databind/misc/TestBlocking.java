@@ -24,7 +24,7 @@ class TestBlocking
      * quite yet.
      */
     @Test
-    void testEagerAdvance() throws IOException
+    void eagerAdvance() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         JsonParser jp = createParserUsingReader("[ 1  ");

@@ -19,7 +19,7 @@ class SqlTimestampDeserializationTest
     // just check we pick up timestamp class
 
     @Test
-    void testTimestampUtil() throws Exception
+    void timestampUtil() throws Exception
     {
         long now = 123456789L;
         java.sql.Timestamp value = new java.sql.Timestamp(now);
@@ -35,7 +35,7 @@ class SqlTimestampDeserializationTest
     }
 
     @Test
-    void testTimestampUtilSingleElementArray() throws Exception
+    void timestampUtilSingleElementArray() throws Exception
     {
         final ObjectReader r = MAPPER.readerFor(java.sql.Timestamp.class)
                 .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);

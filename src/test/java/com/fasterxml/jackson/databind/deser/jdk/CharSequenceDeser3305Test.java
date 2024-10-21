@@ -52,7 +52,7 @@ class CharSequenceDeser3305Test
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testCharSequenceSerialization() throws Exception {
+    void charSequenceSerialization() throws Exception {
         AppId appId = AppId.valueOf(APP_ID);
 
         String serialized = MAPPER.writeValueAsString(appId);

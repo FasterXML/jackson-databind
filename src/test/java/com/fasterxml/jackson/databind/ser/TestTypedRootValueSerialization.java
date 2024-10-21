@@ -28,7 +28,7 @@ class TestTypedRootValueSerialization extends DatabindTestUtil
 
     // First ensure that basic interface-override works:
     @Test
-    void testTypedSerialization() throws Exception
+    void typedSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String singleJson = mapper.writerFor(Issue822Interface.class).writeValueAsString(new Issue822Impl());
@@ -38,7 +38,7 @@ class TestTypedRootValueSerialization extends DatabindTestUtil
 
     // [JACKSON-822]: ensure that type can be coerced
     @Test
-    void testTypedArrays() throws Exception
+    void typedArrays() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
 // Work-around when real solution not yet implemented:
@@ -49,7 +49,7 @@ class TestTypedRootValueSerialization extends DatabindTestUtil
 
     // [JACKSON-822]: ensure that type can be coerced
     @Test
-    void testTypedLists() throws Exception
+    void typedLists() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
      // Work-around when real solution not yet implemented:
@@ -63,7 +63,7 @@ class TestTypedRootValueSerialization extends DatabindTestUtil
     }
 
     @Test
-    void testTypedMaps() throws Exception
+    void typedMaps() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Issue822Interface> map = new HashMap<String,Issue822Interface>();

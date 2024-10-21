@@ -227,7 +227,7 @@ class JsonIncludeTest
     final private ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testGlobal() throws Exception
+    void global() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SimpleBean());
         assertEquals(2, result.size());
@@ -237,7 +237,7 @@ class JsonIncludeTest
     }
 
     @Test
-    void testNonNullByClass() throws Exception
+    void nonNullByClass() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new NoNullsBean());
         assertEquals(1, result.size());
@@ -248,7 +248,7 @@ class JsonIncludeTest
     }
 
     @Test
-    void testNonDefaultByClass() throws Exception
+    void nonDefaultByClass() throws Exception
     {
         NonDefaultBean bean = new NonDefaultBean();
         // need to change one of defaults
@@ -263,7 +263,7 @@ class JsonIncludeTest
 
     // [databind#998]
     @Test
-    void testNonDefaultByClassNoCtor() throws Exception
+    void nonDefaultByClassNoCtor() throws Exception
     {
         NonDefaultBeanXYZ bean = new NonDefaultBeanXYZ(1, 2, 0);
         String json = MAPPER.writeValueAsString(bean);
@@ -271,7 +271,7 @@ class JsonIncludeTest
     }
 
     @Test
-    void testMixedMethod() throws Exception
+    void mixedMethod() throws Exception
     {
         MixedBean bean = new MixedBean();
         bean._a = "xyz";
@@ -290,20 +290,20 @@ class JsonIncludeTest
     }
 
     @Test
-    void testDefaultForEmptyList() throws Exception
+    void defaultForEmptyList() throws Exception
     {
         assertEquals("{}", MAPPER.writeValueAsString(new ListBean()));
     }
 
     // NON_DEFAULT should work for arrays too
     @Test
-    void testNonEmptyDefaultArray() throws Exception
+    void nonEmptyDefaultArray() throws Exception
     {
         assertEquals("{}", MAPPER.writeValueAsString(new ArrayBean()));
     }
 
     @Test
-    void testDefaultForIntegers() throws Exception
+    void defaultForIntegers() throws Exception
     {
         assertEquals("{}", MAPPER.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(0))));
         assertEquals("{\"i2\":1}", MAPPER.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(1))));
@@ -311,7 +311,7 @@ class JsonIncludeTest
     }
 
     @Test
-    void testEmptyInclusionScalars() throws Exception
+    void emptyInclusionScalars() throws Exception
     {
         ObjectMapper defMapper = MAPPER;
         ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -366,7 +366,7 @@ class JsonIncludeTest
 
     // [databind#1351], [databind#1417]
     @Test
-    void testIssue1351() throws Exception
+    void issue1351() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
@@ -379,7 +379,7 @@ class JsonIncludeTest
 
     // [databind#4741]
     @Test
-    void testSerialization4741() throws Exception
+    void serialization4741() throws Exception
     {
         NonDefaultBean4741 bean = new NonDefaultBean4741();
         bean.value = "";
@@ -388,7 +388,7 @@ class JsonIncludeTest
 
     // [databind#1550]
     @Test
-    void testInclusionOfDate() throws Exception
+    void inclusionOfDate() throws Exception
     {
         final Date input = new Date(0L);
         assertEquals(a2q("{'value':0}"),
@@ -401,7 +401,7 @@ class JsonIncludeTest
 
     // [databind#1550]
     @Test
-    void testInclusionOfCalendar() throws Exception
+    void inclusionOfCalendar() throws Exception
     {
         final Calendar input = new GregorianCalendar();
         input.setTimeInMillis(0L);

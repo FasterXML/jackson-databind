@@ -76,7 +76,7 @@ class CurrentValueDeser4184Test extends DatabindTestUtil
 
     // [databind#4184]
     @Test
-    void testCurrentValue4184FullPojo() throws Exception
+    void currentValue4184FullPojo() throws Exception
     {
         String json = "{\"role\": {\"name\": \"Manager\"}, \"type\": {\"value\":1}}";
 
@@ -87,7 +87,7 @@ class CurrentValueDeser4184Test extends DatabindTestUtil
 
     // [databind#4184]
     @Test
-    void testCurrentValue4184EmptyPojo() throws Exception
+    void currentValue4184EmptyPojo() throws Exception
     {
         String json = "{\"role\": {}, \"type\": {\"value\":1}}";
 

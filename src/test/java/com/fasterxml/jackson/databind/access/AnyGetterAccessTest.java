@@ -59,7 +59,7 @@ class AnyGetterAccessTest
     private final ObjectMapper MAPPER = JsonMapper.builder().build();
 
     @Test
-    void testDynaBean() throws Exception
+    void dynaBean() throws Exception
     {
         DynaBean b = new DynaBean();
         b.id = 123;

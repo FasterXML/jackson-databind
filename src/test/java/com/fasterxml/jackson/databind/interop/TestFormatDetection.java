@@ -29,7 +29,7 @@ class TestFormatDetection extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleWithJSON() throws Exception
+    void simpleWithJSON() throws Exception
     {
         ObjectReader detecting = READER.forType(POJO.class);
         detecting = detecting.withFormatDetection(detecting);
@@ -39,7 +39,7 @@ class TestFormatDetection extends DatabindTestUtil
     }
 
     @Test
-    void testSequenceWithJSON() throws Exception
+    void sequenceWithJSON() throws Exception
     {
         ObjectReader detecting = READER.forType(POJO.class);
         detecting = detecting.withFormatDetection(detecting);
@@ -79,7 +79,7 @@ class TestFormatDetection extends DatabindTestUtil
     }
 
     @Test
-    void testInvalid() throws Exception
+    void invalid() throws Exception
     {
         ObjectReader detecting = READER.forType(POJO.class);
         detecting = detecting.withFormatDetection(detecting);

@@ -42,7 +42,7 @@ class RecursiveIgnorePropertiesTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testRecursiveForDeser() throws Exception
+    void recursiveForDeser() throws Exception
     {
         String st = a2q("{ 'name': 'admin',\n"
                 + "    'person_z': { 'name': 'wyatt' }"
@@ -54,7 +54,7 @@ class RecursiveIgnorePropertiesTest
     }
 
     @Test
-    void testRecursiveWithCollectionDeser() throws Exception
+    void recursiveWithCollectionDeser() throws Exception
     {
         String st = a2q("{ 'name': 'admin',\n"
                 + "    'person_z': [ { 'name': 'Foor' }, { 'name' : 'Bar' } ]"
@@ -66,7 +66,7 @@ class RecursiveIgnorePropertiesTest
     }
 
     @Test
-    void testRecursiveForSer() throws Exception
+    void recursiveForSer() throws Exception
     {
         Person input = new Person();
         input.name = "Bob";

@@ -22,7 +22,7 @@ class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
     }
 
     @Test
-    void testClassIsMissing()
+    void classIsMissing()
     {
         try {
             Class.forName("javax.measure.Measure");
@@ -33,7 +33,7 @@ class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
     }
 
     @Test
-    void testDeserialize() throws Exception
+    void deserialize() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         Parent result = null;
@@ -47,7 +47,7 @@ class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
     }
 
     @Test
-    void testUseMissingClass() throws Exception
+    void useMissingClass() throws Exception
     {
         boolean missing = false;
         try {

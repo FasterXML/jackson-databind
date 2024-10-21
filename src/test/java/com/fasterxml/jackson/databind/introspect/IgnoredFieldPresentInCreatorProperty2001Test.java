@@ -25,7 +25,7 @@ class IgnoredFieldPresentInCreatorProperty2001Test extends DatabindTestUtil
     }
 
     @Test
-    void testIgnoredFieldPresentInPropertyCreator() throws Exception {
+    void ignoredFieldPresentInPropertyCreator() throws Exception {
         Foo deserialized = newJsonMapper().readValue("{\"query\": \"bar\"}", Foo.class);
         assertEquals("bar", deserialized.query);
     }

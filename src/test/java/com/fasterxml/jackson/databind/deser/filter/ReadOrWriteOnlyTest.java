@@ -140,7 +140,7 @@ class ReadOrWriteOnlyTest
 
     // [databind#935]
     @Test
-    void testReadOnlyAndWriteOnly() throws Exception
+    void readOnlyAndWriteOnly() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ReadXWriteY());
         assertEquals("{\"x\":1}", json);
@@ -152,7 +152,7 @@ class ReadOrWriteOnlyTest
     }
 
     @Test
-    void testReadOnly935() throws Exception
+    void readOnly935() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Pojo935());
         Pojo935 result = MAPPER.readValue(json, Pojo935.class);
@@ -161,7 +161,7 @@ class ReadOrWriteOnlyTest
 
     // [databind#1345]
     @Test
-    void testReadOnly1345() throws Exception
+    void readOnly1345() throws Exception
     {
         Foo1345 result = MAPPER.readValue("{\"name\":\"test\"}", Foo1345.class);
         assertNotNull(result);
@@ -171,7 +171,7 @@ class ReadOrWriteOnlyTest
 
     // [databind#1382]
     @Test
-    void testReadOnly1382() throws Exception
+    void readOnly1382() throws Exception
     {
         String payload = "{\"list\":[1,2,3,4]}";
         Foo1382 foo = MAPPER.readValue(payload, Foo1382.class);
@@ -180,7 +180,7 @@ class ReadOrWriteOnlyTest
 
     // [databind#1805]
     @Test
-    void testViaReadOnly() throws Exception {
+    void viaReadOnly() throws Exception {
         UserWithReadOnly1805 user = new UserWithReadOnly1805();
         user.name = "foo";
         String json = MAPPER.writeValueAsString(user);
@@ -190,7 +190,7 @@ class ReadOrWriteOnlyTest
 
     // [databind#1805]
     @Test
-    void testUsingAllowGetters() throws Exception {
+    void usingAllowGetters() throws Exception {
         UserAllowGetters1805 user = new UserAllowGetters1805();
         user.name = "foo";
         String json = MAPPER.writeValueAsString(user);
@@ -201,7 +201,7 @@ class ReadOrWriteOnlyTest
 
     // [databind#2779]: ignorable property renaming
     @Test
-    void testIssue2779() throws Exception
+    void issue2779() throws Exception
     {
         Bean2779 bean = new Bean2779();
         bean.setWorks("works");

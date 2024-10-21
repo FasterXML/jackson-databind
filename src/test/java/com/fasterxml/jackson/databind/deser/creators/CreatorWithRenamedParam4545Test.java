@@ -48,7 +48,7 @@ class CreatorWithRenamedParam4545Test
 
     // [databind#4545]
     @Test
-    void testCreatorWithRename4545() throws Exception
+    void creatorWithRename4545() throws Exception
     {
         String jsonPayload = a2q("{ 'key1': 'val1', 'key2': 'val2'}");
 

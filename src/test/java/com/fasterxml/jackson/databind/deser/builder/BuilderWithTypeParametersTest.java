@@ -101,7 +101,7 @@ class BuilderWithTypeParametersTest
     */
 
     @Test
-    void testWithBuilderInferringBindings() throws Exception {
+    void withBuilderInferringBindings() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)
                 .build();
@@ -115,7 +115,7 @@ class BuilderWithTypeParametersTest
     }
 
     @Test
-    void testWithBuilderWithoutInferringBindings() throws Exception {
+    void withBuilderWithoutInferringBindings() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)
                 .build();

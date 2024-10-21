@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class DefaultTypeResolver2472Test extends DatabindTestUtil
 {
     @Test
-    void testLegacyCtor2472() throws Exception
+    void legacyCtor2472() throws Exception
     {
         @SuppressWarnings({ "deprecation", "serial" })
         TypeResolverBuilder<?> legacyTyper = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL) { };

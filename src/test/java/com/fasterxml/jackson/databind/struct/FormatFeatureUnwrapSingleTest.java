@@ -132,7 +132,7 @@ class FormatFeatureUnwrapSingleTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testWithArrayTypes() throws Exception
+    void withArrayTypes() throws Exception
     {
         // default: strings unwrapped, ints wrapped
         assertEquals(a2q("{'strings':'a','ints':[1],'bools':[true]}"),
@@ -159,7 +159,7 @@ class FormatFeatureUnwrapSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testWithCollectionTypes() throws Exception
+    void withCollectionTypes() throws Exception
     {
         // default: strings unwrapped, ints wrapped
         assertEquals(a2q("{'strings':'a','ints':[1],'bools':[true],'enums':'B'}"),
@@ -177,7 +177,7 @@ class FormatFeatureUnwrapSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testUnwrapWithPrimitiveArraysEtc() throws Exception {
+    void unwrapWithPrimitiveArraysEtc() throws Exception {
         assertEquals("{\"v\":7}", MAPPER.writeValueAsString(new UnwrapShortArray()));
         assertEquals("{\"v\":3}", MAPPER.writeValueAsString(new UnwrapIntArray()));
         assertEquals("{\"v\":1}", MAPPER.writeValueAsString(new UnwrapLongArray()));

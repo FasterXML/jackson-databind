@@ -92,14 +92,14 @@ class JsonIncludeCustomTest extends DatabindTestUtil
     final private ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testSimpleCustomFilter() throws Exception
+    void simpleCustomFilter() throws Exception
     {
         assertEquals(a2q("{'value':'x'}"), MAPPER.writeValueAsString(new FooBean("x")));
         assertEquals("{}", MAPPER.writeValueAsString(new FooBean("foo")));
     }
 
     @Test
-    void testCustomFilterWithMap() throws Exception
+    void customFilterWithMap() throws Exception
     {
         FooMapBean input = new FooMapBean()
                 .add("a", "1")
@@ -111,7 +111,7 @@ class JsonIncludeCustomTest extends DatabindTestUtil
 
     // [databind#3481]
     @Test
-    void testRepeatedCalls() throws Exception
+    void repeatedCalls() throws Exception
     {
         CountingFooFilter.counter.set(0);
 
@@ -134,7 +134,7 @@ class JsonIncludeCustomTest extends DatabindTestUtil
      */
 
     @Test
-    void testBrokenFilter() throws Exception
+    void brokenFilter() throws Exception
     {
         try {
             String json = MAPPER.writeValueAsString(new BrokenBean(null));

@@ -50,7 +50,7 @@ class NullConversionsGenericTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testNullsToEmptyPojo() throws Exception
+    void nullsToEmptyPojo() throws Exception
     {
         GeneralEmpty<Point> result = MAPPER.readValue(a2q("{'value':null}"),
                 new TypeReference<GeneralEmpty<Point>>() { });
@@ -71,7 +71,7 @@ class NullConversionsGenericTest
 
     // [databind#2023] two-part coercion from "" to `null` to skip/empty/exception should work
     @Test
-    void testEmptyStringToNullToEmptyPojo() throws Exception
+    void emptyStringToNullToEmptyPojo() throws Exception
     {
         GeneralEmpty<Point> result = MAPPER.readerFor(new TypeReference<GeneralEmpty<Point>>() { })
                 .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
@@ -83,7 +83,7 @@ class NullConversionsGenericTest
     }
 
     @Test
-    void testNullsToEmptyCollection() throws Exception
+    void nullsToEmptyCollection() throws Exception
     {
         GeneralEmpty<List<String>> result = MAPPER.readValue(a2q("{'value':null}"),
                 new TypeReference<GeneralEmpty<List<String>>>() { });
@@ -98,7 +98,7 @@ class NullConversionsGenericTest
     }
 
     @Test
-    void testNullsToEmptyMap() throws Exception
+    void nullsToEmptyMap() throws Exception
     {
         GeneralEmpty<Map<String,String>> result = MAPPER.readValue(a2q("{'value':null}"),
                 new TypeReference<GeneralEmpty<Map<String,String>>>() { });
@@ -107,7 +107,7 @@ class NullConversionsGenericTest
     }
 
     @Test
-    void testNullsToEmptyArrays() throws Exception
+    void nullsToEmptyArrays() throws Exception
     {
         final String json = a2q("{'value':null}");
 

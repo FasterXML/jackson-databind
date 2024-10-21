@@ -67,7 +67,7 @@ class DelegatingCreatorImplicitNames2543Test
             .build();
 
     @Test
-    void testDeserialization() throws Exception {
+    void deserialization() throws Exception {
         Data2543 data = MAPPER.readValue(a2q("{'part1':'a','part2':'b'}"), Data2543.class);
 
         assertThat(data.part1).isEqualTo("a");
@@ -75,7 +75,7 @@ class DelegatingCreatorImplicitNames2543Test
     }
 
     @Test
-    void testDelegatingDeserialization() throws Exception {
+    void delegatingDeserialization() throws Exception {
         Data2543 data = MAPPER.readValue(a2q("'a b'"), Data2543.class);
 
         assertThat(data.part1).isEqualTo("a");

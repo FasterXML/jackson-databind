@@ -25,14 +25,14 @@ class TestSimpleTypes
     }
 
     @Test
-    void testBooleanArray() throws Exception
+    void booleanArray() throws Exception
     {
         assertEquals("[true,false]", serializeAsString(MAPPER, new boolean[] { true, false} ));
         assertEquals("[true,false]", serializeAsString(MAPPER, new Boolean[] { Boolean.TRUE, Boolean.FALSE} ));
     }
 
     @Test
-    void testByteArray() throws Exception
+    void byteArray() throws Exception
     {
         byte[] data = { 1, 17, -3, 127, -128 };
         Byte[] data2 = new Byte[data.length];
@@ -48,7 +48,7 @@ class TestSimpleTypes
 
     // as per [Issue#42], allow Base64 variant use as well
     @Test
-    void testBase64Variants() throws Exception
+    void base64Variants() throws Exception
     {
         final byte[] INPUT = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890X".getBytes("UTF-8");
 
@@ -68,14 +68,14 @@ class TestSimpleTypes
     }
 
     @Test
-    void testShortArray() throws Exception
+    void shortArray() throws Exception
     {
         assertEquals("[0,1]", serializeAsString(MAPPER, new short[] { 0, 1 }));
         assertEquals("[2,3]", serializeAsString(MAPPER, new Short[] { 2, 3 }));
     }
 
     @Test
-    void testIntArray() throws Exception
+    void intArray() throws Exception
     {
         assertEquals("[0,-3]", serializeAsString(MAPPER, new int[] { 0, -3 }));
         assertEquals("[13,9]", serializeAsString(MAPPER, new Integer[] { 13, 9 }));

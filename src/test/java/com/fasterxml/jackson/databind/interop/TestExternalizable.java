@@ -186,7 +186,7 @@ class TestExternalizable extends DatabindTestUtil
 
     @SuppressWarnings("unused")
     @Test
-    void testSerializeAsExternalizable() throws Exception
+    void serializeAsExternalizable() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         ObjectOutputStream obs = new ObjectOutputStream(bytes);

@@ -55,7 +55,7 @@ class CoerceJDKScalarsTest
      */
 
     @Test
-    void testNullValueFromEmpty() throws Exception
+    void nullValueFromEmpty() throws Exception
     {
         // wrappers accept `null` fine
         _verifyNullOkFromEmpty(Boolean.class, null);
@@ -95,7 +95,7 @@ class CoerceJDKScalarsTest
     }
 
     @Test
-    void testNullFailFromEmpty() throws Exception
+    void nullFailFromEmpty() throws Exception
     {
         _verifyNullFail(Boolean.class);
         _verifyNullFail(Boolean.TYPE);
@@ -137,7 +137,7 @@ class CoerceJDKScalarsTest
      */
 
     @Test
-    void testStringToNumbersCoercionOk() throws Exception
+    void stringToNumbersCoercionOk() throws Exception
     {
         _verifyCoerceSuccess(q("123"), Byte.TYPE, Byte.valueOf((byte) 123));
         _verifyCoerceSuccess(q("123"), Byte.class, Byte.valueOf((byte) 123));
@@ -161,7 +161,7 @@ class CoerceJDKScalarsTest
     }
 
     @Test
-    void testStringCoercionFailInteger() throws Exception
+    void stringCoercionFailInteger() throws Exception
     {
         _verifyRootStringCoerceFail("123", Byte.TYPE);
         _verifyRootStringCoerceFail("123", Byte.class);
@@ -174,7 +174,7 @@ class CoerceJDKScalarsTest
     }
 
     @Test
-    void testStringCoercionFailFloat() throws Exception
+    void stringCoercionFailFloat() throws Exception
     {
         _verifyRootStringCoerceFail("123.5", Float.TYPE);
         _verifyRootStringCoerceFail("123.5", Float.class);
@@ -186,7 +186,7 @@ class CoerceJDKScalarsTest
     }
 
     @Test
-    void testMiscCoercionFail() throws Exception
+    void miscCoercionFail() throws Exception
     {
         // And then we have coercions from more esoteric types too
 

@@ -49,7 +49,7 @@ class TypedArrayDeserTest
      */
 
     @Test
-    void testIntList() throws Exception
+    void intList() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // uses WRAPPER_OBJECT inclusion
@@ -69,7 +69,7 @@ class TypedArrayDeserTest
      * add property in), so it will basically be same as using WRAPPER_ARRAY
      */
     @Test
-    void testBooleanListAsProp() throws Exception
+    void booleanListAsProp() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // tries to use PROPERTY inclusion; but for ARRAYS (and scalars) will become ARRAY_WRAPPER
@@ -83,7 +83,7 @@ class TypedArrayDeserTest
     }
 
     @Test
-    void testLongListAsWrapper() throws Exception
+    void longListAsWrapper() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // uses OBJECT_ARRAY, works just fine
@@ -107,7 +107,7 @@ class TypedArrayDeserTest
      */
 
     @Test
-    void testLongArray() throws Exception
+    void longArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // use class name, WRAPPER_OBJECT

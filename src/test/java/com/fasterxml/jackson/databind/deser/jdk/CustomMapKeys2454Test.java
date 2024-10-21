@@ -47,14 +47,14 @@ class CustomMapKeys2454Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testCustomSerializer() throws Exception
+    void customSerializer() throws Exception
     {
         assertEquals(a2q("{'id=a':'b'}"),
                 MAPPER.writeValueAsString(Collections.singletonMap(new Key2454("a", true), "b")));
     }
 
     @Test
-    void testCustomDeserializer() throws Exception
+    void customDeserializer() throws Exception
     {
         Map<Key2454, String> result = MAPPER.readValue(a2q("{'a':'b'}"),
                 new TypeReference<Map<Key2454, String>>() { });

@@ -42,7 +42,7 @@ class DisablingCreatorsTest
      */
 
     @Test
-    void testDisabling() throws Exception
+    void disabling() throws Exception
      {
           final ObjectMapper mapper = newJsonMapper();
 

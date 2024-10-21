@@ -37,7 +37,7 @@ class FactoryAndConstructor2962Test
 
     // [databind#2962]
     @Test
-    void testImplicitCtorExplicitFactory() throws Exception
+    void implicitCtorExplicitFactory() throws Exception
     {
         ExampleDto2962 result = MAPPER.readValue("42", ExampleDto2962.class);
         assertEquals(42, result.version);

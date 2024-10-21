@@ -137,7 +137,7 @@ class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    void testBigInteger() throws Exception
+    void bigInteger() throws Exception
     {
         BigInteger[] values = new BigInteger[] {
                 BigInteger.ONE, BigInteger.TEN, BigInteger.ZERO,
@@ -153,7 +153,7 @@ class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    void testNumbersAsString() throws Exception
+    void numbersAsString() throws Exception
     {
         assertEquals(a2q("{'value':'3'}"), MAPPER.writeValueAsString(new IntAsString()));
         assertEquals(a2q("{'value':'4'}"), MAPPER.writeValueAsString(new LongAsString()));
@@ -163,7 +163,7 @@ class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    void testNumbersAsStringNonEmpty() throws Exception
+    void numbersAsStringNonEmpty() throws Exception
     {
         assertEquals(a2q("{'value':'3'}"), NON_EMPTY_MAPPER.writeValueAsString(new IntAsString()));
         assertEquals(a2q("{'value':'4'}"), NON_EMPTY_MAPPER.writeValueAsString(new LongAsString()));
@@ -173,7 +173,7 @@ class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    void testConfigOverridesForNumbers() throws Exception
+    void configOverridesForNumbers() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.configOverride(Integer.TYPE) // for `int`
@@ -192,7 +192,7 @@ class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    void testNumberType() throws Exception
+    void numberType() throws Exception
     {
         assertEquals(a2q("{'value':1}"), MAPPER.writeValueAsString(new NumberWrapper(Byte.valueOf((byte) 1))));
         assertEquals(a2q("{'value':2}"), MAPPER.writeValueAsString(new NumberWrapper(Short.valueOf((short) 2))));
@@ -205,7 +205,7 @@ class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    void testCustomSerializationBigDecimalAsString() throws Exception {
+    void customSerializationBigDecimalAsString() throws Exception {
         SimpleModule module = new SimpleModule();
         module.addSerializer(BigDecimal.class, new BigDecimalAsStringSerializer());
         ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
@@ -213,7 +213,7 @@ class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    void testCustomSerializationBigDecimalAsNumber() throws Exception {
+    void customSerializationBigDecimalAsNumber() throws Exception {
         SimpleModule module = new SimpleModule();
         module.addSerializer(BigDecimal.class, new BigDecimalAsNumberSerializer());
         ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();

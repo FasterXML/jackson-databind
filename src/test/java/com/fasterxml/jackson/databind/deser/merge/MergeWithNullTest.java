@@ -78,7 +78,7 @@ class MergeWithNullTest
             .build();
 
     @Test
-    void testBeanMergingWithNullDefault() throws Exception
+    void beanMergingWithNullDefault() throws Exception
     {
         // By default `null` should simply overwrite value
         ConfigDefault config = MAPPER.readerForUpdating(new ConfigDefault(5, 7))
@@ -110,7 +110,7 @@ class MergeWithNullTest
     }
 
     @Test
-    void testBeanMergingWithNullSkip() throws Exception
+    void beanMergingWithNullSkip() throws Exception
     {
         ConfigSkipNull config = MAPPER.readerForUpdating(new ConfigSkipNull(5, 7))
                 .readValue(a2q("{'loc':null}"));
@@ -121,7 +121,7 @@ class MergeWithNullTest
     }
 
     @Test
-    void testBeanMergingWithNullSet() throws Exception
+    void beanMergingWithNullSet() throws Exception
     {
         ConfigAllowNullOverwrite config = MAPPER.readerForUpdating(new ConfigAllowNullOverwrite(5, 7))
                 .readValue(a2q("{'loc':null}"));
@@ -130,7 +130,7 @@ class MergeWithNullTest
     }
 
     @Test
-    void testSetterlessMergingWithNull() throws Exception
+    void setterlessMergingWithNull() throws Exception
     {
         NoSetterConfig input = new NoSetterConfig();
         NoSetterConfig result = MAPPER.readerForUpdating(input)

@@ -10,19 +10,19 @@ import static org.junit.jupiter.api.Assertions.fail;
 class ExceptionUtilTest extends DatabindTestUtil
 {
     @Test
-    void testNoClassDefError() {
+    void noClassDefError() {
         //next line should be a no-op
         ExceptionUtil.rethrowIfFatal(new NoClassDefFoundError("fake"));
     }
 
     @Test
-    void testExceptionInInitializerError() {
+    void exceptionInInitializerError() {
         //next line should be a no-op
         ExceptionUtil.rethrowIfFatal(new ExceptionInInitializerError("fake"));
     }
 
     @Test
-    void testOutOfMemoryError() {
+    void outOfMemoryError() {
         try {
             ExceptionUtil.rethrowIfFatal(new OutOfMemoryError("fake"));
             fail("expected OutOfMemoryError");
@@ -32,7 +32,7 @@ class ExceptionUtilTest extends DatabindTestUtil
     }
 
     @Test
-    void testVerifyError() {
+    void verifyError() {
         try {
             ExceptionUtil.rethrowIfFatal(new VerifyError("fake"));
             fail("expected VerifyError");

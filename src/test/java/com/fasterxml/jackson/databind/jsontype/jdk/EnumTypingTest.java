@@ -114,7 +114,7 @@ class EnumTypingTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testTagList() throws Exception
+    void tagList() throws Exception
     {
         TagList list = new TagList();
         list.add(Tag.A);
@@ -128,7 +128,7 @@ class EnumTypingTest extends DatabindTestUtil
     }
 
     @Test
-    void testEnumInterface() throws Exception
+    void enumInterface() throws Exception
     {
         String json = MAPPER.writeValueAsString(Tag.B);
         EnumInterface result = MAPPER.readValue(json, EnumInterface.class);
@@ -136,7 +136,7 @@ class EnumTypingTest extends DatabindTestUtil
     }
 
     @Test
-    void testEnumInterfaceList() throws Exception
+    void enumInterfaceList() throws Exception
     {
         EnumInterfaceList list = new EnumInterfaceList();
         list.add(Tag.A);
@@ -150,7 +150,7 @@ class EnumTypingTest extends DatabindTestUtil
     }
 
     @Test
-    void testUntypedEnum() throws Exception
+    void untypedEnum() throws Exception
     {
         String str = MAPPER.writeValueAsString(new UntypedEnumBean(TestEnum.B));
         UntypedEnumBean result = MAPPER.readValue(str, UntypedEnumBean.class);
@@ -163,7 +163,7 @@ class EnumTypingTest extends DatabindTestUtil
 
     // for [databind#2605]
     @Test
-    void testRoundtrip() throws Exception
+    void roundtrip() throws Exception
     {
         EnumContaintingClass<TestEnum> input = new EnumContaintingClass<TestEnum>(TestEnum.B);
         String json = MAPPER.writeValueAsString(input);
@@ -174,7 +174,7 @@ class EnumTypingTest extends DatabindTestUtil
 
     // [databind#2775]
     @Test
-    void testEnumAsSubtypeNoFailOnInvalidTypeId() throws Exception
+    void enumAsSubtypeNoFailOnInvalidTypeId() throws Exception
     {
         final Base2775 testValue = TestEnum2775.VALUE;
         String json = MAPPER.writeValueAsString(testValue);
@@ -189,7 +189,7 @@ class EnumTypingTest extends DatabindTestUtil
     // [databind#3796]
     @SuppressWarnings("deprecation")
     @Test
-    void testEnumAsPolymorphicViaCreator() throws Exception
+    void enumAsPolymorphicViaCreator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         StdTypeResolverBuilder typer = new DefaultTypeResolverBuilder(DefaultTyping.EVERYTHING,

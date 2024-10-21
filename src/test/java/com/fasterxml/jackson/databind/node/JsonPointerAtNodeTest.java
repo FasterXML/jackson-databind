@@ -14,7 +14,7 @@ class JsonPointerAtNodeTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testIt() throws Exception
+    void it() throws Exception
     {
         final JsonNode SAMPLE_ROOT = MAPPER.readTree(SAMPLE_DOC_JSON_SPEC);
 
@@ -44,7 +44,7 @@ class JsonPointerAtNodeTest
 
     // To help verify [core#133]; should be fine with "big numbers" as property keys
     @Test
-    void testLongNumbers() throws Exception
+    void longNumbers() throws Exception
     {
         // First, with small int key
         JsonNode root = MAPPER.readTree("{\"123\" : 456}");
@@ -59,7 +59,7 @@ class JsonPointerAtNodeTest
 
     // [databind#2934]
     @Test
-    void testIssue2934() throws Exception
+    void issue2934() throws Exception
     {
         JsonNode tree = MAPPER.readTree("{\"\" : 123}");
         assertEquals(123, tree.at("/").intValue());

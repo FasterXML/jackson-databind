@@ -68,7 +68,7 @@ class JsonNodeBasicTest extends NodeTestBase
     }
 
     @Test
-    void testBinary() throws Exception
+    void binary() throws Exception
     {
         assertNull(BinaryNode.valueOf(null));
         assertNull(BinaryNode.valueOf(null, 0, 0));
@@ -95,7 +95,7 @@ class JsonNodeBasicTest extends NodeTestBase
     }
 
     @Test
-    void testPOJO()
+    void pojo()
     {
         POJONode n = new POJONode("x"); // not really a pojo but that's ok
         assertStandardEquals(n);
@@ -114,7 +114,7 @@ class JsonNodeBasicTest extends NodeTestBase
 
     // [databind#743]
     @Test
-    void testRawValue() throws Exception
+    void rawValue() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         root.putRawValue("a", new RawValue(new SerializedString("[1, 2, 3]")));
@@ -124,7 +124,7 @@ class JsonNodeBasicTest extends NodeTestBase
 
     // [databind#790]
     @Test
-    void testCustomComparators() throws Exception
+    void customComparators() throws Exception
     {
         ObjectNode nestedObject1 = MAPPER.createObjectNode();
         nestedObject1.put("value", 6);
@@ -195,7 +195,7 @@ class JsonNodeBasicTest extends NodeTestBase
 
     // [databind#793]
     @Test
-    void testArrayWithDefaultTyping() throws Exception
+    void arrayWithDefaultTyping() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
             .activateDefaultTyping(NoCheckSubTypeValidator.instance);

@@ -22,7 +22,7 @@ class PrivateMaxEntriesMapStressTest {
     private static int waitSeconds = 60;
 
     @Test
-    void testManyEntries() throws Exception {
+    void manyEntries() throws Exception {
         final int maxEntries = 30;
         final int maxKey = 100;
         final Random rnd = new Random();

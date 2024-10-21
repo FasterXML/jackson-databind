@@ -143,7 +143,7 @@ class TestJsonSerialize
 
     @SuppressWarnings("unchecked")
     @Test
-    void testSimpleValueDefinition() throws Exception
+    void simpleValueDefinition() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForAs());
         assertEquals(1, result.size());
@@ -155,7 +155,7 @@ class TestJsonSerialize
     }
 
     @Test
-    void testBrokenAnnotation() throws Exception
+    void brokenAnnotation() throws Exception
     {
         try {
             serializeAsString(MAPPER, new BrokenClass());
@@ -167,7 +167,7 @@ class TestJsonSerialize
 
     @SuppressWarnings("unchecked")
     @Test
-    void testStaticTypingForClass() throws Exception
+    void staticTypingForClass() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForStaticTyping());
         assertEquals(1, result.size());
@@ -180,7 +180,7 @@ class TestJsonSerialize
 
     @SuppressWarnings("unchecked")
     @Test
-    void testMixedTypingForClass() throws Exception
+    void mixedTypingForClass() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForStaticTyping2());
         assertEquals(2, result.size());
@@ -200,7 +200,7 @@ class TestJsonSerialize
     }
 
     @Test
-    void testStaticTypingWithMap() throws Exception
+    void staticTypingWithMap() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
@@ -211,7 +211,7 @@ class TestJsonSerialize
     }
 
     @Test
-    void testStaticTypingWithArrayList() throws Exception
+    void staticTypingWithArrayList() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
@@ -222,7 +222,7 @@ class TestJsonSerialize
     }
 
     @Test
-    void testStaticTypingWithLinkedList() throws Exception
+    void staticTypingWithLinkedList() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
@@ -233,7 +233,7 @@ class TestJsonSerialize
     }
 
     @Test
-    void testStaticTypingWithArray() throws Exception
+    void staticTypingWithArray() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
@@ -243,7 +243,7 @@ class TestJsonSerialize
     }
 
     @Test
-    void testIssue294() throws Exception
+    void issue294() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         assertEquals("{\"bar\":\"barId\",\"id\":\"fooId\"}",
@@ -259,7 +259,7 @@ class TestJsonSerialize
     }
 
     @Test
-    void testWithIsGetter() throws Exception
+    void withIsGetter() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.setVisibility(PropertyAccessor.GETTER, Visibility.NONE)

@@ -54,7 +54,7 @@ class EnumDeserilizationFeatureOrderTest
 
 
     @Test
-    void testDeserUnknownUsingDefaultBeforeAsNull() throws Exception {
+    void deserUnknownUsingDefaultBeforeAsNull() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumFruit.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -66,7 +66,7 @@ class EnumDeserilizationFeatureOrderTest
     }
 
     @Test
-    void testDeserUnknownUsingDefaultBeforeAsNullFlip() throws Exception {
+    void deserUnknownUsingDefaultBeforeAsNullFlip() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumFruit.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
@@ -78,7 +78,7 @@ class EnumDeserilizationFeatureOrderTest
     }
 
     @Test
-    void testDeserUnknownAsNull() throws Exception {
+    void deserUnknownAsNull() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumFruit.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
@@ -89,7 +89,7 @@ class EnumDeserilizationFeatureOrderTest
     }
 
     @Test
-    void testDeserWithAliasUsingDefault() throws Exception {
+    void deserWithAliasUsingDefault() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumLetter.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
@@ -101,7 +101,7 @@ class EnumDeserilizationFeatureOrderTest
     }
 
     @Test
-    void testDeserWithAliasAsNull() throws Exception {
+    void deserWithAliasAsNull() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumLetter.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
@@ -112,7 +112,7 @@ class EnumDeserilizationFeatureOrderTest
     }
 
     @Test
-    void testDeserUnknownEnumMapKeyUsingDefault() throws Exception {
+    void deserUnknownEnumMapKeyUsingDefault() throws Exception {
         String JSON = a2q("{ 'UNknownWhatEver': 'fresh!'}");
         ObjectReader reader = MAPPER
                 .readerFor(new TypeReference<EnumMap<EnumFruit, String>>() {})
@@ -126,7 +126,7 @@ class EnumDeserilizationFeatureOrderTest
     }
 
     @Test
-    void testDeserUnknownEnumMapKeyAsNull() throws Exception {
+    void deserUnknownEnumMapKeyAsNull() throws Exception {
         String JSON = a2q("{ 'UNknownWhatEver': 'fresh!'}");
         ObjectReader reader = MAPPER
                 .readerFor(new TypeReference<EnumMap<EnumFruit, String>>() {})
@@ -140,7 +140,7 @@ class EnumDeserilizationFeatureOrderTest
     }
 
     @Test
-    void testDeserUnknownMapKeyUsingDefault() throws Exception {
+    void deserUnknownMapKeyUsingDefault() throws Exception {
         String JSON = a2q("{ 'UNknownWhatEver': 'fresh!'}");
         ObjectReader reader = MAPPER
                 .readerFor(new TypeReference<Map<EnumFruit, String>>() {})
@@ -154,7 +154,7 @@ class EnumDeserilizationFeatureOrderTest
     }
 
     @Test
-    void testDeserUnknownMapKeyAsNull() throws Exception {
+    void deserUnknownMapKeyAsNull() throws Exception {
         // Arrange
         String JSON = a2q("{ 'UNknownWhatEver': 'fresh!'}");
         ObjectReader reader = MAPPER

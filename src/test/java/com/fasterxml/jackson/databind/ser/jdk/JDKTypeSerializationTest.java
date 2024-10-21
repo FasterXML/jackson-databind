@@ -40,7 +40,7 @@ class JDKTypeSerializationTest
     }
 
     @Test
-    void testBigDecimal() throws Exception
+    void bigDecimal() throws Exception
     {
         Map<String, Object> map = new HashMap<String, Object>();
         String PI_STR = "3.14159265";
@@ -50,7 +50,7 @@ class JDKTypeSerializationTest
     }
 
     @Test
-    void testBigDecimalAsPlainString() throws Exception
+    void bigDecimalAsPlainString() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
 
@@ -63,7 +63,7 @@ class JDKTypeSerializationTest
     }
 
     @Test
-    void testFile() throws IOException
+    void file() throws IOException
     {
         // this may get translated to different representation on Windows, maybe Mac:
         File f = new File(new File("/tmp"), "foo.text");
@@ -74,7 +74,7 @@ class JDKTypeSerializationTest
     }
 
     @Test
-    void testRegexps() throws IOException
+    void regexps() throws IOException
     {
         final String PATTERN_STR = "\\s+([a-b]+)\\w?";
         Pattern p = Pattern.compile(PATTERN_STR);
@@ -85,14 +85,14 @@ class JDKTypeSerializationTest
     }
 
     @Test
-    void testCurrency() throws IOException
+    void currency() throws IOException
     {
         Currency usd = Currency.getInstance("USD");
         assertEquals(q("USD"), MAPPER.writeValueAsString(usd));
     }
 
     @Test
-    void testLocale() throws IOException
+    void locale() throws IOException
     {
         assertEquals(q("en"), MAPPER.writeValueAsString(new Locale("en")));
         assertEquals(q("es_ES"), MAPPER.writeValueAsString(new Locale("es", "ES")));
@@ -105,7 +105,7 @@ class JDKTypeSerializationTest
     }
 
     @Test
-    void testInetAddress() throws IOException
+    void inetAddress() throws IOException
     {
         assertEquals(q("127.0.0.1"), MAPPER.writeValueAsString(InetAddress.getByName("127.0.0.1")));
         InetAddress input = InetAddress.getByName("google.com");
@@ -122,7 +122,7 @@ class JDKTypeSerializationTest
     }
 
     @Test
-    void testInetSocketAddress() throws IOException
+    void inetSocketAddress() throws IOException
     {
         assertEquals(q("127.0.0.1:8080"),
                 MAPPER.writeValueAsString(new InetSocketAddress("127.0.0.1", 8080)));
@@ -143,14 +143,14 @@ class JDKTypeSerializationTest
     }
 
     @Test
-    void testCharset() throws IOException
+    void charset() throws IOException
     {
         assertEquals(q("UTF-8"), MAPPER.writeValueAsString(Charset.forName("UTF-8")));
     }
 
     // [databind#239]: Support serialization of ByteBuffer
     @Test
-    void testByteBuffer() throws IOException
+    void byteBuffer() throws IOException
     {
         final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
         String exp = MAPPER.writeValueAsString(INPUT_BYTES);
@@ -166,7 +166,7 @@ class JDKTypeSerializationTest
 
     // [databind#1662]: Sliced ByteBuffers
     @Test
-    void testSlicedByteBuffer() throws IOException
+    void slicedByteBuffer() throws IOException
     {
         final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
         ByteBuffer bbuf = ByteBuffer.wrap(INPUT_BYTES);
@@ -185,7 +185,7 @@ class JDKTypeSerializationTest
 
     // [databind#2602]: Need to consider position()
     @Test
-    void testDuplicatedByteBufferWithCustomPosition() throws IOException
+    void duplicatedByteBufferWithCustomPosition() throws IOException
     {
         final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
 
@@ -204,7 +204,7 @@ class JDKTypeSerializationTest
 
     // [databind#4164]: No rewinding for direct buffer
     @Test
-    void testDuplicatedByteBufferWithCustomPositionDirect() throws IOException
+    void duplicatedByteBufferWithCustomPositionDirect() throws IOException
     {
         final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
 
@@ -218,7 +218,7 @@ class JDKTypeSerializationTest
 
     // [databind#2197]
     @Test
-    void testVoidSerialization() throws Exception
+    void voidSerialization() throws Exception
     {
         assertEquals(a2q("{'value':null}"),
                 MAPPER.writeValueAsString(new VoidBean()));
@@ -226,7 +226,7 @@ class JDKTypeSerializationTest
 
     // [databind#2657]
     @Test
-    void testNonStandardProperties() throws Exception
+    void nonStandardProperties() throws Exception
     {
         Properties properties = new Properties();
         // Bad usage: Properties should NOT contain non-Strings. But
@@ -238,7 +238,7 @@ class JDKTypeSerializationTest
 
     // [databind#3130]: fails on JDK 11+
     @Test
-    void testThreadSerialization() throws Exception
+    void threadSerialization() throws Exception
     {
         final Thread input = Thread.currentThread();
 //        String json = MAPPER.writerWithDefaultPrettyPrinter()

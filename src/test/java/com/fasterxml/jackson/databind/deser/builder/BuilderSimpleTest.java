@@ -310,7 +310,7 @@ class BuilderSimpleTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimple() throws Exception
+    void simple() throws Exception
     {
         String json = a2q("{'x':1,'y':2}");
         Object o = MAPPER.readValue(json, ValueClassXY.class);
@@ -324,7 +324,7 @@ class BuilderSimpleTest
 
     // related to [databind#1214]
     @Test
-    void testSimpleWithIgnores() throws Exception
+    void simpleWithIgnores() throws Exception
     {
         // 'z' is unknown, and would fail by default:
         final String json = a2q("{'x':1,'y':2,'z':4}");
@@ -353,7 +353,7 @@ class BuilderSimpleTest
     }
 
     @Test
-    void testMultiAccess() throws Exception
+    void multiAccess() throws Exception
     {
         String json = a2q("{'c':3,'a':2,'b':-9}");
         ValueClassABC value = MAPPER.readValue(json, ValueClassABC.class);
@@ -372,7 +372,7 @@ class BuilderSimpleTest
 
     // test for Immutable builder, to ensure return value is used
     @Test
-    void testImmutable() throws Exception
+    void immutable() throws Exception
     {
         final String json = "{\"value\":13}";
         ValueImmutable value = MAPPER.readValue(json, ValueImmutable.class);
@@ -381,7 +381,7 @@ class BuilderSimpleTest
 
     // test with custom 'with-prefix'
     @Test
-    void testCustomWith() throws Exception
+    void customWith() throws Exception
     {
         final String json = "{\"value\":1}";
         ValueFoo value = MAPPER.readValue(json, ValueFoo.class);
@@ -391,7 +391,7 @@ class BuilderSimpleTest
     // for [databind#761]
 
     @Test
-    void testBuilderMethodReturnMoreGeneral() throws Exception
+    void builderMethodReturnMoreGeneral() throws Exception
     {
         final String json = "{\"x\":1}";
         ValueInterface value = MAPPER.readValue(json, ValueInterface.class);
@@ -399,7 +399,7 @@ class BuilderSimpleTest
     }
 
     @Test
-    void testBuilderMethodReturnMoreSpecific() throws Exception
+    void builderMethodReturnMoreSpecific() throws Exception
     {
         final String json = "{\"x\":1}";
         ValueInterface2 value = MAPPER.readValue(json, ValueInterface2.class);
@@ -407,7 +407,7 @@ class BuilderSimpleTest
     }
 
     @Test
-    void testSelfBuilder777() throws Exception
+    void selfBuilder777() throws Exception
     {
         SelfBuilder777 result = MAPPER.readValue(a2q("{'x':3}'"),
                 SelfBuilder777.class);
@@ -416,7 +416,7 @@ class BuilderSimpleTest
     }
 
     @Test
-    void testWithAnySetter822() throws Exception
+    void withAnySetter822() throws Exception
     {
         final String json = "{\"extra\":3,\"foobar\":[ ],\"x\":1,\"name\":\"bob\"}";
         ValueClass822 value = MAPPER.readValue(json, ValueClass822.class);
@@ -432,7 +432,7 @@ class BuilderSimpleTest
     }
 
     @Test
-    void testPOJOConfigResolution1557() throws Exception
+    void pojoConfigResolution1557() throws Exception
     {
         final String json = "{\"value\":1}";
         MAPPER.registerModule(new NopModule1557());
@@ -442,7 +442,7 @@ class BuilderSimpleTest
 
     // related to [databind#2354] (ensure private inner builder classes are ok)
     @Test
-    void testPrivateInnerBuilder() throws Exception
+    void privateInnerBuilder() throws Exception
     {
         String json = a2q("{'value':13}");
         Value2354 result = MAPPER.readValue(json, Value2354.class);

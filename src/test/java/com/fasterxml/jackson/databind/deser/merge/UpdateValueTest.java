@@ -48,7 +48,7 @@ class UpdateValueTest
 
     // [databind#318] (and Scala module issue #83]
     @Test
-    void testValueUpdateWithCreator() throws Exception
+    void valueUpdateWithCreator() throws Exception
     {
         Bean bean = new Bean("abc", "def");
         MAPPER.readerFor(Bean.class).withValueToUpdate(bean).readValue("{\"a\":\"ghi\",\"b\":\"jkl\"}");
@@ -57,7 +57,7 @@ class UpdateValueTest
     }
 
     @Test
-    void testValueUpdateOther() throws Exception
+    void valueUpdateOther() throws Exception
     {
         Bean bean = new Bean("abc", "def");
         ObjectReader r = MAPPER.readerFor(Bean.class).withValueToUpdate(bean);

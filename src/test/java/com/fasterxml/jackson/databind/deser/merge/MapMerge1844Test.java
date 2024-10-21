@@ -42,7 +42,7 @@ class MapMerge1844Test
 
     // for [databind#1844]
     @Test
-    void testMap1844() throws Exception
+    void map1844() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
         mapper.setDefaultMergeable(true);

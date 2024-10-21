@@ -111,7 +111,7 @@ class BuilderErrorHandling
             .build();
 
     @Test
-    void testUnknownProperty() throws Exception
+    void unknownProperty() throws Exception
     {
         // first, default failure
         String json = a2q("{'x':1,'z':2,'y':4}");
@@ -130,7 +130,7 @@ class BuilderErrorHandling
     }
 
     @Test
-    void testWrongShape() throws Exception
+    void wrongShape() throws Exception
     {
         try {
             MAPPER.readValue("123", ValueClassXY.class);
@@ -145,7 +145,7 @@ class BuilderErrorHandling
     // [databind#2938]
 
     @Test
-    void testSuccessfulValidatingBuilder() throws Exception
+    void successfulValidatingBuilder() throws Exception
     {
         ValidatingValue result = MAPPER.readValue(a2q("{'a':'1','b':'2'}"), ValidatingValue.class);
         assertEquals("1", result.first);
@@ -153,7 +153,7 @@ class BuilderErrorHandling
     }
 
     @Test
-    void testFailingValidatingBuilderWithExceptionWrapping() throws Exception
+    void failingValidatingBuilderWithExceptionWrapping() throws Exception
     {
         try {
             MAPPER_WITH_WRAPPING.readValue(a2q("{'a':'1'}"), ValidatingValue.class);
@@ -165,7 +165,7 @@ class BuilderErrorHandling
     }
 
     @Test
-    void testFailingValidatingBuilderWithExceptionWrappingFromTree() throws Exception
+    void failingValidatingBuilderWithExceptionWrappingFromTree() throws Exception
     {
         try {
             JsonNode tree = MAPPER_WITH_WRAPPING.readTree(a2q("{'a':'1'}"));
@@ -178,7 +178,7 @@ class BuilderErrorHandling
     }
 
     @Test
-    void testFailingValidatingBuilderWithoutExceptionWrapping() throws Exception
+    void failingValidatingBuilderWithoutExceptionWrapping() throws Exception
     {
         try {
             MAPPER_NO_WRAPPING
@@ -190,7 +190,7 @@ class BuilderErrorHandling
     }
 
     @Test
-    void testFailingValidatingBuilderWithoutExceptionWrappingFromTree() throws Exception
+    void failingValidatingBuilderWithoutExceptionWrappingFromTree() throws Exception
     {
         try {
             JsonNode tree = MAPPER_NO_WRAPPING.readTree(a2q("{'a':'1'}"));

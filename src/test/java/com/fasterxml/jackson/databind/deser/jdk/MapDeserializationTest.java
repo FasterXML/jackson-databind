@@ -100,7 +100,7 @@ class MapDeserializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testBigUntypedMap() throws Exception
+    void bigUntypedMap() throws Exception
     {
         Map<String,Object> map = new LinkedHashMap<String,Object>();
         for (int i = 0; i < 1100; ++i) {
@@ -125,7 +125,7 @@ class MapDeserializationTest
      * this time by specifying a Map class, to reduce need to cast
      */
     @Test
-    void testUntypedMap2() throws Exception
+    void untypedMap2() throws Exception
     {
         // to get "untyped" default map-to-map, pass Object.class
         String JSON = "{ \"a\" : \"x\" }";
@@ -144,7 +144,7 @@ class MapDeserializationTest
      * Unit test for [JACKSON-185]
      */
     @Test
-    void testUntypedMap3() throws Exception
+    void untypedMap3() throws Exception
     {
         String JSON = "{\"a\":[{\"a\":\"b\"},\"value\"]}";
         Map<?,?> result = MAPPER.readValue(JSON, Map.class);
@@ -186,7 +186,7 @@ class MapDeserializationTest
     static class ObjectWrapperMap extends HashMap<String, ObjectWrapper> { }
 
     @Test
-    void testSpecialMap() throws IOException
+    void specialMap() throws IOException
     {
        final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
        assertNotNull(map);
@@ -194,7 +194,7 @@ class MapDeserializationTest
     }
 
     @Test
-    void testGenericMap() throws IOException
+    void genericMap() throws IOException
     {
         final Map<String, ObjectWrapper> map = MAPPER.readValue
             (UNTYPED_MAP_JSON,
@@ -217,7 +217,7 @@ class MapDeserializationTest
 
     // [JACKSON-620]: allow "" to mean 'null' for Maps
     @Test
-    void testFromEmptyString() throws Exception
+    void fromEmptyString() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
@@ -232,7 +232,7 @@ class MapDeserializationTest
      */
 
     @Test
-    void testExactStringIntMap() throws Exception
+    void exactStringIntMap() throws Exception
     {
         // to get typing, must use type reference
         String JSON = "{ \"foo\" : 13, \"bar\" : -39, \n \"\" : 0 }";
@@ -255,7 +255,7 @@ class MapDeserializationTest
      * to allow use of non-String Map keys.
      */
     @Test
-    void testIntBooleanMap() throws Exception
+    void intBooleanMap() throws Exception
     {
         // to get typing, must use type reference
         String JSON = "{ \"1\" : true, \"-1\" : false }";
@@ -273,7 +273,7 @@ class MapDeserializationTest
     }
 
     @Test
-    void testExactStringStringMap() throws Exception
+    void exactStringStringMap() throws Exception
     {
         // to get typing, must use type reference
         String JSON = "{ \"a\" : \"b\" }";
@@ -296,7 +296,7 @@ class MapDeserializationTest
      * if given.
      */
     @Test
-    void testGenericStringIntMap() throws Exception
+    void genericStringIntMap() throws Exception
     {
         // to get typing, must use type reference; but with abstract type
         String JSON = "{ \"a\" : 1, \"b\" : 2, \"c\" : -99 }";
@@ -314,7 +314,7 @@ class MapDeserializationTest
     }
 
     @Test
-    void testAbstractMapDefault() throws Exception
+    void abstractMapDefault() throws Exception
     {
         final AbstractMapWrapper result = MAPPER.readValue("{\"values\":{\"foo\":42}}",
                 AbstractMapWrapper.class);
@@ -329,7 +329,7 @@ class MapDeserializationTest
      */
 
     @Test
-    void testEnumMap() throws Exception
+    void enumMap() throws Exception
     {
         String JSON = "{ \"KEY1\" : \"\", \"WHATEVER\" : null }";
 
@@ -352,7 +352,7 @@ class MapDeserializationTest
     }
 
     @Test
-    void testMapWithEnums() throws Exception
+    void mapWithEnums() throws Exception
     {
         String JSON = "{ \"KEY2\" : \"WHATEVER\" }";
 
@@ -370,7 +370,7 @@ class MapDeserializationTest
     }
 
     @Test
-    void testEnumPolymorphicSerializationTest() throws Exception
+    void enumPolymorphicSerializationTest() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         List<ITestType> testTypesList = new ArrayList<ITestType>();
@@ -396,7 +396,7 @@ class MapDeserializationTest
     /**********************************************************
      */
     @Test
-    void testDateMap() throws Exception
+    void dateMap() throws Exception
     {
     	 Date date1=new Date(123456000L);
     	 DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
@@ -423,7 +423,7 @@ class MapDeserializationTest
      */
 
     @Test
-    void testCalendarMap() throws Exception
+    void calendarMap() throws Exception
     {
         // 18-Jun-2015, tatu: Should be safest to use default timezone that mapper would use
         TimeZone tz = MAPPER.getSerializationConfig().getTimeZone();
@@ -447,7 +447,7 @@ class MapDeserializationTest
     }
 
     @Test
-    void testUUIDKeyMap() throws Exception
+    void uuidKeyMap() throws Exception
     {
          UUID key = UUID.nameUUIDFromBytes("foobar".getBytes("UTF-8"));
          String JSON = "{ \""+key+"\":4}";
@@ -461,7 +461,7 @@ class MapDeserializationTest
     }
 
     @Test
-    void testLocaleKeyMap() throws Exception {
+    void localeKeyMap() throws Exception {
         Locale key = Locale.CHINA;
         String JSON = "{ \"" + key + "\":4}";
         Map<Locale, Object> result = MAPPER.readValue(JSON, new TypeReference<Map<Locale, Object>>() {
@@ -475,7 +475,7 @@ class MapDeserializationTest
     }
 
     @Test
-    void testCurrencyKeyMap() throws Exception {
+    void currencyKeyMap() throws Exception {
         Currency key = Currency.getInstance("USD");
         String JSON = "{ \"" + key + "\":4}";
         Map<Currency, Object> result = MAPPER.readValue(JSON, new TypeReference<Map<Currency, Object>>() {
@@ -490,7 +490,7 @@ class MapDeserializationTest
 
     // Test confirming that @JsonCreator may be used with Map Key types
     @Test
-    void testKeyWithCreator() throws Exception
+    void keyWithCreator() throws Exception
     {
         // first, key should deserialize normally:
         KeyType key = MAPPER.readValue(q("abc"), KeyType.class);
@@ -503,7 +503,7 @@ class MapDeserializationTest
     }
 
     @Test
-    void testClassKeyMap() throws Exception {
+    void classKeyMap() throws Exception {
         ClassStringMap map = MAPPER.readValue(a2q("{'java.lang.String':'foo'}"),
                 ClassStringMap.class);
         assertNotNull(map);
@@ -531,7 +531,7 @@ class MapDeserializationTest
      * recognized
      */
     @Test
-    void testMapWithDeserializer() throws Exception
+    void mapWithDeserializer() throws Exception
     {
         CustomMap result = MAPPER.readValue(q("xyz"), CustomMap.class);
         assertEquals(1, result.size());
@@ -545,7 +545,7 @@ class MapDeserializationTest
      */
 
     @Test
-    void testMapError() throws Exception
+    void mapError() throws Exception
     {
         try {
             Object result = MAPPER.readValue("[ 1, 2 ]",
@@ -557,7 +557,7 @@ class MapDeserializationTest
     }
 
     @Test
-    void testNoCtorMap() throws Exception
+    void noCtorMap() throws Exception
     {
         try {
             BrokenMap result = MAPPER.readValue("{ \"a\" : 3 }", BrokenMap.class);

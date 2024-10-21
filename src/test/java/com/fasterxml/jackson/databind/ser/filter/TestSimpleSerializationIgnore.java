@@ -77,7 +77,7 @@ class TestSimpleSerializationIgnore
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testSimpleIgnore() throws Exception
+    void simpleIgnore() throws Exception
     {
         // Should see "x", not "y"
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassEnabledIgnore());
@@ -87,7 +87,7 @@ class TestSimpleSerializationIgnore
     }
 
     @Test
-    void testDisabledIgnore() throws Exception
+    void disabledIgnore() throws Exception
     {
         // Should see "x" and "y"
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassDisabledIgnore());
@@ -101,7 +101,7 @@ class TestSimpleSerializationIgnore
      * via inheritance
      */
     @Test
-    void testIgnoreOver() throws Exception
+    void ignoreOver() throws Exception
     {
         // should only see "y"
         Map<String,Object> result = writeAndMap(MAPPER, new BaseClassIgnore());
@@ -116,7 +116,7 @@ class TestSimpleSerializationIgnore
     }
 
     @Test
-    void testIgnoreType() throws Exception
+    void ignoreType() throws Exception
     {
         assertEquals("{\"value\":13}", MAPPER.writeValueAsString(new NonIgnoredType()));
     }

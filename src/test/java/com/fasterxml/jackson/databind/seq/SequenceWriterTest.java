@@ -98,7 +98,7 @@ class SequenceWriterTest extends DatabindTestUtil
             .withRootValueSeparator("\n");
 
     @Test
-    void testSimpleNonArray() throws Exception
+    void simpleNonArray() throws Exception
     {
         StringWriter strw = new StringWriter();
         SequenceWriter w = WRITER
@@ -127,7 +127,7 @@ class SequenceWriterTest extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleNonArrayNoSeparator() throws Exception
+    void simpleNonArrayNoSeparator() throws Exception
     {
         final String EXP = a2q("{'a':1}{'a':2}");
 
@@ -145,7 +145,7 @@ class SequenceWriterTest extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleArray() throws Exception
+    void simpleArray() throws Exception
     {
         StringWriter strw = new StringWriter();
         SequenceWriter w = WRITER.writeValuesAsArray(strw);
@@ -177,7 +177,7 @@ class SequenceWriterTest extends DatabindTestUtil
 
     @SuppressWarnings("resource")
     @Test
-    void testPolymorphicNonArrayWithoutType() throws Exception
+    void polymorphicNonArrayWithoutType() throws Exception
     {
         StringWriter strw = new StringWriter();
         SequenceWriter w = WRITER
@@ -191,7 +191,7 @@ class SequenceWriterTest extends DatabindTestUtil
 
     @SuppressWarnings("resource")
     @Test
-    void testPolymorphicArrayWithoutType() throws Exception
+    void polymorphicArrayWithoutType() throws Exception
     {
         StringWriter strw = new StringWriter();
         SequenceWriter w = WRITER
@@ -204,7 +204,7 @@ class SequenceWriterTest extends DatabindTestUtil
     }
 
     @Test
-    void testPolymorphicArrayWithType() throws Exception
+    void polymorphicArrayWithType() throws Exception
     {
         StringWriter strw = new StringWriter();
         SequenceWriter w = WRITER
@@ -221,7 +221,7 @@ class SequenceWriterTest extends DatabindTestUtil
 
     @SuppressWarnings("resource")
     @Test
-    void testSimpleCloseable() throws Exception
+    void simpleCloseable() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         ObjectWriter w = mapper.writer()
@@ -240,7 +240,7 @@ class SequenceWriterTest extends DatabindTestUtil
     }
 
     @Test
-    void testWithExplicitType() throws Exception
+    void withExplicitType() throws Exception
     {
         ObjectWriter w = MAPPER.writer()
                 // just for fun (and higher coverage):

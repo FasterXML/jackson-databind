@@ -31,7 +31,7 @@ class EnumValuesTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testConstructFromName() {
+    void constructFromName() {
         SerializationConfig cfg = MAPPER.getSerializationConfig()
                 .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         AnnotatedClass enumClass = resolve(MAPPER, ABC.class);
@@ -44,7 +44,7 @@ class EnumValuesTest extends DatabindTestUtil
     }
 
     @Test
-    void testConstructWithToString() {
+    void constructWithToString() {
         SerializationConfig cfg = MAPPER.getSerializationConfig()
                 .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         AnnotatedClass enumClass = resolve(MAPPER, ABC.class);
@@ -57,7 +57,7 @@ class EnumValuesTest extends DatabindTestUtil
     }
 
     @Test
-    void testEnumResolverNew()
+    void enumResolverNew()
     {
         AnnotatedClass annotatedClass = resolve(MAPPER, ABC.class);
         EnumResolver enumRes = EnumResolver.constructUsingToString(MAPPER.getDeserializationConfig(), annotatedClass);
@@ -74,7 +74,7 @@ class EnumValuesTest extends DatabindTestUtil
 
     // [databind#3053]
     @Test
-    void testConstructFromNameLowerCased() {
+    void constructFromNameLowerCased() {
         SerializationConfig cfg = MAPPER.getSerializationConfig()
             .with(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
         AnnotatedClass enumClass = resolve(MAPPER, ABC.class);

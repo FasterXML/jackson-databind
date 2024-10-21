@@ -119,7 +119,7 @@ class GenericsBoundedTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testLowerBound() throws Exception
+    void lowerBound() throws Exception
     {
         IntBeanWrapper<?> result = MAPPER.readValue("{\"wrapped\":{\"x\":3}}",
                 IntBeanWrapper.class);
@@ -130,7 +130,7 @@ class GenericsBoundedTest
 
     // Test related to type bound handling problem within [JACKSON-190]
     @Test
-    void testBounded() throws Exception
+    void bounded() throws Exception
     {
         BoundedWrapper<IntBean> result = MAPPER.readValue
             ("{\"values\":[ {\"x\":3} ] } ", new TypeReference<BoundedWrapper<IntBean>>() {});
@@ -142,7 +142,7 @@ class GenericsBoundedTest
     }
 
     @Test
-    void testGenericsComplex() throws Exception
+    void genericsComplex() throws Exception
     {
         DoubleRange in = new DoubleRange(-0.5, 0.5);
         String json = MAPPER.writeValueAsString(in);
@@ -153,7 +153,7 @@ class GenericsBoundedTest
     }
 
     @Test
-    void testIssue778() throws Exception
+    void issue778() throws Exception
     {
         String json = "{\"rows\":[{\"d\":{}}]}";
 

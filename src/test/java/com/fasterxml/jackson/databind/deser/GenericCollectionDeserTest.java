@@ -48,7 +48,7 @@ class GenericCollectionDeserTest
      * Verifying that sub-classing works ok wrt generics information
      */
     @Test
-    void testListSubClass() throws Exception
+    void listSubClass() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         ListSubClass result = mapper.readValue("[ \"123\" ]", ListSubClass.class);
@@ -67,7 +67,7 @@ class GenericCollectionDeserTest
 
     // Verifying that sub-classing works ok wrt generics information
     @Test
-    void testAnnotatedLStringist() throws Exception
+    void annotatedLStringist() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         AnnotatedStringList result = mapper.readValue("[ \"...\" ]", AnnotatedStringList.class);
@@ -78,7 +78,7 @@ class GenericCollectionDeserTest
     }
 
     @Test
-    void testAnnotatedBooleanList() throws Exception
+    void annotatedBooleanList() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         AnnotatedBooleanList result = mapper.readValue("[ false ]", AnnotatedBooleanList.class);

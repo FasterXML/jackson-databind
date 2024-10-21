@@ -31,7 +31,7 @@ class StdValueInstantiatorTest
     }
 
     @Test
-    void testDoubleValidation_valid() {
+    void doubleValidationValid() {
         assertEquals(0d, StdValueInstantiator.tryConvertToDouble(BigDecimal.ZERO));
         assertEquals(1d, StdValueInstantiator.tryConvertToDouble(BigDecimal.ONE));
         assertEquals(10d, StdValueInstantiator.tryConvertToDouble(BigDecimal.TEN));
@@ -39,26 +39,26 @@ class StdValueInstantiatorTest
     }
 
     @Test
-    void testDoubleValidation_invalid() {
+    void doubleValidationInvalid() {
         BigDecimal value = BigDecimal.valueOf(Double.MAX_VALUE).add(BigDecimal.valueOf(Double.MAX_VALUE));
         assertNull(StdValueInstantiator.tryConvertToDouble(value));
     }
 
     @Test
-    void testJsonIntegerToDouble() throws Exception {
+    void jsonIntegerToDouble() throws Exception {
         Stuff a = MAPPER.readValue("5", Stuff.class);
         assertEquals(5, a.value);
     }
 
     @Test
-    void testJsonLongToDouble() throws Exception {
+    void jsonLongToDouble() throws Exception {
         assertTrue(LONG_TEST_VALUE > Integer.MAX_VALUE);
         Stuff a = MAPPER.readValue(String.valueOf(LONG_TEST_VALUE), Stuff.class);
         assertEquals(LONG_TEST_VALUE, a.value);
     }
 
     @Test
-    void testJsonIntegerDeserializationPrefersInt() throws Exception {
+    void jsonIntegerDeserializationPrefersInt() throws Exception {
         A a = MAPPER.readValue("5", A.class);
         assertEquals(1, a.creatorType);
     }
@@ -84,7 +84,7 @@ class StdValueInstantiatorTest
     }
 
     @Test
-    void testJsonIntegerDeserializationPrefersLong() throws Exception {
+    void jsonIntegerDeserializationPrefersLong() throws Exception {
         B a = MAPPER.readValue("5", B.class);
         assertEquals(2, a.creatorType);
     }
@@ -106,7 +106,7 @@ class StdValueInstantiatorTest
     }
 
     @Test
-    void testJsonIntegerDeserializationPrefersBigInteger() throws Exception {
+    void jsonIntegerDeserializationPrefersBigInteger() throws Exception {
         C a = MAPPER.readValue("5", C.class);
         assertEquals(3, a.creatorType);
     }
@@ -124,7 +124,7 @@ class StdValueInstantiatorTest
     }
 
     @Test
-    void testJsonLongDeserializationPrefersLong() throws Exception {
+    void jsonLongDeserializationPrefersLong() throws Exception {
         A2 a = MAPPER.readValue(String.valueOf(LONG_TEST_VALUE), A2.class);
         assertEquals(2, a.creatorType);
     }
@@ -150,7 +150,7 @@ class StdValueInstantiatorTest
     }
 
     @Test
-    void testJsonLongDeserializationPrefersBigInteger() throws Exception {
+    void jsonLongDeserializationPrefersBigInteger() throws Exception {
         B2 a = MAPPER.readValue(String.valueOf(LONG_TEST_VALUE), B2.class);
         assertEquals(3, a.creatorType);
     }
@@ -168,7 +168,7 @@ class StdValueInstantiatorTest
     }
 
     @Test
-    void testJsonIntegerIntoDoubleConstructorThrows() throws Exception {
+    void jsonIntegerIntoDoubleConstructorThrows() throws Exception {
         try {
             MAPPER.readValue("5", D.class);
             fail("Should not pass");
@@ -186,7 +186,7 @@ class StdValueInstantiatorTest
     }
 
     @Test
-    void testJsonLongIntoDoubleConstructorThrows() throws Exception {
+    void jsonLongIntoDoubleConstructorThrows() throws Exception {
         try {
             MAPPER.readValue(String.valueOf(LONG_TEST_VALUE), D.class);
             fail("Should not pass");

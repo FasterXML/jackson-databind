@@ -42,7 +42,7 @@ class DefaultTypeResolverForLong2753Test extends DatabindTestUtil
     }
 
     @Test
-    void testDefaultTypingWithLong() throws Exception
+    void defaultTypingWithLong() throws Exception
     {
         Data data = new Data(1L);
         Map<String, Object> mapData = new HashMap<>();

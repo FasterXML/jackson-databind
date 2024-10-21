@@ -78,7 +78,7 @@ class TestAnnotationInheritance
      */
 
     @Test
-    void testSimpleGetterInheritance() throws Exception
+    void simpleGetterInheritance() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         Map<String,Object> result = writeAndMap(m, new PojoSubclass());
@@ -88,7 +88,7 @@ class TestAnnotationInheritance
     }
 
     @Test
-    void testSimpleGetterInterfaceImpl() throws Exception
+    void simpleGetterInterfaceImpl() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         Map<String,Object> result = writeAndMap(m, new PojoImpl());

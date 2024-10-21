@@ -197,7 +197,7 @@ class TestCreators2
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testExceptionFromConstructor() throws Exception
+    void exceptionFromConstructor() throws Exception
     {
         try {
             MAPPER.readValue("{}", BustedCtor.class);
@@ -218,7 +218,7 @@ class TestCreators2
     }
 
     @Test
-    void testSimpleConstructor() throws Exception
+    void simpleConstructor() throws Exception
     {
         HashTest test = MAPPER.readValue("{\"type\":\"custom\",\"bytes\":\"abc\" }", HashTest.class);
         assertEquals("custom", test.type);
@@ -226,7 +226,7 @@ class TestCreators2
     }
 
     @Test
-    void testMissingPrimitives() throws Exception
+    void missingPrimitives() throws Exception
     {
         Primitives p = MAPPER.readValue("{}", Primitives.class);
         assertFalse(p.b);
@@ -235,7 +235,7 @@ class TestCreators2
     }
 
     @Test
-    void testJackson431() throws Exception
+    void jackson431() throws Exception
     {
         final Test431Container foo = MAPPER.readValue(
                 "{\"items\":\n"
@@ -249,7 +249,7 @@ class TestCreators2
 
     // Catch and re-throw exceptions that Creator methods throw
     @Test
-    void testJackson438() throws Exception
+    void jackson438() throws Exception
     {
         Exception e = null;
         try {
@@ -272,7 +272,7 @@ class TestCreators2
     }
 
     @Test
-    void testCreatorWithDupNames() throws Exception
+    void creatorWithDupNames() throws Exception
     {
         try {
             MAPPER.readValue("{\"bar\":\"x\"}", BrokenCreatorBean.class);
@@ -285,7 +285,7 @@ class TestCreators2
     }
 
     @Test
-    void testCreatorMultipleArgumentWithoutAnnotation() throws Exception {
+    void creatorMultipleArgumentWithoutAnnotation() throws Exception {
         AutoDetectConstructorBean value = MAPPER.readValue("{\"bar\":\"bar\",\"foo\":\"foo\"}",
                 AutoDetectConstructorBean.class);
         assertEquals("bar", value.bar);
@@ -293,7 +293,7 @@ class TestCreators2
     }
 
     @Test
-    void testIgnoredSingleArgCtor() throws Exception
+    void ignoredSingleArgCtor() throws Exception
     {
         try {
             MAPPER.readValue(q("abc"), IgnoredCtor.class);
@@ -304,7 +304,7 @@ class TestCreators2
     }
 
     @Test
-    void testAbstractFactory() throws Exception
+    void abstractFactory() throws Exception
     {
         AbstractBase bean = MAPPER.readValue("{\"a\":3}", AbstractBase.class);
         assertNotNull(bean);
@@ -314,7 +314,7 @@ class TestCreators2
     }
 
     @Test
-    void testCreatorProperties() throws Exception
+    void creatorProperties() throws Exception
     {
         Issue700Bean value = MAPPER.readValue("{ \"item\" : \"foo\" }", Issue700Bean.class);
         assertNotNull(value);
@@ -322,7 +322,7 @@ class TestCreators2
 
     // [databind#1476]
     @Test
-    void testConstructorChoice() throws Exception {
+    void constructorChoice() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         MultiPropCreator1476 pojo = mapper.readValue("{ \"intField\": 1, \"stringField\": \"foo\" }",
                 MultiPropCreator1476.class);

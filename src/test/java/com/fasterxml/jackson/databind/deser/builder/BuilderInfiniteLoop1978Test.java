@@ -89,7 +89,7 @@ class BuilderInfiniteLoop1978Test
 
     // for [databind#1978]
     @Test
-    void testInfiniteLoop1978() throws Exception
+    void infiniteLoop1978() throws Exception
     {
         String json = "{\"sub.el1\":34,\"sub.el2\":\"some text\"}";
         ObjectMapper mapper = new ObjectMapper();

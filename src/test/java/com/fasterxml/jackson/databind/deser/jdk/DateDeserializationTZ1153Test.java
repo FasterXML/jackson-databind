@@ -18,7 +18,7 @@ class DateDeserializationTZ1153Test
 
     // [databind#1153]
     @Test
-    void testWithTimezones1153() throws Exception
+    void withTimezones1153() throws Exception
     {
         for (String tzStr : new String[] {
                 "UTC", "CET", "America/Los_Angeles", "Australia/Melbourne"

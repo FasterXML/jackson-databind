@@ -96,7 +96,7 @@ class PolymorphicList036Test
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testPolymorphicWithOverride() throws Exception
+    void polymorphicWithOverride() throws Exception
     {
         JavaType type = MAPPER.getTypeFactory().constructCollectionType(StringyList.class, String.class);
 

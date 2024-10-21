@@ -380,7 +380,7 @@ class TestCustomValueInstDefaults
 
     // When all values are in the source, no defaults should be used.
     @Test
-    void testAllPresent() throws Exception
+    void allPresent() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -397,7 +397,7 @@ class TestCustomValueInstDefaults
 
     // When no values are in the source, all defaults should be used.
     @Test
-    void testAllAbsent() throws Exception
+    void allAbsent() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -415,7 +415,7 @@ class TestCustomValueInstDefaults
     // When some values are in the source and some are not, defaults should only
     // be used for the missing values.
     @Test
-    void testMixedPresentAndAbsent() throws Exception
+    void mixedPresentAndAbsent() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -459,7 +459,7 @@ class TestCustomValueInstDefaults
 
     // Ensure that 0 is not mistaken for a missing int value.
     @Test
-    void testPresentZeroPrimitive() throws Exception
+    void presentZeroPrimitive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -476,7 +476,7 @@ class TestCustomValueInstDefaults
 
     // Ensure that null is not mistaken for a missing String value.
     @Test
-    void testPresentNullReference() throws Exception
+    void presentNullReference() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -495,7 +495,7 @@ class TestCustomValueInstDefaults
     // BitSet instead of a primitive int to keep track of which parameters it
     // has seen.  Ensure that nothing breaks in that case.
     @Test
-    void testMoreThan32CreatorParams() throws Exception
+    void moreThan32CreatorParams() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -540,7 +540,7 @@ class TestCustomValueInstDefaults
 
     // [databind#1432]
     @Test
-    void testClassWith32CreatorParams() throws Exception
+    void classWith32CreatorParams() throws Exception
     {
         StringBuilder sb = new StringBuilder()
                 .append("{\n");

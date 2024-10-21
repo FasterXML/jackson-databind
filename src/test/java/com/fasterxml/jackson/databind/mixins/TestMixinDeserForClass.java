@@ -56,7 +56,7 @@ class TestMixinDeserForClass
      */
 
     @Test
-    void testClassMixInsTopLevel() throws IOException
+    void classMixInsTopLevel() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         // First: test default behavior: should use setter
@@ -74,7 +74,7 @@ class TestMixinDeserForClass
     // and then a test for mid-level mixin; should have no effect
     // when deserializing leaf (but will if deserializing base class)
     @Test
-    void testClassMixInsMidLevel() throws IOException
+    void classMixInsMidLevel() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(BaseClass.class, MixIn.class);
@@ -94,7 +94,7 @@ class TestMixinDeserForClass
      * visible (similar to mid-level, basically)
      */
     @Test
-    void testClassMixInsForObjectClass() throws IOException
+    void classMixInsForObjectClass() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Object.class, MixIn.class);
@@ -113,7 +113,7 @@ class TestMixinDeserForClass
 
     // [databind#1990]: can apply mix-in to `Object#hashCode()` to force serialization
     @Test
-    void testHashCodeViaObject() throws Exception
+    void hashCodeViaObject() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
                 .addMixIn(Object.class, HashCodeMixIn.class);

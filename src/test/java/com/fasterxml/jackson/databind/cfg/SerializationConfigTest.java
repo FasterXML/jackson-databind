@@ -18,7 +18,7 @@ class SerializationConfigTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSerConfig() throws Exception
+    void serConfig() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
         assertTrue(config.hasSerializationFeatures(SerializationFeature.FAIL_ON_EMPTY_BEANS.getMask()));
@@ -55,7 +55,7 @@ class SerializationConfigTest extends DatabindTestUtil
     }
 
     @Test
-    void testGeneratorFeatures() throws Exception
+    void generatorFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
         assertNotSame(config, config.with(JsonWriteFeature.ESCAPE_NON_ASCII));
@@ -67,7 +67,7 @@ class SerializationConfigTest extends DatabindTestUtil
     }
 
     @Test
-    void testFormatFeatures() throws Exception
+    void formatFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
         assertNotSame(config, config.with(BogusFormatFeature.FF_DISABLED_BY_DEFAULT));

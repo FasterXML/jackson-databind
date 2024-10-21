@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class TypeDeserializerUtilMethodsTest extends DatabindTestUtil
 {
     @Test
-    void testUtilMethods() throws Exception
+    void utilMethods() throws Exception
     {
         final JsonFactory f = new JsonFactory();
 

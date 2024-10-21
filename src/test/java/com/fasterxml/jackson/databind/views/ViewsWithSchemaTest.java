@@ -60,7 +60,7 @@ class ViewsWithSchemaTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testSchemaWithViews() throws Exception
+    void schemaWithViews() throws Exception
     {
         ListingVisitor v = new ListingVisitor();
         MAPPER.writerWithView(ViewBC.class)
@@ -74,7 +74,7 @@ class ViewsWithSchemaTest extends DatabindTestUtil
     }
 
     @Test
-    void testSchemaWithoutViews() throws Exception
+    void schemaWithoutViews() throws Exception
     {
         ListingVisitor v = new ListingVisitor();
         MAPPER.acceptJsonFormatVisitor(POJO.class, v);

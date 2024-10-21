@@ -22,7 +22,7 @@ class NumberNodes1770Test extends DatabindTestUtil
     // as Double, gets `POSITIVE_INFINITY` and returns `true`: this results in
     // `DoubleNode` being used even tho `BigDecimal` could fit the number.
     @Test
-    void testBigDecimalCoercion() throws Exception
+    void bigDecimalCoercion() throws Exception
     {
         final String value = "7976931348623157e309";
         final JsonNode jsonNode = newJsonMapper().reader()
@@ -33,7 +33,7 @@ class NumberNodes1770Test extends DatabindTestUtil
     }
 
     @Test
-    void testBigDecimalCoercionInf() throws Exception
+    void bigDecimalCoercionInf() throws Exception
     {
         final String value = "+INF";
         JsonFactory factory = JsonFactory.builder()
@@ -48,7 +48,7 @@ class NumberNodes1770Test extends DatabindTestUtil
 
     // [databind#4194]: should be able to, by configuration, fail coercing NaN to BigDecimal
     @Test
-    void testBigDecimalCoercionNaN() throws Exception
+    void bigDecimalCoercionNaN() throws Exception
     {
         JsonNode n = _tryBigDecimalCoercionNaNWithOption(false);
         if (!n.isDouble()) {

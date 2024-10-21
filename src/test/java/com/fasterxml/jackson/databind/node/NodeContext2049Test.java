@@ -172,7 +172,7 @@ class NodeContext2049Test extends DatabindTestUtil
             "}";
 
     @Test
-    void testReadNoBuffering() throws IOException {
+    void readNoBuffering() throws IOException {
         Parent obj = objectMapper.readerFor(Parent.class).readValue(JSON);
         assertSame(obj, obj.singleChild.getParent());
         for (Child child : obj.children) {
@@ -181,7 +181,7 @@ class NodeContext2049Test extends DatabindTestUtil
     }
 
     @Test
-    void testReadFromTree() throws IOException {
+    void readFromTree() throws IOException {
         JsonNode tree = objectMapper.readTree(JSON);
         Parent obj = objectMapper.reader().forType(Parent.class).readValue(tree);
         assertSame(obj, obj.singleChild.getParent());

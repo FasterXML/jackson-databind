@@ -89,7 +89,7 @@ class TestAbstractTypes extends DatabindTestUtil
      */
 
     @Test
-    void testCollectionDefaulting() throws Exception
+    void collectionDefaulting() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -102,7 +102,7 @@ class TestAbstractTypes extends DatabindTestUtil
     }
 
     @Test
-    void testMapDefaultingBasic() throws Exception
+    void mapDefaultingBasic() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -115,7 +115,7 @@ class TestAbstractTypes extends DatabindTestUtil
 
     // [databind#700]
     @Test
-    void testDefaultingRecursive() throws Exception
+    void defaultingRecursive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -144,7 +144,7 @@ class TestAbstractTypes extends DatabindTestUtil
     }
 
     @Test
-    void testInterfaceDefaulting() throws Exception
+    void interfaceDefaulting() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -166,7 +166,7 @@ class TestAbstractTypes extends DatabindTestUtil
 
     // [databind#2019]: mappings from multiple modules
     @Test
-    void testAbstractMappingsFromTwoModules() throws Exception
+    void abstractMappingsFromTwoModules() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         SimpleModule module1 = new SimpleModule("module1");

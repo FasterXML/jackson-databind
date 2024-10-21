@@ -31,7 +31,7 @@ class ParserFilterViaMapTest
     // From [core#700], to verify at databind level
     // (and actually found a bug in doing so -- fixed for 2.13.0)
     @Test
-    void testSimplePropertyExcludeFilter() throws Exception
+    void simplePropertyExcludeFilter() throws Exception
     {
         final String json = "{\"@type\":\"xxx\",\"a\":{\"@type\":\"yyy\",\"b\":11}}";
         try (JsonParser p = new FilteringParserDelegate(

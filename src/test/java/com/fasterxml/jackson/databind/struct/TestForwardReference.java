@@ -23,7 +23,7 @@ class TestForwardReference extends DatabindTestUtil {
 
     /** Tests that we can read a hierarchical structure with forward references*/
     @Test
-    void testForwardRef() throws IOException {
+    void forwardRef() throws IOException {
 		MAPPER.readValue("{" +
 				"  \"@type\" : \"TestForwardReference$ForwardReferenceContainerClass\"," +
 				"  \"frc\" : \"willBeForwardReferenced\"," +

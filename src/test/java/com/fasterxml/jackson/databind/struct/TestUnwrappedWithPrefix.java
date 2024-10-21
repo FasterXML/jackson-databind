@@ -155,7 +155,7 @@ class TestUnwrappedWithPrefix extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testPrefixedUnwrappingSerialize() throws Exception
+    void prefixedUnwrappingSerialize() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         assertEquals("{\"_x\":1,\"_y\":2,\"name\":\"Tatu\"}",
@@ -163,7 +163,7 @@ class TestUnwrappedWithPrefix extends DatabindTestUtil
     }
 
     @Test
-    void testDeepPrefixedUnwrappingSerialize() throws Exception
+    void deepPrefixedUnwrappingSerialize() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         String json = mapper.writeValueAsString(new DeepPrefixUnwrap("Bubba", 1, 1));
@@ -171,7 +171,7 @@ class TestUnwrappedWithPrefix extends DatabindTestUtil
     }
 
     @Test
-    void testHierarchicConfigSerialize() throws Exception
+    void hierarchicConfigSerialize() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ConfigRoot("Fred", 25));
         assertEquals("{\"general.names.name\":\"Fred\",\"misc.value\":25}", json);
@@ -184,7 +184,7 @@ class TestUnwrappedWithPrefix extends DatabindTestUtil
      */
 
     @Test
-    void testPrefixedUnwrapping() throws Exception
+    void prefixedUnwrapping() throws Exception
     {
         PrefixUnwrap bean = MAPPER.readValue("{\"name\":\"Axel\",\"_x\":4,\"_y\":7}", PrefixUnwrap.class);
         assertNotNull(bean);
@@ -195,7 +195,7 @@ class TestUnwrappedWithPrefix extends DatabindTestUtil
     }
 
     @Test
-    void testDeepPrefixedUnwrappingDeserialize() throws Exception
+    void deepPrefixedUnwrappingDeserialize() throws Exception
     {
         DeepPrefixUnwrap bean = MAPPER.readValue("{\"u.name\":\"Bubba\",\"u._x\":2,\"u._y\":3}",
                 DeepPrefixUnwrap.class);
@@ -207,7 +207,7 @@ class TestUnwrappedWithPrefix extends DatabindTestUtil
     }
 
     @Test
-    void testHierarchicConfigDeserialize() throws Exception
+    void hierarchicConfigDeserialize() throws Exception
     {
         ConfigRoot root = MAPPER.readValue("{\"general.names.name\":\"Bob\",\"misc.value\":3}",
                 ConfigRoot.class);
@@ -225,7 +225,7 @@ class TestUnwrappedWithPrefix extends DatabindTestUtil
      */
 
     @Test
-    void testHierarchicConfigRoundTrip() throws Exception
+    void hierarchicConfigRoundTrip() throws Exception
     {
         ConfigAlternate input = new ConfigAlternate(123, "Joe", 42);
         String json = MAPPER.writeValueAsString(input);
@@ -240,7 +240,7 @@ class TestUnwrappedWithPrefix extends DatabindTestUtil
     }
 
     @Test
-    void testIssue226() throws Exception
+    void issue226() throws Exception
     {
         Parent input = new Parent();
         input.c1 = new Child();

@@ -32,7 +32,7 @@ class JsonNodeFindMethodsTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testNonMatching() throws Exception
+    void nonMatching() throws Exception
     {
         JsonNode root = MAPPER.readTree(JSON_SAMPLE);
 
@@ -47,7 +47,7 @@ class JsonNodeFindMethodsTest
     }
 
     @Test
-    void testMatchingSingle() throws Exception
+    void matchingSingle() throws Exception
     {
         JsonNode root = MAPPER.readTree(JSON_SAMPLE);
 
@@ -62,7 +62,7 @@ class JsonNodeFindMethodsTest
     }
 
     @Test
-    void testMatchingMultiple() throws Exception
+    void matchingMultiple() throws Exception
     {
         JsonNode root = MAPPER.readTree(JSON_SAMPLE);
 
@@ -89,7 +89,7 @@ class JsonNodeFindMethodsTest
 
     // [databind#4229]: regression in 2.16.0
     @Test
-    void testFindValues4229() throws Exception
+    void findValues4229() throws Exception
     {
         JsonNode rootNode = MAPPER.readTree(JSON_4229);
         assertEquals(Arrays.asList(
@@ -101,7 +101,7 @@ class JsonNodeFindMethodsTest
 
     // [databind#4229]: regression in 2.16.0
     @Test
-    void testFindParents4229() throws Exception {
+    void findParents4229() throws Exception {
         JsonNode rootNode = MAPPER.readTree(JSON_4229);
         assertEquals(Arrays.asList(
                 rootNode,

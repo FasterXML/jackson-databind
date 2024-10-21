@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class VersionInfoTest
 {
     @Test
-    void testMapperVersions()
+    void mapperVersions()
     {
         ObjectMapper mapper = new JsonMapper();
         assertVersion(mapper);

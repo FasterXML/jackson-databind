@@ -137,7 +137,7 @@ class EnumAltIdTest
     // Tests for [databind#1313], case-insensitive
 
     @Test
-    void testFailWhenCaseSensitiveAndNameIsNotUpperCase() throws IOException {
+    void failWhenCaseSensitiveAndNameIsNotUpperCase() throws IOException {
         try {
             READER_DEFAULT.forType(TestEnum.class).readValue("\"Jackson\"");
             fail("InvalidFormatException expected");
@@ -148,7 +148,7 @@ class EnumAltIdTest
     }
 
     @Test
-    void testFailWhenCaseSensitiveAndToStringIsUpperCase() throws IOException {
+    void failWhenCaseSensitiveAndToStringIsUpperCase() throws IOException {
         ObjectReader r = READER_DEFAULT.forType(LowerCaseEnum.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
         try {
@@ -161,13 +161,13 @@ class EnumAltIdTest
     }
 
     @Test
-    void testEnumDesIgnoringCaseWithLowerCaseContent() throws IOException {
+    void enumDesIgnoringCaseWithLowerCaseContent() throws IOException {
         assertEquals(TestEnum.JACKSON,
                 READER_IGNORE_CASE.forType(TestEnum.class).readValue(q("jackson")));
     }
 
     @Test
-    void testEnumDesIgnoringCaseWithUpperCaseToString() throws IOException {
+    void enumDesIgnoringCaseWithUpperCaseToString() throws IOException {
         ObjectReader r = MAPPER_IGNORE_CASE.readerFor(LowerCaseEnum.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
         assertEquals(LowerCaseEnum.A, r.readValue("\"A\""));
@@ -180,7 +180,7 @@ class EnumAltIdTest
      */
 
     @Test
-    void testIgnoreCaseInEnumList() throws Exception {
+    void ignoreCaseInEnumList() throws Exception {
         TestEnum[] enums = READER_IGNORE_CASE.forType(TestEnum[].class)
             .readValue("[\"jacksON\", \"ruLes\"]");
 
@@ -190,7 +190,7 @@ class EnumAltIdTest
     }
 
     @Test
-    void testIgnoreCaseInEnumSet() throws IOException {
+    void ignoreCaseInEnumSet() throws IOException {
         ObjectReader r = READER_IGNORE_CASE.forType(new TypeReference<EnumSet<TestEnum>>() { });
         EnumSet<TestEnum> set = r.readValue("[\"jackson\"]");
         assertEquals(1, set.size());
@@ -204,7 +204,7 @@ class EnumAltIdTest
      */
 
     @Test
-    void testIgnoreCaseViaFormat() throws Exception
+    void ignoreCaseViaFormat() throws Exception
     {
         final String JSON = a2q("{'value':'ok'}");
 
@@ -232,7 +232,7 @@ class EnumAltIdTest
 
     // for [databind#2352]
     @Test
-    void testEnumWithAlias() throws Exception {
+    void enumWithAlias() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_1.class);
         MyEnum2352_1 nonAliased = reader.readValue(q("A"));
         assertEquals(MyEnum2352_1.A, nonAliased);
@@ -246,7 +246,7 @@ class EnumAltIdTest
 
     // for [databind#2352]
     @Test
-    void testEnumWithAliasAndToStringSupported() throws Exception {
+    void enumWithAliasAndToStringSupported() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_2.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
         MyEnum2352_2 nonAliased = reader.readValue(q("a"));
@@ -261,7 +261,7 @@ class EnumAltIdTest
 
     // for [databind#2352]
     @Test
-    void testEnumWithAliasAndDefaultForUnknownValueEnabled() throws Exception {
+    void enumWithAliasAndDefaultForUnknownValueEnabled() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_3.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         MyEnum2352_3 nonAliased = reader.readValue(q("A"));
@@ -277,7 +277,7 @@ class EnumAltIdTest
     }
 
     @Test
-    void testEnumWithDefaultForUnknownValueEnabled() throws Exception {
+    void enumWithDefaultForUnknownValueEnabled() throws Exception {
         final String JSON = a2q("{'value':'ok'}");
 
         DefaultEnumBean pojo = READER_DEFAULT.forType(DefaultEnumBean.class)
@@ -295,7 +295,7 @@ class EnumAltIdTest
     }
 
     @Test
-    void testEnumWithNullForUnknownValueEnabled() throws Exception {
+    void enumWithNullForUnknownValueEnabled() throws Exception {
         final String JSON = a2q("{'value':'ok'}");
 
         NullValueEnumBean pojo = READER_DEFAULT.forType(NullValueEnumBean.class)
@@ -313,7 +313,7 @@ class EnumAltIdTest
     }
 
     @Test
-    void testEnumWithDefaultForUnknownValueEnumSet() throws Exception {
+    void enumWithDefaultForUnknownValueEnumSet() throws Exception {
         final String JSON = a2q("{'value':['ok']}");
 
         DefaultEnumSetBean pojo = READER_DEFAULT.forType(DefaultEnumSetBean.class)
@@ -323,7 +323,7 @@ class EnumAltIdTest
     }
 
     @Test
-    void testEnumWithNullForUnknownValueEnumSet() throws Exception {
+    void enumWithNullForUnknownValueEnumSet() throws Exception {
         final String JSON = a2q("{'value':['ok','B']}");
 
         NullEnumSetBean pojo = READER_DEFAULT.forType(NullEnumSetBean.class)
@@ -338,7 +338,7 @@ class EnumAltIdTest
      * takes precedence over global configuration.
      */
     @Test
-    void testJsonEnumDefaultValueOverrideOverGlobalConfig() throws Exception {
+    void jsonEnumDefaultValueOverrideOverGlobalConfig() throws Exception {
         final String UNKNOWN_JSON = a2q("{'type':'OOPS!'}");
 
         // First, global configuration is ENABLED and JsonFeature configuration is DISABLED
@@ -372,7 +372,7 @@ class EnumAltIdTest
 
     // [databind#4481]
     @Test
-    void testDefaultFromNullOverride4481() throws Exception
+    void defaultFromNullOverride4481() throws Exception
     {
         try {
             Book4481 book = MAPPER.readerFor(Book4481.class)

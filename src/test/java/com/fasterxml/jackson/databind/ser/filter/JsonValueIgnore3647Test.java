@@ -74,21 +74,21 @@ class JsonValueIgnore3647Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testIgnorePropsAndJsonValueAtSameLevel() throws Exception
+    void ignorePropsAndJsonValueAtSameLevel() throws Exception
     {
         assertEquals("{\"p2\":\"world\"}", 
                 MAPPER.writeValueAsString(new Bar3647()));
     }
 
     @Test
-    void testUnionOfIgnorals() throws Exception
+    void unionOfIgnorals() throws Exception
     {
         assertEquals("{}", 
                 MAPPER.writeValueAsString(new Container3647()));
     }
 
     @Test
-    void testMixinContainerAndJsonValue() throws Exception
+    void mixinContainerAndJsonValue() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(BaseContainer3647.class, MixinContainer3647.class)
@@ -99,7 +99,7 @@ class JsonValueIgnore3647Test extends DatabindTestUtil
     }
 
     @Test
-    void testMixinAndJsonValue() throws Exception
+    void mixinAndJsonValue() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(Base3647.class, Mixin3647.class)

@@ -26,7 +26,7 @@ class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
     }
 
     @Test
-    void testDefaultHasStrictTypeHandling() throws Exception {
+    void defaultHasStrictTypeHandling() throws Exception {
         ObjectMapper om = new ObjectMapper();
         om.registerSubtypes(DoSomethingCommand.class);
 
@@ -41,7 +41,7 @@ class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
     }
 
     @Test
-    void testExplicitNonStrictTypeHandling() throws Exception {
+    void explicitNonStrictTypeHandling() throws Exception {
         ObjectMapper om = JsonMapper.builder().disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
         om.registerSubtypes(DoSomethingCommand.class);
 
@@ -56,7 +56,7 @@ class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
     }
 
     @Test
-    void testStrictTypeHandling() throws Exception {
+    void strictTypeHandling() throws Exception {
         ObjectMapper om = JsonMapper.builder().enable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
         om.registerSubtypes(DoSomethingCommand.class);
 

@@ -73,7 +73,7 @@ class RequireSetterForGetterSerTest extends DatabindTestUtil
      */
 
     @Test
-    void testGettersWithoutSetters() throws Exception
+    void gettersWithoutSetters() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         GettersWithoutSetters bean = new GettersWithoutSetters(123);
@@ -90,7 +90,7 @@ class RequireSetterForGetterSerTest extends DatabindTestUtil
     }
 
     @Test
-    void testGettersWithoutSettersOverride() throws Exception
+    void gettersWithoutSettersOverride() throws Exception
     {
         GettersWithoutSetters2 bean = new GettersWithoutSetters2();
         ObjectMapper m = jsonMapperBuilder()
@@ -101,7 +101,7 @@ class RequireSetterForGetterSerTest extends DatabindTestUtil
 
     // for [databind#736]
     @Test
-    void testNeedForSetters() throws Exception
+    void needForSetters() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .visibility(PropertyAccessor.ALL, Visibility.NONE)

@@ -32,7 +32,7 @@ class StackTraceElementTest
 
     // for [databind#1794] where extra `declaringClass` is serialized from private field.
     @Test
-    void testCustomStackTraceDeser() throws Exception
+    void customStackTraceDeser() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);

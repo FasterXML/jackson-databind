@@ -44,7 +44,7 @@ class AbstractWithObjectIdTest extends DatabindTestUtil
     }
 
     @Test
-    void testIssue877() throws Exception
+    void issue877() throws Exception
     {
         // make two instances
         BaseInterfaceImpl one = new BaseInterfaceImpl();

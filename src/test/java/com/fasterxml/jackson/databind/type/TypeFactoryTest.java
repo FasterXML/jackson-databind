@@ -95,7 +95,7 @@ class TypeFactoryTest extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleTypes()
+    void simpleTypes()
     {
         Class<?>[] classes = new Class<?>[] {
             boolean.class, byte.class, char.class,
@@ -120,7 +120,7 @@ class TypeFactoryTest extends DatabindTestUtil
     }
 
     @Test
-    void testArrays()
+    void arrays()
     {
         Class<?>[] classes = new Class<?>[] {
             boolean[].class, byte[].class, char[].class,
@@ -140,7 +140,7 @@ class TypeFactoryTest extends DatabindTestUtil
 
     // [databind#810]: Fake Map type for Properties as <String,String>
     @Test
-    void testProperties()
+    void properties()
     {
         JavaType t = TF.constructType(Properties.class);
         assertEquals(MapType.class, t.getClass());
@@ -155,7 +155,7 @@ class TypeFactoryTest extends DatabindTestUtil
 
     // note: changed for [databind#3950]
     @Test
-    void testIterator()
+    void iterator()
     {
         JavaType t = TF.constructType(new TypeReference<Iterator<String>>() { });
         assertEquals(IterationType.class, t.getClass());
@@ -172,7 +172,7 @@ class TypeFactoryTest extends DatabindTestUtil
      */
     @SuppressWarnings("deprecation")
     @Test
-    void testParametricTypes()
+    void parametricTypes()
     {
         // first, simple class based
         final JavaType t = TF.constructParametrizedType(ArrayList.class, Collection.class, String.class); // ArrayList<String>
@@ -219,7 +219,7 @@ class TypeFactoryTest extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    void testInvalidParametricTypes()
+    void invalidParametricTypes()
     {
         final JavaType strC = TF.constructType(String.class);
 
@@ -243,7 +243,7 @@ class TypeFactoryTest extends DatabindTestUtil
      * Test for checking that canonical name handling works ok
      */
     @Test
-    void testCanonicalNames()
+    void canonicalNames()
     {
         JavaType t = TF.constructType(java.util.Calendar.class);
         String can = t.toCanonical();
@@ -295,7 +295,7 @@ class TypeFactoryTest extends DatabindTestUtil
     // [databind#1768]
     @SuppressWarnings("serial")
     @Test
-    void testCanonicalWithSpaces()
+    void canonicalWithSpaces()
     {
         Object objects = new TreeMap<Object, Object>() { }; // to get subtype
         String reflectTypeName = objects.getClass().getGenericSuperclass().toString();
@@ -308,7 +308,7 @@ class TypeFactoryTest extends DatabindTestUtil
 
     // [databind#4011]
     @Test
-    void testMalicousCanonical()
+    void malicousCanonical()
     {
         // First: too deep nesting
         final int NESTING = TypeParser.MAX_TYPE_NESTING + 100;
@@ -346,7 +346,7 @@ class TypeFactoryTest extends DatabindTestUtil
      */
 
     @Test
-    void testCollections()
+    void collections()
     {
         // Ok, first: let's test what happens when we pass 'raw' Collection:
         JavaType t = TF.constructType(ArrayList.class);
@@ -380,7 +380,7 @@ class TypeFactoryTest extends DatabindTestUtil
     // [databind#2796]
     @SuppressWarnings("deprecation")
     @Test
-    void testCollectionsWithBindings()
+    void collectionsWithBindings()
     {
         TypeBindings tb = TypeBindings.create(Set.class, new JavaType[] {
                 TF.constructType(String.class) });
@@ -392,7 +392,7 @@ class TypeFactoryTest extends DatabindTestUtil
 
     // since 2.7
     @Test
-    void testCollectionTypesRefined()
+    void collectionTypesRefined()
     {
         TypeFactory tf = newTypeFactory();
         JavaType type = tf.constructType(new TypeReference<List<Long>>() { });
@@ -419,7 +419,7 @@ class TypeFactoryTest extends DatabindTestUtil
     // for [databind#3876]
     @SuppressWarnings("rawtypes")
     @Test
-    void testCollectionsHashCode()
+    void collectionsHashCode()
     {
         TypeFactory tf = newTypeFactory();
         JavaType listOfCollection = tf.constructType(new TypeReference<List<Collection>>() { });
@@ -435,7 +435,7 @@ class TypeFactoryTest extends DatabindTestUtil
      */
 
     @Test
-    void testMaps()
+    void maps()
     {
         TypeFactory tf = newTypeFactory();
 
@@ -478,7 +478,7 @@ class TypeFactoryTest extends DatabindTestUtil
 
     // for [databind#3876]
     @Test
-    void testMapsHashCode()
+    void mapsHashCode()
     {
         TypeFactory tf = newTypeFactory();
         JavaType mapStringInt = tf.constructType(new TypeReference<Map<String,Integer>>() {});
@@ -497,7 +497,7 @@ class TypeFactoryTest extends DatabindTestUtil
 
     // since 2.7
     @Test
-    void testMapTypesRefined()
+    void mapTypesRefined()
     {
         TypeFactory tf = newTypeFactory();
         JavaType type = tf.constructType(new TypeReference<Map<String,List<Integer>>>() { });
@@ -531,7 +531,7 @@ class TypeFactoryTest extends DatabindTestUtil
     }
 
     @Test
-    void testTypeGeneralization()
+    void typeGeneralization()
     {
         TypeFactory tf = newTypeFactory();
         MapType t = tf.constructMapType(HashMap.class, String.class, Long.class);
@@ -551,7 +551,7 @@ class TypeFactoryTest extends DatabindTestUtil
     }
 
     @Test
-    void testMapTypesRaw()
+    void mapTypesRaw()
     {
         JavaType type = TF.constructType(HashMap.class);
         assertEquals(MapType.class, type.getClass());
@@ -561,7 +561,7 @@ class TypeFactoryTest extends DatabindTestUtil
     }
 
     @Test
-    void testMapTypesAdvanced()
+    void mapTypesAdvanced()
     {
         JavaType type = TF.constructType(MyMap.class);
         assertEquals(MapType.class, type.getClass());
@@ -586,7 +586,7 @@ class TypeFactoryTest extends DatabindTestUtil
      * do not fool type resolver
      */
     @Test
-    void testMapTypesSneaky()
+    void mapTypesSneaky()
     {
         JavaType type = TF.constructType(IntLongMap.class);
         assertEquals(MapType.class, type.getClass());
@@ -599,7 +599,7 @@ class TypeFactoryTest extends DatabindTestUtil
      * Plus sneaky types may be found via introspection as well.
      */
     @Test
-    void testSneakyFieldTypes() throws Exception
+    void sneakyFieldTypes() throws Exception
     {
         Field field = SneakyBean.class.getDeclaredField("intMap");
         JavaType type = TF.constructType(field.getGenericType());
@@ -619,7 +619,7 @@ class TypeFactoryTest extends DatabindTestUtil
      * Looks like type handling actually differs for properties, too.
      */
     @Test
-    void testSneakyBeanProperties() throws Exception
+    void sneakyBeanProperties() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         StringLongMapBean bean = mapper.readValue("{\"value\":{\"a\":123}}", StringLongMapBean.class);
@@ -637,7 +637,7 @@ class TypeFactoryTest extends DatabindTestUtil
     }
 
     @Test
-    void testSneakySelfRefs() throws Exception
+    void sneakySelfRefs() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new SneakyBean2());
@@ -651,7 +651,7 @@ class TypeFactoryTest extends DatabindTestUtil
      */
 
     @Test
-    void testAtomicArrayRefParameters()
+    void atomicArrayRefParameters()
     {
         JavaType type = TF.constructType(new TypeReference<AtomicReference<long[]>>() { });
         JavaType[] params = TF.findTypeParameters(type, AtomicReference.class);
@@ -663,7 +663,7 @@ class TypeFactoryTest extends DatabindTestUtil
     static abstract class StringIntMapEntry implements Map.Entry<String,Integer> { }
 
     @Test
-    void testMapEntryResolution()
+    void mapEntryResolution()
     {
         JavaType t = TF.constructType(StringIntMapEntry.class);
         JavaType mapEntryType = t.findSuperType(Map.Entry.class);
@@ -681,7 +681,7 @@ class TypeFactoryTest extends DatabindTestUtil
      */
 
     @Test
-    void testRawCollections()
+    void rawCollections()
     {
         JavaType type = TF.constructRawCollectionType(ArrayList.class);
         assertTrue(type.isContainerType());
@@ -697,7 +697,7 @@ class TypeFactoryTest extends DatabindTestUtil
     }
 
     @Test
-    void testRawMaps()
+    void rawMaps()
     {
         JavaType type = TF.constructRawMapType(HashMap.class);
         assertTrue(type.isContainerType());
@@ -723,7 +723,7 @@ class TypeFactoryTest extends DatabindTestUtil
      */
 
     @Test
-    void testMoreSpecificType()
+    void moreSpecificType()
     {
         JavaType t1 = TF.constructCollectionType(Collection.class, Object.class);
         JavaType t2 = TF.constructCollectionType(List.class, Object.class);
@@ -744,7 +744,7 @@ class TypeFactoryTest extends DatabindTestUtil
 
     // [databind#489]
     @Test
-    void testCacheClearing()
+    void cacheClearing()
     {
         TypeFactory tf = TF.withModifier(null);
         assertEquals(0, tf._typeCache.size());
@@ -757,7 +757,7 @@ class TypeFactoryTest extends DatabindTestUtil
 
     // for [databind#1297]
     @Test
-    void testRawMapType()
+    void rawMapType()
     {
         TypeFactory tf = TF.withModifier(null); // to get a new copy
 
@@ -768,7 +768,7 @@ class TypeFactoryTest extends DatabindTestUtil
 
     // for [databind#3443]
     @Test
-    void testParameterizedClassType() {
+    void parameterizedClassType() {
         JavaType t = TF.constructType(new TypeReference<Class<? extends CharSequence>>() { });
 
         assertEquals(SimpleType.class, t.getClass());
@@ -778,7 +778,7 @@ class TypeFactoryTest extends DatabindTestUtil
 
     // for [databind#3876]
     @Test
-    void testParameterizedSimpleType() {
+    void parameterizedSimpleType() {
         JavaType charSequenceClass = TF.constructType(new TypeReference<Class<? extends CharSequence>>() { });
         JavaType numberClass = TF.constructType(new TypeReference<Class<? extends Number>>() { });
 

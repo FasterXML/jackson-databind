@@ -175,7 +175,7 @@ class TestNamingStrategyCustom extends DatabindTestUtil
      */
 
     @Test
-    void testSimpleGetters() throws Exception
+    void simpleGetters() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(new PrefixStrategy());
@@ -183,7 +183,7 @@ class TestNamingStrategyCustom extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleSetters() throws Exception
+    void simpleSetters() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(new PrefixStrategy());
@@ -192,7 +192,7 @@ class TestNamingStrategyCustom extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleFields() throws Exception
+    void simpleFields() throws Exception
     {
         // First serialize
         ObjectMapper mapper = new ObjectMapper();
@@ -206,7 +206,7 @@ class TestNamingStrategyCustom extends DatabindTestUtil
     }
 
     @Test
-    void testCStyleNaming() throws Exception
+    void cStyleNaming() throws Exception
     {
         // First serialize
         ObjectMapper mapper = new ObjectMapper();
@@ -222,7 +222,7 @@ class TestNamingStrategyCustom extends DatabindTestUtil
     }
 
     @Test
-    void testWithGetterAsSetter() throws Exception
+    void withGetterAsSetter() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(new CStyleStrategy());
@@ -237,7 +237,7 @@ class TestNamingStrategyCustom extends DatabindTestUtil
     }
 
     @Test
-    void testLowerCase() throws Exception
+    void lowerCase() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(new LcStrategy());
@@ -251,7 +251,7 @@ class TestNamingStrategyCustom extends DatabindTestUtil
 
     // @JsonNaming / [databind#45]
     @Test
-    void testPerClassAnnotation() throws Exception
+    void perClassAnnotation() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(new LcStrategy());

@@ -62,7 +62,7 @@ class RawValueTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleStringGetter() throws Exception
+    void simpleStringGetter() throws Exception
     {
         String value = "abc";
         String result = MAPPER.writeValueAsString(new ClassGetter<String>(value));
@@ -71,7 +71,7 @@ class RawValueTest
     }
 
     @Test
-    void testSimpleNonStringGetter() throws Exception
+    void simpleNonStringGetter() throws Exception
     {
         int value = 123;
         String result = MAPPER.writeValueAsString(new ClassGetter<Integer>(value));
@@ -80,7 +80,7 @@ class RawValueTest
     }
 
     @Test
-    void testNullStringGetter() throws Exception
+    void nullStringGetter() throws Exception
     {
         String result = MAPPER.writeValueAsString(new ClassGetter<String>(null));
         String expected = "{\"nonRaw\":null,\"raw\":null,\"value\":null}";
@@ -88,7 +88,7 @@ class RawValueTest
     }
 
     @Test
-    void testWithValueToTree() throws Exception
+    void withValueToTree() throws Exception
     {
         JsonNode w = MAPPER.valueToTree(new RawWrapped("{ }"));
         assertNotNull(w);
@@ -97,7 +97,7 @@ class RawValueTest
 
     // for [databind#743]
     @Test
-    void testRawFromMapToTree() throws Exception
+    void rawFromMapToTree() throws Exception
     {
         RawValue myType = new RawValue("Jackson");
 

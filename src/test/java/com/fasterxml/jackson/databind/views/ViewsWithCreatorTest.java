@@ -80,7 +80,7 @@ class ViewsWithCreatorTest extends DatabindTestUtil
 
     // [databind#1172]
     @Test
-    void testWithJsonCreator() throws Exception
+    void withJsonCreator() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(ObjWithCreator.class).withView(View1.class);
 
@@ -92,7 +92,7 @@ class ViewsWithCreatorTest extends DatabindTestUtil
 
     // [databind#1172]
     @Test
-    void testWithoutJsonCreator() throws Exception
+    void withoutJsonCreator() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(ObjWithoutCreator.class).withView(View1.class);
 

@@ -44,7 +44,7 @@ class NullConversionsViaCreator2458Test
 
     // [databind#2458]
     @Test
-    void testMissingToEmptyViaCreator() throws Exception {
+    void missingToEmptyViaCreator() throws Exception {
         Pojo pojo = MAPPER_WITH_AS_EMPTY.readValue("{}", Pojo.class);
         assertNotNull(pojo);
         assertNotNull(pojo.value());
@@ -53,7 +53,7 @@ class NullConversionsViaCreator2458Test
 
     // [databind#2458]
     @Test
-    void testNullToEmptyViaCreator() throws Exception {
+    void nullToEmptyViaCreator() throws Exception {
         Pojo pojo = MAPPER_WITH_AS_EMPTY.readValue("{\"value\":null}", Pojo.class);
         assertNotNull(pojo);
         assertNotNull(pojo.value());

@@ -91,7 +91,7 @@ class NullConversionsPojoTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testFailOnNull() throws Exception
+    void failOnNull() throws Exception
     {
         // first, ok if assigning non-null to not-nullable, null for nullable
         NullFail result = MAPPER.readValue(a2q("{'noNulls':'foo', 'nullsOk':null}"),
@@ -127,7 +127,7 @@ class NullConversionsPojoTest
     }
 
     @Test
-    void testFailOnNullWithDefaults() throws Exception
+    void failOnNullWithDefaults() throws Exception
     {
         // also: config overrides by type should work
         String json = a2q("{'name':null}");
@@ -146,7 +146,7 @@ class NullConversionsPojoTest
     }
 
     @Test
-    void testNullsToEmptyScalar() throws Exception
+    void nullsToEmptyScalar() throws Exception
     {
         NullAsEmpty result = MAPPER.readValue(a2q("{'nullAsEmpty':'foo', 'nullsOk':null}"),
                 NullAsEmpty.class);
@@ -171,7 +171,7 @@ class NullConversionsPojoTest
     }
 
     @Test
-    void testNullsToEmptyViaCtor() throws Exception
+    void nullsToEmptyViaCtor() throws Exception
     {
         NullAsEmptyCtor result = MAPPER.readValue(a2q("{'nullAsEmpty':'foo', 'nullsOk':null}"),
                 NullAsEmptyCtor.class);
@@ -190,7 +190,7 @@ class NullConversionsPojoTest
 
     // [databind#3645]
     @Test
-    void testDeserializeMissingCollectionFieldAsEmpty() throws Exception {
+    void deserializeMissingCollectionFieldAsEmpty() throws Exception {
         String json = "{\"name\": \"Computer\"}";
 
         Issue3645BeanA actual = MAPPER.readValue(json, Issue3645BeanA.class);
@@ -201,7 +201,7 @@ class NullConversionsPojoTest
 
     // [databind#3645]
     @Test
-    void testDeserializeNullAsEmpty() throws Exception {
+    void deserializeNullAsEmpty() throws Exception {
         String json = "{\"name\": \"Computer\", \"prices\" : null}";
 
         Issue3645BeanA actual = MAPPER.readValue(json, Issue3645BeanA.class);

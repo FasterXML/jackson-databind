@@ -149,7 +149,7 @@ class ObjectId825BTest extends DatabindTestUtil
      */
 
     @Test
-    void testFull825() throws Exception
+    void full825() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

@@ -44,7 +44,7 @@ class NullConversionsForEnumsTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testEnumSetAsEmpty() throws Exception
+    void enumSetAsEmpty() throws Exception
     {
         NullValueAsEmpty<EnumSet<ABC>> result = MAPPER.readValue(a2q("{'value': null }"),
                 new TypeReference<NullValueAsEmpty<EnumSet<ABC>>>() { });
@@ -53,7 +53,7 @@ class NullConversionsForEnumsTest
     }
 
     @Test
-    void testEnumMapAsEmpty() throws Exception
+    void enumMapAsEmpty() throws Exception
     {
         NullValueAsEmpty<EnumMap<ABC, String>> result = MAPPER.readValue(a2q("{'value': null }"),
                 new TypeReference<NullValueAsEmpty<EnumMap<ABC, String>>>() { });
@@ -69,7 +69,7 @@ class NullConversionsForEnumsTest
 
     // // NOTE: no "empty" value for Enums, so can't use with EnumSet, only EnumMap
     @Test
-    void testEnumMapNullsAsEmpty() throws Exception
+    void enumMapNullsAsEmpty() throws Exception
     {
         NullContentAsEmpty<EnumMap<ABC, String>> result = MAPPER.readValue(a2q("{'values': {'B':null} }"),
                 new TypeReference<NullContentAsEmpty<EnumMap<ABC, String>>>() { });
@@ -85,7 +85,7 @@ class NullConversionsForEnumsTest
      */
 
     @Test
-    void testEnumSetSkipNulls() throws Exception
+    void enumSetSkipNulls() throws Exception
     {
         NullContentSkip<EnumSet<ABC>> result = MAPPER.readValue(a2q("{'values': [ null ]}"),
                 new TypeReference<NullContentSkip<EnumSet<ABC>>>() { });
@@ -94,7 +94,7 @@ class NullConversionsForEnumsTest
     }
 
     @Test
-    void testEnumMapSkipNulls() throws Exception
+    void enumMapSkipNulls() throws Exception
     {
         NullContentSkip<EnumMap<ABC, String>> result = MAPPER.readValue(a2q("{'values': {'B':null} }"),
                 new TypeReference<NullContentSkip<EnumMap<ABC, String>>>() { });

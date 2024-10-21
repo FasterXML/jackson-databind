@@ -148,7 +148,7 @@ class JsonCreatorModeForEnum3566
     // FAILS <---- enum with both `JsonCreator.Mode.DELEGATING` and `JsonCreator.Mode.PROPERTIES`
 
     @Test
-    void testEnumACreatorModeDelegating() throws Exception {
+    void enumACreatorModeDelegating() throws Exception {
         EnumA enum1 = newJsonMapper()
             .readerFor(EnumA.class)
             .readValue(a2q("'AType'"));
@@ -158,7 +158,7 @@ class JsonCreatorModeForEnum3566
 
     // SUCCESS <---- enum with only `JsonCreator.Mode.DELEGATING`
     @Test
-    void testEnumBCreatorModeDelegating() throws Exception {
+    void enumBCreatorModeDelegating() throws Exception {
         EnumB enum1 = newJsonMapper()
             .readerFor(EnumB.class)
             .readValue(a2q("'AType'"));
@@ -168,7 +168,7 @@ class JsonCreatorModeForEnum3566
 
     // SUCCESS
     @Test
-    void testEnumACreatorModeProperties() throws Exception {
+    void enumACreatorModeProperties() throws Exception {
         EnumA enum1 = newJsonMapper()
             .readerFor(EnumA.class)
             .readValue(a2q("{'type':'AType'}"));
@@ -178,7 +178,7 @@ class JsonCreatorModeForEnum3566
 
     // SUCCESS
     @Test
-    void testEnumCCreatorModeProperties() throws Exception {
+    void enumCCreatorModeProperties() throws Exception {
         EnumC enum1 = newJsonMapper()
             .readerFor(EnumC.class)
             .readValue(a2q("{'type':'AType'}"));
@@ -188,7 +188,7 @@ class JsonCreatorModeForEnum3566
 
     // SUCCESS
     @Test
-    void testPojoCreatorModeProperties() throws Exception {
+    void pojoCreatorModeProperties() throws Exception {
         PojoA pojo1 = newJsonMapper()
             .readValue(a2q("{'type':'properties'}"), PojoA.class);
 
@@ -197,7 +197,7 @@ class JsonCreatorModeForEnum3566
 
     // SUCCESS
     @Test
-    void testPojoCreatorModeDelegating() throws Exception {
+    void pojoCreatorModeDelegating() throws Exception {
         PojoA pojo1 = newJsonMapper()
             .readValue(a2q("'properties'"), PojoA.class);
 
@@ -205,7 +205,7 @@ class JsonCreatorModeForEnum3566
     }
 
     @Test
-    void testDelegatingCreatorEnumWrapper() throws Exception {
+    void delegatingCreatorEnumWrapper() throws Exception {
         DelegatingCreatorEnumWrapper wrapper = newJsonMapper()
             .readValue(a2q("{'enumA':'AType', 'enumB': 'BType'}"), DelegatingCreatorEnumWrapper.class);
 
@@ -214,7 +214,7 @@ class JsonCreatorModeForEnum3566
     }
 
     @Test
-    void testPropertiesCreatorEnumWrapper() throws Exception {
+    void propertiesCreatorEnumWrapper() throws Exception {
         PropertiesCreatorEnumWrapper wrapper = newJsonMapper()
             .readValue(a2q("{'enumA':{'type':'AType'}, 'enumC': {'type':'CType'}}"), PropertiesCreatorEnumWrapper.class);
 

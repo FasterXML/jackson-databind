@@ -39,7 +39,7 @@ class ReferentialWithObjectIdTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testAtomicWithObjectId() throws Exception
+    void atomicWithObjectId() throws Exception
     {
         Employee first = new Employee();
         first.id = 1;

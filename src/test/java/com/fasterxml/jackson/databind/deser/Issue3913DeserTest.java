@@ -81,7 +81,7 @@ class Issue3913DeserTest
 
     // [databind#3913]
     @Test
-    void testDeserialization() throws JsonProcessingException {
+    void deserialization() throws JsonProcessingException {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();

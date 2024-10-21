@@ -15,7 +15,7 @@ class StdDateFormatTest extends DatabindTestUtil
 {
     @SuppressWarnings("deprecation")
     @Test
-    void testFactories() {
+    void factories() {
         TimeZone tz = TimeZone.getTimeZone("GMT");
         Locale loc = Locale.US;
         assertNotNull(StdDateFormat.getISO8601Format(tz, loc));
@@ -24,7 +24,7 @@ class StdDateFormatTest extends DatabindTestUtil
 
     // [databind#803]
     @Test
-    void testLenientDefaults() throws Exception
+    void lenientDefaults() throws Exception
     {
         StdDateFormat f = StdDateFormat.instance;
 
@@ -48,7 +48,7 @@ class StdDateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    void testISO8601RegexpDateOnly() throws Exception
+    void iso8601RegexpDateOnly() throws Exception
     {
         Pattern p = StdDateFormat.PATTERN_PLAIN;
         Matcher m = p.matcher("1997-07-16");
@@ -57,7 +57,7 @@ class StdDateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    void testISO8601RegexpFull() throws Exception
+    void iso8601RegexpFull() throws Exception
     {
         /*
         String PATTERN_PLAIN_STR = "\\d\\d\\d\\d[-]\\d\\d[-]\\d\\d";
@@ -115,7 +115,7 @@ class StdDateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    void testLenientParsing() throws Exception
+    void lenientParsing() throws Exception
     {
         StdDateFormat f = StdDateFormat.instance.clone();
         f.setLenient(false);
@@ -139,7 +139,7 @@ class StdDateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    void testInvalid() {
+    void invalid() {
         StdDateFormat std = new StdDateFormat();
         try {
             std.parse("foobar");

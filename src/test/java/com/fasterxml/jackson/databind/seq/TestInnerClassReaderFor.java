@@ -38,7 +38,7 @@ class TestInnerClassReaderFor extends DatabindTestUtil {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testReaderFor() throws IOException {
+    void readerFor() throws IOException {
 
         X x = new X("dummy");
         MAPPER.readerForUpdating(x).readValue("{\"value\": \"updatedX\"}");

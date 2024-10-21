@@ -48,7 +48,7 @@ class TestTypeNames extends DatabindTestUtil
             .build();
 
     @Test
-    void testBaseTypeId1616() throws Exception
+    void baseTypeId1616() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Collection<NamedType> subtypes = new StdSubtypeResolver().collectAndResolveSubtypesByTypeId(
@@ -67,7 +67,7 @@ class TestTypeNames extends DatabindTestUtil
     }
 
     @Test
-    void testSerialization() throws Exception
+    void serialization() throws Exception
     {
         // Note: need to use wrapper array just so that we can define
         // static type on serialization. If we had root static types,
@@ -80,7 +80,7 @@ class TestTypeNames extends DatabindTestUtil
     }
 
     @Test
-    void testRoundTrip() throws Exception
+    void roundTrip() throws Exception
     {
         Animal[] input = new Animal[] {
                 new Dog("Odie", 7),
@@ -98,7 +98,7 @@ class TestTypeNames extends DatabindTestUtil
     }
 
     @Test
-    void testRoundTripMap() throws Exception
+    void roundTripMap() throws Exception
     {
         AnimalMap input = new AnimalMap();
         input.put("venla", new MaineCoon("Venla", true));

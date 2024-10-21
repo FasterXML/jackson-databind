@@ -24,7 +24,7 @@ class GenericFieldInSubtypeTest
 
     // [JACKSON-887]
     @Test
-    void testInnerType() throws Exception
+    void innerType() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         BaseType.SubType<?> r = mapper.readValue("{}", BaseType.SubType.class);

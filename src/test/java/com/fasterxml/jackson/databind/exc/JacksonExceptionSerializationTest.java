@@ -24,7 +24,7 @@ class JacksonExceptionSerializationTest
 
     // [databind#3244]: StackOverflow for basic JsonProcessingException?
     @Test
-    void testIssue3244() throws Exception {
+    void issue3244() throws Exception {
         JacksonException e = null;
         try {
             MAPPER.readValue("{ foo ", Map.class);

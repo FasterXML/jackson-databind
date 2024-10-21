@@ -93,7 +93,7 @@ class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 
     // [databind#999]
     @Test
-    void testExternalTypeId() throws Exception
+    void externalTypeId() throws Exception
     {
         TypeReference<Message<FooPayload999>> type = new TypeReference<Message<FooPayload999>>() { };
 
@@ -111,7 +111,7 @@ class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 
     // [databind#1198]
     @Test
-    void testFails() throws Exception {
+    void fails() throws Exception {
         String json = "{ \"name\": \"foo\", \"attack\":\"right\" } }";
 
         Character character = MAPPER.readValue(json, Character.class);
@@ -123,7 +123,7 @@ class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 
     // [databind#1198]
     @Test
-    void testWorks() throws Exception {
+    void works() throws Exception {
         String json = "{ \"name\": \"foo\", \"preferredAttack\": \"KICK\", \"attack\":\"right\" } }";
 
         Character character = MAPPER.readValue(json, Character.class);

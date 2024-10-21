@@ -166,7 +166,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
      */
 
     @Test
-    void testSingleStringArrayRead() throws Exception {
+    void singleStringArrayRead() throws Exception {
         String json = a2q(
                 "{ 'values': 'first' }");
         StringArrayWrapper result = MAPPER.readValue(json, StringArrayWrapper.class);
@@ -187,7 +187,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleIntArrayRead() throws Exception {
+    void singleIntArrayRead() throws Exception {
         String json = a2q(
                 "{ 'values': 123 }");
         IntArrayWrapper result = MAPPER.readValue(json, IntArrayWrapper.class);
@@ -197,7 +197,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleLongArrayRead() throws Exception {
+    void singleLongArrayRead() throws Exception {
         String json = a2q(
                 "{ 'values': -205 }");
         LongArrayWrapper result = MAPPER.readValue(json, LongArrayWrapper.class);
@@ -207,7 +207,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleBooleanArrayRead() throws Exception {
+    void singleBooleanArrayRead() throws Exception {
         String json = a2q(
                 "{ 'values': true }");
         BooleanArrayWrapper result = MAPPER.readValue(json, BooleanArrayWrapper.class);
@@ -217,7 +217,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleDoubleArrayRead() throws Exception {
+    void singleDoubleArrayRead() throws Exception {
         String json = a2q(
                 "{ 'values': -0.5 }");
         DoubleArrayWrapper result = MAPPER.readValue(json, DoubleArrayWrapper.class);
@@ -227,7 +227,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleFloatArrayRead() throws Exception {
+    void singleFloatArrayRead() throws Exception {
         String json = a2q(
                 "{ 'values': 0.25 }");
         FloatArrayWrapper result = MAPPER.readValue(json, FloatArrayWrapper.class);
@@ -237,7 +237,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleElementArrayRead() throws Exception {
+    void singleElementArrayRead() throws Exception {
         String json = a2q(
                 "{ 'roles': { 'Name': 'User', 'ID': '333' } }");
         RolesInArray response = MAPPER.readValue(json, RolesInArray.class);
@@ -247,7 +247,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleStringListRead() throws Exception {
+    void singleStringListRead() throws Exception {
         String json = a2q(
                 "{ 'values': 'first' }");
         StringListWrapper result = MAPPER.readValue(json, StringListWrapper.class);
@@ -257,7 +257,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleStringListReadWithBuilder() throws Exception {
+    void singleStringListReadWithBuilder() throws Exception {
         String json = a2q(
                 "{ 'values': 'first' }");
         StringListWrapperWithBuilder result =
@@ -268,7 +268,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleElementListRead() throws Exception {
+    void singleElementListRead() throws Exception {
         String json = a2q(
                 "{ 'roles': { 'Name': 'User', 'ID': '333' } }");
         RolesInList response = MAPPER.readValue(json, RolesInList.class);
@@ -278,7 +278,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleElementListReadWithBuilder() throws Exception {
+    void singleElementListReadWithBuilder() throws Exception {
         String json = a2q(
                 "{ 'roles': { 'Name': 'User', 'ID': '333' } }");
         RolesInListWithBuilder response = MAPPER.readValue(json, RolesInListWithBuilder.class);
@@ -288,7 +288,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleElementWithStringFactoryRead() throws Exception {
+    void singleElementWithStringFactoryRead() throws Exception {
         String json = a2q(
                 "{ 'values': '333' }");
         WrapperWithStringFactoryInList response = MAPPER.readValue(json, WrapperWithStringFactoryInList.class);
@@ -298,7 +298,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
     }
 
     @Test
-    void testSingleEnumSetRead() throws Exception {
+    void singleEnumSetRead() throws Exception {
         EnumSetWrapper result = MAPPER.readValue(a2q("{ 'values': 'B' }"),
                 EnumSetWrapper.class);
         assertNotNull(result.values);

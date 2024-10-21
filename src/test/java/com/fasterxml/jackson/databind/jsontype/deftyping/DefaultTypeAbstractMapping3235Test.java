@@ -33,7 +33,7 @@ class DefaultTypeAbstractMapping3235Test extends DatabindTestUtil
 
     // [databind#3235]
     @Test
-    void testForAbstractTypeMapping() throws Exception
+    void forAbstractTypeMapping() throws Exception
     {
         // [databind#3235]
         ObjectMapper mapper3235 = jsonMapperBuilder()

@@ -232,7 +232,7 @@ class HandlerInstantiationTest
      */
 
     @Test
-    void testDeserializer() throws Exception
+    void deserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setHandlerInstantiator(new MyInstantiator("abc:"));
@@ -241,7 +241,7 @@ class HandlerInstantiationTest
     }
 
     @Test
-    void testKeyDeserializer() throws Exception
+    void keyDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setHandlerInstantiator(new MyInstantiator("abc:"));
@@ -251,7 +251,7 @@ class HandlerInstantiationTest
     }
 
     @Test
-    void testSerializer() throws Exception
+    void serializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setHandlerInstantiator(new MyInstantiator("xyz:"));
@@ -259,7 +259,7 @@ class HandlerInstantiationTest
     }
 
     @Test
-    void testTypeIdResolver() throws Exception
+    void typeIdResolver() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setHandlerInstantiator(new MyInstantiator("foobar"));

@@ -28,7 +28,7 @@ class ReadRecoveryTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testRootBeans() throws Exception
+    void rootBeans() throws Exception
     {
         final String JSON = a2q("{'a':3} {'x':5}");
         MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
@@ -53,7 +53,7 @@ class ReadRecoveryTest extends DatabindTestUtil
     // Simple test for verifying that basic recover works for a case of
     // unknown structured value
     @Test
-    void testSimpleRootRecovery() throws Exception
+    void simpleRootRecovery() throws Exception
     {
         final String JSON = a2q("{'a':3}{'a':27,'foo':[1,2],'b':{'x':3}}  {'a':1,'b':2} ");
 
@@ -83,7 +83,7 @@ class ReadRecoveryTest extends DatabindTestUtil
 
     // Similar to "raw" root-level Object sequence, but in array
     @Test
-    void testSimpleArrayRecovery() throws Exception
+    void simpleArrayRecovery() throws Exception
     {
         final String JSON = a2q("[{'a':3},{'a':27,'foo':[1,2],'b':{'x':3}}  ,{'a':1,'b':2}  ]");
 

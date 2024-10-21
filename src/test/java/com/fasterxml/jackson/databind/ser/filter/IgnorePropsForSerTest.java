@@ -97,7 +97,7 @@ class IgnorePropsForSerTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testExplicitIgnoralWithBean() throws Exception
+    void explicitIgnoralWithBean() throws Exception
     {
         IgnoreSome value = new IgnoreSome();
         Map<String,Object> result = writeAndMap(MAPPER, value);
@@ -111,7 +111,7 @@ class IgnorePropsForSerTest
     }
 
     @Test
-    void testExplicitIgnoralWithMap() throws Exception
+    void explicitIgnoralWithMap() throws Exception
     {
         // test simulating need to filter out metadata like class name
         MyMap value = new MyMap();
@@ -126,7 +126,7 @@ class IgnorePropsForSerTest
     }
 
     @Test
-    void testIgnoreViaOnlyProps() throws Exception
+    void ignoreViaOnlyProps() throws Exception
     {
         assertEquals("{\"value\":{\"x\":1}}",
                 MAPPER.writeValueAsString(new WrapperWithPropIgnore()));
@@ -134,27 +134,27 @@ class IgnorePropsForSerTest
 
     // Also: should be fine even if nominal type is `java.lang.Object`
     @Test
-    void testIgnoreViaPropForUntyped() throws Exception
+    void ignoreViaPropForUntyped() throws Exception
     {
         assertEquals("{\"value\":{\"z\":3}}",
                 MAPPER.writeValueAsString(new WrapperWithPropIgnoreUntyped()));
     }
 
     @Test
-    void testIgnoreWithMapProperty() throws Exception
+    void ignoreWithMapProperty() throws Exception
     {
         assertEquals("{\"value\":{\"b\":2}}", MAPPER.writeValueAsString(new MapWrapper()));
     }
 
     @Test
-    void testIgnoreViaPropsAndClass() throws Exception
+    void ignoreViaPropsAndClass() throws Exception
     {
         assertEquals("{\"value\":{\"y\":2}}",
                 MAPPER.writeValueAsString(new WrapperWithPropIgnore2()));
     }
 
     @Test
-    void testIgnoreViaConfigOverride() throws Exception
+    void ignoreViaConfigOverride() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configOverride(Point.class)
@@ -165,7 +165,7 @@ class IgnorePropsForSerTest
     // for [databind#1060]
     // Ensure that `@JsonIgnoreProperties` applies to POJOs within lists, too
     @Test
-    void testIgnoreForListValues() throws Exception
+    void ignoreForListValues() throws Exception
     {
         // should apply to elements
         assertEquals(a2q("{'coordinates':[{'y':2}]}"),

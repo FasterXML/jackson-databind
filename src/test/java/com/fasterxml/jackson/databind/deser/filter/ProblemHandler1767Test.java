@@ -42,7 +42,7 @@ class ProblemHandler1767Test
     }
 
     @Test
-    void testPrimitivePropertyWithHandler() throws Exception {
+    void primitivePropertyWithHandler() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.addHandler(new IntHandler());
         TestBean result = mapper.readValue(a2q("{'a': 'not-a-number'}"), TestBean.class);

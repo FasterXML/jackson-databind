@@ -46,19 +46,19 @@ class CoerceIntToFloatTest
             .build();
 
     @Test
-    void testDefaultIntToFloatCoercion() throws JsonProcessingException
+    void defaultIntToFloatCoercion() throws JsonProcessingException
     {
         assertSuccessfulIntToFloatConversionsWith(DEFAULT_MAPPER);
     }
 
     @Test
-    void testCoerceConfigToConvert() throws JsonProcessingException
+    void coerceConfigToConvert() throws JsonProcessingException
     {
         assertSuccessfulIntToFloatConversionsWith(MAPPER_TRY_CONVERT);
     }
 
     @Test
-    void testCoerceConfigToNull() throws JsonProcessingException
+    void coerceConfigToNull() throws JsonProcessingException
     {
         assertNull(MAPPER_TO_NULL.readValue("1", Float.class));
         // `null` not possible for primitives, must use empty (aka default) value
@@ -90,7 +90,7 @@ class CoerceIntToFloatTest
     }
 
     @Test
-    void testCoerceConfigToEmpty() throws JsonProcessingException
+    void coerceConfigToEmpty() throws JsonProcessingException
     {
         assertEquals(0.0f, MAPPER_TO_EMPTY.readValue("3", Float.class));
         assertEquals(0.0f, MAPPER_TO_EMPTY.readValue("-2", Float.TYPE));
@@ -116,7 +116,7 @@ class CoerceIntToFloatTest
     }
 
     @Test
-    void testCoerceConfigToFail() throws JsonProcessingException
+    void coerceConfigToFail() throws JsonProcessingException
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, Float.class, "3");
         _verifyCoerceFail(MAPPER_TO_FAIL, Float.TYPE, "-2");
@@ -132,7 +132,7 @@ class CoerceIntToFloatTest
     }
 
     @Test
-    void testLegacyConfiguration() throws JsonProcessingException
+    void legacyConfiguration() throws JsonProcessingException
     {
         assertSuccessfulIntToFloatConversionsWith(LEGACY_SCALAR_COERCION_FAIL);
     }

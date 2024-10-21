@@ -51,7 +51,7 @@ class TestDefaultForArrays extends DatabindTestUtil
      * back, even though declared type is Object array
      */
     @Test
-    void testArrayTypingSimple() throws Exception
+    void arrayTypingSimple() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder().
                 activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -66,7 +66,7 @@ class TestDefaultForArrays extends DatabindTestUtil
 
     // And let's try it with deeper array as well
     @Test
-    void testArrayTypingNested() throws Exception
+    void arrayTypingNested() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -80,7 +80,7 @@ class TestDefaultForArrays extends DatabindTestUtil
     }
 
     @Test
-    void testNodeInArray() throws Exception
+    void nodeInArray() throws Exception
     {
         JsonNode node = new ObjectMapper().readTree("{\"a\":3}");
         ObjectMapper m = jsonMapperBuilder()
@@ -97,7 +97,7 @@ class TestDefaultForArrays extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    void testNodeInEmptyArray() throws Exception {
+    void nodeInEmptyArray() throws Exception {
         Map<String, List<String>> outerMap = new HashMap<String, List<String>>();
         outerMap.put("inner", new ArrayList<String>());
         ObjectMapper m = new ObjectMapper().disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
@@ -127,7 +127,7 @@ class TestDefaultForArrays extends DatabindTestUtil
     }
 
     @Test
-    void testArraysOfArrays() throws Exception
+    void arraysOfArrays() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -144,7 +144,7 @@ class TestDefaultForArrays extends DatabindTestUtil
     }
 
     @Test
-    void testArrayTypingForPrimitiveArrays() throws Exception
+    void arrayTypingForPrimitiveArrays() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.activateDefaultTyping(NoCheckSubTypeValidator.instance,

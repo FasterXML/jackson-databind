@@ -63,7 +63,7 @@ class TestDefaultForEnums
      */
 
     @Test
-    void testSimpleEnumBean() throws Exception
+    void simpleEnumBean() throws Exception
     {
         TimeUnitBean bean = new TimeUnitBean();
         bean.timeUnit = TimeUnit.SECONDS;
@@ -85,7 +85,7 @@ class TestDefaultForEnums
     }
 
     @Test
-    void testSimpleEnumsInObjectArray() throws Exception
+    void simpleEnumsInObjectArray() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
@@ -101,7 +101,7 @@ class TestDefaultForEnums
     }
 
     @Test
-    void testSimpleEnumsAsField() throws Exception
+    void simpleEnumsAsField() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
@@ -119,7 +119,7 @@ class TestDefaultForEnums
      * @since 2.16
      */
     @Test
-    void testEnumAsWrapperArrayWithCreator() throws JsonProcessingException
+    void enumAsWrapperArrayWithCreator() throws JsonProcessingException
     {
         ObjectMapper objectMapper = jsonMapperBuilder()
                 .activateDefaultTyping(

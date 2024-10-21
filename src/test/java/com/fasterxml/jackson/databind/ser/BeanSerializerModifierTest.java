@@ -258,7 +258,7 @@ class BeanSerializerModifierTest extends DatabindTestUtil
      */
 
     @Test
-    void testPropertyRemoval() throws Exception
+    void propertyRemoval() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SerializerModifierModule(new RemovingModifier("a")));
@@ -267,7 +267,7 @@ class BeanSerializerModifierTest extends DatabindTestUtil
     }
 
     @Test
-    void testPropertyReorder() throws Exception
+    void propertyReorder() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SerializerModifierModule(new ReorderingModifier()));
@@ -276,7 +276,7 @@ class BeanSerializerModifierTest extends DatabindTestUtil
     }
 
     @Test
-    void testBuilderReplacement() throws Exception
+    void builderReplacement() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SerializerModifierModule(new BuilderModifier(new BogusBeanSerializer(17))));
@@ -285,7 +285,7 @@ class BeanSerializerModifierTest extends DatabindTestUtil
     }
 
     @Test
-    void testSerializerReplacement() throws Exception
+    void serializerReplacement() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SerializerModifierModule(new ReplacingModifier(new BogusBeanSerializer(123))));
@@ -295,7 +295,7 @@ class BeanSerializerModifierTest extends DatabindTestUtil
 
     // for [JACKSON-670]
     @Test
-    void testEmptyBean() throws Exception
+    void emptyBean() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test", Version.unknownVersion()) {
@@ -311,7 +311,7 @@ class BeanSerializerModifierTest extends DatabindTestUtil
     }
 
     @Test
-    void testEmptyBean539() throws Exception
+    void emptyBean539() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test", Version.unknownVersion()) {
@@ -329,7 +329,7 @@ class BeanSerializerModifierTest extends DatabindTestUtil
     // [databind#121]
 
     @Test
-    void testModifyArraySerializer() throws Exception
+    void modifyArraySerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
@@ -338,7 +338,7 @@ class BeanSerializerModifierTest extends DatabindTestUtil
     }
 
     @Test
-    void testModifyCollectionSerializer() throws Exception
+    void modifyCollectionSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
@@ -347,7 +347,7 @@ class BeanSerializerModifierTest extends DatabindTestUtil
     }
 
     @Test
-    void testModifyMapSerializer() throws Exception
+    void modifyMapSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
@@ -356,7 +356,7 @@ class BeanSerializerModifierTest extends DatabindTestUtil
     }
 
     @Test
-    void testModifyEnumSerializer() throws Exception
+    void modifyEnumSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
@@ -365,7 +365,7 @@ class BeanSerializerModifierTest extends DatabindTestUtil
     }
 
     @Test
-    void testModifyKeySerializer() throws Exception
+    void modifyKeySerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")

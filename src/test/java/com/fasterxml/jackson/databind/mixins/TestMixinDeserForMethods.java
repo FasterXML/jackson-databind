@@ -48,7 +48,7 @@ class TestMixinDeserForMethods
      * annotation, as expected.
      */
     @Test
-    void testWithAnySetter() throws IOException
+    void withAnySetter() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(BaseClass.class, MixIn.class);

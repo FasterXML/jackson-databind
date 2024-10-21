@@ -18,7 +18,7 @@ class JSONPObjectTest extends DatabindTestUtil
      * Unit tests for checking that JSONP breaking characters U+2028 and U+2029 are escaped when creating a {@link JSONPObject}.
      */
     @Test
-    void testU2028Escaped() throws IOException {
+    void u2028Escaped() throws IOException {
         String containsU2028 = String.format("This string contains %c char", '\u2028');
         JSONPObject jsonpObject = new JSONPObject(CALLBACK, containsU2028);
         String valueAsString = MAPPER.writeValueAsString(jsonpObject);
@@ -26,7 +26,7 @@ class JSONPObjectTest extends DatabindTestUtil
     }
 
     @Test
-    void testU2029Escaped() throws IOException {
+    void u2029Escaped() throws IOException {
         String containsU2029 = String.format("This string contains %c char", '\u2029');
         JSONPObject jsonpObject = new JSONPObject(CALLBACK, containsU2029);
         String valueAsString = MAPPER.writeValueAsString(jsonpObject);
@@ -34,7 +34,7 @@ class JSONPObjectTest extends DatabindTestUtil
     }
 
     @Test
-    void testU2030NotEscaped() throws IOException {
+    void u2030NotEscaped() throws IOException {
         String containsU2030 = String.format("This string contains %c char", '\u2030');
         JSONPObject jsonpObject = new JSONPObject(CALLBACK, containsU2030);
         String valueAsString = MAPPER.writeValueAsString(jsonpObject);

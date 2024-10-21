@@ -41,7 +41,7 @@ class TestMixinMerging extends DatabindTestUtil
 
     // for [databind#515]
     @Test
-    void testDisappearingMixins515() throws Exception
+    void disappearingMixins515() throws Exception
     {
         SimpleModule module = new SimpleModule("Test");
         module.setMixInAnnotation(Person.class, PersonMixin.class);

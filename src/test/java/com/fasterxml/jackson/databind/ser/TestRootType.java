@@ -84,7 +84,7 @@ class TestRootType
 
     @SuppressWarnings("unchecked")
     @Test
-    void testSuperClass() throws Exception
+    void superClass() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         SubType bean = new SubType();
@@ -107,7 +107,7 @@ class TestRootType
     }
 
     @Test
-    void testSuperInterface() throws Exception
+    void superInterface() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         SubType bean = new SubType();
@@ -122,7 +122,7 @@ class TestRootType
     }
 
     @Test
-    void testInArray() throws Exception
+    void inArray() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
         // must force static typing, otherwise won't matter a lot
@@ -139,7 +139,7 @@ class TestRootType
      * root type is not compatible with given value instance.
      */
     @Test
-    void testIncompatibleRootType() throws Exception
+    void incompatibleRootType() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         SubType bean = new SubType();
@@ -163,7 +163,7 @@ class TestRootType
     }
 
     @Test
-    void testJackson398() throws Exception
+    void jackson398() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         JavaType collectionType = defaultTypeFactory().constructCollectionType(ArrayList.class, BaseClass398.class);
@@ -185,7 +185,7 @@ class TestRootType
 
     // [JACKSON-163]
     @Test
-    void testRootWrapping() throws Exception
+    void rootWrapping() throws Exception
     {
         String json = WRAP_ROOT_MAPPER.writeValueAsString(new StringWrapper("abc"));
         assertEquals("{\"StringWrapper\":{\"str\":\"abc\"}}", json);
@@ -198,7 +198,7 @@ class TestRootType
      * {@link java.lang.reflect.Type} from field or method.
      */
     @Test
-    void testIssue456WrapperPart() throws Exception
+    void issue456WrapperPart() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         assertEquals("123", mapper.writerFor(Integer.TYPE).writeValueAsString(Integer.valueOf(123)));
@@ -206,7 +206,7 @@ class TestRootType
     }
 
     @Test
-    void testRootNameAnnotation() throws Exception
+    void rootNameAnnotation() throws Exception
     {
         String json = WRAP_ROOT_MAPPER.writeValueAsString(new WithRootName());
         assertEquals("{\"root\":{\"a\":3}}", json);
@@ -214,7 +214,7 @@ class TestRootType
 
     // [databind#412]
     @Test
-    void testRootNameWithExplicitType() throws Exception
+    void rootNameWithExplicitType() throws Exception
     {
         TestCommandChild cmd = new TestCommandChild();
         cmd.uuid = "1234";

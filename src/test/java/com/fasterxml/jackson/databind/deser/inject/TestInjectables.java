@@ -102,7 +102,7 @@ class TestInjectables
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimple() throws Exception
+    void simple() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.setInjectableValues(new InjectableValues.Std()
@@ -118,7 +118,7 @@ class TestInjectables
     }
 
     @Test
-    void testWithCtors() throws Exception
+    void withCtors() throws Exception
     {
         CtorBean bean = MAPPER.readerFor(CtorBean.class)
             .with(new InjectableValues.Std()
@@ -129,7 +129,7 @@ class TestInjectables
     }
 
     @Test
-    void testTwoInjectablesViaCreator() throws Exception
+    void twoInjectablesViaCreator() throws Exception
     {
         CtorBean2 bean = MAPPER.readerFor(CtorBean2.class)
                 .with(new InjectableValues.Std()
@@ -142,7 +142,7 @@ class TestInjectables
 
     // [databind#471]
     @Test
-    void testIssue471() throws Exception
+    void issue471() throws Exception
     {
         final Object constructorInjected = "constructorInjected";
         final Object methodInjected = "methodInjected";
@@ -173,7 +173,7 @@ class TestInjectables
 
     // [databind#77]
     @Test
-    void testTransientField() throws Exception
+    void transientField() throws Exception
     {
         TransientBean bean = MAPPER.readerFor(TransientBean.class)
                 .with(new InjectableValues.Std()

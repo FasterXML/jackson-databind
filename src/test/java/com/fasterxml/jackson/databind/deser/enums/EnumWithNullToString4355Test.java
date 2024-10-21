@@ -31,7 +31,7 @@ class EnumWithNullToString4355Test extends DatabindTestUtil
 
     // [databind#4355]
     @Test
-    void testWithNullToString() throws Exception
+    void withNullToString() throws Exception
     {
         assertEquals(q("ALPHA"), MAPPER.writeValueAsString(Enum4355.ALPHA));
         assertEquals(q("BETA"), MAPPER.writeValueAsString(Enum4355.BETA));

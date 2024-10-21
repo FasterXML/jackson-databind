@@ -25,7 +25,7 @@ class BigDecimalPlain2230Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testBigIntegerAsPlainTest() throws Exception
+    void bigIntegerAsPlainTest() throws Exception
     {
         final String NORM_VALUE = "0.0000000005";
         final BigDecimal BD_VALUE = new BigDecimal(NORM_VALUE);

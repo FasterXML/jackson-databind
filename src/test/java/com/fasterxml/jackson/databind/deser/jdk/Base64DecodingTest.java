@@ -22,7 +22,7 @@ class Base64DecodingTest
 
     // for [databind#1425]
     @Test
-    void testInvalidBase64() throws Exception
+    void invalidBase64() throws Exception
     {
         byte[] b = MAPPER.readValue(q(BASE64_HELLO), byte[].class);
         assertArrayEquals(HELLO_BYTES, b);

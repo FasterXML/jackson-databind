@@ -75,7 +75,7 @@ class JavaTypeTest extends DatabindTestUtil
      */
 
     @Test
-    void testLocalType728() throws Exception
+    void localType728() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         Method m = Issue728.class.getMethod("method", CharSequence.class);
@@ -97,7 +97,7 @@ class JavaTypeTest extends DatabindTestUtil
     }
 
     @Test
-    void testSimpleClass()
+    void simpleClass()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType baseType = tf.constructType(BaseType.class);
@@ -124,7 +124,7 @@ class JavaTypeTest extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    void testDeprecated()
+    void deprecated()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType baseType = tf.constructType(BaseType.class);
@@ -137,7 +137,7 @@ class JavaTypeTest extends DatabindTestUtil
     }
 
     @Test
-    void testArrayType()
+    void arrayType()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType arrayT = ArrayType.construct(tf.constructType(String.class), null);
@@ -161,7 +161,7 @@ class JavaTypeTest extends DatabindTestUtil
     }
 
     @Test
-    void testMapType()
+    void mapType()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType mapT = tf.constructType(HashMap.class);
@@ -184,7 +184,7 @@ class JavaTypeTest extends DatabindTestUtil
     }
 
     @Test
-    void testEnumType()
+    void enumType()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType enumT = tf.constructType(MyEnum.class);
@@ -221,7 +221,7 @@ class JavaTypeTest extends DatabindTestUtil
 
     @SuppressWarnings("SelfComparison")
     @Test
-    void testClassKey()
+    void classKey()
     {
         ClassKey key = new ClassKey(String.class);
         assertEquals(0, key.compareTo(key));
@@ -234,7 +234,7 @@ class JavaTypeTest extends DatabindTestUtil
 
     // [databind#116]
     @Test
-    void testJavaTypeAsJLRType()
+    void javaTypeAsJLRType()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType t1 = tf.constructType(getClass());
@@ -245,7 +245,7 @@ class JavaTypeTest extends DatabindTestUtil
 
     // [databind#1194]
     @Test
-    void testGenericSignature1194() throws Exception
+    void genericSignature1194() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         Method m;
@@ -268,7 +268,7 @@ class JavaTypeTest extends DatabindTestUtil
 
     @Deprecated
     @Test
-    void testAnchorTypeForRefTypes() throws Exception
+    void anchorTypeForRefTypes() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType t  = tf.constructType(AtomicStringReference.class);
@@ -284,7 +284,7 @@ class JavaTypeTest extends DatabindTestUtil
 
     // for [databind#1290]
     @Test
-    void testObjectToReferenceSpecialization() throws Exception
+    void objectToReferenceSpecialization() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType base = tf.constructType(Object.class);
@@ -297,7 +297,7 @@ class JavaTypeTest extends DatabindTestUtil
 
     // for [databind#2091]
     @Test
-    void testConstructReferenceType() throws Exception
+    void constructReferenceType() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         // do AtomicReference<Long>
@@ -318,7 +318,7 @@ class JavaTypeTest extends DatabindTestUtil
 
     // for [databind#3950]: resolve `Iterator`, `Stream`
     @Test
-    void testIterationTypesDirect() throws Exception
+    void iterationTypesDirect() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
 
@@ -348,7 +348,7 @@ class JavaTypeTest extends DatabindTestUtil
 
     // for [databind#3950]: resolve `Iterator`, `Stream`
     @Test
-    void testIterationTypesFromValues() throws Exception
+    void iterationTypesFromValues() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         List<String> strings = Arrays.asList("foo", "bar");
@@ -363,7 +363,7 @@ class JavaTypeTest extends DatabindTestUtil
 
     // for [databind#3950]: resolve `Iterator`, `Stream`
     @Test
-    void testIterationSubTypes() throws Exception
+    void iterationSubTypes() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         _verifyIteratorType(tf.constructType(StringIterator.class),

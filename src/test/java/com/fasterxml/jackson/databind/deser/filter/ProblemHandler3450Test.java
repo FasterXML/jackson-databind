@@ -35,7 +35,7 @@ class ProblemHandler3450Test
 
     // [databind#3450]
     @Test
-    void testIntegerCoercion3450() throws Exception
+    void integerCoercion3450() throws Exception
     {
         TestPojo3450Int pojo;
 
@@ -49,7 +49,7 @@ class ProblemHandler3450Test
     }
 
     @Test
-    void testLongCoercion3450() throws Exception
+    void longCoercion3450() throws Exception
     {
         TestPojo3450Long pojo;
 

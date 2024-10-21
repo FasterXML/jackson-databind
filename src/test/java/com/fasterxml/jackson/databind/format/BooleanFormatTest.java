@@ -66,7 +66,7 @@ class BooleanFormatTest extends DatabindTestUtil
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testShapeViaDefaults() throws Exception
+    void shapeViaDefaults() throws Exception
     {
         assertEquals(a2q("{'b':true}"),
                 MAPPER.writeValueAsString(new BooleanWrapper(true)));
@@ -87,7 +87,7 @@ class BooleanFormatTest extends DatabindTestUtil
 
     // [databind#3080]
     @Test
-    void testPrimitiveShapeViaDefaults() throws Exception
+    void primitiveShapeViaDefaults() throws Exception
     {
         assertEquals(a2q("{'b':true}"),
                 MAPPER.writeValueAsString(new PrimitiveBooleanWrapper(true)));
@@ -107,7 +107,7 @@ class BooleanFormatTest extends DatabindTestUtil
     }
 
     @Test
-    void testShapeOnProperty() throws Exception
+    void shapeOnProperty() throws Exception
     {
         assertEquals(a2q("{'b1':1,'b2':0,'b3':true}"),
                 MAPPER.writeValueAsString(new BeanWithBoolean(true, false, true)));

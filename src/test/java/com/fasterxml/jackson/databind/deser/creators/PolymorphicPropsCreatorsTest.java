@@ -140,7 +140,7 @@ class PolymorphicPropsCreatorsTest extends DatabindTestUtil
      * deserialization manually.
      */
     @Test
-    void testManualPolymorphicDog() throws Exception
+    void manualPolymorphicDog() throws Exception
     {
         // first, a dog, start with type
         Animal animal = MAPPER.readValue("{ \"type\":\"dog\", \"name\":\"Fido\", \"barkVolume\" : 95.0 }", Animal.class);
@@ -150,7 +150,7 @@ class PolymorphicPropsCreatorsTest extends DatabindTestUtil
     }
 
     @Test
-    void testManualPolymorphicCatBasic() throws Exception
+    void manualPolymorphicCatBasic() throws Exception
     {
         // and finally, lactose-intolerant, but otherwise robust super-cat:
         Animal animal = MAPPER.readValue("{ \"name\" : \"Macavity\", \"type\":\"cat\", \"lives\":18, \"likesCream\":false }", Animal.class);
@@ -163,7 +163,7 @@ class PolymorphicPropsCreatorsTest extends DatabindTestUtil
     }
 
     @Test
-    void testManualPolymorphicCatWithReorder() throws Exception
+    void manualPolymorphicCatWithReorder() throws Exception
     {
         // Then cat; shuffle order to mandate buffering
         Animal animal = MAPPER.readValue("{ \"likesCream\":true, \"name\" : \"Venla\", \"type\":\"cat\" }", Animal.class);
@@ -174,7 +174,7 @@ class PolymorphicPropsCreatorsTest extends DatabindTestUtil
     }
 
     @Test
-    void testManualPolymorphicWithNumbered() throws Exception
+    void manualPolymorphicWithNumbered() throws Exception
     {
          final ObjectWriter w = MAPPER.writerFor(AbstractRoot.class);
          final ObjectReader r = MAPPER.readerFor(AbstractRoot.class);
@@ -188,7 +188,7 @@ class PolymorphicPropsCreatorsTest extends DatabindTestUtil
 
     // [databind#113]
     @Test
-    void testSubtypes113() throws Exception
+    void subtypes113() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String id = "nice dogy";

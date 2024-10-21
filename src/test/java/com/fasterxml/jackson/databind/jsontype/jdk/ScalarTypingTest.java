@@ -62,7 +62,7 @@ class ScalarTypingTest extends DatabindTestUtil
      * and others
      */
     @Test
-    void testScalarsWithTyping() throws Exception
+    void scalarsWithTyping() throws Exception
     {
         String json;
         DynamicWrapper result;
@@ -96,7 +96,7 @@ class ScalarTypingTest extends DatabindTestUtil
     }
 
     @Test
-    void testScalarsViaAbstractType() throws Exception
+    void scalarsViaAbstractType() throws Exception
     {
         ObjectMapper m = MAPPER;
         String json;
@@ -131,7 +131,7 @@ class ScalarTypingTest extends DatabindTestUtil
 
     // Test inspired by [databind#1104]
     @Test
-    void testHeterogenousStringScalars() throws Exception
+    void heterogenousStringScalars() throws Exception
     {
         final UUID NULL_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
         ScalarList input = new ScalarList()

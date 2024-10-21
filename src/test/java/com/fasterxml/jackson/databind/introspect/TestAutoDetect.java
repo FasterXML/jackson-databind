@@ -122,7 +122,7 @@ class TestAutoDetect
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testPrivateCtor() throws Exception
+    void privateCtor() throws Exception
     {
         // first, default settings, with which construction works ok
         ObjectMapper m = new ObjectMapper();
@@ -144,7 +144,7 @@ class TestAutoDetect
 
     // [databind#1347]
     @Test
-    void testVisibilityConfigOverridesForSer() throws Exception
+    void visibilityConfigOverridesForSer() throws Exception
     {
         // first, by default, both field/method should be visible
         final Feature1347SerBean input = new Feature1347SerBean();
@@ -161,7 +161,7 @@ class TestAutoDetect
 
     // [databind#1347]
     @Test
-    void testVisibilityConfigOverridesForDeser() throws Exception
+    void visibilityConfigOverridesForDeser() throws Exception
     {
         final String JSON = a2q("{'value':3}");
 
@@ -185,7 +185,7 @@ class TestAutoDetect
 
     // [databind#1947]
     @Test
-    void testDisablingAll() throws Exception
+    void disablingAll() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.AUTO_DETECT_SETTERS)
@@ -203,7 +203,7 @@ class TestAutoDetect
 
     // [databind#2789]
     @Test
-    void testAnnotatedFieldIssue2789() throws Exception {
+    void annotatedFieldIssue2789() throws Exception {
         final String json = MAPPER.writeValueAsString(new DataClassA());
         final DataParent2789 copy = MAPPER.readValue(json, DataParent2789.class);
         assertEquals(DataType2789.CLASS_A, copy.getType());

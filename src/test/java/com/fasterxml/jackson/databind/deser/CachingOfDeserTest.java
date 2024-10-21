@@ -62,7 +62,7 @@ class CachingOfDeserTest
 
     // Ok: first, use custom-annotated instance first, then standard
     @Test
-    void testCustomMapCaching1() throws Exception
+    void customMapCaching1() throws Exception
     {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -77,7 +77,7 @@ class CachingOfDeserTest
 
     // And then standard first, custom next
     @Test
-    void testCustomMapCaching2() throws Exception
+    void customMapCaching2() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         TestMapNoCustom mapStd = mapper.readValue(MAP_INPUT, TestMapNoCustom.class);
@@ -91,7 +91,7 @@ class CachingOfDeserTest
 
     // Ok: first, use custom-annotated instance first, then standard
     @Test
-    void testCustomListCaching1() throws Exception {
+    void customListCaching1() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         TestListWithCustom listC = mapper.readValue(LIST_INPUT, TestListWithCustom.class);
         TestListNoCustom listStd = mapper.readValue(LIST_INPUT, TestListNoCustom.class);
@@ -104,7 +104,7 @@ class CachingOfDeserTest
 
     // First custom-annotated, then standard
     @Test
-    void testCustomListCaching2() throws Exception {
+    void customListCaching2() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         TestListNoCustom listStd = mapper.readValue(LIST_INPUT, TestListNoCustom.class);
         TestListWithCustom listC = mapper.readValue(LIST_INPUT, TestListWithCustom.class);

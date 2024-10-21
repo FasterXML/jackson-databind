@@ -32,7 +32,7 @@ class AnySetterFieldWithCreator4639Test
     }
 
     @Test
-    void testJsonAnySetter()
+    void jsonAnySetter()
             throws Exception
     {
         String json = "{\"a\":1,\"b\":2,\"c\":3,\"d\":4,\"e\":5,\"f\":6}";

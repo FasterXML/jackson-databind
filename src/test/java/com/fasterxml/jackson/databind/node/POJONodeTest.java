@@ -38,7 +38,7 @@ class POJONodeTest extends NodeTestBase
     final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testPOJONodeCustomSer() throws Exception
+    void pojoNodeCustomSer() throws Exception
     {
       Data data = new Data();
       data.aStr = "Hello";
@@ -64,7 +64,7 @@ class POJONodeTest extends NodeTestBase
     // Java 8 Date/Time types. So we'll catch IOException/RuntimeException for
     // POJONode, produce something like "[ERROR: (type) [msg]" TextNode for that case?
     @Test
-    void testAddJava8DateAsPojo() throws Exception
+    void addJava8DateAsPojo() throws Exception
     {
         JsonNode node = MAPPER.createObjectNode().putPOJO("test", LocalDateTime.now());
         String json = node.toString();

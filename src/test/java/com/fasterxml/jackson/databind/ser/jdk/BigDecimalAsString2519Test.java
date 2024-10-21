@@ -23,7 +23,7 @@ class BigDecimalAsString2519Test extends DatabindTestUtil
     }
 
     @Test
-    void testBigDecimalAsString2519Typed() throws Exception
+    void bigDecimalAsString2519Typed() throws Exception
     {
         Bean2519Typed foo = new Bean2519Typed();
         foo.values.add(new BigDecimal("2.34"));
@@ -35,7 +35,7 @@ class BigDecimalAsString2519Test extends DatabindTestUtil
     }
 
     @Test
-    void testBigDecimalAsString2519Untyped() throws Exception
+    void bigDecimalAsString2519Untyped() throws Exception
     {
         Bean2519Untyped foo = new Bean2519Untyped();
         foo.values.add(new BigDecimal("2.34"));

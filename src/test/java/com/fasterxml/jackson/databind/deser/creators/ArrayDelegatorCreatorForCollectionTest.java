@@ -23,7 +23,7 @@ class ArrayDelegatorCreatorForCollectionTest
     }
 
     @Test
-    void testUnmodifiable() throws Exception
+    void unmodifiable() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Class<?> unmodSetType = Collections.unmodifiableSet(Collections.<String>emptySet()).getClass();

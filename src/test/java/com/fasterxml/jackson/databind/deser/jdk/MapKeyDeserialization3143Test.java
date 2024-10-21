@@ -73,7 +73,7 @@ class MapKeyDeserialization3143Test
 
     // [databind#3143]
     @Test
-    void testKeyWithCtorAndCreator3143() throws Exception
+    void keyWithCtorAndCreator3143() throws Exception
     {
         // Use Constructor if annotated:
         Map<Key3143Ctor,Integer> map = MAPPER.readValue("{\"bar\":3}",
@@ -84,7 +84,7 @@ class MapKeyDeserialization3143Test
 
     // [databind#3143]
     @Test
-    void testKeyWith2Creators3143() throws Exception
+    void keyWith2Creators3143() throws Exception
     {
         // Select explicitly annotated factory method
         Map<Key3143Factories,Integer> map = MAPPER.readValue("{\"Foo\":3}",
@@ -95,7 +95,7 @@ class MapKeyDeserialization3143Test
 
     // [databind#3143]
     @Test
-    void testKeyWithCreatorConflicts3143() throws Exception
+    void keyWithCreatorConflicts3143() throws Exception
     {
         try {
             MAPPER.readValue("{\"Foo\":3}",

@@ -38,14 +38,14 @@ class ObjectOrArrayDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testObjectCase() throws Exception {
+    void objectCase() throws Exception {
         ArrayOrObject arrayOrObject = MAPPER.readValue("{}", ArrayOrObject.class);
         assertNull(arrayOrObject.objects, "expected objects field to be null");
         assertNotNull(arrayOrObject.object, "expected object field not to be null");
     }
 
     @Test
-    void testEmptyArrayCase() throws Exception {
+    void emptyArrayCase() throws Exception {
         ArrayOrObject arrayOrObject = MAPPER.readValue("[]", ArrayOrObject.class);
         assertNotNull(arrayOrObject.objects, "expected objects field not to be null");
         assertTrue(arrayOrObject.objects.isEmpty(), "expected objects field to be an empty list");
@@ -53,7 +53,7 @@ class ObjectOrArrayDeserTest
     }
 
     @Test
-    void testNotEmptyArrayCase() throws Exception {
+    void notEmptyArrayCase() throws Exception {
         ArrayOrObject arrayOrObject = MAPPER.readValue("[{}, {}]", ArrayOrObject.class);
         assertNotNull(arrayOrObject.objects, "expected objects field not to be null");
         assertEquals(2, arrayOrObject.objects.size(), "expected objects field to have size 2");

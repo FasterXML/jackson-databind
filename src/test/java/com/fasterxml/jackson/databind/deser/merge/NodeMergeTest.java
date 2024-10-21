@@ -46,7 +46,7 @@ class NodeMergeTest
      */
 
     @Test
-    void testObjectNodeUpdateValue() throws Exception
+    void objectNodeUpdateValue() throws Exception
     {
         ObjectNode base = MAPPER.createObjectNode();
         base.put("first", "foo");
@@ -61,7 +61,7 @@ class NodeMergeTest
     }
 
     @Test
-    void testObjectNodeMerge() throws Exception
+    void objectNodeMerge() throws Exception
     {
         ObjectNodeWrapper w = MAPPER.readValue(a2q("{'props':{'stuff':'xyz'}}"),
                 ObjectNodeWrapper.class);
@@ -71,7 +71,7 @@ class NodeMergeTest
     }
 
     @Test
-    void testObjectDeepUpdate() throws Exception
+    void objectDeepUpdate() throws Exception
     {
         ObjectNode base = MAPPER.createObjectNode();
         ObjectNode props = base.putObject("props");
@@ -98,7 +98,7 @@ class NodeMergeTest
     }
 
     @Test
-    void testArrayNodeUpdateValue() throws Exception
+    void arrayNodeUpdateValue() throws Exception
     {
         ArrayNode base = MAPPER.createArrayNode();
         base.add("first");
@@ -113,7 +113,7 @@ class NodeMergeTest
     }
 
     @Test
-    void testArrayNodeMerge() throws Exception
+    void arrayNodeMerge() throws Exception
     {
         ArrayNodeWrapper w = MAPPER.readValue(a2q("{'list':[456,true,{},  [], 'foo']}"),
                 ArrayNodeWrapper.class);
@@ -132,7 +132,7 @@ class NodeMergeTest
 
     // [databind#3056]
     @Test
-    void testUpdateObjectNodeWithNull() throws Exception
+    void updateObjectNodeWithNull() throws Exception
     {
         JsonNode src = MAPPER.readTree(a2q("{'test':{}}"));
         JsonNode update = MAPPER.readTree(a2q("{'test':null}"));
@@ -144,7 +144,7 @@ class NodeMergeTest
     }
 
     @Test
-    void testUpdateObjectNodeWithNumber() throws Exception
+    void updateObjectNodeWithNumber() throws Exception
     {
         JsonNode src = MAPPER.readTree(a2q("{'test':{}}"));
         JsonNode update = MAPPER.readTree(a2q("{'test':123}"));
@@ -156,7 +156,7 @@ class NodeMergeTest
     }
 
     @Test
-    void testUpdateArrayWithNull() throws Exception
+    void updateArrayWithNull() throws Exception
     {
         JsonNode src = MAPPER.readTree(a2q("{'test':[]}"));
         JsonNode update = MAPPER.readTree(a2q("{'test':null}"));
@@ -168,7 +168,7 @@ class NodeMergeTest
     }
 
     @Test
-    void testUpdateArrayWithString() throws Exception
+    void updateArrayWithString() throws Exception
     {
         JsonNode src = MAPPER.readTree(a2q("{'test':[]}"));
         JsonNode update = MAPPER.readTree(a2q("{'test':'n/a'}"));
@@ -181,7 +181,7 @@ class NodeMergeTest
 
     // [databind#3122]: "readTree()" fails where "readValue()" doesn't:
     @Test
-    void testObjectDeepMerge3122() throws Exception
+    void objectDeepMerge3122() throws Exception
     {
         final String jsonToMerge = a2q("{'root':{'b':'bbb','foo':'goodbye'}}");
 

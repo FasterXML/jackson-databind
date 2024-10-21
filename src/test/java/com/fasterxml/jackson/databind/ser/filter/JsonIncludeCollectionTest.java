@@ -36,7 +36,7 @@ class JsonIncludeCollectionTest extends DatabindTestUtil
     final private ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testEnumSet() throws Exception
+    void enumSet() throws Exception
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyEnumSet()));
         assertEquals("{\"v\":[\"B\"]}", MAPPER.writeValueAsString(new NonEmptyEnumSet(ABC.B)));

@@ -42,7 +42,7 @@ class TypeResolverTest extends DatabindTestUtil
     static class MyMap<K,V> extends HashMap<K,V> { }
 
     @Test
-    void testSubtypeResolution() throws Exception
+    void subtypeResolution() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleAbstractTypeResolver resolver = new SimpleAbstractTypeResolver();

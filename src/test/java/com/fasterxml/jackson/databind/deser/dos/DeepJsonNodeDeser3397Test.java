@@ -25,7 +25,7 @@ class DeepJsonNodeDeser3397Test
     private final ObjectMapper MAPPER = JsonMapper.builder(jsonFactory).build();
 
     @Test
-    void testTreeWithArray() throws Exception
+    void treeWithArray() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
         JsonNode n = MAPPER.readTree(doc);
@@ -33,7 +33,7 @@ class DeepJsonNodeDeser3397Test
     }
 
     @Test
-    void testTreeWithObject() throws Exception
+    void treeWithObject() throws Exception
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
         JsonNode n = MAPPER.readTree(doc);

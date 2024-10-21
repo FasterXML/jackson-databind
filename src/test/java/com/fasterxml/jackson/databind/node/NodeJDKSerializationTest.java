@@ -23,7 +23,7 @@ class NodeJDKSerializationTest extends DatabindTestUtil
 
     // [databind#18]: Allow JDK serialization of `ObjectNode`
     @Test
-    void testObjectNodeSerialization() throws Exception
+    void objectNodeSerialization() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         root.put("answer", 42);
@@ -37,7 +37,7 @@ class NodeJDKSerializationTest extends DatabindTestUtil
 
     // [databind#18]: Allow JDK serialization of `ArrayNode`
     @Test
-    void testArrayNodeSerialization() throws Exception
+    void arrayNodeSerialization() throws Exception
     {
         ArrayNode root = MAPPER.createArrayNode();
         root.add(false);
@@ -50,7 +50,7 @@ class NodeJDKSerializationTest extends DatabindTestUtil
 
     // [databind#3328]
     @Test
-    void testBigArrayNodeSerialization() throws Exception
+    void bigArrayNodeSerialization() throws Exception
     {
         // Try couple of variations just to tease out possible edge cases
         _testBigArrayNodeSerialization(NodeSerialization.LONGEST_EAGER_ALLOC - 39);
@@ -83,7 +83,7 @@ class NodeJDKSerializationTest extends DatabindTestUtil
 
     // and then also some scalar types
     @Test
-    void testScalarSerialization() throws Exception
+    void scalarSerialization() throws Exception
     {
         testNodeRoundtrip(MAPPER.getNodeFactory().nullNode());
 

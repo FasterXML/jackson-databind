@@ -24,56 +24,56 @@ class DeepArrayWrappingForDeser3590Test
     private final static String TOO_DEEP_DOC = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ", "123");
 
     @Test
-    void testArrayWrappingForBoolean() throws Exception
+    void arrayWrappingForBoolean() throws Exception
     {
         _testArrayWrappingFor(Boolean.class);
         _testArrayWrappingFor(Boolean.TYPE);
     }
 
     @Test
-    void testArrayWrappingForByte() throws Exception
+    void arrayWrappingForByte() throws Exception
     {
         _testArrayWrappingFor(Byte.class);
         _testArrayWrappingFor(Byte.TYPE);
     }
 
     @Test
-    void testArrayWrappingForShort() throws Exception
+    void arrayWrappingForShort() throws Exception
     {
         _testArrayWrappingFor(Short.class);
         _testArrayWrappingFor(Short.TYPE);
     }
 
     @Test
-    void testArrayWrappingForInt() throws Exception
+    void arrayWrappingForInt() throws Exception
     {
         _testArrayWrappingFor(Integer.class);
         _testArrayWrappingFor(Integer.TYPE);
     }
 
     @Test
-    void testArrayWrappingForLong() throws Exception
+    void arrayWrappingForLong() throws Exception
     {
         _testArrayWrappingFor(Long.class);
         _testArrayWrappingFor(Long.TYPE);
     }
 
     @Test
-    void testArrayWrappingForFloat() throws Exception
+    void arrayWrappingForFloat() throws Exception
     {
         _testArrayWrappingFor(Float.class);
         _testArrayWrappingFor(Float.TYPE);
     }
 
     @Test
-    void testArrayWrappingForDouble() throws Exception
+    void arrayWrappingForDouble() throws Exception
     {
         _testArrayWrappingFor(Double.class);
         _testArrayWrappingFor(Double.TYPE);
     }
 
     @Test
-    void testArrayWrappingForDate() throws Exception
+    void arrayWrappingForDate() throws Exception
     {
         _testArrayWrappingFor(Date.class);
     }

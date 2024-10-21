@@ -21,7 +21,7 @@ class WithPathTest extends DatabindTestUtil
      */
 
     @Test
-    void testValidWithObjectTrivial() throws Exception
+    void validWithObjectTrivial() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         ObjectNode match = root.withObject(JsonPointer.empty());
@@ -29,14 +29,14 @@ class WithPathTest extends DatabindTestUtil
     }
 
     @Test
-    void testValidWithObjectSimpleExisting() throws Exception
+    void validWithObjectSimpleExisting() throws Exception
     {
         _testValidWithObjectSimpleExisting(true);
         _testValidWithObjectSimpleExisting(false);
     }
 
     @Test
-    void testInvalidWithObjectTrivial() throws Exception
+    void invalidWithObjectTrivial() throws Exception
     {
         ArrayNode root = MAPPER.createArrayNode();
         try {
@@ -71,7 +71,7 @@ class WithPathTest extends DatabindTestUtil
     }
 
     @Test
-    void testValidWithObjectSimpleCreate() throws Exception {
+    void validWithObjectSimpleCreate() throws Exception {
         _testValidWithObjectSimpleCreate(true);
         _testValidWithObjectSimpleCreate(false);
     }
@@ -101,7 +101,7 @@ class WithPathTest extends DatabindTestUtil
     }
 
     @Test
-    void testValidWithObjectSimpleModify() throws Exception {
+    void validWithObjectSimpleModify() throws Exception {
         _testValidWithObjectSimpleModify(true);
         _testValidWithObjectSimpleModify(false);
     }
@@ -119,7 +119,7 @@ class WithPathTest extends DatabindTestUtil
     }
 
     @Test
-    void testObjectPathWithReplace() throws Exception {
+    void objectPathWithReplace() throws Exception {
         _testObjectPathWithReplace(true);
         _testObjectPathWithReplace(false);
     }
@@ -149,7 +149,7 @@ class WithPathTest extends DatabindTestUtil
     }
 
     @Test
-    void testValidWithObjectWithArray() throws Exception {
+    void validWithObjectWithArray() throws Exception {
         _testValidWithObjectWithArray(true);
         _testValidWithObjectWithArray(false);
     }
@@ -216,7 +216,7 @@ class WithPathTest extends DatabindTestUtil
 
     // [databind#4095]
     @Test
-    void testWithObjectProperty() throws Exception
+    void withObjectProperty() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
 
@@ -253,7 +253,7 @@ class WithPathTest extends DatabindTestUtil
 
     // [databind#4096]
     @Test
-    void testWithObjectAdnExprOrProp() throws Exception
+    void withObjectAdnExprOrProp() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
 
@@ -299,7 +299,7 @@ class WithPathTest extends DatabindTestUtil
      */
 
     @Test
-    void testValidWithArrayTrivial() throws Exception
+    void validWithArrayTrivial() throws Exception
     {
         // First, empty path, existing Array
         ArrayNode root = MAPPER.createArrayNode();
@@ -319,13 +319,13 @@ class WithPathTest extends DatabindTestUtil
 
     // From Javadoc example
     @Test
-    void testValidWithArraySimple() throws Exception {
+    void validWithArraySimple() throws Exception {
         _testValidWithArraySimple(true);
         _testValidWithArraySimple(false);
     }
 
     @Test
-    void testInvalidWithArrayTrivial() throws Exception
+    void invalidWithArrayTrivial() throws Exception
     {
         ArrayNode root = MAPPER.createArrayNode();
         try {
@@ -398,7 +398,7 @@ class WithPathTest extends DatabindTestUtil
 
     // [databind#3882]
     @Test
-    void testWithArray3882() throws Exception
+    void withArray3882() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         ArrayNode aN = root.withArray("/key/0/a",
@@ -424,7 +424,7 @@ class WithPathTest extends DatabindTestUtil
 
     // [databind#4095]
     @Test
-    void testWithArrayProperty() throws Exception
+    void withArrayProperty() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
 
@@ -460,7 +460,7 @@ class WithPathTest extends DatabindTestUtil
 
     // [databind#4096]
     @Test
-    void testWithArrayAndExprOrProp() throws Exception
+    void withArrayAndExprOrProp() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
 

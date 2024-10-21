@@ -58,7 +58,7 @@ class BuilderViaUpdateTest
 
     // Tests where result value is passed as thing to update
     @Test
-    void testBuilderUpdateWithValue() throws Exception
+    void builderUpdateWithValue() throws Exception
     {
         try {
             /*ValueClassXY value =*/ MAPPER.readerFor(ValueClassXY.class)
@@ -81,7 +81,7 @@ class BuilderViaUpdateTest
     // and then test to ensure error handling works as expected if attempts
     // is made to pass builder (API requires value, not builder)
     @Test
-    void testBuilderWithWrongType() throws Exception
+    void builderWithWrongType() throws Exception
     {
         try {
             /* Object result =*/ MAPPER.readerFor(ValueClassXY.class)

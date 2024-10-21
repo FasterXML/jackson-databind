@@ -122,7 +122,7 @@ class IterableSerializationTest extends DatabindTestUtil
             .build();
 
     @Test
-    void testIterator() throws IOException
+    void iterator() throws IOException
     {
         ArrayList<Integer> l = new ArrayList<Integer>();
         l.add(1);
@@ -136,14 +136,14 @@ class IterableSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testIterable() throws IOException
+    void iterable() throws IOException
     {
         assertEquals("[1,2,3]",
                 MAPPER.writeValueAsString(new IterableWrapper(new int[] { 1, 2, 3 })));
     }
 
     @Test
-    void testWithIterable() throws IOException
+    void withIterable() throws IOException
     {
         assertEquals("{\"values\":[\"value\"]}",
                 STATIC_MAPPER.writeValueAsString(new BeanWithIterable()));
@@ -152,7 +152,7 @@ class IterableSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    void testWithIterator() throws IOException
+    void withIterator() throws IOException
     {
         assertEquals("{\"values\":[\"itValue\"]}",
                 STATIC_MAPPER.writeValueAsString(new BeanWithIterator()));
@@ -167,14 +167,14 @@ class IterableSerializationTest extends DatabindTestUtil
 
     // [databind#358]
     @Test
-    void testIterable358() throws Exception {
+    void iterable358() throws Exception {
         String json = MAPPER.writeValueAsString(new B());
         assertEquals("{\"list\":[[\"Hello world.\"]]}", json);
     }
 
     // [databind#2390]
     @Test
-    void testIterableWithAnnotation() throws Exception
+    void iterableWithAnnotation() throws Exception
     {
         assertEquals("[1,2,3]",
                 STATIC_MAPPER.writeValueAsString(new IntIterable2390()));

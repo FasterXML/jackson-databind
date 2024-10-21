@@ -27,7 +27,7 @@ class TypeFactory3108Test extends DatabindTestUtil
 
     // [databind#3108] with custom Collection
     @Test
-    void testCanonicalWithCustomCollection()
+    void canonicalWithCustomCollection()
     {
         JavaType stringListType = TF.constructType(StringList3108.class);
         String canonical = stringListType.toCanonical();
@@ -38,7 +38,7 @@ class TypeFactory3108Test extends DatabindTestUtil
 
     // [databind#3108] with custom Map
     @Test
-    void testCanonicalWithCustomMap()
+    void canonicalWithCustomMap()
     {
         JavaType stringListType = TF.constructType(StringStringMap3108.class);
         String canonical = stringListType.toCanonical();
@@ -49,7 +49,7 @@ class TypeFactory3108Test extends DatabindTestUtil
 
     // [databind#3108] with custom generic type
     @Test
-    void testCanonicalWithCustomGenericType()
+    void canonicalWithCustomGenericType()
     {
         JavaType stringListType = TF.constructType(ConcreteType3108.class);
         String canonical = stringListType.toCanonical();

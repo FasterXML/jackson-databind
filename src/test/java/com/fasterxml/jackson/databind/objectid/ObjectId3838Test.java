@@ -174,7 +174,7 @@ class ObjectId3838Test extends DatabindTestUtil
     };
 
     @Test
-    void testUniformHandlingForMissingObjectId() throws Exception
+    void uniformHandlingForMissingObjectId() throws Exception
     {
         for (Object[] classAndJsonStrEntry : CLASS_AND_JSON_STRING) {
             final Class<?> cls = (Class<?>) classAndJsonStrEntry[0];

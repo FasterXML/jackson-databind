@@ -77,7 +77,7 @@ class EnumNamingSerializationTest extends DatabindTestUtil {
     */
 
     @Test
-    void testEnumNamingShouldOverrideToStringFeatue() throws Exception {
+    void enumNamingShouldOverrideToStringFeatue() throws Exception {
         String resultStr = MAPPER.writer()
             .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
             .writeValueAsString(EnumFlavorA.CHOCOLATE_CHIPS);
@@ -86,19 +86,19 @@ class EnumNamingSerializationTest extends DatabindTestUtil {
     }
 
     @Test
-    void testEnumNamingStrategyNotApplied() throws Exception {
+    void enumNamingStrategyNotApplied() throws Exception {
         String resultString = MAPPER.writeValueAsString(EnumSauceC.SRIRACHA_MAYO);
         assertEquals(q("SRIRACHA_MAYO"), resultString);
     }
 
     @Test
-    void testEnumNamingStrategyStartingUnderscoreBecomesUpperCase() throws Exception {
+    void enumNamingStrategyStartingUnderscoreBecomesUpperCase() throws Exception {
         String flavor = MAPPER.writeValueAsString(EnumFlavorD._PEANUT_BUTTER);
         assertEquals(q("PeanutButter"), flavor);
     }
 
     @Test
-    void testEnumNamingStrategyNonPrefixContiguousUnderscoresBecomeOne() throws Exception {
+    void enumNamingStrategyNonPrefixContiguousUnderscoresBecomeOne() throws Exception {
         String flavor1 = MAPPER.writeValueAsString(EnumFlavorD.PEANUT__BUTTER);
         assertEquals(q("peanutButter"), flavor1);
 
@@ -107,13 +107,13 @@ class EnumNamingSerializationTest extends DatabindTestUtil {
     }
 
     @Test
-    void testEnumSet() throws Exception {
+    void enumSet() throws Exception {
         final EnumSet<EnumSauceB> value = EnumSet.of(EnumSauceB.KETCH_UP);
         assertEquals("[\"ketchUp\"]", MAPPER.writeValueAsString(value));
     }
 
     @Test
-    void testDesrEnumWithEnumMap() throws Exception {
+    void desrEnumWithEnumMap() throws Exception {
         EnumMap<EnumSauceB, String> enums = new EnumMap<EnumSauceB, String>(EnumSauceB.class);
         enums.put(EnumSauceB.MAYO_NEZZ, "value");
 
@@ -123,7 +123,7 @@ class EnumNamingSerializationTest extends DatabindTestUtil {
     }
 
     @Test
-    void testEnumNamingStrategyWithOverride() throws Exception {
+    void enumNamingStrategyWithOverride() throws Exception {
         String almond = MAPPER.writeValueAsString(EnumFlavorE.ALMOND_BUTTER);
         assertEquals(q("almond"), almond);
 

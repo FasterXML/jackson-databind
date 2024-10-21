@@ -33,12 +33,12 @@ class CaseInsensitiveDeser953Test extends DatabindTestUtil
             .build();
 
     @Test
-    void testTurkishILetterDeserializationWithEn() throws Exception {
+    void turkishILetterDeserializationWithEn() throws Exception {
         _testTurkishILetterDeserialization(INSENSITIVE_MAPPER_EN, LOCALE_EN);
     }
 
     @Test
-    void testTurkishILetterDeserializationWithTr() throws Exception {
+    void turkishILetterDeserializationWithTr() throws Exception {
         _testTurkishILetterDeserialization(INSENSITIVE_MAPPER_TR, LOCALE_TR);
     }
 

@@ -66,7 +66,7 @@ class TreeWithTypeTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testValueAsStringWithoutDefaultTyping() throws Exception {
+    void valueAsStringWithoutDefaultTyping() throws Exception {
 
         Foo foo = new Foo("baz");
         String json = MAPPER.writeValueAsString(foo);
@@ -76,7 +76,7 @@ class TreeWithTypeTest extends DatabindTestUtil
     }
 
     @Test
-    void testValueAsStringWithDefaultTyping() throws Exception {
+    void valueAsStringWithDefaultTyping() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
@@ -90,7 +90,7 @@ class TreeWithTypeTest extends DatabindTestUtil
     }
 
     @Test
-    void testReadTreeWithDefaultTyping() throws Exception
+    void readTreeWithDefaultTyping() throws Exception
     {
         final String CLASS = Foo.class.getName();
 
@@ -105,7 +105,7 @@ class TreeWithTypeTest extends DatabindTestUtil
     }
 
     @Test
-    void testValueToTreeWithoutDefaultTyping() throws Exception {
+    void valueToTreeWithoutDefaultTyping() throws Exception {
 
         Foo foo = new Foo("baz");
         JsonNode jsonNode = MAPPER.valueToTree(foo);
@@ -113,7 +113,7 @@ class TreeWithTypeTest extends DatabindTestUtil
     }
 
     @Test
-    void testValueToTreeWithDefaultTyping() throws Exception {
+    void valueToTreeWithDefaultTyping() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
@@ -125,7 +125,7 @@ class TreeWithTypeTest extends DatabindTestUtil
     }
 
     @Test
-    void testIssue353() throws Exception
+    void issue353() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,

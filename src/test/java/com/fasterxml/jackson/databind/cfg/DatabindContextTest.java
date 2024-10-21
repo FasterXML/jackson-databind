@@ -12,7 +12,7 @@ class DatabindContextTest
     private final ObjectMapper MAPPER = new JsonMapper();
 
     @Test
-    void testDeserializationContext() throws Exception
+    void deserializationContext() throws Exception
     {
         DeserializationContext ctxt = MAPPER.getDeserializationContext();
         // should be ok to try to resolve `null`
@@ -21,7 +21,7 @@ class DatabindContextTest
     }
 
     @Test
-    void testSerializationContext() throws Exception
+    void serializationContext() throws Exception
     {
         SerializerProvider ctxt = MAPPER.getSerializerProvider();
         assertNull(ctxt.constructType(null));

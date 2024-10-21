@@ -129,7 +129,7 @@ class CaseInsensitiveDeserTest extends DatabindTestUtil
 
     // [databind#566]
     @Test
-    void testCaseInsensitiveDeserialization() throws Exception
+    void caseInsensitiveDeserialization() throws Exception
     {
         final String JSON = "{\"Value1\" : {\"nAme\" : \"fruit\", \"vALUe\" : \"apple\"}, \"valUE2\" : {\"NAME\" : \"color\", \"value\" : \"red\"}}";
 
@@ -154,7 +154,7 @@ class CaseInsensitiveDeserTest extends DatabindTestUtil
 
     // [databind#1036]
     @Test
-    void testCaseInsensitive1036() throws Exception
+    void caseInsensitive1036() throws Exception
     {
         final String json = "{\"ErrorCode\":2,\"DebugMessage\":\"Signature not valid!\"}";
 //        final String json = "{\"errorCode\":2,\"debugMessage\":\"Signature not valid!\"}";
@@ -166,7 +166,7 @@ class CaseInsensitiveDeserTest extends DatabindTestUtil
 
     // [databind#1232]: allow per-property case-insensitivity
     @Test
-    void testCaseInsensitiveWithFormat() throws Exception {
+    void caseInsensitiveWithFormat() throws Exception {
         CaseInsensitiveRoleWrapper w = MAPPER.readValue
                 (a2q("{'role':{'id':'12','name':'Foo'}}"),
                         CaseInsensitiveRoleWrapper.class);
@@ -177,7 +177,7 @@ class CaseInsensitiveDeserTest extends DatabindTestUtil
 
     // [databind#1438]
     @Test
-    void testCreatorWithInsensitive() throws Exception
+    void creatorWithInsensitive() throws Exception
     {
         final String json = a2q("{'VALUE':3}");
         InsensitiveCreator bean = INSENSITIVE_MAPPER.readValue(json, InsensitiveCreator.class);
@@ -186,7 +186,7 @@ class CaseInsensitiveDeserTest extends DatabindTestUtil
 
     // And allow config overrides too
     @Test
-    void testCaseInsensitiveViaConfigOverride() throws Exception
+    void caseInsensitiveViaConfigOverride() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configOverride(Role.class)
@@ -201,7 +201,7 @@ class CaseInsensitiveDeserTest extends DatabindTestUtil
     }
 
     @Test
-    void testIssue1854() throws Exception
+    void issue1854() throws Exception
     {
         final String DOC = a2q("{'ID': 1, 'Items': [ { 'ChildID': 10 } ]}");
         Obj1854 result = INSENSITIVE_MAPPER.readValue(DOC, Obj1854.class);
@@ -214,7 +214,7 @@ class CaseInsensitiveDeserTest extends DatabindTestUtil
 
     // [databind#1886]: allow case-insensitivity by default on a class
     @Test
-    void testCaseInsensitiveViaClassAnnotation() throws Exception
+    void caseInsensitiveViaClassAnnotation() throws Exception
     {
         final String CONTAINED = a2q("{'role': {'id':'3','name':'Bob'}}");
 

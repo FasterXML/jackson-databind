@@ -25,7 +25,7 @@ class UpdateValueTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testMapUpdate() throws Exception
+    void mapUpdate() throws Exception
     {
         Map<String,Object> base = new LinkedHashMap<>();
         base.put("a", 345);
@@ -43,7 +43,7 @@ class UpdateValueTest
     }
 
     @Test
-    void testListUpdate() throws Exception
+    void listUpdate() throws Exception
     {
         List<Object> base = new ArrayList<>();
         base.add(123456);
@@ -61,7 +61,7 @@ class UpdateValueTest
     }
 
     @Test
-    void testArrayUpdate() throws Exception
+    void arrayUpdate() throws Exception
     {
         // Since Arrays are immutable, not sure what "right answer" ought to be
         Object[] base = new Object[] { Boolean.FALSE, Integer.valueOf(3) };
@@ -82,7 +82,7 @@ class UpdateValueTest
      */
 
     @Test
-    void testPOJO() throws Exception
+    void pojo() throws Exception
     {
         Point base = new Point(42, 28);
         Map<String,Object> overrides = new LinkedHashMap<>();
@@ -100,7 +100,7 @@ class UpdateValueTest
      */
 
     @Test
-    void testMisc() throws Exception
+    void misc() throws Exception
     {
         // if either is `null`, should return first arg
         assertNull(MAPPER.updateValue(null, "foo"));

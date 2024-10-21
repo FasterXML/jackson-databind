@@ -98,7 +98,7 @@ class ExternalTypeIdWithCreator3045Test
    private static ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testExternalIdWithAnySetter3045() throws Exception
+    void externalIdWithAnySetter3045() throws Exception
    {
        // First cases where the last Creator argument comes last:
        _testExternalIdWithAnySetter3045(a2q(

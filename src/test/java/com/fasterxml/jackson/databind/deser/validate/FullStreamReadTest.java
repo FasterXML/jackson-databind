@@ -40,7 +40,7 @@ class FullStreamReadTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testMapperAcceptTrailing() throws Exception
+    void mapperAcceptTrailing() throws Exception
     {
         assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
 
@@ -66,7 +66,7 @@ class FullStreamReadTest
     }
 
     @Test
-    void testMapperFailOnTrailing() throws Exception
+    void mapperFailOnTrailing() throws Exception
     {
         // but things change if we enforce checks
         ObjectMapper strict = newJsonMapper()
@@ -119,7 +119,7 @@ class FullStreamReadTest
     }
 
     @Test
-    void testMapperFailOnTrailingWithNull() throws Exception
+    void mapperFailOnTrailingWithNull() throws Exception
     {
         final ObjectMapper strict = newJsonMapper()
                 .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
@@ -175,7 +175,7 @@ class FullStreamReadTest
     }
 
     @Test
-    void testReaderAcceptTrailing() throws Exception
+    void readerAcceptTrailing() throws Exception
     {
         ObjectReader R = MAPPER.reader();
         assertFalse(R.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
@@ -190,7 +190,7 @@ class FullStreamReadTest
     }
 
     @Test
-    void testReaderFailOnTrailing() throws Exception
+    void readerFailOnTrailing() throws Exception
     {
         ObjectReader strictR = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
         ObjectReader strictRForList = strictR.forType(List.class);
@@ -249,7 +249,7 @@ class FullStreamReadTest
     }
 
     @Test
-    void testReaderFailOnTrailingWithNull() throws Exception
+    void readerFailOnTrailingWithNull() throws Exception
     {
         ObjectReader strictR = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
         ObjectReader strictRForList = strictR.forType(List.class);

@@ -139,7 +139,7 @@ class TestScalaLikeImplicitProperties extends DatabindTestUtil
      */
 
     @Test
-    void testValProperty() throws Exception
+    void valProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
 
@@ -147,7 +147,7 @@ class TestScalaLikeImplicitProperties extends DatabindTestUtil
     }
 
     @Test
-    void testValWithBeanProperty() throws Exception
+    void valWithBeanProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
 
@@ -156,7 +156,7 @@ class TestScalaLikeImplicitProperties extends DatabindTestUtil
 
 
     @Test
-    void testVarProperty() throws Exception
+    void varProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
 
@@ -166,7 +166,7 @@ class TestScalaLikeImplicitProperties extends DatabindTestUtil
     }
 
     @Test
-    void testVarWithBeanProperty() throws Exception
+    void varWithBeanProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
 
@@ -176,7 +176,7 @@ class TestScalaLikeImplicitProperties extends DatabindTestUtil
     }
 
     @Test
-    void testGetterSetterProperty() throws Exception
+    void getterSetterProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
 

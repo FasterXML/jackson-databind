@@ -91,7 +91,7 @@ class TestAnyGetterFiltering extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    void testAnyGetterFiltering() throws Exception
+    void anyGetterFiltering() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
@@ -100,7 +100,7 @@ class TestAnyGetterFiltering extends DatabindTestUtil
 
     // for [databind#1142]
     @Test
-    void testAnyGetterIgnore() throws Exception
+    void anyGetterIgnore() throws Exception
     {
         assertEquals(a2q("{'a':'1','b':'3'}"),
                 MAPPER.writeValueAsString(new AnyBeanWithIgnores()));
@@ -108,7 +108,7 @@ class TestAnyGetterFiltering extends DatabindTestUtil
 
     // [databind#1655]
     @Test
-    void testAnyGetterPojo1655() throws Exception
+    void anyGetterPojo1655() throws Exception
     {
         FilterProvider filters = new SimpleFilterProvider().addFilter("CustomFilter", new CustomFilter());
         String json = MAPPER.writer(filters).writeValueAsString(new OuterObject());

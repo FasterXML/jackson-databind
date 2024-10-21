@@ -49,7 +49,7 @@ class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testUnknownClassAsSubtype() throws Exception
+    void unknownClassAsSubtype() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(BaseUnknownWrapper.class)
                 .without(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
@@ -60,7 +60,7 @@ class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
 
     // [databind#2668]
     @Test
-    void testSubType2668() throws Exception
+    void subType2668() throws Exception
     {
         String json = "{\"type\": \"child2\", \"baz\":\"1\"}"; // JSON for Child2
 

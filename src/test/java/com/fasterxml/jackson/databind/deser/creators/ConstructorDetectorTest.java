@@ -229,7 +229,7 @@ class ConstructorDetectorTest extends DatabindTestUtil
 
     // This was working already but verify
     @Test
-    void testMultiArgAsProperties() throws Exception
+    void multiArgAsProperties() throws Exception
     {
         TwoArgsNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'a' : 3, 'b':4 }"),
                 TwoArgsNotAnnotated.class);
@@ -353,7 +353,7 @@ class ConstructorDetectorTest extends DatabindTestUtil
     }
 
     @Test
-    void testMultiArgRequiresAnnotation() throws Exception
+    void multiArgRequiresAnnotation() throws Exception
     {
         try {
             MAPPER_MUST_ANNOTATE.readValue(" { } ", TwoArgsNotAnnotated.class);

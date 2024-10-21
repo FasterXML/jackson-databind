@@ -100,7 +100,7 @@ class FactoryCreatorTypeBinding2894Test
 
     // [databind#2894]
     @Test
-    void testIssue2894() throws Exception
+    void issue2894() throws Exception
     {
         Wrapper<Value> src = new Wrapper<>(Arrays.asList(new Value(1), new Value(2)));
         final String json = MAPPER.writeValueAsString(src);
@@ -111,7 +111,7 @@ class FactoryCreatorTypeBinding2894Test
 
     // [databind#2895]
     @Test
-    void testIssue2895() throws Exception
+    void issue2895() throws Exception
     {
         SimpleWrapper2895<Account2895> wrapper = MAPPER
                 .readerFor(new TypeReference<SimpleWrapper2895<Account2895>>() {})

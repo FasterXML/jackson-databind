@@ -22,7 +22,7 @@ class TreeReadViaMapperTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = objectMapper();
 
     @Test
-    void testSimple() throws Exception
+    void simple() throws Exception
     {
         final String JSON = SAMPLE_DOC_JSON_SPEC;
 
@@ -97,7 +97,7 @@ class TreeReadViaMapperTest extends DatabindTestUtil
     }
 
     @Test
-    void testMixed() throws IOException
+    void mixed() throws IOException
     {
         String JSON = "{\"node\" : { \"a\" : 3 }, \"x\" : 9 }";
         Bean bean = MAPPER.readValue(JSON, Bean.class);
@@ -115,7 +115,7 @@ class TreeReadViaMapperTest extends DatabindTestUtil
      * input.
      */
     @Test
-    void testEOF() throws Exception
+    void eof() throws Exception
     {
         String JSON =
             "{ \"key\": [ { \"a\" : { \"name\": \"foo\",  \"type\": 1\n"
@@ -134,7 +134,7 @@ class TreeReadViaMapperTest extends DatabindTestUtil
     }
 
     @Test
-    void testNullViaParser() throws Exception
+    void nullViaParser() throws Exception
     {
         final String JSON = " null ";
         JsonFactory jf = new JsonFactory();
@@ -146,7 +146,7 @@ class TreeReadViaMapperTest extends DatabindTestUtil
     }
 
     @Test
-    void testMultiple() throws Exception
+    void multiple() throws Exception
     {
         String JSON = "12  \"string\" [ 1, 2, 3 ]";
         JsonFactory jf = new JsonFactory();

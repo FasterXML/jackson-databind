@@ -35,7 +35,7 @@ class EnumSetPolymorphicDeser4214Test
     }
 
     @Test
-    void testPolymorphicDeserialization4214() throws Exception
+    void polymorphicDeserialization4214() throws Exception
     {
         // Need to use Default Typing to trigger issue
         ObjectMapper mapper = jsonMapperBuilder()

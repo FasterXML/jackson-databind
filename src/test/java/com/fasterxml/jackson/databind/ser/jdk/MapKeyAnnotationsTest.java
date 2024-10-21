@@ -125,7 +125,7 @@ class MapKeyAnnotationsTest extends DatabindTestUtil
 
     // [databind#47]
     @Test
-    void testMapJsonValueKey47() throws Exception
+    void mapJsonValueKey47() throws Exception
     {
         WatMap input = new WatMap();
         input.put(new Wat("3"), true);
@@ -136,7 +136,7 @@ class MapKeyAnnotationsTest extends DatabindTestUtil
 
     // [databind#943]
     @Test
-    void testDynamicMapKeys() throws Exception
+    void dynamicMapKeys() throws Exception
     {
         Map<Object,Integer> stuff = new LinkedHashMap<Object,Integer>();
         stuff.put(AbcLC.B, Integer.valueOf(3));
@@ -147,7 +147,7 @@ class MapKeyAnnotationsTest extends DatabindTestUtil
 
     // [databind#2306]
     @Test
-    void testMapKeyWithJsonValue() throws Exception
+    void mapKeyWithJsonValue() throws Exception
     {
         final Map<JsonValue2306Key, String> map = Collections.singletonMap(
                 new JsonValue2306Key("myId"), "value");
@@ -157,7 +157,7 @@ class MapKeyAnnotationsTest extends DatabindTestUtil
 
     // [databind#2871]
     @Test
-    void testClassAsKey() throws Exception {
+    void classAsKey() throws Exception {
         Outer outer = new Outer(new Inner("innerKey", "innerValue"));
         Map<Outer, String> map = Collections.singletonMap(outer, "value");
         String actual = MAPPER.writeValueAsString(map);
@@ -166,7 +166,7 @@ class MapKeyAnnotationsTest extends DatabindTestUtil
 
     // [databind#2871]
     @Test
-    void testClassAsValue() throws Exception {
+    void classAsValue() throws Exception {
         Map<String, Outer> mapA = Collections.singletonMap("key", new Outer(new Inner("innerKey", "innerValue")));
         String actual = MAPPER.writeValueAsString(mapA);
         assertEquals("{\"key\":\"innerValue\"}", actual);
@@ -174,7 +174,7 @@ class MapKeyAnnotationsTest extends DatabindTestUtil
 
     // [databind#2871]
     @Test
-    void testNoKeyOuter() throws Exception {
+    void noKeyOuter() throws Exception {
         Map<String, NoKeyOuter> mapA = Collections.singletonMap("key", new NoKeyOuter(new Inner("innerKey", "innerValue")));
         String actual = MAPPER.writeValueAsString(mapA);
         assertEquals("{\"key\":\"innerValue\"}", actual);

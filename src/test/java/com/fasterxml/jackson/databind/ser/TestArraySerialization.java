@@ -14,7 +14,7 @@ class TestArraySerialization
     private final ObjectMapper MAPPER = sharedMapper();
 
     @Test
-    void testLongStringArray() throws Exception
+    void longStringArray() throws Exception
     {
         final int SIZE = 40000;
 
@@ -41,14 +41,14 @@ class TestArraySerialization
     }
 
     @Test
-    void testIntArray() throws Exception
+    void intArray() throws Exception
     {
         String json = MAPPER.writeValueAsString(new int[] { 1, 2, 3, -7 });
         assertEquals("[1,2,3,-7]", json);
     }
 
     @Test
-    void testBigIntArray() throws Exception
+    void bigIntArray() throws Exception
     {
         final int SIZE = 99999;
         int[] ints = new int[SIZE];
@@ -73,14 +73,14 @@ class TestArraySerialization
     }
 
     @Test
-    void testLongArray() throws Exception
+    void longArray() throws Exception
     {
         String json = MAPPER.writeValueAsString(new long[] { Long.MIN_VALUE, 0, Long.MAX_VALUE });
         assertEquals("["+Long.MIN_VALUE+",0,"+Long.MAX_VALUE+"]", json);
     }
 
     @Test
-    void testStringArray() throws Exception
+    void stringArray() throws Exception
     {
         assertEquals("[\"a\",\"\\\"foo\\\"\",null]",
                 MAPPER.writeValueAsString(new String[] { "a", "\"foo\"", null }));
@@ -89,14 +89,14 @@ class TestArraySerialization
     }
 
     @Test
-    void testDoubleArray() throws Exception
+    void doubleArray() throws Exception
     {
         String json = MAPPER.writeValueAsString(new double[] { 1.01, 2.0, -7, Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY });
         assertEquals("[1.01,2.0,-7.0,\"NaN\",\"-Infinity\",\"Infinity\"]", json);
     }
 
     @Test
-    void testFloatArray() throws Exception
+    void floatArray() throws Exception
     {
         String json = MAPPER.writeValueAsString(new float[] { 1.01f, 2.0f, -7f, Float.NaN, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY });
         assertEquals("[1.01,2.0,-7.0,\"NaN\",\"-Infinity\",\"Infinity\"]", json);

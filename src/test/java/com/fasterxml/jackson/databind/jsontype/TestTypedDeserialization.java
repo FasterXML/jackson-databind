@@ -159,7 +159,7 @@ class TestTypedDeserialization
      * class name, written as main-level property name
      */
     @Test
-    void testSimpleClassAsProperty() throws Exception
+    void simpleClassAsProperty() throws Exception
     {
         Animal a = MAPPER.readValue(asJSONObjectValueString("@classy", Cat.class.getName(),
                 "furColor", "tabby", "name", "Garfield"), Animal.class);
@@ -172,7 +172,7 @@ class TestTypedDeserialization
 
     // Test inclusion using wrapper style
     @Test
-    void testTypeAsWrapper() throws Exception
+    void typeAsWrapper() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Animal.class, TypeWithWrapper.class);
@@ -188,7 +188,7 @@ class TestTypedDeserialization
 
     // Test inclusion using 2-element array
     @Test
-    void testTypeAsArray() throws Exception
+    void typeAsArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Animal.class, TypeWithArray.class);
@@ -204,7 +204,7 @@ class TestTypedDeserialization
 
     // Use basic Animal as contents of a regular List
     @Test
-    void testListAsArray() throws Exception
+    void listAsArray() throws Exception
     {
         ObjectMapper m = MAPPER;
         // This time using PROPERTY style (default) again
@@ -237,7 +237,7 @@ class TestTypedDeserialization
     }
 
     @Test
-    void testCagedAnimal() throws Exception
+    void cagedAnimal() throws Exception
     {
         String jsonCat = asJSONObjectValueString(MAPPER, "@classy", Cat.class.getName(), "name", "Nilson", "furColor", "black");
         String JSON = "{\"animal\":"+jsonCat+"}";
@@ -256,7 +256,7 @@ class TestTypedDeserialization
      * base class.
      */
     @Test
-    void testAbstractEmptyBaseClass() throws Exception
+    void abstractEmptyBaseClass() throws Exception
     {
         DummyBase result = MAPPER.readValue(
                 "[\""+DummyImpl.class.getName()+"\",{\"x\":3}]", DummyBase.class);
@@ -267,7 +267,7 @@ class TestTypedDeserialization
 
     // [JACKSON-506], wrt Date
     @Test
-    void testIssue506WithDate() throws Exception
+    void issue506WithDate() throws Exception
     {
         Issue506DateBean input = new Issue506DateBean();
         input.date = new Date(1234L);
@@ -280,7 +280,7 @@ class TestTypedDeserialization
 
     // [JACKSON-506], wrt Number
     @Test
-    void testIssue506WithNumber() throws Exception
+    void issue506WithNumber() throws Exception
     {
         Issue506NumberBean input = new Issue506NumberBean();
         input.number = Long.valueOf(4567L);
@@ -293,7 +293,7 @@ class TestTypedDeserialization
 
     // [databind#1751]: allow ints as ids too
     @Test
-    void testIntAsTypeId1751Array() throws Exception
+    void intAsTypeId1751Array() throws Exception
     {
         Issue1751ArrBase value;
 
@@ -309,7 +309,7 @@ class TestTypedDeserialization
 
     // [databind#1751]: allow ints as ids too
     @Test
-    void testIntAsTypeId1751Prop() throws Exception
+    void intAsTypeId1751Prop() throws Exception
     {
         Issue1751PropBase value;
 
@@ -325,7 +325,7 @@ class TestTypedDeserialization
 
     // [databind#2467]: Allow missing "content" for as-array deserialization
     @Test
-    void testTypeAsArrayWithNullableType() throws Exception
+    void typeAsArrayWithNullableType() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Animal.class, TypeWithArray.class);
@@ -336,7 +336,7 @@ class TestTypedDeserialization
 
     // [databind#2467]
     @Test
-    void testTypeAsArrayWithCustomDeserializer() throws Exception
+    void typeAsArrayWithCustomDeserializer() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Animal.class, TypeWithArray.class);

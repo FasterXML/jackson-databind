@@ -106,7 +106,7 @@ class TypeRefinementForMapTest extends DatabindTestUtil
      */
 
     @Test
-    void testMapRefinement() throws Exception
+    void mapRefinement() throws Exception
     {
         String ID1 = "3a6383d4-8123-4c43-8b8d-7cedf3e59404";
         String ID2 = "81c3d978-90c4-4b00-8da1-1c39ffcab02c";
@@ -126,7 +126,7 @@ class TypeRefinementForMapTest extends DatabindTestUtil
 
     // for [databind#1384]
     @Test
-    void testMapKeyRefinement1384() throws Exception
+    void mapKeyRefinement1384() throws Exception
     {
         final String TEST_INSTANCE_SERIALIZED =
                 "{\"mapProperty\":[\"java.util.HashMap\",{\"Compound|Key\":\"Value\"}]}";

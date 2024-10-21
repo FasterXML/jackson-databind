@@ -52,7 +52,7 @@ class IgnoreWithDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testSimpleIgnore() throws Exception
+    void simpleIgnore() throws Exception
     {
         SizeClassIgnore result = MAPPER.readValue("{ \"x\":1, \"y\" : 2 }",
              SizeClassIgnore.class);
@@ -62,7 +62,7 @@ class IgnoreWithDeserTest
     }
 
     @Test
-    void testFailOnIgnore() throws Exception
+    void failOnIgnore() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(NoYOrZ.class);
 

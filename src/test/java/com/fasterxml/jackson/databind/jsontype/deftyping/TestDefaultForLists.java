@@ -72,7 +72,7 @@ class TestDefaultForLists
             .build();
 
     @Test
-    void testListOfLongs() throws Exception
+    void listOfLongs() throws Exception
     {
         ListOfLongs input = new ListOfLongs(1L, 2L, 3L);
         String json = POLY_MAPPER.writeValueAsString(input);
@@ -93,7 +93,7 @@ class TestDefaultForLists
      * necessary)
      */
     @Test
-    void testListOfNumbers() throws Exception
+    void listOfNumbers() throws Exception
     {
         ListOfNumbers input = new ListOfNumbers(Long.valueOf(1L), Integer.valueOf(2), Double.valueOf(3.0));
         String json = POLY_MAPPER.writeValueAsString(input);
@@ -108,7 +108,7 @@ class TestDefaultForLists
     }
 
     @Test
-    void testDateTypes() throws Exception
+    void dateTypes() throws Exception
     {
         ObjectListBean input = new ObjectListBean();
         List<Object> inputList = new ArrayList<Object>();
@@ -125,7 +125,7 @@ class TestDefaultForLists
     }
 
     @Test
-    void testJackson628() throws Exception
+    void jackson628() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL);
@@ -136,7 +136,7 @@ class TestDefaultForLists
     }
 
     @Test
-    void testJackson667() throws Exception
+    void jackson667() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,

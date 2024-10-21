@@ -54,7 +54,7 @@ class SingletonDelegatingCreatorTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void testNoFieldSingletonWithDelegatingCreator() throws Exception
+    void noFieldSingletonWithDelegatingCreator() throws Exception
     {
         NoFieldSingletonWithDelegatingCreator deserialized = MAPPER.readValue("{}",
                 NoFieldSingletonWithDelegatingCreator.class);
@@ -62,7 +62,7 @@ class SingletonDelegatingCreatorTest extends DatabindTestUtil
     }
 
     @Test
-    void testNoFieldSingletonWithPropertiesCreator() throws Exception
+    void noFieldSingletonWithPropertiesCreator() throws Exception
     {
         NoFieldSingletonWithPropertiesCreator deserialized = MAPPER.readValue("{}",
                 NoFieldSingletonWithPropertiesCreator.class);
@@ -70,7 +70,7 @@ class SingletonDelegatingCreatorTest extends DatabindTestUtil
     }
 
     @Test
-    void testNoFieldSingletonWithDefaultCreator() throws Exception
+    void noFieldSingletonWithDefaultCreator() throws Exception
     {
         NoFieldSingletonWithDefaultCreator deserialized = MAPPER.readValue("{}",
                 NoFieldSingletonWithDefaultCreator.class);

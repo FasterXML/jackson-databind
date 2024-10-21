@@ -87,7 +87,7 @@ class MapWithGenericValuesDeserTest extends DatabindTestUtil
      * Verifying that sub-classing works ok wrt generics information
      */
     @Test
-    void testMapSubClass() throws Exception
+    void mapSubClass() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         MapSubClass result = mapper.readValue
@@ -100,7 +100,7 @@ class MapWithGenericValuesDeserTest extends DatabindTestUtil
     }
 
     @Test
-    void testMapWrapper() throws Exception
+    void mapWrapper() throws Exception
     {
         StringMap value = new ObjectMapper().readValue
             ("{\"entries\":{\"a\":9} }", StringMap.class);
@@ -110,7 +110,7 @@ class MapWithGenericValuesDeserTest extends DatabindTestUtil
     }
 
     @Test
-    void testIntermediateTypes() throws Exception
+    void intermediateTypes() throws Exception
     {
         StringStringWrapperMap result = new ObjectMapper().readValue
             ("{\"a\":\"b\"}", StringStringWrapperMap.class);
@@ -131,7 +131,7 @@ class MapWithGenericValuesDeserTest extends DatabindTestUtil
      * Verifying that sub-classing works ok wrt generics information
      */
     @Test
-    void testAnnotatedMap() throws Exception
+    void annotatedMap() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         AnnotatedMap result = mapper.readValue
@@ -151,7 +151,7 @@ class MapWithGenericValuesDeserTest extends DatabindTestUtil
      */
 
     @Test
-    void testKeyViaCtor() throws Exception
+    void keyViaCtor() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<KeyTypeCtor,Integer> map = mapper.readValue("{\"a\":123}",
@@ -165,7 +165,7 @@ class MapWithGenericValuesDeserTest extends DatabindTestUtil
     }
 
     @Test
-    void testKeyViaFactory() throws Exception
+    void keyViaFactory() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<KeyTypeCtor,Integer> map = mapper.readValue("{\"a\":123}",

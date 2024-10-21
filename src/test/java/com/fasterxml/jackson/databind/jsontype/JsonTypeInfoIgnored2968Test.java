@@ -67,7 +67,7 @@ class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
      */
 
     @Test
-    void testDeserializeParentPositiveWithTypeId() throws Exception {
+    void deserializeParentPositiveWithTypeId() throws Exception {
         String json = a2q("{'_class': '_cat', 'name': 'Cat-in-the-hat'} ");
 
         Animal cat = MAPPER.readValue(json, Animal.class);
@@ -76,7 +76,7 @@ class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
     }
 
     @Test
-    void testDeserializeParentNegativeWithOutTypeId() throws Exception {
+    void deserializeParentNegativeWithOutTypeId() throws Exception {
         String json = a2q("{'name': 'cat'} ");
 
         try {
@@ -87,7 +87,7 @@ class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
     }
 
     @Test
-    void testDeserializedAsConcreteTypeSuccessfulWithOutPropertySet() throws Exception {
+    void deserializedAsConcreteTypeSuccessfulWithOutPropertySet() throws Exception {
         String json = a2q("{'name': 'cat'} ");
 
         Cat cat = MAPPER.readValue(json, Cat.class);
@@ -96,7 +96,7 @@ class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
     }
 
     @Test
-    void testDeserializationWrapperWithDefaultTyping() throws Exception {
+    void deserializationWrapperWithDefaultTyping() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(SimpleBall.class)
             .build();
@@ -115,7 +115,7 @@ class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
     }
 
     @Test
-    void testDeserializationBaseClassWithDefaultTyping() throws Exception {
+    void deserializationBaseClassWithDefaultTyping() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(SimpleBall.class)
             .build();

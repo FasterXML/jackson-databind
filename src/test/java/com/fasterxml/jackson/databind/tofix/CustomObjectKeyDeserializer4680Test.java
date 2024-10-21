@@ -19,7 +19,7 @@ class CustomObjectKeyDeserializer4680Test
 
     @JacksonTestFailureExpected
     @Test
-    void testCustomKeyDeserializer()
+    void customKeyDeserializer()
             throws Exception
     {
         // GIVEN

@@ -245,7 +245,7 @@ class JDKStringLikeTypeDeserTest
         String json = MAPPER.writeValueAsString(elem);
         StackTraceElement back = MAPPER.readValue(json, StackTraceElement.class);
 
-        assertEquals("testStackTraceElement", back.getMethodName());
+        assertEquals("stackTraceElement", back.getMethodName());
         assertEquals(elem.getLineNumber(), back.getLineNumber());
         assertEquals(elem.getClassName(), back.getClassName());
         assertEquals(elem.isNativeMethod(), back.isNativeMethod());

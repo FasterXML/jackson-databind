@@ -68,33 +68,6 @@ class TestObjectId extends DatabindTestUtil
         }
     }
 
-    @JsonIdentityInfo(property="id",
-            generator=ObjectIdGenerators.PropertyGenerator.class)
-    public static class Employee {
-        public int id;
-
-        public String name;
-
-        @JsonIdentityReference(alwaysAsId=true)
-        public Employee manager;
-
-        @JsonIdentityReference(alwaysAsId=true)
-        public List<Employee> reports;
-
-        public Employee() { }
-        public Employee(int id, String name, Employee manager) {
-            this.id = id;
-            this.name = name;
-            this.manager = manager;
-            reports = new ArrayList<Employee>();
-        }
-
-        public Employee addReport(Employee e) {
-            reports.add(e);
-            return this;
-        }
-    }
-
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
     public static class BaseEntity {  }

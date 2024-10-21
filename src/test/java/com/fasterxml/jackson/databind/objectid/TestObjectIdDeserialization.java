@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 import com.fasterxml.jackson.databind.deser.UnresolvedId;
 import com.fasterxml.jackson.databind.objectid.TestObjectId.Company;
-import com.fasterxml.jackson.databind.objectid.TestObjectId.Employee;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;

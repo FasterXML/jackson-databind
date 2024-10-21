@@ -2,17 +2,26 @@ package com.fasterxml.jackson.databind.deser.creators;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-public class JacksonBuilderCreatorSubtype4742Test {
+// [databind#4742] Deserialization with Builder, External type id,
+//                @JsonCreator not yet implemented
+public class JacksonBuilderCreatorSubtype4742Test
+        extends DatabindTestUtil
+{
+
     public static class Animals {
         @JsonProperty("animals")
         public List<Animal> animals;
@@ -98,15 +107,20 @@ public class JacksonBuilderCreatorSubtype4742Test {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        final JsonMapper jsonMapper = JsonMapper.builder().build();
+    final ObjectMapper MAPPER = newJsonMapper();
 
-        final Animals animals = jsonMapper.readValue("{\n" +
-                "                  \"animals\": [\n" +
-                "                    {\"kind\": \"bird\", \"properties\": {\"color\": \"yellow\"}},\n" +
-                "                    {\"kind\": \"mammal\", \"properties\": {\"num_teeth\": 2}}\n" +
-                "                  ]\n" +
-                "                }", Animals.class);
+    @JacksonTestFailureExpected
+    @Test
+    public void testDeser()
+            throws Exception
+    {
+        final Animals animals = MAPPER.readValue(
+                "{\n" +
+                        "  \"animals\": [\n" +
+                        "    {\"kind\": \"bird\", \"properties\": {\"color\": \"yellow\"}},\n" +
+                        "    {\"kind\": \"mammal\", \"properties\": {\"num_teeth\": 2}}\n" +
+                        "  ]\n" +
+                        "}", Animals.class);
 
         assertEquals(2, animals.animals.size());
         assertInstanceOf(BirdProperties.class, animals.animals.get(0).properties);

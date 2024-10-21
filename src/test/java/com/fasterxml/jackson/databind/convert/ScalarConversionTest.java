@@ -4,7 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 

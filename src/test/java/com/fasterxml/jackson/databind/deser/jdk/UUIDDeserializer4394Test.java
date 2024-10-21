@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.UUIDDeserializer;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests for [databind#4394]
 class UUIDDeserializer4394Test

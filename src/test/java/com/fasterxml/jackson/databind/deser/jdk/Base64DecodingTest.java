@@ -7,7 +7,8 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 

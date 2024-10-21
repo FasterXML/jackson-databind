@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ToStringForNodesTest extends DatabindTestUtil
 {

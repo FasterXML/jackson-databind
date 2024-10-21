@@ -7,7 +7,8 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 // for [databind#2885]
 class NumberToIntegralConversionTest extends DatabindTestUtil

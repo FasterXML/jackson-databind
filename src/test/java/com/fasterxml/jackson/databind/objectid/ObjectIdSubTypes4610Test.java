@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.objectid;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -12,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ObjectIdSubTypes4610Test extends DatabindTestUtil
@@ -43,7 +43,7 @@ class ObjectIdSubTypes4610Test extends DatabindTestUtil
                 .without(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
                 .readValue(input);
 
-        Assertions.assertInstanceOf(NumberTypeDefinition.class, model);
+        assertInstanceOf(NumberTypeDefinition.class, model);
     }
 
     @Test
@@ -56,7 +56,7 @@ class ObjectIdSubTypes4610Test extends DatabindTestUtil
         TypeDefinition model = MAPPER.readerFor(TypeDefinition.class)
                 .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
                 .readValue(JSON);
-        Assertions.assertInstanceOf(NumberTypeDefinition.class, model);
+        assertInstanceOf(NumberTypeDefinition.class, model);
     }
 
     @Test

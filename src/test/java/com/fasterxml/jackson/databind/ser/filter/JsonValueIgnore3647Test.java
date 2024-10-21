@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#3647] : Support @JsonIgnoreProperties to work with @JsonValue
 class JsonValueIgnore3647Test extends DatabindTestUtil

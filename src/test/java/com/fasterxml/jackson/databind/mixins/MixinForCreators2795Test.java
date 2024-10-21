@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#2795]: Regression in 2.11.0, no mix-ins for JDK collections
 class MixinForCreators2795Test extends DatabindTestUtil

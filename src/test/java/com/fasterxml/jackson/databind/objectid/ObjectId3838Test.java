@@ -8,7 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#3838]: Difference in the handling of ObjectId-property in JsonIdentityInfo depending on the deserialization route.
 class ObjectId3838Test extends DatabindTestUtil

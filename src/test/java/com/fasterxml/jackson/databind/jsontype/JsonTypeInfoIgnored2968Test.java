@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
+class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
     /*
     /**********************************************************
     /* Set up
@@ -67,7 +67,7 @@ public class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
      */
 
     @Test
-    public void testDeserializeParentPositiveWithTypeId() throws Exception {
+    void testDeserializeParentPositiveWithTypeId() throws Exception {
         String json = a2q("{'_class': '_cat', 'name': 'Cat-in-the-hat'} ");
 
         Animal cat = MAPPER.readValue(json, Animal.class);
@@ -76,7 +76,7 @@ public class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
     }
 
     @Test
-    public void testDeserializeParentNegativeWithOutTypeId() throws Exception {
+    void testDeserializeParentNegativeWithOutTypeId() throws Exception {
         String json = a2q("{'name': 'cat'} ");
 
         try {
@@ -87,7 +87,7 @@ public class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
     }
 
     @Test
-    public void testDeserializedAsConcreteTypeSuccessfulWithOutPropertySet() throws Exception {
+    void testDeserializedAsConcreteTypeSuccessfulWithOutPropertySet() throws Exception {
         String json = a2q("{'name': 'cat'} ");
 
         Cat cat = MAPPER.readValue(json, Cat.class);
@@ -96,7 +96,7 @@ public class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
     }
 
     @Test
-    public void testDeserializationWrapperWithDefaultTyping() throws Exception {
+    void testDeserializationWrapperWithDefaultTyping() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(SimpleBall.class)
             .build();
@@ -115,7 +115,7 @@ public class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
     }
 
     @Test
-    public void testDeserializationBaseClassWithDefaultTyping() throws Exception {
+    void testDeserializationBaseClassWithDefaultTyping() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(SimpleBall.class)
             .build();

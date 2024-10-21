@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // for [databind#1735]:
-public class GenericTypeId1735Test extends DatabindTestUtil
+class GenericTypeId1735Test extends DatabindTestUtil
 {
     static class Wrapper1735 {
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "type")
@@ -44,7 +44,7 @@ public class GenericTypeId1735Test extends DatabindTestUtil
 
     // Existing checks should kick in fine
     @Test
-    public void testSimpleTypeCheck1735() throws Exception
+    void testSimpleTypeCheck1735() throws Exception
     {
         try {
             MAPPER.readValue(a2q(
@@ -59,7 +59,7 @@ public class GenericTypeId1735Test extends DatabindTestUtil
 
     // but this was not being verified early enough
     @Test
-    public void testNestedTypeCheck1735() throws Exception
+    void testNestedTypeCheck1735() throws Exception
     {
         try {
             MAPPER.readValue(a2q(

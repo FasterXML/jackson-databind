@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class IgnoredCreatorProperty1572Test extends DatabindTestUtil
+class IgnoredCreatorProperty1572Test extends DatabindTestUtil
 {
     static class InnerTest
     {
@@ -62,7 +62,7 @@ public class IgnoredCreatorProperty1572Test extends DatabindTestUtil
 
     // [databind#1572]
     @Test
-    public void testIgnoredCtorParam() throws Exception
+    void testIgnoredCtorParam() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new ImplicitNames());

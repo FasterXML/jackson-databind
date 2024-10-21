@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ReadTreesTest extends DatabindTestUtil
+class ReadTreesTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -25,7 +25,7 @@ public class ReadTreesTest extends DatabindTestUtil
      */
 
     @Test
-    public void testReadTreeSequence() throws Exception
+    void testReadTreeSequence() throws Exception
     {
         final String INPUT = a2q(
                 "{\"id\":1, \"value\":137 }\n" +
@@ -66,7 +66,7 @@ public class ReadTreesTest extends DatabindTestUtil
      */
 
     @Test
-    public void testReadPOJOHandleFail() throws Exception
+    void testReadPOJOHandleFail() throws Exception
     {
         final String INPUT = a2q(
                 "{\"id\":1, \"value\":137 }\n" +

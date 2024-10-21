@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class RequiredCreatorTest
+class RequiredCreatorTest
 {
     static class FascistPoint {
         int x, y;
@@ -66,7 +66,7 @@ public class RequiredCreatorTest
     private final ObjectReader POINT_READER = MAPPER.readerFor(FascistPoint.class);
 
     @Test
-    public void testRequiredAnnotatedParam() throws Exception
+    void testRequiredAnnotatedParam() throws Exception
     {
         FascistPoint p;
 
@@ -93,7 +93,7 @@ public class RequiredCreatorTest
     }
 
     @Test
-    public void testRequiredGloballyParam() throws Exception
+    void testRequiredGloballyParam() throws Exception
     {
         FascistPoint p;
 
@@ -114,7 +114,7 @@ public class RequiredCreatorTest
 
     // [databind#2591]
     @Test
-    public void testRequiredViaParameter2591() throws Exception
+    void testRequiredViaParameter2591() throws Exception
     {
         final String input = a2q("{'status':'OK', 'message':'Sent Successfully!'}");
         try {

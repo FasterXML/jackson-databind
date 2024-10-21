@@ -25,7 +25,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMa
  * expected.
  */
 @SuppressWarnings("serial")
-public class UpdateViaObjectReaderTest
+class UpdateViaObjectReaderTest
 {
     static class Bean {
         public String a = "a";
@@ -41,6 +41,7 @@ public class UpdateViaObjectReaderTest
     }
 
     public class TextView {}
+
     public class NumView {}
 
     public class Updateable {
@@ -186,7 +187,7 @@ public class UpdateViaObjectReaderTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testBeanUpdate() throws Exception
+    void testBeanUpdate() throws Exception
     {
         Bean bean = new Bean();
         assertEquals("b", bean.b);
@@ -224,7 +225,7 @@ public class UpdateViaObjectReaderTest
     }
 
     @Test
-    public void testListUpdate() throws Exception
+    void testListUpdate() throws Exception
     {
         List<String> strs = new ArrayList<String>();
         strs.add("a");
@@ -239,7 +240,7 @@ public class UpdateViaObjectReaderTest
     }
 
     @Test
-    public void testMapUpdate() throws Exception
+    void testMapUpdate() throws Exception
     {
         Map<String,String> strs = new HashMap<String,String>();
         strs.put("a", "a");
@@ -256,7 +257,7 @@ public class UpdateViaObjectReaderTest
     // Test for [JACKSON-717] -- ensure 'readValues' also does update
     @SuppressWarnings("resource")
     @Test
-    public void testUpdateSequence() throws Exception
+    void testUpdateSequence() throws Exception
     {
         XYBean toUpdate = new XYBean();
         Iterator<XYBean> it = MAPPER.readerForUpdating(toUpdate).readValues(
@@ -285,7 +286,7 @@ public class UpdateViaObjectReaderTest
 
     // [JACKSON-824]
     @Test
-    public void testUpdatingWithViews() throws Exception
+    void testUpdatingWithViews() throws Exception
     {
         Updateable bean = new Updateable();
         bean.num = 100;
@@ -301,7 +302,7 @@ public class UpdateViaObjectReaderTest
 
     // [databind#744]
     @Test
-    public void testIssue744() throws Exception
+    void testIssue744() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
@@ -343,7 +344,7 @@ public class UpdateViaObjectReaderTest
 
     // [databind#1831]
     @Test
-    public void test1831UsingNode() throws Exception {
+    void test1831UsingNode() throws Exception {
         String catJson = MAPPER.writeValueAsString(new Cat());
         JsonNode jsonNode = MAPPER.readTree(catJson);
         AnimalWrapper optionalCat = new AnimalWrapper();
@@ -353,7 +354,7 @@ public class UpdateViaObjectReaderTest
     }
 
     @Test
-    public void test1831UsingString() throws Exception {
+    void test1831UsingString() throws Exception {
         String catJson = MAPPER.writeValueAsString(new Cat());
         AnimalWrapper optionalCat = new AnimalWrapper();
         AnimalWrapper result = MAPPER.readerForUpdating(optionalCat).readValue(catJson);
@@ -362,7 +363,7 @@ public class UpdateViaObjectReaderTest
 
     // [databind#3814]
     @Test
-    public void testReaderForUpdating3814() throws Exception {
+    void testReaderForUpdating3814() throws Exception {
         // Arrange
         JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));
         Bean3814A obj = new Bean3814A(25);
@@ -377,7 +378,7 @@ public class UpdateViaObjectReaderTest
 
     // [databind#3814]
     @Test
-    public void testReaderForUpdating3814DoesNotOverride() throws Exception {
+    void testReaderForUpdating3814DoesNotOverride() throws Exception {
         // Arrange
         JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));
         Bean3814B obj = new Bean3814B(25);

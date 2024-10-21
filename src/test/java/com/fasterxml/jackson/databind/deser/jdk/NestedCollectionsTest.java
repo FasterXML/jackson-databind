@@ -14,14 +14,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class NestedCollectionsTest
+class NestedCollectionsTest
 {
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     // Tests from [databind#4149] to show problems wrt [databind#4122]
 
     @Test
-    public void testMapOfLists() throws Exception
+    void testMapOfLists() throws Exception
     {
         List<Integer> l1 = Arrays.asList(1, 2);
         List<Integer> l2 = Arrays.asList(3, 4);
@@ -34,7 +34,7 @@ public class NestedCollectionsTest
     }
 
     @Test
-    public void testMapOfMaps() throws Exception
+    void testMapOfMaps() throws Exception
     {
         HashMap<Object, Object> src = new HashMap<>();
         HashMap<Object, Object> innerMap = new HashMap<>();

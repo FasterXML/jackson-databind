@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // Tests for "old" coercions (pre-2.12), with `MapperFeature.ALLOW_COERCION_OF_SCALARS`
-public class CoerceJDKScalarsTest
+class CoerceJDKScalarsTest
 {
     static class BooleanPOJO {
         public Boolean value;
@@ -55,7 +55,7 @@ public class CoerceJDKScalarsTest
      */
 
     @Test
-    public void testNullValueFromEmpty() throws Exception
+    void testNullValueFromEmpty() throws Exception
     {
         // wrappers accept `null` fine
         _verifyNullOkFromEmpty(Boolean.class, null);
@@ -95,7 +95,7 @@ public class CoerceJDKScalarsTest
     }
 
     @Test
-    public void testNullFailFromEmpty() throws Exception
+    void testNullFailFromEmpty() throws Exception
     {
         _verifyNullFail(Boolean.class);
         _verifyNullFail(Boolean.TYPE);
@@ -137,7 +137,7 @@ public class CoerceJDKScalarsTest
      */
 
     @Test
-    public void testStringToNumbersCoercionOk() throws Exception
+    void testStringToNumbersCoercionOk() throws Exception
     {
         _verifyCoerceSuccess(q("123"), Byte.TYPE, Byte.valueOf((byte) 123));
         _verifyCoerceSuccess(q("123"), Byte.class, Byte.valueOf((byte) 123));
@@ -161,7 +161,7 @@ public class CoerceJDKScalarsTest
     }
 
     @Test
-    public void testStringCoercionFailInteger() throws Exception
+    void testStringCoercionFailInteger() throws Exception
     {
         _verifyRootStringCoerceFail("123", Byte.TYPE);
         _verifyRootStringCoerceFail("123", Byte.class);
@@ -174,7 +174,7 @@ public class CoerceJDKScalarsTest
     }
 
     @Test
-    public void testStringCoercionFailFloat() throws Exception
+    void testStringCoercionFailFloat() throws Exception
     {
         _verifyRootStringCoerceFail("123.5", Float.TYPE);
         _verifyRootStringCoerceFail("123.5", Float.class);
@@ -186,7 +186,7 @@ public class CoerceJDKScalarsTest
     }
 
     @Test
-    public void testMiscCoercionFail() throws Exception
+    void testMiscCoercionFail() throws Exception
     {
         // And then we have coercions from more esoteric types too
 

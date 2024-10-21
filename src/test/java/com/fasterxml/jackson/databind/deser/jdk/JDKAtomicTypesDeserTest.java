@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class JDKAtomicTypesDeserTest
+class JDKAtomicTypesDeserTest
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     @JsonSubTypes({ @JsonSubTypes.Type(Impl.class) })
@@ -169,28 +169,28 @@ public class JDKAtomicTypesDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testAtomicBoolean() throws Exception
+    void testAtomicBoolean() throws Exception
     {
         AtomicBoolean b = MAPPER.readValue("true", AtomicBoolean.class);
         assertTrue(b.get());
     }
 
     @Test
-    public void testAtomicInt() throws Exception
+    void testAtomicInt() throws Exception
     {
         AtomicInteger value = MAPPER.readValue("13", AtomicInteger.class);
         assertEquals(13, value.get());
     }
 
     @Test
-    public void testAtomicLong() throws Exception
+    void testAtomicLong() throws Exception
     {
         AtomicLong value = MAPPER.readValue("12345678901", AtomicLong.class);
         assertEquals(12345678901L, value.get());
     }
 
     @Test
-    public void testAtomicReference() throws Exception
+    void testAtomicReference() throws Exception
     {
         AtomicReference<long[]> value = MAPPER.readValue("[1,2]",
                 new com.fasterxml.jackson.core.type.TypeReference<AtomicReference<long[]>>() { });
@@ -206,7 +206,7 @@ public class JDKAtomicTypesDeserTest
 
     // for [databind#811]
     @Test
-    public void testAbsentExclusion() throws Exception
+    void testAbsentExclusion() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
@@ -217,7 +217,7 @@ public class JDKAtomicTypesDeserTest
     }
 
     @Test
-    public void testSerPropInclusionAlways() throws Exception
+    void testSerPropInclusionAlways() throws Exception
     {
         JsonInclude.Value incl =
                 JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS);
@@ -228,7 +228,7 @@ public class JDKAtomicTypesDeserTest
     }
 
     @Test
-    public void testSerPropInclusionNonNull() throws Exception
+    void testSerPropInclusionNonNull() throws Exception
     {
         JsonInclude.Value incl =
                 JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_NULL);
@@ -239,7 +239,7 @@ public class JDKAtomicTypesDeserTest
     }
 
     @Test
-    public void testSerPropInclusionNonAbsent() throws Exception
+    void testSerPropInclusionNonAbsent() throws Exception
     {
         JsonInclude.Value incl =
                 JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_ABSENT);
@@ -250,7 +250,7 @@ public class JDKAtomicTypesDeserTest
     }
 
     @Test
-    public void testSerPropInclusionNonEmpty() throws Exception
+    void testSerPropInclusionNonEmpty() throws Exception
     {
         JsonInclude.Value incl =
                 JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_EMPTY);
@@ -262,7 +262,7 @@ public class JDKAtomicTypesDeserTest
 
     // [databind#340]
     @Test
-    public void testPolymorphicAtomicReference() throws Exception
+    void testPolymorphicAtomicReference() throws Exception
     {
         RefWrapper input = new RefWrapper(13);
         String json = MAPPER.writeValueAsString(input);
@@ -276,7 +276,7 @@ public class JDKAtomicTypesDeserTest
 
     // [databind#740]
     @Test
-    public void testFilteringOfAtomicReference() throws Exception
+    void testFilteringOfAtomicReference() throws Exception
     {
         SimpleWrapper input = new SimpleWrapper(null);
         ObjectMapper mapper = MAPPER;
@@ -296,7 +296,7 @@ public class JDKAtomicTypesDeserTest
     }
 
     @Test
-    public void testTypeRefinement() throws Exception
+    void testTypeRefinement() throws Exception
     {
         RefiningWrapper input = new RefiningWrapper();
         BigDecimal bd = new BigDecimal("0.25");
@@ -313,7 +313,7 @@ public class JDKAtomicTypesDeserTest
 
     // [databind#882]: verify `@JsonDeserialize(contentAs=)` works with AtomicReference
     @Test
-    public void testDeserializeWithContentAs() throws Exception
+    void testDeserializeWithContentAs() throws Exception
     {
         AtomicRefReadWrapper result = MAPPER.readValue(a2q("{'value':'abc'}"),
                 AtomicRefReadWrapper.class);
@@ -325,7 +325,7 @@ public class JDKAtomicTypesDeserTest
 
     // [databind#932]: support unwrapping too
     @Test
-    public void testWithUnwrapping() throws Exception
+    void testWithUnwrapping() throws Exception
     {
          String jsonExp = a2q("{'XX.name':'Bob'}");
          String jsonAct = MAPPER.writeValueAsString(new UnwrappingRefParent());
@@ -333,7 +333,7 @@ public class JDKAtomicTypesDeserTest
     }
 
     @Test
-    public void testWithCustomDeserializer() throws Exception
+    void testWithCustomDeserializer() throws Exception
     {
         LCStringWrapper w = MAPPER.readValue(a2q("{'value':'FoobaR'}"),
                 LCStringWrapper.class);
@@ -341,7 +341,7 @@ public class JDKAtomicTypesDeserTest
     }
 
     @Test
-    public void testEmpty1256() throws Exception
+    void testEmpty1256() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
@@ -353,7 +353,7 @@ public class JDKAtomicTypesDeserTest
     // [databind#1307]
     @SuppressWarnings("unchecked")
     @Test
-    public void testNullValueHandling() throws Exception
+    void testNullValueHandling() throws Exception
     {
         AtomicReference<Double> inputData = new AtomicReference<Double>();
         String json = MAPPER.writeValueAsString(inputData);
@@ -364,7 +364,7 @@ public class JDKAtomicTypesDeserTest
 
     // [databind#2303]
     @Test
-    public void testNullWithinNested() throws Exception
+    void testNullWithinNested() throws Exception
     {
         final ObjectReader r = MAPPER.readerFor(MyBean2303.class);
         MyBean2303 intRef = r.readValue(" {\"refRef\": 2 } ");
@@ -380,7 +380,7 @@ public class JDKAtomicTypesDeserTest
 
     // for [modules-java8#214]: ReferenceType of List, merge
     @Test
-    public void testMergeToListViaRef() throws Exception
+    void testMergeToListViaRef() throws Exception
     {
         ListWrapper base = MAPPER.readValue(a2q("{'list':['a']}"),
                 ListWrapper.class);
@@ -398,7 +398,7 @@ public class JDKAtomicTypesDeserTest
     //
     // @since 2.14
     @Test
-    public void testAbsentAtomicRefViaCreator() throws Exception
+    void testAbsentAtomicRefViaCreator() throws Exception
     {
         AtomicRefBean bean;
 
@@ -419,7 +419,7 @@ public class JDKAtomicTypesDeserTest
 
     // @since 2.14
     @Test
-    public void testAtomicRefWithNodeViaCreator() throws Exception
+    void testAtomicRefWithNodeViaCreator() throws Exception
     {
         AtomicRefWithNodeBean bean;
 

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("serial")
-public class JsonValueExtTypeIdTest extends DatabindTestUtil
+class JsonValueExtTypeIdTest extends DatabindTestUtil
 {
     // The following is required for the testDecimalMetadata test case. That case fails.
     @JsonTypeName(value = "decimalValue")
@@ -73,7 +73,7 @@ public class JsonValueExtTypeIdTest extends DatabindTestUtil
     final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testDoubleMetadata() throws IOException {
+    void testDoubleMetadata() throws IOException {
         DoubleMetadata doub = new DoubleMetadata();
         String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":1234.25,\"@type\":\"doubleValue\"}]}";
         String json = MAPPER.writeValueAsString(doub);
@@ -81,7 +81,7 @@ public class JsonValueExtTypeIdTest extends DatabindTestUtil
     }
 
     @Test
-    public void testDecimalMetadata() throws IOException{
+    void testDecimalMetadata() throws IOException{
         DecimalMetadata dec = new DecimalMetadata();
         String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":111.1,\"@type\":\"decimalValue\"}]}";
         String json = MAPPER.writeValueAsString(dec);

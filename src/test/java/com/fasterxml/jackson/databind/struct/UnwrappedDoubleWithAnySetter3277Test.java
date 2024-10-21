@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test to verify that [databind#3277] is fixed.
  */
-public class UnwrappedDoubleWithAnySetter3277Test extends DatabindTestUtil
+class UnwrappedDoubleWithAnySetter3277Test extends DatabindTestUtil
 {
     static class Holder {
         Object value1;
@@ -51,7 +51,7 @@ public class UnwrappedDoubleWithAnySetter3277Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testIsInstanceOfDouble() throws Exception
+    void testIsInstanceOfDouble() throws Exception
     {
         Holder holder = MAPPER.readValue("{\"value1\": -60.0, \"value2\": -60.0}", Holder.class);
 

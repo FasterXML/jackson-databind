@@ -65,21 +65,21 @@ public class MethodGenericTypeResolverTest extends DatabindTestUtil {
     }
 
     @Test
-    public void testWithoutGenerics() {
+    void testWithoutGenerics() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("noGenerics"), type(String.class), EMPTY_CONTEXT);
         assertNull(bindings);
     }
 
     @Test
-    public void testWithoutGenericsInResult() {
+    void testWithoutGenericsInResult() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("simple"), type(AtomicReference.class), EMPTY_CONTEXT);
         assertNull(bindings);
     }
 
     @Test
-    public void testResultDoesNotUseTypeVariables() {
+    void testResultDoesNotUseTypeVariables() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("disconnected"), type(new TypeReference<Map<String, String>>() {
                 }), EMPTY_CONTEXT);
@@ -87,7 +87,7 @@ public class MethodGenericTypeResolverTest extends DatabindTestUtil {
     }
 
     @Test
-    public void testWithoutGenericsInMethod() {
+    void testWithoutGenericsInMethod() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("noGenerics"), type(new TypeReference<Map<String, String>>() {
                 }), EMPTY_CONTEXT);
@@ -95,7 +95,7 @@ public class MethodGenericTypeResolverTest extends DatabindTestUtil {
     }
 
     @Test
-    public void testWithRepeatedGenericInReturn() {
+    void testWithRepeatedGenericInReturn() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("mapWithSameKeysAndValues"), type(new TypeReference<Map<String, String>>() {
                 }), EMPTY_CONTEXT);
@@ -103,7 +103,7 @@ public class MethodGenericTypeResolverTest extends DatabindTestUtil {
     }
 
     @Test
-    public void testWithRepeatedGenericInReturnWithIncreasingSpecificity() {
+    void testWithRepeatedGenericInReturnWithIncreasingSpecificity() {
         Method method = method("mapWithSameKeysAndValues");
         TypeBindings bindingsAb = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method, type(new TypeReference<Map<StubA, StubB>>() {
@@ -116,7 +116,7 @@ public class MethodGenericTypeResolverTest extends DatabindTestUtil {
     }
 
     @Test
-    public void testMultipleTypeVariables() {
+    void testMultipleTypeVariables() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("multipleTypeVariables"), type(new TypeReference<Map<Integer, Long>>() {
                 }), EMPTY_CONTEXT);
@@ -126,7 +126,7 @@ public class MethodGenericTypeResolverTest extends DatabindTestUtil {
     }
 
     @Test
-    public void testMultipleTypeVariablesWithUpperBounds() {
+    void testMultipleTypeVariablesWithUpperBounds() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("multipleTypeVariablesWithUpperBound"), type(new TypeReference<Map<Integer, Long>>() {
                 }), EMPTY_CONTEXT);
@@ -136,7 +136,7 @@ public class MethodGenericTypeResolverTest extends DatabindTestUtil {
     }
 
     @Test
-    public void testResultTypeDoesNotExactlyMatch() {
+    void testResultTypeDoesNotExactlyMatch() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("multipleTypeVariables"), type(new TypeReference<HashMap<Integer, Long>>() {
                 }), EMPTY_CONTEXT);

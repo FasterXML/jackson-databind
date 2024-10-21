@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class ArrayConversionsTest
+class ArrayConversionsTest
 {
     final static String OVERFLOW_MSG_BYTE = "out of range of Java byte";
     final static String OVERFLOW_MSG_SHORT = "out of range of Java short";
@@ -24,7 +24,7 @@ public class ArrayConversionsTest
     final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testNullXform() throws Exception
+    void testNullXform() throws Exception
     {
         /* when given null, null should be returned without conversion
          * (Java null has no type)
@@ -40,7 +40,7 @@ public class ArrayConversionsTest
      * not necessarily same) output
      */
     @Test
-    public void testArrayIdentityTransforms() throws Exception
+    void testArrayIdentityTransforms() throws Exception
     {
         // first integral types
         // (note: byte[] is ok, even if it goes to base64 and back)
@@ -54,7 +54,7 @@ public class ArrayConversionsTest
     }
 
     @Test
-    public void testByteArrayFrom() throws Exception
+    void testByteArrayFrom() throws Exception
     {
         /* Note: byte arrays are tricky, since they are considered
          * binary data primarily, not as array of numbers. Hence
@@ -66,7 +66,7 @@ public class ArrayConversionsTest
     }
 
     @Test
-    public void testShortArrayToX() throws Exception
+    void testShortArrayToX() throws Exception
     {
         short[] data = shorts();
         verifyShortArrayConversion(data, byte[].class);
@@ -75,7 +75,7 @@ public class ArrayConversionsTest
     }
 
     @Test
-    public void testIntArrayToX() throws Exception
+    void testIntArrayToX() throws Exception
     {
         int[] data = ints();
         verifyIntArrayConversion(data, byte[].class);
@@ -89,7 +89,7 @@ public class ArrayConversionsTest
     }
 
     @Test
-    public void testLongArrayToX() throws Exception
+    void testLongArrayToX() throws Exception
     {
         long[] data = longs();
         verifyLongArrayConversion(data, byte[].class);
@@ -102,7 +102,7 @@ public class ArrayConversionsTest
     }
 
     @Test
-    public void testOverflows()
+    void testOverflows()
     {
         // Byte overflow
         try {

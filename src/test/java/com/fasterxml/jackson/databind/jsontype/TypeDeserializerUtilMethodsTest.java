@@ -8,10 +8,10 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class TypeDeserializerUtilMethodsTest extends DatabindTestUtil
+class TypeDeserializerUtilMethodsTest extends DatabindTestUtil
 {
     @Test
-    public void testUtilMethods() throws Exception
+    void testUtilMethods() throws Exception
     {
         final JsonFactory f = new JsonFactory();
 

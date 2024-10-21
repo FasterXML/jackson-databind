@@ -7,22 +7,22 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ExceptionUtilTest extends DatabindTestUtil
+class ExceptionUtilTest extends DatabindTestUtil
 {
     @Test
-    public void testNoClassDefError() {
+    void testNoClassDefError() {
         //next line should be a no-op
         ExceptionUtil.rethrowIfFatal(new NoClassDefFoundError("fake"));
     }
 
     @Test
-    public void testExceptionInInitializerError() {
+    void testExceptionInInitializerError() {
         //next line should be a no-op
         ExceptionUtil.rethrowIfFatal(new ExceptionInInitializerError("fake"));
     }
 
     @Test
-    public void testOutOfMemoryError() {
+    void testOutOfMemoryError() {
         try {
             ExceptionUtil.rethrowIfFatal(new OutOfMemoryError("fake"));
             fail("expected OutOfMemoryError");
@@ -32,7 +32,7 @@ public class ExceptionUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testVerifyError() {
+    void testVerifyError() {
         try {
             ExceptionUtil.rethrowIfFatal(new VerifyError("fake"));
             fail("expected VerifyError");

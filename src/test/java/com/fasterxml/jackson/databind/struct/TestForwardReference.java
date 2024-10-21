@@ -14,16 +14,16 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 /**
  * Test for testing forward reference handling
  */
-public class TestForwardReference extends DatabindTestUtil {
+class TestForwardReference extends DatabindTestUtil {
 
 	private final ObjectMapper MAPPER = newJsonMapper()
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.enable(SerializationFeature.INDENT_OUTPUT)
 			.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-	/** Tests that we can read a hierarchical structure with forward references*/
-	@Test
-	public void testForwardRef() throws IOException {
+    /** Tests that we can read a hierarchical structure with forward references*/
+    @Test
+    void testForwardRef() throws IOException {
 		MAPPER.readValue("{" +
 				"  \"@type\" : \"TestForwardReference$ForwardReferenceContainerClass\"," +
 				"  \"frc\" : \"willBeForwardReferenced\"," +

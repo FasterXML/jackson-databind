@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestDefaultForLists
-    extends DatabindTestUtil
+class TestDefaultForLists
+        extends DatabindTestUtil
 {
     /**
      * Wrapper bean needed before there is a way to force
@@ -72,7 +72,7 @@ public class TestDefaultForLists
             .build();
 
     @Test
-    public void testListOfLongs() throws Exception
+    void testListOfLongs() throws Exception
     {
         ListOfLongs input = new ListOfLongs(1L, 2L, 3L);
         String json = POLY_MAPPER.writeValueAsString(input);
@@ -93,7 +93,7 @@ public class TestDefaultForLists
      * necessary)
      */
     @Test
-    public void testListOfNumbers() throws Exception
+    void testListOfNumbers() throws Exception
     {
         ListOfNumbers input = new ListOfNumbers(Long.valueOf(1L), Integer.valueOf(2), Double.valueOf(3.0));
         String json = POLY_MAPPER.writeValueAsString(input);
@@ -108,7 +108,7 @@ public class TestDefaultForLists
     }
 
     @Test
-    public void testDateTypes() throws Exception
+    void testDateTypes() throws Exception
     {
         ObjectListBean input = new ObjectListBean();
         List<Object> inputList = new ArrayList<Object>();
@@ -125,7 +125,7 @@ public class TestDefaultForLists
     }
 
     @Test
-    public void testJackson628() throws Exception
+    void testJackson628() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL);
@@ -136,7 +136,7 @@ public class TestDefaultForLists
     }
 
     @Test
-    public void testJackson667() throws Exception
+    void testJackson667() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,

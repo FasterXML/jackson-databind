@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // For [databind#2816] / [databind#3473]
-public class DeepNestingUntypedDeserTest
+class DeepNestingUntypedDeserTest
 {
     // 28-Mar-2021, tatu: Currently 3000 fails for untyped/Object,
     //     4000 for untyped/Array
@@ -30,7 +30,7 @@ public class DeepNestingUntypedDeserTest
 
 
     @Test
-    public void testFormerlyTooDeepUntypedWithArray() throws Exception
+    void testFormerlyTooDeepUntypedWithArray() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
         Object ob = MAPPER.readValue(doc, Object.class);
@@ -44,7 +44,7 @@ public class DeepNestingUntypedDeserTest
     }
 
     @Test
-    public void testFormerlyTooDeepUntypedWithObject() throws Exception
+    void testFormerlyTooDeepUntypedWithObject() throws Exception
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
         Object ob = MAPPER.readValue(doc, Object.class);

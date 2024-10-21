@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Test to check that getNullValue for deserializer is not cached, by default.
  */
-public class CustomDeserializers4225NullCacheTest extends DatabindTestUtil
+class CustomDeserializers4225NullCacheTest extends DatabindTestUtil
 {
     static class CustomListDeserializer extends JsonDeserializer<List<String>>
     {
@@ -48,7 +48,7 @@ public class CustomDeserializers4225NullCacheTest extends DatabindTestUtil
     }
 
     @Test
-    public void testGetNullValueIsCached() throws Exception
+    void testGetNullValueIsCached() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
 

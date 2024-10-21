@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BigNumbersDeserTest
-    extends DatabindTestUtil
+class BigNumbersDeserTest
+        extends DatabindTestUtil
 {
     static class BigIntegerWrapper {
         public BigInteger number;
@@ -43,7 +43,7 @@ public class BigNumbersDeserTest
     }
 
     @Test
-    public void testDouble() throws Exception
+    void testDouble() throws Exception
     {
         try {
             MAPPER.readValue(generateJson("d"), DoubleWrapper.class);
@@ -54,7 +54,7 @@ public class BigNumbersDeserTest
     }
 
     @Test
-    public void testDoubleUnlimited() throws Exception
+    void testDoubleUnlimited() throws Exception
     {
         DoubleWrapper dw =
             newJsonMapperWithUnlimitedNumberSizeSupport().readValue(generateJson("d"), DoubleWrapper.class);
@@ -62,7 +62,7 @@ public class BigNumbersDeserTest
     }
 
     @Test
-    public void testBigDecimal() throws Exception
+    void testBigDecimal() throws Exception
     {
         try {
             MAPPER.readValue(generateJson("number"), BigDecimalWrapper.class);
@@ -73,7 +73,7 @@ public class BigNumbersDeserTest
     }
 
     @Test
-    public void testBigDecimalUnlimited() throws Exception
+    void testBigDecimalUnlimited() throws Exception
     {
         BigDecimalWrapper bdw =
                 newJsonMapperWithUnlimitedNumberSizeSupport()
@@ -82,7 +82,7 @@ public class BigNumbersDeserTest
     }
 
     @Test
-    public void testBigInteger() throws Exception
+    void testBigInteger() throws Exception
     {
         try {
             MAPPER.readValue(generateJson("number"), BigIntegerWrapper.class);
@@ -93,7 +93,7 @@ public class BigNumbersDeserTest
     }
 
     @Test
-    public void testBigIntegerUnlimited() throws Exception
+    void testBigIntegerUnlimited() throws Exception
     {
         BigIntegerWrapper bdw =
                 newJsonMapperWithUnlimitedNumberSizeSupport()
@@ -103,7 +103,7 @@ public class BigNumbersDeserTest
 
     // [databind#4435]
     @Test
-    public void testNumberStartingWithDot() throws Exception {
+    void testNumberStartingWithDot() throws Exception {
         _testNumberWith(".555555555555555555555555555555");
         _testNumberWith("-.555555555555555555555555555555");
         _testNumberWith("+.555555555555555555555555555555");
@@ -111,7 +111,7 @@ public class BigNumbersDeserTest
 
     // [databind#4577]
     @Test
-    public void testNumberEndingWithDot() throws Exception {
+    void testNumberEndingWithDot() throws Exception {
         _testNumberWith("55.");
         _testNumberWith("-55.");
         _testNumberWith("+55.");

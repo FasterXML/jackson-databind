@@ -24,7 +24,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
  * method types, explicit deserializer annotations.
  */
 @SuppressWarnings("serial")
-public class BasicAnnotationsTest
+class BasicAnnotationsTest
 {
     /// Class for testing {@link JsonProperty} annotations
     final static class SizeClassSetter
@@ -134,7 +134,7 @@ public class BasicAnnotationsTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testSimpleSetter() throws Exception
+    void testSimpleSetter() throws Exception
     {
         SizeClassSetter result = MAPPER.readValue
             ("{ \"other\":3, \"size\" : 2, \"length\" : -999 }",
@@ -147,7 +147,7 @@ public class BasicAnnotationsTest
 
     // Test for checking [JACKSON-64]
     @Test
-    public void testSimpleSetter2() throws Exception
+    void testSimpleSetter2() throws Exception
     {
         SizeClassSetter2 result = MAPPER.readValue("{ \"x\": -3 }",
              SizeClassSetter2.class);
@@ -156,7 +156,7 @@ public class BasicAnnotationsTest
 
     // Checking parts of [JACKSON-120]
     @Test
-    public void testSimpleSetter3() throws Exception
+    void testSimpleSetter3() throws Exception
     {
         SizeClassSetter3 result = MAPPER.readValue
             ("{ \"x\": 128 }",
@@ -169,7 +169,7 @@ public class BasicAnnotationsTest
      * expected.
      */
     @Test
-    public void testSetterInheritance() throws Exception
+    void testSetterInheritance() throws Exception
     {
         BeanSubClass result = MAPPER.readValue
             ("{ \"x\":1, \"z\" : 3, \"y\" : 2 }",
@@ -180,7 +180,7 @@ public class BasicAnnotationsTest
     }
 
     @Test
-    public void testImpliedProperty() throws Exception
+    void testImpliedProperty() throws Exception
     {
         BeanWithDeserialize bean = MAPPER.readValue("{\"a\":3}", BeanWithDeserialize.class);
         assertNotNull(bean);
@@ -189,7 +189,7 @@ public class BasicAnnotationsTest
 
     // [databind#442]
     @Test
-    public void testIssue442PrivateUnwrapped() throws Exception
+    void testIssue442PrivateUnwrapped() throws Exception
     {
         Issue442Bean bean = MAPPER.readValue("{\"i\":5}", Issue442Bean.class);
         assertEquals(5, bean.w.i);
@@ -202,7 +202,7 @@ public class BasicAnnotationsTest
      */
 
     @Test
-    public void testAnnotationsDisabled() throws Exception
+    void testAnnotationsDisabled() throws Exception
     {
         // first: verify that annotation introspection is enabled by default
         assertTrue(MAPPER.getDeserializationConfig().isEnabled(MapperFeature.USE_ANNOTATIONS));
@@ -219,7 +219,7 @@ public class BasicAnnotationsTest
     }
 
     @Test
-    public void testEnumsWhenDisabled() throws Exception
+    void testEnumsWhenDisabled() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         assertEquals(Alpha.B, m.readValue(q("B"), Alpha.class));
@@ -232,7 +232,7 @@ public class BasicAnnotationsTest
     }
 
     @Test
-    public void testNoAccessOverrides() throws Exception
+    void testNoAccessOverrides() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)

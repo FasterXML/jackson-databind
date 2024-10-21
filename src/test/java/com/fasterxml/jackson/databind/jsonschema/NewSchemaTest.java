@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Basic tests to exercise low-level support added for JSON Schema module and
  * other modules that use type introspection.
  */
-public class NewSchemaTest extends DatabindTestUtil
+class NewSchemaTest extends DatabindTestUtil
 {
     enum TestEnum {
         A, B, C;
@@ -218,7 +218,7 @@ public class NewSchemaTest extends DatabindTestUtil
      * if basic POJO type/serializer traversal had issues.
      */
     @Test
-    public void testBasicTraversal() throws Exception
+    void testBasicTraversal() throws Exception
     {
         MAPPER.acceptJsonFormatVisitor(POJO.class, new BogusJsonFormatVisitorWrapper());
         MAPPER.acceptJsonFormatVisitor(POJOWithScalars.class, new BogusJsonFormatVisitorWrapper());
@@ -232,7 +232,7 @@ public class NewSchemaTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleEnum() throws Exception
+    void testSimpleEnum() throws Exception
     {
         final Set<String> values = new TreeSet<String>();
         ObjectWriter w = MAPPER.writer(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
@@ -262,7 +262,7 @@ public class NewSchemaTest extends DatabindTestUtil
     }
 
     @Test
-    public void testEnumWithJsonValue() throws Exception
+    void testEnumWithJsonValue() throws Exception
     {
         final Set<String> values = new TreeSet<String>();
         MAPPER.acceptJsonFormatVisitor(TestEnumWithJsonValue.class,
@@ -292,7 +292,7 @@ public class NewSchemaTest extends DatabindTestUtil
 
     //  Ensure JsonValueFormat serializes/deserializes as expected
     @Test
-    public void testJsonValueFormatHandling() throws Exception
+    void testJsonValueFormatHandling() throws Exception
     {
         // first: serialize using 'toString()', not name
         final String EXP = q("host-name");
@@ -304,7 +304,7 @@ public class NewSchemaTest extends DatabindTestUtil
 
     // [databind#1045], regression wrt BigDecimal
     @Test
-    public void testSimpleNumbers() throws Exception
+    void testSimpleNumbers() throws Exception
     {
         final StringBuilder sb = new StringBuilder();
 

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DeserDefaultTypedConcrete2968Test extends DatabindTestUtil {
+class DeserDefaultTypedConcrete2968Test extends DatabindTestUtil {
 
     static abstract class SimpleBall {
         public int size = 3;
@@ -28,7 +28,7 @@ public class DeserDefaultTypedConcrete2968Test extends DatabindTestUtil {
     }
 
     @Test
-    public void testDeserializationConcreteClassWithDefaultTyping() throws Exception {
+    void testDeserializationConcreteClassWithDefaultTyping() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(SimpleBall.class)
             .build();

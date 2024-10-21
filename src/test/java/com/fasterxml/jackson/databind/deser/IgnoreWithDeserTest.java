@@ -16,7 +16,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * This unit test suite that tests use of {@link JsonIgnore}
  * annotation with deserialization.
  */
-public class IgnoreWithDeserTest
+class IgnoreWithDeserTest
 {
     // Class for testing {@link JsonIgnore} annotations with setters
     final static class SizeClassIgnore
@@ -52,7 +52,7 @@ public class IgnoreWithDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleIgnore() throws Exception
+    void testSimpleIgnore() throws Exception
     {
         SizeClassIgnore result = MAPPER.readValue("{ \"x\":1, \"y\" : 2 }",
              SizeClassIgnore.class);
@@ -62,7 +62,7 @@ public class IgnoreWithDeserTest
     }
 
     @Test
-    public void testFailOnIgnore() throws Exception
+    void testFailOnIgnore() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(NoYOrZ.class);
 

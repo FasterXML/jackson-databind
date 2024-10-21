@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests for {@link JsonFormat} and specifically <code>JsonFormat.Feature</code>s.
  */
-public class FormatFeatureOrderedMapTest extends DatabindTestUtil
+class FormatFeatureOrderedMapTest extends DatabindTestUtil
 {
     static class SortedKeysMap {
         @JsonFormat(with = JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES)
@@ -32,7 +32,7 @@ public class FormatFeatureOrderedMapTest extends DatabindTestUtil
 
     // [databind#1232]: allow forcing sorting on Map keys
     @Test
-    public void testOrderedMaps() throws Exception {
+    void testOrderedMaps() throws Exception {
         SortedKeysMap map = new SortedKeysMap()
             .put("b", 2)
             .put("a", 1);

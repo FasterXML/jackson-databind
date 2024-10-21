@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class ReadOnlyDeserFailOnUnknown2719Test
+class ReadOnlyDeserFailOnUnknown2719Test
 {
     // [databind#2719]
     static class UserWithReadOnly {
@@ -32,7 +32,7 @@ public class ReadOnlyDeserFailOnUnknown2719Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testFailOnIgnore() throws Exception
+    void testFailOnIgnore() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(UserWithReadOnly.class);
 

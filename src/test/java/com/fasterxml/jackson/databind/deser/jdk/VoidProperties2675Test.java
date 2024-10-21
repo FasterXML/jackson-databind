@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // [databind#2675]: Void-valued "properties"
-public class VoidProperties2675Test
+class VoidProperties2675Test
 {
     static class VoidBean {
         protected Void value;
@@ -34,7 +34,7 @@ public class VoidProperties2675Test
             .build();
 
     @Test
-    public void testVoidBeanSerialization() throws Exception
+    void testVoidBeanSerialization() throws Exception
     {
         // By default (2.x), not enabled:
         try {
@@ -49,7 +49,7 @@ public class VoidProperties2675Test
     }
 
     @Test
-    public void testVoidBeanDeserialization() throws Exception {
+    void testVoidBeanDeserialization() throws Exception {
         final String DOC = "{\"value\":null}";
         VoidBean result;
 

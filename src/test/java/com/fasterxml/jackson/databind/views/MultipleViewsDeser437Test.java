@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class MultipleViewsDeser437Test extends DatabindTestUtil
+class MultipleViewsDeser437Test extends DatabindTestUtil
 {
     static class View1 {
     }
@@ -83,7 +83,7 @@ public class MultipleViewsDeser437Test extends DatabindTestUtil
         .disable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES).build();
 
     @Test
-    public void testDeserWithMultipleViews() throws Exception
+    void testDeserWithMultipleViews() throws Exception
     {
         final String json = a2q("{'nonViewField':'nonViewFieldValue'," +
             "'view1Field':'view1FieldValue'," +
@@ -95,7 +95,7 @@ public class MultipleViewsDeser437Test extends DatabindTestUtil
     }
 
     @Test
-    public void testDeserMultipleViewsWithBuilders() throws Exception
+    void testDeserMultipleViewsWithBuilders() throws Exception
     {
         final String json = a2q("{'x':5,'y':10,'z':0}");
 

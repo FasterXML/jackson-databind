@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 // Tests for [databind#4620]: 
 //
 // @since 2.18
-public class DefaultCreatorResolution4620Test extends DatabindTestUtil
+class DefaultCreatorResolution4620Test extends DatabindTestUtil
 {
     static class POJO4620 {
         String value;
@@ -84,7 +84,7 @@ public class DefaultCreatorResolution4620Test extends DatabindTestUtil
      */
 
     @Test
-    public void testCanonicalConstructor1ArgPropertiesCreator() throws Exception
+    void testCanonicalConstructor1ArgPropertiesCreator() throws Exception
     {
         // Select the "middle one"
         POJO4620 result = readerWith(new PrimaryConstructorFindingIntrospector(

@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests for the main user-configurable {@code PolymorphicTypeValidator},
  * {@link BasicPolymorphicTypeValidator}.
  */
-public class BasicPTVTest extends DatabindTestUtil
+class BasicPTVTest extends DatabindTestUtil
 {
     // // // Value types
 
@@ -85,7 +85,7 @@ public class BasicPTVTest extends DatabindTestUtil
 
     // First: test simple Base-type-as-class allowing
     @Test
-    public void testAllowByBaseClass() throws Exception {
+    void testAllowByBaseClass() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(BaseValue.class)
                 .build();
@@ -121,7 +121,7 @@ public class BasicPTVTest extends DatabindTestUtil
 
     // Then subtype-prefix
     @Test
-    public void testAllowByBaseClassPrefix() throws Exception {
+    void testAllowByBaseClassPrefix() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType("com.fasterxml.")
                 .build();
@@ -147,7 +147,7 @@ public class BasicPTVTest extends DatabindTestUtil
 
     // Then subtype-pattern
     @Test
-    public void testAllowByBaseClassPattern() throws Exception {
+    void testAllowByBaseClassPattern() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(Pattern.compile("\\w+\\.fasterxml\\..+"))
                 .build();
@@ -173,7 +173,7 @@ public class BasicPTVTest extends DatabindTestUtil
 
     // And finally, block by specific direct-match base type
     @Test
-    public void testDenyByBaseClass() throws Exception {
+    void testDenyByBaseClass() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 // indicate that all subtypes `BaseValue` would be fine
                 .allowIfBaseType(BaseValue.class)
@@ -201,7 +201,7 @@ public class BasicPTVTest extends DatabindTestUtil
      */
 
     @Test
-    public void testAllowBySubClass() throws Exception {
+    void testAllowBySubClass() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(ValueB.class)
                 .build();
@@ -226,7 +226,7 @@ public class BasicPTVTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAllowBySubClassPrefix() throws Exception {
+    void testAllowBySubClassPrefix() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(ValueB.class.getName())
                 .build();
@@ -251,7 +251,7 @@ public class BasicPTVTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAllowBySubClassPattern() throws Exception {
+    void testAllowBySubClassPattern() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(Pattern.compile(Pattern.quote(ValueB.class.getName())))
                 .build();

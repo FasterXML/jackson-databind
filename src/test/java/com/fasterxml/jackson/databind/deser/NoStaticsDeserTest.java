@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Tests for checking that static methods are not recognized as accessors
  * for properties
  */
-public class NoStaticsDeserTest
+class NoStaticsDeserTest
 {
     static class Bean
     {
@@ -30,7 +30,7 @@ public class NoStaticsDeserTest
      */
 
     @Test
-    public void testSimpleIgnore() throws Exception
+    void testSimpleIgnore() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // should not care about static setter...

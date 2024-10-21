@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
 
-public class EnumDefaultRead4403Test
+class EnumDefaultRead4403Test
 {
     // [databind#4403]
     enum Brand4403 {
@@ -36,7 +36,7 @@ public class EnumDefaultRead4403Test
 
     // [databind#4403]
     @Test
-    public void readFromDefault4403() throws Exception
+    void readFromDefault4403() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(Brand4403.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);

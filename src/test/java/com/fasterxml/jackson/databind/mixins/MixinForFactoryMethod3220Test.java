@@ -23,8 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
 //
 //   NOTE! Problem is actually not the mixin handling but type resolution;
 //   see f.ex [databind#2821], [databind#2895]
-public class MixinForFactoryMethod3220Test
-    extends DatabindTestUtil
+class MixinForFactoryMethod3220Test
+        extends DatabindTestUtil
 {
     // [databind#3220]
     static class Timestamped<T> {
@@ -141,7 +141,7 @@ public class MixinForFactoryMethod3220Test
 
     // [databind#3220]
     @Test
-    public void testMixin3220() throws Exception
+    void testMixin3220() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .addMixIn(Timestamped.class, TimestampedMixin.class)

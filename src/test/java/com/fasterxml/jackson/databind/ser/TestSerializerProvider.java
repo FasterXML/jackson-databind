@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestSerializerProvider
-    extends DatabindTestUtil
+class TestSerializerProvider
+        extends DatabindTestUtil
 {
     static class MyBean {
         public int getX() { return 3; }
@@ -21,7 +21,7 @@ public class TestSerializerProvider
     }
 
     @Test
-    public void testFindExplicit() throws IOException
+    void testFindExplicit() throws IOException
     {
         ObjectMapper mapper = newJsonMapper();
         SerializationConfig config = mapper.getSerializationConfig();

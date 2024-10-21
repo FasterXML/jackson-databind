@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for verifying that it is possible to annotate
  * various kinds of things with {@link JsonCreator} annotation.
  */
-public class TestCreators
-    extends DatabindTestUtil
+class TestCreators
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -327,7 +327,7 @@ public class TestCreators
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleConstructor() throws Exception
+    void testSimpleConstructor() throws Exception
     {
         ConstructorBean bean = MAPPER.readValue("{ \"x\" : 42 }", ConstructorBean.class);
         assertEquals(42, bean.x);
@@ -335,7 +335,7 @@ public class TestCreators
 
     // [JACKSON-850]
     @Test
-    public void testNoArgsFactory() throws Exception
+    void testNoArgsFactory() throws Exception
     {
         NoArgFactoryBean value = MAPPER.readValue("{\"y\":13}", NoArgFactoryBean.class);
         assertEquals(13, value.y);
@@ -343,7 +343,7 @@ public class TestCreators
     }
 
     @Test
-    public void testSimpleDoubleConstructor() throws Exception
+    void testSimpleDoubleConstructor() throws Exception
     {
         Double exp = Double.valueOf("0.25");
         DoubleConstructorBean bean = MAPPER.readValue(exp.toString(), DoubleConstructorBean.class);
@@ -351,7 +351,7 @@ public class TestCreators
     }
 
     @Test
-    public void testSimpleBooleanConstructor() throws Exception
+    void testSimpleBooleanConstructor() throws Exception
     {
         BooleanConstructorBean bean = MAPPER.readValue(" true ", BooleanConstructorBean.class);
         assertEquals(Boolean.TRUE, bean.b);
@@ -361,7 +361,7 @@ public class TestCreators
     }
 
     @Test
-    public void testSimpleBigIntegerConstructor() throws Exception
+    void testSimpleBigIntegerConstructor() throws Exception
     {
         // 10-Dec-2020, tatu: Small (magnitude) values will NOT trigger path
         //   we want; must use something outside of Long range...
@@ -372,7 +372,7 @@ public class TestCreators
     }
 
     @Test
-    public void testSimpleBigDecimalConstructor() throws Exception
+    void testSimpleBigDecimalConstructor() throws Exception
     {
         // 10-Dec-2020, tatu: not sure we can ever trigger this with JSON;
         //    but should be possible to handle via TokenBuffer?
@@ -389,14 +389,14 @@ public class TestCreators
     }
 
     @Test
-    public void testSimpleFactory() throws Exception
+    void testSimpleFactory() throws Exception
     {
         FactoryBean bean = MAPPER.readValue("{ \"f\" : 0.25 }", FactoryBean.class);
         assertEquals(0.25, bean.d);
     }
 
     @Test
-    public void testLongFactory() throws Exception
+    void testLongFactory() throws Exception
     {
         long VALUE = 123456789000L;
         LongFactoryBean bean = MAPPER.readValue(String.valueOf(VALUE), LongFactoryBean.class);
@@ -404,7 +404,7 @@ public class TestCreators
     }
 
     @Test
-    public void testStringFactory() throws Exception
+    void testStringFactory() throws Exception
     {
         String str = "abc";
         StringFactoryBean bean = MAPPER.readValue(q(str), StringFactoryBean.class);
@@ -412,7 +412,7 @@ public class TestCreators
     }
 
     @Test
-    public void testStringFactoryAlt() throws Exception
+    void testStringFactoryAlt() throws Exception
     {
         String str = "xyz";
         FromStringBean bean = MAPPER.readValue(q(str), FromStringBean.class);
@@ -420,7 +420,7 @@ public class TestCreators
     }
 
     @Test
-    public void testConstructorAndFactoryCreator() throws Exception
+    void testConstructorAndFactoryCreator() throws Exception
     {
         CreatorBeanWithBoth bean = MAPPER.readValue
             ("{ \"a\" : \"xyz\", \"x\" : 12 }", CreatorBeanWithBoth.class);
@@ -429,7 +429,7 @@ public class TestCreators
     }
 
     @Test
-    public void testConstructorAndProps() throws Exception
+    void testConstructorAndProps() throws Exception
     {
         ConstructorAndPropsBean bean = MAPPER.readValue
             ("{ \"a\" : \"1\", \"b\": 2, \"c\" : true }", ConstructorAndPropsBean.class);
@@ -439,7 +439,7 @@ public class TestCreators
     }
 
     @Test
-    public void testFactoryAndProps() throws Exception
+    void testFactoryAndProps() throws Exception
     {
         FactoryAndPropsBean bean = MAPPER.readValue
             ("{ \"a\" : [ false, true, false ], \"b\": 2, \"c\" : -1 }", FactoryAndPropsBean.class);
@@ -458,7 +458,7 @@ public class TestCreators
      * they use different JSON type as input
      */
     @Test
-    public void testMultipleCreators() throws Exception
+    void testMultipleCreators() throws Exception
     {
         MultiBean bean = MAPPER.readValue("123", MultiBean.class);
         assertEquals(Integer.valueOf(123), bean.value);
@@ -475,7 +475,7 @@ public class TestCreators
      */
 
     @Test
-    public void testDeferredConstructorAndProps() throws Exception
+    void testDeferredConstructorAndProps() throws Exception
     {
         DeferredConstructorAndPropsBean bean = MAPPER.readValue
             ("{ \"propB\" : \"...\", \"createA\" : [ 1 ], \"propA\" : null }",
@@ -489,7 +489,7 @@ public class TestCreators
     }
 
     @Test
-    public void testDeferredFactoryAndProps() throws Exception
+    void testDeferredFactoryAndProps() throws Exception
     {
         DeferredFactoryAndPropsBean bean = MAPPER.readValue
             ("{ \"prop\" : \"1\", \"ctor\" : \"2\" }", DeferredFactoryAndPropsBean.class);
@@ -504,7 +504,7 @@ public class TestCreators
      */
 
     @Test
-    public void testFactoryCreatorWithMixin() throws Exception
+    void testFactoryCreatorWithMixin() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(CreatorBeanWithBoth.class, MixIn.class)
@@ -516,7 +516,7 @@ public class TestCreators
     }
 
     @Test
-    public void testFactoryCreatorWithRenamingMixin() throws Exception
+    void testFactoryCreatorWithRenamingMixin() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(FactoryBean.class, FactoryBeanMixIn.class);
@@ -533,7 +533,7 @@ public class TestCreators
      */
 
     @Test
-    public void testMapWithConstructor() throws Exception
+    void testMapWithConstructor() throws Exception
     {
         MapWithCtor result = MAPPER.readValue
             ("{\"text\":\"abc\", \"entry\":true, \"number\":123, \"xy\":\"yx\"}",
@@ -548,7 +548,7 @@ public class TestCreators
     }
 
     @Test
-    public void testMapWithFactory() throws Exception
+    void testMapWithFactory() throws Exception
     {
         MapWithFactory result = MAPPER.readValue
             ("{\"x\":\"...\",\"b\":true  }",
@@ -565,7 +565,7 @@ public class TestCreators
      */
 
     @Test
-    public void testBrokenConstructor() throws Exception
+    void testBrokenConstructor() throws Exception
     {
         try {
             /*BrokenBean bean =*/ MAPPER.readValue("{ \"x\" : 42 }", BrokenBean.class);

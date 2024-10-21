@@ -23,7 +23,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * Tests for various conversions, especially ones using
  * {@link ObjectMapper#convertValue(Object, Class)}.
  */
-public class BeanConversionsTest
+class BeanConversionsTest
 {
     static class PointZ {
         public int x, y;
@@ -128,7 +128,7 @@ public class BeanConversionsTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testBeanConvert()
+    void testBeanConvert()
     {
         // should have no problems convert between compatible beans...
         PointStrings input = new PointStrings("37", "-9");
@@ -142,7 +142,7 @@ public class BeanConversionsTest
     // For [JACKSON-371]; verify that we know property that caused issue...
     // (note: not optimal place for test, but will have to do for now)
     @Test
-    public void testErrorReporting() throws Exception
+    void testErrorReporting() throws Exception
     {
         //String json = "{\"boolProp\":\"oops\"}";
         // First: unknown property
@@ -161,7 +161,7 @@ public class BeanConversionsTest
     }
 
     @Test
-    public void testIssue458() throws Exception
+    void testIssue458() throws Exception
     {
         ObjectWrapper a = new ObjectWrapper("foo");
         ObjectWrapper b = new ObjectWrapper(a);
@@ -172,7 +172,7 @@ public class BeanConversionsTest
 
     // should work regardless of wrapping...
     @Test
-    public void testWrapping() throws Exception
+    void testWrapping() throws Exception
     {
         ObjectMapper wrappingMapper = new ObjectMapper();
         wrappingMapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
@@ -196,7 +196,7 @@ public class BeanConversionsTest
 
     // [Issue-11]: simple cast, for POJOs etc
     @Test
-    public void testConvertUsingCast() throws Exception
+    void testConvertUsingCast() throws Exception
     {
         String str = new String("foo");
         CharSequence seq = str;
@@ -218,7 +218,7 @@ public class BeanConversionsTest
      * Need to test "shortcuts" introduced by [databind#11]
      */
     @Test
-    public void testIssue11() throws Exception
+    void testIssue11() throws Exception
     {
         // then some other no-op conversions
         StringBuilder SB = new StringBuilder("test");
@@ -265,7 +265,7 @@ public class BeanConversionsTest
     }
 
     @Test
-    public void testConversionIssue288() throws Exception
+    void testConversionIssue288() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ConvertingBean(1, 2));
         // must be  {"a":2,"b":4}
@@ -274,7 +274,7 @@ public class BeanConversionsTest
 
     // Test null conversions from [databind#1433]
     @Test
-    public void testConversionIssue1433() throws Exception
+    void testConversionIssue1433() throws Exception
     {
         assertNull(MAPPER.convertValue(null, Object.class));
         assertNull(MAPPER.convertValue(null, PointZ.class));

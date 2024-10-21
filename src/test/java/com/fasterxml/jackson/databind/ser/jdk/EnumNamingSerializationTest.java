@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EnumNamingSerializationTest extends DatabindTestUtil {
+class EnumNamingSerializationTest extends DatabindTestUtil {
 
     /*
     /**********************************************************
@@ -77,7 +77,7 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
     */
 
     @Test
-    public void testEnumNamingShouldOverrideToStringFeatue() throws Exception {
+    void testEnumNamingShouldOverrideToStringFeatue() throws Exception {
         String resultStr = MAPPER.writer()
             .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
             .writeValueAsString(EnumFlavorA.CHOCOLATE_CHIPS);
@@ -86,19 +86,19 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
     }
 
     @Test
-    public void testEnumNamingStrategyNotApplied() throws Exception {
+    void testEnumNamingStrategyNotApplied() throws Exception {
         String resultString = MAPPER.writeValueAsString(EnumSauceC.SRIRACHA_MAYO);
         assertEquals(q("SRIRACHA_MAYO"), resultString);
     }
 
     @Test
-    public void testEnumNamingStrategyStartingUnderscoreBecomesUpperCase() throws Exception {
+    void testEnumNamingStrategyStartingUnderscoreBecomesUpperCase() throws Exception {
         String flavor = MAPPER.writeValueAsString(EnumFlavorD._PEANUT_BUTTER);
         assertEquals(q("PeanutButter"), flavor);
     }
 
     @Test
-    public void testEnumNamingStrategyNonPrefixContiguousUnderscoresBecomeOne() throws Exception {
+    void testEnumNamingStrategyNonPrefixContiguousUnderscoresBecomeOne() throws Exception {
         String flavor1 = MAPPER.writeValueAsString(EnumFlavorD.PEANUT__BUTTER);
         assertEquals(q("peanutButter"), flavor1);
 
@@ -107,13 +107,13 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
     }
 
     @Test
-    public void testEnumSet() throws Exception {
+    void testEnumSet() throws Exception {
         final EnumSet<EnumSauceB> value = EnumSet.of(EnumSauceB.KETCH_UP);
         assertEquals("[\"ketchUp\"]", MAPPER.writeValueAsString(value));
     }
 
     @Test
-    public void testDesrEnumWithEnumMap() throws Exception {
+    void testDesrEnumWithEnumMap() throws Exception {
         EnumMap<EnumSauceB, String> enums = new EnumMap<EnumSauceB, String>(EnumSauceB.class);
         enums.put(EnumSauceB.MAYO_NEZZ, "value");
 
@@ -123,7 +123,7 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
     }
 
     @Test
-    public void testEnumNamingStrategyWithOverride() throws Exception {
+    void testEnumNamingStrategyWithOverride() throws Exception {
         String almond = MAPPER.writeValueAsString(EnumFlavorE.ALMOND_BUTTER);
         assertEquals(q("almond"), almond);
 

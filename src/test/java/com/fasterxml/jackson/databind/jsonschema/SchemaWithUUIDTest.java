@@ -14,12 +14,12 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SchemaWithUUIDTest extends DatabindTestUtil
+class SchemaWithUUIDTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testUUIDSchema() throws Exception
+    void testUUIDSchema() throws Exception
     {
         final AtomicReference<JsonValueFormat> format = new AtomicReference<>();
 

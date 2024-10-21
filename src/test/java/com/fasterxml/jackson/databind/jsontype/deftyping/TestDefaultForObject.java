@@ -18,8 +18,8 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestDefaultForObject
-    extends DatabindTestUtil
+class TestDefaultForObject
+        extends DatabindTestUtil
 {
     static abstract class AbstractBean { }
 
@@ -114,7 +114,7 @@ public class TestDefaultForObject
      * Object[]), and default type information is enabled.
      */
     @Test
-    public void testBeanAsObject() throws Exception
+    void testBeanAsObject() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
@@ -135,7 +135,7 @@ public class TestDefaultForObject
 
     // with 2.5, another test to check that "as-property" is valid option
     @Test
-    public void testBeanAsObjectUsingAsProperty() throws Exception
+    void testBeanAsObjectUsingAsProperty() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
@@ -154,7 +154,7 @@ public class TestDefaultForObject
 
     // [databind#2840]: ensure "as-property" uses PTV passed
     @Test
-    public void testAsPropertyWithPTV() throws Exception {
+    void testAsPropertyWithPTV() throws Exception {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTypingAsProperty(new BlockAllPTV(),
                         ObjectMapper.DefaultTyping.NON_FINAL,
@@ -175,7 +175,7 @@ public class TestDefaultForObject
      * if default type information is enabled for non-concrete types.
      */
     @Test
-    public void testAbstractBean() throws Exception
+    void testAbstractBean() throws Exception
     {
         // First, let's verify that we'd fail without enabling default type info
         ObjectMapper m = new ObjectMapper();
@@ -204,7 +204,7 @@ public class TestDefaultForObject
      * all non-final types, if default typing suitably configured
      */
     @Test
-    public void testNonFinalBean() throws Exception
+    void testNonFinalBean() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()
                 // first: use "object or abstract" typing: should produce no type info:
@@ -223,7 +223,7 @@ public class TestDefaultForObject
     }
 
     @Test
-    public void testNullValue() throws Exception
+    void testNullValue() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -238,7 +238,7 @@ public class TestDefaultForObject
     }
 
     @Test
-    public void testEnumAsObject() throws Exception
+    void testEnumAsObject() throws Exception
     {
         // wrapping to be declared as object
         Object[] input = new Object[] { Choice.YES };
@@ -270,7 +270,7 @@ public class TestDefaultForObject
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testEnumSet() throws Exception
+    void testEnumSet() throws Exception
     {
         EnumSet<Choice> set = EnumSet.of(Choice.NO);
         Object[] input = new Object[] { set };
@@ -290,7 +290,7 @@ public class TestDefaultForObject
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testEnumMap() throws Exception
+    void testEnumMap() throws Exception
     {
         EnumMap<Choice,String> map = new EnumMap<Choice,String>(Choice.class);
         map.put(Choice.NO, "maybe");
@@ -310,7 +310,7 @@ public class TestDefaultForObject
     }
 
     @Test
-    public void testJackson311() throws Exception
+    void testJackson311() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -324,7 +324,7 @@ public class TestDefaultForObject
 
     // Also, let's ensure TokenBuffer gets properly handled
     @Test
-    public void testTokenBuffer() throws Exception
+    void testTokenBuffer() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -382,7 +382,7 @@ public class TestDefaultForObject
     }
 
     @Test
-    public void testIssue352() throws Exception
+    void testIssue352() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -403,7 +403,7 @@ public class TestDefaultForObject
 
     // Test to ensure we can also use "As.PROPERTY" inclusion and custom property name
     @Test
-    public void testFeature432() throws Exception
+    void testFeature432() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
@@ -414,7 +414,7 @@ public class TestDefaultForObject
     }
 
     @Test
-    public void testNoGoWithExternalProperty() throws Exception
+    void testNoGoWithExternalProperty() throws Exception
     {
         try {
             /*ObjectMapper mapper =*/ JsonMapper.builder()
@@ -430,7 +430,7 @@ public class TestDefaultForObject
 
     // [databind#2349]
     @Test
-    public void testWithFinalClass_NonFinal() throws Exception
+    void testWithFinalClass_NonFinal() throws Exception
     {
         // First: type info NOT included
         ObjectMapper mapper = JsonMapper.builder()
@@ -444,7 +444,7 @@ public class TestDefaultForObject
     // [databind#2349]
     @SuppressWarnings("deprecation")
     @Test
-    public void testWithFinalClass_Everything() throws Exception
+    void testWithFinalClass_Everything() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

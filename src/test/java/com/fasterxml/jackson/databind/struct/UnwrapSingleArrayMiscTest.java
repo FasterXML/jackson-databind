@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
+class UnwrapSingleArrayMiscTest extends DatabindTestUtil
 {
     private final ObjectMapper UNWRAPPING_MAPPER = jsonMapperBuilder()
             .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
@@ -26,7 +26,7 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
      */
 
     @Test
-    public void testSimplePOJOUnwrapping() throws Exception
+    void testSimplePOJOUnwrapping() throws Exception
     {
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(IntWrapper.class);
         IntWrapper w = r.readValue(a2q("[{'i':42}]"));
@@ -48,7 +48,7 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
 
     // [databind#2767]: should work for Maps, too
     @Test
-    public void testSimpleMapUnwrapping() throws Exception
+    void testSimpleMapUnwrapping() throws Exception
     {
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(Map.class);
         Map<String,Object> m = r.readValue(a2q("[{'stuff':42}]"));
@@ -63,7 +63,7 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
     }
 
     @Test
-    public void testEnumMapUnwrapping() throws Exception
+    void testEnumMapUnwrapping() throws Exception
     {
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(new TypeReference<EnumMap<ABC,Integer>>() { });
         EnumMap<ABC,Integer> m = r.readValue(a2q("[{'A':42}]"));

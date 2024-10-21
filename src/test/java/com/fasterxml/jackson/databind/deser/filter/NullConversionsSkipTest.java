@@ -14,7 +14,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // for [databind#1402]; configurable null handling, specifically with SKIP
-public class NullConversionsSkipTest {
+class NullConversionsSkipTest {
     static class NullSkipField {
         public String nullsOk = "a";
 
@@ -63,7 +63,7 @@ public class NullConversionsSkipTest {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSkipNullField() throws Exception
+    void testSkipNullField() throws Exception
     {
         // first, ok if assigning non-null to not-nullable, null for nullable
         NullSkipField result = MAPPER.readValue(a2q("{'noNulls':'foo', 'nullsOk':null}"),
@@ -79,7 +79,7 @@ public class NullConversionsSkipTest {
     }
 
     @Test
-    public void testSkipNullMethod() throws Exception
+    void testSkipNullMethod() throws Exception
     {
         NullSkipMethod result = MAPPER.readValue(a2q("{'noNulls':'foo', 'nullsOk':null}"),
                 NullSkipMethod.class);
@@ -94,7 +94,7 @@ public class NullConversionsSkipTest {
 
     // for [databind#2015]
     @Test
-    public void testEnumAsNullThenSkip() throws Exception
+    void testEnumAsNullThenSkip() throws Exception
     {
         Pojo2015 p = MAPPER.readerFor(Pojo2015.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
@@ -109,7 +109,7 @@ public class NullConversionsSkipTest {
      */
 
     @Test
-    public void testSkipNullWithDefaults() throws Exception
+    void testSkipNullWithDefaults() throws Exception
     {
         String json = a2q("{'value':null}");
         StringValue result = MAPPER.readValue(json, StringValue.class);

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestWithGenerics extends DatabindTestUtil
+class TestWithGenerics extends DatabindTestUtil
 {
     @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "object-type")
     @JsonSubTypes( { @Type(value = Dog.class, name = "doggy") })
@@ -142,7 +142,7 @@ public class TestWithGenerics extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testWrapperWithGetter() throws Exception
+    void testWrapperWithGetter() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
         String json = MAPPER.writeValueAsString(new ContainerWithGetter<Animal>(dog));
@@ -152,7 +152,7 @@ public class TestWithGenerics extends DatabindTestUtil
     }
 
     @Test
-    public void testWrapperWithField() throws Exception
+    void testWrapperWithField() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
         String json = MAPPER.writeValueAsString(new ContainerWithField<Animal>(dog));
@@ -162,7 +162,7 @@ public class TestWithGenerics extends DatabindTestUtil
     }
 
     @Test
-    public void testWrapperWithExplicitType() throws Exception
+    void testWrapperWithExplicitType() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
         ContainerWithGetter<Animal> c2 = new ContainerWithGetter<Animal>(dog);
@@ -174,7 +174,7 @@ public class TestWithGenerics extends DatabindTestUtil
     }
 
     @Test
-    public void testJackson387() throws Exception
+    void testJackson387() throws Exception
     {
         ObjectMapper om = new ObjectMapper();
         om.activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -211,7 +211,7 @@ public class TestWithGenerics extends DatabindTestUtil
     }
 
     @Test
-    public void testJackson430() throws Exception
+    void testJackson430() throws Exception
     {
         ObjectMapper om = new ObjectMapper();
 //        om.getSerializationConfig().setSerializationInclusion( Inclusion.NON_NULL );
@@ -230,7 +230,7 @@ public class TestWithGenerics extends DatabindTestUtil
 
     // [Issue#543]
     @Test
-    public void testValueWithMoreGenericParameters() throws Exception
+    void testValueWithMoreGenericParameters() throws Exception
     {
         WrappedContainerWithField wrappedContainerWithField = new WrappedContainerWithField();
         wrappedContainerWithField.animalContainer = new ContainerWithTwoAnimals<Dog,Dog>(new Dog("d1",1), new Dog("d2",2));

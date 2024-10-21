@@ -20,7 +20,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
 /**
  * Test for validating {@link com.fasterxml.jackson.databind.DeserializationFeature#FAIL_ON_TRAILING_TOKENS}.
  */
-public class FullStreamReadTest
+class FullStreamReadTest
 {
     private final static String JSON_OK_ARRAY = " [ 1, 2, 3]    ";
     private final static String JSON_OK_ARRAY_WITH_COMMENT = JSON_OK_ARRAY + " // stuff ";
@@ -40,7 +40,7 @@ public class FullStreamReadTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testMapperAcceptTrailing() throws Exception
+    void testMapperAcceptTrailing() throws Exception
     {
         assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
 
@@ -66,7 +66,7 @@ public class FullStreamReadTest
     }
 
     @Test
-    public void testMapperFailOnTrailing() throws Exception
+    void testMapperFailOnTrailing() throws Exception
     {
         // but things change if we enforce checks
         ObjectMapper strict = newJsonMapper()
@@ -119,7 +119,7 @@ public class FullStreamReadTest
     }
 
     @Test
-    public void testMapperFailOnTrailingWithNull() throws Exception
+    void testMapperFailOnTrailingWithNull() throws Exception
     {
         final ObjectMapper strict = newJsonMapper()
                 .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
@@ -175,7 +175,7 @@ public class FullStreamReadTest
     }
 
     @Test
-    public void testReaderAcceptTrailing() throws Exception
+    void testReaderAcceptTrailing() throws Exception
     {
         ObjectReader R = MAPPER.reader();
         assertFalse(R.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
@@ -190,7 +190,7 @@ public class FullStreamReadTest
     }
 
     @Test
-    public void testReaderFailOnTrailing() throws Exception
+    void testReaderFailOnTrailing() throws Exception
     {
         ObjectReader strictR = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
         ObjectReader strictRForList = strictR.forType(List.class);
@@ -249,7 +249,7 @@ public class FullStreamReadTest
     }
 
     @Test
-    public void testReaderFailOnTrailingWithNull() throws Exception
+    void testReaderFailOnTrailingWithNull() throws Exception
     {
         ObjectReader strictR = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
         ObjectReader strictRForList = strictR.forType(List.class);

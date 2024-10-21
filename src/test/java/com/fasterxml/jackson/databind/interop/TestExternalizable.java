@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @since 2.1
  */
-public class TestExternalizable extends DatabindTestUtil
+class TestExternalizable extends DatabindTestUtil
 {
     /* Not pretty, but needed to make ObjectMapper accessible from
      * static context (alternatively could use ThreadLocal).
@@ -186,7 +186,7 @@ public class TestExternalizable extends DatabindTestUtil
 
     @SuppressWarnings("unused")
     @Test
-    public void testSerializeAsExternalizable() throws Exception
+    void testSerializeAsExternalizable() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         ObjectOutputStream obs = new ObjectOutputStream(bytes);

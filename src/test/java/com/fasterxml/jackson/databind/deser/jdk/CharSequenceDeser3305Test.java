@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // for [databind#3305]
-public class CharSequenceDeser3305Test
+class CharSequenceDeser3305Test
 {
     static final class AppId implements CharSequence {
         private final long value;
@@ -52,7 +52,7 @@ public class CharSequenceDeser3305Test
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testCharSequenceSerialization() throws Exception {
+    void testCharSequenceSerialization() throws Exception {
         AppId appId = AppId.valueOf(APP_ID);
 
         String serialized = MAPPER.writeValueAsString(appId);

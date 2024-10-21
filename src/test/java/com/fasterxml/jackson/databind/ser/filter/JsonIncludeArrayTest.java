@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JsonIncludeArrayTest extends DatabindTestUtil
+class JsonIncludeArrayTest extends DatabindTestUtil
 {
     static class NonEmptyByteArray {
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -79,20 +79,20 @@ public class JsonIncludeArrayTest extends DatabindTestUtil
     final private ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testByteArray() throws IOException
+    void testByteArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyByteArray()));
     }
 
     @Test
-    public void testShortArray() throws IOException
+    void testShortArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyShortArray()));
         assertEquals("{\"value\":[1]}", MAPPER.writeValueAsString(new NonEmptyShortArray((short) 1)));
     }
 
     @Test
-    public void testCharArray() throws IOException
+    void testCharArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyCharArray()));
         // by default considered to be serialized as String
@@ -104,35 +104,35 @@ public class JsonIncludeArrayTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIntArray() throws IOException
+    void testIntArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyIntArray()));
         assertEquals("{\"value\":[2]}", MAPPER.writeValueAsString(new NonEmptyIntArray(2)));
     }
 
     @Test
-    public void testLongArray() throws IOException
+    void testLongArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyLongArray()));
         assertEquals("{\"value\":[3,4]}", MAPPER.writeValueAsString(new NonEmptyLongArray(3, 4)));
     }
 
     @Test
-    public void testBooleanArray() throws IOException
+    void testBooleanArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyBooleanArray()));
         assertEquals("{\"value\":[true,false]}", MAPPER.writeValueAsString(new NonEmptyBooleanArray(true,false)));
     }
 
     @Test
-    public void testDoubleArray() throws IOException
+    void testDoubleArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyDoubleArray()));
         assertEquals("{\"value\":[0.25,-1.0]}", MAPPER.writeValueAsString(new NonEmptyDoubleArray(0.25,-1.0)));
     }
 
     @Test
-    public void testFloatArray() throws IOException
+    void testFloatArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyFloatArray()));
         assertEquals("{\"value\":[0.5]}", MAPPER.writeValueAsString(new NonEmptyFloatArray(0.5f)));

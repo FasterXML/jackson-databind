@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class ArrayMergeTest
+class ArrayMergeTest
 {
     static class MergedX<T>
     {
@@ -44,7 +44,7 @@ public class ArrayMergeTest
             .build();
 
     @Test
-    public void testObjectArrayMerging() throws Exception
+    void testObjectArrayMerging() throws Exception
     {
         MergedX<Object[]> input = new MergedX<Object[]>(new Object[] {
                 "foo"
@@ -72,7 +72,7 @@ public class ArrayMergeTest
 
     // [databind#4121]
     @Test
-    public void testComponentTypeArrayMerging() throws Exception
+    void testComponentTypeArrayMerging() throws Exception
     {
         Merged4121 input = new Merged4121();
         input.value = new Date[] {new Date(1000L)};
@@ -97,7 +97,7 @@ public class ArrayMergeTest
     }
 
     @Test
-    public void testStringArrayMerging() throws Exception
+    void testStringArrayMerging() throws Exception
     {
         MergedX<String[]> input = new MergedX<String[]>(new String[] { "foo" });
         MergedX<String[]> result = MAPPER
@@ -111,7 +111,7 @@ public class ArrayMergeTest
     }
 
     @Test
-    public void testBooleanArrayMerging() throws Exception
+    void testBooleanArrayMerging() throws Exception
     {
         MergedX<boolean[]> input = new MergedX<boolean[]>(new boolean[] { true, false });
         MergedX<boolean[]> result = MAPPER
@@ -124,7 +124,7 @@ public class ArrayMergeTest
     }
 
     @Test
-    public void testByteArrayMerging() throws Exception
+    void testByteArrayMerging() throws Exception
     {
         MergedX<byte[]> input = new MergedX<byte[]>(new byte[] { 1, 2 });
         MergedX<byte[]> result = MAPPER
@@ -137,7 +137,7 @@ public class ArrayMergeTest
     }
 
     @Test
-    public void testShortArrayMerging() throws Exception
+    void testShortArrayMerging() throws Exception
     {
         MergedX<short[]> input = new MergedX<short[]>(new short[] { 1, 2 });
         MergedX<short[]> result = MAPPER
@@ -150,7 +150,7 @@ public class ArrayMergeTest
     }
 
     @Test
-    public void testCharArrayMerging() throws Exception
+    void testCharArrayMerging() throws Exception
     {
         MergedX<char[]> input = new MergedX<char[]>(new char[] { 'a', 'b' });
         MergedX<char[]> result = MAPPER
@@ -171,7 +171,7 @@ public class ArrayMergeTest
     }
 
     @Test
-    public void testIntArrayMerging() throws Exception
+    void testIntArrayMerging() throws Exception
     {
         MergedX<int[]> input = new MergedX<int[]>(new int[] { 1, 2 });
         MergedX<int[]> result = MAPPER
@@ -193,7 +193,7 @@ public class ArrayMergeTest
     }
 
     @Test
-    public void testLongArrayMerging() throws Exception
+    void testLongArrayMerging() throws Exception
     {
         MergedX<long[]> input = new MergedX<long[]>(new long[] { 1, 2 });
         MergedX<long[]> result = MAPPER

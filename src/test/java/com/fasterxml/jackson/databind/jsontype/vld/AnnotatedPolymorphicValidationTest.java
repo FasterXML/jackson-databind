@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Unit tests for verifying that "unsafe" base type(s) for polymorphic deserialization
  * are correctly handled wrt {@link MapperFeature#BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES}.
  */
-public class AnnotatedPolymorphicValidationTest
-    extends DatabindTestUtil
+class AnnotatedPolymorphicValidationTest
+        extends DatabindTestUtil
 {
     static class WrappedPolymorphicUntyped {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
@@ -69,7 +69,7 @@ public class AnnotatedPolymorphicValidationTest
             .build();
 
     @Test
-    public void testPolymorphicWithUnsafeBaseType() throws IOException
+    void testPolymorphicWithUnsafeBaseType() throws IOException
     {
         final String JSON = a2q("{'value':10}");
         // by default, we should NOT be allowed to deserialize due to unsafe base type

@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class CustomTypeIdResolverTest extends DatabindTestUtil
+class CustomTypeIdResolverTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use=Id.CUSTOM, include=As.WRAPPER_OBJECT)
     @JsonTypeIdResolver(CustomResolver.class)
@@ -182,7 +182,7 @@ public class CustomTypeIdResolverTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testCustomTypeIdResolver() throws Exception
+    void testCustomTypeIdResolver() throws Exception
     {
         List<JavaType> types = new ArrayList<JavaType>();
         CustomResolver.initTypes = types;
@@ -202,7 +202,7 @@ public class CustomTypeIdResolverTest extends DatabindTestUtil
     }
 
     @Test
-    public void testCustomWithExternal() throws Exception
+    void testCustomWithExternal() throws Exception
     {
         ExtBeanWrapper w = new ExtBeanWrapper();
         w.value = new ExtBeanImpl(12);
@@ -217,7 +217,7 @@ public class CustomTypeIdResolverTest extends DatabindTestUtil
 
     // for [databind#1270]
     @Test
-    public void testPolymorphicTypeViaCustom() throws Exception {
+    void testPolymorphicTypeViaCustom() throws Exception {
         Base1270<Poly1> req = new Base1270<Poly1>();
         Poly1 o = new Poly1();
         o.val = "optionValue";

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BeanSerializerModifier1612Test extends DatabindTestUtil
+class BeanSerializerModifier1612Test extends DatabindTestUtil
 {
     @JsonPropertyOrder({ "a", "b", "c" })
     static class Bean1612 {
@@ -54,7 +54,7 @@ public class BeanSerializerModifier1612Test extends DatabindTestUtil
      */
 
     @Test
-    public void testIssue1612() throws Exception
+    void testIssue1612() throws Exception
     {
         SimpleModule mod = new SimpleModule();
         mod.setSerializerModifier(new Modifier1612());

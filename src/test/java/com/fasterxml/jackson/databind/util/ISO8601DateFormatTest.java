@@ -11,13 +11,13 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("deprecation")
-public class ISO8601DateFormatTest extends DatabindTestUtil
+class ISO8601DateFormatTest extends DatabindTestUtil
 {
     private ISO8601DateFormat df;
     private Date date;
 
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         Calendar cal = new GregorianCalendar(2007, 8 - 1, 13, 19, 51, 23);
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -27,13 +27,13 @@ public class ISO8601DateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    public void testFormat() {
+    void testFormat() {
         String result = df.format(date);
         assertEquals("2007-08-13T19:51:23Z", result);
     }
 
     @Test
-    public void testParse() throws Exception {
+    void testParse() throws Exception {
         Date result = df.parse("2007-08-13T19:51:23Z");
         assertEquals(date, result);
 
@@ -49,7 +49,7 @@ public class ISO8601DateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    public void testPartialParse() throws Exception {
+    void testPartialParse() throws Exception {
         java.text.ParsePosition pos = new java.text.ParsePosition(0);
         String timestamp = "2007-08-13T19:51:23Z";
         Date result = df.parse(timestamp + "hello", pos);
@@ -59,13 +59,13 @@ public class ISO8601DateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    public void testCloneObject() throws Exception {
+    void testCloneObject() throws Exception {
         DateFormat clone = (DateFormat)df.clone();
         assertSame(df, clone);
     }
 
     @Test
-    public void testHashCodeEquals() throws Exception {
+    void testHashCodeEquals() throws Exception {
         // for [databind#1130]
         DateFormat defaultDF = StdDateFormat.instance;
         defaultDF.hashCode();

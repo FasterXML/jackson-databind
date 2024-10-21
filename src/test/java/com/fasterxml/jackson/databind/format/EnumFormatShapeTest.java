@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for verifying serialization of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
-public class EnumFormatShapeTest
-    extends DatabindTestUtil
+class EnumFormatShapeTest
+        extends DatabindTestUtil
 {
     @JsonFormat(shape=JsonFormat.Shape.OBJECT)
     static enum PoNUM {
@@ -115,49 +115,49 @@ public class EnumFormatShapeTest
     // Tests for JsonFormat.shape
 
     @Test
-    public void testEnumAsObjectValid() throws Exception {
+    void testEnumAsObjectValid() throws Exception {
         assertEquals("{\"value\":\"a1\"}", MAPPER.writeValueAsString(PoNUM.A));
     }
 
     @Test
-    public void testEnumAsIndexViaAnnotations() throws Exception {
+    void testEnumAsIndexViaAnnotations() throws Exception {
         assertEquals("{\"text\":0}", MAPPER.writeValueAsString(new PoNUMContainer()));
     }
 
     // As of 2.5, use of Shape.ARRAY is legal alias for "write as number"
     @Test
-    public void testEnumAsObjectBroken() throws Exception
+    void testEnumAsObjectBroken() throws Exception
     {
         assertEquals("0", MAPPER.writeValueAsString(PoAsArray.A));
     }
 
     // [databind#572]
     @Test
-    public void testOverrideEnumAsString() throws Exception {
+    void testOverrideEnumAsString() throws Exception {
         assertEquals("{\"value\":\"B\"}", MAPPER.writeValueAsString(new PoOverrideAsString()));
     }
 
     @Test
-    public void testOverrideEnumAsNumber() throws Exception {
+    void testOverrideEnumAsNumber() throws Exception {
         assertEquals("{\"value\":1}", MAPPER.writeValueAsString(new PoOverrideAsNumber()));
     }
 
     // for [databind#1543]
     @Test
-    public void testEnumValueAsNumber() throws Exception {
+    void testEnumValueAsNumber() throws Exception {
         assertEquals(String.valueOf(Color.GREEN.ordinal()),
                 MAPPER.writeValueAsString(Color.GREEN));
     }
 
     @Test
-    public void testEnumPropertyAsNumber() throws Exception {
+    void testEnumPropertyAsNumber() throws Exception {
         assertEquals(String.format(a2q("{'color':%s}"), Color.GREEN.ordinal()),
                 MAPPER.writeValueAsString(new ColorWrapper(Color.GREEN)));
     }
 
     // [databind#2365]
     @Test
-    public void testEnumWithNamingStrategy() throws Exception {
+    void testEnumWithNamingStrategy() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .build();
@@ -167,7 +167,7 @@ public class EnumFormatShapeTest
 
     // [databind#2576]
     @Test
-    public void testEnumWithMethodOverride() throws Exception {
+    void testEnumWithMethodOverride() throws Exception {
         String stringResult = MAPPER.writeValueAsString(Enum2576.ATTRIBUTES);
         Map<?,?> result = MAPPER.readValue(stringResult, Map.class);
         Map<String,String> exp = Collections.singletonMap("key", "attributes");

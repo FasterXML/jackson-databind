@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
-public class DeepArrayWrappingForDeser3582Test
+class DeepArrayWrappingForDeser3582Test
 {
     // 23-Aug-2022, tatu: Before fix, failed with 5000
     private final static int TOO_DEEP_NESTING = 9999;
@@ -21,7 +21,7 @@ public class DeepArrayWrappingForDeser3582Test
             .build();
 
     @Test
-    public void testArrayWrapping() throws Exception
+    void testArrayWrapping() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ", "{}");
         try {

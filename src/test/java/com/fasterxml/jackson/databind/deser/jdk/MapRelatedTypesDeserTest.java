@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class MapRelatedTypesDeserTest
+class MapRelatedTypesDeserTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -22,7 +22,7 @@ public class MapRelatedTypesDeserTest
      */
 
     @Test
-    public void testMapEntrySimpleTypes() throws Exception
+    void testMapEntrySimpleTypes() throws Exception
     {
         List<Map.Entry<String,Long>> stuff = MAPPER.readValue(a2q("[{'a':15},{'b':42}]"),
                 new TypeReference<List<Map.Entry<String,Long>>>() { });
@@ -34,7 +34,7 @@ public class MapRelatedTypesDeserTest
     }
 
     @Test
-    public void testMapEntryWithStringBean() throws Exception
+    void testMapEntryWithStringBean() throws Exception
     {
         List<Map.Entry<Integer,StringWrapper>> stuff = MAPPER.readValue(a2q("[{'28':'Foo'},{'13':'Bar'}]"),
                 new TypeReference<List<Map.Entry<Integer,StringWrapper>>>() { });
@@ -48,7 +48,7 @@ public class MapRelatedTypesDeserTest
     }
 
     @Test
-    public void testMapEntryFail() throws Exception
+    void testMapEntryFail() throws Exception
     {
         try {
             /*List<Map.Entry<Integer,StringWrapper>> stuff =*/ MAPPER.readValue(a2q("[{'28':'Foo','13':'Bar'}]"),
@@ -67,7 +67,7 @@ public class MapRelatedTypesDeserTest
 
     // [databind#810]
     @Test
-    public void testReadProperties() throws Exception
+    void testReadProperties() throws Exception
     {
         Properties props = MAPPER.readValue(a2q("{'a':'foo', 'b':123, 'c':true}"),
                 Properties.class);
@@ -79,7 +79,7 @@ public class MapRelatedTypesDeserTest
 
     // JDK singletonMap
     @Test
-    public void testSingletonMapRoundtrip() throws Exception
+    void testSingletonMapRoundtrip() throws Exception
     {
         final TypeReference<Map<String,IntWrapper>> type = new TypeReference<Map<String,IntWrapper>>() { };
 

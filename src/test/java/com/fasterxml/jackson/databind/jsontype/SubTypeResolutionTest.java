@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * such downcast just for Map key types (for now at least).
  */
 @SuppressWarnings("serial")
-public class SubTypeResolutionTest extends DatabindTestUtil
+class SubTypeResolutionTest extends DatabindTestUtil
 {
     // [databind#1964]
     static class AccessModel {
@@ -42,6 +42,7 @@ public class SubTypeResolutionTest extends DatabindTestUtil
             this.repositoryPrivileges = repositoryPrivileges;
         }
     }
+
     static class CustomMap<T> extends LinkedHashMap<Object, T> { }
 
     // [databind#2034]: specialization from `Object` to other types probably should
@@ -103,7 +104,7 @@ public class SubTypeResolutionTest extends DatabindTestUtil
 
     // [databind#1964]
     @Test
-    public void testTypeCompatibility1964() throws Exception
+    void testTypeCompatibility1964() throws Exception
     {
         // Important! Must use raw type since assignment requires effectively
         // casting due incompatible type parameters.
@@ -124,7 +125,7 @@ public class SubTypeResolutionTest extends DatabindTestUtil
 
     // [databind#2034]
     @Test
-    public void testTypeSpecialization2034() throws Exception
+    void testTypeSpecialization2034() throws Exception
     {
         MetaModel<Dummy, Dummy> metaModel = new MetaModel<>();
         metaModel.describeList("a1");
@@ -135,7 +136,7 @@ public class SubTypeResolutionTest extends DatabindTestUtil
 
     // [databind#2632]: fail to specialize type-erased
     @Test
-    public void testSpecializeIncompatibleRawType() throws Exception
+    void testSpecializeIncompatibleRawType() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Foo());
         assertNotNull(json);

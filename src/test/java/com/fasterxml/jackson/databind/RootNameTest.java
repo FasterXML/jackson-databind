@@ -16,7 +16,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
  * Unit tests dealing with handling of "root element wrapping",
  * including configuration of root name to use.
  */
-public class RootNameTest
+class RootNameTest
 {
     @JsonRootName("rudy")
     static class Bean {
@@ -35,7 +35,7 @@ public class RootNameTest
      */
 
     @Test
-    public void testRootViaMapper() throws Exception
+    void testRootViaMapper() throws Exception
     {
         ObjectMapper mapper = rootMapper();
         String json = mapper.writeValueAsString(new Bean());
@@ -52,7 +52,7 @@ public class RootNameTest
     }
 
     @Test
-    public void testRootViaMapperFails() throws Exception
+    void testRootViaMapperFails() throws Exception
     {
         final ObjectMapper mapper = rootMapper();
         // First kind of fail, wrong name
@@ -90,7 +90,7 @@ public class RootNameTest
     }
 
     @Test
-    public void testRootViaReaderFails() throws Exception
+    void testRootViaReaderFails() throws Exception
     {
         final ObjectReader reader = rootMapper().readerFor(Bean.class);
         // First kind of fail, wrong name
@@ -128,7 +128,7 @@ public class RootNameTest
     }
 
     @Test
-    public void testRootViaWriterAndReader() throws Exception
+    void testRootViaWriterAndReader() throws Exception
     {
         ObjectMapper mapper = rootMapper();
         String json = mapper.writer().writeValueAsString(new Bean());
@@ -138,7 +138,7 @@ public class RootNameTest
     }
 
     @Test
-    public void testReconfiguringOfWrapping() throws Exception
+    void testReconfiguringOfWrapping() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // default: no wrapping
@@ -167,7 +167,7 @@ public class RootNameTest
     }
 
     @Test
-    public void testRootUsingExplicitConfig() throws Exception
+    void testRootUsingExplicitConfig() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         ObjectWriter writer = mapper.writer().withRootName("wrapper");

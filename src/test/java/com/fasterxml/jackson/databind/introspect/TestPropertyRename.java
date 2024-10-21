@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Unit tests verifying handling of potential and actual
  * conflicts, regarding property handling.
  */
-public class TestPropertyRename extends DatabindTestUtil
+class TestPropertyRename extends DatabindTestUtil
 {
     static class Bean323WithIgnore {
         @JsonIgnore
@@ -65,14 +65,14 @@ public class TestPropertyRename extends DatabindTestUtil
      */
 
     @Test
-    public void testCreatorPropRenameWithIgnore() throws Exception
+    void testCreatorPropRenameWithIgnore() throws Exception
     {
         Bean323WithIgnore input = new Bean323WithIgnore(7);
         assertEquals("{\"b\":7}", objectWriter().writeValueAsString(input));
     }
 
     @Test
-    public void testCreatorPropRenameWithCleave() throws Exception
+    void testCreatorPropRenameWithCleave() throws Exception
     {
         assertEquals("{\"a\":7,\"b\":7}",
         		objectWriter().writeValueAsString(new Bean323WithExplicitCleave1(7)));

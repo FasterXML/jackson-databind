@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 // Tests for External type id, one that exists at same level as typed Object,
 // that is, property is not within typed object but a member of its parent.
-public class ExternalTypeId96Test extends DatabindTestUtil
+class ExternalTypeId96Test extends DatabindTestUtil
 {
     // for [databind#96]
     static class ExternalBeanWithDefault
@@ -50,7 +50,7 @@ public class ExternalTypeId96Test extends DatabindTestUtil
      *   know what the best resolution is. For now at least
      */
     @Test
-    public void testWithDefaultAndMissing() throws Exception
+    void testWithDefaultAndMissing() throws Exception
     {
         ExternalBeanWithDefault input = new ExternalBeanWithDefault(13);
         // baseline: include type, verify things work:

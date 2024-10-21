@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class Generic1128Test extends DatabindTestUtil
+class Generic1128Test extends DatabindTestUtil
 {
     @SuppressWarnings("rawtypes")
     static abstract class HObj<M extends HObj> {
@@ -52,7 +52,7 @@ public class Generic1128Test extends DatabindTestUtil
     static class DevMContainer extends ContainerBase<DevM>{ }
 
     @Test
-    public void testIssue1128() throws Exception
+    void testIssue1128() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);

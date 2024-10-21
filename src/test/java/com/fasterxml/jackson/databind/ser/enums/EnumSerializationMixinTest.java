@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class EnumSerializationMixinTest extends DatabindTestUtil
+class EnumSerializationMixinTest extends DatabindTestUtil
 {
 
     static enum EnumBaseA {
@@ -56,7 +56,7 @@ public class EnumSerializationMixinTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSerialization() throws Exception {
+    void testSerialization() throws Exception {
         ObjectMapper mixinMapper = jsonMapperBuilder()
                 .addMixIn(EnumBaseA.class, EnumMixinA.class).build();
 

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TestCreatorsWithIdentity
+class TestCreatorsWithIdentity
 {
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id", scope=Parent.class)
 	public static class Parent {
@@ -42,8 +42,8 @@ public class TestCreatorsWithIdentity
 
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
-	@Test
-	public void testSimple() throws IOException
+    @Test
+    void testSimple() throws IOException
 	{
 	    String parentStr = "{\"id\" : \"1\", \"parentProp\" : \"parent\"}";
 	    String childStr = "{\"childProp\" : \"child\", \"parent\" : " + parentStr + "}";

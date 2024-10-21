@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SequenceWriterTest extends DatabindTestUtil
+class SequenceWriterTest extends DatabindTestUtil
 {
     static class Bean {
         public int a;
@@ -98,7 +98,7 @@ public class SequenceWriterTest extends DatabindTestUtil
             .withRootValueSeparator("\n");
 
     @Test
-    public void testSimpleNonArray() throws Exception
+    void testSimpleNonArray() throws Exception
     {
         StringWriter strw = new StringWriter();
         SequenceWriter w = WRITER
@@ -127,7 +127,7 @@ public class SequenceWriterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleNonArrayNoSeparator() throws Exception
+    void testSimpleNonArrayNoSeparator() throws Exception
     {
         final String EXP = a2q("{'a':1}{'a':2}");
 
@@ -145,7 +145,7 @@ public class SequenceWriterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleArray() throws Exception
+    void testSimpleArray() throws Exception
     {
         StringWriter strw = new StringWriter();
         SequenceWriter w = WRITER.writeValuesAsArray(strw);
@@ -177,7 +177,7 @@ public class SequenceWriterTest extends DatabindTestUtil
 
     @SuppressWarnings("resource")
     @Test
-    public void testPolymorphicNonArrayWithoutType() throws Exception
+    void testPolymorphicNonArrayWithoutType() throws Exception
     {
         StringWriter strw = new StringWriter();
         SequenceWriter w = WRITER
@@ -191,7 +191,7 @@ public class SequenceWriterTest extends DatabindTestUtil
 
     @SuppressWarnings("resource")
     @Test
-    public void testPolymorphicArrayWithoutType() throws Exception
+    void testPolymorphicArrayWithoutType() throws Exception
     {
         StringWriter strw = new StringWriter();
         SequenceWriter w = WRITER
@@ -204,7 +204,7 @@ public class SequenceWriterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testPolymorphicArrayWithType() throws Exception
+    void testPolymorphicArrayWithType() throws Exception
     {
         StringWriter strw = new StringWriter();
         SequenceWriter w = WRITER
@@ -221,7 +221,7 @@ public class SequenceWriterTest extends DatabindTestUtil
 
     @SuppressWarnings("resource")
     @Test
-    public void testSimpleCloseable() throws Exception
+    void testSimpleCloseable() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         ObjectWriter w = mapper.writer()
@@ -240,7 +240,7 @@ public class SequenceWriterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWithExplicitType() throws Exception
+    void testWithExplicitType() throws Exception
     {
         ObjectWriter w = MAPPER.writer()
                 // just for fun (and higher coverage):

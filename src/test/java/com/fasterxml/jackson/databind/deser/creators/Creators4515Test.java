@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Tests to help cover simpler cases wrt [databind#4515]
  */
-public class Creators4515Test extends DatabindTestUtil
+class Creators4515Test extends DatabindTestUtil
 {
     static class ConstructorBeanPropsExplicit {
         int x;
@@ -53,7 +53,7 @@ public class Creators4515Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testPropsBasedConstructorExplicit() throws Exception
+    void testPropsBasedConstructorExplicit() throws Exception
     {
         ConstructorBeanPropsExplicit bean = MAPPER.readValue("{ \"x\" : 42 }",
                 ConstructorBeanPropsExplicit.class);
@@ -61,7 +61,7 @@ public class Creators4515Test extends DatabindTestUtil
     }
 
     @Test
-    public void testPropsBasedConstructorWithName() throws Exception
+    void testPropsBasedConstructorWithName() throws Exception
     {
         ConstructorBeanPropsWithName bean = MAPPER.readValue("{ \"x\" : 28 }",
                 ConstructorBeanPropsWithName.class);
@@ -75,7 +75,7 @@ public class Creators4515Test extends DatabindTestUtil
      */
 
     @Test
-    public void testPropsBasedFactoryExplicit() throws Exception
+    void testPropsBasedFactoryExplicit() throws Exception
     {
         FactoryBeanPropsExplicit bean = MAPPER.readValue("{ \"f\" : 0.5 }",
                 FactoryBeanPropsExplicit.class);

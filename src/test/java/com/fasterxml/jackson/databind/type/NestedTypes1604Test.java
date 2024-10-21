@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // for [databind#1604]
-public class NestedTypes1604Test
+class NestedTypes1604Test
 {
     public static class Data<T> {
         private T data;
@@ -98,7 +98,7 @@ public class NestedTypes1604Test
     private final ObjectMapper objectMapper = newJsonMapper();
 
     @Test
-    public void testIssue1604Simple() throws Exception
+    void testIssue1604Simple() throws Exception
     {
         List<Inner> inners = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
@@ -113,8 +113,8 @@ public class NestedTypes1604Test
         assertNotNull(json);
    }
 
-   @Test
-    public void testIssue1604Subtype() throws Exception
+    @Test
+    void testIssue1604Subtype() throws Exception
     {
         List<Inner> inners = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
@@ -125,8 +125,8 @@ public class NestedTypes1604Test
         assertNotNull(json);
    }
 
-   @Test
-    public void testIssue1604Sneaky() throws Exception
+    @Test
+    void testIssue1604Sneaky() throws Exception
     {
         List<Inner> inners = new ArrayList<>();
         for (int i = 0; i < 2; i++) {

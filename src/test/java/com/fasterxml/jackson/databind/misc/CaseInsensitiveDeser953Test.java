@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CaseInsensitiveDeser953Test extends DatabindTestUtil
+class CaseInsensitiveDeser953Test extends DatabindTestUtil
 {
     static class Id953 {
         @JsonProperty("someId")
@@ -33,12 +33,12 @@ public class CaseInsensitiveDeser953Test extends DatabindTestUtil
             .build();
 
     @Test
-    public void testTurkishILetterDeserializationWithEn() throws Exception {
+    void testTurkishILetterDeserializationWithEn() throws Exception {
         _testTurkishILetterDeserialization(INSENSITIVE_MAPPER_EN, LOCALE_EN);
     }
 
     @Test
-    public void testTurkishILetterDeserializationWithTr() throws Exception {
+    void testTurkishILetterDeserializationWithTr() throws Exception {
         _testTurkishILetterDeserialization(INSENSITIVE_MAPPER_TR, LOCALE_TR);
     }
 

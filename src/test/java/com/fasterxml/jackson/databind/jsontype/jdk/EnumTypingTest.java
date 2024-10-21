@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("serial")
-public class EnumTypingTest extends DatabindTestUtil
+class EnumTypingTest extends DatabindTestUtil
 {
     // note: As.WRAPPER_ARRAY worked initially; but as per [JACKSON-485], As.PROPERTY had issues
     @JsonTypeInfo(use=JsonTypeInfo.Id.MINIMAL_CLASS, include=JsonTypeInfo.As.PROPERTY)
@@ -114,7 +114,7 @@ public class EnumTypingTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testTagList() throws Exception
+    void testTagList() throws Exception
     {
         TagList list = new TagList();
         list.add(Tag.A);
@@ -128,7 +128,7 @@ public class EnumTypingTest extends DatabindTestUtil
     }
 
     @Test
-    public void testEnumInterface() throws Exception
+    void testEnumInterface() throws Exception
     {
         String json = MAPPER.writeValueAsString(Tag.B);
         EnumInterface result = MAPPER.readValue(json, EnumInterface.class);
@@ -136,7 +136,7 @@ public class EnumTypingTest extends DatabindTestUtil
     }
 
     @Test
-    public void testEnumInterfaceList() throws Exception
+    void testEnumInterfaceList() throws Exception
     {
         EnumInterfaceList list = new EnumInterfaceList();
         list.add(Tag.A);
@@ -150,7 +150,7 @@ public class EnumTypingTest extends DatabindTestUtil
     }
 
     @Test
-    public void testUntypedEnum() throws Exception
+    void testUntypedEnum() throws Exception
     {
         String str = MAPPER.writeValueAsString(new UntypedEnumBean(TestEnum.B));
         UntypedEnumBean result = MAPPER.readValue(str, UntypedEnumBean.class);
@@ -163,7 +163,7 @@ public class EnumTypingTest extends DatabindTestUtil
 
     // for [databind#2605]
     @Test
-    public void testRoundtrip() throws Exception
+    void testRoundtrip() throws Exception
     {
         EnumContaintingClass<TestEnum> input = new EnumContaintingClass<TestEnum>(TestEnum.B);
         String json = MAPPER.writeValueAsString(input);
@@ -174,7 +174,7 @@ public class EnumTypingTest extends DatabindTestUtil
 
     // [databind#2775]
     @Test
-    public void testEnumAsSubtypeNoFailOnInvalidTypeId() throws Exception
+    void testEnumAsSubtypeNoFailOnInvalidTypeId() throws Exception
     {
         final Base2775 testValue = TestEnum2775.VALUE;
         String json = MAPPER.writeValueAsString(testValue);
@@ -189,7 +189,7 @@ public class EnumTypingTest extends DatabindTestUtil
     // [databind#3796]
     @SuppressWarnings("deprecation")
     @Test
-    public void testEnumAsPolymorphicViaCreator() throws Exception
+    void testEnumAsPolymorphicViaCreator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         StdTypeResolverBuilder typer = new DefaultTypeResolverBuilder(DefaultTyping.EVERYTHING,

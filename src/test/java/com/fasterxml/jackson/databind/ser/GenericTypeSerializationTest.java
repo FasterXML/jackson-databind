@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GenericTypeSerializationTest extends DatabindTestUtil
+class GenericTypeSerializationTest extends DatabindTestUtil
 {
     static class Account {
         private Long id;
@@ -453,7 +453,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testIssue468a() throws Exception
+    void testIssue468a() throws Exception
     {
         Person1 p1 = new Person1("John");
         p1.setAccount(new Key<Account>(new Account("something", 42L)));
@@ -476,7 +476,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testIssue468b() throws Exception
+    void testIssue468b() throws Exception
     {
         Person2 p2 = new Person2("John");
         List<Key<Account>> accounts = new ArrayList<Key<Account>>();
@@ -503,7 +503,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
      * from inner classes of generic classes (like Sets).
      */
     @Test
-    public void testUnboundTypes() throws Exception
+    void testUnboundTypes() throws Exception
     {
         GenericBogusWrapper<Integer> list = new GenericBogusWrapper<Integer>(Integer.valueOf(7));
         String json = MAPPER.writeValueAsString(list);
@@ -511,7 +511,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testRootTypeForCollections727() throws Exception
+    void testRootTypeForCollections727() throws Exception
     {
         List<Base727> input = new ArrayList<Base727>();
         input.add(new Impl727(1, 2));
@@ -529,7 +529,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
     // For [databind#2821]
     @SuppressWarnings("unchecked")
     @Test
-    public void testTypeResolution2821() throws Exception
+    void testTypeResolution2821() throws Exception
     {
         Entity2821<String> entity = new Entity2821<>(new Attributes2821("id"), "hello");
         List<Entity2821<?>> list;
@@ -546,7 +546,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testStaticDelegateDeserialization() throws Exception
+    void testStaticDelegateDeserialization() throws Exception
     {
         GenericWrapper<Account, String> wrapper = MAPPER.readValue(
                 "{\"first\":{\"id\":1,\"name\":\"name\"},\"second\":\"str\"}",
@@ -558,7 +558,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testStaticDelegateDeserialization_factoryProvidesSpecificity0() throws Exception
+    void testStaticDelegateDeserialization_factoryProvidesSpecificity0() throws Exception
     {
         GenericSpecificityWrapper0<Object, Account> wrapper = MAPPER.readValue(
                 "{\"first\":\"1\",\"second\":{\"id\":1,\"name\":\"name\"}}",
@@ -570,7 +570,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testStaticDelegateDeserialization_factoryProvidesSpecificity1() throws Exception
+    void testStaticDelegateDeserialization_factoryProvidesSpecificity1() throws Exception
     {
         GenericSpecificityWrapper1<StringStub, Account> wrapper = MAPPER.readValue(
                 "{\"first\":\"1\",\"second\":{\"id\":1,\"name\":\"name\"}}",
@@ -582,7 +582,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testStaticDelegateDeserialization_factoryProvidesSpecificity2() throws Exception
+    void testStaticDelegateDeserialization_factoryProvidesSpecificity2() throws Exception
     {
         GenericSpecificityWrapper2<Stub<Object>, Account> wrapper = MAPPER.readValue(
                 "{\"first\":\"1\",\"second\":{\"id\":1,\"name\":\"name\"}}",
@@ -595,7 +595,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testStaticDelegateDeserialization_wildcardInResult() throws Exception
+    void testStaticDelegateDeserialization_wildcardInResult() throws Exception
     {
         WildcardWrapperImpl<Account, Account> wrapper = MAPPER.readValue(
                 "{\"first\":{\"id\":1,\"name\":\"name1\"},\"second\":{\"id\":2,\"name\":\"name2\"}}",
@@ -607,7 +607,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleStaticJsonCreator() throws Exception
+    void testSimpleStaticJsonCreator() throws Exception
     {
         SimpleWrapper<Account> wrapper = MAPPER.readValue("{\"object\":{\"id\":1,\"name\":\"name1\"}}",
                 new TypeReference<SimpleWrapper<Account>>() {});
@@ -616,7 +616,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIndexedListExample() throws Exception
+    void testIndexedListExample() throws Exception
     {
         UUID uuid = UUID.randomUUID();
         IndexedList<TestIndexed, String> value = MAPPER.readValue(String.format("[\"%s\"]", uuid.toString()),

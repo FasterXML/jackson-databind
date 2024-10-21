@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestDefaultForArrays extends DatabindTestUtil
+class TestDefaultForArrays extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -51,7 +51,7 @@ public class TestDefaultForArrays extends DatabindTestUtil
      * back, even though declared type is Object array
      */
     @Test
-    public void testArrayTypingSimple() throws Exception
+    void testArrayTypingSimple() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder().
                 activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -66,7 +66,7 @@ public class TestDefaultForArrays extends DatabindTestUtil
 
     // And let's try it with deeper array as well
     @Test
-    public void testArrayTypingNested() throws Exception
+    void testArrayTypingNested() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -80,7 +80,7 @@ public class TestDefaultForArrays extends DatabindTestUtil
     }
 
     @Test
-    public void testNodeInArray() throws Exception
+    void testNodeInArray() throws Exception
     {
         JsonNode node = new ObjectMapper().readTree("{\"a\":3}");
         ObjectMapper m = jsonMapperBuilder()
@@ -97,7 +97,7 @@ public class TestDefaultForArrays extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testNodeInEmptyArray() throws Exception {
+    void testNodeInEmptyArray() throws Exception {
         Map<String, List<String>> outerMap = new HashMap<String, List<String>>();
         outerMap.put("inner", new ArrayList<String>());
         ObjectMapper m = new ObjectMapper().disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
@@ -127,7 +127,7 @@ public class TestDefaultForArrays extends DatabindTestUtil
     }
 
     @Test
-    public void testArraysOfArrays() throws Exception
+    void testArraysOfArrays() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -144,7 +144,7 @@ public class TestDefaultForArrays extends DatabindTestUtil
     }
 
     @Test
-    public void testArrayTypingForPrimitiveArrays() throws Exception
+    void testArrayTypingForPrimitiveArrays() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.activateDefaultTyping(NoCheckSubTypeValidator.instance,

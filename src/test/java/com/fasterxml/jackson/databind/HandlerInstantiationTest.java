@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
 
-public class HandlerInstantiationTest
+class HandlerInstantiationTest
 {
     /*
     /**********************************************************************
@@ -232,7 +232,7 @@ public class HandlerInstantiationTest
      */
 
     @Test
-    public void testDeserializer() throws Exception
+    void testDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setHandlerInstantiator(new MyInstantiator("abc:"));
@@ -241,7 +241,7 @@ public class HandlerInstantiationTest
     }
 
     @Test
-    public void testKeyDeserializer() throws Exception
+    void testKeyDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setHandlerInstantiator(new MyInstantiator("abc:"));
@@ -251,7 +251,7 @@ public class HandlerInstantiationTest
     }
 
     @Test
-    public void testSerializer() throws Exception
+    void testSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setHandlerInstantiator(new MyInstantiator("xyz:"));
@@ -259,7 +259,7 @@ public class HandlerInstantiationTest
     }
 
     @Test
-    public void testTypeIdResolver() throws Exception
+    void testTypeIdResolver() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setHandlerInstantiator(new MyInstantiator("foobar"));

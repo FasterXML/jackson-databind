@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FormatFeatureUnwrapSingleTest extends DatabindTestUtil
+class FormatFeatureUnwrapSingleTest extends DatabindTestUtil
 {
     static class StringArrayNotAnnoted {
         public String[] values;
@@ -132,7 +132,7 @@ public class FormatFeatureUnwrapSingleTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testWithArrayTypes() throws Exception
+    void testWithArrayTypes() throws Exception
     {
         // default: strings unwrapped, ints wrapped
         assertEquals(a2q("{'strings':'a','ints':[1],'bools':[true]}"),
@@ -159,7 +159,7 @@ public class FormatFeatureUnwrapSingleTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWithCollectionTypes() throws Exception
+    void testWithCollectionTypes() throws Exception
     {
         // default: strings unwrapped, ints wrapped
         assertEquals(a2q("{'strings':'a','ints':[1],'bools':[true],'enums':'B'}"),
@@ -177,7 +177,7 @@ public class FormatFeatureUnwrapSingleTest extends DatabindTestUtil
     }
 
     @Test
-    public void testUnwrapWithPrimitiveArraysEtc() throws Exception {
+    void testUnwrapWithPrimitiveArraysEtc() throws Exception {
         assertEquals("{\"v\":7}", MAPPER.writeValueAsString(new UnwrapShortArray()));
         assertEquals("{\"v\":3}", MAPPER.writeValueAsString(new UnwrapIntArray()));
         assertEquals("{\"v\":1}", MAPPER.writeValueAsString(new UnwrapLongArray()));

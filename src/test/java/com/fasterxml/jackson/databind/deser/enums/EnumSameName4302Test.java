@@ -9,8 +9,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4302]
-public class EnumSameName4302Test
-    extends DatabindTestUtil
+class EnumSameName4302Test
+        extends DatabindTestUtil
 {
     enum Field4302Enum {
         FOO(0);

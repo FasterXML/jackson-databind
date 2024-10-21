@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class CoerceFloatToIntTest
+class CoerceFloatToIntTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
     private final ObjectReader READER_LEGACY_FAIL = DEFAULT_MAPPER.reader()
@@ -51,7 +51,7 @@ public class CoerceFloatToIntTest
      */
 
     @Test
-    public void testLegacyDoubleToIntCoercion() throws Exception
+    void testLegacyDoubleToIntCoercion() throws Exception
     {
         // by default, should be ok
         Integer I = DEFAULT_MAPPER.readValue(" 1.25 ", Integer.class);
@@ -80,7 +80,7 @@ public class CoerceFloatToIntTest
     }
 
     @Test
-    public void testLegacyFailDoubleToInt() throws Exception
+    void testLegacyFailDoubleToInt() throws Exception
     {
         _verifyCoerceFail(READER_LEGACY_FAIL, Integer.class, "1.5", "java.lang.Integer");
         _verifyCoerceFail(READER_LEGACY_FAIL, Integer.TYPE, "1.5", "int");
@@ -89,7 +89,7 @@ public class CoerceFloatToIntTest
     }
 
     @Test
-    public void testLegacyFailDoubleToLong() throws Exception
+    void testLegacyFailDoubleToLong() throws Exception
     {
         _verifyCoerceFail(READER_LEGACY_FAIL, Long.class, "0.5");
         _verifyCoerceFail(READER_LEGACY_FAIL, Long.TYPE, "-2.5");
@@ -98,7 +98,7 @@ public class CoerceFloatToIntTest
     }
 
     @Test
-    public void testLegacyFailDoubleToOther() throws Exception
+    void testLegacyFailDoubleToOther() throws Exception
     {
         _verifyCoerceFail(READER_LEGACY_FAIL, Short.class, "0.5");
         _verifyCoerceFail(READER_LEGACY_FAIL, Short.TYPE, "-2.5");
@@ -121,7 +121,7 @@ public class CoerceFloatToIntTest
 
     // [databind#2804]
     @Test
-    public void testLegacyFail2804() throws Exception
+    void testLegacyFail2804() throws Exception
     {
         _testLegacyFail2804("5.5", Integer.class);
         _testLegacyFail2804("5.0", Long.class);
@@ -160,7 +160,7 @@ public class CoerceFloatToIntTest
      */
 
     @Test
-    public void testCoerceConfigFloatToNull() throws Exception
+    void testCoerceConfigFloatToNull() throws Exception
     {
         assertNull(MAPPER_TO_NULL.readValue("1.5", Integer.class));
         // `null` not possible for primitives, must use empty (aka default) value
@@ -214,7 +214,7 @@ public class CoerceFloatToIntTest
      */
 
     @Test
-    public void testCoerceConfigFloatToEmpty() throws Exception
+    void testCoerceConfigFloatToEmpty() throws Exception
     {
         assertEquals(Integer.valueOf(0), MAPPER_TO_EMPTY.readValue("1.2", Integer.class));
         assertEquals(Integer.valueOf(0), MAPPER_TO_EMPTY.readValue("1.5", Integer.TYPE));
@@ -252,7 +252,7 @@ public class CoerceFloatToIntTest
      */
 
     @Test
-    public void testCoerceConfigFloatSuccess() throws Exception
+    void testCoerceConfigFloatSuccess() throws Exception
     {
         assertEquals(Integer.valueOf(1), MAPPER_TRY_CONVERT.readValue("1.2", Integer.class));
         assertEquals(Integer.valueOf(3), MAPPER_TRY_CONVERT.readValue("3.4", Integer.TYPE));
@@ -290,7 +290,7 @@ public class CoerceFloatToIntTest
      */
 
     @Test
-    public void testCoerceConfigFailFromFloat() throws Exception
+    void testCoerceConfigFailFromFloat() throws Exception
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, Integer.class, "1.5");
         _verifyCoerceFail(MAPPER_TO_FAIL, Integer.TYPE, "1.5");

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class InnerClassDeserTest
+class InnerClassDeserTest
 {
     static class Dog
     {
@@ -38,7 +38,7 @@ public class InnerClassDeserTest
      */
 
     @Test
-    public void testSimpleNonStaticInner() throws Exception
+    void testSimpleNonStaticInner() throws Exception
     {
         // Let's actually verify by first serializing, then deserializing back
         ObjectMapper mapper = new ObjectMapper();

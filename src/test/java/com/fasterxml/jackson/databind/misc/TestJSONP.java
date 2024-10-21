@@ -11,12 +11,13 @@ import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestJSONP
-    extends DatabindTestUtil
+class TestJSONP
+        extends DatabindTestUtil
 {
     static class Base {
         public String a;
     }
+
     static class Impl extends Base {
         public String b;
 
@@ -29,7 +30,7 @@ public class TestJSONP
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testSimpleScalars() throws Exception
+    void testSimpleScalars() throws Exception
     {
         assertEquals("callback(\"abc\")",
                 MAPPER.writeValueAsString(new JSONPObject("callback", "abc")));
@@ -40,7 +41,7 @@ public class TestJSONP
     }
 
     @Test
-    public void testSimpleBean() throws Exception
+    void testSimpleBean() throws Exception
     {
         assertEquals("xxx({\"a\":\"123\",\"b\":\"456\"})",
                 MAPPER.writeValueAsString(new JSONPObject("xxx",
@@ -52,7 +53,7 @@ public class TestJSONP
      * value.
      */
     @Test
-    public void testWithType() throws Exception
+    void testWithType() throws Exception
     {
         Object ob = new Impl("abc", "def");
         JavaType type = MAPPER.constructType(Base.class);
@@ -61,7 +62,7 @@ public class TestJSONP
     }
 
     @Test
-    public void testGeneralWrapping() throws Exception
+    void testGeneralWrapping() throws Exception
     {
         JSONWrappedObject input = new JSONWrappedObject("/*Foo*/", "\n// the end",
                 Arrays.asList());

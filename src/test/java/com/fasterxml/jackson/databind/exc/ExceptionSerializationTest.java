@@ -18,7 +18,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 /**
  * Unit tests for verifying that simple exceptions can be serialized.
  */
-public class ExceptionSerializationTest
+class ExceptionSerializationTest
 {
     @SuppressWarnings("serial")
     @JsonIgnoreProperties({ "bogus1" })
@@ -52,7 +52,7 @@ public class ExceptionSerializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimple() throws Exception
+    void testSimple() throws Exception
     {
         String TEST = "test exception";
         Map<String,Object> result = writeAndMap(MAPPER, new Exception(TEST));
@@ -77,7 +77,7 @@ public class ExceptionSerializationTest
 
     // to double-check [databind#1413]
     @Test
-    public void testSimpleOther() throws Exception
+    void testSimpleOther() throws Exception
     {
         JsonParser p = MAPPER.createParser("{ }");
         InvalidFormatException exc = InvalidFormatException.from(p, "Test", getClass(), String.class);
@@ -89,7 +89,7 @@ public class ExceptionSerializationTest
     // for [databind#877]
     @SuppressWarnings("unchecked")
     @Test
-    public void testIgnorals() throws Exception
+    void testIgnorals() throws Exception
     {
         ExceptionWithIgnoral input = new ExceptionWithIgnoral("foobar");
         input.initCause(new IOException("surprise!"));
@@ -124,7 +124,7 @@ public class ExceptionSerializationTest
 
     // [databind#1368]
     @Test
-    public void testDatabindExceptionSerialization() throws IOException {
+    void testDatabindExceptionSerialization() throws IOException {
         Exception e = null;
         // cant deserialize due to unexpected constructor
         try {
@@ -146,7 +146,7 @@ public class ExceptionSerializationTest
 
     // [databind#3275]
     @Test
-    public void testSerializeWithNamingStrategy() throws IOException {
+    void testSerializeWithNamingStrategy() throws IOException {
         final ObjectMapper mapper = JsonMapper.builder()
                 .propertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
                 .build();

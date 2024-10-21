@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class EnumDefaultReadTest
+class EnumDefaultReadTest
 {
     enum SimpleEnum {
         ZERO,
@@ -94,7 +94,7 @@ public class EnumDefaultReadTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testWithoutCustomFeatures() throws Exception
+    void testWithoutCustomFeatures() throws Exception
     {
         final ObjectReader r = MAPPER.reader();
 
@@ -128,7 +128,7 @@ public class EnumDefaultReadTest
     }
 
     @Test
-    public void testWithFailOnNumbers() throws Exception
+    void testWithFailOnNumbers() throws Exception
     {
         ObjectReader r = MAPPER.reader()
                 .with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
@@ -163,7 +163,7 @@ public class EnumDefaultReadTest
     }
 
     @Test
-    public void testWithReadUnknownAsDefault() throws Exception
+    void testWithReadUnknownAsDefault() throws Exception
     {
         ObjectReader r = MAPPER.reader()
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
@@ -198,8 +198,8 @@ public class EnumDefaultReadTest
     }
 
     @Test
-    public void testWithFailOnNumbersAndReadUnknownAsDefault()
-        throws Exception
+    void testWithFailOnNumbersAndReadUnknownAsDefault()
+            throws Exception
     {
         ObjectReader r = MAPPER.reader()
                 .with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
@@ -246,7 +246,7 @@ public class EnumDefaultReadTest
 
     // [databind#3171]: Ensure "" gets returned as Default Value, not coerced
     @Test
-    public void testEmptyStringAsDefault() throws Exception
+    void testEmptyStringAsDefault() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(SimpleEnumWithDefault.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
@@ -287,7 +287,7 @@ public class EnumDefaultReadTest
     }
 
     @Test
-    public void testEnumDefaultValueViaMixin() throws Exception 
+    void testEnumDefaultValueViaMixin() throws Exception 
     {
         ObjectMapper mixinMapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -299,7 +299,7 @@ public class EnumDefaultReadTest
     }
 
     @Test
-    public void testFirstEnumDefaultValueViaMixin() throws Exception 
+    void testFirstEnumDefaultValueViaMixin() throws Exception 
     {
         ObjectMapper mixinMapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)

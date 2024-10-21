@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestJsonSerialize3 extends DatabindTestUtil
+class TestJsonSerialize3 extends DatabindTestUtil
 {
     // [JACKSON-829]
     static class FooToBarSerializer extends JsonSerializer<String> {
@@ -31,6 +31,7 @@ public class TestJsonSerialize3 extends DatabindTestUtil
         @JsonSerialize(contentUsing = FooToBarSerializer.class)
         List<String> list;
     }
+
     /*
     /**********************************************************
     /* Test methods
@@ -38,7 +39,7 @@ public class TestJsonSerialize3 extends DatabindTestUtil
      */
 
     @Test
-    public void testCustomContentSerializer() throws Exception
+    void testCustomContentSerializer() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         MyObject object = new MyObject();

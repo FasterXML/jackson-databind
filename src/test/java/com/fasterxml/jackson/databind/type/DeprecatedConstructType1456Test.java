@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // Tests for [databind#1456]: resolution using methods deprecated
 // in 2.7, but used to work in 2.6
-public class DeprecatedConstructType1456Test
+class DeprecatedConstructType1456Test
 {
     public static class BaseController<Entity extends BaseEntity> {
         public void process(Entity entity) {}
@@ -31,7 +31,7 @@ public class DeprecatedConstructType1456Test
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testGenericResolutionUsingDeprecated() throws Exception
+    void testGenericResolutionUsingDeprecated() throws Exception
     {
         Method proceed = BaseController.class.getMethod("process", BaseEntity.class);
         Type entityType = proceed.getGenericParameterTypes()[0];
@@ -42,7 +42,7 @@ public class DeprecatedConstructType1456Test
 
     // and this is how new code should resolve types if at all possible
     @Test
-    public void testGenericParameterViaClass() throws Exception
+    void testGenericParameterViaClass() throws Exception
     {
         BeanDescription desc = MAPPER.getDeserializationConfig().introspect(
                 MAPPER.constructType(ImplController.class));

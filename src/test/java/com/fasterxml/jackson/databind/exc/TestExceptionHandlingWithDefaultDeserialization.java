@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class TestExceptionHandlingWithDefaultDeserialization
+class TestExceptionHandlingWithDefaultDeserialization
 {
     static class Foo {
         private Bar bar;
@@ -45,7 +45,7 @@ public class TestExceptionHandlingWithDefaultDeserialization
     }
 
     @Test
-    public void testShouldThrowExceptionWithPathReference() throws IOException {
+    void testShouldThrowExceptionWithPathReference() throws IOException {
         // given
         ObjectMapper mapper = newJsonMapper();
         String input = "{\"bar\":{\"baz\":{qux:\"quxValue\"))}";

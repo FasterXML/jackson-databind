@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SimpleModuleArgCheckTest extends DatabindTestUtil
+class SimpleModuleArgCheckTest extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -22,7 +22,7 @@ public class SimpleModuleArgCheckTest extends DatabindTestUtil
      */
 
     @Test
-    public void testInvalidForDeserializers() throws Exception
+    void testInvalidForDeserializers() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
                 (Map<Class<?>,JsonDeserializer<?>>) null);
@@ -49,7 +49,7 @@ public class SimpleModuleArgCheckTest extends DatabindTestUtil
      */
 
     @Test
-    public void testInvalidForSerializers() throws Exception
+    void testInvalidForSerializers() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
                 (List<JsonSerializer<?>>) null);
@@ -83,7 +83,7 @@ public class SimpleModuleArgCheckTest extends DatabindTestUtil
      */
 
     @Test
-    public void testInvalidAbstractTypeMapping() throws Exception
+    void testInvalidAbstractTypeMapping() throws Exception
     {
         // just for funsies let's use more esoteric constructor
         Map<Class<?>,JsonDeserializer<?>>  desers = Collections.emptyMap();
@@ -106,7 +106,7 @@ public class SimpleModuleArgCheckTest extends DatabindTestUtil
     }
 
     @Test
-    public void testInvalidSubtypeMappings() throws Exception
+    void testInvalidSubtypeMappings() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
                 null, null);
@@ -126,7 +126,7 @@ public class SimpleModuleArgCheckTest extends DatabindTestUtil
     }
 
     @Test
-    public void testInvalidValueInstantiator() throws Exception
+    void testInvalidValueInstantiator() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
 
@@ -145,7 +145,7 @@ public class SimpleModuleArgCheckTest extends DatabindTestUtil
     }
 
     @Test
-    public void testInvalidMixIn() throws Exception
+    void testInvalidMixIn() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
 

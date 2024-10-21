@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Simple unit tests to verify that we fail gracefully if you attempt to serialize
  * data that is cyclic (eg a list that contains itself).
  */
-public class CyclicDataSerTest
-    extends DatabindTestUtil
+class CyclicDataSerTest
+        extends DatabindTestUtil
 {
     static class CyclicBean
     {
@@ -38,7 +38,7 @@ public class CyclicDataSerTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testLinkedAndCyclic() throws Exception {
+    void testLinkedAndCyclic() throws Exception {
         CyclicBean bean = new CyclicBean(null, "last");
         bean.assignNext(bean);
         try {
@@ -51,7 +51,7 @@ public class CyclicDataSerTest
     }
 
     @Test
-    public void testListWithSelfReference() throws Exception {
+    void testListWithSelfReference() throws Exception {
         List<Object> list = new ArrayList<>();
         list.add(list);
         try {

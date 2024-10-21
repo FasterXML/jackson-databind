@@ -16,10 +16,10 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#2472]
-public class DefaultTypeResolver2472Test extends DatabindTestUtil
+class DefaultTypeResolver2472Test extends DatabindTestUtil
 {
     @Test
-    public void testLegacyCtor2472() throws Exception
+    void testLegacyCtor2472() throws Exception
     {
         @SuppressWarnings({ "deprecation", "serial" })
         TypeResolverBuilder<?> legacyTyper = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL) { };

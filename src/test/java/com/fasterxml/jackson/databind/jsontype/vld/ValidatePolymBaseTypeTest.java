@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  *
  * @since 2.10
  */
-public class ValidatePolymBaseTypeTest extends DatabindTestUtil
+class ValidatePolymBaseTypeTest extends DatabindTestUtil
 {
     // // // Value types
 
@@ -29,6 +29,7 @@ public class ValidatePolymBaseTypeTest extends DatabindTestUtil
     }
 
     static class BadValue extends BaseValue { }
+
     static class GoodValue extends BaseValue { }
 
     // // // Wrapper types
@@ -108,14 +109,14 @@ public class ValidatePolymBaseTypeTest extends DatabindTestUtil
      */
 
     @Test
-    public void testAnnotedGood() throws Exception {
+    void testAnnotedGood() throws Exception {
         final String json = MAPPER_ANNOTATED.writeValueAsString(new AnnotatedGoodWrapper());
         // should work ok
         assertNotNull(MAPPER_DEF_TYPING.readValue(json, AnnotatedGoodWrapper.class));
     }
 
     @Test
-    public void testAnnotedBad() throws Exception {
+    void testAnnotedBad() throws Exception {
         final String json = MAPPER_ANNOTATED.writeValueAsString(new AnnotatedBadWrapper());
         // should fail
         try {
@@ -135,14 +136,14 @@ public class ValidatePolymBaseTypeTest extends DatabindTestUtil
      */
 
     @Test
-    public void testDefaultGood() throws Exception {
+    void testDefaultGood() throws Exception {
         final String json = MAPPER_DEF_TYPING.writeValueAsString(new DefTypeGoodWrapper());
         // should work ok
         assertNotNull(MAPPER_DEF_TYPING.readValue(json, DefTypeGoodWrapper.class));
     }
 
     @Test
-    public void testDefaultBad() throws Exception {
+    void testDefaultBad() throws Exception {
         final String json = MAPPER_DEF_TYPING.writeValueAsString(new DefTypeBadWrapper());
         // should fail
         try {

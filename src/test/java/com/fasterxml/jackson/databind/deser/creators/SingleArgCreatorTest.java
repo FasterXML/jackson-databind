@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class SingleArgCreatorTest
+class SingleArgCreatorTest
 {
     // [databind#430]: single arg BUT named; should not delegate
 
@@ -171,7 +171,7 @@ public class SingleArgCreatorTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testNamedSingleArg() throws Exception
+    void testNamedSingleArg() throws Exception
     {
         SingleNamedStringBean bean = MAPPER.readValue(q("foobar"),
                 SingleNamedStringBean.class);
@@ -179,7 +179,7 @@ public class SingleArgCreatorTest
     }
 
     @Test
-    public void testSingleStringArgWithImplicitName() throws Exception
+    void testSingleStringArgWithImplicitName() throws Exception
     {
         final ObjectMapper mapper = JsonMapper.builder()
                 .annotationIntrospector(new MyParamIntrospector("value"))
@@ -195,7 +195,7 @@ public class SingleArgCreatorTest
 
     // [databind#714]
     @Test
-    public void testSingleImplicitlyNamedNotDelegating() throws Exception
+    void testSingleImplicitlyNamedNotDelegating() throws Exception
     {
         final ObjectMapper mapper = JsonMapper.builder()
                 .annotationIntrospector(new MyParamIntrospector("value"))
@@ -206,7 +206,7 @@ public class SingleArgCreatorTest
 
     // [databind#714]
     @Test
-    public void testSingleExplicitlyNamedButDelegating() throws Exception
+    void testSingleExplicitlyNamedButDelegating() throws Exception
     {
         SingleNamedButStillDelegating bean = MAPPER.readValue(q("xyz"),
                 SingleNamedButStillDelegating.class);
@@ -214,7 +214,7 @@ public class SingleArgCreatorTest
     }
 
     @Test
-    public void testExplicitFactory660a() throws Exception
+    void testExplicitFactory660a() throws Exception
     {
         // First, explicit override for factory
         ExplicitFactoryBeanA bean = MAPPER.readValue(q("abc"), ExplicitFactoryBeanA.class);
@@ -223,7 +223,7 @@ public class SingleArgCreatorTest
     }
 
     @Test
-    public void testExplicitFactory660b() throws Exception
+    void testExplicitFactory660b() throws Exception
     {
         // and then one for private constructor
         ExplicitFactoryBeanB bean2 = MAPPER.readValue(q("def"), ExplicitFactoryBeanB.class);
@@ -233,7 +233,7 @@ public class SingleArgCreatorTest
 
     // [databind#1383]
     @Test
-    public void testSingleImplicitDelegating() throws Exception
+    void testSingleImplicitDelegating() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
@@ -247,7 +247,7 @@ public class SingleArgCreatorTest
 
     // [databind#3062]
     @Test
-    public void testMultipleDoubleCreators3062() throws Exception
+    void testMultipleDoubleCreators3062() throws Exception
     {
         DecVector3062 vector = new DecVector3062(Arrays.asList(1.0, 2.0, 3.0));
         String result = MAPPER.writeValueAsString(vector);

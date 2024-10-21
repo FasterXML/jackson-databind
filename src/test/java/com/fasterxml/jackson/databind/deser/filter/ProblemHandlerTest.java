@@ -27,7 +27,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  *
  * @since 2.8
  */
-public class ProblemHandlerTest
+class ProblemHandlerTest
 {
     /*
     /**********************************************************
@@ -197,6 +197,7 @@ public class ProblemHandlerTest
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     static class Base { }
+
     static class BaseImpl extends Base {
         public int a;
     }
@@ -207,6 +208,7 @@ public class ProblemHandlerTest
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "clazz")
     static class Base2 { }
+
     static class Base2Impl extends Base2 {
         public int a;
     }
@@ -243,7 +245,7 @@ public class ProblemHandlerTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testWeirdKeyHandling() throws Exception
+    void testWeirdKeyHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new WeirdKeyHandler(7))
@@ -257,7 +259,7 @@ public class ProblemHandlerTest
     }
 
     @Test
-    public void testWeirdNumberHandling() throws Exception
+    void testWeirdNumberHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new WeirdNumberHandler(SingleValuedEnum.A))
@@ -267,7 +269,7 @@ public class ProblemHandlerTest
     }
 
     @Test
-    public void testWeirdStringHandling() throws Exception
+    void testWeirdStringHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new WeirdStringHandler(SingleValuedEnum.A))
@@ -284,7 +286,7 @@ public class ProblemHandlerTest
 
     // [databind#3784]: Base64 decoding
     @Test
-    public void testWeirdStringForBase64() throws Exception
+    void testWeirdStringForBase64() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addHandler(new WeirdStringHandler(new byte[0]))
@@ -300,7 +302,7 @@ public class ProblemHandlerTest
     }
 
     @Test
-    public void testInvalidTypeId() throws Exception
+    void testInvalidTypeId() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new UnknownTypeIdHandler(BaseImpl.class))
@@ -312,7 +314,7 @@ public class ProblemHandlerTest
     }
 
     @Test
-    public void testInvalidClassAsId() throws Exception
+    void testInvalidClassAsId() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new UnknownTypeIdHandler(Base2Impl.class))
@@ -326,7 +328,7 @@ public class ProblemHandlerTest
     // 2.9: missing type id, distinct from unknown
 
     @Test
-    public void testMissingTypeId() throws Exception
+    void testMissingTypeId() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new MissingTypeIdHandler(BaseImpl.class))
@@ -338,7 +340,7 @@ public class ProblemHandlerTest
     }
 
     @Test
-    public void testMissingClassAsId() throws Exception
+    void testMissingClassAsId() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new MissingTypeIdHandler(Base2Impl.class))
@@ -351,7 +353,7 @@ public class ProblemHandlerTest
 
     // verify that by default we get special exception type
     @Test
-    public void testInvalidTypeIdFail() throws Exception
+    void testInvalidTypeIdFail() throws Exception
     {
         try {
             MAPPER.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
@@ -365,7 +367,7 @@ public class ProblemHandlerTest
     }
 
     @Test
-    public void testInstantiationExceptionHandling() throws Exception
+    void testInstantiationExceptionHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new InstantiationProblemHandler(BustedCtor.INST))
@@ -376,7 +378,7 @@ public class ProblemHandlerTest
     }
 
     @Test
-    public void testMissingInstantiatorHandling() throws Exception
+    void testMissingInstantiatorHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new MissingInstantiationHandler(new NoDefaultCtor(13)))
@@ -387,7 +389,7 @@ public class ProblemHandlerTest
     }
 
     @Test
-    public void testUnexpectedTokenHandling() throws Exception
+    void testUnexpectedTokenHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new WeirdTokenHandler(Integer.valueOf(13)))

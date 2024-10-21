@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MapKeySerializationTest extends DatabindTestUtil
+class MapKeySerializationTest extends DatabindTestUtil
 {
     public static class KarlSerializer extends JsonSerializer<String>
     {
@@ -134,20 +134,20 @@ public class MapKeySerializationTest extends DatabindTestUtil
     final private ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testNotKarl() throws IOException {
+    void testNotKarl() throws IOException {
         final String serialized = MAPPER.writeValueAsString(new NotKarlBean());
         assertEquals("{\"map\":{\"Not Karl\":1}}", serialized);
     }
 
     @Test
-    public void testKarl() throws IOException {
+    void testKarl() throws IOException {
         final String serialized = MAPPER.writeValueAsString(new KarlBean());
         assertEquals("{\"map\":{\"Karl\":1}}", serialized);
     }
 
     // [databind#75]: caching of KeySerializers
     @Test
-    public void testBoth() throws IOException
+    void testBoth() throws IOException
     {
         // Let's NOT use shared one, to ensure caching starts from clean slate
         final ObjectMapper mapper = newJsonMapper();
@@ -159,7 +159,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
 
     // Test custom key serializer for enum
     @Test
-    public void testCustomForEnum() throws IOException
+    void testCustomForEnum() throws IOException
     {
         // cannot use shared mapper as we are registering a module
         final ObjectMapper mapper = newJsonMapper();
@@ -172,7 +172,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testCustomNullSerializers() throws IOException
+    void testCustomNullSerializers() throws IOException
     {
         final ObjectMapper mapper = newJsonMapper();
         mapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer("NULL-KEY"));
@@ -186,7 +186,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testCustomEnumInnerMapKey() throws Exception {
+    void testCustomEnumInnerMapKey() throws Exception {
         Map<Outer, Object> outerMap = new HashMap<Outer, Object>();
         Map<ABC, Map<String, String>> map = new EnumMap<ABC, Map<String, String>>(ABC.class);
         Map<String, String> innerMap = new HashMap<String, String>();
@@ -207,7 +207,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testDefaultKeySerializer() throws IOException
+    void testDefaultKeySerializer() throws IOException
     {
         ObjectMapper m = newJsonMapper();
         m.getSerializerProvider().setDefaultKeySerializer(new DefaultKeySerializer());
@@ -218,7 +218,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
 
     // [databind#682]
     @Test
-    public void testClassKey() throws IOException
+    void testClassKey() throws IOException
     {
         Map<Class<?>,Integer> map = new LinkedHashMap<Class<?>,Integer>();
         map.put(String.class, 2);
@@ -229,7 +229,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
     // [databind#838]
     @SuppressWarnings("deprecation")
     @Test
-    public void testUnWrappedMapWithKeySerializer() throws Exception{
+    void testUnWrappedMapWithKeySerializer() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
         final ObjectMapper mapper = new ObjectMapper()
@@ -249,7 +249,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
 
     // [databind#838]
     @Test
-    public void testUnWrappedMapWithDefaultType() throws Exception{
+    void testUnWrappedMapWithDefaultType() throws Exception{
         final ObjectMapper mapper = newJsonMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
@@ -272,7 +272,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
 
     // [databind#1552]
     @Test
-    public void testMapsWithBinaryKeys() throws Exception
+    void testMapsWithBinaryKeys() throws Exception
     {
         byte[] binary = new byte[] { 1, 2, 3, 4, 5 };
 
@@ -292,7 +292,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
 
     // [databind#1679]
     @Test
-    public void testMapKeyRecursion1679() throws Exception
+    void testMapKeyRecursion1679() throws Exception
     {
         Map<Object, Object> objectMap = new HashMap<Object, Object>();
         objectMap.put(new Object(), "foo");

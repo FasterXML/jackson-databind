@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test to verify handling of Object Id deserialization
  */
-public class TestObjectIdSerialization extends DatabindTestUtil
+class TestObjectIdSerialization extends DatabindTestUtil
 {
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
     static class Identifiable
@@ -197,7 +197,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleSerializationClass() throws Exception
+    void testSimpleSerializationClass() throws Exception
     {
         Identifiable src = new Identifiable(13);
         src.next = src;
@@ -216,7 +216,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
     private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"next\":{\"node\":1},\"value\":7}}";
 
     @Test
-    public void testSimpleSerializationProperty() throws Exception
+    void testSimpleSerializationProperty() throws Exception
     {
         IdWrapper src = new IdWrapper(7);
         src.node.next = src;
@@ -232,7 +232,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
 
     // [databind#370]
     @Test
-    public void testEmptyObjectWithId() throws Exception
+    void testEmptyObjectWithId() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new EmptyObject());
@@ -240,7 +240,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
     }
 
     @Test
-    public void testSerializeWithOpaqueStringId() throws Exception
+    void testSerializeWithOpaqueStringId() throws Exception
     {
         StringIdentifiable ob1 = new StringIdentifiable(12);
         StringIdentifiable ob2 = new StringIdentifiable(34);
@@ -275,9 +275,10 @@ public class TestObjectIdSerialization extends DatabindTestUtil
      */
 
     private final static String EXP_CUSTOM_PROP = "{\"customId\":123,\"next\":123,\"value\":-19}";
+
     // Test for verifying that custom
     @Test
-    public void testCustomPropertyForClass() throws Exception
+    void testCustomPropertyForClass() throws Exception
     {
         IdentifiableWithProp src = new IdentifiableWithProp(123, -19);
         src.next = src;
@@ -293,9 +294,10 @@ public class TestObjectIdSerialization extends DatabindTestUtil
     }
 
     private final static String EXP_CUSTOM_PROP_VIA_REF = "{\"node\":{\"id\":123,\"next\":{\"node\":123},\"value\":7}}";
+
     // Test for verifying that custom
     @Test
-    public void testCustomPropertyViaProperty() throws Exception
+    void testCustomPropertyViaProperty() throws Exception
     {
         IdWrapperCustom src = new IdWrapperCustom(123, 7);
         src.node.next = src;
@@ -309,14 +311,14 @@ public class TestObjectIdSerialization extends DatabindTestUtil
     }
 
     @Test
-    public void testAlwaysAsId() throws Exception
+    void testAlwaysAsId() throws Exception
     {
         String json = MAPPER.writeValueAsString(new AlwaysContainer());
         assertEquals("{\"a\":1,\"b\":2}", json);
     }
 
     @Test
-    public void testAlwaysIdForTree() throws Exception
+    void testAlwaysIdForTree() throws Exception
     {
         TreeNode root = new TreeNode(null, 1, "root");
         TreeNode leaf = new TreeNode(root, 2, "leaf");
@@ -331,7 +333,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
 
     //for [databind#1150]
     @Test
-    public void testNullStringPropertyId() throws Exception
+    void testNullStringPropertyId() throws Exception
     {
         IdentifiableStringId value = MAPPER.readValue
                 (a2q("{'value':3, 'next':null, 'id':null}"), IdentifiableStringId.class);
@@ -346,7 +348,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
      */
 
     @Test
-    public void testInvalidProp() throws Exception
+    void testInvalidProp() throws Exception
     {
         try {
             MAPPER.writeValueAsString(new Broken());

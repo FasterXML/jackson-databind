@@ -6,10 +6,10 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class NameTransformerTest extends DatabindTestUtil
+class NameTransformerTest extends DatabindTestUtil
 {
     @Test
-    public void testSimpleTransformer() throws Exception
+    void testSimpleTransformer() throws Exception
     {
         NameTransformer xfer;
 

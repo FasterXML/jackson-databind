@@ -17,7 +17,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // Test(s) to verify [databind#1440]
-public class ProblemHandlerLocation1440Test
+class ProblemHandlerLocation1440Test
 {
     static class DeserializationProblem {
         public List<String> unknownProperties = new ArrayList<>();
@@ -120,7 +120,7 @@ public class ProblemHandlerLocation1440Test
      */
 
     @Test
-    public void testIncorrectContext() throws Exception
+    void testIncorrectContext() throws Exception
     {
         // need invalid to trigger problem:
         final String invalidInput = a2q(

@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test to verify handling of Object Id deserialization
  */
-public class TestObjectIdDeserialization extends DatabindTestUtil
+class TestObjectIdDeserialization extends DatabindTestUtil
 {
     private static final String POOL_KEY = "POOL";
 
@@ -218,7 +218,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
 
     @Test
-    public void testSimpleDeserializationClass() throws Exception
+    void testSimpleDeserializationClass() throws Exception
     {
         // then bring back...
         Identifiable result = MAPPER.readValue(EXP_SIMPLE_INT_CLASS, Identifiable.class);
@@ -228,7 +228,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
 
     // Should be ok NOT to have Object id, as well
     @Test
-    public void testMissingObjectId() throws Exception
+    void testMissingObjectId() throws Exception
     {
         Identifiable result = MAPPER.readValue(a2q("{'value':28, 'next':{'value':29}}"),
                 Identifiable.class);
@@ -239,7 +239,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleUUIDForClassRoundTrip() throws Exception
+    void testSimpleUUIDForClassRoundTrip() throws Exception
     {
         UUIDNode root = new UUIDNode(1);
         UUIDNode child1 = new UUIDNode(2);
@@ -271,7 +271,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"value\":7,\"next\":{\"node\":1}}}";
 
     @Test
-    public void testSimpleDeserializationProperty() throws Exception
+    void testSimpleDeserializationProperty() throws Exception
     {
         IdWrapper result = MAPPER.readValue(EXP_SIMPLE_INT_PROP, IdWrapper.class);
         assertEquals(7, result.node.value);
@@ -280,7 +280,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
 
     // Another test to ensure ordering is not required (i.e. can do front references)
     @Test
-    public void testSimpleDeserWithForwardRefs() throws Exception
+    void testSimpleDeserWithForwardRefs() throws Exception
     {
         IdWrapper result = MAPPER.readValue("{\"node\":{\"value\":7,\"next\":{\"node\":1}, \"@id\":1}}"
                 ,IdWrapper.class);
@@ -289,8 +289,8 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     @Test
-    public void testForwardReference()
-        throws Exception
+    void testForwardReference()
+            throws Exception
     {
         String json = "{\"employees\":["
                       + "{\"id\":1,\"name\":\"First\",\"manager\":2,\"reports\":[]},"
@@ -307,8 +307,8 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     @Test
-    public void testForwardReferenceInCollection()
-        throws Exception
+    void testForwardReferenceInCollection()
+            throws Exception
     {
         String json = "{\"employees\":["
                       + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
@@ -322,8 +322,8 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     @Test
-    public void testForwardReferenceInMap()
-        throws Exception
+    void testForwardReferenceInMap()
+            throws Exception
     {
         String json = "{\"employees\":{"
                       + "\"1\":{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
@@ -347,15 +347,15 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     @Test
-    public void testForwardReferenceAnySetterCombo() throws Exception {
+    void testForwardReferenceAnySetterCombo() throws Exception {
         String json = "{\"@id\":1, \"foo\":2, \"bar\":{\"@id\":2, \"foo\":1}}";
         AnySetterObjectId value = MAPPER.readValue(json, AnySetterObjectId.class);
         assertSame(value.values.get("bar"), value.values.get("foo"));
     }
 
     @Test
-    public void testUnresolvedForwardReference()
-        throws Exception
+    void testUnresolvedForwardReference()
+            throws Exception
     {
         String json = "{\"employees\":["
                       + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[3]},"
@@ -379,7 +379,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
 
     // [databind#299]: Allow unresolved ids to become nulls
     @Test
-    public void testUnresolvableAsNull() throws Exception
+    void testUnresolvableAsNull() throws Exception
     {
         IdWrapper w = MAPPER.readerFor(IdWrapper.class)
                 .without(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
@@ -389,7 +389,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     @Test
-    public void testKeepCollectionOrdering() throws Exception
+    void testKeepCollectionOrdering() throws Exception
     {
         String json = "{\"employees\":[2,1,"
                 + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
@@ -406,8 +406,8 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     @Test
-    public void testKeepMapOrdering()
-        throws Exception
+    void testKeepMapOrdering()
+            throws Exception
     {
         String json = "{\"employees\":{"
                       + "\"1\":2, \"2\":1,"
@@ -437,7 +437,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     private final static String EXP_CUSTOM_VIA_CLASS = "{\"customId\":123,\"value\":-900,\"next\":123}";
 
     @Test
-    public void testCustomDeserializationClass() throws Exception
+    void testCustomDeserializationClass() throws Exception
     {
         // then bring back...
         IdentifiableCustom result = MAPPER.readValue(EXP_CUSTOM_VIA_CLASS, IdentifiableCustom.class);
@@ -448,7 +448,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     private final static String EXP_CUSTOM_VIA_PROP = "{\"node\":{\"customId\":3,\"value\":99,\"next\":{\"node\":3}}}";
 
     @Test
-    public void testCustomDeserializationProperty() throws Exception
+    void testCustomDeserializationProperty() throws Exception
     {
         // then bring back...
         IdWrapperExt result = MAPPER.readValue(EXP_CUSTOM_VIA_PROP, IdWrapperExt.class);
@@ -464,7 +464,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
      */
 
     @Test
-    public void testCustomPoolResolver() throws Exception
+    void testCustomPoolResolver() throws Exception
     {
         Map<Object,WithCustomResolution> pool = new HashMap<Object,WithCustomResolution>();
         pool.put(1, new WithCustomResolution(1, 1));
@@ -499,7 +499,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     */
 
     @Test
-    public void testNullObjectId() throws Exception
+    void testNullObjectId() throws Exception
     {
         // Ok, so missing Object Id is ok, but so is null.
 
@@ -527,14 +527,14 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         .build();
 
     @Test
-    public void testDefaultSetting() {
+    void testDefaultSetting() {
         assertTrue(DEFAULT_MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS));
         assertTrue(ENABLED_MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS));
         assertFalse(DISABLED_MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS));
     }
 
     @Test
-    public void testSuccessResolvedObjectIds() throws Exception {
+    void testSuccessResolvedObjectIds() throws Exception {
         String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':1}}}");
 
         SomeWrapper wrapper = DEFAULT_MAPPER.readValue(json, SomeWrapper.class);
@@ -544,7 +544,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     @Test
-    public void testUnresolvedObjectIdsFailure() throws Exception {
+    void testUnresolvedObjectIdsFailure() throws Exception {
         // Set-up : node id of 2 that doesn't exist,
         String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
 

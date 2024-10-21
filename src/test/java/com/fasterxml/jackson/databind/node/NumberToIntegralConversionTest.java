@@ -10,13 +10,13 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // for [databind#2885]
-public class NumberToIntegralConversionTest extends DatabindTestUtil
+class NumberToIntegralConversionTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = sharedMapper();
     private final JsonNodeFactory NODES = MAPPER.getNodeFactory();
 
     @Test
-    public void testFloatToIntegrals() throws Exception
+    void testFloatToIntegrals() throws Exception
     {
         assertTrue(NODES.numberNode(0f).canConvertToExactIntegral());
         assertTrue(NODES.numberNode((float) 0).canConvertToExactIntegral());
@@ -27,7 +27,7 @@ public class NumberToIntegralConversionTest extends DatabindTestUtil
     }
 
     @Test
-    public void testDoubleToIntegrals() throws Exception
+    void testDoubleToIntegrals() throws Exception
     {
         assertTrue(NODES.numberNode(0d).canConvertToExactIntegral());
         assertTrue(NODES.numberNode((double) 0).canConvertToExactIntegral());
@@ -42,7 +42,7 @@ public class NumberToIntegralConversionTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNaNsToIntegrals() throws Exception
+    void testNaNsToIntegrals() throws Exception
     {
         assertFalse(NODES.numberNode(Float.NaN).canConvertToExactIntegral());
         assertFalse(NODES.numberNode(Float.NEGATIVE_INFINITY).canConvertToExactIntegral());
@@ -54,7 +54,7 @@ public class NumberToIntegralConversionTest extends DatabindTestUtil
     }
 
     @Test
-    public void testBigDecimalToIntegrals() throws Exception
+    void testBigDecimalToIntegrals() throws Exception
     {
         assertTrue(NODES.numberNode(BigDecimal.ZERO).canConvertToExactIntegral());
         assertTrue(NODES.numberNode(BigDecimal.TEN).canConvertToExactIntegral());

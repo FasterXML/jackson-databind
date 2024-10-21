@@ -10,10 +10,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MissingNodeTest extends NodeTestBase
+class MissingNodeTest extends NodeTestBase
 {
     @Test
-    public void testMissing()
+    void testMissing()
     {
         MissingNode n = MissingNode.getInstance();
         assertTrue(n.isMissingNode());
@@ -40,7 +40,7 @@ public class MissingNodeTest extends NodeTestBase
      */
     @SuppressWarnings("unused")
     @Test
-    public void testMissingViaMapper() throws Exception
+    void testMissingViaMapper() throws Exception
     {
         String JSON = "[ { }, [ ] ]";
         JsonNode result = objectMapper().readTree(new StringReader(JSON));

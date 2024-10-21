@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ObjectIdReordering1388Test extends DatabindTestUtil
+class ObjectIdReordering1388Test extends DatabindTestUtil
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     public static class NamedThing {
@@ -49,7 +49,7 @@ public class ObjectIdReordering1388Test extends DatabindTestUtil
 
 
     @Test
-    public void testDeserializationFinalClassJSOG() throws Exception
+    void testDeserializationFinalClassJSOG() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         final UUID id = UUID.fromString("a59aa02c-fe3c-43f8-9b5a-5fe01878a818");

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class FloatDeserTest
+class FloatDeserTest
 {
 
     /*
@@ -22,7 +22,7 @@ public class FloatDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testFloatPrimitive() throws Exception
+    void testFloatPrimitive() throws Exception
     {
         assertEquals(7.038531e-26f, MAPPER.readValue("\"7.038531e-26\"", float.class));
         assertEquals(1.1999999f, MAPPER.readValue("\"1.199999988079071\"", float.class));
@@ -32,7 +32,7 @@ public class FloatDeserTest
     }
 
     @Test
-    public void testFloatClass() throws Exception
+    void testFloatClass() throws Exception
     {
         assertEquals(Float.valueOf(7.038531e-26f), MAPPER.readValue("\"7.038531e-26\"", Float.class));
         assertEquals(Float.valueOf(1.1999999f), MAPPER.readValue("\"1.199999988079071\"", Float.class));
@@ -42,7 +42,7 @@ public class FloatDeserTest
     }
 
     @Test
-    public void testArrayOfFloatPrimitives() throws Exception
+    void testArrayOfFloatPrimitives() throws Exception
     {
         StringBuilder sb = new StringBuilder();
         sb.append('[')
@@ -61,7 +61,7 @@ public class FloatDeserTest
 
     // for [jackson-core#757]
     @Test
-    public void testBigArrayOfFloatPrimitives() throws Exception {
+    void testBigArrayOfFloatPrimitives() throws Exception {
         try (InputStream stream = FloatDeserTest.class.getResourceAsStream("/data/float-array-755.txt")) {
             float[] floats = MAPPER.readValue(stream, float[].class);
             assertEquals(1004, floats.length);
@@ -73,7 +73,7 @@ public class FloatDeserTest
     }
 
     @Test
-    public void testArrayOfFloats() throws Exception
+    void testArrayOfFloats() throws Exception
     {
         StringBuilder sb = new StringBuilder();
         sb.append('[')

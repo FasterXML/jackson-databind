@@ -47,7 +47,7 @@ class ExternalTypeIdWithJsonIgnore4185Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testDeserialization() throws Exception
+    void testDeserialization() throws Exception
     {
         Parent parent = MAPPER.readValue(
                 a2q("{'child': {'childType': 'A', 'subChild':{} } }"),

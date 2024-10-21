@@ -17,12 +17,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * Unit tests for verifying JSON view functionality: ability to declaratively
  * suppress subset of properties from being serialized.
  */
-public class ViewSerializationTest extends DatabindTestUtil
+class ViewSerializationTest extends DatabindTestUtil
 {
     // Classes that represent views
     static class ViewA { }
+
     static class ViewAA extends ViewA { }
+
     static class ViewB { }
+
     static class ViewBB extends ViewB { }
 
     static class Bean
@@ -68,7 +71,9 @@ public class ViewSerializationTest extends DatabindTestUtil
     }
 
     public static class WebView { }
+
     public static class OtherView { }
+
     public static class Foo {
         @JsonView(WebView.class)
         public int getFoo() { return 3; }
@@ -84,7 +89,7 @@ public class ViewSerializationTest extends DatabindTestUtil
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testSimple() throws IOException
+    void testSimple() throws IOException
     {
         StringWriter sw = new StringWriter();
         // Ok, first, using no view whatsoever; all 3
@@ -135,7 +140,7 @@ public class ViewSerializationTest extends DatabindTestUtil
      */
     @SuppressWarnings("unchecked")
     @Test
-    public void testDefaultExclusion() throws IOException
+    void testDefaultExclusion() throws IOException
     {
         MixedBean bean = new MixedBean();
 
@@ -171,14 +176,14 @@ public class ViewSerializationTest extends DatabindTestUtil
      * method/field does indicate a property.
      */
     @Test
-    public void testImplicitAutoDetection() throws Exception
+    void testImplicitAutoDetection() throws Exception
     {
         assertEquals("{\"a\":1}",
                 MAPPER.writeValueAsString(new ImplicitBean()));
     }
 
     @Test
-    public void testVisibility() throws Exception
+    void testVisibility() throws Exception
     {
         VisibilityBean bean = new VisibilityBean();
         // Without view setting, should only see "id"
@@ -189,7 +194,7 @@ public class ViewSerializationTest extends DatabindTestUtil
 
     // [JACKSON-868]
     @Test
-    public void test868() throws IOException
+    void test868() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);

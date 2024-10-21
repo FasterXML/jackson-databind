@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JDKNumberDeserTest
-    extends DatabindTestUtil
+class JDKNumberDeserTest
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************************
@@ -106,7 +106,7 @@ public class JDKNumberDeserTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testNaN() throws Exception
+    void testNaN() throws Exception
     {
         Float result = MAPPER.readValue(" \"NaN\"", Float.class);
         assertEquals(Float.valueOf(Float.NaN), result);
@@ -119,7 +119,7 @@ public class JDKNumberDeserTest
     }
 
     @Test
-    public void testDoubleInf() throws Exception
+    void testDoubleInf() throws Exception
     {
         Double result = MAPPER.readValue(" \""+Double.POSITIVE_INFINITY+"\"", Double.class);
         assertEquals(Double.valueOf(Double.POSITIVE_INFINITY), result);
@@ -131,7 +131,7 @@ public class JDKNumberDeserTest
     // 01-Mar-2017, tatu: This is bit tricky... in some ways, mapping to "empty value"
     //    would be best; but due to legacy reasons becomes `null` at this point
     @Test
-    public void testEmptyAsNumber() throws Exception
+    void testEmptyAsNumber() throws Exception
     {
         assertNull(MAPPER.readValue(q(""), Byte.class));
         assertNull(MAPPER.readValue(q(""), Short.class));
@@ -146,7 +146,7 @@ public class JDKNumberDeserTest
     }
 
     @Test
-    public void testTextualNullAsNumber() throws Exception
+    void testTextualNullAsNumber() throws Exception
     {
         final String NULL_JSON = q("null");
         assertNull(MAPPER.readValue(NULL_JSON, Byte.class));
@@ -191,14 +191,14 @@ public class JDKNumberDeserTest
     }
 
     @Test
-    public void testDeserializeDecimalHappyPath() throws Exception {
+    void testDeserializeDecimalHappyPath() throws Exception {
         String json = "{\"defaultValue\": { \"value\": 123 } }";
         MyBeanHolder result = MAPPER.readValue(json, MyBeanHolder.class);
         assertEquals(BigDecimal.valueOf(123), result.defaultValue.value.decimal);
     }
 
     @Test
-    public void testDeserializeDecimalProperException() throws Exception {
+    void testDeserializeDecimalProperException() throws Exception {
         String json = "{\"defaultValue\": { \"value\": \"123\" } }";
         try {
             MAPPER.readValue(json, MyBeanHolder.class);
@@ -209,7 +209,7 @@ public class JDKNumberDeserTest
     }
 
     @Test
-    public void testDeserializeDecimalProperExceptionWhenIdSet() throws Exception {
+    void testDeserializeDecimalProperExceptionWhenIdSet() throws Exception {
         String json = "{\"id\": 5, \"defaultValue\": { \"value\": \"123\" } }";
         try {
             MyBeanHolder result = MAPPER.readValue(json, MyBeanHolder.class);
@@ -221,7 +221,7 @@ public class JDKNumberDeserTest
 
     // And then [databind#852]
     @Test
-    public void testScientificNotationAsStringForNumber() throws Exception
+    void testScientificNotationAsStringForNumber() throws Exception
     {
         Object ob = MAPPER.readValue("\"3E-8\"", Number.class);
         assertEquals(Double.class, ob.getClass());
@@ -234,7 +234,7 @@ public class JDKNumberDeserTest
     }
 
     @Test
-    public void testIntAsNumber() throws Exception
+    void testIntAsNumber() throws Exception
     {
         /* Even if declared as 'generic' type, should return using most
          * efficient type... here, Integer
@@ -244,7 +244,7 @@ public class JDKNumberDeserTest
     }
 
     @Test
-    public void testLongAsNumber() throws Exception
+    void testLongAsNumber() throws Exception
     {
         // And beyond int range, should get long
         long exp = 1234567890123L;
@@ -253,7 +253,7 @@ public class JDKNumberDeserTest
     }
 
     @Test
-    public void testBigIntAsNumber() throws Exception
+    void testBigIntAsNumber() throws Exception
     {
         // and after long, BigInteger
         BigInteger biggie = new BigInteger("1234567890123456789012345678901234567890");
@@ -263,7 +263,7 @@ public class JDKNumberDeserTest
     }
 
     @Test
-    public void testIntTypeOverride() throws Exception
+    void testIntTypeOverride() throws Exception
     {
         /* Slight twist; as per [JACKSON-100], can also request binding
          * to BigInteger even if value would fit in Integer
@@ -289,14 +289,14 @@ public class JDKNumberDeserTest
     }
 
     @Test
-    public void testDoubleAsNumber() throws Exception
+    void testDoubleAsNumber() throws Exception
     {
         Number result = MAPPER.readValue(new StringReader(" 1.0 "), Number.class);
         assertEquals(Double.valueOf(1.0), result);
     }
 
     @Test
-    public void testFpTypeOverrideSimple() throws Exception
+    void testFpTypeOverrideSimple() throws Exception
     {
         ObjectReader r = MAPPER.reader(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         BigDecimal dec = new BigDecimal("0.1");
@@ -317,7 +317,7 @@ public class JDKNumberDeserTest
     }
 
     @Test
-    public void testFpTypeOverrideStructured() throws Exception
+    void testFpTypeOverrideStructured() throws Exception
     {
         ObjectReader r = MAPPER.reader(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
 
@@ -340,7 +340,7 @@ public class JDKNumberDeserTest
 
     // [databind#504]
     @Test
-    public void testForceIntsToLongs() throws Exception
+    void testForceIntsToLongs() throws Exception
     {
         ObjectReader r = MAPPER.reader(DeserializationFeature.USE_LONG_FOR_INTS);
 
@@ -362,7 +362,7 @@ public class JDKNumberDeserTest
 
     // [databind#2644]
     @Test
-    public void testBigDecimalSubtypes() throws Exception
+    void testBigDecimalSubtypes() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(NodeParent2644.class)
@@ -377,7 +377,7 @@ public class JDKNumberDeserTest
 
     // [databind#2784]
     @Test
-    public void testBigDecimalUnwrapped() throws Exception
+    void testBigDecimalUnwrapped() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
         // mapper.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
@@ -395,17 +395,18 @@ public class JDKNumberDeserTest
         }
         BIG_DEC_STR = sb.toString();
     }
+
     private final BigDecimal BIG_DEC = new BigDecimal(BIG_DEC_STR);
 
     // [databind#4694]: decoded wrong by jackson-core/FDP for over 500 char numbers
     @Test
-    public void bigDecimal4694FromString() throws Exception
+    void bigDecimal4694FromString() throws Exception
     {
         assertEquals(BIG_DEC, MAPPER.readValue(BIG_DEC_STR, BigDecimal.class));
     }
 
     @Test
-    public void bigDecimal4694FromBytes() throws Exception
+    void bigDecimal4694FromBytes() throws Exception
     {
         byte[] b = utf8Bytes(BIG_DEC_STR);
         assertEquals(BIG_DEC, MAPPER.readValue(b, 0, b.length, BigDecimal.class));

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#1592]: allow "coercion" between primitive/wrapper (mostly just ignoring)
-public class TypeCoercion1592Test extends DatabindTestUtil
+class TypeCoercion1592Test extends DatabindTestUtil
 {
     static class Bean1592
     {
@@ -30,7 +30,7 @@ public class TypeCoercion1592Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testTypeCoercion1592() throws Exception
+    void testTypeCoercion1592() throws Exception
     {
         // first, serialize
         MAPPER.writeValueAsString(new Bean1592());

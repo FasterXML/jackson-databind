@@ -11,10 +11,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class JacksonCollectorsTest {
+class JacksonCollectorsTest {
 
     @Test
-    public void testToArrayNode()
+    void testToArrayNode()
     {
         final ObjectMapper objectMapper = new ObjectMapper();
 

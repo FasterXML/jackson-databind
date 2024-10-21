@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("serial")
-public class TestCustomEnumKeyDeserializer extends DatabindTestUtil
+class TestCustomEnumKeyDeserializer extends DatabindTestUtil
 {
     @JsonSerialize(using = TestEnumSerializer.class, keyUsing = TestEnumKeySerializer.class)
     @JsonDeserialize(using = TestEnumDeserializer.class, keyUsing = TestEnumKeyDeserializer.class)
@@ -173,7 +173,7 @@ public class TestCustomEnumKeyDeserializer extends DatabindTestUtil
 
     // Test passing with the fix
     @Test
-    public void testWithEnumKeys() throws Exception {
+    void testWithEnumKeys() throws Exception {
         ObjectMapper plainObjectMapper = new ObjectMapper();
         JsonNode tree = plainObjectMapper.readTree(a2q("{'red' : [ 'a', 'b']}"));
 
@@ -187,9 +187,9 @@ public class TestCustomEnumKeyDeserializer extends DatabindTestUtil
 
     // and another still failing
     // NOTE: temporarily named as non-test to ignore it; JsonIgnore doesn't work for some reason
+    //    public void testWithTree749() throws Exception
     @Test
-//    public void testWithTree749() throws Exception
-    public void withTree749() throws Exception
+    void withTree749() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper().registerModule(new TestEnumModule());
 
@@ -210,7 +210,7 @@ public class TestCustomEnumKeyDeserializer extends DatabindTestUtil
 
     // [databind#1441]
     @Test
-    public void testCustomEnumKeySerializerWithPolymorphic() throws IOException
+    void testCustomEnumKeySerializerWithPolymorphic() throws IOException
     {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addDeserializer(SuperTypeEnum.class, new JsonDeserializer<SuperTypeEnum>() {
@@ -231,9 +231,9 @@ public class TestCustomEnumKeyDeserializer extends DatabindTestUtil
     }
 
     // [databind#1445]
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void testCustomEnumValueAndKeyViaModifier() throws IOException
+    void testCustomEnumValueAndKeyViaModifier() throws IOException
     {
         SimpleModule module = new SimpleModule();
         module.setDeserializerModifier(new BeanDeserializerModifier() {

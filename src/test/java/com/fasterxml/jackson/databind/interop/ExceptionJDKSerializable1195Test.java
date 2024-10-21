@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ExceptionJDKSerializable1195Test extends DatabindTestUtil
+class ExceptionJDKSerializable1195Test extends DatabindTestUtil
 {
     static class ClassToRead {
         public int x;
@@ -29,7 +29,7 @@ public class ExceptionJDKSerializable1195Test extends DatabindTestUtil
     final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testExceptionSerializabilitySimple() throws Exception
+    void testExceptionSerializabilitySimple() throws Exception
     {
         try {
             MAPPER.readValue("{\"x\": \"B\"}", ClassToRead.class);
@@ -48,7 +48,7 @@ public class ExceptionJDKSerializable1195Test extends DatabindTestUtil
     }
 
     @Test
-    public void testExceptionSerializabilityStructured() throws Exception
+    void testExceptionSerializabilityStructured() throws Exception
     {
         try {
             MAPPER.readValue("{\"classesToRead\": [{\"x\": 1}, {\"x\": \"B\"}]}",

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests for `java.sql.Date`, `java.sql.Time` and `java.sql.Timestamp`
-public class SqlDateSerializationTest extends DatabindTestUtil
+class SqlDateSerializationTest extends DatabindTestUtil
 {
     static class SqlDateAsDefaultBean {
         public java.sql.Date date;
@@ -44,7 +44,7 @@ public class SqlDateSerializationTest extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testSqlDate() throws IOException
+    void testSqlDate() throws IOException
     {
         // use date 1999-04-01 (note: months are 0-based, use constant)
         final java.sql.Date date99 = new java.sql.Date(99, Calendar.APRIL, 1);
@@ -73,7 +73,7 @@ public class SqlDateSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSqlTime() throws IOException
+    void testSqlTime() throws IOException
     {
         java.sql.Time time = new java.sql.Time(0L);
         // not 100% sure what we should expect wrt timezone, but what serializes
@@ -82,7 +82,7 @@ public class SqlDateSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSqlTimestamp() throws IOException
+    void testSqlTimestamp() throws IOException
     {
         java.sql.Timestamp input = new java.sql.Timestamp(0L);
         // just should produce same output as standard `java.util.Date`:
@@ -92,7 +92,7 @@ public class SqlDateSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testPatternWithSqlDate() throws Exception
+    void testPatternWithSqlDate() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // `java.sql.Date` applies system default zone (and not UTC)
@@ -106,7 +106,7 @@ public class SqlDateSerializationTest extends DatabindTestUtil
 
     // [databind#2064]
     @Test
-    public void testSqlDateConfigOverride() throws Exception
+    void testSqlDateConfigOverride() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.setTimeZone(TimeZone.getDefault());

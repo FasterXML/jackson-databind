@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ViewSerialization2Test extends DatabindTestUtil
+class ViewSerialization2Test extends DatabindTestUtil
 {
     static class Views
     {
@@ -122,7 +122,7 @@ public class ViewSerialization2Test extends DatabindTestUtil
      */
 
     @Test
-    public void testDataBindingUsage( ) throws Exception
+    void testDataBindingUsage() throws Exception
     {
         ObjectMapper mapper = createMapper();
         String result = serializeWithObjectMapper(new ComplexTestData( ), Views.View.class, mapper);
@@ -130,7 +130,7 @@ public class ViewSerialization2Test extends DatabindTestUtil
     }
 
     @Test
-    public void testDataBindingUsageWithoutView( ) throws Exception
+    void testDataBindingUsageWithoutView() throws Exception
     {
         ObjectMapper mapper = createMapper();
         String json = serializeWithObjectMapper(new ComplexTestData( ), null, mapper);

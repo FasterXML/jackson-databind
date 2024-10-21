@@ -17,8 +17,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TypedContainerSerTest
-	extends DatabindTestUtil
+class TypedContainerSerTest
+        extends DatabindTestUtil
 {
     @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "object-type")
     @JsonSubTypes( { @Type(value = Dog.class, name = "doggy"),
@@ -96,6 +96,7 @@ public class TypedContainerSerTest
 
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
     static class Issue508A { }
+
     static class Issue508B extends Issue508A { }
 
     private final static ObjectMapper mapper = new ObjectMapper();
@@ -106,8 +107,8 @@ public class TypedContainerSerTest
     /**********************************************************
      */
 
-	@Test
-    public void testPolymorphicWithContainer() throws Exception
+    @Test
+    void testPolymorphicWithContainer() throws Exception
     {
 		Dog dog = new Dog("medor");
 		dog.setBoneCount(3);
@@ -123,8 +124,8 @@ public class TypedContainerSerTest
 				"polymorphic type info is kept (2)");
     }
 
-	@Test
-    public void testIssue329() throws Exception
+    @Test
+    void testIssue329() throws Exception
     {
         ArrayList<Animal> animals = new ArrayList<Animal>();
         animals.add(new Dog("Spot"));
@@ -135,8 +136,8 @@ public class TypedContainerSerTest
         }
     }
 
-	@Test
-    public void testIssue508() throws Exception
+    @Test
+    void testIssue508() throws Exception
     {
         List<List<Issue508A>> l = new ArrayList<List<Issue508A>>();
         List<Issue508A> l2 = new ArrayList<Issue508A>();

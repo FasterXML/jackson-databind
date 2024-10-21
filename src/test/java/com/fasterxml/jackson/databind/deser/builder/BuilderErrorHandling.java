@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class BuilderErrorHandling
+class BuilderErrorHandling
 {
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     static class ValueClassXY
@@ -111,7 +111,7 @@ public class BuilderErrorHandling
             .build();
 
     @Test
-    public void testUnknownProperty() throws Exception
+    void testUnknownProperty() throws Exception
     {
         // first, default failure
         String json = a2q("{'x':1,'z':2,'y':4}");
@@ -130,7 +130,7 @@ public class BuilderErrorHandling
     }
 
     @Test
-    public void testWrongShape() throws Exception
+    void testWrongShape() throws Exception
     {
         try {
             MAPPER.readValue("123", ValueClassXY.class);
@@ -145,7 +145,7 @@ public class BuilderErrorHandling
     // [databind#2938]
 
     @Test
-    public void testSuccessfulValidatingBuilder() throws Exception
+    void testSuccessfulValidatingBuilder() throws Exception
     {
         ValidatingValue result = MAPPER.readValue(a2q("{'a':'1','b':'2'}"), ValidatingValue.class);
         assertEquals("1", result.first);
@@ -153,7 +153,7 @@ public class BuilderErrorHandling
     }
 
     @Test
-    public void testFailingValidatingBuilderWithExceptionWrapping() throws Exception
+    void testFailingValidatingBuilderWithExceptionWrapping() throws Exception
     {
         try {
             MAPPER_WITH_WRAPPING.readValue(a2q("{'a':'1'}"), ValidatingValue.class);
@@ -165,7 +165,7 @@ public class BuilderErrorHandling
     }
 
     @Test
-    public void testFailingValidatingBuilderWithExceptionWrappingFromTree() throws Exception
+    void testFailingValidatingBuilderWithExceptionWrappingFromTree() throws Exception
     {
         try {
             JsonNode tree = MAPPER_WITH_WRAPPING.readTree(a2q("{'a':'1'}"));
@@ -178,7 +178,7 @@ public class BuilderErrorHandling
     }
 
     @Test
-    public void testFailingValidatingBuilderWithoutExceptionWrapping() throws Exception
+    void testFailingValidatingBuilderWithoutExceptionWrapping() throws Exception
     {
         try {
             MAPPER_NO_WRAPPING
@@ -190,7 +190,7 @@ public class BuilderErrorHandling
     }
 
     @Test
-    public void testFailingValidatingBuilderWithoutExceptionWrappingFromTree() throws Exception
+    void testFailingValidatingBuilderWithoutExceptionWrappingFromTree() throws Exception
     {
         try {
             JsonNode tree = MAPPER_NO_WRAPPING.readTree(a2q("{'a':'1'}"));

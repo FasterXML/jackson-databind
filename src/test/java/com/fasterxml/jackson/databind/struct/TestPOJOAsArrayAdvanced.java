@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestPOJOAsArrayAdvanced extends DatabindTestUtil
+class TestPOJOAsArrayAdvanced extends DatabindTestUtil
 {
     @JsonFormat(shape=JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder(alphabetic=true)
@@ -48,6 +48,7 @@ public class TestPOJOAsArrayAdvanced extends DatabindTestUtil
     }
 
     static class ViewA { }
+
     static class ViewB { }
 
     @JsonFormat(shape=JsonFormat.Shape.ARRAY)
@@ -91,7 +92,7 @@ public class TestPOJOAsArrayAdvanced extends DatabindTestUtil
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testWithView() throws Exception
+    void testWithView() throws Exception
     {
         // Ok, first, ensure that serializer will "black out" filtered properties
         AsArrayWithView input = new AsArrayWithView();
@@ -111,7 +112,7 @@ public class TestPOJOAsArrayAdvanced extends DatabindTestUtil
     }
 
     @Test
-    public void testWithViewAndCreator() throws Exception
+    void testWithViewAndCreator() throws Exception
     {
         AsArrayWithViewAndCreator result = MAPPER.readerFor(AsArrayWithViewAndCreator.class)
                 .withView(ViewB.class)
@@ -123,7 +124,7 @@ public class TestPOJOAsArrayAdvanced extends DatabindTestUtil
     }
 
     @Test
-    public void testWithCreatorsOrdered() throws Exception
+    void testWithCreatorsOrdered() throws Exception
     {
         CreatorAsArray input = new CreatorAsArray(3, 4);
         input.a = 1;
@@ -143,7 +144,7 @@ public class TestPOJOAsArrayAdvanced extends DatabindTestUtil
 
     // Same as above, but ordering of properties different...
     @Test
-    public void testWithCreatorsShuffled() throws Exception
+    void testWithCreatorsShuffled() throws Exception
     {
         CreatorAsArrayShuffled input = new CreatorAsArrayShuffled(3, 4);
         input.a = 1;

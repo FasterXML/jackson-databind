@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JsonNodeFactoryTest extends NodeTestBase
+class JsonNodeFactoryTest extends NodeTestBase
 {
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
@@ -28,7 +28,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
     }
 
     @Test
-    public void testSimpleCreation()
+    void testSimpleCreation()
     {
         JsonNodeFactory f = MAPPER.getNodeFactory();
 
@@ -64,7 +64,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
     //    Tree Model!
 
     @Test
-   public void testSortingObjectNode() throws Exception
+    void testSortingObjectNode() throws Exception
    {
        final String SIMPLE_INPUT = "{\"b\":2,\"a\":1}";
 
@@ -86,8 +86,8 @@ public class JsonNodeFactoryTest extends NodeTestBase
                MAPPER.writeValueAsString(mapper.readTree(BIGGER_INPUT)));
    }
 
-   @Test
-   public void testBigDecimalNormalization_enabled_by_default() throws Exception
+    @Test
+    void testBigDecimalNormalization_enabled_by_default() throws Exception
    {
       final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
       final BigDecimal NORMALIZED = NON_NORMALIZED.stripTrailingZeros();
@@ -97,9 +97,9 @@ public class JsonNodeFactoryTest extends NodeTestBase
       assertEquals(NORMALIZED, n1.decimalValue());
    }
 
-   // 06-Nov-2022, tatu: Wasn't being tested, oddly enough
+    // 06-Nov-2022, tatu: Wasn't being tested, oddly enough
     @Test
-   public void testBigDecimalNormalization_when_disabled() throws Exception
+    void testBigDecimalNormalization_when_disabled() throws Exception
    {
        final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
 
@@ -112,9 +112,9 @@ public class JsonNodeFactoryTest extends NodeTestBase
        assertEquals(NON_NORMALIZED, n3.decimalValue());
    }
 
-   @SuppressWarnings("deprecation")
-   @Test
-   public void testBigDecimalNormalizationLEGACY() throws Exception
+    @SuppressWarnings("deprecation")
+    @Test
+    void testBigDecimalNormalizationLEGACY() throws Exception
    {
        final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
 

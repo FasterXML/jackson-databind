@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
-public class NullConversionsViaCreator2458Test
+class NullConversionsViaCreator2458Test
 {
     // [databind#2458]
     static class Pojo {
@@ -44,7 +44,7 @@ public class NullConversionsViaCreator2458Test
 
     // [databind#2458]
     @Test
-    public void testMissingToEmptyViaCreator() throws Exception {
+    void testMissingToEmptyViaCreator() throws Exception {
         Pojo pojo = MAPPER_WITH_AS_EMPTY.readValue("{}", Pojo.class);
         assertNotNull(pojo);
         assertNotNull(pojo.value());
@@ -53,7 +53,7 @@ public class NullConversionsViaCreator2458Test
 
     // [databind#2458]
     @Test
-    public void testNullToEmptyViaCreator() throws Exception {
+    void testNullToEmptyViaCreator() throws Exception {
         Pojo pojo = MAPPER_WITH_AS_EMPTY.readValue("{\"value\":null}", Pojo.class);
         assertNotNull(pojo);
         assertNotNull(pojo.value());

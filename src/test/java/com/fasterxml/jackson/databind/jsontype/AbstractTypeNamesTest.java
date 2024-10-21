@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * Unit tests for checking how combination of interfaces, implementation
  * classes are handled, with respect to type names.
  */
-public class AbstractTypeNamesTest  extends DatabindTestUtil
+class AbstractTypeNamesTest  extends DatabindTestUtil
 {
     @JsonTypeName("Employee")
     public interface Employee extends User {
@@ -103,7 +103,7 @@ public class AbstractTypeNamesTest  extends DatabindTestUtil
      */
 
     @Test
-    public void testEmptyCollection() throws Exception
+    void testEmptyCollection() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
@@ -133,7 +133,7 @@ public class AbstractTypeNamesTest  extends DatabindTestUtil
 
     // [JACKSON-584]: change anonymous non-static inner type into static type:
     @Test
-    public void testInnerClassWithType() throws Exception
+    void testInnerClassWithType() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

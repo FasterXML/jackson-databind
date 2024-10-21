@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class ContextAttributeWithSerTest
+class ContextAttributeWithSerTest
 {
     final static String KEY = "foobar";
 
@@ -57,7 +57,7 @@ public class ContextAttributeWithSerTest
     final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimplePerCall() throws Exception
+    void testSimplePerCall() throws Exception
     {
         final String EXP = a2q("[{'value':'0:a'},{'value':'1:b'}]");
         ObjectWriter w = MAPPER.writer();
@@ -70,7 +70,7 @@ public class ContextAttributeWithSerTest
     }
 
     @Test
-    public void testSimpleDefaults() throws Exception
+    void testSimpleDefaults() throws Exception
     {
         final String EXP = a2q("{'value':'3:xyz'}");
         final TestPOJO INPUT = new TestPOJO("xyz");
@@ -84,7 +84,7 @@ public class ContextAttributeWithSerTest
     }
 
     @Test
-    public void testHierarchic() throws Exception
+    void testHierarchic() throws Exception
     {
         final TestPOJO[] INPUT = new TestPOJO[] { new TestPOJO("a"), new TestPOJO("b") };
         final String EXP = a2q("[{'value':'2:a'},{'value':'3:b'}]");
@@ -97,7 +97,7 @@ public class ContextAttributeWithSerTest
 
     // [databind#3001]
     @Test
-    public void testDefaultsViaMapper() throws Exception
+    void testDefaultsViaMapper() throws Exception
     {
         final TestPOJO[] INPUT = new TestPOJO[] { new TestPOJO("a"), new TestPOJO("b") };
         ContextAttributes attrs = ContextAttributes.getEmpty()

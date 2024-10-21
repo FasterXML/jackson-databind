@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestPOJOAsArray extends DatabindTestUtil
+class TestPOJOAsArray extends DatabindTestUtil
 {
     static class PojoAsArrayWrapper
     {
@@ -143,7 +143,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
      * Test that verifies that property annotation works
      */
     @Test
-    public void testReadSimplePropertyValue() throws Exception
+    void testReadSimplePropertyValue() throws Exception
     {
         String json = "{\"value\":[true,\"Foobar\",42,13]}";
         PojoAsArrayWrapper p = MAPPER.readValue(json, PojoAsArrayWrapper.class);
@@ -158,7 +158,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
      * Test that verifies that Class annotation works
      */
     @Test
-    public void testReadSimpleRootValue() throws Exception
+    void testReadSimpleRootValue() throws Exception
     {
         String json = "[false,\"Bubba\",1,2]";
         FlatPojo p = MAPPER.readValue(json, FlatPojo.class);
@@ -172,7 +172,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
      * Test that verifies that property annotation works
      */
     @Test
-    public void testWriteSimplePropertyValue() throws Exception
+    void testWriteSimplePropertyValue() throws Exception
     {
         String json = MAPPER.writeValueAsString(new PojoAsArrayWrapper("Foobar", 42, 13, true));
         // will have wrapper POJO, then POJO-as-array..
@@ -183,7 +183,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
      * Test that verifies that Class annotation works
      */
     @Test
-    public void testWriteSimpleRootValue() throws Exception
+    void testWriteSimpleRootValue() throws Exception
     {
         String json = MAPPER.writeValueAsString(new FlatPojo("Bubba", 1, 2, false));
         // will have wrapper POJO, then POJO-as-array..
@@ -192,7 +192,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
 
     // [Issue#223]
     @Test
-    public void testNullColumn() throws Exception
+    void testNullColumn() throws Exception
     {
         assertEquals("[null,\"bar\"]", MAPPER.writeValueAsString(new TwoStringsBean()));
     }
@@ -204,7 +204,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
      */
 
     @Test
-    public void testSerializeAsArrayWithSingleProperty() throws Exception {
+    void testSerializeAsArrayWithSingleProperty() throws Exception {
         ObjectMapper mapper = newJsonMapper();
         mapper.enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         String json = mapper.writeValueAsString(new SingleBean());
@@ -212,7 +212,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
     }
 
     @Test
-    public void testBeanAsArrayUnwrapped() throws Exception
+    void testBeanAsArrayUnwrapped() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
@@ -228,7 +228,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
      */
 
     @Test
-    public void testAnnotationOverride() throws Exception
+    void testAnnotationOverride() throws Exception
     {
         // by default, POJOs become JSON Objects;
         assertEquals("{\"value\":{\"x\":1,\"y\":2}}", MAPPER.writeValueAsString(new A()));
@@ -242,7 +242,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
     }
 
     @Test
-    public void testWithMaps() throws Exception
+    void testWithMaps() throws Exception
     {
         AsArrayWithMap input = new AsArrayWithMap(1, 2);
         String json = MAPPER.writeValueAsString(input);
@@ -254,7 +254,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleWithIndex() throws Exception
+    void testSimpleWithIndex() throws Exception
     {
         // as POJO:
 //        CreatorWithIndex value = MAPPER.readValue(aposToQuotes("{'b':1,'a':2}"),
@@ -265,7 +265,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
     }
 
     @Test
-    public void testWithConfigOverrides() throws Exception
+    void testWithConfigOverrides() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(NonAnnotatedXY.class,
@@ -287,7 +287,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
      */
 
     @Test
-    public void testUnknownExtraProp() throws Exception
+    void testUnknownExtraProp() throws Exception
     {
         String json = "{\"value\":[true,\"Foobar\",42,13, false]}";
         try {

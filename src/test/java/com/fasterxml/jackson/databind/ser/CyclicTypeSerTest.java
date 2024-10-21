@@ -19,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * is not cyclic. This is the case for directed hierarchies like
  * trees and DAGs.
  */
-public class CyclicTypeSerTest
-    extends DatabindTestUtil
+class CyclicTypeSerTest
+        extends DatabindTestUtil
 {
     static class Bean
     {
@@ -61,7 +61,7 @@ public class CyclicTypeSerTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testLinkedButNotCyclic() throws Exception
+    void testLinkedButNotCyclic() throws Exception
     {
         Bean last = new Bean(null, "last");
         Bean first = new Bean(last, "first");
@@ -79,7 +79,7 @@ public class CyclicTypeSerTest
     }
 
     @Test
-    public void testSimpleDirectSelfReference() throws Exception
+    void testSimpleDirectSelfReference() throws Exception
     {
         Bean selfRef = new Bean(null, "self-refs");
         Bean first = new Bean(selfRef, "first");
@@ -94,7 +94,7 @@ public class CyclicTypeSerTest
 
     // [databind#2501]: Should be possible to replace null cyclic ref
     @Test
-    public void testReplacedCycle() throws Exception
+    void testReplacedCycle() throws Exception
     {
         Selfie2501 self1 = new Selfie2501(1);
         self1.parent = self1;

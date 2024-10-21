@@ -15,14 +15,14 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [databind#1770], [databind#4194]
-public class NumberNodes1770Test extends DatabindTestUtil
+class NumberNodes1770Test extends DatabindTestUtil
 {
     // For to [databind#1770] (broken due to fix for #1028): `JsonNodeDeserializer`
     // would coerce ok but does `parser.isNaN()` check which ends up parsing
     // as Double, gets `POSITIVE_INFINITY` and returns `true`: this results in
     // `DoubleNode` being used even tho `BigDecimal` could fit the number.
     @Test
-    public void testBigDecimalCoercion() throws Exception
+    void testBigDecimalCoercion() throws Exception
     {
         final String value = "7976931348623157e309";
         final JsonNode jsonNode = newJsonMapper().reader()
@@ -33,7 +33,7 @@ public class NumberNodes1770Test extends DatabindTestUtil
     }
 
     @Test
-    public void testBigDecimalCoercionInf() throws Exception
+    void testBigDecimalCoercionInf() throws Exception
     {
         final String value = "+INF";
         JsonFactory factory = JsonFactory.builder()
@@ -48,7 +48,7 @@ public class NumberNodes1770Test extends DatabindTestUtil
 
     // [databind#4194]: should be able to, by configuration, fail coercing NaN to BigDecimal
     @Test
-    public void testBigDecimalCoercionNaN() throws Exception
+    void testBigDecimalCoercionNaN() throws Exception
     {
         JsonNode n = _tryBigDecimalCoercionNaNWithOption(false);
         if (!n.isDouble()) {

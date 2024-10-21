@@ -20,13 +20,13 @@ import static org.junit.jupiter.api.Assertions.*;
 // on deserialization attempts
 //
 // @since 2.16
-public class OptionalJava8Fallbacks4082Test extends DatabindTestUtil
+class OptionalJava8Fallbacks4082Test extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // Test to prevent serialization as POJO, without Java 8 date/time module:
     @Test
-    public void testPreventSerialization() throws Exception {
+    void testPreventSerialization() throws Exception {
         _testPreventSerialization(Optional.empty());
         _testPreventSerialization(OptionalInt.of(13));
         _testPreventSerialization(OptionalLong.of(-1L));
@@ -46,7 +46,7 @@ public class OptionalJava8Fallbacks4082Test extends DatabindTestUtil
     }
 
     @Test
-    public void testBetterDeserializationError() throws Exception
+    void testBetterDeserializationError() throws Exception
     {
         _testBetterDeserializationError(Optional.class);
         _testBetterDeserializationError(OptionalInt.class);
@@ -67,7 +67,7 @@ public class OptionalJava8Fallbacks4082Test extends DatabindTestUtil
 
     // But, [databind#3091], allow deser from JsonToken.VALUE_EMBEDDED_OBJECT
     @Test
-    public void testAllowAsEmbedded() throws Exception
+    void testAllowAsEmbedded() throws Exception
     {
         Optional<Object> optValue = Optional.empty();
         try (TokenBuffer tb = new TokenBuffer((ObjectCodec) null, false)) {

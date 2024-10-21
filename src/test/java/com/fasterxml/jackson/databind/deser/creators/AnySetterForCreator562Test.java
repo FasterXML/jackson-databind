@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#562] Allow @JsonAnySetter on Creator constructors
-public class AnySetterForCreator562Test extends DatabindTestUtil
+class AnySetterForCreator562Test extends DatabindTestUtil
 {
     static class POJO562
     {
@@ -111,7 +111,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void mapAnySetterViaCreator562() throws Exception
+    void mapAnySetterViaCreator562() throws Exception
     {
         Map<String, Object> expected = new HashMap<>();
         expected.put("b", Integer.valueOf(42));
@@ -142,7 +142,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
     // [databind#4634]
     @Test
-    public void mapAnySetterViaCreatorWhenBothCreatorAndFieldAreAnnotated() throws Exception
+    void mapAnySetterViaCreatorWhenBothCreatorAndFieldAreAnnotated() throws Exception
     {
         Map<String, Object> expected = new HashMap<>();
         expected.put("b", Integer.valueOf(42));
@@ -163,7 +163,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
     // Creator and non-Creator props AND any-setter ought to be fine too
     @Test
-    public void mapAnySetterViaCreatorAndField() throws Exception
+    void mapAnySetterViaCreatorAndField() throws Exception
     {
         POJO562WithField pojo = MAPPER.readValue(
                 a2q("{'a':'value', 'b':'xyz', 'c': 'abc'}"),
@@ -175,7 +175,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    public void testNodeAnySetterViaCreator562() throws Exception
+    void testNodeAnySetterViaCreator562() throws Exception
     {
         PojoWithNodeAnySetter pojo = MAPPER.readValue(
                 a2q("{'a':'value', 'b':42, 'c': 111}"),
@@ -192,7 +192,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    public void testAnyMapWithNullCreatorProp() throws Exception
+    void testAnyMapWithNullCreatorProp() throws Exception
     {
         ObjectMapper failOnNullMapper = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES).build();
@@ -203,7 +203,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    public void testAnyMapWithMissingCreatorProp() throws Exception
+    void testAnyMapWithMissingCreatorProp() throws Exception
     {
         ObjectMapper failOnMissingMapper = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES).build();
@@ -222,7 +222,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    public void testAnyMapWithNullOrMissingCreatorProp() throws Exception
+    void testAnyMapWithNullOrMissingCreatorProp() throws Exception
     {
         ObjectMapper failOnBothMapper = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)
@@ -237,7 +237,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    public void testAnySetterViaCreator562FailForDup() throws Exception
+    void testAnySetterViaCreator562FailForDup() throws Exception
     {
         try {
             MAPPER.readValue("{}", MultipleAny562.class);
@@ -249,7 +249,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
     }
 
     @Test
-    public void testAnySetterViaCreator562Disabled() throws Exception
+    void testAnySetterViaCreator562Disabled() throws Exception
     {
         try {
             MAPPER.readValue(a2q("{'a':'value', 'b':42, 'c': 111}"),

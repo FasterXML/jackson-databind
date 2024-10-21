@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class POJOPropertiesCollectorTest
-    extends DatabindTestUtil
+class POJOPropertiesCollectorTest
+        extends DatabindTestUtil
 {
     static class Simple {
         public int value;
@@ -243,7 +243,7 @@ public class POJOPropertiesCollectorTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimple()
+    void testSimple()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
         		Simple.class, true);
@@ -257,7 +257,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testSimpleFieldVisibility()
+    void testSimpleFieldVisibility()
     {
         // false -> deserialization
         POJOPropertiesCollector coll = collector(MAPPER,
@@ -272,7 +272,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testSimpleGetterVisibility()
+    void testSimpleGetterVisibility()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
         		SimpleGetterVisibility.class, true);
@@ -288,7 +288,7 @@ public class POJOPropertiesCollectorTest
     // Unit test for verifying that a single @JsonIgnore can remove the
     // whole property, unless explicit property marker exists
     @Test
-    public void testEmpty()
+    void testEmpty()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
         		Empty.class, true);
@@ -300,7 +300,7 @@ public class POJOPropertiesCollectorTest
     // if there is at least one explicit annotation to indicate property,
     // only parts that are ignored are, well, ignored
     @Test
-    public void testPartialIgnore()
+    void testPartialIgnore()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
         		IgnoredSetter.class, true);
@@ -314,7 +314,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testSimpleRenamed()
+    void testSimpleRenamed()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
         		RenamedProperties.class, true);
@@ -328,7 +328,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testSimpleRenamed2()
+    void testSimpleRenamed2()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
         		RenamedProperties2.class, true);
@@ -342,7 +342,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testMergeWithRename()
+    void testMergeWithRename()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
         		MergedProperties.class, true);
@@ -356,7 +356,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testSimpleIgnoreAndRename()
+    void testSimpleIgnoreAndRename()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
         		IgnoredRenamedSetter.class, true);
@@ -370,7 +370,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testGlobalVisibilityForGetters()
+    void testGlobalVisibilityForGetters()
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
@@ -382,7 +382,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testCollectionOfIgnored()
+    void testCollectionOfIgnored()
     {
         POJOPropertiesCollector coll = collector(MAPPER, ImplicitIgnores.class, false);
         // should be 1, due to ignorals
@@ -396,7 +396,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testSimpleOrderingForDeserialization()
+    void testSimpleOrderingForDeserialization()
     {
         POJOPropertiesCollector coll = collector(MAPPER, SortedProperties.class, false);
         List<BeanPropertyDefinition> props = coll.getProperties();
@@ -408,7 +408,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testSimpleWithType()
+    void testSimpleWithType()
     {
         // first for serialization; should base choice on getter
         POJOPropertiesCollector coll = collector(MAPPER, TypeTestBean.class, true);
@@ -430,7 +430,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testInnerClassWithAnnotationsInCreator() throws Exception
+    void testInnerClassWithAnnotationsInCreator() throws Exception
     {
         BeanDescription beanDesc;
         // first with serialization
@@ -442,7 +442,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testUseAnnotationsFalse() throws Exception
+    void testUseAnnotationsFalse() throws Exception
     {
         // note: need a separate mapper, need to reconfigure
         ObjectMapper mapper = jsonMapperBuilder()
@@ -457,7 +457,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testJackson744() throws Exception
+    void testJackson744() throws Exception
     {
         BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect
                 (MAPPER.constructType(Issue744Bean.class));
@@ -470,7 +470,7 @@ public class POJOPropertiesCollectorTest
 
     // [databind#269]: Support new @JsonPropertyDescription
     @Test
-    public void testPropertyDesc() throws Exception
+    void testPropertyDesc() throws Exception
     {
         // start via deser
         BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
@@ -482,7 +482,7 @@ public class POJOPropertiesCollectorTest
 
     // [databind#438]: Support @JsonProperty.index
     @Test
-    public void testPropertyIndex() throws Exception
+    void testPropertyIndex() throws Exception
     {
         BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, false, true, "13");
@@ -491,7 +491,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testDuplicateGetters() throws Exception
+    void testDuplicateGetters() throws Exception
     {
         POJOPropertiesCollector coll = collector(MAPPER, DuplicateGetterBean.class, true);
         List<BeanPropertyDefinition> props = coll.getProperties();
@@ -503,7 +503,7 @@ public class POJOPropertiesCollectorTest
     }
 
     @Test
-    public void testDuplicateGettersCreator() throws Exception
+    void testDuplicateGettersCreator() throws Exception
     {
         POJOPropertiesCollector coll = collector(MAPPER, DuplicateGetterCreatorBean.class, true);
         List<BeanPropertyDefinition> props = coll.getProperties();

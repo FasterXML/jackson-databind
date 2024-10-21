@@ -22,7 +22,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * Test custom value instantiators.
  */
 @SuppressWarnings("serial")
-public class ValueInstantiatorTest
+class ValueInstantiatorTest
 {
     static class MyBean
     {
@@ -342,7 +342,7 @@ public class ValueInstantiatorTest
     private final ObjectMapper MAPPER = sharedMapper();
 
     @Test
-    public void testCustomBeanInstantiator() throws Exception
+    void testCustomBeanInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(MyBean.class, new MyBeanInstantiator()));
@@ -352,7 +352,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testCustomListInstantiator() throws Exception
+    void testCustomListInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(MyList.class, new MyListInstantiator()));
@@ -363,7 +363,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testCustomMapInstantiator() throws Exception
+    void testCustomMapInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(MyMap.class, new MyMapInstantiator()));
@@ -380,7 +380,7 @@ public class ValueInstantiatorTest
      */
 
     @Test
-    public void testDelegateBeanInstantiator() throws Exception
+    void testDelegateBeanInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(MyBean.class, new MyDelegateBeanInstantiator()));
@@ -390,7 +390,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testDelegateListInstantiator() throws Exception
+    void testDelegateListInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(MyList.class, new MyDelegateListInstantiator()));
@@ -401,7 +401,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testDelegateMapInstantiator() throws Exception
+    void testDelegateMapInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(MyMap.class, new MyDelegateMapInstantiator()));
@@ -412,7 +412,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testCustomDelegateInstantiator() throws Exception
+    void testCustomDelegateInstantiator() throws Exception
     {
         AnnotatedBeanDelegating value = MAPPER.readValue("{\"a\":3}", AnnotatedBeanDelegating.class);
         assertNotNull(value);
@@ -428,7 +428,7 @@ public class ValueInstantiatorTest
      */
 
     @Test
-    public void testPropertyBasedBeanInstantiator() throws Exception
+    void testPropertyBasedBeanInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(CreatorBean.class,
@@ -456,7 +456,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testPropertyBasedMapInstantiator() throws Exception
+    void testPropertyBasedMapInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(MyMap.class, new CreatorMapInstantiator()));
@@ -474,7 +474,7 @@ public class ValueInstantiatorTest
      */
 
     @Test
-    public void testBeanFromString() throws Exception
+    void testBeanFromString() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(MysteryBean.class,
@@ -493,7 +493,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testBeanFromInt() throws Exception
+    void testBeanFromInt() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(MysteryBean.class,
@@ -512,7 +512,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testBeanFromLong() throws Exception
+    void testBeanFromLong() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(MysteryBean.class,
@@ -531,7 +531,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testBeanFromDouble() throws Exception
+    void testBeanFromDouble() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(MysteryBean.class,
@@ -550,7 +550,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testBeanFromBoolean() throws Exception
+    void testBeanFromBoolean() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(MysteryBean.class,
@@ -579,7 +579,7 @@ public class ValueInstantiatorTest
      * polymorphic handling...
      */
     @Test
-    public void testPolymorphicCreatorBean() throws Exception
+    void testPolymorphicCreatorBean() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule(PolymorphicBeanBase.class, new PolymorphicBeanInstantiator()));
@@ -591,7 +591,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testEmptyBean() throws Exception
+    void testEmptyBean() throws Exception
     {
         AnnotatedBean bean = MAPPER.readValue("{}", AnnotatedBean.class);
         assertNotNull(bean);
@@ -600,7 +600,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testErrorMessageForMissingCtor() throws Exception
+    void testErrorMessageForMissingCtor() throws Exception
     {
         // first fail, check message from JSON Object (no default ctor)
         try {
@@ -613,7 +613,7 @@ public class ValueInstantiatorTest
     }
 
     @Test
-    public void testErrorMessageForMissingStringCtor() throws Exception
+    void testErrorMessageForMissingStringCtor() throws Exception
     {
         // then from JSON String
         try {

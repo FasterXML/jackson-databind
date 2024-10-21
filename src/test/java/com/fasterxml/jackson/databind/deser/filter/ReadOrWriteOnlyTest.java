@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class ReadOrWriteOnlyTest
+class ReadOrWriteOnlyTest
 {
     // for [databind#935], verify read/write-only cases
     static class ReadXWriteY {
@@ -140,7 +140,7 @@ public class ReadOrWriteOnlyTest
 
     // [databind#935]
     @Test
-    public void testReadOnlyAndWriteOnly() throws Exception
+    void testReadOnlyAndWriteOnly() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ReadXWriteY());
         assertEquals("{\"x\":1}", json);
@@ -152,7 +152,7 @@ public class ReadOrWriteOnlyTest
     }
 
     @Test
-    public void testReadOnly935() throws Exception
+    void testReadOnly935() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Pojo935());
         Pojo935 result = MAPPER.readValue(json, Pojo935.class);
@@ -161,7 +161,7 @@ public class ReadOrWriteOnlyTest
 
     // [databind#1345]
     @Test
-    public void testReadOnly1345() throws Exception
+    void testReadOnly1345() throws Exception
     {
         Foo1345 result = MAPPER.readValue("{\"name\":\"test\"}", Foo1345.class);
         assertNotNull(result);
@@ -171,7 +171,7 @@ public class ReadOrWriteOnlyTest
 
     // [databind#1382]
     @Test
-    public void testReadOnly1382() throws Exception
+    void testReadOnly1382() throws Exception
     {
         String payload = "{\"list\":[1,2,3,4]}";
         Foo1382 foo = MAPPER.readValue(payload, Foo1382.class);
@@ -180,7 +180,7 @@ public class ReadOrWriteOnlyTest
 
     // [databind#1805]
     @Test
-    public void testViaReadOnly() throws Exception {
+    void testViaReadOnly() throws Exception {
         UserWithReadOnly1805 user = new UserWithReadOnly1805();
         user.name = "foo";
         String json = MAPPER.writeValueAsString(user);
@@ -190,7 +190,7 @@ public class ReadOrWriteOnlyTest
 
     // [databind#1805]
     @Test
-    public void testUsingAllowGetters() throws Exception {
+    void testUsingAllowGetters() throws Exception {
         UserAllowGetters1805 user = new UserAllowGetters1805();
         user.name = "foo";
         String json = MAPPER.writeValueAsString(user);
@@ -201,7 +201,7 @@ public class ReadOrWriteOnlyTest
 
     // [databind#2779]: ignorable property renaming
     @Test
-    public void testIssue2779() throws Exception
+    void testIssue2779() throws Exception
     {
         Bean2779 bean = new Bean2779();
         bean.setWorks("works");

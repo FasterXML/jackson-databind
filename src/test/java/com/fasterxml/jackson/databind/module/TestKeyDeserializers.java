@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestKeyDeserializers extends DatabindTestUtil
+class TestKeyDeserializers extends DatabindTestUtil
 {
     static class FooKeyDeserializer extends KeyDeserializer
     {
@@ -35,7 +35,7 @@ public class TestKeyDeserializers extends DatabindTestUtil
      */
 
     @Test
-    public void testKeyDeserializers() throws Exception
+    void testKeyDeserializers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());

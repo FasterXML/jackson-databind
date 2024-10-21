@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class CoerceContainersTest
+class CoerceContainersTest
 {
     private final String JSON_EMPTY = q("");
 
@@ -35,7 +35,7 @@ public class CoerceContainersTest
      */
 
     @Test
-    public void testScalarCollections() throws Exception
+    void testScalarCollections() throws Exception
     {
         final JavaType listType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<List<Double>>() { });
@@ -59,7 +59,7 @@ public class CoerceContainersTest
     }
 
     @Test
-    public void testStringCollections() throws Exception
+    void testStringCollections() throws Exception
     {
         final JavaType listType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<List<String>>() { });
@@ -76,7 +76,7 @@ public class CoerceContainersTest
      */
 
     @Test
-    public void testScalarMap() throws Exception
+    void testScalarMap() throws Exception
     {
         final JavaType mapType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<Map<Long, Boolean>>() { });
@@ -87,7 +87,7 @@ public class CoerceContainersTest
     }
 
     @Test
-    public void testEnumMap() throws Exception
+    void testEnumMap() throws Exception
     {
         final JavaType mapType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<EnumMap<ABC, Boolean>>() { });
@@ -104,7 +104,7 @@ public class CoerceContainersTest
      */
 
     @Test
-    public void testObjectArray() throws Exception
+    void testObjectArray() throws Exception
     {
         final JavaType arrayType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<Object[]>() { });
@@ -115,7 +115,7 @@ public class CoerceContainersTest
     }
 
     @Test
-    public void testStringArray() throws Exception
+    void testStringArray() throws Exception
     {
         final JavaType arrayType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<String[]>() { });
@@ -126,7 +126,7 @@ public class CoerceContainersTest
     }
 
     @Test
-    public void testBooleanArray() throws Exception
+    void testBooleanArray() throws Exception
     {
         _verifyNoCoercion(boolean[].class);
         boolean[] result = _readWithCoercion(boolean[].class);
@@ -135,7 +135,7 @@ public class CoerceContainersTest
     }
 
     @Test
-    public void testIntArray() throws Exception
+    void testIntArray() throws Exception
     {
         _verifyNoCoercion(int[].class);
         int[] result = _readWithCoercion(int[].class);
@@ -144,7 +144,7 @@ public class CoerceContainersTest
     }
 
     @Test
-    public void testLongArray() throws Exception
+    void testLongArray() throws Exception
     {
         _verifyNoCoercion(long[].class);
         long[] result = _readWithCoercion(long[].class);
@@ -153,7 +153,7 @@ public class CoerceContainersTest
     }
 
     @Test
-    public void testFloatArray() throws Exception
+    void testFloatArray() throws Exception
     {
         _verifyNoCoercion(float[].class);
         float[] result = _readWithCoercion(float[].class);
@@ -162,7 +162,7 @@ public class CoerceContainersTest
     }
 
     @Test
-    public void testDoubleArray() throws Exception
+    void testDoubleArray() throws Exception
     {
         _verifyNoCoercion(double[].class);
         double[] result = _readWithCoercion(double[].class);
@@ -171,7 +171,7 @@ public class CoerceContainersTest
     }
 
     @Test
-    public void testPOJOArray() throws Exception
+    void testPOJOArray() throws Exception
     {
         _verifyNoCoercion(StringWrapper[].class);
         StringWrapper[] result = _readWithCoercion(StringWrapper[].class);

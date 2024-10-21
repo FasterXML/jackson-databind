@@ -15,7 +15,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMa
 /**
  * Tests for <a href="https://github.com/FasterXML/jackson-core/issues/863">databind#863</a>"
  */
-public class StreamReadStringConstraintsTest
+class StreamReadStringConstraintsTest
 {
     final static class StringWrapper
     {
@@ -48,7 +48,7 @@ public class StreamReadStringConstraintsTest
     }
 
     @Test
-    public void testBigString() throws Exception
+    void testBigString() throws Exception
     {
         try {
             MAPPER.readValue(generateJson("string", TOO_LONG_STRING_VALUE), StringWrapper.class);
@@ -61,7 +61,7 @@ public class StreamReadStringConstraintsTest
     }
 
     @Test
-    public void testBiggerString() throws Exception
+    void testBiggerString() throws Exception
     {
         try {
             MAPPER.readValue(generateJson("string", TOO_LONG_STRING_VALUE), StringWrapper.class);
@@ -76,7 +76,7 @@ public class StreamReadStringConstraintsTest
     }
 
     @Test
-    public void testUnlimitedString() throws Exception
+    void testUnlimitedString() throws Exception
     {
         final int len = TOO_LONG_STRING_VALUE;
         StringWrapper sw = newJsonMapperWithUnlimitedStringSizeSupport()

@@ -17,7 +17,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
 // test that for non-static inner classes constructors are ignored
 // and no Creators should be processed (since they cannot be made
 // to work in standard way anyway).
-public class InnerClassCreatorTest
+class InnerClassCreatorTest
 {
     static class Something1501 {
         public InnerSomething1501 a;
@@ -67,7 +67,7 @@ public class InnerClassCreatorTest
 
     // Used to trigger `ArrayIndexOutOfBoundsException` for missing creator property index
     @Test
-    public void testIssue1501() throws Exception
+    void testIssue1501() throws Exception
     {
         String ser = MAPPER.writeValueAsString(new Something1501(false));
         try {
@@ -81,7 +81,7 @@ public class InnerClassCreatorTest
     }
 
     @Test
-    public void testIssue1502() throws Exception
+    void testIssue1502() throws Exception
     {
         String ser = MAPPER.writeValueAsString(new Something1502(null));
         try {
@@ -95,7 +95,7 @@ public class InnerClassCreatorTest
     }
 
     @Test
-    public void testIssue1503() throws Exception
+    void testIssue1503() throws Exception
     {
         String ser = MAPPER.writeValueAsString(new Outer1503());
         Outer1503 result = MAPPER.readValue(ser, Outer1503.class);

@@ -7,11 +7,11 @@ import com.fasterxml.jackson.databind.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class GenericFieldInSubtypeTest
+class GenericFieldInSubtypeTest
 {
     // [JACKSON-677]
     @Test
-    public void test677() throws Exception
+    void test677() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // and bit more checking as per later comments
@@ -22,9 +22,9 @@ public class GenericFieldInSubtypeTest
         assertEquals("{\"value\":4}", json);
     }
 
- // [JACKSON-887]
+    // [JACKSON-887]
     @Test
-    public void testInnerType() throws Exception
+    void testInnerType() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         BaseType.SubType<?> r = mapper.readValue("{}", BaseType.SubType.class);

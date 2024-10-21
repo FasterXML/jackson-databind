@@ -14,7 +14,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * Unit tests for verifying handling of update value on polymorphic
  * objects.
  */
-public class PolymorphicUpdateValueTest
+class PolymorphicUpdateValueTest
 {
     @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_ARRAY //PROPERTY
             ,use=JsonTypeInfo.Id.NAME, property="type")
@@ -39,7 +39,7 @@ public class PolymorphicUpdateValueTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testPolymorphicTest() throws Exception
+    void testPolymorphicTest() throws Exception
     {
          Child c = new Child();
          c.w = 10;

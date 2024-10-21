@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PrivateMaxEntriesMapStressTest {
+class PrivateMaxEntriesMapStressTest {
 
     //increase these to increase the stress
     private static int iterations = 100000;
@@ -22,7 +22,7 @@ public class PrivateMaxEntriesMapStressTest {
     private static int waitSeconds = 60;
 
     @Test
-    public void testManyEntries() throws Exception {
+    void testManyEntries() throws Exception {
         final int maxEntries = 30;
         final int maxKey = 100;
         final Random rnd = new Random();

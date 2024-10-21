@@ -26,7 +26,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  *
  * - [databind#994]
  */
-public class CoerceEmptyArrayTest
+class CoerceEmptyArrayTest
 {
     private final ObjectMapper DEFAULT_MAPPER = sharedMapper();
     private final ObjectReader DEFAULT_READER = DEFAULT_MAPPER.reader();
@@ -72,7 +72,7 @@ public class CoerceEmptyArrayTest
      */
 
     @Test
-    public void testSettings() {
+    void testSettings() {
         assertFalse(DEFAULT_MAPPER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
         assertFalse(DEFAULT_READER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
         assertTrue(READER_WITH_ARRAYS.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
@@ -86,7 +86,7 @@ public class CoerceEmptyArrayTest
 
     // [databind#540]
     @Test
-    public void testPOJOFromEmptyArray() throws Exception
+    void testPOJOFromEmptyArray() throws Exception
     {
         final Class<?> targetType = Bean.class;
 
@@ -123,7 +123,7 @@ public class CoerceEmptyArrayTest
      */
 
     @Test
-    public void testMapFromEmptyArray() throws Exception
+    void testMapFromEmptyArray() throws Exception
     {
         final Class<?> targetType = Map.class;
 
@@ -140,7 +140,7 @@ public class CoerceEmptyArrayTest
     }
 
     @Test
-    public void testEnumMapFromEmptyArray() throws Exception
+    void testEnumMapFromEmptyArray() throws Exception
     {
         final JavaType targetType = DEFAULT_READER.getTypeFactory()
                 .constructType(new TypeReference<EnumMap<DatabindTestUtil.ABC,String>>() { });
@@ -159,7 +159,7 @@ public class CoerceEmptyArrayTest
      */
 
     @Test
-    public void testNumbersFromEmptyArray() throws Exception
+    void testNumbersFromEmptyArray() throws Exception
     {
         for (Class<?> targetType : new Class<?>[] {
             Boolean.class, Character.class,
@@ -193,7 +193,7 @@ public class CoerceEmptyArrayTest
     }
 
     @Test
-    public void testOtherScalarsFromEmptyArray() throws Exception
+    void testOtherScalarsFromEmptyArray() throws Exception
     {
         for (Class<?> targetType : new Class<?>[] {
             String.class, StringBuilder.class,

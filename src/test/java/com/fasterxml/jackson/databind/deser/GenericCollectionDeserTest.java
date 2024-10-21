@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SuppressWarnings("serial")
-public class GenericCollectionDeserTest
+class GenericCollectionDeserTest
 {
     static class ListSubClass extends ArrayList<StringWrapper> { }
 
@@ -48,7 +48,7 @@ public class GenericCollectionDeserTest
      * Verifying that sub-classing works ok wrt generics information
      */
     @Test
-    public void testListSubClass() throws Exception
+    void testListSubClass() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         ListSubClass result = mapper.readValue("[ \"123\" ]", ListSubClass.class);
@@ -67,7 +67,7 @@ public class GenericCollectionDeserTest
 
     // Verifying that sub-classing works ok wrt generics information
     @Test
-    public void testAnnotatedLStringist() throws Exception
+    void testAnnotatedLStringist() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         AnnotatedStringList result = mapper.readValue("[ \"...\" ]", AnnotatedStringList.class);
@@ -78,7 +78,7 @@ public class GenericCollectionDeserTest
     }
 
     @Test
-    public void testAnnotatedBooleanList() throws Exception
+    void testAnnotatedBooleanList() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         AnnotatedBooleanList result = mapper.readValue("[ false ]", AnnotatedBooleanList.class);

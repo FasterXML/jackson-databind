@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ClassUtilTest extends DatabindTestUtil
+class ClassUtilTest extends DatabindTestUtil
 {
     /* Test classes and interfaces needed for testing class util
      * methods
@@ -79,7 +79,7 @@ public class ClassUtilTest extends DatabindTestUtil
      */
 
     @Test
-    public void testIsConcrete() throws Exception
+    void testIsConcrete() throws Exception
     {
         assertTrue(ClassUtil.isConcrete(getClass()));
         assertFalse(ClassUtil.isConcrete(BaseClass.class));
@@ -90,7 +90,7 @@ public class ClassUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testCanBeABeanType()
+    void testCanBeABeanType()
     {
         assertEquals("annotation", ClassUtil.canBeABeanType(java.lang.annotation.Retention.class));
         assertEquals("array", ClassUtil.canBeABeanType(String[].class));
@@ -103,7 +103,7 @@ public class ClassUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testExceptionHelpers()
+    void testExceptionHelpers()
     {
         RuntimeException e = new RuntimeException("test");
         RuntimeException wrapper = new RuntimeException(e);
@@ -134,7 +134,7 @@ public class ClassUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testFailedCreateInstance()
+    void testFailedCreateInstance()
     {
         try {
             ClassUtil.createInstance(BaseClass.class, true);
@@ -158,7 +158,7 @@ public class ClassUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testPrimitiveDefaultValue()
+    void testPrimitiveDefaultValue()
     {
         assertEquals(Integer.valueOf(0), ClassUtil.defaultValue(Integer.TYPE));
         assertEquals(Long.valueOf(0L), ClassUtil.defaultValue(Long.TYPE));
@@ -179,7 +179,7 @@ public class ClassUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testPrimitiveWrapperType()
+    void testPrimitiveWrapperType()
     {
         assertEquals(Byte.class, ClassUtil.wrapperType(Byte.TYPE));
         assertEquals(Short.class, ClassUtil.wrapperType(Short.TYPE));
@@ -201,7 +201,7 @@ public class ClassUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWrapperToPrimitiveType()
+    void testWrapperToPrimitiveType()
     {
         assertEquals(Integer.TYPE, ClassUtil.primitiveType(Integer.class));
         assertEquals(Long.TYPE, ClassUtil.primitiveType(Long.class));
@@ -216,7 +216,7 @@ public class ClassUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testFindEnumTypeNonJdk()
+    void testFindEnumTypeNonJdk()
     {
         assertEquals(TestEnum.class, ClassUtil.findEnumType(TestEnum.A));
         assertEquals(TestEnum.class, ClassUtil.findEnumType(TestEnum.B));
@@ -224,7 +224,7 @@ public class ClassUtilTest extends DatabindTestUtil
 
     // Some trouble with JDK 16+
     @Test
-    public void testFindEnumSetTypeJDK()
+    void testFindEnumSetTypeJDK()
     {
         // different codepaths for empty and non-empty EnumSets...
         assertEquals(TestEnum.class, ClassUtil.findEnumType(EnumSet.allOf(TestEnum.class)));
@@ -233,13 +233,13 @@ public class ClassUtilTest extends DatabindTestUtil
 
     // Some trouble with JDK 16+
     @Test
-    public void testFindEnumMapTypeJDK()
+    void testFindEnumMapTypeJDK()
     {
         assertEquals(TestEnum.class, ClassUtil.findEnumType(new EnumMap<TestEnum,Integer>(TestEnum.class)));
     }
 
     @Test
-    public void testDescs()
+    void testDescs()
     {
         final String stringExp = "`java.lang.String`";
         assertEquals(stringExp, ClassUtil.getClassDescription("foo"));
@@ -253,7 +253,7 @@ public class ClassUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSubtypes()
+    void testSubtypes()
     {
         final JavaType stringType = TF.constructType(String.class);
         List<JavaType> supers = ClassUtil.findSuperTypes(stringType, Object.class, false);
@@ -264,14 +264,14 @@ public class ClassUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testGetDeclaringClass()
+    void testGetDeclaringClass()
     {
         assertEquals(null, ClassUtil.getDeclaringClass(String.class));
         assertEquals(getClass(), ClassUtil.getDeclaringClass(BaseClass.class));
     }
 
     @Test
-    public void testIsXxxType()
+    void testIsXxxType()
     {
         assertTrue(ClassUtil.isCollectionMapOrArray(String[].class));
         assertTrue(ClassUtil.isCollectionMapOrArray(ArrayList.class));
@@ -284,7 +284,7 @@ public class ClassUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testEnforceSubtype()
+    void testEnforceSubtype()
     {
         try {
             ClassUtil.verifyMustOverride(Number.class, Boolean.TRUE, "Test");
@@ -294,7 +294,7 @@ public class ClassUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testCloseEtc() throws Exception
+    void testCloseEtc() throws Exception
     {
         final Exception testExc1 = new IllegalArgumentException("test");
         // First: without any actual stuff, with an RTE
@@ -324,7 +324,7 @@ public class ClassUtilTest extends DatabindTestUtil
 
     @SuppressWarnings("serial")
     @Test
-    public void testExceptionMessage() {
+    void testExceptionMessage() {
         DatabindException jacksonException = new JsonMappingException((Closeable) null, "A message") {
             @Override
             public String getOriginalMessage() {
@@ -345,7 +345,7 @@ public class ClassUtilTest extends DatabindTestUtil
     }
 
     @Test
-    public void testJDKChecks() {
+    void testJDKChecks() {
         int version = ClassUtil.getJDKMajorVersion();
         assertTrue(version > 0);
 
@@ -360,7 +360,7 @@ public class ClassUtilTest extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testSubtypesDeprecated()
+    void testSubtypesDeprecated()
     {
         // just for code coverage
         List<Class<?>> supers = ClassUtil.findSuperTypes(String.class, Object.class);
@@ -369,7 +369,7 @@ public class ClassUtilTest extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testHasGetterSignature() throws Exception
+    void testHasGetterSignature() throws Exception
     {
         assertFalse(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("staticMethod")));
         assertFalse(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("voidMethod")));

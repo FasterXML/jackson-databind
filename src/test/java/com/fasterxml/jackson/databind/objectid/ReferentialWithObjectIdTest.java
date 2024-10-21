@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ReferentialWithObjectIdTest extends DatabindTestUtil
+class ReferentialWithObjectIdTest extends DatabindTestUtil
 {
     public static class EmployeeList {
         public AtomicReference<Employee> first;
@@ -39,7 +39,7 @@ public class ReferentialWithObjectIdTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testAtomicWithObjectId() throws Exception
+    void testAtomicWithObjectId() throws Exception
     {
         Employee first = new Employee();
         first.id = 1;

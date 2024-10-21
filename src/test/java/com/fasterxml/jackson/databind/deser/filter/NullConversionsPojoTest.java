@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // for [databind#1402]; configurable null handling, for values themselves
-public class NullConversionsPojoTest
+class NullConversionsPojoTest
 {
     static class NullFail {
         public String nullsOk = "a";
@@ -91,7 +91,7 @@ public class NullConversionsPojoTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testFailOnNull() throws Exception
+    void testFailOnNull() throws Exception
     {
         // first, ok if assigning non-null to not-nullable, null for nullable
         NullFail result = MAPPER.readValue(a2q("{'noNulls':'foo', 'nullsOk':null}"),
@@ -127,7 +127,7 @@ public class NullConversionsPojoTest
     }
 
     @Test
-    public void testFailOnNullWithDefaults() throws Exception
+    void testFailOnNullWithDefaults() throws Exception
     {
         // also: config overrides by type should work
         String json = a2q("{'name':null}");
@@ -146,7 +146,7 @@ public class NullConversionsPojoTest
     }
 
     @Test
-    public void testNullsToEmptyScalar() throws Exception
+    void testNullsToEmptyScalar() throws Exception
     {
         NullAsEmpty result = MAPPER.readValue(a2q("{'nullAsEmpty':'foo', 'nullsOk':null}"),
                 NullAsEmpty.class);
@@ -171,7 +171,7 @@ public class NullConversionsPojoTest
     }
 
     @Test
-    public void testNullsToEmptyViaCtor() throws Exception
+    void testNullsToEmptyViaCtor() throws Exception
     {
         NullAsEmptyCtor result = MAPPER.readValue(a2q("{'nullAsEmpty':'foo', 'nullsOk':null}"),
                 NullAsEmptyCtor.class);
@@ -190,7 +190,7 @@ public class NullConversionsPojoTest
 
     // [databind#3645]
     @Test
-    public void testDeserializeMissingCollectionFieldAsEmpty() throws Exception {
+    void testDeserializeMissingCollectionFieldAsEmpty() throws Exception {
         String json = "{\"name\": \"Computer\"}";
 
         Issue3645BeanA actual = MAPPER.readValue(json, Issue3645BeanA.class);
@@ -201,7 +201,7 @@ public class NullConversionsPojoTest
 
     // [databind#3645]
     @Test
-    public void testDeserializeNullAsEmpty() throws Exception {
+    void testDeserializeNullAsEmpty() throws Exception {
         String json = "{\"name\": \"Computer\", \"prices\" : null}";
 
         Issue3645BeanA actual = MAPPER.readValue(json, Issue3645BeanA.class);

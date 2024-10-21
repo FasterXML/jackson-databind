@@ -20,7 +20,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 // [databind#921]: support infering type parameters from Builder
-public class BuilderWithTypeParametersTest
+class BuilderWithTypeParametersTest
 {
     public static class MyPOJO {
       public String x;
@@ -101,7 +101,7 @@ public class BuilderWithTypeParametersTest
     */
 
     @Test
-    public void testWithBuilderInferringBindings() throws Exception {
+    void testWithBuilderInferringBindings() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)
                 .build();
@@ -115,7 +115,7 @@ public class BuilderWithTypeParametersTest
     }
 
     @Test
-    public void testWithBuilderWithoutInferringBindings() throws Exception {
+    void testWithBuilderWithoutInferringBindings() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)
                 .build();

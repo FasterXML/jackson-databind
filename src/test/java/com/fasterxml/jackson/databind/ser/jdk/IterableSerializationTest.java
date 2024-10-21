@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class IterableSerializationTest extends DatabindTestUtil
+class IterableSerializationTest extends DatabindTestUtil
 {
     final static class IterableWrapper
         implements Iterable<Integer>
@@ -122,7 +122,7 @@ public class IterableSerializationTest extends DatabindTestUtil
             .build();
 
     @Test
-    public void testIterator() throws IOException
+    void testIterator() throws IOException
     {
         ArrayList<Integer> l = new ArrayList<Integer>();
         l.add(1);
@@ -136,14 +136,14 @@ public class IterableSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIterable() throws IOException
+    void testIterable() throws IOException
     {
         assertEquals("[1,2,3]",
                 MAPPER.writeValueAsString(new IterableWrapper(new int[] { 1, 2, 3 })));
     }
 
     @Test
-    public void testWithIterable() throws IOException
+    void testWithIterable() throws IOException
     {
         assertEquals("{\"values\":[\"value\"]}",
                 STATIC_MAPPER.writeValueAsString(new BeanWithIterable()));
@@ -152,7 +152,7 @@ public class IterableSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWithIterator() throws IOException
+    void testWithIterator() throws IOException
     {
         assertEquals("{\"values\":[\"itValue\"]}",
                 STATIC_MAPPER.writeValueAsString(new BeanWithIterator()));
@@ -167,14 +167,14 @@ public class IterableSerializationTest extends DatabindTestUtil
 
     // [databind#358]
     @Test
-    public void testIterable358() throws Exception {
+    void testIterable358() throws Exception {
         String json = MAPPER.writeValueAsString(new B());
         assertEquals("{\"list\":[[\"Hello world.\"]]}", json);
     }
 
     // [databind#2390]
     @Test
-    public void testIterableWithAnnotation() throws Exception
+    void testIterableWithAnnotation() throws Exception
     {
         assertEquals("[1,2,3]",
                 STATIC_MAPPER.writeValueAsString(new IntIterable2390()));

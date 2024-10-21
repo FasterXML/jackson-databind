@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Unit test for [JACKSON-890]
-public class TestBackRefsWithPolymorphic extends DatabindTestUtil
+class TestBackRefsWithPolymorphic extends DatabindTestUtil
 {
     @JsonPropertyOrder(alphabetic=true)
     interface Entity
@@ -213,14 +213,14 @@ public class TestBackRefsWithPolymorphic extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testDeserialize() throws IOException
+    void testDeserialize() throws IOException
     {
         PropertySheet input = MAPPER.readValue(JSON, PropertySheet.class);
         assertEquals(JSON, MAPPER.writeValueAsString(input));
     }
 
     @Test
-    public void testSerialize() throws IOException
+    void testSerialize() throws IOException
     {
         PropertySheet sheet = new PropertySheetImpl();
 

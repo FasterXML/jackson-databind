@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TextNodeTest extends NodeTestBase
+class TextNodeTest extends NodeTestBase
 {
     @Test
-    public void testText()
+    void testText()
     {
         assertNull(TextNode.valueOf(null));
         TextNode empty = TextNode.valueOf("");
@@ -43,7 +43,7 @@ public class TextNodeTest extends NodeTestBase
     }
 
     @Test
-    public void testEquals()
+    void testEquals()
     {
         assertEquals(new TextNode(null), new TextNode(null));
         assertEquals(new TextNode("abc"), new TextNode("abc"));
@@ -53,7 +53,7 @@ public class TextNodeTest extends NodeTestBase
     }
 
     @Test
-    public void testHashCode()
+    void testHashCode()
     {
         assertEquals(0, new TextNode(null).hashCode());
         assertEquals("abc".hashCode(), new TextNode("abc").hashCode());

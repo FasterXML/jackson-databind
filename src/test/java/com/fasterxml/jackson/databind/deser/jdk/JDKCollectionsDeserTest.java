@@ -18,7 +18,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 /**
  * Tests for special collection/map types via `java.util.Collections`
  */
-public class JDKCollectionsDeserTest
+class JDKCollectionsDeserTest
 {
     static class XBean {
         public int x;
@@ -37,7 +37,7 @@ public class JDKCollectionsDeserTest
 
     // And then a round-trip test for singleton collections
     @Test
-    public void testSingletonCollections() throws Exception
+    void testSingletonCollections() throws Exception
     {
         final TypeReference<List<XBean>> xbeanListType = new TypeReference<List<XBean>>() { };
 
@@ -56,7 +56,7 @@ public class JDKCollectionsDeserTest
 
     // [databind#1868]: Verify class name serialized as is
     @Test
-    public void testUnmodifiableSet() throws Exception
+    void testUnmodifiableSet() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -75,7 +75,7 @@ public class JDKCollectionsDeserTest
 
     // [databind#4262]: Handle problem of `null`s for `TreeSet`
     @Test
-    public void testNullsWithTreeSet() throws Exception
+    void testNullsWithTreeSet() throws Exception
     {
         try {
             MAPPER.readValue("[ \"acb\", null, 123 ]", TreeSet.class);

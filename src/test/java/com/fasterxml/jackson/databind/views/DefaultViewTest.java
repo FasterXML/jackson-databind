@@ -12,12 +12,15 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [databind#507], supporting default views
-public class DefaultViewTest extends DatabindTestUtil
+class DefaultViewTest extends DatabindTestUtil
 {
     // Classes that represent views
     static class ViewA { }
+
     static class ViewAA extends ViewA { }
+
     static class ViewB { }
+
     static class ViewBB extends ViewB { }
 
     @JsonView(ViewA.class)
@@ -38,7 +41,7 @@ public class DefaultViewTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testDeserialization() throws IOException
+    void testDeserialization() throws IOException
     {
         final String JSON = a2q("{'a':1,'b':2}");
 
@@ -63,7 +66,7 @@ public class DefaultViewTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSerialization() throws IOException
+    void testSerialization() throws IOException
     {
         assertEquals(a2q("{'a':3,'b':5}"),
                 MAPPER.writeValueAsString(new Defaulting()));

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("serial")
-public class GenericsBoundedTest
+class GenericsBoundedTest
 {
     static class Range<E extends Comparable<E>> implements Serializable
     {
@@ -57,13 +57,17 @@ public class GenericsBoundedTest
     // Types for [JACKSON-778]
 
     static class Document {}
+
     static class Row {}
+
     static class RowWithDoc<D extends Document> extends Row {
         @JsonProperty("d") D d;
     }
+
     static class ResultSet<R extends Row> {
         @JsonProperty("rows") List<R> rows;
     }
+
     static class ResultSetWithDoc<D extends Document> extends ResultSet<RowWithDoc<D>> {}
 
     static class MyDoc extends Document {}
@@ -115,7 +119,7 @@ public class GenericsBoundedTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testLowerBound() throws Exception
+    void testLowerBound() throws Exception
     {
         IntBeanWrapper<?> result = MAPPER.readValue("{\"wrapped\":{\"x\":3}}",
                 IntBeanWrapper.class);
@@ -126,7 +130,7 @@ public class GenericsBoundedTest
 
     // Test related to type bound handling problem within [JACKSON-190]
     @Test
-    public void testBounded() throws Exception
+    void testBounded() throws Exception
     {
         BoundedWrapper<IntBean> result = MAPPER.readValue
             ("{\"values\":[ {\"x\":3} ] } ", new TypeReference<BoundedWrapper<IntBean>>() {});
@@ -138,7 +142,7 @@ public class GenericsBoundedTest
     }
 
     @Test
-    public void testGenericsComplex() throws Exception
+    void testGenericsComplex() throws Exception
     {
         DoubleRange in = new DoubleRange(-0.5, 0.5);
         String json = MAPPER.writeValueAsString(in);
@@ -149,7 +153,7 @@ public class GenericsBoundedTest
     }
 
     @Test
-    public void testIssue778() throws Exception
+    void testIssue778() throws Exception
     {
         String json = "{\"rows\":[{\"d\":{}}]}";
 
@@ -179,7 +183,7 @@ public class GenericsBoundedTest
 
     // [databind#537]
     @Test
-    public void test() throws Exception
+    void test() throws Exception
     {
         AnnotatedValueSimple<Integer> item = new AnnotatedValueSimple<Integer>(5);
         CbFailing<AnnotatedValueSimple<Integer>, Integer> codebook = new CbFailing<AnnotatedValueSimple<Integer>, Integer>(item);

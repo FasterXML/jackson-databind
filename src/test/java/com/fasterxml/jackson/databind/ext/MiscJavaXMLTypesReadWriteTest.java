@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * and Android seem to skimp on their inclusion. As such, they are dynamically loaded
  * only as needed, and need bit special handling.
  */
-public class MiscJavaXMLTypesReadWriteTest
-    extends DatabindTestUtil
+class MiscJavaXMLTypesReadWriteTest
+        extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -34,14 +34,14 @@ public class MiscJavaXMLTypesReadWriteTest
      */
 
     @Test
-    public void testQNameSer() throws Exception
+    void testQNameSer() throws Exception
     {
         QName qn = new QName("http://abc", "tag", "prefix");
         assertEquals(q(qn.toString()), MAPPER.writeValueAsString(qn));
     }
 
     @Test
-    public void testDurationSer() throws Exception
+    void testDurationSer() throws Exception
     {
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         // arbitrary value
@@ -50,7 +50,7 @@ public class MiscJavaXMLTypesReadWriteTest
     }
 
     @Test
-    public void testXMLGregorianCalendarSerAndDeser() throws Exception
+    void testXMLGregorianCalendarSerAndDeser() throws Exception
     {
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         XMLGregorianCalendar cal = dtf.newXMLGregorianCalendar
@@ -98,7 +98,7 @@ public class MiscJavaXMLTypesReadWriteTest
 
     // First things first: must be able to load the deserializers...
     @Test
-    public void testDeserializerLoading()
+    void testDeserializerLoading()
     {
         CoreXMLDeserializers sers = new CoreXMLDeserializers();
         TypeFactory f = defaultTypeFactory();
@@ -108,7 +108,7 @@ public class MiscJavaXMLTypesReadWriteTest
     }
 
     @Test
-    public void testQNameDeser() throws Exception
+    void testQNameDeser() throws Exception
     {
         QName qn = new QName("http://abc", "tag", "prefix");
         String qstr = qn.toString();
@@ -122,7 +122,7 @@ public class MiscJavaXMLTypesReadWriteTest
     }
 
     @Test
-    public void testXMLGregorianCalendarDeser() throws Exception
+    void testXMLGregorianCalendarDeser() throws Exception
     {
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         XMLGregorianCalendar cal = dtf.newXMLGregorianCalendar
@@ -133,7 +133,7 @@ public class MiscJavaXMLTypesReadWriteTest
     }
 
     @Test
-    public void testDurationDeser() throws Exception
+    void testDurationDeser() throws Exception
     {
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         // arbitrary value, like... say, 27d5h15m59s
@@ -151,7 +151,7 @@ public class MiscJavaXMLTypesReadWriteTest
 
 
     @Test
-    public void testPolymorphicXMLGregorianCalendar() throws Exception
+    void testPolymorphicXMLGregorianCalendar() throws Exception
     {
         XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar
                 (1974, 10, 10, 18, 15, 17, 123, 0);

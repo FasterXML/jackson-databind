@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.assertj.core.api.Assertions.assertThat;
 
 // for [databind#4602]
-public class TwoCreators4602Test
-    extends DatabindTestUtil
+class TwoCreators4602Test
+        extends DatabindTestUtil
 {
     static class OuterBean4602 {
         private final Bean4602 bean;
@@ -70,7 +70,7 @@ public class TwoCreators4602Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testThatPropertiesCreatorIsUsed() throws Exception
+    void testThatPropertiesCreatorIsUsed() throws Exception
     {
         final String json = "{ \"bean\":{ \"list\":[ \"a\", \"b\", \"c\"], \"inner\":{ \"name\": \"inner\" }}}";
 
@@ -84,7 +84,7 @@ public class TwoCreators4602Test
     }
 
     @Test
-    public void testThatDelegatingCreatorIsUsed() throws Exception
+    void testThatDelegatingCreatorIsUsed() throws Exception
     {
         OuterBean4602 result = MAPPER.readValue("{ \"bean\": [ \"a\", \"b\", \"c\"] }",
                 OuterBean4602.class);

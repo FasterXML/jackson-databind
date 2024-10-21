@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests to verify that annotations are shared and merged between members
  * of a property (getter and setter and so on)
  */
-public class TestAnnotationMerging extends DatabindTestUtil
+class TestAnnotationMerging extends DatabindTestUtil
 {
     static class Wrapper
     {
@@ -65,14 +65,14 @@ public class TestAnnotationMerging extends DatabindTestUtil
      */
 
     @Test
-    public void testSharedNames() throws Exception
+    void testSharedNames() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         assertEquals("{\"x\":6}", mapper.writeValueAsString(new SharedName(6)));
     }
 
     @Test
-    public void testSharedNamesFromGetterToSetter() throws Exception
+    void testSharedNamesFromGetterToSetter() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new SharedName2());
@@ -82,7 +82,7 @@ public class TestAnnotationMerging extends DatabindTestUtil
     }
 
     @Test
-    public void testSharedTypeInfo() throws Exception
+    void testSharedTypeInfo() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new Wrapper(13L));
@@ -91,7 +91,7 @@ public class TestAnnotationMerging extends DatabindTestUtil
     }
 
     @Test
-    public void testSharedTypeInfoWithCtor() throws Exception
+    void testSharedTypeInfoWithCtor() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new TypeWrapper(13L));

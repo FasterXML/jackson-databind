@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
+class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 {
     // [databind#999]
 
@@ -93,7 +93,7 @@ public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 
     // [databind#999]
     @Test
-    public void testExternalTypeId() throws Exception
+    void testExternalTypeId() throws Exception
     {
         TypeReference<Message<FooPayload999>> type = new TypeReference<Message<FooPayload999>>() { };
 
@@ -111,7 +111,7 @@ public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 
     // [databind#1198]
     @Test
-    public void testFails() throws Exception {
+    void testFails() throws Exception {
         String json = "{ \"name\": \"foo\", \"attack\":\"right\" } }";
 
         Character character = MAPPER.readValue(json, Character.class);
@@ -123,7 +123,7 @@ public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 
     // [databind#1198]
     @Test
-    public void testWorks() throws Exception {
+    void testWorks() throws Exception {
         String json = "{ \"name\": \"foo\", \"preferredAttack\": \"KICK\", \"attack\":\"right\" } }";
 
         Character character = MAPPER.readValue(json, Character.class);

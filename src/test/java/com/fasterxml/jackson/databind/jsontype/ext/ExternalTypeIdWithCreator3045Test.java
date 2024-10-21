@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ExternalTypeIdWithCreator3045Test
-    extends DatabindTestUtil
+class ExternalTypeIdWithCreator3045Test
+        extends DatabindTestUtil
 {
     public static class ChildBaseByParentTypeResolver extends TypeIdResolverBase {
         public ChildBaseByParentTypeResolver() {
@@ -97,8 +97,8 @@ public class ExternalTypeIdWithCreator3045Test
 
    private static ObjectMapper MAPPER = newJsonMapper();
 
-   @Test
-   public void testExternalIdWithAnySetter3045() throws Exception
+    @Test
+    void testExternalIdWithAnySetter3045() throws Exception
    {
        // First cases where the last Creator argument comes last:
        _testExternalIdWithAnySetter3045(a2q(

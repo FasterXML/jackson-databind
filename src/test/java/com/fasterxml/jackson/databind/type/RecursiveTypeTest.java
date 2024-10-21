@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RecursiveTypeTest extends DatabindTestUtil
+class RecursiveTypeTest extends DatabindTestUtil
 {
     // for [databind#1301]
     @SuppressWarnings("serial")
@@ -58,7 +58,7 @@ public class RecursiveTypeTest extends DatabindTestUtil
 
     // for [databind#1301]
     @Test
-    public void testRecursiveType()
+    void testRecursiveType()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType type = tf.constructType(HashTree.class);
@@ -79,7 +79,7 @@ public class RecursiveTypeTest extends DatabindTestUtil
 
     // [databind#938]
     @Test
-    public void testRecursivePair() throws Exception
+    void testRecursivePair() throws Exception
     {
         JavaType t = MAPPER.constructType(ImmutablePair.class);
 
@@ -97,7 +97,7 @@ public class RecursiveTypeTest extends DatabindTestUtil
 
     // for [databind#1301]
     @Test
-    public void testJavaTypeToString() throws Exception
+    void testJavaTypeToString() throws Exception
     {
         TypeFactory tf = MAPPER.getTypeFactory();
         String desc = tf.constructType(DataDefinition.class).toString();
@@ -113,7 +113,7 @@ public class RecursiveTypeTest extends DatabindTestUtil
 
     // for [databind#1647]
     @Test
-    public void testSuperClassWithReferencedJavaType() {
+    void testSuperClassWithReferencedJavaType() {
         TypeFactory tf = MAPPER.getTypeFactory();
         tf.constructType(Base.class); // must be constructed before sub to set the cache correctly
         JavaType subType = tf.constructType(Sub.class);

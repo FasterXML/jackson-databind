@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ProblemHandler3450Test
+class ProblemHandler3450Test
 {
     // [databind#3450]
     static class LenientDeserializationProblemHandler extends DeserializationProblemHandler {
@@ -35,7 +35,7 @@ public class ProblemHandler3450Test
 
     // [databind#3450]
     @Test
-    public void testIntegerCoercion3450() throws Exception
+    void testIntegerCoercion3450() throws Exception
     {
         TestPojo3450Int pojo;
 
@@ -49,7 +49,7 @@ public class ProblemHandler3450Test
     }
 
     @Test
-    public void testLongCoercion3450() throws Exception
+    void testLongCoercion3450() throws Exception
     {
         TestPojo3450Long pojo;
 

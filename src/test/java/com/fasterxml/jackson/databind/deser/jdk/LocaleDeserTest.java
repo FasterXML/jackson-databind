@@ -16,7 +16,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMa
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
 
 // Tests for `java.util.Locale`
-public class LocaleDeserTest
+class LocaleDeserTest
 {
     private final Locale[] LOCALES = new Locale[]
             {Locale.CANADA, Locale.ROOT, Locale.GERMAN, Locale.CHINESE, Locale.KOREA, Locale.TAIWAN};
@@ -30,7 +30,7 @@ public class LocaleDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testLocale() throws IOException
+    void testLocale() throws IOException
     {
         // Simplest, one part
         assertEquals(new Locale("en"),
@@ -51,7 +51,7 @@ public class LocaleDeserTest
     }
 
     @Test
-    public void testLocaleKeyMap() throws Exception {
+    void testLocaleKeyMap() throws Exception {
         Locale key = Locale.CHINA;
         String JSON = "{ \"" + key.toString() + "\":4}";
         Map<Locale, Object> result = MAPPER.readValue(JSON, new TypeReference<Map<Locale, Object>>() {
@@ -71,7 +71,7 @@ public class LocaleDeserTest
      */
 
     @Test
-    public void testLocaleDeserializeNonBCPFormat() throws Exception {
+    void testLocaleDeserializeNonBCPFormat() throws Exception {
         Locale locale = new Locale("en", "US");
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertBaseValues(locale, deSerializedLocale);
@@ -98,7 +98,7 @@ public class LocaleDeserTest
     }
 
     @Test
-    public void testLocaleDeserializeWithScript() throws Exception {
+    void testLocaleDeserializeWithScript() throws Exception {
         Locale locale = new Locale.Builder().setLanguage("en").setRegion("GB").setVariant("VARIANT")
                 .setScript("Latn").build();
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
@@ -126,7 +126,7 @@ public class LocaleDeserTest
     }
 
     @Test
-    public void testLocaleDeserializeWithExtension() throws Exception {
+    void testLocaleDeserializeWithExtension() throws Exception {
         Locale locale = new Locale.Builder().setLanguage("en").setRegion("GB").setVariant("VARIANT")
                 .setExtension('x', "dummy").build();
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
@@ -154,7 +154,7 @@ public class LocaleDeserTest
     }
 
     @Test
-    public void testLocaleDeserializeWithScriptAndExtension() throws Exception {
+    void testLocaleDeserializeWithScriptAndExtension() throws Exception {
         Locale locale = new Locale.Builder().setLanguage("en").setRegion("GB").setVariant("VARIANT")
                 .setExtension('x', "dummy").setScript("latn").build();
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
@@ -185,7 +185,7 @@ public class LocaleDeserTest
     }
 
     @Test
-    public void testLocaleDeserializeWithLanguageTag() throws Exception {
+    void testLocaleDeserializeWithLanguageTag() throws Exception {
         Locale locale = Locale.forLanguageTag("en-US-x-debug");
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertLocale(locale, deSerializedLocale);
@@ -208,14 +208,14 @@ public class LocaleDeserTest
     }
 
     @Test
-    public void testIllFormedVariant() throws Exception {
+    void testIllFormedVariant() throws Exception {
         Locale locale = Locale.forLanguageTag("de-POSIX-x-URP-lvariant-Abc-Def");
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertBaseValues(locale, deSerializedLocale);
     }
 
     @Test
-    public void testLocaleDeserializeWithLocaleConstants() throws Exception {
+    void testLocaleDeserializeWithLocaleConstants() throws Exception {
         for (Locale locale: LOCALES) {
             Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
             assertLocale(locale, deSerializedLocale);
@@ -223,7 +223,7 @@ public class LocaleDeserTest
     }
 
     @Test
-    public void testSpecialCases() throws Exception {
+    void testSpecialCases() throws Exception {
         Locale locale = new Locale("ja", "JP", "JP");
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertLocale(locale, deSerializedLocale);
@@ -258,7 +258,7 @@ public class LocaleDeserTest
     // https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=47034
     // @since 2.14
     @Test
-    public void testLocaleFuzz47034() throws Exception
+    void testLocaleFuzz47034() throws Exception
     {
         Locale loc = MAPPER.readValue(getClass().getResourceAsStream("/fuzz/oss-fuzz-47034.json"),
                 Locale.class);
@@ -268,7 +268,7 @@ public class LocaleDeserTest
     // https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=47036
     // @since 2.14
     @Test
-    public void testLocaleFuzz47036() throws Exception
+    void testLocaleFuzz47036() throws Exception
     {
         Locale loc = MAPPER.readValue(getClass().getResourceAsStream("/fuzz/oss-fuzz-47036.json"),
                 Locale.class);

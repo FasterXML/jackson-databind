@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4464] Since 2.15, NON_DEFAULT should be extension of NON_EMPTY
-public class JsonInclude4464Test {
+class JsonInclude4464Test {
 
     public static class BarSerializer extends JsonSerializer<Bar> {
 
@@ -48,7 +48,7 @@ public class JsonInclude4464Test {
     }
 
     @Test
-    public void test86() throws IOException {
+    void test86() throws IOException {
         ObjectMapper mapper = JsonMapper.builder().serializationInclusion(JsonInclude.Include.NON_DEFAULT).build();
         String json = mapper.writeValueAsString(new Foo());
         assertEquals("{}", json);

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DOMTypeReadWriteTest extends DatabindTestUtil
+class DOMTypeReadWriteTest extends DatabindTestUtil
 {
     final static String SIMPLE_XML =
         "<root attr='3'><leaf>Rock &amp; Roll!</leaf><?proc instr?></root>";
@@ -24,7 +24,7 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testSerializeSimpleNonNS() throws Exception
+    void testSerializeSimpleNonNS() throws Exception
     {
         // Let's just parse first, easiest
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse
@@ -41,7 +41,7 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSerializeSimpleDefaultNS() throws Exception
+    void testSerializeSimpleDefaultNS() throws Exception
     {
         // Let's just parse first, easiest
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse
@@ -58,7 +58,7 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
     }
 
     @Test
-    public void testDeserializeNonNS() throws Exception
+    void testDeserializeNonNS() throws Exception
     {
         for (int i = 0; i < 2; ++i) {
             Document doc;
@@ -90,7 +90,7 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
     }
 
     @Test
-    public void testDeserializeNS() throws Exception
+    void testDeserializeNS() throws Exception
     {
         Document doc = MAPPER.readValue(q(SIMPLE_XML_NS), Document.class);
         Element root = doc.getDocumentElement();

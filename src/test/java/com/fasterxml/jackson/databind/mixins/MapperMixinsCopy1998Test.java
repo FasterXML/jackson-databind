@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MapperMixinsCopy1998Test extends DatabindTestUtil
+class MapperMixinsCopy1998Test extends DatabindTestUtil
 {
     final static String FULLMODEL="{\"format\":\"1.0\",\"child\":{\"type\":\"CHILD_B\",\"name\":\"testB\"},\"notVisible\":\"should not be present\"}";
     final static String EXPECTED="{\"format\":\"1.0\",\"child\":{\"name\":\"testB\"}}";
@@ -95,7 +95,7 @@ public class MapperMixinsCopy1998Test extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testB_KO() throws Exception
+    void testB_KO() throws Exception
     {
         final ObjectMapper DEFAULT = defaultMapper();
         MyModelRoot myModelInstance = new MyModelRoot();

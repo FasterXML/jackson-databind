@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class NodeJDKSerializationTest extends DatabindTestUtil
+class NodeJDKSerializationTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -23,7 +23,7 @@ public class NodeJDKSerializationTest extends DatabindTestUtil
 
     // [databind#18]: Allow JDK serialization of `ObjectNode`
     @Test
-    public void testObjectNodeSerialization() throws Exception
+    void testObjectNodeSerialization() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         root.put("answer", 42);
@@ -37,7 +37,7 @@ public class NodeJDKSerializationTest extends DatabindTestUtil
 
     // [databind#18]: Allow JDK serialization of `ArrayNode`
     @Test
-    public void testArrayNodeSerialization() throws Exception
+    void testArrayNodeSerialization() throws Exception
     {
         ArrayNode root = MAPPER.createArrayNode();
         root.add(false);
@@ -50,7 +50,7 @@ public class NodeJDKSerializationTest extends DatabindTestUtil
 
     // [databind#3328]
     @Test
-    public void testBigArrayNodeSerialization() throws Exception
+    void testBigArrayNodeSerialization() throws Exception
     {
         // Try couple of variations just to tease out possible edge cases
         _testBigArrayNodeSerialization(NodeSerialization.LONGEST_EAGER_ALLOC - 39);
@@ -83,7 +83,7 @@ public class NodeJDKSerializationTest extends DatabindTestUtil
 
     // and then also some scalar types
     @Test
-    public void testScalarSerialization() throws Exception
+    void testScalarSerialization() throws Exception
     {
         testNodeRoundtrip(MAPPER.getNodeFactory().nullNode());
 

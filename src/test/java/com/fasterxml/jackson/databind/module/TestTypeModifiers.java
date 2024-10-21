@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.type.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("serial")
-public class TestTypeModifiers extends DatabindTestUtil
+class TestTypeModifiers extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -95,6 +95,7 @@ public class TestTypeModifiers extends DatabindTestUtil
         public K getKey();
         public V getValue();
     }
+
     interface CollectionMarker<V> {
         public V getValue();
     }
@@ -155,6 +156,7 @@ public class TestTypeModifiers extends DatabindTestUtil
             jgen.writeEndObject();
         }
     }
+
     static class MyMapDeserializer extends JsonDeserializer<MapMarker<?,?>>
     {
         @Override
@@ -178,6 +180,7 @@ public class TestTypeModifiers extends DatabindTestUtil
             jgen.writeEndArray();
         }
     }
+
     static class MyCollectionDeserializer extends JsonDeserializer<MyCollectionLikeType>
     {
         @Override
@@ -222,7 +225,7 @@ public class TestTypeModifiers extends DatabindTestUtil
      * Basic test for ensuring that we can get "xxx-like" types recognized.
      */
     @Test
-    public void testMapLikeTypeConstruction() throws Exception
+    void testMapLikeTypeConstruction() throws Exception
     {
         JavaType type = MAPPER_WITH_MODIFIER.constructType(MyMapLikeType.class);
         assertTrue(type.isMapLikeType());
@@ -236,7 +239,7 @@ public class TestTypeModifiers extends DatabindTestUtil
     }
 
     @Test
-    public void testMapLikeTypeViaParametric() throws Exception
+    void testMapLikeTypeViaParametric() throws Exception
     {
         // [databind#2796]: should refine with another call too
         JavaType type = MAPPER_WITH_MODIFIER.getTypeFactory().constructParametricType(MapMarker.class,
@@ -254,7 +257,7 @@ public class TestTypeModifiers extends DatabindTestUtil
     // [databind#2395] Can trigger problem this way too
     // NOTE: oddly enough, seems to ONLY fail
     @Test
-    public void testTypeResolutionForRecursive() throws Exception
+    void testTypeResolutionForRecursive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule() {
@@ -267,7 +270,7 @@ public class TestTypeModifiers extends DatabindTestUtil
     }
 
     @Test
-    public void testCollectionLikeTypeConstruction() throws Exception
+    void testCollectionLikeTypeConstruction() throws Exception
     {
         JavaType type = MAPPER_WITH_MODIFIER.constructType(MyCollectionLikeType.class);
         assertTrue(type.isCollectionLikeType());
@@ -277,7 +280,7 @@ public class TestTypeModifiers extends DatabindTestUtil
     }
 
     @Test
-    public void testCollectionLikeSerialization() throws Exception
+    void testCollectionLikeSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
@@ -286,7 +289,7 @@ public class TestTypeModifiers extends DatabindTestUtil
     }
 
     @Test
-    public void testMapLikeSerialization() throws Exception
+    void testMapLikeSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
@@ -297,7 +300,7 @@ public class TestTypeModifiers extends DatabindTestUtil
 
 
     @Test
-    public void testCollectionLikeDeserialization() throws Exception
+    void testCollectionLikeDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
@@ -309,7 +312,7 @@ public class TestTypeModifiers extends DatabindTestUtil
     }
 
     @Test
-    public void testMapLikeDeserialization() throws Exception
+    void testMapLikeDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));

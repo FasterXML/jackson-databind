@@ -18,8 +18,8 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestDefaultForEnums
-    extends DatabindTestUtil
+class TestDefaultForEnums
+        extends DatabindTestUtil
 {
     public enum TestEnum {
         A, B;
@@ -63,7 +63,7 @@ public class TestDefaultForEnums
      */
 
     @Test
-    public void testSimpleEnumBean() throws Exception
+    void testSimpleEnumBean() throws Exception
     {
         TimeUnitBean bean = new TimeUnitBean();
         bean.timeUnit = TimeUnit.SECONDS;
@@ -85,7 +85,7 @@ public class TestDefaultForEnums
     }
 
     @Test
-    public void testSimpleEnumsInObjectArray() throws Exception
+    void testSimpleEnumsInObjectArray() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
@@ -101,7 +101,7 @@ public class TestDefaultForEnums
     }
 
     @Test
-    public void testSimpleEnumsAsField() throws Exception
+    void testSimpleEnumsAsField() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
@@ -119,7 +119,7 @@ public class TestDefaultForEnums
      * @since 2.16
      */
     @Test
-    public void testEnumAsWrapperArrayWithCreator() throws JsonProcessingException
+    void testEnumAsWrapperArrayWithCreator() throws JsonProcessingException
     {
         ObjectMapper objectMapper = jsonMapperBuilder()
                 .activateDefaultTyping(

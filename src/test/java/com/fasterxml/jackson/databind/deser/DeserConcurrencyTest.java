@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Testing for NPE due to race condition.
  */
-public class DeserConcurrencyTest
+class DeserConcurrencyTest
 {
     @JsonDeserialize(using=CustomBeanDeserializer.class)
     static class Bean
@@ -65,7 +65,7 @@ public class DeserConcurrencyTest
      */
 
     @Test
-    public void testDeserializerResolution() throws Exception
+    void testDeserializerResolution() throws Exception
     {
         /* Let's repeat couple of times, just to be sure; thread timing is not
          * exact science; plus caching plays a role too

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Separate tests located in different package than code being
  * exercised; needed to trigger some access-related failures.
  */
-public class AnyGetterAccessTest
+class AnyGetterAccessTest
 {
     /*
     /**********************************************************
@@ -59,7 +59,7 @@ public class AnyGetterAccessTest
     private final ObjectMapper MAPPER = JsonMapper.builder().build();
 
     @Test
-    public void testDynaBean() throws Exception
+    void testDynaBean() throws Exception
     {
         DynaBean b = new DynaBean();
         b.id = 123;
@@ -72,7 +72,7 @@ public class AnyGetterAccessTest
     }
 
     @Test
-    public void testPrivate() throws Exception
+    void testPrivate() throws Exception
     {
         assertEquals("{\"a\":\"A\"}",
                 MAPPER.writeValueAsString(new PrivateThing()));

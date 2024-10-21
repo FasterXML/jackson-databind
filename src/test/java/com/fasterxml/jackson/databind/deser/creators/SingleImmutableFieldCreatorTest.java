@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#3898]
-public class SingleImmutableFieldCreatorTest
-    extends DatabindTestUtil
+class SingleImmutableFieldCreatorTest
+        extends DatabindTestUtil
 {
     static class ImmutableId {
         private final int id;
@@ -89,7 +89,7 @@ public class SingleImmutableFieldCreatorTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSetterlessProperty() throws Exception
+    void testSetterlessProperty() throws Exception
     {
         ImmutableId input = new ImmutableId(13);
         ObjectMapper m = jsonMapperBuilder()
@@ -105,7 +105,7 @@ public class SingleImmutableFieldCreatorTest
 
     // in the past, this was a workaround for the first test
     @Test
-    public void testSetterlessPropertyWithEmptyConstructor() throws Exception
+    void testSetterlessPropertyWithEmptyConstructor() throws Exception
     {
         ImmutableIdWithEmptyConstuctor input = new ImmutableIdWithEmptyConstuctor(13);
         String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(input);
@@ -117,7 +117,7 @@ public class SingleImmutableFieldCreatorTest
     }
 
     @Test
-    public void testSetterlessPropertyWithJsonCreator() throws Exception
+    void testSetterlessPropertyWithJsonCreator() throws Exception
     {
         ImmutableIdWithJsonCreatorAnnotation input = new ImmutableIdWithJsonCreatorAnnotation(13);
         ObjectMapper m = jsonMapperBuilder()
@@ -134,7 +134,7 @@ public class SingleImmutableFieldCreatorTest
 
     // in the past, this was a workaround for the first test
     @Test
-    public void testSetterlessPropertyWithJsonPropertyField() throws Exception
+    void testSetterlessPropertyWithJsonPropertyField() throws Exception
     {
         ImmutableIdWithJsonPropertyConstructorAnnotation input = new ImmutableIdWithJsonPropertyConstructorAnnotation(13);
         String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(input);
@@ -147,7 +147,7 @@ public class SingleImmutableFieldCreatorTest
     }
 
     @Test
-    public void testSetterlessPropertyWithJsonPropertyConstructor() throws Exception
+    void testSetterlessPropertyWithJsonPropertyConstructor() throws Exception
     {
         ImmutableIdWithJsonPropertyFieldAnnotation input = new ImmutableIdWithJsonPropertyFieldAnnotation(13);
         ObjectMapper m = jsonMapperBuilder()

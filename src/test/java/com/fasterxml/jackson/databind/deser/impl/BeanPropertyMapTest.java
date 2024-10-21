@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // for [databind#884]
-public class BeanPropertyMapTest
+class BeanPropertyMapTest
 {
     protected final static JavaType BOGUS_TYPE = TypeFactory.unknownType();
 
@@ -27,7 +27,7 @@ public class BeanPropertyMapTest
     // Highly specialized test in which we get couple of hash collisions for
     // small (16) hash map
     @Test
-    public void testArrayOutOfBounds884() throws Exception
+    void testArrayOutOfBounds884() throws Exception
     {
         List<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>();
         PropertyMetadata md = PropertyMetadata.STD_REQUIRED;

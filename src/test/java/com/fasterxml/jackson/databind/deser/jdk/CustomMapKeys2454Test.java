@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class CustomMapKeys2454Test
+class CustomMapKeys2454Test
 {
     @JsonDeserialize(keyUsing = Key2454Deserializer.class)
     @JsonSerialize(keyUsing = Key2454Serializer.class)
@@ -47,14 +47,14 @@ public class CustomMapKeys2454Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testCustomSerializer() throws Exception
+    void testCustomSerializer() throws Exception
     {
         assertEquals(a2q("{'id=a':'b'}"),
                 MAPPER.writeValueAsString(Collections.singletonMap(new Key2454("a", true), "b")));
     }
 
     @Test
-    public void testCustomDeserializer() throws Exception
+    void testCustomDeserializer() throws Exception
     {
         Map<Key2454, String> result = MAPPER.readValue(a2q("{'a':'b'}"),
                 new TypeReference<Map<Key2454, String>>() { });

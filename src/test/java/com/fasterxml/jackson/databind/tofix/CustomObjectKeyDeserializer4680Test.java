@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 // [databind#4680] Custom key deserialiser registered for `Object.class` is ignored on nested JSON
-public class CustomObjectKeyDeserializer4680Test
+class CustomObjectKeyDeserializer4680Test
 {
 
     @JacksonTestFailureExpected

@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 @SuppressWarnings("serial")
-public class CollectionDeserTest
+class CollectionDeserTest
 {
     enum Key {
         KEY1, KEY2, WHATEVER;
@@ -116,7 +116,7 @@ public class CollectionDeserTest
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testUntypedList() throws Exception
+    void testUntypedList() throws Exception
     {
         // to get "untyped" default List, pass Object.class
         String JSON = "[ \"text!\", true, null, 23 ]";
@@ -137,7 +137,7 @@ public class CollectionDeserTest
     }
 
     @Test
-    public void testExactStringCollection() throws Exception
+    void testExactStringCollection() throws Exception
     {
         // to get typing, must use type reference
         String JSON = "[ \"a\", \"b\" ]";
@@ -152,7 +152,7 @@ public class CollectionDeserTest
     }
 
     @Test
-    public void testHashSet() throws Exception
+    void testHashSet() throws Exception
     {
         String JSON = "[ \"KEY1\", \"KEY2\" ]";
 
@@ -168,7 +168,7 @@ public class CollectionDeserTest
 
     /// Test to verify that @JsonDeserialize.using works as expected
     @Test
-    public void testCustomDeserializer() throws IOException
+    void testCustomDeserializer() throws IOException
     {
         CustomList result = MAPPER.readValue(q("abc"), CustomList.class);
         assertEquals(1, result.size());
@@ -179,7 +179,7 @@ public class CollectionDeserTest
     // mostly produced by Jettison, Badgerfish conversions (from XML)
     @SuppressWarnings("unchecked")
     @Test
-    public void testImplicitArrays() throws Exception
+    void testImplicitArrays() throws Exception
     {
         // can't share mapper, custom configs (could create ObjectWriter tho)
         ObjectMapper mapper = new ObjectMapper();
@@ -213,7 +213,7 @@ public class CollectionDeserTest
 
     // [JACKSON-620]: allow "" to mean 'null' for Maps
     @Test
-    public void testFromEmptyString() throws Exception
+    void testFromEmptyString() throws Exception
     {
         ObjectReader r = MAPPER.reader(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         List<?> result = r.forType(List.class).readValue(q(""));
@@ -222,7 +222,7 @@ public class CollectionDeserTest
 
     // [databind#161]
     @Test
-    public void testArrayBlockingQueue() throws Exception
+    void testArrayBlockingQueue() throws Exception
     {
         // ok to skip polymorphic type to get Object
         ArrayBlockingQueue<?> q = MAPPER.readValue("[1, 2, 3]", ArrayBlockingQueue.class);
@@ -235,7 +235,7 @@ public class CollectionDeserTest
 
     // [databind#199]
     @Test
-    public void testIterableWithStrings() throws Exception
+    void testIterableWithStrings() throws Exception
     {
         String JSON = "{ \"values\":[\"a\",\"b\"]}";
         ListAsIterable w = MAPPER.readValue(JSON, ListAsIterable.class);
@@ -249,7 +249,7 @@ public class CollectionDeserTest
     }
 
     @Test
-    public void testIterableWithBeans() throws Exception
+    void testIterableWithBeans() throws Exception
     {
         String JSON = "{ \"nums\":[{\"x\":1},{\"x\":2}]}";
         ListAsIterableX w = MAPPER.readValue(JSON, ListAsIterableX.class);
@@ -267,7 +267,7 @@ public class CollectionDeserTest
 
     // for [databind#506]
     @Test
-    public void testArrayIndexForExceptions() throws Exception
+    void testArrayIndexForExceptions() throws Exception
     {
         final String OBJECTS_JSON = "[ \"KEY2\", false ]";
         try {
@@ -306,7 +306,7 @@ public class CollectionDeserTest
 
     // for [databind#828]
     @Test
-    public void testWrapExceptions() throws Exception
+    void testWrapExceptions() throws Exception
     {
         final ObjectReader wrappingReader = MAPPER
                 .readerFor(new TypeReference<List<SomeObject>>() {})
@@ -335,7 +335,7 @@ public class CollectionDeserTest
 
     // [databind#2251]
     @Test
-    public void testAbstractListAndSet() throws Exception
+    void testAbstractListAndSet() throws Exception
     {
         final String JSON = "{\"values\":[\"foo\", \"bar\"]}";
 
@@ -350,7 +350,7 @@ public class CollectionDeserTest
 
     // for [databind#3068]
     @Test
-    public void testWrapExceptions3068() throws Exception
+    void testWrapExceptions3068() throws Exception
     {
         final SimpleModule module = new SimpleModule("SimpleModule", Version.unknownVersion())
                 .addDeserializer(MyContainerModel.class,

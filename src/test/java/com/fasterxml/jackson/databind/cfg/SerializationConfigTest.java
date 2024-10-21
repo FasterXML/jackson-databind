@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SerializationConfigTest extends DatabindTestUtil
+class SerializationConfigTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSerConfig() throws Exception
+    void testSerConfig() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
         assertTrue(config.hasSerializationFeatures(SerializationFeature.FAIL_ON_EMPTY_BEANS.getMask()));
@@ -55,7 +55,7 @@ public class SerializationConfigTest extends DatabindTestUtil
     }
 
     @Test
-    public void testGeneratorFeatures() throws Exception
+    void testGeneratorFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
         assertNotSame(config, config.with(JsonWriteFeature.ESCAPE_NON_ASCII));
@@ -67,7 +67,7 @@ public class SerializationConfigTest extends DatabindTestUtil
     }
 
     @Test
-    public void testFormatFeatures() throws Exception
+    void testFormatFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
         assertNotSame(config, config.with(BogusFormatFeature.FF_DISABLED_BY_DEFAULT));

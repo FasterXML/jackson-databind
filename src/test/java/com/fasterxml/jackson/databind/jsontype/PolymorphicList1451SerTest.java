@@ -12,12 +12,13 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PolymorphicList1451SerTest extends DatabindTestUtil
+class PolymorphicList1451SerTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
     public static class A {
         public String a;
     }
+
     public static class B extends A {
         public String b;
     }
@@ -25,7 +26,7 @@ public class PolymorphicList1451SerTest extends DatabindTestUtil
     private final String CLASS_NAME = getClass().getSimpleName();
 
     @Test
-    public void testCollectionWithTypeInfo() throws Exception {
+    void testCollectionWithTypeInfo() throws Exception {
         ObjectMapper mapper = new ObjectMapper()
                 .disable(SerializationFeature.EAGER_SERIALIZER_FETCH)
 //                .disable(DeserializationFeature.EAGER_DESERIALIZER_FETCH)

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * handling works as expected; some more advanced tests are separated out
  * to more specific test classes (like prefix/suffix handling).
  */
-public class TestUnwrapped extends DatabindTestUtil
+class TestUnwrapped extends DatabindTestUtil
 {
     static class Unwrapping {
         public String name;
@@ -153,14 +153,14 @@ public class TestUnwrapped extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleUnwrappingSerialize() throws Exception {
+    void testSimpleUnwrappingSerialize() throws Exception {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         assertEquals("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
                 mapper.writeValueAsString(new Unwrapping("Tatu", 1, 2)));
     }
 
     @Test
-    public void testDeepUnwrappingSerialize() throws Exception {
+    void testDeepUnwrappingSerialize() throws Exception {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         assertEquals("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
                 mapper.writeValueAsString(new DeepUnwrapping("Tatu", 1, 2)));
@@ -173,7 +173,7 @@ public class TestUnwrapped extends DatabindTestUtil
      */
 
     @Test
-    public void testSimpleUnwrappedDeserialize() throws Exception
+    void testSimpleUnwrappedDeserialize() throws Exception
     {
         Unwrapping bean = MAPPER.readValue("{\"name\":\"Tatu\",\"y\":7,\"x\":-13}",
                 Unwrapping.class);
@@ -185,7 +185,7 @@ public class TestUnwrapped extends DatabindTestUtil
     }
 
     @Test
-    public void testDoubleUnwrapping() throws Exception
+    void testDoubleUnwrapping() throws Exception
     {
         TwoUnwrappedProperties bean = MAPPER.readValue("{\"first\":\"Joe\",\"y\":7,\"last\":\"Smith\",\"x\":-13}",
                 TwoUnwrappedProperties.class);
@@ -200,7 +200,7 @@ public class TestUnwrapped extends DatabindTestUtil
     }
 
     @Test
-    public void testDeepUnwrapping() throws Exception
+    void testDeepUnwrapping() throws Exception
     {
         DeepUnwrapping bean = MAPPER.readValue("{\"x\":3,\"name\":\"Bob\",\"y\":27}",
                 DeepUnwrapping.class);
@@ -214,7 +214,7 @@ public class TestUnwrapped extends DatabindTestUtil
     }
 
     @Test
-    public void testUnwrappedDeserializeWithCreator() throws Exception
+    void testUnwrappedDeserializeWithCreator() throws Exception
     {
         UnwrappingWithCreator bean = MAPPER.readValue("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
                 UnwrappingWithCreator.class);
@@ -226,7 +226,7 @@ public class TestUnwrapped extends DatabindTestUtil
     }
 
     @Test
-    public void testIssue615() throws Exception
+    void testIssue615() throws Exception
     {
         Parent input = new Parent("name");
         String json = MAPPER.writeValueAsString(input);
@@ -235,7 +235,7 @@ public class TestUnwrapped extends DatabindTestUtil
     }
 
     @Test
-    public void testUnwrappedAsPropertyIndicator() throws Exception
+    void testUnwrappedAsPropertyIndicator() throws Exception
     {
         Inner inner = new Inner();
         inner.animal = "Zebra";
@@ -252,7 +252,7 @@ public class TestUnwrapped extends DatabindTestUtil
 
     // [databind#1493]: case-insensitive handling
     @Test
-    public void testCaseInsensitiveUnwrap() throws Exception
+    void testCaseInsensitiveUnwrap() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
@@ -263,7 +263,7 @@ public class TestUnwrapped extends DatabindTestUtil
 
     // [databind#2088]: accidental skipping of values
     @Test
-    public void testIssue2088UnwrappedFieldsAfterLastCreatorProp() throws Exception
+    void testIssue2088UnwrappedFieldsAfterLastCreatorProp() throws Exception
     {
         Issue2088Bean bean = MAPPER.readValue("{\"x\":1,\"a\":2,\"y\":3,\"b\":4}", Issue2088Bean.class);
         assertEquals(1, bean.x);

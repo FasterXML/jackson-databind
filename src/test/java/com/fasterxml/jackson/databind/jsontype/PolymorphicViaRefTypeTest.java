@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class PolymorphicViaRefTypeTest extends DatabindTestUtil
+class PolymorphicViaRefTypeTest extends DatabindTestUtil
 {
 
     @JsonSubTypes({
@@ -54,7 +54,7 @@ public class PolymorphicViaRefTypeTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testPolymorphicAtomicRefProperty() throws Exception
+    void testPolymorphicAtomicRefProperty() throws Exception
     {
         TypeInfoAtomic data = new TypeInfoAtomic();
         data.value = new AtomicReference<BaseForAtomic>(new ImplForAtomic(42));
@@ -68,7 +68,7 @@ public class PolymorphicViaRefTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAtomicRefViaDefaultTyping() throws Exception
+    void testAtomicRefViaDefaultTyping() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

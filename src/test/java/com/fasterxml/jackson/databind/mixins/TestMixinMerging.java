@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestMixinMerging extends DatabindTestUtil
+class TestMixinMerging extends DatabindTestUtil
 {
     public interface Contact {
         String getCity();
@@ -41,7 +41,7 @@ public class TestMixinMerging extends DatabindTestUtil
 
     // for [databind#515]
     @Test
-    public void testDisappearingMixins515() throws Exception
+    void testDisappearingMixins515() throws Exception
     {
         SimpleModule module = new SimpleModule("Test");
         module.setMixInAnnotation(Person.class, PersonMixin.class);

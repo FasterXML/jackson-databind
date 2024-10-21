@@ -22,7 +22,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
  * This unit test suite tries to verify that the "Native" java type
  * mapper can properly re-construct Java array objects from Json arrays.
  */
-public class ArrayDeserializationTest
+class ArrayDeserializationTest
 {
     public final static class Bean1
     {
@@ -148,7 +148,7 @@ public class ArrayDeserializationTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testUntypedArray() throws Exception
+    void testUntypedArray() throws Exception
     {
 
         // to get "untyped" default map-to-map, pass Object[].class
@@ -167,7 +167,7 @@ public class ArrayDeserializationTest
     }
 
     @Test
-    public void testIntegerArray() throws Exception
+    void testIntegerArray() throws Exception
     {
         final int LEN = 90000;
 
@@ -194,7 +194,7 @@ public class ArrayDeserializationTest
 
     // [JACKSON-620]: allow "" to mean 'null' for Arrays, List and Maps
     @Test
-    public void testFromEmptyString() throws Exception
+    void testFromEmptyString() throws Exception
     {
         ObjectReader r = MAPPER.reader()
                 .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
@@ -205,7 +205,7 @@ public class ArrayDeserializationTest
 
     // [JACKSON-620]: allow "" to mean 'null' for Arrays, List and Maps
     @Test
-    public void testFromEmptyString2() throws Exception
+    void testFromEmptyString2() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(Product.class)
                 .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
@@ -222,7 +222,7 @@ public class ArrayDeserializationTest
      */
 
     @Test
-    public void testUntypedArrayOfArrays() throws Exception
+    void testUntypedArrayOfArrays() throws Exception
     {
         // to get "untyped" default map-to-map, pass Object[].class
         final String JSON = "[[[-0.027512,51.503221],[-0.008497,51.503221],[-0.008497,51.509744],[-0.027512,51.509744]]]";
@@ -255,7 +255,7 @@ public class ArrayDeserializationTest
      */
 
     @Test
-    public void testStringArray() throws Exception
+    void testStringArray() throws Exception
     {
         final String[] STRS = new String[] {
             "a", "b", "abcd", "", "???", "\"quoted\"", "lf: \n",
@@ -285,7 +285,7 @@ public class ArrayDeserializationTest
     }
 
     @Test
-    public void testCharArray() throws Exception
+    void testCharArray() throws Exception
     {
         final String TEST_STR = "Let's just test it? Ok!";
         char[] result = MAPPER.readValue("\""+TEST_STR+"\"", char[].class);
@@ -303,7 +303,7 @@ public class ArrayDeserializationTest
      */
 
     @Test
-    public void testBooleanArray() throws Exception
+    void testBooleanArray() throws Exception
     {
         boolean[] result = MAPPER.readValue("[ true, false, false ]", boolean[].class);
         assertNotNull(result);
@@ -314,7 +314,7 @@ public class ArrayDeserializationTest
     }
 
     @Test
-    public void testByteArrayAsNumbers() throws Exception
+    void testByteArrayAsNumbers() throws Exception
     {
         final int LEN = 37000;
         StringBuilder sb = new StringBuilder();
@@ -340,7 +340,7 @@ public class ArrayDeserializationTest
     }
 
     @Test
-    public void testByteArrayAsBase64() throws Exception
+    void testByteArrayAsBase64() throws Exception
     {
         /* Hmmh... let's use JsonGenerator here, to hopefully ensure we
          * get proper base64 encoding. Plus, not always using that
@@ -370,7 +370,7 @@ public class ArrayDeserializationTest
      * multiple byte arrays from an array...
      */
     @Test
-    public void testByteArraysAsBase64() throws Exception
+    void testByteArraysAsBase64() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         StringWriter sw = new StringWriter(1000);
@@ -406,7 +406,7 @@ public class ArrayDeserializationTest
 
     // [JACKSON-763]
     @Test
-    public void testByteArraysWith763() throws Exception
+    void testByteArraysWith763() throws Exception
     {
         String[] input = new String[] { "YQ==", "Yg==", "Yw==" };
         byte[][] data = MAPPER.convertValue(input, byte[][].class);
@@ -416,7 +416,7 @@ public class ArrayDeserializationTest
     }
 
     @Test
-    public void testShortArray() throws Exception
+    void testShortArray() throws Exception
     {
         final int LEN = 31001; // fits in signed 16-bit
         StringBuilder sb = new StringBuilder();
@@ -440,7 +440,7 @@ public class ArrayDeserializationTest
     }
 
     @Test
-    public void testIntArray() throws Exception
+    void testIntArray() throws Exception
     {
         final int LEN = 70000;
 
@@ -466,7 +466,7 @@ public class ArrayDeserializationTest
     }
 
     @Test
-    public void testLongArray() throws Exception
+    void testLongArray() throws Exception
     {
         final int LEN = 12300;
         StringBuilder sb = new StringBuilder();
@@ -490,7 +490,7 @@ public class ArrayDeserializationTest
     }
 
     @Test
-    public void testDoubleArray() throws Exception
+    void testDoubleArray() throws Exception
     {
         final int LEN = 7000;
         StringBuilder sb = new StringBuilder();
@@ -518,7 +518,7 @@ public class ArrayDeserializationTest
     }
 
     @Test
-    public void testFloatArray() throws Exception
+    void testFloatArray() throws Exception
     {
         final int LEN = 7000;
         StringBuilder sb = new StringBuilder();
@@ -549,8 +549,8 @@ public class ArrayDeserializationTest
      */
 
     @Test
-    public void testBeanArray()
-        throws Exception
+    void testBeanArray()
+            throws Exception
     {
         List<Bean1> src = new ArrayList<Bean1>();
 
@@ -582,7 +582,7 @@ public class ArrayDeserializationTest
 
     // for [databind#890]
     @Test
-    public void testByteArrayTypeOverride890() throws Exception
+    void testByteArrayTypeOverride890() throws Exception
     {
         HiddenBinaryBean890 result = MAPPER.readValue(
                 a2q("{'someBytes':'AQIDBA=='}"), HiddenBinaryBean890.class);
@@ -598,7 +598,7 @@ public class ArrayDeserializationTest
      */
 
     @Test
-    public void testCustomDeserializers() throws Exception
+    void testCustomDeserializers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule testModule = new SimpleModule("test", Version.unknownVersion());

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class FactoryAndConstructor2962Test
+class FactoryAndConstructor2962Test
 {
     // [databind#2962]
     static class ExampleDto2962
@@ -37,7 +37,7 @@ public class FactoryAndConstructor2962Test
 
     // [databind#2962]
     @Test
-    public void testImplicitCtorExplicitFactory() throws Exception
+    void testImplicitCtorExplicitFactory() throws Exception
     {
         ExampleDto2962 result = MAPPER.readValue("42", ExampleDto2962.class);
         assertEquals(42, result.version);

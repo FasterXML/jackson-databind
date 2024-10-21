@@ -13,7 +13,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // Mostly for [databind#1425]; not in optimal place (as it also has
 // tree-access tests), but has to do for now
-public class Base64DecodingTest
+class Base64DecodingTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -22,7 +22,7 @@ public class Base64DecodingTest
 
     // for [databind#1425]
     @Test
-    public void testInvalidBase64() throws Exception
+    void testInvalidBase64() throws Exception
     {
         byte[] b = MAPPER.readValue(q(BASE64_HELLO), byte[].class);
         assertArrayEquals(HELLO_BYTES, b);

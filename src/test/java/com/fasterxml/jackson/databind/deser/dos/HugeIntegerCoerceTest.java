@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 // for [databind#2157]
-public class HugeIntegerCoerceTest
+class HugeIntegerCoerceTest
 {
     private final static int BIG_NUM_LEN = 199999;
     private final static String BIG_POS_INTEGER;
@@ -27,7 +27,7 @@ public class HugeIntegerCoerceTest
     }
 
     @Test
-    public void testMaliciousLongForEnum() throws Exception
+    void testMaliciousLongForEnum() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
             .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(BIG_NUM_LEN + 10).build())

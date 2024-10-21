@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class IgnorePropertyOnDeserTest
+class IgnorePropertyOnDeserTest
 {
     // [databind#426]
     @JsonIgnoreProperties({ "userId" })
@@ -98,7 +98,7 @@ public class IgnorePropertyOnDeserTest
 
     // [databind#426]
     @Test
-    public void testIssue426() throws Exception
+    void testIssue426() throws Exception
     {
         final String JSON = a2q("{'userId': 9, 'firstName': 'Mike' }");
         User result = MAPPER.readerFor(User.class).readValue(JSON);
@@ -109,7 +109,7 @@ public class IgnorePropertyOnDeserTest
 
     // [databind#1217]
     @Test
-    public void testIgnoreOnProperty1217() throws Exception
+    void testIgnoreOnProperty1217() throws Exception
     {
         TestIgnoreObject result = MAPPER.readValue(
                 a2q("{'obj':{'x': 10, 'y': 20}, 'obj2':{'x': 10, 'y': 20}}"),
@@ -132,7 +132,7 @@ public class IgnorePropertyOnDeserTest
 
     // [databind#1217]
     @Test
-    public void testIgnoreViaConfigOverride1217() throws Exception
+    void testIgnoreViaConfigOverride1217() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
             .withConfigOverride(Point.class,
@@ -146,7 +146,7 @@ public class IgnorePropertyOnDeserTest
 
     // [databind#3721]
     @Test
-    public void testIgnoreUnknownViaConfigOverride() throws Exception
+    void testIgnoreUnknownViaConfigOverride() throws Exception
     {
         final String DOC = a2q("{'x':2,'foobar':3}");
 
@@ -171,7 +171,7 @@ public class IgnorePropertyOnDeserTest
 
     // [databind#1595]
     @Test
-    public void testIgnoreGetterNotSetter1595() throws Exception
+    void testIgnoreGetterNotSetter1595() throws Exception
     {
         Simple1595 config = new Simple1595();
         config.setId(123);
@@ -184,7 +184,7 @@ public class IgnorePropertyOnDeserTest
 
     // [databind#2627]
     @Test
-    public void testIgnoreUnknownOnField() throws IOException
+    void testIgnoreUnknownOnField() throws IOException
     {
         String json = "{\"value\": {\"name\": \"my_name\", \"extra\": \"val\"}, \"type\":\"Json\"}";
         MyPojoValue value = MAPPER.readValue(json, MyPojoValue.class);

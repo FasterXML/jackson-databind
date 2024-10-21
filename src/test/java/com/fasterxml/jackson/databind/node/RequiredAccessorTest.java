@@ -28,12 +28,12 @@ public class RequiredAccessorTest
     }
 
     @Test
-    public void testIMPORTANT() {
+    void testIMPORTANT() {
         _checkRequiredAtFail(TEST_OBJECT, "/data/weird/and/more", "/weird/and/more");
     }
 
     @Test
-    public void testRequiredAtObjectOk() throws Exception {
+    void testRequiredAtObjectOk() throws Exception {
         assertNotNull(TEST_OBJECT.requiredAt("/array"));
         assertNotNull(TEST_OBJECT.requiredAt("/array/0"));
         assertTrue(TEST_OBJECT.requiredAt("/array/0").isBoolean());
@@ -42,7 +42,7 @@ public class RequiredAccessorTest
     }
 
     @Test
-    public void testRequiredAtArrayOk() throws Exception {
+    void testRequiredAtArrayOk() throws Exception {
         assertTrue(TEST_ARRAY.requiredAt("/0").isBoolean());
         assertTrue(TEST_ARRAY.requiredAt("/1").isObject());
         assertNotNull(TEST_ARRAY.requiredAt("/1/data/primary"));
@@ -50,7 +50,7 @@ public class RequiredAccessorTest
     }
 
     @Test
-    public void testRequiredAtFailOnObjectBasic() throws Exception {
+    void testRequiredAtFailOnObjectBasic() throws Exception {
         _checkRequiredAtFail(TEST_OBJECT, "/0", "/0");
         _checkRequiredAtFail(TEST_OBJECT, "/bogus", "/bogus");
         _checkRequiredAtFail(TEST_OBJECT, "/data/weird/and/more", "/weird/and/more");
@@ -61,7 +61,7 @@ public class RequiredAccessorTest
     }
 
     @Test
-    public void testRequiredAtFailOnArray() throws Exception {
+    void testRequiredAtFailOnArray() throws Exception {
         _checkRequiredAtFail(TEST_ARRAY, "/1/data/vector/25", "/25");
         _checkRequiredAtFail(TEST_ARRAY, "/0/data/x", "/data/x");
     }
@@ -76,7 +76,7 @@ public class RequiredAccessorTest
     }
 
     @Test
-    public void testSimpleRequireOk() throws Exception {
+    void testSimpleRequireOk() throws Exception {
         // first basic working accessors on node itself
         assertSame(TEST_OBJECT, TEST_OBJECT.require());
         assertSame(TEST_OBJECT, TEST_OBJECT.requireNonNull());
@@ -99,7 +99,7 @@ public class RequiredAccessorTest
     }
 
     @Test
-    public void testSimpleRequireFail() throws Exception {
+    void testSimpleRequireFail() throws Exception {
         try {
             TEST_OBJECT.required("bogus");
             fail("Should not pass");
@@ -117,7 +117,7 @@ public class RequiredAccessorTest
 
     // [databind#3005]
     @Test
-    public void testRequiredAtFailOnObjectScalar3005() throws Exception
+    void testRequiredAtFailOnObjectScalar3005() throws Exception
     {
         JsonNode n = MAPPER.readTree("{\"simple\":5}");
         try {

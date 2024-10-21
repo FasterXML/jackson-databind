@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for checking handling of some of {@link MapperFeature}s
  * and {@link SerializationFeature}s for serialization.
  */
-public class SerializationFeaturesTest
-    extends DatabindTestUtil
+class SerializationFeaturesTest
+        extends DatabindTestUtil
 {
     static class CloseableBean implements Closeable
     {
@@ -46,7 +46,7 @@ public class SerializationFeaturesTest
     // Test for [JACKSON-282]
     @SuppressWarnings("resource")
     @Test
-    public void testCloseCloseable() throws IOException
+    void testCloseCloseable() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         // default should be disabled:
@@ -68,7 +68,7 @@ public class SerializationFeaturesTest
 
     // Test for [JACKSON-289]
     @Test
-    public void testCharArrays() throws IOException
+    void testCharArrays() throws IOException
     {
         char[] chars = new char[] { 'a','b','c' };
         ObjectMapper m = new ObjectMapper();
@@ -82,7 +82,7 @@ public class SerializationFeaturesTest
 
     // Test for [JACKSON-401]
     @Test
-    public void testFlushingAutomatic() throws IOException
+    void testFlushingAutomatic() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE));
@@ -103,7 +103,7 @@ public class SerializationFeaturesTest
     }
 
     @Test
-    public void testFlushingNotAutomatic() throws IOException
+    void testFlushingNotAutomatic() throws IOException
     {
         // but should not occur if configured otherwise
         ObjectMapper mapper = new ObjectMapper();
@@ -131,7 +131,7 @@ public class SerializationFeaturesTest
     }
 
     @Test
-    public void testSingleElementCollections() throws IOException
+    void testSingleElementCollections() throws IOException
     {
         final ObjectWriter writer = objectWriter().with(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
 

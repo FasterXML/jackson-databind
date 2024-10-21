@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestAutoDetect
-    extends DatabindTestUtil
+class TestAutoDetect
+        extends DatabindTestUtil
 {
     static class PrivateBean {
         String a;
@@ -122,7 +122,7 @@ public class TestAutoDetect
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testPrivateCtor() throws Exception
+    void testPrivateCtor() throws Exception
     {
         // first, default settings, with which construction works ok
         ObjectMapper m = new ObjectMapper();
@@ -144,7 +144,7 @@ public class TestAutoDetect
 
     // [databind#1347]
     @Test
-    public void testVisibilityConfigOverridesForSer() throws Exception
+    void testVisibilityConfigOverridesForSer() throws Exception
     {
         // first, by default, both field/method should be visible
         final Feature1347SerBean input = new Feature1347SerBean();
@@ -161,7 +161,7 @@ public class TestAutoDetect
 
     // [databind#1347]
     @Test
-    public void testVisibilityConfigOverridesForDeser() throws Exception
+    void testVisibilityConfigOverridesForDeser() throws Exception
     {
         final String JSON = a2q("{'value':3}");
 
@@ -185,7 +185,7 @@ public class TestAutoDetect
 
     // [databind#1947]
     @Test
-    public void testDisablingAll() throws Exception
+    void testDisablingAll() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.AUTO_DETECT_SETTERS)
@@ -203,7 +203,7 @@ public class TestAutoDetect
 
     // [databind#2789]
     @Test
-    public void testAnnotatedFieldIssue2789() throws Exception {
+    void testAnnotatedFieldIssue2789() throws Exception {
         final String json = MAPPER.writeValueAsString(new DataClassA());
         final DataParent2789 copy = MAPPER.readValue(json, DataParent2789.class);
         assertEquals(DataType2789.CLASS_A, copy.getType());

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class BuilderAdvancedTest
+class BuilderAdvancedTest
 {
     @JsonDeserialize(builder=InjectableBuilderXY.class)
     static class InjectableXY
@@ -98,7 +98,7 @@ public class BuilderAdvancedTest
      */
 
     @Test
-    public void testWithInjectable() throws Exception
+    void testWithInjectable() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setInjectableValues(new InjectableValues.Std()
@@ -112,7 +112,7 @@ public class BuilderAdvancedTest
     }
 
     @Test
-    public void testWithExternalTypeId() throws Exception
+    void testWithExternalTypeId() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         final ExternalBean input = new ExternalBean(new ValueBean(13));

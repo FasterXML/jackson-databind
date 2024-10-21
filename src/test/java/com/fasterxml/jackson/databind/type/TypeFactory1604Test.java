@@ -14,7 +14,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newTypeFa
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 // for [databind#1604], [databind#2577]
-public class TypeFactory1604Test
+class TypeFactory1604Test
 {
     static class Data1604<T> { }
 
@@ -37,10 +37,11 @@ public class TypeFactory1604Test
     }
 
     static class Left<V> extends Either<V, Void> { }
+
     static class Right<V> extends Either<Void, V> { }
 
     @Test
-    public void testCustomTypesRefinedSimple()
+    void testCustomTypesRefinedSimple()
     {
         TypeFactory tf = newTypeFactory();
         JavaType base = tf.constructType(new TypeReference<Data1604<List<Long>>>() { });
@@ -56,7 +57,7 @@ public class TypeFactory1604Test
     }
 
     @Test
-    public void testCustomTypesRefinedNested()
+    void testCustomTypesRefinedNested()
     {
         TypeFactory tf = newTypeFactory();
         JavaType base = tf.constructType(new TypeReference<Data1604<List<Long>>>() { });
@@ -72,7 +73,7 @@ public class TypeFactory1604Test
     }
 
     @Test
-    public void testCustomTypesRefinedSneaky()
+    void testCustomTypesRefinedSneaky()
     {
         TypeFactory tf = newTypeFactory();
         JavaType base = tf.constructType(new TypeReference<Data1604<List<Long>>>() { });
@@ -90,7 +91,7 @@ public class TypeFactory1604Test
     }
 
     @Test
-    public void testTwoParamSneakyCustom()
+    void testTwoParamSneakyCustom()
     {
         TypeFactory tf = newTypeFactory();
         JavaType type = tf.constructType(new TypeReference<TwoParam1604<String,List<Long>>>() { });
@@ -115,7 +116,7 @@ public class TypeFactory1604Test
 
     // Also: let's not allow mismatching binding
     @Test
-    public void testErrorForMismatch()
+    void testErrorForMismatch()
     {
         TypeFactory tf = newTypeFactory();
         // NOTE: plain `String` NOT `List<String>`
@@ -133,7 +134,7 @@ public class TypeFactory1604Test
 
     // [databind#2577]
     @Test
-    public void testResolveGenericPartialSubtypes()
+    void testResolveGenericPartialSubtypes()
     {
         TypeFactory tf = newTypeFactory();
         JavaType base = tf.constructType(new TypeReference<Either<Object, Object>>() { });

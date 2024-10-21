@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class InvalidInjectionTest
+class InvalidInjectionTest
 {
     static class BadBean1 {
         @JacksonInject protected String prop1;
@@ -32,7 +32,7 @@ public class InvalidInjectionTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testInvalidDup() throws Exception
+    void testInvalidDup() throws Exception
     {
         try {
             MAPPER.readValue("{}", BadBean1.class);

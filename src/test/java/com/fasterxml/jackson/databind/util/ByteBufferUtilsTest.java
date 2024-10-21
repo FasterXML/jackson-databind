@@ -12,14 +12,14 @@ import com.fasterxml.jackson.databind.testutil.FiveMinuteUser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ByteBufferUtilsTest extends DatabindTestUtil
+class ByteBufferUtilsTest extends DatabindTestUtil
 {
     private final FiveMinuteUser TEST_USER = new FiveMinuteUser("Bob", "Burger",
             true, FiveMinuteUser.Gender.MALE,
             new byte[] { 1, 2, 3, 4, 5 });
 
     @Test
-    public void testByteBufferInput() throws Exception {
+    void testByteBufferInput() throws Exception {
         byte[] input = new byte[] { 1, 2, 3 };
         try (ByteBufferBackedInputStream wrapped = new ByteBufferBackedInputStream(ByteBuffer.wrap(input))) {
             assertEquals(3, wrapped.available());
@@ -32,7 +32,7 @@ public class ByteBufferUtilsTest extends DatabindTestUtil
     }
 
     @Test
-    public void testByteBufferOutput() throws Exception {
+    void testByteBufferOutput() throws Exception {
         ByteBuffer b = ByteBuffer.wrap(new byte[10]);
         try (ByteBufferBackedOutputStream wrappedOut = new ByteBufferBackedOutputStream(b)) {
             wrappedOut.write(1);
@@ -43,7 +43,7 @@ public class ByteBufferUtilsTest extends DatabindTestUtil
     }
 
     @Test
-    public void testReadFromByteBuffer() throws Exception
+    void testReadFromByteBuffer() throws Exception
     {
         final ObjectMapper mapper = sharedMapper();
         byte[] bytes = mapper.writeValueAsBytes(TEST_USER);
@@ -56,7 +56,7 @@ public class ByteBufferUtilsTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWriteToByteBuffer() throws Exception
+    void testWriteToByteBuffer() throws Exception
     {
         final ObjectMapper mapper = sharedMapper();
         byte[] bytes = mapper.writeValueAsBytes(TEST_USER);

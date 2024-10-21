@@ -20,7 +20,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
  * re-thrown or wrapped, depending)
  * with Object serialization.
  */
-public class TestExceptionsDuringWriting
+class TestExceptionsDuringWriting
 {
     /*
     /**********************************************************
@@ -53,8 +53,8 @@ public class TestExceptionsDuringWriting
      * JacksonExceptions are caught and wrapped.
      */
     @Test
-    public void testCatchAndRethrow()
-        throws Exception
+    void testCatchAndRethrow()
+            throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test-exceptions", Version.unknownVersion());
@@ -87,8 +87,8 @@ public class TestExceptionsDuringWriting
      * but are passed through as is.
      */
     @Test
-    public void testExceptionWithSimpleMapper()
-        throws Exception
+    void testExceptionWithSimpleMapper()
+            throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         try (BrokenStringWriter sw = new BrokenStringWriter("TEST")) {
@@ -100,8 +100,8 @@ public class TestExceptionsDuringWriting
     }
 
     @Test
-    public void testExceptionWithMapperAndGenerator()
-        throws Exception
+    void testExceptionWithMapperAndGenerator()
+            throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         JsonFactory f = new MappingJsonFactory();
@@ -115,8 +115,8 @@ public class TestExceptionsDuringWriting
     }
 
     @Test
-    public void testExceptionWithGeneratorMapping()
-        throws Exception
+    void testExceptionWithGeneratorMapping()
+            throws Exception
     {
         JsonFactory f = new MappingJsonFactory();
         try (JsonGenerator jg = f.createGenerator(new BrokenStringWriter("TEST"))) {

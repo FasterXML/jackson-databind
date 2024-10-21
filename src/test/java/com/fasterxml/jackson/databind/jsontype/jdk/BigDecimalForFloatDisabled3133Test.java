@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
  * [databind#3133] Map deserialization results in different numeric classes based on json
  * ordering (BigDecimal / Double) when used in combination with @JsonSubTypes
  */
-public class BigDecimalForFloatDisabled3133Test
-    extends DatabindTestUtil
+class BigDecimalForFloatDisabled3133Test
+        extends DatabindTestUtil
 {
     @JsonTypeInfo(
             use = JsonTypeInfo.Id.NAME,
@@ -51,7 +51,7 @@ public class BigDecimalForFloatDisabled3133Test
 
     // [databind#3133]
     @Test
-    public void testDeserializeWithDifferentOrdering3133() throws Exception
+    void testDeserializeWithDifferentOrdering3133() throws Exception
     {
         // case 1 : type first
         String ordering1 = a2q("{'type': 'MAP','map': { 'doubleValue': 0.1 }}");

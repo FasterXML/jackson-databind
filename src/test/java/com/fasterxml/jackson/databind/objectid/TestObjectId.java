@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestObjectId extends DatabindTestUtil
+class TestObjectId extends DatabindTestUtil
 {
     @JsonPropertyOrder({"a", "b"})
     static class Wrapper {
@@ -137,7 +137,7 @@ public class TestObjectId extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testColumnMetadata() throws Exception
+    void testColumnMetadata() throws Exception
     {
         ColumnMetadata col = new ColumnMetadata("Billy", "employee", "comment");
         Wrapper w = new Wrapper();
@@ -159,7 +159,7 @@ public class TestObjectId extends DatabindTestUtil
 
     // For [databind#188]
     @Test
-    public void testMixedRefsIssue188() throws Exception
+    void testMixedRefsIssue188() throws Exception
     {
         Company comp = new Company();
         Employee e1 = new Employee(1, "First", null);
@@ -179,7 +179,7 @@ public class TestObjectId extends DatabindTestUtil
     }
 
     @Test
-    public void testObjectAndTypeId() throws Exception
+    void testObjectAndTypeId() throws Exception
     {
         Bar inputRoot = new Bar();
         Foo inputChild = new Foo();
@@ -202,7 +202,7 @@ public class TestObjectId extends DatabindTestUtil
     }
 
     @Test
-    public void testWithFieldsInBaseClass1083() throws Exception {
+    void testWithFieldsInBaseClass1083() throws Exception {
           final String json = a2q("{'schemas': [{\n"
               + "  'name': 'FoodMart'\n"
               + "}]}\n");

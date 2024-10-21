@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PolymorphicWithObjectId1551Test extends DatabindTestUtil
+class PolymorphicWithObjectId1551Test extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY,
             property = "@class")
@@ -38,7 +38,7 @@ public class PolymorphicWithObjectId1551Test extends DatabindTestUtil
     }
 
     @Test
-    public void testWithAbstractUsingProp() throws Exception
+    void testWithAbstractUsingProp() throws Exception
     {
         Car c = new Car();
         c.vehicleId = "123";
@@ -60,7 +60,7 @@ public class PolymorphicWithObjectId1551Test extends DatabindTestUtil
     }
 
     @Test
-    public void testFailingAbstractUsingProp() throws Exception
+    void testFailingAbstractUsingProp() throws Exception
     {
         Car c = new Car();
         c.vehicleId = "123";

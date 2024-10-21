@@ -9,12 +9,12 @@ import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TreeFromIncompleteJsonTest extends DatabindTestUtil
+class TreeFromIncompleteJsonTest extends DatabindTestUtil
 {
     final private ObjectMapper MAPPER = objectMapper(); // shared is fine
 
     @Test
-    public void testErrorHandling() throws IOException {
+    void testErrorHandling() throws IOException {
 
       String json = "{\"A\":{\"B\":\n";
       JsonParser parser = MAPPER.createParser(json);

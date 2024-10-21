@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#962]: "pure" Injectable that could not be deserialized
-public class InjectableWithoutDeser962Test
+class InjectableWithoutDeser962Test
 {
     // [databind#962]
     static class InjectMe
@@ -52,7 +52,7 @@ public class InjectableWithoutDeser962Test
 
     // [databind#962]
     @Test
-    public void testInjected() throws Exception
+    void testInjected() throws Exception
     {
         InjectMe im = new InjectMe(true);
         ObjectMapper mapper = new ObjectMapper()

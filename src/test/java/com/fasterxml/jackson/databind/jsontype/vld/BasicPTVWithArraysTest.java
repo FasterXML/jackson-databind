@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * {@link BasicPolymorphicTypeValidator} to allow all Array-valued
  * polymorphic values.
  */
-public class BasicPTVWithArraysTest extends DatabindTestUtil
+class BasicPTVWithArraysTest extends DatabindTestUtil
 {
     static abstract class Base2534 {
         public int x = 3;
@@ -53,7 +53,7 @@ public class BasicPTVWithArraysTest extends DatabindTestUtil
 
     // [databind#2534]: handle Java array-types appropriately wrt validation
     @Test
-    public void testAllowBySubClassInArray() throws Exception {
+    void testAllowBySubClassInArray() throws Exception {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(Good2534.class)
                 .build();

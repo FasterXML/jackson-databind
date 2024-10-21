@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for checking handling of some of {@link MapperFeature}s
  * and {@link SerializationFeature}s for serialization.
  */
-public class VisibilityForSerializationTest
-    extends DatabindTestUtil
+class VisibilityForSerializationTest
+        extends DatabindTestUtil
 {
     /**
      * Class with one explicitly defined getter, one name-based
@@ -85,7 +85,7 @@ public class VisibilityForSerializationTest
      */
 
     @Test
-    public void testGlobalAutoDetection() throws IOException
+    void testGlobalAutoDetection() throws IOException
     {
         // First: auto-detection enabled (default):
         ObjectMapper m = new ObjectMapper();
@@ -105,7 +105,7 @@ public class VisibilityForSerializationTest
     }
 
     @Test
-    public void testPerClassAutoDetection() throws IOException
+    void testPerClassAutoDetection() throws IOException
     {
         // First: class-level auto-detection disabling
         ObjectMapper m = new ObjectMapper();
@@ -124,7 +124,7 @@ public class VisibilityForSerializationTest
     }
 
     @Test
-    public void testPerClassAutoDetectionForIsGetter() throws IOException
+    void testPerClassAutoDetectionForIsGetter() throws IOException
     {
         ObjectMapper m = jsonMapperBuilder()
         // class level should override
@@ -138,7 +138,7 @@ public class VisibilityForSerializationTest
 
     // Simple test verifying that chainable methods work ok...
     @Test
-    public void testConfigChainability()
+    void testConfigChainability()
     {
         ObjectMapper m = new ObjectMapper();
         assertTrue(m.isEnabled(MapperFeature.AUTO_DETECT_SETTERS));
@@ -152,7 +152,7 @@ public class VisibilityForSerializationTest
     }
 
     @Test
-    public void testVisibilityFeatures() throws Exception
+    void testVisibilityFeatures() throws Exception
     {
         ObjectMapper om = jsonMapperBuilder()
         // Only use explicitly specified values to be serialized/deserialized (i.e., JSONProperty).

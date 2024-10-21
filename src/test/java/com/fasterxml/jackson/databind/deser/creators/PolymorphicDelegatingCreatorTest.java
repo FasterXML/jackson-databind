@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class PolymorphicDelegatingCreatorTest
+class PolymorphicDelegatingCreatorTest
 {
     // For [databind#580]
 
@@ -45,7 +45,7 @@ public class PolymorphicDelegatingCreatorTest
      */
 
     @Test
-    public void testAbstractDelegateWithCreator() throws Exception
+    void testAbstractDelegateWithCreator() throws Exception
     {
         Issue580Bean input = new Issue580Bean(new Issue580Impl(13));
         ObjectMapper mapper = new ObjectMapper();

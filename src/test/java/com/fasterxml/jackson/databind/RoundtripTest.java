@@ -9,12 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class RoundtripTest
+class RoundtripTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testMedaItemRoundtrip() throws Exception
+    void testMedaItemRoundtrip() throws Exception
     {
         MediaItem.Content c = new MediaItem.Content();
         c.setBitrate(9600);

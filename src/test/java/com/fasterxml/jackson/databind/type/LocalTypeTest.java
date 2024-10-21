@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class LocalTypeTest
+class LocalTypeTest
 {
     // [databind#609]
     static class EntityContainer {
@@ -26,7 +26,7 @@ public class LocalTypeTest
 
     // [databind#609]
     @Test
-    public void testLocalPartialType609() throws Exception {
+    void testLocalPartialType609() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         EntityContainer input = new EntityContainer();

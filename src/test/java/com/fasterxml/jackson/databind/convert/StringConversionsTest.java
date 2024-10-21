@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class StringConversionsTest
+class StringConversionsTest
 {
     static class LCConverter extends StdConverter<String,String>
     {
@@ -34,7 +34,7 @@ public class StringConversionsTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testSimple()
+    void testSimple()
     {
         assertEquals(Boolean.TRUE, MAPPER.convertValue("true", Boolean.class));
         assertEquals(Integer.valueOf(-3), MAPPER.convertValue("-3", Integer.class));
@@ -50,7 +50,7 @@ public class StringConversionsTest
     }
 
     @Test
-    public void testStringsToInts()
+    void testStringsToInts()
     {
         // let's verify our "neat trick" actually works...
         assertArrayEquals(new int[] { 1, 2, 3, 4, -1, 0 },
@@ -58,7 +58,7 @@ public class StringConversionsTest
     }
 
     @Test
-    public void testBytesToBase64AndBack() throws Exception
+    void testBytesToBase64AndBack() throws Exception
     {
         byte[] input = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
         String encoded = MAPPER.convertValue(input, String.class);
@@ -74,7 +74,7 @@ public class StringConversionsTest
     }
 
     @Test
-    public void testBytestoCharArray() throws Exception
+    void testBytestoCharArray() throws Exception
     {
         byte[] input = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
         // first, do baseline encoding
@@ -85,13 +85,13 @@ public class StringConversionsTest
     }
 
     @Test
-    public void testLowerCasingSerializer() throws Exception
+    void testLowerCasingSerializer() throws Exception
     {
         assertEquals("{\"value\":\"abc\"}", MAPPER.writeValueAsString(new StringWrapperWithConvert("ABC")));
     }
 
     @Test
-    public void testLowerCasingDeserializer() throws Exception
+    void testLowerCasingDeserializer() throws Exception
     {
         StringWrapperWithConvert value = MAPPER.readValue("{\"value\":\"XyZ\"}", StringWrapperWithConvert.class);
         assertNotNull(value);

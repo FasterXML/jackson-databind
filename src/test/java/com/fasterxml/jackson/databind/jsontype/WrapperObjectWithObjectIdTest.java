@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // Test for [databind#1051], issue with combination of Type and Object ids,
 // if (but only if) `JsonTypeInfo.As.WRAPPER_OBJECT` used.
-public class WrapperObjectWithObjectIdTest extends DatabindTestUtil
+class WrapperObjectWithObjectIdTest extends DatabindTestUtil
 {
     @JsonRootName(value = "company")
     static class Company {
@@ -73,7 +73,7 @@ public class WrapperObjectWithObjectIdTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSimple() throws Exception
+    void testSimple() throws Exception
     {
         Company comp = new Company();
         comp.addComputer(new DesktopComputer("computer-1", "Bangkok"));

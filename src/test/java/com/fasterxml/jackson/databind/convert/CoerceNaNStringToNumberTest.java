@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class CoerceNaNStringToNumberTest
+class CoerceNaNStringToNumberTest
 {
     static class DoubleBean {
         double _v;
@@ -38,7 +38,7 @@ public class CoerceNaNStringToNumberTest
      */
 
     @Test
-    public void testDoublePrimitiveNonNumeric() throws Exception
+    void testDoublePrimitiveNonNumeric() throws Exception
     {
         // first, simple case:
         // bit tricky with binary fps but...
@@ -54,7 +54,7 @@ public class CoerceNaNStringToNumberTest
     }
 
     @Test
-    public void testDoublePrimFromNaNCoercionDisabled() throws Exception
+    void testDoublePrimFromNaNCoercionDisabled() throws Exception
     {
         // first, simple case:
         double value = Double.POSITIVE_INFINITY;
@@ -69,7 +69,7 @@ public class CoerceNaNStringToNumberTest
     }
 
     @Test
-    public void testDoubleWrapperFromNaNCoercionDisabled() throws Exception
+    void testDoubleWrapperFromNaNCoercionDisabled() throws Exception
     {
         double value = Double.POSITIVE_INFINITY;
         Double dv = MAPPER_NO_COERCION.readValue(q(String.valueOf(value)), Double.class);
@@ -77,7 +77,7 @@ public class CoerceNaNStringToNumberTest
     }
 
     @Test
-    public void testFloatPrimitiveNonNumeric() throws Exception
+    void testFloatPrimitiveNonNumeric() throws Exception
     {
         // bit tricky with binary fps but...
         float value = Float.POSITIVE_INFINITY;
@@ -92,7 +92,7 @@ public class CoerceNaNStringToNumberTest
     }
 
     @Test
-    public void testFloatPriFromNaNCoercionDisabled() throws Exception
+    void testFloatPriFromNaNCoercionDisabled() throws Exception
     {
         // first, simple case:
         float value = Float.POSITIVE_INFINITY;
@@ -107,7 +107,7 @@ public class CoerceNaNStringToNumberTest
     }
 
     @Test
-    public void testFloatWrapperFromNaNCoercionDisabled() throws Exception
+    void testFloatWrapperFromNaNCoercionDisabled() throws Exception
     {
         float value = Float.POSITIVE_INFINITY;
         Float dv = MAPPER_NO_COERCION.readValue(q(String.valueOf(value)), Float.class);

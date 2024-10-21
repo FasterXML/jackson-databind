@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class JDKNumberLeniencyTest
+class JDKNumberLeniencyTest
 {
     /**
      * Simple wrapper around boolean types, usually to test value
@@ -31,7 +31,7 @@ public class JDKNumberLeniencyTest
             .build();
 
     @Test
-    public void testBooleanLeniencyInts() throws Exception
+    void testBooleanLeniencyInts() throws Exception
     {
         // First: read from integers fine by default
         assertEquals(Boolean.TRUE, VANILLA_MAPPER.readValue("1", Boolean.class));

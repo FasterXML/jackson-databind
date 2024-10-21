@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ThreadSafety1759Test extends DatabindTestUtil
+class ThreadSafety1759Test extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -24,7 +24,7 @@ public class ThreadSafety1759Test extends DatabindTestUtil
      */
 
     @Test
-    public void testCalendarForDeser() throws Exception
+    void testCalendarForDeser() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
 

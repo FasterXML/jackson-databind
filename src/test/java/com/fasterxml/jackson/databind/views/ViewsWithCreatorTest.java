@@ -10,10 +10,12 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ViewsWithCreatorTest extends DatabindTestUtil
+class ViewsWithCreatorTest extends DatabindTestUtil
 {
     static class View { }
+
     static class View1 extends View { }
+
     static class View2 extends View { }
 
     @JsonAutoDetect(
@@ -75,10 +77,10 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     // [databind#1172]
     @Test
-    public void testWithJsonCreator() throws Exception
+    void testWithJsonCreator() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(ObjWithCreator.class).withView(View1.class);
 
@@ -90,7 +92,7 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
 
     // [databind#1172]
     @Test
-    public void testWithoutJsonCreator() throws Exception
+    void testWithoutJsonCreator() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(ObjWithoutCreator.class).withView(View1.class);
 

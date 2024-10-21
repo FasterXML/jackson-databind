@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
-public class MultiArgConstructorTest
+class MultiArgConstructorTest
 {
     static class MultiArgCtorBean
     {
@@ -71,7 +71,7 @@ public class MultiArgConstructorTest
      */
 
     @Test
-    public void testMultiArgVisible() throws Exception
+    void testMultiArgVisible() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());
@@ -85,7 +85,7 @@ public class MultiArgConstructorTest
 
     // But besides visibility, also allow overrides
     @Test
-    public void testMultiArgWithPartialOverride() throws Exception
+    void testMultiArgWithPartialOverride() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());
@@ -100,7 +100,7 @@ public class MultiArgConstructorTest
     // but let's also ensure that it is possible to prevent use of that constructor
     // with different visibility
     @Test
-    public void testMultiArgNotVisible() throws Exception
+    void testMultiArgNotVisible() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());

@@ -13,14 +13,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 @SuppressWarnings("serial")
-public class TypeResolutionTest extends DatabindTestUtil
+class TypeResolutionTest extends DatabindTestUtil
 {
     public static class LongValuedMap<K> extends HashMap<K, Long> { }
 
     static class GenericList<X> extends ArrayList<X> { }
+
     static class GenericList2<Y> extends GenericList<Y> { }
 
     static class LongList extends GenericList2<Long> { }
+
     static class MyLongList<T> extends LongList { }
 
     static class Range<E extends Comparable<E>> implements Serializable
@@ -40,7 +42,7 @@ public class TypeResolutionTest extends DatabindTestUtil
      */
 
     @Test
-    public void testMaps()
+    void testMaps()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(new TypeReference<LongValuedMap<String>>() { });
@@ -51,7 +53,7 @@ public class TypeResolutionTest extends DatabindTestUtil
     }
 
     @Test
-    public void testListViaTypeRef()
+    void testListViaTypeRef()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(new TypeReference<MyLongList<Integer>>() {});
@@ -61,7 +63,7 @@ public class TypeResolutionTest extends DatabindTestUtil
     }
 
     @Test
-    public void testListViaClass()
+    void testListViaClass()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType t = tf.constructType(LongList.class);
@@ -71,7 +73,7 @@ public class TypeResolutionTest extends DatabindTestUtil
     }
 
     @Test
-    public void testGeneric()
+    void testGeneric()
     {
         TypeFactory tf = defaultTypeFactory();
 

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4639] 2.18.1 : regression when using @JsonAnySetter outside of @JsonCreator
-public class AnySetterFieldWithCreator4639Test
+class AnySetterFieldWithCreator4639Test
         extends DatabindTestUtil
 {
 
@@ -32,7 +32,7 @@ public class AnySetterFieldWithCreator4639Test
     }
 
     @Test
-    public void testJsonAnySetter()
+    void testJsonAnySetter()
             throws Exception
     {
         String json = "{\"a\":1,\"b\":2,\"c\":3,\"d\":4,\"e\":5,\"f\":6}";

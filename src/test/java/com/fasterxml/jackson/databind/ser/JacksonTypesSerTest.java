@@ -16,11 +16,11 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for those Jackson types we want to ensure can be serialized.
  */
-public class JacksonTypesSerTest
-    extends DatabindTestUtil
+class JacksonTypesSerTest
+        extends DatabindTestUtil
 {
     @Test
-    public void testLocation() throws IOException
+    void testLocation() throws IOException
     {
         File f = new File("/tmp/test.json");
         JsonLocation loc = new JsonLocation(ContentReference.rawReference(f),
@@ -40,7 +40,7 @@ public class JacksonTypesSerTest
      * automatically, using the "standard" JSON sample document
      */
     @Test
-    public void testTokenBuffer() throws Exception
+    void testTokenBuffer() throws Exception
     {
         // First, copy events from known good source (StringReader)
         JsonParser p = createParserUsingReader(SAMPLE_DOC_JSON_SPEC);

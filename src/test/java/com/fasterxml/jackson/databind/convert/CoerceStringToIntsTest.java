@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class CoerceStringToIntsTest
+class CoerceStringToIntsTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
     private final ObjectReader READER_LEGACY_FAIL = jsonMapperBuilder()
@@ -50,7 +50,7 @@ public class CoerceStringToIntsTest
      */
 
     @Test
-    public void testLegacyStringToIntCoercion() throws Exception
+    void testLegacyStringToIntCoercion() throws Exception
     {
         // by default, should be ok
         Integer I = DEFAULT_MAPPER.readValue(q("28"), Integer.class);
@@ -79,7 +79,7 @@ public class CoerceStringToIntsTest
     }
 
     @Test
-    public void testLegacyFailStringToInt() throws Exception
+    void testLegacyFailStringToInt() throws Exception
     {
         _verifyCoerceFail(READER_LEGACY_FAIL, Integer.class, q("52"), "java.lang.Integer");
         _verifyCoerceFail(READER_LEGACY_FAIL, Integer.TYPE, q("37"), "int");
@@ -88,7 +88,7 @@ public class CoerceStringToIntsTest
     }
 
     @Test
-    public void testLegacyFailStringToLong() throws Exception
+    void testLegacyFailStringToLong() throws Exception
     {
         _verifyCoerceFail(READER_LEGACY_FAIL, Long.class, q("55"));
         _verifyCoerceFail(READER_LEGACY_FAIL, Long.TYPE, q("-25"));
@@ -97,7 +97,7 @@ public class CoerceStringToIntsTest
     }
 
     @Test
-    public void testLegacyFailStringToOther() throws Exception
+    void testLegacyFailStringToOther() throws Exception
     {
         _verifyCoerceFail(READER_LEGACY_FAIL, Short.class, q("50"));
         _verifyCoerceFail(READER_LEGACY_FAIL, Short.TYPE, q("-255"));
@@ -119,7 +119,7 @@ public class CoerceStringToIntsTest
      */
 
     @Test
-    public void testCoerceConfigStringToNull() throws Exception
+    void testCoerceConfigStringToNull() throws Exception
     {
         assertNull(MAPPER_TO_NULL.readValue(q("155"), Integer.class));
         // `null` not possible for primitives, must use empty (aka default) value
@@ -173,7 +173,7 @@ public class CoerceStringToIntsTest
      */
 
     @Test
-    public void testCoerceConfigStringToEmpty() throws Exception
+    void testCoerceConfigStringToEmpty() throws Exception
     {
         assertEquals(Integer.valueOf(0), MAPPER_TO_EMPTY.readValue(q("12"), Integer.class));
         assertEquals(Integer.valueOf(0), MAPPER_TO_EMPTY.readValue(q("15"), Integer.TYPE));
@@ -211,7 +211,7 @@ public class CoerceStringToIntsTest
      */
 
     @Test
-    public void testCoerceConfigStringConvert() throws Exception
+    void testCoerceConfigStringConvert() throws Exception
     {
         assertEquals(Integer.valueOf(12), MAPPER_TRY_CONVERT.readValue(q("12"), Integer.class));
         assertEquals(Integer.valueOf(34), MAPPER_TRY_CONVERT.readValue(q("34"), Integer.TYPE));
@@ -249,7 +249,7 @@ public class CoerceStringToIntsTest
      */
 
     @Test
-    public void testCoerceConfigFailFromString() throws Exception
+    void testCoerceConfigFailFromString() throws Exception
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, Integer.class, q("15"));
         _verifyCoerceFail(MAPPER_TO_FAIL, Integer.TYPE, q("15"));

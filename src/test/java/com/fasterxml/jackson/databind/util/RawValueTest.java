@@ -7,10 +7,10 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RawValueTest extends DatabindTestUtil
+class RawValueTest extends DatabindTestUtil
 {
     @Test
-    public void testEquality()
+    void testEquality()
     {
         RawValue raw1 = new RawValue("foo");
         RawValue raw1b = new RawValue("foo");

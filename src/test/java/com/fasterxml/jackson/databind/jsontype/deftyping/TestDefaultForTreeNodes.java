@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestDefaultForTreeNodes extends DatabindTestUtil
+class TestDefaultForTreeNodes extends DatabindTestUtil
 {
     public static class Foo {
         public String bar;
@@ -31,7 +31,7 @@ public class TestDefaultForTreeNodes extends DatabindTestUtil
             .build();
 
     @Test
-    public void testValueAsStringWithDefaultTyping() throws Exception
+    void testValueAsStringWithDefaultTyping() throws Exception
     {
         Foo foo = new Foo("baz");
         String json = DEFAULT_MAPPER.writeValueAsString(foo);
@@ -41,7 +41,7 @@ public class TestDefaultForTreeNodes extends DatabindTestUtil
     }
 
     @Test
-    public void testValueToTreeWithDefaultTyping() throws Exception
+    void testValueToTreeWithDefaultTyping() throws Exception
     {
         Foo foo = new Foo("baz");
         JsonNode jsonNode = DEFAULT_MAPPER.valueToTree(foo);

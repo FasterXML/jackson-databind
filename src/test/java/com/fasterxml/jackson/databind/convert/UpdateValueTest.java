@@ -14,7 +14,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMa
 /**
  * Tests for {@link ObjectMapper#updateValue}.
  */
-public class UpdateValueTest
+class UpdateValueTest
 {
     /*
     /********************************************************
@@ -25,7 +25,7 @@ public class UpdateValueTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testMapUpdate() throws Exception
+    void testMapUpdate() throws Exception
     {
         Map<String,Object> base = new LinkedHashMap<>();
         base.put("a", 345);
@@ -43,7 +43,7 @@ public class UpdateValueTest
     }
 
     @Test
-    public void testListUpdate() throws Exception
+    void testListUpdate() throws Exception
     {
         List<Object> base = new ArrayList<>();
         base.add(123456);
@@ -61,7 +61,7 @@ public class UpdateValueTest
     }
 
     @Test
-    public void testArrayUpdate() throws Exception
+    void testArrayUpdate() throws Exception
     {
         // Since Arrays are immutable, not sure what "right answer" ought to be
         Object[] base = new Object[] { Boolean.FALSE, Integer.valueOf(3) };
@@ -82,7 +82,7 @@ public class UpdateValueTest
      */
 
     @Test
-    public void testPOJO() throws Exception
+    void testPOJO() throws Exception
     {
         Point base = new Point(42, 28);
         Map<String,Object> overrides = new LinkedHashMap<>();
@@ -100,7 +100,7 @@ public class UpdateValueTest
      */
 
     @Test
-    public void testMisc() throws Exception
+    void testMisc() throws Exception
     {
         // if either is `null`, should return first arg
         assertNull(MAPPER.updateValue(null, "foo"));

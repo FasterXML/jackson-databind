@@ -25,7 +25,7 @@ class EnumWithNamingStrategy4409Test
     }
 
     @Test
-    public void testEnumAndPropertyNamingStrategy() throws Exception {
+    void testEnumAndPropertyNamingStrategy() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
             .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)

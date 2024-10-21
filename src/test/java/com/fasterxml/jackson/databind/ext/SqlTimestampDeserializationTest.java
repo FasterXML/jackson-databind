@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SqlTimestampDeserializationTest
-    extends DatabindTestUtil
+class SqlTimestampDeserializationTest
+        extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -19,7 +19,7 @@ public class SqlTimestampDeserializationTest
     // just check we pick up timestamp class
 
     @Test
-    public void testTimestampUtil() throws Exception
+    void testTimestampUtil() throws Exception
     {
         long now = 123456789L;
         java.sql.Timestamp value = new java.sql.Timestamp(now);
@@ -35,7 +35,7 @@ public class SqlTimestampDeserializationTest
     }
 
     @Test
-    public void testTimestampUtilSingleElementArray() throws Exception
+    void testTimestampUtilSingleElementArray() throws Exception
     {
         final ObjectReader r = MAPPER.readerFor(java.sql.Timestamp.class)
                 .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
-public class NamingStrategyViaCreator556Test
+class NamingStrategyViaCreator556Test
 {
     static class RenamingCtorBean
     {
@@ -72,7 +72,7 @@ public class NamingStrategyViaCreator556Test
     private final static String CTOR_JSON = a2q("{ 'MyAge' : 42,  'MyName' : 'NotMyRealName' }");
 
     @Test
-    public void testRenameViaCtor() throws Exception
+    void testRenameViaCtor() throws Exception
     {
         RenamingCtorBean bean = MAPPER.readValue(CTOR_JSON, RenamingCtorBean.class);
         assertEquals(42, bean.myAge);
@@ -80,7 +80,7 @@ public class NamingStrategyViaCreator556Test
     }
 
     @Test
-    public void testRenameViaFactory() throws Exception
+    void testRenameViaFactory() throws Exception
     {
         RenamedFactoryBean bean = MAPPER.readValue(CTOR_JSON, RenamedFactoryBean.class);
         assertEquals(42, bean.myAge);

@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // for [databind#2404]
-public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
-    extends DatabindTestUtil
+class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
+        extends DatabindTestUtil
 {
     /**
      * Base class - external property for Fruit subclasses.
@@ -136,7 +136,7 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
      * Deserialization tests for external type id property present
      */
     @Test
-    public void testDeserializationPresent() throws Exception {
+    void testDeserializationPresent() throws Exception {
         checkOrangeBox(BOX_READER_PASS);
         checkAppleBox(BOX_READER_PASS);
 
@@ -148,7 +148,7 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
      * Deserialization tests for external type id property null
      */
     @Test
-    public void testDeserializationNull() throws Exception {
+    void testDeserializationNull() throws Exception {
         checkOrangeBoxNull(BOX_READER_PASS, orangeBoxNullJson);
         checkAppleBoxNull(BOX_READER_PASS, appleBoxNullJson);
 
@@ -160,7 +160,7 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
      * Deserialization tests for external type id property empty
      */
     @Test
-    public void testDeserializationEmpty() throws Exception {
+    void testDeserializationEmpty() throws Exception {
         checkOrangeBoxEmpty(BOX_READER_PASS, orangeBoxEmptyJson);
         checkAppleBoxEmpty(BOX_READER_PASS, appleBoxEmptyJson);
 
@@ -172,7 +172,7 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
      * Deserialization tests for external type id property missing
      */
     @Test
-    public void testDeserializationMissing() throws Exception {
+    void testDeserializationMissing() throws Exception {
         checkOrangeBoxNull(BOX_READER_PASS, orangeBoxMissingJson);
         checkAppleBoxNull(BOX_READER_PASS, appleBoxMissingJson);
 

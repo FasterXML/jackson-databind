@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * This is usually done to get two-phase data binding, often using
  * {@link java.util.Map} as the intermediate form.
  */
-public class TestConstructFromMap
+class TestConstructFromMap
 {
     static class ConstructorFromMap
     {
@@ -74,7 +74,7 @@ public class TestConstructFromMap
      */
 
     @Test
-    public void testViaConstructor() throws Exception
+    void testViaConstructor() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         ConstructorFromMap result = m.readValue
@@ -84,7 +84,7 @@ public class TestConstructFromMap
     }
 
     @Test
-    public void testViaFactory() throws Exception
+    void testViaFactory() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         FactoryFromPoint result = m.readValue("{ \"x\" : 3, \"y\" : 4 }", FactoryFromPoint.class);
@@ -93,7 +93,7 @@ public class TestConstructFromMap
     }
 
     @Test
-    public void testViaFactoryUsingString() throws Exception
+    void testViaFactoryUsingString() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         FactoryFromDecimalString result = m.readValue("\"12.57\"", FactoryFromDecimalString.class);

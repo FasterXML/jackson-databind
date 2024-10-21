@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * Tests to ensure that we get proper Version information via
  * things defined as Versioned.
  */
-public class VersionInfoTest
+class VersionInfoTest
 {
     @Test
-    public void testMapperVersions()
+    void testMapperVersions()
     {
         ObjectMapper mapper = new JsonMapper();
         assertVersion(mapper);

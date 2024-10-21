@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ContextualWithAnnDeserializerTest
+class ContextualWithAnnDeserializerTest
 {
     @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
@@ -72,7 +72,7 @@ public class ContextualWithAnnDeserializerTest
 
     // ensure that direct associations also work
     @Test
-    public void testAnnotatedContextual() throws Exception
+    void testAnnotatedContextual() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         AnnotatedContextualClassBean bean = mapper.readValue(

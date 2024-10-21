@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestMixinInheritance
-    extends DatabindTestUtil
+class TestMixinInheritance
+        extends DatabindTestUtil
 {
     static class Beano {
         public int ido = 42;
@@ -54,7 +54,7 @@ public class TestMixinInheritance
      */
 
     @Test
-    public void testMixinFieldInheritance() throws IOException
+    void testMixinFieldInheritance() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addMixIn(Beano.class, BeanoMixinSub.class);
@@ -68,7 +68,7 @@ public class TestMixinInheritance
     }
 
     @Test
-    public void testMixinMethodInheritance() throws IOException
+    void testMixinMethodInheritance() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addMixIn(Beano2.class, BeanoMixinSub2.class);

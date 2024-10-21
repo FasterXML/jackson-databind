@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
+class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY,
             property = "clazz")
@@ -49,7 +49,7 @@ public class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testUnknownClassAsSubtype() throws Exception
+    void testUnknownClassAsSubtype() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(BaseUnknownWrapper.class)
                 .without(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
@@ -60,7 +60,7 @@ public class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
 
     // [databind#2668]
     @Test
-    public void testSubType2668() throws Exception
+    void testSubType2668() throws Exception
     {
         String json = "{\"type\": \"child2\", \"baz\":\"1\"}"; // JSON for Child2
 

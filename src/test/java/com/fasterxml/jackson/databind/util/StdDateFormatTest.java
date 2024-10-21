@@ -11,11 +11,11 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class StdDateFormatTest extends DatabindTestUtil
+class StdDateFormatTest extends DatabindTestUtil
 {
     @SuppressWarnings("deprecation")
     @Test
-    public void testFactories() {
+    void testFactories() {
         TimeZone tz = TimeZone.getTimeZone("GMT");
         Locale loc = Locale.US;
         assertNotNull(StdDateFormat.getISO8601Format(tz, loc));
@@ -24,7 +24,7 @@ public class StdDateFormatTest extends DatabindTestUtil
 
     // [databind#803]
     @Test
-    public void testLenientDefaults() throws Exception
+    void testLenientDefaults() throws Exception
     {
         StdDateFormat f = StdDateFormat.instance;
 
@@ -48,7 +48,7 @@ public class StdDateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    public void testISO8601RegexpDateOnly() throws Exception
+    void testISO8601RegexpDateOnly() throws Exception
     {
         Pattern p = StdDateFormat.PATTERN_PLAIN;
         Matcher m = p.matcher("1997-07-16");
@@ -57,7 +57,7 @@ public class StdDateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    public void testISO8601RegexpFull() throws Exception
+    void testISO8601RegexpFull() throws Exception
     {
         /*
         String PATTERN_PLAIN_STR = "\\d\\d\\d\\d[-]\\d\\d[-]\\d\\d";
@@ -115,7 +115,7 @@ public class StdDateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    public void testLenientParsing() throws Exception
+    void testLenientParsing() throws Exception
     {
         StdDateFormat f = StdDateFormat.instance.clone();
         f.setLenient(false);
@@ -139,7 +139,7 @@ public class StdDateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    public void testInvalid() {
+    void testInvalid() {
         StdDateFormat std = new StdDateFormat();
         try {
             std.parse("foobar");

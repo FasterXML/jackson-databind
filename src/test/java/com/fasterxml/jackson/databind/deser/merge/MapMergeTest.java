@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class MapMergeTest
+class MapMergeTest
 {
     static class MergedMap
     {
@@ -60,10 +60,10 @@ public class MapMergeTest
 
     private final ObjectMapper MAPPER_SKIP_NULLS = newJsonMapper()
             .setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
-    ;
+
 
     @Test
-    public void testShallowMapMerging() throws Exception
+    void testShallowMapMerging() throws Exception
     {
         final String JSON = a2q("{'values':{'c':'y','d':null}}");
         MergedMap v = MAPPER.readValue(JSON, MergedMap.class);
@@ -80,7 +80,7 @@ public class MapMergeTest
     }
 
     @Test
-    public void testShallowNonStringMerging() throws Exception
+    void testShallowNonStringMerging() throws Exception
     {
         final String JSON = a2q("{'values':{'72':'b','666':null}}");
         MergedIntMap v = MAPPER.readValue(JSON , MergedIntMap.class);
@@ -97,7 +97,7 @@ public class MapMergeTest
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testDeeperMapMerging() throws Exception
+    void testDeeperMapMerging() throws Exception
     {
         // first, create base Map
         MergedMap base = new MergedMap("name", "foobar");
@@ -129,7 +129,7 @@ public class MapMergeTest
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testMapMergingWithArray() throws Exception
+    void testMapMergingWithArray() throws Exception
     {
         // first, create base Map
         MergedMap base = new MergedMap("name", "foobar");
@@ -163,7 +163,7 @@ public class MapMergeTest
      */
 
     @Test
-    public void testDefaultDeepMapMerge() throws Exception
+    void testDefaultDeepMapMerge() throws Exception
     {
         // First: deep merge should be enabled by default
         HashMap<String,Object> input = new HashMap<>();
@@ -177,7 +177,7 @@ public class MapMergeTest
     }
 
     @Test
-    public void testDisabledMergeViaGlobal() throws Exception
+    void testDisabledMergeViaGlobal() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         // disable merging, globally; does not affect main level
@@ -195,7 +195,7 @@ public class MapMergeTest
     }
 
     @Test
-    public void testDisabledMergeByType() throws Exception
+    void testDisabledMergeByType() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         // disable merging for "untyped", that is, `Object.class`

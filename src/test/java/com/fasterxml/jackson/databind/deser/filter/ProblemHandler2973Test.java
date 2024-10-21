@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class ProblemHandler2973Test
+class ProblemHandler2973Test
 {
     // [databind#2973]
     static class WeirdTokenHandler
@@ -41,7 +41,7 @@ public class ProblemHandler2973Test
 
     // [databind#2973]
     @Test
-    public void testUnexpectedToken2973() throws Exception
+    void testUnexpectedToken2973() throws Exception
     {
         // First: without handler, should get certain failure
         ObjectMapper mapper = sharedMapper();

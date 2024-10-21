@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class PropertyAliasTest
+class PropertyAliasTest
 {
     static class AliasBean {
         @JsonAlias({ "nm", "Name" })
@@ -88,7 +88,7 @@ public class PropertyAliasTest
 
     // [databind#1029]
     @Test
-    public void testSimpleAliases() throws Exception
+    void testSimpleAliases() throws Exception
     {
         AliasBean bean;
 
@@ -115,7 +115,7 @@ public class PropertyAliasTest
     }
 
     @Test
-    public void testAliasWithPolymorphic() throws Exception
+    void testAliasWithPolymorphic() throws Exception
     {
         PolyWrapperForAlias value = MAPPER.readValue(a2q(
                 "{'value': ['ab', {'nm' : 'Bob', 'A' : 17} ] }"
@@ -128,7 +128,7 @@ public class PropertyAliasTest
 
     // [databind#2378]
     @Test
-    public void testAliasInFactoryMethod() throws Exception
+    void testAliasInFactoryMethod() throws Exception
     {
         AliasBean2378 bean = MAPPER.readValue(a2q(
                 "{'partitionId' : 'a', 'userId' : '123'}"
@@ -139,7 +139,7 @@ public class PropertyAliasTest
 
     // [databind#2669]
     @Test
-    public void testCaseInsensitiveAliases() throws Exception {
+    void testCaseInsensitiveAliases() throws Exception {
 
         ObjectMapper mapper = JsonMapper.builder()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
@@ -157,7 +157,7 @@ public class PropertyAliasTest
     }
 
     @Test
-    public void testAliasDeserializedToLastMatchingKey_ascendingKeys() throws Exception {
+    void testAliasDeserializedToLastMatchingKey_ascendingKeys() throws Exception {
         String ascendingOrderInput = a2q(
             "{\"a\": \"a-value\", " +
                 "\"b\": \"b-value\", " +
@@ -168,7 +168,7 @@ public class PropertyAliasTest
     }
 
     @Test
-    public void testAliasDeserializedToLastMatchingKey_descendingKeys() throws Exception {
+    void testAliasDeserializedToLastMatchingKey_descendingKeys() throws Exception {
         String descendingOrderInput = a2q(
             "{\"c\": \"c-value\", " +
                 "\"b\": \"b-value\", " +
@@ -184,7 +184,7 @@ public class PropertyAliasTest
     }
 
     @Test
-    public void testAliasDeserializedToLastMatchingKey_ascendingAliases() throws Exception {
+    void testAliasDeserializedToLastMatchingKey_ascendingAliases() throws Exception {
         String input = a2q(
                 "{\"a\": \"a-value\", " +
                 "\"b\": \"b-value\", " +
@@ -200,7 +200,7 @@ public class PropertyAliasTest
     }
 
     @Test
-    public void testAliasDeserializedToLastMatchingKey_descendingAliases() throws Exception {
+    void testAliasDeserializedToLastMatchingKey_descendingAliases() throws Exception {
         String input = a2q(
             "{\"a\": \"a-value\", " +
                 "\"b\": \"b-value\", " +
@@ -219,7 +219,7 @@ public class PropertyAliasTest
     }
 
     @Test
-    public void testAliasFallBackToField() throws Exception {
+    void testAliasFallBackToField() throws Exception {
         AliasTestBeanA obj = MAPPER.readValue(a2q(
             "{\"fullName\": \"Faster Jackson\", \"name\":\"Jackson\"}"
         ), AliasTestBeanA.class);

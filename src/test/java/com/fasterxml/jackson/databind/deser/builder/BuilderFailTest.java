@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
-public class BuilderFailTest
+class BuilderFailTest
 {
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     static class ValueClassXY
@@ -71,7 +71,7 @@ public class BuilderFailTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testBuilderMethodReturnInvalidType() throws Exception
+    void testBuilderMethodReturnInvalidType() throws Exception
     {
         final String json = "{\"x\":1}";
         try {
@@ -85,7 +85,7 @@ public class BuilderFailTest
     }
 
     @Test
-    public void testExtraFields() throws Exception
+    void testExtraFields() throws Exception
     {
         final String json = a2q("{'x':1,'y':2,'z':3}");
         try {

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
-public class CollectionMergeTest
+class CollectionMergeTest
 {
     static class CollectionWrapper {
         @JsonMerge
@@ -64,7 +64,7 @@ public class CollectionMergeTest
             .build();
 
     @Test
-    public void testCollectionMerging() throws Exception
+    void testCollectionMerging() throws Exception
     {
         CollectionWrapper w = MAPPER.readValue(a2q("{'bag':['b']}"), CollectionWrapper.class);
         assertEquals(2, w.bag.size());
@@ -73,7 +73,7 @@ public class CollectionMergeTest
     }
 
     @Test
-    public void testListMerging() throws Exception
+    void testListMerging() throws Exception
     {
         MergedList w = MAPPER.readValue(a2q("{'values':['x']}"), MergedList.class);
         assertEquals(2, w.values.size());
@@ -83,7 +83,7 @@ public class CollectionMergeTest
 
     // Test that uses generic type
     @Test
-    public void testGenericListMerging() throws Exception
+    void testGenericListMerging() throws Exception
     {
         Collection<String> l = new ArrayList<>();
         l.add("foo");
@@ -101,7 +101,7 @@ public class CollectionMergeTest
     }
 
     @Test
-    public void testEnumSetMerging() throws Exception
+    void testEnumSetMerging() throws Exception
     {
         MergedEnumSet result = MAPPER.readValue(a2q("{'abc':['A']}"), MergedEnumSet.class);
         assertEquals(2, result.abc.size());

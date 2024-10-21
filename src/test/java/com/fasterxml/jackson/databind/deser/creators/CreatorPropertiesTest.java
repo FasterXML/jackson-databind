@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class CreatorPropertiesTest
+class CreatorPropertiesTest
 {
     static class Issue905Bean {
         // 08-Nov-2015, tatu: Note that in real code we would most likely use same
@@ -93,7 +93,7 @@ public class CreatorPropertiesTest
 
     // [databind#905]
     @Test
-    public void testCreatorPropertiesAnnotation() throws Exception
+    void testCreatorPropertiesAnnotation() throws Exception
     {
         Issue905Bean b = MAPPER.readValue(a2q("{'y':3,'x':2}"),
                 Issue905Bean.class);
@@ -103,7 +103,7 @@ public class CreatorPropertiesTest
 
     // [databind#1122]
     @Test
-    public void testPossibleNamingConflict() throws Exception
+    void testPossibleNamingConflict() throws Exception
     {
         String json = "{\"bar\":3}";
         Ambiguity amb = MAPPER.readValue(json, Ambiguity.class);
@@ -113,7 +113,7 @@ public class CreatorPropertiesTest
 
     // [databind#1371]: MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES
     @Test
-    public void testConstructorPropertiesInference() throws Exception
+    void testConstructorPropertiesInference() throws Exception
     {
         final String JSON = a2q("{'x':3,'y':5}");
 
@@ -135,7 +135,7 @@ public class CreatorPropertiesTest
 
     // [databind#3252]: ensure full skipping of ignored properties
     @Test
-    public void testSkipNonScalar3252() throws Exception
+    void testSkipNonScalar3252() throws Exception
     {
         List<Value3252> testData = MAPPER.readValue(a2q(
 "[\n"+

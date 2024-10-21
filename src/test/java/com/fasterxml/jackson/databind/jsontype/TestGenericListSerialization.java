@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestGenericListSerialization
-    extends DatabindTestUtil
+class TestGenericListSerialization
+        extends DatabindTestUtil
 {
     // [JACKSON-356]
     public static class JSONResponse<T> {
@@ -51,7 +51,7 @@ public class TestGenericListSerialization
      */
 
     @Test
-    public void testSubTypesFor356() throws Exception
+    void testSubTypesFor356() throws Exception
     {
         JSONResponse<List<Parent>> input = new JSONResponse<List<Parent>>();
 

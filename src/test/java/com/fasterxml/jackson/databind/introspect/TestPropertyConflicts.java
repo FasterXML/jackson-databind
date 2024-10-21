@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests verifying handling of potential and actual
  * conflicts, regarding property handling.
  */
-public class TestPropertyConflicts extends DatabindTestUtil
+class TestPropertyConflicts extends DatabindTestUtil
 {
     // error message for conflicting getters sub-optimal
     static class BeanWithConflict
@@ -95,7 +95,7 @@ public class TestPropertyConflicts extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testFailWithDupProps() throws Exception
+    void testFailWithDupProps() throws Exception
     {
         BeanWithConflict bean = new BeanWithConflict();
         try {
@@ -108,7 +108,7 @@ public class TestPropertyConflicts extends DatabindTestUtil
 
     // [databind#238]: ok to have getter, "isGetter"
     @Test
-    public void testRegularAndIsGetter() throws Exception
+    void testRegularAndIsGetter() throws Exception
     {
         final ObjectWriter writer = MAPPER.writer();
 
@@ -123,7 +123,7 @@ public class TestPropertyConflicts extends DatabindTestUtil
     }
 
     @Test
-    public void testInferredNameConflictsWithGetters() throws Exception
+    void testInferredNameConflictsWithGetters() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new InferingIntrospector())
@@ -133,7 +133,7 @@ public class TestPropertyConflicts extends DatabindTestUtil
     }
 
     @Test
-    public void testInferredNameConflictsWithSetters() throws Exception
+    void testInferredNameConflictsWithSetters() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new InferingIntrospector());
@@ -142,7 +142,7 @@ public class TestPropertyConflicts extends DatabindTestUtil
     }
 
     @Test
-    public void testIssue541() throws Exception {
+    void testIssue541() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(
                 MapperFeature.AUTO_DETECT_CREATORS,

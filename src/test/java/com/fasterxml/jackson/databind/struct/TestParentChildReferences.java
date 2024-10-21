@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestParentChildReferences
-    extends DatabindTestUtil
+class TestParentChildReferences
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -205,7 +205,7 @@ public class TestParentChildReferences
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleRefs() throws Exception
+    void testSimpleRefs() throws Exception
     {
         SimpleTreeNode root = new SimpleTreeNode("root");
         SimpleTreeNode child = new SimpleTreeNode("kid");
@@ -224,7 +224,7 @@ public class TestParentChildReferences
 
     // [JACKSON-693]
     @Test
-    public void testSimpleRefsWithGetter() throws Exception
+    void testSimpleRefsWithGetter() throws Exception
     {
         SimpleTreeNode2 root = new SimpleTreeNode2("root");
         SimpleTreeNode2 child = new SimpleTreeNode2("kid");
@@ -242,7 +242,7 @@ public class TestParentChildReferences
     }
 
     @Test
-    public void testFullRefs() throws Exception
+    void testFullRefs() throws Exception
     {
         FullTreeNode root = new FullTreeNode("root");
         FullTreeNode child1 = new FullTreeNode("kid1");
@@ -271,7 +271,7 @@ public class TestParentChildReferences
     }
 
     @Test
-    public void testArrayOfRefs() throws Exception
+    void testArrayOfRefs() throws Exception
     {
         NodeArray root = new NodeArray();
         ArrayNode node1 = new ArrayNode("a");
@@ -290,7 +290,7 @@ public class TestParentChildReferences
     }
 
     @Test
-    public void testListOfRefs() throws Exception
+    void testListOfRefs() throws Exception
     {
         NodeList root = new NodeList();
         NodeForList node1 = new NodeForList("a");
@@ -309,7 +309,7 @@ public class TestParentChildReferences
     }
 
     @Test
-    public void testMapOfRefs() throws Exception
+    void testMapOfRefs() throws Exception
     {
         NodeMap root = new NodeMap();
         NodeForMap node1 = new NodeForMap("a");
@@ -334,7 +334,7 @@ public class TestParentChildReferences
 
     // for [JACKSON-368]
     @Test
-    public void testAbstract368() throws Exception
+    void testAbstract368() throws Exception
     {
         AbstractNode parent = new ConcreteNode("p");
         AbstractNode child = new ConcreteNode("c");
@@ -356,7 +356,7 @@ public class TestParentChildReferences
     }
 
     @Test
-    public void testIssue693() throws Exception
+    void testIssue693() throws Exception
     {
         Parent parent = new Parent();
         parent.addChild(new Child("foo"));
@@ -369,7 +369,7 @@ public class TestParentChildReferences
     }
 
     @Test
-    public void testIssue708() throws Exception
+    void testIssue708() throws Exception
     {
         Advertisement708 ad = MAPPER.readValue("{\"title\":\"Hroch\",\"photos\":[{\"id\":3}]}", Advertisement708.class);
         assertNotNull(ad);

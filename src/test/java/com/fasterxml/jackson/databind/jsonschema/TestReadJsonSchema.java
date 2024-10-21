@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Trivial test to ensure <code>JsonSchema</code> can be also deserialized
  */
-public class TestReadJsonSchema
-    extends DatabindTestUtil
+class TestReadJsonSchema
+        extends DatabindTestUtil
 {
     enum SchemaEnum { YES, NO; }
 
@@ -53,7 +53,7 @@ public class TestReadJsonSchema
      */
     @SuppressWarnings("deprecation")
     @Test
-    public void testDeserializeSimple() throws Exception
+    void testDeserializeSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         JsonSchema schema = mapper.generateJsonSchema(Schemable.class);

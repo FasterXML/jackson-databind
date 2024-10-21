@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests wrt [databind#1983]
-public class JsonTypeInfoCaseInsensitive1983Test extends DatabindTestUtil
+class JsonTypeInfoCaseInsensitive1983Test extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
             property = "Operation")
@@ -32,7 +32,7 @@ public class JsonTypeInfoCaseInsensitive1983Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testReadMixedCaseSubclass() throws Exception
+    void testReadMixedCaseSubclass() throws Exception
     {
         final String serialised = "{\"Operation\":\"NoTeQ\"}";
 
@@ -54,7 +54,7 @@ public class JsonTypeInfoCaseInsensitive1983Test extends DatabindTestUtil
     }
 
     @Test
-    public void testReadMixedCasePropertyName() throws Exception
+    void testReadMixedCasePropertyName() throws Exception
     {
         final String serialised = "{\"oPeRaTioN\":\"notEq\"}";
         // first: mismatch with property name unless case-sensitivity disabled:

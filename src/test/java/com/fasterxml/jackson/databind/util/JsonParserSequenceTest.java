@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.util.JsonParserSequence;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class JsonParserSequenceTest extends DatabindTestUtil
+class JsonParserSequenceTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -17,7 +17,7 @@ public class JsonParserSequenceTest extends DatabindTestUtil
      */
     @SuppressWarnings("resource")
     @Test
-    public void testJsonParserSequenceOverridesSkipChildren() throws Exception
+    void testJsonParserSequenceOverridesSkipChildren() throws Exception
     {
         // Create parser from TokenBuffer containing an incomplete JSON object
         TokenBuffer buf1 = new TokenBuffer(MAPPER, false);

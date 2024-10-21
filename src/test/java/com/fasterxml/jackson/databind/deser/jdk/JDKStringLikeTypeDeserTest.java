@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class JDKStringLikeTypeDeserTest
+class JDKStringLikeTypeDeserTest
 {
     static class ParamClassBean
     {
@@ -72,7 +72,7 @@ public class JDKStringLikeTypeDeserTest
 
     // [databind#239]
     @Test
-    public void testByteBuffer() throws Exception
+    void testByteBuffer() throws Exception
     {
         byte[] INPUT = new byte[] { 1, 3, 9, -1, 6 };
         String exp = MAPPER.writeValueAsString(INPUT);
@@ -86,14 +86,14 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testCharset() throws Exception
+    void testCharset() throws Exception
     {
         Charset UTF8 = Charset.forName("UTF-8");
         assertSame(UTF8, MAPPER.readValue(q("UTF-8"), Charset.class));
     }
 
     @Test
-    public void testClass() throws IOException
+    void testClass() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         assertSame(String.class, mapper.readValue(q("java.lang.String"), Class.class));
@@ -111,7 +111,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testClassWithParams() throws IOException
+    void testClassWithParams() throws IOException
     {
         String json = MAPPER.writeValueAsString(new ParamClassBean("Foobar"));
 
@@ -121,7 +121,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testCurrency() throws IOException
+    void testCurrency() throws IOException
     {
         Currency usd = Currency.getInstance("USD");
         assertEquals(usd, MAPPER.readValue(q("USD"), Currency.class));
@@ -136,7 +136,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testFile() throws Exception
+    void testFile() throws Exception
     {
         // Not portable etc... has to do:
         File src = new File("/test").getAbsoluteFile();
@@ -149,7 +149,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testLocale() throws IOException
+    void testLocale() throws IOException
     {
         assertEquals(new Locale("en"), MAPPER.readValue(q("en"), Locale.class));
         assertEquals(new Locale("es", "ES"), MAPPER.readValue(q("es_ES"), Locale.class));
@@ -160,7 +160,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testCharSequence() throws IOException
+    void testCharSequence() throws IOException
     {
         CharSequence cs = MAPPER.readValue("\"abc\"", CharSequence.class);
         assertEquals(String.class, cs.getClass());
@@ -168,7 +168,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testInetAddress() throws IOException
+    void testInetAddress() throws IOException
     {
         InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
@@ -180,7 +180,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testInetSocketAddress() throws IOException
+    void testInetSocketAddress() throws IOException
     {
         InetSocketAddress address = MAPPER.readValue(q("127.0.0.1"), InetSocketAddress.class);
         assertEquals("127.0.0.1", address.getAddress().getHostAddress());
@@ -206,7 +206,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testPattern() throws IOException
+    void testPattern() throws IOException
     {
         Pattern exp = Pattern.compile("abc:\\s?(\\d+)");
         // Ok: easiest way is to just serialize first; problem
@@ -234,7 +234,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testStackTraceElement() throws Exception
+    void testStackTraceElement() throws Exception
     {
         StackTraceElement elem = null;
         try {
@@ -255,7 +255,7 @@ public class JDKStringLikeTypeDeserTest
 
     // [databind#429]
     @Test
-    public void testStackTraceElementWithCustom() throws Exception
+    void testStackTraceElementWithCustom() throws Exception
     {
         // first, via bean that contains StackTraceElement
         StackTraceBean bean = MAPPER.readValue(a2q("{'Location':'foobar'}"),
@@ -287,21 +287,21 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testStringBuilder() throws Exception
+    void testStringBuilder() throws Exception
     {
         StringBuilder sb = MAPPER.readValue(q("abc"), StringBuilder.class);
         assertEquals("abc", sb.toString());
     }
 
     @Test
-    public void testStringBuffer() throws Exception
+    void testStringBuffer() throws Exception
     {
         StringBuffer sb = MAPPER.readValue(q("abc"), StringBuffer.class);
         assertEquals("abc", sb.toString());
     }
 
     @Test
-    public void testURI() throws Exception
+    void testURI() throws Exception
     {
         final ObjectReader reader = MAPPER.readerFor(URI.class);
         final URI value = new URI("http://foo.com");
@@ -317,7 +317,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testURL() throws Exception
+    void testURL() throws Exception
     {
         URL exp = new URL("http://foo.com");
         assertEquals(exp, MAPPER.readValue("\""+exp.toString()+"\"", URL.class));
@@ -344,7 +344,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testUUID() throws Exception
+    void testUUID() throws Exception
     {
         final String NULL_UUID = "00000000-0000-0000-0000-000000000000";
         final ObjectReader r = MAPPER.readerFor(UUID.class);
@@ -381,7 +381,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testUUIDInvalid() throws Exception
+    void testUUIDInvalid() throws Exception
     {
         // and finally, exception handling too [databind#1000], for invalid cases
         try {
@@ -400,7 +400,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testUUIDAux() throws Exception
+    void testUUIDAux() throws Exception
     {
         final UUID value = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
 

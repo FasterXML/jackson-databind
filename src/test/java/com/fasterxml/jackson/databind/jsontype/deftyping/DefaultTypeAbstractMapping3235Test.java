@@ -16,11 +16,12 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DefaultTypeAbstractMapping3235Test extends DatabindTestUtil
+class DefaultTypeAbstractMapping3235Test extends DatabindTestUtil
 {
     // [databind#3235]
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
     static class Parent { }
+
     static class Child extends Parent { }
 
     static abstract class AbstractParentWithoutDefault {}
@@ -32,7 +33,7 @@ public class DefaultTypeAbstractMapping3235Test extends DatabindTestUtil
 
     // [databind#3235]
     @Test
-    public void testForAbstractTypeMapping() throws Exception
+    void testForAbstractTypeMapping() throws Exception
     {
         // [databind#3235]
         ObjectMapper mapper3235 = jsonMapperBuilder()

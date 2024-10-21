@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class EmptyArrayBlockingQueueDeserTest
+class EmptyArrayBlockingQueueDeserTest
 {
     static class RemoteEntity{
         private Collection<Double> values = new ArrayBlockingQueue<>(20);
@@ -32,7 +32,7 @@ public class EmptyArrayBlockingQueueDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testEmptyBlockingQueue() throws Exception
+    void testEmptyBlockingQueue() throws Exception
     {
         String json = MAPPER.writeValueAsString(new RemoteEntity());
         Entity entity = MAPPER.readValue(json, Entity.class);

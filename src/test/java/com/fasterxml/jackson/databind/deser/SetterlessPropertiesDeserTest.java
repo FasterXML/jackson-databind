@@ -20,7 +20,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
  * expected, similar to how Collections and Maps work
  * with JAXB.
  */
-public class SetterlessPropertiesDeserTest
+class SetterlessPropertiesDeserTest
 {
     static class CollectionBean
     {
@@ -55,8 +55,8 @@ public class SetterlessPropertiesDeserTest
      */
 
     @Test
-    public void testSimpleSetterlessCollectionOk()
-        throws Exception
+    void testSimpleSetterlessCollectionOk()
+            throws Exception
     {
         CollectionBean result = new ObjectMapper().readValue
             ("{\"values\":[ \"abc\", \"def\" ]}", CollectionBean.class);
@@ -71,8 +71,8 @@ public class SetterlessPropertiesDeserTest
      * deserialization fail for setterless bean
      */
     @Test
-    public void testSimpleSetterlessCollectionFailure()
-        throws Exception
+    void testSimpleSetterlessCollectionFailure()
+            throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // by default, it should be enabled
@@ -95,8 +95,8 @@ public class SetterlessPropertiesDeserTest
     }
 
     @Test
-    public void testSimpleSetterlessMapOk()
-        throws Exception
+    void testSimpleSetterlessMapOk()
+            throws Exception
     {
         MapBean result = new ObjectMapper().readValue
             ("{\"values\":{ \"a\": 15, \"b\" : -3 }}", MapBean.class);
@@ -107,8 +107,8 @@ public class SetterlessPropertiesDeserTest
     }
 
     @Test
-    public void testSimpleSetterlessMapFailure()
-        throws Exception
+    void testSimpleSetterlessMapFailure()
+            throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_GETTERS_AS_SETTERS, false)
@@ -127,7 +127,7 @@ public class SetterlessPropertiesDeserTest
      * field for same property.
      */
     @Test
-    public void testSetterlessPrecedence() throws Exception
+    void testSetterlessPrecedence() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_GETTERS_AS_SETTERS, true)

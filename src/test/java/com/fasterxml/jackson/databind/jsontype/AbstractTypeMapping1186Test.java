@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AbstractTypeMapping1186Test extends DatabindTestUtil
+class AbstractTypeMapping1186Test extends DatabindTestUtil
 {
     public interface IContainer<T> {
         @JsonProperty("ts")
@@ -39,7 +39,7 @@ public class AbstractTypeMapping1186Test extends DatabindTestUtil
     }
 
     @Test
-    public void testDeserializeMyContainer() throws Exception {
+    void testDeserializeMyContainer() throws Exception {
         SimpleModule module = new SimpleModule().addAbstractTypeMapping(IContainer.class, MyContainer.class);
         final ObjectMapper mapper = new ObjectMapper().registerModule(module);
         String json = "{\"ts\": [ { \"msg\": \"hello\"} ] }";

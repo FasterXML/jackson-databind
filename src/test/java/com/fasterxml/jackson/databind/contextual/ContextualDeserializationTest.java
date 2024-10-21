@@ -31,7 +31,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
  * annotations) for configuration.
  */
 @SuppressWarnings("serial")
-public class ContextualDeserializationTest
+class ContextualDeserializationTest
 {
     @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
@@ -195,7 +195,7 @@ public class ContextualDeserializationTest
             .build();
 
     @Test
-    public void testSimple() throws Exception
+    void testSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -212,7 +212,7 @@ public class ContextualDeserializationTest
     }
 
     @Test
-    public void testSimpleWithAnnotations() throws Exception
+    void testSimpleWithAnnotations() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
         ContextualBean bean = mapper.readValue("{\"a\":\"1\",\"b\":\"2\"}", ContextualBean.class);
@@ -226,7 +226,7 @@ public class ContextualDeserializationTest
     }
 
     @Test
-    public void testSimpleWithClassAnnotations() throws Exception
+    void testSimpleWithClassAnnotations() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
         ContextualClassBean bean = mapper.readValue("{\"a\":\"1\",\"b\":\"2\"}", ContextualClassBean.class);
@@ -239,7 +239,7 @@ public class ContextualDeserializationTest
     }
 
     @Test
-    public void testAnnotatedCtor() throws Exception
+    void testAnnotatedCtor() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
         ContextualCtorBean bean = mapper.readValue("{\"a\":\"foo\",\"b\":\"bar\"}", ContextualCtorBean.class);
@@ -252,7 +252,7 @@ public class ContextualDeserializationTest
     }
 
     @Test
-    public void testAnnotatedArray() throws Exception
+    void testAnnotatedArray() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
         ContextualArrayBean bean = mapper.readValue("{\"beans\":[\"x\"]}", ContextualArrayBean.class);
@@ -266,7 +266,7 @@ public class ContextualDeserializationTest
     }
 
     @Test
-    public void testAnnotatedList() throws Exception
+    void testAnnotatedList() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
         ContextualListBean bean = mapper.readValue("{\"beans\":[\"x\"]}", ContextualListBean.class);
@@ -281,7 +281,7 @@ public class ContextualDeserializationTest
     }
 
     @Test
-    public void testAnnotatedMap() throws Exception
+    void testAnnotatedMap() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
         ContextualMapBean bean = mapper.readValue("{\"beans\":{\"a\":\"b\"}}", ContextualMapBean.class);
@@ -303,7 +303,7 @@ public class ContextualDeserializationTest
 
     // for [databind#165]
     @Test
-    public void testContextualType() throws Exception {
+    void testContextualType() throws Exception {
         GenericBean bean = new ObjectMapper().readValue(a2q("{'stuff':{'1':'b'}}"),
                 GenericBean.class);
         assertNotNull(bean.stuff);

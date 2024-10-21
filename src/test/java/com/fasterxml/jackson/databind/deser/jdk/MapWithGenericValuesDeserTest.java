@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("serial")
-public class MapWithGenericValuesDeserTest extends DatabindTestUtil
+class MapWithGenericValuesDeserTest extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -87,7 +87,7 @@ public class MapWithGenericValuesDeserTest extends DatabindTestUtil
      * Verifying that sub-classing works ok wrt generics information
      */
     @Test
-    public void testMapSubClass() throws Exception
+    void testMapSubClass() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         MapSubClass result = mapper.readValue
@@ -100,7 +100,7 @@ public class MapWithGenericValuesDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testMapWrapper() throws Exception
+    void testMapWrapper() throws Exception
     {
         StringMap value = new ObjectMapper().readValue
             ("{\"entries\":{\"a\":9} }", StringMap.class);
@@ -110,7 +110,7 @@ public class MapWithGenericValuesDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIntermediateTypes() throws Exception
+    void testIntermediateTypes() throws Exception
     {
         StringStringWrapperMap result = new ObjectMapper().readValue
             ("{\"a\":\"b\"}", StringStringWrapperMap.class);
@@ -131,7 +131,7 @@ public class MapWithGenericValuesDeserTest extends DatabindTestUtil
      * Verifying that sub-classing works ok wrt generics information
      */
     @Test
-    public void testAnnotatedMap() throws Exception
+    void testAnnotatedMap() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         AnnotatedMap result = mapper.readValue
@@ -151,7 +151,7 @@ public class MapWithGenericValuesDeserTest extends DatabindTestUtil
      */
 
     @Test
-    public void testKeyViaCtor() throws Exception
+    void testKeyViaCtor() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<KeyTypeCtor,Integer> map = mapper.readValue("{\"a\":123}",
@@ -165,7 +165,7 @@ public class MapWithGenericValuesDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testKeyViaFactory() throws Exception
+    void testKeyViaFactory() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<KeyTypeCtor,Integer> map = mapper.readValue("{\"a\":123}",

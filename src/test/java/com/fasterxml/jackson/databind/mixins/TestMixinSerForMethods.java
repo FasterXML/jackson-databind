@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestMixinSerForMethods
-    extends DatabindTestUtil
+class TestMixinSerForMethods
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -105,7 +105,7 @@ public class TestMixinSerForMethods
      * that masked methods (fields etc) have.
      */
     @Test
-    public void testLeafMixin() throws IOException
+    void testLeafMixin() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result;
@@ -131,7 +131,7 @@ public class TestMixinSerForMethods
      * further by a sub-class) works as expected
      */
     @Test
-    public void testIntermediateMixin() throws IOException
+    void testIntermediateMixin() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result;
@@ -148,7 +148,7 @@ public class TestMixinSerForMethods
      * properly "trickle up"
      */
     @Test
-    public void testIntermediateMixin2() throws IOException
+    void testIntermediateMixin2() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addMixIn(EmptyBean.class, MixInForSimple.class);
@@ -158,7 +158,7 @@ public class TestMixinSerForMethods
     }
 
     @Test
-    public void testSimpleMixInResolverHasMixins() {
+    void testSimpleMixInResolverHasMixins() {
         SimpleMixInResolver simple = new SimpleMixInResolver(null);
         assertFalse(simple.hasMixIns());
         simple.addLocalDefinition(String.class, Number.class);
@@ -167,7 +167,7 @@ public class TestMixinSerForMethods
 
     // [databind#688]
     @Test
-    public void testCustomResolver() throws IOException
+    void testCustomResolver() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         MixInResolver res = new ClassIntrospector.MixInResolver() {

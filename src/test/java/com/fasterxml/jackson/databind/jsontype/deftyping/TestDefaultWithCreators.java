@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestDefaultWithCreators
-    extends DatabindTestUtil
+class TestDefaultWithCreators
+        extends DatabindTestUtil
 {
     static abstract class Job
     {
@@ -68,7 +68,7 @@ public class TestDefaultWithCreators
      */
 
     @Test
-    public void testWithCreators() throws Exception
+    void testWithCreators() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -88,7 +88,7 @@ public class TestDefaultWithCreators
 
     // [databind#1385]
     @Test
-    public void testWithCreatorAndJsonValue() throws Exception
+    void testWithCreatorAndJsonValue() throws Exception
     {
         final byte[] BYTES = new byte[] { 1, 2, 3, 4, 5 };
         ObjectMapper mapper = JsonMapper.builder()

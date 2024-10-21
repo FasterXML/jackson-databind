@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mockStatic;
  * Tests to verify that skipping of unknown/unmapped works such that
  * "expensive" numbers (all floating-point, {@code BigInteger}) is avoided.
  */
-public class LazyIgnoralForNumbers3730Test
+class LazyIgnoralForNumbers3730Test
 {
     static class ExtractFieldsNoDefaultConstructor3730 {
         private final String s;
@@ -95,7 +95,7 @@ public class LazyIgnoralForNumbers3730Test
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testIgnoreBigInteger() throws Exception
+    void testIgnoreBigInteger() throws Exception
     {
         try (MockedStatic<NumberInput> mocked = mockStatic(NumberInput.class)) {
             // Set up, mock NumberInput.parseBigInteger() to throw exception
@@ -128,7 +128,7 @@ public class LazyIgnoralForNumbers3730Test
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testIgnoreFPValuesDefault() throws Exception
+    void testIgnoreFPValuesDefault() throws Exception
     {
         try (MockedStatic<NumberInput> mocked = mockStatic(NumberInput.class)) {
             // Set up, mock NumberInput.parseDouble() to throw exception
@@ -168,7 +168,7 @@ public class LazyIgnoralForNumbers3730Test
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testIgnoreFPValuesBigDecimal() throws Exception
+    void testIgnoreFPValuesBigDecimal() throws Exception
     {
         try (MockedStatic<NumberInput> mock = mockStatic(NumberInput.class)) {
             // Set up, mock NumberInput.parseBigDecimal() to throw exception

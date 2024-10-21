@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JsonTypeInfoCustomResolver2811Test extends DatabindTestUtil
+class JsonTypeInfoCustomResolver2811Test extends DatabindTestUtil
 {
     interface Vehicle { }
 
@@ -92,7 +92,7 @@ public class JsonTypeInfoCustomResolver2811Test extends DatabindTestUtil
 
     // [databind#2811]
     @Test
-    public void testTypeInfoWithCustomResolver2811NoTypeId() throws Exception
+    void testTypeInfoWithCustomResolver2811NoTypeId() throws Exception
     {
         String json = "{ \"name\": \"kamil\", \"vehicle\": {\"wheels\": 4, \"color\": \"red\"}}";
         Person<?> person = MAPPER.readValue(json, Person.class);

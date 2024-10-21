@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
-public class NullValueViaCreatorTest
+class NullValueViaCreatorTest
 {
     protected static class Container {
         Contained<String> contained;
@@ -103,7 +103,7 @@ public class NullValueViaCreatorTest
      */
 
     @Test
-    public void testUsesDeserializersNullValue() throws Exception {
+    void testUsesDeserializersNullValue() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new TestModule());
         Container container = mapper.readValue("{}", Container.class);
@@ -112,7 +112,7 @@ public class NullValueViaCreatorTest
 
     // [databind#597]: ensure that a useful exception is thrown
     @Test
-    public void testCreatorReturningNull() throws IOException {
+    void testCreatorReturningNull() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = "{ \"type\" : \"     \", \"id\" : \"000c0ffb-a0d6-4d2e-a379-4aeaaf283599\" }";
         try {

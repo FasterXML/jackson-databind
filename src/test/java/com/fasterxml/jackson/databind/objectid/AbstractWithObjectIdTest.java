@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AbstractWithObjectIdTest extends DatabindTestUtil
+class AbstractWithObjectIdTest extends DatabindTestUtil
 {
     interface BaseInterface { }
 
@@ -44,7 +44,7 @@ public class AbstractWithObjectIdTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIssue877() throws Exception
+    void testIssue877() throws Exception
     {
         // make two instances
         BaseInterfaceImpl one = new BaseInterfaceImpl();

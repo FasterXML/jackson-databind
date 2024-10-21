@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class BuilderSimpleTest
+class BuilderSimpleTest
 {
     // // Simple 2-property value class, builder with standard naming
 
@@ -111,6 +111,7 @@ public class BuilderSimpleTest
             return new ValueImmutable(value);
         }
     }
+
     // And then with custom naming:
 
     @JsonDeserialize(builder=BuildFoo.class)
@@ -309,7 +310,7 @@ public class BuilderSimpleTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimple() throws Exception
+    void testSimple() throws Exception
     {
         String json = a2q("{'x':1,'y':2}");
         Object o = MAPPER.readValue(json, ValueClassXY.class);
@@ -323,7 +324,7 @@ public class BuilderSimpleTest
 
     // related to [databind#1214]
     @Test
-    public void testSimpleWithIgnores() throws Exception
+    void testSimpleWithIgnores() throws Exception
     {
         // 'z' is unknown, and would fail by default:
         final String json = a2q("{'x':1,'y':2,'z':4}");
@@ -352,7 +353,7 @@ public class BuilderSimpleTest
     }
 
     @Test
-    public void testMultiAccess() throws Exception
+    void testMultiAccess() throws Exception
     {
         String json = a2q("{'c':3,'a':2,'b':-9}");
         ValueClassABC value = MAPPER.readValue(json, ValueClassABC.class);
@@ -371,7 +372,7 @@ public class BuilderSimpleTest
 
     // test for Immutable builder, to ensure return value is used
     @Test
-    public void testImmutable() throws Exception
+    void testImmutable() throws Exception
     {
         final String json = "{\"value\":13}";
         ValueImmutable value = MAPPER.readValue(json, ValueImmutable.class);
@@ -380,7 +381,7 @@ public class BuilderSimpleTest
 
     // test with custom 'with-prefix'
     @Test
-    public void testCustomWith() throws Exception
+    void testCustomWith() throws Exception
     {
         final String json = "{\"value\":1}";
         ValueFoo value = MAPPER.readValue(json, ValueFoo.class);
@@ -390,7 +391,7 @@ public class BuilderSimpleTest
     // for [databind#761]
 
     @Test
-    public void testBuilderMethodReturnMoreGeneral() throws Exception
+    void testBuilderMethodReturnMoreGeneral() throws Exception
     {
         final String json = "{\"x\":1}";
         ValueInterface value = MAPPER.readValue(json, ValueInterface.class);
@@ -398,7 +399,7 @@ public class BuilderSimpleTest
     }
 
     @Test
-    public void testBuilderMethodReturnMoreSpecific() throws Exception
+    void testBuilderMethodReturnMoreSpecific() throws Exception
     {
         final String json = "{\"x\":1}";
         ValueInterface2 value = MAPPER.readValue(json, ValueInterface2.class);
@@ -406,7 +407,7 @@ public class BuilderSimpleTest
     }
 
     @Test
-    public void testSelfBuilder777() throws Exception
+    void testSelfBuilder777() throws Exception
     {
         SelfBuilder777 result = MAPPER.readValue(a2q("{'x':3}'"),
                 SelfBuilder777.class);
@@ -415,7 +416,7 @@ public class BuilderSimpleTest
     }
 
     @Test
-    public void testWithAnySetter822() throws Exception
+    void testWithAnySetter822() throws Exception
     {
         final String json = "{\"extra\":3,\"foobar\":[ ],\"x\":1,\"name\":\"bob\"}";
         ValueClass822 value = MAPPER.readValue(json, ValueClass822.class);
@@ -431,7 +432,7 @@ public class BuilderSimpleTest
     }
 
     @Test
-    public void testPOJOConfigResolution1557() throws Exception
+    void testPOJOConfigResolution1557() throws Exception
     {
         final String json = "{\"value\":1}";
         MAPPER.registerModule(new NopModule1557());
@@ -441,7 +442,7 @@ public class BuilderSimpleTest
 
     // related to [databind#2354] (ensure private inner builder classes are ok)
     @Test
-    public void testPrivateInnerBuilder() throws Exception
+    void testPrivateInnerBuilder() throws Exception
     {
         String json = a2q("{'value':13}");
         Value2354 result = MAPPER.readValue(json, Value2354.class);

@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class ExceptionPathTest
+class ExceptionPathTest
 {
     static class Outer {
         public Inner inner = new Inner();
@@ -34,7 +34,7 @@ public class ExceptionPathTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testReferenceChainForInnerClass() throws Exception
+    void testReferenceChainForInnerClass() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Outer());
         try {

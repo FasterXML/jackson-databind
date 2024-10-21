@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 2.16
  */
 @SuppressWarnings("serial")
-public class CacheProviderTest
+class CacheProviderTest
 {
     static class RandomBean {
         public int point;
@@ -175,7 +175,7 @@ public class CacheProviderTest
             return super.putIfAbsent(key, value);
         }
     }
-    
+
     /*
     /**********************************************************************
     /* Unit tests
@@ -183,7 +183,7 @@ public class CacheProviderTest
      */
 
     @Test
-    public void testDefaultCacheProviderConfigDeserializerCache() throws Exception
+    void testDefaultCacheProviderConfigDeserializerCache() throws Exception
     {
         CacheProvider cacheProvider = DefaultCacheProvider.builder()
                 .maxDeserializerCacheSize(1234)
@@ -195,7 +195,7 @@ public class CacheProviderTest
     }
 
     @Test
-    public void testDefaultCacheProviderConfigDeserializerCacheSizeZero() throws Exception
+    void testDefaultCacheProviderConfigDeserializerCacheSizeZero() throws Exception
     {
         CacheProvider cacheProvider = DefaultCacheProvider.builder()
                 .maxDeserializerCacheSize(0)
@@ -208,7 +208,7 @@ public class CacheProviderTest
     }
 
     @Test
-    public void testCustomCacheProviderConfig() throws Exception
+    void testCustomCacheProviderConfig() throws Exception
     {
         SimpleTestCache cache = new SimpleTestCache(123);
         ObjectMapper mapper = JsonMapper.builder()
@@ -220,7 +220,7 @@ public class CacheProviderTest
     }
 
     @Test
-    public void testDefaultCacheProviderSharesCache() throws Exception
+    void testDefaultCacheProviderSharesCache() throws Exception
     {
         // Arrange
         // 1. shared CacheProvider
@@ -244,7 +244,7 @@ public class CacheProviderTest
     }
 
     @Test
-    public void testBuilderValueValidation() throws Exception
+    void testBuilderValueValidation() throws Exception
     {
         // success cases
         DefaultCacheProvider.builder()
@@ -285,7 +285,7 @@ public class CacheProviderTest
      * Sanity test for serialization with {@link CacheProvider#forSerializerCache(SerializationConfig)}
      */
     @Test
-    public void sanityCheckSerializerCacheSize() throws Exception
+    void sanityCheckSerializerCacheSize() throws Exception
     {
         // with positive value
         _verifySerializeSuccess(_defaultProviderWithSerCache(1234));
@@ -318,7 +318,7 @@ public class CacheProviderTest
      * Sanity test for serialization with {@link CacheProvider#forTypeFactory()}
      */
     @Test
-    public void sanityCheckTypeFactoryCacheSize() throws Exception
+    void sanityCheckTypeFactoryCacheSize() throws Exception
     {
         // custom
         CustomTypeFactoryCacheProvider customProvider = new CustomTypeFactoryCacheProvider();

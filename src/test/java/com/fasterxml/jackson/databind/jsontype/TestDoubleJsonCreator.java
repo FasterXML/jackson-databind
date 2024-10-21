@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // For [databind#2978], [databind#4138]
-public class TestDoubleJsonCreator extends DatabindTestUtil
+class TestDoubleJsonCreator extends DatabindTestUtil
 {
     static final class UnionExample {
         private final Base value;
@@ -245,7 +245,7 @@ public class TestDoubleJsonCreator extends DatabindTestUtil
 
     // [databind#2978]
     @Test
-    public void testDeserializationTypeFieldLast() throws Exception {
+    void testDeserializationTypeFieldLast() throws Exception {
         UnionExample expected = UnionExample.double_(AliasDouble.of(2.0D));
         UnionExample actual = MAPPER.readValue(
                 a2q("{'double': 2.0,'type':'double'}"),
@@ -255,7 +255,7 @@ public class TestDoubleJsonCreator extends DatabindTestUtil
 
     // [databind#2978]
     @Test
-    public void testDeserializationTypeFieldFirst() throws Exception {
+    void testDeserializationTypeFieldFirst() throws Exception {
         UnionExample expected = UnionExample.double_(AliasDouble.of(2.0D));
         UnionExample actual = MAPPER.readValue(
                 a2q("{'type':'double','double': 2.0}"),
@@ -265,7 +265,7 @@ public class TestDoubleJsonCreator extends DatabindTestUtil
 
     // [databind#4138]
     @Test
-    public void testDeserializeFPAsObject() throws Exception
+    void testDeserializeFPAsObject() throws Exception
     {
         final String JSON = "{\"allowedValues\": [ 1.5, 2.5 ], \"type\": \"type1\"}";
         // By default, should get Doubles

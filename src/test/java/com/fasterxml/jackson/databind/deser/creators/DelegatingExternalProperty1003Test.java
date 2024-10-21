@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DelegatingExternalProperty1003Test extends DatabindTestUtil
+class DelegatingExternalProperty1003Test extends DatabindTestUtil
 {
     // [databind#1003]
     public interface Hero1003 { }
@@ -50,7 +50,7 @@ public class DelegatingExternalProperty1003Test extends DatabindTestUtil
 
     // [databind#1003]
     @Test
-    public void testExtrnalPropertyDelegatingCreator() throws Exception
+    void testExtrnalPropertyDelegatingCreator() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
 

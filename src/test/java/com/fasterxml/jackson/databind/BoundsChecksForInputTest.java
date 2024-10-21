@@ -8,7 +8,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMa
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 // Tests for verifying [databind#3572]
-public class BoundsChecksForInputTest
+class BoundsChecksForInputTest
 {
     interface ByteBackedCreation {
         void call(byte[] data, int offset, int len) throws Exception;
@@ -28,7 +28,7 @@ public class BoundsChecksForInputTest
      */
 
     @Test
-    public void testBoundsWithByteArrayInput() throws Exception {
+    void testBoundsWithByteArrayInput() throws Exception {
         _testBoundsWithByteArrayInput(
                 (data,offset,len)->MAPPER.createParser(data, offset, len));
         _testBoundsWithByteArrayInput(
@@ -89,7 +89,7 @@ public class BoundsChecksForInputTest
      */
 
     @Test
-    public void testBoundsWithCharArrayInput() throws Exception {
+    void testBoundsWithCharArrayInput() throws Exception {
         testBoundsWithCharArrayInput(
                 (data,offset,len)->MAPPER.createParser(data, offset, len));
         testBoundsWithCharArrayInput(

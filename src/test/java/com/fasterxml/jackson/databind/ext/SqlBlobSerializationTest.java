@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests for `java.sql.Date`, `java.sql.Time` and `java.sql.Timestamp`
-public class SqlBlobSerializationTest extends DatabindTestUtil
+class SqlBlobSerializationTest extends DatabindTestUtil
 {
     static class BlobObject {
         Blob sqlBlob1;
@@ -33,7 +33,7 @@ public class SqlBlobSerializationTest extends DatabindTestUtil
      */
 
     @Test
-    public void testSqlBlobSerializer() throws Exception
+    void testSqlBlobSerializer() throws Exception
     {
         ObjectMapper m = newJsonMapper();
         String testWord = "TestObject1";

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Unit test for [databind#4216] : Primitive array deserializer cannot being captured by DeserializerModifier
  */
-public class BeanDeserializerModifier4216Test extends DatabindTestUtil
+class BeanDeserializerModifier4216Test extends DatabindTestUtil
 {
 
     static class WrapperBean4216 {
@@ -26,7 +26,7 @@ public class BeanDeserializerModifier4216Test extends DatabindTestUtil
     }
 
     @Test
-    public void testModifierCalledTwice() throws Exception
+    void testModifierCalledTwice() throws Exception
     {
         // Given : Configure and construct
         AtomicInteger counter = new AtomicInteger(0);

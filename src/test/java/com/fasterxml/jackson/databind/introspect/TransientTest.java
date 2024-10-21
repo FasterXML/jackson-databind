@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Tests for both `transient` keyword and JDK 7
  * {@link java.beans.Transient} annotation.
  */
-public class TransientTest extends DatabindTestUtil
+class TransientTest extends DatabindTestUtil
 {
     // for [databind#296]
     @JsonPropertyOrder({ "x" })
@@ -105,7 +105,7 @@ public class TransientTest extends DatabindTestUtil
 
     // for [databind#296]
     @Test
-    public void testTransientFieldHandling() throws Exception
+    void testTransientFieldHandling() throws Exception
     {
         // default handling: remove transient field but do not propagate
         assertEquals(a2q("{'x':42,'value':3}"),
@@ -123,7 +123,7 @@ public class TransientTest extends DatabindTestUtil
 
     // for [databind#857]
     @Test
-    public void testBeanTransient() throws Exception
+    void testBeanTransient() throws Exception
     {
         assertEquals(a2q("{'y':4}"),
                 MAPPER.writeValueAsString(new BeanTransient()));
@@ -131,7 +131,7 @@ public class TransientTest extends DatabindTestUtil
 
     // for [databind#1184]
     @Test
-    public void testOverridingTransient() throws Exception
+    void testOverridingTransient() throws Exception
     {
         assertEquals(a2q("{'tValue':38}"),
                 MAPPER.writeValueAsString(new OverridableTransient(38)));
@@ -139,7 +139,7 @@ public class TransientTest extends DatabindTestUtil
 
     // for [databind#3682]: SHOULD prune `transient` Field, not pull in
     @Test
-    public void testTransientToPrune() throws Exception
+    void testTransientToPrune() throws Exception
     {
         try {
             TransientToPrune result = MAPPER.readValue("{\"a\":3}",
@@ -151,7 +151,7 @@ public class TransientTest extends DatabindTestUtil
     }
 
     @Test
-    public void testJsonIgnoreSerialization() throws Exception {
+    void testJsonIgnoreSerialization() throws Exception {
         Obj3948 obj1 = new Obj3948();
 
         String json = MAPPER.writeValueAsString(obj1);
@@ -160,7 +160,7 @@ public class TransientTest extends DatabindTestUtil
     }
 
     @Test
-    public void testJsonIgnoreSerializationTransient() throws Exception {
+    void testJsonIgnoreSerializationTransient() throws Exception {
         final ObjectMapper mapperTransient = jsonMapperBuilder()
                 .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
                 .build();

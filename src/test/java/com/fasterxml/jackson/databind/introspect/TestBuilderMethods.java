@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestBuilderMethods extends DatabindTestUtil
+class TestBuilderMethods extends DatabindTestUtil
 {
     static class SimpleBuilder
     {
@@ -30,7 +30,7 @@ public class TestBuilderMethods extends DatabindTestUtil
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void testSimple()
+    void testSimple()
     {
         POJOPropertiesCollector coll = collector(SimpleBuilder.class);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();

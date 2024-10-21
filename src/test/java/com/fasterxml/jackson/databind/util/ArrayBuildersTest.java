@@ -16,11 +16,11 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders.ShortBuilder;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ArrayBuildersTest extends DatabindTestUtil
+class ArrayBuildersTest extends DatabindTestUtil
 {
-	// [databind#157]
+    // [databind#157]
     @Test
-    public void testInsertInListNoDup()
+    void testInsertInListNoDup()
     {
         String [] arr = new String[]{"me", "you", "him"};
         String [] newarr;
@@ -39,7 +39,7 @@ public class ArrayBuildersTest extends DatabindTestUtil
     }
 
     @Test
-    public void testBuilderAccess()
+    void testBuilderAccess()
     {
         ArrayBuilders builders = new ArrayBuilders();
 
@@ -73,7 +73,7 @@ public class ArrayBuildersTest extends DatabindTestUtil
     }
 
     @Test
-    public void testArrayComparator()
+    void testArrayComparator()
     {
         final int[] INT3 = new int[] { 3, 4, 5 };
         Object comp = ArrayBuilders.getArrayComparator(INT3);
@@ -87,7 +87,7 @@ public class ArrayBuildersTest extends DatabindTestUtil
     }
 
     @Test
-    public void testArraySet()
+    void testArraySet()
     {
         HashSet<String> set = ArrayBuilders.arrayToSet(new String[] { "foo", "bar" });
         assertEquals(2, set.size());

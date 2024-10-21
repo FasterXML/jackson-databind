@@ -17,13 +17,13 @@ import static org.junit.jupiter.api.Assertions.*;
  * "Native" java type mapper; basically that is can properly serialize
  * core JDK objects to JSON.
  */
-public class UntypedSerializationTest
-    extends DatabindTestUtil
+class UntypedSerializationTest
+        extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testFromArray() throws Exception
+    void testFromArray() throws Exception
     {
         ArrayList<Object> doc = new ArrayList<Object>();
         doc.add("Elem1");
@@ -70,7 +70,7 @@ public class UntypedSerializationTest
     }
 
     @Test
-    public void testFromMap() throws Exception
+    void testFromMap() throws Exception
     {
         LinkedHashMap<String,Object> doc = new LinkedHashMap<String,Object>();
 
@@ -107,7 +107,7 @@ public class UntypedSerializationTest
     }
 
     @Test
-    public void testSimpleGenerationMaps() throws Exception
+    void testSimpleGenerationMaps() throws Exception
     {
         assertEquals(a2q("{'msg':'Hello, world!'}"),
                 MAPPER.writeValueAsString(Collections.singletonMap("msg", "Hello, world!")));
@@ -117,14 +117,14 @@ public class UntypedSerializationTest
     }
 
     @Test
-    public void testSimpleGenerationCollections() throws Exception
+    void testSimpleGenerationCollections() throws Exception
     {
         assertEquals("[true,137,\"stuff\"]",
                 MAPPER.writeValueAsString(Arrays.asList(true, 137, "stuff")));
     }
 
     @Test
-    public void testRawValues() throws Exception
+    void testRawValues() throws Exception
     {
         final String innerJson =
                 MAPPER.writeValueAsString(Collections.singletonMap("msg", "hello!"));

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [databind#1367]
-public class CreatorWithObjectIdTest
+class CreatorWithObjectIdTest
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 //            resolver = SimpleObjectIdResolver.class)
@@ -43,7 +43,7 @@ public class CreatorWithObjectIdTest
     }
 
     @Test
-    public void testObjectIdWithCreator() throws Exception
+    void testObjectIdWithCreator() throws Exception
     {
         A a = new A("123", "A");
 

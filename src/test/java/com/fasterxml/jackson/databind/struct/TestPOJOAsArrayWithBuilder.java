@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for "POJO as array" feature using Builder-style
  * POJO construction.
  */
-public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
+class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
 {
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     @JsonFormat(shape=JsonFormat.Shape.ARRAY)
@@ -110,7 +110,7 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleBuilder() throws Exception
+    void testSimpleBuilder() throws Exception
     {
         // Ok, first, ensure that serializer will "black out" filtered properties
         ValueClassXY value = MAPPER.readValue("[1,2]", ValueClassXY.class);
@@ -120,7 +120,7 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
 
     // Won't work, but verify exception
     @Test
-    public void testBuilderWithUpdate() throws Exception
+    void testBuilderWithUpdate() throws Exception
     {
         // Ok, first, simple case of all values being present
         try {
@@ -143,7 +143,7 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
 
     // test to ensure @JsonCreator also works
     @Test
-    public void testWithCreator() throws Exception
+    void testWithCreator() throws Exception
     {
         CreatorValue value = MAPPER.readValue("[1,2,3]", CreatorValue.class);
         assertEquals(1, value.a);
@@ -168,7 +168,7 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
     }
 
     @Test
-    public void testWithCreatorAndView() throws Exception
+    void testWithCreatorAndView() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(CreatorValue.class);
         CreatorValue value;
@@ -193,7 +193,7 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
      */
 
     @Test
-    public void testUnknownExtraProp() throws Exception
+    void testUnknownExtraProp() throws Exception
     {
         String json = "[1, 2, 3, 4]";
         try {

@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 //copied from https://github.com/apache/cayenne/blob/b156addac1c8e4079fa88e977fee609210c5da69/cayenne-server/src/test/java/org/apache/cayenne/util/concurrentlinkedhashmap/ConcurrentLinkedHashMapTest.java
-public class PrivateMaxEntriesMapTest {
+class PrivateMaxEntriesMapTest {
 
     @Test
-    public void testPutGet() {
+    void testPutGet() {
         PrivateMaxEntriesMap<String, Object> m = new PrivateMaxEntriesMap.Builder<String, Object>()
                 .maximumCapacity(10).build();
 
@@ -43,7 +43,7 @@ public class PrivateMaxEntriesMapTest {
     }
 
     @Test
-    public void testLRU() {
+    void testLRU() {
         PrivateMaxEntriesMap<String, Object> m = new PrivateMaxEntriesMap.Builder<String, Object>()
                 .maximumCapacity(5).build();
 

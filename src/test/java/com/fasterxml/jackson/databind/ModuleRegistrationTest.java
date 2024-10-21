@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
-public class ModuleRegistrationTest
+class ModuleRegistrationTest
 {
 
     @Test
-    public void testCopyHasSameRegisteredModulesInDifferentSetInstances() {
+    void testCopyHasSameRegisteredModulesInDifferentSetInstances() {
         ObjectMapper originalMapper = newJsonMapper();
         originalMapper.registerModule(_testModuleWithId("first"));
         originalMapper.registerModule(_testModuleWithId("second"));
@@ -38,7 +38,7 @@ public class ModuleRegistrationTest
     }
 
     @Test
-    public void testRegisterNullModuleFails() {
+    void testRegisterNullModuleFails() {
         ObjectMapper objectMapper = newJsonMapper();
         try {
             objectMapper.registerModule(null);
@@ -49,7 +49,7 @@ public class ModuleRegistrationTest
     }
 
     @Test
-    public void testRegisterModuleWithNullNameFails() {
+    void testRegisterModuleWithNullNameFails() {
         ObjectMapper objectMapper = newJsonMapper();
         try {
             objectMapper.registerModule(new Module() {
@@ -73,7 +73,7 @@ public class ModuleRegistrationTest
     }
 
     @Test
-    public void testRegisterModuleWithNullVersionFails() {
+    void testRegisterModuleWithNullVersionFails() {
         ObjectMapper objectMapper = newJsonMapper();
         try {
             objectMapper.registerModule(new Module() {

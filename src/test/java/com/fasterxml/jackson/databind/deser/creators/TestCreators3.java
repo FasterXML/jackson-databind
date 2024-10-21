@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // Misc Creator tests, part 3
-public class TestCreators3
+class TestCreators3
 {
     // [databind#541]
     static final class Value541 {
@@ -142,7 +142,7 @@ public class TestCreators3
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testCreator541() throws Exception
+    void testCreator541() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(
@@ -181,7 +181,7 @@ public class TestCreators3
 
     // [databind#421]
     @Test
-    public void testMultiCtor421() throws Exception
+    void testMultiCtor421() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());
@@ -194,25 +194,25 @@ public class TestCreators3
 
     // [databind#1853]
     @Test
-    public void testSerialization() throws Exception {
+    void testSerialization() throws Exception {
         assertEquals(q("testProduct"),
                 MAPPER.writeValueAsString(new Product1853(false, "testProduct")));
     }
 
     @Test
-    public void testDeserializationFromObject() throws Exception {
+    void testDeserializationFromObject() throws Exception {
         final String EXAMPLE_DATA = "{\"name\":\"dummy\",\"other\":{},\"errors\":{}}";
         assertEquals("PROP:dummy", MAPPER.readValue(EXAMPLE_DATA, Product1853.class).getName());
     }
 
     @Test
-    public void testDeserializationFromString() throws Exception {
+    void testDeserializationFromString() throws Exception {
         assertEquals("DELEG:testProduct",
                 MAPPER.readValue(q("testProduct"), Product1853.class).getName());
     }
 
     @Test
-    public void testDeserializationFromWrappedString() throws Exception {
+    void testDeserializationFromWrappedString() throws Exception {
         Product1853 result = MAPPER.readerFor(Product1853.class)
                 .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .readValue("[\"testProduct\"]");

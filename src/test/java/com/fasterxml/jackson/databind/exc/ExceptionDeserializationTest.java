@@ -19,7 +19,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 /**
  * Unit tests for verifying that simple exceptions can be deserialized.
  */
-public class ExceptionDeserializationTest
+class ExceptionDeserializationTest
 {
     @SuppressWarnings("serial")
     static class MyException extends Exception
@@ -62,7 +62,7 @@ public class ExceptionDeserializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testIOException() throws Exception
+    void testIOException() throws Exception
     {
         IOException ioe = new IOException("TEST");
         String json = MAPPER.writerWithDefaultPrettyPrinter()
@@ -72,7 +72,7 @@ public class ExceptionDeserializationTest
     }
 
     @Test
-    public void testWithCreator() throws Exception
+    void testWithCreator() throws Exception
     {
         final String MSG = "the message";
         String json = MAPPER.writeValueAsString(new MyException(MSG, 3));
@@ -90,7 +90,7 @@ public class ExceptionDeserializationTest
     }
 
     @Test
-    public void testWithNullMessage() throws Exception
+    void testWithNullMessage() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -101,7 +101,7 @@ public class ExceptionDeserializationTest
     }
 
     @Test
-    public void testNoArgsException() throws Exception
+    void testNoArgsException() throws Exception
     {
         MyNoArgException exc = MAPPER.readValue("{}", MyNoArgException.class);
         assertNotNull(exc);
@@ -109,7 +109,7 @@ public class ExceptionDeserializationTest
 
     // try simulating JDK 7 behavior
     @Test
-    public void testJDK7SuppressionProperty() throws Exception
+    void testJDK7SuppressionProperty() throws Exception
     {
         Exception exc = MAPPER.readValue("{\"suppressed\":[]}", IOException.class);
         assertNotNull(exc);
@@ -117,7 +117,7 @@ public class ExceptionDeserializationTest
 
     // [databind#381]
     @Test
-    public void testSingleValueArrayDeserialization() throws Exception
+    void testSingleValueArrayDeserialization() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
@@ -136,7 +136,7 @@ public class ExceptionDeserializationTest
     }
 
     @Test
-    public void testExceptionCauseDeserialization() throws Exception
+    void testExceptionCauseDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -151,7 +151,7 @@ public class ExceptionDeserializationTest
     }
 
     @Test
-    public void testSuppressedGenericThrowableDeserialization() throws Exception
+    void testSuppressedGenericThrowableDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -168,7 +168,7 @@ public class ExceptionDeserializationTest
     }
 
     @Test
-    public void testSuppressedTypedExceptionDeserialization() throws Exception
+    void testSuppressedTypedExceptionDeserialization() throws Exception
     {
         PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubTypeIsArray()
@@ -224,7 +224,7 @@ public class ExceptionDeserializationTest
     }
 
     @Test
-    public void testSingleValueArrayDeserializationException() throws Exception {
+    void testSingleValueArrayDeserializationException() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
 
@@ -246,7 +246,7 @@ public class ExceptionDeserializationTest
 
     // mostly to help with XML module (and perhaps CSV)
     @Test
-    public void testLineNumberAsString() throws Exception
+    void testLineNumberAsString() throws Exception
     {
         Exception exc = MAPPER.readValue(a2q(
                 "{'message':'Test',\n'stackTrace': "
@@ -257,7 +257,7 @@ public class ExceptionDeserializationTest
 
     // [databind#1842]
     @Test
-    public void testNullAsMessage() throws Exception
+    void testNullAsMessage() throws Exception
     {
         Exception exc = MAPPER.readValue(a2q(
                 "{'message':null, 'localizedMessage':null }"
@@ -269,13 +269,13 @@ public class ExceptionDeserializationTest
 
     // [databind#3497]: round-trip with naming strategy
     @Test
-    public void testRoundtripWithoutNamingStrategy() throws Exception
+    void testRoundtripWithoutNamingStrategy() throws Exception
     {
         _testRoundtripWith(MAPPER);
     }
 
     @Test
-    public void testRoundtripWithNamingStrategy() throws Exception
+    void testRoundtripWithNamingStrategy() throws Exception
     {
         final ObjectMapper renamingMapper = JsonMapper.builder()
                 .propertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
@@ -299,7 +299,7 @@ public class ExceptionDeserializationTest
 
     // [databind#4248]
     @Test
-    public void testWithDups() throws Exception
+    void testWithDups() throws Exception
     {
         // NOTE: by default JSON parser does NOT fail on duplicate properties;
         // we only use them to mimic formats like XML where duplicates can occur
@@ -320,7 +320,7 @@ public class ExceptionDeserializationTest
 
     // Found by OSS-Fuzz: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=65042
     @Test
-    public void testWithNullSuppressed() throws Exception
+    void testWithNullSuppressed() throws Exception
     {
         final String json = a2q("{'message': 'Message!', 'suppressed':[null]}");
         IOException exc = MAPPER.readValue(json, IOException.class);

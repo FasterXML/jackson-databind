@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MapInclusion2573Test extends DatabindTestUtil
+class MapInclusion2573Test extends DatabindTestUtil
 {
     @JsonPropertyOrder({ "model", "properties" })
     static class Car
@@ -47,7 +47,7 @@ public class MapInclusion2573Test extends DatabindTestUtil
 
     // [databind#2572]
     @Test
-    public void test2572MapDefault() throws Exception
+    void test2572MapDefault() throws Exception
     {
 
         ObjectMapper mapper = JsonMapper.builder()
@@ -61,7 +61,7 @@ public class MapInclusion2573Test extends DatabindTestUtil
 
     // [databind#2572]
     @Test
-    public void test2572MapOverrideUseDefaults() throws Exception
+    void test2572MapOverrideUseDefaults() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .defaultPropertyInclusion(BOTH_NON_NULL)
@@ -77,7 +77,7 @@ public class MapInclusion2573Test extends DatabindTestUtil
 
     // [databind#2572]
     @Test
-    public void test2572MapOverrideInclAlways() throws Exception
+    void test2572MapOverrideInclAlways() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .defaultPropertyInclusion(BOTH_NON_NULL)

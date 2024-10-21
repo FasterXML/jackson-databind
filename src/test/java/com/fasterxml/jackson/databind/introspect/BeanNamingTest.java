@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 // Tests for [databind#653]
-public class BeanNamingTest extends DatabindTestUtil
+class BeanNamingTest extends DatabindTestUtil
 {
     static class URLBean {
         public String getURL() {
@@ -24,7 +24,7 @@ public class BeanNamingTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSimple() throws Exception
+    void testSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         assertFalse(mapper.isEnabled(MapperFeature.USE_STD_BEAN_NAMING));

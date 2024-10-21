@@ -12,13 +12,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
 
-public class DateDeserializationTZ1153Test
+class DateDeserializationTZ1153Test
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1153]
     @Test
-    public void testWithTimezones1153() throws Exception
+    void testWithTimezones1153() throws Exception
     {
         for (String tzStr : new String[] {
                 "UTC", "CET", "America/Los_Angeles", "Australia/Melbourne"

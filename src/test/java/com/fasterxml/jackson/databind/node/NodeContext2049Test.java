@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.type.CollectionLikeType;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class NodeContext2049Test extends DatabindTestUtil
+class NodeContext2049Test extends DatabindTestUtil
 {
     public interface HasParent {
         void setParent(Parent parent);
@@ -172,7 +172,7 @@ public class NodeContext2049Test extends DatabindTestUtil
             "}";
 
     @Test
-    public void testReadNoBuffering() throws IOException {
+    void testReadNoBuffering() throws IOException {
         Parent obj = objectMapper.readerFor(Parent.class).readValue(JSON);
         assertSame(obj, obj.singleChild.getParent());
         for (Child child : obj.children) {
@@ -181,7 +181,7 @@ public class NodeContext2049Test extends DatabindTestUtil
     }
 
     @Test
-    public void testReadFromTree() throws IOException {
+    void testReadFromTree() throws IOException {
         JsonNode tree = objectMapper.readTree(JSON);
         Parent obj = objectMapper.reader().forType(Parent.class).readValue(tree);
         assertSame(obj, obj.singleChild.getParent());

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // For [databind#936], losing parametric type information it seems
-public class PolymorphicList036Test
+class PolymorphicList036Test
 {
     // note: would prefer using CharSequence, but while abstract, that's deserialized
     // just fine as ... String
@@ -96,7 +96,7 @@ public class PolymorphicList036Test
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testPolymorphicWithOverride() throws Exception
+    void testPolymorphicWithOverride() throws Exception
     {
         JavaType type = MAPPER.getTypeFactory().constructCollectionType(StringyList.class, String.class);
 

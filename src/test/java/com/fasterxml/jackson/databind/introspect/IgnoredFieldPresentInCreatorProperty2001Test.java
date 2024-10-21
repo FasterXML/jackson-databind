@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class IgnoredFieldPresentInCreatorProperty2001Test extends DatabindTestUtil
+class IgnoredFieldPresentInCreatorProperty2001Test extends DatabindTestUtil
 {
    static public class Foo {
         @JsonIgnore
@@ -25,7 +25,7 @@ public class IgnoredFieldPresentInCreatorProperty2001Test extends DatabindTestUt
     }
 
     @Test
-    public void testIgnoredFieldPresentInPropertyCreator() throws Exception {
+    void testIgnoredFieldPresentInPropertyCreator() throws Exception {
         Foo deserialized = newJsonMapper().readValue("{\"query\": \"bar\"}", Foo.class);
         assertEquals("bar", deserialized.query);
     }

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class RaceCondition738Test extends DatabindTestUtil
+class RaceCondition738Test extends DatabindTestUtil
 {
     static abstract class AbstractHasSubTypes implements HasSubTypes { }
 
@@ -58,7 +58,7 @@ public class RaceCondition738Test extends DatabindTestUtil
      */
 
     @Test
-    public void testRepeatedly() throws Exception {
+    void testRepeatedly() throws Exception {
         final int COUNT = 3000;
         for (int i = 0; i < COUNT; i++) {
             runOnce(i, COUNT);

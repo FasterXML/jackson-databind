@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MultipleExternalIds291Test extends DatabindTestUtil
+class MultipleExternalIds291Test extends DatabindTestUtil
 {
     // For [Issue#291]
     interface F1 {}
@@ -62,7 +62,7 @@ public class MultipleExternalIds291Test extends DatabindTestUtil
 
     // [databind#291]
     @Test
-    public void testMultipleValuesSingleExtId() throws Exception
+    void testMultipleValuesSingleExtId() throws Exception
     {
         // first with ext-id before values
         _testMultipleValuesSingleExtId(

@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * This unit test suite tests use of Annotations for
  * bean serialization.
  */
-public class TestAnnotationInheritance
-    extends DatabindTestUtil
+class TestAnnotationInheritance
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -78,7 +78,7 @@ public class TestAnnotationInheritance
      */
 
     @Test
-    public void testSimpleGetterInheritance() throws Exception
+    void testSimpleGetterInheritance() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         Map<String,Object> result = writeAndMap(m, new PojoSubclass());
@@ -88,7 +88,7 @@ public class TestAnnotationInheritance
     }
 
     @Test
-    public void testSimpleGetterInterfaceImpl() throws Exception
+    void testSimpleGetterInterfaceImpl() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         Map<String,Object> result = writeAndMap(m, new PojoImpl());

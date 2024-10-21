@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests for [databind#1498], [databind#3241] (Jackson 2.12)
-public class ConstructorDetectorTest extends DatabindTestUtil
+class ConstructorDetectorTest extends DatabindTestUtil
 {
     static class SingleArgNotAnnotated {
         protected int v;
@@ -154,7 +154,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
      */
 
     @Test
-    public void test1ArgDefaultsToPropertiesNonAnnotated() throws Exception
+    void test1ArgDefaultsToPropertiesNonAnnotated() throws Exception
     {
         SingleArgNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
                 SingleArgNotAnnotated.class);
@@ -162,7 +162,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     }
 
     @Test
-    public void test1ArgDefaultsToPropertiesNonAnnotatedDecimal() throws Exception
+    void test1ArgDefaultsToPropertiesNonAnnotatedDecimal() throws Exception
     {
         SingleArgNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'value' : 137.0 }"),
             SingleArgNotAnnotated.class);
@@ -170,7 +170,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     }
 
     @Test
-    public void test1ArgDefaultsToPropertiesByte() throws Exception
+    void test1ArgDefaultsToPropertiesByte() throws Exception
     {
         SingleArgByte value = MAPPER_PROPS.readValue(a2q("{'value' : -99 }"),
             SingleArgByte.class);
@@ -178,7 +178,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     }
 
     @Test
-    public void test1ArgDefaultsToPropertiesShort() throws Exception
+    void test1ArgDefaultsToPropertiesShort() throws Exception
     {
         SingleArgShort value = MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
             SingleArgShort.class);
@@ -186,7 +186,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     }
 
     @Test
-    public void test1ArgDefaultsToPropertiesLong() throws Exception
+    void test1ArgDefaultsToPropertiesLong() throws Exception
     {
         String val = Long.toString(Long.MAX_VALUE);
         SingleArgLong value = MAPPER_PROPS.readValue(a2q("{'value' : " + val + " }"),
@@ -195,7 +195,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     }
 
     @Test
-    public void test1ArgDefaultsToPropertiesFloat() throws Exception
+    void test1ArgDefaultsToPropertiesFloat() throws Exception
     {
         SingleArgFloat value = MAPPER_PROPS.readValue(a2q("{'value' : 136.99 }"),
             SingleArgFloat.class);
@@ -203,7 +203,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     }
 
     @Test
-    public void test1ArgDefaultsToPropertiesDouble() throws Exception
+    void test1ArgDefaultsToPropertiesDouble() throws Exception
     {
         SingleArgDouble value = MAPPER_PROPS.readValue(a2q("{'value' : 999999999999999999.99 }"),
             SingleArgDouble.class);
@@ -211,7 +211,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     }
 
     @Test
-    public void test1ArgDefaultsToPropertiesNoMode() throws Exception
+    void test1ArgDefaultsToPropertiesNoMode() throws Exception
     {
         SingleArgNoMode value = MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
                 SingleArgNoMode.class);
@@ -220,7 +220,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
 
     // And specific test for original [databind#1498]
     @Test
-    public void test1ArgDefaultsToPropertiesIssue1498() throws Exception
+    void test1ArgDefaultsToPropertiesIssue1498() throws Exception
     {
         SingleArg1498 value = MAPPER_PROPS.readValue(a2q("{'bar' : 404 }"),
                 SingleArg1498.class);
@@ -229,7 +229,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
 
     // This was working already but verify
     @Test
-    public void testMultiArgAsProperties() throws Exception
+    void testMultiArgAsProperties() throws Exception
     {
         TwoArgsNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'a' : 3, 'b':4 }"),
                 TwoArgsNotAnnotated.class);
@@ -240,7 +240,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     // 18-Sep-2020, tatu: For now there is a problematic case of multiple eligible
     //   choices; not cleanly solvable for 2.12
     @Test
-    public void test1ArgDefaultsToPropsMultipleCtors() throws Exception
+    void test1ArgDefaultsToPropsMultipleCtors() throws Exception
     {
         // 23-May-2024, tatu: Will fail differently with [databind#4515]; default
         //   constructor available, implicit ones ignored
@@ -265,7 +265,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
      */
 
     @Test
-    public void test1ArgDefaultsToDelegatingNoAnnotation() throws Exception
+    void test1ArgDefaultsToDelegatingNoAnnotation() throws Exception
     {
         // No annotation, should be fine?
         SingleArgNotAnnotated value = MAPPER_DELEGATING.readValue("1972", SingleArgNotAnnotated.class);
@@ -273,7 +273,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     }
 
     @Test
-    public void test1ArgDefaultsToDelegatingNoMode() throws Exception
+    void test1ArgDefaultsToDelegatingNoMode() throws Exception
     {
         // One with `@JsonCreator` no mode annotation (ok since indicated)
         SingleArgNoMode value = MAPPER_DELEGATING.readValue(" 2812 ", SingleArgNoMode.class);
@@ -287,7 +287,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
      */
 
     @Test
-    public void test1ArgDefaultsToHeuristics() throws Exception
+    void test1ArgDefaultsToHeuristics() throws Exception
     {
         final ObjectMapper mapper = mapperFor(ConstructorDetector.DEFAULT);
         final String DOC = " 13117 ";
@@ -323,7 +323,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     */
 
     @Test
-    public void test1ArgFailsNoMode() throws Exception
+    void test1ArgFailsNoMode() throws Exception
     {
         // Second: also fail also if no "mode" indicated
         try {
@@ -336,7 +336,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     }
 
     @Test
-    public void test1ArgRequiresAnnotation() throws Exception
+    void test1ArgRequiresAnnotation() throws Exception
     {
         // First: if there is a 0-arg ctor, fine, must use that
         SingleArgNotAnnotated value = MAPPER_MUST_ANNOTATE.readValue("{ }",
@@ -353,7 +353,7 @@ public class ConstructorDetectorTest extends DatabindTestUtil
     }
 
     @Test
-    public void testMultiArgRequiresAnnotation() throws Exception
+    void testMultiArgRequiresAnnotation() throws Exception
     {
         try {
             MAPPER_MUST_ANNOTATE.readValue(" { } ", TwoArgsNotAnnotated.class);

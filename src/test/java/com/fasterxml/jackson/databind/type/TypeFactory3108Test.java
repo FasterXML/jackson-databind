@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // [databind#3108]: canonical type description for non-generic subtypes
 @SuppressWarnings("serial")
-public class TypeFactory3108Test extends DatabindTestUtil
+class TypeFactory3108Test extends DatabindTestUtil
 {
     static class StringList3108 extends ArrayList<String> {}
 
@@ -27,7 +27,7 @@ public class TypeFactory3108Test extends DatabindTestUtil
 
     // [databind#3108] with custom Collection
     @Test
-    public void testCanonicalWithCustomCollection()
+    void testCanonicalWithCustomCollection()
     {
         JavaType stringListType = TF.constructType(StringList3108.class);
         String canonical = stringListType.toCanonical();
@@ -38,7 +38,7 @@ public class TypeFactory3108Test extends DatabindTestUtil
 
     // [databind#3108] with custom Map
     @Test
-    public void testCanonicalWithCustomMap()
+    void testCanonicalWithCustomMap()
     {
         JavaType stringListType = TF.constructType(StringStringMap3108.class);
         String canonical = stringListType.toCanonical();
@@ -49,7 +49,7 @@ public class TypeFactory3108Test extends DatabindTestUtil
 
     // [databind#3108] with custom generic type
     @Test
-    public void testCanonicalWithCustomGenericType()
+    void testCanonicalWithCustomGenericType()
     {
         JavaType stringListType = TF.constructType(ConcreteType3108.class);
         String canonical = stringListType.toCanonical();

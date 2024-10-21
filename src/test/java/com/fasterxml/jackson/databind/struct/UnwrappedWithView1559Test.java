@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UnwrappedWithView1559Test extends DatabindTestUtil
+class UnwrappedWithView1559Test extends DatabindTestUtil
 {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     static final class Health {
@@ -31,7 +31,7 @@ public class UnwrappedWithView1559Test extends DatabindTestUtil
 
     // for [databind#1559]
     @Test
-    public void testCanSerializeSimpleWithDefaultView() throws Exception {
+    void testCanSerializeSimpleWithDefaultView() throws Exception {
         String json = jsonMapperBuilder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
                 .build()
                 .writeValueAsString(new Health());

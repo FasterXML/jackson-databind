@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
-public class RecursiveType1658Test
+class RecursiveType1658Test
 {
     @SuppressWarnings("serial")
     static class Tree<T> extends HashMap<T, Tree<T>> // implements Serializable
@@ -36,7 +36,7 @@ public class RecursiveType1658Test
     }
 
     @Test
-    public void testRecursive1658() throws Exception
+    void testRecursive1658() throws Exception
     {
         Tree<String> t = new Tree<String>(Arrays.asList("hello", "world"));
 

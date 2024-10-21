@@ -11,12 +11,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class UnresolvedForwardReferenceTest
+class UnresolvedForwardReferenceTest
 {
     private final JsonFactory JSON_F = newJsonMapper().getFactory();
 
     @Test
-    public void testWithAndWithoutStackTraces() throws Exception
+    void testWithAndWithoutStackTraces() throws Exception
     {
         try (JsonParser p = JSON_F.createParser("{}")) {
             UnresolvedForwardReference e = new UnresolvedForwardReference(p, "test");

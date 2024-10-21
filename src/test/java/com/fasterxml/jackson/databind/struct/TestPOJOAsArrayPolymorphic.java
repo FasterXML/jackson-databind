@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TestPOJOAsArrayPolymorphic extends DatabindTestUtil
+class TestPOJOAsArrayPolymorphic extends DatabindTestUtil
 {
     // [databind#2077]
     @JsonTypeInfo(
@@ -31,7 +31,7 @@ public class TestPOJOAsArrayPolymorphic extends DatabindTestUtil
 
     // [databind#2077]
     @Test
-    public void testPolymorphicAsArray() throws Exception
+    void testPolymorphicAsArray() throws Exception
     {
         // 20-Sep-2019, taut: this fails to add shape information, due to class annotations
         //   not being checked due to missing `property` for `createContextual()`

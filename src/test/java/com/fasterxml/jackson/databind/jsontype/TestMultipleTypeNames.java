@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [databind#2761] (and [annotations#171]
-public class TestMultipleTypeNames extends DatabindTestUtil
+class TestMultipleTypeNames extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -106,7 +106,7 @@ public class TestMultipleTypeNames extends DatabindTestUtil
      */
 
     @Test
-    public void testOnlyNames() throws Exception
+    void testOnlyNames() throws Exception
     {
         String json;
         WrapperForNamesTest w;
@@ -135,7 +135,7 @@ public class TestMultipleTypeNames extends DatabindTestUtil
     }
 
     @Test
-    public void testNameAndNames() throws Exception
+    void testNameAndNames() throws Exception
     {
         String json;
         WrapperForNameAndNamesTest w;
@@ -164,7 +164,7 @@ public class TestMultipleTypeNames extends DatabindTestUtil
     }
 
     @Test
-    public void testNotUniqueNameAndNames() throws Exception
+    void testNotUniqueNameAndNames() throws Exception
     {
         String json = "{\"base\": [{\"type\":\"a\", \"data\": {\"x\": 5}}, {\"type\":\"b\", \"data\": {\"y\": 3.1}}, {\"type\":\"c\", \"data\": {\"y\": 33.8}}]}";
 

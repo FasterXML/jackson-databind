@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for verifying that constraints on ordering of serialized
  * properties are held.
  */
-public class SerializationOrderTest
-    extends DatabindTestUtil
+class SerializationOrderTest
+        extends DatabindTestUtil
 {
     static class BeanWithCreator
     {
@@ -149,25 +149,25 @@ public class SerializationOrderTest
             .build();
 
     @Test
-    public void testImplicitOrderByCreator() throws Exception {
+    void testImplicitOrderByCreator() throws Exception {
         assertEquals("{\"c\":1,\"a\":2,\"b\":0}",
                 MAPPER.writeValueAsString(new BeanWithCreator(1, 2)));
     }
 
     @Test
-    public void testExplicitOrder() throws Exception {
+    void testExplicitOrder() throws Exception {
         assertEquals("{\"c\":3,\"a\":1,\"b\":2,\"d\":4}",
                 MAPPER.writeValueAsString(new BeanWithOrder(1, 2, 3, 4)));
     }
 
     @Test
-    public void testAlphabeticOrder() throws Exception {
+    void testAlphabeticOrder() throws Exception {
         assertEquals("{\"d\":4,\"a\":1,\"b\":2,\"c\":3}",
                 MAPPER.writeValueAsString(new SubBeanWithOrder(1, 2, 3, 4)));
     }
 
     @Test
-    public void testOrderWithMixins() throws Exception
+    void testOrderWithMixins() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(BeanWithOrder.class, OrderMixIn.class)
@@ -177,14 +177,14 @@ public class SerializationOrderTest
     }
 
     @Test
-    public void testOrderWrt268() throws Exception
+    void testOrderWrt268() throws Exception
     {
         assertEquals("{\"a\":\"a\",\"b\":\"b\",\"x\":\"x\",\"z\":\"z\"}",
                 MAPPER.writeValueAsString(new BeanFor268()));
     }
 
     @Test
-    public void testOrderWithFeature() throws Exception
+    void testOrderWithFeature() throws Exception
     {
         assertEquals("{\"a\":1,\"b\":2,\"c\":3,\"d\":4}",
                 ALPHA_MAPPER.writeValueAsString(new BeanFor459()));
@@ -193,7 +193,7 @@ public class SerializationOrderTest
     // [databind#2879]: verify that Creator properties never override explicit
     //   order
     @Test
-    public void testCreatorVsExplicitOrdering() throws Exception
+    void testCreatorVsExplicitOrdering() throws Exception
     {
         assertEquals(a2q("{'a':1,'c':3,'b':2}"),
                 MAPPER.writeValueAsString(new BeanFor2879(1, 2, 3)));
@@ -203,7 +203,7 @@ public class SerializationOrderTest
 
     // [databind#311]
     @Test
-    public void testAlphaAndCreatorOrdering() throws Exception
+    void testAlphaAndCreatorOrdering() throws Exception
     {
         assertEquals(a2q("{'a':1,'b':2}"),
                 ALPHA_MAPPER.writeValueAsString(new BeanForGH311(2, 1)));
@@ -211,7 +211,7 @@ public class SerializationOrderTest
 
     // [databind#4580]
     @Test
-    public void testAlphaAndCreatorDeclarationOrdering() throws Exception
+    void testAlphaAndCreatorDeclarationOrdering() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
@@ -223,7 +223,7 @@ public class SerializationOrderTest
 
     // [databind#2555]
     @Test
-    public void testOrderByIndexEtc() throws Exception
+    void testOrderByIndexEtc() throws Exception
     {
         // since "default" order can actually vary with later JDKs, only verify
         // case of alphabetic-as-default
@@ -234,7 +234,7 @@ public class SerializationOrderTest
     // [databind#2879]: allow preventing Creator properties from overriding
     //    alphabetic ordering
     @Test
-    public void testStrictAlphaAndCreatorOrdering() throws Exception
+    void testStrictAlphaAndCreatorOrdering() throws Exception
     {
         // without changing defaults, creators are sorted before other properties
         // BUT are sorted within their own category

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 // [databind#2283]: ignore read-only Lists even if "getter-as-setter" enabled
-public class ReadOnlyListDeser2283Test
+class ReadOnlyListDeser2283Test
 {
     static class RenamedToSameOnGetter {
         @JsonProperty(value = "list", access = JsonProperty.Access.READ_ONLY)
@@ -49,7 +49,7 @@ public class ReadOnlyListDeser2283Test
             .configure(MapperFeature.USE_GETTERS_AS_SETTERS, true).build();
 
     @Test
-    public void testRenamedToSameOnGetter() throws Exception
+    void testRenamedToSameOnGetter() throws Exception
     {
         assertEquals("{\"list\":[]}",
                 MAPPER.writeValueAsString(new RenamedToSameOnGetter()));
@@ -59,7 +59,7 @@ public class ReadOnlyListDeser2283Test
     }
 
     @Test
-    public void testRenamedToDifferentOnGetter() throws Exception
+    void testRenamedToDifferentOnGetter() throws Exception
     {
         assertEquals("{\"renamedList\":[]}",
                 MAPPER.writeValueAsString(new RenamedToDifferentOnGetter()));
@@ -69,7 +69,7 @@ public class ReadOnlyListDeser2283Test
     }
 
     @Test
-    public void testRenamedOnClass() throws Exception
+    void testRenamedOnClass() throws Exception
     {
         assertEquals("{\"renamedList\":[]}",
                 MAPPER.writeValueAsString(new RenamedOnClass()));

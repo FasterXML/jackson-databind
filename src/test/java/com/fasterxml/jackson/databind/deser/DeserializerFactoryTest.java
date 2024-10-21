@@ -12,7 +12,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMap
 
 // Tests for [databind#2539] for checking whether given (raw) type has explicit
 // deserializer associated
-public class DeserializerFactoryTest
+class DeserializerFactoryTest
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
@@ -20,7 +20,7 @@ public class DeserializerFactoryTest
 
     // [databind#2539]: check existence of deserializer for type
     @Test
-    public void testJDKScalarDeserializerExistence() throws Exception
+    void testJDKScalarDeserializerExistence() throws Exception
     {
         // First verify some basic types
         _verifyIsFound(String.class);
@@ -42,7 +42,7 @@ public class DeserializerFactoryTest
     }
 
     @Test
-    public void testJDKContainerDeserializerExistence() throws Exception
+    void testJDKContainerDeserializerExistence() throws Exception
     {
         // Both general and specific container types should be considered supported
         _verifyIsFound(Collection.class);
@@ -57,7 +57,7 @@ public class DeserializerFactoryTest
     }
 
     @Test
-    public void testJDKArraysOfExistence() throws Exception
+    void testJDKArraysOfExistence() throws Exception
     {
         // Similarly, array types of all supported types should be allowed
         _verifyIsFound(String[].class);
@@ -67,7 +67,7 @@ public class DeserializerFactoryTest
     }
 
     @Test
-    public void testNoDeserTypes() throws Exception
+    void testNoDeserTypes() throws Exception
     {
         // Types for which we should NOT have explicit deserializer
 

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // [databind#4200]: Nulls.FAIL not taken into account with DELEGATING creator
-public class NullConversionsForContent4200Test
+class NullConversionsForContent4200Test
 {
     static class DelegatingWrapper4200 {
         private final Map<String, String> value;
@@ -47,7 +47,7 @@ public class NullConversionsForContent4200Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testDelegatingCreatorNulls4200() throws Exception
+    void testDelegatingCreatorNulls4200() throws Exception
     {
         try {
             MAPPER.readValue(a2q("{'foo': null}"), DelegatingWrapper4200.class);
@@ -58,7 +58,7 @@ public class NullConversionsForContent4200Test
     }
 
     @Test
-    public void testSetterNulls4200() throws Exception
+    void testSetterNulls4200() throws Exception
     {
         try {
             MAPPER.readValue(a2q("{'value':{'foo': null}}"),

@@ -17,8 +17,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TreeTraversingParserTest
-    extends DatabindTestUtil
+class TreeTraversingParserTest
+        extends DatabindTestUtil
 {
     static class Person {
         public String name;
@@ -44,7 +44,7 @@ public class TreeTraversingParserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimple() throws Exception
+    void testSimple() throws Exception
     {
         // For convenience, parse tree from JSON first
         final String JSON =
@@ -113,7 +113,7 @@ public class TreeTraversingParserTest
     }
 
     @Test
-    public void testArray() throws Exception
+    void testArray() throws Exception
     {
         // For convenience, parse tree from JSON first
         JsonParser p = MAPPER.readTree("[]").traverse();
@@ -138,7 +138,7 @@ public class TreeTraversingParserTest
     }
 
     @Test
-    public void testNested() throws Exception
+    void testNested() throws Exception
     {
         // For convenience, parse tree from JSON first
         final String JSON =
@@ -174,7 +174,7 @@ public class TreeTraversingParserTest
      * from JSON specification.
      */
     @Test
-    public void testSpecDoc() throws Exception
+    void testSpecDoc() throws Exception
     {
         JsonNode tree = MAPPER.readTree(SAMPLE_DOC_JSON_SPEC);
         JsonParser p = tree.traverse();
@@ -183,7 +183,7 @@ public class TreeTraversingParserTest
     }
 
     @Test
-    public void testBinaryPojo() throws Exception
+    void testBinaryPojo() throws Exception
     {
         byte[] inputBinary = new byte[] { 1, 2, 100 };
         POJONode n = new POJONode(inputBinary);
@@ -200,7 +200,7 @@ public class TreeTraversingParserTest
     }
 
     @Test
-    public void testBinaryNode() throws Exception
+    void testBinaryNode() throws Exception
     {
         byte[] inputBinary = new byte[] { 0, -5 };
         BinaryNode n = new BinaryNode(inputBinary);
@@ -221,7 +221,7 @@ public class TreeTraversingParserTest
     }
 
     @Test
-    public void testTextAsBinary() throws Exception
+    void testTextAsBinary() throws Exception
     {
         TextNode n = new TextNode("   APs=\n");
         JsonParser p = n.traverse();
@@ -252,7 +252,7 @@ public class TreeTraversingParserTest
      * conversion works ok
      */
     @Test
-    public void testDataBind() throws Exception
+    void testDataBind() throws Exception
     {
         JsonNode tree = MAPPER.readTree
             ("{ \"name\" : \"Tatu\", \n"
@@ -271,7 +271,7 @@ public class TreeTraversingParserTest
     }
 
     @Test
-    public void testSkipChildrenWrt370() throws Exception
+    void testSkipChildrenWrt370() throws Exception
     {
         ObjectNode n = MAPPER.createObjectNode();
         n.putObject("inner").put("value", "test");
@@ -284,7 +284,7 @@ public class TreeTraversingParserTest
     // // // Numeric coercion checks, [databind#2189]
 
     @Test
-    public void testNumberOverflowInt() throws IOException
+    void testNumberOverflowInt() throws IOException
     {
         final long tooBig = 1L + Integer.MAX_VALUE;
         try (final JsonParser p = MAPPER.readTree("[ "+tooBig+" ]").traverse()) {
@@ -326,7 +326,7 @@ public class TreeTraversingParserTest
     }
 
     @Test
-    public void testNumberOverflowLong() throws IOException
+    void testNumberOverflowLong() throws IOException
     {
         final BigInteger tooBig = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
         try (final JsonParser p = MAPPER.readTree("[ "+tooBig+" ]").traverse()) {

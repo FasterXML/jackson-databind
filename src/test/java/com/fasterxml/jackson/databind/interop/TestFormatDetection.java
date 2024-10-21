@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestFormatDetection extends DatabindTestUtil
+class TestFormatDetection extends DatabindTestUtil
 {
     private final ObjectReader READER = objectReader();
 
@@ -29,7 +29,7 @@ public class TestFormatDetection extends DatabindTestUtil
      */
 
     @Test
-    public void testSimpleWithJSON() throws Exception
+    void testSimpleWithJSON() throws Exception
     {
         ObjectReader detecting = READER.forType(POJO.class);
         detecting = detecting.withFormatDetection(detecting);
@@ -39,7 +39,7 @@ public class TestFormatDetection extends DatabindTestUtil
     }
 
     @Test
-    public void testSequenceWithJSON() throws Exception
+    void testSequenceWithJSON() throws Exception
     {
         ObjectReader detecting = READER.forType(POJO.class);
         detecting = detecting.withFormatDetection(detecting);
@@ -79,7 +79,7 @@ public class TestFormatDetection extends DatabindTestUtil
     }
 
     @Test
-    public void testInvalid() throws Exception
+    void testInvalid() throws Exception
     {
         ObjectReader detecting = READER.forType(POJO.class);
         detecting = detecting.withFormatDetection(detecting);

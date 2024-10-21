@@ -14,7 +14,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // for [databind#1844]
-public class MapMerge1844Test
+class MapMerge1844Test
 {
     static class TestMap1844 {
         public Map<String, Integer> getMapStringInteger() {
@@ -42,7 +42,7 @@ public class MapMerge1844Test
 
     // for [databind#1844]
     @Test
-    public void testMap1844() throws Exception
+    void testMap1844() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
         mapper.setDefaultMergeable(true);

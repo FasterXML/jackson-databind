@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // [databind#4316] : NPE when deserializing JsonAnySetter in Throwable
-public class ExceptionWithAnySetter4316Test
+class ExceptionWithAnySetter4316Test
 {
     static class Problem extends Exception {
         private static final long serialVersionUID = 1L;
@@ -38,7 +38,7 @@ public class ExceptionWithAnySetter4316Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testWithAnySetter() throws Exception
+    void testWithAnySetter() throws Exception
     {
         Problem problem = new Problem();
         problem.additionalProperties.put("key", "value");
@@ -50,7 +50,7 @@ public class ExceptionWithAnySetter4316Test
 
     // Map with ignored props keys specified in @JsonIgnoreProperties
     @Test
-    public void testWithAnySetterAndIgnoralsPut() throws Exception
+    void testWithAnySetterAndIgnoralsPut() throws Exception
     {
         // Given
         ProblemWithIgnorals problem = new ProblemWithIgnorals();
@@ -74,7 +74,7 @@ public class ExceptionWithAnySetter4316Test
 
     // With ignorals
     @Test
-    public void testWithAnySetterAndIgnoralSimple() throws Exception
+    void testWithAnySetterAndIgnoralSimple() throws Exception
     {
         // Given
         ProblemWithIgnorals problem = new ProblemWithIgnorals();
@@ -91,7 +91,7 @@ public class ExceptionWithAnySetter4316Test
 
     // With Include.NON_NULL
     @Test
-    public void testWithAnySetterButEmptyIncludedFalse() throws Exception
+    void testWithAnySetterButEmptyIncludedFalse() throws Exception
     {
         Problem problem = new Problem();
         problem.additionalProperties.put("exclude", null);

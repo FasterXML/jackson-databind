@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class BiggerDataTest
+class BiggerDataTest
 {
 	static class Citm
 	{
@@ -80,8 +80,8 @@ public class BiggerDataTest
 
 	private final ObjectMapper MAPPER = JsonMapper.builder().build();
 
-	@Test
-	public void testReading() throws Exception
+    @Test
+    void testReading() throws Exception
 	{
 		Citm citm = MAPPER.readValue(getClass().getResourceAsStream("/data/citm_catalog.json"),
 				Citm.class);
@@ -105,8 +105,8 @@ public class BiggerDataTest
 		assertEquals(1, citm.venueNames.size());
 	}
 
-	@Test
-	public void testRoundTrip() throws Exception
+    @Test
+    void testRoundTrip() throws Exception
 	{
 		Citm citm = MAPPER.readValue(getClass().getResourceAsStream("/data/citm_catalog.json"),
 				Citm.class);

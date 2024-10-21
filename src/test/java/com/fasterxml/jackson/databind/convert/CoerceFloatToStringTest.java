@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class CoerceFloatToStringTest
+class CoerceFloatToStringTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
@@ -39,19 +39,19 @@ public class CoerceFloatToStringTest
             .build();
 
     @Test
-    public void testDefaultFloatToStringCoercion() throws JsonProcessingException
+    void testDefaultFloatToStringCoercion() throws JsonProcessingException
     {
         assertSuccessfulFloatToStringCoercionWith(DEFAULT_MAPPER);
     }
 
     @Test
-    public void testCoerceConfigToConvert() throws JsonProcessingException
+    void testCoerceConfigToConvert() throws JsonProcessingException
     {
         assertSuccessfulFloatToStringCoercionWith(MAPPER_TRY_CONVERT);
     }
 
     @Test
-    public void testCoerceConfigToNull() throws JsonProcessingException
+    void testCoerceConfigToNull() throws JsonProcessingException
     {
         assertNull(MAPPER_TO_NULL.readValue("1.2", String.class));
         StringWrapper w = MAPPER_TO_NULL.readValue("{\"str\": -5.3}", StringWrapper.class);
@@ -62,7 +62,7 @@ public class CoerceFloatToStringTest
     }
 
     @Test
-    public void testCoerceConfigToEmpty() throws JsonProcessingException
+    void testCoerceConfigToEmpty() throws JsonProcessingException
     {
         assertEquals("", MAPPER_TO_EMPTY.readValue("3.5", String.class));
         StringWrapper w = MAPPER_TO_EMPTY.readValue("{\"str\": -5.3}", StringWrapper.class);
@@ -73,7 +73,7 @@ public class CoerceFloatToStringTest
     }
 
     @Test
-    public void testCoerceConfigToFail() throws JsonProcessingException
+    void testCoerceConfigToFail() throws JsonProcessingException
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, String.class, "3.5");
         _verifyCoerceFail(MAPPER_TO_FAIL, StringWrapper.class, "{\"str\": -5.3}", "string");

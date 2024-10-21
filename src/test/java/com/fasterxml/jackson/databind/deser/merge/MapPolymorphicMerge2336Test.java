@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
 
-public class MapPolymorphicMerge2336Test
+class MapPolymorphicMerge2336Test
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
@@ -94,7 +94,7 @@ public class MapPolymorphicMerge2336Test
 
     // [databind#2336]
     @Test
-    public void testPolymorphicMapMerge() throws Exception
+    void testPolymorphicMapMerge() throws Exception
     {
         // first let's just get some valid JSON
         SomeOtherClass baseValue = new SomeOtherClass("house");

@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Reda.Housni-Alaoui
  */
-public class BackReference1878Test extends DatabindTestUtil
+class BackReference1878Test extends DatabindTestUtil
 {
     static class Child {
         @JsonBackReference
@@ -28,7 +28,7 @@ public class BackReference1878Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testChildDeserialization() throws Exception {
+    void testChildDeserialization() throws Exception {
         Child child = MAPPER.readValue("{\"b\": {}}", Child.class);
         assertNotNull(child.b);
     }

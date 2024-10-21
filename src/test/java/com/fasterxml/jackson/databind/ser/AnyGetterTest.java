@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AnyGetterTest extends DatabindTestUtil
+class AnyGetterTest extends DatabindTestUtil
 {
     static class Bean
     {
@@ -188,7 +188,7 @@ public class AnyGetterTest extends DatabindTestUtil
 
     // [databind#1458]: Allow `@JsonAnyGetter` on fields too
     @Test
-    public void testDynaFieldBean() throws Exception
+    void testDynaFieldBean() throws Exception
     {
         DynaFieldBean b = new DynaFieldBean();
         b.id = 123;
@@ -209,7 +209,7 @@ public class AnyGetterTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleAnyBean() throws Exception
+    void testSimpleAnyBean() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean());
         Map<?,?> map = MAPPER.readValue(json, Map.class);
@@ -219,7 +219,7 @@ public class AnyGetterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAnyOnly() throws Exception
+    void testAnyOnly() throws Exception
     {
         ObjectMapper m;
 
@@ -237,7 +237,7 @@ public class AnyGetterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAnyDisabling() throws Exception
+    void testAnyDisabling() throws Exception
     {
         String json = MAPPER.writeValueAsString(new NotEvenAnyBean());
         assertEquals(a2q("{'value':42}"), json);
@@ -245,7 +245,7 @@ public class AnyGetterTest extends DatabindTestUtil
 
     // Trying to repro [databind#577]
     @Test
-    public void testAnyWithNull() throws Exception
+    void testAnyWithNull() throws Exception
     {
         MapAsAny input = new MapAsAny();
         input.add("bar", null);
@@ -254,7 +254,7 @@ public class AnyGetterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIssue705() throws Exception
+    void testIssue705() throws Exception
     {
         Issue705Bean input = new Issue705Bean("key", "value");
         String json = MAPPER.writeValueAsString(input);
@@ -263,7 +263,7 @@ public class AnyGetterTest extends DatabindTestUtil
 
     // [databind#1124]
     @Test
-    public void testAnyGetterWithValueSerializer() throws Exception
+    void testAnyGetterWithValueSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Bean1124 input = new Bean1124();
@@ -274,7 +274,7 @@ public class AnyGetterTest extends DatabindTestUtil
 
     // [databind#2592]
     @Test
-    public void testAnyGetterWithMapperDefaultIncludeNonEmpty() throws Exception
+    void testAnyGetterWithMapperDefaultIncludeNonEmpty() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
                 .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -288,7 +288,7 @@ public class AnyGetterTest extends DatabindTestUtil
 
     // [databind#2592]
     @Test
-    public void testAnyGetterWithMapperDefaultIncludeNonEmptyAndFilterOnBean() throws Exception
+    void testAnyGetterWithMapperDefaultIncludeNonEmptyAndFilterOnBean() throws Exception
     {
         FilterProvider filters = new SimpleFilterProvider()
                 .addFilter("Bean2592", SimpleBeanPropertyFilter.serializeAllExcept("something"));
@@ -306,7 +306,7 @@ public class AnyGetterTest extends DatabindTestUtil
 
     // [databind#2592]
     @Test
-    public void testAnyGetterWithPropertyIncludeNonEmpty() throws Exception
+    void testAnyGetterWithPropertyIncludeNonEmpty() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Bean2592PropertyIncludeNonEmpty input = new Bean2592PropertyIncludeNonEmpty();
@@ -319,7 +319,7 @@ public class AnyGetterTest extends DatabindTestUtil
 
     // [databind#2592]
     @Test
-    public void testAnyGetterConfigIncludeNonEmpty() throws Exception
+    void testAnyGetterConfigIncludeNonEmpty() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Map.class, incl -> incl.setInclude(

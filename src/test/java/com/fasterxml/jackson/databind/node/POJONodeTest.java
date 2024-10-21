@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class POJONodeTest extends NodeTestBase
+class POJONodeTest extends NodeTestBase
 {
     @JsonSerialize(using = CustomSer.class)
     public static class Data {
@@ -38,7 +38,7 @@ public class POJONodeTest extends NodeTestBase
     final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testPOJONodeCustomSer() throws Exception
+    void testPOJONodeCustomSer() throws Exception
     {
       Data data = new Data();
       data.aStr = "Hello";
@@ -64,7 +64,7 @@ public class POJONodeTest extends NodeTestBase
     // Java 8 Date/Time types. So we'll catch IOException/RuntimeException for
     // POJONode, produce something like "[ERROR: (type) [msg]" TextNode for that case?
     @Test
-    public void testAddJava8DateAsPojo() throws Exception
+    void testAddJava8DateAsPojo() throws Exception
     {
         JsonNode node = MAPPER.createObjectNode().putPOJO("test", LocalDateTime.now());
         String json = node.toString();

@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for checking extended auto-detect configuration,
  * in context of serialization
  */
-public class TestAutoDetectForSer
-    extends DatabindTestUtil
+class TestAutoDetectForSer
+        extends DatabindTestUtil
 {
     static class FieldBean
     {
@@ -50,7 +50,7 @@ public class TestAutoDetectForSer
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testDefaults() throws Exception
+    void testDefaults() throws Exception
     {
         // by default, only public fields and getters are detected
         assertEquals("{\"p1\":\"public\"}",
@@ -60,7 +60,7 @@ public class TestAutoDetectForSer
     }
 
     @Test
-    public void testProtectedViaAnnotations() throws Exception
+    void testProtectedViaAnnotations() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new ProtFieldBean());
         assertEquals(2, result.size());
@@ -76,7 +76,7 @@ public class TestAutoDetectForSer
     }
 
     @Test
-    public void testPrivateUsingGlobals() throws Exception
+    void testPrivateUsingGlobals() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         VisibilityChecker<?> vc = m.getVisibilityChecker();
@@ -101,7 +101,7 @@ public class TestAutoDetectForSer
     }
 
     @Test
-    public void testBasicSetup() throws Exception
+    void testBasicSetup() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         VisibilityChecker<?> vc = m.getVisibilityChecker();
@@ -116,7 +116,7 @@ public class TestAutoDetectForSer
     }
 
     @Test
-    public void testMapperShortcutMethods() throws Exception
+    void testMapperShortcutMethods() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);

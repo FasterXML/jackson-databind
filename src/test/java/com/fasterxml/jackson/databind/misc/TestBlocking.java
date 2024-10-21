@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit test mostly written to cover issue [JACKSON-81]; unintended blocking
  * after data binding.
  */
-public class TestBlocking
-    extends DatabindTestUtil
+class TestBlocking
+        extends DatabindTestUtil
 {
     /**
      * This is an indirect test that should trigger problems if (and only if)
@@ -24,7 +24,7 @@ public class TestBlocking
      * quite yet.
      */
     @Test
-    public void testEagerAdvance() throws IOException
+    void testEagerAdvance() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         JsonParser jp = createParserUsingReader("[ 1  ");

@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class CoerceMiscScalarsTest
+class CoerceMiscScalarsTest
 {
     private final ObjectMapper DEFAULT_MAPPER = sharedMapper();
 
@@ -51,7 +51,7 @@ public class CoerceMiscScalarsTest
      */
 
     @Test
-    public void testScalarDefaultsFromEmpty() throws Exception
+    void testScalarDefaultsFromEmpty() throws Exception
     {
         // mostly as null, with some exceptions
 
@@ -82,7 +82,7 @@ public class CoerceMiscScalarsTest
      */
 
     @Test
-    public void testScalarEmptyToNull() throws Exception
+    void testScalarEmptyToNull() throws Exception
     {
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, File.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, URL.class);
@@ -99,7 +99,7 @@ public class CoerceMiscScalarsTest
     }
 
     @Test
-    public void testScalarEmptyToEmpty() throws Exception
+    void testScalarEmptyToEmpty() throws Exception
     {
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, File.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, URL.class);
@@ -122,7 +122,7 @@ public class CoerceMiscScalarsTest
     }
 
     @Test
-    public void testScalarEmptyToTryConvert() throws Exception
+    void testScalarEmptyToTryConvert() throws Exception
     {
         // Should be same as `AsNull` for most but not all
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, File.class);
@@ -152,7 +152,7 @@ public class CoerceMiscScalarsTest
      */
 
     @Test
-    public void testScalarsFailFromEmpty() throws Exception
+    void testScalarsFailFromEmpty() throws Exception
     {
         _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, File.class);
         _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, URL.class);
@@ -178,7 +178,7 @@ public class CoerceMiscScalarsTest
     // also uses custom subtype, so test separately
 
     @Test
-    public void testUUIDCoercions() throws Exception
+    void testUUIDCoercions() throws Exception
     {
         // Coerce to `null` both by default, "TryConvert" and explicit
         _testScalarEmptyToNull(DEFAULT_MAPPER, UUID.class);
@@ -203,7 +203,7 @@ public class CoerceMiscScalarsTest
     // StringBuilder is its own special type, since it naturally maps
     // from String values, hence separate testing
     @Test
-    public void testStringBuilderCoercions() throws Exception
+    void testStringBuilderCoercions() throws Exception
     {
         // should result in an "empty" StringBuilder for all valid settings
         _checkEmptyStringBuilder(DEFAULT_MAPPER.readValue(JSON_EMPTY, StringBuilder.class));
@@ -221,7 +221,7 @@ public class CoerceMiscScalarsTest
 
     // Date, Calendar also included here for convenience
     @Test
-    public void testLegacyDateTimeCoercions() throws Exception
+    void testLegacyDateTimeCoercions() throws Exception
     {
         // Coerce to `null` both by default, "TryConvert" and explicit
         _testScalarEmptyToNull(DEFAULT_MAPPER, Calendar.class);

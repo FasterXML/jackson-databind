@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class UUIDSerializationTest extends DatabindTestUtil
+class UUIDSerializationTest extends DatabindTestUtil
 {
     static class UUIDWrapperVanilla {
         public UUID uuid;
@@ -32,7 +32,7 @@ public class UUIDSerializationTest extends DatabindTestUtil
 
     // Verify that efficient UUID codec won't mess things up:
     @Test
-    public void testBasicUUIDs() throws IOException
+    void testBasicUUIDs() throws IOException
     {
         // first, couple of generated UUIDs:
         for (String value : new String[] {
@@ -66,7 +66,7 @@ public class UUIDSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testShapeOverrides() throws Exception
+    void testShapeOverrides() throws Exception
     {
         final String nullUUIDStr = "00000000-0000-0000-0000-000000000000";
         final UUID nullUUID = UUID.fromString(nullUUIDStr);

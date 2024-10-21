@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MergePolymorphicTest
+class MergePolymorphicTest
 {
 
     static class Root {
@@ -42,14 +42,14 @@ public class MergePolymorphicTest
             .build();
 
     @Test
-    public void testPolymorphicNewObject() throws Exception {
+    void testPolymorphicNewObject() throws Exception {
         Root root = MAPPER.readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm child A\" }}", Root.class);
         assertTrue(root.child instanceof ChildA);
         assertEquals("I'm child A", ((ChildA) root.child).name);
     }
 
     @Test
-    public void testPolymorphicFromNullToNewObject() throws Exception {
+    void testPolymorphicFromNullToNewObject() throws Exception {
         Root root = new Root();
         MAPPER.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm the new name\" }}");
         assertTrue(root.child instanceof ChildA);
@@ -57,7 +57,7 @@ public class MergePolymorphicTest
     }
 
     @Test
-    public void testPolymorphicFromObjectToNull() throws Exception {
+    void testPolymorphicFromObjectToNull() throws Exception {
         Root root = new Root();
         ChildA childA = new ChildA();
         childA.name = "I'm child A";
@@ -67,7 +67,7 @@ public class MergePolymorphicTest
     }
 
     @Test
-    public void testPolymorphicPropertyCanBeMerged() throws Exception {
+    void testPolymorphicPropertyCanBeMerged() throws Exception {
         Root root = new Root();
         ChildA childA = new ChildA();
         childA.name = "I'm child A";
@@ -78,7 +78,7 @@ public class MergePolymorphicTest
     }
 
     @Test
-    public void testPolymorphicPropertyTypeCanNotBeChanged() throws Exception {
+    void testPolymorphicPropertyTypeCanNotBeChanged() throws Exception {
         Root root = new Root();
         ChildA childA = new ChildA();
         childA.name = "I'm child A";

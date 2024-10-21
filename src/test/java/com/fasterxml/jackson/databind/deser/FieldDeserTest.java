@@ -17,7 +17,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * Unit tests for verifying that field-backed properties can also be
  * deserialized as well as setter-accessible properties.
  */
-public class FieldDeserTest
+class FieldDeserTest
 {
     static class SimpleFieldBean
     {
@@ -74,6 +74,7 @@ public class FieldDeserTest
     }
 
     abstract static class Abstract { }
+
     static class Concrete extends Abstract
     {
         String value;
@@ -95,7 +96,7 @@ public class FieldDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleAutoDetect() throws Exception
+    void testSimpleAutoDetect() throws Exception
     {
         SimpleFieldBean result = MAPPER.readValue("{ \"x\" : -13 }",
                 SimpleFieldBean.class);
@@ -104,7 +105,7 @@ public class FieldDeserTest
     }
 
     @Test
-    public void testSimpleAnnotation() throws Exception
+    void testSimpleAnnotation() throws Exception
     {
         SimpleFieldBean2 bean = MAPPER.readValue("{ \"values\" : [ \"x\", \"y\" ] }",
                 SimpleFieldBean2.class);
@@ -116,7 +117,7 @@ public class FieldDeserTest
     }
 
     @Test
-    public void testNoAutoDetect() throws Exception
+    void testNoAutoDetect() throws Exception
     {
         NoAutoDetectBean bean = MAPPER.readValue("{ \"z\" : 7 }",
                 NoAutoDetectBean.class);
@@ -124,7 +125,7 @@ public class FieldDeserTest
     }
 
     @Test
-    public void testTypeAnnotation() throws Exception
+    void testTypeAnnotation() throws Exception
     {
         AbstractWrapper w = MAPPER.readValue("{ \"value\" : \"abc\" }",
                 AbstractWrapper.class);
@@ -135,7 +136,7 @@ public class FieldDeserTest
     }
 
     @Test
-    public void testResolvedDups1() throws Exception
+    void testResolvedDups1() throws Exception
     {
         DupFieldBean result = MAPPER.readValue(a2q("{'z':3}"), DupFieldBean.class);
         assertEquals(3, result._z);
@@ -143,7 +144,7 @@ public class FieldDeserTest
     }
 
     @Test
-    public void testFailingDups2() throws Exception
+    void testFailingDups2() throws Exception
     {
         // Fails because both fields have explicit annotation
         try {
@@ -155,7 +156,7 @@ public class FieldDeserTest
     }
 
     @Test
-    public void testOkFieldOverride() throws Exception
+    void testOkFieldOverride() throws Exception
     {
         OkDupFieldBean result = MAPPER.readValue("{ \"x\" : 1, \"y\" : 2 }",
                 OkDupFieldBean.class);

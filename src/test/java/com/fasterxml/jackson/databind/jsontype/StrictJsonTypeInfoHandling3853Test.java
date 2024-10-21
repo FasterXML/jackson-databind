@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
+class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
 
     @JsonTypeInfo(use = Id.NAME)
     interface Command {
@@ -26,7 +26,7 @@ public class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
     }
 
     @Test
-    public void testDefaultHasStrictTypeHandling() throws Exception {
+    void testDefaultHasStrictTypeHandling() throws Exception {
         ObjectMapper om = new ObjectMapper();
         om.registerSubtypes(DoSomethingCommand.class);
 
@@ -41,7 +41,7 @@ public class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
     }
 
     @Test
-    public void testExplicitNonStrictTypeHandling() throws Exception {
+    void testExplicitNonStrictTypeHandling() throws Exception {
         ObjectMapper om = JsonMapper.builder().disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
         om.registerSubtypes(DoSomethingCommand.class);
 
@@ -56,7 +56,7 @@ public class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
     }
 
     @Test
-    public void testStrictTypeHandling() throws Exception {
+    void testStrictTypeHandling() throws Exception {
         ObjectMapper om = JsonMapper.builder().enable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
         om.registerSubtypes(DoSomethingCommand.class);
 

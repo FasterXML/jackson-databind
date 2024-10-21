@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [databind#888]
-public class JsonIncludeCustomTest extends DatabindTestUtil
+class JsonIncludeCustomTest extends DatabindTestUtil
 {
     static class FooFilter {
         @Override
@@ -92,14 +92,14 @@ public class JsonIncludeCustomTest extends DatabindTestUtil
     final private ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testSimpleCustomFilter() throws Exception
+    void testSimpleCustomFilter() throws Exception
     {
         assertEquals(a2q("{'value':'x'}"), MAPPER.writeValueAsString(new FooBean("x")));
         assertEquals("{}", MAPPER.writeValueAsString(new FooBean("foo")));
     }
 
     @Test
-    public void testCustomFilterWithMap() throws Exception
+    void testCustomFilterWithMap() throws Exception
     {
         FooMapBean input = new FooMapBean()
                 .add("a", "1")
@@ -111,7 +111,7 @@ public class JsonIncludeCustomTest extends DatabindTestUtil
 
     // [databind#3481]
     @Test
-    public void testRepeatedCalls() throws Exception
+    void testRepeatedCalls() throws Exception
     {
         CountingFooFilter.counter.set(0);
 
@@ -134,7 +134,7 @@ public class JsonIncludeCustomTest extends DatabindTestUtil
      */
 
     @Test
-    public void testBrokenFilter() throws Exception
+    void testBrokenFilter() throws Exception
     {
         try {
             String json = MAPPER.writeValueAsString(new BrokenBean(null));

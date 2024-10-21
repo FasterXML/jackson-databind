@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests mostly for ability to create "annotation bundles"
-public class AnnotationBundlesTest extends DatabindTestUtil
+class AnnotationBundlesTest extends DatabindTestUtil
 {
     @Retention(RetentionPolicy.RUNTIME)
     @JacksonAnnotationsInside
@@ -118,43 +118,43 @@ public class AnnotationBundlesTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testKeepAnnotationBundle() throws Exception
+    void testKeepAnnotationBundle() throws Exception
     {
         MAPPER.setAnnotationIntrospector(new BundleAnnotationIntrospector());
         assertEquals("{\"important\":42}", MAPPER.writeValueAsString(new InformingHolder()));
     }
 
     @Test
-    public void testRecursiveBundlesField() throws Exception {
+    void testRecursiveBundlesField() throws Exception {
         assertEquals("{\"unimportant\":42}", MAPPER.writeValueAsString(new RecursiveHolder()));
     }
 
     @Test
-    public void testRecursiveBundlesMethod() throws Exception {
+    void testRecursiveBundlesMethod() throws Exception {
         assertEquals("{\"value\":28}", MAPPER.writeValueAsString(new RecursiveHolder2()));
     }
 
     @Test
-    public void testRecursiveBundlesConstructor() throws Exception {
+    void testRecursiveBundlesConstructor() throws Exception {
         RecursiveHolder3 result = MAPPER.readValue("17", RecursiveHolder3.class);
         assertNotNull(result);
         assertEquals(17, result.x);
     }
 
     @Test
-    public void testBundledIgnore() throws Exception
+    void testBundledIgnore() throws Exception
     {
         assertEquals("{\"foobar\":13}", MAPPER.writeValueAsString(new Bean()));
     }
 
     @Test
-    public void testVisibilityBundle() throws Exception
+    void testVisibilityBundle() throws Exception
     {
         assertEquals("{\"b\":5}", MAPPER.writeValueAsString(new NoAutoDetect()));
     }
 
     @Test
-    public void testIssue92() throws Exception
+    void testIssue92() throws Exception
     {
         assertEquals("{\"_id\":\"abc\"}", MAPPER.writeValueAsString(new Bean92()));
     }

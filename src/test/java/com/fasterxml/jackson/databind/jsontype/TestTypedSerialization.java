@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.*;
 
-public class TestTypedSerialization
-    extends DatabindTestUtil
+class TestTypedSerialization
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -75,7 +75,9 @@ public class TestTypedSerialization
 
     @JsonTypeInfo(include=As.PROPERTY, use=Id.CLASS)
     public class Super {}
+
     public class A extends Super {}
+
     public class B extends Super {}
 
     /*
@@ -91,7 +93,7 @@ public class TestTypedSerialization
      * class name, written as main-level property name
      */
     @Test
-    public void testSimpleClassAsProperty() throws Exception
+    void testSimpleClassAsProperty() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new Cat("Beelzebub", "tabby"));
         assertEquals(3, result.size());
@@ -106,7 +108,7 @@ public class TestTypedSerialization
      * Test inclusion using wrapper style
      */
     @Test
-    public void testTypeAsWrapper() throws Exception
+    void testTypeAsWrapper() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Animal.class, TypeWithWrapper.class);
@@ -125,7 +127,7 @@ public class TestTypedSerialization
      * Test inclusion using 2-element array
      */
     @Test
-    public void testTypeAsArray() throws Exception
+    void testTypeAsArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Animal.class, TypeWithArray.class);
@@ -155,7 +157,7 @@ public class TestTypedSerialization
      */
     @SuppressWarnings("unchecked")
     @Test
-    public void testInArray() throws Exception
+    void testInArray() throws Exception
     {
         // ensure we'll use mapper with default configs
         ObjectMapper m = new ObjectMapper();
@@ -189,7 +191,7 @@ public class TestTypedSerialization
      * Simple unit test to verify that serializing "empty" beans is ok
      */
     @Test
-    public void testEmptyBean() throws Exception
+    void testEmptyBean() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -200,7 +202,7 @@ public class TestTypedSerialization
      * Unit test for [JACKSON-543]
      */
     @Test
-    public void testTypedMaps() throws Exception
+    void testTypedMaps() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
 

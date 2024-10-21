@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
-public class DelegatingArrayCreatorsTest
+class DelegatingArrayCreatorsTest
 {
     public static class MyTypeImpl extends MyType {
         private final List<Integer> values;
@@ -100,14 +100,14 @@ public class DelegatingArrayCreatorsTest
 
     // [databind#1804]
     @Test
-    public void testDelegatingArray1804() throws Exception {
+    void testDelegatingArray1804() throws Exception {
         MyType thing = MAPPER.readValue("[]", MyType.class);
         assertNotNull(thing);
     }
 
     // [databind#2324]
     @Test
-    public void testDeserializeBagOfStrings() throws Exception {
+    void testDeserializeBagOfStrings() throws Exception {
         WithBagOfStrings2324 result = MAPPER.readerFor(WithBagOfStrings2324.class)
                 .readValue("{\"strings\": [ \"a\", \"b\", \"c\"]}");
         assertEquals(3, result.getStrings().size());
@@ -115,7 +115,7 @@ public class DelegatingArrayCreatorsTest
 
     // [databind#2324]
     @Test
-    public void testDeserializeBagOfPOJOs() throws Exception {
+    void testDeserializeBagOfPOJOs() throws Exception {
         WithBagOfValues2324 result = MAPPER.readerFor(WithBagOfValues2324.class)
                 .readValue("{\"values\": [ \"a\", \"b\", \"c\"]}");
         assertEquals(3, result.getValues().size());
@@ -123,7 +123,7 @@ public class DelegatingArrayCreatorsTest
     }
 
     @Test
-    public void testInvalidTwoArrayDelegating() throws Exception {
+    void testInvalidTwoArrayDelegating() throws Exception {
         try {
             /*MultipleArrayDelegators result =*/ MAPPER.readerFor(MultipleArrayDelegators.class)
                 .readValue("[ ]");

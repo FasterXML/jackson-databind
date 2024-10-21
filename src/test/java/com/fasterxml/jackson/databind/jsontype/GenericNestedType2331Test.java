@@ -11,9 +11,10 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#2331]
-public class GenericNestedType2331Test extends DatabindTestUtil
+class GenericNestedType2331Test extends DatabindTestUtil
 {
     static class SuperNode<T> { }
+
     static class SuperTestClass { }
 
     @SuppressWarnings("serial")
@@ -34,9 +35,9 @@ public class GenericNestedType2331Test extends DatabindTestUtil
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void testGeneric2331() throws Exception {
+    void testGeneric2331() throws Exception {
         Node root = new Node();
         root.children.add(new Node());
 

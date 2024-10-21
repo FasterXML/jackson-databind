@@ -6,14 +6,14 @@ import org.openjdk.jol.info.GraphLayout;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MapperFootprintTest {
+class MapperFootprintTest {
     /*
      * Note: this class is run in an isolated execution in surefire. The test is too flaky with all the other tests
      * running in the same JVM.
      */
 
     @Test
-    public void testMapperFootprint() throws InterruptedException {
+    void testMapperFootprint() throws InterruptedException {
         // memory footprint limit for the ObjectMapper
 
         // force gc (see javadoc of GraphLayout.subtract)

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BasicExceptionTest extends DatabindTestUtil
+class BasicExceptionTest extends DatabindTestUtil
 {
     static class User {
         public String user;
@@ -28,7 +28,7 @@ public class BasicExceptionTest extends DatabindTestUtil
     private final JsonFactory JSON_F = MAPPER.getFactory();
 
     @Test
-    public void testBadDefinition() throws Exception
+    void testBadDefinition() throws Exception
     {
         JavaType t = defaultTypeFactory().constructType(String.class);
         JsonParser p = JSON_F.createParser("[]");
@@ -66,7 +66,7 @@ public class BasicExceptionTest extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testInvalidFormat() throws Exception
+    void testInvalidFormat() throws Exception
     {
         // deprecated methods should still work:
         InvalidFormatException e = new InvalidFormatException("Testing", Boolean.TRUE,
@@ -83,7 +83,7 @@ public class BasicExceptionTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIgnoredProperty() throws Exception
+    void testIgnoredProperty() throws Exception
     {
         // first just construct valid instance with some variations
         JsonParser p = JSON_F.createParser("{ }");
@@ -109,7 +109,7 @@ public class BasicExceptionTest extends DatabindTestUtil
     }
 
     @Test
-    public void testUnrecognizedProperty() throws Exception
+    void testUnrecognizedProperty() throws Exception
     {
         JsonParser p = JSON_F.createParser("{ }");
         UnrecognizedPropertyException e = UnrecognizedPropertyException.from(p, this,
@@ -132,7 +132,7 @@ public class BasicExceptionTest extends DatabindTestUtil
     // [databind#2482]: ensure Location is the original one
     // [core#1173]: ... and needs to be correct column, too
     @Test
-    public void testLocationAddition() throws Exception
+    void testLocationAddition() throws Exception
     {
         String problemJson = "{\n\t\"userList\" : [\n\t{\n\t user : \"1\"\n\t},\n\t{\n\t \"user\" : \"2\"\n\t}\n\t]\n}";
         try {

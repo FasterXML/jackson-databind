@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 
 // for [databind#1807]
-public class MapDeserializerCachingTest
+class MapDeserializerCachingTest
 {
     public static class NonAnnotatedMapHolderClass {
         public Map<String, String> data = new TreeMap<String, String>();
@@ -40,7 +40,7 @@ public class MapDeserializerCachingTest
      */
 
     @Test
-    public void testCachedSerialize() throws IOException {
+    void testCachedSerialize() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         String json = a2q("{'data':{'1st':'onedata','2nd':'twodata'}}");
 

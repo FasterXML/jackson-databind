@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for new (2.14) `JsonNodeFeature`
-public class NodeFeaturesTest extends DatabindTestUtil
+class NodeFeaturesTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
     private final ObjectReader READER = MAPPER.reader();
@@ -22,11 +22,12 @@ public class NodeFeaturesTest extends DatabindTestUtil
     {
         DOC_WITH_NULL.putNull("nvl");
     }
+
     private final String JSON_EMPTY = ("{}");
     private final String JSON_WITH_NULL = a2q("{'nvl':null}");
 
     @Test
-    public void testDefaultSettings() throws Exception
+    void testDefaultSettings() throws Exception
     {
         assertTrue(READER.isEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
         assertFalse(READER.without(JsonNodeFeature.READ_NULL_PROPERTIES)
@@ -38,7 +39,7 @@ public class NodeFeaturesTest extends DatabindTestUtil
     }
 
     @Test
-    public void testImplicitVsExplicit()
+    void testImplicitVsExplicit()
     {
         DatatypeFeatures dfs = DatatypeFeatures.defaultFeatures();
         assertTrue(dfs.isEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
@@ -69,7 +70,7 @@ public class NodeFeaturesTest extends DatabindTestUtil
 
     // [databind#3421]
     @Test
-    public void testReadNulls() throws Exception
+    void testReadNulls() throws Exception
     {
         // so by default we'll get null included
         assertEquals(DOC_WITH_NULL, READER.readTree(JSON_WITH_NULL));
@@ -94,7 +95,7 @@ public class NodeFeaturesTest extends DatabindTestUtil
 
     // [databind#3476]
     @Test
-    public void testWriteNulls() throws Exception
+    void testWriteNulls() throws Exception
     {
         // so by default we'll get null written
         assertEquals(JSON_WITH_NULL, WRITER.writeValueAsString(DOC_WITH_NULL));
@@ -126,7 +127,7 @@ public class NodeFeaturesTest extends DatabindTestUtil
 
     // [databind#3476]
     @Test
-    public void testWriteSortedProperties() throws Exception
+    void testWriteSortedProperties() throws Exception
     {
         assertFalse(WRITER.isEnabled(JsonNodeFeature.WRITE_PROPERTIES_SORTED));
 

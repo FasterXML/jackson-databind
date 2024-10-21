@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 // explicitly annotated)
 //
 // @since 2.18
-public class DefaultCreatorDetection4584Test extends DatabindTestUtil
+class DefaultCreatorDetection4584Test extends DatabindTestUtil
 {
     static class POJO4584 {
         final String value;
@@ -161,7 +161,7 @@ public class DefaultCreatorDetection4584Test extends DatabindTestUtil
      */
 
     @Test
-    public void testCanonicalConstructor1ArgPropertiesCreator() throws Exception
+    void testCanonicalConstructor1ArgPropertiesCreator() throws Exception
     {
         // Instead of delegating, try denoting List-taking 1-arg one:
         assertEquals(POJO4584.factoryString("List[2]"),
@@ -177,7 +177,7 @@ public class DefaultCreatorDetection4584Test extends DatabindTestUtil
     }
 
     @Test
-    public void testCanonicalConstructor2ArgPropertiesCreator() throws Exception
+    void testCanonicalConstructor2ArgPropertiesCreator() throws Exception
     {
         // Mark the "true" canonical
         assertEquals(POJO4584.factoryString("abc"),
@@ -199,16 +199,16 @@ public class DefaultCreatorDetection4584Test extends DatabindTestUtil
      */
 
     @Test
-    public void testCanonicalConstructorDelegatingIntCreator() throws Exception
+    void testCanonicalConstructorDelegatingIntCreator() throws Exception
     {
         assertEquals(POJO4584.factoryString("int[42]"),
                 readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.DELEGATING,
                         Integer.TYPE))
                     .readValue(a2q("42")));
     }
-    
+
     @Test
-    public void testCanonicalConstructorDelegatingListCreator() throws Exception
+    void testCanonicalConstructorDelegatingListCreator() throws Exception
     {
         assertEquals(POJO4584.factoryString("List[3]"),
                 readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.DELEGATING,
@@ -217,7 +217,7 @@ public class DefaultCreatorDetection4584Test extends DatabindTestUtil
     }
 
     @Test
-    public void testCanonicalConstructorDelegatingArrayCreator() throws Exception
+    void testCanonicalConstructorDelegatingArrayCreator() throws Exception
     {
         assertEquals(POJO4584.factoryString("Array[1]"),
                 readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.DELEGATING,
@@ -234,7 +234,7 @@ public class DefaultCreatorDetection4584Test extends DatabindTestUtil
     // Here we test to ensure that
 
     @Test
-    public void testDelegatingVsExplicit() throws Exception
+    void testDelegatingVsExplicit() throws Exception
     {
         assertEquals(POJO4584Annotated.factoryString("abc"),
                 mapperWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.DELEGATING,
@@ -244,7 +244,7 @@ public class DefaultCreatorDetection4584Test extends DatabindTestUtil
     }
 
     @Test
-    public void testPropertiesBasedVsExplicit() throws Exception
+    void testPropertiesBasedVsExplicit() throws Exception
     {
         assertEquals(POJO4584Annotated.factoryString("abc"),
                 mapperWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.PROPERTIES,

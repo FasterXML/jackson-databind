@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * for properties as well as types.
  */
 @SuppressWarnings("serial")
-public class TestPropertyTypeInfo extends DatabindTestUtil
+class TestPropertyTypeInfo extends DatabindTestUtil
 {
     protected static class BooleanValue {
         public Boolean b;
@@ -37,7 +37,9 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     static class FieldWrapperBeanList extends ArrayList<FieldWrapperBean> { }
+
     static class FieldWrapperBeanMap extends HashMap<String,FieldWrapperBean> { }
+
     static class FieldWrapperBeanArray {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.WRAPPER_ARRAY)
         public FieldWrapperBean[] beans;
@@ -61,7 +63,9 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     static class MethodWrapperBeanList extends ArrayList<MethodWrapperBean> { }
+
     static class MethodWrapperBeanMap extends HashMap<String,MethodWrapperBean> { }
+
     static class MethodWrapperBeanArray {
         protected MethodWrapperBean[] beans;
 
@@ -86,7 +90,7 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
      */
 
     @Test
-    public void testSimpleField() throws Exception
+    void testSimpleField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new FieldWrapperBean(new StringWrapper("foo")));
@@ -98,7 +102,7 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleMethod() throws Exception
+    void testSimpleMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new FieldWrapperBean(new IntWrapper(37)));
@@ -110,7 +114,7 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleListField() throws Exception
+    void testSimpleListField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         FieldWrapperBeanList list = new FieldWrapperBeanList();
@@ -127,7 +131,7 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleListMethod() throws Exception
+    void testSimpleListMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         MethodWrapperBeanList list = new MethodWrapperBeanList();
@@ -149,7 +153,7 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleArrayField() throws Exception
+    void testSimpleArrayField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         FieldWrapperBeanArray array = new FieldWrapperBeanArray(new
@@ -165,7 +169,7 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleArrayMethod() throws Exception
+    void testSimpleArrayMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         MethodWrapperBeanArray array = new MethodWrapperBeanArray(new
@@ -181,7 +185,7 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleMapField() throws Exception
+    void testSimpleMapField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         FieldWrapperBeanMap map = new FieldWrapperBeanMap();
@@ -198,7 +202,7 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleMapMethod() throws Exception
+    void testSimpleMapMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         MethodWrapperBeanMap map = new MethodWrapperBeanMap();

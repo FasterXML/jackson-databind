@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // for [databind#1341]
-public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUtil
+class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUtil
 {
     /**
      * Base class - external property for Fruit subclasses.
@@ -122,7 +122,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
      * Deserialization tests for external type id property present
      */
     @Test
-    public void testDeserializationPresent() throws Exception {
+    void testDeserializationPresent() throws Exception {
         ObjectReader r = READER.without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkOrangeBox(r);
         checkAppleBox(r);
@@ -136,7 +136,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
      * Deserialization tests for external type id property null
      */
     @Test
-    public void testDeserializationNull() throws Exception {
+    void testDeserializationNull() throws Exception {
         ObjectReader r = READER.without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkOrangeBoxNull(r, orangeBoxNullJson);
         checkAppleBoxNull(r, appleBoxNullJson);
@@ -150,7 +150,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
      * Deserialization tests for external type id property empty
      */
     @Test
-    public void testDeserializationEmpty() throws Exception {
+    void testDeserializationEmpty() throws Exception {
         ObjectReader r = READER.without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkOrangeBoxEmpty(r, orangeBoxEmptyJson);
         checkAppleBoxEmpty(r, appleBoxEmptyJson);
@@ -164,7 +164,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
      * Deserialization tests for external type id property missing
      */
     @Test
-    public void testDeserializationMissing() throws Exception {
+    void testDeserializationMissing() throws Exception {
         ObjectReader r = READER.without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkOrangeBoxNull(r, orangeBoxMissingJson);
         checkAppleBoxNull(r, appleBoxMissingJson);
@@ -178,7 +178,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
      * Deserialization tests for external type id required property missing
      */
     @Test
-    public void testDeserializationMissingRequired() throws Exception {
+    void testDeserializationMissingRequired() throws Exception {
         ObjectReader r = READER.without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkReqBoxDatabindException(r, orangeBoxMissingJson);
         checkReqBoxDatabindException(r, appleBoxMissingJson);

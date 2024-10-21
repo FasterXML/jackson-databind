@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
-public class Issue3913DeserTest
+class Issue3913DeserTest
 {
     // [databind#3913]
     static class MyResponse {
@@ -81,7 +81,7 @@ public class Issue3913DeserTest
 
     // [databind#3913]
     @Test
-    public void testDeserialization() throws JsonProcessingException {
+    void testDeserialization() throws JsonProcessingException {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();

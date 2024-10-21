@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for verifying that it is possible to annotate
  * various kinds of things with {@link JsonCreator} annotation.
  */
-public class PolymorphicPropsCreatorsTest extends DatabindTestUtil
+class PolymorphicPropsCreatorsTest extends DatabindTestUtil
 {
     static class Animal
     {
@@ -140,7 +140,7 @@ public class PolymorphicPropsCreatorsTest extends DatabindTestUtil
      * deserialization manually.
      */
     @Test
-    public void testManualPolymorphicDog() throws Exception
+    void testManualPolymorphicDog() throws Exception
     {
         // first, a dog, start with type
         Animal animal = MAPPER.readValue("{ \"type\":\"dog\", \"name\":\"Fido\", \"barkVolume\" : 95.0 }", Animal.class);
@@ -150,7 +150,7 @@ public class PolymorphicPropsCreatorsTest extends DatabindTestUtil
     }
 
     @Test
-    public void testManualPolymorphicCatBasic() throws Exception
+    void testManualPolymorphicCatBasic() throws Exception
     {
         // and finally, lactose-intolerant, but otherwise robust super-cat:
         Animal animal = MAPPER.readValue("{ \"name\" : \"Macavity\", \"type\":\"cat\", \"lives\":18, \"likesCream\":false }", Animal.class);
@@ -163,7 +163,7 @@ public class PolymorphicPropsCreatorsTest extends DatabindTestUtil
     }
 
     @Test
-    public void testManualPolymorphicCatWithReorder() throws Exception
+    void testManualPolymorphicCatWithReorder() throws Exception
     {
         // Then cat; shuffle order to mandate buffering
         Animal animal = MAPPER.readValue("{ \"likesCream\":true, \"name\" : \"Venla\", \"type\":\"cat\" }", Animal.class);
@@ -174,7 +174,7 @@ public class PolymorphicPropsCreatorsTest extends DatabindTestUtil
     }
 
     @Test
-    public void testManualPolymorphicWithNumbered() throws Exception
+    void testManualPolymorphicWithNumbered() throws Exception
     {
          final ObjectWriter w = MAPPER.writerFor(AbstractRoot.class);
          final ObjectReader r = MAPPER.readerFor(AbstractRoot.class);
@@ -188,7 +188,7 @@ public class PolymorphicPropsCreatorsTest extends DatabindTestUtil
 
     // [databind#113]
     @Test
-    public void testSubtypes113() throws Exception
+    void testSubtypes113() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String id = "nice dogy";

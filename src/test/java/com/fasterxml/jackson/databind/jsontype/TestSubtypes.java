@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestSubtypes extends DatabindTestUtil
+class TestSubtypes extends DatabindTestUtil
 {
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
     static abstract class SuperType {
@@ -201,7 +201,7 @@ public class TestSubtypes extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testPropertyWithSubtypes() throws Exception
+    void testPropertyWithSubtypes() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // must register subtypes
@@ -213,7 +213,7 @@ public class TestSubtypes extends DatabindTestUtil
 
     // also works via modules
     @Test
-    public void testSubtypesViaModule() throws Exception
+    void testSubtypesViaModule() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
@@ -238,7 +238,7 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     @Test
-    public void testSerialization() throws Exception
+    void testSerialization() throws Exception
     {
         // serialization can detect type name ok without anything extra:
         SubB bean = new SubB();
@@ -254,7 +254,7 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     @Test
-    public void testSerializationWithDuplicateRegisteredSubtypes() throws Exception {
+    void testSerializationWithDuplicateRegisteredSubtypes() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(new NamedType(Sub.class, "sub1"));
         mapper.registerSubtypes(new NamedType(Sub.class, "sub2"));
@@ -265,7 +265,7 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     @Test
-    public void testDeserializationNonNamed() throws Exception
+    void testDeserializationNonNamed() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(SubC.class);
@@ -277,7 +277,7 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     @Test
-    public void testDeserializatioNamed() throws Exception
+    void testDeserializatioNamed() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(SubB.class);
@@ -294,8 +294,8 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     @Test
-    public void testDeserializationWithDuplicateRegisteredSubtypes()
-        throws Exception {
+    void testDeserializationWithDuplicateRegisteredSubtypes()
+            throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         // We can register the same class with different names
@@ -318,7 +318,7 @@ public class TestSubtypes extends DatabindTestUtil
 
     // Trying to reproduce [JACKSON-366]
     @Test
-    public void testEmptyBean() throws Exception
+    void testEmptyBean() throws Exception
     {
         // First, with annotations
         ObjectMapper mapper = new ObjectMapper();
@@ -341,7 +341,7 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     @Test
-    public void testDefaultImpl() throws Exception
+    void testDefaultImpl() throws Exception
     {
         // first, test with no type information
         SuperTypeWithDefault bean = MAPPER.readValue("{\"a\":13}", SuperTypeWithDefault.class);
@@ -364,7 +364,7 @@ public class TestSubtypes extends DatabindTestUtil
 
     // [JACKSON-505]: ok to also default to mapping there might be for base type
     @Test
-    public void testDefaultImplViaModule() throws Exception
+    void testDefaultImplViaModule() throws Exception
     {
         final String JSON = "{\"a\":123}";
 
@@ -392,7 +392,7 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     @Test
-    public void testErrorMessage() throws Exception {
+    void testErrorMessage() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         try {
             mapper.readValue("{ \"type\": \"z\"}", BaseX.class);
@@ -404,7 +404,7 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     @Test
-    public void testViaAtomic() throws Exception {
+    void testViaAtomic() throws Exception {
         AtomicWrapper input = new AtomicWrapper(3);
         String json = MAPPER.writeValueAsString(input);
 
@@ -417,7 +417,7 @@ public class TestSubtypes extends DatabindTestUtil
     // Test to verify that base/impl restriction is applied to polymorphic handling
     // even if class name is used as the id
     @Test
-    public void testSubclassLimits() throws Exception
+    void testSubclassLimits() throws Exception
     {
         try {
             MAPPER.readValue(a2q("{'value':['"
@@ -434,7 +434,7 @@ public class TestSubtypes extends DatabindTestUtil
     // [databind#1125]: properties from base class too
 
     @Test
-    public void testIssue1125NonDefault() throws Exception
+    void testIssue1125NonDefault() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Issue1125Wrapper(new Impl1125(1, 2, 3)));
 
@@ -448,7 +448,7 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     @Test
-    public void testIssue1125WithDefault() throws Exception
+    void testIssue1125WithDefault() throws Exception
     {
         Issue1125Wrapper result = MAPPER.readValue(a2q("{'value':{'a':3,'def':9,'b':5}}"),
         		Issue1125Wrapper.class);

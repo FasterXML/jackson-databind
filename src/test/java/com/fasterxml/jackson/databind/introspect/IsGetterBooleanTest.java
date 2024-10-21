@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class IsGetterBooleanTest extends DatabindTestUtil
+class IsGetterBooleanTest extends DatabindTestUtil
 {
     // [databind#3609]
     static class POJO3609 {
@@ -48,7 +48,7 @@ public class IsGetterBooleanTest extends DatabindTestUtil
 
     // [databind#3609]
     @Test
-    public void testAllowIntIsGetter() throws Exception
+    void testAllowIntIsGetter() throws Exception
     {
         ObjectMapper MAPPER = jsonMapperBuilder()
                 .enable(MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN)
@@ -67,7 +67,7 @@ public class IsGetterBooleanTest extends DatabindTestUtil
 
     // [databind#3609]
     @Test
-    public void testDisallowIntIsGetter() throws Exception
+    void testDisallowIntIsGetter() throws Exception
     {
         ObjectMapper MAPPER = jsonMapperBuilder()
                 .disable(MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN)
@@ -83,7 +83,7 @@ public class IsGetterBooleanTest extends DatabindTestUtil
 
     // [databind#3836]
     @Test
-    public void testBooleanReference() throws Exception
+    void testBooleanReference() throws Exception
     {
         assertEquals(a2q("{'atomic':true}"),
                 sharedMapper().writeValueAsString(new POJO3836_AR()));
@@ -91,7 +91,7 @@ public class IsGetterBooleanTest extends DatabindTestUtil
 
     // [databind#3836]
     @Test
-    public void testAtomicBoolean() throws Exception
+    void testAtomicBoolean() throws Exception
     {
         assertEquals(a2q("{'atomic':true}"),
                 sharedMapper().writeValueAsString(new POJO3836_AB()));

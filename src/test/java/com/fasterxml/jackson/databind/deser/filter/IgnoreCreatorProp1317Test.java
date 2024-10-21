@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class IgnoreCreatorProp1317Test
+class IgnoreCreatorProp1317Test
 {
     static class Testing {
         @JsonIgnore
@@ -47,7 +47,7 @@ public class IgnoreCreatorProp1317Test
     }
 
     @Test
-    public void testThatJsonIgnoreWorksWithConstructorProperties() throws Exception {
+    void testThatJsonIgnoreWorksWithConstructorProperties() throws Exception {
         ObjectMapper om = newJsonMapper();
         Testing testing = new Testing("shouldBeIgnored", "notIgnore");
         String json = om.writeValueAsString(testing);

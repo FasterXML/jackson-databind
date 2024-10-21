@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for ensuring that entries accessible via "any filter"
  * can also be filtered with JSON Filter functionality.
  */
-public class TestAnyGetterFiltering extends DatabindTestUtil
+class TestAnyGetterFiltering extends DatabindTestUtil
 {
     @JsonFilter("anyFilter")
     public static class AnyBean
@@ -91,7 +91,7 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testAnyGetterFiltering() throws Exception
+    void testAnyGetterFiltering() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
@@ -100,7 +100,7 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
 
     // for [databind#1142]
     @Test
-    public void testAnyGetterIgnore() throws Exception
+    void testAnyGetterIgnore() throws Exception
     {
         assertEquals(a2q("{'a':'1','b':'3'}"),
                 MAPPER.writeValueAsString(new AnyBeanWithIgnores()));
@@ -108,7 +108,7 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
 
     // [databind#1655]
     @Test
-    public void testAnyGetterPojo1655() throws Exception
+    void testAnyGetterPojo1655() throws Exception
     {
         FilterProvider filters = new SimpleFilterProvider().addFilter("CustomFilter", new CustomFilter());
         String json = MAPPER.writer(filters).writeValueAsString(new OuterObject());

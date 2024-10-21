@@ -18,7 +18,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * is not cyclic. This is the case for directed hierarchies like
  * trees and DAGs.
  */
-public class CyclicTypesDeserTest
+class CyclicTypesDeserTest
 {
     static class Bean
     {
@@ -69,7 +69,7 @@ public class CyclicTypesDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testLinked() throws Exception
+    void testLinked() throws Exception
     {
         Bean first = MAPPER.readValue
             ("{\"name\":\"first\", \"next\": { "
@@ -85,7 +85,7 @@ public class CyclicTypesDeserTest
     }
 
     @Test
-    public void testLinkedGeneric() throws Exception
+    void testLinkedGeneric() throws Exception
     {
         StringLink link = MAPPER.readValue("{\"next\":null}", StringLink.class);
         assertNotNull(link);
@@ -93,7 +93,7 @@ public class CyclicTypesDeserTest
     }
 
     @Test
-    public void testCycleWith2Classes() throws Exception
+    void testCycleWith2Classes() throws Exception
     {
         LinkA a = MAPPER.readValue("{\"next\":{\"a\":null}}", LinkA.class);
         assertNotNull(a.next);
@@ -103,7 +103,7 @@ public class CyclicTypesDeserTest
 
     // [Issue#405]: Should be possible to ignore cyclic ref
     @Test
-    public void testIgnoredCycle() throws Exception
+    void testIgnoredCycle() throws Exception
     {
         Selfie405 self1 = new Selfie405(1);
         self1.parent = self1;

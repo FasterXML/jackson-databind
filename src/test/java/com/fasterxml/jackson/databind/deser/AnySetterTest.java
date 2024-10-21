@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for verifying that {@link JsonAnySetter} annotation
  * works as expected.
  */
-public class AnySetterTest extends DatabindTestUtil
+class AnySetterTest extends DatabindTestUtil
 {
     static class MapImitator
     {
@@ -282,7 +282,7 @@ public class AnySetterTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleMapImitation() throws Exception
+    void testSimpleMapImitation() throws Exception
     {
         MapImitator mapHolder = MAPPER.readValue
             ("{ \"a\" : 3, \"b\" : true, \"c\":[1,2,3] }", MapImitator.class);
@@ -298,7 +298,7 @@ public class AnySetterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAnySetterDisable() throws Exception
+    void testAnySetterDisable() throws Exception
     {
         try {
             MAPPER.readValue(a2q("{'value':3}"),
@@ -311,7 +311,7 @@ public class AnySetterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleTyped() throws Exception
+    void testSimpleTyped() throws Exception
     {
         MapImitatorWithValue mapHolder = MAPPER.readValue
             ("{ \"a\" : [ 3, -1 ], \"b\" : [ ] }", MapImitatorWithValue.class);
@@ -322,7 +322,7 @@ public class AnySetterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testBrokenWithDoubleAnnotations() throws Exception
+    void testBrokenWithDoubleAnnotations() throws Exception
     {
         try {
             @SuppressWarnings("unused")
@@ -334,7 +334,7 @@ public class AnySetterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIgnored() throws Exception
+    void testIgnored() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -342,7 +342,7 @@ public class AnySetterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIgnoredPart2() throws Exception
+    void testIgnoredPart2() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -350,7 +350,7 @@ public class AnySetterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testProblem744() throws Exception
+    void testProblem744() throws Exception
     {
         Bean744 bean = MAPPER.readValue("{\"name\":\"Bob\"}", Bean744.class);
         assertNotNull(bean.additionalProperties);
@@ -359,7 +359,7 @@ public class AnySetterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIssue797() throws Exception
+    void testIssue797() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean797BaseImpl());
         assertEquals("{}", json);
@@ -367,7 +367,7 @@ public class AnySetterTest extends DatabindTestUtil
 
     // [Issue#337]
     @Test
-    public void testPolymorphic() throws Exception
+    void testPolymorphic() throws Exception
     {
         PolyAnyBean input = new PolyAnyBean();
         input.props.put("a", new Impl("xyz"));
@@ -385,7 +385,7 @@ public class AnySetterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testJsonAnySetterOnMap() throws Exception {
+    void testJsonAnySetterOnMap() throws Exception {
 		JsonAnySetterOnMap result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\", \"city\":\"New Jersey\"}",
 		        JsonAnySetterOnMap.class);
 		assertEquals(2, result.id);
@@ -394,7 +394,7 @@ public class AnySetterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testJsonAnySetterOnNullMap() throws Exception {
+    void testJsonAnySetterOnNullMap() throws Exception {
         final String DOC = a2q("{'id':2,'name':'Joe', 'city':'New Jersey'}");
         JsonAnySetterOnNullMap result = MAPPER.readValue(DOC,
                 JsonAnySetterOnNullMap.class);
@@ -425,7 +425,7 @@ public class AnySetterTest extends DatabindTestUtil
 
     // [databind#349]
     @Test
-    public void testUnwrappedWithAny() throws Exception
+    void testUnwrappedWithAny() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
         Bean349 value = mapper.readValue(UNWRAPPED_JSON_349,  Bean349.class);
@@ -437,7 +437,7 @@ public class AnySetterTest extends DatabindTestUtil
 
     // [databind#349]
     @Test
-    public void testUnwrappedWithAnyAsUpdate() throws Exception
+    void testUnwrappedWithAnyAsUpdate() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
         Bean349 bean = mapper.readerFor(Bean349.class)
@@ -450,7 +450,7 @@ public class AnySetterTest extends DatabindTestUtil
 
     // [databind#1035]
     @Test
-    public void testGenericAnySetter() throws Exception
+    void testGenericAnySetter() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
 
@@ -486,7 +486,7 @@ public class AnySetterTest extends DatabindTestUtil
 
     // [databind#3394]
     @Test
-    public void testAnySetterWithJsonNode() throws Exception
+    void testAnySetterWithJsonNode() throws Exception
     {
         final String DOC = a2q("{'test':3,'nullable':null,'id':42,'value':true}");
         AnySetter3394Bean bean = MAPPER.readValue(DOC, AnySetter3394Bean.class);
@@ -497,7 +497,7 @@ public class AnySetterTest extends DatabindTestUtil
 
     // [databind#4316]
     @Test
-    public void testWithAnySetter() throws Exception
+    void testWithAnySetter() throws Exception
     {
         Problem4316 problem = new Problem4316();
         problem.additionalProperties.put("key", "value");

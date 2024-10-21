@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("serial")
-public class MapFormatShapeTest extends DatabindTestUtil
+class MapFormatShapeTest extends DatabindTestUtil
 {
     @JsonPropertyOrder({ "extra" })
     static class Map476Base extends LinkedHashMap<String,Integer> {
@@ -153,7 +153,7 @@ public class MapFormatShapeTest extends DatabindTestUtil
 
     // for [databind#476]: Maps as POJOs
     @Test
-    public void testSerializeAsPOJOViaClass() throws Exception
+    void testSerializeAsPOJOViaClass() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Container(1,2,0));
         assertEquals(a2q("{'a':{'extra':13,'empty':false},'b':{'value':2}}"),
@@ -188,7 +188,7 @@ public class MapFormatShapeTest extends DatabindTestUtil
 
     // [databind#1540]
     @Test
-    public void testRoundTrip() throws Exception
+    void testRoundTrip() throws Exception
     {
         Map1540Implementation input = new Map1540Implementation();
         input.property = 55;
@@ -206,7 +206,7 @@ public class MapFormatShapeTest extends DatabindTestUtil
 
     // [databind#1554]
     @Test
-    public void testDeserializeAsPOJOViaClass() throws Exception
+    void testDeserializeAsPOJOViaClass() throws Exception
     {
         Map476AsPOJO result = MAPPER.readValue(a2q("{'extra':42}"),
                 Map476AsPOJO.class);

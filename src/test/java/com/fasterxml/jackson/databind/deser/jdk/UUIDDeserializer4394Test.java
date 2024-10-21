@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.deser.std.UUIDDeserializer;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [databind#4394]
-public class UUIDDeserializer4394Test
+class UUIDDeserializer4394Test
 {
     private static final UUID TEST_UUID = UUID.fromString("a7161c6c-be14-4ae3-a3c4-f27c2b2c6ef4");
 

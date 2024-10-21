@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class DefaultTypeResolverForLong2753Test extends DatabindTestUtil
+class DefaultTypeResolverForLong2753Test extends DatabindTestUtil
 {
     static class Data {
         private Long key;
@@ -42,7 +42,7 @@ public class DefaultTypeResolverForLong2753Test extends DatabindTestUtil
     }
 
     @Test
-    public void testDefaultTypingWithLong() throws Exception
+    void testDefaultTypingWithLong() throws Exception
     {
         Data data = new Data(1L);
         Map<String, Object> mapData = new HashMap<>();

@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class UpdateValueTest
+class UpdateValueTest
 {
     static class Bean
     {
@@ -48,7 +48,7 @@ public class UpdateValueTest
 
     // [databind#318] (and Scala module issue #83]
     @Test
-    public void testValueUpdateWithCreator() throws Exception
+    void testValueUpdateWithCreator() throws Exception
     {
         Bean bean = new Bean("abc", "def");
         MAPPER.readerFor(Bean.class).withValueToUpdate(bean).readValue("{\"a\":\"ghi\",\"b\":\"jkl\"}");
@@ -57,7 +57,7 @@ public class UpdateValueTest
     }
 
     @Test
-    public void testValueUpdateOther() throws Exception
+    void testValueUpdateOther() throws Exception
     {
         Bean bean = new Bean("abc", "def");
         ObjectReader r = MAPPER.readerFor(Bean.class).withValueToUpdate(bean);

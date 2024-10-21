@@ -7,12 +7,12 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ToStringForNodesTest extends DatabindTestUtil
+class ToStringForNodesTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = objectMapper();
 
     @Test
-    public void testObjectNode() throws Exception
+    void testObjectNode() throws Exception
     {
         _verifyToStrings(MAPPER.readTree("{ \"key\" : 1, \"b\" : \"x\", \"array\" : [ 1, false ] }"));
         final ObjectNode n = MAPPER.createObjectNode().put("msg", "hello world");
@@ -23,7 +23,7 @@ public class ToStringForNodesTest extends DatabindTestUtil
     }
 
     @Test
-    public void testArrayNode() throws Exception
+    void testArrayNode() throws Exception
     {
         _verifyToStrings(MAPPER.readTree("[ 1, true, null, [ \"abc\",3], { } ]"));
         final ArrayNode n = MAPPER.createArrayNode().add(0.25).add(true);
@@ -32,7 +32,7 @@ public class ToStringForNodesTest extends DatabindTestUtil
     }
 
     @Test
-    public void testBinaryNode() throws Exception
+    void testBinaryNode() throws Exception
     {
         _verifyToStrings(MAPPER.getNodeFactory().binaryNode(new byte[] { 1, 2, 3, 4, 6 }));
     }

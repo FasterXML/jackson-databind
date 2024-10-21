@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CollectionFormatShapeTest extends DatabindTestUtil
+class CollectionFormatShapeTest extends DatabindTestUtil
 {
     // [databind#40]: Allow serialization 'as POJO' (resulting in JSON Object)
     @JsonPropertyOrder({ "size", "value" })
@@ -51,7 +51,7 @@ public class CollectionFormatShapeTest extends DatabindTestUtil
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testListAsObjectRoundtrip() throws Exception
+    void testListAsObjectRoundtrip() throws Exception
     {
         // First, serialize a "POJO-List"
         CollectionAsPOJO list = new CollectionAsPOJO();

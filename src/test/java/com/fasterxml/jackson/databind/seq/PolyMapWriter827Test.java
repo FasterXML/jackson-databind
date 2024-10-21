@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [databind#827]
-public class PolyMapWriter827Test extends DatabindTestUtil
+class PolyMapWriter827Test extends DatabindTestUtil
 {
     static class CustomKey {
         String a;
@@ -34,7 +34,7 @@ public class PolyMapWriter827Test extends DatabindTestUtil
     }
 
     @Test
-    public void testPolyCustomKeySerializer() throws Exception
+    void testPolyCustomKeySerializer() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,

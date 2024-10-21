@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4564] Fix Enum-asJSON-Object serialization with self as field.
-public class EnumAsFormatObject4564Test
+class EnumAsFormatObject4564Test
 {
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
@@ -42,7 +42,7 @@ public class EnumAsFormatObject4564Test
     private final ObjectMapper MAPPER = new JsonMapper();
 
     @Test
-    public void testEnumAsFormatObject() throws JsonProcessingException {
+    void testEnumAsFormatObject() throws JsonProcessingException {
         List<Level> levels = new ArrayList<>();
         levels.add(Level.LEVEL1);
         levels.add(Level.LEVEL2);

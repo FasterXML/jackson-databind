@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AnnotatedMemberEqualityTest extends DatabindTestUtil
+class AnnotatedMemberEqualityTest extends DatabindTestUtil
 {
     static class SomeBean {
         private String value;
@@ -29,9 +29,9 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
- // [databind#3187]
+    // [databind#3187]
     @Test
-    public void testAnnotatedConstructorEquality() {
+    void testAnnotatedConstructorEquality() {
         DeserializationConfig context = MAPPER.getDeserializationConfig();
         JavaType beanType = MAPPER.constructType(SomeBean.class);
 
@@ -49,7 +49,7 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
 
     // [databind#3187]
     @Test
-    public void testAnnotatedMethodEquality() {
+    void testAnnotatedMethodEquality() {
         DeserializationConfig context = MAPPER.getDeserializationConfig();
         JavaType beanType = MAPPER.constructType(SomeBean.class);
 
@@ -69,7 +69,7 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
 
     // [databind#3187]
     @Test
-    public void testAnnotatedFieldEquality() {
+    void testAnnotatedFieldEquality() {
         DeserializationConfig context = MAPPER.getDeserializationConfig();
         JavaType beanType = MAPPER.constructType(SomeBean.class);
 

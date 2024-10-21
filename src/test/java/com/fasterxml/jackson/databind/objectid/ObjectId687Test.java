@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ObjectId687Test extends DatabindTestUtil
+class ObjectId687Test extends DatabindTestUtil
 {
     // for [databind#687]
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="label")
@@ -73,7 +73,7 @@ public class ObjectId687Test extends DatabindTestUtil
 
     // for [databind#687]
     @Test
-    public void testSerializeDeserializeWithCreator() throws IOException {
+    void testSerializeDeserializeWithCreator() throws IOException {
         ReferredWithCreator base = new ReferredWithCreator("label1");
         ReferringToObjWithCreator r = new ReferringToObjWithCreator();
         r.addRef(base);
@@ -93,7 +93,7 @@ public class ObjectId687Test extends DatabindTestUtil
     }
 
     @Test
-    public void testSerializeDeserializeNoCreator() throws IOException {
+    void testSerializeDeserializeNoCreator() throws IOException {
         ReferredWithNoCreator base = new ReferredWithNoCreator();
         ReferringToObjWithNoCreator r = new ReferringToObjWithNoCreator();
         r.addRef(base);

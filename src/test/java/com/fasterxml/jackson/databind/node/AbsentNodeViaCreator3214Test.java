@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class AbsentNodeViaCreator3214Test extends DatabindTestUtil
+class AbsentNodeViaCreator3214Test extends DatabindTestUtil
 {
     static class Pojo3214
     {
@@ -31,7 +31,7 @@ public class AbsentNodeViaCreator3214Test extends DatabindTestUtil
 
     // [databind#3214]
     @Test
-    public void testNullFromMissingNodeParameter() throws Exception
+    void testNullFromMissingNodeParameter() throws Exception
     {
         Pojo3214 p = MAPPER.readValue("{}", Pojo3214.class);
         if (p.fromCtor != null) {

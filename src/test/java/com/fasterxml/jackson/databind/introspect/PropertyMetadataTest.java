@@ -9,10 +9,10 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PropertyMetadataTest extends DatabindTestUtil
+class PropertyMetadataTest extends DatabindTestUtil
 {
     @Test
-    public void testPropertyName()
+    void testPropertyName()
     {
         PropertyName name = PropertyName.NO_NAME;
 
@@ -48,7 +48,7 @@ public class PropertyMetadataTest extends DatabindTestUtil
     }
 
     @Test
-    public void testPropertyMetadata()
+    void testPropertyMetadata()
     {
         PropertyMetadata md = PropertyMetadata.STD_OPTIONAL;
         assertNull(md.getValueNulls());

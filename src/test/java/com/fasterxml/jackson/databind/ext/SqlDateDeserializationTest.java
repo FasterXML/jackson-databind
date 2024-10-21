@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class SqlDateDeserializationTest
-    extends DatabindTestUtil
+class SqlDateDeserializationTest
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -24,7 +24,7 @@ public class SqlDateDeserializationTest
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testDateSql() throws Exception
+    void testDateSql() throws Exception
     {
         java.sql.Date value = new java.sql.Date(0L);
         value.setYear(99); // 1999
@@ -62,7 +62,7 @@ public class SqlDateDeserializationTest
     }
 
     @Test
-    public void testDatesWithEmptyStrings() throws Exception
+    void testDatesWithEmptyStrings() throws Exception
     {
         assertNull(MAPPER.readValue(q(""), java.sql.Date.class));
     }

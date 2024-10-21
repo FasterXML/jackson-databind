@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestJava7Types extends DatabindTestUtil
+class TestJava7Types extends DatabindTestUtil
 {
     @Test
-    public void testPathRoundtrip() throws Exception
+    void testPathRoundtrip() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -33,7 +33,7 @@ public class TestJava7Types extends DatabindTestUtil
 
     // [databind#1688]:
     @Test
-    public void testPolymorphicPath() throws Exception
+    void testPolymorphicPath() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

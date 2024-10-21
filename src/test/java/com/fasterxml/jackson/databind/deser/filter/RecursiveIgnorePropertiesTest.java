@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class RecursiveIgnorePropertiesTest
+class RecursiveIgnorePropertiesTest
 {
     static class Person {
         public String name;
@@ -42,7 +42,7 @@ public class RecursiveIgnorePropertiesTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testRecursiveForDeser() throws Exception
+    void testRecursiveForDeser() throws Exception
     {
         String st = a2q("{ 'name': 'admin',\n"
                 + "    'person_z': { 'name': 'wyatt' }"
@@ -54,7 +54,7 @@ public class RecursiveIgnorePropertiesTest
     }
 
     @Test
-    public void testRecursiveWithCollectionDeser() throws Exception
+    void testRecursiveWithCollectionDeser() throws Exception
     {
         String st = a2q("{ 'name': 'admin',\n"
                 + "    'person_z': [ { 'name': 'Foor' }, { 'name' : 'Bar' } ]"
@@ -66,7 +66,7 @@ public class RecursiveIgnorePropertiesTest
     }
 
     @Test
-    public void testRecursiveForSer() throws Exception
+    void testRecursiveForSer() throws Exception
     {
         Person input = new Person();
         input.name = "Bob";

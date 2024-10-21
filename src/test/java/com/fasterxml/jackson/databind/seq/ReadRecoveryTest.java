@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests to verify aspects of error recover for reading using
  * iterator.
  */
-public class ReadRecoveryTest extends DatabindTestUtil
+class ReadRecoveryTest extends DatabindTestUtil
 {
     static class Bean {
         public int a, b;
@@ -28,7 +28,7 @@ public class ReadRecoveryTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testRootBeans() throws Exception
+    void testRootBeans() throws Exception
     {
         final String JSON = a2q("{'a':3} {'x':5}");
         MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
@@ -53,7 +53,7 @@ public class ReadRecoveryTest extends DatabindTestUtil
     // Simple test for verifying that basic recover works for a case of
     // unknown structured value
     @Test
-    public void testSimpleRootRecovery() throws Exception
+    void testSimpleRootRecovery() throws Exception
     {
         final String JSON = a2q("{'a':3}{'a':27,'foo':[1,2],'b':{'x':3}}  {'a':1,'b':2} ");
 
@@ -83,7 +83,7 @@ public class ReadRecoveryTest extends DatabindTestUtil
 
     // Similar to "raw" root-level Object sequence, but in array
     @Test
-    public void testSimpleArrayRecovery() throws Exception
+    void testSimpleArrayRecovery() throws Exception
     {
         final String JSON = a2q("[{'a':3},{'a':27,'foo':[1,2],'b':{'x':3}}  ,{'a':1,'b':2}  ]");
 

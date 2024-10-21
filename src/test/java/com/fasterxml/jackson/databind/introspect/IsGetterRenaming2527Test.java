@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.util.BeanUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#2527] Support Kotlin-style "is" properties
-public class IsGetterRenaming2527Test extends DatabindTestUtil
+class IsGetterRenaming2527Test extends DatabindTestUtil
 {
     static class POJO2527 {
         boolean isEnabled;
@@ -75,7 +75,7 @@ public class IsGetterRenaming2527Test extends DatabindTestUtil
             .build();
 
     @Test
-    public void testIsPropertiesStdKotlin() throws Exception
+    void testIsPropertiesStdKotlin() throws Exception
     {
         POJO2527 input = new POJO2527(true);
         final String json = MAPPER.writeValueAsString(input);
@@ -89,7 +89,7 @@ public class IsGetterRenaming2527Test extends DatabindTestUtil
     }
 
     @Test
-    public void testIsPropertiesWithPublicField() throws Exception
+    void testIsPropertiesWithPublicField() throws Exception
     {
         POJO2527PublicField input = new POJO2527PublicField(true);
         final String json = MAPPER.writeValueAsString(input);
@@ -103,7 +103,7 @@ public class IsGetterRenaming2527Test extends DatabindTestUtil
     }
 
     @Test
-    public void testIsPropertiesViaCreator() throws Exception
+    void testIsPropertiesViaCreator() throws Exception
     {
         POJO2527Creator input = new POJO2527Creator(true);
         final String json = MAPPER.writeValueAsString(input);

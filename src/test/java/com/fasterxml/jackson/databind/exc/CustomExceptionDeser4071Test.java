@@ -10,7 +10,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMa
 
 // [databind#4071]: Ignore "message" for custom exceptions with only default constructor
 @SuppressWarnings("serial")
-public class CustomExceptionDeser4071Test
+class CustomExceptionDeser4071Test
 {
     static class CustomThrowable4071 extends Throwable { }
     
@@ -21,28 +21,28 @@ public class CustomExceptionDeser4071Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testCustomException() throws Exception
+    void testCustomException() throws Exception
     {
         String exStr = MAPPER.writeValueAsString(new CustomThrowable4071());
         assertNotNull(MAPPER.readValue(exStr, CustomThrowable4071.class));
     }
 
     @Test
-    public void testCustomRuntimeException() throws Exception
+    void testCustomRuntimeException() throws Exception
     {
         String exStr = MAPPER.writeValueAsString(new CustomRuntimeException4071());
         assertNotNull(MAPPER.readValue(exStr, CustomRuntimeException4071.class));
     }
 
     @Test
-    public void testCustomCheckedException() throws Exception
+    void testCustomCheckedException() throws Exception
     {
         String exStr = MAPPER.writeValueAsString(new CustomCheckedException4071());
         assertNotNull(MAPPER.readValue(exStr, CustomCheckedException4071.class));
     }
 
     @Test
-    public void testDeserAsThrowable() throws Exception
+    void testDeserAsThrowable() throws Exception
     {
         _testDeserAsThrowable(MAPPER.writeValueAsString(new CustomRuntimeException4071()));
         _testDeserAsThrowable(MAPPER.writeValueAsString(new CustomCheckedException4071()));

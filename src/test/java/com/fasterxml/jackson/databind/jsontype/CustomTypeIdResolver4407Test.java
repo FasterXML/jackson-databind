@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // for [databind#4407]
-public class CustomTypeIdResolver4407Test extends DatabindTestUtil
+class CustomTypeIdResolver4407Test extends DatabindTestUtil
 {
     static class Wrapper4407Prop {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
@@ -174,7 +174,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     // [databind#4407]: with "as-property" type id
     @Test
-    public void testTypeIdProp4407NonNull() throws Exception
+    void testTypeIdProp4407NonNull() throws Exception
     {
         // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':{'type':'typeX','value':'xyz'}}");
@@ -187,7 +187,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
     }
 
     @Test
-    public void testTypeIdProp4407Null() throws Exception
+    void testTypeIdProp4407Null() throws Exception
     {
         // And then null one
         final String EXP = a2q("{'wrapped':{'value':'xyz'}}");
@@ -202,7 +202,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     // [databind#4407]: with "as-wrapper-array" type id
     @Test
-    public void testTypeIdWrapperArray4407NonNull() throws Exception
+    void testTypeIdWrapperArray4407NonNull() throws Exception
     {
         // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':['typeX',{'value':'xyz'}]}");
@@ -215,7 +215,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
     }
 
     @Test
-    public void testTypeIdWrapperArray4407Null() throws Exception
+    void testTypeIdWrapperArray4407Null() throws Exception
     {
         // And then null one
         final String EXP = a2q("{'wrapped':{'value':'xyz'}}");
@@ -229,7 +229,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     // [databind#4407]: with "as-wrapper-object" type id
     @Test
-    public void testTypeIdWrapperObject4407NonNull() throws Exception
+    void testTypeIdWrapperObject4407NonNull() throws Exception
     {
         // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':{'typeX':{'value':'xyz'}}}");
@@ -242,7 +242,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
     }
 
     @Test
-    public void testTypeIdWrapperObject4407Null() throws Exception
+    void testTypeIdWrapperObject4407Null() throws Exception
     {
         // And then null one
         final String EXP = a2q("{'wrapped':{'value':'xyz'}}");

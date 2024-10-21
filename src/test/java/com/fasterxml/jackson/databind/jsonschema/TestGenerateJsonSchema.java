@@ -23,8 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Ryan Heaton
  */
 @SuppressWarnings("deprecation")
-public class TestGenerateJsonSchema
-    extends DatabindTestUtil
+class TestGenerateJsonSchema
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -134,7 +134,7 @@ public class TestGenerateJsonSchema
      * tests generating json-schema stuff.
      */
     @Test
-    public void testOldSchemaGeneration() throws Exception
+    void testOldSchemaGeneration() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
 
@@ -204,7 +204,7 @@ public class TestGenerateJsonSchema
         .addFilter("filteredBean", SimpleBeanPropertyFilter.filterOutAllExcept(new String[]{"obvious"}));
 
     @Test
-    public void testGeneratingJsonSchemaWithFilters() throws Exception {
+    void testGeneratingJsonSchemaWithFilters() throws Exception {
     	ObjectMapper mapper = new ObjectMapper();
     	mapper.setFilters(secretFilterProvider);
     	JsonSchema schema = mapper.generateJsonSchema(FilteredBean.class);
@@ -218,7 +218,7 @@ public class TestGenerateJsonSchema
      * can be properly serialized
      */
     @Test
-    public void testSchemaSerialization() throws Exception
+    void testSchemaSerialization() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
         Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
@@ -231,7 +231,7 @@ public class TestGenerateJsonSchema
     }
 
     @Test
-    public void testThatObjectsHaveNoItems() throws Exception
+    void testThatObjectsHaveNoItems() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(TrivialBean.class);
         String json = jsonSchema.toString().replaceAll("\"", "'");
@@ -242,7 +242,7 @@ public class TestGenerateJsonSchema
     }
 
     @Test
-    public void testSchemaId() throws Exception
+    void testSchemaId() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(BeanWithId.class);
         String json = jsonSchema.toString().replaceAll("\"", "'");
@@ -252,7 +252,7 @@ public class TestGenerateJsonSchema
 
     // [databind#271]
     @Test
-    public void testUnwrapping()  throws Exception
+    void testUnwrapping()  throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(UnwrappingRoot.class);
         ObjectNode root = jsonSchema.getSchemaNode();
@@ -269,7 +269,7 @@ public class TestGenerateJsonSchema
 
     //
     @Test
-    public void testNumberTypes()  throws Exception
+    void testNumberTypes()  throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(Numbers.class);
         String json = quotesToApos(jsonSchema.toString());

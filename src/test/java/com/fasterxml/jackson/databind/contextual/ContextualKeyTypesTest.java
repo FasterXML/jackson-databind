@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * Tests to ensure that we can do contextual key serializers and
  * deserializers as well as value ser/deser.
  */
-public class ContextualKeyTypesTest extends DatabindTestUtil
+class ContextualKeyTypesTest extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -91,7 +91,7 @@ public class ContextualKeyTypesTest extends DatabindTestUtil
      */
 
     @Test
-    public void testSimpleKeySer() throws Exception
+    void testSimpleKeySer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -111,7 +111,7 @@ public class ContextualKeyTypesTest extends DatabindTestUtil
      */
 
     @Test
-    public void testSimpleKeyDeser() throws Exception
+    void testSimpleKeyDeser() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());

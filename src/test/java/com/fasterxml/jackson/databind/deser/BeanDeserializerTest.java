@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 @SuppressWarnings("serial")
-public class BeanDeserializerTest
+class BeanDeserializerTest
 {
     static abstract class Abstract {
         public int x;
@@ -104,12 +104,15 @@ public class BeanDeserializerTest
             return new Bean(a, b);
         }
     }
+
     static class Issue476Bean {
         public Issue476Type value1, value2;
     }
+
     static class Issue476Type {
         public String name, value;
     }
+
     static class Issue476Deserializer extends BeanDeserializer
         implements ContextualDeserializer
     {
@@ -126,6 +129,7 @@ public class BeanDeserializerTest
             return this;
         }
     }
+
     public class Issue476DeserializerModifier extends BeanDeserializerModifier {
         @Override
         public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
@@ -136,6 +140,7 @@ public class BeanDeserializerTest
             return super.modifyDeserializer(config, beanDesc, deserializer);
         }
     }
+
     public class Issue476Module extends SimpleModule
     {
         public Issue476Module() {
@@ -156,6 +161,7 @@ public class BeanDeserializerTest
             this.subBean = subBean;
         }
     }
+
     public static class Issue1912SubBean {
         public String a;
 
@@ -197,6 +203,7 @@ public class BeanDeserializerTest
             return object;
         }
     }
+
     public static class Issue1912UseAddOrReplacePropertyDeserializerModifier extends BeanDeserializerModifier {
 
         @Override
@@ -221,6 +228,7 @@ public class BeanDeserializerTest
             return builder;
         }
     }
+
     public class Issue1912Module extends SimpleModule {
 
         public Issue1912Module() {
@@ -339,7 +347,7 @@ public class BeanDeserializerTest
      * actual type information for the concrete type to use)
      */
     @Test
-    public void testAbstractFailure() throws Exception
+    void testAbstractFailure() throws Exception
     {
         try {
             MAPPER.readValue("{ \"x\" : 3 }", Abstract.class);
@@ -348,8 +356,9 @@ public class BeanDeserializerTest
             verifyException(e, "cannot construct");
         }
     }
+
     @Test
-    public void testPropertyRemoval() throws Exception
+    void testPropertyRemoval() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new ModuleImpl(new RemovingModifier("a")));
@@ -360,7 +369,7 @@ public class BeanDeserializerTest
     }
 
     @Test
-    public void testDeserializerReplacement() throws Exception
+    void testDeserializerReplacement() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new ModuleImpl(new ReplacingModifier(new BogusBeanDeserializer("foo", "bar"))));
@@ -371,7 +380,7 @@ public class BeanDeserializerTest
     }
 
     @Test
-    public void testIssue476() throws Exception
+    void testIssue476() throws Exception
     {
         final String JSON = "{\"value1\" : {\"name\" : \"fruit\", \"value\" : \"apple\"}, \"value2\" : {\"name\" : \"color\", \"value\" : \"red\"}}";
 
@@ -385,7 +394,7 @@ public class BeanDeserializerTest
 
     // [databind#120]
     @Test
-    public void testModifyArrayDeserializer() throws Exception
+    void testModifyArrayDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
@@ -396,7 +405,7 @@ public class BeanDeserializerTest
     }
 
     @Test
-    public void testModifyCollectionDeserializer() throws Exception
+    void testModifyCollectionDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
@@ -408,7 +417,7 @@ public class BeanDeserializerTest
     }
 
     @Test
-    public void testModifyMapDeserializer() throws Exception
+    void testModifyMapDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
@@ -420,7 +429,7 @@ public class BeanDeserializerTest
     }
 
     @Test
-    public void testModifyEnumDeserializer() throws Exception
+    void testModifyEnumDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
@@ -431,7 +440,7 @@ public class BeanDeserializerTest
     }
 
     @Test
-    public void testModifyKeyDeserializer() throws Exception
+    void testModifyKeyDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
@@ -447,7 +456,7 @@ public class BeanDeserializerTest
      * getting appropriately called.
      */
     @Test
-    public void testModifyStdScalarDeserializer() throws Exception
+    void testModifyStdScalarDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
@@ -466,7 +475,7 @@ public class BeanDeserializerTest
     }
 
     @Test
-    public void testAddOrReplacePropertyIsUsedOnDeserialization() throws Exception {
+    void testAddOrReplacePropertyIsUsedOnDeserialization() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new Issue1912Module());
 

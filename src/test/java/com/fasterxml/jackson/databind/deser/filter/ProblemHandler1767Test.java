@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 
-public class ProblemHandler1767Test
+class ProblemHandler1767Test
 {
     static class IntHandler
             extends DeserializationProblemHandler
@@ -42,7 +42,7 @@ public class ProblemHandler1767Test
     }
 
     @Test
-    public void testPrimitivePropertyWithHandler() throws Exception {
+    void testPrimitivePropertyWithHandler() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.addHandler(new IntHandler());
         TestBean result = mapper.readValue(a2q("{'a': 'not-a-number'}"), TestBean.class);

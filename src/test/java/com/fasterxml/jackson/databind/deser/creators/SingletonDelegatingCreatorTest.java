@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 // [databind#4688]
-public class SingletonDelegatingCreatorTest extends DatabindTestUtil
+class SingletonDelegatingCreatorTest extends DatabindTestUtil
 {
     static final class NoFieldSingletonWithDelegatingCreator {
         static final NoFieldSingletonWithDelegatingCreator INSTANCE = new NoFieldSingletonWithDelegatingCreator();
@@ -54,7 +54,7 @@ public class SingletonDelegatingCreatorTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testNoFieldSingletonWithDelegatingCreator() throws Exception
+    void testNoFieldSingletonWithDelegatingCreator() throws Exception
     {
         NoFieldSingletonWithDelegatingCreator deserialized = MAPPER.readValue("{}",
                 NoFieldSingletonWithDelegatingCreator.class);
@@ -62,7 +62,7 @@ public class SingletonDelegatingCreatorTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNoFieldSingletonWithPropertiesCreator() throws Exception
+    void testNoFieldSingletonWithPropertiesCreator() throws Exception
     {
         NoFieldSingletonWithPropertiesCreator deserialized = MAPPER.readValue("{}",
                 NoFieldSingletonWithPropertiesCreator.class);
@@ -70,7 +70,7 @@ public class SingletonDelegatingCreatorTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNoFieldSingletonWithDefaultCreator() throws Exception
+    void testNoFieldSingletonWithDefaultCreator() throws Exception
     {
         NoFieldSingletonWithDefaultCreator deserialized = MAPPER.readValue("{}",
                 NoFieldSingletonWithDefaultCreator.class);

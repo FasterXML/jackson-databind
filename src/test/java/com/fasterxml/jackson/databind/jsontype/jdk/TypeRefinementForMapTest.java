@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TypeRefinementForMapTest extends DatabindTestUtil
+class TypeRefinementForMapTest extends DatabindTestUtil
 {
     interface HasUniqueId<K> {
         K getId();
@@ -106,7 +106,7 @@ public class TypeRefinementForMapTest extends DatabindTestUtil
      */
 
     @Test
-    public void testMapRefinement() throws Exception
+    void testMapRefinement() throws Exception
     {
         String ID1 = "3a6383d4-8123-4c43-8b8d-7cedf3e59404";
         String ID2 = "81c3d978-90c4-4b00-8da1-1c39ffcab02c";
@@ -126,7 +126,7 @@ public class TypeRefinementForMapTest extends DatabindTestUtil
 
     // for [databind#1384]
     @Test
-    public void testMapKeyRefinement1384() throws Exception
+    void testMapKeyRefinement1384() throws Exception
     {
         final String TEST_INSTANCE_SERIALIZED =
                 "{\"mapProperty\":[\"java.util.HashMap\",{\"Compound|Key\":\"Value\"}]}";

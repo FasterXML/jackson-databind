@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 
 // for [databind#2221]
-public class ProblemHandlerUnknownTypeId2221Test
+class ProblemHandlerUnknownTypeId2221Test
 {
     @SuppressWarnings("rawtypes")
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
@@ -91,7 +91,7 @@ public class ProblemHandlerUnknownTypeId2221Test
 );
 
     @Test
-    public void testWithDeserializationProblemHandler() throws Exception {
+    void testWithDeserializationProblemHandler() throws Exception {
         final ObjectMapper mapper = new ObjectMapper()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance);
         mapper.addHandler(new DeserializationProblemHandler() {
@@ -107,7 +107,7 @@ public class ProblemHandlerUnknownTypeId2221Test
     }
 
     @Test
-    public void testWithDisabledFAIL_ON_INVALID_SUBTYPE() throws Exception {
+    void testWithDisabledFAIL_ON_INVALID_SUBTYPE() throws Exception {
         final ObjectMapper mapper = new ObjectMapper()
                 .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)

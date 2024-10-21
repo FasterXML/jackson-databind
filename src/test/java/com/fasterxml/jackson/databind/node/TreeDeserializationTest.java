@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * This unit test suite tries to verify that JsonNode-based trees
  * can be deserialized as expected.
  */
-public class TreeDeserializationTest
-    extends DatabindTestUtil
+class TreeDeserializationTest
+        extends DatabindTestUtil
 {
     final static class Bean {
         int _x;
@@ -30,7 +30,7 @@ public class TreeDeserializationTest
      */
 
     @Test
-    public void testObjectNodeEquality()
+    void testObjectNodeEquality()
     {
         ObjectNode n1 = new ObjectNode(null);
         ObjectNode n2 = new ObjectNode(null);
@@ -50,7 +50,7 @@ public class TreeDeserializationTest
     }
 
     @Test
-    public void testReadFromString() throws Exception
+    void testReadFromString() throws Exception
     {
         String json = "{\"field\":\"{\\\"name\\\":\\\"John Smith\\\"}\"}";
         ObjectMapper mapper = new ObjectMapper();

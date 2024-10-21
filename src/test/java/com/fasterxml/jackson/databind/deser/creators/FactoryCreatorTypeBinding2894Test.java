@@ -27,7 +27,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMa
 //
 // Work for 2.12 should find better solution than this.
 
-public class FactoryCreatorTypeBinding2894Test
+class FactoryCreatorTypeBinding2894Test
 {
     // [databind#2894]
     static class Wrapper<T> {
@@ -100,7 +100,7 @@ public class FactoryCreatorTypeBinding2894Test
 
     // [databind#2894]
     @Test
-    public void testIssue2894() throws Exception
+    void testIssue2894() throws Exception
     {
         Wrapper<Value> src = new Wrapper<>(Arrays.asList(new Value(1), new Value(2)));
         final String json = MAPPER.writeValueAsString(src);
@@ -111,7 +111,7 @@ public class FactoryCreatorTypeBinding2894Test
 
     // [databind#2895]
     @Test
-    public void testIssue2895() throws Exception
+    void testIssue2895() throws Exception
     {
         SimpleWrapper2895<Account2895> wrapper = MAPPER
                 .readerFor(new TypeReference<SimpleWrapper2895<Account2895>>() {})

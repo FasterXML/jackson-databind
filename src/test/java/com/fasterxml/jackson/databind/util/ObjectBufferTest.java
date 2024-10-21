@@ -8,19 +8,19 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ObjectBufferTest extends DatabindTestUtil
+class ObjectBufferTest extends DatabindTestUtil
 {
     /**
      * First a test that treats results as plain old Object[]
      */
     @Test
-    public void testUntyped()
+    void testUntyped()
     {
         _testObjectBuffer(null);
     }
 
     @Test
-    public void testTyped()
+    void testTyped()
     {
         _testObjectBuffer(Integer.class);
     }

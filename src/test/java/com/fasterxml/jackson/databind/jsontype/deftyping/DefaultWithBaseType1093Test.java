@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 // polymorphic types (ones where output contains Type Id to allow later
 // deserialization deserialization), separate from fully forcing
 // actual type of value being serialized.
-public class DefaultWithBaseType1093Test extends DatabindTestUtil
+class DefaultWithBaseType1093Test extends DatabindTestUtil
 {
     // [databind#1093]
     static class Point1093 {
@@ -28,7 +28,7 @@ public class DefaultWithBaseType1093Test extends DatabindTestUtil
 
     // [databind#1093]
     @Test
-    public void testWithDefaultTyping() throws Exception
+    void testWithDefaultTyping() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * get properly serialized with types (esp. for contents, and
  * gracefully handling Lists themselves too)
  */
-public class TypedArraySerTest
-    extends DatabindTestUtil
+class TypedArraySerTest
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -78,7 +78,7 @@ public class TypedArraySerTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testListWithPolymorphic() throws Exception
+    void testListWithPolymorphic() throws Exception
     {
         BeanListWrapper beans = new BeanListWrapper();
         assertEquals("{\"beans\":[{\"@type\":\"bean\",\"x\":0}]}", MAPPER.writeValueAsString(beans));
@@ -88,7 +88,7 @@ public class TypedArraySerTest
     }
 
     @Test
-    public void testIntList() throws Exception
+    void testIntList() throws Exception
     {
         TypedList<Integer> input = new TypedList<Integer>();
         input.add(5);
@@ -103,7 +103,7 @@ public class TypedArraySerTest
     // add property in), so it should revert to method used with
     // ARRAY_WRAPPER method.
     @Test
-    public void testStringListAsProp() throws Exception
+    void testStringListAsProp() throws Exception
     {
         TypedListAsProp<String> input = new TypedListAsProp<String>();
         input.add("a");
@@ -113,7 +113,7 @@ public class TypedArraySerTest
     }
 
     @Test
-    public void testStringListAsObjectWrapper() throws Exception
+    void testStringListAsObjectWrapper() throws Exception
     {
         TypedListAsWrapper<Boolean> input = new TypedListAsWrapper<Boolean>();
         input.add(true);
@@ -134,7 +134,7 @@ public class TypedArraySerTest
      */
 
     @Test
-    public void testIntArray() throws Exception
+    void testIntArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(int[].class, WrapperMixIn.class);
@@ -150,7 +150,7 @@ public class TypedArraySerTest
      */
 
     @Test
-    public void testGenericArray() throws Exception
+    void testGenericArray() throws Exception
     {
         final A[] input = new A[] { new B() };
         final String EXP = "[{\"BB\":{\"value\":2}}]";

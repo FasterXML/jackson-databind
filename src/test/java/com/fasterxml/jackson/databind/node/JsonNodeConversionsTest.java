@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for verifying functionality of {@link JsonNode} methods that
  * convert values to other types
  */
-public class JsonNodeConversionsTest extends DatabindTestUtil
+class JsonNodeConversionsTest extends DatabindTestUtil
 {
     static class Root {
         public Leaf leaf;
@@ -128,7 +128,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = objectMapper();
 
     @Test
-    public void testAsInt() throws Exception
+    void testAsInt() throws Exception
     {
         assertEquals(9, IntNode.valueOf(9).asInt());
         assertEquals(7, LongNode.valueOf(7L).asInt());
@@ -139,7 +139,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAsBoolean() throws Exception
+    void testAsBoolean() throws Exception
     {
         assertEquals(false, BooleanNode.FALSE.asBoolean());
         assertEquals(true, BooleanNode.TRUE.asBoolean());
@@ -170,7 +170,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     }
 
     @Test
-    public void testTreeToValue() throws Exception
+    void testTreeToValue() throws Exception
     {
         String JSON = "{\"leaf\":{\"value\":13}}";
         ObjectMapper mapper = new ObjectMapper();
@@ -199,7 +199,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
     // [databind#1208]: should coerce POJOs at least at root level
     @Test
-    public void testTreeToValueWithPOJO() throws Exception
+    void testTreeToValueWithPOJO() throws Exception
     {
         Calendar c = Calendar.getInstance();
         c.setTime(new java.util.Date(0));
@@ -213,7 +213,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     }
 
     @Test
-    public void testBase64Text() throws Exception
+    void testBase64Text() throws Exception
     {
         // let's actually iterate over sets of encoding modes, lengths
 
@@ -261,7 +261,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
      * converting, as long as there is metadata (from POJO definitions).
      */
     @Test
-    public void testIssue709() throws Exception
+    void testIssue709() throws Exception
     {
         byte[] inputData = new byte[] { 1, 2, 3 };
         ObjectNode node = MAPPER.createObjectNode();
@@ -278,7 +278,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     }
 
     @Test
-    public void testEmbeddedByteArray() throws Exception
+    void testEmbeddedByteArray() throws Exception
     {
         TokenBuffer buf = new TokenBuffer(MAPPER, false);
         buf.writeObject(new byte[3]);
@@ -292,7 +292,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
     // [databind#232]
     @Test
-    public void testBigDecimalAsPlainStringTreeConversion() throws Exception
+    void testBigDecimalAsPlainStringTreeConversion() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
@@ -307,7 +307,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
     // [databind#433]
     @Test
-    public void testBeanToTree() throws Exception
+    void testBeanToTree() throws Exception
     {
         final CustomSerializedPojo pojo = new CustomSerializedPojo();
         pojo.setFoo("bar");
@@ -317,7 +317,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
     // [databind#467]
     @Test
-    public void testConversionOfPojos() throws Exception
+    void testConversionOfPojos() throws Exception
     {
         final Issue467Bean input = new Issue467Bean(13);
         final String EXP = "{\"x\":13}";
@@ -334,7 +334,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
     // [databind#467]
     @Test
-    public void testConversionOfTrees() throws Exception
+    void testConversionOfTrees() throws Exception
     {
         final Issue467Tree input = new Issue467Tree();
         final String EXP = "true";
@@ -352,7 +352,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
     // [databind#1940]: losing of precision due to coercion
     @Test
-    public void testBufferedLongViaCoercion() throws Exception {
+    void testBufferedLongViaCoercion() throws Exception {
         long EXP = 1519348261000L;
         JsonNode tree = MAPPER.readTree("{\"longObj\": "+EXP+".0, \"_class\": \""+LongContainer1940.class.getName()+"\"}");
         LongContainer1940 obj = MAPPER.treeToValue(tree, LongContainer1940.class);
@@ -360,7 +360,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     }
 
     @Test
-    public void testConversionsOfNull() throws Exception
+    void testConversionsOfNull() throws Exception
     {
         // First: `null` value should become `NullNode`
         JsonNode n = MAPPER.valueToTree(null);
@@ -388,7 +388,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
     // Simple cast, for Tree
     @Test
-    public void testNodeConvert() throws Exception
+    void testNodeConvert() throws Exception
     {
         ObjectNode src = (ObjectNode) MAPPER.readTree("{}");
         TreeNode node = src;
@@ -403,7 +403,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
     // [databind#4047] : ObjectMapper.valueToTree will ignore the configuration SerializationFeature.WRAP_ROOT_VALUE
     @Test
-    public void testValueToTree() throws Exception
+    void testValueToTree() throws Exception
     {
         // Arrange
         Event value = new Event();

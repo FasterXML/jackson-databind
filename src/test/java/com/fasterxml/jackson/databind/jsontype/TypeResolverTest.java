@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("rawtypes")
-public class TypeResolverTest extends DatabindTestUtil
+class TypeResolverTest extends DatabindTestUtil
 {
     static class A {
         private Map map;
@@ -42,7 +42,7 @@ public class TypeResolverTest extends DatabindTestUtil
     static class MyMap<K,V> extends HashMap<K,V> { }
 
     @Test
-    public void testSubtypeResolution() throws Exception
+    void testSubtypeResolution() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleAbstractTypeResolver resolver = new SimpleAbstractTypeResolver();

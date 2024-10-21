@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [databind#636]
-public class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
+class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
 {
     public static class Parent {
         public List<Child> child;
@@ -22,7 +22,7 @@ public class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
     }
 
     @Test
-    public void testClassIsMissing()
+    void testClassIsMissing()
     {
         try {
             Class.forName("javax.measure.Measure");
@@ -33,7 +33,7 @@ public class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
     }
 
     @Test
-    public void testDeserialize() throws Exception
+    void testDeserialize() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         Parent result = null;
@@ -47,7 +47,7 @@ public class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
     }
 
     @Test
-    public void testUseMissingClass() throws Exception
+    void testUseMissingClass() throws Exception
     {
         boolean missing = false;
         try {

@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class EnumDeserialization3638Test
+class EnumDeserialization3638Test
 {
     /*
     /**********************************************************
@@ -38,7 +38,7 @@ public class EnumDeserialization3638Test
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     /*
     /**********************************************************
     /* Tests
@@ -46,7 +46,7 @@ public class EnumDeserialization3638Test
      */
 
     @Test
-    public void testCaseSensitive() throws Exception {
+    void testCaseSensitive() throws Exception {
         String json = a2q("{'enumValue':'1'}");
 
         SensitiveBean sensitiveBean = MAPPER.readValue(json, SensitiveBean.class);
@@ -56,7 +56,7 @@ public class EnumDeserialization3638Test
 
 
     @Test
-    public void testCaseInsensitive() throws Exception {
+    void testCaseInsensitive() throws Exception {
         String json = a2q("{'enumValue':'1'}");
 
         InsensitiveBean insensitiveBean = MAPPER.readValue(json, InsensitiveBean.class);

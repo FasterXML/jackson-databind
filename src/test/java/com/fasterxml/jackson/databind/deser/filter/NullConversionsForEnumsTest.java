@@ -18,7 +18,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.ABC;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class NullConversionsForEnumsTest
+class NullConversionsForEnumsTest
 {
     static class NullValueAsEmpty<T> {
         @JsonSetter(nulls=Nulls.AS_EMPTY)
@@ -44,7 +44,7 @@ public class NullConversionsForEnumsTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testEnumSetAsEmpty() throws Exception
+    void testEnumSetAsEmpty() throws Exception
     {
         NullValueAsEmpty<EnumSet<ABC>> result = MAPPER.readValue(a2q("{'value': null }"),
                 new TypeReference<NullValueAsEmpty<EnumSet<ABC>>>() { });
@@ -53,7 +53,7 @@ public class NullConversionsForEnumsTest
     }
 
     @Test
-    public void testEnumMapAsEmpty() throws Exception
+    void testEnumMapAsEmpty() throws Exception
     {
         NullValueAsEmpty<EnumMap<ABC, String>> result = MAPPER.readValue(a2q("{'value': null }"),
                 new TypeReference<NullValueAsEmpty<EnumMap<ABC, String>>>() { });
@@ -69,7 +69,7 @@ public class NullConversionsForEnumsTest
 
     // // NOTE: no "empty" value for Enums, so can't use with EnumSet, only EnumMap
     @Test
-    public void testEnumMapNullsAsEmpty() throws Exception
+    void testEnumMapNullsAsEmpty() throws Exception
     {
         NullContentAsEmpty<EnumMap<ABC, String>> result = MAPPER.readValue(a2q("{'values': {'B':null} }"),
                 new TypeReference<NullContentAsEmpty<EnumMap<ABC, String>>>() { });
@@ -85,7 +85,7 @@ public class NullConversionsForEnumsTest
      */
 
     @Test
-    public void testEnumSetSkipNulls() throws Exception
+    void testEnumSetSkipNulls() throws Exception
     {
         NullContentSkip<EnumSet<ABC>> result = MAPPER.readValue(a2q("{'values': [ null ]}"),
                 new TypeReference<NullContentSkip<EnumSet<ABC>>>() { });
@@ -94,7 +94,7 @@ public class NullConversionsForEnumsTest
     }
 
     @Test
-    public void testEnumMapSkipNulls() throws Exception
+    void testEnumMapSkipNulls() throws Exception
     {
         NullContentSkip<EnumMap<ABC, String>> result = MAPPER.readValue(a2q("{'values': {'B':null} }"),
                 new TypeReference<NullContentSkip<EnumMap<ABC, String>>>() { });

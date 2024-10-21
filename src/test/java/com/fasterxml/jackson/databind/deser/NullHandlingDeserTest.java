@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
-public class NullHandlingDeserTest
+class NullHandlingDeserTest
 {
     static class FunnyNullDeserializer extends JsonDeserializer<String>
     {
@@ -66,6 +66,7 @@ public class NullHandlingDeserTest
             this.proxy = proxy;
         }
     }
+
     static interface Proxy { }
 
     static class TypeA implements Proxy {
@@ -102,7 +103,7 @@ public class NullHandlingDeserTest
      */
 
     @Test
-    public void testNull() throws Exception
+    void testNull() throws Exception
     {
         // null doesn't really have a type, fake by assuming Object
         Object result = MAPPER.readValue("   null", Object.class);
@@ -110,7 +111,7 @@ public class NullHandlingDeserTest
     }
 
     @Test
-    public void testAnySetterNulls() throws Exception {
+    void testAnySetterNulls() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(String.class, new FunnyNullDeserializer());
@@ -136,7 +137,7 @@ public class NullHandlingDeserTest
     }
 
     @Test
-    public void testCustomRootNulls() throws Exception
+    void testCustomRootNulls() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -157,7 +158,7 @@ public class NullHandlingDeserTest
 
     // [databind#407]
     @Test
-    public void testListOfNulls() throws Exception
+    void testListOfNulls() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -183,7 +184,7 @@ public class NullHandlingDeserTest
 
     // Test for [#407]
     @Test
-    public void testMapOfNulls() throws Exception
+    void testMapOfNulls() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -207,7 +208,7 @@ public class NullHandlingDeserTest
 
     // [databind#1601]
     @Test
-    public void testPolymorphicDataNull() throws Exception
+    void testPolymorphicDataNull() throws Exception
     {
         String typeA =
                 "{\"name\":\"TypeAData\", \"type\":\"TypeA\", \"proxy\":{\"aValue\":\"This works!\"}}";
@@ -225,7 +226,7 @@ public class NullHandlingDeserTest
 
     // Test for [databind#3227]
     @Test
-    public void testContentsNullFailForMaps() throws Exception
+    void testContentsNullFailForMaps() throws Exception
     {
         try {
             CONTENT_NULL_FAIL_MAPPER.readValue("{ \"field\": null, \"property\": 1 }", Map.class);
@@ -244,7 +245,7 @@ public class NullHandlingDeserTest
 
     // Test for [databind#3227]
     @Test
-    public void testContentsNullFailForCollections() throws Exception
+    void testContentsNullFailForCollections() throws Exception
     {
         try {
             CONTENT_NULL_FAIL_MAPPER.readValue("[null, {\"field\": 1}]",
@@ -279,7 +280,7 @@ public class NullHandlingDeserTest
 
     // Test for [databind#3227]
     @Test
-    public void testContentsNullFailForArrays() throws Exception
+    void testContentsNullFailForArrays() throws Exception
     {
         try {
             CONTENT_NULL_FAIL_MAPPER.readValue("[null, {\"field\": 1}]", Object[].class);

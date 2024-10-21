@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#4441] @JsonSetter(nulls = Nulls.SKIP) doesn't work in some situations
-public class SkipNulls4441Test
-    extends DatabindTestUtil
+class SkipNulls4441Test
+        extends DatabindTestUtil
 {
     static class Middle {
         @JsonSetter(nulls = Nulls.SKIP)
@@ -101,7 +101,7 @@ public class SkipNulls4441Test
             "}");
 
     @Test
-    public void testFields() throws Exception {
+    void testFields() throws Exception {
         // Passes
         // For some reason, if most-inner "list1" field is null in the end, it works
         _testFieldNullSkip(NULL_ENDING_JSON);
@@ -111,7 +111,7 @@ public class SkipNulls4441Test
     }
 
     @Test
-    public void testMethods() throws Exception {
+    void testMethods() throws Exception {
         // Passes
         // For some reason, if most-inner "list1" field is null in the end, it works
         _testMethodNullSkip(NULL_ENDING_JSON);

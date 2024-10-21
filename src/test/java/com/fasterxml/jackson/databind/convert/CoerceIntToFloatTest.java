@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class CoerceIntToFloatTest
+class CoerceIntToFloatTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
@@ -46,19 +46,19 @@ public class CoerceIntToFloatTest
             .build();
 
     @Test
-    public void testDefaultIntToFloatCoercion() throws JsonProcessingException
+    void testDefaultIntToFloatCoercion() throws JsonProcessingException
     {
         assertSuccessfulIntToFloatConversionsWith(DEFAULT_MAPPER);
     }
 
     @Test
-    public void testCoerceConfigToConvert() throws JsonProcessingException
+    void testCoerceConfigToConvert() throws JsonProcessingException
     {
         assertSuccessfulIntToFloatConversionsWith(MAPPER_TRY_CONVERT);
     }
 
     @Test
-    public void testCoerceConfigToNull() throws JsonProcessingException
+    void testCoerceConfigToNull() throws JsonProcessingException
     {
         assertNull(MAPPER_TO_NULL.readValue("1", Float.class));
         // `null` not possible for primitives, must use empty (aka default) value
@@ -90,7 +90,7 @@ public class CoerceIntToFloatTest
     }
 
     @Test
-    public void testCoerceConfigToEmpty() throws JsonProcessingException
+    void testCoerceConfigToEmpty() throws JsonProcessingException
     {
         assertEquals(0.0f, MAPPER_TO_EMPTY.readValue("3", Float.class));
         assertEquals(0.0f, MAPPER_TO_EMPTY.readValue("-2", Float.TYPE));
@@ -116,7 +116,7 @@ public class CoerceIntToFloatTest
     }
 
     @Test
-    public void testCoerceConfigToFail() throws JsonProcessingException
+    void testCoerceConfigToFail() throws JsonProcessingException
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, Float.class, "3");
         _verifyCoerceFail(MAPPER_TO_FAIL, Float.TYPE, "-2");
@@ -132,7 +132,7 @@ public class CoerceIntToFloatTest
     }
 
     @Test
-    public void testLegacyConfiguration() throws JsonProcessingException
+    void testLegacyConfiguration() throws JsonProcessingException
     {
         assertSuccessfulIntToFloatConversionsWith(LEGACY_SCALAR_COERCION_FAIL);
     }

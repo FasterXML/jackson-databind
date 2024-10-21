@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class ReadOnlyListDeser2118Test
+class ReadOnlyListDeser2118Test
 {
     // [databind#2118]
     static class SecurityGroup {
@@ -56,7 +56,7 @@ public class ReadOnlyListDeser2118Test
 
     // [databind#2118]
     @Test
-    public void testAccessReadOnly() throws Exception {
+    void testAccessReadOnly() throws Exception {
         String data ="{\"security_group_rules\": [{\"id\": \"id1\"}]}";
 // This would work around the issue:
 //        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);

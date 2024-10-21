@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestMixinDeserForCreators
-    extends DatabindTestUtil
+class TestMixinDeserForCreators
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -115,7 +115,7 @@ public class TestMixinDeserForCreators
      */
 
     @Test
-    public void testForConstructor() throws IOException
+    void testForConstructor() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(BaseClassWithPrivateCtor.class, MixInForPrivate.class);
@@ -124,7 +124,7 @@ public class TestMixinDeserForCreators
     }
 
     @Test
-    public void testForFactoryAndCtor() throws IOException
+    void testForFactoryAndCtor() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         BaseClass result;
@@ -141,7 +141,7 @@ public class TestMixinDeserForCreators
     }
 
     @Test
-    public void testFactoryDelegateMixIn() throws IOException
+    void testFactoryDelegateMixIn() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(StringWrapper.class, StringWrapperMixIn.class);
@@ -151,7 +151,7 @@ public class TestMixinDeserForCreators
 
     // [databind#2020]
     @Test
-    public void testFactoryPropertyMixin() throws Exception
+    void testFactoryPropertyMixin() throws Exception
     {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixIn(Pair2020.class, MyPairMixIn8.class);

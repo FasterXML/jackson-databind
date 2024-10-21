@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Unit tests for verifying serialization of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
-public class NumberSerTest extends DatabindTestUtil
+class NumberSerTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
@@ -122,7 +122,7 @@ public class NumberSerTest extends DatabindTestUtil
      */
 
     @Test
-    public void testDouble() throws Exception
+    void testDouble() throws Exception
     {
         double[] values = new double[] {
             0.0, 1.0, 0.1, -37.01, 999.99, 0.3, 33.3, Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY
@@ -137,7 +137,7 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    public void testBigInteger() throws Exception
+    void testBigInteger() throws Exception
     {
         BigInteger[] values = new BigInteger[] {
                 BigInteger.ONE, BigInteger.TEN, BigInteger.ZERO,
@@ -153,7 +153,7 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNumbersAsString() throws Exception
+    void testNumbersAsString() throws Exception
     {
         assertEquals(a2q("{'value':'3'}"), MAPPER.writeValueAsString(new IntAsString()));
         assertEquals(a2q("{'value':'4'}"), MAPPER.writeValueAsString(new LongAsString()));
@@ -163,7 +163,7 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNumbersAsStringNonEmpty() throws Exception
+    void testNumbersAsStringNonEmpty() throws Exception
     {
         assertEquals(a2q("{'value':'3'}"), NON_EMPTY_MAPPER.writeValueAsString(new IntAsString()));
         assertEquals(a2q("{'value':'4'}"), NON_EMPTY_MAPPER.writeValueAsString(new LongAsString()));
@@ -173,7 +173,7 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    public void testConfigOverridesForNumbers() throws Exception
+    void testConfigOverridesForNumbers() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.configOverride(Integer.TYPE) // for `int`
@@ -192,7 +192,7 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNumberType() throws Exception
+    void testNumberType() throws Exception
     {
         assertEquals(a2q("{'value':1}"), MAPPER.writeValueAsString(new NumberWrapper(Byte.valueOf((byte) 1))));
         assertEquals(a2q("{'value':2}"), MAPPER.writeValueAsString(new NumberWrapper(Short.valueOf((short) 2))));
@@ -205,7 +205,7 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    public void testCustomSerializationBigDecimalAsString() throws Exception {
+    void testCustomSerializationBigDecimalAsString() throws Exception {
         SimpleModule module = new SimpleModule();
         module.addSerializer(BigDecimal.class, new BigDecimalAsStringSerializer());
         ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
@@ -213,7 +213,7 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
-    public void testCustomSerializationBigDecimalAsNumber() throws Exception {
+    void testCustomSerializationBigDecimalAsNumber() throws Exception {
         SimpleModule module = new SimpleModule();
         module.addSerializer(BigDecimal.class, new BigDecimalAsNumberSerializer());
         ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();

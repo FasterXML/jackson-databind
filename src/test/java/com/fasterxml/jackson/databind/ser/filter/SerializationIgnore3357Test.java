@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SerializationIgnore3357Test extends DatabindTestUtil
+class SerializationIgnore3357Test extends DatabindTestUtil
 {
     // [databind#3357]: Precedence of @JsonIgnore over @JsonProperty along
     // public getter with no annotations, field.
@@ -36,7 +36,7 @@ public class SerializationIgnore3357Test extends DatabindTestUtil
 
     // [databind#3357]: Precedence of @JsonIgnore over @JsonProperty
     @Test
-    public void testPropertyVsIgnore3357() throws Exception
+    void testPropertyVsIgnore3357() throws Exception
     {
         String json = MAPPER.writeValueAsString(new IgnoreAndProperty3357());
         assertEquals("{\"toInclude\":2}", json);

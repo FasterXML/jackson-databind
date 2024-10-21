@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TreeWithTypeTest extends DatabindTestUtil
+class TreeWithTypeTest extends DatabindTestUtil
 {
     public static class Foo {
         public String bar;
@@ -66,7 +66,7 @@ public class TreeWithTypeTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testValueAsStringWithoutDefaultTyping() throws Exception {
+    void testValueAsStringWithoutDefaultTyping() throws Exception {
 
         Foo foo = new Foo("baz");
         String json = MAPPER.writeValueAsString(foo);
@@ -76,7 +76,7 @@ public class TreeWithTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testValueAsStringWithDefaultTyping() throws Exception {
+    void testValueAsStringWithDefaultTyping() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
@@ -90,7 +90,7 @@ public class TreeWithTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testReadTreeWithDefaultTyping() throws Exception
+    void testReadTreeWithDefaultTyping() throws Exception
     {
         final String CLASS = Foo.class.getName();
 
@@ -105,7 +105,7 @@ public class TreeWithTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testValueToTreeWithoutDefaultTyping() throws Exception {
+    void testValueToTreeWithoutDefaultTyping() throws Exception {
 
         Foo foo = new Foo("baz");
         JsonNode jsonNode = MAPPER.valueToTree(foo);
@@ -113,7 +113,7 @@ public class TreeWithTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testValueToTreeWithDefaultTyping() throws Exception {
+    void testValueToTreeWithDefaultTyping() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
@@ -125,7 +125,7 @@ public class TreeWithTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIssue353() throws Exception
+    void testIssue353() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,

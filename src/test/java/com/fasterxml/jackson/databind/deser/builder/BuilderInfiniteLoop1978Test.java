@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class BuilderInfiniteLoop1978Test
+class BuilderInfiniteLoop1978Test
 {
     static class Builder
     {
@@ -89,7 +89,7 @@ public class BuilderInfiniteLoop1978Test
 
     // for [databind#1978]
     @Test
-    public void testInfiniteLoop1978() throws Exception
+    void testInfiniteLoop1978() throws Exception
     {
         String json = "{\"sub.el1\":34,\"sub.el2\":\"some text\"}";
         ObjectMapper mapper = new ObjectMapper();

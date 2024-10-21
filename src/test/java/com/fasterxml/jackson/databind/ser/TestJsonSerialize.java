@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * This unit test suite tests use of @JsonClass Annotation
  * with bean serialization.
  */
-public class TestJsonSerialize
-    extends DatabindTestUtil
+class TestJsonSerialize
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -89,8 +89,10 @@ public class TestJsonSerialize
 
     @SuppressWarnings("serial")
     static class ValueMap extends HashMap<String,ValueInterface> { }
+
     @SuppressWarnings("serial")
     static class ValueList extends ArrayList<ValueInterface> { }
+
     @SuppressWarnings("serial")
     static class ValueLinkedList extends LinkedList<ValueInterface> { }
 
@@ -141,7 +143,7 @@ public class TestJsonSerialize
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testSimpleValueDefinition() throws Exception
+    void testSimpleValueDefinition() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForAs());
         assertEquals(1, result.size());
@@ -153,7 +155,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testBrokenAnnotation() throws Exception
+    void testBrokenAnnotation() throws Exception
     {
         try {
             serializeAsString(MAPPER, new BrokenClass());
@@ -165,7 +167,7 @@ public class TestJsonSerialize
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testStaticTypingForClass() throws Exception
+    void testStaticTypingForClass() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForStaticTyping());
         assertEquals(1, result.size());
@@ -178,7 +180,7 @@ public class TestJsonSerialize
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testMixedTypingForClass() throws Exception
+    void testMixedTypingForClass() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForStaticTyping2());
         assertEquals(2, result.size());
@@ -198,7 +200,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testStaticTypingWithMap() throws Exception
+    void testStaticTypingWithMap() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
@@ -209,7 +211,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testStaticTypingWithArrayList() throws Exception
+    void testStaticTypingWithArrayList() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
@@ -220,7 +222,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testStaticTypingWithLinkedList() throws Exception
+    void testStaticTypingWithLinkedList() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
@@ -231,7 +233,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testStaticTypingWithArray() throws Exception
+    void testStaticTypingWithArray() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
@@ -241,7 +243,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testIssue294() throws Exception
+    void testIssue294() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         assertEquals("{\"bar\":\"barId\",\"id\":\"fooId\"}",
@@ -257,7 +259,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testWithIsGetter() throws Exception
+    void testWithIsGetter() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.setVisibility(PropertyAccessor.GETTER, Visibility.NONE)

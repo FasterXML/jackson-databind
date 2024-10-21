@@ -15,7 +15,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 /**
  * Tests to ensure one can disable {@link JsonCreator} annotations.
  */
-public class DisablingCreatorsTest
+class DisablingCreatorsTest
 {
      static class ConflictingCreators {
           @JsonCreator(mode=JsonCreator.Mode.PROPERTIES)
@@ -35,14 +35,14 @@ public class DisablingCreatorsTest
           public NonConflictingCreators(String foo, int value) { }
      }
 
-     /*
-     /**********************************************************
-     /* Helper methods
-     /**********************************************************
-      */
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
 
-     @Test
-     public void testDisabling() throws Exception
+    @Test
+    void testDisabling() throws Exception
      {
           final ObjectMapper mapper = newJsonMapper();
 

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class JacksonExceptionSerializationTest
+class JacksonExceptionSerializationTest
 {
     /*
     /**********************************************************************
@@ -24,7 +24,7 @@ public class JacksonExceptionSerializationTest
 
     // [databind#3244]: StackOverflow for basic JsonProcessingException?
     @Test
-    public void testIssue3244() throws Exception {
+    void testIssue3244() throws Exception {
         JacksonException e = null;
         try {
             MAPPER.readValue("{ foo ", Map.class);

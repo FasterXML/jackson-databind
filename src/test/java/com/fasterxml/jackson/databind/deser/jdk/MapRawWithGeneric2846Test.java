@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class MapRawWithGeneric2846Test
+class MapRawWithGeneric2846Test
 {
     @SuppressWarnings("rawtypes")
     static class GenericEntity<T> {
@@ -25,7 +25,7 @@ public class MapRawWithGeneric2846Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testIssue2821Part2() throws Exception {
+    void testIssue2821Part2() throws Exception {
         final String JSON = "{ \"map\": { \"key\": \"value\" } }";
         GenericEntity<SimpleEntity> genericEntity = MAPPER.readValue(JSON,
                 new TypeReference<GenericEntity<SimpleEntity>>() {});

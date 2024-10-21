@@ -18,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * This unit test suite tests functioning of {@link JsonRawValue}
  * annotation with bean serialization.
  */
-public class RawValueTest
-    extends DatabindTestUtil
+class RawValueTest
+        extends DatabindTestUtil
 {
     /*
     /*********************************************************
@@ -62,7 +62,7 @@ public class RawValueTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleStringGetter() throws Exception
+    void testSimpleStringGetter() throws Exception
     {
         String value = "abc";
         String result = MAPPER.writeValueAsString(new ClassGetter<String>(value));
@@ -71,7 +71,7 @@ public class RawValueTest
     }
 
     @Test
-    public void testSimpleNonStringGetter() throws Exception
+    void testSimpleNonStringGetter() throws Exception
     {
         int value = 123;
         String result = MAPPER.writeValueAsString(new ClassGetter<Integer>(value));
@@ -80,7 +80,7 @@ public class RawValueTest
     }
 
     @Test
-    public void testNullStringGetter() throws Exception
+    void testNullStringGetter() throws Exception
     {
         String result = MAPPER.writeValueAsString(new ClassGetter<String>(null));
         String expected = "{\"nonRaw\":null,\"raw\":null,\"value\":null}";
@@ -88,7 +88,7 @@ public class RawValueTest
     }
 
     @Test
-    public void testWithValueToTree() throws Exception
+    void testWithValueToTree() throws Exception
     {
         JsonNode w = MAPPER.valueToTree(new RawWrapped("{ }"));
         assertNotNull(w);
@@ -97,7 +97,7 @@ public class RawValueTest
 
     // for [databind#743]
     @Test
-    public void testRawFromMapToTree() throws Exception
+    void testRawFromMapToTree() throws Exception
     {
         RawValue myType = new RawValue("Jackson");
 

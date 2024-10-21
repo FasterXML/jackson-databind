@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ExternalTypeIdWithIgnoreUnknownTest extends DatabindTestUtil
+class ExternalTypeIdWithIgnoreUnknownTest extends DatabindTestUtil
 {
     // [databind#2611]
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -52,7 +52,7 @@ public class ExternalTypeIdWithIgnoreUnknownTest extends DatabindTestUtil
 
     // [databind#2611]
     @Test
-    public void testDeserialization() throws Exception
+    void testDeserialization() throws Exception
     {
         final String data = a2q("[{'type': 'test','data': {},'additional': {}}]");
 

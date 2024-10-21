@@ -11,12 +11,12 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 /**
  * Simple tests to verify that [JACKSON-707] is implemented correctly.
  */
-public class JsonNodeDeepCopyTest extends DatabindTestUtil
+class JsonNodeDeepCopyTest extends DatabindTestUtil
 {
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void testWithObjectSimple()
+    void testWithObjectSimple()
     {
         ObjectNode root = mapper.createObjectNode();
         root.put("a", 3);
@@ -37,7 +37,7 @@ public class JsonNodeDeepCopyTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWithArraySimple()
+    void testWithArraySimple()
     {
         ArrayNode root = mapper.createArrayNode();
         root.add("a");
@@ -58,7 +58,7 @@ public class JsonNodeDeepCopyTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWithNested()
+    void testWithNested()
     {
         ObjectNode root = mapper.createObjectNode();
         ObjectNode leafObject = root.putObject("ob");

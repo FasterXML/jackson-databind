@@ -20,7 +20,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
  * including using concrete subtypes of {@link DatabindException}
  * (and streaming-level equivalents).
  */
-public class DeserExceptionTypeTest
+class DeserExceptionTypeTest
 {
     static class Bean {
         public String propX;
@@ -44,7 +44,7 @@ public class DeserExceptionTypeTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testHandlingOfUnrecognized() throws Exception
+    void testHandlingOfUnrecognized() throws Exception
     {
         UnrecognizedPropertyException exc = null;
         try {
@@ -66,7 +66,7 @@ public class DeserExceptionTypeTest
      * without content.
      */
     @Test
-    public void testExceptionWithEmpty() throws Exception
+    void testExceptionWithEmpty() throws Exception
     {
         try {
             Object result = MAPPER.readValue("    ", Object.class);
@@ -77,8 +77,8 @@ public class DeserExceptionTypeTest
     }
 
     @Test
-    public void testExceptionWithIncomplete()
-        throws Exception
+    void testExceptionWithIncomplete()
+            throws Exception
     {
         BrokenStringReader r = new BrokenStringReader("[ 1, ", "TEST");
         try (JsonParser p = MAPPER.createParser(r)) {
@@ -93,7 +93,7 @@ public class DeserExceptionTypeTest
     }
 
     @Test
-    public void testExceptionWithEOF() throws Exception
+    void testExceptionWithEOF() throws Exception
     {
         JsonParser p = MAPPER.createParser("  3");
 
@@ -117,7 +117,7 @@ public class DeserExceptionTypeTest
 
     // [databind#1414]
     @Test
-    public void testExceptionForNoCreators() throws Exception
+    void testExceptionForNoCreators() throws Exception
     {
         try {
             NoCreatorsBean b = MAPPER.readValue("{}", NoCreatorsBean.class);

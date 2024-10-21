@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class EnumWithNullToString4355Test extends DatabindTestUtil
+class EnumWithNullToString4355Test extends DatabindTestUtil
 {
     // [databind#4355]
     enum Enum4355 {
@@ -31,7 +31,7 @@ public class EnumWithNullToString4355Test extends DatabindTestUtil
 
     // [databind#4355]
     @Test
-    public void testWithNullToString() throws Exception
+    void testWithNullToString() throws Exception
     {
         assertEquals(q("ALPHA"), MAPPER.writeValueAsString(Enum4355.ALPHA));
         assertEquals(q("BETA"), MAPPER.writeValueAsString(Enum4355.BETA));

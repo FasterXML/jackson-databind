@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#2588] / [databind#2610] / [databind#4354]
-public class ExternalTypeId2588Test extends DatabindTestUtil
+class ExternalTypeId2588Test extends DatabindTestUtil
 {
     // [databind#2588]
     interface Animal { }
@@ -84,7 +84,7 @@ public class ExternalTypeId2588Test extends DatabindTestUtil
 
     // [databind#2588]
     @Test
-    public void testExternalTypeId2588Read() throws Exception
+    void testExternalTypeId2588Read() throws Exception
     {
         Pet pet;
 
@@ -115,7 +115,7 @@ public class ExternalTypeId2588Test extends DatabindTestUtil
     }
 
     @Test
-    public void testExternalTypeId2588Write() throws Exception
+    void testExternalTypeId2588Write() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Pet("cat", new Wolf()));
         assertEquals(a2q("{'animal':{'alive':false},'type':'wolf'}"), json);

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestObjectIdWithEquals extends DatabindTestUtil
+class TestObjectIdWithEquals extends DatabindTestUtil
 {
     @JsonPropertyOrder({"id","bars","otherBars"})
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id", scope=Foo.class)
@@ -86,7 +86,7 @@ public class TestObjectIdWithEquals extends DatabindTestUtil
      */
 
     @Test
-    public void testSimpleEquals() throws Exception
+    void testSimpleEquals() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // Verify default state too
@@ -116,7 +116,7 @@ public class TestObjectIdWithEquals extends DatabindTestUtil
     }
 
     @Test
-    public void testEqualObjectIdsExternal() throws Exception
+    void testEqualObjectIdsExternal() throws Exception
     {
         Element element = new Element();
         element.uri = URI.create("URI");

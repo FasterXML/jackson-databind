@@ -22,8 +22,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("serial")
-public class JacksonAnnotationIntrospectorTest
-    extends DatabindTestUtil
+class JacksonAnnotationIntrospectorTest
+        extends DatabindTestUtil
 {
     public static enum EnumExample {
         VALUE1;
@@ -168,7 +168,7 @@ public class JacksonAnnotationIntrospectorTest
      * tests getting serializer/deserializer instances.
      */
     @Test
-    public void testSerializeDeserializeWithJaxbAnnotations() throws Exception
+    void testSerializeDeserializeWithJaxbAnnotations() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -195,7 +195,7 @@ public class JacksonAnnotationIntrospectorTest
     }
 
     @Test
-    public void testJsonTypeResolver() throws Exception
+    void testJsonTypeResolver() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         JacksonAnnotationIntrospector ai = new JacksonAnnotationIntrospector();
@@ -208,7 +208,7 @@ public class JacksonAnnotationIntrospectorTest
     }
 
     @Test
-    public void testEnumHandling() throws Exception
+    void testEnumHandling() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new LcEnumIntrospector());

@@ -19,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for checking handling of SerializationConfig.
  */
-public class TestConfig
-    extends DatabindTestUtil
+class TestConfig
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -61,7 +61,7 @@ public class TestConfig
      * gives low-water mark
      */
     @Test
-    public void testEnumIndexes()
+    void testEnumIndexes()
     {
         int max = 0;
 
@@ -74,7 +74,7 @@ public class TestConfig
     }
 
     @Test
-    public void testDefaults()
+    void testDefaults()
     {
         SerializationConfig cfg = MAPPER.getSerializationConfig();
 
@@ -99,7 +99,7 @@ public class TestConfig
     }
 
     @Test
-    public void testOverrideIntrospectors()
+    void testOverrideIntrospectors()
     {
         SerializationConfig cfg = MAPPER.getSerializationConfig();
         // and finally, ensure we could override introspectors
@@ -109,7 +109,7 @@ public class TestConfig
     }
 
     @Test
-    public void testMisc()
+    void testMisc()
     {
         ObjectMapper m = new ObjectMapper();
         m.setDateFormat(null); // just to execute the code path
@@ -117,7 +117,7 @@ public class TestConfig
     }
 
     @Test
-    public void testIndentation() throws Exception
+    void testIndentation() throws Exception
     {
         Map<String,Integer> map = new HashMap<String,Integer>();
         map.put("a", Integer.valueOf(2));
@@ -129,7 +129,7 @@ public class TestConfig
     }
 
     @Test
-    public void testAnnotationsDisabled() throws Exception
+    void testAnnotationsDisabled() throws Exception
     {
         // first: verify that annotation introspection is enabled by default
         assertTrue(MAPPER.isEnabled(MapperFeature.USE_ANNOTATIONS));
@@ -147,7 +147,7 @@ public class TestConfig
      * Test for verifying working of [JACKSON-191]
      */
     @Test
-    public void testProviderConfig() throws Exception
+    void testProviderConfig() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         DefaultSerializerProvider prov = (DefaultSerializerProvider) mapper.getSerializerProvider();
@@ -174,7 +174,7 @@ public class TestConfig
 
     // Test for [Issue#12]
     @Test
-    public void testIndentWithPassedGenerator() throws Exception
+    void testIndentWithPassedGenerator() throws Exception
     {
         Indentable input = new Indentable();
         assertEquals("{\"a\":3}", MAPPER.writeValueAsString(input));
@@ -201,7 +201,7 @@ public class TestConfig
     }
 
     @Test
-    public void testNoAccessOverrides() throws Exception
+    void testNoAccessOverrides() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
             .disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)
@@ -210,7 +210,7 @@ public class TestConfig
     }
 
     @Test
-    public void testDateFormatConfig() throws Exception
+    void testDateFormatConfig() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         TimeZone tz1 = TimeZone.getTimeZone("America/Los_Angeles");

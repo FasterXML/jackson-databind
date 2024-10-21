@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#4184]
-public class CurrentValueDeser4184Test extends DatabindTestUtil
+class CurrentValueDeser4184Test extends DatabindTestUtil
 {
     static class User {
         public Role role;
@@ -76,7 +76,7 @@ public class CurrentValueDeser4184Test extends DatabindTestUtil
 
     // [databind#4184]
     @Test
-    public void testCurrentValue4184FullPojo() throws Exception
+    void testCurrentValue4184FullPojo() throws Exception
     {
         String json = "{\"role\": {\"name\": \"Manager\"}, \"type\": {\"value\":1}}";
 
@@ -87,7 +87,7 @@ public class CurrentValueDeser4184Test extends DatabindTestUtil
 
     // [databind#4184]
     @Test
-    public void testCurrentValue4184EmptyPojo() throws Exception
+    void testCurrentValue4184EmptyPojo() throws Exception
     {
         String json = "{\"role\": {}, \"type\": {\"value\":1}}";
 

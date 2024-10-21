@@ -17,7 +17,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * Tests to ensure that deserialization fails when a bean property has a null value
  * Relates to <a href="https://github.com/FasterXML/jackson-databind/issues/988">issue #988</a>
  */
-public class FailOnNullCreatorTest
+class FailOnNullCreatorTest
 {
     static class Person {
         String name;
@@ -35,7 +35,7 @@ public class FailOnNullCreatorTest
     private final ObjectReader POINT_READER = sharedMapper().readerFor(Person.class);
 
     @Test
-    public void testRequiredNonNullParam() throws Exception
+    void testRequiredNonNullParam() throws Exception
     {
         Person p;
         // First: fine if feature is not enabled

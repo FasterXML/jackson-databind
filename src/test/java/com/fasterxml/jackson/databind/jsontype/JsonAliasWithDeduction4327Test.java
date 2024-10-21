@@ -16,7 +16,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 // [databind#4327] JsonAlias should be respected by Polymorphic Deduction
-public class JsonAliasWithDeduction4327Test
+class JsonAliasWithDeduction4327Test
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
     @JsonSubTypes({
@@ -44,7 +44,7 @@ public class JsonAliasWithDeduction4327Test
 
     @ParameterizedTest
     @ValueSource(strings = {"y", "Y", "yy", "ff", "X"})
-    public void testAliasWithPolymorphicDeduction(String field) throws Exception {
+    void testAliasWithPolymorphicDeduction(String field) throws Exception {
         String json = a2q(String.format("{'%s': 2 }", field));
         Deduction value = mapper.readValue(json, Deduction.class);
         assertNotNull(value);

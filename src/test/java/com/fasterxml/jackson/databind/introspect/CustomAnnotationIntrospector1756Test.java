@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("serial")
-public class CustomAnnotationIntrospector1756Test extends DatabindTestUtil
+class CustomAnnotationIntrospector1756Test extends DatabindTestUtil
 {
     @Target({ElementType.PARAMETER, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
@@ -116,7 +116,7 @@ public class CustomAnnotationIntrospector1756Test extends DatabindTestUtil
     }
 
     @Test
-    public void testIssue1756() throws Exception
+    void testIssue1756() throws Exception
     {
         Issue1756Module m = new Issue1756Module();
         m.addAbstractTypeMapping(Foobar.class, FoobarImpl.class);

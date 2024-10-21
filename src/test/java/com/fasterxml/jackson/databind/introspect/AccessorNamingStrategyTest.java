@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [databind#2800]
 @SuppressWarnings("serial")
-public class AccessorNamingStrategyTest extends DatabindTestUtil
+class AccessorNamingStrategyTest extends DatabindTestUtil
 {
     @JsonPropertyOrder({ "X", "x", "Z", "z" }) // since our naming strategy casings vary
     static class GetterBean2800_XZ {
@@ -118,21 +118,21 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
             .build();
 
     @Test
-    public void testGetterNaming() throws Exception
+    void testGetterNaming() throws Exception
     {
         assertEquals(a2q("{'X':3,'Z':true}"),
                 MAPPER.writeValueAsString(new GetterBean2800_XZ()));
     }
 
     @Test
-    public void testSetterNaming() throws Exception
+    void testSetterNaming() throws Exception
     {
         SetterBean2800_Y result = MAPPER.readValue(a2q("{'Y':42}"), SetterBean2800_Y.class);
         assertEquals(42, result.yyy);
     }
 
     @Test
-    public void testFieldNaming() throws Exception
+    void testFieldNaming() throws Exception
     {
         // first serialization
         assertEquals(a2q("{'x':1}"),
@@ -154,7 +154,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
 
     // Test to verify that the base naming impl works as advertised
     @Test
-    public void testBaseAccessorNaming() throws Exception
+    void testBaseAccessorNaming() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .accessorNaming(new BaseNamingProvider())
@@ -170,7 +170,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
      */
 
     @Test
-    public void testBaseAccessorCustomGetter() throws Exception
+    void testBaseAccessorCustomGetter() throws Exception
     {
         // First: without customizations, see "y"
         ObjectMapper mapper = JsonMapper.builder()
@@ -191,7 +191,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
     }
 
     @Test
-    public void testBaseAccessorCustomSetter() throws Exception
+    void testBaseAccessorCustomSetter() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
@@ -214,7 +214,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
      */
 
     @Test
-    public void testFirstLetterConfigs() throws Exception
+    void testFirstLetterConfigs() throws Exception
     {
         final FirstLetterVariesBean input = new FirstLetterVariesBean();
         final String STD_EXP = a2q("{'4Roses':42,'land':true,'value':31337}");

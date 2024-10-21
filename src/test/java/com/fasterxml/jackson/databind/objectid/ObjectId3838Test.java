@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#3838]: Difference in the handling of ObjectId-property in JsonIdentityInfo depending on the deserialization route.
-public class ObjectId3838Test extends DatabindTestUtil
+class ObjectId3838Test extends DatabindTestUtil
 {
     interface ResultGetter {
         String result();
@@ -174,7 +174,7 @@ public class ObjectId3838Test extends DatabindTestUtil
     };
 
     @Test
-    public void testUniformHandlingForMissingObjectId() throws Exception
+    void testUniformHandlingForMissingObjectId() throws Exception
     {
         for (Object[] classAndJsonStrEntry : CLASS_AND_JSON_STRING) {
             final Class<?> cls = (Class<?>) classAndJsonStrEntry[0];

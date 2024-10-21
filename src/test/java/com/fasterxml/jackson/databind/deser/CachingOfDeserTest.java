@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("serial")
-public class CachingOfDeserTest
+class CachingOfDeserTest
 {
     // For [databind#735]
     public static class TestMapNoCustom {
@@ -62,7 +62,7 @@ public class CachingOfDeserTest
 
     // Ok: first, use custom-annotated instance first, then standard
     @Test
-    public void testCustomMapCaching1() throws Exception
+    void testCustomMapCaching1() throws Exception
     {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -77,7 +77,7 @@ public class CachingOfDeserTest
 
     // And then standard first, custom next
     @Test
-    public void testCustomMapCaching2() throws Exception
+    void testCustomMapCaching2() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         TestMapNoCustom mapStd = mapper.readValue(MAP_INPUT, TestMapNoCustom.class);
@@ -91,7 +91,7 @@ public class CachingOfDeserTest
 
     // Ok: first, use custom-annotated instance first, then standard
     @Test
-    public void testCustomListCaching1() throws Exception {
+    void testCustomListCaching1() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         TestListWithCustom listC = mapper.readValue(LIST_INPUT, TestListWithCustom.class);
         TestListNoCustom listStd = mapper.readValue(LIST_INPUT, TestListNoCustom.class);
@@ -104,7 +104,7 @@ public class CachingOfDeserTest
 
     // First custom-annotated, then standard
     @Test
-    public void testCustomListCaching2() throws Exception {
+    void testCustomListCaching2() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         TestListNoCustom listStd = mapper.readValue(LIST_INPUT, TestListNoCustom.class);
         TestListWithCustom listC = mapper.readValue(LIST_INPUT, TestListWithCustom.class);

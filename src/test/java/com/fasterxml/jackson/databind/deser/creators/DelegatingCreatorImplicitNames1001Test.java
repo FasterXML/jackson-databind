@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DelegatingCreatorImplicitNames1001Test
+class DelegatingCreatorImplicitNames1001Test
 {
     static class D
     {
@@ -72,7 +72,7 @@ public class DelegatingCreatorImplicitNames1001Test
 
     // Baseline test to show how things should work
     @Test
-    public void testWithoutNamedParameters() throws Exception
+    void testWithoutNamedParameters() throws Exception
     {
         ObjectMapper sut = new ObjectMapper();
 
@@ -87,7 +87,7 @@ public class DelegatingCreatorImplicitNames1001Test
 
     // And then case that fails with [databind#1001]
     @Test
-    public void testWithNamedParameters() throws Exception
+    void testWithNamedParameters() throws Exception
     {
         ObjectMapper sut = new ObjectMapper()
             .setAnnotationIntrospector(new CreatorNameIntrospector());

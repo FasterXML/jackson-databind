@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#3160]
-public class CurrentObject3160Test extends DatabindTestUtil
+class CurrentObject3160Test extends DatabindTestUtil
 {
     @JsonFilter("myFilter")
     @JsonPropertyOrder({ "id", "strategy", "set" })
@@ -66,7 +66,7 @@ public class CurrentObject3160Test extends DatabindTestUtil
 
     // [databind#2475]
     @Test
-    public void testIssue2475() throws Exception
+    void testIssue2475() throws Exception
     {
         SimpleFilterProvider provider = new SimpleFilterProvider().addFilter("myFilter",
                 new MyFilter3160());

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BigDecimalPlain2230Test extends DatabindTestUtil
+class BigDecimalPlain2230Test extends DatabindTestUtil
 {
     static class BigDecimalAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
@@ -25,7 +25,7 @@ public class BigDecimalPlain2230Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testBigIntegerAsPlainTest() throws Exception
+    void testBigIntegerAsPlainTest() throws Exception
     {
         final String NORM_VALUE = "0.0000000005";
         final BigDecimal BD_VALUE = new BigDecimal(NORM_VALUE);

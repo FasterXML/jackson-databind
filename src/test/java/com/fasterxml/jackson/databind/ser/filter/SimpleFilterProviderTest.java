@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests {@link SimpleFilterProvider} on registration of filters.
  */
-public class SimpleFilterProviderTest extends DatabindTestUtil
+class SimpleFilterProviderTest extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -59,7 +59,7 @@ public class SimpleFilterProviderTest extends DatabindTestUtil
      */
 
     @Test
-    public void testAddFilterLastOneRemains() throws Exception {
+    void testAddFilterLastOneRemains() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", SimpleBeanPropertyFilter.serializeAll())
                 .addFilter("filterB", SimpleBeanPropertyFilter.filterOutAllExcept());
@@ -71,7 +71,7 @@ public class SimpleFilterProviderTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAddFilterLastOneRemainsFlip() throws Exception {
+    void testAddFilterLastOneRemainsFlip() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", SimpleBeanPropertyFilter.filterOutAllExcept("a"))
                 .addFilter("filterB", SimpleBeanPropertyFilter.serializeAll());
@@ -88,7 +88,7 @@ public class SimpleFilterProviderTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAddFilterWithEmptyStringId() throws Exception {
+    void testAddFilterWithEmptyStringId() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("", SimpleBeanPropertyFilter.filterOutAllExcept("d"));
         AnyBeanC bean = new AnyBeanC(null, "D is filtered");
@@ -104,7 +104,7 @@ public class SimpleFilterProviderTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAddingNullFilter2ThrowsException() throws Exception {
+    void testAddingNullFilter2ThrowsException() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", null);
         ObjectWriter writer = MAPPER.writer(prov);
@@ -119,7 +119,7 @@ public class SimpleFilterProviderTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAddingNullFilterIdThrowsException() throws Exception {
+    void testAddingNullFilterIdThrowsException() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter(null, SimpleBeanPropertyFilter.serializeAll());
         ObjectWriter writer = MAPPER.writer(prov);

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class TestCreatorNullPrimitives
+class TestCreatorNullPrimitives
 {
     // [databind#2101]
     static class JsonEntity {
@@ -50,7 +50,7 @@ public class TestCreatorNullPrimitives
 
     // [databind#2101]: ensure that the property is included in the path
     @Test
-    public void testCreatorNullPrimitive() throws IOException {
+    void testCreatorNullPrimitive() throws IOException {
         final ObjectReader r = MAPPER.readerFor(JsonEntity.class)
             .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
         String json = a2q("{'x': 2}");
@@ -65,7 +65,7 @@ public class TestCreatorNullPrimitives
     }
 
     @Test
-    public void testCreatorNullPrimitiveInNestedObject() throws IOException {
+    void testCreatorNullPrimitiveInNestedObject() throws IOException {
         final ObjectReader r = MAPPER.readerFor(NestedJsonEntity.class)
                 .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
         String json = a2q("{ 'entity': {'x': 2}}");

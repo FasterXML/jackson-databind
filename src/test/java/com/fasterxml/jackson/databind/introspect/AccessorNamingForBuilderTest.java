@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class AccessorNamingForBuilderTest extends DatabindTestUtil
+class AccessorNamingForBuilderTest extends DatabindTestUtil
 {
     @JsonDeserialize(builder=NoPrexixBuilderXY.class)
     static class ValueClassXY
@@ -45,7 +45,7 @@ public class AccessorNamingForBuilderTest extends DatabindTestUtil
 
     // For [databind#2624]
     @Test
-    public void testAccessorCustomWithMethod() throws Exception
+    void testAccessorCustomWithMethod() throws Exception
     {
         final String json = a2q("{'x':28,'y':72}");
         final ObjectMapper vanillaMapper = newJsonMapper();

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // mostly for [databind#1033]
-public class SetterConflictTest extends DatabindTestUtil
+class SetterConflictTest extends DatabindTestUtil
 {
     // Should prefer primitives over Strings, more complex types, by default
     static class Issue1033Bean {
@@ -65,7 +65,7 @@ public class SetterConflictTest extends DatabindTestUtil
 
     // [databind#1033]
     @Test
-    public void testSetterPriority() throws Exception
+    void testSetterPriority() throws Exception
     {
         Issue1033Bean bean = MAPPER.readValue(a2q("{'value':42}"),
                 Issue1033Bean.class);
@@ -74,7 +74,7 @@ public class SetterConflictTest extends DatabindTestUtil
 
     // [databind#2979]
     @Test
-    public void testConflictingSetters() throws Exception
+    void testConflictingSetters() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE)
@@ -86,7 +86,7 @@ public class SetterConflictTest extends DatabindTestUtil
 
     // [databind#3125]
     @Test
-    public void testDuplicateSetterResolutionOk() throws Exception
+    void testDuplicateSetterResolutionOk() throws Exception
     {
         POJOPropertiesCollector coll = collector(MAPPER, DupSetter3125Bean.class,
                 false);
@@ -107,7 +107,7 @@ public class SetterConflictTest extends DatabindTestUtil
 
     // [databind#3125]: caught case
     @Test
-    public void testDuplicateSetterResolutionFail() throws Exception
+    void testDuplicateSetterResolutionFail() throws Exception
     {
         try {
             MAPPER.readValue(a2q("{'value':'foo'}"),

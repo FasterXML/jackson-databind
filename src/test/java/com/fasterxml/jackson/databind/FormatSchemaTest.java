@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * passed to {@link JsonGenerator} and {@link JsonParser} instances if
  * mapper, reader or writer is configured with one.
  */
-public class FormatSchemaTest
+class FormatSchemaTest
 {
     /*
     /**********************************************************************
@@ -243,7 +243,7 @@ public class FormatSchemaTest
      */
 
     @Test
-    public void testFormatForParsers() throws Exception
+    void testFormatForParsers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper(new FactoryWithSchema());
         MySchema s = new MySchema();
@@ -258,7 +258,7 @@ public class FormatSchemaTest
     }
 
     @Test
-    public void testFormatForGenerators() throws Exception
+    void testFormatForGenerators() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper(new FactoryWithSchema());
         MySchema s = new MySchema();

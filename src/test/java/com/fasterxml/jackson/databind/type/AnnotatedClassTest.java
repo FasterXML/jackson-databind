@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit test for verifying that {@link AnnotatedClass}
  * works as expected.
  */
-public class AnnotatedClassTest
+class AnnotatedClassTest
 {
     /*
     /**********************************************************
@@ -82,7 +82,7 @@ public class AnnotatedClassTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testFieldIntrospection()
+    void testFieldIntrospection()
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
         JavaType t = MAPPER.constructType(FieldBean.class);
@@ -99,7 +99,7 @@ public class AnnotatedClassTest
 
     // For [databind#1005]
     @Test
-    public void testConstructorIntrospection()
+    void testConstructorIntrospection()
     {
         // Need this call to ensure there is a synthetic constructor being generated
         // (not really needed otherwise)
@@ -111,7 +111,7 @@ public class AnnotatedClassTest
     }
 
     @Test
-    public void testArrayTypeIntrospection() throws Exception
+    void testArrayTypeIntrospection() throws Exception
     {
         AnnotatedClass ac = AnnotatedClassResolver.resolve(MAPPER.getSerializationConfig(),
                 MAPPER.constructType(int[].class), null);
@@ -122,7 +122,7 @@ public class AnnotatedClassTest
     }
 
     @Test
-    public void testIntrospectionWithRawClass() throws Exception
+    void testIntrospectionWithRawClass() throws Exception
     {
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(MAPPER.getSerializationConfig(),
                 String.class, null);

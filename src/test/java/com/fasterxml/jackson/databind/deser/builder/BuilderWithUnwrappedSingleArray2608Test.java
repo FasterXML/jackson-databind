@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class BuilderWithUnwrappedSingleArray2608Test
+class BuilderWithUnwrappedSingleArray2608Test
 {
     // [databind#2608]
     @JsonDeserialize(builder = ExamplePOJO2608.ExamplePOJOBuilder.class)
@@ -69,7 +69,7 @@ public class BuilderWithUnwrappedSingleArray2608Test
 
     // [databind#2608]
     @Test
-    public void testDeserializationAndFail() throws Exception {
+    void testDeserializationAndFail() throws Exception {
         final ObjectMapper mapper = JsonMapper.builder()
                 .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();

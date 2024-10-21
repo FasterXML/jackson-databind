@@ -18,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * This unit test suite tests use of some basic Jackson annotations for
  * bean serialization.
  */
-public class SerializationAnnotationsTest
-    extends DatabindTestUtil
+class SerializationAnnotationsTest
+        extends DatabindTestUtil
 {
     // Class for testing {@link JsonProperty} annotations with getters
     final static class SizeClassGetter
@@ -132,7 +132,7 @@ public class SerializationAnnotationsTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleGetter() throws Exception
+    void testSimpleGetter() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter());
         assertEquals(3, result.size());
@@ -142,7 +142,7 @@ public class SerializationAnnotationsTest
     }
 
     @Test
-    public void testSimpleGetter2() throws Exception
+    void testSimpleGetter2() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter2());
         assertEquals(1, result.size());
@@ -151,7 +151,7 @@ public class SerializationAnnotationsTest
 
     // testing [JACKSON-120], implied getter
     @Test
-    public void testSimpleGetter3() throws Exception
+    void testSimpleGetter3() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter3());
         assertEquals(1, result.size());
@@ -163,7 +163,7 @@ public class SerializationAnnotationsTest
      * as expected
      */
     @Test
-    public void testGetterInheritance() throws Exception
+    void testGetterInheritance() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SubClassBean());
         assertEquals(3, result.size());
@@ -177,7 +177,7 @@ public class SerializationAnnotationsTest
      * when applied to a class
      */
     @Test
-    public void testClassSerializer() throws Exception
+    void testClassSerializer() throws Exception
     {
         StringWriter sw = new StringWriter();
         MAPPER.writeValue(sw, new ClassSerializer());
@@ -189,7 +189,7 @@ public class SerializationAnnotationsTest
      * when applied to a Method
      */
     @Test
-    public void testActiveMethodSerializer() throws Exception
+    void testActiveMethodSerializer() throws Exception
     {
         StringWriter sw = new StringWriter();
         MAPPER.writeValue(sw, new ClassMethodSerializer(13));
@@ -200,7 +200,7 @@ public class SerializationAnnotationsTest
     }
 
     @Test
-    public void testInactiveMethodSerializer() throws Exception
+    void testInactiveMethodSerializer() throws Exception
     {
         String json = MAPPER.writeValueAsString(new InactiveClassMethodSerializer(8));
         // Here we will get wrapped as an object, since we have

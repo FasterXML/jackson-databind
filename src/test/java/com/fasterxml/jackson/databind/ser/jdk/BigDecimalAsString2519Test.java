@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BigDecimalAsString2519Test extends DatabindTestUtil
+class BigDecimalAsString2519Test extends DatabindTestUtil
 {
     static class Bean2519Typed {
         public List<BigDecimal> values = new ArrayList<>();
@@ -23,7 +23,7 @@ public class BigDecimalAsString2519Test extends DatabindTestUtil
     }
 
     @Test
-    public void testBigDecimalAsString2519Typed() throws Exception
+    void testBigDecimalAsString2519Typed() throws Exception
     {
         Bean2519Typed foo = new Bean2519Typed();
         foo.values.add(new BigDecimal("2.34"));
@@ -35,7 +35,7 @@ public class BigDecimalAsString2519Test extends DatabindTestUtil
     }
 
     @Test
-    public void testBigDecimalAsString2519Untyped() throws Exception
+    void testBigDecimalAsString2519Untyped() throws Exception
     {
         Bean2519Untyped foo = new Bean2519Untyped();
         foo.values.add(new BigDecimal("2.34"));

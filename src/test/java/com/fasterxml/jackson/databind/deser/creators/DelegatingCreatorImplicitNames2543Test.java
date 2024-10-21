@@ -17,8 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static com.fasterxml.jackson.annotation.JsonCreator.Mode.DELEGATING;
 import static com.fasterxml.jackson.annotation.JsonCreator.Mode.PROPERTIES;
 
-public class DelegatingCreatorImplicitNames2543Test
-    extends DatabindTestUtil
+class DelegatingCreatorImplicitNames2543Test
+        extends DatabindTestUtil
 {
     static class Data2543 {
 
@@ -67,7 +67,7 @@ public class DelegatingCreatorImplicitNames2543Test
             .build();
 
     @Test
-    public void testDeserialization() throws Exception {
+    void testDeserialization() throws Exception {
         Data2543 data = MAPPER.readValue(a2q("{'part1':'a','part2':'b'}"), Data2543.class);
 
         assertThat(data.part1).isEqualTo("a");
@@ -75,7 +75,7 @@ public class DelegatingCreatorImplicitNames2543Test
     }
 
     @Test
-    public void testDelegatingDeserialization() throws Exception {
+    void testDelegatingDeserialization() throws Exception {
         Data2543 data = MAPPER.readValue(a2q("'a b'"), Data2543.class);
 
         assertThat(data.part1).isEqualTo("a");

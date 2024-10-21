@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UnwrappedCreatorParam265Test extends DatabindTestUtil
+class UnwrappedCreatorParam265Test extends DatabindTestUtil
 {
     static class JAddress {
         public String address;
@@ -72,7 +72,7 @@ public class UnwrappedCreatorParam265Test extends DatabindTestUtil
 
     // For [databind#265]: handle problem by throwing exception
     @Test
-    public void testUnwrappedWithUnnamedCreatorParam() throws Exception
+    void testUnwrappedWithUnnamedCreatorParam() throws Exception
     {
         JPersonWithoutName person = new JPersonWithoutName("MyName", new JAddress("main street", "springfield", "WA"));
         ObjectMapper mapper = newJsonMapper();
@@ -91,7 +91,7 @@ public class UnwrappedCreatorParam265Test extends DatabindTestUtil
 
     // For [databind#265]: handle problem by throwing exception
     @Test
-    public void testUnwrappedWithNamedCreatorParam() throws Exception
+    void testUnwrappedWithNamedCreatorParam() throws Exception
     {
         JPersonWithName person = new JPersonWithName("MyName", new JAddress("main street", "springfield", "WA"));
         ObjectMapper mapper = newJsonMapper();

@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#3877]: allow configuration of per-type strict type handling
-public class OverrideStrictTypeInfoHandling3877Test extends DatabindTestUtil {
+class OverrideStrictTypeInfoHandling3877Test extends DatabindTestUtil {
 
     /*
     /**********************************************************
@@ -56,7 +56,7 @@ public class OverrideStrictTypeInfoHandling3877Test extends DatabindTestUtil {
     private final ObjectMapper DEFAULT_MAPPER = JsonMapper.builder().build();
 
     @Test
-    public void testMissingTypeId() throws Exception {
+    void testMissingTypeId() throws Exception {
         // super types fail on missing-id no matter what
         verifyFailureMissingTypeId("{}", FalseCommand.class, ENABLED_MAPPER);
         verifyFailureMissingTypeId("{}", FalseCommand.class, DEFAULT_MAPPER);
@@ -83,7 +83,7 @@ public class OverrideStrictTypeInfoHandling3877Test extends DatabindTestUtil {
     }
 
     @Test
-    public void testSuccessWhenTypeIdIsProvided() throws Exception {
+    void testSuccessWhenTypeIdIsProvided() throws Exception {
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, ENABLED_MAPPER);
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, DEFAULT_MAPPER);
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, DISABLED_MAPPER);

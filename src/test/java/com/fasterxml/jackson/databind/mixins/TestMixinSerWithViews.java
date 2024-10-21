@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestMixinSerWithViews
-    extends DatabindTestUtil
+class TestMixinSerWithViews
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -165,7 +165,7 @@ public class TestMixinSerWithViews
      */
 
     @Test
-    public void testDataBindingUsage( ) throws Exception
+    void testDataBindingUsage() throws Exception
     {
       ObjectMapper objectMapper = createObjectMapper();
       ObjectWriter objectWriter = objectMapper.writerWithView(Views.View.class).withDefaultPrettyPrinter();
@@ -176,7 +176,7 @@ public class TestMixinSerWithViews
     }
 
     @Test
-    public void testIssue560() throws Exception
+    void testIssue560() throws Exception
     {
         A a = new A("myname", 29, "mysurname");
 

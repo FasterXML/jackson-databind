@@ -13,10 +13,10 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class BeanUtilTest extends DatabindTestUtil
+class BeanUtilTest extends DatabindTestUtil
 {
     @Test
-    public void testGetDefaultValue()
+    void testGetDefaultValue()
     {
         TypeFactory tf = defaultTypeFactory();
         // For collection/array/Map types, should give `NOT_EMPTY`:

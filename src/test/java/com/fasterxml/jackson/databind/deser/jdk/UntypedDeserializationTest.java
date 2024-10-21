@@ -30,7 +30,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * one that only uses core JDK types; wrappers, Maps and Lists.
  */
 @SuppressWarnings("serial")
-public class UntypedDeserializationTest
+class UntypedDeserializationTest
 {
     static class UCStringDeserializer
         extends StdScalarDeserializer<String>
@@ -140,7 +140,7 @@ public class UntypedDeserializationTest
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testSampleDoc() throws Exception
+    void testSampleDoc() throws Exception
     {
         final String JSON = SAMPLE_DOC_JSON_SPEC;
 
@@ -195,7 +195,7 @@ public class UntypedDeserializationTest
 
     @SuppressWarnings({"unlikely-arg-type", "CollectionIncompatibleType"})
     @Test
-    public void testUntypedMap() throws Exception
+    void testUntypedMap() throws Exception
     {
         // to get "untyped" default map-to-map, pass Object.class
         String JSON = "{ \"foo\" : \"bar\", \"crazy\" : true, \"null\" : null }";
@@ -218,7 +218,7 @@ public class UntypedDeserializationTest
     }
 
     @Test
-    public void testSimpleVanillaScalars() throws IOException
+    void testSimpleVanillaScalars() throws IOException
     {
         assertEquals("foo", MAPPER.readValue(q("foo"), Object.class));
 
@@ -229,14 +229,14 @@ public class UntypedDeserializationTest
     }
 
     @Test
-    public void testSimpleVanillaStructured() throws IOException
+    void testSimpleVanillaStructured() throws IOException
     {
         List<?> list = (List<?>) MAPPER.readValue("[ 1, 2, 3]", Object.class);
         assertEquals(Integer.valueOf(1), list.get(0));
     }
 
     @Test
-    public void testNestedUntypes() throws IOException
+    void testNestedUntypes() throws IOException
     {
         // 05-Apr-2014, tatu: Odd failures if using shared mapper; so work around:
         Object root = MAPPER.readValue(a2q("{'a':3,'b':[1,2]}"),
@@ -253,7 +253,7 @@ public class UntypedDeserializationTest
     }
 
     @Test
-    public void testUntypedWithCustomScalarDesers() throws IOException
+    void testUntypedWithCustomScalarDesers() throws IOException
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(String.class, new UCStringDeserializer());
@@ -276,7 +276,7 @@ public class UntypedDeserializationTest
 
     // Test that exercises non-vanilla variant, with just one simple custom deserializer
     @Test
-    public void testNonVanilla() throws IOException
+    void testNonVanilla() throws IOException
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(String.class, new UCStringDeserializer());
@@ -299,7 +299,7 @@ public class UntypedDeserializationTest
     }
 
     @Test
-    public void testUntypedWithListDeser() throws IOException
+    void testUntypedWithListDeser() throws IOException
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(List.class, new ListDeserializer());
@@ -317,7 +317,7 @@ public class UntypedDeserializationTest
     }
 
     @Test
-    public void testUntypedWithMapDeser() throws IOException
+    void testUntypedWithMapDeser() throws IOException
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(Map.class, new YMapDeserializer());
@@ -333,7 +333,7 @@ public class UntypedDeserializationTest
     }
 
     @Test
-    public void testNestedUntyped989() throws IOException
+    void testNestedUntyped989() throws IOException
     {
         DelegatingUntyped pojo;
         ObjectReader r = MAPPER.readerFor(DelegatingUntyped.class);
@@ -350,7 +350,7 @@ public class UntypedDeserializationTest
     }
 
     @Test
-    public void testUntypedWithJsonArrays() throws Exception
+    void testUntypedWithJsonArrays() throws Exception
     {
         // by default we get:
         Object ob = MAPPER.readValue("[1]", Object.class);
@@ -364,7 +364,7 @@ public class UntypedDeserializationTest
     }
 
     @Test
-    public void testUntypedIntAsLong() throws Exception
+    void testUntypedIntAsLong() throws Exception
     {
         final String JSON = a2q("{'value':3}");
         WrappedUntyped1460 w = MAPPER.readerFor(WrappedUntyped1460.class)
@@ -380,7 +380,7 @@ public class UntypedDeserializationTest
     // [databind#2115]: Consider `java.io.Serializable` as sort of alias of `java.lang.Object`
     // since all natural target types do implement `Serializable` so assignment works
     @Test
-    public void testSerializable() throws Exception
+    void testSerializable() throws Exception
     {
         final String JSON1 = a2q("{ 'value' : 123 }");
         SerContainer cont = MAPPER.readValue(JSON1, SerContainer.class);
@@ -406,7 +406,7 @@ public class UntypedDeserializationTest
      */
 
     @Test
-    public void testValueUpdateVanillaUntyped() throws Exception
+    void testValueUpdateVanillaUntyped() throws Exception
     {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("a", 42);
@@ -428,7 +428,7 @@ public class UntypedDeserializationTest
     }
 
     @Test
-    public void testValueUpdateCustomUntyped() throws Exception
+    void testValueUpdateCustomUntyped() throws Exception
     {
         SimpleModule m = new SimpleModule("test-module")
                 .addDeserializer(String.class, new UCStringDeserializer());
@@ -464,7 +464,7 @@ public class UntypedDeserializationTest
 
     // Allow 'upgrade' of big integers into Long, BigInteger
     @Test
-    public void testObjectSerializeWithLong() throws IOException
+    void testObjectSerializeWithLong() throws IOException
     {
         final ObjectMapper mapper = newJsonMapper();
         mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -484,7 +484,7 @@ public class UntypedDeserializationTest
     }
 
     @Test
-    public void testPolymorphicUntypedVanilla() throws IOException
+    void testPolymorphicUntypedVanilla() throws IOException
     {
         ObjectReader rDefault = MAPPER.readerFor(WrappedPolymorphicUntyped.class);
         ObjectReader rAlt = rDefault
@@ -521,7 +521,7 @@ public class UntypedDeserializationTest
     }
 
     @Test
-    public void testPolymorphicUntypedCustom() throws IOException
+    void testPolymorphicUntypedCustom() throws IOException
     {
         // register module just to override one deserializer, to prevent use of Vanilla deser
         SimpleModule m = new SimpleModule("test-module")

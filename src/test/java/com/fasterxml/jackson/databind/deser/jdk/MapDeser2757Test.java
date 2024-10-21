@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 @SuppressWarnings("serial")
-public class MapDeser2757Test
+class MapDeser2757Test
 {
     static class MyMap extends LinkedHashMap<String, String> {
         public MyMap() { }
@@ -26,7 +26,7 @@ public class MapDeser2757Test
 
     // [databind#2757]: should allow deserialization as Map despite conflicting setters
     @Test
-    public void testCanDeserializeMap() throws Exception
+    void testCanDeserializeMap() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .build();

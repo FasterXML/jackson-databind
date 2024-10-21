@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * and {@link PropertyValueBuffer#getParameter(SettableBeanProperty)} methods.
  */
 @SuppressWarnings("serial")
-public class TestCustomValueInstDefaults
+class TestCustomValueInstDefaults
 {
     static class Bucket
     {
@@ -380,7 +380,7 @@ public class TestCustomValueInstDefaults
 
     // When all values are in the source, no defaults should be used.
     @Test
-    public void testAllPresent() throws Exception
+    void testAllPresent() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -397,7 +397,7 @@ public class TestCustomValueInstDefaults
 
     // When no values are in the source, all defaults should be used.
     @Test
-    public void testAllAbsent() throws Exception
+    void testAllAbsent() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -415,7 +415,7 @@ public class TestCustomValueInstDefaults
     // When some values are in the source and some are not, defaults should only
     // be used for the missing values.
     @Test
-    public void testMixedPresentAndAbsent() throws Exception
+    void testMixedPresentAndAbsent() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -459,7 +459,7 @@ public class TestCustomValueInstDefaults
 
     // Ensure that 0 is not mistaken for a missing int value.
     @Test
-    public void testPresentZeroPrimitive() throws Exception
+    void testPresentZeroPrimitive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -476,7 +476,7 @@ public class TestCustomValueInstDefaults
 
     // Ensure that null is not mistaken for a missing String value.
     @Test
-    public void testPresentNullReference() throws Exception
+    void testPresentNullReference() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -495,7 +495,7 @@ public class TestCustomValueInstDefaults
     // BitSet instead of a primitive int to keep track of which parameters it
     // has seen.  Ensure that nothing breaks in that case.
     @Test
-    public void testMoreThan32CreatorParams() throws Exception
+    void testMoreThan32CreatorParams() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -540,7 +540,7 @@ public class TestCustomValueInstDefaults
 
     // [databind#1432]
     @Test
-    public void testClassWith32CreatorParams() throws Exception
+    void testClassWith32CreatorParams() throws Exception
     {
         StringBuilder sb = new StringBuilder()
                 .append("{\n");

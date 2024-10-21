@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Since I can't reproduce them in Java, I've substituted legal but uncommonly
  * used characters as placeholders.
  */
-public class TestScalaLikeImplicitProperties extends DatabindTestUtil
+class TestScalaLikeImplicitProperties extends DatabindTestUtil
 {
     static class NameMangler extends JacksonAnnotationIntrospector
     {
@@ -139,7 +139,7 @@ public class TestScalaLikeImplicitProperties extends DatabindTestUtil
      */
 
     @Test
-    public void testValProperty() throws Exception
+    void testValProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
 
@@ -147,7 +147,7 @@ public class TestScalaLikeImplicitProperties extends DatabindTestUtil
     }
 
     @Test
-    public void testValWithBeanProperty() throws Exception
+    void testValWithBeanProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
 
@@ -156,7 +156,7 @@ public class TestScalaLikeImplicitProperties extends DatabindTestUtil
 
 
     @Test
-    public void testVarProperty() throws Exception
+    void testVarProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
 
@@ -166,7 +166,7 @@ public class TestScalaLikeImplicitProperties extends DatabindTestUtil
     }
 
     @Test
-    public void testVarWithBeanProperty() throws Exception
+    void testVarWithBeanProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
 
@@ -176,7 +176,7 @@ public class TestScalaLikeImplicitProperties extends DatabindTestUtil
     }
 
     @Test
-    public void testGetterSetterProperty() throws Exception
+    void testGetterSetterProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
 

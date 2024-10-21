@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BeanDescriptionTest extends DatabindTestUtil
+class BeanDescriptionTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -21,7 +21,7 @@ public class BeanDescriptionTest extends DatabindTestUtil
     }
 
     @Test
-    public void testClassDesc() throws Exception
+    void testClassDesc() throws Exception
     {
         BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(DocumentedBean.class));
         assertEquals(CLASS_DESC, beanDesc.findClassDescription());

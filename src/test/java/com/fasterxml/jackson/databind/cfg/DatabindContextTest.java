@@ -7,12 +7,12 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class DatabindContextTest
+class DatabindContextTest
 {
     private final ObjectMapper MAPPER = new JsonMapper();
 
     @Test
-    public void testDeserializationContext() throws Exception
+    void testDeserializationContext() throws Exception
     {
         DeserializationContext ctxt = MAPPER.getDeserializationContext();
         // should be ok to try to resolve `null`
@@ -21,7 +21,7 @@ public class DatabindContextTest
     }
 
     @Test
-    public void testSerializationContext() throws Exception
+    void testSerializationContext() throws Exception
     {
         SerializerProvider ctxt = MAPPER.getSerializerProvider();
         assertNull(ctxt.constructType(null));

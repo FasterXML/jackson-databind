@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [databind#4409
-public class EnumDeserDupName4409Test extends DatabindTestUtil
+class EnumDeserDupName4409Test extends DatabindTestUtil
 {
     // for [databind#4409
     enum ColorMode4409Snake {
@@ -30,7 +30,7 @@ public class EnumDeserDupName4409Test extends DatabindTestUtil
 
     // for [databind#4409
     @Test
-    public void dupNameConflict4409() throws Exception
+    void dupNameConflict4409() throws Exception
     {
         assertEquals(ColorMode4409Snake.RGBa,
                 MAPPER.readValue(q("RGBa"), ColorMode4409Snake.class));

@@ -23,7 +23,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * Unit tests for verifying handling of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
-public class JDKScalarsDeserTest
+class JDKScalarsDeserTest
 {
     final static String NAN_STRING = "NaN";
 
@@ -138,7 +138,7 @@ public class JDKScalarsDeserTest
      */
 
     @Test
-    public void testBooleanPrimitive() throws Exception
+    void testBooleanPrimitive() throws Exception
     {
         // first, simple case:
         BooleanBean result = MAPPER.readValue("{\"v\":true}", BooleanBean.class);
@@ -163,7 +163,7 @@ public class JDKScalarsDeserTest
      * java.lang.Boolean.
      */
     @Test
-    public void testBooleanWrapper() throws Exception
+    void testBooleanWrapper() throws Exception
     {
         Boolean result = MAPPER.readValue("true", Boolean.class);
         assertEquals(Boolean.TRUE, result);
@@ -178,7 +178,7 @@ public class JDKScalarsDeserTest
      */
 
     @Test
-    public void testByteWrapper() throws Exception
+    void testByteWrapper() throws Exception
     {
         Byte result = MAPPER.readValue("   -42\t", Byte.class);
         assertEquals(Byte.valueOf((byte)-42), result);
@@ -192,7 +192,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testShortWrapper() throws Exception
+    void testShortWrapper() throws Exception
     {
         Short result = MAPPER.readValue("37", Short.class);
         assertEquals(Short.valueOf((short)37), result);
@@ -206,7 +206,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testCharacterWrapper() throws Exception
+    void testCharacterWrapper() throws Exception
     {
         // First: canonical value is 1-char string
         assertEquals(Character.valueOf('a'), MAPPER.readValue(q("a"), Character.class));
@@ -239,7 +239,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testIntWrapper() throws Exception
+    void testIntWrapper() throws Exception
     {
         Integer result = MAPPER.readValue("   -42\t", Integer.class);
         assertEquals(Integer.valueOf(-42), result);
@@ -253,7 +253,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testIntPrimitive() throws Exception
+    void testIntPrimitive() throws Exception
     {
         // first, simple case:
         IntBean result = MAPPER.readValue("{\"v\":3}", IntBean.class);
@@ -271,7 +271,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testLongWrapper() throws Exception
+    void testLongWrapper() throws Exception
     {
         Long result = MAPPER.readValue("12345678901", Long.class);
         assertEquals(Long.valueOf(12345678901L), result);
@@ -285,7 +285,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testLongPrimitive() throws Exception
+    void testLongPrimitive() throws Exception
     {
         // first, simple case:
         LongBean result = MAPPER.readValue("{\"v\":3}", LongBean.class);
@@ -306,7 +306,7 @@ public class JDKScalarsDeserTest
      * expected.
      */
     @Test
-    public void testIntWithOverride() throws Exception
+    void testIntWithOverride() throws Exception
     {
         IntBean2 result = MAPPER.readValue("{\"v\":8}", IntBean2.class);
         assertEquals(9, result._v);
@@ -319,7 +319,7 @@ public class JDKScalarsDeserTest
      */
 
     @Test
-    public void testDoublePrimitive() throws Exception
+    void testDoublePrimitive() throws Exception
     {
         // first, simple case:
         // bit tricky with binary fps but...
@@ -344,7 +344,7 @@ public class JDKScalarsDeserTest
      * But still...
      */
     @Test
-    public void testFloatWrapper() throws Exception
+    void testFloatWrapper() throws Exception
     {
         // Also: should be able to coerce floats, strings:
         String[] STRS = new String[] {
@@ -368,7 +368,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testDoubleWrapper() throws Exception
+    void testDoubleWrapper() throws Exception
     {
         // Also: should be able to coerce doubles, strings:
         String[] STRS = new String[] {
@@ -397,7 +397,7 @@ public class JDKScalarsDeserTest
      */
 
     @Test
-    public void testBase64Variants() throws Exception
+    void testBase64Variants() throws Exception
     {
         final byte[] INPUT = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890X".getBytes("UTF-8");
 
@@ -434,7 +434,7 @@ public class JDKScalarsDeserTest
      * space-separate simple values
      */
     @Test
-    public void testSequenceOfInts() throws Exception
+    void testSequenceOfInts() throws Exception
     {
         final int NR_OF_INTS = 100;
 
@@ -458,7 +458,7 @@ public class JDKScalarsDeserTest
      */
 
     @Test
-    public void testEmptyStringForIntegerWrappers() throws IOException
+    void testEmptyStringForIntegerWrappers() throws IOException
     {
         WrappersBean bean = MAPPER.readValue("{\"byteValue\":\"\"}", WrappersBean.class);
         assertNull(bean.byteValue);
@@ -476,7 +476,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testEmptyStringForFloatWrappers() throws IOException
+    void testEmptyStringForFloatWrappers() throws IOException
     {
         WrappersBean bean = MAPPER.readValue("{\"floatValue\":\"\"}", WrappersBean.class);
         assertNull(bean.floatValue);
@@ -485,14 +485,14 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testEmptyStringForBooleanPrimitive() throws IOException
+    void testEmptyStringForBooleanPrimitive() throws IOException
     {
         PrimitivesBean bean = MAPPER.readValue("{\"booleanValue\":\"\"}", PrimitivesBean.class);
         assertFalse(bean.booleanValue);
     }
 
     @Test
-    public void testEmptyStringForIntegerPrimitives() throws IOException
+    void testEmptyStringForIntegerPrimitives() throws IOException
     {
         PrimitivesBean bean = MAPPER.readValue("{\"byteValue\":\"\"}", PrimitivesBean.class);
         assertEquals((byte) 0, bean.byteValue);
@@ -507,7 +507,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testEmptyStringForFloatPrimitives() throws IOException
+    void testEmptyStringForFloatPrimitives() throws IOException
     {
         PrimitivesBean bean = MAPPER.readValue("{\"floatValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0.0f, bean.floatValue);
@@ -522,7 +522,7 @@ public class JDKScalarsDeserTest
      */
 
     @Test
-    public void testNullForPrimitivesDefault() throws IOException
+    void testNullForPrimitivesDefault() throws IOException
     {
         // by default, ok to rely on defaults
         PrimitivesBean bean = MAPPER.readValue(
@@ -542,7 +542,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testNullForPrimitivesNotAllowedInts() throws IOException
+    void testNullForPrimitivesNotAllowedInts() throws IOException
     {
         final ObjectReader reader = MAPPER
                 .readerFor(PrimitivesBean.class)
@@ -579,7 +579,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testNullForPrimitivesNotAllowedFP() throws IOException
+    void testNullForPrimitivesNotAllowedFP() throws IOException
     {
         final ObjectReader reader = MAPPER
                 .readerFor(PrimitivesBean.class)
@@ -602,7 +602,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testNullForPrimitivesNotAllowedMisc() throws IOException
+    void testNullForPrimitivesNotAllowedMisc() throws IOException
     {
         final ObjectReader reader = MAPPER
                 .readerFor(PrimitivesBean.class)
@@ -626,7 +626,7 @@ public class JDKScalarsDeserTest
 
     // [databind#2101]
     @Test
-    public void testNullForPrimitivesViaCreator() throws IOException
+    void testNullForPrimitivesViaCreator() throws IOException
     {
         try {
             /*PrimitiveCreatorBean bean =*/ MAPPER
@@ -646,7 +646,7 @@ public class JDKScalarsDeserTest
     }
 
     @Test
-    public void testNullForPrimitiveArrays() throws IOException
+    void testNullForPrimitiveArrays() throws IOException
     {
         _testNullForPrimitiveArrays(boolean[].class, Boolean.FALSE);
         _testNullForPrimitiveArrays(byte[].class, Byte.valueOf((byte) 0));
@@ -694,7 +694,7 @@ public class JDKScalarsDeserTest
 
     // [databind#2197], [databind#2679]
     @Test
-    public void testVoidDeser() throws Exception
+    void testVoidDeser() throws Exception
     {
         // First, `Void` as bean property
         VoidBean bean = MAPPER.readValue(a2q("{'value' : 123 }"),
@@ -718,7 +718,7 @@ public class JDKScalarsDeserTest
      */
 
     @Test
-    public void testInvalidStringCoercionFail() throws IOException
+    void testInvalidStringCoercionFail() throws IOException
     {
         _testInvalidStringCoercionFail(boolean[].class, "boolean");
         _testInvalidStringCoercionFail(byte[].class);
@@ -758,7 +758,7 @@ public class JDKScalarsDeserTest
      */
 
     @Test
-    public void testFailForScalarFromObject() throws Exception
+    void testFailForScalarFromObject() throws Exception
     {
         _testFailForNumberFromObject(Byte.TYPE);
         _testFailForNumberFromObject(Short.TYPE);

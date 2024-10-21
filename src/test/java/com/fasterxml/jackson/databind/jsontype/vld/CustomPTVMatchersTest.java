@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CustomPTVMatchersTest extends DatabindTestUtil
+class CustomPTVMatchersTest extends DatabindTestUtil
 {
     static abstract class CustomBase {
         public int x = 3;
@@ -50,7 +50,7 @@ public class CustomPTVMatchersTest extends DatabindTestUtil
      */
 
     @Test
-    public void testCustomBaseMatchers() throws Exception
+    void testCustomBaseMatchers() throws Exception
     {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(new BasicPolymorphicTypeValidator.TypeMatcher() {
@@ -83,7 +83,7 @@ public class CustomPTVMatchersTest extends DatabindTestUtil
     }
 
     @Test
-    public void testCustomSubtypeMatchers() throws Exception
+    void testCustomSubtypeMatchers() throws Exception
     {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(new BasicPolymorphicTypeValidator.TypeMatcher() {

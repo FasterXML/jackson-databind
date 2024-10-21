@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ExternalTypeIdWithEnum1328Test extends DatabindTestUtil
+class ExternalTypeIdWithEnum1328Test extends DatabindTestUtil
 {
     public interface Animal { }
 
@@ -86,7 +86,7 @@ public class ExternalTypeIdWithEnum1328Test extends DatabindTestUtil
     }
 
     @Test
-    public void testExample() throws Exception {
+    void testExample() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         String json = mapper.writerWithDefaultPrettyPrinter()

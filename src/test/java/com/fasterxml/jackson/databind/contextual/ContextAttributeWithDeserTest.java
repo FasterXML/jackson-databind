@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class ContextAttributeWithDeserTest
+class ContextAttributeWithDeserTest
 {
     final static String KEY = "foobar";
 
@@ -55,7 +55,7 @@ public class ContextAttributeWithDeserTest
     final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimplePerCall() throws Exception
+    void testSimplePerCall() throws Exception
     {
         final String INPUT = a2q("[{'value':'a'},{'value':'b'}]");
         TestPOJO[] pojos = MAPPER.readerFor(TestPOJO[].class).readValue(INPUT);
@@ -71,7 +71,7 @@ public class ContextAttributeWithDeserTest
     }
 
     @Test
-    public void testSimpleDefaults() throws Exception
+    void testSimpleDefaults() throws Exception
     {
         final String INPUT = a2q("{'value':'x'}");
         TestPOJO pojo = MAPPER.readerFor(TestPOJO.class)
@@ -87,7 +87,7 @@ public class ContextAttributeWithDeserTest
     }
 
     @Test
-    public void testHierarchic() throws Exception
+    void testHierarchic() throws Exception
     {
         final String INPUT = a2q("[{'value':'x'},{'value':'y'}]");
         ObjectReader r = MAPPER.readerFor(TestPOJO[].class).withAttribute(KEY, Integer.valueOf(2));
@@ -103,9 +103,9 @@ public class ContextAttributeWithDeserTest
         assertEquals("y/3", pojos2[1].value);
     }
 
-    @Test
     // [databind#3001]
-    public void testDefaultsViaMapper() throws Exception
+    @Test
+    void testDefaultsViaMapper() throws Exception
     {
         final String INPUT = a2q("{'value':'x'}");
         ContextAttributes attrs = ContextAttributes.getEmpty()

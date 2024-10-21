@@ -16,12 +16,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * Basic tests for {@link JsonNode} base class and some features
  * of implementation classes
  */
-public class JsonNodeBasicTest extends NodeTestBase
+class JsonNodeBasicTest extends NodeTestBase
 {
     private final ObjectMapper MAPPER = objectMapper();
 
     @Test
-    public void testBoolean() throws Exception
+    void testBoolean() throws Exception
     {
         BooleanNode f = BooleanNode.getFalse();
         assertNotNull(f);
@@ -68,7 +68,7 @@ public class JsonNodeBasicTest extends NodeTestBase
     }
 
     @Test
-    public void testBinary() throws Exception
+    void testBinary() throws Exception
     {
         assertNull(BinaryNode.valueOf(null));
         assertNull(BinaryNode.valueOf(null, 0, 0));
@@ -95,7 +95,7 @@ public class JsonNodeBasicTest extends NodeTestBase
     }
 
     @Test
-    public void testPOJO()
+    void testPOJO()
     {
         POJONode n = new POJONode("x"); // not really a pojo but that's ok
         assertStandardEquals(n);
@@ -114,7 +114,7 @@ public class JsonNodeBasicTest extends NodeTestBase
 
     // [databind#743]
     @Test
-    public void testRawValue() throws Exception
+    void testRawValue() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         root.putRawValue("a", new RawValue(new SerializedString("[1, 2, 3]")));
@@ -124,7 +124,7 @@ public class JsonNodeBasicTest extends NodeTestBase
 
     // [databind#790]
     @Test
-    public void testCustomComparators() throws Exception
+    void testCustomComparators() throws Exception
     {
         ObjectNode nestedObject1 = MAPPER.createObjectNode();
         nestedObject1.put("value", 6);
@@ -195,7 +195,7 @@ public class JsonNodeBasicTest extends NodeTestBase
 
     // [databind#793]
     @Test
-    public void testArrayWithDefaultTyping() throws Exception
+    void testArrayWithDefaultTyping() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
             .activateDefaultTyping(NoCheckSubTypeValidator.instance);

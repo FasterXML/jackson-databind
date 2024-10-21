@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class IgnoreUnknownPropertyUsingPropertyBasedTest
+class IgnoreUnknownPropertyUsingPropertyBasedTest
 {
 
   private final ObjectMapper MAPPER = newJsonMapper();
@@ -62,8 +62,8 @@ public class IgnoreUnknownPropertyUsingPropertyBasedTest
     }
   }
 
-  @Test
-  public void testAnySetterWithFailOnUnknownDisabled() throws Exception {
+    @Test
+    void testAnySetterWithFailOnUnknownDisabled() throws Exception {
     IgnoreUnknownAnySetter value = MAPPER.readValue("{\"a\":1, \"b\":2, \"x\":3, \"y\": 4}", IgnoreUnknownAnySetter.class);
     assertNotNull(value);
     assertEquals(1, value.a);
@@ -73,8 +73,8 @@ public class IgnoreUnknownPropertyUsingPropertyBasedTest
     assertEquals(2, value.props.size());
   }
 
-  @Test
-  public void testUnwrappedWithFailOnUnknownDisabled() throws Exception {
+    @Test
+    void testUnwrappedWithFailOnUnknownDisabled() throws Exception {
     IgnoreUnknownUnwrapped value = MAPPER.readValue("{\"a\":1, \"b\": 2, \"x\":3, \"y\":4}", IgnoreUnknownUnwrapped.class);
     assertNotNull(value);
     assertEquals(1, value.a);

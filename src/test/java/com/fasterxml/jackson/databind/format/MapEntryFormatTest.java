@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MapEntryFormatTest extends DatabindTestUtil
+class MapEntryFormatTest extends DatabindTestUtil
 {
     static class BeanWithMapEntry {
         // would work with any other shape than OBJECT, or without annotation:
@@ -114,7 +114,7 @@ public class MapEntryFormatTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testInclusion() throws Exception
+    void testInclusion() throws Exception
     {
         assertEquals(a2q("{'entry':{'a':'b'}}"),
                 MAPPER.writeValueAsString(new EmptyEntryWrapper("a", "b")));
@@ -134,7 +134,7 @@ public class MapEntryFormatTest extends DatabindTestUtil
     }
 
     @Test
-    public void testInclusionWithReference() throws Exception
+    void testInclusionWithReference() throws Exception
     {
         assertEquals(a2q("{'entry':{'a':'b'}}"),
                 MAPPER.writeValueAsString(new EntryWithNonAbsentWrapper("a", "b")));
@@ -153,7 +153,7 @@ public class MapEntryFormatTest extends DatabindTestUtil
      */
 
     @Test
-    public void testAsNaturalRoundtrip() throws Exception
+    void testAsNaturalRoundtrip() throws Exception
     {
         BeanWithMapEntry input = new BeanWithMapEntry("foo" ,"bar");
         String json = MAPPER.writeValueAsString(input);
@@ -165,7 +165,7 @@ public class MapEntryFormatTest extends DatabindTestUtil
 
     // should work via class annotation
     @Test
-    public void testAsObjectRoundtrip() throws Exception
+    void testAsObjectRoundtrip() throws Exception
     {
         MapEntryAsObject input = new MapEntryAsObject("foo" ,"bar");
         String json = MAPPER.writeValueAsString(input);
@@ -181,7 +181,7 @@ public class MapEntryFormatTest extends DatabindTestUtil
 
     // [databind#1895]
     @Test
-    public void testDefaultShapeOverride() throws Exception
+    void testDefaultShapeOverride() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Map.Entry.class, cfg ->

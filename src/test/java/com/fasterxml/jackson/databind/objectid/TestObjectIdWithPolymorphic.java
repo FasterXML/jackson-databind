@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestObjectIdWithPolymorphic extends DatabindTestUtil
+class TestObjectIdWithPolymorphic extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
@@ -114,7 +114,7 @@ public class TestObjectIdWithPolymorphic extends DatabindTestUtil
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void testPolymorphicRoundtrip() throws Exception
+    void testPolymorphicRoundtrip() throws Exception
     {
         // create simple 2 node loop:
         Impl in1 = new Impl(123, 456);
@@ -137,7 +137,7 @@ public class TestObjectIdWithPolymorphic extends DatabindTestUtil
     }
 
     @Test
-    public void testIssue811() throws Exception
+    void testIssue811() throws Exception
     {
         ObjectMapper om = new ObjectMapper();
         om.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);

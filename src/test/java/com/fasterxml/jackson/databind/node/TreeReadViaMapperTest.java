@@ -17,12 +17,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * can properly parse JSON and bind contents into appropriate
  * JsonNode instances.
  */
-public class TreeReadViaMapperTest extends DatabindTestUtil
+class TreeReadViaMapperTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = objectMapper();
 
     @Test
-    public void testSimple() throws Exception
+    void testSimple() throws Exception
     {
         final String JSON = SAMPLE_DOC_JSON_SPEC;
 
@@ -97,7 +97,7 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
     }
 
     @Test
-    public void testMixed() throws IOException
+    void testMixed() throws IOException
     {
         String JSON = "{\"node\" : { \"a\" : 3 }, \"x\" : 9 }";
         Bean bean = MAPPER.readValue(JSON, Bean.class);
@@ -115,7 +115,7 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
      * input.
      */
     @Test
-    public void testEOF() throws Exception
+    void testEOF() throws Exception
     {
         String JSON =
             "{ \"key\": [ { \"a\" : { \"name\": \"foo\",  \"type\": 1\n"
@@ -134,7 +134,7 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNullViaParser() throws Exception
+    void testNullViaParser() throws Exception
     {
         final String JSON = " null ";
         JsonFactory jf = new JsonFactory();
@@ -146,7 +146,7 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
     }
 
     @Test
-    public void testMultiple() throws Exception
+    void testMultiple() throws Exception
     {
         String JSON = "12  \"string\" [ 1, 2, 3 ]";
         JsonFactory jf = new JsonFactory();

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [#81]
-public class TestUnwrappedWithTypeInfo extends DatabindTestUtil
+class TestUnwrappedWithTypeInfo extends DatabindTestUtil
 {
 
 	@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, property="@type")
@@ -47,9 +47,9 @@ public class TestUnwrappedWithTypeInfo extends DatabindTestUtil
     /**********************************************************
      */
 
-	// [databind#81]
-	@Test
-	public void testDefaultUnwrappedWithTypeInfo() throws Exception
+    // [databind#81]
+    @Test
+    void testDefaultUnwrappedWithTypeInfo() throws Exception
 	{
 	    Outer outer = new Outer();
 	    outer.setP1("101");
@@ -68,8 +68,8 @@ public class TestUnwrappedWithTypeInfo extends DatabindTestUtil
 	    }
 	}
 
-	@Test
-	public void testUnwrappedWithTypeInfoAndFeatureDisabled() throws Exception
+    @Test
+    void testUnwrappedWithTypeInfoAndFeatureDisabled() throws Exception
 	{
 		Outer outer = new Outer();
 		outer.setP1("101");

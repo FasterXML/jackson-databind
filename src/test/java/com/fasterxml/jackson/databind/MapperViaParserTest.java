@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.assertToken;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
-public class MapperViaParserTest
+class MapperViaParserTest
 {
     final static int TWO_BYTE_ESCAPED = 0x111;
     final static int THREE_BYTE_ESCAPED = 0x1111;
@@ -81,7 +81,7 @@ public class MapperViaParserTest
      */
 
     @Test
-    public void testPojoReading() throws IOException
+    void testPojoReading() throws IOException
     {
         JsonFactory jf = new MappingJsonFactory();
         final String JSON = "{ \"x\" : 9 }";
@@ -104,7 +104,7 @@ public class MapperViaParserTest
      * Test similar to above, but instead reads a sequence of values
      */
     @Test
-    public void testIncrementalPojoReading() throws IOException
+    void testIncrementalPojoReading() throws IOException
     {
         JsonFactory jf = new MappingJsonFactory();
         final String JSON = "[ 1, true, null, \"abc\" ]";
@@ -138,7 +138,7 @@ public class MapperViaParserTest
 
     @SuppressWarnings("resource")
     @Test
-    public void testPojoReadingFailing() throws IOException
+    void testPojoReadingFailing() throws IOException
     {
         // regular factory can't do it, without a call to setCodec()
         JsonFactory f = new JsonFactory();
@@ -153,7 +153,7 @@ public class MapperViaParserTest
     }
 
     @Test
-    public void testEscapingUsingMapper() throws Exception
+    void testEscapingUsingMapper() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                .configure(JsonWriteFeature.ESCAPE_NON_ASCII, true)

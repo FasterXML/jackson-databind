@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TypedArrayDeserTest
-    extends DatabindTestUtil
+class TypedArrayDeserTest
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -49,7 +49,7 @@ public class TypedArrayDeserTest
      */
 
     @Test
-    public void testIntList() throws Exception
+    void testIntList() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // uses WRAPPER_OBJECT inclusion
@@ -69,7 +69,7 @@ public class TypedArrayDeserTest
      * add property in), so it will basically be same as using WRAPPER_ARRAY
      */
     @Test
-    public void testBooleanListAsProp() throws Exception
+    void testBooleanListAsProp() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // tries to use PROPERTY inclusion; but for ARRAYS (and scalars) will become ARRAY_WRAPPER
@@ -83,7 +83,7 @@ public class TypedArrayDeserTest
     }
 
     @Test
-    public void testLongListAsWrapper() throws Exception
+    void testLongListAsWrapper() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // uses OBJECT_ARRAY, works just fine
@@ -107,7 +107,7 @@ public class TypedArrayDeserTest
      */
 
     @Test
-    public void testLongArray() throws Exception
+    void testLongArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // use class name, WRAPPER_OBJECT

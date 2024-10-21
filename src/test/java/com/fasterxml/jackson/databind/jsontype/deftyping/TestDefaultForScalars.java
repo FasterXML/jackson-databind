@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests to verify that Java/JSON scalar values (non-structured values)
  * are handled properly with respect to additional type information.
  */
-public class TestDefaultForScalars
-    extends DatabindTestUtil
+class TestDefaultForScalars
+        extends DatabindTestUtil
 {
     static class Jackson417Bean {
         public String foo = "bar";
@@ -59,7 +59,7 @@ public class TestDefaultForScalars
      * nulls never have type information)
      */
     @Test
-    public void testNumericScalars() throws Exception
+    void testNumericScalars() throws Exception
     {
         // no typing for Integer, Double, yes for others
         assertEquals("[123]", DEFAULT_TYPING_MAPPER.writeValueAsString(new Object[] { Integer.valueOf(123) }));
@@ -69,7 +69,7 @@ public class TestDefaultForScalars
     }
 
     @Test
-    public void testDateScalars() throws Exception
+    void testDateScalars() throws Exception
     {
         long ts = 12345678L;
         assertEquals("[[\"java.util.Date\","+ts+"]]",
@@ -88,7 +88,7 @@ public class TestDefaultForScalars
     }
 
     @Test
-    public void testMiscScalars() throws Exception
+    void testMiscScalars() throws Exception
     {
         // no typing for Strings, booleans
         assertEquals("[\"abc\"]", DEFAULT_TYPING_MAPPER.writeValueAsString(new Object[] { "abc" }));
@@ -100,7 +100,7 @@ public class TestDefaultForScalars
      * handled,
      */
     @Test
-    public void testScalarArrays() throws Exception
+    void testScalarArrays() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -118,7 +118,7 @@ public class TestDefaultForScalars
     }
 
     @Test
-    public void test417() throws Exception
+    void test417() throws Exception
     {
         Jackson417Bean input = new Jackson417Bean();
         String json = DEFAULT_TYPING_MAPPER.writeValueAsString(input);
@@ -129,7 +129,7 @@ public class TestDefaultForScalars
 
     // [databind#1395]: prevent attempts at including type info for primitives
     @Test
-    public void testDefaultTypingWithLong() throws Exception
+    void testDefaultTypingWithLong() throws Exception
     {
         Data data = new Data();
         data.key = 1L;
@@ -158,7 +158,7 @@ public class TestDefaultForScalars
 
     // [databind#2236]: do need type info for NaN
     @Test
-    public void testDefaultTypingWithNaN() throws Exception
+    void testDefaultTypingWithNaN() throws Exception
     {
         final ObjectWrapperForPoly INPUT = new ObjectWrapperForPoly(Double.POSITIVE_INFINITY);
         final String json = DEFAULT_TYPING_MAPPER.writeValueAsString(INPUT);

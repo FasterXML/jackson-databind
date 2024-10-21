@@ -16,7 +16,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
  *
  * @since 2.9
  */
-public class BuilderViaUpdateTest
+class BuilderViaUpdateTest
 {
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     static class ValueClassXY
@@ -58,7 +58,7 @@ public class BuilderViaUpdateTest
 
     // Tests where result value is passed as thing to update
     @Test
-    public void testBuilderUpdateWithValue() throws Exception
+    void testBuilderUpdateWithValue() throws Exception
     {
         try {
             /*ValueClassXY value =*/ MAPPER.readerFor(ValueClassXY.class)
@@ -81,7 +81,7 @@ public class BuilderViaUpdateTest
     // and then test to ensure error handling works as expected if attempts
     // is made to pass builder (API requires value, not builder)
     @Test
-    public void testBuilderWithWrongType() throws Exception
+    void testBuilderWithWrongType() throws Exception
     {
         try {
             /* Object result =*/ MAPPER.readerFor(ValueClassXY.class)

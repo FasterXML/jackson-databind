@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TestPolymorphicWithDefaultImpl1565 extends DatabindTestUtil
+class TestPolymorphicWithDefaultImpl1565 extends DatabindTestUtil
 {
     // [databind#1565]
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY,
@@ -82,7 +82,7 @@ public class TestPolymorphicWithDefaultImpl1565 extends DatabindTestUtil
 
     // [databind#1565]
     @Test
-    public void testIncompatibleDefaultImpl1565() throws Exception
+    void testIncompatibleDefaultImpl1565() throws Exception
     {
         String value = "{\"typeInfo\": \"derived\", \"name\": \"John\", \"description\": \"Owner\"}";
         CDerived1565 result = MAPPER.readValue(value, CDerived1565.class);
@@ -91,7 +91,7 @@ public class TestPolymorphicWithDefaultImpl1565 extends DatabindTestUtil
 
     // [databind#1861]
     @Test
-    public void testWithIncompatibleTargetType1861() throws Exception
+    void testWithIncompatibleTargetType1861() throws Exception
     {
         // Should allow deserialization even if `defaultImpl` incompatible
         Impl1861A result = MAPPER.readValue(a2q("{'type':'a','base':'foo','valueA':3}"),

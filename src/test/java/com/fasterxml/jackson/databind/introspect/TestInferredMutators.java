@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestInferredMutators extends DatabindTestUtil
+class TestInferredMutators extends DatabindTestUtil
 {
     public static class Point {
         protected int x;
@@ -33,7 +33,7 @@ public class TestInferredMutators extends DatabindTestUtil
 
     // for #190
     @Test
-    public void testFinalFieldIgnoral() throws Exception
+    void testFinalFieldIgnoral() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // default value is 'enabled', for backwards compatibility
@@ -51,7 +51,7 @@ public class TestInferredMutators extends DatabindTestUtil
 
     // for #195
     @Test
-    public void testDeserializationInference() throws Exception
+    void testDeserializationInference() throws Exception
     {
         final String JSON = "{\"x\":2}";
         ObjectMapper mapper = new ObjectMapper();

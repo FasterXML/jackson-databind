@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
 
-public class ImplicitNameMatch792Test
+class ImplicitNameMatch792Test
 {
     // Simple introspector that gives generated "ctorN" names for constructor
     // parameters
@@ -104,7 +104,7 @@ public class ImplicitNameMatch792Test
     private final ObjectMapper MAPPER = sharedMapper();
 
     @Test
-    public void testBindingOfImplicitCreatorNames() throws Exception
+    void testBindingOfImplicitCreatorNames() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.setAnnotationIntrospector(new ConstructorNameAI());
@@ -113,7 +113,7 @@ public class ImplicitNameMatch792Test
     }
 
     @Test
-    public void testImplicitWithSetterGetter() throws Exception
+    void testImplicitWithSetterGetter() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean2());
         assertEquals(a2q("{'stuff':3}"), json);
@@ -132,7 +132,7 @@ public class ImplicitNameMatch792Test
     */
 
     @Test
-    public void testWriteOnly() throws Exception
+    void testWriteOnly() throws Exception
     {
         PasswordBean bean = MAPPER.readValue(a2q("{'value':7,'password':'foo'}"),
                 PasswordBean.class);

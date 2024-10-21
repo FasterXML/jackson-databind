@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("hiding")
-public class ExternalTypeCustomResolverTest extends DatabindTestUtil
+class ExternalTypeCustomResolverTest extends DatabindTestUtil
 {
     // [databind#1288]
     public static class ClassesWithoutBuilder {
@@ -419,7 +419,7 @@ public class ExternalTypeCustomResolverTest extends DatabindTestUtil
 
     // [databind#1288]
     @Test
-    public void testExternalWithCustomResolver() throws Exception
+    void testExternalWithCustomResolver() throws Exception
     {
         // given
         final String asJson1 = a2q(
@@ -434,7 +434,7 @@ public class ExternalTypeCustomResolverTest extends DatabindTestUtil
 
     // [databind#1288]
     @Test
-    public void testExternalWithCustomResolverAndBuilder() throws Exception
+    void testExternalWithCustomResolverAndBuilder() throws Exception
     {
         final String asJson2 = a2q(
 "{'form_of_payment':'INSTRUMENTED_CREDIT_CARD',\n"

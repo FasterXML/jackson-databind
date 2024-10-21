@@ -8,13 +8,13 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JsonPointerAtNodeTest
-    extends DatabindTestUtil
+class JsonPointerAtNodeTest
+        extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testIt() throws Exception
+    void testIt() throws Exception
     {
         final JsonNode SAMPLE_ROOT = MAPPER.readTree(SAMPLE_DOC_JSON_SPEC);
 
@@ -44,7 +44,7 @@ public class JsonPointerAtNodeTest
 
     // To help verify [core#133]; should be fine with "big numbers" as property keys
     @Test
-    public void testLongNumbers() throws Exception
+    void testLongNumbers() throws Exception
     {
         // First, with small int key
         JsonNode root = MAPPER.readTree("{\"123\" : 456}");
@@ -59,7 +59,7 @@ public class JsonPointerAtNodeTest
 
     // [databind#2934]
     @Test
-    public void testIssue2934() throws Exception
+    void testIssue2934() throws Exception
     {
         JsonNode tree = MAPPER.readTree("{\"\" : 123}");
         assertEquals(123, tree.at("/").intValue());

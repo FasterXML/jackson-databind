@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
-public class MapKeyDeserialization3143Test
+class MapKeyDeserialization3143Test
 {
     // [databind#3143]
     static class Key3143Factories {
@@ -73,7 +73,7 @@ public class MapKeyDeserialization3143Test
 
     // [databind#3143]
     @Test
-    public void testKeyWithCtorAndCreator3143() throws Exception
+    void testKeyWithCtorAndCreator3143() throws Exception
     {
         // Use Constructor if annotated:
         Map<Key3143Ctor,Integer> map = MAPPER.readValue("{\"bar\":3}",
@@ -84,7 +84,7 @@ public class MapKeyDeserialization3143Test
 
     // [databind#3143]
     @Test
-    public void testKeyWith2Creators3143() throws Exception
+    void testKeyWith2Creators3143() throws Exception
     {
         // Select explicitly annotated factory method
         Map<Key3143Factories,Integer> map = MAPPER.readValue("{\"Foo\":3}",
@@ -95,7 +95,7 @@ public class MapKeyDeserialization3143Test
 
     // [databind#3143]
     @Test
-    public void testKeyWithCreatorConflicts3143() throws Exception
+    void testKeyWithCreatorConflicts3143() throws Exception
     {
         try {
             MAPPER.readValue("{\"Foo\":3}",

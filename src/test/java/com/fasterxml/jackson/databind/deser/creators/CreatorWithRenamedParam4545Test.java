@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class CreatorWithRenamedParam4545Test
-    extends DatabindTestUtil
+class CreatorWithRenamedParam4545Test
+        extends DatabindTestUtil
 {
     static class Payload4545 {
         private final String key1;
@@ -48,7 +48,7 @@ public class CreatorWithRenamedParam4545Test
 
     // [databind#4545]
     @Test
-    public void testCreatorWithRename4545() throws Exception
+    void testCreatorWithRename4545() throws Exception
     {
         String jsonPayload = a2q("{ 'key1': 'val1', 'key2': 'val2'}");
 

@@ -12,9 +12,10 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ViewsWithSchemaTest extends DatabindTestUtil
+class ViewsWithSchemaTest extends DatabindTestUtil
 {
     interface ViewBC { }
+
     interface ViewAB { }
 
     @JsonPropertyOrder({ "a", "b", "c" })
@@ -59,7 +60,7 @@ public class ViewsWithSchemaTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testSchemaWithViews() throws Exception
+    void testSchemaWithViews() throws Exception
     {
         ListingVisitor v = new ListingVisitor();
         MAPPER.writerWithView(ViewBC.class)
@@ -73,7 +74,7 @@ public class ViewsWithSchemaTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSchemaWithoutViews() throws Exception
+    void testSchemaWithoutViews() throws Exception
     {
         ListingVisitor v = new ListingVisitor();
         MAPPER.acceptJsonFormatVisitor(POJO.class, v);

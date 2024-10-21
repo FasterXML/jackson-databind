@@ -11,9 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 
-public class BuilderWithViewTest
+class BuilderWithViewTest
 {
     static class ViewX { }
+
     static class ViewY { }
 
     @JsonDeserialize(builder=SimpleBuilderXY.class)
@@ -86,7 +87,7 @@ public class BuilderWithViewTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testSimpleViews() throws Exception
+    void testSimpleViews() throws Exception
     {
         final String json = a2q("{'x':5,'y':10}");
         ValueClassXY resultX = MAPPER.readerFor(ValueClassXY.class)
@@ -103,7 +104,7 @@ public class BuilderWithViewTest
     }
 
     @Test
-    public void testCreatorViews() throws Exception
+    void testCreatorViews() throws Exception
     {
         final String json = a2q("{'x':5,'y':10,'bogus':false}");
         CreatorValueXY resultX = MAPPER.readerFor(CreatorValueXY.class)

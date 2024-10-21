@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // for [databind#1392] (regression in 2.7 due to separation of array-delegating creator)
-public class ArrayDelegatorCreatorForCollectionTest
+class ArrayDelegatorCreatorForCollectionTest
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
     abstract static class UnmodifiableSetMixin {
@@ -23,7 +23,7 @@ public class ArrayDelegatorCreatorForCollectionTest
     }
 
     @Test
-    public void testUnmodifiable() throws Exception
+    void testUnmodifiable() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Class<?> unmodSetType = Collections.unmodifiableSet(Collections.<String>emptySet()).getClass();

@@ -9,10 +9,10 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class CompactStringObjectMapTest extends DatabindTestUtil
+class CompactStringObjectMapTest extends DatabindTestUtil
 {
     @Test
-    public void testBig()
+    void testBig()
     {
         Map<String,String> all = new LinkedHashMap<>();
         for (int i = 0; i < 1000; ++i) {

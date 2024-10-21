@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 @SuppressWarnings("serial")
-public class EnumMapDeserializationTest
+class EnumMapDeserializationTest
 {
     enum TestEnum { JACKSON, RULES, OK; }
 
@@ -156,7 +156,7 @@ public class EnumMapDeserializationTest
     protected final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testEnumMaps() throws Exception
+    void testEnumMaps() throws Exception
     {
         EnumMap<TestEnum,String> value = MAPPER.readValue("{\"OK\":\"value\"}",
                 new TypeReference<EnumMap<TestEnum,String>>() { });
@@ -164,7 +164,7 @@ public class EnumMapDeserializationTest
     }
 
     @Test
-    public void testToStringEnumMaps() throws Exception
+    void testToStringEnumMaps() throws Exception
     {
         // can't reuse global one due to reconfig
         ObjectReader r = MAPPER.reader()
@@ -182,7 +182,7 @@ public class EnumMapDeserializationTest
      */
 
     @Test
-    public void testCustomEnumMapWithDefaultCtor() throws Exception
+    void testCustomEnumMapWithDefaultCtor() throws Exception
     {
         MySimpleEnumMap map = MAPPER.readValue(a2q("{'RULES':'waves'}"),
                 MySimpleEnumMap.class);
@@ -191,7 +191,7 @@ public class EnumMapDeserializationTest
     }
 
     @Test
-    public void testCustomEnumMapFromString() throws Exception
+    void testCustomEnumMapFromString() throws Exception
     {
         FromStringEnumMap map = MAPPER.readValue(q("kewl"), FromStringEnumMap.class);
         assertEquals(1, map.size());
@@ -199,7 +199,7 @@ public class EnumMapDeserializationTest
     }
 
     @Test
-    public void testCustomEnumMapWithDelegate() throws Exception
+    void testCustomEnumMapWithDelegate() throws Exception
     {
         FromDelegateEnumMap map = MAPPER.readValue(a2q("{'foo':'bar'}"), FromDelegateEnumMap.class);
         assertEquals(1, map.size());
@@ -207,7 +207,7 @@ public class EnumMapDeserializationTest
     }
 
     @Test
-    public void testCustomEnumMapFromProps() throws Exception
+    void testCustomEnumMapFromProps() throws Exception
     {
         FromPropertiesEnumMap map = MAPPER.readValue(a2q(
                 "{'a':13,'RULES':'jackson','b':-731,'OK':'yes'}"),
@@ -229,7 +229,7 @@ public class EnumMapDeserializationTest
 
     // [databind#1859]
     @Test
-    public void testEnumMapAsPolymorphic() throws Exception
+    void testEnumMapAsPolymorphic() throws Exception
     {
         EnumMap<Enum1859, String> enumMap = new EnumMap<>(Enum1859.class);
         enumMap.put(Enum1859.A, "Test");
@@ -256,7 +256,7 @@ public class EnumMapDeserializationTest
 
     // [databind#1859]
     @Test
-    public void testUnknownKeyAsDefault() throws Exception
+    void testUnknownKeyAsDefault() throws Exception
     {
         // first, via EnumMap
         EnumMap<TestEnumWithDefault,String> value = MAPPER
@@ -276,7 +276,7 @@ public class EnumMapDeserializationTest
 
     // [databind#1859]
     @Test
-    public void testUnknownKeyAsNull() throws Exception
+    void testUnknownKeyAsNull() throws Exception
     {
         // first, via EnumMap
         EnumMap<TestEnumWithDefault,String> value = MAPPER
@@ -298,7 +298,7 @@ public class EnumMapDeserializationTest
 
     // [databind#2457]
     @Test
-    public void testCustomEnumAsRootMapKey() throws Exception
+    void testCustomEnumAsRootMapKey() throws Exception
     {
         final Map<MyEnum2457, String> map = new LinkedHashMap<>();
         map.put(MyEnum2457.A, "1");
@@ -318,7 +318,7 @@ public class EnumMapDeserializationTest
      */
     // [databind#2457]
     @Test
-    public void testCustomEnumAsRootMapKeyMixin() throws Exception
+    void testCustomEnumAsRootMapKeyMixin() throws Exception
     {
         ObjectMapper mixinMapper = JsonMapper.builder()
                 .addMixIn(MyEnum2457Base.class, MyEnum2457Mixin.class)
@@ -344,7 +344,7 @@ public class EnumMapDeserializationTest
 
     // [databind#1988]
     @Test
-    public void testCaseInsensitiveEnumsInMaps() throws Exception
+    void testCaseInsensitiveEnumsInMaps() throws Exception
     {
         ObjectReader r = JsonMapper.builder()
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)

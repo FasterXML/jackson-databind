@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestEmptyClass
-    extends DatabindTestUtil
+class TestEmptyClass
+        extends DatabindTestUtil
 {
     static class Empty { }
 
@@ -66,7 +66,7 @@ public class TestEmptyClass
      * annotation (which indicates type is serializable)
      */
     @Test
-    public void testEmptyWithAnnotations() throws Exception
+    void testEmptyWithAnnotations() throws Exception
     {
         // First: without annotations, should complain
         try {
@@ -89,7 +89,7 @@ public class TestEmptyClass
      * serializing empty classes, too
      */
     @Test
-    public void testEmptyWithFeature() throws Exception
+    void testEmptyWithFeature() throws Exception
     {
         // should be enabled by default
         assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
@@ -99,7 +99,7 @@ public class TestEmptyClass
 
     // [JACKSON-695], JsonSerializer.isEmpty()
     @Test
-    public void testCustomNoEmpty() throws Exception
+    void testCustomNoEmpty() throws Exception
     {
         // first non-empty:
         assertEquals("{\"value\":123}", mapper.writeValueAsString(new NonZeroWrapper(123)));

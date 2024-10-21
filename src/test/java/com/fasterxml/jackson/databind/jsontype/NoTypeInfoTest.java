@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class NoTypeInfoTest extends DatabindTestUtil
+class NoTypeInfoTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use=JsonTypeInfo.Id.NONE)
     @JsonDeserialize(as=NoType.class)
@@ -30,7 +30,7 @@ public class NoTypeInfoTest extends DatabindTestUtil
      */
 
     @Test
-    public void testWithIdNone() throws Exception
+    void testWithIdNone() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
             .activateDefaultTyping(NoCheckSubTypeValidator.instance)

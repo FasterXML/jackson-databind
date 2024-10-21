@@ -148,8 +148,8 @@ class CaseInsensitiveDeserTest extends DatabindTestUtil
         // Definitely not OK to enable dynamically - the BeanPropertyMap (which is the consumer of this particular feature) gets cached.
         ObjectReader r = INSENSITIVE_MAPPER.readerFor(Issue476Bean.class);
         Issue476Bean result = r.readValue(JSON);
-        assertEquals(result.value1.name, "fruit");
-        assertEquals(result.value1.value, "apple");
+        assertEquals("fruit", result.value1.name);
+        assertEquals("apple", result.value1.value);
     }
 
     // [databind#1036]

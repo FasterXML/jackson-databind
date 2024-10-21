@@ -777,7 +777,7 @@ class EnumDeserializationTest
 
         ClassWithEnumMapKey result = reader.readValue("{\"map\": {\"0\":\"I AM FOR REAL\"}}", ClassWithEnumMapKey.class);
 
-        assertEquals(result.map.get(TestEnum.JACKSON), "I AM FOR REAL");
+        assertEquals("I AM FOR REAL", result.map.get(TestEnum.JACKSON));
     }
 
     @Test
@@ -797,7 +797,7 @@ class EnumDeserializationTest
 
         assertNotSame(obj, result);
         assertNotSame(obj.map, result.map);
-        assertEquals(result.map.get(TestEnum.JACKSON), "I AM FOR REAL");
+        assertEquals("I AM FOR REAL", result.map.get(TestEnum.JACKSON));
     }
 
 

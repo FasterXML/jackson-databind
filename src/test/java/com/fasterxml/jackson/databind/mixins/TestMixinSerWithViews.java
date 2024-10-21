@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TestMixinSerWithViews
@@ -171,7 +172,7 @@ class TestMixinSerWithViews
       ObjectWriter objectWriter = objectMapper.writerWithView(Views.View.class).withDefaultPrettyPrinter();
       Object object = new ComplexTestData();
       String json = objectWriter.writeValueAsString(object);
-      assertTrue( json.indexOf( "nameHidden" ) == -1 );
+        assertEquals(-1, json.indexOf("nameHidden"));
       assertTrue( json.indexOf( "\"name\" : \"shown\"" ) > 0 );
     }
 

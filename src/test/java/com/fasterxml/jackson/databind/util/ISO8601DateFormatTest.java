@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 @SuppressWarnings("deprecation")
 class ISO8601DateFormatTest extends DatabindTestUtil
@@ -69,6 +70,6 @@ class ISO8601DateFormatTest extends DatabindTestUtil
         // for [databind#1130]
         DateFormat defaultDF = StdDateFormat.instance;
         defaultDF.hashCode();
-        assertTrue(defaultDF.equals(defaultDF));
+        assertEquals(defaultDF, defaultDF);
     }
 }

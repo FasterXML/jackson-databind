@@ -15,8 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FormatFeatureAcceptSingleTest extends DatabindTestUtil
 {
@@ -214,7 +213,7 @@ class FormatFeatureAcceptSingleTest extends DatabindTestUtil
         BooleanArrayWrapper result = MAPPER.readValue(json, BooleanArrayWrapper.class);
         assertNotNull(result.values);
         assertEquals(1, result.values.length);
-        assertEquals(true, result.values[0]);
+        assertTrue(result.values[0]);
     }
 
     @Test

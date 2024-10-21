@@ -81,7 +81,7 @@ class NullNodeTest extends NodeTestBase
         assertFalse(n.isNumber());
         assertFalse(n.isTextual());
         assertEquals("null", n.asText());
-        assertEquals(n, NullNode.instance);
+        assertEquals(NullNode.instance, n);
 
         n = objectMapper().readTree("null");
         assertNotNull(n);
@@ -125,7 +125,7 @@ class NullNodeTest extends NodeTestBase
         assertEquals(n, new MyNull());
         assertEquals(new MyNull(), n);
 
-        assertFalse(n.equals(null));
-        assertFalse(n.equals("foo"));
+        assertNotEquals(null, n);
+        assertNotEquals("foo", n);
     }
 }

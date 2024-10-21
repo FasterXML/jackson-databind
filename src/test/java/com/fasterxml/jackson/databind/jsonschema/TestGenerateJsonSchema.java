@@ -141,9 +141,9 @@ class TestGenerateJsonSchema
         assertNotNull(jsonSchema);
 
         // test basic equality, and that equals() handles null, other obs
-        assertTrue(jsonSchema.equals(jsonSchema));
-        assertFalse(jsonSchema.equals(null));
-        assertFalse(jsonSchema.equals("foo"));
+        assertEquals(jsonSchema, jsonSchema);
+        assertNotEquals(null, jsonSchema);
+        assertNotEquals("foo", jsonSchema);
 
         // other basic things
         assertNotNull(jsonSchema.toString());
@@ -151,37 +151,37 @@ class TestGenerateJsonSchema
 
         ObjectNode root = jsonSchema.getSchemaNode();
         assertEquals("object", root.get("type").asText());
-        assertEquals(false, root.path("required").booleanValue());
+        assertFalse(root.path("required").booleanValue());
         JsonNode propertiesSchema = root.get("properties");
         assertNotNull(propertiesSchema);
         JsonNode property1Schema = propertiesSchema.get("property1");
         assertNotNull(property1Schema);
         assertEquals("integer", property1Schema.get("type").asText());
-        assertEquals(false, property1Schema.path("required").booleanValue());
+        assertFalse(property1Schema.path("required").booleanValue());
         JsonNode property2Schema = propertiesSchema.get("property2");
         assertNotNull(property2Schema);
         assertEquals("string", property2Schema.get("type").asText());
-        assertEquals(false, property2Schema.path("required").booleanValue());
+        assertFalse(property2Schema.path("required").booleanValue());
         JsonNode property3Schema = propertiesSchema.get("property3");
         assertNotNull(property3Schema);
         assertEquals("array", property3Schema.get("type").asText());
-        assertEquals(false, property3Schema.path("required").booleanValue());
+        assertFalse(property3Schema.path("required").booleanValue());
         assertEquals("string", property3Schema.get("items").get("type").asText());
         JsonNode property4Schema = propertiesSchema.get("property4");
         assertNotNull(property4Schema);
         assertEquals("array", property4Schema.get("type").asText());
-        assertEquals(false, property4Schema.path("required").booleanValue());
+        assertFalse(property4Schema.path("required").booleanValue());
         assertEquals("number", property4Schema.get("items").get("type").asText());
 
         JsonNode property5Schema = propertiesSchema.get("property5");
         assertNotNull(property5Schema);
         assertEquals("string", property5Schema.get("type").asText());
-        assertEquals(true, property5Schema.path("required").booleanValue());
+        assertTrue(property5Schema.path("required").booleanValue());
 
         JsonNode property6Schema = propertiesSchema.get("property6");
         assertNotNull(property6Schema);
         assertEquals("integer", property6Schema.get("type").asText());
-        assertEquals(false, property6Schema.path("required").booleanValue());
+        assertFalse(property6Schema.path("required").booleanValue());
     }
 
     @JsonFilter("filteredBean")
@@ -261,10 +261,10 @@ class TestGenerateJsonSchema
         String firstType = propertiesSchema.get("name.first").get("type").asText();
         String lastType = propertiesSchema.get("name.last").get("type").asText();
         String type = root.get("type").asText();
-        assertEquals(type, "object");
-        assertEquals(ageType, "integer");
-        assertEquals(firstType, "string");
-        assertEquals(lastType, "string");
+        assertEquals("object", type);
+        assertEquals("integer", ageType);
+        assertEquals("string", firstType);
+        assertEquals("string", lastType);
     }
 
     //

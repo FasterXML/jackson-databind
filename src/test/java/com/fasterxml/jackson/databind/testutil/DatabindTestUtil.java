@@ -462,9 +462,9 @@ public class DatabindTestUtil
      */
     protected void assertStandardEquals(Object o)
     {
-        assertTrue(o.equals(o));
-        assertFalse(o.equals(null));
-        assertFalse(o.equals(SINGLETON_OBJECT));
+        assertEquals(o, o);
+        assertNotEquals(null, o);
+        assertNotEquals(SINGLETON_OBJECT, o);
         // just for fun, let's also call hash code...
         o.hashCode();
     }

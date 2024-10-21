@@ -10,8 +10,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MergePolymorphicTest
 {
@@ -63,7 +62,7 @@ class MergePolymorphicTest
         childA.name = "I'm child A";
         root.child = childA;
         MAPPER.readerForUpdating(root).readValue("{\"child\": null }");
-        assertTrue(root.child == null);
+        assertNull(root.child);
     }
 
     @Test

@@ -10,8 +10,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ObjectIdReordering1388Test extends DatabindTestUtil
 {
@@ -63,7 +63,7 @@ class ObjectIdReordering1388Test extends DatabindTestUtil
             final List<NamedThing> list = mapper.readValue(jsog, namedThingListType);
             _assertAllSame(list);
             // this is the jsog representation of the list of 3 of the same item
-            assertTrue(jsog.equals("[{\"@id\":1,\"id\":\"a59aa02c-fe3c-43f8-9b5a-5fe01878a818\",\"name\":\"Hello\"},1,1]"));
+            assertEquals("[{\"@id\":1,\"id\":\"a59aa02c-fe3c-43f8-9b5a-5fe01878a818\",\"name\":\"Hello\"},1,1]", jsog);
         }
 
         // now move it around it have forward references

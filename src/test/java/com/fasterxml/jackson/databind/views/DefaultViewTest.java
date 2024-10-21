@@ -48,21 +48,21 @@ class DefaultViewTest extends DatabindTestUtil
         // first: no views:
         Defaulting result = MAPPER.readerFor(Defaulting.class)
                 .readValue(JSON);
-        assertEquals(result.a, 1);
-        assertEquals(result.b, 2);
+        assertEquals(1, result.a);
+        assertEquals(2, result.b);
 
         // Then views; first A, then B(B)
         result = MAPPER.readerFor(Defaulting.class)
                 .withView(ViewA.class)
                 .readValue(JSON);
-        assertEquals(result.a, 1);
-        assertEquals(result.b, 5);
+        assertEquals(1, result.a);
+        assertEquals(5, result.b);
 
         result = MAPPER.readerFor(Defaulting.class)
                 .withView(ViewBB.class)
                 .readValue(JSON);
-        assertEquals(result.a, 3);
-        assertEquals(result.b, 2);
+        assertEquals(3, result.a);
+        assertEquals(2, result.b);
     }
 
     @Test

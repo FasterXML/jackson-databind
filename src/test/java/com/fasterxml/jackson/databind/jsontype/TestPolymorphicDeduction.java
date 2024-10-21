@@ -101,13 +101,13 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
     void simpleInference() throws Exception {
     Cat cat = MAPPER.readValue(liveCatJson, Cat.class);
     assertTrue(cat instanceof LiveCat);
-    assertSame(cat.getClass(), LiveCat.class);
+        assertSame(LiveCat.class, cat.getClass());
     assertEquals("Felix", cat.name);
     assertTrue(((LiveCat)cat).angry);
 
     cat = MAPPER.readValue(deadCatJson, Cat.class);
     assertTrue(cat instanceof DeadCat);
-    assertSame(cat.getClass(), DeadCat.class);
+        assertSame(DeadCat.class, cat.getClass());
     assertEquals("Felix", cat.name);
     assertEquals("entropy", ((DeadCat)cat).causeOfDeath);
   }
@@ -139,7 +139,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
       .build()
       .readValue(deadCatJson.toUpperCase(), Cat.class);
     assertTrue(cat instanceof DeadCat);
-    assertSame(cat.getClass(), DeadCat.class);
+        assertSame(DeadCat.class, cat.getClass());
     assertEquals("FELIX", cat.name);
     assertEquals("ENTROPY", ((DeadCat)cat).causeOfDeath);
   }
@@ -161,13 +161,13 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
     void containedInference() throws Exception {
     Box box = MAPPER.readValue(box1Json, Box.class);
     assertTrue(box.feline instanceof LiveCat);
-    assertSame(box.feline.getClass(), LiveCat.class);
+        assertSame(LiveCat.class, box.feline.getClass());
     assertEquals("Felix", ((LiveCat)box.feline).name);
     assertTrue(((LiveCat)box.feline).angry);
 
     box = MAPPER.readValue(box2Json, Box.class);
     assertTrue(box.feline instanceof DeadCat);
-    assertSame(box.feline.getClass(), DeadCat.class);
+        assertSame(DeadCat.class, box.feline.getClass());
     assertEquals("Felix", ((DeadCat)box.feline).name);
     assertEquals("entropy", ((DeadCat)box.feline).causeOfDeath);
   }
@@ -213,7 +213,7 @@ class TestPolymorphicDeduction extends DatabindTestUtil {
       .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
       .readValue(luckyCatJson, Cat.class);
     assertTrue(cat instanceof LiveCat);
-    assertSame(cat.getClass(), LiveCat.class);
+        assertSame(LiveCat.class, cat.getClass());
     assertEquals("Felix", cat.name);
     assertTrue(((LiveCat)cat).angry);
   }

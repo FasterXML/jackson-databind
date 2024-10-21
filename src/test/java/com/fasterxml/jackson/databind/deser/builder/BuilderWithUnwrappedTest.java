@@ -10,9 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 
 class BuilderWithUnwrappedTest
@@ -232,7 +230,7 @@ class BuilderWithUnwrappedTest
         assertEquals("John", person.getName().getFirst());
         assertEquals("Doe", person.getName().getLast());
         assertEquals(30, person.getAge());
-        assertEquals(true, person.isAlive());
+        assertTrue(person.isAlive());
     }
 
     @Test
@@ -246,7 +244,7 @@ class BuilderWithUnwrappedTest
         assertEquals("John", person.getName().getFirst());
         assertEquals("Doe", person.getName().getLast());
         assertEquals(30, person.getAge());
-        assertEquals(true, person.isAlive());
+        assertTrue(person.isAlive());
     }
 
     @Test
@@ -260,7 +258,7 @@ class BuilderWithUnwrappedTest
         assertEquals("John", person.getName().getFirst());
         assertEquals("Doe", person.getName().getLast());
         assertEquals(30, person.getAge());
-        assertEquals(true, person.isAlive());
+        assertTrue(person.isAlive());
     }
 
     @Test
@@ -274,7 +272,7 @@ class BuilderWithUnwrappedTest
         assertEquals("John", animal.getName().getFirst());
         assertEquals("Doe", animal.getName().getLast());
         assertEquals(30, animal.getAge());
-        assertEquals(true, animal.isAlive());
+        assertTrue(animal.isAlive());
     }
 
     @Test
@@ -288,7 +286,7 @@ class BuilderWithUnwrappedTest
         assertEquals("John", animal.getName().getFirst());
         assertEquals("Doe", animal.getName().getLast());
         assertEquals(30, animal.getAge());
-        assertEquals(true, animal.isAlive());
+        assertTrue(animal.isAlive());
     }
 
     @Test
@@ -302,7 +300,7 @@ class BuilderWithUnwrappedTest
         assertEquals("John", animal.getName().getFirst());
         assertEquals("Doe", animal.getName().getLast());
         assertEquals(30, animal.getAge());
-        assertEquals(true, animal.isAlive());
+        assertTrue(animal.isAlive());
     }
 
     @Test

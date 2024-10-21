@@ -218,7 +218,7 @@ class FieldSerializationTest
     void issue240() throws Exception
     {
         Item240 bean = new Item240("a12", null);
-        assertEquals(MAPPER.writeValueAsString(bean), "{\"id\":\"a12\"}");
+        assertEquals("{\"id\":\"a12\"}", MAPPER.writeValueAsString(bean));
     }
 
     /*

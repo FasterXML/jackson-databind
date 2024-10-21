@@ -320,16 +320,16 @@ class ExistingPropertyTest extends DatabindTestUtil
         assertEquals(mandarin.type, result.get("type"));
 
         String pinguoSerialized = MAPPER.writeValueAsString(pinguo);
-        assertEquals(pinguoSerialized, pinguoJson);
+        assertEquals(pinguoJson, pinguoSerialized);
 
         String mandarinSerialized = MAPPER.writeValueAsString(mandarin);
-        assertEquals(mandarinSerialized, mandarinJson);
+        assertEquals(mandarinJson, mandarinSerialized);
 
         String fruitWrapperSerialized = MAPPER.writeValueAsString(pinguoWrapper);
-        assertEquals(fruitWrapperSerialized, pinguoWrapperJson);
+        assertEquals(pinguoWrapperJson, fruitWrapperSerialized);
 
         String fruitListSerialized = MAPPER.writeValueAsString(fruitList);
-        assertEquals(fruitListSerialized, fruitListJson);
+        assertEquals(fruitListJson, fruitListSerialized);
     }
 
     /**
@@ -340,7 +340,7 @@ class ExistingPropertyTest extends DatabindTestUtil
     {
         Fruit pinguoDeserialized = MAPPER.readValue(pinguoJson, Fruit.class);
         assertTrue(pinguoDeserialized instanceof Apple);
-        assertSame(pinguoDeserialized.getClass(), Apple.class);
+        assertSame(Apple.class, pinguoDeserialized.getClass());
         assertEquals(pinguo.name, pinguoDeserialized.name);
         assertEquals(pinguo.seedCount, ((Apple) pinguoDeserialized).seedCount);
         assertEquals(pinguo.type, ((Apple) pinguoDeserialized).type);
@@ -348,7 +348,7 @@ class ExistingPropertyTest extends DatabindTestUtil
         FruitWrapper pinguoWrapperDeserialized = MAPPER.readValue(pinguoWrapperJson, FruitWrapper.class);
         Fruit pinguoExtracted = pinguoWrapperDeserialized.fruit;
         assertTrue(pinguoExtracted instanceof Apple);
-        assertSame(pinguoExtracted.getClass(), Apple.class);
+        assertSame(Apple.class, pinguoExtracted.getClass());
         assertEquals(pinguo.name, pinguoExtracted.name);
         assertEquals(pinguo.seedCount, ((Apple) pinguoExtracted).seedCount);
         assertEquals(pinguo.type, ((Apple) pinguoExtracted).type);
@@ -363,7 +363,7 @@ class ExistingPropertyTest extends DatabindTestUtil
         List<Fruit> f2 = MAPPER.readValue(fruitListJson,
                 new TypeReference<List<Fruit>>() { });
         assertNotNull(f2);
-        assertTrue(f2.size() == 2);
+        assertEquals(2, f2.size());
         assertEquals(Apple.class, f2.get(0).getClass());
         assertEquals(Orange.class, f2.get(1).getClass());
     }
@@ -387,16 +387,16 @@ class ExistingPropertyTest extends DatabindTestUtil
         assertEquals(rover.getType(), result.get("type"));
 
         String beelzebubSerialized = MAPPER.writeValueAsString(beelzebub);
-        assertEquals(beelzebubSerialized, beelzebubJson);
+        assertEquals(beelzebubJson, beelzebubSerialized);
 
         String roverSerialized = MAPPER.writeValueAsString(rover);
-        assertEquals(roverSerialized, roverJson);
+        assertEquals(roverJson, roverSerialized);
 
         String animalWrapperSerialized = MAPPER.writeValueAsString(beelzebubWrapper);
-        assertEquals(animalWrapperSerialized, beelzebubWrapperJson);
+        assertEquals(beelzebubWrapperJson, animalWrapperSerialized);
 
         String animalListSerialized = MAPPER.writeValueAsString(animalList);
-        assertEquals(animalListSerialized, animalListJson);
+        assertEquals(animalListJson, animalListSerialized);
     }
 
     /**
@@ -407,7 +407,7 @@ class ExistingPropertyTest extends DatabindTestUtil
     {
         Animal beelzebubDeserialized = MAPPER.readValue(beelzebubJson, Animal.class);
         assertTrue(beelzebubDeserialized instanceof Cat);
-        assertSame(beelzebubDeserialized.getClass(), Cat.class);
+        assertSame(Cat.class, beelzebubDeserialized.getClass());
         assertEquals(beelzebub.name, beelzebubDeserialized.name);
         assertEquals(beelzebub.furColor, ((Cat) beelzebubDeserialized).furColor);
         assertEquals(beelzebub.getType(), beelzebubDeserialized.getType());
@@ -415,7 +415,7 @@ class ExistingPropertyTest extends DatabindTestUtil
         AnimalWrapper beelzebubWrapperDeserialized = MAPPER.readValue(beelzebubWrapperJson, AnimalWrapper.class);
         Animal beelzebubExtracted = beelzebubWrapperDeserialized.animal;
         assertTrue(beelzebubExtracted instanceof Cat);
-        assertSame(beelzebubExtracted.getClass(), Cat.class);
+        assertSame(Cat.class, beelzebubExtracted.getClass());
         assertEquals(beelzebub.name, beelzebubExtracted.name);
         assertEquals(beelzebub.furColor, ((Cat) beelzebubExtracted).furColor);
         assertEquals(beelzebub.getType(), beelzebubExtracted.getType());
@@ -423,13 +423,13 @@ class ExistingPropertyTest extends DatabindTestUtil
         @SuppressWarnings("unchecked")
         List<Animal> animalListDeserialized = MAPPER.readValue(animalListJson, List.class);
         assertNotNull(animalListDeserialized);
-        assertTrue(animalListDeserialized.size() == 2);
+        assertEquals(2, animalListDeserialized.size());
         Animal cat = MAPPER.convertValue(animalListDeserialized.get(0), Animal.class);
         assertTrue(cat instanceof Cat);
-        assertSame(cat.getClass(), Cat.class);
+        assertSame(Cat.class, cat.getClass());
         Animal dog = MAPPER.convertValue(animalListDeserialized.get(1), Animal.class);
         assertTrue(dog instanceof Dog);
-        assertSame(dog.getClass(), Dog.class);
+        assertSame(Dog.class, dog.getClass());
     }
 
     /**
@@ -451,16 +451,16 @@ class ExistingPropertyTest extends DatabindTestUtil
         assertEquals(accord.getType(), result.get("type"));
 
         String camrySerialized = MAPPER.writeValueAsString(camry);
-        assertEquals(camrySerialized, camryJson);
+        assertEquals(camryJson, camrySerialized);
 
         String accordSerialized = MAPPER.writeValueAsString(accord);
-        assertEquals(accordSerialized, accordJson);
+        assertEquals(accordJson, accordSerialized);
 
         String carWrapperSerialized = MAPPER.writeValueAsString(camryWrapper);
-        assertEquals(carWrapperSerialized, camryWrapperJson);
+        assertEquals(camryWrapperJson, carWrapperSerialized);
 
         String carListSerialized = MAPPER.writeValueAsString(carList);
-        assertEquals(carListSerialized, carListJson);
+        assertEquals(carListJson, carListSerialized);
     }
 
     /**
@@ -471,7 +471,7 @@ class ExistingPropertyTest extends DatabindTestUtil
     {
         Car camryDeserialized = MAPPER.readValue(camryJson, Camry.class);
         assertTrue(camryDeserialized instanceof Camry);
-        assertSame(camryDeserialized.getClass(), Camry.class);
+        assertSame(Camry.class, camryDeserialized.getClass());
         assertEquals(camry.name, camryDeserialized.name);
         assertEquals(camry.exteriorColor, ((Camry) camryDeserialized).exteriorColor);
         assertEquals(camry.getType(), ((Camry) camryDeserialized).getType());
@@ -479,7 +479,7 @@ class ExistingPropertyTest extends DatabindTestUtil
         CarWrapper camryWrapperDeserialized = MAPPER.readValue(camryWrapperJson, CarWrapper.class);
         Car camryExtracted = camryWrapperDeserialized.car;
         assertTrue(camryExtracted instanceof Camry);
-        assertSame(camryExtracted.getClass(), Camry.class);
+        assertSame(Camry.class, camryExtracted.getClass());
         assertEquals(camry.name, camryExtracted.name);
         assertEquals(camry.exteriorColor, ((Camry) camryExtracted).exteriorColor);
         assertEquals(camry.getType(), ((Camry) camryExtracted).getType());
@@ -487,14 +487,14 @@ class ExistingPropertyTest extends DatabindTestUtil
         @SuppressWarnings("unchecked")
         List<Car> carListDeserialized = MAPPER.readValue(carListJson, List.class);
         assertNotNull(carListDeserialized);
-        assertTrue(carListDeserialized.size() == 2);
+        assertEquals(2, carListDeserialized.size());
         Car result = MAPPER.convertValue(carListDeserialized.get(0), Car.class);
         assertTrue(result instanceof Camry);
-        assertSame(result.getClass(), Camry.class);
+        assertSame(Camry.class, result.getClass());
 
         result = MAPPER.convertValue(carListDeserialized.get(1), Car.class);
         assertTrue(result instanceof Accord);
-        assertSame(result.getClass(), Accord.class);
+        assertSame(Accord.class, result.getClass());
     }
 
     // for [databind#1635]: simple usage

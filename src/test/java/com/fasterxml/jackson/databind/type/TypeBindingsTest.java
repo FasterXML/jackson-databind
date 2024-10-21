@@ -79,7 +79,7 @@ class TypeBindingsTest extends DatabindTestUtil
         assertNull(b.getBoundName(1));
         assertNull(b.getBoundType(1));
 
-        assertFalse(b.equals("foo"));
+        assertNotEquals("foo", b);
     }
 
     @Test

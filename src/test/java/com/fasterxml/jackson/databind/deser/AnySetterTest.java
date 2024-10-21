@@ -466,7 +466,7 @@ class AnySetterTest extends DatabindTestUtil
         MyGeneric<Integer> integerGeneric = deserialized.getMyIntegerGeneric();
 
         assertNotNull(stringGeneric);
-        assertEquals(stringGeneric.getStaticallyMappedProperty(), "Test");
+        assertEquals("Test", stringGeneric.getStaticallyMappedProperty());
         for(Map.Entry<String, Integer> entry : stringGeneric.getDynamicallyMappedProperties().entrySet()) {
             assertTrue(entry.getKey() instanceof String, "A key in MyGeneric<String> is not an String.");
             assertTrue(entry.getValue() instanceof Integer, "A value in MyGeneric<Integer> is not an Integer.");
@@ -474,7 +474,7 @@ class AnySetterTest extends DatabindTestUtil
         assertEquals(stringGeneric.getDynamicallyMappedProperties(), stringGenericMap);
 
         assertNotNull(integerGeneric);
-        assertEquals(integerGeneric.getStaticallyMappedProperty(), "Test2");
+        assertEquals("Test2", integerGeneric.getStaticallyMappedProperty());
         for(Map.Entry<Integer, Integer> entry : integerGeneric.getDynamicallyMappedProperties().entrySet()) {
             Object key = entry.getKey();
             assertEquals(Integer.class, key.getClass(), "A key in MyGeneric<Integer> is not an Integer.");

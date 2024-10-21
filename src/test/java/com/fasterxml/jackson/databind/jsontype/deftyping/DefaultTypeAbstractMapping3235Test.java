@@ -59,9 +59,9 @@ class DefaultTypeAbstractMapping3235Test extends DatabindTestUtil
                 "  'objectField': {}" +
                 "}");
         Object o = mapper3235.readValue(doc, AbstractParentWithoutDefault.class);
-        assertEquals(o.getClass(), ChildOfParentWithoutDefault.class);
+        assertEquals(ChildOfParentWithoutDefault.class, o.getClass());
         ChildOfParentWithoutDefault ot = (ChildOfParentWithoutDefault) o;
-        assertEquals(ot.mapField.getClass(), TreeMap.class);
-        assertEquals(ot.objectField.getClass(), Parent.class);
+        assertEquals(TreeMap.class, ot.mapField.getClass());
+        assertEquals(Parent.class, ot.objectField.getClass());
     }
 }

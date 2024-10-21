@@ -74,7 +74,7 @@ class ArrayNodeTest
         // and finally, clear it all
         ArrayNode n2 = new ArrayNode(JsonNodeFactory.instance);
         n2.add("foobar");
-        assertFalse(n.equals(n2));
+        assertNotEquals(n, n2);
         n.addAll(n2);
         assertEquals(3, n.size());
 
@@ -402,18 +402,18 @@ class ArrayNodeTest
         ArrayNode n1 = new ArrayNode(null);
         ArrayNode n2 = new ArrayNode(null);
 
-        assertTrue(n1.equals(n2));
-        assertTrue(n2.equals(n1));
+        assertEquals(n1, n2);
+        assertEquals(n2, n1);
 
         n1.add(TextNode.valueOf("Test"));
 
-        assertFalse(n1.equals(n2));
-        assertFalse(n2.equals(n1));
+        assertNotEquals(n1, n2);
+        assertNotEquals(n2, n1);
 
         n2.add(TextNode.valueOf("Test"));
 
-        assertTrue(n1.equals(n2));
-        assertTrue(n2.equals(n1));
+        assertEquals(n1, n2);
+        assertEquals(n2, n1);
     }
 
     @Test
@@ -435,7 +435,7 @@ class ArrayNodeTest
 
         // should be equal to itself no matter what
         assertEquals(result, result);
-        assertFalse(result.equals(null)); // but not to null
+        assertNotEquals(null, result); // but not to null
 
         // plus see that we can access stuff
         assertEquals(NullNode.instance, result.path(0));
@@ -461,7 +461,7 @@ class ArrayNodeTest
         assertEquals(NullNode.instance, rm1);
         assertEquals(1, array2.size());
         assertEquals(BooleanNode.FALSE, array2.get(0));
-        assertFalse(result.equals(array2));
+        assertNotEquals(result, array2);
 
         JsonNode rm2 = array2.remove(0);
         assertEquals(BooleanNode.FALSE, rm2);

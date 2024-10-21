@@ -47,10 +47,10 @@ class JacksonTypesDeserTest
     void jsonLocationProps()
     {
         JsonLocation loc = new JsonLocation(null,  -1, -1, 100, 13);
-        assertTrue(loc.equals(loc));
-        assertFalse(loc.equals(null));
+        assertEquals(loc, loc);
+        assertNotEquals(null, loc);
         final Object value = "abx";
-        assertFalse(loc.equals(value));
+        assertNotEquals(loc, value);
 
         // should we check it's not 0?
         loc.hashCode();

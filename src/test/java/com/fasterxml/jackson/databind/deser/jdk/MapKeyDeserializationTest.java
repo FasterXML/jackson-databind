@@ -195,9 +195,9 @@ class MapKeyDeserializationTest
                     new TypeReference<Map<FullName, Double>>() { });
         Map.Entry<FullName, Double> entry = map.entrySet().iterator().next();
         FullName key = entry.getKey();
-        assertEquals(key._firstname, "first");
-        assertEquals(key._lastname, "last");
-        assertEquals(entry.getValue().doubleValue(), 42, 0);
+        assertEquals("first", key._firstname);
+        assertEquals("last", key._lastname);
+        assertEquals(42, entry.getValue().doubleValue(), 0);
     }
 
     @Test

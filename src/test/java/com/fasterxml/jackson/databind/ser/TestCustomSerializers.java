@@ -254,7 +254,7 @@ class TestCustomSerializers extends DatabindTestUtil
         Element element = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().createElement("el");
         StringWriter sw = new StringWriter();
         objectMapper.writeValue(sw, element);
-        assertEquals(sw.toString(), "\"element\"");
+        assertEquals("\"element\"", sw.toString());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

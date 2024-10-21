@@ -318,8 +318,8 @@ class BuilderSimpleTest
         assertSame(ValueClassXY.class, o.getClass());
         ValueClassXY value = (ValueClassXY) o;
         // note: ctor adds one to both values
-        assertEquals(value._x, 2);
-        assertEquals(value._y, 3);
+        assertEquals(2, value._x);
+        assertEquals(3, value._y);
     }
 
     // related to [databind#1214]
@@ -348,8 +348,8 @@ class BuilderSimpleTest
         assertSame(ValueClassXY.class, o.getClass());
         ValueClassXY value = (ValueClassXY) o;
         // note: ctor adds one to both values
-        assertEquals(value._x, 2);
-        assertEquals(value._y, 3);
+        assertEquals(2, value._x);
+        assertEquals(3, value._y);
     }
 
     @Test

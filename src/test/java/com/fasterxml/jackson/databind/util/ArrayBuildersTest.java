@@ -77,13 +77,13 @@ class ArrayBuildersTest extends DatabindTestUtil
     {
         final int[] INT3 = new int[] { 3, 4, 5 };
         Object comp = ArrayBuilders.getArrayComparator(INT3);
-        assertFalse(comp.equals(null));
-        assertTrue(comp.equals(INT3));
-        assertTrue(comp.equals(new int[] { 3, 4, 5 }));
-        assertFalse(comp.equals(new int[] { 5 }));
-        assertFalse(comp.equals(new int[] { 3, 4 }));
-        assertFalse(comp.equals(new int[] { 3, 5, 4 }));
-        assertFalse(comp.equals(new int[] { 3, 4, 5, 6 }));
+        assertNotEquals(null, comp);
+        assertEquals(comp, INT3);
+        assertEquals(new int[]{3, 4, 5}, comp);
+        assertNotEquals(new int[]{5}, comp);
+        assertNotEquals(new int[]{3, 4}, comp);
+        assertNotEquals(new int[]{3, 5, 4}, comp);
+        assertNotEquals(new int[]{3, 4, 5, 6}, comp);
     }
 
     @Test

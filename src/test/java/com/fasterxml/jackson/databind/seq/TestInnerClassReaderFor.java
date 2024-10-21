@@ -42,11 +42,11 @@ class TestInnerClassReaderFor extends DatabindTestUtil {
 
         X x = new X("dummy");
         MAPPER.readerForUpdating(x).readValue("{\"value\": \"updatedX\"}");
-        assertEquals(x.getValue(), "updatedX");
+        assertEquals("updatedX", x.getValue());
 
         Y y = new Y("dummy");
         MAPPER.readerForUpdating(y).readValue("{\"value\": \"updatedY\"}");
-        assertEquals(y.getValue(), "updatedY");
+        assertEquals("updatedY", y.getValue());
 
     }
 

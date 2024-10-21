@@ -169,7 +169,7 @@ class ObjectNodeTest
 
         ObjectNode n2 = new ObjectNode(JsonNodeFactory.instance);
         n2.put("b", 13);
-        assertFalse(n.equals(n2));
+        assertNotEquals(n, n2);
         n.setAll(n2);
 
         assertEquals(2, n.size());
@@ -248,22 +248,22 @@ class ObjectNodeTest
         o1.set("x", null);
         JsonNode n = o1.get("x");
         assertNotNull(n);
-        assertSame(n, NullNode.instance);
+        assertSame(NullNode.instance, n);
 
         o1.put("str", (String) null);
         n = o1.get("str");
         assertNotNull(n);
-        assertSame(n, NullNode.instance);
+        assertSame(NullNode.instance, n);
 
         o1.put("d", (BigDecimal) null);
         n = o1.get("d");
         assertNotNull(n);
-        assertSame(n, NullNode.instance);
+        assertSame(NullNode.instance, n);
 
         o1.put("3", (BigInteger) null);
         n = o1.get("3");
         assertNotNull(3);
-        assertSame(n, NullNode.instance);
+        assertSame(NullNode.instance, n);
 
         assertEquals(4, o1.size());
     }
@@ -486,8 +486,8 @@ class ObjectNodeTest
         ob2.put("c", 3);
         ob2.put("a", 1);
 
-        assertTrue(ob1.equals(ob2));
-        assertTrue(ob2.equals(ob1));
+        assertEquals(ob1, ob2);
+        assertEquals(ob2, ob1);
     }
 
     @Test

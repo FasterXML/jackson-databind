@@ -101,7 +101,7 @@ class TreeWithTypeTest extends DatabindTestUtil
                 .build();
         String json = "{\"@class\":\""+CLASS+"\",\"bar\":\"baz\"}";
         JsonNode jsonNode = mapper.readTree(json);
-        assertEquals(jsonNode.get("bar").textValue(), "baz");
+        assertEquals("baz", jsonNode.get("bar").textValue());
     }
 
     @Test

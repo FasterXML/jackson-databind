@@ -99,7 +99,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
         FieldWrapperBean bean = mapper.readValue(json, FieldWrapperBean.class);
         assertNotNull(bean.value);
         assertEquals(StringWrapper.class, bean.value.getClass());
-        assertEquals(((StringWrapper) bean.value).str, "foo");
+        assertEquals("foo", ((StringWrapper) bean.value).str);
     }
 
     @Test
@@ -111,7 +111,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
         FieldWrapperBean bean = mapper.readValue(json, FieldWrapperBean.class);
         assertNotNull(bean.value);
         assertEquals(IntWrapper.class, bean.value.getClass());
-        assertEquals(((IntWrapper) bean.value).i, 37);
+        assertEquals(37, ((IntWrapper) bean.value).i);
     }
 
     @Test
@@ -127,8 +127,8 @@ class TestPropertyTypeInfo extends DatabindTestUtil
         assertEquals(1, result.size());
         FieldWrapperBean bean = list.get(0);
         assertEquals(OtherBean.class, bean.value.getClass());
-        assertEquals(((OtherBean) bean.value).x, 1);
-        assertEquals(((OtherBean) bean.value).y, 1);
+        assertEquals(1, ((OtherBean) bean.value).x);
+        assertEquals(1, ((OtherBean) bean.value).y);
     }
 
     @Test
@@ -145,10 +145,10 @@ class TestPropertyTypeInfo extends DatabindTestUtil
         assertEquals(3, result.size());
         MethodWrapperBean bean = result.get(0);
         assertEquals(BooleanValue.class, bean.value.getClass());
-        assertEquals(((BooleanValue) bean.value).b, Boolean.TRUE);
+        assertEquals(Boolean.TRUE, ((BooleanValue) bean.value).b);
         bean = result.get(1);
         assertEquals(StringWrapper.class, bean.value.getClass());
-        assertEquals(((StringWrapper) bean.value).str, "x");
+        assertEquals("x", ((StringWrapper) bean.value).str);
         bean = result.get(2);
         assertEquals(OtherBean.class, bean.value.getClass());
     }
@@ -166,7 +166,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
         assertEquals(1, beans.length);
         FieldWrapperBean bean = beans[0];
         assertEquals(BooleanValue.class, bean.value.getClass());
-        assertEquals(((BooleanValue) bean.value).b, Boolean.TRUE);
+        assertEquals(Boolean.TRUE, ((BooleanValue) bean.value).b);
     }
 
     @Test
@@ -182,7 +182,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
         assertEquals(1, beans.length);
         MethodWrapperBean bean = beans[0];
         assertEquals(StringWrapper.class, bean.value.getClass());
-        assertEquals(((StringWrapper) bean.value).str, "A");
+        assertEquals("A", ((StringWrapper) bean.value).str);
     }
 
     @Test
@@ -199,7 +199,7 @@ class TestPropertyTypeInfo extends DatabindTestUtil
         assertNotNull(bean);
         Object ob = bean.value;
         assertEquals(IntWrapper.class, ob.getClass());
-        assertEquals(((IntWrapper) ob).i, 13);
+        assertEquals(13, ((IntWrapper) ob).i);
     }
 
     @Test
@@ -216,6 +216,6 @@ class TestPropertyTypeInfo extends DatabindTestUtil
         assertNotNull(bean);
         Object ob = bean.value;
         assertEquals(BooleanValue.class, ob.getClass());
-        assertEquals(((BooleanValue) ob).b, Boolean.TRUE);
+        assertEquals(Boolean.TRUE, ((BooleanValue) ob).b);
     }
 }

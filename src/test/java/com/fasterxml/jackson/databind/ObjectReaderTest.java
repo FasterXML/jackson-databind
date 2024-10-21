@@ -441,10 +441,10 @@ class ObjectReaderTest
         assertNotNull(testObject);
 
         assertNotNull(testObject.set1);
-        assertTrue(!testObject.set1.isEmpty());
+        assertFalse(testObject.set1.isEmpty());
 
         assertNotNull(testObject.set2);
-        assertTrue(!testObject.set2.isEmpty());
+        assertFalse(testObject.set2.isEmpty());
     }
 
     public static class Pojo1637 {

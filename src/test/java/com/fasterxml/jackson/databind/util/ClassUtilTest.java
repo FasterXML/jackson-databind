@@ -266,7 +266,7 @@ class ClassUtilTest extends DatabindTestUtil
     @Test
     void getDeclaringClass()
     {
-        assertEquals(null, ClassUtil.getDeclaringClass(String.class));
+        assertNull(ClassUtil.getDeclaringClass(String.class));
         assertEquals(getClass(), ClassUtil.getDeclaringClass(BaseClass.class));
     }
 

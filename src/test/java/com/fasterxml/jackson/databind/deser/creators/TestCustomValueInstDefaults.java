@@ -15,8 +15,7 @@ import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Exercises a custom value instantiator with an overridden
@@ -487,7 +486,7 @@ class TestCustomValueInstDefaults
 
         assertEquals(Bucket.DEFAULT_A, cNullRestAbsent.a);
         assertEquals(Bucket.DEFAULT_B, cNullRestAbsent.b);
-        assertEquals(null, cNullRestAbsent.c);
+        assertNull(cNullRestAbsent.c);
         assertEquals(Bucket.DEFAULT_D, cNullRestAbsent.d);
     }
 
@@ -524,7 +523,7 @@ class TestCustomValueInstDefaults
         assertEquals(BigBucket.DEFAULT_S, big.s02);
         assertEquals(BigBucket.DEFAULT_S, big.s03);
         assertEquals(BigBucket.DEFAULT_S, big.s04);
-        assertEquals(null, big.s05);
+        assertNull(big.s05);
         assertEquals(BigBucket.DEFAULT_S, big.s06);
         assertEquals(BigBucket.DEFAULT_S, big.s07);
         assertEquals("x", big.s08);

@@ -85,7 +85,7 @@ class EnumDeserilizationFeatureOrderTest
 
         EnumFruit simpleEnumA = reader.readValue(q(""));
 
-        assertEquals(null, simpleEnumA);
+        assertNull(simpleEnumA);
     }
 
     @Test
@@ -108,7 +108,7 @@ class EnumDeserilizationFeatureOrderTest
 
         EnumLetter defaulted = reader.readValue(q("unknownValue"));
 
-        assertEquals(null, defaulted);
+        assertNull(defaulted);
     }
 
     @Test

@@ -303,8 +303,8 @@ class TestPOJOAsArray extends DatabindTestUtil
                 .readValue(json);
         assertNotNull(v);
         // note: +1 for both so
-        assertEquals(v.value.x, 42);
-        assertEquals(v.value.y, 13);
+        assertEquals(42, v.value.x);
+        assertEquals(13, v.value.y);
         assertTrue(v.value.complete);
         assertEquals("Foobar", v.value.name);
     }

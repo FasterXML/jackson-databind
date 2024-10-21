@@ -52,13 +52,13 @@ class BaseTypeAsDefaultTest extends DatabindTestUtil
     @Test
     void positiveForParent() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(Parent.class).readValue("{}");
-        assertEquals(o.getClass(), Parent.class);
+        assertEquals(Parent.class, o.getClass());
     }
 
     @Test
     void positiveForChild() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(Child.class).readValue("{}");
-        assertEquals(o.getClass(), Child.class);
+        assertEquals(Child.class, o.getClass());
     }
 
     @Test
@@ -92,20 +92,20 @@ class BaseTypeAsDefaultTest extends DatabindTestUtil
     void conversionForAbstractWithDefault() throws Exception {
         // should pass shouldn't it?
         Object o = MAPPER_WITH_BASE.readerFor(AbstractParentWithDefault.class).readValue("{}");
-        assertEquals(o.getClass(), ChildOfChild.class);
+        assertEquals(ChildOfChild.class, o.getClass());
     }
 
     @Test
     void positiveWithTypeSpecification() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(Parent.class)
                 .readValue("{\"@class\":\""+Child.class.getName()+"\"}");
-        assertEquals(o.getClass(), Child.class);
+        assertEquals(Child.class, o.getClass());
     }
 
     @Test
     void positiveWithManualDefault() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(ChildOfAbstract.class).readValue("{}");
 
-        assertEquals(o.getClass(), ChildOfChild.class);
+        assertEquals(ChildOfChild.class, o.getClass());
     }
 }

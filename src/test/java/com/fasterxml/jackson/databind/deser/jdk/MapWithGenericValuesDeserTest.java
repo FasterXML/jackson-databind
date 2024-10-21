@@ -117,7 +117,7 @@ class MapWithGenericValuesDeserTest extends DatabindTestUtil
         assertEquals(1, result.size());
         Object value = result.get("a");
         assertNotNull(value);
-        assertEquals(value.getClass(), StringWrapper.class);
+        assertEquals(StringWrapper.class, value.getClass());
         assertEquals("b", ((StringWrapper) value).str);
     }
 

@@ -322,7 +322,7 @@ class JsonValueSerializationTest
         bean.add(1);
         bean.add(2);
         String json = MAPPER.writeValueAsString(bean);
-        assertEquals(json, "{\"values\":[{\"i\":1},{\"i\":2}]}");
+        assertEquals("{\"values\":[{\"i\":1},{\"i\":2}]}", json);
     }
 
     // [databind#167]

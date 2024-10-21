@@ -554,8 +554,7 @@ class ExternalTypeIdTest extends DatabindTestUtil
                 .readValue(json);
 
         assertEquals(w.typeEnum, w2.typeEnum);
-        assertTrue(w.value.equals(w2.value),
-            String.format("Expected %s = %s; got back %s = %s",
+        assertEquals(w.value, w2.value, String.format("Expected %s = %s; got back %s = %s",
                 w.value.getClass().getSimpleName(), w.value.toString(), w2.value.getClass().getSimpleName(), w2.value.toString()));
     }
 
@@ -574,9 +573,8 @@ class ExternalTypeIdTest extends DatabindTestUtil
                 .readValue(json);
 
         assertEquals(w.typeEnum, w2.typeEnum);
-        assertTrue(w.value.equals(w2.value),
-            String.format("Expected %s = %s; got back %s = %s",
-                        w.value.getClass().getSimpleName(), w.value.toString(), w2.value.getClass().getSimpleName(), w2.value.toString()));
+        assertEquals(w.value, w2.value, String.format("Expected %s = %s; got back %s = %s",
+                w.value.getClass().getSimpleName(), w.value.toString(), w2.value.getClass().getSimpleName(), w2.value.toString()));
     }
 
     static class Box3008 {

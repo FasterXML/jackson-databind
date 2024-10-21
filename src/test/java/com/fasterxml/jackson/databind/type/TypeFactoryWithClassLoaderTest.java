@@ -48,7 +48,7 @@ class TypeFactoryWithClassLoaderTest {
 	assertNotNull(clazz);
 	assertEquals(classLoader, spySut.getClassLoader());
 //	assertEquals(typeModifier,spySut._modifiers[0]);
-	assertEquals(null, Thread.currentThread().getContextClassLoader());
+        assertNull(Thread.currentThread().getContextClassLoader());
   }
 
     @Test

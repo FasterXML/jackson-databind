@@ -271,7 +271,7 @@ class NumberNodesTest extends NodeTestBase
     {
         DecimalNode n = DecimalNode.valueOf(BigDecimal.ONE);
         assertStandardEquals(n);
-        assertTrue(n.equals(new DecimalNode(BigDecimal.ONE)));
+        assertEquals(n, new DecimalNode(BigDecimal.ONE));
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, n.asToken());
         assertEquals(JsonParser.NumberType.BIG_DECIMAL, n.numberType());
         assertTrue(n.isNumber());
@@ -355,7 +355,7 @@ class NumberNodesTest extends NodeTestBase
     {
         BigIntegerNode n = BigIntegerNode.valueOf(BigInteger.ONE);
         assertStandardEquals(n);
-        assertTrue(n.equals(new BigIntegerNode(BigInteger.ONE)));
+        assertEquals(n, new BigIntegerNode(BigInteger.ONE));
         assertEquals(JsonToken.VALUE_NUMBER_INT, n.asToken());
         assertEquals(JsonParser.NumberType.BIG_INTEGER, n.numberType());
         assertTrue(n.isNumber());

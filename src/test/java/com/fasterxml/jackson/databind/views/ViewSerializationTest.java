@@ -199,6 +199,6 @@ class ViewSerializationTest extends DatabindTestUtil
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
         String json = mapper.writerWithView(OtherView.class).writeValueAsString(new Foo());
-        assertEquals(json, "{}");
+        assertEquals("{}", json);
     }
 }

@@ -151,13 +151,13 @@ class JavaTypeTest extends DatabindTestUtil
         assertNotNull(arrayT.getContentType());
         assertNull(arrayT.getKeyType());
 
-        assertTrue(arrayT.equals(arrayT));
-        assertFalse(arrayT.equals(null));
+        assertEquals(arrayT, arrayT);
+        assertNotEquals(null, arrayT);
         final Object bogus = "xyz";
-        assertFalse(arrayT.equals(bogus));
+        assertNotEquals(arrayT, bogus);
 
-        assertTrue(arrayT.equals(ArrayType.construct(tf.constructType(String.class), null)));
-        assertFalse(arrayT.equals(ArrayType.construct(tf.constructType(Integer.class), null)));
+        assertEquals(arrayT, ArrayType.construct(tf.constructType(String.class), null));
+        assertNotEquals(arrayT, ArrayType.construct(tf.constructType(Integer.class), null));
     }
 
     @Test
@@ -177,10 +177,10 @@ class JavaTypeTest extends DatabindTestUtil
         assertEquals("Ljava/util/HashMap<Ljava/lang/Object;Ljava/lang/Object;>;", mapT.getGenericSignature());
         assertEquals("Ljava/util/HashMap;", mapT.getErasedSignature());
 
-        assertTrue(mapT.equals(mapT));
-        assertFalse(mapT.equals(null));
+        assertEquals(mapT, mapT);
+        assertNotEquals(null, mapT);
         Object bogus = "xyz";
-        assertFalse(mapT.equals(bogus));
+        assertNotEquals(mapT, bogus);
     }
 
     @Test
@@ -225,10 +225,10 @@ class JavaTypeTest extends DatabindTestUtil
     {
         ClassKey key = new ClassKey(String.class);
         assertEquals(0, key.compareTo(key));
-        assertTrue(key.equals(key));
-        assertFalse(key.equals(null));
-        assertFalse(key.equals("foo"));
-        assertFalse(key.equals(new ClassKey(Integer.class)));
+        assertEquals(key, key);
+        assertNotEquals(null, key);
+        assertNotEquals("foo", key);
+        assertNotEquals(key, new ClassKey(Integer.class));
         assertEquals(String.class.getName(), key.toString());
     }
 

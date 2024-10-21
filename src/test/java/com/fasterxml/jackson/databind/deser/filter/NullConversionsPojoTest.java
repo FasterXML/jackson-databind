@@ -195,7 +195,7 @@ class NullConversionsPojoTest
 
         Issue3645BeanA actual = MAPPER.readValue(json, Issue3645BeanA.class);
 
-        assertEquals(actual.name, "Computer");
+        assertEquals("Computer", actual.name);
         assertTrue(actual.prices.isEmpty());
     }
 
@@ -206,7 +206,7 @@ class NullConversionsPojoTest
 
         Issue3645BeanA actual = MAPPER.readValue(json, Issue3645BeanA.class);
 
-        assertEquals(actual.name, "Computer");
+        assertEquals("Computer", actual.name);
         assertTrue(actual.prices.isEmpty());
     }
 }

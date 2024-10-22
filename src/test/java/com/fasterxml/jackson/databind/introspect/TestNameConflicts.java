@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -124,12 +125,9 @@ class TestNameConflicts extends DatabindTestUtil
         assertEquals(a2q("{'bar':'x'}"), json);
 
         // and back
-        CoreBean158 result = null;
-        try {
-            result = mapper.readValue(a2q("{'bar':'y'}"), CoreBean158.class);
-        } catch (Exception e) {
-            fail("Unexpected failure when reading CoreBean158: "+e);
-        }
+        CoreBean158 result = assertDoesNotThrow(
+                () -> mapper.readValue(a2q("{'bar':'y'}"), CoreBean158.class),
+                "Unexpected failure when reading CoreBean158: ");
         assertNotNull(result);
         assertEquals("y", result.bar);
     }

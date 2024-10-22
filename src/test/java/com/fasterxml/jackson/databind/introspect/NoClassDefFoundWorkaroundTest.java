@@ -24,38 +24,30 @@ class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
     @Test
     void classIsMissing()
     {
-        try {
-            Class.forName("javax.measure.Measure");
-            fail("Should not have found javax.measure.Measure");
-        } catch (ClassNotFoundException ex) {
-            ; // expected case
-        }
+        assertThrows(
+                ClassNotFoundException.class,
+                () -> Class.forName("javax.measure.Measure"),
+                "Should not have found javax.measure.Measure");
     }
 
     @Test
-    void deserialize() throws Exception
+    void deserialize()
     {
         ObjectMapper m = new ObjectMapper();
-        Parent result = null;
-
-        try {
-            result = m.readValue(" { } ", Parent.class);
-        } catch (Exception e) {
-            fail("Should not have had issues, got: "+e);
-        }
+        Parent result = assertDoesNotThrow(
+                () -> m.readValue(" { } ", Parent.class),
+                "Should not have had issues, got: ");
         assertNotNull(result);
     }
 
     @Test
-    void useMissingClass() throws Exception
+    void useMissingClass()
     {
-        boolean missing = false;
-        try {
-            ObjectMapper m = new ObjectMapper();
-            m.readValue(" { \"child\" : [{}] } ", Parent.class);
-        } catch (NoClassDefFoundError ex) {
-            missing = true;
-        }
-        assertTrue(missing, "cannot instantiate a missing class");
+        ObjectMapper m = new ObjectMapper();
+        assertThrows(
+                NoClassDefFoundError.class,
+                () -> m.readValue(" { \"child\" : [{}] } ", Parent.class),
+                "cannot instantiate a missing class"
+        );
     }
 }

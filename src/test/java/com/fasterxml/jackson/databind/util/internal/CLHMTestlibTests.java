@@ -1,10 +1,9 @@
 package com.fasterxml.jackson.databind.util.internal;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public final class CLHMTestlibTests extends TestCase {
+public final class CLHMTestlibTests {
 
     public static Test suite() {
         TestSuite suite = new TestSuite();

@@ -331,17 +331,9 @@
               <release>11</release>
               <compilerArgs>
                 <arg>-parameters</arg>
-                <arg>--enable-preview</arg>
               </compilerArgs>
               <fork>true</fork>
               <useIncrementalCompilation>true</useIncrementalCompilation>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <argLine>--enable-preview</argLine>
             </configuration>
           </plugin>
         </plugins>

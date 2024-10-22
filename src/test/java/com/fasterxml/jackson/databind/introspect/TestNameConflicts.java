@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;

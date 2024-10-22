@@ -6,7 +6,6 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
@@ -14,7 +13,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;

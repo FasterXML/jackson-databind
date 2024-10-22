@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 

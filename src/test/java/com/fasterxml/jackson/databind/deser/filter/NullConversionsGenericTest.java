@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.Point;
 
 import static org.junit.jupiter.api.Assertions.*;
 

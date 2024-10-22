@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.EnumWithSubClass;
 
 import static org.junit.jupiter.api.Assertions.*;
 

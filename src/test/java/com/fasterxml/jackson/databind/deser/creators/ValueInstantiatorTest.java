@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 

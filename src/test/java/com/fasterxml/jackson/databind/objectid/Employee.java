@@ -1,28 +1,27 @@
 package com.fasterxml.jackson.databind.objectid;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@JsonIdentityInfo(property = "id",
-        generator = ObjectIdGenerators.PropertyGenerator.class)
+// Value class used by ObjectId tests
+@JsonIdentityInfo(property="id",
+        generator=ObjectIdGenerators.PropertyGenerator.class)
 public class Employee {
     public int id;
 
     public String name;
 
-    @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityReference(alwaysAsId=true)
     public Employee manager;
 
-    @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityReference(alwaysAsId=true)
     public List<Employee> reports;
 
-    public Employee() {
-    }
-
+    public Employee() { }
     public Employee(int id, String name, Employee manager) {
         this.id = id;
         this.name = name;

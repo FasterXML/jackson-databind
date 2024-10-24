@@ -2,7 +2,6 @@ package tools.jackson.databind.tofix;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.type.TypeReference;
@@ -12,6 +11,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4680] Custom key deserialiser registered for `Object.class` is ignored on nested JSON
 public class CustomObjectKeyDeserializer4680Test
@@ -58,15 +59,15 @@ public class CustomObjectKeyDeserializer4680Test
 
         // THEN
         // depth 1 works as expected
-        Assertions.assertEquals("Erik", result.get("name_"));
+        assertEquals("Erik", result.get("name_"));
 
         // before fix, depth 2 does NOT work as expected
         Map<String, Object> addressMap = (Map<String, Object>) result.get("address_");
         // before fix, null?? Fails here
-        Assertions.assertEquals("Elvirastr", addressMap.get("street_"));
+        assertEquals("Elvirastr", addressMap.get("street_"));
         Map<String, Object> cityMap = (Map<String, Object>) addressMap.get("city_");
-        Assertions.assertEquals(1, cityMap.get("id_"));
-        Assertions.assertEquals("Berlin", cityMap.get("name_"));
+        assertEquals(1, cityMap.get("id_"));
+        assertEquals("Berlin", cityMap.get("name_"));
     }
 
 }

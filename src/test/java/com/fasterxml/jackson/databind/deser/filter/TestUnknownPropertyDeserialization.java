@@ -213,9 +213,7 @@ class TestUnknownPropertyDeserialization
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        TestBean result = assertDoesNotThrow(
-                () -> mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class),
-                "Did not expect a problem, got: ");
+        TestBean result = mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
         assertNotNull(result);
         assertEquals(1, result._a);
         assertNull(result._unknown);

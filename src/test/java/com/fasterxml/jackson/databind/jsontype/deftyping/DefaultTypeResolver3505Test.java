@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.DeserializationConfig;
@@ -13,7 +15,6 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -62,23 +63,18 @@ public class DefaultTypeResolver3505Test
     }
 
     @Test
-    public void testDeductionWithDefaultTypeResolverBuilder() {
+    public void testDeductionWithDefaultTypeResolverBuilder() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(Parent.ChildOne.class, Parent.ChildTwo.class)
                 .setDefaultTyping(new AssertingTypeResolverBuilder()
                         .init(JsonTypeInfo.Id.DEDUCTION, null))
                 .build();
 
-        final Parent firstRead = assertDoesNotThrow(
-                () -> mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class),
-                "This call should not throw");
+        final Parent firstRead = mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class);
         assertNotNull(firstRead);
         assertInstanceOf(Parent.ChildOne.class, firstRead);
         assertEquals("Hello World", ((Parent.ChildOne) firstRead).one);
-
-        final Parent secondRead = assertDoesNotThrow(
-               () -> mapper.readValue("{ \"two\": \"Hello World\" }", Parent.class),
-               "This call should not throw");
+        final Parent secondRead = mapper.readValue("{ \"two\": \"Hello World\" }", Parent.class);
         assertNotNull(secondRead);
         assertInstanceOf(Parent.ChildTwo.class, secondRead);
         assertEquals("Hello World", ((Parent.ChildTwo) secondRead).two);

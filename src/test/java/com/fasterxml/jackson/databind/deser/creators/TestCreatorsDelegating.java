@@ -186,9 +186,7 @@ class TestCreatorsDelegating
         mapper.setInjectableValues(new InjectableValues.Std()
             .addValue(String.class, "Pooka")
             );
-        CtorBean711 bean = assertDoesNotThrow(
-                () -> mapper.readValue("38", CtorBean711.class),
-                "Did not expect problems, got: ");
+        CtorBean711 bean = mapper.readValue("38", CtorBean711.class);
         assertEquals(38, bean.age);
         assertEquals("Pooka", bean.name);
     }
@@ -200,9 +198,7 @@ class TestCreatorsDelegating
         mapper.setInjectableValues(new InjectableValues.Std()
             .addValue(String.class, "Fygar")
             );
-        FactoryBean711 bean = assertDoesNotThrow(
-                () -> mapper.readValue("38", FactoryBean711.class),
-                "Did not expect problems, got: ");
+        FactoryBean711 bean = mapper.readValue("38", FactoryBean711.class);
         assertEquals(38, bean.age);
         assertEquals("Fygar", bean.name1);
         assertEquals("Fygar", bean.name2);

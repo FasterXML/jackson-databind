@@ -96,7 +96,7 @@ class TestNameConflicts extends DatabindTestUtil
     @Test
     void issue193() throws Exception
     {
-        String json = objectWriter().writeValueAsString(new Bean193(1, 2));
+        String json = MAPPER.writeValueAsString(new Bean193(1, 2));
         assertNotNull(json);
     }
 
@@ -111,7 +111,7 @@ class TestNameConflicts extends DatabindTestUtil
     @Test
     void hypotheticalGetters() throws Exception
     {
-        String json = objectWriter().writeValueAsString(new MultipleTheoreticalGetters());
+        String json = MAPPER.writeValueAsString(new MultipleTheoreticalGetters());
         assertEquals(a2q("{'a':3}"), json);
     }
 
@@ -119,14 +119,11 @@ class TestNameConflicts extends DatabindTestUtil
     @Test
     void overrideName() throws Exception
     {
-        final ObjectMapper mapper = newJsonMapper();
-        String json = mapper.writeValueAsString(new CoreBean158());
+        String json = MAPPER.writeValueAsString(new CoreBean158());
         assertEquals(a2q("{'bar':'x'}"), json);
 
         // and back
-        CoreBean158 result = assertDoesNotThrow(
-                () -> mapper.readValue(a2q("{'bar':'y'}"), CoreBean158.class),
-                "Unexpected failure when reading CoreBean158: ");
+        CoreBean158 result = MAPPER.readValue(a2q("{'bar':'y'}"), CoreBean158.class);
         assertNotNull(result);
         assertEquals("y", result.bar);
     }

@@ -14,7 +14,9 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SingleValueAsArrayTest extends DatabindTestUtil
 {
@@ -104,6 +106,6 @@ public class SingleValueAsArrayTest extends DatabindTestUtil
 
         boolean[] b = MAPPER.readValue("true", boolean[].class);
         assertEquals(1, d.length);
-        assertEquals(true, b[0]);
+        assertTrue(b[0]);
     }
 }

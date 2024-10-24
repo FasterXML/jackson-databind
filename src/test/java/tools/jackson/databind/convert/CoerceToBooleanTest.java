@@ -195,14 +195,14 @@ public class CoerceToBooleanTest
         final ObjectReader r = DEFAULT_MAPPER.readerFor(BooleanPOJO.class);
 
         p = r.readValue(DOC_WITH_0);
-        assertEquals(false, p.value);
+        assertFalse(p.value);
         p = r.readValue(utf8Bytes(DOC_WITH_0));
-        assertEquals(false, p.value);
+        assertFalse(p.value);
 
         p = r.readValue(DOC_WITH_1);
-        assertEquals(true, p.value);
+        assertTrue(p.value);
         p = r.readValue(utf8Bytes(DOC_WITH_1));
-        assertEquals(true, p.value);
+        assertTrue(p.value);
     }
 
     @Test
@@ -221,12 +221,12 @@ public class CoerceToBooleanTest
 
         ab = atomicR.readValue(" 0");
         ab = atomicR.readValue(utf8Bytes(" 0"));
-        assertEquals(false, ab.get());
+        assertFalse(ab.get());
 
         ab = atomicR.readValue(" 111");
-        assertEquals(true, ab.get());
+        assertTrue(ab.get());
         ab = atomicR.readValue(utf8Bytes(" 111"));
-        assertEquals(true, ab.get());
+        assertTrue(ab.get());
     }
 
     // Test for verifying that Long values are coerced to boolean correctly as well

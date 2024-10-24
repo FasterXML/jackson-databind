@@ -946,6 +946,20 @@ public class POJOPropertyBuilder
         if (acc == null) {
             acc = JsonProperty.Access.AUTO;
         }
+
+        // [databind#2951] add feature to inverse access logic
+        if (_config.isEnabled(MapperFeature.INVERSE_READ_WRITE_ACCESS)) {
+            switch (acc) {
+            case READ_ONLY:
+                acc = JsonProperty.Access.WRITE_ONLY;
+                break;
+            case WRITE_ONLY:
+                acc = JsonProperty.Access.READ_ONLY;
+                break;
+            default:
+            }
+        }
+
         switch (acc) {
         case READ_ONLY:
             // [databind#2719]: Need to add ignorals, first, keeping in mind

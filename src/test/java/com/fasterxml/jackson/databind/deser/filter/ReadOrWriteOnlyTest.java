@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,6 +34,15 @@ public class ReadOrWriteOnlyTest
         public int getY() {
             throw new Error("Should NOT get y");
         }
+    }
+
+    // for [databind#2951], add feature to inverse access logic
+    static class ReadAWriteB {
+        @JsonProperty(access=JsonProperty.Access.READ_ONLY)
+        public int a = 1;
+
+        @JsonProperty(access=JsonProperty.Access.WRITE_ONLY)
+        public int b = 2;
     }
 
     public static class Pojo935
@@ -149,6 +159,22 @@ public class ReadOrWriteOnlyTest
         assertNotNull(result);
         assertEquals(1, result.x);
         assertEquals(6, result.y);
+    }
+
+    // [databind#2951] add feature to inverse access logic
+    @Test
+    public void testInverseReadOnlyAndWriteOnly() throws Exception {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.INVERSE_READ_WRITE_ACCESS)
+                .build();
+
+        String json = mapper.writeValueAsString(new ReadAWriteB());
+        assertEquals("{\"b\":2}", json);
+
+        ReadAWriteB result = mapper.readValue("{\"a\":5, \"b\":6}", ReadAWriteB.class);
+        assertNotNull(result);
+        assertEquals(5, result.a);
+        assertEquals(2, result.b);
     }
 
     @Test

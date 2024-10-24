@@ -20,11 +20,11 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Additional tests for {@link ArrayNode} container class.
  */
-public class ArrayNodeTest
-    extends DatabindTestUtil
+class ArrayNodeTest
+        extends DatabindTestUtil
 {
     @Test
-    public void testDirectCreation() throws IOException
+    void directCreation() throws IOException
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
 
@@ -74,7 +74,7 @@ public class ArrayNodeTest
         // and finally, clear it all
         ArrayNode n2 = new ArrayNode(JsonNodeFactory.instance);
         n2.add("foobar");
-        assertFalse(n.equals(n2));
+        assertNotEquals(n, n2);
         n.addAll(n2);
         assertEquals(3, n.size());
 
@@ -108,7 +108,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testDirectCreation2() throws IOException
+    void directCreation2() throws IOException
     {
         JsonNodeFactory f = objectMapper().getNodeFactory();
         ArrayList<JsonNode> list = new ArrayList<>();
@@ -139,7 +139,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testArraySet() throws IOException {
+    void arraySet() throws IOException {
         final ArrayNode array = JsonNodeFactory.instance.arrayNode();
         for (int i = 0; i < 20; i++) {
             array.add("Original Data");
@@ -196,7 +196,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testArrayViaMapper() throws Exception
+    void arrayViaMapper() throws Exception
     {
         final String JSON = "[[[-0.027512,51.503221],[-0.008497,51.503221],[-0.008497,51.509744],[-0.027512,51.509744]]]";
 
@@ -211,7 +211,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testAdds()
+    void adds()
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
         assertNotNull(n.addArray());
@@ -237,7 +237,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testNullAdds()
+    void nullAdds()
     {
         JsonNodeFactory f = objectMapper().getNodeFactory();
         ArrayNode array = f.arrayNode(14);
@@ -261,7 +261,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testAddAllWithNullInCollection()
+    void addAllWithNullInCollection()
     {
         // preparation
         final ArrayNode array = JsonNodeFactory.instance.arrayNode();
@@ -279,7 +279,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testNullInserts()
+    void nullInserts()
     {
         JsonNodeFactory f = objectMapper().getNodeFactory();
         ArrayNode array = f.arrayNode(3);
@@ -305,7 +305,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testNullSet()
+    void nullSet()
     {
         JsonNodeFactory f = objectMapper().getNodeFactory();
         ArrayNode array = f.arrayNode(3);
@@ -341,7 +341,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testNullChecking()
+    void nullChecking()
     {
         ArrayNode a1 = JsonNodeFactory.instance.arrayNode();
         ArrayNode a2 = JsonNodeFactory.instance.arrayNode();
@@ -356,7 +356,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testNullChecking2()
+    void nullChecking2()
     {
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode src = mapper.createArrayNode();
@@ -366,7 +366,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testParser() throws Exception
+    void parser() throws Exception
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
         n.add(123);
@@ -397,27 +397,27 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testArrayNodeEquality()
+    void arrayNodeEquality()
     {
         ArrayNode n1 = new ArrayNode(null);
         ArrayNode n2 = new ArrayNode(null);
 
-        assertTrue(n1.equals(n2));
-        assertTrue(n2.equals(n1));
+        assertEquals(n1, n2);
+        assertEquals(n2, n1);
 
         n1.add(TextNode.valueOf("Test"));
 
-        assertFalse(n1.equals(n2));
-        assertFalse(n2.equals(n1));
+        assertNotEquals(n1, n2);
+        assertNotEquals(n2, n1);
 
         n2.add(TextNode.valueOf("Test"));
 
-        assertTrue(n1.equals(n2));
-        assertTrue(n2.equals(n1));
+        assertEquals(n1, n2);
+        assertEquals(n2, n1);
     }
 
     @Test
-    public void testSimpleArray() throws Exception
+    void simpleArray() throws Exception
     {
         ArrayNode result = objectMapper().createArrayNode();
 
@@ -435,7 +435,7 @@ public class ArrayNodeTest
 
         // should be equal to itself no matter what
         assertEquals(result, result);
-        assertFalse(result.equals(null)); // but not to null
+        assertNotEquals(null, result); // but not to null
 
         // plus see that we can access stuff
         assertEquals(NullNode.instance, result.path(0));
@@ -461,7 +461,7 @@ public class ArrayNodeTest
         assertEquals(NullNode.instance, rm1);
         assertEquals(1, array2.size());
         assertEquals(BooleanNode.FALSE, array2.get(0));
-        assertFalse(result.equals(array2));
+        assertNotEquals(result, array2);
 
         JsonNode rm2 = array2.remove(0);
         assertEquals(BooleanNode.FALSE, rm2);
@@ -469,7 +469,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testSimpleMismatch() throws Exception
+    void simpleMismatch() throws Exception
     {
         ObjectMapper mapper = objectMapper();
         try {

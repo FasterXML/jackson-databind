@@ -7,10 +7,10 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class LRUMapTest extends DatabindTestUtil
+class LRUMapTest extends DatabindTestUtil
 {
     @Test
-    public void testPutGet() {
+    void putGet() {
         LRUMap<String, Integer> m = new LRUMap<>(5, 5);
 
         assertEquals(0, m.size());
@@ -25,7 +25,7 @@ public class LRUMapTest extends DatabindTestUtil
     }
 
     @Test
-    public void testEviction() {
+    void eviction() {
         LRUMap<String, Integer> m = new LRUMap<>(5, 5);
 
         assertEquals(0, m.size());
@@ -51,7 +51,7 @@ public class LRUMapTest extends DatabindTestUtil
     }
 
     @Test
-    public void testJDKSerialization() throws Exception
+    void jdkSerialization() throws Exception
     {
         final int maxEntries = 32;
         LRUMap<String,Integer> map = new LRUMap<String,Integer>(16, maxEntries);

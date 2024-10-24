@@ -7,9 +7,10 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class ObjectIdWithInjectables538Test extends DatabindTestUtil
+class ObjectIdWithInjectables538Test extends DatabindTestUtil
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     public static class A {
@@ -37,7 +38,7 @@ public class ObjectIdWithInjectables538Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testWithInjectables538() throws Exception
+    void withInjectables538() throws Exception
     {
         A a = new A("a");
         B b = new B("b");

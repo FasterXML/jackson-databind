@@ -16,14 +16,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for verifying serialization of {@link java.util.concurrent.atomic.AtomicReference}
  * and other atomic types, via various settings.
  */
-public class AtomicTypeSerializationTest
-    extends DatabindTestUtil
+class AtomicTypeSerializationTest
+        extends DatabindTestUtil
 {
 
     @SuppressWarnings("serial")
@@ -101,34 +101,34 @@ public class AtomicTypeSerializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testAtomicBoolean() throws Exception
+    void atomicBoolean() throws Exception
     {
         assertEquals("true", MAPPER.writeValueAsString(new AtomicBoolean(true)));
         assertEquals("false", MAPPER.writeValueAsString(new AtomicBoolean(false)));
     }
 
     @Test
-    public void testAtomicInteger() throws Exception
+    void atomicInteger() throws Exception
     {
         assertEquals("1", MAPPER.writeValueAsString(new AtomicInteger(1)));
         assertEquals("-9", MAPPER.writeValueAsString(new AtomicInteger(-9)));
     }
 
     @Test
-    public void testAtomicLong() throws Exception
+    void atomicLong() throws Exception
     {
         assertEquals("0", MAPPER.writeValueAsString(new AtomicLong(0)));
     }
 
     @Test
-    public void testAtomicReference() throws Exception
+    void atomicReference() throws Exception
     {
         String[] strs = new String[] { "abc" };
         assertEquals("[\"abc\"]", MAPPER.writeValueAsString(new AtomicReference<String[]>(strs)));
     }
 
     @Test
-    public void testCustomSerializer() throws Exception
+    void customSerializer() throws Exception
     {
         final String VALUE = "fooBAR";
         String json = MAPPER.writeValueAsString(new UCStringWrapper(VALUE));
@@ -136,7 +136,7 @@ public class AtomicTypeSerializationTest
     }
 
     @Test
-    public void testContextualAtomicReference() throws Exception
+    void contextualAtomicReference() throws Exception
     {
         SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -154,7 +154,7 @@ public class AtomicTypeSerializationTest
 
     // [databind#1673]
     @Test
-    public void testPolymorphicReferenceSimple() throws Exception
+    void polymorphicReferenceSimple() throws Exception
     {
         final String EXPECTED = "{\"type\":\"Foo\",\"foo\":42}";
         String json = MAPPER.writeValueAsString(new ContainerA());
@@ -163,7 +163,7 @@ public class AtomicTypeSerializationTest
 
     // [databind#1673]
     @Test
-    public void testPolymorphicReferenceListOf() throws Exception
+    void polymorphicReferenceListOf() throws Exception
     {
         final String EXPECTED = "{\"type\":\"Foo\",\"foo\":42}";
         // Reproduction of issue seen with scala.Option and java8 Optional types:
@@ -174,7 +174,7 @@ public class AtomicTypeSerializationTest
 
     // [databind#2565]: problems with JsonUnwrapped, non-unwrappable type
     @Test
-    public void testWithUnwrappableUnwrapped() throws Exception
+    void withUnwrappableUnwrapped() throws Exception
     {
         assertEquals(a2q("{'maybeText':'value'}"),
                 MAPPER.writeValueAsString(new MyBean2565()));

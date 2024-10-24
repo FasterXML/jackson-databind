@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.UUIDDeserializer;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests for [databind#4394]
-public class UUIDDeserializer4394Test
+class UUIDDeserializer4394Test
 {
     private static final UUID TEST_UUID = UUID.fromString("a7161c6c-be14-4ae3-a3c4-f27c2b2c6ef4");
 
@@ -31,27 +31,27 @@ public class UUIDDeserializer4394Test
     }
   
     @Test
-    void testCanDeserializeUUIDFromString() throws Exception {
+    void canDeserializeUUIDFromString() throws Exception {
         assertEquals(TEST_UUID, UUID_DESERIALIZER._deserialize(TEST_UUID.toString(), null));
     }
 
     @Test
-    void testCanDeserializeUUIDFromBase64() throws Exception {
+    void canDeserializeUUIDFromBase64() throws Exception {
         assertEquals(TEST_UUID, UUID_DESERIALIZER._deserialize(Base64.getEncoder().encodeToString(getBytesFromUUID(TEST_UUID)), null));
     }
 
     @Test
-    void testCanDeserializeUUIDFromBase64WithoutPadding() throws Exception {
+    void canDeserializeUUIDFromBase64WithoutPadding() throws Exception {
         assertEquals(TEST_UUID, UUID_DESERIALIZER._deserialize(Base64.getEncoder().withoutPadding().encodeToString(getBytesFromUUID(TEST_UUID)), null));
     }
 
     @Test
-    void testCanDeserializeUUIDFromBase64Url() throws Exception {
+    void canDeserializeUUIDFromBase64Url() throws Exception {
         assertEquals(TEST_UUID, UUID_DESERIALIZER._deserialize(Base64.getUrlEncoder().encodeToString(getBytesFromUUID(TEST_UUID)), null));
     }
 
     @Test
-    void testCanDeserializeUUIDFromBase64UrlWithoutPadding() throws Exception {
+    void canDeserializeUUIDFromBase64UrlWithoutPadding() throws Exception {
         assertEquals(TEST_UUID, UUID_DESERIALIZER._deserialize(Base64.getUrlEncoder().withoutPadding().encodeToString(getBytesFromUUID(TEST_UUID)), null));
     }
 

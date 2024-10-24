@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class UnwrappedCreatorParam265Test extends DatabindTestUtil
+class UnwrappedCreatorParam265Test extends DatabindTestUtil
 {
     static class JAddress {
         public String address;
@@ -72,7 +72,7 @@ public class UnwrappedCreatorParam265Test extends DatabindTestUtil
 
     // For [databind#265]: handle problem by throwing exception
     @Test
-    public void testUnwrappedWithUnnamedCreatorParam() throws Exception
+    void unwrappedWithUnnamedCreatorParam() throws Exception
     {
         JPersonWithoutName person = new JPersonWithoutName("MyName", new JAddress("main street", "springfield", "WA"));
         ObjectMapper mapper = newJsonMapper();
@@ -91,7 +91,7 @@ public class UnwrappedCreatorParam265Test extends DatabindTestUtil
 
     // For [databind#265]: handle problem by throwing exception
     @Test
-    public void testUnwrappedWithNamedCreatorParam() throws Exception
+    void unwrappedWithNamedCreatorParam() throws Exception
     {
         JPersonWithName person = new JPersonWithName("MyName", new JAddress("main street", "springfield", "WA"));
         ObjectMapper mapper = newJsonMapper();

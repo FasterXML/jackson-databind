@@ -9,10 +9,10 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PropertyMetadataTest extends DatabindTestUtil
+class PropertyMetadataTest extends DatabindTestUtil
 {
     @Test
-    public void testPropertyName()
+    void propertyName()
     {
         PropertyName name = PropertyName.NO_NAME;
 
@@ -30,9 +30,9 @@ public class PropertyMetadataTest extends DatabindTestUtil
 
         PropertyName newName = name.withNamespace("");
         assertNotSame(name, newName);
-        assertTrue(name.equals(name));
-        assertFalse(name.equals(newName));
-        assertFalse(newName.equals(name));
+        assertEquals(name, name);
+        assertNotEquals(name, newName);
+        assertNotEquals(newName, name);
 
         name = name.withSimpleName("foo");
         assertEquals("foo", name.toString());
@@ -40,15 +40,15 @@ public class PropertyMetadataTest extends DatabindTestUtil
         assertFalse(name.isEmpty());
         newName = name.withNamespace("ns");
         assertEquals("{ns}foo", newName.toString());
-        assertFalse(newName.equals(name));
-        assertFalse(name.equals(newName));
+        assertNotEquals(newName, name);
+        assertNotEquals(name, newName);
 
         // just to trigger it, ensure to exception
         name.hashCode();
     }
 
     @Test
-    public void testPropertyMetadata()
+    void propertyMetadata()
     {
         PropertyMetadata md = PropertyMetadata.STD_OPTIONAL;
         assertNull(md.getValueNulls());

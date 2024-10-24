@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.Point;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,7 +18,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // for [databind#1402]; configurable null handling, for values themselves,
 // using generic types
-public class NullConversionsGenericTest
+class NullConversionsGenericTest
 {
     static class GeneralEmpty<T> {
         // 09-Feb-2017, tatu: Should only need annotation either for field OR setter, not both:
@@ -50,7 +49,7 @@ public class NullConversionsGenericTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testNullsToEmptyPojo() throws Exception
+    void nullsToEmptyPojo() throws Exception
     {
         GeneralEmpty<Point> result = MAPPER.readValue(a2q("{'value':null}"),
                 new TypeReference<GeneralEmpty<Point>>() { });
@@ -71,7 +70,7 @@ public class NullConversionsGenericTest
 
     // [databind#2023] two-part coercion from "" to `null` to skip/empty/exception should work
     @Test
-    public void testEmptyStringToNullToEmptyPojo() throws Exception
+    void emptyStringToNullToEmptyPojo() throws Exception
     {
         GeneralEmpty<Point> result = MAPPER.readerFor(new TypeReference<GeneralEmpty<Point>>() { })
                 .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
@@ -83,7 +82,7 @@ public class NullConversionsGenericTest
     }
 
     @Test
-    public void testNullsToEmptyCollection() throws Exception
+    void nullsToEmptyCollection() throws Exception
     {
         GeneralEmpty<List<String>> result = MAPPER.readValue(a2q("{'value':null}"),
                 new TypeReference<GeneralEmpty<List<String>>>() { });
@@ -98,7 +97,7 @@ public class NullConversionsGenericTest
     }
 
     @Test
-    public void testNullsToEmptyMap() throws Exception
+    void nullsToEmptyMap() throws Exception
     {
         GeneralEmpty<Map<String,String>> result = MAPPER.readValue(a2q("{'value':null}"),
                 new TypeReference<GeneralEmpty<Map<String,String>>>() { });
@@ -107,7 +106,7 @@ public class NullConversionsGenericTest
     }
 
     @Test
-    public void testNullsToEmptyArrays() throws Exception
+    void nullsToEmptyArrays() throws Exception
     {
         final String json = a2q("{'value':null}");
 

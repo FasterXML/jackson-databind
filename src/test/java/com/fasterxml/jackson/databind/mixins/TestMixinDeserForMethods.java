@@ -10,10 +10,11 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestMixinDeserForMethods
-    extends DatabindTestUtil
+class TestMixinDeserForMethods
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -48,7 +49,7 @@ public class TestMixinDeserForMethods
      * annotation, as expected.
      */
     @Test
-    public void testWithAnySetter() throws IOException
+    void withAnySetter() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(BaseClass.class, MixIn.class);

@@ -10,7 +10,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // [databind#3234]
-public class CoerceEmptyToInt3234Test
+class CoerceEmptyToInt3234Test
 {
     static class BasicIntWrapper {
         public int value = 13;
@@ -32,14 +32,14 @@ public class CoerceEmptyToInt3234Test
     // // // Ints
 
     @Test
-    public void testSimpleIntFromEmpty() throws Exception
+    void simpleIntFromEmpty() throws Exception
     {
         BasicIntWrapper w = READER_INT_BASIC.readValue(a2q("{'value':''}"));
         assertEquals(0, w.value);
     }
 
     @Test
-    public void testSimpleIntFromBlank() throws Exception
+    void simpleIntFromBlank() throws Exception
     {
         BasicIntWrapper w = READER_INT_BASIC.readValue(a2q("{'value':' '}"));
         assertEquals(0, w.value);
@@ -48,14 +48,14 @@ public class CoerceEmptyToInt3234Test
     // // // Long
 
     @Test
-    public void testSimpleLongFromEmpty() throws Exception
+    void simpleLongFromEmpty() throws Exception
     {
         BasicLongWrapper w = READER_LONG_BASIC.readValue(a2q("{'value':''}"));
         assertEquals(0L, w.value);
     }
 
     @Test
-    public void testSimpleLongFromBlank() throws Exception
+    void simpleLongFromBlank() throws Exception
     {
         BasicLongWrapper w = READER_LONG_BASIC.readValue(a2q("{'value':' '}"));
         assertEquals(0L, w.value);
@@ -64,14 +64,14 @@ public class CoerceEmptyToInt3234Test
     // // // Double
 
     @Test
-    public void testSimpleDoublegFromEmpty() throws Exception
+    void simpleDoublegFromEmpty() throws Exception
     {
         BasicDoubleWrapper w = READER_DOUBLE_BASIC.readValue(a2q("{'value':''}"));
         assertEquals((double) 0, w.value);
     }
 
     @Test
-    public void testSimpleDoubleFromBlank() throws Exception
+    void simpleDoubleFromBlank() throws Exception
     {
         BasicDoubleWrapper w = READER_DOUBLE_BASIC.readValue(a2q("{'value':' '}"));
         assertEquals((double) 0, w.value);

@@ -13,13 +13,14 @@ import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests to verify functioning of {@link PropertyNamingStrategy}.
  */
 @SuppressWarnings("serial")
-public class TestNamingStrategyCustom extends DatabindTestUtil
+class TestNamingStrategyCustom extends DatabindTestUtil
 {
     /*
     /**********************************************************************
@@ -175,7 +176,7 @@ public class TestNamingStrategyCustom extends DatabindTestUtil
      */
 
     @Test
-    public void testSimpleGetters() throws Exception
+    void simpleGetters() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(new PrefixStrategy());
@@ -183,7 +184,7 @@ public class TestNamingStrategyCustom extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleSetters() throws Exception
+    void simpleSetters() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(new PrefixStrategy());
@@ -192,7 +193,7 @@ public class TestNamingStrategyCustom extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleFields() throws Exception
+    void simpleFields() throws Exception
     {
         // First serialize
         ObjectMapper mapper = new ObjectMapper();
@@ -206,7 +207,7 @@ public class TestNamingStrategyCustom extends DatabindTestUtil
     }
 
     @Test
-    public void testCStyleNaming() throws Exception
+    void cStyleNaming() throws Exception
     {
         // First serialize
         ObjectMapper mapper = new ObjectMapper();
@@ -222,7 +223,7 @@ public class TestNamingStrategyCustom extends DatabindTestUtil
     }
 
     @Test
-    public void testWithGetterAsSetter() throws Exception
+    void withGetterAsSetter() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(new CStyleStrategy());
@@ -237,7 +238,7 @@ public class TestNamingStrategyCustom extends DatabindTestUtil
     }
 
     @Test
-    public void testLowerCase() throws Exception
+    void lowerCase() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(new LcStrategy());
@@ -251,7 +252,7 @@ public class TestNamingStrategyCustom extends DatabindTestUtil
 
     // @JsonNaming / [databind#45]
     @Test
-    public void testPerClassAnnotation() throws Exception
+    void perClassAnnotation() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(new LcStrategy());

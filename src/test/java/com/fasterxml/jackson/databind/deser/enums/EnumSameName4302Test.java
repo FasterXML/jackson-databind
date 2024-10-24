@@ -9,8 +9,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4302]
-public class EnumSameName4302Test
-    extends DatabindTestUtil
+class EnumSameName4302Test
+        extends DatabindTestUtil
 {
     enum Field4302Enum {
         FOO(0);
@@ -64,7 +64,7 @@ public class EnumSameName4302Test
         .build();
 
     @Test
-    void testStandaloneShouldWork() throws Exception
+    void standaloneShouldWork() throws Exception
     {
         // First, try roundtrip with same-ignore-case name field
         assertEquals(Field4302Enum.FOO,
@@ -87,7 +87,7 @@ public class EnumSameName4302Test
     }
 
     @Test
-    void testWrappedShouldWork() throws Exception
+    void wrappedShouldWork() throws Exception
     {
         // First, try roundtrip with same-ignore-case name field
         Field4302Wrapper input = new Field4302Wrapper(Field4302Enum.FOO);

@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DeserializationConfigTest extends DatabindTestUtil
+class DeserializationConfigTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testFeatureDefaults()
+    void featureDefaults()
     {
         ObjectMapper m = new ObjectMapper();
         DeserializationConfig cfg = m.getDeserializationConfig();
@@ -37,7 +37,7 @@ public class DeserializationConfigTest extends DatabindTestUtil
     }
 
     @Test
-    public void testBasicFeatures() throws Exception
+    void basicFeatures() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();
         assertTrue(config.hasDeserializationFeatures(DeserializationFeature.EAGER_DESERIALIZER_FETCH.getMask()));
@@ -65,7 +65,7 @@ public class DeserializationConfigTest extends DatabindTestUtil
     }
 
     @Test
-    public void testParserFeatures() throws Exception
+    void parserFeatures() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();
         assertNotSame(config, config.with(JsonReadFeature.ALLOW_JAVA_COMMENTS));
@@ -78,7 +78,7 @@ public class DeserializationConfigTest extends DatabindTestUtil
     }
 
     @Test
-    public void testFormatFeatures() throws Exception
+    void formatFeatures() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();
         assertNotSame(config, config.with(BogusFormatFeature.FF_DISABLED_BY_DEFAULT));
@@ -94,7 +94,7 @@ public class DeserializationConfigTest extends DatabindTestUtil
      * gives low-water mark
      */
     @Test
-    public void testEnumIndexes()
+    void enumIndexes()
     {
         int max = 0;
 
@@ -107,7 +107,7 @@ public class DeserializationConfigTest extends DatabindTestUtil
     }
 
     @Test
-    public void testOverrideIntrospectors()
+    void overrideIntrospectors()
     {
         ObjectMapper m = new ObjectMapper();
         DeserializationConfig cfg = m.getDeserializationConfig();
@@ -118,7 +118,7 @@ public class DeserializationConfigTest extends DatabindTestUtil
     }
 
     @Test
-    public void testMisc() throws Exception
+    void misc() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();
         assertEquals(JsonInclude.Value.empty(), config.getDefaultPropertyInclusion());

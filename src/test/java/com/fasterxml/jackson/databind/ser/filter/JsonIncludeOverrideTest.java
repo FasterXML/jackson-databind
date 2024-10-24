@@ -13,15 +13,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for checking that overridden settings for
  * {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#include} annotation property work
  * as expected.
  */
-public class JsonIncludeOverrideTest
-    extends DatabindTestUtil
+class JsonIncludeOverrideTest
+        extends DatabindTestUtil
 {
     @JsonPropertyOrder({"list", "map"})
     static class EmptyListMapBean
@@ -58,7 +58,7 @@ public class JsonIncludeOverrideTest
     }
 
     @Test
-    public void testPropConfigOverridesForInclude() throws IOException
+    void propConfigOverridesForInclude() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         // First, with defaults, both included:
@@ -81,7 +81,7 @@ public class JsonIncludeOverrideTest
     }
 
     @Test
-    public void testOverrideForIncludeAsPropertyNonNull() throws Exception
+    void overrideForIncludeAsPropertyNonNull() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // First, with defaults, all but NON_NULL annotated included
@@ -106,7 +106,7 @@ public class JsonIncludeOverrideTest
     }
 
     @Test
-    public void testOverrideForIncludeAsPropertyAlways() throws Exception
+    void overrideForIncludeAsPropertyAlways() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // First, with defaults, only ALWAYS annotated included
@@ -131,7 +131,7 @@ public class JsonIncludeOverrideTest
     }
 
     @Test
-    public void testOverridesForIncludeAndIncludeAsPropertyNonNull() throws Exception
+    void overridesForIncludeAndIncludeAsPropertyNonNull() throws Exception
     {
         // First, with ALWAYS override on containing bean, all included
         JsonIncludeOverrideTest.MixedTypeNonNullBean nullValues = new JsonIncludeOverrideTest.MixedTypeNonNullBean();
@@ -165,7 +165,7 @@ public class JsonIncludeOverrideTest
     }
 
     @Test
-    public void testOverridesForIncludeAndIncludeAsPropertyAlways() throws Exception
+    void overridesForIncludeAndIncludeAsPropertyAlways() throws Exception
     {
         // First, with NON_NULL override on containing bean, empty
         JsonIncludeOverrideTest.MixedTypeAlwaysBean nullValues = new JsonIncludeOverrideTest.MixedTypeAlwaysBean();

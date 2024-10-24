@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // [databind#3013] / PR #3608
-public class CoerceIntToStringTest
+class CoerceIntToStringTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
@@ -40,19 +40,19 @@ public class CoerceIntToStringTest
             .build();
 
     @Test
-    public void testDefaultIntToStringCoercion() throws JsonProcessingException
+    void defaultIntToStringCoercion() throws JsonProcessingException
     {
         assertSuccessfulIntToStringCoercionWith(DEFAULT_MAPPER);
     }
 
     @Test
-    public void testCoerceConfigToConvert() throws JsonProcessingException
+    void coerceConfigToConvert() throws JsonProcessingException
     {
         assertSuccessfulIntToStringCoercionWith(MAPPER_TRY_CONVERT);
     }
 
     @Test
-    public void testCoerceConfigToNull() throws JsonProcessingException
+    void coerceConfigToNull() throws JsonProcessingException
     {
         assertNull(MAPPER_TO_NULL.readValue("1", String.class));
         StringWrapper w = MAPPER_TO_NULL.readValue("{\"str\": -5}", StringWrapper.class);
@@ -63,7 +63,7 @@ public class CoerceIntToStringTest
     }
 
     @Test
-    public void testCoerceConfigToEmpty() throws JsonProcessingException
+    void coerceConfigToEmpty() throws JsonProcessingException
     {
         assertEquals("", MAPPER_TO_EMPTY.readValue("3", String.class));
         StringWrapper w = MAPPER_TO_EMPTY.readValue("{\"str\": -5}", StringWrapper.class);
@@ -74,7 +74,7 @@ public class CoerceIntToStringTest
     }
 
     @Test
-    public void testCoerceConfigToFail() throws JsonProcessingException
+    void coerceConfigToFail() throws JsonProcessingException
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, String.class, "3");
         _verifyCoerceFail(MAPPER_TO_FAIL, StringWrapper.class, "{\"str\": -5}", "string");

@@ -9,13 +9,12 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("serial")
-public class MapWithGenericValuesDeserTest extends DatabindTestUtil
+class MapWithGenericValuesDeserTest extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -87,7 +86,7 @@ public class MapWithGenericValuesDeserTest extends DatabindTestUtil
      * Verifying that sub-classing works ok wrt generics information
      */
     @Test
-    public void testMapSubClass() throws Exception
+    void mapSubClass() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         MapSubClass result = mapper.readValue
@@ -100,7 +99,7 @@ public class MapWithGenericValuesDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testMapWrapper() throws Exception
+    void mapWrapper() throws Exception
     {
         StringMap value = new ObjectMapper().readValue
             ("{\"entries\":{\"a\":9} }", StringMap.class);
@@ -110,14 +109,14 @@ public class MapWithGenericValuesDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIntermediateTypes() throws Exception
+    void intermediateTypes() throws Exception
     {
         StringStringWrapperMap result = new ObjectMapper().readValue
             ("{\"a\":\"b\"}", StringStringWrapperMap.class);
         assertEquals(1, result.size());
         Object value = result.get("a");
         assertNotNull(value);
-        assertEquals(value.getClass(), StringWrapper.class);
+        assertEquals(StringWrapper.class, value.getClass());
         assertEquals("b", ((StringWrapper) value).str);
     }
 
@@ -131,7 +130,7 @@ public class MapWithGenericValuesDeserTest extends DatabindTestUtil
      * Verifying that sub-classing works ok wrt generics information
      */
     @Test
-    public void testAnnotatedMap() throws Exception
+    void annotatedMap() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         AnnotatedMap result = mapper.readValue
@@ -151,7 +150,7 @@ public class MapWithGenericValuesDeserTest extends DatabindTestUtil
      */
 
     @Test
-    public void testKeyViaCtor() throws Exception
+    void keyViaCtor() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<KeyTypeCtor,Integer> map = mapper.readValue("{\"a\":123}",
@@ -165,7 +164,7 @@ public class MapWithGenericValuesDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testKeyViaFactory() throws Exception
+    void keyViaFactory() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<KeyTypeCtor,Integer> map = mapper.readValue("{\"a\":123}",

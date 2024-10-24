@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
-public class TokenBufferTest extends DatabindTestUtil
+class TokenBufferTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -49,7 +49,7 @@ public class TokenBufferTest extends DatabindTestUtil
             gen.writeString(new StringReader("foobar"), 6);
             gen.writeEndObject();
         }
-    }    
+    }
 
     /*
     /**********************************************************
@@ -58,7 +58,7 @@ public class TokenBufferTest extends DatabindTestUtil
      */
 
     @Test
-    public void testBasicConfig() throws IOException
+    void basicConfig() throws IOException
     {
         TokenBuffer buf;
 
@@ -84,7 +84,7 @@ public class TokenBufferTest extends DatabindTestUtil
 
     // for [databind#3528]
     @Test
-    public void testParserFeatureDefaults() throws IOException
+    void parserFeatureDefaults() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(MAPPER, false);
         try (JsonParser p = buf.asParser()) {
@@ -98,7 +98,7 @@ public class TokenBufferTest extends DatabindTestUtil
      * Test writing of individual simple values
      */
     @Test
-    public void testSimpleWrites() throws IOException
+    void simpleWrites() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
         assertTrue(buf.isEmpty());
@@ -134,7 +134,7 @@ public class TokenBufferTest extends DatabindTestUtil
 
     // For 2.9, explicit "isNaN" check
     @Test
-    public void testSimpleNumberWrites() throws IOException
+    void simpleNumberWrites() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false);
 
@@ -183,7 +183,7 @@ public class TokenBufferTest extends DatabindTestUtil
 
     // [databind#1729]
     @Test
-    public void testNumberOverflowInt() throws IOException
+    void numberOverflowInt() throws IOException
     {
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
             long big = 1L + Integer.MAX_VALUE;
@@ -217,7 +217,7 @@ public class TokenBufferTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNumberOverflowLong() throws IOException
+    void numberOverflowLong() throws IOException
     {
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
             BigInteger big = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
@@ -236,7 +236,7 @@ public class TokenBufferTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNumberIntAsString() throws IOException
+    void numberIntAsString() throws IOException
     {
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
             buf.writeNumber("123", true);
@@ -274,7 +274,7 @@ public class TokenBufferTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNumberNonIntAsStringNoCoerce() throws IOException
+    void numberNonIntAsStringNoCoerce() throws IOException
     {
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
             buf.writeNumber("1234.567", true);
@@ -287,7 +287,7 @@ public class TokenBufferTest extends DatabindTestUtil
     }
 
     @Test
-    public void testBigIntAsString() throws IOException
+    void bigIntAsString() throws IOException
     {
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
             BigInteger big = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(1));
@@ -301,7 +301,7 @@ public class TokenBufferTest extends DatabindTestUtil
     }
 
     @Test
-    public void testBigDecimalAsString() throws IOException
+    void bigDecimalAsString() throws IOException
     {
         final String num = "-10000000000.0000000001";
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
@@ -315,7 +315,7 @@ public class TokenBufferTest extends DatabindTestUtil
     }
 
     @Test
-    public void testParentContext() throws IOException
+    void parentContext() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
         buf.writeStartObject();
@@ -331,7 +331,7 @@ public class TokenBufferTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleArray() throws IOException
+    void simpleArray() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
 
@@ -393,7 +393,7 @@ public class TokenBufferTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleObject() throws IOException
+    void simpleObject() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false);
 
@@ -448,7 +448,7 @@ public class TokenBufferTest extends DatabindTestUtil
      * specification)
      */
     @Test
-    public void testWithJSONSampleDoc() throws Exception
+    void withJSONSampleDoc() throws Exception
     {
         // First, copy events from known good source (StringReader)
         TokenBuffer tb = new TokenBuffer(null, false);
@@ -471,7 +471,7 @@ public class TokenBufferTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAppend() throws IOException
+    void append() throws IOException
     {
         TokenBuffer buf1 = new TokenBuffer(null, false);
         buf1.writeStartObject();
@@ -504,7 +504,7 @@ public class TokenBufferTest extends DatabindTestUtil
     // Since 2.3 had big changes to UUID handling, let's verify we can
     // deal with
     @Test
-    public void testWithUUID() throws IOException
+    void withUUID() throws IOException
     {
         for (String value : new String[] {
                 "00000007-0000-0000-0000-000000000000",
@@ -540,7 +540,7 @@ public class TokenBufferTest extends DatabindTestUtil
 
     // for [databind#984]: ensure output context handling identical
     @Test
-    public void testOutputContext() throws IOException
+    void outputContext() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
         StringWriter w = new StringWriter();
@@ -632,7 +632,7 @@ public class TokenBufferTest extends DatabindTestUtil
 
     // [databind#1253]
     @Test
-    public void testParentSiblingContext() throws IOException
+    void parentSiblingContext() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
 
@@ -655,7 +655,7 @@ public class TokenBufferTest extends DatabindTestUtil
     }
 
     @Test
-    public void testBasicSerialize() throws IOException
+    void basicSerialize() throws IOException
     {
         TokenBuffer buf;
 
@@ -695,7 +695,7 @@ public class TokenBufferTest extends DatabindTestUtil
      */
 
     @Test
-    public void testWithJsonParserSequenceSimple() throws IOException
+    void withJsonParserSequenceSimple() throws IOException
     {
         // Let's join a TokenBuffer with JsonParser first
         TokenBuffer buf = new TokenBuffer(null, false);
@@ -745,7 +745,7 @@ public class TokenBufferTest extends DatabindTestUtil
      * as expected.
      */
     @Test
-    public void testWithMultipleJsonParserSequences() throws IOException
+    void withMultipleJsonParserSequences() throws IOException
     {
         TokenBuffer buf1 = new TokenBuffer(null, false);
         buf1.writeStartArray();
@@ -779,7 +779,7 @@ public class TokenBufferTest extends DatabindTestUtil
 
     // [databind#743]
     @Test
-    public void testRawValues() throws Exception
+    void rawValues() throws Exception
     {
         final String RAW = "{\"a\":1}";
         TokenBuffer buf = new TokenBuffer(null, false);
@@ -798,7 +798,7 @@ public class TokenBufferTest extends DatabindTestUtil
 
     // [databind#1730]
     @Test
-    public void testEmbeddedObjectCoerceCheck() throws Exception
+    void embeddedObjectCoerceCheck() throws Exception
     {
         TokenBuffer buf = new TokenBuffer(null, false);
         Object inputPojo = new Sub1730();
@@ -815,7 +815,7 @@ public class TokenBufferTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIsEmpty() throws Exception
+    void isEmpty() throws Exception
     {
         // Let's check that segment boundary won't ruin it
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
@@ -838,7 +838,7 @@ public class TokenBufferTest extends DatabindTestUtil
 
     // [databind#3816]
     @Test
-    public void testWriteStringFromStream() throws Exception
+    void writeStringFromStream() throws Exception
     {
         Map<String, String> map = MAPPER.convertValue(new Foo3816(),
                 new TypeReference<Map<String, String>>() {});

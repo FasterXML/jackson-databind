@@ -11,9 +11,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class MapInclusionTest extends DatabindTestUtil
+class MapInclusionTest extends DatabindTestUtil
 {
     static class NoEmptiesMapContainer {
         @JsonInclude(value=JsonInclude.Include.NON_EMPTY,
@@ -69,7 +69,7 @@ public class MapInclusionTest extends DatabindTestUtil
 
     // [databind#588]
     @Test
-    public void testNonEmptyValueMapViaProp() throws IOException
+    void nonEmptyValueMapViaProp() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoEmptiesMapContainer()
             .add("a", null)
@@ -78,7 +78,7 @@ public class MapInclusionTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNoNullsMap() throws IOException
+    void noNullsMap() throws IOException
     {
         NoNullsMapContainer input = new NoNullsMapContainer()
                 .add("a", null)
@@ -88,7 +88,7 @@ public class MapInclusionTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNonEmptyNoNullsMap() throws IOException
+    void nonEmptyNoNullsMap() throws IOException
     {
         NoNullsNotEmptyMapContainer input = new NoNullsNotEmptyMapContainer()
                 .add("a", null)
@@ -104,7 +104,7 @@ public class MapInclusionTest extends DatabindTestUtil
 
     // [databind#2909]
     @Test
-    public void testMapViaJsonValue() throws Exception
+    void mapViaJsonValue() throws Exception
     {
         assertEquals(a2q("{}"), MAPPER.writeValueAsString(new TopLevel2099()));
     }

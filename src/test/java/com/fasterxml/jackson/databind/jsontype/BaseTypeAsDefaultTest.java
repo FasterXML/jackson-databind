@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BaseTypeAsDefaultTest extends DatabindTestUtil
+class BaseTypeAsDefaultTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
     static class Parent {
@@ -50,19 +50,19 @@ public class BaseTypeAsDefaultTest extends DatabindTestUtil
             .build();
 
     @Test
-    public void testPositiveForParent() throws Exception {
+    void positiveForParent() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(Parent.class).readValue("{}");
-        assertEquals(o.getClass(), Parent.class);
+        assertEquals(Parent.class, o.getClass());
     }
 
     @Test
-    public void testPositiveForChild() throws Exception {
+    void positiveForChild() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(Child.class).readValue("{}");
-        assertEquals(o.getClass(), Child.class);
+        assertEquals(Child.class, o.getClass());
     }
 
     @Test
-    public void testNegativeForParent() throws Exception {
+    void negativeForParent() throws Exception {
         try {
             /*Object o =*/ MAPPER_WITHOUT_BASE.readerFor(Parent.class).readValue("{}");
             fail("Should not pass");
@@ -72,7 +72,7 @@ public class BaseTypeAsDefaultTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNegativeForChild() throws Exception {
+    void negativeForChild() throws Exception {
         try {
             /*Object o =*/ MAPPER_WITHOUT_BASE.readerFor(Child.class).readValue("{}");
             fail("Should not pass");
@@ -82,30 +82,30 @@ public class BaseTypeAsDefaultTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNegativeForChildWithoutRequiringTypeId() throws Exception {
+    void negativeForChildWithoutRequiringTypeId() throws Exception {
         Child child = MAPPER_WITHOUT_BASE_OR_SUBTYPE_ID.readerFor(Child.class).readValue("{}");
 
         assertEquals(Child.class, child.getClass());
     }
 
     @Test
-    public void testConversionForAbstractWithDefault() throws Exception {
+    void conversionForAbstractWithDefault() throws Exception {
         // should pass shouldn't it?
         Object o = MAPPER_WITH_BASE.readerFor(AbstractParentWithDefault.class).readValue("{}");
-        assertEquals(o.getClass(), ChildOfChild.class);
+        assertEquals(ChildOfChild.class, o.getClass());
     }
 
     @Test
-    public void testPositiveWithTypeSpecification() throws Exception {
+    void positiveWithTypeSpecification() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(Parent.class)
                 .readValue("{\"@class\":\""+Child.class.getName()+"\"}");
-        assertEquals(o.getClass(), Child.class);
+        assertEquals(Child.class, o.getClass());
     }
 
     @Test
-    public void testPositiveWithManualDefault() throws Exception {
+    void positiveWithManualDefault() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(ChildOfAbstract.class).readValue("{}");
 
-        assertEquals(o.getClass(), ChildOfChild.class);
+        assertEquals(ChildOfChild.class, o.getClass());
     }
 }

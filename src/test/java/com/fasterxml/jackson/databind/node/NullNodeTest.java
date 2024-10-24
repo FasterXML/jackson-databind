@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NullNodeTest extends NodeTestBase
+class NullNodeTest extends NodeTestBase
 {
     final static class CovarianceBean {
         ObjectNode _object;
@@ -27,7 +27,7 @@ public class NullNodeTest extends NodeTestBase
     private final ObjectMapper MAPPER = sharedMapper();
 
     @Test
-    public void testBasicsWithNullNode() throws Exception
+    void basicsWithNullNode() throws Exception
     {
         // Let's use something that doesn't add much beyond JsonNode base
         NullNode n = NullNode.instance;
@@ -72,7 +72,7 @@ public class NullNodeTest extends NodeTestBase
     }
 
     @Test
-    public void testNullHandling() throws Exception
+    void nullHandling() throws Exception
     {
         // First, a stand-alone null
         JsonNode n = MAPPER.readTree("null");
@@ -81,7 +81,7 @@ public class NullNodeTest extends NodeTestBase
         assertFalse(n.isNumber());
         assertFalse(n.isTextual());
         assertEquals("null", n.asText());
-        assertEquals(n, NullNode.instance);
+        assertEquals(NullNode.instance, n);
 
         n = objectMapper().readTree("null");
         assertNotNull(n);
@@ -96,7 +96,7 @@ public class NullNodeTest extends NodeTestBase
     }
 
     @Test
-    public void testNullSerialization() throws Exception
+    void nullSerialization() throws Exception
     {
         StringWriter sw = new StringWriter();
         MAPPER.writeValue(sw, NullNode.instance);
@@ -104,7 +104,7 @@ public class NullNodeTest extends NodeTestBase
     }
 
     @Test
-    public void testNullHandlingCovariance() throws Exception
+    void nullHandlingCovariance() throws Exception
     {
         String JSON = "{\"object\" : null, \"array\" : null }";
         CovarianceBean bean = MAPPER.readValue(JSON, CovarianceBean.class);
@@ -118,14 +118,14 @@ public class NullNodeTest extends NodeTestBase
 
     @SuppressWarnings("unlikely-arg-type")
     @Test
-    public void testNullEquality() throws Exception
+    void nullEquality() throws Exception
     {
         JsonNode n = MAPPER.nullNode();
         assertTrue(n.isNull());
         assertEquals(n, new MyNull());
         assertEquals(new MyNull(), n);
 
-        assertFalse(n.equals(null));
-        assertFalse(n.equals("foo"));
+        assertNotEquals(null, n);
+        assertNotEquals("foo", n);
     }
 }

@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CollectionSerializationTest
-    extends DatabindTestUtil
+class CollectionSerializationTest
+        extends DatabindTestUtil
 {
     enum Key { A, B, C };
 
@@ -95,7 +95,7 @@ public class CollectionSerializationTest
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testCollections() throws IOException
+    void collections() throws IOException
     {
         // Let's try different collections, arrays etc
         final int entryLen = 98;
@@ -144,7 +144,7 @@ public class CollectionSerializationTest
 
     @SuppressWarnings("resource")
     @Test
-    public void testBigCollection() throws IOException
+    void bigCollection() throws IOException
     {
         final int COUNT = 9999;
         ArrayList<Integer> value = new ArrayList<Integer>();
@@ -188,7 +188,7 @@ public class CollectionSerializationTest
     }
 
     @Test
-    public void testEnumMap() throws IOException
+    void enumMap() throws IOException
     {
         EnumMap<Key,String> map = new EnumMap<Key,String>(Key.class);
         map.put(Key.B, "xyz");
@@ -202,7 +202,7 @@ public class CollectionSerializationTest
     // when they are Bean properties
     @SuppressWarnings("unchecked")
     @Test
-    public void testEmptyBeanCollection() throws IOException
+    void emptyBeanCollection() throws IOException
     {
         Collection<Object> x = new ArrayList<Object>();
         x.add("foobar");
@@ -216,8 +216,8 @@ public class CollectionSerializationTest
     }
 
     @Test
-    public void testNullBeanCollection()
-        throws IOException
+    void nullBeanCollection()
+            throws IOException
     {
         CollectionBean cb = new CollectionBean(null);
         Map<String,Object> result = writeAndMap(MAPPER, cb);
@@ -228,7 +228,7 @@ public class CollectionSerializationTest
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testEmptyBeanEnumMap() throws IOException
+    void emptyBeanEnumMap() throws IOException
     {
         EnumMap<Key,String> map = new EnumMap<Key,String>(Key.class);
         EnumMapBean b = new EnumMapBean(map);
@@ -244,7 +244,7 @@ public class CollectionSerializationTest
 
     // Should also be able to serialize null EnumMaps as expected
     @Test
-    public void testNullBeanEnumMap() throws IOException
+    void nullBeanEnumMap() throws IOException
     {
         EnumMapBean b = new EnumMapBean(null);
         Map<String,Object> result = writeAndMap(MAPPER, b);
@@ -255,7 +255,7 @@ public class CollectionSerializationTest
     }
 
     @Test
-    public void testListSerializer() throws IOException
+    void listSerializer() throws IOException
     {
         assertEquals(q("[ab, cd, ef]"),
                 MAPPER.writeValueAsString(new PseudoList("ab", "cd", "ef")));
@@ -265,7 +265,7 @@ public class CollectionSerializationTest
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testEmptyListOrArray() throws IOException
+    void emptyListOrArray() throws IOException
     {
         // by default, empty lists serialized normally
         EmptyListBean list = new EmptyListBean();
@@ -282,7 +282,7 @@ public class CollectionSerializationTest
     }
 
     @Test
-    public void testStaticList() throws IOException
+    void staticList() throws IOException
     {
         // First: au naturel
         StaticListWrapper w = new StaticListWrapper("a", "b", "c");

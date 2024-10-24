@@ -7,22 +7,22 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RawValueTest extends DatabindTestUtil
+class RawValueTest extends DatabindTestUtil
 {
     @Test
-    public void testEquality()
+    void equality()
     {
         RawValue raw1 = new RawValue("foo");
         RawValue raw1b = new RawValue("foo");
         RawValue raw2 = new RawValue("bar");
 
-        assertTrue(raw1.equals(raw1));
-        assertTrue(raw1.equals(raw1b));
+        assertEquals(raw1, raw1);
+        assertEquals(raw1, raw1b);
 
-        assertFalse(raw1.equals(raw2));
-        assertFalse(raw1.equals(null));
+        assertNotEquals(raw1, raw2);
+        assertNotEquals(null, raw1);
 
-        assertFalse(new RawValue((JsonSerializable) null).equals(raw1));
+        assertNotEquals(new RawValue((JsonSerializable) null), raw1);
 
         assertNotNull(raw1.toString());
     }

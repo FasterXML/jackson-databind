@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * 
  * @since 2.16
  */
-public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
+class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
 {
 
     @JsonTypeInfo(
@@ -136,7 +136,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
 
     // inner class that has contains dollar sign
     @Test
-    public void testInnerClass() throws Exception
+    void innerClass() throws Exception
     {
         String jsonStr = a2q("{'@type':'InnerSub4061A'}");
         
@@ -150,7 +150,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
 
     // inner class that has contains dollar sign
     @Test
-    public void testMinimalInnerClass() throws Exception
+    void minimalInnerClass() throws Exception
     {
         String jsonStr = a2q("{'@c':'.JsonTypeInfoSimpleClassName4061Test$MinimalInnerSub4061A'}");
         
@@ -165,7 +165,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
 
     // Basic : non-inner class, without dollar sign
     @Test
-    public void testBasicClass() throws Exception
+    void basicClass() throws Exception
     {
         String jsonStr = a2q("{'@type':'BasicSub4061A'}");
         
@@ -178,10 +178,10 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
         assertInstanceOf(BasicSub4061A.class, bean);
 
     }
-    
+
     // Mixed SimpleClassName : parent as inner, subtype as basic
     @Test
-    public void testMixedClass() throws Exception
+    void mixedClass() throws Exception
     {
         String jsonStr = a2q("{'@type':'MixedSub4061A'}");
         
@@ -193,10 +193,10 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
         assertInstanceOf(MixedSuper4061.class, bean);
         assertInstanceOf(MixedSub4061A.class, bean);
     }
-    
+
     // Mixed MinimalClass : parent as inner, subtype as basic
     @Test
-    public void testMixedMinimalClass() throws Exception
+    void mixedMinimalClass() throws Exception
     {
         String jsonStr = a2q("{'@c':'.MixedMinimalSub4061A'}");
         
@@ -210,7 +210,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
     }
 
     @Test
-    public void testPolymorphicNewObject() throws Exception
+    void polymorphicNewObject() throws Exception
     {
         String jsonStr = "{\"child\": { \"@type\": \"MergeChildA\", \"name\": \"I'm child A\" }}";
         
@@ -222,7 +222,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
 
     // case insenstive type name
     @Test
-    public void testPolymorphicNewObjectCaseInsensitive() throws Exception
+    void polymorphicNewObjectCaseInsensitive() throws Exception
     {
         String jsonStr = "{\"child\": { \"@type\": \"mergechilda\", \"name\": \"I'm child A\" }}";
         ObjectMapper mapper = jsonMapperBuilder()
@@ -236,7 +236,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
     }
 
     @Test
-    public void testPolymorphicNewObjectUnknownTypeId() throws Exception
+    void polymorphicNewObjectUnknownTypeId() throws Exception
     {
         try {
             MAPPER.readValue("{\"child\": { \"@type\": \"UnknownChildA\", \"name\": \"I'm child A\" }}", Root.class);    
@@ -246,7 +246,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
     }
 
     @Test
-    public void testAliasWithPolymorphic() throws Exception
+    void aliasWithPolymorphic() throws Exception
     {
         String jsonStr = a2q("{'value': ['ab', {'nm' : 'Bob', 'A' : 17} ] }");
         
@@ -259,7 +259,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
     }
 
     @Test
-    public void testGetMechanism()
+    void getMechanism()
     {
         final DeserializationConfig config = MAPPER.getDeserializationConfig();
         JavaType javaType = config.constructType(InnerSub4061B.class);
@@ -273,7 +273,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
     }
 
     @Test
-    public void testDuplicateNameLastOneWins() throws Exception
+    void duplicateNameLastOneWins() throws Exception
     {
         String jsonStr = a2q("{'@type':'DuplicateSubClass'}");
         

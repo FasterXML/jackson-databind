@@ -9,13 +9,14 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * For [databind#292]
  */
 @SuppressWarnings("serial")
-public class AbstractContainerTypingTest extends DatabindTestUtil
+class AbstractContainerTypingTest extends DatabindTestUtil
 {
     // Polymorphic abstract Map type, wrapper
 
@@ -60,7 +61,7 @@ public class AbstractContainerTypingTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testAbstractLists() throws Exception
+    void abstractLists() throws Exception
     {
         ListWrapper w = new ListWrapper();
         w.list.add("x");
@@ -75,7 +76,7 @@ public class AbstractContainerTypingTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAbstractMaps() throws Exception
+    void abstractMaps() throws Exception
     {
         MapWrapper w = new MapWrapper();
         w.map.put("key1", "name1");

@@ -14,12 +14,11 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestTypedDeserialization
-    extends DatabindTestUtil
+class TestTypedDeserialization
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -159,7 +158,7 @@ public class TestTypedDeserialization
      * class name, written as main-level property name
      */
     @Test
-    public void testSimpleClassAsProperty() throws Exception
+    void simpleClassAsProperty() throws Exception
     {
         Animal a = MAPPER.readValue(asJSONObjectValueString("@classy", Cat.class.getName(),
                 "furColor", "tabby", "name", "Garfield"), Animal.class);
@@ -172,7 +171,7 @@ public class TestTypedDeserialization
 
     // Test inclusion using wrapper style
     @Test
-    public void testTypeAsWrapper() throws Exception
+    void typeAsWrapper() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Animal.class, TypeWithWrapper.class);
@@ -188,7 +187,7 @@ public class TestTypedDeserialization
 
     // Test inclusion using 2-element array
     @Test
-    public void testTypeAsArray() throws Exception
+    void typeAsArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Animal.class, TypeWithArray.class);
@@ -204,7 +203,7 @@ public class TestTypedDeserialization
 
     // Use basic Animal as contents of a regular List
     @Test
-    public void testListAsArray() throws Exception
+    void listAsArray() throws Exception
     {
         ObjectMapper m = MAPPER;
         // This time using PROPERTY style (default) again
@@ -237,7 +236,7 @@ public class TestTypedDeserialization
     }
 
     @Test
-    public void testCagedAnimal() throws Exception
+    void cagedAnimal() throws Exception
     {
         String jsonCat = asJSONObjectValueString(MAPPER, "@classy", Cat.class.getName(), "name", "Nilson", "furColor", "black");
         String JSON = "{\"animal\":"+jsonCat+"}";
@@ -256,7 +255,7 @@ public class TestTypedDeserialization
      * base class.
      */
     @Test
-    public void testAbstractEmptyBaseClass() throws Exception
+    void abstractEmptyBaseClass() throws Exception
     {
         DummyBase result = MAPPER.readValue(
                 "[\""+DummyImpl.class.getName()+"\",{\"x\":3}]", DummyBase.class);
@@ -267,7 +266,7 @@ public class TestTypedDeserialization
 
     // [JACKSON-506], wrt Date
     @Test
-    public void testIssue506WithDate() throws Exception
+    void issue506WithDate() throws Exception
     {
         Issue506DateBean input = new Issue506DateBean();
         input.date = new Date(1234L);
@@ -280,7 +279,7 @@ public class TestTypedDeserialization
 
     // [JACKSON-506], wrt Number
     @Test
-    public void testIssue506WithNumber() throws Exception
+    void issue506WithNumber() throws Exception
     {
         Issue506NumberBean input = new Issue506NumberBean();
         input.number = Long.valueOf(4567L);
@@ -293,7 +292,7 @@ public class TestTypedDeserialization
 
     // [databind#1751]: allow ints as ids too
     @Test
-    public void testIntAsTypeId1751Array() throws Exception
+    void intAsTypeId1751Array() throws Exception
     {
         Issue1751ArrBase value;
 
@@ -309,7 +308,7 @@ public class TestTypedDeserialization
 
     // [databind#1751]: allow ints as ids too
     @Test
-    public void testIntAsTypeId1751Prop() throws Exception
+    void intAsTypeId1751Prop() throws Exception
     {
         Issue1751PropBase value;
 
@@ -325,7 +324,7 @@ public class TestTypedDeserialization
 
     // [databind#2467]: Allow missing "content" for as-array deserialization
     @Test
-    public void testTypeAsArrayWithNullableType() throws Exception
+    void typeAsArrayWithNullableType() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Animal.class, TypeWithArray.class);
@@ -336,7 +335,7 @@ public class TestTypedDeserialization
 
     // [databind#2467]
     @Test
-    public void testTypeAsArrayWithCustomDeserializer() throws Exception
+    void typeAsArrayWithCustomDeserializer() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Animal.class, TypeWithArray.class);

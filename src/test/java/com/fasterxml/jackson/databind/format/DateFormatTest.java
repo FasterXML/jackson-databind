@@ -10,9 +10,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DateFormatTest extends DatabindTestUtil
+class DateFormatTest extends DatabindTestUtil
 {
     protected static class DateWrapper {
         public Date value;
@@ -23,7 +24,7 @@ public class DateFormatTest extends DatabindTestUtil
     }
 
     @Test
-    public void testTypeDefaults() throws Exception
+    void typeDefaults() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.configOverride(Date.class)

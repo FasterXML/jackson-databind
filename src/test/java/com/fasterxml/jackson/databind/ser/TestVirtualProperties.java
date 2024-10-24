@@ -15,12 +15,12 @@ import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.util.Annotations;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests for verifying that one can append virtual properties after regular ones.
  */
-public class TestVirtualProperties extends DatabindTestUtil
+class TestVirtualProperties extends DatabindTestUtil
 {
     @JsonAppend(attrs={ @JsonAppend.Attr("id"),
         @JsonAppend.Attr(value="internal", propName="extra", required=true)
@@ -96,7 +96,7 @@ public class TestVirtualProperties extends DatabindTestUtil
     private final ObjectWriter WRITER = objectWriter();
 
     @Test
-    public void testAttributeProperties() throws Exception
+    void attributeProperties() throws Exception
     {
         Map<String,Object> stuff = new LinkedHashMap<String,Object>();
         stuff.put("x", 3);
@@ -114,7 +114,7 @@ public class TestVirtualProperties extends DatabindTestUtil
     }
 
     @Test
-    public void testAttributePropInclusion() throws Exception
+    void attributePropInclusion() throws Exception
     {
         // first, with desc
         String json = WRITER.withAttribute("desc", "nice")
@@ -132,7 +132,7 @@ public class TestVirtualProperties extends DatabindTestUtil
     }
 
     @Test
-    public void testCustomProperties() throws Exception
+    void customProperties() throws Exception
     {
         String json = WRITER.withAttribute("desc", "nice")
                 .writeValueAsString(new CustomVBean());

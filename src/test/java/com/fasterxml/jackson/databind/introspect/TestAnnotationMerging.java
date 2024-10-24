@@ -7,13 +7,14 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests to verify that annotations are shared and merged between members
  * of a property (getter and setter and so on)
  */
-public class TestAnnotationMerging extends DatabindTestUtil
+class TestAnnotationMerging extends DatabindTestUtil
 {
     static class Wrapper
     {
@@ -65,14 +66,14 @@ public class TestAnnotationMerging extends DatabindTestUtil
      */
 
     @Test
-    public void testSharedNames() throws Exception
+    void sharedNames() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         assertEquals("{\"x\":6}", mapper.writeValueAsString(new SharedName(6)));
     }
 
     @Test
-    public void testSharedNamesFromGetterToSetter() throws Exception
+    void sharedNamesFromGetterToSetter() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new SharedName2());
@@ -82,7 +83,7 @@ public class TestAnnotationMerging extends DatabindTestUtil
     }
 
     @Test
-    public void testSharedTypeInfo() throws Exception
+    void sharedTypeInfo() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new Wrapper(13L));
@@ -91,7 +92,7 @@ public class TestAnnotationMerging extends DatabindTestUtil
     }
 
     @Test
-    public void testSharedTypeInfoWithCtor() throws Exception
+    void sharedTypeInfoWithCtor() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new TypeWrapper(13L));

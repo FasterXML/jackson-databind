@@ -11,9 +11,10 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestAbstractTypes extends DatabindTestUtil
+class TestAbstractTypes extends DatabindTestUtil
 {
     static class MyString implements CharSequence
     {
@@ -89,7 +90,7 @@ public class TestAbstractTypes extends DatabindTestUtil
      */
 
     @Test
-    public void testCollectionDefaulting() throws Exception
+    void collectionDefaulting() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -102,7 +103,7 @@ public class TestAbstractTypes extends DatabindTestUtil
     }
 
     @Test
-    public void testMapDefaultingBasic() throws Exception
+    void mapDefaultingBasic() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -115,7 +116,7 @@ public class TestAbstractTypes extends DatabindTestUtil
 
     // [databind#700]
     @Test
-    public void testDefaultingRecursive() throws Exception
+    void defaultingRecursive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -144,7 +145,7 @@ public class TestAbstractTypes extends DatabindTestUtil
     }
 
     @Test
-    public void testInterfaceDefaulting() throws Exception
+    void interfaceDefaulting() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -166,7 +167,7 @@ public class TestAbstractTypes extends DatabindTestUtil
 
     // [databind#2019]: mappings from multiple modules
     @Test
-    public void testAbstractMappingsFromTwoModules() throws Exception
+    void abstractMappingsFromTwoModules() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         SimpleModule module1 = new SimpleModule("module1");

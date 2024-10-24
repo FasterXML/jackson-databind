@@ -20,13 +20,14 @@ import static org.junit.jupiter.api.Assertions.*;
  * Simple tests to verify that {@link JavaType} types work to
  * some degree
  */
-public class JavaTypeTest extends DatabindTestUtil
+class JavaTypeTest extends DatabindTestUtil
 {
     static class BaseType { }
 
     static class SubType extends BaseType { }
 
     static enum MyEnum { A, B; }
+
     static enum MyEnum2 {
         A(1), B(2);
 
@@ -64,6 +65,7 @@ public class JavaTypeTest extends DatabindTestUtil
     static class AtomicStringReference extends AtomicReference<String> { }
 
     static interface StringStream extends Stream<String> { }
+
     static interface StringIterator extends Iterator<String> { }
 
     /*
@@ -73,7 +75,7 @@ public class JavaTypeTest extends DatabindTestUtil
      */
 
     @Test
-    public void testLocalType728() throws Exception
+    void localType728() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         Method m = Issue728.class.getMethod("method", CharSequence.class);
@@ -95,7 +97,7 @@ public class JavaTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleClass()
+    void simpleClass()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType baseType = tf.constructType(BaseType.class);
@@ -122,7 +124,7 @@ public class JavaTypeTest extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testDeprecated()
+    void deprecated()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType baseType = tf.constructType(BaseType.class);
@@ -135,7 +137,7 @@ public class JavaTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testArrayType()
+    void arrayType()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType arrayT = ArrayType.construct(tf.constructType(String.class), null);
@@ -149,17 +151,17 @@ public class JavaTypeTest extends DatabindTestUtil
         assertNotNull(arrayT.getContentType());
         assertNull(arrayT.getKeyType());
 
-        assertTrue(arrayT.equals(arrayT));
-        assertFalse(arrayT.equals(null));
+        assertEquals(arrayT, arrayT);
+        assertNotEquals(null, arrayT);
         final Object bogus = "xyz";
-        assertFalse(arrayT.equals(bogus));
+        assertNotEquals(arrayT, bogus);
 
-        assertTrue(arrayT.equals(ArrayType.construct(tf.constructType(String.class), null)));
-        assertFalse(arrayT.equals(ArrayType.construct(tf.constructType(Integer.class), null)));
+        assertEquals(arrayT, ArrayType.construct(tf.constructType(String.class), null));
+        assertNotEquals(arrayT, ArrayType.construct(tf.constructType(Integer.class), null));
     }
 
     @Test
-    public void testMapType()
+    void mapType()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType mapT = tf.constructType(HashMap.class);
@@ -175,14 +177,14 @@ public class JavaTypeTest extends DatabindTestUtil
         assertEquals("Ljava/util/HashMap<Ljava/lang/Object;Ljava/lang/Object;>;", mapT.getGenericSignature());
         assertEquals("Ljava/util/HashMap;", mapT.getErasedSignature());
 
-        assertTrue(mapT.equals(mapT));
-        assertFalse(mapT.equals(null));
+        assertEquals(mapT, mapT);
+        assertNotEquals(null, mapT);
         Object bogus = "xyz";
-        assertFalse(mapT.equals(bogus));
+        assertNotEquals(mapT, bogus);
     }
 
     @Test
-    public void testEnumType()
+    void enumType()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType enumT = tf.constructType(MyEnum.class);
@@ -219,20 +221,20 @@ public class JavaTypeTest extends DatabindTestUtil
 
     @SuppressWarnings("SelfComparison")
     @Test
-    public void testClassKey()
+    void classKey()
     {
         ClassKey key = new ClassKey(String.class);
         assertEquals(0, key.compareTo(key));
-        assertTrue(key.equals(key));
-        assertFalse(key.equals(null));
-        assertFalse(key.equals("foo"));
-        assertFalse(key.equals(new ClassKey(Integer.class)));
+        assertEquals(key, key);
+        assertNotEquals(null, key);
+        assertNotEquals("foo", key);
+        assertNotEquals(key, new ClassKey(Integer.class));
         assertEquals(String.class.getName(), key.toString());
     }
 
     // [databind#116]
     @Test
-    public void testJavaTypeAsJLRType()
+    void javaTypeAsJLRType()
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType t1 = tf.constructType(getClass());
@@ -243,7 +245,7 @@ public class JavaTypeTest extends DatabindTestUtil
 
     // [databind#1194]
     @Test
-    public void testGenericSignature1194() throws Exception
+    void genericSignature1194() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         Method m;
@@ -266,7 +268,7 @@ public class JavaTypeTest extends DatabindTestUtil
 
     @Deprecated
     @Test
-    public void testAnchorTypeForRefTypes() throws Exception
+    void anchorTypeForRefTypes() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType t  = tf.constructType(AtomicStringReference.class);
@@ -282,7 +284,7 @@ public class JavaTypeTest extends DatabindTestUtil
 
     // for [databind#1290]
     @Test
-    public void testObjectToReferenceSpecialization() throws Exception
+    void objectToReferenceSpecialization() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         JavaType base = tf.constructType(Object.class);
@@ -295,7 +297,7 @@ public class JavaTypeTest extends DatabindTestUtil
 
     // for [databind#2091]
     @Test
-    public void testConstructReferenceType() throws Exception
+    void constructReferenceType() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         // do AtomicReference<Long>
@@ -316,7 +318,7 @@ public class JavaTypeTest extends DatabindTestUtil
 
     // for [databind#3950]: resolve `Iterator`, `Stream`
     @Test
-    public void testIterationTypesDirect() throws Exception
+    void iterationTypesDirect() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
 
@@ -346,7 +348,7 @@ public class JavaTypeTest extends DatabindTestUtil
 
     // for [databind#3950]: resolve `Iterator`, `Stream`
     @Test
-    public void testIterationTypesFromValues() throws Exception
+    void iterationTypesFromValues() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         List<String> strings = Arrays.asList("foo", "bar");
@@ -361,7 +363,7 @@ public class JavaTypeTest extends DatabindTestUtil
 
     // for [databind#3950]: resolve `Iterator`, `Stream`
     @Test
-    public void testIterationSubTypes() throws Exception
+    void iterationSubTypes() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         _verifyIteratorType(tf.constructType(StringIterator.class),

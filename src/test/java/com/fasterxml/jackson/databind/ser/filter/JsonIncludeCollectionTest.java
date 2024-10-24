@@ -10,9 +10,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JsonIncludeCollectionTest extends DatabindTestUtil
+class JsonIncludeCollectionTest extends DatabindTestUtil
 {
     static class NonEmptyEnumSet {
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -36,7 +36,7 @@ public class JsonIncludeCollectionTest extends DatabindTestUtil
     final private ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testEnumSet() throws Exception
+    void enumSet() throws Exception
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyEnumSet()));
         assertEquals("{\"v\":[\"B\"]}", MAPPER.writeValueAsString(new NonEmptyEnumSet(ABC.B)));

@@ -20,10 +20,11 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.databind.ser.std.MapProperty;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("serial")
-public class TestMapFiltering extends DatabindTestUtil
+class TestMapFiltering extends DatabindTestUtil
 {
     @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
@@ -169,7 +170,7 @@ public class TestMapFiltering extends DatabindTestUtil
     final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testMapFilteringViaProps() throws Exception
+    void mapFilteringViaProps() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
@@ -178,7 +179,7 @@ public class TestMapFiltering extends DatabindTestUtil
     }
 
     @Test
-    public void testMapFilteringViaClass() throws Exception
+    void mapFilteringViaClass() throws Exception
     {
         FilteredBean bean = new FilteredBean();
         bean.put("a", 4);
@@ -191,7 +192,7 @@ public class TestMapFiltering extends DatabindTestUtil
 
     // [databind#527]
     @Test
-    public void testNonNullValueMapViaProp() throws IOException
+    void nonNullValueMapViaProp() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoNullValuesMapContainer()
             .add("a", "foo")
@@ -202,7 +203,7 @@ public class TestMapFiltering extends DatabindTestUtil
 
     // [databind#522]
     @Test
-    public void testMapFilteringWithAnnotations() throws Exception
+    void mapFilteringWithAnnotations() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
                 new TestMapFilter());
@@ -217,7 +218,7 @@ public class TestMapFiltering extends DatabindTestUtil
 
     // [databind#527]
     @Test
-    public void testMapNonNullValue() throws IOException
+    void mapNonNullValue() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoNullsStringMap()
             .add("a", "foo")
@@ -228,7 +229,7 @@ public class TestMapFiltering extends DatabindTestUtil
 
     // [databind#527]
     @Test
-    public void testMapNonEmptyValue() throws IOException
+    void mapNonEmptyValue() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoEmptyStringsMap()
             .add("a", "foo")
@@ -240,7 +241,7 @@ public class TestMapFiltering extends DatabindTestUtil
     // Test to ensure absent content of AtomicReference handled properly
     // [databind#527]
     @Test
-    public void testMapAbsentValue() throws IOException
+    void mapAbsentValue() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoAbsentStringMap()
             .add("a", "foo")
@@ -250,7 +251,7 @@ public class TestMapFiltering extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testMapNullSerialization() throws IOException
+    void mapNullSerialization() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         Map<String,String> map = new HashMap<String,String>();
@@ -266,7 +267,7 @@ public class TestMapFiltering extends DatabindTestUtil
 
     // [databind#527]
     @Test
-    public void testMapWithOnlyEmptyValues() throws IOException
+    void mapWithOnlyEmptyValues() throws IOException
     {
         String json;
 
@@ -283,7 +284,7 @@ public class TestMapFiltering extends DatabindTestUtil
     }
 
     @Test
-    public void testMapViaGlobalNonEmpty() throws Exception
+    void mapViaGlobalNonEmpty() throws Exception
     {
         // basic Map<String,String> subclass:
         ObjectMapper mapper = new ObjectMapper();
@@ -297,7 +298,7 @@ public class TestMapFiltering extends DatabindTestUtil
     }
 
     @Test
-    public void testMapViaTypeOverride() throws Exception
+    void mapViaTypeOverride() throws Exception
     {
         // basic Map<String,String> subclass:
         ObjectMapper mapper = new ObjectMapper();

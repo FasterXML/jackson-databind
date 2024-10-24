@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [databind#636]
-public class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
+class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
 {
     public static class Parent {
         public List<Child> child;
@@ -22,18 +22,16 @@ public class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
     }
 
     @Test
-    public void testClassIsMissing()
+    void classIsMissing()
     {
-        try {
-            Class.forName("javax.measure.Measure");
-            fail("Should not have found javax.measure.Measure");
-        } catch (ClassNotFoundException ex) {
-            ; // expected case
-        }
+        assertThrows(
+                ClassNotFoundException.class,
+                () -> Class.forName("javax.measure.Measure"),
+                "Should not have found javax.measure.Measure");
     }
 
     @Test
-    public void testDeserialize() throws Exception
+    void deserialize() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         Parent result = m.readValue(" { } ", Parent.class);
@@ -41,15 +39,13 @@ public class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
     }
 
     @Test
-    public void testUseMissingClass() throws Exception
+    void useMissingClass()
     {
-        boolean missing = false;
-        try {
-            ObjectMapper m = new ObjectMapper();
-            m.readValue(" { \"child\" : [{}] } ", Parent.class);
-        } catch (NoClassDefFoundError ex) {
-            missing = true;
-        }
-        assertTrue(missing, "cannot instantiate a missing class");
+        ObjectMapper m = new ObjectMapper();
+        assertThrows(
+                NoClassDefFoundError.class,
+                () -> m.readValue(" { \"child\" : [{}] } ", Parent.class),
+                "cannot instantiate a missing class"
+        );
     }
 }

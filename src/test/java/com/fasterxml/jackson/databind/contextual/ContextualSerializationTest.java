@@ -24,7 +24,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * that can use contextual information (like field/method
  * annotations) for configuration.
  */
-public class ContextualSerializationTest
+class ContextualSerializationTest
 {
     // NOTE: important; MUST be considered a 'Jackson' annotation to be seen
     // (or recognized otherwise via AnnotationIntrospect.isHandled())
@@ -226,7 +226,7 @@ public class ContextualSerializationTest
     // Test to verify that contextual serializer can make use of property
     // (method, field) annotations.
     @Test
-    public void testMethodAnnotations() throws Exception
+    void methodAnnotations() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -238,7 +238,7 @@ public class ContextualSerializationTest
     // Test to verify that contextual serializer can also use annotations
     // for enclosing class.
     @Test
-    public void testClassAnnotations() throws Exception
+    void classAnnotations() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -248,7 +248,7 @@ public class ContextualSerializationTest
     }
 
     @Test
-    public void testWrappedBean() throws Exception
+    void wrappedBean() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -259,7 +259,7 @@ public class ContextualSerializationTest
 
     // Serializer should get passed property context even if contained in an array.
     @Test
-    public void testMethodAnnotationInArray() throws Exception
+    void methodAnnotationInArray() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -271,7 +271,7 @@ public class ContextualSerializationTest
 
     // Serializer should get passed property context even if contained in a Collection.
     @Test
-    public void testMethodAnnotationInList() throws Exception
+    void methodAnnotationInList() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -283,7 +283,7 @@ public class ContextualSerializationTest
 
     // Serializer should get passed property context even if contained in a Collection.
     @Test
-    public void testMethodAnnotationInMap() throws Exception
+    void methodAnnotationInMap() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -295,7 +295,7 @@ public class ContextualSerializationTest
     }
 
     @Test
-    public void testContextualViaAnnotation() throws Exception
+    void contextualViaAnnotation() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         AnnotatedContextualBean bean = new AnnotatedContextualBean("abc");
@@ -303,7 +303,7 @@ public class ContextualSerializationTest
     }
 
     @Test
-    public void testResolveOnContextual() throws Exception
+    void resolveOnContextual() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new ContextualAndResolvable());
@@ -317,7 +317,7 @@ public class ContextualSerializationTest
     }
 
     @Test
-    public void testContextualArrayElement() throws Exception
+    void contextualArrayElement() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         ContextualArrayElementBean beans = new ContextualArrayElementBean("456");
@@ -326,7 +326,7 @@ public class ContextualSerializationTest
 
     // Test to verify aspects of [databind#2429]
     @Test
-    public void testRootContextualization2429() throws Exception
+    void rootContextualization2429() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test", Version.unknownVersion())

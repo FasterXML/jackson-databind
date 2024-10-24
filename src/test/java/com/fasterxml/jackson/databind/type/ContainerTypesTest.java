@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 // for [databind#1415]
-public class ContainerTypesTest
+class ContainerTypesTest
 {
     static abstract class LongList implements List<Long> { }
 
@@ -31,7 +31,7 @@ public class ContainerTypesTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testExplicitCollectionType() throws Exception
+    void explicitCollectionType() throws Exception
     {
         JavaType t = MAPPER.getTypeFactory()
                 .constructCollectionType(LongList.class, Long.class);
@@ -40,7 +40,7 @@ public class ContainerTypesTest
     }
 
     @Test
-    public void testImplicitCollectionType() throws Exception
+    void implicitCollectionType() throws Exception
     {
         JavaType t = MAPPER.getTypeFactory()
                 .constructParametricType(List.class, Long.class);
@@ -51,7 +51,7 @@ public class ContainerTypesTest
 
     // [databind#1725]
     @Test
-    public void testMissingCollectionType() throws Exception
+    void missingCollectionType() throws Exception
     {
         TypeFactory tf = MAPPER.getTypeFactory().withCache((LookupCache<Object,JavaType>)new LRUMap<Object,JavaType>(4, 8));
         JavaType t = tf.constructParametricType(List.class, HashMap.class);
@@ -61,7 +61,7 @@ public class ContainerTypesTest
     }
 
     @Test
-    public void testCustomLookupCache() throws Exception
+    void customLookupCache() throws Exception
     {
         TypeFactory tf = MAPPER.getTypeFactory().withCache(new UnlimitedLookupCache<Object, JavaType>(0));
         JavaType t = tf.constructParametricType(List.class, HashMap.class);
@@ -71,7 +71,7 @@ public class ContainerTypesTest
     }
 
     @Test
-    public void testExplicitMapType() throws Exception
+    void explicitMapType() throws Exception
     {
         JavaType t = MAPPER.getTypeFactory()
                 .constructMapType(StringLongMap.class,
@@ -82,7 +82,7 @@ public class ContainerTypesTest
     }
 
     @Test
-    public void testImplicitMapType() throws Exception
+    void implicitMapType() throws Exception
     {
         JavaType t = MAPPER.getTypeFactory()
                 .constructParametricType(Map.class, Long.class, Boolean.class);
@@ -98,7 +98,7 @@ public class ContainerTypesTest
      */
 
     @Test
-    public void testMismatchedCollectionType() throws Exception
+    void mismatchedCollectionType() throws Exception
     {
         try {
             MAPPER.getTypeFactory()
@@ -111,7 +111,7 @@ public class ContainerTypesTest
     }
 
     @Test
-    public void testMismatchedMapType() throws Exception
+    void mismatchedMapType() throws Exception
     {
         // first, mismatched key type
         try {

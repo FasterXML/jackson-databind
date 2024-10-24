@@ -23,8 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Ryan Heaton
  */
 @SuppressWarnings("deprecation")
-public class TestGenerateJsonSchema
-    extends DatabindTestUtil
+class TestGenerateJsonSchema
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -134,16 +134,16 @@ public class TestGenerateJsonSchema
      * tests generating json-schema stuff.
      */
     @Test
-    public void testOldSchemaGeneration() throws Exception
+    void oldSchemaGeneration() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
 
         assertNotNull(jsonSchema);
 
         // test basic equality, and that equals() handles null, other obs
-        assertTrue(jsonSchema.equals(jsonSchema));
-        assertFalse(jsonSchema.equals(null));
-        assertFalse(jsonSchema.equals("foo"));
+        assertEquals(jsonSchema, jsonSchema);
+        assertNotEquals(null, jsonSchema);
+        assertNotEquals("foo", jsonSchema);
 
         // other basic things
         assertNotNull(jsonSchema.toString());
@@ -204,7 +204,7 @@ public class TestGenerateJsonSchema
         .addFilter("filteredBean", SimpleBeanPropertyFilter.filterOutAllExcept(new String[]{"obvious"}));
 
     @Test
-    public void testGeneratingJsonSchemaWithFilters() throws Exception {
+    void generatingJsonSchemaWithFilters() throws Exception {
     	ObjectMapper mapper = new ObjectMapper();
     	mapper.setFilters(secretFilterProvider);
     	JsonSchema schema = mapper.generateJsonSchema(FilteredBean.class);
@@ -218,7 +218,7 @@ public class TestGenerateJsonSchema
      * can be properly serialized
      */
     @Test
-    public void testSchemaSerialization() throws Exception
+    void schemaSerialization() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
         Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
@@ -231,7 +231,7 @@ public class TestGenerateJsonSchema
     }
 
     @Test
-    public void testThatObjectsHaveNoItems() throws Exception
+    void thatObjectsHaveNoItems() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(TrivialBean.class);
         String json = jsonSchema.toString().replaceAll("\"", "'");
@@ -242,7 +242,7 @@ public class TestGenerateJsonSchema
     }
 
     @Test
-    public void testSchemaId() throws Exception
+    void schemaId() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(BeanWithId.class);
         String json = jsonSchema.toString().replaceAll("\"", "'");
@@ -252,7 +252,7 @@ public class TestGenerateJsonSchema
 
     // [databind#271]
     @Test
-    public void testUnwrapping()  throws Exception
+    void unwrapping()  throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(UnwrappingRoot.class);
         ObjectNode root = jsonSchema.getSchemaNode();
@@ -261,15 +261,15 @@ public class TestGenerateJsonSchema
         String firstType = propertiesSchema.get("name.first").get("type").asText();
         String lastType = propertiesSchema.get("name.last").get("type").asText();
         String type = root.get("type").asText();
-        assertEquals(type, "object");
-        assertEquals(ageType, "integer");
-        assertEquals(firstType, "string");
-        assertEquals(lastType, "string");
+        assertEquals("object", type);
+        assertEquals("integer", ageType);
+        assertEquals("string", firstType);
+        assertEquals("string", lastType);
     }
 
     //
     @Test
-    public void testNumberTypes()  throws Exception
+    void numberTypes()  throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(Numbers.class);
         String json = quotesToApos(jsonSchema.toString());

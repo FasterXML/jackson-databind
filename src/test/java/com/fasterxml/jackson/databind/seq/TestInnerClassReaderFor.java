@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestInnerClassReaderFor extends DatabindTestUtil {
+class TestInnerClassReaderFor extends DatabindTestUtil {
 
     class X {
         private String value;
@@ -38,15 +38,15 @@ public class TestInnerClassReaderFor extends DatabindTestUtil {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testReaderFor() throws IOException {
+    void readerFor() throws IOException {
 
         X x = new X("dummy");
         MAPPER.readerForUpdating(x).readValue("{\"value\": \"updatedX\"}");
-        assertEquals(x.getValue(), "updatedX");
+        assertEquals("updatedX", x.getValue());
 
         Y y = new Y("dummy");
         MAPPER.readerForUpdating(y).readValue("{\"value\": \"updatedY\"}");
-        assertEquals(y.getValue(), "updatedY");
+        assertEquals("updatedY", y.getValue());
 
     }
 

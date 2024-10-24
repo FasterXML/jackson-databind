@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class GenericValuesDeserTest
+class GenericValuesDeserTest
 {
     static abstract class BaseNumberBean<T extends Number>
     {
@@ -58,7 +58,7 @@ public class GenericValuesDeserTest
      */
 
     @Test
-    public void testSimpleNumberBean() throws Exception
+    void simpleNumberBean() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         NumberBean result = mapper.readValue("{\"number\":17}", NumberBean.class);
@@ -69,7 +69,7 @@ public class GenericValuesDeserTest
      * Unit test for verifying fix to [JACKSON-109].
      */
     @Test
-    public void testGenericWrapper() throws Exception
+    void genericWrapper() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         Wrapper<SimpleBean> result = mapper.readValue
@@ -85,7 +85,7 @@ public class GenericValuesDeserTest
     }
 
     @Test
-    public void testGenericWrapperWithSingleElementArray() throws Exception
+    void genericWrapperWithSingleElementArray() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
@@ -105,7 +105,7 @@ public class GenericValuesDeserTest
     // Test for verifying that we can use different
     // type bindings for individual generic types.
     @Test
-    public void testMultipleWrappers() throws Exception
+    void multipleWrappers() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
 
@@ -127,7 +127,7 @@ public class GenericValuesDeserTest
 
     //[databind#381]
     @Test
-    public void testMultipleWrappersSingleValueArray() throws Exception
+    void multipleWrappersSingleValueArray() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
@@ -152,7 +152,7 @@ public class GenericValuesDeserTest
      * Unit test for verifying fix to [JACKSON-109].
      */
     @Test
-    public void testArrayOfGenericWrappers() throws Exception
+    void arrayOfGenericWrappers() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         Wrapper<SimpleBean>[] result = mapper.readValue
@@ -171,7 +171,7 @@ public class GenericValuesDeserTest
 
     // [Issue#381]
     @Test
-    public void testArrayOfGenericWrappersSingleValueArray() throws Exception
+    void arrayOfGenericWrappersSingleValueArray() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);

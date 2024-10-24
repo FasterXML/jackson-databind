@@ -10,10 +10,11 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestMixinDeserForClass
-    extends DatabindTestUtil
+class TestMixinDeserForClass
+        extends DatabindTestUtil
 {
     static class BaseClass
     {
@@ -56,7 +57,7 @@ public class TestMixinDeserForClass
      */
 
     @Test
-    public void testClassMixInsTopLevel() throws IOException
+    void classMixInsTopLevel() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         // First: test default behavior: should use setter
@@ -74,7 +75,7 @@ public class TestMixinDeserForClass
     // and then a test for mid-level mixin; should have no effect
     // when deserializing leaf (but will if deserializing base class)
     @Test
-    public void testClassMixInsMidLevel() throws IOException
+    void classMixInsMidLevel() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(BaseClass.class, MixIn.class);
@@ -94,7 +95,7 @@ public class TestMixinDeserForClass
      * visible (similar to mid-level, basically)
      */
     @Test
-    public void testClassMixInsForObjectClass() throws IOException
+    void classMixInsForObjectClass() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(Object.class, MixIn.class);
@@ -113,7 +114,7 @@ public class TestMixinDeserForClass
 
     // [databind#1990]: can apply mix-in to `Object#hashCode()` to force serialization
     @Test
-    public void testHashCodeViaObject() throws Exception
+    void hashCodeViaObject() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
                 .addMixIn(Object.class, HashCodeMixIn.class);

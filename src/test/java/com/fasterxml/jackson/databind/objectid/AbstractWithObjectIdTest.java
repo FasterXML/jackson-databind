@@ -12,9 +12,10 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AbstractWithObjectIdTest extends DatabindTestUtil
+class AbstractWithObjectIdTest extends DatabindTestUtil
 {
     interface BaseInterface { }
 
@@ -44,7 +45,7 @@ public class AbstractWithObjectIdTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIssue877() throws Exception
+    void issue877() throws Exception
     {
         // make two instances
         BaseInterfaceImpl one = new BaseInterfaceImpl();

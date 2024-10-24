@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public class NullDataEqualsTest {
+class NullDataEqualsTest {
     @Test
-    void testNullBinaryNode() {
+    void nullBinaryNode() {
         assertEquals(new BinaryNode(null), new BinaryNode(null));
         assertNotEquals(new BinaryNode(new byte[8]), new BinaryNode(null));
         assertNotEquals(new BinaryNode(null), new BinaryNode(new byte[8]));
@@ -18,7 +18,7 @@ public class NullDataEqualsTest {
     }
 
     @Test
-    void testNullBigIntegerNode() {
+    void nullBigIntegerNode() {
         assertEquals(new BigIntegerNode(null), new BigIntegerNode(null));
         assertNotEquals(new BigIntegerNode(BigInteger.ZERO), new BigIntegerNode(null));
         assertNotEquals(new BigIntegerNode(null), new BigIntegerNode(BigInteger.ZERO));
@@ -26,7 +26,7 @@ public class NullDataEqualsTest {
     }
 
     @Test
-    void testNullDecimalNode() {
+    void nullDecimalNode() {
         assertEquals(new DecimalNode(null), new DecimalNode(null));
         assertNotEquals(new DecimalNode(BigDecimal.ZERO), new DecimalNode(null));
         assertNotEquals( new DecimalNode(null), new DecimalNode(BigDecimal.ZERO));

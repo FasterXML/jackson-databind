@@ -10,9 +10,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class ObjectIdReordering1388Test extends DatabindTestUtil
+class ObjectIdReordering1388Test extends DatabindTestUtil
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     public static class NamedThing {
@@ -49,7 +50,7 @@ public class ObjectIdReordering1388Test extends DatabindTestUtil
 
 
     @Test
-    public void testDeserializationFinalClassJSOG() throws Exception
+    void deserializationFinalClassJSOG() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         final UUID id = UUID.fromString("a59aa02c-fe3c-43f8-9b5a-5fe01878a818");
@@ -62,7 +63,7 @@ public class ObjectIdReordering1388Test extends DatabindTestUtil
             final List<NamedThing> list = mapper.readValue(jsog, namedThingListType);
             _assertAllSame(list);
             // this is the jsog representation of the list of 3 of the same item
-            assertTrue(jsog.equals("[{\"@id\":1,\"id\":\"a59aa02c-fe3c-43f8-9b5a-5fe01878a818\",\"name\":\"Hello\"},1,1]"));
+            assertEquals("[{\"@id\":1,\"id\":\"a59aa02c-fe3c-43f8-9b5a-5fe01878a818\",\"name\":\"Hello\"},1,1]", jsog);
         }
 
         // now move it around it have forward references

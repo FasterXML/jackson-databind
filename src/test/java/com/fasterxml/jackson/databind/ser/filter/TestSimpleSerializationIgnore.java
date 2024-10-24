@@ -9,14 +9,15 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This unit test suite tests use of {@link JsonIgnore} annotations
  * with  bean serialization; as well as {@link JsonIgnoreType}.
  */
-public class TestSimpleSerializationIgnore
-    extends DatabindTestUtil
+class TestSimpleSerializationIgnore
+        extends DatabindTestUtil
 {
     // Class for testing enabled {@link JsonIgnore} annotation
     final static class SizeClassEnabledIgnore
@@ -77,7 +78,7 @@ public class TestSimpleSerializationIgnore
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testSimpleIgnore() throws Exception
+    void simpleIgnore() throws Exception
     {
         // Should see "x", not "y"
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassEnabledIgnore());
@@ -87,7 +88,7 @@ public class TestSimpleSerializationIgnore
     }
 
     @Test
-    public void testDisabledIgnore() throws Exception
+    void disabledIgnore() throws Exception
     {
         // Should see "x" and "y"
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassDisabledIgnore());
@@ -101,7 +102,7 @@ public class TestSimpleSerializationIgnore
      * via inheritance
      */
     @Test
-    public void testIgnoreOver() throws Exception
+    void ignoreOver() throws Exception
     {
         // should only see "y"
         Map<String,Object> result = writeAndMap(MAPPER, new BaseClassIgnore());
@@ -116,7 +117,7 @@ public class TestSimpleSerializationIgnore
     }
 
     @Test
-    public void testIgnoreType() throws Exception
+    void ignoreType() throws Exception
     {
         assertEquals("{\"value\":13}", MAPPER.writeValueAsString(new NonIgnoredType()));
     }

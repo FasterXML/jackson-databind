@@ -23,7 +23,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * @since 2.9
  */
 @SuppressWarnings("serial")
-public class PropertyMergeTest
+class PropertyMergeTest
 {
     static class Config {
         @JsonMerge
@@ -117,7 +117,7 @@ public class PropertyMergeTest
             .build();
 
     @Test
-    public void testBeanMergingViaProp() throws Exception
+    void beanMergingViaProp() throws Exception
     {
         Config config = MAPPER.readValue(a2q("{'loc':{'b':3}}"), Config.class);
         assertEquals(1, config.loc.a);
@@ -130,7 +130,7 @@ public class PropertyMergeTest
     }
 
     @Test
-    public void testBeanMergingViaType() throws Exception
+    void beanMergingViaType() throws Exception
     {
         // by default, no merging
         NonMergeConfig config = MAPPER.readValue(a2q("{'loc':{'a':3}}"), NonMergeConfig.class);
@@ -146,7 +146,7 @@ public class PropertyMergeTest
     }
 
     @Test
-    public void testBeanMergingViaGlobal() throws Exception
+    void beanMergingViaGlobal() throws Exception
     {
         // but with type-overrides
         ObjectMapper mapper = newJsonMapper()
@@ -167,7 +167,7 @@ public class PropertyMergeTest
 
     // should even work with no setter
     @Test
-    public void testBeanMergingWithoutSetter() throws Exception
+    void beanMergingWithoutSetter() throws Exception
     {
         NoSetterConfig config = MAPPER.readValue(a2q("{'value':{'b':99}}"),
                 NoSetterConfig.class);
@@ -183,7 +183,7 @@ public class PropertyMergeTest
 
     // [databind#2280]
     @Test
-    public void testBeanMergeUsingConstructors() throws Exception {
+    void beanMergeUsingConstructors() throws Exception {
         ConstructorArgsPojo input = new ConstructorArgsPojo(new ConstructorArgsPojo.MergeablePojo("foo", "bar"));
 
         ConstructorArgsPojo result = MAPPER.setDefaultMergeable(true)
@@ -201,7 +201,7 @@ public class PropertyMergeTest
      */
 
     @Test
-    public void testBeanAsArrayMerging() throws Exception
+    void beanAsArrayMerging() throws Exception
     {
         ABAsArray input = new ABAsArray();
         input.a = 4;
@@ -244,7 +244,7 @@ public class PropertyMergeTest
      */
 
     @Test
-    public void testReferenceMerging() throws Exception
+    void referenceMerging() throws Exception
     {
         MergedReference result = MAPPER.readValue(a2q("{'value':'override'}"),
                 MergedReference.class);
@@ -258,7 +258,7 @@ public class PropertyMergeTest
      */
 
     @Test
-    public void testInvalidPropertyMerge() throws Exception
+    void invalidPropertyMerge() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)

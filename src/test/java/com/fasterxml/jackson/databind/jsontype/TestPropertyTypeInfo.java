@@ -9,14 +9,15 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Testing to verify that {@link JsonTypeInfo} works
  * for properties as well as types.
  */
 @SuppressWarnings("serial")
-public class TestPropertyTypeInfo extends DatabindTestUtil
+class TestPropertyTypeInfo extends DatabindTestUtil
 {
     protected static class BooleanValue {
         public Boolean b;
@@ -37,7 +38,9 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     static class FieldWrapperBeanList extends ArrayList<FieldWrapperBean> { }
+
     static class FieldWrapperBeanMap extends HashMap<String,FieldWrapperBean> { }
+
     static class FieldWrapperBeanArray {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.WRAPPER_ARRAY)
         public FieldWrapperBean[] beans;
@@ -61,7 +64,9 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
     }
 
     static class MethodWrapperBeanList extends ArrayList<MethodWrapperBean> { }
+
     static class MethodWrapperBeanMap extends HashMap<String,MethodWrapperBean> { }
+
     static class MethodWrapperBeanArray {
         protected MethodWrapperBean[] beans;
 
@@ -86,7 +91,7 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
      */
 
     @Test
-    public void testSimpleField() throws Exception
+    void simpleField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new FieldWrapperBean(new StringWrapper("foo")));
@@ -94,11 +99,11 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
         FieldWrapperBean bean = mapper.readValue(json, FieldWrapperBean.class);
         assertNotNull(bean.value);
         assertEquals(StringWrapper.class, bean.value.getClass());
-        assertEquals(((StringWrapper) bean.value).str, "foo");
+        assertEquals("foo", ((StringWrapper) bean.value).str);
     }
 
     @Test
-    public void testSimpleMethod() throws Exception
+    void simpleMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new FieldWrapperBean(new IntWrapper(37)));
@@ -106,11 +111,11 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
         FieldWrapperBean bean = mapper.readValue(json, FieldWrapperBean.class);
         assertNotNull(bean.value);
         assertEquals(IntWrapper.class, bean.value.getClass());
-        assertEquals(((IntWrapper) bean.value).i, 37);
+        assertEquals(37, ((IntWrapper) bean.value).i);
     }
 
     @Test
-    public void testSimpleListField() throws Exception
+    void simpleListField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         FieldWrapperBeanList list = new FieldWrapperBeanList();
@@ -122,12 +127,12 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
         assertEquals(1, result.size());
         FieldWrapperBean bean = list.get(0);
         assertEquals(OtherBean.class, bean.value.getClass());
-        assertEquals(((OtherBean) bean.value).x, 1);
-        assertEquals(((OtherBean) bean.value).y, 1);
+        assertEquals(1, ((OtherBean) bean.value).x);
+        assertEquals(1, ((OtherBean) bean.value).y);
     }
 
     @Test
-    public void testSimpleListMethod() throws Exception
+    void simpleListMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         MethodWrapperBeanList list = new MethodWrapperBeanList();
@@ -140,16 +145,16 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
         assertEquals(3, result.size());
         MethodWrapperBean bean = result.get(0);
         assertEquals(BooleanValue.class, bean.value.getClass());
-        assertEquals(((BooleanValue) bean.value).b, Boolean.TRUE);
+        assertEquals(Boolean.TRUE, ((BooleanValue) bean.value).b);
         bean = result.get(1);
         assertEquals(StringWrapper.class, bean.value.getClass());
-        assertEquals(((StringWrapper) bean.value).str, "x");
+        assertEquals("x", ((StringWrapper) bean.value).str);
         bean = result.get(2);
         assertEquals(OtherBean.class, bean.value.getClass());
     }
 
     @Test
-    public void testSimpleArrayField() throws Exception
+    void simpleArrayField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         FieldWrapperBeanArray array = new FieldWrapperBeanArray(new
@@ -161,11 +166,11 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
         assertEquals(1, beans.length);
         FieldWrapperBean bean = beans[0];
         assertEquals(BooleanValue.class, bean.value.getClass());
-        assertEquals(((BooleanValue) bean.value).b, Boolean.TRUE);
+        assertEquals(Boolean.TRUE, ((BooleanValue) bean.value).b);
     }
 
     @Test
-    public void testSimpleArrayMethod() throws Exception
+    void simpleArrayMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         MethodWrapperBeanArray array = new MethodWrapperBeanArray(new
@@ -177,11 +182,11 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
         assertEquals(1, beans.length);
         MethodWrapperBean bean = beans[0];
         assertEquals(StringWrapper.class, bean.value.getClass());
-        assertEquals(((StringWrapper) bean.value).str, "A");
+        assertEquals("A", ((StringWrapper) bean.value).str);
     }
 
     @Test
-    public void testSimpleMapField() throws Exception
+    void simpleMapField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         FieldWrapperBeanMap map = new FieldWrapperBeanMap();
@@ -194,11 +199,11 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
         assertNotNull(bean);
         Object ob = bean.value;
         assertEquals(IntWrapper.class, ob.getClass());
-        assertEquals(((IntWrapper) ob).i, 13);
+        assertEquals(13, ((IntWrapper) ob).i);
     }
 
     @Test
-    public void testSimpleMapMethod() throws Exception
+    void simpleMapMethod() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         MethodWrapperBeanMap map = new MethodWrapperBeanMap();
@@ -211,6 +216,6 @@ public class TestPropertyTypeInfo extends DatabindTestUtil
         assertNotNull(bean);
         Object ob = bean.value;
         assertEquals(BooleanValue.class, ob.getClass());
-        assertEquals(((BooleanValue) ob).b, Boolean.TRUE);
+        assertEquals(Boolean.TRUE, ((BooleanValue) ob).b);
     }
 }

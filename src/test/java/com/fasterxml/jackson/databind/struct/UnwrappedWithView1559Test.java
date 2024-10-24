@@ -8,9 +8,9 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class UnwrappedWithView1559Test extends DatabindTestUtil
+class UnwrappedWithView1559Test extends DatabindTestUtil
 {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     static final class Health {
@@ -31,7 +31,7 @@ public class UnwrappedWithView1559Test extends DatabindTestUtil
 
     // for [databind#1559]
     @Test
-    public void testCanSerializeSimpleWithDefaultView() throws Exception {
+    void canSerializeSimpleWithDefaultView() throws Exception {
         String json = jsonMapperBuilder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
                 .build()
                 .writeValueAsString(new Health());

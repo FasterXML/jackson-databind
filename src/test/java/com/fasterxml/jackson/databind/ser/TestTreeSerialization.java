@@ -11,14 +11,15 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This unit test suite tries to verify that JsonNode-based trees
  * can be serialized as expected
  */
-public class TestTreeSerialization
-    extends DatabindTestUtil
+class TestTreeSerialization
+        extends DatabindTestUtil
 {
     final static class Bean {
         public String getX() { return "y"; }
@@ -27,8 +28,8 @@ public class TestTreeSerialization
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testSimpleViaObjectMapper()
-        throws IOException
+    void simpleViaObjectMapper()
+            throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         // also need tree mapper to construct tree to serialize
@@ -61,8 +62,8 @@ public class TestTreeSerialization
      */
     @SuppressWarnings("unchecked")
     @Test
-	public void testPOJOString()
-        throws Exception
+    void pojoString()
+            throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // also need tree mapper to construct tree to serialize
@@ -79,8 +80,8 @@ public class TestTreeSerialization
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPOJOIntArray()
-        throws IOException
+    void pojoIntArray()
+            throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode n = mapper.getNodeFactory().objectNode();
@@ -103,8 +104,8 @@ public class TestTreeSerialization
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPOJOBean()
-        throws IOException
+    void pojoBean()
+            throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         // also need tree mapper to construct tree to serialize

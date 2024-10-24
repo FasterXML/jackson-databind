@@ -14,14 +14,15 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This unit test suite tests use of @JsonClass Annotation
  * with bean serialization.
  */
-public class TestJsonSerialize
-    extends DatabindTestUtil
+class TestJsonSerialize
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -89,8 +90,10 @@ public class TestJsonSerialize
 
     @SuppressWarnings("serial")
     static class ValueMap extends HashMap<String,ValueInterface> { }
+
     @SuppressWarnings("serial")
     static class ValueList extends ArrayList<ValueInterface> { }
+
     @SuppressWarnings("serial")
     static class ValueLinkedList extends LinkedList<ValueInterface> { }
 
@@ -141,7 +144,7 @@ public class TestJsonSerialize
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testSimpleValueDefinition() throws Exception
+    void simpleValueDefinition() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForAs());
         assertEquals(1, result.size());
@@ -153,7 +156,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testBrokenAnnotation() throws Exception
+    void brokenAnnotation() throws Exception
     {
         try {
             serializeAsString(MAPPER, new BrokenClass());
@@ -165,7 +168,7 @@ public class TestJsonSerialize
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testStaticTypingForClass() throws Exception
+    void staticTypingForClass() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForStaticTyping());
         assertEquals(1, result.size());
@@ -178,7 +181,7 @@ public class TestJsonSerialize
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testMixedTypingForClass() throws Exception
+    void mixedTypingForClass() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForStaticTyping2());
         assertEquals(2, result.size());
@@ -198,7 +201,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testStaticTypingWithMap() throws Exception
+    void staticTypingWithMap() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
@@ -209,7 +212,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testStaticTypingWithArrayList() throws Exception
+    void staticTypingWithArrayList() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
@@ -220,7 +223,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testStaticTypingWithLinkedList() throws Exception
+    void staticTypingWithLinkedList() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
@@ -231,7 +234,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testStaticTypingWithArray() throws Exception
+    void staticTypingWithArray() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
@@ -241,7 +244,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testIssue294() throws Exception
+    void issue294() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         assertEquals("{\"bar\":\"barId\",\"id\":\"fooId\"}",
@@ -257,7 +260,7 @@ public class TestJsonSerialize
     }
 
     @Test
-    public void testWithIsGetter() throws Exception
+    void withIsGetter() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.setVisibility(PropertyAccessor.GETTER, Visibility.NONE)

@@ -17,13 +17,14 @@ import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests for verifying that bean property filtering using JsonFilter
  * works as expected.
  */
-public class JsonFilterTest extends DatabindTestUtil
+class JsonFilterTest extends DatabindTestUtil
 {
     @JsonFilter("RootFilter")
     @JsonPropertyOrder({ "a", "b" })
@@ -77,7 +78,7 @@ public class JsonFilterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testCheckSiblingContextFilter() {
+    void checkSiblingContextFilter() {
         FilterProvider prov = new SimpleFilterProvider().addFilter("checkSiblingContextFilter",
                 new CheckSiblingContextFilter());
 
@@ -137,7 +138,7 @@ public class JsonFilterTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleInclusionFilter() throws Exception
+    void simpleInclusionFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
                 SimpleBeanPropertyFilter.filterOutAllExcept("a"));
@@ -150,7 +151,7 @@ public class JsonFilterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIncludeAllFilter() throws Exception
+    void includeAllFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
                 SimpleBeanPropertyFilter.serializeAll());
@@ -158,7 +159,7 @@ public class JsonFilterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testExcludeAllFilter() throws Exception
+    void excludeAllFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
             SimpleBeanPropertyFilter.filterOutAll());
@@ -166,7 +167,7 @@ public class JsonFilterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleExclusionFilter() throws Exception
+    void simpleExclusionFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
                 SimpleBeanPropertyFilter.serializeAllExcept("a"));
@@ -175,7 +176,7 @@ public class JsonFilterTest extends DatabindTestUtil
 
     // should handle missing case gracefully
     @Test
-    public void testMissingFilter() throws Exception
+    void missingFilter() throws Exception
     {
         // First: default behavior should be to throw an exception
         try {
@@ -195,7 +196,7 @@ public class JsonFilterTest extends DatabindTestUtil
 
     // defaulting, as per [JACKSON-449]
     @Test
-    public void testDefaultFilter() throws Exception
+    void defaultFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().setDefaultFilter(SimpleBeanPropertyFilter.filterOutAllExcept("b"));
         assertEquals("{\"b\":\"b\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
@@ -203,7 +204,7 @@ public class JsonFilterTest extends DatabindTestUtil
 
     // [databind#89] combining @JsonIgnore, @JsonProperty
     @Test
-    public void testIssue89() throws Exception
+    void issue89() throws Exception
     {
         Pod pod = new Pod();
         pod.username = "Bob";
@@ -220,7 +221,7 @@ public class JsonFilterTest extends DatabindTestUtil
 
     // Wrt [databind#306]
     @Test
-    public void testFilterOnProperty() throws Exception
+    void filterOnProperty() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider()
             .addFilter("RootFilter", SimpleBeanPropertyFilter.filterOutAllExcept("a"))
@@ -231,7 +232,7 @@ public class JsonFilterTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAllFiltersWithSameOutput() throws Exception
+    void allFiltersWithSameOutput() throws Exception
     {
         // Setup
         SimpleBeanPropertyFilter[] allPossibleFilters = new SimpleBeanPropertyFilter[]{

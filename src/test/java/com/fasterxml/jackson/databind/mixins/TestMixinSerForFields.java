@@ -10,10 +10,10 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestMixinSerForFields
-    extends DatabindTestUtil
+class TestMixinSerForFields
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -62,7 +62,7 @@ public class TestMixinSerForFields
      */
 
     @Test
-    public void testFieldMixInsTopLevel() throws IOException
+    void fieldMixInsTopLevel() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result;
@@ -83,7 +83,7 @@ public class TestMixinSerForFields
     }
 
     @Test
-    public void testMultipleFieldMixIns() throws IOException
+    void multipleFieldMixIns() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         // ordering here shouldn't matter really...

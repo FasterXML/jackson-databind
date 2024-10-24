@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestJsonSerializeAs extends DatabindTestUtil
+class TestJsonSerializeAs extends DatabindTestUtil
 {
     public interface Fooable {
         public int getFoo();
@@ -94,39 +94,39 @@ public class TestJsonSerializeAs extends DatabindTestUtil
     private final ObjectWriter WRITER = objectWriter();
 
     @Test
-    public void testSerializeAsInClass() throws IOException {
+    void serializeAsInClass() throws IOException {
         assertEquals("{\"foo\":42}", WRITER.writeValueAsString(new FooImpl()));
     }
 
     @Test
-    public void testSerializeAsForArrayProp() throws IOException {
+    void serializeAsForArrayProp() throws IOException {
         assertEquals("{\"foos\":[{\"foo\":42}]}",
                 WRITER.writeValueAsString(new Fooables()));
     }
 
     @Test
-    public void testSerializeAsForSimpleProp() throws IOException {
+    void serializeAsForSimpleProp() throws IOException {
         assertEquals("{\"foo\":{\"foo\":42}}",
                 WRITER.writeValueAsString(new FooableWrapper()));
     }
 
     // for [databind#1023]
     @Test
-    public void testSerializeWithFieldAnno() throws IOException {
+    void serializeWithFieldAnno() throws IOException {
         assertEquals("{\"foo\":{\"foo\":42}}",
                 WRITER.writeValueAsString(new FooableWithFieldWrapper()));
     }
 
     // for [databind#1178]
     @Test
-    public void testSpecializedContentAs() throws IOException {
+    void specializedContentAs() throws IOException {
         assertEquals(a2q("{'values':[{'a':1,'b':2}]}"),
                 WRITER.writeValueAsString(new Bean1178Wrapper(1)));
     }
 
     // for [databind#1231] (and continuation of [databind#1178])
     @Test
-    public void testSpecializedAsIntermediate() throws IOException {
+    void specializedAsIntermediate() throws IOException {
         assertEquals(a2q("{'value':{'a':1,'b':2}}"),
                 WRITER.writeValueAsString(new Bean1178Holder()));
     }

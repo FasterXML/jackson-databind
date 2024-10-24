@@ -15,11 +15,11 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class ConvertingSerializerTest
+class ConvertingSerializerTest
 {
     @JsonSerialize(converter=ConvertingBeanConverter.class)
     static class ConvertingBean
@@ -190,16 +190,16 @@ public class ConvertingSerializerTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     @Test
-    public void testClassAnnotationSimple() throws Exception
+    void classAnnotationSimple() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ConvertingBean(1, 2));
         assertEquals("[1,2]", json);
     }
 
     @Test
-    public void testClassAnnotationForLists() throws Exception
+    void classAnnotationForLists() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ConvertingBeanContainer(
                 new ConvertingBean(1, 2), new ConvertingBean(3, 4)));
@@ -207,53 +207,53 @@ public class ConvertingSerializerTest
     }
 
     @Test
-    public void testPropertyAnnotationSimple() throws Exception
+    void propertyAnnotationSimple() throws Exception
     {
         String json = MAPPER.writeValueAsString(new PointWrapper(3, 4));
         assertEquals("{\"value\":[3,4]}", json);
     }
 
     @Test
-    public void testPropertyAnnotationForArrays() throws Exception {
+    void propertyAnnotationForArrays() throws Exception {
         String json = MAPPER.writeValueAsString(new PointListWrapperArray(4, 5));
         assertEquals("{\"values\":[[4,5],[5,4]]}", json);
     }
 
     @Test
-    public void testPropertyAnnotationForLists() throws Exception {
+    void propertyAnnotationForLists() throws Exception {
         String json = MAPPER.writeValueAsString(new PointListWrapperList(7, 8));
         assertEquals("{\"values\":[[7,8],[8,7]]}", json);
     }
 
     @Test
-    public void testPropertyAnnotationForMaps() throws Exception {
+    void propertyAnnotationForMaps() throws Exception {
         String json = MAPPER.writeValueAsString(new PointListWrapperMap("a", 1, 2));
         assertEquals("{\"values\":{\"a\":[1,2]}}", json);
     }
 
     @Test
-    public void testPropertyAnnotationForReferences() throws Exception {
+    void propertyAnnotationForReferences() throws Exception {
         String json = MAPPER.writeValueAsString(new PointReferenceBean(3, 4));
         assertEquals("{\"ref\":[3,4]}", json);
     }
 
     // [databind#357]
     @Test
-    public void testConverterForList357() throws Exception {
+    void converterForList357() throws Exception {
         String json = MAPPER.writeValueAsString(new ListWrapper());
         assertEquals("{\"list\":[[\"Hello world!\"]]}", json);
     }
 
     // [databind#359]
     @Test
-    public void testIssue359() throws Exception {
+    void issue359() throws Exception {
         String json = MAPPER.writeValueAsString(new Bean359());
         assertEquals("{\"stuff\":[\"Target\"]}", json);
     }
 
     // [databind#731]: Problems converting from java.lang.Object ("unknown")
     @Test
-    public void testIssue731() throws Exception
+    void issue731() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ConvertingBeanWithUntypedConverter(1, 2));
         // must be  {"a":2,"b":4}

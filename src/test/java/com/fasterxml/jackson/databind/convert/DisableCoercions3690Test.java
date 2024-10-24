@@ -12,11 +12,12 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class DisableCoercions3690Test
+class DisableCoercions3690Test
 {
     // [databind#3690]
     static class Input3690 {
@@ -37,7 +38,7 @@ public class DisableCoercions3690Test
 
     // [databind#3690]
     @Test
-    public void testCoercionFail3690() throws Exception
+    void coercionFail3690() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .withCoercionConfigDefaults(config -> {
@@ -63,7 +64,7 @@ public class DisableCoercions3690Test
 
     // [databind#3924]
     @Test
-    public void testFailMessage3924() throws Exception {
+    void failMessage3924() throws Exception {
         // Arrange : Building a strict ObjectMapper.
         ObjectMapper mapper = jsonMapperBuilder()
                 .withCoercionConfigDefaults(config -> {

@@ -13,13 +13,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // [databind#3418]: Coercion from empty String to Collection<String>, with
 // `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
-public class EmptyStringAsSingleValueTest
+class EmptyStringAsSingleValueTest
 {
     static final class StringWrapper {
         private final String s;
@@ -59,140 +60,140 @@ public class EmptyStringAsSingleValueTest
             .build();
 
     @Test
-    public void testEmptyToList() throws Exception {
+    void emptyToList() throws Exception {
         // NO coercion + empty string input + StringCollectionDeserializer
         assertEquals(Collections.singletonList(""),
                 NORMAL_MAPPER.readValue("\"\"", new TypeReference<List<String>>() {}));
     }
 
     @Test
-    public void testEmptyToListWrapper() throws Exception {
+    void emptyToListWrapper() throws Exception {
         // NO coercion + empty string input + normal CollectionDeserializer
         assertEquals(Collections.singletonList(new StringWrapper("")),
                 NORMAL_MAPPER.readValue("\"\"", new TypeReference<List<StringWrapper>>() {}));
     }
 
     @Test
-    public void testCoercedEmptyToList() throws Exception {
+    void coercedEmptyToList() throws Exception {
         // YES coercion + empty string input + StringCollectionDeserializer
         assertEquals(Collections.emptyList(), COERCION_MAPPER.readValue("\"\"",
                 new TypeReference<List<String>>() {}));
     }
 
     @Test
-    public void testCoercedEmptyToListWrapper() throws Exception {
+    void coercedEmptyToListWrapper() throws Exception {
         // YES coercion + empty string input + normal CollectionDeserializer
         assertEquals(Collections.emptyList(),
                 COERCION_MAPPER.readValue("\"\"", new TypeReference<List<StringWrapper>>() {}));
     }
 
     @Test
-    public void testCoercedListToList() throws Exception {
+    void coercedListToList() throws Exception {
         // YES coercion + empty LIST input + StringCollectionDeserializer
         assertEquals(Collections.emptyList(),
                 COERCION_MAPPER.readValue("[]", new TypeReference<List<String>>() {}));
     }
 
     @Test
-    public void testCoercedListToListWrapper() throws Exception {
+    void coercedListToListWrapper() throws Exception {
         // YES coercion + empty LIST input + normal CollectionDeserializer
         assertEquals(Collections.emptyList(),
                 COERCION_MAPPER.readValue("[]", new TypeReference<List<StringWrapper>>() {}));
     }
 
     @Test
-    public void testBlankToList() throws Exception {
+    void blankToList() throws Exception {
         // NO coercion + empty string input + StringCollectionDeserializer
         assertEquals(Collections.singletonList(" "),
                 NORMAL_MAPPER.readValue("\" \"", new TypeReference<List<String>>() {}));
     }
 
     @Test
-    public void testBlankToListWrapper() throws Exception {
+    void blankToListWrapper() throws Exception {
         // NO coercion + empty string input + normal CollectionDeserializer
         assertEquals(Collections.singletonList(new StringWrapper(" ")),
                 NORMAL_MAPPER.readValue("\" \"", new TypeReference<List<StringWrapper>>() {}));
     }
 
     @Test
-    public void testCoercedBlankToList() throws Exception {
+    void coercedBlankToList() throws Exception {
         // YES coercion + empty string input + StringCollectionDeserializer
         assertEquals(Collections.emptyList(),
                 COERCION_MAPPER.readValue("\" \"", new TypeReference<List<String>>() {}));
     }
 
     @Test
-    public void testCoercedBlankToListWrapper() throws Exception {
+    void coercedBlankToListWrapper() throws Exception {
         // YES coercion + empty string input + normal CollectionDeserializer
         assertEquals(Collections.emptyList(),
                 COERCION_MAPPER.readValue("\" \"", new TypeReference<List<StringWrapper>>() {}));
     }
 
     @Test
-    public void testEmptyToArray() throws Exception {
+    void emptyToArray() throws Exception {
         // NO coercion + empty string input + StringCollectionDeserializer
         assertArrayEquals(new String[]{""},
                 NORMAL_MAPPER.readValue("\"\"", new TypeReference<String[]>() {}));
     }
 
     @Test
-    public void testEmptyToArrayWrapper() throws Exception {
+    void emptyToArrayWrapper() throws Exception {
         // NO coercion + empty string input + normal CollectionDeserializer
         assertArrayEquals(new StringWrapper[]{new StringWrapper("")},
                 NORMAL_MAPPER.readValue("\"\"", new TypeReference<StringWrapper[]>() {}));
     }
 
     @Test
-    public void testCoercedEmptyToArray() throws Exception {
+    void coercedEmptyToArray() throws Exception {
         // YES coercion + empty string input + StringCollectionDeserializer
         assertArrayEquals(new String[0], COERCION_MAPPER.readValue("\"\"",
                 new TypeReference<String[]>() {}));
     }
 
     @Test
-    public void testCoercedEmptyToArrayWrapper() throws Exception {
+    void coercedEmptyToArrayWrapper() throws Exception {
         // YES coercion + empty string input + normal CollectionDeserializer
         assertArrayEquals(new StringWrapper[0],
                 COERCION_MAPPER.readValue("\"\"", new TypeReference<StringWrapper[]>() {}));
     }
 
     @Test
-    public void testCoercedListToArray() throws Exception {
+    void coercedListToArray() throws Exception {
         // YES coercion + empty LIST input + StringCollectionDeserializer
         assertArrayEquals(new String[0],
                 COERCION_MAPPER.readValue("[]", new TypeReference<String[]>() {}));
     }
 
     @Test
-    public void testCoercedListToArrayWrapper() throws Exception {
+    void coercedListToArrayWrapper() throws Exception {
         // YES coercion + empty LIST input + normal CollectionDeserializer
         assertArrayEquals(new StringWrapper[0],
                 COERCION_MAPPER.readValue("[]", new TypeReference<StringWrapper[]>() {}));
     }
 
     @Test
-    public void testBlankToArray() throws Exception {
+    void blankToArray() throws Exception {
         // NO coercion + empty string input + StringCollectionDeserializer
         assertArrayEquals(new String[]{" "},
                 NORMAL_MAPPER.readValue("\" \"", new TypeReference<String[]>() {}));
     }
 
     @Test
-    public void testBlankToArrayWrapper() throws Exception {
+    void blankToArrayWrapper() throws Exception {
         // NO coercion + empty string input + normal CollectionDeserializer
         assertArrayEquals(new StringWrapper[]{new StringWrapper(" ")},
                 NORMAL_MAPPER.readValue("\" \"", new TypeReference<StringWrapper[]>() {}));
     }
 
     @Test
-    public void testCoercedBlankToArray() throws Exception {
+    void coercedBlankToArray() throws Exception {
         // YES coercion + empty string input + StringCollectionDeserializer
         assertArrayEquals(new String[0],
                 COERCION_MAPPER.readValue("\" \"", new TypeReference<String[]>() {}));
     }
 
     @Test
-    public void testCoercedBlankToArrayWrapper() throws Exception {
+    void coercedBlankToArrayWrapper() throws Exception {
         // YES coercion + empty string input + normal CollectionDeserializer
         assertArrayEquals(new StringWrapper[0],
                 COERCION_MAPPER.readValue("\" \"", new TypeReference<StringWrapper[]>() {}));

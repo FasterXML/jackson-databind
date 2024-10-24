@@ -19,7 +19,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
  * and specifically addressing problems [JACKSON-189]
  * and [JACKSON-739]
  */
-public class OverloadedMethodsDeserTest
+class OverloadedMethodsDeserTest
 {
     static class BaseListBean
     {
@@ -79,7 +79,7 @@ public class OverloadedMethodsDeserTest
      * version; more specific method should be used.
      */
     @Test
-    public void testSpecialization() throws Exception
+    void specialization() throws Exception
     {
         ArrayListBean bean = MAPPER.readValue
             ("{\"list\":[\"a\",\"b\",\"c\"]}", ArrayListBean.class);
@@ -96,7 +96,7 @@ public class OverloadedMethodsDeserTest
      * as long as there are no in-class conflicts.
      */
     @Test
-    public void testOverride() throws Exception
+    void override() throws Exception
     {
         WasNumberBean bean = MAPPER.readValue
             ("{\"value\" : \"abc\"}", WasNumberBean.class);
@@ -106,7 +106,7 @@ public class OverloadedMethodsDeserTest
 
     // for [JACKSON-739]
     @Test
-    public void testConflictResolution() throws Exception
+    void conflictResolution() throws Exception
     {
         Overloaded739 bean = MAPPER.readValue
                 ("{\"value\":\"abc\"}", Overloaded739.class);
@@ -124,7 +124,7 @@ public class OverloadedMethodsDeserTest
      * For genuine setter conflict, an exception is to be thrown.
      */
     @Test
-    public void testSetterConflict() throws Exception
+    void setterConflict() throws Exception
     {
     	try {
     	MAPPER.readValue("{ }", ConflictBean.class);

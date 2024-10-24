@@ -7,13 +7,14 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Trivial test to ensure <code>JsonSchema</code> can be also deserialized
  */
-public class TestReadJsonSchema
-    extends DatabindTestUtil
+class TestReadJsonSchema
+        extends DatabindTestUtil
 {
     enum SchemaEnum { YES, NO; }
 
@@ -53,7 +54,7 @@ public class TestReadJsonSchema
      */
     @SuppressWarnings("deprecation")
     @Test
-    public void testDeserializeSimple() throws Exception
+    void deserializeSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         JsonSchema schema = mapper.generateJsonSchema(Schemable.class);

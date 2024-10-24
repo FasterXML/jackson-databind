@@ -13,14 +13,15 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for verifying that field-backed properties can also be serialized
  * (since version 1.1) as well as getter-accessible properties.
  */
-public class FieldSerializationTest
-    extends DatabindTestUtil
+class FieldSerializationTest
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -141,7 +142,7 @@ public class FieldSerializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleAutoDetect() throws Exception
+    void simpleAutoDetect() throws Exception
     {
         SimpleFieldBean bean = new SimpleFieldBean();
         // let's set x, leave y as is
@@ -154,7 +155,7 @@ public class FieldSerializationTest
 
     @SuppressWarnings("unchecked")
     @Test
-	public void testSimpleAnnotation() throws Exception
+    void simpleAnnotation() throws Exception
     {
         SimpleFieldBean2 bean = new SimpleFieldBean2();
         bean.values = new String[] { "a", "b" };
@@ -167,7 +168,7 @@ public class FieldSerializationTest
     }
 
     @Test
-    public void testTransientAndStatic() throws Exception
+    void transientAndStatic() throws Exception
     {
         TransientBean bean = new TransientBean();
         Map<String,Object> result = writeAndMap(MAPPER, bean);
@@ -176,7 +177,7 @@ public class FieldSerializationTest
     }
 
     @Test
-    public void testNoAutoDetect() throws Exception
+    void noAutoDetect() throws Exception
     {
         NoAutoDetectBean bean = new NoAutoDetectBean();
         bean._z = -4;
@@ -191,7 +192,7 @@ public class FieldSerializationTest
      * getter has precendence over field.
      */
     @Test
-    public void testMethodPrecedence() throws Exception
+    void methodPrecedence() throws Exception
     {
         FieldAndMethodBean bean = new FieldAndMethodBean();
         bean.z = 9;
@@ -204,7 +205,7 @@ public class FieldSerializationTest
      * as long as there are no intra-class conflicts.
      */
     @Test
-    public void testOkDupFields() throws Exception
+    void okDupFields() throws Exception
     {
         OkDupFieldBean bean = new OkDupFieldBean(1, 2);
         Map<String,Object> json = writeAndMap(MAPPER, bean);
@@ -214,10 +215,10 @@ public class FieldSerializationTest
     }
 
     @Test
-    public void testIssue240() throws Exception
+    void issue240() throws Exception
     {
         Item240 bean = new Item240("a12", null);
-        assertEquals(MAPPER.writeValueAsString(bean), "{\"id\":\"a12\"}");
+        assertEquals("{\"id\":\"a12\"}", MAPPER.writeValueAsString(bean));
     }
 
     /*
@@ -227,7 +228,7 @@ public class FieldSerializationTest
      */
 
     @Test
-    public void testFailureDueToDups() throws Exception
+    void failureDueToDups() throws Exception
     {
         try {
             String json = MAPPER.writeValueAsString(new DupFieldBean());
@@ -240,7 +241,7 @@ public class FieldSerializationTest
     // 21-Jan-2021, tatu: Resolvable as of 2.13 (and much earlier) since explicitly
     //    annotated one takes precedence
     @Test
-    public void testResolvedDuplicate() throws Exception
+    void resolvedDuplicate() throws Exception
     {
         String json = MAPPER.writeValueAsString(new DupFieldBean2());
         assertEquals(json, a2q("{'z':4}"));

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ParsingContext2525Test extends DatabindTestUtil
+class ParsingContext2525Test extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
@@ -31,7 +31,7 @@ public class ParsingContext2525Test extends DatabindTestUtil
      */
 
     @Test
-    public void testAllWithRegularParser() throws Exception
+    void allWithRegularParser() throws Exception
     {
         try (JsonParser p = MAPPER.createParser(MINIMAL_ARRAY_DOC)) {
             _testSimpleArrayUsingPathAsPointer(p);
@@ -51,7 +51,7 @@ public class ParsingContext2525Test extends DatabindTestUtil
      */
 
     @Test
-    public void testSimpleArrayWithBuffer() throws Exception
+    void simpleArrayWithBuffer() throws Exception
     {
         try (TokenBuffer buf = _readAsTokenBuffer(MINIMAL_ARRAY_DOC)) {
             _testSimpleArrayUsingPathAsPointer(buf.asParser());
@@ -59,7 +59,7 @@ public class ParsingContext2525Test extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleObjectWithBuffer() throws Exception
+    void simpleObjectWithBuffer() throws Exception
     {
         try (TokenBuffer buf = _readAsTokenBuffer(MINIMAL_OBJECT_DOC)) {
             _testSimpleObjectUsingPathAsPointer(buf.asParser());
@@ -67,7 +67,7 @@ public class ParsingContext2525Test extends DatabindTestUtil
     }
 
     @Test
-    public void testFullDocWithBuffer() throws Exception
+    void fullDocWithBuffer() throws Exception
     {
         try (TokenBuffer buf = _readAsTokenBuffer(FULL_DOC)) {
             _testFullDocUsingPathAsPointer(buf.asParser());
@@ -92,7 +92,7 @@ public class ParsingContext2525Test extends DatabindTestUtil
      */
 
     @Test
-    public void testSimpleArrayWithTree() throws Exception
+    void simpleArrayWithTree() throws Exception
     {
         JsonNode root = MAPPER.readTree(MINIMAL_ARRAY_DOC);
         try (JsonParser p = root.traverse(null)) {
@@ -101,7 +101,7 @@ public class ParsingContext2525Test extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleObjectWithTree() throws Exception
+    void simpleObjectWithTree() throws Exception
     {
         JsonNode root = MAPPER.readTree(MINIMAL_OBJECT_DOC);
         try (JsonParser p = root.traverse(null)) {
@@ -110,7 +110,7 @@ public class ParsingContext2525Test extends DatabindTestUtil
     }
 
     @Test
-    public void testFullDocWithTree() throws Exception
+    void fullDocWithTree() throws Exception
     {
         JsonNode root = MAPPER.readTree(FULL_DOC);
         try (JsonParser p = root.traverse(null)) {

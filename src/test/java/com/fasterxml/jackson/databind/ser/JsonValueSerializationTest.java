@@ -16,15 +16,15 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This unit test suite tests functioning of {@link JsonValue}
  * annotation with bean serialization.
  */
 @SuppressWarnings("serial")
-public class JsonValueSerializationTest
-    extends DatabindTestUtil
+class JsonValueSerializationTest
+        extends DatabindTestUtil
 {
     static class ValueClass<T>
     {
@@ -247,21 +247,21 @@ public class JsonValueSerializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleMethodJsonValue() throws Exception
+    void simpleMethodJsonValue() throws Exception
     {
         assertEquals("\"abc\"", MAPPER.writeValueAsString(new ValueClass<String>("abc")));
         assertEquals("null", MAPPER.writeValueAsString(new ValueClass<String>(null)));
     }
 
     @Test
-    public void testSimpleFieldJsonValue() throws Exception
+    void simpleFieldJsonValue() throws Exception
     {
         assertEquals("\"abc\"", MAPPER.writeValueAsString(new FieldValueClass<String>("abc")));
         assertEquals("null", MAPPER.writeValueAsString(new FieldValueClass<String>(null)));
     }
 
     @Test
-    public void testJsonValueWithUseSerializer() throws Exception
+    void jsonValueWithUseSerializer() throws Exception
     {
         String result = serializeAsString(MAPPER, new ToStringValueClass<Integer>(Integer.valueOf(123)));
         assertEquals("\"123\"", result);
@@ -271,21 +271,21 @@ public class JsonValueSerializationTest
      * Test for verifying that additional getters won't confuse serializer.
      */
     @Test
-    public void testMixedJsonValue() throws Exception
+    void mixedJsonValue() throws Exception
     {
         String result = serializeAsString(MAPPER, new ToStringValueClass2("xyz"));
         assertEquals("\"xyz\"", result);
     }
 
     @Test
-    public void testDisabling() throws Exception
+    void disabling() throws Exception
     {
         assertEquals(a2q("{'x':1,'y':2}"),
                 MAPPER.writeValueAsString(new DisabledJsonValue()));
     }
 
     @Test
-    public void testValueWithStaticType() throws Exception
+    void valueWithStaticType() throws Exception
     {
         // Ok; first, with dynamic type:
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", MAPPER.writeValueAsString(new ValueWrapper()));
@@ -298,7 +298,7 @@ public class JsonValueSerializationTest
     }
 
     @Test
-    public void testMapWithJsonValue() throws Exception {
+    void mapWithJsonValue() throws Exception {
         // First via method
         assertEquals("{\"a\":\"1\"}", MAPPER.writeValueAsString(new MapBean()));
 
@@ -307,27 +307,27 @@ public class JsonValueSerializationTest
     }
 
     @Test
-    public void testWithMap() throws Exception {
+    void withMap() throws Exception {
         assertEquals("42", MAPPER.writeValueAsString(new MapAsNumber()));
     }
 
     @Test
-    public void testWithList() throws Exception {
+    void withList() throws Exception {
         assertEquals("13", MAPPER.writeValueAsString(new ListAsNumber()));
     }
 
     @Test
-    public void testInList() throws Exception {
+    void inList() throws Exception {
         IntExtBean bean = new IntExtBean();
         bean.add(1);
         bean.add(2);
         String json = MAPPER.writeValueAsString(bean);
-        assertEquals(json, "{\"values\":[{\"i\":1},{\"i\":2}]}");
+        assertEquals("{\"values\":[{\"i\":1},{\"i\":2}]}", json);
     }
 
     // [databind#167]
     @Test
-    public void testPolymorphicSerdeWithDelegate() throws Exception
+    void polymorphicSerdeWithDelegate() throws Exception
     {
 	    AdditionInterface adder = new AdditionInterfaceImpl(1);
 
@@ -338,7 +338,7 @@ public class JsonValueSerializationTest
     }
 
     @Test
-    public void testJsonValueWithCustomOverride() throws Exception
+    void jsonValueWithCustomOverride() throws Exception
     {
         final Bean838 INPUT = new Bean838();
 
@@ -355,7 +355,7 @@ public class JsonValueSerializationTest
 
     // [databind#1806]
     @Test
-    public void testCollectionViaJsonValue() throws Exception
+    void collectionViaJsonValue() throws Exception
     {
         assertEquals("[{\"impl\":{\"value\":1}}]",
                 MAPPER.writeValueAsString(new Bean1806()));
@@ -363,7 +363,7 @@ public class JsonValueSerializationTest
 
     // [databind#2822]
     @Test
-    public void testFormatWithJsonValue() throws Exception
+    void formatWithJsonValue() throws Exception
     {
         final String json = MAPPER.writeValueAsString(new A2822("desc",
                 new B2822(BigDecimal.ONE)));

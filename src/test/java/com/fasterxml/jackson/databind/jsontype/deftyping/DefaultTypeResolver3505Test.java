@@ -72,11 +72,11 @@ public class DefaultTypeResolver3505Test
 
         final Parent firstRead = mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class);
         assertNotNull(firstRead);
-        assertTrue(firstRead instanceof Parent.ChildOne);
+        assertInstanceOf(Parent.ChildOne.class, firstRead);
         assertEquals("Hello World", ((Parent.ChildOne) firstRead).one);
         final Parent secondRead = mapper.readValue("{ \"two\": \"Hello World\" }", Parent.class);
         assertNotNull(secondRead);
-        assertTrue(secondRead instanceof Parent.ChildTwo);
+        assertInstanceOf(Parent.ChildTwo.class, secondRead);
         assertEquals("Hello World", ((Parent.ChildTwo) secondRead).two);
     }
 }

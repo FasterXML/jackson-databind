@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SingleValueAsArrayTest extends DatabindTestUtil
+class SingleValueAsArrayTest extends DatabindTestUtil
 {
     static class Bean1421A
     {
@@ -74,7 +74,7 @@ public class SingleValueAsArrayTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSuccessfulDeserializationOfObjectWithChainedArrayCreators() throws IOException
+    void successfulDeserializationOfObjectWithChainedArrayCreators() throws IOException
     {
         Bean1421A result = MAPPER.readValue("[{\"message\":\"messageHere\"}]", Bean1421A.class);
         assertNotNull(result);
@@ -83,7 +83,7 @@ public class SingleValueAsArrayTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWithSingleString() throws Exception {
+    void withSingleString() throws Exception {
         Bean1421B<List<String>> a = MAPPER.readValue(q("test2"),
                 new TypeReference<Bean1421B<List<String>>>() {});
         List<String> expected = new ArrayList<>();
@@ -92,7 +92,7 @@ public class SingleValueAsArrayTest extends DatabindTestUtil
     }
 
     @Test
-    public void testPrimitives() throws Exception {
+    void primitives() throws Exception {
         int[] i = MAPPER.readValue("16", int[].class);
         assertEquals(1, i.length);
         assertEquals(16, i[0]);

@@ -10,10 +10,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class MergePolymorphicTest
+class MergePolymorphicTest
 {
 
     static class Root {
@@ -42,14 +41,14 @@ public class MergePolymorphicTest
             .build();
 
     @Test
-    public void testPolymorphicNewObject() throws Exception {
+    void polymorphicNewObject() throws Exception {
         Root root = MAPPER.readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm child A\" }}", Root.class);
         assertTrue(root.child instanceof ChildA);
         assertEquals("I'm child A", ((ChildA) root.child).name);
     }
 
     @Test
-    public void testPolymorphicFromNullToNewObject() throws Exception {
+    void polymorphicFromNullToNewObject() throws Exception {
         Root root = new Root();
         MAPPER.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm the new name\" }}");
         assertTrue(root.child instanceof ChildA);
@@ -57,17 +56,17 @@ public class MergePolymorphicTest
     }
 
     @Test
-    public void testPolymorphicFromObjectToNull() throws Exception {
+    void polymorphicFromObjectToNull() throws Exception {
         Root root = new Root();
         ChildA childA = new ChildA();
         childA.name = "I'm child A";
         root.child = childA;
         MAPPER.readerForUpdating(root).readValue("{\"child\": null }");
-        assertTrue(root.child == null);
+        assertNull(root.child);
     }
 
     @Test
-    public void testPolymorphicPropertyCanBeMerged() throws Exception {
+    void polymorphicPropertyCanBeMerged() throws Exception {
         Root root = new Root();
         ChildA childA = new ChildA();
         childA.name = "I'm child A";
@@ -78,7 +77,7 @@ public class MergePolymorphicTest
     }
 
     @Test
-    public void testPolymorphicPropertyTypeCanNotBeChanged() throws Exception {
+    void polymorphicPropertyTypeCanNotBeChanged() throws Exception {
         Root root = new Root();
         ChildA childA = new ChildA();
         childA.name = "I'm child A";

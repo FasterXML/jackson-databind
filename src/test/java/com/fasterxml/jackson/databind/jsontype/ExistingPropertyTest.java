@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ExistingPropertyTest extends DatabindTestUtil
+class ExistingPropertyTest extends DatabindTestUtil
 {
     /**
      * Polymorphic base class - existing property as simple property on subclasses
@@ -200,6 +200,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
             property = "packetType")
     public interface Base2785  {
     }
+
     @JsonTypeName("myType")
     static class Impl2785 implements Base2785 {
     }
@@ -304,7 +305,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
      * Fruits - serialization tests for simple property on sub-classes
      */
     @Test
-    public void testExistingPropertySerializationFruits() throws Exception
+    void existingPropertySerializationFruits() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, pinguo);
         assertEquals(3, result.size());
@@ -319,27 +320,27 @@ public class ExistingPropertyTest extends DatabindTestUtil
         assertEquals(mandarin.type, result.get("type"));
 
         String pinguoSerialized = MAPPER.writeValueAsString(pinguo);
-        assertEquals(pinguoSerialized, pinguoJson);
+        assertEquals(pinguoJson, pinguoSerialized);
 
         String mandarinSerialized = MAPPER.writeValueAsString(mandarin);
-        assertEquals(mandarinSerialized, mandarinJson);
+        assertEquals(mandarinJson, mandarinSerialized);
 
         String fruitWrapperSerialized = MAPPER.writeValueAsString(pinguoWrapper);
-        assertEquals(fruitWrapperSerialized, pinguoWrapperJson);
+        assertEquals(pinguoWrapperJson, fruitWrapperSerialized);
 
         String fruitListSerialized = MAPPER.writeValueAsString(fruitList);
-        assertEquals(fruitListSerialized, fruitListJson);
+        assertEquals(fruitListJson, fruitListSerialized);
     }
 
     /**
      * Fruits - deserialization tests for simple property on sub-classes
      */
     @Test
-    public void testSimpleClassAsExistingPropertyDeserializationFruits() throws Exception
+    void simpleClassAsExistingPropertyDeserializationFruits() throws Exception
     {
         Fruit pinguoDeserialized = MAPPER.readValue(pinguoJson, Fruit.class);
         assertTrue(pinguoDeserialized instanceof Apple);
-        assertSame(pinguoDeserialized.getClass(), Apple.class);
+        assertSame(Apple.class, pinguoDeserialized.getClass());
         assertEquals(pinguo.name, pinguoDeserialized.name);
         assertEquals(pinguo.seedCount, ((Apple) pinguoDeserialized).seedCount);
         assertEquals(pinguo.type, ((Apple) pinguoDeserialized).type);
@@ -347,7 +348,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
         FruitWrapper pinguoWrapperDeserialized = MAPPER.readValue(pinguoWrapperJson, FruitWrapper.class);
         Fruit pinguoExtracted = pinguoWrapperDeserialized.fruit;
         assertTrue(pinguoExtracted instanceof Apple);
-        assertSame(pinguoExtracted.getClass(), Apple.class);
+        assertSame(Apple.class, pinguoExtracted.getClass());
         assertEquals(pinguo.name, pinguoExtracted.name);
         assertEquals(pinguo.seedCount, ((Apple) pinguoExtracted).seedCount);
         assertEquals(pinguo.type, ((Apple) pinguoExtracted).type);
@@ -362,7 +363,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
         List<Fruit> f2 = MAPPER.readValue(fruitListJson,
                 new TypeReference<List<Fruit>>() { });
         assertNotNull(f2);
-        assertTrue(f2.size() == 2);
+        assertEquals(2, f2.size());
         assertEquals(Apple.class, f2.get(0).getClass());
         assertEquals(Orange.class, f2.get(1).getClass());
     }
@@ -371,7 +372,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
      * Animals - serialization tests for abstract method in base class
      */
     @Test
-    public void testExistingPropertySerializationAnimals() throws Exception
+    void existingPropertySerializationAnimals() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, beelzebub);
         assertEquals(3, result.size());
@@ -386,27 +387,27 @@ public class ExistingPropertyTest extends DatabindTestUtil
         assertEquals(rover.getType(), result.get("type"));
 
         String beelzebubSerialized = MAPPER.writeValueAsString(beelzebub);
-        assertEquals(beelzebubSerialized, beelzebubJson);
+        assertEquals(beelzebubJson, beelzebubSerialized);
 
         String roverSerialized = MAPPER.writeValueAsString(rover);
-        assertEquals(roverSerialized, roverJson);
+        assertEquals(roverJson, roverSerialized);
 
         String animalWrapperSerialized = MAPPER.writeValueAsString(beelzebubWrapper);
-        assertEquals(animalWrapperSerialized, beelzebubWrapperJson);
+        assertEquals(beelzebubWrapperJson, animalWrapperSerialized);
 
         String animalListSerialized = MAPPER.writeValueAsString(animalList);
-        assertEquals(animalListSerialized, animalListJson);
+        assertEquals(animalListJson, animalListSerialized);
     }
 
     /**
      * Animals - deserialization tests for abstract method in base class
      */
     @Test
-    public void testSimpleClassAsExistingPropertyDeserializationAnimals() throws Exception
+    void simpleClassAsExistingPropertyDeserializationAnimals() throws Exception
     {
         Animal beelzebubDeserialized = MAPPER.readValue(beelzebubJson, Animal.class);
         assertTrue(beelzebubDeserialized instanceof Cat);
-        assertSame(beelzebubDeserialized.getClass(), Cat.class);
+        assertSame(Cat.class, beelzebubDeserialized.getClass());
         assertEquals(beelzebub.name, beelzebubDeserialized.name);
         assertEquals(beelzebub.furColor, ((Cat) beelzebubDeserialized).furColor);
         assertEquals(beelzebub.getType(), beelzebubDeserialized.getType());
@@ -414,7 +415,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
         AnimalWrapper beelzebubWrapperDeserialized = MAPPER.readValue(beelzebubWrapperJson, AnimalWrapper.class);
         Animal beelzebubExtracted = beelzebubWrapperDeserialized.animal;
         assertTrue(beelzebubExtracted instanceof Cat);
-        assertSame(beelzebubExtracted.getClass(), Cat.class);
+        assertSame(Cat.class, beelzebubExtracted.getClass());
         assertEquals(beelzebub.name, beelzebubExtracted.name);
         assertEquals(beelzebub.furColor, ((Cat) beelzebubExtracted).furColor);
         assertEquals(beelzebub.getType(), beelzebubExtracted.getType());
@@ -422,20 +423,20 @@ public class ExistingPropertyTest extends DatabindTestUtil
         @SuppressWarnings("unchecked")
         List<Animal> animalListDeserialized = MAPPER.readValue(animalListJson, List.class);
         assertNotNull(animalListDeserialized);
-        assertTrue(animalListDeserialized.size() == 2);
+        assertEquals(2, animalListDeserialized.size());
         Animal cat = MAPPER.convertValue(animalListDeserialized.get(0), Animal.class);
         assertTrue(cat instanceof Cat);
-        assertSame(cat.getClass(), Cat.class);
+        assertSame(Cat.class, cat.getClass());
         Animal dog = MAPPER.convertValue(animalListDeserialized.get(1), Animal.class);
         assertTrue(dog instanceof Dog);
-        assertSame(dog.getClass(), Dog.class);
+        assertSame(Dog.class, dog.getClass());
     }
 
     /**
      * Cars - serialization tests for no abstract method or type variable in base class
      */
     @Test
-    public void testExistingPropertySerializationCars() throws Exception
+    void existingPropertySerializationCars() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, camry);
         assertEquals(3, result.size());
@@ -450,27 +451,27 @@ public class ExistingPropertyTest extends DatabindTestUtil
         assertEquals(accord.getType(), result.get("type"));
 
         String camrySerialized = MAPPER.writeValueAsString(camry);
-        assertEquals(camrySerialized, camryJson);
+        assertEquals(camryJson, camrySerialized);
 
         String accordSerialized = MAPPER.writeValueAsString(accord);
-        assertEquals(accordSerialized, accordJson);
+        assertEquals(accordJson, accordSerialized);
 
         String carWrapperSerialized = MAPPER.writeValueAsString(camryWrapper);
-        assertEquals(carWrapperSerialized, camryWrapperJson);
+        assertEquals(camryWrapperJson, carWrapperSerialized);
 
         String carListSerialized = MAPPER.writeValueAsString(carList);
-        assertEquals(carListSerialized, carListJson);
+        assertEquals(carListJson, carListSerialized);
     }
 
     /**
      * Cars - deserialization tests for no abstract method or type variable in base class
      */
     @Test
-    public void testSimpleClassAsExistingPropertyDeserializationCars() throws Exception
+    void simpleClassAsExistingPropertyDeserializationCars() throws Exception
     {
         Car camryDeserialized = MAPPER.readValue(camryJson, Camry.class);
         assertTrue(camryDeserialized instanceof Camry);
-        assertSame(camryDeserialized.getClass(), Camry.class);
+        assertSame(Camry.class, camryDeserialized.getClass());
         assertEquals(camry.name, camryDeserialized.name);
         assertEquals(camry.exteriorColor, ((Camry) camryDeserialized).exteriorColor);
         assertEquals(camry.getType(), ((Camry) camryDeserialized).getType());
@@ -478,7 +479,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
         CarWrapper camryWrapperDeserialized = MAPPER.readValue(camryWrapperJson, CarWrapper.class);
         Car camryExtracted = camryWrapperDeserialized.car;
         assertTrue(camryExtracted instanceof Camry);
-        assertSame(camryExtracted.getClass(), Camry.class);
+        assertSame(Camry.class, camryExtracted.getClass());
         assertEquals(camry.name, camryExtracted.name);
         assertEquals(camry.exteriorColor, ((Camry) camryExtracted).exteriorColor);
         assertEquals(camry.getType(), ((Camry) camryExtracted).getType());
@@ -486,19 +487,19 @@ public class ExistingPropertyTest extends DatabindTestUtil
         @SuppressWarnings("unchecked")
         List<Car> carListDeserialized = MAPPER.readValue(carListJson, List.class);
         assertNotNull(carListDeserialized);
-        assertTrue(carListDeserialized.size() == 2);
+        assertEquals(2, carListDeserialized.size());
         Car result = MAPPER.convertValue(carListDeserialized.get(0), Car.class);
         assertTrue(result instanceof Camry);
-        assertSame(result.getClass(), Camry.class);
+        assertSame(Camry.class, result.getClass());
 
         result = MAPPER.convertValue(carListDeserialized.get(1), Car.class);
         assertTrue(result instanceof Accord);
-        assertSame(result.getClass(), Accord.class);
+        assertSame(Accord.class, result.getClass());
     }
 
     // for [databind#1635]: simple usage
     @Test
-    public void testExistingEnumTypeId() throws Exception
+    void existingEnumTypeId() throws Exception
     {
         Bean1635 result = MAPPER.readValue(a2q("{'value':3, 'type':'A'}"),
                 Bean1635.class);
@@ -511,7 +512,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
     // for [databind#1635]: verify that `defaultImpl` does not block assignment of
     // type id
     @Test
-    public void testExistingEnumTypeIdViaDefault() throws Exception
+    void existingEnumTypeIdViaDefault() throws Exception
     {
         Bean1635 result = MAPPER.readValue(a2q("{'type':'C'}"),
                 Bean1635.class);
@@ -521,7 +522,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
 
     // [databind#2785]
     @Test
-    public void testCopyOfSubtypeResolver2785() throws Exception {
+    void copyOfSubtypeResolver2785() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper().copy();
         objectMapper.registerSubtypes(Impl2785.class);
         Object result = objectMapper.readValue("{ \"packetType\": \"myType\" }", Base2785.class);
@@ -530,26 +531,26 @@ public class ExistingPropertyTest extends DatabindTestUtil
 
     // [databind#3271]: verify that `null` token does not become "null" String
     @Test
-    public void testDeserializationWithValidType() throws Exception {
+    void deserializationWithValidType() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":\"square\"}", Shape3271.class);
         assertEquals("square", deserShape.getType());
     }
 
     @Test
-    public void testDeserializationWithInvalidType() throws Exception {
+    void deserializationWithInvalidType() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":\"invalid\"}", Shape3271.class);
         assertEquals("invalid", deserShape.getType());
     }
 
     @Test
-    public void testDeserializationNull() throws Exception {
+    void deserializationNull() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":null}", Shape3271.class);
         assertNull(deserShape.getType()); // error: "expected null, but was:<null>"
     }
 
     // [databind#3251]: Double vs BigDecimal
     @Test
-    public void test3251WithNewProperty() throws Exception
+    void test3251WithNewProperty() throws Exception
     {
         GenericWrapperWithNew3251<?> wrapper = new GenericWrapperWithNew3251<>(123.5);
 
@@ -562,7 +563,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
     }
 
     @Test
-    public void test3251WithExistingProperty() throws Exception
+    void test3251WithExistingProperty() throws Exception
     {
         GenericWrapperWithExisting3251<?> wrapper = new GenericWrapperWithExisting3251<>(123.5);
 

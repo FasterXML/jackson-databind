@@ -10,14 +10,15 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for checking extended auto-detect configuration,
  * in context of serialization
  */
-public class TestAutoDetectForSer
-    extends DatabindTestUtil
+class TestAutoDetectForSer
+        extends DatabindTestUtil
 {
     static class FieldBean
     {
@@ -50,7 +51,7 @@ public class TestAutoDetectForSer
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testDefaults() throws Exception
+    void defaults() throws Exception
     {
         // by default, only public fields and getters are detected
         assertEquals("{\"p1\":\"public\"}",
@@ -60,7 +61,7 @@ public class TestAutoDetectForSer
     }
 
     @Test
-    public void testProtectedViaAnnotations() throws Exception
+    void protectedViaAnnotations() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new ProtFieldBean());
         assertEquals(2, result.size());
@@ -76,7 +77,7 @@ public class TestAutoDetectForSer
     }
 
     @Test
-    public void testPrivateUsingGlobals() throws Exception
+    void privateUsingGlobals() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         VisibilityChecker<?> vc = m.getVisibilityChecker();
@@ -101,7 +102,7 @@ public class TestAutoDetectForSer
     }
 
     @Test
-    public void testBasicSetup() throws Exception
+    void basicSetup() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         VisibilityChecker<?> vc = m.getVisibilityChecker();
@@ -116,7 +117,7 @@ public class TestAutoDetectForSer
     }
 
     @Test
-    public void testMapperShortcutMethods() throws Exception
+    void mapperShortcutMethods() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);

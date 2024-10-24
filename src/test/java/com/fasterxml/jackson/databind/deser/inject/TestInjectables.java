@@ -6,12 +6,13 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class TestInjectables
+class TestInjectables
 {
     static class InjectedBean
     {
@@ -102,7 +103,7 @@ public class TestInjectables
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimple() throws Exception
+    void simple() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.setInjectableValues(new InjectableValues.Std()
@@ -118,7 +119,7 @@ public class TestInjectables
     }
 
     @Test
-    public void testWithCtors() throws Exception
+    void withCtors() throws Exception
     {
         CtorBean bean = MAPPER.readerFor(CtorBean.class)
             .with(new InjectableValues.Std()
@@ -129,7 +130,7 @@ public class TestInjectables
     }
 
     @Test
-    public void testTwoInjectablesViaCreator() throws Exception
+    void twoInjectablesViaCreator() throws Exception
     {
         CtorBean2 bean = MAPPER.readerFor(CtorBean2.class)
                 .with(new InjectableValues.Std()
@@ -142,7 +143,7 @@ public class TestInjectables
 
     // [databind#471]
     @Test
-    public void testIssue471() throws Exception
+    void issue471() throws Exception
     {
         final Object constructorInjected = "constructorInjected";
         final Object methodInjected = "methodInjected";
@@ -173,7 +174,7 @@ public class TestInjectables
 
     // [databind#77]
     @Test
-    public void testTransientField() throws Exception
+    void transientField() throws Exception
     {
         TransientBean bean = MAPPER.readerFor(TransientBean.class)
                 .with(new InjectableValues.Std()

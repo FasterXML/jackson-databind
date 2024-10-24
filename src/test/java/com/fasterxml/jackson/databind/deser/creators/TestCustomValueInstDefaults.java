@@ -15,8 +15,7 @@ import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Exercises a custom value instantiator with an overridden
@@ -25,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * and {@link PropertyValueBuffer#getParameter(SettableBeanProperty)} methods.
  */
 @SuppressWarnings("serial")
-public class TestCustomValueInstDefaults
+class TestCustomValueInstDefaults
 {
     static class Bucket
     {
@@ -380,7 +379,7 @@ public class TestCustomValueInstDefaults
 
     // When all values are in the source, no defaults should be used.
     @Test
-    public void testAllPresent() throws Exception
+    void allPresent() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -397,7 +396,7 @@ public class TestCustomValueInstDefaults
 
     // When no values are in the source, all defaults should be used.
     @Test
-    public void testAllAbsent() throws Exception
+    void allAbsent() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -415,7 +414,7 @@ public class TestCustomValueInstDefaults
     // When some values are in the source and some are not, defaults should only
     // be used for the missing values.
     @Test
-    public void testMixedPresentAndAbsent() throws Exception
+    void mixedPresentAndAbsent() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -459,7 +458,7 @@ public class TestCustomValueInstDefaults
 
     // Ensure that 0 is not mistaken for a missing int value.
     @Test
-    public void testPresentZeroPrimitive() throws Exception
+    void presentZeroPrimitive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -476,7 +475,7 @@ public class TestCustomValueInstDefaults
 
     // Ensure that null is not mistaken for a missing String value.
     @Test
-    public void testPresentNullReference() throws Exception
+    void presentNullReference() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -487,7 +486,7 @@ public class TestCustomValueInstDefaults
 
         assertEquals(Bucket.DEFAULT_A, cNullRestAbsent.a);
         assertEquals(Bucket.DEFAULT_B, cNullRestAbsent.b);
-        assertEquals(null, cNullRestAbsent.c);
+        assertNull(cNullRestAbsent.c);
         assertEquals(Bucket.DEFAULT_D, cNullRestAbsent.d);
     }
 
@@ -495,7 +494,7 @@ public class TestCustomValueInstDefaults
     // BitSet instead of a primitive int to keep track of which parameters it
     // has seen.  Ensure that nothing breaks in that case.
     @Test
-    public void testMoreThan32CreatorParams() throws Exception
+    void moreThan32CreatorParams() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new BucketModule());
@@ -524,7 +523,7 @@ public class TestCustomValueInstDefaults
         assertEquals(BigBucket.DEFAULT_S, big.s02);
         assertEquals(BigBucket.DEFAULT_S, big.s03);
         assertEquals(BigBucket.DEFAULT_S, big.s04);
-        assertEquals(null, big.s05);
+        assertNull(big.s05);
         assertEquals(BigBucket.DEFAULT_S, big.s06);
         assertEquals(BigBucket.DEFAULT_S, big.s07);
         assertEquals("x", big.s08);
@@ -540,7 +539,7 @@ public class TestCustomValueInstDefaults
 
     // [databind#1432]
     @Test
-    public void testClassWith32CreatorParams() throws Exception
+    void classWith32CreatorParams() throws Exception
     {
         StringBuilder sb = new StringBuilder()
                 .append("{\n");

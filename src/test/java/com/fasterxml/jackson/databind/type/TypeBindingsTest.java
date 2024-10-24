@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Simple tests to verify for generic type binding functionality
  * implemented by {@link TypeBindings} class.
  */
-public class TypeBindingsTest extends DatabindTestUtil
+class TypeBindingsTest extends DatabindTestUtil
 {
     static class AbstractType<A,B> { }
 
@@ -46,7 +46,7 @@ public class TypeBindingsTest extends DatabindTestUtil
     private final TypeFactory DEFAULT_TF = defaultTypeFactory();
 
     @Test
-    public void testInnerType() throws Exception
+    void innerType() throws Exception
     {
         JavaType type = DEFAULT_TF.constructType(InnerGenericTyping.InnerClass.class);
         assertEquals(MapType.class, type.getClass());
@@ -60,14 +60,14 @@ public class TypeBindingsTest extends DatabindTestUtil
 
     // for [databind#76]
     @Test
-    public void testRecursiveType()
+    void recursiveType()
     {
         JavaType type = DEFAULT_TF.constructType(HashTree.class);
         assertNotNull(type);
     }
 
     @Test
-    public void testBindingsBasics()
+    void bindingsBasics()
     {
         TypeBindings b = TypeBindings.create(Collection.class,
                 TypeFactory.unknownType());
@@ -79,11 +79,11 @@ public class TypeBindingsTest extends DatabindTestUtil
         assertNull(b.getBoundName(1));
         assertNull(b.getBoundType(1));
 
-        assertFalse(b.equals("foo"));
+        assertNotEquals("foo", b);
     }
 
     @Test
-    public void testInvalidBindings()
+    void invalidBindings()
     {
         JavaType unknown = TypeFactory.unknownType();
         try {
@@ -97,7 +97,7 @@ public class TypeBindingsTest extends DatabindTestUtil
 
     // for [databind#3876]
     @Test
-    public void testEqualityAndHashCode()
+    void equalityAndHashCode()
     {
         JavaType stringType = DEFAULT_TF.constructType(String.class);
         JavaType integerType = DEFAULT_TF.constructType(Integer.class);

@@ -9,10 +9,11 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestMixinSerWithViews
-    extends DatabindTestUtil
+class TestMixinSerWithViews
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -165,18 +166,18 @@ public class TestMixinSerWithViews
      */
 
     @Test
-    public void testDataBindingUsage( ) throws Exception
+    void dataBindingUsage() throws Exception
     {
       ObjectMapper objectMapper = createObjectMapper();
       ObjectWriter objectWriter = objectMapper.writerWithView(Views.View.class).withDefaultPrettyPrinter();
       Object object = new ComplexTestData();
       String json = objectWriter.writeValueAsString(object);
-      assertTrue( json.indexOf( "nameHidden" ) == -1 );
+        assertEquals(-1, json.indexOf("nameHidden"));
       assertTrue( json.indexOf( "\"name\" : \"shown\"" ) > 0 );
     }
 
     @Test
-    public void testIssue560() throws Exception
+    void issue560() throws Exception
     {
         A a = new A("myname", 29, "mysurname");
 

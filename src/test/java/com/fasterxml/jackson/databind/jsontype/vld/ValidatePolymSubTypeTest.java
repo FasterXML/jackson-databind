@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  *
  * @since 2.10
  */
-public class ValidatePolymSubTypeTest extends DatabindTestUtil
+class ValidatePolymSubTypeTest extends DatabindTestUtil
 {
     // // // Value types
 
@@ -36,7 +36,9 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     }
 
     static class BadValue extends BaseValue { }
+
     static class GoodValue extends BaseValue { }
+
     static class MehValue extends BaseValue { }
 
     // // // Wrapper types
@@ -146,7 +148,7 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     // // With Name check
 
     @Test
-    public void testWithDefaultTypingNameAccept() throws Exception
+    void withDefaultTypingNameAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
         DefTypeWrapper result = _roundTripDefault(MAPPER_DEF_TYPING_NAME_CHECK, inputValue);
@@ -154,13 +156,13 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWithDefaultTypingNameDenyExplicit() throws Exception
+    void withDefaultTypingNameDenyExplicit() throws Exception
     {
         _verifyBadDefaultValue(MAPPER_DEF_TYPING_NAME_CHECK);
     }
 
     @Test
-    public void testWithDefaultTypingNameDenyDefault() throws Exception
+    void withDefaultTypingNameDenyDefault() throws Exception
     {
         _verifyMehDefaultValue(MAPPER_DEF_TYPING_NAME_CHECK);
     }
@@ -168,7 +170,7 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     // // With Class check
 
     @Test
-    public void testWithDefaultTypingClassAccept() throws Exception
+    void withDefaultTypingClassAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
         DefTypeWrapper result = _roundTripDefault(MAPPER_DEF_TYPING_CLASS_CHECK, inputValue);
@@ -176,13 +178,13 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWithDefaultTypingClassDenyExplicit() throws Exception
+    void withDefaultTypingClassDenyExplicit() throws Exception
     {
         _verifyBadDefaultValue(MAPPER_DEF_TYPING_CLASS_CHECK);
     }
 
     @Test
-    public void testWithDefaultTypingClassDenyDefault() throws Exception
+    void withDefaultTypingClassDenyDefault() throws Exception
     {
         _verifyMehDefaultValue(MAPPER_DEF_TYPING_CLASS_CHECK);
     }
@@ -196,7 +198,7 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     // // With Name
 
     @Test
-    public void testWithAnnotationNameAccept() throws Exception
+    void withAnnotationNameAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
         AnnotatedWrapper result = _roundTripAnnotated(MAPPER_EXPLICIT_NAME_CHECK, inputValue);
@@ -204,13 +206,13 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWithAnnotationNameDenyExplicit() throws Exception
+    void withAnnotationNameDenyExplicit() throws Exception
     {
         _verifyBadAnnotatedValue(MAPPER_EXPLICIT_NAME_CHECK);
     }
 
     @Test
-    public void testWithAnnotationNameDenyDefault() throws Exception
+    void withAnnotationNameDenyDefault() throws Exception
     {
         _verifyMehAnnotatedValue(MAPPER_EXPLICIT_NAME_CHECK);
     }
@@ -218,7 +220,7 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     // // With Class
 
     @Test
-    public void testWithAnnotationClassAccept() throws Exception
+    void withAnnotationClassAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
         AnnotatedWrapper result = _roundTripAnnotated(MAPPER_EXPLICIT_CLASS_CHECK, inputValue);
@@ -226,13 +228,13 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWithAnnotationClassDenyExplicit() throws Exception
+    void withAnnotationClassDenyExplicit() throws Exception
     {
         _verifyBadAnnotatedValue(MAPPER_EXPLICIT_CLASS_CHECK);
     }
 
     @Test
-    public void testWithAnnotationClassDenyDefault() throws Exception
+    void withAnnotationClassDenyDefault() throws Exception
     {
         _verifyMehAnnotatedValue(MAPPER_EXPLICIT_CLASS_CHECK);
     }
@@ -246,7 +248,7 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     // // With Name
 
     @Test
-    public void testWithAnnotationMinClassNameAccept() throws Exception
+    void withAnnotationMinClassNameAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
         AnnotatedMinimalWrapper result = _roundTripAnnotatedMinimal(MAPPER_EXPLICIT_NAME_CHECK, inputValue);
@@ -254,13 +256,13 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWithAnnotationMinClassNameDenyExplicit() throws Exception
+    void withAnnotationMinClassNameDenyExplicit() throws Exception
     {
         _verifyBadAnnotatedMinValue(MAPPER_EXPLICIT_NAME_CHECK);
     }
 
     @Test
-    public void testWithAnnotationMinClassNameDenyDefault() throws Exception
+    void withAnnotationMinClassNameDenyDefault() throws Exception
     {
         _verifyMehAnnotatedMinValue(MAPPER_EXPLICIT_NAME_CHECK);
     }
@@ -268,7 +270,7 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     // // With Class
 
     @Test
-    public void testWithAnnotationMinClassClassAccept() throws Exception
+    void withAnnotationMinClassClassAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
         AnnotatedMinimalWrapper result = _roundTripAnnotatedMinimal(MAPPER_EXPLICIT_CLASS_CHECK, inputValue);
@@ -276,13 +278,13 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     }
 
     @Test
-    public void testWithAnnotationMinClassClassDenyExplicit() throws Exception
+    void withAnnotationMinClassClassDenyExplicit() throws Exception
     {
         _verifyBadAnnotatedMinValue(MAPPER_EXPLICIT_CLASS_CHECK);
     }
 
     @Test
-    public void testWithAnnotationMinClassClassDenyDefault() throws Exception
+    void withAnnotationMinClassClassDenyDefault() throws Exception
     {
         _verifyMehAnnotatedMinValue(MAPPER_EXPLICIT_CLASS_CHECK);
     }

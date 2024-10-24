@@ -16,11 +16,11 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders.ShortBuilder;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ArrayBuildersTest extends DatabindTestUtil
+class ArrayBuildersTest extends DatabindTestUtil
 {
-	// [databind#157]
+    // [databind#157]
     @Test
-    public void testInsertInListNoDup()
+    void insertInListNoDup()
     {
         String [] arr = new String[]{"me", "you", "him"};
         String [] newarr;
@@ -39,7 +39,7 @@ public class ArrayBuildersTest extends DatabindTestUtil
     }
 
     @Test
-    public void testBuilderAccess()
+    void builderAccess()
     {
         ArrayBuilders builders = new ArrayBuilders();
 
@@ -73,11 +73,12 @@ public class ArrayBuildersTest extends DatabindTestUtil
     }
 
     @Test
-    public void testArrayComparator()
+    void arrayComparator()
     {
         final int[] INT3 = new int[] { 3, 4, 5 };
         Object comp = ArrayBuilders.getArrayComparator(INT3);
-        assertFalse(comp.equals(null));
+        assertNotEquals(null, comp);
+        //since equals is not symmetric we cannot use assert(Not)Equals
         assertTrue(comp.equals(INT3));
         assertTrue(comp.equals(new int[] { 3, 4, 5 }));
         assertFalse(comp.equals(new int[] { 5 }));
@@ -87,7 +88,7 @@ public class ArrayBuildersTest extends DatabindTestUtil
     }
 
     @Test
-    public void testArraySet()
+    void arraySet()
     {
         HashSet<String> set = ArrayBuilders.arrayToSet(new String[] { "foo", "bar" });
         assertEquals(2, set.size());

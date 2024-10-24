@@ -9,10 +9,10 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class ObjectIdWithCreator1261Test
-    extends DatabindTestUtil
+class ObjectIdWithCreator1261Test
+        extends DatabindTestUtil
 {
     static class Answer
     {
@@ -70,7 +70,7 @@ public class ObjectIdWithCreator1261Test
     }
 
     @Test
-    public void testObjectIds1261() throws Exception
+    void objectIds1261() throws Exception
     {
          ObjectMapper mapper = jsonMapperBuilder()
                  .enable(SerializationFeature.INDENT_OUTPUT)

@@ -16,12 +16,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * Basic tests for {@link JsonNode} implementations that
  * contain numeric values.
  */
-public class NumberNodesTest extends NodeTestBase
+class NumberNodesTest extends NodeTestBase
 {
     private final ObjectMapper MAPPER = objectMapper();
 
     @Test
-    public void testShort()
+    void testShort()
     {
         ShortNode n = ShortNode.valueOf((short) 1);
         assertStandardEquals(n);
@@ -46,7 +46,7 @@ public class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    public void testIntViaMapper() throws Exception
+    void intViaMapper() throws Exception
     {
         int value = -90184;
         JsonNode result = MAPPER.readTree(String.valueOf(value));
@@ -76,7 +76,7 @@ public class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    public void testInt()
+    void testInt()
     {
         IntNode n = IntNode.valueOf(1);
         assertStandardEquals(n);
@@ -104,7 +104,7 @@ public class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    public void testLong()
+    void testLong()
     {
         LongNode n = LongNode.valueOf(1L);
         assertStandardEquals(n);
@@ -133,7 +133,7 @@ public class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    public void testLongViaMapper() throws Exception
+    void longViaMapper() throws Exception
     {
         // need to use something beyond 32-bit value space
         long value = 12345678L << 32;
@@ -163,7 +163,7 @@ public class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    public void testDouble() throws Exception
+    void testDouble() throws Exception
     {
         DoubleNode n = DoubleNode.valueOf(0.25);
         assertStandardEquals(n);
@@ -196,7 +196,7 @@ public class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    public void testDoubleViaMapper() throws Exception
+    void doubleViaMapper() throws Exception
     {
         double value = 3.04;
         JsonNode result = MAPPER.readTree(String.valueOf(value));
@@ -225,7 +225,7 @@ public class NumberNodesTest extends NodeTestBase
 
     // @since 2.2
     @Test
-    public void testFloat()
+    void testFloat()
     {
         FloatNode n = FloatNode.valueOf(0.45f);
         assertStandardEquals(n);
@@ -267,11 +267,11 @@ public class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    public void testDecimalNode() throws Exception
+    void decimalNode() throws Exception
     {
         DecimalNode n = DecimalNode.valueOf(BigDecimal.ONE);
         assertStandardEquals(n);
-        assertTrue(n.equals(new DecimalNode(BigDecimal.ONE)));
+        assertEquals(n, new DecimalNode(BigDecimal.ONE));
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, n.asToken());
         assertEquals(JsonParser.NumberType.BIG_DECIMAL, n.numberType());
         assertTrue(n.isNumber());
@@ -325,7 +325,7 @@ public class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    public void testDecimalNodeEqualsHashCode()
+    void decimalNodeEqualsHashCode()
     {
         // We want DecimalNodes with equivalent _numeric_ values to be equal;
         // this is not the case for BigDecimal where "1.0" and "1" are not
@@ -351,11 +351,11 @@ public class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    public void testBigIntegerNode() throws Exception
+    void bigIntegerNode() throws Exception
     {
         BigIntegerNode n = BigIntegerNode.valueOf(BigInteger.ONE);
         assertStandardEquals(n);
-        assertTrue(n.equals(new BigIntegerNode(BigInteger.ONE)));
+        assertEquals(n, new BigIntegerNode(BigInteger.ONE));
         assertEquals(JsonToken.VALUE_NUMBER_INT, n.asToken());
         assertEquals(JsonParser.NumberType.BIG_INTEGER, n.numberType());
         assertTrue(n.isNumber());
@@ -394,7 +394,7 @@ public class NumberNodesTest extends NodeTestBase
     }
 
     @Test
-    public void testBigDecimalAsPlain() throws Exception
+    void bigDecimalAsPlain() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
@@ -415,7 +415,7 @@ public class NumberNodesTest extends NodeTestBase
 
     // Related to [databind#333]
     @Test
-    public void testCanonicalNumbers() throws Exception
+    void canonicalNumbers() throws Exception
     {
         JsonNodeFactory f = new JsonNodeFactory();
         NumericNode n = f.numberNode(123);

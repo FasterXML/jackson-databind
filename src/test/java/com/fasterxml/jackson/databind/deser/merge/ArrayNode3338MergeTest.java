@@ -11,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // [databind#3338]
-public class ArrayNode3338MergeTest
+class ArrayNode3338MergeTest
 {
     @Test
-    public void testEnabledArrayNodeMerge() throws Exception {
+    void enabledArrayNodeMerge() throws Exception {
         final ObjectMapper mapperWithMerge = sharedMapper();
 
         JsonNode merged = _updateTreeWithArray(mapperWithMerge);
@@ -33,7 +33,7 @@ public class ArrayNode3338MergeTest
     }
 
     @Test
-    public void testDisabledArrayNodeMerge() throws Exception {
+    void disabledArrayNodeMerge() throws Exception {
         ObjectMapper mapperNoArrayMerge = jsonMapperBuilder()
                 .withConfigOverride(ArrayNode.class,
                         cfg -> cfg.setMergeable(false))
@@ -72,7 +72,7 @@ public class ArrayNode3338MergeTest
     }
 
     @Test
-    public void testEnabledObjectNodeMerge() throws Exception {
+    void enabledObjectNodeMerge() throws Exception {
         final ObjectMapper mapperWithMerge = sharedMapper();
 
         JsonNode merged = _updateTreeWithObject(mapperWithMerge);
@@ -93,7 +93,7 @@ public class ArrayNode3338MergeTest
     }
 
     @Test
-    public void testDisabledObjectNodeMerge() throws Exception {
+    void disabledObjectNodeMerge() throws Exception {
         ObjectMapper mapperNoObjectMerge = jsonMapperBuilder()
                 .withConfigOverride(ObjectNode.class,
                         cfg -> cfg.setMergeable(false))

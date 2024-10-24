@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ScalarTypingTest extends DatabindTestUtil
+class ScalarTypingTest extends DatabindTestUtil
 {
     private static class DynamicWrapper {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY)
@@ -62,7 +62,7 @@ public class ScalarTypingTest extends DatabindTestUtil
      * and others
      */
     @Test
-    public void testScalarsWithTyping() throws Exception
+    void scalarsWithTyping() throws Exception
     {
         String json;
         DynamicWrapper result;
@@ -96,7 +96,7 @@ public class ScalarTypingTest extends DatabindTestUtil
     }
 
     @Test
-    public void testScalarsViaAbstractType() throws Exception
+    void scalarsViaAbstractType() throws Exception
     {
         ObjectMapper m = MAPPER;
         String json;
@@ -131,7 +131,7 @@ public class ScalarTypingTest extends DatabindTestUtil
 
     // Test inspired by [databind#1104]
     @Test
-    public void testHeterogenousStringScalars() throws Exception
+    void heterogenousStringScalars() throws Exception
     {
         final UUID NULL_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
         ScalarList input = new ScalarList()

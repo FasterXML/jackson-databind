@@ -9,10 +9,11 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class IgnorePropsForSerTest
-    extends DatabindTestUtil
+class IgnorePropsForSerTest
+        extends DatabindTestUtil
 {
     @JsonIgnoreProperties({"b", "c"})
     static class IgnoreSome
@@ -97,7 +98,7 @@ public class IgnorePropsForSerTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testExplicitIgnoralWithBean() throws Exception
+    void explicitIgnoralWithBean() throws Exception
     {
         IgnoreSome value = new IgnoreSome();
         Map<String,Object> result = writeAndMap(MAPPER, value);
@@ -111,7 +112,7 @@ public class IgnorePropsForSerTest
     }
 
     @Test
-    public void testExplicitIgnoralWithMap() throws Exception
+    void explicitIgnoralWithMap() throws Exception
     {
         // test simulating need to filter out metadata like class name
         MyMap value = new MyMap();
@@ -126,7 +127,7 @@ public class IgnorePropsForSerTest
     }
 
     @Test
-    public void testIgnoreViaOnlyProps() throws Exception
+    void ignoreViaOnlyProps() throws Exception
     {
         assertEquals("{\"value\":{\"x\":1}}",
                 MAPPER.writeValueAsString(new WrapperWithPropIgnore()));
@@ -134,27 +135,27 @@ public class IgnorePropsForSerTest
 
     // Also: should be fine even if nominal type is `java.lang.Object`
     @Test
-    public void testIgnoreViaPropForUntyped() throws Exception
+    void ignoreViaPropForUntyped() throws Exception
     {
         assertEquals("{\"value\":{\"z\":3}}",
                 MAPPER.writeValueAsString(new WrapperWithPropIgnoreUntyped()));
     }
 
     @Test
-    public void testIgnoreWithMapProperty() throws Exception
+    void ignoreWithMapProperty() throws Exception
     {
         assertEquals("{\"value\":{\"b\":2}}", MAPPER.writeValueAsString(new MapWrapper()));
     }
 
     @Test
-    public void testIgnoreViaPropsAndClass() throws Exception
+    void ignoreViaPropsAndClass() throws Exception
     {
         assertEquals("{\"value\":{\"y\":2}}",
                 MAPPER.writeValueAsString(new WrapperWithPropIgnore2()));
     }
 
     @Test
-    public void testIgnoreViaConfigOverride() throws Exception
+    void ignoreViaConfigOverride() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configOverride(Point.class)
@@ -165,7 +166,7 @@ public class IgnorePropsForSerTest
     // for [databind#1060]
     // Ensure that `@JsonIgnoreProperties` applies to POJOs within lists, too
     @Test
-    public void testIgnoreForListValues() throws Exception
+    void ignoreForListValues() throws Exception
     {
         // should apply to elements
         assertEquals(a2q("{'coordinates':[{'y':2}]}"),

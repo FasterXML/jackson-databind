@@ -21,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Additional tests for {@link ObjectNode} container class.
  */
-public class ObjectNodeTest
-    extends DatabindTestUtil
+class ObjectNodeTest
+        extends DatabindTestUtil
 {
     @JsonDeserialize(as = DataImpl.class)
     public interface Data {
@@ -72,7 +72,7 @@ public class ObjectNodeTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimpleObject() throws Exception
+    void simpleObject() throws Exception
     {
         String JSON = "{ \"key\" : 1, \"b\" : \"x\" }";
         JsonNode root = MAPPER.readTree(JSON);
@@ -129,14 +129,14 @@ public class ObjectNodeTest
 
     // for [databind#346]
     @Test
-    public void testEmptyNodeAsValue() throws Exception
+    void emptyNodeAsValue() throws Exception
     {
         Data w = MAPPER.readValue("{}", Data.class);
         assertNotNull(w);
     }
 
     @Test
-    public void testBasics()
+    void basics()
     {
         ObjectNode n = new ObjectNode(JsonNodeFactory.instance);
         assertStandardEquals(n);
@@ -169,7 +169,7 @@ public class ObjectNodeTest
 
         ObjectNode n2 = new ObjectNode(JsonNodeFactory.instance);
         n2.put("b", 13);
-        assertFalse(n.equals(n2));
+        assertNotEquals(n, n2);
         n.setAll(n2);
 
         assertEquals(2, n.size());
@@ -194,7 +194,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testBasicsPutSet()
+    void basicsPutSet()
     {
         final JsonNodeFactory f = JsonNodeFactory.instance;
         ObjectNode root = f.objectNode();
@@ -213,7 +213,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testBigNumbers()
+    void bigNumbers()
     {
         ObjectNode n = new ObjectNode(JsonNodeFactory.instance);
         assertStandardEquals(n);
@@ -235,7 +235,7 @@ public class ObjectNodeTest
      * Verify null handling
      */
     @Test
-    public void testNullChecking()
+    void nullChecking()
     {
         ObjectNode o1 = JsonNodeFactory.instance.objectNode();
         ObjectNode o2 = JsonNodeFactory.instance.objectNode();
@@ -248,22 +248,22 @@ public class ObjectNodeTest
         o1.set("x", null);
         JsonNode n = o1.get("x");
         assertNotNull(n);
-        assertSame(n, NullNode.instance);
+        assertSame(NullNode.instance, n);
 
         o1.put("str", (String) null);
         n = o1.get("str");
         assertNotNull(n);
-        assertSame(n, NullNode.instance);
+        assertSame(NullNode.instance, n);
 
         o1.put("d", (BigDecimal) null);
         n = o1.get("d");
         assertNotNull(n);
-        assertSame(n, NullNode.instance);
+        assertSame(NullNode.instance, n);
 
         o1.put("3", (BigInteger) null);
         n = o1.get("3");
         assertNotNull(3);
-        assertSame(n, NullNode.instance);
+        assertSame(NullNode.instance, n);
 
         assertEquals(4, o1.size());
     }
@@ -272,7 +272,7 @@ public class ObjectNodeTest
      * Another test to verify [JACKSON-227]...
      */
     @Test
-    public void testNullChecking2()
+    void nullChecking2()
     {
         ObjectNode src = MAPPER.createObjectNode();
         ObjectNode dest = MAPPER.createObjectNode();
@@ -281,7 +281,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testRemove()
+    void remove()
     {
         ObjectNode ob = MAPPER.createObjectNode();
         ob.put("a", "a");
@@ -294,7 +294,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testRetain()
+    void retain()
     {
         ObjectNode ob = MAPPER.createObjectNode();
         ob.put("a", "a");
@@ -309,7 +309,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testValidWithObject() throws Exception
+    void validWithObject() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         assertEquals("{}", MAPPER.writeValueAsString(root));
@@ -319,7 +319,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testValidWithArray() throws Exception
+    void validWithArray() throws Exception
     {
         JsonNode root = MAPPER.createObjectNode();
         assertEquals("{}", MAPPER.writeValueAsString(root));
@@ -329,7 +329,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testInvalidWithObject() throws Exception
+    void invalidWithObject() throws Exception
     {
         JsonNode root = MAPPER.createArrayNode();
         try { // should not work for non-ObjectNode nodes:
@@ -352,7 +352,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testInvalidWithArray() throws Exception
+    void invalidWithArray() throws Exception
     {
         JsonNode root = MAPPER.createArrayNode();
         try { // should not work for non-ObjectNode nodes:
@@ -376,7 +376,7 @@ public class ObjectNodeTest
 
     // Test for pre-2.14 behavior for "simple property"
     @Test
-    public void testInvalidWithArrayLegacy() throws Exception
+    void invalidWithArrayLegacy() throws Exception
     {
         JsonNode root = MAPPER.createArrayNode();
         try { // should not work for non-ObjectNode nodes:
@@ -397,7 +397,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testSetAll() throws Exception
+    void setAll() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         assertEquals(0, root.size());
@@ -436,7 +436,7 @@ public class ObjectNodeTest
 
     // [databind#237] (databind): support DeserializationFeature#FAIL_ON_READING_DUP_TREE_KEY
     @Test
-    public void testFailOnDupKeys() throws Exception
+    void failOnDupKeys() throws Exception
     {
         final String DUP_JSON = "{ \"a\":1, \"a\":2 }";
 
@@ -455,7 +455,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testFailOnDupNestedKeys() throws Exception
+    void failOnDupNestedKeys() throws Exception
     {
         final String DOC = a2q(
                 "{'node' : { 'data' : [ 1, 2, { 'a':3 }, { 'foo' : 1, 'bar' : 2, 'foo': 3}]}}"
@@ -471,7 +471,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testEqualityWrtOrder() throws Exception
+    void equalityWrtOrder() throws Exception
     {
         ObjectNode ob1 = MAPPER.createObjectNode();
         ObjectNode ob2 = MAPPER.createObjectNode();
@@ -486,12 +486,12 @@ public class ObjectNodeTest
         ob2.put("c", 3);
         ob2.put("a", 1);
 
-        assertTrue(ob1.equals(ob2));
-        assertTrue(ob2.equals(ob1));
+        assertEquals(ob1, ob2);
+        assertEquals(ob2, ob1);
     }
 
     @Test
-    public void testSimplePath() throws Exception
+    void simplePath() throws Exception
     {
         JsonNode root = MAPPER.readTree("{ \"results\" : { \"a\" : 3 } }");
         assertTrue(root.isObject());
@@ -502,7 +502,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testNonEmptySerialization() throws Exception
+    void nonEmptySerialization() throws Exception
     {
         ObNodeWrapper w = new ObNodeWrapper(MAPPER.createObjectNode()
                 .put("a", 3));
@@ -512,7 +512,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testIssue941() throws Exception
+    void issue941() throws Exception
     {
         ObjectNode object = MAPPER.createObjectNode();
 
@@ -529,7 +529,7 @@ public class ObjectNodeTest
     }
 
     @Test
-    public void testSimpleMismatch() throws Exception
+    void simpleMismatch() throws Exception
     {
         try {
             MAPPER.readValue("[ 1, 2, 3 ]", ObjectNode.class);
@@ -541,7 +541,7 @@ public class ObjectNodeTest
 
     // [databind#3809]
     @Test
-    public void testPropertiesTraversal() throws Exception
+    void propertiesTraversal() throws Exception
     {
         // Nothing to traverse for other types
         assertEquals("", _toString(MAPPER.createArrayNode()));

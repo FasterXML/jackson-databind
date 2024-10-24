@@ -7,9 +7,10 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AlwaysAsReferenceFirstTest extends DatabindTestUtil
+class AlwaysAsReferenceFirstTest extends DatabindTestUtil
 {
     // [databind#1255]
     @JsonPropertyOrder({ "bar1", "bar2" })
@@ -39,6 +40,7 @@ public class AlwaysAsReferenceFirstTest extends DatabindTestUtil
             value = v;
         }
 }
+
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
     @JsonIdentityReference(alwaysAsId=true)
     static class Value1607ViaClass
@@ -70,7 +72,7 @@ public class AlwaysAsReferenceFirstTest extends DatabindTestUtil
 
     // [databind#1255]
     @Test
-    public void testIssue1255() throws Exception
+    void issue1255() throws Exception
     {
         Foo mo = new Foo();
         mo.bar1 = new Bar();
@@ -84,7 +86,7 @@ public class AlwaysAsReferenceFirstTest extends DatabindTestUtil
 
     // [databind#1607]
     @Test
-    public void testIssue1607() throws Exception
+    void issue1607() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ReallyAlwaysContainer());
         assertEquals(a2q("{'alwaysClass':1,'alwaysProp':2}"), json);

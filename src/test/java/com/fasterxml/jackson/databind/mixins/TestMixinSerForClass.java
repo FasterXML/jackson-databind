@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestMixinSerForClass
-    extends DatabindTestUtil
+class TestMixinSerForClass
+        extends DatabindTestUtil
 {
     @JsonInclude(JsonInclude.Include.ALWAYS)
     static class BaseClass
@@ -88,7 +88,7 @@ public class TestMixinSerForClass
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testClassMixInsTopLevel() throws IOException
+    void classMixInsTopLevel() throws IOException
     {
         Map<String,Object> result;
 
@@ -114,7 +114,7 @@ public class TestMixinSerForClass
     }
 
     @Test
-    public void testClassMixInsMidLevel() throws IOException
+    void classMixInsMidLevel() throws IOException
     {
         Map<String,Object> result;
         LeafClass bean = new LeafClass("xyz");
@@ -146,7 +146,7 @@ public class TestMixinSerForClass
 
     // [databind#3035]: ability to remove mix-ins:
     @Test
-    public void testClassMixInRemoval() throws Exception
+    void classMixInRemoval() throws Exception
     {
         // First, no mix-in
         assertEquals(a2q("{'a':42}"), MAPPER.writeValueAsString(new Bean3035()));

@@ -16,12 +16,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * Basic tests for {@link JsonNode} base class and some features
  * of implementation classes
  */
-public class JsonNodeBasicTest extends NodeTestBase
+class JsonNodeBasicTest extends NodeTestBase
 {
     private final ObjectMapper MAPPER = objectMapper();
 
     @Test
-    public void testBoolean() throws Exception
+    void testBoolean() throws Exception
     {
         BooleanNode f = BooleanNode.getFalse();
         assertNotNull(f);
@@ -68,7 +68,7 @@ public class JsonNodeBasicTest extends NodeTestBase
     }
 
     @Test
-    public void testBinary() throws Exception
+    void binary() throws Exception
     {
         assertNull(BinaryNode.valueOf(null));
         assertNull(BinaryNode.valueOf(null, 0, 0));
@@ -87,7 +87,7 @@ public class JsonNodeBasicTest extends NodeTestBase
 
         data[2] = (byte) 3;
         BinaryNode n2 = BinaryNode.valueOf(data, 2, 1);
-        assertTrue(n.equals(n2));
+        assertEquals(n, n2);
         assertEquals("\"Aw==\"", n.toString());
 
         assertEquals("AAMD", new BinaryNode(data).asText());
@@ -95,7 +95,7 @@ public class JsonNodeBasicTest extends NodeTestBase
     }
 
     @Test
-    public void testPOJO()
+    void pojo()
     {
         POJONode n = new POJONode("x"); // not really a pojo but that's ok
         assertStandardEquals(n);
@@ -114,7 +114,7 @@ public class JsonNodeBasicTest extends NodeTestBase
 
     // [databind#743]
     @Test
-    public void testRawValue() throws Exception
+    void rawValue() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         root.putRawValue("a", new RawValue(new SerializedString("[1, 2, 3]")));
@@ -124,7 +124,7 @@ public class JsonNodeBasicTest extends NodeTestBase
 
     // [databind#790]
     @Test
-    public void testCustomComparators() throws Exception
+    void customComparators() throws Exception
     {
         ObjectNode nestedObject1 = MAPPER.createObjectNode();
         nestedObject1.put("value", 6);
@@ -145,14 +145,14 @@ public class JsonNodeBasicTest extends NodeTestBase
         root2.set("nested_array", nestedArray2);
 
         // default equals(): not strictly equal
-        assertFalse(root1.equals(root2));
-        assertFalse(root2.equals(root1));
-        assertTrue(root1.equals(root1));
-        assertTrue(root2.equals(root2));
+        assertNotEquals(root1, root2);
+        assertNotEquals(root2, root1);
+        assertEquals(root1, root1);
+        assertEquals(root2, root2);
 
-        assertTrue(nestedArray1.equals(nestedArray1));
-        assertFalse(nestedArray1.equals(nestedArray2));
-        assertFalse(nestedArray2.equals(nestedArray1));
+        assertEquals(nestedArray1, nestedArray1);
+        assertNotEquals(nestedArray1, nestedArray2);
+        assertNotEquals(nestedArray2, nestedArray1);
 
         // but. Custom comparator can make all the difference
         Comparator<JsonNode> cmp = new Comparator<JsonNode>() {
@@ -195,7 +195,7 @@ public class JsonNodeBasicTest extends NodeTestBase
 
     // [databind#793]
     @Test
-    public void testArrayWithDefaultTyping() throws Exception
+    void arrayWithDefaultTyping() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
             .activateDefaultTyping(NoCheckSubTypeValidator.instance);

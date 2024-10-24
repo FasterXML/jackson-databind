@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ImplicitParamsForCreatorTest extends DatabindTestUtil
+class ImplicitParamsForCreatorTest extends DatabindTestUtil
 {
     @SuppressWarnings("serial")
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
@@ -78,7 +78,7 @@ public class ImplicitParamsForCreatorTest extends DatabindTestUtil
             .build();
 
     @Test
-    public void nonSingleArgCreator() throws Exception
+    void nonSingleArgCreator() throws Exception
     {
         XY value = MAPPER.readValue(a2q("{'paramName0':1,'paramName1':2}"), XY.class);
         assertNotNull(value);
@@ -100,10 +100,10 @@ public class ImplicitParamsForCreatorTest extends DatabindTestUtil
         assertEquals(1, value.x);
         assertEquals(2, value.y);
     }
-    
+
     // [databind#2932]
     @Test
-    public void jsonCreatorWithOtherAnnotations() throws Exception
+    void jsonCreatorWithOtherAnnotations() throws Exception
     {
         Bean2932 bean = MAPPER.readValue(a2q("{'paramName0':1,'paramName1':2}"),
                 Bean2932.class);
@@ -114,7 +114,7 @@ public class ImplicitParamsForCreatorTest extends DatabindTestUtil
 
     // [databind#3654]
     @Test
-    public void delegatingInferFromJsonValue() throws Exception
+    void delegatingInferFromJsonValue() throws Exception
     {
         // First verify serialization via `@JsonValue`
         assertEquals("123", MAPPER.writeValueAsString(new XY3654(123)));

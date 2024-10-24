@@ -9,14 +9,14 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This unit test suite tests use of Annotations for
  * bean serialization.
  */
-public class TestAnnotationInheritance
-    extends DatabindTestUtil
+class TestAnnotationInheritance
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -78,7 +78,7 @@ public class TestAnnotationInheritance
      */
 
     @Test
-    public void testSimpleGetterInheritance() throws Exception
+    void simpleGetterInheritance() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         Map<String,Object> result = writeAndMap(m, new PojoSubclass());
@@ -88,7 +88,7 @@ public class TestAnnotationInheritance
     }
 
     @Test
-    public void testSimpleGetterInterfaceImpl() throws Exception
+    void simpleGetterInterfaceImpl() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         Map<String,Object> result = writeAndMap(m, new PojoImpl());

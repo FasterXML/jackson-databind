@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class EnumCreator4544Test extends DatabindTestUtil
+class EnumCreator4544Test extends DatabindTestUtil
 {
     static class DataClass4544 {
        public DataEnum4544 data;

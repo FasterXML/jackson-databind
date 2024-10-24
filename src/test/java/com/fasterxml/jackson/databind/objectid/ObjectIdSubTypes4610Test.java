@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ObjectIdSubTypes4610Test extends DatabindTestUtil
+class ObjectIdSubTypes4610Test extends DatabindTestUtil
 {
     // Unused @JsonIdentityInfo
     @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
@@ -36,7 +36,7 @@ public class ObjectIdSubTypes4610Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void shouldHandleTypeDefinitionJson() throws Exception {
+    void shouldHandleTypeDefinitionJson() throws Exception {
         String input = "{\"@type\": \"number\"}";
 
         TypeDefinition model = MAPPER.readerFor(TypeDefinition.class)
@@ -47,7 +47,7 @@ public class ObjectIdSubTypes4610Test extends DatabindTestUtil
     }
 
     @Test
-    public void testRoundTrip() throws Exception {
+    void roundTrip() throws Exception {
         // Ser
         String JSON = MAPPER.writeValueAsString(new NumberTypeDefinition());
         assertTrue(JSON.contains("@id"));
@@ -60,7 +60,7 @@ public class ObjectIdSubTypes4610Test extends DatabindTestUtil
     }
 
     @Test
-    public void shouldHandleTypeDefinitionJsonFail() throws Exception {
+    void shouldHandleTypeDefinitionJsonFail() throws Exception {
         String JSON = "{\"@type\": \"number\"}";
 
         try {

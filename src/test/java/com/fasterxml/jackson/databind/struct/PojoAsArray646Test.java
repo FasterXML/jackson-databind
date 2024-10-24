@@ -9,9 +9,10 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PojoAsArray646Test extends DatabindTestUtil
+class PojoAsArray646Test extends DatabindTestUtil
 {
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder(alphabetic = true)
@@ -88,7 +89,7 @@ public class PojoAsArray646Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testWithCustomTypeId() throws Exception {
+    void withCustomTypeId() throws Exception {
 
         List<TheItem.NestedItem> nestedList = new ArrayList<TheItem.NestedItem>();
         nestedList.add(new TheItem.NestedItem("foo1"));

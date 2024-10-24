@@ -18,12 +18,12 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 /**
  * Unit tests for those Jackson types we want to ensure can be deserialized.
  */
-public class JacksonTypesDeserTest
+class JacksonTypesDeserTest
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
     @Test
-    public void testJsonLocation() throws Exception
+    void jsonLocation() throws Exception
     {
         // note: source reference is untyped, only String guaranteed to work
         JsonLocation loc = new JsonLocation(ContentReference.rawReference("whatever"),
@@ -44,20 +44,20 @@ public class JacksonTypesDeserTest
 
     // doesn't really belong here but...
     @Test
-    public void testJsonLocationProps()
+    void jsonLocationProps()
     {
         JsonLocation loc = new JsonLocation(null,  -1, -1, 100, 13);
-        assertTrue(loc.equals(loc));
-        assertFalse(loc.equals(null));
+        assertEquals(loc, loc);
+        assertNotEquals(null, loc);
         final Object value = "abx";
-        assertFalse(loc.equals(value));
+        assertNotEquals(loc, value);
 
         // should we check it's not 0?
         loc.hashCode();
     }
 
     @Test
-    public void testJavaType() throws Exception
+    void javaType() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();
         // first simple type:
@@ -74,7 +74,7 @@ public class JacksonTypesDeserTest
      * automatically, using the "standard" JSON sample document
      */
     @Test
-    public void testTokenBufferWithSample() throws Exception
+    void tokenBufferWithSample() throws Exception
     {
         // First, try standard sample doc:
         TokenBuffer result = MAPPER.readValue(SAMPLE_DOC_JSON_SPEC, TokenBuffer.class);
@@ -84,7 +84,7 @@ public class JacksonTypesDeserTest
 
     @SuppressWarnings("resource")
     @Test
-    public void testTokenBufferWithSequence() throws Exception
+    void tokenBufferWithSequence() throws Exception
     {
         // and then sequence of other things
         JsonParser jp = MAPPER.createParser("[ 32, [ 1 ], \"abc\", { \"a\" : true } ]");
@@ -128,7 +128,7 @@ public class JacksonTypesDeserTest
 
     // [databind#2398]
     @Test
-    public void testDeeplyNestedArrays() throws Exception
+    void deeplyNestedArrays() throws Exception
     {
         JsonFactory jsonFactory = JsonFactory.builder()
                 .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
@@ -143,7 +143,7 @@ public class JacksonTypesDeserTest
     }
 
     @Test
-    public void testDeeplyNestedObjects() throws Exception
+    void deeplyNestedObjects() throws Exception
     {
         JsonFactory jsonFactory = JsonFactory.builder()
                 .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())

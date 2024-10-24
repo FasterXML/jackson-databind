@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 
-public class BuilderWithUnwrappedTest
+class BuilderWithUnwrappedTest
 {
     final static class Name {
         private final String first;
@@ -223,7 +223,7 @@ public class BuilderWithUnwrappedTest
      */
 
     @Test
-    public void testWithUnwrappedAndCreatorSingleParameterAtBeginning() throws Exception {
+    void withUnwrappedAndCreatorSingleParameterAtBeginning() throws Exception {
         final String json = a2q("{'person_id':1234,'first_name':'John','last_name':'Doe','years_old':30,'living':true}");
 
         final ObjectMapper mapper = new ObjectMapper();
@@ -237,7 +237,7 @@ public class BuilderWithUnwrappedTest
     }
 
     @Test
-    public void testWithUnwrappedAndCreatorSingleParameterInMiddle() throws Exception {
+    void withUnwrappedAndCreatorSingleParameterInMiddle() throws Exception {
         final String json = a2q("{'first_name':'John','last_name':'Doe','person_id':1234,'years_old':30,'living':true}");
 
         final ObjectMapper mapper = new ObjectMapper();
@@ -251,7 +251,7 @@ public class BuilderWithUnwrappedTest
     }
 
     @Test
-    public void testWithUnwrappedAndCreatorSingleParameterAtEnd() throws Exception {
+    void withUnwrappedAndCreatorSingleParameterAtEnd() throws Exception {
         final String json = a2q("{'first_name':'John','last_name':'Doe','years_old':30,'living':true,'person_id':1234}");
 
         final ObjectMapper mapper = new ObjectMapper();
@@ -265,7 +265,7 @@ public class BuilderWithUnwrappedTest
     }
 
     @Test
-    public void testWithUnwrappedAndCreatorMultipleParametersAtBeginning() throws Exception {
+    void withUnwrappedAndCreatorMultipleParametersAtBeginning() throws Exception {
         final String json = a2q("{'animal_id':1234,'living':true,'first_name':'John','last_name':'Doe','years_old':30}");
 
         final ObjectMapper mapper = new ObjectMapper();
@@ -279,7 +279,7 @@ public class BuilderWithUnwrappedTest
     }
 
     @Test
-    public void testWithUnwrappedAndCreatorMultipleParametersInMiddle() throws Exception {
+    void withUnwrappedAndCreatorMultipleParametersInMiddle() throws Exception {
         final String json = a2q("{'first_name':'John','animal_id':1234,'last_name':'Doe','living':true,'years_old':30}");
 
         final ObjectMapper mapper = new ObjectMapper();
@@ -293,7 +293,7 @@ public class BuilderWithUnwrappedTest
     }
 
     @Test
-    public void testWithUnwrappedAndCreatorMultipleParametersAtEnd() throws Exception {
+    void withUnwrappedAndCreatorMultipleParametersAtEnd() throws Exception {
         final String json = a2q("{'first_name':'John','last_name':'Doe','years_old':30,'living':true,'animal_id':1234}");
 
         final ObjectMapper mapper = new ObjectMapper();
@@ -307,7 +307,7 @@ public class BuilderWithUnwrappedTest
     }
 
     @Test
-    public void testWithUnwrappedNoCreator() throws Exception {
+    void withUnwrappedNoCreator() throws Exception {
         final String json = a2q("{'first_name':'John','last_name':'Doe','years_old':'30','animal_id':1234}");
 
         final ObjectMapper mapper = new ObjectMapper();

@@ -17,7 +17,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // For [databind#1402]; configurable null handling, for contents of
 // Collections, Maps, arrays
-public class NullConversionsForContentTest
+class NullConversionsForContentTest
 {
     static class NullContentFail<T> {
         public T nullsOk;
@@ -51,7 +51,7 @@ public class NullConversionsForContentTest
 
     // Tests to verify that we can set default settings for failure
     @Test
-    public void testFailOnNullFromDefaults() throws Exception
+    void failOnNullFromDefaults() throws Exception
     {
         final String JSON = a2q("{'values':[null]}");
         TypeReference<NullContentUndefined<List<String>>> listType = new TypeReference<NullContentUndefined<List<String>>>() { };
@@ -87,7 +87,7 @@ public class NullConversionsForContentTest
     }
 
     @Test
-    public void testFailOnNullWithCollections() throws Exception
+    void failOnNullWithCollections() throws Exception
     {
         TypeReference<NullContentFail<List<Integer>>> typeRef = new TypeReference<NullContentFail<List<Integer>>>() { };
 
@@ -121,7 +121,7 @@ public class NullConversionsForContentTest
     }
 
     @Test
-    public void testFailOnNullWithArrays() throws Exception
+    void failOnNullWithArrays() throws Exception
     {
         final String JSON = a2q("{'noNulls':[null]}");
         // Object[]
@@ -144,7 +144,7 @@ public class NullConversionsForContentTest
     }
 
     @Test
-    public void testFailOnNullWithPrimitiveArrays() throws Exception
+    void failOnNullWithPrimitiveArrays() throws Exception
     {
         final String JSON = a2q("{'noNulls':[null]}");
 
@@ -175,7 +175,7 @@ public class NullConversionsForContentTest
     }
 
     @Test
-    public void testFailOnNullWithMaps() throws Exception
+    void failOnNullWithMaps() throws Exception
     {
         // Then: Map<String,String>
         try {
@@ -204,7 +204,7 @@ public class NullConversionsForContentTest
     /**********************************************************
      */
     @Test
-    public void testNullsAsEmptyWithCollections() throws Exception
+    void nullsAsEmptyWithCollections() throws Exception
     {
         final String JSON = a2q("{'values':[null]}");
 
@@ -226,7 +226,7 @@ public class NullConversionsForContentTest
     }
 
     @Test
-    public void testNullsAsEmptyUsingDefaults() throws Exception
+    void nullsAsEmptyUsingDefaults() throws Exception
     {
         final String JSON = a2q("{'values':[null]}");
         TypeReference<NullContentUndefined<List<Integer>>> listType = new TypeReference<NullContentUndefined<List<Integer>>>() { };
@@ -248,7 +248,7 @@ public class NullConversionsForContentTest
     }
 
     @Test
-    public void testNullsAsEmptyWithArrays() throws Exception
+    void nullsAsEmptyWithArrays() throws Exception
     {
         // Note: skip `Object[]`, no default empty value at this point
         final String JSON = a2q("{'values':[null]}");
@@ -263,7 +263,7 @@ public class NullConversionsForContentTest
     }
 
     @Test
-    public void testNullsAsEmptyWithPrimitiveArrays() throws Exception
+    void nullsAsEmptyWithPrimitiveArrays() throws Exception
     {
         final String JSON = a2q("{'values':[null]}");
 
@@ -293,7 +293,7 @@ public class NullConversionsForContentTest
 }
 
     @Test
-    public void testNullsAsEmptyWithMaps() throws Exception
+    void nullsAsEmptyWithMaps() throws Exception
     {
         // Then: Map<String,String>
         final String MAP_JSON = a2q("{'values':{'A':null}}");
@@ -322,7 +322,7 @@ public class NullConversionsForContentTest
      */
 
     @Test
-    public void testNullsSkipUsingDefaults() throws Exception
+    void nullsSkipUsingDefaults() throws Exception
     {
         final String JSON = a2q("{'values':[null]}");
         TypeReference<NullContentUndefined<List<Long>>> listType = new TypeReference<NullContentUndefined<List<Long>>>() { };
@@ -343,7 +343,7 @@ public class NullConversionsForContentTest
 
     // Test to verify that per-property setting overrides defaults:
     @Test
-    public void testNullsSkipWithOverrides() throws Exception
+    void nullsSkipWithOverrides() throws Exception
     {
         final String JSON = a2q("{'values':[null]}");
         TypeReference<NullContentSkip<List<Long>>> listType = new TypeReference<NullContentSkip<List<Long>>>() { };
@@ -363,7 +363,7 @@ public class NullConversionsForContentTest
     }
 
     @Test
-    public void testNullsSkipWithCollections() throws Exception
+    void nullsSkipWithCollections() throws Exception
     {
         // List<Integer>
         {
@@ -387,7 +387,7 @@ public class NullConversionsForContentTest
     }
 
     @Test
-    public void testNullsSkipWithArrays() throws Exception
+    void nullsSkipWithArrays() throws Exception
     {
         final String JSON = a2q("{'values':['a',null,'xy']}");
         // Object[]
@@ -409,7 +409,7 @@ public class NullConversionsForContentTest
     }
 
     @Test
-    public void testNullsSkipWithPrimitiveArrays() throws Exception
+    void nullsSkipWithPrimitiveArrays() throws Exception
     {
         // int[]
         {
@@ -443,7 +443,7 @@ public class NullConversionsForContentTest
     }
 
     @Test
-    public void testNullsSkipWithMaps() throws Exception
+    void nullsSkipWithMaps() throws Exception
     {
         // Then: Map<String,String>
         final String MAP_JSON = a2q("{'values':{'A':'foo','B':null,'C':'bar'}}");

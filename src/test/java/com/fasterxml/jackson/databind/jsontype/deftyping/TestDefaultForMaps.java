@@ -13,12 +13,11 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeNameIdResolver;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestDefaultForMaps
-    extends DatabindTestUtil
+class TestDefaultForMaps
+        extends DatabindTestUtil
 {
     static class MapKey {
         public String key;
@@ -76,7 +75,7 @@ public class TestDefaultForMaps
      */
 
     @Test
-    public void testJackson428() throws Exception
+    void jackson428() throws Exception
     {
         ObjectMapper serMapper = new ObjectMapper();
 
@@ -130,7 +129,7 @@ public class TestDefaultForMaps
     }
 
     @Test
-    public void testList() throws Exception
+    void list() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,
@@ -148,7 +147,7 @@ public class TestDefaultForMaps
     }
 
     @Test
-    public void testMap() throws Exception
+    void map() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,

@@ -10,10 +10,10 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("serial")
-public class ObjectId825BTest extends DatabindTestUtil
+class ObjectId825BTest extends DatabindTestUtil
 {
     static abstract class AbstractAct extends AbstractEntity {
         protected java.util.ArrayList<Tr> outTr;
@@ -149,7 +149,7 @@ public class ObjectId825BTest extends DatabindTestUtil
      */
 
     @Test
-    public void testFull825() throws Exception
+    void full825() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

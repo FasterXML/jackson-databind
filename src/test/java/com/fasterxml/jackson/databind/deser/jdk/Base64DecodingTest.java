@@ -7,13 +7,14 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 // Mostly for [databind#1425]; not in optimal place (as it also has
 // tree-access tests), but has to do for now
-public class Base64DecodingTest
+class Base64DecodingTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -22,7 +23,7 @@ public class Base64DecodingTest
 
     // for [databind#1425]
     @Test
-    public void testInvalidBase64() throws Exception
+    void invalidBase64() throws Exception
     {
         byte[] b = MAPPER.readValue(q(BASE64_HELLO), byte[].class);
         assertArrayEquals(HELLO_BYTES, b);

@@ -8,9 +8,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
+class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 {
     // [databind#999]
 
@@ -93,7 +94,7 @@ public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 
     // [databind#999]
     @Test
-    public void testExternalTypeId() throws Exception
+    void externalTypeId() throws Exception
     {
         TypeReference<Message<FooPayload999>> type = new TypeReference<Message<FooPayload999>>() { };
 
@@ -111,7 +112,7 @@ public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 
     // [databind#1198]
     @Test
-    public void testFails() throws Exception {
+    void fails() throws Exception {
         String json = "{ \"name\": \"foo\", \"attack\":\"right\" } }";
 
         Character character = MAPPER.readValue(json, Character.class);
@@ -123,7 +124,7 @@ public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 
     // [databind#1198]
     @Test
-    public void testWorks() throws Exception {
+    void works() throws Exception {
         String json = "{ \"name\": \"foo\", \"preferredAttack\": \"KICK\", \"attack\":\"right\" } }";
 
         Character character = MAPPER.readValue(json, Character.class);

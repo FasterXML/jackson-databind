@@ -13,9 +13,9 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class ObjectId2759Test extends DatabindTestUtil
+class ObjectId2759Test extends DatabindTestUtil
 {
     static class Hive {
         public String name;
@@ -60,7 +60,7 @@ public class ObjectId2759Test extends DatabindTestUtil
     }
 
     @Test
-    public void testObjectId2759() throws Exception
+    void objectId2759() throws Exception
     {
         Hive hive = new Hive(100500L, "main hive");
         hive.addBee(new Bee(1L, hive));

@@ -6,7 +6,6 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
@@ -14,16 +13,16 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for verifying functioning of [JACKSON-195], ability to
  * force specific root type for serialization (super type of value)
  */
-public class TestRootType
-    extends DatabindTestUtil
+class TestRootType
+        extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -84,7 +83,7 @@ public class TestRootType
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testSuperClass() throws Exception
+    void superClass() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         SubType bean = new SubType();
@@ -107,7 +106,7 @@ public class TestRootType
     }
 
     @Test
-    public void testSuperInterface() throws Exception
+    void superInterface() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         SubType bean = new SubType();
@@ -122,7 +121,7 @@ public class TestRootType
     }
 
     @Test
-    public void testInArray() throws Exception
+    void inArray() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
         // must force static typing, otherwise won't matter a lot
@@ -139,7 +138,7 @@ public class TestRootType
      * root type is not compatible with given value instance.
      */
     @Test
-    public void testIncompatibleRootType() throws Exception
+    void incompatibleRootType() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         SubType bean = new SubType();
@@ -163,7 +162,7 @@ public class TestRootType
     }
 
     @Test
-    public void testJackson398() throws Exception
+    void jackson398() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         JavaType collectionType = defaultTypeFactory().constructCollectionType(ArrayList.class, BaseClass398.class);
@@ -185,7 +184,7 @@ public class TestRootType
 
     // [JACKSON-163]
     @Test
-    public void testRootWrapping() throws Exception
+    void rootWrapping() throws Exception
     {
         String json = WRAP_ROOT_MAPPER.writeValueAsString(new StringWrapper("abc"));
         assertEquals("{\"StringWrapper\":{\"str\":\"abc\"}}", json);
@@ -198,7 +197,7 @@ public class TestRootType
      * {@link java.lang.reflect.Type} from field or method.
      */
     @Test
-    public void testIssue456WrapperPart() throws Exception
+    void issue456WrapperPart() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         assertEquals("123", mapper.writerFor(Integer.TYPE).writeValueAsString(Integer.valueOf(123)));
@@ -206,7 +205,7 @@ public class TestRootType
     }
 
     @Test
-    public void testRootNameAnnotation() throws Exception
+    void rootNameAnnotation() throws Exception
     {
         String json = WRAP_ROOT_MAPPER.writeValueAsString(new WithRootName());
         assertEquals("{\"root\":{\"a\":3}}", json);
@@ -214,7 +213,7 @@ public class TestRootType
 
     // [databind#412]
     @Test
-    public void testRootNameWithExplicitType() throws Exception
+    void rootNameWithExplicitType() throws Exception
     {
         TestCommandChild cmd = new TestCommandChild();
         cmd.uuid = "1234";

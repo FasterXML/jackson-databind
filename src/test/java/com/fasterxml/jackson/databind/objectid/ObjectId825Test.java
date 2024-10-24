@@ -8,9 +8,10 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ObjectId825Test extends DatabindTestUtil
+class ObjectId825Test extends DatabindTestUtil
 {
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="oidString")
     public static class AbstractEntity {
@@ -36,7 +37,7 @@ public class ObjectId825Test extends DatabindTestUtil
             .build();
 
     @Test
-    public void testDeserialize() throws Exception {
+    void deserialize() throws Exception {
         TestA a = new TestA();
         a.oidString = "oidA";
 

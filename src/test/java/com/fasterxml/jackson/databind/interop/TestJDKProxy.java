@@ -41,7 +41,7 @@ public class TestJDKProxy extends DatabindTestUtil
      */
 
     @Test
-    public void testSimple() throws Exception
+    void simple() throws Exception
     {
         IPlanet input = getProxy(IPlanet.class, new Planet("Foo"));
         String json = MAPPER.writeValueAsString(input);

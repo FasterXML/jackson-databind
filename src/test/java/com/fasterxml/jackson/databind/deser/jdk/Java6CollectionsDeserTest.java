@@ -13,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests to ensure that we can handle 1.6-only types, even if
  * registrations are done without direct refs
  */
-public class Java6CollectionsDeserTest
+class Java6CollectionsDeserTest
 {
     // for [databind#216]
     @Test
-    public void test16Types() throws Exception
+    void test16Types() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         Deque<?> dq = mapper.readValue("[1]", Deque.class);

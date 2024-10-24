@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class ReadOnlyDeser1890Test
+class ReadOnlyDeser1890Test
 {
     // [databind#95]
     @JsonIgnoreProperties(value={ "computed" }, allowGetters=true)
@@ -80,9 +80,9 @@ public class ReadOnlyDeser1890Test
 
    private final ObjectMapper MAPPER = newJsonMapper();
 
-   // [databind#95]
-   @Test
-   public void testReadOnlyProps95() throws Exception
+    // [databind#95]
+    @Test
+    void readOnlyProps95() throws Exception
    {
        ObjectMapper m = new ObjectMapper();
        String json = m.writeValueAsString(new ReadOnly95Bean());
@@ -93,34 +93,34 @@ public class ReadOnlyDeser1890Test
        assertNotNull(bean);
    }
 
-   // [databind#1890]
-   @Test
-   public void testDeserializeAnnotationsOneField() throws Exception {
+    // [databind#1890]
+    @Test
+    void deserializeAnnotationsOneField() throws Exception {
        PersonAnnotations person = MAPPER.readerFor(PersonAnnotations.class)
                .readValue("{\"testEnum\":\"abc\"}");
-       // can not remain as is, so becomes `null`
-       assertEquals(null, person.getTestEnum());
+        // can not remain as is, so becomes `null`
+        assertNull(person.getTestEnum());
        assertNull(person.name);
    }
 
     @Test
-   public void testDeserializeAnnotationsTwoFields() throws Exception {
+    void deserializeAnnotationsTwoFields() throws Exception {
        PersonAnnotations person = MAPPER.readerFor(PersonAnnotations.class)
                .readValue("{\"testEnum\":\"xyz\",\"name\":\"changyong\"}");
-       // can not remain as is, so becomes `null`
-       assertEquals(null, person.getTestEnum());
+        // can not remain as is, so becomes `null`
+        assertNull(person.getTestEnum());
        assertEquals("changyong", person.name);
    }
 
     @Test
-   public void testDeserializeOneField() throws Exception {
+    void deserializeOneField() throws Exception {
        Person person = MAPPER.readValue("{\"testEnum\":\"\"}", Person.class);
        assertEquals(TestEnum.DEFAULT, person.getTestEnum());
        assertNull(person.name);
    }
 
     @Test
-   public void testDeserializeTwoFields() throws Exception {
+    void deserializeTwoFields() throws Exception {
        Person person = MAPPER.readValue("{\"testEnum\":\"\",\"name\":\"changyong\"}",
                Person.class);
        assertEquals(TestEnum.DEFAULT, person.getTestEnum());

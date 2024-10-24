@@ -13,10 +13,10 @@ import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class NullSerializationTest
-    extends DatabindTestUtil
+class NullSerializationTest
+        extends DatabindTestUtil
 {
     static class NullSerializer extends JsonSerializer<Object>
     {
@@ -91,13 +91,13 @@ public class NullSerializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testSimple() throws Exception
+    void simple() throws Exception
     {
         assertEquals("null", MAPPER.writeValueAsString(null));
     }
 
     @Test
-    public void testOverriddenDefaultNulls() throws Exception
+    void overriddenDefaultNulls() throws Exception
     {
         DefaultSerializerProvider sp = new DefaultSerializerProvider.Impl();
         sp.setNullValueSerializer(new NullSerializer());
@@ -107,7 +107,7 @@ public class NullSerializationTest
     }
 
     @Test
-    public void testCustomNulls() throws Exception
+    void customNulls() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.setSerializerProvider(new MyNullProvider());
@@ -117,7 +117,7 @@ public class NullSerializationTest
 
     // #281
     @Test
-    public void testCustomNullForTrees() throws Exception
+    void customNullForTrees() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         root.putNull("a");
@@ -134,7 +134,7 @@ public class NullSerializationTest
     }
 
     @Test
-    public void testNullSerializerForProperty() throws Exception
+    void nullSerializerForProperty() throws Exception
     {
         assertEquals("{\"a\":\"foobar\"}", MAPPER.writeValueAsString(new BeanWithNullProps()));
     }

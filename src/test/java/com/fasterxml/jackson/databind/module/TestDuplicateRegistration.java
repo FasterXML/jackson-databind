@@ -6,9 +6,10 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestDuplicateRegistration extends DatabindTestUtil
+class TestDuplicateRegistration extends DatabindTestUtil
 {
     static class MyModule extends com.fasterxml.jackson.databind.Module {
         public int regCount;
@@ -35,7 +36,7 @@ public class TestDuplicateRegistration extends DatabindTestUtil
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testDuplicateRegistration() throws Exception
+    void duplicateRegistration() throws Exception
     {
         // by default, duplicate registration should be prevented
         ObjectMapper mapper = newJsonMapper();

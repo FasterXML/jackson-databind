@@ -8,9 +8,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestTypedRootValueSerialization extends DatabindTestUtil
+class TestTypedRootValueSerialization extends DatabindTestUtil
 {
     // [JACKSON-822]
     static interface Issue822Interface {
@@ -28,7 +28,7 @@ public class TestTypedRootValueSerialization extends DatabindTestUtil
 
     // First ensure that basic interface-override works:
     @Test
-    public void testTypedSerialization() throws Exception
+    void typedSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         String singleJson = mapper.writerFor(Issue822Interface.class).writeValueAsString(new Issue822Impl());
@@ -38,7 +38,7 @@ public class TestTypedRootValueSerialization extends DatabindTestUtil
 
     // [JACKSON-822]: ensure that type can be coerced
     @Test
-    public void testTypedArrays() throws Exception
+    void typedArrays() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
 // Work-around when real solution not yet implemented:
@@ -49,7 +49,7 @@ public class TestTypedRootValueSerialization extends DatabindTestUtil
 
     // [JACKSON-822]: ensure that type can be coerced
     @Test
-    public void testTypedLists() throws Exception
+    void typedLists() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
      // Work-around when real solution not yet implemented:
@@ -63,7 +63,7 @@ public class TestTypedRootValueSerialization extends DatabindTestUtil
     }
 
     @Test
-    public void testTypedMaps() throws Exception
+    void typedMaps() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Issue822Interface> map = new HashMap<String,Issue822Interface>();

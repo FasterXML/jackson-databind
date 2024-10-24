@@ -16,8 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Class containing test utility methods.
- * The methods are migrated from {@code BaseMapTest} and {@code BaseTest},
- * as part of JUnit 5 migration.
  *
  * @since 2.17
  */
@@ -464,9 +462,9 @@ public class DatabindTestUtil
      */
     protected void assertStandardEquals(Object o)
     {
-        assertTrue(o.equals(o));
-        assertFalse(o.equals(null));
-        assertFalse(o.equals(SINGLETON_OBJECT));
+        assertEquals(o, o);
+        assertNotEquals(null, o);
+        assertNotEquals(SINGLETON_OBJECT, o);
         // just for fun, let's also call hash code...
         o.hashCode();
     }

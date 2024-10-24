@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Separate tests for verifying that "type name" type id mechanism
  * works.
  */
-public class TestTypeNames extends DatabindTestUtil
+class TestTypeNames extends DatabindTestUtil
 {
     @SuppressWarnings("serial")
     static class AnimalMap extends LinkedHashMap<String,Animal> { }
@@ -48,7 +47,7 @@ public class TestTypeNames extends DatabindTestUtil
             .build();
 
     @Test
-    public void testBaseTypeId1616() throws Exception
+    void baseTypeId1616() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Collection<NamedType> subtypes = new StdSubtypeResolver().collectAndResolveSubtypesByTypeId(
@@ -67,7 +66,7 @@ public class TestTypeNames extends DatabindTestUtil
     }
 
     @Test
-    public void testSerialization() throws Exception
+    void serialization() throws Exception
     {
         // Note: need to use wrapper array just so that we can define
         // static type on serialization. If we had root static types,
@@ -80,7 +79,7 @@ public class TestTypeNames extends DatabindTestUtil
     }
 
     @Test
-    public void testRoundTrip() throws Exception
+    void roundTrip() throws Exception
     {
         Animal[] input = new Animal[] {
                 new Dog("Odie", 7),
@@ -98,7 +97,7 @@ public class TestTypeNames extends DatabindTestUtil
     }
 
     @Test
-    public void testRoundTripMap() throws Exception
+    void roundTripMap() throws Exception
     {
         AnimalMap input = new AnimalMap();
         input.put("venla", new MaineCoon("Venla", true));

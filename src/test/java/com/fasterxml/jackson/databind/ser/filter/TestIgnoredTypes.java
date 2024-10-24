@@ -11,13 +11,14 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test for type-based ignoral, both via annotations (<code>JsonIgnoreType</code>)
  * and "config overrides" (2.8 and above).
  */
-public class TestIgnoredTypes extends DatabindTestUtil
+class TestIgnoredTypes extends DatabindTestUtil
 {
     @JsonIgnoreType
     class IgnoredType { // note: non-static, can't be deserialized
@@ -87,7 +88,7 @@ public class TestIgnoredTypes extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testIgnoredType() throws Exception
+    void ignoredType() throws Exception
     {
         // First: should be ok in general, even though couldn't build deserializer (due to non-static inner class):
         NonIgnoredType bean = MAPPER.readValue("{\"value\":13}", NonIgnoredType.class);
@@ -101,7 +102,7 @@ public class TestIgnoredTypes extends DatabindTestUtil
     }
 
     @Test
-    public void testSingleWithMixins() throws Exception {
+    void singleWithMixins() throws Exception {
         SimpleModule module = new SimpleModule();
         module.setMixInAnnotation(Person.class, PersonMixin.class);
         ObjectMapper mapper = jsonMapperBuilder()
@@ -113,7 +114,7 @@ public class TestIgnoredTypes extends DatabindTestUtil
     }
 
     @Test
-    public void testListWithMixins() throws Exception {
+    void listWithMixins() throws Exception {
         SimpleModule module = new SimpleModule();
         module.setMixInAnnotation(Person.class, PersonMixin.class);
         ObjectMapper mapper = jsonMapperBuilder()
@@ -126,7 +127,7 @@ public class TestIgnoredTypes extends DatabindTestUtil
     }
 
     @Test
-    public void testIgnoreUsingConfigOverride() throws Exception
+    void ignoreUsingConfigOverride() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();
         mapper.configOverride(Wrapped.class).setIsIgnoredType(true);
@@ -143,7 +144,7 @@ public class TestIgnoredTypes extends DatabindTestUtil
 
     // [databind#2893]
     @Test
-    public void testIgnoreTypeViaInterface() throws Exception
+    void ignoreTypeViaInterface() throws Exception
     {
         assertEquals(a2q("{'x':13}"), MAPPER.writeValueAsString(new ContainsIgnorable()));
     }

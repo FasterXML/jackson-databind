@@ -16,7 +16,6 @@ import tools.jackson.databind.cfg.ContextAttributes;
 import tools.jackson.databind.deser.UnresolvedForwardReference;
 import tools.jackson.databind.deser.UnresolvedId;
 import tools.jackson.databind.objectid.TestObjectId.Company;
-import tools.jackson.databind.objectid.TestObjectId.Employee;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;

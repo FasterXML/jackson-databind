@@ -65,7 +65,7 @@ public class DefaultTypeResolver3505Test
     }
 
     @Test
-    public void testDeductionWithDefaultTypeResolverBuilder() {
+    public void testDeductionWithDefaultTypeResolverBuilder() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(Parent.ChildOne.class, Parent.ChildTwo.class)
                 .setDefaultTyping(new AssertingTypeResolverBuilder()
@@ -74,17 +74,13 @@ public class DefaultTypeResolver3505Test
                                 null))
                 .build();
 
-        try {
-            final Parent firstRead = mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class);
-            assertNotNull(firstRead);
-            assertTrue(firstRead instanceof Parent.ChildOne);
-            assertEquals("Hello World", ((Parent.ChildOne) firstRead).one);
-            final Parent secondRead = mapper.readValue("{ \"two\": \"Hello World\" }", Parent.class);
-            assertNotNull(secondRead);
-            assertTrue(secondRead instanceof Parent.ChildTwo);
-            assertEquals("Hello World", ((Parent.ChildTwo) secondRead).two);
-        } catch (Exception e) {
-            fail("This call should not throw");
-        }
+        final Parent firstRead = mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class);
+        assertNotNull(firstRead);
+        assertTrue(firstRead instanceof Parent.ChildOne);
+        assertEquals("Hello World", ((Parent.ChildOne) firstRead).one);
+        final Parent secondRead = mapper.readValue("{ \"two\": \"Hello World\" }", Parent.class);
+        assertNotNull(secondRead);
+        assertTrue(secondRead instanceof Parent.ChildTwo);
+        assertEquals("Hello World", ((Parent.ChildTwo) secondRead).two);
     }
 }

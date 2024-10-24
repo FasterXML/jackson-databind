@@ -12,7 +12,7 @@ import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests for [databind#4620]: 
 //

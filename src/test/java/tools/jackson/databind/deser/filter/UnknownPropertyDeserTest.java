@@ -11,17 +11,14 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
-import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
  * Unit tests for checking handling of unknown properties
  */
-public class UnknownPropertyDeserTest
+public class UnknownPropertyDeserTest extends DatabindTestUtil
 {
     final static class TestBean
     {
@@ -215,12 +212,7 @@ public class UnknownPropertyDeserTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();
-        TestBean result = null;
-        try {
-            result = mapper.readValue(JSON_UNKNOWN_FIELD, TestBean.class);
-        } catch (JacksonException jex) {
-            fail("Did not expect a problem, got: "+jex.getMessage());
-        }
+        TestBean result = mapper.readValue(JSON_UNKNOWN_FIELD, TestBean.class);
         assertNotNull(result);
         assertEquals(1, result._a);
         assertNull(result._unknown);

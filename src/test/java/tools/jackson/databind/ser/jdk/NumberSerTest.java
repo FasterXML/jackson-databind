@@ -3,6 +3,8 @@ package tools.jackson.databind.ser.jdk;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
@@ -98,7 +100,7 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     static class BigDecimalAsStringSerializer extends ValueSerializer<BigDecimal> {
-        private final DecimalFormat df = new DecimalFormat("0.0");
+        private final DecimalFormat df = createDecimalFormatForDefaultLocale("0.0");
 
         @Override
         public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers) {
@@ -107,7 +109,7 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     static class BigDecimalAsNumberSerializer extends ValueSerializer<BigDecimal> {
-        private final DecimalFormat df = new DecimalFormat("0.0");
+        private final DecimalFormat df = createDecimalFormatForDefaultLocale("0.0");
 
         @Override
         public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers) {
@@ -221,5 +223,10 @@ public class NumberSerTest extends DatabindTestUtil
         module.addSerializer(BigDecimal.class, new BigDecimalAsNumberSerializer());
         ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
         assertEquals(a2q("{'value':2.0}"), mapper.writeValueAsString(new BigDecimalHolder("2")));
+    }
+
+    // default locale is en_US
+    private static DecimalFormat createDecimalFormatForDefaultLocale(final String pattern) {
+        return new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
     }
 }

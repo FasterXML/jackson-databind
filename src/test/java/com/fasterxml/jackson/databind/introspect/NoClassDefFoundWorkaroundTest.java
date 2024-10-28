@@ -36,13 +36,7 @@ public class NoClassDefFoundWorkaroundTest extends DatabindTestUtil
     public void testDeserialize() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        Parent result = null;
-
-        try {
-            result = m.readValue(" { } ", Parent.class);
-        } catch (Exception e) {
-            fail("Should not have had issues, got: "+e);
-        }
+        Parent result = m.readValue(" { } ", Parent.class);
         assertNotNull(result);
     }
 

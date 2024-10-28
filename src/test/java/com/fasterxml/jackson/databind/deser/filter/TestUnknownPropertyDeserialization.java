@@ -6,8 +6,7 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
-
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
@@ -213,12 +212,7 @@ public class TestUnknownPropertyDeserialization
     {
         ObjectMapper mapper = newJsonMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        TestBean result = null;
-        try {
-            result = mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
-        } catch (JacksonException jex) {
-            fail("Did not expect a problem, got: "+jex.getMessage());
-        }
+        TestBean result = mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
         assertNotNull(result);
         assertEquals(1, result._a);
         assertNull(result._unknown);

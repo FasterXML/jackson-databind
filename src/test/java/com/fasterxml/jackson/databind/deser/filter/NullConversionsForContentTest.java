@@ -288,7 +288,7 @@ public class NullConversionsForContentTest
             NullContentAsEmpty<boolean[]> result = MAPPER.readValue(JSON,
                     new TypeReference<NullContentAsEmpty<boolean[]>>() { });
             assertEquals(1, result.values.length);
-            assertEquals(false, result.values[0]);
+            assertFalse(result.values[0]);
         }
 }
 
@@ -437,8 +437,8 @@ public class NullConversionsForContentTest
             NullContentSkip<boolean[]> result = MAPPER.readValue(JSON,
                     new TypeReference<NullContentSkip<boolean[]>>() { });
             assertEquals(2, result.values.length);
-            assertEquals(true, result.values[0]);
-            assertEquals(true, result.values[1]);
+            assertTrue(result.values[0]);
+            assertTrue(result.values[1]);
         }
     }
 

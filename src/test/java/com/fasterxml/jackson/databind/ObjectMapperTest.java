@@ -213,7 +213,7 @@ public class ObjectMapperTest
         JsonNode readResult = copiedMapper.readTree(json);
         // validate functionality
         assertEquals("Black", readResult.get("color").asText());
-        assertEquals(true, readResult.get("free").asBoolean());
+        assertTrue(readResult.get("free").asBoolean());
         assertEquals(204, readResult.get("pages").asInt());
         String readResultAsString = _unifyLFs("{\n  \"color\" : \"Black\",\n  \"free\" : \"true\",\n  \"pages\" : \"204.04\"\n}");
         assertEquals(readResultAsString, _unifyLFs(mapper.writeValueAsString(readResult)));

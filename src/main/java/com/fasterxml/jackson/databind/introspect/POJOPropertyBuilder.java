@@ -854,12 +854,22 @@ public class POJOPropertyBuilder
     }
 
     public JsonProperty.Access findAccess() {
-        return fromMemberAnnotationsExcept(new WithMember<JsonProperty.Access>() {
+        JsonProperty.Access acc = fromMemberAnnotationsExcept(new WithMember<JsonProperty.Access>() {
             @Override
             public JsonProperty.Access withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findPropertyAccess(member);
             }
         }, JsonProperty.Access.AUTO);
+
+        // [databind#2951] add feature to inverse access logic
+        if (_config.isEnabled(MapperFeature.INVERSE_READ_WRITE_ACCESS)) {
+            if (acc == JsonProperty.Access.READ_ONLY) {
+                acc = JsonProperty.Access.WRITE_ONLY;
+            } else if (acc == JsonProperty.Access.WRITE_ONLY) {
+                acc = JsonProperty.Access.READ_ONLY;
+            }
+        }
+        return acc;
     }
 
     /*
@@ -946,6 +956,7 @@ public class POJOPropertyBuilder
         if (acc == null) {
             acc = JsonProperty.Access.AUTO;
         }
+
         switch (acc) {
         case READ_ONLY:
             // [databind#2719]: Need to add ignorals, first, keeping in mind

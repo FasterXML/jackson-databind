@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.18.1 (WIP-2024)
+2.18.1 (28-Oct-2024)
 
 #4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
   are not included in json if default is `null`

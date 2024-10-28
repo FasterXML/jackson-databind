@@ -9,8 +9,9 @@ Project: jackson-databind
 #2461: Nested `@JsonUnwrapped` property names not correctly handled
  (reported by @plovell)
  (fix contributed by @SandeepGaur2016)
-#2951: Allow inverting `@JsonProperty(access=)` so it can work differently
-  on server side and client side
+#2951: Allow inverting `@JsonProperty(access=)` with
+  `MapperFeature.INVERSE_READ_WRITE_ACCESS` to work differently on
+   server and client side
  (requested by @qianlong)
  (contributed by Geoffrey G)
 #4674: Allow setting global enum naming strategy similar to property naming strategy

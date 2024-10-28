@@ -174,6 +174,16 @@ public enum MapperFeature
      */
     OVERRIDE_PUBLIC_ACCESS_MODIFIERS(true),
 
+    /**
+     * Feature that inverse logic in {@link JsonProperty#access}
+     * for <code>READ_ONLY</code> and <code>WRITE_ONLY</code>.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 2.19
+     */
+    INVERSE_READ_WRITE_ACCESS(false),
+
     /*
     /**********************************************************************
     /* Type-handling features

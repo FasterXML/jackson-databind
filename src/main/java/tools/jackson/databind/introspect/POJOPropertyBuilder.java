@@ -849,12 +849,22 @@ public class POJOPropertyBuilder
     public JsonProperty.Access findAccess() {
         // 25-Sep-2017, tatu: IMPORTANT! Called BEFORE merge occurs so MUST traverse
         //    accessors separately
-        return fromMemberAnnotationsExcept(new WithMember<JsonProperty.Access>() {
+        JsonProperty.Access acc =  fromMemberAnnotationsExcept(new WithMember<JsonProperty.Access>() {
             @Override
             public JsonProperty.Access withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findPropertyAccess(_config, member);
             }
         }, JsonProperty.Access.AUTO);
+
+        // [databind#2951] add feature to inverse access logic
+        if (_config.isEnabled(MapperFeature.INVERSE_READ_WRITE_ACCESS)) {
+            if (acc == JsonProperty.Access.READ_ONLY) {
+                acc = JsonProperty.Access.WRITE_ONLY;
+            } else if (acc == JsonProperty.Access.WRITE_ONLY) {
+                acc = JsonProperty.Access.READ_ONLY;
+            }
+        }
+        return acc;
     }
 
     /*
@@ -941,6 +951,7 @@ public class POJOPropertyBuilder
         if (acc == null) {
             acc = JsonProperty.Access.AUTO;
         }
+
         switch (acc) {
         case READ_ONLY:
             // [databind#2719]: Need to add ignorals, first, keeping in mind

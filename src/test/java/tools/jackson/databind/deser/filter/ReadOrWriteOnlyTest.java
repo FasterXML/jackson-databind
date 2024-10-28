@@ -11,12 +11,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-
-public class ReadOrWriteOnlyTest
+public class ReadOrWriteOnlyTest extends DatabindTestUtil
 {
     // for [databind#935], verify read/write-only cases
     static class ReadXWriteY {
@@ -130,6 +129,15 @@ public class ReadOrWriteOnlyTest
         }
     }
 
+    // for [databind#2951], add feature to inverse access logic
+    static class ReadAWriteB {
+        @JsonProperty(access=JsonProperty.Access.READ_ONLY)
+        public int a = 1;
+
+        @JsonProperty(access=JsonProperty.Access.WRITE_ONLY)
+        public int b = 2;
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -209,5 +217,21 @@ public class ReadOrWriteOnlyTest
         String json = MAPPER.writeValueAsString(bean);
         Bean2779 newBean = MAPPER.readValue(json, Bean2779.class);
         assertNotNull(newBean);
+    }
+
+    // [databind#2951] add feature to inverse access logic
+    @Test
+    public void testInverseReadOnlyAndWriteOnly() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.INVERSE_READ_WRITE_ACCESS)
+                .build();
+
+        String json = mapper.writeValueAsString(new ReadAWriteB());
+        assertEquals("{\"b\":2}", json);
+
+        ReadAWriteB result = mapper.readValue("{\"a\":5, \"b\":6}", ReadAWriteB.class);
+        assertNotNull(result);
+        assertEquals(5, result.a);
+        assertEquals(2, result.b);
     }
 }

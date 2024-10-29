@@ -57,7 +57,7 @@ public class MismatchedInputException
     }
 
     public MismatchedInputException setTargetType(JavaType t) {
-        _targetType = t.getRawClass();
+        _targetType = ClassUtil.rawClass(t);
         return this;
     }
 

@@ -509,8 +509,7 @@ public class JsonMappingException
             return msg;
         }
         StringBuilder sb = (msg == null) ? new StringBuilder() : new StringBuilder(msg);
-        _appendReferenceChain(sb);
-        return sb.toString();
+        return _appendReferenceChain(sb).toString();
     }
 
     @Override
@@ -533,16 +532,16 @@ public class JsonMappingException
      *
      * @since 2.18.2
      */
-    protected void _appendReferenceChain(StringBuilder sb)
+    protected StringBuilder _appendReferenceChain(StringBuilder sb)
     {
-        /* 18-Feb-2009, tatu: initially there was a linefeed between
-         *    message and path reference; but unfortunately many systems
-         *   (loggers, junit) seem to assume linefeeds are only added to
-         *   separate stack trace.
-         */
+        // 18-Feb-2009, tatu: initially there was a linefeed between
+        //    message and path reference; but unfortunately many systems
+        //   (loggers, junit) seem to assume linefeeds are only added to
+        //   separate stack trace.
         sb.append(" (through reference chain: ");
         sb = getPathReference(sb);
         sb.append(')');
+        return sb;
     }
 
     protected void _appendPathDesc(StringBuilder sb)

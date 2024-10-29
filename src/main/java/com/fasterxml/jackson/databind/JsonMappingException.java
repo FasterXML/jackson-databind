@@ -320,9 +320,8 @@ public class JsonMappingException
      * @since 2.7
      */
     public static JsonMappingException from(SerializerProvider ctxt, String msg, Throwable problem) {
-        /* 17-Aug-2015, tatu: As per [databind#903] this is bit problematic as
-         *   SerializerProvider instance does not currently hold on to generator...
-         */
+        // 17-Aug-2015, tatu: As per [databind#903] this is bit problematic as
+        //   SerializerProvider instance does not currently hold on to generator...
         return new JsonMappingException(_generator(ctxt), msg, problem);
     }
 
@@ -510,14 +509,7 @@ public class JsonMappingException
             return msg;
         }
         StringBuilder sb = (msg == null) ? new StringBuilder() : new StringBuilder(msg);
-        /* 18-Feb-2009, tatu: initially there was a linefeed between
-         *    message and path reference; but unfortunately many systems
-         *   (loggers, junit) seem to assume linefeeds are only added to
-         *   separate stack trace.
-         */
-        sb.append(" (through reference chain: ");
-        sb = getPathReference(sb);
-        sb.append(')');
+        _appendReferenceChain(sb);
         return sb.toString();
     }
 
@@ -532,6 +524,26 @@ public class JsonMappingException
     /* Internal methods
     /**********************************************************************
      */
+
+    /**
+     * Method that is called to add reference chain
+     * information to message, but may be overridden to customize
+     * handling, including appending other information or removing
+     * the reference chain altogether.
+     *
+     * @since 2.18.2
+     */
+    protected void _appendReferenceChain(StringBuilder sb)
+    {
+        /* 18-Feb-2009, tatu: initially there was a linefeed between
+         *    message and path reference; but unfortunately many systems
+         *   (loggers, junit) seem to assume linefeeds are only added to
+         *   separate stack trace.
+         */
+        sb.append(" (through reference chain: ");
+        sb = getPathReference(sb);
+        sb.append(')');
+    }
 
     protected void _appendPathDesc(StringBuilder sb)
     {

@@ -5,18 +5,15 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.WriterBasedJsonGenerator;
 import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Writer;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestPolymorphicDeductionObjectVsArray extends DatabindTestUtil {
     @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = DataArray.class)
@@ -52,22 +49,15 @@ public class TestPolymorphicDeductionObjectVsArray extends DatabindTestUtil {
         }
     }
 
-    static class DataArray implements Data, Iterable<DataItem> {
-        final ArrayList<DataItem> items;
-
+    static class DataArray extends ArrayList<DataItem> implements Data {
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         DataArray(Collection<DataItem> items) {
-            this.items = new ArrayList<>(items);
+            super(new ArrayList<>(items));
         }
 
         @Override
         public boolean isObject() {
             return false;
-        }
-
-        @Override
-        public Iterator<DataItem> iterator() {
-            return items.iterator();
         }
     }
 

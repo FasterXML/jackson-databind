@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.databind.util.NamingStrategyImpls;
-
 import java.util.Locale;
+
+import com.fasterxml.jackson.databind.util.NamingStrategyImpls;
 
 /**
  * A container class for implementations of the {@link EnumNamingStrategy} interface.

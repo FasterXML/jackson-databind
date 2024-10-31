@@ -1850,6 +1850,11 @@ wrongwrong (@k163377)
  * Contributed fix for #2461: Nested `@JsonUnwrapped` property names not correctly handled
   (2.19.0)
 
+Geoffrey Grebert (@ggrebert)
+ * Contributed #2951: Allow inverting `@JsonProperty(access=)` so it can work differently
+   on server side and client side
+  (2.19.0)
+
 Konstantin Maliuga (@badoken)
  * Contributed #4674: Allow setting global enum naming strategy similar to property naming strategy
   (2.19.0)

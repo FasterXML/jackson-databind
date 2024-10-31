@@ -1,6 +1,13 @@
 package com.fasterxml.jackson.databind.jsontype.deftyping;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,10 +15,6 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,24 +62,21 @@ public class DefaultTypeResolver3505Test
         }
     }
 
-    public void testDeductionWithDefaultTypeResolverBuilder() {
+    @Test
+    public void testDeductionWithDefaultTypeResolverBuilder() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(Parent.ChildOne.class, Parent.ChildTwo.class)
                 .setDefaultTyping(new AssertingTypeResolverBuilder()
                         .init(JsonTypeInfo.Id.DEDUCTION, null))
                 .build();
 
-        try {
-            final Parent firstRead = mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class);
-            assertNotNull(firstRead);
-            assertTrue(firstRead instanceof Parent.ChildOne);
-            assertEquals("Hello World", ((Parent.ChildOne) firstRead).one);
-            final Parent secondRead = mapper.readValue("{ \"two\": \"Hello World\" }", Parent.class);
-            assertNotNull(secondRead);
-            assertTrue(secondRead instanceof Parent.ChildTwo);
-            assertEquals("Hello World", ((Parent.ChildTwo) secondRead).two);
-        } catch (Exception e) {
-            fail("This call should not throw");
-        }
+        final Parent firstRead = mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class);
+        assertNotNull(firstRead);
+        assertTrue(firstRead instanceof Parent.ChildOne);
+        assertEquals("Hello World", ((Parent.ChildOne) firstRead).one);
+        final Parent secondRead = mapper.readValue("{ \"two\": \"Hello World\" }", Parent.class);
+        assertNotNull(secondRead);
+        assertTrue(secondRead instanceof Parent.ChildTwo);
+        assertEquals("Hello World", ((Parent.ChildTwo) secondRead).two);
     }
 }

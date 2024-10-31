@@ -19,20 +19,22 @@ public abstract class PropertyBindingException
     extends MismatchedInputException // since 2.9
 {
     /**
-     * Class that does not contain mapping for the unrecognized property.
+     * Class that has the problem with mapping of a property (unrecognized,
+     * missing, etc).
      */
     protected final Class<?> _referringClass;
 
     /**
+     * Name of property that has the problem being reported.
      *<p>
-     * Note: redundant information since it is also included in the
-     * reference path.
+     * Note: possibly redundant information since it may also included
+     * in the reference path.
      */
     protected final String _propertyName;
 
     /**
-     * Set of ids of properties that are known for the type, if this
-     * can be statically determined.
+     * Set of ids of properties that are known for the type (see
+     * {@code _referringClass}, if ids can be statically determined.
      */
     protected final Collection<Object> _propertyIds;
 
@@ -119,8 +121,7 @@ public abstract class PropertyBindingException
      */
 
     /**
-     * Method for accessing type (class) that is missing definition to allow
-     * binding of the unrecognized property.
+     * Method for accessing type (class) that has the problematic property.
      */
     public Class<?> getReferringClass() {
         return _referringClass;
@@ -128,8 +129,9 @@ public abstract class PropertyBindingException
 
     /**
      * Convenience method for accessing logical property name that could
-     * not be mapped. Note that it is the last path reference in the
-     * underlying path.
+     * not be mapped (see {@link #_propertyName}).
+     * Note that it is likely the last path reference in the underlying path
+     * (but not necessarily, depending on the type of problem).
      */
     public String getPropertyName() {
         return _propertyName;

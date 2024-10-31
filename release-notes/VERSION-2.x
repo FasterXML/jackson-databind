@@ -4,10 +4,21 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.18.1 (WIP-2024)
+2.18.1 (28-Oct-2024)
 
+#4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
+  are not included in json if default is `null`
+ (reported by @ragnhov)
+ (fix by Joo-Hyuk K)
+#4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
+  with the wrong argument
+ (fix by wrongwrong)
 #4508: Deserialized JsonAnySetter field in Kotlin data class is null
  (reported by @MaximValeev)
+ (fix by Joo-Hyuk K)
+#4639: @JsonAnySetter on field ignoring unrecognized properties if they are
+  declared before the last recognized properties in JSON
+ (reported by Sim Y-T)
  (fix by Joo-Hyuk K)
 #4718: Should not fail on trying to serialize `java.time.DateTimeException`
 #4724: Deserialization behavior change with Records, `@JsonCreator` and

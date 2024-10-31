@@ -531,7 +531,7 @@ public class JDKScalarsDeserTest
                 PrimitivesBean.class);
         assertNotNull(bean);
         assertEquals(0, bean.intValue);
-        assertEquals(false, bean.booleanValue);
+        assertFalse(bean.booleanValue);
         assertEquals(0.0, bean.doubleValue);
 
         bean = MAPPER.readValue("{\"byteValue\":null, \"longValue\":null, \"floatValue\":null}",

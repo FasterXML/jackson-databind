@@ -1840,3 +1840,7 @@ Rikkarth (rikkarth@github)
 Maxim Valeev (@MaximValeev)
  * Reported #4508: Deserialized JsonAnySetter field in Kotlin data class is null
   (2.18.1)
+
+wrongwrong (@k163377)
+ * Contributed #4749: Fixed problem in StdDelegatingSerializer#serializeWithType where final serializer lookup was done
+   on the pre-converted value when _delegateSerializer was null

@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
@@ -19,7 +19,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying functionality of {@link JsonNode} methods that
@@ -140,18 +141,18 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     @Test
     public void testAsBoolean() throws Exception
     {
-        assertEquals(false, BooleanNode.FALSE.asBoolean());
-        assertEquals(true, BooleanNode.TRUE.asBoolean());
-        assertEquals(false, IntNode.valueOf(0).asBoolean());
-        assertEquals(true, IntNode.valueOf(1).asBoolean());
-        assertEquals(false, LongNode.valueOf(0).asBoolean());
-        assertEquals(true, LongNode.valueOf(-34L).asBoolean());
-        assertEquals(true, new TextNode("true").asBoolean());
-        assertEquals(false, new TextNode("false").asBoolean());
-        assertEquals(false, new TextNode("barf").asBoolean());
-        assertEquals(true, new TextNode("barf").asBoolean(true));
+        assertFalse(BooleanNode.FALSE.asBoolean());
+        assertTrue(BooleanNode.TRUE.asBoolean());
+        assertFalse(IntNode.valueOf(0).asBoolean());
+        assertTrue(IntNode.valueOf(1).asBoolean());
+        assertFalse(LongNode.valueOf(0).asBoolean());
+        assertTrue(LongNode.valueOf(-34L).asBoolean());
+        assertTrue(new TextNode("true").asBoolean());
+        assertFalse(new TextNode("false").asBoolean());
+        assertFalse(new TextNode("barf").asBoolean());
+        assertTrue(new TextNode("barf").asBoolean(true));
 
-        assertEquals(true, new POJONode(Boolean.TRUE).asBoolean());
+        assertTrue(new POJONode(Boolean.TRUE).asBoolean());
     }
 
     // Deserializer to trigger the problem described in [JACKSON-554]

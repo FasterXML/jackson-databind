@@ -246,7 +246,7 @@ public enum SerializationFeature implements ConfigFeature
      * {@link java.util.Calendar} which will always use timezone Calendar value has).
      * Setting is also ignored by Joda date/time values.
      *<p>
-     * Featured is enabled by default for backwards-compatibility purposes (in
+     * Feature is enabled by default for backwards-compatibility purposes (in
      * Jackson 2.12 override was always done if there was explicitly defined timezone).
      *
      * @since 2.13

@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -188,12 +187,7 @@ public class TestCreatorsDelegating
         mapper.setInjectableValues(new InjectableValues.Std()
             .addValue(String.class, "Pooka")
             );
-        CtorBean711 bean = null;
-        try {
-            bean = mapper.readValue("38", CtorBean711.class);
-        } catch (JacksonException e) {
-            fail("Did not expect problems, got: "+e.getMessage());
-        }
+        CtorBean711 bean = mapper.readValue("38", CtorBean711.class);
         assertEquals(38, bean.age);
         assertEquals("Pooka", bean.name);
     }
@@ -205,12 +199,7 @@ public class TestCreatorsDelegating
         mapper.setInjectableValues(new InjectableValues.Std()
             .addValue(String.class, "Fygar")
             );
-        FactoryBean711 bean = null;
-        try {
-            bean = mapper.readValue("38", FactoryBean711.class);
-        } catch (JacksonException e) {
-            fail("Did not expect problems, got: "+e.getMessage());
-        }
+        FactoryBean711 bean = mapper.readValue("38", FactoryBean711.class);
         assertEquals(38, bean.age);
         assertEquals("Fygar", bean.name1);
         assertEquals("Fygar", bean.name2);

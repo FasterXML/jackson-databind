@@ -997,6 +997,15 @@ public class POJOPropertyBuilder
     }
 
     /**
+     * Mutator that will simply drop any fields property may have.
+     *
+     * @since 2.18
+     */
+    public void removeFields() {
+        _fields = null;
+    }
+
+    /**
      * Method called to trim unnecessary entries, such as implicit
      * getter if there is an explict one available. This is important
      * for later stages, to avoid unnecessary conflicts.

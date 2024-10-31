@@ -4,7 +4,28 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.18.0 (not yet released)
+2.18.1 (28-Oct-2024)
+
+#4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
+  are not included in json if default is `null`
+ (reported by @ragnhov)
+ (fix by Joo-Hyuk K)
+#4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
+  with the wrong argument
+ (fix by wrongwrong)
+#4508: Deserialized JsonAnySetter field in Kotlin data class is null
+ (reported by @MaximValeev)
+ (fix by Joo-Hyuk K)
+#4639: @JsonAnySetter on field ignoring unrecognized properties if they are
+  declared before the last recognized properties in JSON
+ (reported by Sim Y-T)
+ (fix by Joo-Hyuk K)
+#4718: Should not fail on trying to serialize `java.time.DateTimeException`
+#4724: Deserialization behavior change with Records, `@JsonCreator` and
+  `@JsonValue` between 2.17 and 2.18
+ (reported by Antti L)
+
+2.18.0 (26-Sep-2024)
 
 #562: Allow `@JsonAnySetter` to flow through Creators
  (reported by Benson M)
@@ -13,9 +34,14 @@ Project: jackson-databind
 #2977: Incompatible `FAIL_ON_MISSING_PRIMITIVE_PROPERTIES` and
   field level `@JsonProperty`
  (reported by @GeorgiPetkov)
+#3120: Return `ListIterator` from `ArrayNode.elements()`
+ (requested by @ludgerb)
+ (fix by Joo-Hyuk K)
 #3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
   for nullability
  (reported by @joca-bt)
+#3439: Java Record `@JsonAnySetter` value is null after deserialization
+ (reported by @oujesky)
 #4085: `@JsonView` does not work on class-level for records
  (reported by Ulf D)
 #4119: Exception when deserialization uses a record with a constructor
@@ -50,8 +76,38 @@ Project: jackson-databind
 #4570: Deprecate `ObjectMapper.canDeserialize()`/`ObjectMapper.canSerialize()`
 #4580: Add `MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER` to use
   Creator properties' declaration order for sorting
+#4584: Provide extension point for detecting "primary" Constructor for Kotlin
+  (and similar) data classes
+#4602: Possible wrong use of _arrayDelegateDeserializer in
+  BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
+ (reported by Eduard G)
+#4617: Record property serialization order not preserved
+ (reported by @GeorgiPetkov)
+#4626: `@JsonIgnore` on Record property ignored for deserialization, if
+  there is getter override
+ (reported by Sim Y-T)
+#4630: `@JsonIncludeProperties`, `@JsonIgnoreProperties` ignored when serializing
+  Records, if there is getter override
+ (reported by Sim Y-T)
+#4634: `@JsonAnySetter` not working when annotated on both constructor
+  parameter & field
+ (contributed by Sim Y-T)
+#4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
+ (reported by Mathijs V)
+#4688: Should allow deserializing with no-arg `@JsonCreator(mode = DELEGATING)`
+ (contributed by Carter K)
+#4694: Deserializing `BigDecimal` with large number of decimals result in incorrect value
+ (reported by @lnthai2002)
+#4699: Add extra `writeNumber()` method in `TokenBuffer`
+ (contributed by @pjfanning)
+#4709: Add `JacksonCollectors` with `toArrayNode()` implementation
+ (contributed by @rikkarth)
 
-2.17.2 (not yet released)
+2.17.3 (not yet released)
+
+#4718: Should not fail on trying to serialize `java.time.DateTimeException`
+
+2.17.2 (05-Jul-2024)
 
 #4561: Issues using jackson-databind 2.17.1 with Reactor
  (reported by @wdallastella)
@@ -63,6 +119,12 @@ Project: jackson-databind
  (reported by @dmelisso)
 #4595: No way to explicitly disable wrapping in custom annotation processor
  (reported by @SimonCockx)
+#4607: `MismatchedInput`: No Object Id found for an instance of X to
+  assign to property '@id'
+ (reported by Susan W)
+#4610: `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` does not work when
+ used with Polymorphic type handling
+ (fix by Joo-Hyuk K)
 
 2.17.1 (04-May-2024)
 

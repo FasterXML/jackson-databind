@@ -159,7 +159,7 @@ public class PolymorphicPropsCreatorsTest extends DatabindTestUtil
         Cat cat = (Cat) animal;
         assertEquals(18, cat.lives);
         // ok, he can't drink dairy products. Let's verify:
-        assertEquals(false, cat.likesCream);
+        assertFalse(cat.likesCream);
     }
 
     @Test

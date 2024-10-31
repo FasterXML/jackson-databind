@@ -15,12 +15,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SingleValueAsArrayTest extends DatabindTestUtil
 {
-    private static final String JSON = "[{\"message\":\"messageHere\"}]";
-
     static class Bean1421A
     {
         List<Messages> bs = Collections.emptyList();
@@ -77,8 +77,10 @@ public class SingleValueAsArrayTest extends DatabindTestUtil
     @Test
     public void testSuccessfulDeserializationOfObjectWithChainedArrayCreators() throws IOException
     {
-        Bean1421A result = MAPPER.readValue(JSON, Bean1421A.class);
+        Bean1421A result = MAPPER.readValue("[{\"message\":\"messageHere\"}]", Bean1421A.class);
         assertNotNull(result);
+        assertNotNull(result.bs);
+        assertEquals(1, result.bs.size());
     }
 
     @Test
@@ -106,6 +108,6 @@ public class SingleValueAsArrayTest extends DatabindTestUtil
 
         boolean[] b = MAPPER.readValue("true", boolean[].class);
         assertEquals(1, d.length);
-        assertEquals(true, b[0]);
+        assertTrue(b[0]);
     }
 }

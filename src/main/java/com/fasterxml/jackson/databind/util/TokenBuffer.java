@@ -954,6 +954,27 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         _appendValue(JsonToken.VALUE_NUMBER_FLOAT, encodedValue);
     }
 
+    /**
+     * Write method that can be used for custom numeric types that can
+     * not be (easily?) converted to "standard" Java number types.
+     * Because numbers are not surrounded by double quotes, regular
+     * {@link #writeString} method can not be used; nor
+     * {@link #writeRaw} because that does not properly handle
+     * value separators needed in Array or Object contexts.
+     *
+     * @param encodedValue Textual (possibly formatted) number representation to write
+     * @param isInteger Whether value should be considered an integer
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
+     * @since 2.18
+     */
+    public void writeNumber(String encodedValue, boolean isInteger) throws IOException {
+        _appendValue(
+            isInteger ? JsonToken.VALUE_NUMBER_INT : JsonToken.VALUE_NUMBER_FLOAT,
+            encodedValue);
+    }
+
     private void writeLazyInteger(Object encodedValue) throws IOException {
         _appendValue(JsonToken.VALUE_NUMBER_INT, encodedValue);
     }
@@ -1471,11 +1492,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         protected ObjectCodec _codec;
 
         /**
-         * @since 2.15
-         */
-        protected StreamReadConstraints _streamReadConstraints;
-
-        /**
          * @since 2.3
          */
         protected final boolean _hasNativeTypeIds;
@@ -1543,11 +1559,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             // 25-Jun-2022, tatu: Ideally would pass parser flags along (as
             //    per [databund#3528]) but for now make sure not to clear the flags
             //    but let defaults be used
-            super();
+            super(streamReadConstraints);
             _segment = firstSeg;
             _segmentPtr = -1; // not yet read
             _codec = codec;
-            _streamReadConstraints = streamReadConstraints;
             _parsingContext = TokenBufferReadContext.createRootContext(parentContext);
             _hasNativeTypeIds = hasNativeTypeIds;
             _hasNativeObjectIds = hasNativeObjectIds;
@@ -1641,7 +1656,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     return null;
                 }
             }
-            _currToken = _segment.type(_segmentPtr);
+            _updateToken(_segment.type(_segmentPtr));
             // Field name? Need to update context
             if (_currToken == JsonToken.FIELD_NAME) {
                 Object ob = _currentObject();
@@ -1672,7 +1687,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             int ptr = _segmentPtr+1;
             if ((ptr < Segment.TOKENS_PER_SEGMENT) && (_segment.type(ptr) == JsonToken.FIELD_NAME)) {
                 _segmentPtr = ptr;
-                _currToken = JsonToken.FIELD_NAME;
+                _updateToken(JsonToken.FIELD_NAME);
                 Object ob = _segment.get(ptr); // inlined _currentObject();
                 String name = (ob instanceof String) ? ((String) ob) : ob.toString();
                 _parsingContext.setCurrentName(name);
@@ -1859,8 +1874,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public int getIntValue() throws IOException
         {
-            Number n = (_currToken == JsonToken.VALUE_NUMBER_INT) ?
-                    ((Number) _currentObject()) : getNumberValue();
+            final Number n = getNumberValue(false);
             if ((n instanceof Integer) || _smallerThanInt(n)) {
                 return n.intValue();
             }
@@ -1869,8 +1883,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         @Override
         public long getLongValue() throws IOException {
-            Number n = (_currToken == JsonToken.VALUE_NUMBER_INT) ?
-                    ((Number) _currentObject()) : getNumberValue();
+            final Number n = getNumberValue(false);
             if ((n instanceof Long) || _smallerThanLong(n)) {
                 return n.longValue();
             }

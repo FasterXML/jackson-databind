@@ -1,12 +1,17 @@
 package com.fasterxml.jackson.databind.records;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#3102]
 public class RecordTypeInfo3342Test extends DatabindTestUtil
@@ -37,6 +42,36 @@ public class RecordTypeInfo3342Test extends DatabindTestUtil
             })
             SpiceTolerance tolerance) { }
 
+    // Test from https://github.com/FasterXML/jackson-modules-base/pull/249
+
+    static record RootRecord249(AbstractMember249 member) {
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value = StringMember.class, name = "string"),
+        @JsonSubTypes.Type(value = IntMember.class, name = "int")
+    })
+    static abstract class AbstractMember249 { }
+
+    static final class StringMember extends AbstractMember249 {
+        final String val;
+
+        @JsonCreator
+        public StringMember(@JsonProperty("val") String val) {
+          this.val = val;
+        }
+    }
+
+    static final class IntMember extends AbstractMember249 {
+        final int val;
+
+        @JsonCreator
+        public IntMember(@JsonProperty("val") int val) {
+            this.val = val;
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -60,4 +95,15 @@ public class RecordTypeInfo3342Test extends DatabindTestUtil
         Example value = MAPPER.readValue(json, Example.class);
         assertEquals(record, value);
     }
+
+    // Test from https://github.com/FasterXML/jackson-modules-base/pull/249
+    @Test
+    public void testDeserializeRecordWithAbstractMember() throws Exception {
+        RootRecord249 value = MAPPER.readValue(
+                "{\"member\":{\"@class\":\"string\",\"val\":\"Hello, abstract member!\"}}",
+                RootRecord249.class);
+        assertNotNull(value.member());
+        assertEquals(StringMember.class, value.member().getClass());
+        assertEquals("Hello, abstract member!", ((StringMember)value.member()).val);
+      }
 }

@@ -17,12 +17,12 @@ public final class MemberKey
 
     public MemberKey(Method m)
     {
-        this(m.getName(), m.getParameterTypes());
+        this(m.getName(), m.getParameterCount() > 0 ? m.getParameterTypes() : NO_CLASSES);
     }
 
     public MemberKey(Constructor<?> ctor)
     {
-        this("", ctor.getParameterTypes());
+        this("", ctor.getParameterCount() > 0 ? ctor.getParameterTypes() : NO_CLASSES);
     }
 
     public MemberKey(String name, Class<?>[] argTypes)

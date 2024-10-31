@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [databind#3505] causing a NPE when setting a DefaultTypeResolverBuilder
@@ -59,24 +61,21 @@ public class DefaultTypeResolver3505Test
         }
     }
 
-    public void testDeductionWithDefaultTypeResolverBuilder() {
+    @Test
+    public void testDeductionWithDefaultTypeResolverBuilder() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(Parent.ChildOne.class, Parent.ChildTwo.class)
                 .setDefaultTyping(new AssertingTypeResolverBuilder()
                         .init(JsonTypeInfo.Id.DEDUCTION, null))
                 .build();
 
-        try {
-            final Parent firstRead = mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class);
-            assertNotNull(firstRead);
-            assertTrue(firstRead instanceof Parent.ChildOne);
-            assertEquals("Hello World", ((Parent.ChildOne) firstRead).one);
-            final Parent secondRead = mapper.readValue("{ \"two\": \"Hello World\" }", Parent.class);
-            assertNotNull(secondRead);
-            assertTrue(secondRead instanceof Parent.ChildTwo);
-            assertEquals("Hello World", ((Parent.ChildTwo) secondRead).two);
-        } catch (Exception e) {
-            fail("This call should not throw");
-        }
+        final Parent firstRead = mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class);
+        assertNotNull(firstRead);
+        assertTrue(firstRead instanceof Parent.ChildOne);
+        assertEquals("Hello World", ((Parent.ChildOne) firstRead).one);
+        final Parent secondRead = mapper.readValue("{ \"two\": \"Hello World\" }", Parent.class);
+        assertNotNull(secondRead);
+        assertTrue(secondRead instanceof Parent.ChildTwo);
+        assertEquals("Hello World", ((Parent.ChildTwo) secondRead).two);
     }
 }

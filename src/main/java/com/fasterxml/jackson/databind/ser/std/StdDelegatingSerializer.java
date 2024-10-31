@@ -181,7 +181,7 @@ public class StdDelegatingSerializer
         }
         JsonSerializer<Object> ser = _delegateSerializer;
         if (ser == null) {
-            ser = _findSerializer(value, provider);
+            ser = _findSerializer(delegateValue, provider);
         }
         ser.serializeWithType(delegateValue, gen, provider, typeSer);
     }

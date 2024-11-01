@@ -103,7 +103,7 @@ Project: jackson-databind
 #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
  (contributed by @rikkarth)
 
-2.17.3 (not yet released)
+2.17.3 (01-Nov-2024)
 
 #4718: Should not fail on trying to serialize `java.time.DateTimeException`
 

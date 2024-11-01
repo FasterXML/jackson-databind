@@ -8,7 +8,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.objectid.TestObjectId.Employee;
+import com.fasterxml.jackson.databind.objectid.Employee;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import com.fasterxml.jackson.databind.tofix.ObjectIdDeserializationFailTest.EnumMapCompany.FooEnum;

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
@@ -95,7 +96,7 @@ public class TestNameConflicts extends DatabindTestUtil
     @Test
     public void testIssue193() throws Exception
     {
-        String json = objectWriter().writeValueAsString(new Bean193(1, 2));
+        String json = MAPPER.writeValueAsString(new Bean193(1, 2));
         assertNotNull(json);
     }
 
@@ -110,7 +111,7 @@ public class TestNameConflicts extends DatabindTestUtil
     @Test
     public void testHypotheticalGetters() throws Exception
     {
-        String json = objectWriter().writeValueAsString(new MultipleTheoreticalGetters());
+        String json = MAPPER.writeValueAsString(new MultipleTheoreticalGetters());
         assertEquals(a2q("{'a':3}"), json);
     }
 
@@ -118,17 +119,11 @@ public class TestNameConflicts extends DatabindTestUtil
     @Test
     public void testOverrideName() throws Exception
     {
-        final ObjectMapper mapper = newJsonMapper();
-        String json = mapper.writeValueAsString(new CoreBean158());
+        String json = MAPPER.writeValueAsString(new CoreBean158());
         assertEquals(a2q("{'bar':'x'}"), json);
 
         // and back
-        CoreBean158 result = null;
-        try {
-            result = mapper.readValue(a2q("{'bar':'y'}"), CoreBean158.class);
-        } catch (Exception e) {
-            fail("Unexpected failure when reading CoreBean158: "+e);
-        }
+        CoreBean158 result = MAPPER.readValue(a2q("{'bar':'y'}"), CoreBean158.class);
         assertNotNull(result);
         assertEquals("y", result.bar);
     }

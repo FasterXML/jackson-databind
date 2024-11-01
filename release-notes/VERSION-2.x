@@ -9,6 +9,11 @@ Project: jackson-databind
 #2461: Nested `@JsonUnwrapped` property names not correctly handled
  (reported by @plovell)
  (fix contributed by @SandeepGaur2016)
+#2951: Allow inverting `@JsonProperty(access=)` with
+  `MapperFeature.INVERSE_READ_WRITE_ACCESS` to work differently on
+   server and client side
+ (requested by @qianlong)
+ (contributed by Geoffrey G)
 #4674: Allow setting global enum naming strategy similar to property naming strategy
  (requested by @hajdamak)
  (contributed by Konstantin M)
@@ -19,8 +24,12 @@ Project: jackson-databind
  (reported by @devdanylo)
  (fix by Joo-Hyuk K)
 
-2.18.1 (WIP-2024)
+2.18.1 (28-Oct-2024)
 
+#4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
+  are not included in json if default is `null`
+ (reported by @ragnhov)
+ (fix by Joo-Hyuk K)
 #4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
   with the wrong argument
  (fix by wrongwrong)

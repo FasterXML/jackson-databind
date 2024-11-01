@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -531,7 +530,7 @@ public class JDKScalarsDeserTest
                 PrimitivesBean.class);
         assertNotNull(bean);
         assertEquals(0, bean.intValue);
-        assertEquals(false, bean.booleanValue);
+        assertFalse(bean.booleanValue);
         assertEquals(0.0, bean.doubleValue);
 
         bean = MAPPER.readValue("{\"byteValue\":null, \"longValue\":null, \"floatValue\":null}",

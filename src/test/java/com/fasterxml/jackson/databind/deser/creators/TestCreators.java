@@ -435,7 +435,7 @@ public class TestCreators
             ("{ \"a\" : \"1\", \"b\": 2, \"c\" : true }", ConstructorAndPropsBean.class);
         assertEquals(1, bean.a);
         assertEquals(2, bean.b);
-        assertEquals(true, bean.c);
+        assertTrue(bean.c);
     }
 
     @Test

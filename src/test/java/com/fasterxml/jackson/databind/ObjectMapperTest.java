@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
@@ -212,7 +213,7 @@ public class ObjectMapperTest
         JsonNode readResult = copiedMapper.readTree(json);
         // validate functionality
         assertEquals("Black", readResult.get("color").asText());
-        assertEquals(true, readResult.get("free").asBoolean());
+        assertTrue(readResult.get("free").asBoolean());
         assertEquals(204, readResult.get("pages").asInt());
         String readResultAsString = _unifyLFs("{\n  \"color\" : \"Black\",\n  \"free\" : \"true\",\n  \"pages\" : \"204.04\"\n}");
         assertEquals(readResultAsString, _unifyLFs(mapper.writeValueAsString(readResult)));

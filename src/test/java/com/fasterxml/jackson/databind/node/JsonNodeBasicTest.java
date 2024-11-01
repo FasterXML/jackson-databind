@@ -2,12 +2,13 @@ package com.fasterxml.jackson.databind.node;
 
 import java.util.Comparator;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import com.fasterxml.jackson.databind.util.RawValue;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 

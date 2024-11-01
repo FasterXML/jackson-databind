@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import com.fasterxml.jackson.databind.*;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

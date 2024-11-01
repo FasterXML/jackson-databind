@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonMerge;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.ABC;

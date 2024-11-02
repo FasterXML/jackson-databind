@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.tofix;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,8 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
-
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,7 +20,7 @@ public class OrderMapEntriesByKeysSerializationFeature4773Test
         extends DatabindTestUtil
 {
 
-    public static class UncomparableContainer4773 {
+    public static class IncomparableContainer4773 {
         public Map<Currency, String> exampleMap = new HashMap<>();
     }
 
@@ -34,11 +34,11 @@ public class OrderMapEntriesByKeysSerializationFeature4773Test
 
     @JacksonTestFailureExpected
     @Test
-    void testSerializationWithUncomparableKeys()
+    void testSerializationWithIncomparableKeys()
             throws Exception
     {
         // Given
-        UncomparableContainer4773 entity = new UncomparableContainer4773();
+        IncomparableContainer4773 entity = new IncomparableContainer4773();
         entity.exampleMap.put(Currency.getInstance("GBP"), "GBP_TEXT");
         entity.exampleMap.put(Currency.getInstance("AUD"), "AUD_TEXT");
 

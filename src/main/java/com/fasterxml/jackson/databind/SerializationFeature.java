@@ -435,15 +435,19 @@ public enum SerializationFeature implements ConfigFeature
     ORDER_MAP_ENTRIES_BY_KEYS(false),
 
     /**
-     * Feature that determines whether to try to ignore failure to order map entries by keys.
-     * This feature will apply only when serialization is to order its serialize output, configured
+     * Feature that determines whether to try to ignore failure to order map entries by incomparable keys.
+     * If enabled, will not throw an exception when ordering fails due to keys with incomparable key type
+     * and instead just return the original map.
+     * If disabled, will simply fail by throwing an exception.
+     * <p>
+     * Note that this feature will apply only when configured to order map entries by keys, either
      * through annotation or enabling {@link #ORDER_MAP_ENTRIES_BY_KEYS}.
      * <p>
      * Feature is disabled by default and will default true in Jackson 3 and later.
      *
      * @since 2.19
      */
-    IGNORE_FAILURE_TO_ORDER_MAP_ENTRIES_BY_KEYS(false),
+    IGNORE_FAILURE_TO_ORDER_MAP_ENTRIES_BY_INCOMPARABLE_KEYS(false),
 
     /*
     /******************************************************

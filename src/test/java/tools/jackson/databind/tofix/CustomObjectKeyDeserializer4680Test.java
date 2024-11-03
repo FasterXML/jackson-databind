@@ -14,7 +14,7 @@ import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// [databind#4680] Custom key deserialiser registered for `Object.class` is ignored on nested JSON
+// [databind#4680] Custom key deserializer registered for `Object.class` is ignored on nested JSON
 public class CustomObjectKeyDeserializer4680Test
 {
     @SuppressWarnings("unchecked")

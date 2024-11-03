@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.deser;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,13 +6,12 @@ import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#4773] Test to verify `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` behavior
 //     when serializing `Map` instances with un-comparable keys.
@@ -32,7 +31,6 @@ public class OrderMapEntriesByKeysSerializationFeature4773Test
             .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
             .build();
 
-    @JacksonTestFailureExpected
     @Test
     void testSerializationWithIncomparableKeys()
             throws Exception
@@ -44,11 +42,18 @@ public class OrderMapEntriesByKeysSerializationFeature4773Test
 
         // When : Throws exception
         // com.fasterxml.jackson.databind.JsonMappingException: class java.util.Currency cannot be cast to class java.lang.Comparable
-        String jsonResult = objectMapper.writeValueAsString(entity);
+        try {
+            objectMapper.writer()
+                .without(SerializationFeature.IGNORE_FAILURE_TO_ORDER_MAP_ENTRIES_BY_KEYS)
+                .writeValueAsString(entity);
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
 
-        // Then : Order should not matter, just plain old serialize
-        assertTrue(jsonResult.contains("GBP"));
-        assertTrue(jsonResult.contains("AUD"));
+            // Then
+            assertInstanceOf(ClassCastException.class, e.getCause());
+            assertTrue(e.getMessage()
+                    .contains("class java.util.Currency cannot be cast to class java.lang.Comparable"));
+        }
     }
 
     @Test
@@ -73,6 +78,27 @@ public class OrderMapEntriesByKeysSerializationFeature4773Test
                 "'3':'T_TEXT'," +
                 "'4':'AUD_TEXT'," +
                 "'5':'N_TEXT'}}"), jsonResult);
+    }
+
+    @Test
+    void testSerializationWithBothComparableAndIncomparableKeys()
+            throws Exception
+    {
+        // Given : Mixed keys with incomparable `Currency` and comparable `Integer`
+        ObjectContainer4773 entity = new ObjectContainer4773();
+        entity.exampleMap.put(1, "AUD_TEXT");
+        entity.exampleMap.put(Currency.getInstance("GBP"), "GBP_TEXT");
+        entity.exampleMap.put(2, "KRW_TEXT");
+
+        // When
+        String jsonResult = objectMapper.writer()
+                .with(SerializationFeature.IGNORE_FAILURE_TO_ORDER_MAP_ENTRIES_BY_KEYS)
+                .writeValueAsString(entity);
+
+        // Then
+        assertTrue(jsonResult.contains("\"1\":\"AUD_TEXT\""));
+        assertTrue(jsonResult.contains("\"2\":\"KRW_TEXT\""));
+        assertTrue(jsonResult.contains("\"GBP\":\"GBP_TEXT\""));
     }
 
 }

@@ -750,7 +750,7 @@ public class MapSerializer
     public void serializeWithoutTypeInfo(Map<?, ?> value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         if (!value.isEmpty()) {
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-                value = _orderEntries(value, gen, provider);
+                value = _tryOrderingEntries(value, gen, provider);
             }
             PropertyFilter pf;
             if ((_filterId != null) && (pf = findPropertyFilter(provider, _filterId, value)) != null) {
@@ -1156,6 +1156,28 @@ public class MapSerializer
             _dynamicValueSerializers = result.map;
         }
         return result.serializer;
+    }
+
+    // Since 2.19
+    protected Map<?, ?> _tryOrderingEntries(Map<?,?> input, JsonGenerator gen,
+            SerializerProvider provider)
+        throws IOException
+    {
+        try {
+            return _orderEntries(input, gen, provider);
+        } catch (ClassCastException cce) {
+            // [databind#4773] Since 2.19, `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not
+            // apply to Maps with incomparable keys.
+            // Due to dynamic nature of Map, we cannot be able to check key type in advance, so
+            // we may catch ClassCastException and handle it gracefully.
+            if (cce.getMessage() != null
+                && cce.getMessage().contains("cannot be cast to class java.lang.Comparable")
+                && provider.isEnabled(SerializationFeature.IGNORE_FAILURE_TO_ORDER_MAP_ENTRIES_BY_KEYS)
+            ) {
+                return input;
+            }
+            throw cce;
+        }
     }
 
     protected Map<?,?> _orderEntries(Map<?,?> input, JsonGenerator gen,

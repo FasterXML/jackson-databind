@@ -114,9 +114,7 @@ public class CreatorCollector
      * it with data. Default creator is only used if no other creators are
      * indicated.
      *
-     * @param creator
-     *            Creator method; no-arguments constructor or static factory
-     *            method.
+     * @param creator Creator method; no-arguments constructor or factory method.
      */
     public void setDefaultCreator(AnnotatedWithParams creator) {
         _creators[C_DEFAULT] = _fixAccess(creator);

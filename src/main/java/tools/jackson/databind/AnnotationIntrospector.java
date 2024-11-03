@@ -1153,14 +1153,14 @@ public abstract class AnnotationIntrospector
 
     /**
      * Method called to check if introspector can find a Creator it considers
-     * the "Default Creator": Creator to use as the primary, when no Creator has
+     * the "Primary Creator": Creator to use as the primary one, when no Creator has
      * explicit annotation ({@link #findCreatorAnnotation} returns {@code null}).
      * Examples of default creators include the canonical constructor defined by
      * Java Records; "Data" classes by frameworks
      * like Lombok and JVM languages like Kotlin and Scala (case classes) also have
      * similar concepts.
      * If introspector can determine that one of given {@link PotentialCreator}s should
-     * be considered the default, it should return it; if not, should return {@code null}.
+     * be considered the primary, it should return it; if not, should return {@code null}.
      * Note that core databind functionality may call this method even in the presence of
      * explicitly annotated creators; and may or may not use Creator returned depending
      * on other criteria.
@@ -1170,6 +1170,11 @@ public abstract class AnnotationIntrospector
      *<p>
      * NOTE: method is NOT called for Java Record types; selection of the canonical constructor
      * as the Primary creator is handled directly by {@link POJOPropertiesCollector}
+     *<p>
+     * NOTE: naming of this method is unfortunately inconsistent in that "default Creator"
+     * has other meanings than "primary Creator" -- in other places Jackson code
+     * refers to no-arguments Constructors as "default Creators". So this method
+     * ought to have been named {@code findPrimaryCreator()}.
      *
      * @param config Configuration settings in effect (for deserialization)
      * @param valueClass Class being instantiated; defines Creators passed

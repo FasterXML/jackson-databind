@@ -669,13 +669,13 @@ public class AnnotationIntrospectorPair
             AnnotatedClass valueClass,
             List<PotentialCreator> declaredConstructors,
             List<PotentialCreator> declaredFactories) {
-        PotentialCreator defCtor = _primary.findDefaultCreator(config,
+        PotentialCreator primaryCtor = _primary.findDefaultCreator(config,
                 valueClass, declaredConstructors, declaredFactories);
-        if (defCtor == null) {
-            defCtor = _secondary.findDefaultCreator(config,
+        if (primaryCtor == null) {
+            primaryCtor = _secondary.findDefaultCreator(config,
                     valueClass, declaredConstructors, declaredFactories);
         }
-        return defCtor;
+        return primaryCtor;
     }
 
     /*

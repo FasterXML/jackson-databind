@@ -656,14 +656,17 @@ public class POJOPropertiesCollector
         List<PotentialCreator> constructors = _collectCreators(_classDef.getConstructors());
         List<PotentialCreator> factories = _collectCreators(_classDef.getFactoryMethods());
 
-        // Then find what is the Default Constructor (if one exists for type):
+        // Then find what is the Primary Constructor (if one exists for type):
         // for Java Records and potentially other types too ("data classes"):
         // Needs to be done early to get implicit names populated
-        final PotentialCreator defaultCreator;
+        final PotentialCreator primaryCreator;
         if (_isRecordType) {
-            defaultCreator = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, constructors);
+            primaryCreator = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, constructors);
         } else {
-            defaultCreator = _annotationIntrospector.findDefaultCreator(_config, _classDef,
+            // 02-Nov-2024, tatu: Alas, naming here is confusing: method properly
+            //    should have been "findPrimaryCreator()" so as not to confused with
+            //    0-args default Creators...
+            primaryCreator = _annotationIntrospector.findDefaultCreator(_config, _classDef,
                     constructors, factories);
         }
         // Next: remove creators marked as explicitly disabled
@@ -671,7 +674,7 @@ public class POJOPropertiesCollector
         _removeDisabledCreators(factories);
         
         // And then remove non-annotated static methods that do not look like factories
-        _removeNonFactoryStaticMethods(factories, defaultCreator);
+        _removeNonFactoryStaticMethods(factories, primaryCreator);
 
         // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
@@ -682,30 +685,30 @@ public class POJOPropertiesCollector
                     creators.hasPropertiesBased());
         }
 
-        // If no Explicitly annotated creators (or Default one) found, look
+        // If no Explicitly annotated creators (or Primary one) found, look
         // for ones with explicitly-named ({@code @JsonProperty}) parameters
         if (!creators.hasPropertiesBased()) {
             // only discover constructor Creators?
-            _addCreatorsWithAnnotatedNames(creators, constructors, defaultCreator);
+            _addCreatorsWithAnnotatedNames(creators, constructors, primaryCreator);
         }
 
-        // But if no annotation-based Creators found, find/use Default Creator
+        // But if no annotation-based Creators found, find/use Primary Creator
         // detected earlier, if any
-        if (defaultCreator != null) {
+        if (primaryCreator != null) {
             // ... but only process if still included as a candidate
-            if (constructors.remove(defaultCreator)
-                    || factories.remove(defaultCreator)) {
+            if (constructors.remove(primaryCreator)
+                    || factories.remove(primaryCreator)) {
                 // and then consider delegating- vs properties-based
-                if (_isDelegatingConstructor(defaultCreator)) {
+                if (_isDelegatingConstructor(primaryCreator)) {
                     // 08-Oct-2024, tatu: [databind#4724] Only add if no explicit
                     //    candidates added
                     if (!creators.hasDelegating()) {
                         // ... not technically explicit but simpler this way
-                        creators.addExplicitDelegating(defaultCreator);
+                        creators.addExplicitDelegating(primaryCreator);
                     }
-                } else { // default creator is properties-based
+                } else { // primary creator is properties-based
                     if (!creators.hasPropertiesBased()) {
-                        creators.setPropertiesBased(_config, defaultCreator, "Primary");
+                        creators.setPropertiesBased(_config, primaryCreator, "Primary");
                     }
                 }
             }
@@ -717,7 +720,7 @@ public class POJOPropertiesCollector
         final ConstructorDetector ctorDetector = _config.getConstructorDetector();
         if (!creators.hasPropertiesBasedOrDelegating()
                 && !ctorDetector.requireCtorAnnotation()) {
-            // But only if no default constructor available OR if we are configured
+            // But only if no Default (0-args) constructor available OR if we are configured
             // to prefer properties-based Creators
             if ((_classDef.getDefaultConstructor() == null)
                     || ctorDetector.singleArgCreatorDefaultsToProperties()) {
@@ -753,7 +756,7 @@ public class POJOPropertiesCollector
         case DISABLED:
         case PROPERTIES:
             return false;
-        default: // case DEFAULT:
+        default:
         }
 
         // Only consider single-arg case, for now
@@ -804,7 +807,7 @@ public class POJOPropertiesCollector
     }
 
     private void _removeNonFactoryStaticMethods(List<PotentialCreator> ctors,
-            PotentialCreator defaultCreator)
+            PotentialCreator primaryCreator)
     {
         final Class<?> rawType = _type.getRawClass();
         Iterator<PotentialCreator> it = ctors.iterator();
@@ -814,8 +817,8 @@ public class POJOPropertiesCollector
             if (ctor.isAnnotated()) {
                 continue;
             }
-            // Do not trim canonical either
-            if (defaultCreator == ctor) {
+            // Do not trim Primary creator either
+            if (primaryCreator == ctor) {
                 continue;
             }
             // Copied from `BasicBeanDescription.isFactoryMethod()`
@@ -932,14 +935,14 @@ ctor.creator()));
     }
 
     private void _addCreatorsWithAnnotatedNames(PotentialCreators collector,
-            List<PotentialCreator> ctors, PotentialCreator defaultCtor)
+            List<PotentialCreator> ctors, PotentialCreator primaryCtor)
     {
         final List<PotentialCreator> found = _findCreatorsWithAnnotatedNames(ctors);
-        // 16-Jul-2024, tatu: [databind#4620] If Default Creator found, it
+        // 16-Jul-2024, tatu: [databind#4620] If Primary Creator found, it
         //    will be used to resolve candidate to use, if any
-        if (defaultCtor != null) {
-            if (found.contains(defaultCtor)) {
-                collector.setPropertiesBased(_config, defaultCtor, "implicit");
+        if (primaryCtor != null) {
+            if (found.contains(primaryCtor)) {
+                collector.setPropertiesBased(_config, primaryCtor, "implicit");
                 return;
             }
         }

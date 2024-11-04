@@ -447,7 +447,7 @@ public enum SerializationFeature implements ConfigFeature
      *
      * @since 2.19
      */
-    IGNORE_FAILURE_TO_ORDER_MAP_ENTRIES_BY_INCOMPARABLE_KEYS(false),
+    FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY(true),
 
     /*
     /******************************************************

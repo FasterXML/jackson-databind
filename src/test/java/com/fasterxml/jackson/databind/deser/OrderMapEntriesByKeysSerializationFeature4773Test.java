@@ -44,7 +44,7 @@ public class OrderMapEntriesByKeysSerializationFeature4773Test
         // com.fasterxml.jackson.databind.JsonMappingException: class java.util.Currency cannot be cast to class java.lang.Comparable
         try {
             objectMapper.writer()
-                .without(SerializationFeature.IGNORE_FAILURE_TO_ORDER_MAP_ENTRIES_BY_INCOMPARABLE_KEYS)
+                .without(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)
                 .writeValueAsString(entity);
             fail("Should not pass");
         } catch (JsonMappingException e) {
@@ -92,7 +92,7 @@ public class OrderMapEntriesByKeysSerializationFeature4773Test
 
         // When
         String jsonResult = objectMapper.writer()
-                .with(SerializationFeature.IGNORE_FAILURE_TO_ORDER_MAP_ENTRIES_BY_INCOMPARABLE_KEYS)
+                .with(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)
                 .writeValueAsString(entity);
 
         // Then

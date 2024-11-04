@@ -1172,7 +1172,7 @@ public class MapSerializer
             // we may catch ClassCastException and handle it gracefully.
             if (cce.getMessage() != null
                 && cce.getMessage().contains("cannot be cast to class java.lang.Comparable")
-                && provider.isEnabled(SerializationFeature.IGNORE_FAILURE_TO_ORDER_MAP_ENTRIES_BY_INCOMPARABLE_KEYS)
+                && !provider.isEnabled(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)
             ) {
                 return input;
             }

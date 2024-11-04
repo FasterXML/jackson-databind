@@ -435,10 +435,12 @@ public enum SerializationFeature implements ConfigFeature
     ORDER_MAP_ENTRIES_BY_KEYS(false),
 
     /**
-     * Feature that determines whether to try to ignore failure to order map entries by incomparable keys.
-     * If enabled, will not throw an exception when ordering fails due to keys with incomparable key type
-     * and instead just return the original map.
-     * If disabled, will simply fail by throwing an exception.
+     * Feature that determines whether to intentionally fail when the mapper attempts to
+     * order map entries with incomparable keys by accessing the first key of the map.
+     * So depending on the Map implementation, this may not be the same key every time.
+     * <p>
+     * If enabled, will simply fail by throwing an exception.
+     * If disabled, will not throw an exception and instead simply return the original map.
      * <p>
      * Note that this feature will apply only when configured to order map entries by keys, either
      * through annotation or enabling {@link #ORDER_MAP_ENTRIES_BY_KEYS}.

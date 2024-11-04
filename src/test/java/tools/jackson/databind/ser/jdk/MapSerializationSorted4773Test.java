@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser.jdk;
+package tools.jackson.databind.ser.jdk;
 
 import java.util.Currency;
 import java.util.HashMap;
@@ -10,16 +10,14 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#4773] Test to verify `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` behavior
 //     when serializing `Map` instances with un-comparable keys.
-public class OrderMapEntriesByKeysSerializationFeature4773Test
+public class MapSerializationSorted4773Test
         extends DatabindTestUtil
 {
-
     public static class IncomparableContainer4773 {
         public Map<Currency, String> exampleMap = new HashMap<>();
     }

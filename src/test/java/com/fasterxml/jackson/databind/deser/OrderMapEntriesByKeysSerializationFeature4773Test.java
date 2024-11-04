@@ -6,7 +6,6 @@ import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
@@ -50,9 +49,7 @@ public class OrderMapEntriesByKeysSerializationFeature4773Test
             fail("Should not pass");
         } catch (InvalidDefinitionException e) {
             // Then
-            verifyException(e,
-                    "Cannot order Map entries by key of incomparable type",
-                    "consider disabling SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY to simply skip sorting");
+            verifyException(e, "Cannot order Map entries by key of incomparable type");
         }
     }
 
@@ -81,24 +78,23 @@ public class OrderMapEntriesByKeysSerializationFeature4773Test
     }
 
     @Test
-    void testSerializationSuccessWhenDisabledWithMixedTypes()
+    void testSerWithNullType()
             throws Exception
     {
         // Given : Mixed keys with incomparable `Currency` and comparable `Integer`
         ObjectContainer4773 entity = new ObjectContainer4773();
-        entity.exampleMap.put(1, "AUD_TEXT");
-        entity.exampleMap.put(Currency.getInstance("GBP"), "GBP_TEXT");
-        entity.exampleMap.put(2, "KRW_TEXT");
+        entity.exampleMap.put(null, "AUD_TEXT");
 
-        // When
-        String jsonResult = objectMapper.writer()
-                .without(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)
+        // When : Throws exception
+        try {
+            objectMapper.writer()
+                .with(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)
                 .writeValueAsString(entity);
-
-        // Then
-        assertTrue(jsonResult.contains("\"1\":\"AUD_TEXT\""));
-        assertTrue(jsonResult.contains("\"2\":\"KRW_TEXT\""));
-        assertTrue(jsonResult.contains("\"GBP\":\"GBP_TEXT\""));
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            // Then
+            verifyException(e, "Cannot order Map entries by key of incomparable type [null]");
+        }
     }
 
 }

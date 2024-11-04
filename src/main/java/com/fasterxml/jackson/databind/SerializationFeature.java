@@ -443,7 +443,7 @@ public enum SerializationFeature implements ConfigFeature
      * Note that this feature will apply only when configured to order map entries by keys, either
      * through annotation or enabling {@link #ORDER_MAP_ENTRIES_BY_KEYS}.
      * <p>
-     * Feature is disabled by default and will default true in Jackson 3 and later.
+     * Feature is enabled by default and will default false in Jackson 3 and later.
      *
      * @since 2.19
      */

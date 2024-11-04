@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
@@ -1168,56 +1167,42 @@ public class MapSerializer
             return input;
         }
         // or is it empty? then no need to sort either
-        if (input == null || input.isEmpty()) {
+        if (input.isEmpty()) {
             return input;
         }
         // [databind#4773] Since 2.19: We should not try sorting Maps with uncomparable keys
         // And first key is a good enough sample for now.
         Object firstKey = input.keySet().iterator().next();
-        if (firstKey != null && !Comparable.class.isInstance(firstKey)) {
+        if (!Comparable.class.isInstance(firstKey)) {
             // We cannot sort incomparable keys, should we fail or just skip sorting?
             if (!provider.isEnabled(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)) {
                 return input;
             } else {
-                provider.reportBadDefinition(firstKey.getClass(),
+                Class<?> clazz = firstKey == null ? Object.class : firstKey.getClass();
+                provider.reportBadDefinition(clazz,
                     String.format("Cannot order Map entries by key of incomparable type %s, consider disabling " +
-                                "SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY to simply skip sorting",
+                                "`SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY` to simply skip sorting",
                                 ClassUtil.classNameOf(firstKey)));
             }
         }
-        try {
-            // [databind#1411]: TreeMap does not like null key... (although note that
-            //   check above should prevent this code from being called in that case)
-            // [databind#153]: but, apparently, some custom Maps do manage hit this
-            //   problem.
-            if (_hasNullKey(input)) {
-                TreeMap<Object,Object> result = new TreeMap<Object,Object>();
-                for (Map.Entry<?,?> entry : input.entrySet()) {
-                    Object key = entry.getKey();
-                    if (key == null) {
-                        _writeNullKeyedEntry(gen, provider, entry.getValue());
-                        continue;
-                    }
-                    result.put(key, entry.getValue());
+
+        // [databind#1411]: TreeMap does not like null key... (although note that
+        //   check above should prevent this code from being called in that case)
+        // [databind#153]: but, apparently, some custom Maps do manage hit this
+        //   problem.
+        if (_hasNullKey(input)) {
+            TreeMap<Object,Object> result = new TreeMap<Object,Object>();
+            for (Map.Entry<?,?> entry : input.entrySet()) {
+                Object key = entry.getKey();
+                if (key == null) {
+                    _writeNullKeyedEntry(gen, provider, entry.getValue());
+                    continue;
                 }
-                return result;
+                result.put(key, entry.getValue());
             }
-            return new TreeMap<Object,Object>(input);
-        } catch (ClassCastException cce) {
-            // [databind#4773] Since 2.19, `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not
-            // apply to Maps with incomparable keys.
-            if (!provider.isEnabled(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)
-                    && cce.getMessage() != null
-                    && cce.getMessage().contains("java.lang.Comparable")
-            ) {
-                return input;
-            }
-            return provider.reportBadDefinition(firstKey.getClass(),
-                    String.format("Cannot order Map entries by key of incomparable type %s, consider disabling " +
-                                "SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY to simply skip sorting. " +
-                                    "Underlying exception message (%s): %s",
-                                ClassUtil.classNameOf(firstKey), cce.getClass().getName(), cce.getMessage()));
+            return result;
         }
+        return new TreeMap<Object,Object>(input);
     }
 
     /**

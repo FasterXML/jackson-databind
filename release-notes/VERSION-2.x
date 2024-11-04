@@ -20,6 +20,10 @@ Project: jackson-databind
 #4676: Support other enum naming strategies than camelCase
  (requested by @hajdamak)
  (contributed by Lars B)
+#4773: `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not apply to Maps
+  with uncomparable keys
+ (requested by @nathanukey)
+ (fix by Joo-Hyuk K)
 
 2.18.1 (28-Oct-2024)
 

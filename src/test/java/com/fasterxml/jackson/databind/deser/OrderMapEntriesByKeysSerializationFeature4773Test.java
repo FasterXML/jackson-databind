@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.deser;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,11 +8,10 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#4773] Test to verify `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` behavior
 //     when serializing `Map` instances with un-comparable keys.
@@ -32,9 +31,8 @@ public class OrderMapEntriesByKeysSerializationFeature4773Test
             .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
             .build();
 
-    @JacksonTestFailureExpected
     @Test
-    void testSerializationWithIncomparableKeys()
+    void testSerializationFailureWhenEnabledWithIncomparableKeys()
             throws Exception
     {
         // Given
@@ -44,11 +42,15 @@ public class OrderMapEntriesByKeysSerializationFeature4773Test
 
         // When : Throws exception
         // com.fasterxml.jackson.databind.JsonMappingException: class java.util.Currency cannot be cast to class java.lang.Comparable
-        String jsonResult = objectMapper.writeValueAsString(entity);
-
-        // Then : Order should not matter, just plain old serialize
-        assertTrue(jsonResult.contains("GBP"));
-        assertTrue(jsonResult.contains("AUD"));
+        try {
+            objectMapper.writer()
+                .with(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)
+                .writeValueAsString(entity);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            // Then
+            verifyException(e, "Cannot order Map entries by key of incomparable type");
+        }
     }
 
     @Test
@@ -73,6 +75,26 @@ public class OrderMapEntriesByKeysSerializationFeature4773Test
                 "'3':'T_TEXT'," +
                 "'4':'AUD_TEXT'," +
                 "'5':'N_TEXT'}}"), jsonResult);
+    }
+
+    @Test
+    void testSerWithNullType()
+            throws Exception
+    {
+        // Given : Mixed keys with incomparable `Currency` and comparable `Integer`
+        ObjectContainer4773 entity = new ObjectContainer4773();
+        entity.exampleMap.put(null, "AUD_TEXT");
+
+        // When : Throws exception
+        try {
+            objectMapper.writer()
+                .with(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)
+                .writeValueAsString(entity);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            // Then
+            verifyException(e, "Cannot order Map entries by key of incomparable type [null]");
+        }
     }
 
 }

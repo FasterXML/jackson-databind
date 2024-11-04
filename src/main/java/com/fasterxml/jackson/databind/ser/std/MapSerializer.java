@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
@@ -750,7 +751,7 @@ public class MapSerializer
     public void serializeWithoutTypeInfo(Map<?, ?> value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         if (!value.isEmpty()) {
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-                value = _tryOrderingEntries(value, gen, provider);
+                value = _orderEntries(value, gen, provider);
             }
             PropertyFilter pf;
             if ((_filterId != null) && (pf = findPropertyFilter(provider, _filterId, value)) != null) {
@@ -1158,28 +1159,6 @@ public class MapSerializer
         return result.serializer;
     }
 
-    // Since 2.19
-    protected Map<?, ?> _tryOrderingEntries(Map<?,?> input, JsonGenerator gen,
-            SerializerProvider provider)
-        throws IOException
-    {
-        try {
-            return _orderEntries(input, gen, provider);
-        } catch (ClassCastException cce) {
-            // [databind#4773] Since 2.19, `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not
-            // apply to Maps with incomparable keys.
-            // Due to dynamic nature of Map, we cannot be able to check key type in advance, so
-            // we may catch ClassCastException and handle it gracefully.
-            if (cce.getMessage() != null
-                && cce.getMessage().contains("cannot be cast to class java.lang.Comparable")
-                && !provider.isEnabled(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)
-            ) {
-                return input;
-            }
-            throw cce;
-        }
-    }
-
     protected Map<?,?> _orderEntries(Map<?,?> input, JsonGenerator gen,
             SerializerProvider provider)
         throws IOException
@@ -1188,23 +1167,57 @@ public class MapSerializer
         if (input instanceof SortedMap<?,?>) {
             return input;
         }
-        // [databind#1411]: TreeMap does not like null key... (although note that
-        //   check above should prevent this code from being called in that case)
-        // [databind#153]: but, apparently, some custom Maps do manage hit this
-        //   problem.
-        if (_hasNullKey(input)) {
-            TreeMap<Object,Object> result = new TreeMap<Object,Object>();
-            for (Map.Entry<?,?> entry : input.entrySet()) {
-                Object key = entry.getKey();
-                if (key == null) {
-                    _writeNullKeyedEntry(gen, provider, entry.getValue());
-                    continue;
-                }
-                result.put(key, entry.getValue());
-            }
-            return result;
+        // or is it empty? then no need to sort either
+        if (input == null || input.isEmpty()) {
+            return input;
         }
-        return new TreeMap<Object,Object>(input);
+        // [databind#4773] Since 2.19: We should not try sorting Maps with uncomparable keys
+        // And first key is a good enough sample for now.
+        Object firstKey = input.keySet().iterator().next();
+        if (firstKey != null && !Comparable.class.isInstance(firstKey)) {
+            // We cannot sort incomparable keys, should we fail or just skip sorting?
+            if (!provider.isEnabled(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)) {
+                return input;
+            } else {
+                provider.reportBadDefinition(firstKey.getClass(),
+                    String.format("Cannot order Map entries by key of incomparable type %s, consider disabling " +
+                                "SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY to simply skip sorting",
+                                ClassUtil.classNameOf(firstKey)));
+            }
+        }
+        try {
+            // [databind#1411]: TreeMap does not like null key... (although note that
+            //   check above should prevent this code from being called in that case)
+            // [databind#153]: but, apparently, some custom Maps do manage hit this
+            //   problem.
+            if (_hasNullKey(input)) {
+                TreeMap<Object,Object> result = new TreeMap<Object,Object>();
+                for (Map.Entry<?,?> entry : input.entrySet()) {
+                    Object key = entry.getKey();
+                    if (key == null) {
+                        _writeNullKeyedEntry(gen, provider, entry.getValue());
+                        continue;
+                    }
+                    result.put(key, entry.getValue());
+                }
+                return result;
+            }
+            return new TreeMap<Object,Object>(input);
+        } catch (ClassCastException cce) {
+            // [databind#4773] Since 2.19, `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not
+            // apply to Maps with incomparable keys.
+            if (cce.getMessage() != null
+                && cce.getMessage().contains("cannot be cast to class java.lang.Comparable")
+                && !provider.isEnabled(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)
+            ) {
+                return input;
+            }
+            return provider.reportBadDefinition(firstKey.getClass(),
+                    String.format("Cannot order Map entries by key of incomparable type %s, consider disabling " +
+                                "SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY to simply skip sorting. " +
+                                    "Underlying exception message (%s): %s",
+                                ClassUtil.classNameOf(firstKey), cce.getClass().getName(), cce.getMessage()));
+        }
     }
 
     /**

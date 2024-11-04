@@ -984,6 +984,26 @@ public class MapSerializer
         if (input instanceof SortedMap<?,?>) {
             return input;
         }
+        // or is it empty? then no need to sort either
+        if (input.isEmpty()) {
+            return input;
+        }
+        // [databind#4773] Since 2.19: We should not try sorting Maps with uncomparable keys
+        // And first key is a good enough sample for now.
+        Object firstKey = input.keySet().iterator().next();
+        if (!Comparable.class.isInstance(firstKey)) {
+            // We cannot sort incomparable keys, should we fail or just skip sorting?
+            if (!provider.isEnabled(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)) {
+                return input;
+            } else {
+                Class<?> clazz = firstKey == null ? Object.class : firstKey.getClass();
+                provider.reportBadDefinition(clazz,
+                    String.format("Cannot order Map entries by key of incomparable type %s, consider disabling " +
+                                "`SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY` to simply skip sorting",
+                                ClassUtil.classNameOf(firstKey)));
+            }
+        }
+
         // [databind#1411]: TreeMap does not like null key... (although note that
         //   check above should prevent this code from being called in that case)
         // [databind#153]: but, apparently, some custom Maps do manage hit this

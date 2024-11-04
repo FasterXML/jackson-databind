@@ -1206,9 +1206,9 @@ public class MapSerializer
         } catch (ClassCastException cce) {
             // [databind#4773] Since 2.19, `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not
             // apply to Maps with incomparable keys.
-            if (cce.getMessage() != null
-                && cce.getMessage().contains("cannot be cast to class java.lang.Comparable")
-                && !provider.isEnabled(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)
+            if (!provider.isEnabled(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)
+                    && cce.getMessage() != null
+                    && cce.getMessage().contains("java.lang.Comparable")
             ) {
                 return input;
             }

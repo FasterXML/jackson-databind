@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.util.Map;
 
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4680] Custom key deserializer registered for `Object.class` is ignored on nested JSON
-public class CustomObjectKeyDeserializer4680Test
+public class CustomMapKeyDeserializer4680Test
 {
     @SuppressWarnings("unchecked")
     @Test

@@ -91,17 +91,7 @@ public class ClassNameIdResolver
 
     protected String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
     {
-        // Need to ensure that "enum subtypes" work too
-        if (ClassUtil.isEnumType(cls)) {
-            // 29-Sep-2019, tatu: `Class.isEnum()` only returns true for main declaration,
-            //   but NOT from sub-class thereof (extending individual values). This
-            //   is why additional resolution is needed: we want class that contains
-            //   enumeration instances.
-            if (!cls.isEnum()) {
-                // and this parent would then have `Enum.class` as its parent:
-                cls = cls.getSuperclass();
-            }
-        }
+        cls = _resolveEnumClass(cls);
         String str = cls.getName();
         if (str.startsWith(JAVA_UTIL_PKG)) {
             // 25-Jan-2009, tatu: There are some internal classes that we cannot access as is.
@@ -143,6 +133,22 @@ public class ClassNameIdResolver
             }
         }
         return str;
+    }
+
+    // @since 2.18.2
+    protected Class<?> _resolveEnumClass(Class<?> cls) {
+        // Need to ensure that "enum subtypes" work too
+        if (ClassUtil.isEnumType(cls)) {
+            // 29-Sep-2019, tatu: `Class.isEnum()` only returns true for main declaration,
+            //   but NOT from sub-class thereof (extending individual values). This
+            //   is why additional resolution is needed: we want class that contains
+            //   enumeration instances.
+            if (!cls.isEnum()) {
+                // and this parent would then have `Enum.class` as its parent:
+                cls = cls.getSuperclass();
+            }
+        }
+        return cls;
     }
 
     @Override

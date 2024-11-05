@@ -393,11 +393,9 @@ public enum SerializationFeature implements ConfigFeature
      * Note that this feature will apply only when configured to order map entries by keys, either
      * through annotation or enabling {@link #ORDER_MAP_ENTRIES_BY_KEYS}.
      * <p>
-     * Feature is enabled by default and will default false in Jackson 3 and later.
-     *
-     * @since 2.19
+     * Feature is disabled by default.
      */
-    FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY(true),
+    FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY(false),
 
     /*
     /**********************************************************************

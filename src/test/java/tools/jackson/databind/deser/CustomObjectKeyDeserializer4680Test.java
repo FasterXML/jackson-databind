@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.deser;
 
 import java.util.Map;
 
@@ -10,7 +10,6 @@ import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class CustomObjectKeyDeserializer4680Test
 {
     @SuppressWarnings("unchecked")
-    @JacksonTestFailureExpected
     @Test
     void testCustomKeyDeserializer()
             throws Exception

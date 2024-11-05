@@ -72,16 +72,19 @@ public abstract class TypeIdResolverBase
     }
 
     /**
-     * Helper method for ensuring we properly resolve "enum subtypes", cases
+     * Helper method for ensuring we properly resolve cases where we don't
+     * want to use given instance class due to it being a specific inner class
+     * but rather enclosing (or parent) class. Specific case we know of
+     * currently are "enum subtypes", cases
      * where simple Enum constant has overrides and uses generated sub-class
-     * if parent Enum type. In those cases we need to ensure that we use
+     * if parent Enum type. In this case we need to ensure that we use
      * the main/parent Enum type, not sub-class.
-     * 
-     * @param cls
+     *
+     * @param cls Class to check and possibly resolve
      * @return Resolved class to use
      * @since 2.18.2
      */
-    protected Class<?> _resolveEnumClass(Class<?> cls) {
+    protected Class<?> _resolveToParentAsNecessary(Class<?> cls) {
         // Need to ensure that "enum subtypes" work too
         if (ClassUtil.isEnumType(cls)) {
             // 29-Sep-2019, tatu: `Class.isEnum()` only returns true for main declaration,

@@ -63,6 +63,23 @@ public class EnumTyping4733Test extends DatabindTestUtil
         };
     }
 
+    // Failed before fix for [databind#4733]
+    @JsonTypeInfo(use = Id.SIMPLE_NAME)
+    @JsonSubTypes({
+         @JsonSubTypes.Type(value = A_SIMPLE_NAME.class),
+    })
+    interface InterSimpleName {
+         default void yes() {}
+    }
+
+    enum A_SIMPLE_NAME implements InterSimpleName {
+        A1,
+        A2 {
+            @Override
+            public void yes() { }
+        };
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -94,6 +111,17 @@ public class EnumTyping4733Test extends DatabindTestUtil
          assertEquals(A_NAME.A1, MAPPER.readValue(json1, A_NAME.class),
                  "JSON: "+json1);
          assertEquals(A_NAME.A2,  MAPPER.readValue(json2, A_NAME.class),
+                 "JSON: "+json2);
+    }
+
+    @Test
+    public void testIssue4733SimpleName() throws Exception
+    {
+         String json1 = MAPPER.writeValueAsString(A_SIMPLE_NAME.A1);
+         String json2 = MAPPER.writeValueAsString(A_SIMPLE_NAME.A2);
+         assertEquals(A_SIMPLE_NAME.A1, MAPPER.readValue(json1, A_SIMPLE_NAME.class),
+                 "JSON: "+json1);
+         assertEquals(A_SIMPLE_NAME.A2,  MAPPER.readValue(json2, A_SIMPLE_NAME.class),
                  "JSON: "+json2);
     }
 }

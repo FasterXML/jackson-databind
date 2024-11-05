@@ -91,7 +91,7 @@ public class ClassNameIdResolver
 
     protected String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
     {
-        cls = _resolveEnumClass(cls);
+        cls = _resolveToParentAsNecessary(cls);
         String str = cls.getName();
         if (str.startsWith(JAVA_UTIL_PKG)) {
             // 25-Jan-2009, tatu: There are some internal classes that we cannot access as is.

@@ -63,8 +63,8 @@ public class MinimalClassNameIdResolver
     @Override
     public String idFromValueAndType(Object value, Class<?> rawType) {
         // 04-Nov-2024, tatu: [databind#4733] Need to resolve enum sub-classes
-        //   same was "ClassNameIdResolver" does
-        rawType = _resolveEnumClass(rawType);
+        //   same way "ClassNameIdResolver" does
+        rawType = _resolveToParentAsNecessary(rawType);
         String n = rawType.getName();
         if (n.startsWith(_basePackagePrefix)) {
             // note: we will leave the leading dot in there

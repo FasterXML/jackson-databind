@@ -120,6 +120,8 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         if (clazz == null) {
             return null;
         }
+        clazz = _resolveEnumClass(clazz);
+
         // NOTE: although we may need to let `TypeModifier` change actual type to use
         // for id, we can use original type as key for more efficient lookup:
         final String key = clazz.getName();

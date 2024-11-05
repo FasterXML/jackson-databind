@@ -23,6 +23,15 @@ Project: jackson-databind
 #4680: Custom key deserialiser registered for Object.class is ignored on nested JSON
  (reported by @devdanylo)
  (fix by Joo-Hyuk K)
+#4773: `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not apply to Maps
+  with uncomparable keys
+ (requested by @nathanukey)
+ (fix by Joo-Hyuk K)
+
+2.18.2 (not yet released)
+
+#4733: Wrong serialization of Type Ids for certain types of Enum values
+ (reported by @nlisker)
 
 2.18.1 (28-Oct-2024)
 

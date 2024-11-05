@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.deser;
 
 import java.util.Map;
 
@@ -10,16 +10,13 @@ import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4680] Custom key deserializer registered for `Object.class` is ignored on nested JSON
 public class CustomObjectKeyDeserializer4680Test
 {
-
     @SuppressWarnings("unchecked")
-    @JacksonTestFailureExpected
     @Test
     void testCustomKeyDeserializer()
             throws Exception

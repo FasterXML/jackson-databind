@@ -118,6 +118,10 @@ public class SimpleNameIdResolver
         if (cls == null) {
             return null;
         }
+        // 04-Nov-2024, tatu: [databind#4733] Need to resolve enum sub-classes
+        //   same way "ClassNameIdResolver" does
+        cls = _resolveToParentAsNecessary(cls);
+
         // 12-Oct-2019, tatu: This looked weird; was done in 2.x to force application
         //   of `TypeModifier`. But that just... does not seem right, at least not in
         //   the sense that raw class would be changed (intent for modifier is to change

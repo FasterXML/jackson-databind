@@ -219,8 +219,8 @@ public class StdConvertingDeserializer<T>
         throws JacksonException
     {
         throw new UnsupportedOperationException(String.format
-                ("Cannot update object of type %s (using deserializer for type %s)"
-                        +intoValue.getClass().getName(), _delegateType));
+                ("Cannot update object of type %s (using deserializer for type %s)",
+                        intoValue.getClass().getName(), _delegateType));
     }
 
     /*

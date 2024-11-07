@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.17.4 (not yet released)
+
+#4787: Wrong `String.format()` in `StdDelegatingDeserializer` hides actual error
+ (reported by @Horus1337)
+
 2.17.3 (01-Nov-2024)
 
 #4718: Should not fail on trying to serialize `java.time.DateTimeException`

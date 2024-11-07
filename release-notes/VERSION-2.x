@@ -112,6 +112,8 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #4581: Incompatible Constructor Parameter Type in `EnumDeserializer`
  (reported by @Hunter-Lam)
+#4787: Wrong `String.format()` in `StdDelegatingDeserializer` hides actual error
+ (reported by @Horus1337)
 
 2.16.2 (09-Mar-2024)
 

@@ -175,7 +175,7 @@ public enum MapperFeature
     OVERRIDE_PUBLIC_ACCESS_MODIFIERS(true),
 
     /**
-     * Feature that inverse logic in {@link JsonProperty#access}
+     * Feature that inverse logic in {@link com.fasterxml.jackson.annotation.JsonProperty#access}
      * for <code>READ_ONLY</code> and <code>WRITE_ONLY</code>.
      *<p>
      * Feature is disabled by default.

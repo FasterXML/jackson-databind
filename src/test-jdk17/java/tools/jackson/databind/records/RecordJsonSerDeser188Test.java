@@ -30,7 +30,6 @@ public class RecordJsonSerDeser188Test
             Integer age
     ) { }
 
-    @SuppressWarnings("serial")
     static class PrefixStringSerializer extends StdScalarSerializer<String> {
 
         protected PrefixStringSerializer() {

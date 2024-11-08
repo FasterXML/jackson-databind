@@ -1796,44 +1796,44 @@ Susan Witts (susanw1@github)
    assign to property '@id'
   (2.17.2)
 
-Ulf Dreyer (u3r@github)
+Ulf Dreyer (@u3r)
  * Reported #4085: `@JsonView` does not work on class-level for records
   (2.18.0)
 
-Mark Herkrath (herkrath@github)
+Mark Herkrath (@herkrath)
  * Reported #4356: `BeanDeserializerModifier::updateBuilder()` doesn't work for
    beans with Creator methods
   (2.18.0)
 
-David Moten (davidmoten@github)
+David Moten (@davidmoten)
  * Contributed #4453: Allow JSON Integer to deserialize into a single-arg constructor of
    parameter type `double`
   (2.18.0)
 
-Teodor Danciu (teodord@github)
+Teodor Danciu (@teodord)
  * Reported #4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
    not called on the serializer
   (2.18.0)
 
-Matthew Luckam (mluckam@github)
+Matthew Luckam (@mluckam)
  * Contributed #4483: Remove `final` on method BeanSerializer.serialize()
   (2.18.0)
 
-Alexandre Jacob (ajacob@github)
+Alexandre Jacob (@ajacob)
  * Reported #4545: Unexpected deserialization behavior with `@JsonCreator`,
    `@JsonProperty` and javac `-parameters`
   (2.18.0)
 
-Eduard Gomoliako (Gems@github)
+Eduard Gomoliako (@Gems)
  * Reported #4602: Possible wrong use of _arrayDelegateDeserializer in
    BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
   (2.18.0)
 
-Mathijs Vogelzang (mathijs81@github)
+Mathijs Vogelzang (@mathijs81)
  * Reported #4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
   (2.18.0)
 
-Rikkarth (rikkarth@github)
+Rikkarth (@rikkarth)
  * Contributed #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
   (2.18.0)
 
@@ -1844,3 +1844,8 @@ Maxim Valeev (@MaximValeev)
 wrongwrong (@k163377)
  * Contributed #4749: Fixed problem in StdDelegatingSerializer#serializeWithType where final serializer lookup was done
    on the pre-converted value when _delegateSerializer was null
+  (2.18.1)
+
+Mike Minicki (@martel)
+ * Reported #4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
+  (2.18.2)

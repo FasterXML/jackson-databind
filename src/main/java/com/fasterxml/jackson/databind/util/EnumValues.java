@@ -116,6 +116,8 @@ public final class EnumValues
         SerializableString[] textual = new SerializableString[enumConstants.length];
         for (int i = 0; i < enumConstants.length; i++) {
             String enumToString = enumConstants[i].toString();
+            // 01-Feb-2024, tatu: [databind#4355] Nulls not great but... let's
+            //   coerce into "" for backwards compatibility
             enumToString = (enumToString == null) ? "" : enumToString;
             String name = _findNameToUse(names[i], enumToString, useLowerCase);
             textual[i] = config.compileString(name);

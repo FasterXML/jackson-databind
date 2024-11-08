@@ -62,13 +62,7 @@ public final class EnumValues
         SerializableString[] textual = new SerializableString[enumConstants.length];
         for (int i = 0, len = enumConstants.length; i < len; ++i) {
             Enum<?> enumValue = enumConstants[i];
-            String name = names[i];
-            if (name == null) {
-                name = enumValue.name();
-            }
-            if (useLowerCase) {
-                name = name.toLowerCase();
-            }
+            String name = _findNameToUse(names[i], enumValue.name(), useLowerCase);
             textual[enumValue.ordinal()] = config.compileString(name);
         }
         return construct(enumCls, textual);
@@ -95,19 +89,11 @@ public final class EnumValues
         // build
         SerializableString[] textual = new SerializableString[enumConstants.length];
         for (int i = 0; i < enumConstants.length; i++) {
-            String name = names[i];
-            if (name == null) {
-                Enum<?> en = enumConstants[i];
-                name = en.toString();
-                // 01-Feb-2024, tatu: [databind#4355] Nulls not great but... let's
-                //   coerce into "" for backwards compatibility
-                if (name == null) {
-                    name = "";
-                }
-            }
-            if (useLowerCase) {
-                name = name.toLowerCase();
-            }
+            String enumToString = enumConstants[i].toString();
+            // 01-Feb-2024, tatu: [databind#4355] Nulls not great but... let's
+            //   coerce into "" for backwards compatibility
+            enumToString = (enumToString == null) ? "" : enumToString;
+            String name = _findNameToUse(names[i], enumToString, useLowerCase);
             textual[i] = config.compileString(name);
         }
         return construct(enumCls, textual);
@@ -121,7 +107,8 @@ public final class EnumValues
      *
      * @since 2.16
      */
-    public static EnumValues constructUsingEnumNamingStrategy(MapperConfig<?> config, AnnotatedClass annotatedClass,
+    public static EnumValues constructUsingEnumNamingStrategy(MapperConfig<?> config,
+            AnnotatedClass annotatedClass,
             EnumNamingStrategy namingStrategy)
     {
         // prepare data
@@ -141,14 +128,8 @@ public final class EnumValues
         SerializableString[] textual = new SerializableString[enumConstants.length];
         for (int i = 0, len = enumConstants.length; i < len; i++) {
             Enum<?> enumValue = enumConstants[i];
-            String name = names[i];
-            if (name == null) {
-                name = namingStrategy.convertEnumToExternalName(config, annotatedClass,
-                        enumValue.name());
-            }
-            if (useLowerCase) {
-                name = name.toLowerCase();
-            }
+            String name = _findNameToUse(names[i], namingStrategy.convertEnumToExternalName(config,
+                    annotatedClass, enumValue.name()), useLowerCase);
             textual[i] = config.compileString(name);
         }
         return construct(enumCls, textual);
@@ -190,6 +171,22 @@ public final class EnumValues
             throw new IllegalArgumentException("No enum constants for class "+enumCls.getName());
         }
         return enumValues;
+    }
+
+    protected static String _findNameToUse(String explicitName, String otherName, boolean toLowerCase) {
+        String name;
+        // If explicitly named, like @JsonProperty-annotated, then use it
+        if (explicitName != null) {
+            name = explicitName;
+        } else {
+            name = otherName;
+            // [databind#4788] Since 2.18.2 : EnumFeature.WRITE_ENUMS_TO_LOWERCASE should not
+            //                 override @JsonProperty values
+            if (toLowerCase) {
+                name = name.toLowerCase();
+            }
+        }
+        return name;
     }
     
     /*

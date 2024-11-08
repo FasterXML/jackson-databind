@@ -13,6 +13,9 @@ Project: jackson-databind
 #4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
  (reported by Mike M)
  (fix by Joo-Hyuk K)
+#4790: Fix `@JsonAnySetter` issue with "setter" method (related to #4639)
+ (reported by @bsa01)
+ (fix by Joo-Hyuk K)
 
 2.18.1 (28-Oct-2024)
 

@@ -1844,8 +1844,8 @@ Maxim Valeev (@MaximValeev)
 wrongwrong (@k163377)
  * Contributed #4749: Fixed problem in StdDelegatingSerializer#serializeWithType where final serializer lookup was done
    on the pre-converted value when _delegateSerializer was null
+  (2.18.1)
 
 Mike Minicki (@martel)
  * Reported #4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
-
-
+  (2.18.2)

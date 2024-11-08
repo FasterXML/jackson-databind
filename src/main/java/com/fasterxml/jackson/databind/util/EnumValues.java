@@ -244,21 +244,18 @@ public final class EnumValues
     }
 
     protected static String _findNameToUse(String explicitName, String otherName, boolean toLowerCase) {
-        String name;
         // If explicitly named, like @JsonProperty-annotated, then use it
         if (explicitName != null) {
-            name = explicitName;
-        } else {
-            name = otherName;
-            // [databind#4788] Since 2.18.2 : EnumFeature.WRITE_ENUMS_TO_LOWERCASE should not
-            //                 override @JsonProperty values
-            if (toLowerCase) {
-                name = name.toLowerCase();
-            }
+            return explicitName;
         }
-        return name;
+        // [databind#4788] Since 2.18.2 : EnumFeature.WRITE_ENUMS_TO_LOWERCASE should not
+        //                 override @JsonProperty values
+        if (toLowerCase) {
+            return otherName.toLowerCase();
+        }
+        return otherName;
     }
-    
+
     /*
     /**********************************************************************
     /* Public API

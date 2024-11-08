@@ -38,16 +38,12 @@ Project: jackson-databind
 #4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
  (reported by Mike M)
  (fix by Joo-Hyuk K)
+#4790: Fix `@JsonAnySetter` issue with "setter" method (related to #4639)
+ (reported by @bsa01)
+ (fix by Joo-Hyuk K)
 
 2.18.1 (28-Oct-2024)
 
-#4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
-  are not included in json if default is `null`
- (reported by @ragnhov)
- (fix by Joo-Hyuk K)
-#4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
-  with the wrong argument
- (fix by wrongwrong)
 #4508: Deserialized JsonAnySetter field in Kotlin data class is null
  (reported by @MaximValeev)
  (fix by Joo-Hyuk K)
@@ -59,6 +55,14 @@ Project: jackson-databind
 #4724: Deserialization behavior change with Records, `@JsonCreator` and
   `@JsonValue` between 2.17 and 2.18
  (reported by Antti L)
+#4727: Eclipse having issues due`module-info` class "lost" on 2.18.0 jars
+#4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
+  are not included in json if default is `null`
+ (reported by @ragnhov)
+ (fix by Joo-Hyuk K)
+#4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
+  with the wrong argument
+ (fix by wrongwrong)
 
 2.18.0 (26-Sep-2024)
 

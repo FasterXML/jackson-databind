@@ -654,7 +654,9 @@ public class BeanDeserializer
             if (_anySetter != null) {
                 try {
                     // [databind#4639] Since 2.18.1 AnySetter might not part of the creator, but just some field.
-                    if (_anySetter.isFieldType()) {
+                    if (_anySetter.isFieldType() ||
+                            // [databind#4639] 2.18.2: Also should account for setter type :-/
+                            _anySetter.isSetterType()) {
                         buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
                     } else {
                         buffer.bufferAnyParameterProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));

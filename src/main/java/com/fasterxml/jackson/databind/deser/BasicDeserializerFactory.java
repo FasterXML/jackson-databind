@@ -827,9 +827,9 @@ i, candidate);
                 if (implType == null) {
                     // [databind#292]: Actually, may be fine, but only if polymorphich deser enabled
                     if (type.getTypeHandler() == null) {
-                        // [databind#4783] Since 2.19, Allowe @JsonMerge with Custom Collection
-                        // classes that extend JDK Collection class can handle deserialization
-                        if (_canMapToSuperInterfaceCollectionType(type, config)) {
+                        // [databind#4783] Since 2.19, Allow `@JsonMerge` with Custom Collection extension.
+                        // Let's not throw exceptino so instantiation can happen downstream
+                        if (_canMapSuperInterfaceAsAbstractCollectionType(type, config)) {
                             // do nothing
                         } else {
                             throw new IllegalArgumentException("Cannot find a deserializer for non-concrete Collection type "+type);
@@ -874,7 +874,7 @@ i, candidate);
         return deser;
     }
 
-    protected boolean _canMapToSuperInterfaceCollectionType(CollectionType type, DeserializationConfig config)
+    protected boolean _canMapSuperInterfaceAsAbstractCollectionType(CollectionType type, DeserializationConfig config)
     {
         for (JavaType superType : type.getInterfaces()) {
             Class<?> collectionClass = ContainerDefaultMappings.findCollectionFallback(superType);

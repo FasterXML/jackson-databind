@@ -8,6 +8,11 @@ Project: jackson-databind
 
 #4733: Wrong serialization of Type Ids for certain types of Enum values
  (reported by @nlisker)
+#4787: Wrong `String.format()` in `StdDelegatingDeserializer` hides actual error
+ (reported by @Horus1337)
+#4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
+ (reported by Mike M)
+ (fix by Joo-Hyuk K)
 
 2.18.1 (28-Oct-2024)
 
@@ -216,6 +221,8 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #4581: Incompatible Constructor Parameter Type in `EnumDeserializer`
  (reported by @Hunter-Lam)
+#4787: Wrong `String.format()` in `StdDelegatingDeserializer` hides actual error
+ (reported by @Horus1337)
 
 2.16.2 (09-Mar-2024)
 

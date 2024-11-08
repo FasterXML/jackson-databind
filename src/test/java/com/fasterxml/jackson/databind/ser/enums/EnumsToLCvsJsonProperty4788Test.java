@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4788] 2.18
-public class WriteEnumsToLowerCaseOverridesJsonPropertyValue4788Test
+public class EnumsToLCvsJsonProperty4788Test
     extends DatabindTestUtil
 {
 
@@ -22,7 +22,7 @@ public class WriteEnumsToLowerCaseOverridesJsonPropertyValue4788Test
         KETCHUP,
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     public enum SauceB {
         @JsonProperty("PROPERTY_MAYO_NAIZZZZ")
         MAYO_NAIZZZZ

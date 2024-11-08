@@ -827,9 +827,16 @@ i, candidate);
                 if (implType == null) {
                     // [databind#292]: Actually, may be fine, but only if polymorphich deser enabled
                     if (type.getTypeHandler() == null) {
-                        throw new IllegalArgumentException("Cannot find a deserializer for non-concrete Collection type "+type);
+                        // [databind#4783] Since 2.19, Allowe @JsonMerge with Custom Collection
+                        // classes that extend JDK Collection class can handle deserialization
+                        if (_canMapToSuperInterfaceCollectionType(type, config)) {
+                            // do nothing
+                        } else {
+                            throw new IllegalArgumentException("Cannot find a deserializer for non-concrete Collection type "+type);
+                        }
+                    } else {
+                        deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
                     }
-                    deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
                 } else {
                     type = implType;
                     // But if so, also need to re-check creators...
@@ -865,6 +872,17 @@ i, candidate);
             }
         }
         return deser;
+    }
+
+    protected boolean _canMapToSuperInterfaceCollectionType(CollectionType type, DeserializationConfig config)
+    {
+        for (JavaType superType : type.getInterfaces()) {
+            Class<?> collectionClass = ContainerDefaultMappings.findCollectionFallback(superType);
+            if (collectionClass != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected CollectionType _mapAbstractCollectionType(JavaType type, DeserializationConfig config)

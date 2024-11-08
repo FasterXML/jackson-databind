@@ -88,7 +88,6 @@ public final class EnumValues
         for (int i = 0, len = enumConstants.length; i < len; ++i) {
             Enum<?> enumValue = enumConstants[i];
             String name = _findNameToUse(names[i], enumValue.name(), useLowerCase);
-            // if it should lower case? then lower it, but if there is Json Property, use JsonProperty name first, and not lower
             textual[enumValue.ordinal()] = config.compileString(name);
         }
         return construct(enumCls, textual);

@@ -153,17 +153,16 @@ public class TestConfig
         DefaultSerializerProvider prov = (DefaultSerializerProvider) mapper.getSerializerProvider();
         assertEquals(0, prov.cachedSerializersCount());
         // and then should get one constructed for:
-        Map<String,Object> result = this.writeAndMap(mapper, new AnnoBean());
+        Map<String,Object> result = writeAndMap(mapper, new AnnoBean());
         assertEquals(2, result.size());
         assertEquals(Integer.valueOf(1), result.get("x"));
         assertEquals(Integer.valueOf(2), result.get("y"));
 
-        /* Note: it is 2 because we'll also get serializer for basic 'int', not
-         * just AnnoBean
-         */
-        /* 12-Jan-2010, tatus: Actually, probably more, if and when we typing
-         *   aspects are considered (depending on what is cached)
-         */
+        // Note: it is 2 because we'll also get serializer for basic 'int', not
+        // just AnnoBean
+
+        // 12-Jan-2010, tatus: Actually, probably more, if and when we typing
+        //    aspects are considered (depending on what is cached)
         int count = prov.cachedSerializersCount();
         if (count < 2) {
             fail("Should have at least 2 cached serializers, got "+count);

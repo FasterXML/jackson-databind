@@ -8,10 +8,12 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#4783] Test to verify that JsonMerge also works for custom list
 @SuppressWarnings("serial")
@@ -54,6 +56,11 @@ public class JsonMergeWithCustomCollection4783Test extends DatabindTestUtil
         }
     }
 
+    // And then non-merging case too
+    static class NonMergeCustomStringList {
+        public MyListCustom<String> values;
+    }
+    
     public static class CustomPojo {
         public String name;
         public int age;
@@ -105,4 +112,16 @@ public class JsonMergeWithCustomCollection4783Test extends DatabindTestUtil
         assertEquals(3, result.values.size());
     }
 
+    // Failure-handling testing important too
+    @Test
+    void testNonMergeAbstractListFail() throws Exception {
+        try {
+            MAPPER.readValue("{\"values\":[\"x\"]}", NonMergeCustomStringList.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, String.format(
+                    "Cannot construct instance of `%s` (no Creators",
+                    MyListCustom.class.getName()));
+        }
+    }
 }

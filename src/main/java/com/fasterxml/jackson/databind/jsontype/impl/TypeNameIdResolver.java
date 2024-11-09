@@ -121,6 +121,10 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         if (clazz == null) {
             return null;
         }
+        // 04-Nov-2024, tatu: [databind#4733] Need to resolve enum sub-classes
+        //   same way "ClassNameIdResolver" does
+        clazz = _resolveToParentAsNecessary(clazz);
+
         // NOTE: although we may need to let `TypeModifier` change actual type to use
         // for id, we can use original type as key for more efficient lookup:
         final String key = clazz.getName();

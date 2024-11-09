@@ -8,16 +8,16 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // [databind#4783] Test to verify that JsonMerge also works for custom list
-public class JsonMergeWithCustomCollection4783Test
+@SuppressWarnings("serial")
+public class JsonMergeWithCustomCollection4783Test extends DatabindTestUtil
 {
-
-    private static class MyArrayListJDK<T> extends ArrayList<T> { }
+    static class MyArrayListJDK<T> extends ArrayList<T> { }
 
     static class MergeListJDK {
         @JsonMerge
@@ -28,7 +28,7 @@ public class JsonMergeWithCustomCollection4783Test
 
     interface MyListCustom<T> extends List<T> { }
 
-    private static class MyArrayListCustom<T> extends ArrayList<T> implements MyListCustom<T> { }
+    static class MyArrayListCustom<T> extends ArrayList<T> implements MyListCustom<T> { }
 
     static class MergeCustomStringList {
         @JsonMerge
@@ -66,7 +66,7 @@ public class JsonMergeWithCustomCollection4783Test
         }
     }
 
-    private final ObjectMapper MAPPER = JsonMapper.builder().build();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     void testJDKMapperReading() throws Exception {
@@ -79,7 +79,8 @@ public class JsonMergeWithCustomCollection4783Test
 
     @Test
     void testCustomMapperReading() throws Exception {
-        MergeCustomStringList result = MAPPER.readValue("{\"values\":[\"x\"]}", MergeCustomStringList.class);
+        MergeCustomStringList result = MAPPER.readValue("{\"values\":[\"x\"]}",
+                MergeCustomStringList.class);
 
         assertEquals(2, result.values.size());
         assertTrue(result.values.contains("x"));
@@ -88,7 +89,8 @@ public class JsonMergeWithCustomCollection4783Test
 
     @Test
     void testCustomMapperReadingLongArrayList() throws Exception {
-        MergeMyCustomLongList result = MAPPER.readValue("{\"values\":[7]}", MergeMyCustomLongList.class);
+        MergeMyCustomLongList result = MAPPER.readValue("{\"values\":[7]}",
+                MergeMyCustomLongList.class);
 
         assertEquals(2, result.values.size());
         assertTrue(result.values.contains(1L));
@@ -97,7 +99,8 @@ public class JsonMergeWithCustomCollection4783Test
 
     @Test
     void testCustomMapperReadingPojoArrayList() throws Exception {
-        MergeMyCustomPojoList result = MAPPER.readValue("{\"values\":[{\"name\":\"c\",\"age\":3}]}", MergeMyCustomPojoList.class);
+        MergeMyCustomPojoList result = MAPPER.readValue("{\"values\":[{\"name\":\"c\",\"age\":3}]}",
+                MergeMyCustomPojoList.class);
 
         assertEquals(3, result.values.size());
     }

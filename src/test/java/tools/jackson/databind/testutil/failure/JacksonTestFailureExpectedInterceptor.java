@@ -15,11 +15,11 @@ import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
 public class JacksonTestFailureExpectedInterceptor
     implements InvocationInterceptor
 {
-
     @Override
     public void interceptTestMethod(Invocation<Void> invocation,
-                                    ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext)
-            throws Throwable {
+            ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext)
+        throws Throwable
+    {
         try {
             invocation.proceed();
         } catch (Throwable t) {

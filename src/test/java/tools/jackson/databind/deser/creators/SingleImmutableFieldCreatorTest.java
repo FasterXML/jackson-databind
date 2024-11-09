@@ -19,7 +19,7 @@ public class SingleImmutableFieldCreatorTest
     extends DatabindTestUtil
 {
     static class ImmutableId {
-        private final int id;
+        final int id;
 
         public ImmutableId(int id) { this.id = id; }
 
@@ -32,7 +32,7 @@ public class SingleImmutableFieldCreatorTest
     // ... because of the default (no-args) constructor
     /*
     static class ImmutableIdWithEmptyConstuctor {
-        private final int id;
+        final int id;
 
         public ImmutableIdWithEmptyConstuctor() { this(-1); }
 
@@ -45,7 +45,7 @@ public class SingleImmutableFieldCreatorTest
     */
 
     static class ImmutableIdWithJsonCreatorAnnotation {
-        private final int id;
+        final int id;
 
         @JsonCreator
         public ImmutableIdWithJsonCreatorAnnotation(int id) { this.id = id; }
@@ -56,7 +56,8 @@ public class SingleImmutableFieldCreatorTest
     }
 
     static class ImmutableIdWithJsonPropertyFieldAnnotation {
-        @JsonProperty("id") private final int id;
+        @JsonProperty("id")
+        final int id;
 
         public ImmutableIdWithJsonPropertyFieldAnnotation(int id) { this.id = id; }
 
@@ -66,7 +67,7 @@ public class SingleImmutableFieldCreatorTest
     }
 
     static class ImmutableIdWithJsonPropertyConstructorAnnotation {
-        private final int id;
+        final int id;
 
         public ImmutableIdWithJsonPropertyConstructorAnnotation(@JsonProperty("id") int id) { this.id = id; }
 

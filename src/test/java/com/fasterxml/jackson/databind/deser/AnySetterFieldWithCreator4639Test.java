@@ -15,15 +15,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4639] 2.18.1 : regression when using @JsonAnySetter outside of @JsonCreator
 public class AnySetterFieldWithCreator4639Test
-        extends DatabindTestUtil
+    extends DatabindTestUtil
 {
-
     public static class Bean {
-        private int b;
-        private int d;
+        int b;
+        int d;
 
         @JsonAnySetter
-        private Map<String, ?> any;
+        Map<String, ?> any;
 
         @JsonCreator
         public Bean(@JsonProperty("b") int b, @JsonProperty("d") int d) {

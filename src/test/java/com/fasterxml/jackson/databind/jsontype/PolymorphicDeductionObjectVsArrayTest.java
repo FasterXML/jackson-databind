@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestPolymorphicDeductionObjectVsArray extends DatabindTestUtil {
+public class PolymorphicDeductionObjectVsArrayTest extends DatabindTestUtil {
     @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = DataArray.class)
     @JsonSubTypes({@JsonSubTypes.Type(DataObject.class), @JsonSubTypes.Type(DataArray.class)})
     interface Data {
@@ -86,6 +86,7 @@ public class TestPolymorphicDeductionObjectVsArray extends DatabindTestUtil {
         assertEquals(container.data.getClass(), DataArray.class);
         assertFalse(container.data.isObject());
 
+        @SuppressWarnings("unchecked")
         Iterator<DataItem> arrayDataIterator = ((Iterable<DataItem>) container.data).iterator();
 
         assertTrue(arrayDataIterator.hasNext());

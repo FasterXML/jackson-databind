@@ -1,13 +1,15 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,6 +48,8 @@ public class TestPolymorphicDeductionObjectVsArray extends DatabindTestUtil {
     }
 
     static class DataArray extends ArrayList<DataItem> implements Data {
+        private static final long serialVersionUID = 1L;
+
         @JsonCreator
         DataArray(Collection<DataItem> items) {
             super(new ArrayList<>(items));
@@ -62,7 +66,7 @@ public class TestPolymorphicDeductionObjectVsArray extends DatabindTestUtil {
         Data data;
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     private static final String containerWithObjectData = a2q("{'data':{'id':'#1'}}");
 
@@ -79,10 +83,10 @@ public class TestPolymorphicDeductionObjectVsArray extends DatabindTestUtil {
 
         container = MAPPER.readValue(containerWithArrayData, Container.class);
         assertInstanceOf(DataArray.class, container.data);
-        assertSame(container.data.getClass(), DataArray.class);
+        assertEquals(container.data.getClass(), DataArray.class);
         assertFalse(container.data.isObject());
 
-        var arrayDataIterator = ((Iterable<DataItem>) container.data).iterator();
+        Iterator<DataItem> arrayDataIterator = ((Iterable<DataItem>) container.data).iterator();
 
         assertTrue(arrayDataIterator.hasNext());
         assertEquals("#1", arrayDataIterator.next().id);
@@ -96,7 +100,7 @@ public class TestPolymorphicDeductionObjectVsArray extends DatabindTestUtil {
         assertEquals(containerWithObjectData, json);
 
         container = new Container();
-        container.data = new DataArray(new ArrayList<>(List.of(new DataItem("#1"))));
+        container.data = new DataArray(Arrays.asList(new DataItem("#1")));
         json = MAPPER.writeValueAsString(container);
         assertEquals(containerWithArrayData, json);
     }

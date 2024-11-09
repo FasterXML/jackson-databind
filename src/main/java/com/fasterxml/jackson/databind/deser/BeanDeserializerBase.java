@@ -1012,7 +1012,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * property: these require special handling.
      */
     protected NameTransformer _findPropertyUnwrapper(DeserializationContext ctxt,
-            SettableBeanProperty prop) {
+            SettableBeanProperty prop) throws JsonMappingException
+    {
         AnnotatedMember am = prop.getMember();
         if (am != null) {
             NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(am);

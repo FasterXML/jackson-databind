@@ -6,12 +6,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.PropertyName;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -713,7 +709,7 @@ public class BeanPropertyMap
      */
 
     /**
-     * @deprecated since 1.19 in favor of {@link SettableBeanProperty#unwrapped(NameTransformer)}
+     * @deprecated since 2.19 in favor of {@link SettableBeanProperty#unwrapped(NameTransformer)}
      */
     @Deprecated
     protected SettableBeanProperty _rename(SettableBeanProperty prop, NameTransformer xf) {

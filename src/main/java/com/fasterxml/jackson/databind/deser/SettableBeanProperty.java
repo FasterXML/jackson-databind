@@ -585,9 +585,9 @@ public abstract class SettableBeanProperty
     }
 
     /**
-     * Returns a copy of this property, unwrapped using the given {@link NameTransformer}.
+     * Returns a copy of this property, unwrapped using given {@link NameTransformer}.
      *
-     * @since 1.19
+     * @since 2.19
      */
     public SettableBeanProperty unwrapped(NameTransformer xf)
     {

@@ -825,18 +825,7 @@ i, candidate);
             if (type.isInterface() || type.isAbstract()) {
                 CollectionType implType = _mapAbstractCollectionType(type, config);
                 if (implType == null) {
-                    // [databind#292]: Actually, may be fine, but only if polymorphich deser enabled
-                    if (type.getTypeHandler() == null) {
-                        // [databind#4783] Since 2.19, Allow `@JsonMerge` with Custom Collection extension.
-                        // Let's not throw exceptino so instantiation can happen downstream
-                        if (_canMapSuperInterfaceAsAbstractCollectionType(type, config)) {
-                            // do nothing
-                        } else {
-                            throw new IllegalArgumentException("Cannot find a deserializer for non-concrete Collection type "+type);
-                        }
-                    } else {
-                        deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
-                    }
+                    deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
                 } else {
                     type = implType;
                     // But if so, also need to re-check creators...

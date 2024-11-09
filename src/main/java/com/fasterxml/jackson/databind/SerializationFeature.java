@@ -246,7 +246,7 @@ public enum SerializationFeature implements ConfigFeature
      * {@link java.util.Calendar} which will always use timezone Calendar value has).
      * Setting is also ignored by Joda date/time values.
      *<p>
-     * Featured is enabled by default for backwards-compatibility purposes (in
+     * Feature is enabled by default for backwards-compatibility purposes (in
      * Jackson 2.12 override was always done if there was explicitly defined timezone).
      *
      * @since 2.13
@@ -433,6 +433,23 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     ORDER_MAP_ENTRIES_BY_KEYS(false),
+
+    /**
+     * Feature that determines whether to intentionally fail when the mapper attempts to
+     * order map entries with incomparable keys by accessing the first key of the map.
+     * So depending on the Map implementation, this may not be the same key every time.
+     * <p>
+     * If enabled, will simply fail by throwing an exception.
+     * If disabled, will not throw an exception and instead simply return the original map.
+     * <p>
+     * Note that this feature will apply only when configured to order map entries by keys, either
+     * through annotation or enabling {@link #ORDER_MAP_ENTRIES_BY_KEYS}.
+     * <p>
+     * Feature is enabled by default and will default false in Jackson 3 and later.
+     *
+     * @since 2.19
+     */
+    FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY(true),
 
     /*
     /******************************************************

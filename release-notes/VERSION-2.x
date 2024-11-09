@@ -20,16 +20,30 @@ Project: jackson-databind
 #4676: Support other enum naming strategies than camelCase
  (requested by @hajdamak)
  (contributed by Lars B)
+#4680: Custom key deserialiser registered for `Object.class` in nested
+  Map object is ignored when Map key type not defined
+ (reported by @devdanylo)
+ (fix by Joo-Hyuk K)
+#4773: `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not apply to Maps
+  with uncomparable keys
+ (requested by @nathanukey)
+ (fix by Joo-Hyuk K)
+
+2.18.2 (not yet released)
+
+#4733: Wrong serialization of Type Ids for certain types of Enum values
+ (reported by @nlisker)
+#4787: Wrong `String.format()` in `StdDelegatingDeserializer` hides actual error
+ (reported by @Horus1337)
+#4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
+ (reported by Mike M)
+ (fix by Joo-Hyuk K)
+#4790: Fix `@JsonAnySetter` issue with "setter" method (related to #4639)
+ (reported by @bsa01)
+ (fix by Joo-Hyuk K)
 
 2.18.1 (28-Oct-2024)
 
-#4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
-  are not included in json if default is `null`
- (reported by @ragnhov)
- (fix by Joo-Hyuk K)
-#4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
-  with the wrong argument
- (fix by wrongwrong)
 #4508: Deserialized JsonAnySetter field in Kotlin data class is null
  (reported by @MaximValeev)
  (fix by Joo-Hyuk K)
@@ -41,6 +55,14 @@ Project: jackson-databind
 #4724: Deserialization behavior change with Records, `@JsonCreator` and
   `@JsonValue` between 2.17 and 2.18
  (reported by Antti L)
+#4727: Eclipse having issues due`module-info` class "lost" on 2.18.0 jars
+#4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
+  are not included in json if default is `null`
+ (reported by @ragnhov)
+ (fix by Joo-Hyuk K)
+#4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
+  with the wrong argument
+ (fix by wrongwrong)
 
 2.18.0 (26-Sep-2024)
 
@@ -120,7 +142,7 @@ Project: jackson-databind
 #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
  (contributed by @rikkarth)
 
-2.17.3 (not yet released)
+2.17.3 (01-Nov-2024)
 
 #4718: Should not fail on trying to serialize `java.time.DateTimeException`
 
@@ -228,6 +250,8 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #4581: Incompatible Constructor Parameter Type in `EnumDeserializer`
  (reported by @Hunter-Lam)
+#4787: Wrong `String.format()` in `StdDelegatingDeserializer` hides actual error
+ (reported by @Horus1337)
 
 2.16.2 (09-Mar-2024)
 

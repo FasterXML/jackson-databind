@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Partial base implementation of {@link TypeIdResolver}: all custom implementations
@@ -68,5 +69,33 @@ public abstract class TypeIdResolverBase
     @Override
     public String getDescForKnownTypeIds() {
         return null;
+    }
+
+    /**
+     * Helper method for ensuring we properly resolve cases where we don't
+     * want to use given instance class due to it being a specific inner class
+     * but rather enclosing (or parent) class. Specific case we know of
+     * currently are "enum subtypes", cases
+     * where simple Enum constant has overrides and uses generated sub-class
+     * if parent Enum type. In this case we need to ensure that we use
+     * the main/parent Enum type, not sub-class.
+     *
+     * @param cls Class to check and possibly resolve
+     * @return Resolved class to use
+     * @since 2.18.2
+     */
+    protected Class<?> _resolveToParentAsNecessary(Class<?> cls) {
+        // Need to ensure that "enum subtypes" work too
+        if (ClassUtil.isEnumType(cls)) {
+            // 29-Sep-2019, tatu: `Class.isEnum()` only returns true for main declaration,
+            //   but NOT from sub-class thereof (extending individual values). This
+            //   is why additional resolution is needed: we want class that contains
+            //   enumeration instances.
+            if (!cls.isEnum()) {
+                // and this parent would then have `Enum.class` as its parent:
+                cls = cls.getSuperclass();
+            }
+        }
+        return cls;
     }
 }

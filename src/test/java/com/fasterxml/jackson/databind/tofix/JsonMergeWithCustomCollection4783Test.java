@@ -17,17 +17,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class JsonMergeWithCustomCollection4783Test
 {
 
-    private static class MyArrayListJDK<T> extends ArrayList<T> implements List<T> { }
+    private static class MyArrayListJDK<T> extends ArrayList<T> { }
 
     static class MergeListJDK {
         @JsonMerge
         @JsonProperty
-        public List<String> values = create();
+        public List<String> values = new MyArrayListJDK<>();
         { values.add("a");}
-    }
-
-    static <T> List<T> create() {
-        return new MyArrayListJDK<T>();
     }
 
     interface MyListCustom<T> extends List<T> { }
@@ -37,44 +33,25 @@ public class JsonMergeWithCustomCollection4783Test
     static class MergeCustomStringList {
         @JsonMerge
         @JsonProperty
-        public MyListCustom<String> values = createCustomStringList();
+        public MyListCustom<String> values = new MyArrayListCustom<>();
         { values.add("a"); }
     }
-
-    static <T> MyListCustom<T> createCustomStringList() {
-        return new MyArrayListCustom<T>();
-    }
-
-    interface MyCustomLongList<T> extends List<T> { }
-
-    private static class MyArrayCustomLongList<T> extends ArrayList<T> implements MyCustomLongList<T> { }
 
     static class MergeMyCustomLongList {
         @JsonMerge
         @JsonProperty
-        public MyCustomLongList<String> values = createCustomLongList();
-        { values.add("a"); }
+        public MyListCustom<Long> values = new MyArrayListCustom<>();
+        { values.add(1L); }
     }
-
-    static <T> MyCustomLongList<T> createCustomLongList() {
-        return new MyArrayCustomLongList<T>();
-    }
-
-    interface MyCustomPojoList<T> extends List<T> { }
-
-    private static class MyArrayCustomPojoList<T> extends ArrayList<T> implements MyCustomPojoList<T> { }
 
     static class MergeMyCustomPojoList {
         @JsonMerge
         @JsonProperty
-        public MyCustomPojoList<CustomPojo> values = createCustomPojoList();
-    }
-
-    private static MyCustomPojoList<CustomPojo> createCustomPojoList() {
-        MyCustomPojoList list = new MyArrayCustomPojoList<CustomPojo>();
-        list.add(CustomPojo.create("a", 1));
-        list.add(CustomPojo.create("b", 2));
-        return list;
+        public MyListCustom<CustomPojo> values = new MyArrayListCustom<>();
+        {
+            values.add(CustomPojo.create("a", 1));
+            values.add(CustomPojo.create("b", 2));
+        }
     }
 
     public static class CustomPojo {
@@ -111,11 +88,11 @@ public class JsonMergeWithCustomCollection4783Test
 
     @Test
     void testCustomMapperReadingLongArrayList() throws Exception {
-        MergeMyCustomLongList result = MAPPER.readValue("{\"values\":[\"x\"]}", MergeMyCustomLongList.class);
+        MergeMyCustomLongList result = MAPPER.readValue("{\"values\":[7]}", MergeMyCustomLongList.class);
 
         assertEquals(2, result.values.size());
-        assertTrue(result.values.contains("x"));
-        assertTrue(result.values.contains("a"));
+        assertTrue(result.values.contains(1L));
+        assertTrue(result.values.contains(7L));
     }
 
     @Test

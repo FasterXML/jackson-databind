@@ -19,9 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 // [databind#4742] Deserialization with Builder, External type id,
 //                @JsonCreator not yet implemented
 public class JacksonBuilderCreatorSubtype4742Test
-        extends DatabindTestUtil
+    extends DatabindTestUtil
 {
-
     public static class Animals {
         @JsonProperty("animals")
         public List<Animal> animals;
@@ -64,11 +63,13 @@ public class JacksonBuilderCreatorSubtype4742Test
             private String kind;
             private AnimalProperties properties;
 
+            @Override
             public BuilderImpl kind(String kind) {
                 this.kind = kind;
                 return this;
             }
 
+            @Override
             public BuilderImpl properties(AnimalProperties properties) {
                 this.properties = properties;
                 return this;
@@ -107,12 +108,11 @@ public class JacksonBuilderCreatorSubtype4742Test
         }
     }
 
-    final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @JacksonTestFailureExpected
     @Test
-    public void testDeser()
-            throws Exception
+    public void testDeser() throws Exception
     {
         final Animals animals = MAPPER.readValue(
                 "{\n" +

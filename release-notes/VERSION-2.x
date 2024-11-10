@@ -13,6 +13,9 @@ Project: jackson-databind
 #4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
  (reported by Mike M)
  (fix by Joo-Hyuk K)
+ #4783 Possibly wrong behavior of @JsonMerge
+ (reported by @nlisker)
+ (fix by Joo-Hyuk K)
 
 2.18.1 (28-Oct-2024)
 

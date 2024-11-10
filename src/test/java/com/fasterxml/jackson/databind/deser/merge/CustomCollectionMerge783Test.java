@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.deser.merge;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,16 +8,18 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#4783] Test to verify that JsonMerge also works for custom list
-public class JsonMergeWithCustomCollection4783Test
+@SuppressWarnings("serial")
+public class CustomCollectionMerge783Test extends DatabindTestUtil
 {
-
-    private static class MyArrayListJDK<T> extends ArrayList<T> { }
+    static class MyArrayListJDK<T> extends ArrayList<T> { }
 
     static class MergeListJDK {
         @JsonMerge
@@ -28,7 +30,7 @@ public class JsonMergeWithCustomCollection4783Test
 
     interface MyListCustom<T> extends List<T> { }
 
-    private static class MyArrayListCustom<T> extends ArrayList<T> implements MyListCustom<T> { }
+    static class MyArrayListCustom<T> extends ArrayList<T> implements MyListCustom<T> { }
 
     static class MergeCustomStringList {
         @JsonMerge
@@ -54,6 +56,11 @@ public class JsonMergeWithCustomCollection4783Test
         }
     }
 
+    // And then non-merging case too
+    static class NonMergeCustomStringList {
+        public MyListCustom<String> values;
+    }
+    
     public static class CustomPojo {
         public String name;
         public int age;
@@ -66,7 +73,7 @@ public class JsonMergeWithCustomCollection4783Test
         }
     }
 
-    private final ObjectMapper MAPPER = JsonMapper.builder().build();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     void testJDKMapperReading() throws Exception {
@@ -79,7 +86,8 @@ public class JsonMergeWithCustomCollection4783Test
 
     @Test
     void testCustomMapperReading() throws Exception {
-        MergeCustomStringList result = MAPPER.readValue("{\"values\":[\"x\"]}", MergeCustomStringList.class);
+        MergeCustomStringList result = MAPPER.readValue("{\"values\":[\"x\"]}",
+                MergeCustomStringList.class);
 
         assertEquals(2, result.values.size());
         assertTrue(result.values.contains("x"));
@@ -88,7 +96,8 @@ public class JsonMergeWithCustomCollection4783Test
 
     @Test
     void testCustomMapperReadingLongArrayList() throws Exception {
-        MergeMyCustomLongList result = MAPPER.readValue("{\"values\":[7]}", MergeMyCustomLongList.class);
+        MergeMyCustomLongList result = MAPPER.readValue("{\"values\":[7]}",
+                MergeMyCustomLongList.class);
 
         assertEquals(2, result.values.size());
         assertTrue(result.values.contains(1L));
@@ -97,9 +106,22 @@ public class JsonMergeWithCustomCollection4783Test
 
     @Test
     void testCustomMapperReadingPojoArrayList() throws Exception {
-        MergeMyCustomPojoList result = MAPPER.readValue("{\"values\":[{\"name\":\"c\",\"age\":3}]}", MergeMyCustomPojoList.class);
+        MergeMyCustomPojoList result = MAPPER.readValue("{\"values\":[{\"name\":\"c\",\"age\":3}]}",
+                MergeMyCustomPojoList.class);
 
         assertEquals(3, result.values.size());
     }
 
+    // Failure-handling testing important too
+    @Test
+    void testNonMergeAbstractListFail() throws Exception {
+        try {
+            MAPPER.readValue("{\"values\":[\"x\"]}", NonMergeCustomStringList.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, String.format(
+                    "Cannot construct instance of `%s` (no Creators",
+                    MyListCustom.class.getName()));
+        }
+    }
 }

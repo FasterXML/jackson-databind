@@ -824,9 +824,7 @@ i, candidate);
         if (deser == null) {
             if (type.isInterface() || type.isAbstract()) {
                 CollectionType implType = _mapAbstractCollectionType(type, config);
-                if (implType == null) {
-                    deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
-                } else {
+                if (implType != null) {
                     type = implType;
                     // But if so, also need to re-check creators...
                     beanDesc = config.introspectForCreation(type);
@@ -861,17 +859,6 @@ i, candidate);
             }
         }
         return deser;
-    }
-
-    protected boolean _canMapSuperInterfaceAsAbstractCollectionType(CollectionType type, DeserializationConfig config)
-    {
-        for (JavaType superType : type.getInterfaces()) {
-            Class<?> collectionClass = ContainerDefaultMappings.findCollectionFallback(superType);
-            if (collectionClass != null) {
-                return true;
-            }
-        }
-        return false;
     }
 
     protected CollectionType _mapAbstractCollectionType(JavaType type, DeserializationConfig config)
@@ -985,12 +972,6 @@ i, candidate);
                         mapClass = type.getRawClass();
                         // But if so, also need to re-check creators...
                         beanDesc = config.introspectForCreation(type);
-                    } else {
-                        // [databind#292]: Actually, may be fine, but only if polymorphic deser enabled
-                        if (type.getTypeHandler() == null) {
-                            throw new IllegalArgumentException("Cannot find a deserializer for non-concrete Map type "+type);
-                        }
-                        deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
                     }
                 } else {
                     // 10-Jan-2017, tatu: `java.util.Collections` types need help:

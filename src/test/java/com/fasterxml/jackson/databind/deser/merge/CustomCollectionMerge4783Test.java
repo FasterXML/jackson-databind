@@ -17,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#4783] Test to verify that JsonMerge also works for custom list
 @SuppressWarnings("serial")
-public class CustomCollectionMerge783Test extends DatabindTestUtil
+public class CustomCollectionMerge4783Test
+        extends DatabindTestUtil
 {
     static class MyArrayListJDK<T> extends ArrayList<T> { }
 
@@ -124,4 +125,5 @@ public class CustomCollectionMerge783Test extends DatabindTestUtil
                     MyListCustom.class.getName()));
         }
     }
+
 }

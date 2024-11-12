@@ -44,6 +44,9 @@ Project: jackson-databind
 #4790: Fix `@JsonAnySetter` issue with "setter" method (related to #4639)
  (reported by @bsa01)
  (fix by Joo-Hyuk K)
+ #4783 Possibly wrong behavior of @JsonMerge
+ (reported by @nlisker)
+ (fix by Joo-Hyuk K)
 
 2.18.1 (28-Oct-2024)
 

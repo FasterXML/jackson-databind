@@ -820,13 +820,7 @@ i, candidate);
         if (deser == null) {
             if (type.isInterface() || type.isAbstract()) {
                 CollectionType implType = _mapAbstractCollectionType(type, config);
-                if (implType == null) {
-                    // [databind#292]: Actually, may be fine, but only if polymorphich deser enabled
-                    if (type.getTypeHandler() == null) {
-                        throw new IllegalArgumentException("Cannot find a deserializer for non-concrete Collection type "+type);
-                    }
-                    deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
-                } else {
+                if (implType != null) {
                     type = implType;
                     // But if so, also need to re-check creators...
                     beanDesc = config.introspectForCreation(type);
@@ -968,9 +962,9 @@ i, candidate);
              */
             if (deser == null) {
                 if (type.isInterface() || type.isAbstract()) {
-                    MapType fallback = _mapAbstractMapType(type, config);
-                    if (fallback != null) {
-                        type = (MapType) fallback;
+                    MapType implType = _mapAbstractMapType(type, config);
+                    if (implType != null) {
+                        type = (MapType) implType;
                         mapClass = type.getRawClass();
                         // But if so, also need to re-check creators...
                         beanDesc = config.introspectForCreation(type);

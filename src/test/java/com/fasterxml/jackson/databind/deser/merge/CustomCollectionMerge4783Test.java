@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 // [databind#4783] Test to verify that JsonMerge also works for custom list
 @SuppressWarnings("serial")
 public class CustomCollectionMerge4783Test
-        extends DatabindTestUtil
+    extends DatabindTestUtil
 {
     static class MyArrayListJDK<T> extends ArrayList<T> { }
 
@@ -32,6 +32,11 @@ public class CustomCollectionMerge4783Test
     interface MyListCustom<T> extends List<T> { }
 
     static class MyArrayListCustom<T> extends ArrayList<T> implements MyListCustom<T> { }
+
+    static abstract class MyAbstractStringList extends ArrayList<String> {
+        MyAbstractStringList() { super(); }
+        MyAbstractStringList(int i) { super(); }
+    }
 
     static class MergeCustomStringList {
         @JsonMerge
@@ -61,7 +66,7 @@ public class CustomCollectionMerge4783Test
     static class NonMergeCustomStringList {
         public MyListCustom<String> values;
     }
-    
+
     public static class CustomPojo {
         public String name;
         public int age;
@@ -113,9 +118,11 @@ public class CustomCollectionMerge4783Test
         assertEquals(3, result.values.size());
     }
 
-    // Failure-handling testing important too
+    // // // And then failure cases
+
+    // Fail can't construct Collection interface unless there's maaping
     @Test
-    void testNonMergeAbstractListFail() throws Exception {
+    void failNonMergeInterfaceList() throws Exception {
         try {
             MAPPER.readValue("{\"values\":[\"x\"]}", NonMergeCustomStringList.class);
             fail("Should not pass");
@@ -126,4 +133,16 @@ public class CustomCollectionMerge4783Test
         }
     }
 
+    // Fail can't construct abstract types
+    @Test
+    void failNonMergeAbstractList() throws Exception {
+        try {
+            MAPPER.readValue("[]", MyAbstractStringList.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, String.format(
+                    "Cannot construct instance of `%s` (no Creators",
+                    MyAbstractStringList.class.getName()));
+        }
+    }
 }

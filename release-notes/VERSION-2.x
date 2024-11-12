@@ -36,6 +36,9 @@ Project: jackson-databind
 
 #4733: Wrong serialization of Type Ids for certain types of Enum values
  (reported by @nlisker)
+#4783 Possibly wrong behavior of @JsonMerge
+ (reported by @nlisker)
+ (fix by Joo-Hyuk K)
 #4787: Wrong `String.format()` in `StdDelegatingDeserializer` hides actual error
  (reported by @Horus1337)
 #4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values

@@ -217,10 +217,16 @@ public abstract class BasicDeserializerFactory
         if (potentialCreators.hasPropertiesBased()) {
             PotentialCreator primaryPropsBased = potentialCreators.propertiesBased;
 
-            // Start by assigning the primary (and only) properties-based creator
-            _addSelectedPropertiesBasedCreator(ctxt, beanDesc, creators,
-                    CreatorCandidate.construct(config,
-                            primaryPropsBased.creator(), primaryPropsBased.propertyDefs()));
+            // 12-Nov-2024, tatu: [databind#4777] We may have collected a 0-args Factory
+            //   method; and if so, may need to "pull it out" as default creator
+            if (primaryPropsBased.paramCount() == 0) {
+                creators.setDefaultCreator(primaryPropsBased.creator());
+            } else {
+                // Start by assigning the primary (and only) properties-based creator
+                _addSelectedPropertiesBasedCreator(ctxt, beanDesc, creators,
+                        CreatorCandidate.construct(config,
+                                primaryPropsBased.creator(), primaryPropsBased.propertyDefs()));
+            }
         }
 
         // Continue with explicitly annotated delegating Creators
@@ -240,9 +246,10 @@ public abstract class BasicDeserializerFactory
                 // First things first: the "default constructor" (zero-arg
                 // constructor; whether implicit or explicit) is NOT included
                 // in list of constructors, so needs to be handled separately.
-                AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
-                if (defaultCtor != null) {
-                    if (!creators.hasDefaultCreator() || _hasCreatorAnnotation(config, defaultCtor)) {
+                // However, we may have added one for 0-args Factory method earlier, so:
+                if (!creators.hasDefaultCreator()) {
+                    AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
+                    if (defaultCtor != null) {
                         creators.setDefaultCreator(defaultCtor);
                     }
                 }

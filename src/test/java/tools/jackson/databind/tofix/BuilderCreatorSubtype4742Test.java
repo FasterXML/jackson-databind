@@ -14,9 +14,11 @@ import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
+// For some reason, fixed in 2.18.2, but failing for 3.0 -- possibly
+// depends on another fix.
 // [databind#4742] Deserialization with Builder, External type id,
-//                @JsonCreator not yet implemented
-public class JacksonBuilderCreatorSubtype4742Test
+// @JsonCreator failing
+public class BuilderCreatorSubtype4742Test
     extends DatabindTestUtil
 {
     public static class Animals {
@@ -110,7 +112,7 @@ public class JacksonBuilderCreatorSubtype4742Test
 
     @JacksonTestFailureExpected
     @Test
-    public void testDeser() throws Exception
+    public void testDeser4742() throws Exception
     {
         final Animals animals = MAPPER.readValue(
                 "{\n" +
@@ -123,6 +125,5 @@ public class JacksonBuilderCreatorSubtype4742Test
         assertEquals(2, animals.animals.size());
         assertInstanceOf(BirdProperties.class, animals.animals.get(0).properties);
         assertInstanceOf(MammalProperties.class, animals.animals.get(1).properties);
-
     }
 }

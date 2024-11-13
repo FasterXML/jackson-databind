@@ -45,12 +45,6 @@ public abstract class BasicDeserializerFactory
     private final static Class<?> CLASS_MAP_ENTRY = Map.Entry.class;
     private final static Class<?> CLASS_SERIALIZABLE = Serializable.class;
 
-    /**
-     * We need a placeholder for creator properties that don't have name
-     * but are marked with `@JsonWrapped` annotation.
-     */
-    protected final static PropertyName UNWRAPPED_CREATOR_PARAM_NAME = new PropertyName("@JsonUnwrapped");
-
     /*
     /**********************************************************
     /* Config
@@ -402,11 +396,7 @@ public abstract class BasicDeserializerFactory
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
-                    /*
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
-                    ++explicitNameCount;
-                    */
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.creatorParamName(i), i, param, null);
                 }
             }
 
@@ -531,7 +521,7 @@ public abstract class BasicDeserializerFactory
                 //   as that will not work with Creators well at all
                 NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.creatorParamName(i), i, param, null);
                 }
                 // Must be injectable or have name; without either won't work
                 if ((name == null) && (injectId == null)) {
@@ -596,17 +586,6 @@ i, candidate);
             return true;
         }
         return false;
-    }
-
-    // 01-Dec-2016, tatu: As per [databind#265] we cannot yet support passing
-    //   of unwrapped values through creator properties, so fail fast
-    private void _reportUnwrappedCreatorProperty(DeserializationContext ctxt,
-            BeanDescription beanDesc, AnnotatedParameter param)
-        throws JsonMappingException
-    {
-        ctxt.reportBadTypeDefinition(beanDesc,
-"Cannot define Creator parameter %d as `@JsonUnwrapped`: combination not yet supported",
-                param.getIndex());
     }
 
     /**

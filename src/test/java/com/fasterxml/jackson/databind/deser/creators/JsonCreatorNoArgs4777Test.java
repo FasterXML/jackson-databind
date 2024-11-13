@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class JsonCreatorNoArgs4777Test extends DatabindTestUtil
 {
     static class Foo4777 {
-        private Foo4777() { }
+        Foo4777() { }
 
         @JsonCreator
         static Foo4777 create() {

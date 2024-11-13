@@ -3,6 +3,7 @@ package tools.jackson.databind.deser;
 import java.lang.annotation.Annotation;
 
 import tools.jackson.core.*;
+import tools.jackson.core.util.InternCache;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.bean.BeanDeserializer;
 import tools.jackson.databind.deser.impl.FailingDeserializer;
@@ -586,6 +587,7 @@ public abstract class SettableBeanProperty
     public SettableBeanProperty unwrapped(DeserializationContext ctxt, NameTransformer xf)
     {
         String newName = xf.transform(getName());
+        newName = InternCache.instance.intern(newName);
         SettableBeanProperty renamed = withSimpleName(newName);
         ValueDeserializer<?> deser = renamed.getValueDeserializer();
         if (deser != null) {

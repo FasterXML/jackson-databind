@@ -4,11 +4,9 @@ import java.util.*;
 
 import tools.jackson.core.TokenStreamFactory;
 import tools.jackson.core.sym.PropertyNameMatcher;
-import tools.jackson.core.util.InternCache;
 import tools.jackson.core.util.Named;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.PropertyName;
-import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
@@ -176,7 +174,7 @@ public class BeanPropertyMap
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(_propsInOrder.length);
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty orig = _propsInOrder[i];
-            SettableBeanProperty prop = _rename(ctxt, orig, transformer);
+            SettableBeanProperty prop = orig.unwrapped(ctxt, transformer);
             newProps.add(prop);
         }
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
@@ -185,26 +183,6 @@ public class BeanPropertyMap
         // !!! 18-Nov-2017, tatu: Should try recreating PropertyNameMatcher here but...
         return new BeanPropertyMap(newProps, _aliasDefs, _locale, _caseInsensitive, false)
                 .initMatcher(ctxt.tokenStreamFactory());
-    }
-
-    private SettableBeanProperty _rename(DeserializationContext ctxt,
-            SettableBeanProperty prop, NameTransformer xf)
-    {
-        if (prop != null) {
-            String newName = xf.transform(prop.getName());
-            newName = InternCache.instance.intern(newName);
-            prop = prop.withSimpleName(newName);
-            ValueDeserializer<?> deser = prop.getValueDeserializer();
-            if (deser != null) {
-                @SuppressWarnings("unchecked")
-                ValueDeserializer<Object> newDeser = (ValueDeserializer<Object>)
-                    deser.unwrappingDeserializer(ctxt, xf);
-                if (newDeser != deser) {
-                    prop = prop.withValueDeserializer(newDeser);
-                }
-            }
-        }
-        return prop;
     }
 
     /**

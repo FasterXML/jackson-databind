@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.deser.builder;
 
 import java.util.List;
 
@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 // [databind#4742] Deserialization with Builder, External type id,
-//                @JsonCreator not yet implemented
-public class JacksonBuilderCreatorSubtype4742Test
+// @JsonCreator failing
+public class BuilderCreatorSubtype4742Test
     extends DatabindTestUtil
 {
     public static class Animals {
@@ -125,6 +125,5 @@ public class JacksonBuilderCreatorSubtype4742Test
         assertEquals(2, animals.animals.size());
         assertInstanceOf(BirdProperties.class, animals.animals.get(0).properties);
         assertInstanceOf(MammalProperties.class, animals.animals.get(1).properties);
-
     }
 }

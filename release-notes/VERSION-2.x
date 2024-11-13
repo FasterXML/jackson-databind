@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #4733: Wrong serialization of Type Ids for certain types of Enum values
  (reported by @nlisker)
+#4742: Deserialization with Builder, External type id, `@JsonCreator` failing
+ (reported by Bernd A)
 #4777: `StdValueInstantiator.withArgsCreator` is now set for creators with
   no arguments
  (reported by @wrongwrong)

@@ -1846,6 +1846,10 @@ wrongwrong (@k163377)
    on the pre-converted value when _delegateSerializer was null
   (2.18.1)
 
+Bernd Ahlers (@bernd)
+ * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing
+  (2.18.2)
+
 Mike Minicki (@martel)
  * Reported #4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
   (2.18.2)

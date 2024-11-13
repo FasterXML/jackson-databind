@@ -1853,6 +1853,10 @@ Mike Minicki (@martel)
  * Reported #4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
   (2.18.2)
 
+Liam Feid (@fxshlein)
+ * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
+  (2.19.0)
+
 @SandeepGaur2016
  * Contributed fix for #2461: Nested `@JsonUnwrapped` property names not correctly handled
   (2.19.0)

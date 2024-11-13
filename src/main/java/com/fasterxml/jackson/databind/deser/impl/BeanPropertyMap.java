@@ -6,12 +6,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.PropertyName;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -361,7 +357,7 @@ public class BeanPropertyMap
                 newProps.add(prop);
                 continue;
             }
-            newProps.add(_rename(prop, transformer));
+            newProps.add(prop.unwrapped(transformer));
         }
         // should we try to re-index? Ordering probably changed but caller probably doesn't want changes...
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
@@ -712,23 +708,9 @@ public class BeanPropertyMap
     /**********************************************************
      */
 
-    protected SettableBeanProperty _rename(SettableBeanProperty prop, NameTransformer xf)
-    {
-        if (prop == null) {
-            return prop;
-        }
-        String newName = xf.transform(prop.getName());
-        prop = prop.withSimpleName(newName);
-        JsonDeserializer<?> deser = prop.getValueDeserializer();
-        if (deser != null) {
-            @SuppressWarnings("unchecked")
-            JsonDeserializer<Object> newDeser = (JsonDeserializer<Object>)
-                deser.unwrappingDeserializer(xf);
-            if (newDeser != deser) {
-                prop = prop.withValueDeserializer(newDeser);
-            }
-        }
-        return prop;
+    @Deprecated // in 2.19: remove from 2.20 or later
+    protected SettableBeanProperty _rename(SettableBeanProperty prop, NameTransformer xf) {
+        return prop.unwrapped(xf);
     }
 
     protected void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)

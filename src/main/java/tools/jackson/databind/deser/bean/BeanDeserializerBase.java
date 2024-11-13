@@ -308,7 +308,6 @@ public abstract class BeanDeserializerBase
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
-        _propertyBasedCreator = src._propertyBasedCreator;
 
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
@@ -319,9 +318,24 @@ public abstract class BeanDeserializerBase
         _objectIdReader = src._objectIdReader;
 
         _nonStandardCreation = src._nonStandardCreation;
+        UnwrappedPropertyHandler uph = src._unwrappedPropertyHandler;
+        PropertyBasedCreator pbc = src._propertyBasedCreator;
 
-        _unwrappedPropertyHandler = unwrapHandler;
-        _beanProperties = renamedProperties;
+        if (unwrapHandler != null) {
+            // delegate further unwraps, if any
+            if (uph != null) { // got handler, delegate
+                uph = uph.renameAll(unwrapHandler);
+            }
+            // and handle direct unwrapping as well:
+            if (pbc != null) {
+                pbc = pbc.renameAll(unwrapHandler);
+            }
+            _beanProperties = src._beanProperties.renameAll(unwrapHandler);
+        } else {
+            _beanProperties = src._beanProperties;
+        }
+        _propertyBasedCreator = pbc;
+        _unwrappedPropertyHandler = uph;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -550,7 +564,13 @@ public abstract class BeanDeserializerBase
                     if (unwrapped == null) {
                         unwrapped = new UnwrappedPropertyHandler();
                     }
-                    unwrapped.addProperty(prop);
+
+                    if (prop instanceof CreatorProperty) {
+                        unwrapped.addCreatorProperty(prop);
+                    } else {
+                        unwrapped.addProperty(prop);
+                    }
+
                     // 12-Dec-2014, tatu: As per [databind#647], we will have problems if
                     //    the original property is left in place. So let's remove it now.
                     // 25-Mar-2017, tatu: Wonder if this could be problematic wrt creators?
@@ -973,13 +993,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(
                     ctxt.getConfig(), am);
             if (unwrapper != null) {
-                // 01-Dec-2016, tatu: As per [databind#265] we cannot yet support passing
-                //   of unwrapped values through creator properties, so fail fast
-                if (prop instanceof CreatorProperty) {
-                    ctxt.reportBadDefinition(getValueType(), String.format(
-                            "Cannot define Creator property \"%s\" as `@JsonUnwrapped`: combination not yet supported",
-                            prop.getName()));
-                }
                 return unwrapper;
             }
         }

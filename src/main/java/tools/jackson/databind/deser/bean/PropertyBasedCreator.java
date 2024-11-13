@@ -9,6 +9,7 @@ import tools.jackson.databind.deser.SettableAnyProperty;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
+import tools.jackson.databind.util.NameTransformer;
 
 /**
  * Object that is used to collect arguments for non-default creator
@@ -93,6 +94,19 @@ public final class PropertyBasedCreator
     }
 
     /**
+     * @since 2.19
+     */
+    protected PropertyBasedCreator(PropertyBasedCreator base,
+            HashMap<String, SettableBeanProperty> propertyLookup,
+            SettableBeanProperty[] allProperties)
+    {
+        _propertyCount = base._propertyCount;
+        _valueInstantiator = base._valueInstantiator;
+        _propertyLookup = propertyLookup;
+        _propertiesInOrder = allProperties;
+    }
+
+    /**
      * Factory method used for building actual instances to be used with POJOS:
      * resolves deserializers, checks for "null values".
      */
@@ -141,6 +155,47 @@ public final class PropertyBasedCreator
         }
         return new PropertyBasedCreator(ctxt, valueInstantiator, creatorProps,
                 caseInsensitive, false);
+    }
+
+    /**
+     * Mutant factory method for constructing a map where the names of all properties
+     * are transformed using the given {@link NameTransformer}.
+     *
+     * @since 2.19
+     */
+    public PropertyBasedCreator renameAll(DeserializationContext ctxt,
+            NameTransformer transformer)
+    {
+        if (transformer == null || (transformer == NameTransformer.NOP)) {
+            return this;
+        }
+
+        final int len = _propertiesInOrder.length;
+        HashMap<String, SettableBeanProperty> newLookup = new HashMap<>(_propertyLookup);
+        List<SettableBeanProperty> newProps = new ArrayList<>(len);
+
+        for (SettableBeanProperty prop : _propertiesInOrder) {
+            if (prop == null) {
+                newProps.add(null);
+                continue;
+            }
+
+            SettableBeanProperty renamedProperty = prop.unwrapped(ctxt, transformer);
+            String oldName = prop.getName();
+            String newName = renamedProperty.getName();
+
+            newProps.add(renamedProperty);
+
+            if (!oldName.equals(newName) && newLookup.containsKey(oldName)) {
+                newLookup.remove(oldName);
+                newLookup.put(newName, renamedProperty);
+            }
+        }
+
+        return new PropertyBasedCreator(this,
+                newLookup,
+                newProps.toArray(new SettableBeanProperty[0])
+        );
     }
 
     /*

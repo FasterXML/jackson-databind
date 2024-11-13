@@ -12,6 +12,7 @@ import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.Annotations;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.ViewMatcher;
 
 /**
@@ -575,6 +576,27 @@ public abstract class SettableBeanProperty
             value = _nullProvider.getNullValue(ctxt);
         }
         return value;
+    }
+
+    /**
+     * Returns a copy of this property, unwrapped using given {@link NameTransformer}.
+     *
+     * @since 2.19
+     */
+    public SettableBeanProperty unwrapped(DeserializationContext ctxt, NameTransformer xf)
+    {
+        String newName = xf.transform(getName());
+        SettableBeanProperty renamed = withSimpleName(newName);
+        ValueDeserializer<?> deser = renamed.getValueDeserializer();
+        if (deser != null) {
+            @SuppressWarnings("unchecked")
+            ValueDeserializer<Object> newDeser = (ValueDeserializer<Object>)
+                    deser.unwrappingDeserializer(ctxt, xf);
+            if (newDeser != deser) {
+                renamed = renamed.withValueDeserializer(newDeser);
+            }
+        }
+        return renamed;
     }
 
     /*

@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.19.0 (not yet released)
 
+#1467: Support `@JsonUnwrapped` with `@JsonCreator`
+ (implementation by Liam F)
 #2461: Nested `@JsonUnwrapped` property names not correctly handled
  (reported by @plovell)
  (fix contributed by @SandeepGaur2016)

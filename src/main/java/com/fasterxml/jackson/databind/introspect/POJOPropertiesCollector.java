@@ -1029,18 +1029,19 @@ ctor.creator()));
             final boolean hasExplicit = (explName != null);
             final POJOPropertyBuilder prop;
 
+            //  neither implicit nor explicit name?
             if (!hasExplicit && (implName == null)) {
                 boolean isUnwrapping = _annotationIntrospector.findUnwrappingNameTransformer(param) != null;
 
                 if (isUnwrapping) {
-                    // We can still use this property, as the name does not matter for unwrapping properties.
-                    // We just use a placeholder name instead.
-                    PropertyName name = UnwrappedPropertyHandler.creatorParamName(param._index);
+                    // If unwrapping, can use regardless of name; we will use a placeholder name
+                    // anyway to try to avoid name conflicts.
+                    PropertyName name = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
                     prop = _property(props, name);
                     prop.addCtor(param, name, false, true, false);
                 } else {
-                    // Important: if neither implicit nor explicit name, cannot make use of
-                    // this creator parameter -- may or may not be a problem, verified at a later point.
+                    // Without name, cannot make use of this creator parameter -- may or may not
+                    // be a problem, verified at a later point.
                     prop = null;
                 }
             } else {

@@ -5,7 +5,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -21,6 +20,11 @@ public class UnwrappedPropertyHandler
     /**
      * @since 2.19
      */
+    public static final String JSON_UNWRAPPED_NAME_PREFIX = "@JsonUnwrapped/";
+
+    /**
+     * @since 2.19
+     */
     protected final List<SettableBeanProperty> _creatorProperties;
     protected final List<SettableBeanProperty> _properties;
 
@@ -29,7 +33,7 @@ public class UnwrappedPropertyHandler
         _properties = new ArrayList<>();
     }
 
-    @Deprecated // since 2.19
+    @Deprecated // since 2.19 (remove from 2.20 or later)
     protected UnwrappedPropertyHandler(List<SettableBeanProperty> props) {
         this(new ArrayList<>(), props);
     }
@@ -77,22 +81,20 @@ public class UnwrappedPropertyHandler
     /**
      * @since 2.19
      */
-    public PropertyValueBuffer processUnwrappedCreatorProperties(
-            JsonParser originalParser,
-            DeserializationContext ctxt,
-            PropertyValueBuffer values,
-            TokenBuffer buffered
-    ) throws IOException {
+    public PropertyValueBuffer processUnwrappedCreatorProperties(JsonParser originalParser,
+            DeserializationContext ctxt, PropertyValueBuffer values, TokenBuffer buffered)
+        throws IOException
+    {
         for (SettableBeanProperty prop : _creatorProperties) {
             JsonParser p = buffered.asParser(originalParser.streamReadConstraints());
             p.nextToken();
-            Object deserialized = prop.deserialize(p, ctxt);
-            values.assignParameter(prop, deserialized);
+            values.assignParameter(prop, prop.deserialize(p, ctxt));
         }
 
         return values;
     }
 
+    @SuppressWarnings("resource")
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
             Object bean, TokenBuffer buffered)
         throws IOException
@@ -112,6 +114,6 @@ public class UnwrappedPropertyHandler
      * @since 2.19
      */
     public static PropertyName creatorParamName(int index) {
-        return new PropertyName("@JsonUnwrapped/" + index);
+        return new PropertyName(JSON_UNWRAPPED_NAME_PREFIX + index);
     }
 }

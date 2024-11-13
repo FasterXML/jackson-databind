@@ -186,7 +186,7 @@ public final class PropertyBasedCreator
 
         final int len = _allProperties.length;
         HashMap<String, SettableBeanProperty> newLookup = new HashMap<>(_propertyLookup);
-        ArrayList<SettableBeanProperty> newProps = new ArrayList<>(len);
+        List<SettableBeanProperty> newProps = new ArrayList<>(len);
 
         for (SettableBeanProperty prop : _allProperties) {
             if (prop == null) {

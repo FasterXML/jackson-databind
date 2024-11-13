@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.deser.creators;
 
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -47,7 +46,6 @@ public class JsonCreatorNoArgs4777Test extends DatabindTestUtil
     // For [databind#4777]
     @SuppressWarnings("serial")
     @Test
-    @JacksonTestFailureExpected
     public void testCreatorDetection4777() throws Exception {
         SimpleModule sm = new SimpleModule() {
             @Override

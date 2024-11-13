@@ -326,12 +326,14 @@ public abstract class BeanDeserializerBase
                 uph = uph.renameAll(unwrapper);
             }
             // and handle direct unwrapping as well:
-            _propertyBasedCreator = pbc != null ? pbc.renameAll(unwrapper) : null;
+            if (pbc != null) {
+                pbc = pbc.renameAll(unwrapper);
+            }
             _beanProperties = src._beanProperties.renameAll(unwrapper);
         } else {
-            _propertyBasedCreator = pbc;
             _beanProperties = src._beanProperties;
         }
+        _propertyBasedCreator = pbc;
         _unwrappedPropertyHandler = uph;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
@@ -1012,7 +1014,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * property: these require special handling.
      */
     protected NameTransformer _findPropertyUnwrapper(DeserializationContext ctxt,
-            SettableBeanProperty prop) throws JsonMappingException
+            SettableBeanProperty prop)
+        throws JsonMappingException
     {
         AnnotatedMember am = prop.getMember();
         if (am != null) {

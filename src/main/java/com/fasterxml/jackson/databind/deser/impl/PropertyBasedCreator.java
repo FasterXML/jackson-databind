@@ -96,14 +96,12 @@ public final class PropertyBasedCreator
     /**
      * @since 2.19
      */
-    protected PropertyBasedCreator(
-            int propertyCount,
-            ValueInstantiator valueInstantiator,
+    protected PropertyBasedCreator(PropertyBasedCreator base,
             HashMap<String, SettableBeanProperty> propertyLookup,
-            SettableBeanProperty[] allProperties
-    ) {
-        _propertyCount = propertyCount;
-        _valueInstantiator = valueInstantiator;
+            SettableBeanProperty[] allProperties)
+    {
+        _propertyCount = base._propertyCount;
+        _valueInstantiator = base._valueInstantiator;
         _propertyLookup = propertyLookup;
         _allProperties = allProperties;
     }
@@ -178,7 +176,7 @@ public final class PropertyBasedCreator
      * Mutant factory method for constructing a map where the names of all properties
      * are transformed using the given {@link NameTransformer}.
      *
-     * @since 1.19
+     * @since 2.19
      */
     public PropertyBasedCreator renameAll(NameTransformer transformer)
     {
@@ -208,11 +206,9 @@ public final class PropertyBasedCreator
             }
         }
 
-        return new PropertyBasedCreator(
-                _propertyCount,
-                _valueInstantiator,
+        return new PropertyBasedCreator(this,
                 newLookup,
-                newProps.toArray(new SettableBeanProperty[newProps.size()])
+                newProps.toArray(new SettableBeanProperty[0])
         );
     }
 

@@ -34,7 +34,8 @@ public class UnwrappedPropertyHandler
         this(new ArrayList<>(), props);
     }
 
-    protected UnwrappedPropertyHandler(List<SettableBeanProperty> creatorProps, List<SettableBeanProperty> props) {
+    protected UnwrappedPropertyHandler(List<SettableBeanProperty> creatorProps,
+            List<SettableBeanProperty> props) {
         _creatorProperties = creatorProps;
         _properties = props;
     }

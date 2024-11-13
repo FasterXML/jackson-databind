@@ -708,10 +708,7 @@ public class BeanPropertyMap
     /**********************************************************
      */
 
-    /**
-     * @deprecated since 2.19 in favor of {@link SettableBeanProperty#unwrapped(NameTransformer)}
-     */
-    @Deprecated
+    @Deprecated // in 2.19: remove from 2.20 or later
     protected SettableBeanProperty _rename(SettableBeanProperty prop, NameTransformer xf) {
         return prop.unwrapped(xf);
     }

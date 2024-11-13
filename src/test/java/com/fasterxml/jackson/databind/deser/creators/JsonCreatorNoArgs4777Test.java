@@ -15,23 +15,23 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class JsonCreatorNoArgs4777Test extends DatabindTestUtil
 {
-    static class Foo {
-        private Foo() { } 
+    static class Foo4777 {
+        private Foo4777() { }
 
         @JsonCreator
-        static Foo create() {
-            return new Foo();
+        static Foo4777 create() {
+            return new Foo4777();
         }
     }
 
-    static class Instantiators implements ValueInstantiators {
+    static class Instantiators4777 implements ValueInstantiators {
         @Override
         public ValueInstantiator findValueInstantiator(
                 DeserializationConfig config,
                 BeanDescription beanDesc,
                 ValueInstantiator defaultInstantiator
         ) {
-            if (beanDesc.getBeanClass() == Foo.class) {
+            if (beanDesc.getBeanClass() == Foo4777.class) {
                 AnnotatedWithParams dc = defaultInstantiator.getDefaultCreator();
                 if (!(dc instanceof AnnotatedMethod)
                         || !dc.getName().equals("create")) {
@@ -51,12 +51,12 @@ public class JsonCreatorNoArgs4777Test extends DatabindTestUtil
             @Override
             public void setupModule(SetupContext context) {
                 super.setupModule(context);
-                context.addValueInstantiators(new Instantiators());
+                context.addValueInstantiators(new Instantiators4777());
             }
         };
         ObjectMapper mapper = JsonMapper.builder().addModule(sm).build();
 
-        Foo result = mapper.readValue("{}", Foo.class);
+        Foo4777 result = mapper.readValue("{}", Foo4777.class);
         assertNotNull(result);
     }
 }

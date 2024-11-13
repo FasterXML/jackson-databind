@@ -4,14 +4,11 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -110,9 +107,8 @@ public class BuilderCreatorSubtype4742Test
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
-    public void testDeser() throws Exception
+    public void testDeser4742() throws Exception
     {
         final Animals animals = MAPPER.readValue(
                 "{\n" +

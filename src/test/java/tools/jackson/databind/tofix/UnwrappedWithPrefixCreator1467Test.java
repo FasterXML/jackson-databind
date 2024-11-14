@@ -1,4 +1,4 @@
-package tools.jackson.databind.struct;
+package tools.jackson.databind.tofix;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,10 +6,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UnwrappedPropertyBasedCreatorWithPrefixTest extends DatabindTestUtil
+// [databind#1467]: works for 2.19+, fails for 3.0 for some reason
+public class UnwrappedWithPrefixCreator1467Test extends DatabindTestUtil
 {
     static class Outer {
         @JsonUnwrapped(prefix = "inner-")
@@ -30,6 +32,7 @@ public class UnwrappedPropertyBasedCreatorWithPrefixTest extends DatabindTestUti
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @JacksonTestFailureExpected
     @Test
     public void testUnwrappedWithJsonCreatorWithExplicitWithoutName() throws Exception
     {

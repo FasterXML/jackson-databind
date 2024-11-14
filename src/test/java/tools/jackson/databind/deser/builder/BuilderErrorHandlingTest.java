@@ -8,12 +8,11 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.exc.ValueInstantiationException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.*;
-
-public class BuilderErrorHandling
+public class BuilderErrorHandlingTest extends DatabindTestUtil
 {
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     static class ValueClassXY
@@ -116,7 +115,9 @@ public class BuilderErrorHandling
         // first, default failure
         String json = a2q("{'x':1,'z':2,'y':4}");
         try {
-            MAPPER.readValue(json, ValueClassXY.class);
+            MAPPER.readerFor(ValueClassXY.class)
+                .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValue(json);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Unrecognized property ");

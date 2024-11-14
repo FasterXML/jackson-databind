@@ -1,4 +1,4 @@
-package tools.jackson.databind.struct;
+package tools.jackson.databind.tofix;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,13 +6,14 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests to verify [databind#1467].
  */
-public class UnwrappedWithCreatorTest extends DatabindTestUtil
+public class UnwrappedWithCreator1467Test extends DatabindTestUtil
 {
     static class ExplicitWithoutName {
         private final String _unrelated;
@@ -154,6 +155,8 @@ public class UnwrappedWithCreatorTest extends DatabindTestUtil
         assertEquals("value2", outer.getInner().getProperty2());
     }
 
+    // [databind#1467]: works for 2.19+, fails for 3.0 for some reason
+    @JacksonTestFailureExpected
     @Test
     public void testUnwrappedWithTwoUnwrappedProperties() throws Exception
     {

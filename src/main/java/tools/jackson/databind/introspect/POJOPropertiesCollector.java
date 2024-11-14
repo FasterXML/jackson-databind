@@ -11,6 +11,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.ConstructorDetector;
 import tools.jackson.databind.cfg.HandlerInstantiator;
 import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import tools.jackson.databind.jdk14.JDK14Util;
 import tools.jackson.databind.util.ClassUtil;
 
@@ -982,10 +983,21 @@ ctor.creator()));
             final boolean hasExplicit = (explName != null);
             final POJOPropertyBuilder prop;
 
+            //  neither implicit nor explicit name?
             if (!hasExplicit && (implName == null)) {
-                // Important: if neither implicit nor explicit name, cannot make use of
-                // this creator parameter -- may or may not be a problem, verified at a later point.
-                prop = null;
+                boolean isUnwrapping = _annotationIntrospector.findUnwrappingNameTransformer(_config, param) != null;
+
+                if (isUnwrapping) {
+                    // If unwrapping, can use regardless of name; we will use a placeholder name
+                    // anyway to try to avoid name conflicts.
+                    PropertyName name = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
+                    prop = _property(props, name);
+                    prop.addCtor(param, name, false, true, false);
+                } else {
+                    // Without name, cannot make use of this creator parameter -- may or may not
+                    // be a problem, verified at a later point.
+                    prop = null;
+                }
             } else {
                 // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
                 if (implName != null) {

@@ -155,8 +155,6 @@ public class UnwrappedWithCreator1467Test extends DatabindTestUtil
         assertEquals("value2", outer.getInner().getProperty2());
     }
 
-    // [databind#1467]: works for 2.19+, fails for 3.0 for some reason
-    @JacksonTestFailureExpected
     @Test
     public void testUnwrappedWithTwoUnwrappedProperties() throws Exception
     {

@@ -10,7 +10,6 @@ import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// [databind#1467]: works for 2.19+, fails for 3.0 for some reason
 public class UnwrappedWithPrefixCreator1467Test extends DatabindTestUtil
 {
     static class Outer {
@@ -32,7 +31,6 @@ public class UnwrappedWithPrefixCreator1467Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     public void testUnwrappedWithJsonCreatorWithExplicitWithoutName() throws Exception
     {

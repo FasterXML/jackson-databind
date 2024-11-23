@@ -8,6 +8,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.bean.BeanDeserializer;
 import tools.jackson.databind.deser.bean.BeanPropertyMap;
+import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import tools.jackson.databind.util.NameTransformer;
 
@@ -53,9 +54,10 @@ public class ThrowableDeserializer
      * Alternative constructor used when creating "unwrapping" deserializers
      */
     protected ThrowableDeserializer(BeanDeserializer src,
-            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties,
+            UnwrappedPropertyHandler unwrapHandler, PropertyBasedCreator pbCreator,
+                    BeanPropertyMap renamedProperties,
             boolean ignoreAllUnknown) {
-        super(src, unwrapHandler, renamedProperties, ignoreAllUnknown);
+        super(src, unwrapHandler, pbCreator, renamedProperties, ignoreAllUnknown);
     }
 
     @Override
@@ -72,8 +74,12 @@ public class ThrowableDeserializer
         if (uwHandler != null) {
             uwHandler = uwHandler.renameAll(ctxt, transformer);
         }
+        PropertyBasedCreator pbCreator = _propertyBasedCreator;
+        if (pbCreator != null) {
+            pbCreator = pbCreator.renameAll(ctxt, transformer);
+        }
         // and handle direct unwrapping as well:
-        return new ThrowableDeserializer(this, uwHandler,
+        return new ThrowableDeserializer(this, uwHandler, pbCreator,
                 _beanProperties.renameAll(ctxt, transformer), true);
     }
 

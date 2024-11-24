@@ -79,9 +79,9 @@ public class BeanDeserializer
     }
 
     protected BeanDeserializer(BeanDeserializer src,
-            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties,
-            boolean ignoreAllUnknown) {
-        super(src, unwrapHandler, renamedProperties, ignoreAllUnknown);
+            UnwrappedPropertyHandler unwrapHandler, PropertyBasedCreator propertyBasedCreator,
+            BeanPropertyMap renamedProperties, boolean ignoreAllUnknown) {
+        super(src, unwrapHandler, propertyBasedCreator, renamedProperties, ignoreAllUnknown);
         _propNameMatcher = _beanProperties.getNameMatcher();
         _propsByIndex = _beanProperties.getNameMatcherProperties();
     }
@@ -131,8 +131,12 @@ public class BeanDeserializer
             if (uwHandler != null) { // delegate further unwraps, if any
                 uwHandler = uwHandler.renameAll(ctxt, transformer);
             }
+            PropertyBasedCreator pbCreator = _propertyBasedCreator;
+            if (pbCreator != null) {
+                pbCreator = pbCreator.renameAll(ctxt, transformer);
+            }
             // and handle direct unwrapping as well:
-            return new BeanDeserializer(this, uwHandler,
+            return new BeanDeserializer(this, uwHandler, pbCreator,
                     _beanProperties.renameAll(ctxt, transformer), true);
         } finally { _currentlyTransforming = null; }
     }
@@ -446,7 +450,7 @@ public class BeanDeserializer
                 return bean;
             }
             if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
-                return _handleUnexpectedWithin(p, ctxt, bean);
+                return bean;
             }
             p.nextToken();
             handleUnknownVanilla(p, ctxt, bean, p.currentName());

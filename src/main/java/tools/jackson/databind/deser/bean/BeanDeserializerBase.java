@@ -298,8 +298,8 @@ public abstract class BeanDeserializerBase
      * invoked and lookup indices need to be updated.
      */
     protected BeanDeserializerBase(BeanDeserializerBase src,
-            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties,
-            boolean ignoreAllUnknown)
+            UnwrappedPropertyHandler unwrapHandler, PropertyBasedCreator propertyBasedCreator,
+           BeanPropertyMap renamedProperties, boolean ignoreAllUnknown)
     {
         super(src._beanType);
 
@@ -308,7 +308,6 @@ public abstract class BeanDeserializerBase
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
-        _propertyBasedCreator = src._propertyBasedCreator;
 
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
@@ -321,6 +320,7 @@ public abstract class BeanDeserializerBase
         _nonStandardCreation = src._nonStandardCreation;
 
         _unwrappedPropertyHandler = unwrapHandler;
+        _propertyBasedCreator = propertyBasedCreator;
         _beanProperties = renamedProperties;
 
         _needViewProcesing = src._needViewProcesing;

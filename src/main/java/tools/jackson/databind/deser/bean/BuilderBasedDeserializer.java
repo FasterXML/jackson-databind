@@ -107,9 +107,10 @@ public class BuilderBasedDeserializer
     }
 
     protected BuilderBasedDeserializer(BuilderBasedDeserializer src,
-            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties,
-            boolean ignoreAllUnknown) {
-        super(src, unwrapHandler, renamedProperties, ignoreAllUnknown);
+            UnwrappedPropertyHandler unwrapHandler, PropertyBasedCreator pbCreator,
+            BeanPropertyMap renamedProperties, boolean ignoreAllUnknown
+    ) {
+        super(src, unwrapHandler, pbCreator, renamedProperties, ignoreAllUnknown);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
         _propertyNameMatcher = _beanProperties.getNameMatcher();
@@ -167,9 +168,13 @@ public class BuilderBasedDeserializer
             if (uwHandler != null) {
                 uwHandler = uwHandler.renameAll(ctxt, transformer);
             }
+            PropertyBasedCreator pbCreator = _propertyBasedCreator;
+            if (pbCreator != null) {
+                pbCreator = pbCreator.renameAll(ctxt, transformer);
+            }
             // and handle direct unwrapping as well:
             BeanPropertyMap props = _beanProperties.renameAll(ctxt, transformer);
-            return new BuilderBasedDeserializer(this, uwHandler, props, true);
+            return new BuilderBasedDeserializer(this, uwHandler, pbCreator, props, true);
         } finally { _currentlyTransforming = null; }
     }
 

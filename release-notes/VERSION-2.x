@@ -24,6 +24,7 @@ Project: jackson-databind
 #4790: Fix `@JsonAnySetter` issue with "setter" method (related to #4639)
  (reported by @bsa01)
  (fix by Joo-Hyuk K)
+#4807: Improve `FactoryBasedEnumDeserializer` to work better with XML module
 
 2.18.1 (28-Oct-2024)
 

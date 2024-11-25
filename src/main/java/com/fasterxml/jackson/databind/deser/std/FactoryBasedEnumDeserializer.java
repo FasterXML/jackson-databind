@@ -166,7 +166,7 @@ class FactoryBasedEnumDeserializer
                 t = p.nextToken();
             }
             // 24-Nov-2024, tatu: New! "Scalar from Object" (mostly for XML) -- see
-            //   https://github.com/FasterXML/jackson-dataformat-xml/issues/682
+            //   https://github.com/FasterXML/jackson-databind/issues/4807
             if (t == JsonToken.START_OBJECT) {
                 value = ctxt.extractScalarFromObject(p, this, _valueClass);
             } else if ((t == null) || !t.isScalarValue()) {

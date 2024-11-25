@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.databind.node;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 

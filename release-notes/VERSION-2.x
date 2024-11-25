@@ -4,6 +4,36 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.19.0 (not yet released)
+
+#1467: Support `@JsonUnwrapped` with `@JsonCreator`
+ (implementation by Liam F)
+#2461: Nested `@JsonUnwrapped` property names not correctly handled
+ (reported by @plovell)
+ (fix contributed by @SandeepGaur2016)
+#2951: Allow inverting `@JsonProperty(access=)` with
+  `MapperFeature.INVERSE_READ_WRITE_ACCESS` to work differently on
+   server and client side
+ (requested by @qianlong)
+ (contributed by Geoffrey G)
+#4674: Allow setting global enum naming strategy similar to property naming strategy
+ (requested by @hajdamak)
+ (contributed by Konstantin M)
+#4676: Support other enum naming strategies than camelCase
+ (requested by @hajdamak)
+ (contributed by Lars B)
+#4680: Custom key deserialiser registered for `Object.class` in nested
+  Map object is ignored when Map key type not defined
+ (reported by @devdanylo)
+ (fix by Joo-Hyuk K)
+#4772: Serialization and deserialization issue of sub-types used with
+  `JsonTypeInfo.Id.DEDUCTION` where sub-types are Object and Array
+ (reported by Eduard G)
+#4773: `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not apply to Maps
+  with uncomparable keys
+ (requested by @nathanukey)
+ (fix by Joo-Hyuk K)
+
 2.18.2 (not yet released)
 
 #4733: Wrong serialization of Type Ids for certain types of Enum values

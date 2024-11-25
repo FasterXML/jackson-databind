@@ -5,6 +5,7 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -125,7 +126,7 @@ public class TestDefaultForMaps
         subtypes.add(new NamedType(HashMap.class, "HMap"));
         ObjectMapper mapper = new ObjectMapper();
         return TypeNameIdResolver.construct(mapper.getDeserializationConfig(),
-                TypeFactory.defaultInstance().constructType(Object.class), subtypes, forSerialization, !forSerialization);
+                defaultTypeFactory().constructType(Object.class), subtypes, forSerialization, !forSerialization);
     }
 
     @Test

@@ -19,7 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class CustomDeserializers4225NullCacheTest extends DatabindTestUtil
 {
-    static class CustomListDeserializer extends JsonDeserializer<List<String>> {
+    static class CustomListDeserializer extends JsonDeserializer<List<String>>
+    {
         static int getNullValueInvocationCount = 0;
 
         @Override

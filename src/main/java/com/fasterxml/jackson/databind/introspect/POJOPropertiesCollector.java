@@ -5,12 +5,13 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.ConstructorDetector;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import com.fasterxml.jackson.databind.jdk14.JDK14Util;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -434,20 +435,15 @@ public class POJOPropertiesCollector
         // First: gather basic accessors
         LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<String, POJOPropertyBuilder>();
 
-        // 15-Jan-2023, tatu: [databind#3736] Let's avoid detecting fields of Records
-        //   altogether (unless we find a good reason to detect them)
-        // 17-Apr-2023: Need Records' fields for serialization for cases
-        //   like [databind#3628], [databind#3895] and [databind#3992]
-        // 22-Jul-2024, tatu: ... and for deserialization sometimes too [databind#4626]
+        // 14-Nov-2024, tatu: Previously skipped checking fields for Records; with 2.18+ won't
+        //    (see [databind#3628], [databind#3895], [databind#3992], [databind#4626])
         _addFields(props); // note: populates _fieldRenameMappings
 
         _addMethods(props);
         // 25-Jan-2016, tatu: Avoid introspecting (constructor-)creators for non-static
         //    inner classes, see [databind#1502]
-        // 13-May-2023, PJ: Need to avoid adding creators for Records when serializing [databind#3925]
-        // 18-May-2024, tatu: Serialization side does, however, require access to renaming
-        //    etc (see f.ex [databind#4452]) so let's not skip
-        if (!_classDef.isNonStaticInnerClass()) { // && !(_forSerialization && isRecord)) {
+        // 14-Nov-2024, tatu: Similarly need Creators for Records too (2.18+)
+        if (!_classDef.isNonStaticInnerClass()) {
             _addCreators(props);
         }
 
@@ -1028,10 +1024,21 @@ ctor.creator()));
             final boolean hasExplicit = (explName != null);
             final POJOPropertyBuilder prop;
 
+            //  neither implicit nor explicit name?
             if (!hasExplicit && (implName == null)) {
-                // Important: if neither implicit nor explicit name, cannot make use of
-                // this creator parameter -- may or may not be a problem, verified at a later point.
-                prop = null;
+                boolean isUnwrapping = _annotationIntrospector.findUnwrappingNameTransformer(param) != null;
+
+                if (isUnwrapping) {
+                    // If unwrapping, can use regardless of name; we will use a placeholder name
+                    // anyway to try to avoid name conflicts.
+                    PropertyName name = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
+                    prop = _property(props, name);
+                    prop.addCtor(param, name, false, true, false);
+                } else {
+                    // Without name, cannot make use of this creator parameter -- may or may not
+                    // be a problem, verified at a later point.
+                    prop = null;
+                }
             } else {
                 // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
                 if (implName != null) {

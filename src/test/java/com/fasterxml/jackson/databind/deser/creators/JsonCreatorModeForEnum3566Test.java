@@ -14,7 +14,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMa
 /* [databind#3566]: `Enum` with `JsonFormat.Shape.OBJECT` fails to deserialize using `JsonCreator.Mode.DELEGATING` ONLY
  * when also has `JsonCreator.Mode.PROPERTIES` (while with Pojo does not).
  */
-public class JsonCreatorModeForEnum3566
+public class JsonCreatorModeForEnum3566Test
 {
 
     /*

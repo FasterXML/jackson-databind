@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class TestCreatorsDelegating
+public class DelegatingCreatorsTest
 {
     static class BooleanBean
     {

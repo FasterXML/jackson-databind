@@ -1851,5 +1851,10 @@ Bernd Ahlers (@bernd)
   (2.18.2)
 
 Mike Minicki (@martel)
- * Reported #4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
+ * Reported #4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` valu
   (2.18.2)
+
+Jonathan Mesny (@jmesny)
+ * Reported #4810: Deserialization using `@JsonCreator` with renamed property failing (since 2.18)
+  (2.18.2)
+

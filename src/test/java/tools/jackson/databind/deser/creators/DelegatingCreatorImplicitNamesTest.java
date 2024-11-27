@@ -11,13 +11,14 @@ import tools.jackson.databind.introspect.AnnotatedMethod;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.AnnotatedWithParams;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
-
-public class DelegatingCreatorImplicitNames1001Test
+public class DelegatingCreatorImplicitNamesTest
+    extends DatabindTestUtil
 {
+    // [databind#1001]
     static class D
     {
         private String raw1 = "";
@@ -54,7 +55,7 @@ public class DelegatingCreatorImplicitNames1001Test
     }
 
     // To test equivalent of parameter-names, let's use this one
-    protected static class CreatorNameIntrospector extends JacksonAnnotationIntrospector
+    protected static class CreatorNameIntrospector1001 extends JacksonAnnotationIntrospector
     {
         private static final long serialVersionUID = 1L;
 
@@ -73,27 +74,28 @@ public class DelegatingCreatorImplicitNames1001Test
         }
     }
 
-    // Baseline test to show how things should work
-    @Test
-    public void testWithoutNamedParameters() throws Exception
-    {
-        ObjectMapper sut = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+
+    // [databind#1001]
+
+    @Test
+    public void testWithoutNamedParameters1001() throws Exception
+    {
         D d = D.make("abc:def");
 
-        String actualJson = sut.writeValueAsString(d);
-        D actualD = sut.readValue(actualJson, D.class);
+        String actualJson = MAPPER.writeValueAsString(d);
+        D actualD = MAPPER.readValue(actualJson, D.class);
 
         assertEquals("\"abc:def\"", actualJson);
         assertEquals(d, actualD);
     }
 
-    // And then case that fails with [databind#1001]
     @Test
-    public void testWithNamedParameters() throws Exception
+    public void testWithNamedParameters1001() throws Exception
     {
         ObjectMapper sut = jsonMapperBuilder()
-            .annotationIntrospector(new CreatorNameIntrospector())
+            .annotationIntrospector(new CreatorNameIntrospector1001())
             .build();
 
         D d = D.make("abc:def");

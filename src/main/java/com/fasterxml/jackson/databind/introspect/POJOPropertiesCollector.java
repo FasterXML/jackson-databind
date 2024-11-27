@@ -912,11 +912,23 @@ ctor.creator()));
         if (ctor.paramCount() == 1) {
             // One more possibility: implicit name that maps to implied
             // property with at least one visible accessor
-            String implName = ctor.implicitNameSimple(0);
-            if (implName != null) {
-                POJOPropertyBuilder prop = props.get(implName);
-                if ((prop != null) && prop.anyVisible() && !prop.anyIgnorals()) {
-                    return true;
+            PropertyName paramName = ctor.implicitName(0);
+            if (paramName != null) {
+                POJOPropertyBuilder prop = props.get(paramName.getSimpleName());
+                if (prop != null) {
+                    if (prop.anyVisible() && !prop.anyIgnorals()) {
+                        return true;
+                    }
+                } else {
+                    // 26-Nov-2024, tatu: [databind#4810] Implicit name not always
+                    //   enough; may need to link to explicit name override
+                    for (POJOPropertyBuilder pb : props.values()) {
+                        if (pb.anyVisible()
+                                && !pb.anyIgnorals()
+                                && pb.hasExplicitName(paramName)) {
+                            return true;
+                        }
+                    }
                 }
             }
             // Second: injectable also suffices

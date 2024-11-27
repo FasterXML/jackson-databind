@@ -55,6 +55,8 @@ Project: jackson-databind
  (reported by @bsa01)
  (fix by Joo-Hyuk K)
 #4807: Improve `FactoryBasedEnumDeserializer` to work better with XML module
+#4810: Deserialization using `@JsonCreator` with renamed property failing (since 2.18)
+ (reported by Jonathan M)
 
 2.18.1 (28-Oct-2024)
 

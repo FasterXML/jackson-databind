@@ -43,7 +43,7 @@ public class DelegatingCreatorImplicitNames2543Test
         }
     }
 
-    static class DelegatingCreatorNamedArgumentIntrospector
+    static class DelegatingCreatorNamedArgumentIntrospector2543
             extends JacksonAnnotationIntrospector
     {
         private static final long serialVersionUID = 1L;
@@ -63,11 +63,12 @@ public class DelegatingCreatorImplicitNames2543Test
     }
 
     private static final ObjectMapper MAPPER = JsonMapper.builder()
-            .annotationIntrospector(new DelegatingCreatorNamedArgumentIntrospector())
+            .annotationIntrospector(new DelegatingCreatorNamedArgumentIntrospector2543())
             .build();
 
+    // [databind#2543]
     @Test
-    public void testDeserialization() throws Exception {
+    public void testDeserialization2543() throws Exception {
         Data2543 data = MAPPER.readValue(a2q("{'part1':'a','part2':'b'}"), Data2543.class);
 
         assertThat(data.part1).isEqualTo("a");
@@ -75,7 +76,7 @@ public class DelegatingCreatorImplicitNames2543Test
     }
 
     @Test
-    public void testDelegatingDeserialization() throws Exception {
+    public void testDelegatingDeserialization2543() throws Exception {
         Data2543 data = MAPPER.readValue(a2q("'a b'"), Data2543.class);
 
         assertThat(data.part1).isEqualTo("a");

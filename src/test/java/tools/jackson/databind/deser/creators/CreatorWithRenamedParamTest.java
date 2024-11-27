@@ -11,9 +11,10 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class CreatorWithRenamedParam4545Test
+public class CreatorWithRenamedParamTest
     extends DatabindTestUtil
 {
+ // [databind#4545]
     static class Payload4545 {
         private final String key1;
         private final String key2;

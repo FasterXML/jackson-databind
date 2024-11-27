@@ -15,32 +15,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class Creators4515Test extends DatabindTestUtil
 {
-    static class ConstructorBeanPropsExplicit {
+    static class ConstructorBeanPropsExplicit4545 {
         int x;
 
         @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-        protected ConstructorBeanPropsExplicit(@JsonProperty("x") int x) {
+        protected ConstructorBeanPropsExplicit4545(@JsonProperty("x") int x) {
             this.x = x;
         }
     }
 
-    static class ConstructorBeanPropsWithName {
+    static class ConstructorBeanPropsWithName4545 {
         int x;
 
         @JsonCreator
-        protected ConstructorBeanPropsWithName(@JsonProperty("x") int x) {
+        protected ConstructorBeanPropsWithName4545(@JsonProperty("x") int x) {
             this.x = x;
         }
     }
 
-    static class FactoryBeanPropsExplicit {
+    static class FactoryBeanPropsExplicit4545 {
         double d;
 
-        private FactoryBeanPropsExplicit(double value, boolean dummy) { d = value; }
+        private FactoryBeanPropsExplicit4545(double value, boolean dummy) { d = value; }
 
         @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-        protected static FactoryBeanPropsExplicit createIt(@JsonProperty("f") double value) {
-            return new FactoryBeanPropsExplicit(value, true);
+        protected static FactoryBeanPropsExplicit4545 createIt(@JsonProperty("f") double value) {
+            return new FactoryBeanPropsExplicit4545(value, true);
         }
     }
 
@@ -55,16 +55,16 @@ public class Creators4515Test extends DatabindTestUtil
     @Test
     public void testPropsBasedConstructorExplicit() throws Exception
     {
-        ConstructorBeanPropsExplicit bean = MAPPER.readValue("{ \"x\" : 42 }",
-                ConstructorBeanPropsExplicit.class);
+        ConstructorBeanPropsExplicit4545 bean = MAPPER.readValue("{ \"x\" : 42 }",
+                ConstructorBeanPropsExplicit4545.class);
         assertEquals(42, bean.x);
     }
 
     @Test
     public void testPropsBasedConstructorWithName() throws Exception
     {
-        ConstructorBeanPropsWithName bean = MAPPER.readValue("{ \"x\" : 28 }",
-                ConstructorBeanPropsWithName.class);
+        ConstructorBeanPropsWithName4545 bean = MAPPER.readValue("{ \"x\" : 28 }",
+                ConstructorBeanPropsWithName4545.class);
         assertEquals(28, bean.x);
     }
 
@@ -77,15 +77,8 @@ public class Creators4515Test extends DatabindTestUtil
     @Test
     public void testPropsBasedFactoryExplicit() throws Exception
     {
-        FactoryBeanPropsExplicit bean = MAPPER.readValue("{ \"f\" : 0.5 }",
-                FactoryBeanPropsExplicit.class);
+        FactoryBeanPropsExplicit4545 bean = MAPPER.readValue("{ \"f\" : 0.5 }",
+                FactoryBeanPropsExplicit4545.class);
         assertEquals(0.5, bean.d);
     }
-
-    /*
-    /**********************************************************************
-    /* Test methods, simple Delegating, explicitly annotated
-    /**********************************************************************
-     */
-
 }

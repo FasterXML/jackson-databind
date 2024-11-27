@@ -927,7 +927,8 @@ ctor.creator()));
                     // 26-Nov-2024, tatu: [databind#4810] Implicit name not always
                     //   enough; may need to link to explicit name override
                     for (POJOPropertyBuilder pb : props.values()) {
-                        if (pb.anyVisible() && pb.anyIgnorals()
+                        if (pb.anyVisible()
+                                && !pb.anyIgnorals()
                                 && pb.hasExplicitName(paramName)) {
                             return true;
                         }

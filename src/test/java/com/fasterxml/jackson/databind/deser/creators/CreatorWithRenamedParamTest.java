@@ -57,8 +57,8 @@ public class CreatorWithRenamedParamTest
             return x;
         }
 
-        //@JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-//        @JsonCreator
+        // NOTE: mode-less, should be properly detected as properties-based
+        @JsonCreator
         public static DataClass4810 create(@ImplicitName("bar") String bar) {
             return new DataClass4810(bar);
         }
@@ -66,7 +66,7 @@ public class CreatorWithRenamedParamTest
 
     // [databind#4545]
     @Test
-    public void testCreatorWithRename4545() throws Exception
+    public void creatorWithRename4545() throws Exception
     {
         final ObjectMapper mapper4545 = jsonMapperBuilder()
                 .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
@@ -85,7 +85,7 @@ public class CreatorWithRenamedParamTest
 
     // [databind#4810]
     @Test
-    void shouldSupportPropertyRenaming() throws Exception {
+    void shouldSupportPropertyRenaming4810() throws Exception {
         ObjectMapper mapper = JsonMapper.builder()
                 .annotationIntrospector(new ImplicitNameIntrospector())
                 .build();

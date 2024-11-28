@@ -34,7 +34,7 @@ Project: jackson-databind
  (requested by @nathanukey)
  (fix by Joo-Hyuk K)
 
-2.18.2 (not yet released)
+2.18.2 (27-Nov-2024)
 
 #4733: Wrong serialization of Type Ids for certain types of Enum values
  (reported by @nlisker)

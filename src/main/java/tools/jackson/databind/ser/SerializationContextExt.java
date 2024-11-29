@@ -247,9 +247,8 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
      */
     protected Map<Object,WritableObjectId> _createObjectIdMap()
     {
-        /* 06-Aug-2013, tatu: We may actually want to use equality,
-         *   instead of identity... so:
-         */
+        // 06-Aug-2013, tatu: We may actually want to use equality,
+        //   instead of identity... so:
         if (isEnabled(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)) {
             return new HashMap<Object,WritableObjectId>();
         }

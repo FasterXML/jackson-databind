@@ -55,14 +55,14 @@ public class CustomNullSerializationTest
         @Override
         public SerializationContextExt createContext(SerializationConfig config,
                 GeneratorSettings genSettings) {
-            return new MyNullSerializerProvider(_streamFactory, _cache,
+            return new MyNullSerializerSerializationContext(_streamFactory, _cache,
                     config, genSettings, _serializerFactory);
         }
     }
 
-    static class MyNullSerializerProvider extends SerializationContextExt
+    static class MyNullSerializerSerializationContext extends SerializationContextExt
     {
-        public MyNullSerializerProvider(TokenStreamFactory streamFactory,
+        public MyNullSerializerSerializationContext(TokenStreamFactory streamFactory,
                 SerializerCache cache, SerializationConfig config,
                 GeneratorSettings genSettings, SerializerFactory f) {
             super(streamFactory, config, genSettings, f, cache);

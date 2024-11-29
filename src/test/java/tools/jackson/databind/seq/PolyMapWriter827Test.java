@@ -27,7 +27,7 @@ public class PolyMapWriter827Test extends DatabindTestUtil
     public class CustomKeySerializer extends StdSerializer<CustomKey> {
         public CustomKeySerializer() { super(CustomKey.class); }
         @Override
-        public void serialize(CustomKey key, JsonGenerator g, SerializationContext serializerProvider) {
+        public void serialize(CustomKey key, JsonGenerator g, SerializationContext ctxt) {
             g.writeName(key.a + "," + key.b);
         }
     }

@@ -147,7 +147,7 @@ public class NewSchemaTest extends DatabindTestUtil
                     final SerializationContext prov = getProvider();
                     if (ser == null) {
                         if (prov == null) {
-                            throw new Error("SerializerProvider missing");
+                            throw new Error("SerializationContext missing");
                         }
                         ser = prov.findPrimaryPropertySerializer(prop.getType(), prop);
                     }

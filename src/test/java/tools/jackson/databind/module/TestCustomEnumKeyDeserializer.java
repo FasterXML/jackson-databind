@@ -60,7 +60,7 @@ public class TestCustomEnumKeyDeserializer extends DatabindTestUtil
 
     static class TestEnumSerializer extends ValueSerializer<TestEnum> {
         @Override
-        public void serialize(TestEnum languageCode, JsonGenerator g, SerializationContext serializerProvider) {
+        public void serialize(TestEnum languageCode, JsonGenerator g, SerializationContext ctxt) {
             g.writeString(languageCode.code());
         }
 
@@ -100,7 +100,7 @@ public class TestCustomEnumKeyDeserializer extends DatabindTestUtil
 
     static class TestEnumKeySerializer extends ValueSerializer<TestEnum> {
         @Override
-        public void serialize(TestEnum test, JsonGenerator g, SerializationContext serializerProvider) {
+        public void serialize(TestEnum test, JsonGenerator g, SerializationContext ctxt) {
             g.writeName(test.code());
         }
 

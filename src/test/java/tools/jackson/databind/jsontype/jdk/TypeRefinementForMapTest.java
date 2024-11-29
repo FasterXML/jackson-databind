@@ -95,7 +95,7 @@ public class TypeRefinementForMapTest extends DatabindTestUtil
     static class CompoundKeySerializer extends StdSerializer<CompoundKey> {
         public CompoundKeySerializer() { super(CompoundKey.class); }
         @Override
-        public void serialize(CompoundKey compoundKey, JsonGenerator g, SerializationContext serializerProvider) {
+        public void serialize(CompoundKey compoundKey, JsonGenerator g, SerializationContext ctxt) {
             g.writeName(compoundKey.getPart0() + '|' + compoundKey.getPart1());
         }
     }

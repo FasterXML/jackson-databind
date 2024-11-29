@@ -62,29 +62,29 @@ public interface JsonFormatVisitorWrapper extends JsonFormatVisitorWithSerializa
 
     /**
      * Empty "no-op" implementation of {@link JsonFormatVisitorWrapper}, suitable for
-     * sub-classing. Does implement {@link #setProvider(SerializationContext)} and
-     * {@link #getProvider()} as expected; other methods simply return null
+     * sub-classing. Does implement {@link #setContext(SerializationContext)} and
+     * {@link #getContext()} as expected; other methods simply return null
      * and do nothing.
      *
      * @since 2.5
      */
     public static class Base implements JsonFormatVisitorWrapper {
-        protected SerializationContext _provider;
+        protected SerializationContext _context;
 
         public Base() { }
 
         public Base(SerializationContext p) {
-            _provider = p;
+            _context = p;
         }
 
         @Override
-        public SerializationContext getProvider() {
-            return _provider;
+        public SerializationContext getContext() {
+            return _context;
         }
 
         @Override
-        public void setProvider(SerializationContext p) {
-            _provider = p;
+        public void setContext(SerializationContext p) {
+            _context = p;
         }
 
         @Override

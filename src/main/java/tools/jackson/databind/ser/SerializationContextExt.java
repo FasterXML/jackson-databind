@@ -482,7 +482,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         Objects.requireNonNull(javaType);
         // no need for embedded type information for JSON schema generation (all
         // type information it needs is accessible via "untyped" serializer)
-        visitor.setProvider(this);
+        visitor.setContext(this);
         findRootValueSerializer(javaType).acceptJsonFormatVisitor(visitor, javaType);
     }
 

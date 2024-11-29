@@ -34,10 +34,10 @@ public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializati
         public Base(SerializationContext p) { _provider = p; }
 
         @Override
-        public SerializationContext getProvider() { return _provider; }
+        public SerializationContext getContext() { return _provider; }
 
         @Override
-        public void setProvider(SerializationContext p) { _provider = p; }
+        public void setContext(SerializationContext p) { _provider = p; }
 
         @Override
         public void itemsFormat(JsonFormatVisitable handler, JavaType elementType) { }

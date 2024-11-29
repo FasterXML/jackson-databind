@@ -937,9 +937,9 @@ public abstract class BeanSerializerBase
         if (objectVisitor == null) {
             return;
         }
-        final SerializationContext provider = visitor.getProvider();
+        final SerializationContext provider = visitor.getContext();
         if (_propertyFilterId != null) {
-            PropertyFilter filter = findPropertyFilter(visitor.getProvider(),
+            PropertyFilter filter = findPropertyFilter(visitor.getContext(),
                     _propertyFilterId, null);
             for (int i = 0, end = _props.length; i < end; ++i) {
                 filter.depositSchemaProperty(_props[i], objectVisitor, provider);

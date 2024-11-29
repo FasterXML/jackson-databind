@@ -298,7 +298,7 @@ public class ObjectArraySerializer
             JavaType contentType = _elementType;
             ValueSerializer<?> valueSer = _elementSerializer;
             if (valueSer == null) {
-                valueSer = visitor.getProvider().findContentValueSerializer(contentType, _property);
+                valueSer = visitor.getContext().findContentValueSerializer(contentType, _property);
             }
             arrayVisitor.itemsFormat(valueSer, contentType);
         }

@@ -9,6 +9,6 @@ import tools.jackson.databind.SerializationContext;
  * @author jphelan
  */
 public interface JsonFormatVisitorWithSerializationContext {
-    public SerializationContext getProvider();
-    public abstract void setProvider(SerializationContext provider);
+    public SerializationContext getContext();
+    public abstract void setContext(SerializationContext provider);
 }

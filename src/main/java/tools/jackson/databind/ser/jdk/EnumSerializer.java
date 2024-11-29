@@ -153,7 +153,7 @@ public class EnumSerializer
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-        SerializationContext serializers = visitor.getProvider();
+        SerializationContext serializers = visitor.getContext();
         if (_serializeAsIndex(serializers)) {
             visitIntFormat(visitor, typeHint, JsonParser.NumberType.INT);
             return;

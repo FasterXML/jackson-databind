@@ -118,7 +118,7 @@ public class NewSchemaTest extends DatabindTestUtil
 
         @Override
         public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
-            return new JsonObjectFormatVisitor.Base(getProvider()) {
+            return new JsonObjectFormatVisitor.Base(getContext()) {
                 @Override
                 public void property(BeanProperty prop) {
                     _visit(prop);
@@ -144,14 +144,14 @@ public class NewSchemaTest extends DatabindTestUtil
                     }
                     BeanPropertyWriter bpw = (BeanPropertyWriter) prop;
                     ValueSerializer<?> ser = bpw.getSerializer();
-                    final SerializationContext prov = getProvider();
+                    final SerializationContext prov = getContext();
                     if (ser == null) {
                         if (prov == null) {
                             throw new Error("SerializationContext missing");
                         }
                         ser = prov.findPrimaryPropertySerializer(prop.getType(), prop);
                     }
-                    JsonFormatVisitorWrapper visitor = new JsonFormatVisitorWrapper.Base(getProvider());
+                    JsonFormatVisitorWrapper visitor = new JsonFormatVisitorWrapper.Base(getContext());
                     ser.acceptJsonFormatVisitor(visitor, prop.getType());
                 }
             };
@@ -159,7 +159,7 @@ public class NewSchemaTest extends DatabindTestUtil
 
         @Override
         public JsonArrayFormatVisitor expectArrayFormat(JavaType type) {
-            return new JsonArrayFormatVisitor.Base(getProvider());
+            return new JsonArrayFormatVisitor.Base(getContext());
         }
 
         @Override
@@ -305,7 +305,7 @@ public class NewSchemaTest extends DatabindTestUtil
                 new JsonFormatVisitorWrapper.Base() {
             @Override
             public JsonObjectFormatVisitor expectObjectFormat(final JavaType type) {
-                return new JsonObjectFormatVisitor.Base(getProvider()) {
+                return new JsonObjectFormatVisitor.Base(getContext()) {
                     @Override
                     public void optionalProperty(BeanProperty prop) {
                         sb.append("[optProp ").append(prop.getName()).append("(");
@@ -314,7 +314,7 @@ public class NewSchemaTest extends DatabindTestUtil
                             BeanPropertyWriter bpw = (BeanPropertyWriter) prop;
                             ser = bpw.getSerializer();
                         }
-                        final SerializationContext prov = getProvider();
+                        final SerializationContext prov = getContext();
                         if (ser == null) {
                             ser = prov.findPrimaryPropertySerializer(prop.getType(), prop);
                         }

@@ -79,7 +79,7 @@ public class OptionalUnwrappedTest
                         BeanSerializerFactory.instance, new SerializerCache())) {
             @Override
             public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
-                return new JsonObjectFormatVisitor.Base(getProvider()) {
+                return new JsonObjectFormatVisitor.Base(getContext()) {
                     @Override
                     public void optionalProperty(BeanProperty prop) {
                         propertyName.set(prop.getName());

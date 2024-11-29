@@ -147,7 +147,7 @@ df0.getClass().getName()));
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-        _acceptJsonFormatVisitor(visitor, typeHint, _asTimestamp(visitor.getProvider()));
+        _acceptJsonFormatVisitor(visitor, typeHint, _asTimestamp(visitor.getContext()));
     }
 
     /*

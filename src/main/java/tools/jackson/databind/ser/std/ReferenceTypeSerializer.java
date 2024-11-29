@@ -379,7 +379,7 @@ public abstract class ReferenceTypeSerializer<T>
     {
         ValueSerializer<?> ser = _valueSerializer;
         if (ser == null) {
-            ser = _findSerializer(visitor.getProvider(), _referredType, _property);
+            ser = _findSerializer(visitor.getContext(), _referredType, _property);
             if (_unwrapper != null) {
                 ser = ser.unwrappingSerializer(_unwrapper);
             }

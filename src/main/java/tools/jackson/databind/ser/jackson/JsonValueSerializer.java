@@ -334,7 +334,7 @@ public class JsonValueSerializer
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            ser = visitor.getProvider().findPrimaryPropertySerializer(type, _property);
+            ser = visitor.getContext().findPrimaryPropertySerializer(type, _property);
             if (ser == null) { // can this ever occur?
                 visitor.expectAnyFormat(typeHint);
                 return;

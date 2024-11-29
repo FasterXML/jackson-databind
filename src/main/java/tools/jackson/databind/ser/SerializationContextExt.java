@@ -221,7 +221,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         ObjectIdGenerator<?> generator = null;
 
         if (_objectIdGenerators == null) {
-            _objectIdGenerators = new ArrayList<ObjectIdGenerator<?>>(8);
+            _objectIdGenerators = new ArrayList<>(8);
         } else {
             for (int i = 0, len = _objectIdGenerators.size(); i < len; ++i) {
                 ObjectIdGenerator<?> gen = _objectIdGenerators.get(i);

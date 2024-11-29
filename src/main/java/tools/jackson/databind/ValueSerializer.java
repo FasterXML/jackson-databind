@@ -71,10 +71,9 @@ public abstract class ValueSerializer<T>
      * Note that this method does NOT return serializer, since resolution
      * is not allowed to change actual serializer to use.
      *
-     * @param provider Provider that has constructed serializer this method
-     *   is called on.
+     * @param ctxt Currently active serialization context.
      */
-    public void resolve(SerializationContext provider) {
+    public void resolve(SerializationContext ctxt) {
         // Default implementation does nothing
     }
 
@@ -92,7 +91,7 @@ public abstract class ValueSerializer<T>
      * significant performance impact; most serializers cache contextual instances for future
      * use.
      *
-     * @param prov Serializer provider to use for accessing config, other serializers
+     * @param ctxt Context to use for accessing config, other serializers
      * @param property Property (defined by one or more accessors - field or method - used
      *     for accessing logical property value) for which serializer is used to be used;
      *     or, `null` for root value (or in cases where caller does not have this information,
@@ -101,7 +100,7 @@ public abstract class ValueSerializer<T>
      * @return Serializer to use for serializing values of specified property;
      *   may be this instance or a new instance.
      */
-    public ValueSerializer<?> createContextual(SerializationContext prov,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property) {
         // default implementation returns instance unmodified
         return this;
@@ -216,10 +215,10 @@ public abstract class ValueSerializer<T>
      *
      * @param value Value to serialize; can <b>not</b> be null.
      * @param gen Generator used to output resulting Json content
-     * @param serializers Provider that can be used to get serializers for
+     * @param ctxt Context that can be used to get serializers for
      *   serializing Objects value contains, if any.
      */
-    public abstract void serialize(T value, JsonGenerator gen, SerializationContext serializers)
+    public abstract void serialize(T value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException;
 
     /**
@@ -245,11 +244,11 @@ public abstract class ValueSerializer<T>
      *
      * @param value Value to serialize; can <b>not</b> be null.
      * @param gen Generator used to output resulting Json content
-     * @param serializers Provider that can be used to get serializers for
+     * @param ctxt Context that can be used to get serializers for
      *   serializing Objects value contains, if any.
      * @param typeSer Type serializer to use for including type information
      */
-    public void serializeWithType(T value, JsonGenerator gen, SerializationContext serializers,
+    public void serializeWithType(T value, JsonGenerator gen, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -257,7 +256,7 @@ public abstract class ValueSerializer<T>
         if (clz == null) {
             clz = value.getClass();
         }
-        serializers.reportBadDefinition(clz, String.format(
+        ctxt.reportBadDefinition(clz, String.format(
                 "Type id handling not implemented for type %s (by serializer of type %s)",
                 clz.getName(), getClass().getName()));
     }
@@ -334,7 +333,7 @@ public abstract class ValueSerializer<T>
      *<p>
      * Default implementation will consider only null values to be empty.
      */
-    public boolean isEmpty(SerializationContext provider, T value) {
+    public boolean isEmpty(SerializationContext ctxt, T value) {
         return (value == null);
     }
 

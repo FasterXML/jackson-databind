@@ -16,7 +16,7 @@ public class TestJsonSerialize3 extends DatabindTestUtil
     // [JACKSON-829]
     static class FooToBarSerializer extends ValueSerializer<String> {
         @Override
-        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(String value, JsonGenerator g, SerializationContext provider)
         {
             if ("foo".equals(value)) {
                 g.writeString("bar");

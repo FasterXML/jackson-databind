@@ -121,7 +121,7 @@ public class UnwrappingBeanSerializer
      * {@link BeanPropertyWriter} instances.
      */
     @Override
-    public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider) throws JacksonException
+    public final void serialize(Object bean, JsonGenerator gen, SerializationContext provider) throws JacksonException
     {
         if (_objectIdWriter != null) {
             _serializeWithObjectId(bean, gen, provider, false);
@@ -143,7 +143,7 @@ public class UnwrappingBeanSerializer
     }
 
     @Override
-    public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(Object bean, JsonGenerator gen, SerializationContext provider,
     		TypeSerializer typeSer) throws JacksonException
     {
         if (provider.isEnabled(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)) {

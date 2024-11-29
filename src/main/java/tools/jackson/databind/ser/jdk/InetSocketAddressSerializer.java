@@ -6,7 +6,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 
@@ -19,7 +19,7 @@ public class InetSocketAddressSerializer
     public InetSocketAddressSerializer() { super(InetSocketAddress.class); }
 
     @Override
-    public void serialize(InetSocketAddress value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(InetSocketAddress value, JsonGenerator jgen, SerializationContext provider)
         throws JacksonException
     {
         InetAddress addr = value.getAddress();
@@ -41,7 +41,7 @@ public class InetSocketAddressSerializer
 
     @Override
     public void serializeWithType(InetSocketAddress value, JsonGenerator g,
-            SerializerProvider ctxt, TypeSerializer typeSer)
+            SerializationContext ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
         // Better ensure we don't use specific sub-classes...

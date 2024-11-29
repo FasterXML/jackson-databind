@@ -2,7 +2,7 @@ package tools.jackson.databind.ser;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.util.Snapshottable;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 
 /**
@@ -38,7 +38,7 @@ public interface PropertyFilter
      *    processing
      * @param writer Object called to do actual serialization of the field, if not filtered out
      */
-    public void serializeAsProperty(Object pojo, JsonGenerator g, SerializerProvider ctxt,
+    public void serializeAsProperty(Object pojo, JsonGenerator g, SerializationContext ctxt,
             PropertyWriter writer)
         throws Exception;
 
@@ -62,7 +62,7 @@ public interface PropertyFilter
      *    processing
      * @param writer Object called to do actual serialization of the field, if not filtered out
      */
-    public void serializeAsElement(Object elementValue, JsonGenerator g, SerializerProvider ctxt,
+    public void serializeAsElement(Object elementValue, JsonGenerator g, SerializationContext ctxt,
             PropertyWriter writer)
         throws Exception;
 
@@ -84,5 +84,5 @@ public interface PropertyFilter
      * @param ctxt Serialization context
      */
     public void depositSchemaProperty(PropertyWriter writer, JsonObjectFormatVisitor v,
-            SerializerProvider ctxt);
+            SerializationContext ctxt);
 }

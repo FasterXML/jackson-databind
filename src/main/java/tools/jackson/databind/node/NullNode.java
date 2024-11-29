@@ -2,7 +2,7 @@ package tools.jackson.databind.node;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * This singleton value class is used to contain explicit JSON null
@@ -54,7 +54,7 @@ public class NullNode
     */
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider)
+    public final void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         provider.defaultSerializeNullValue(g);

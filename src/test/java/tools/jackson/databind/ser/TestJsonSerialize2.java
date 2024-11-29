@@ -43,7 +43,7 @@ public class TestJsonSerialize2
 
     static class SimpleKeySerializer extends ValueSerializer<SimpleKey> {
         @Override
-        public void serialize(SimpleKey key, JsonGenerator g, SerializerProvider provider)
+        public void serialize(SimpleKey key, JsonGenerator g, SerializationContext provider)
         {
             g.writeName("key "+key.key);
         }
@@ -51,7 +51,7 @@ public class TestJsonSerialize2
 
     static class SimpleValueSerializer extends ValueSerializer<SimpleValue> {
         @Override
-        public void serialize(SimpleValue value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(SimpleValue value, JsonGenerator g, SerializationContext provider)
         {
             g.writeString("value "+value.value);
         }

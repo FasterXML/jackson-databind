@@ -38,7 +38,7 @@ public class TestExceptionsDuringWriting
         extends ValueSerializer<Bean>
     {
         @Override
-        public void serialize(Bean value, JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(Bean value, JsonGenerator jgen, SerializationContext provider)
         {
             throw new IllegalArgumentException("test string");
         }

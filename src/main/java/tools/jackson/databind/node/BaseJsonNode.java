@@ -6,7 +6,7 @@ import java.math.BigInteger;
 import tools.jackson.core.*;
 import tools.jackson.databind.JacksonSerializable;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.exc.JsonNodeException;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.util.ClassUtil;
@@ -227,7 +227,7 @@ public abstract class BaseJsonNode
      * Method called to serialize node instances using given generator.
      */
     @Override
-    public abstract void serialize(JsonGenerator jgen, SerializerProvider ctxt)
+    public abstract void serialize(JsonGenerator jgen, SerializationContext ctxt)
         throws JacksonException;
 
     /**
@@ -235,7 +235,7 @@ public abstract class BaseJsonNode
      * since they may be mixed with other types.
      */
     @Override
-    public abstract void serializeWithType(JsonGenerator jgen, SerializerProvider ctxt,
+    public abstract void serializeWithType(JsonGenerator jgen, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException;
 

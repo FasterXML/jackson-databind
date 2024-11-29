@@ -3,7 +3,7 @@ package tools.jackson.databind.ser.std;
 import java.util.*;
 
 import tools.jackson.core.util.Snapshottable;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.*;
 import tools.jackson.databind.util.ClassUtil;
 
@@ -152,7 +152,7 @@ public class SimpleFilterProvider
      */
 
     @Override
-    public PropertyFilter findPropertyFilter(SerializerProvider ctxt,
+    public PropertyFilter findPropertyFilter(SerializationContext ctxt,
             Object filterId, Object valueToFilter)
     {
         PropertyFilter f = _filtersById.get(filterId);

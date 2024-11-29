@@ -75,7 +75,7 @@ public class StringArraySerializer
      */
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider provider,
+    public ValueSerializer<?> createContextual(SerializationContext provider,
             BeanProperty property)
     {
         // 29-Sep-2012, tatu: Actually, we need to do much more contextual
@@ -132,7 +132,7 @@ public class StringArraySerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, String[] value) {
+    public boolean isEmpty(SerializationContext prov, String[] value) {
         return (value.length == 0);
     }
 
@@ -148,7 +148,7 @@ public class StringArraySerializer
      */
 
     @Override
-    public final void serialize(String[] value, JsonGenerator gen, SerializerProvider provider)
+    public final void serialize(String[] value, JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         final int len = value.length;
@@ -166,7 +166,7 @@ public class StringArraySerializer
     }
 
     @Override
-    public void serializeContents(String[] value, JsonGenerator gen, SerializerProvider provider)
+    public void serializeContents(String[] value, JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         final int len = value.length;
@@ -187,7 +187,7 @@ public class StringArraySerializer
         }
     }
 
-    private void serializeContentsSlow(String[] value, JsonGenerator gen, SerializerProvider provider, ValueSerializer<Object> ser)
+    private void serializeContentsSlow(String[] value, JsonGenerator gen, SerializationContext provider, ValueSerializer<Object> ser)
         throws JacksonException
     {
         for (int i = 0, len = value.length; i < len; ++i) {

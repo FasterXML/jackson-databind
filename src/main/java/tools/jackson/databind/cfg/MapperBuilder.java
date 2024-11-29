@@ -145,7 +145,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
 
     /**
-     * {@link SerializationContexts} to use as factory for stateful {@link SerializerProvider}s
+     * {@link SerializationContexts} to use as factory for stateful {@link SerializationContext}s
      */
     protected SerializationContexts _serializationContexts;
 
@@ -628,7 +628,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
-     * Overridable method for changing default {@link SerializerProvider} prototype
+     * Overridable method for changing default {@link SerializationContext} prototype
      * to use.
      */
     protected SerializationContexts _defaultSerializationContexts() {
@@ -675,7 +675,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
-     * Overridable method for changing default {@link SerializerProvider} prototype
+     * Overridable method for changing default {@link SerializationContext} prototype
      * to use.
      */
     protected DeserializationContexts _defaultDeserializationContexts() {

@@ -128,7 +128,7 @@ public class JsonValueSerializer
      */
 
     @Override // since 2.12
-    public boolean isEmpty(SerializerProvider ctxt, Object bean)
+    public boolean isEmpty(SerializationContext ctxt, Object bean)
     {
         // 31-Oct-2020, tatu: Should perhaps catch access issue here... ?
         Object referenced = _accessor.getValue(bean);
@@ -153,7 +153,7 @@ public class JsonValueSerializer
      * statically figure out what the result type must be.
      */
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
         TypeSerializer vts = _valueTypeSerializer;
@@ -203,7 +203,7 @@ public class JsonValueSerializer
 
     @Override
     public void serialize(final Object bean, final JsonGenerator gen,
-            final SerializerProvider ctxt)
+            final SerializationContext ctxt)
         throws JacksonException
     {
         Object value;
@@ -228,7 +228,7 @@ public class JsonValueSerializer
         }
     }
 
-    protected ValueSerializer<Object> _findSerializer(SerializerProvider ctxt, Object value) {
+    protected ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value) {
         final UnaryOperator<ValueSerializer<Object>> serTransformer =
                 valueSer -> _withIgnoreProperties(valueSer, _ignoredProperties);
         Class<?> cc = value.getClass();
@@ -261,7 +261,7 @@ public class JsonValueSerializer
     }
 
     @Override
-    public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider ctxt,
+    public void serializeWithType(Object bean, JsonGenerator gen, SerializationContext ctxt,
             TypeSerializer typeSer0) throws JacksonException
     {
         // Regardless of other parts, first need to find value to serialize:
@@ -416,7 +416,7 @@ public class JsonValueSerializer
         }
 
         @Override
-        public TypeSerializer forProperty(SerializerProvider ctxt,
+        public TypeSerializer forProperty(SerializationContext ctxt,
                 BeanProperty prop) { // should never get called
             throw new UnsupportedOperationException();
         }
@@ -437,7 +437,7 @@ public class JsonValueSerializer
         }
 
         @Override
-        public WritableTypeId writeTypePrefix(JsonGenerator g, SerializerProvider ctxt,
+        public WritableTypeId writeTypePrefix(JsonGenerator g, SerializationContext ctxt,
                 WritableTypeId typeId) throws JacksonException
         {
             // 28-Jun-2017, tatu: Important! Need to "override" value
@@ -446,7 +446,7 @@ public class JsonValueSerializer
         }
 
         @Override
-        public WritableTypeId writeTypeSuffix(JsonGenerator g, SerializerProvider ctxt,
+        public WritableTypeId writeTypeSuffix(JsonGenerator g, SerializationContext ctxt,
                 WritableTypeId typeId) throws JacksonException
         {
             // NOTE: already overwrote value object so:

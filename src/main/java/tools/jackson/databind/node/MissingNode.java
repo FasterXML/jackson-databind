@@ -4,7 +4,7 @@ import java.util.List;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsontype.TypeSerializer;
 
 /**
@@ -66,7 +66,7 @@ public final class MissingNode
     */
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider)
+    public final void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         /* Nothing to output... should we signal an error tho?
@@ -79,7 +79,7 @@ public final class MissingNode
     }
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(JsonGenerator g, SerializationContext provider,
             TypeSerializer typeSer)
         throws JacksonException
     {

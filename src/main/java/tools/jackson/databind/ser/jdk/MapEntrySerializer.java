@@ -136,7 +136,7 @@ public class MapEntrySerializer
     }
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider provider,
+    public ValueSerializer<?> createContextual(SerializationContext provider,
             BeanProperty property)
     {
         ValueSerializer<?> ser = null;
@@ -247,7 +247,7 @@ public class MapEntrySerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider ctxt, Entry<?, ?> entry)
+    public boolean isEmpty(SerializationContext ctxt, Entry<?, ?> entry)
     {
         Object value = entry.getValue();
         if (value == null) {
@@ -279,7 +279,7 @@ public class MapEntrySerializer
      */
 
     @Override
-    public void serialize(Map.Entry<?, ?> value, JsonGenerator g, SerializerProvider ctxt)
+    public void serialize(Map.Entry<?, ?> value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         g.writeStartObject(value);
@@ -289,7 +289,7 @@ public class MapEntrySerializer
 
     @Override
     public void serializeWithType(Map.Entry<?, ?> value, JsonGenerator g,
-            SerializerProvider ctxt, TypeSerializer typeSer)
+            SerializationContext ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
@@ -301,7 +301,7 @@ public class MapEntrySerializer
     }
 
     protected void serializeDynamic(Map.Entry<?, ?> value, JsonGenerator gen,
-            SerializerProvider ctxt)
+            SerializationContext ctxt)
         throws JacksonException
     {
         final TypeSerializer vts = _valueTypeSerializer;

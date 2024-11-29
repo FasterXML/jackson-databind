@@ -8,7 +8,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DatabindContext;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.jsontype.TypeSerializer;
 
@@ -40,7 +40,7 @@ public abstract class TypeSerializerBase extends TypeSerializer
     public TypeIdResolver getTypeIdResolver() { return _idResolver; }
 
     @Override
-    public WritableTypeId writeTypePrefix(JsonGenerator g, SerializerProvider ctxt,
+    public WritableTypeId writeTypePrefix(JsonGenerator g, SerializationContext ctxt,
             WritableTypeId idMetadata) throws JacksonException
     {
         _generateTypeId(ctxt, idMetadata);
@@ -54,7 +54,7 @@ public abstract class TypeSerializerBase extends TypeSerializer
     }
 
     @Override
-    public WritableTypeId writeTypeSuffix(JsonGenerator g, SerializerProvider ctxt,
+    public WritableTypeId writeTypeSuffix(JsonGenerator g, SerializationContext ctxt,
             WritableTypeId idMetadata) throws JacksonException
     {
         // 16-Jan-2022, tatu: As per [databind#3373], skip for null:

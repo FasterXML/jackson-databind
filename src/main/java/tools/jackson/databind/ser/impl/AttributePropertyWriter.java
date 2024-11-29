@@ -79,7 +79,7 @@ public class AttributePropertyWriter
      */
 
     @Override
-    protected Object value(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception {
+    protected Object value(Object bean, JsonGenerator jgen, SerializationContext prov) throws Exception {
         return prov.getAttribute(_attrName);
     }
 }

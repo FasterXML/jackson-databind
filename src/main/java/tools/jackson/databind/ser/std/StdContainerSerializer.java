@@ -99,7 +99,7 @@ public abstract class StdContainerSerializer<T>
      * known statically.
      * Note that for dynamic types this may return null; if so,
      * caller has to instead use {@link #getContentType()} and
-     * {@link tools.jackson.databind.SerializerProvider#findContentValueSerializer}.
+     * {@link tools.jackson.databind.SerializationContext#findContentValueSerializer}.
      */
     public abstract ValueSerializer<?> getContentSerializer();
 
@@ -110,7 +110,7 @@ public abstract class StdContainerSerializer<T>
      */
 
     @Override
-    public abstract boolean isEmpty(SerializerProvider prov, T value);
+    public abstract boolean isEmpty(SerializationContext prov, T value);
 
     /**
      * Method called to determine if the given value (of type handled by
@@ -143,7 +143,7 @@ public abstract class StdContainerSerializer<T>
     /**
      * @since 3.0
      */
-    protected ValueSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, Class<?> type)
+    protected ValueSerializer<Object> _findAndAddDynamic(SerializationContext ctxt, Class<?> type)
     {
         PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, ctxt, _property);
@@ -157,7 +157,7 @@ public abstract class StdContainerSerializer<T>
     /**
      * @since 3.0
      */
-    protected ValueSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, JavaType type)
+    protected ValueSerializer<Object> _findAndAddDynamic(SerializationContext ctxt, JavaType type)
     {
         PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, ctxt, _property);

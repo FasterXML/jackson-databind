@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -31,7 +31,7 @@ public class AtomicTypeSerializationTest
 
         @Override
         public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) {
+                SerializationContext provider) {
             gen.writeString(value.toUpperCase());
         }
     }

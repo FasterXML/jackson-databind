@@ -10,7 +10,7 @@ import org.w3c.dom.Node;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.ser.std.StdSerializer;
 
@@ -32,7 +32,7 @@ public class DOMSerializer extends StdSerializer<Node>
     }
 
     @Override
-    public void serialize(Node value, JsonGenerator g, SerializerProvider provider)
+    public void serialize(Node value, JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         try {

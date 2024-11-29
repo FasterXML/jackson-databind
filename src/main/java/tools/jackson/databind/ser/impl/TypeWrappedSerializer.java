@@ -25,12 +25,12 @@ public final class TypeWrappedSerializer
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws JacksonException {
+    public void serialize(Object value, JsonGenerator g, SerializationContext provider) throws JacksonException {
         _serializer.serializeWithType(value, g, provider, _typeSerializer);
     }
 
     @Override
-    public void serializeWithType(Object value, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(Object value, JsonGenerator g, SerializationContext provider,
             TypeSerializer typeSer) throws JacksonException
     {
         // Is this an erroneous call? For now, let's assume it is not, and
@@ -48,7 +48,7 @@ public final class TypeWrappedSerializer
      */
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializationContext provider, BeanProperty property)
     {
         // 13-Mar-2017, tatu: Should we call `TypeSerializer.forProperty()`?
         ValueSerializer<?> ser = _serializer;

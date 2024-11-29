@@ -7,7 +7,7 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
@@ -82,7 +82,7 @@ public class UnwrappingBeanPropertyWriter
     }
 
     @Override
-    public void serializeAsProperty(Object bean, JsonGenerator gen, SerializerProvider prov)
+    public void serializeAsProperty(Object bean, JsonGenerator gen, SerializationContext prov)
         throws Exception
     {
         final Object value = get(bean);
@@ -153,7 +153,7 @@ public class UnwrappingBeanPropertyWriter
 
     @Override
     public void depositSchemaProperty(final JsonObjectFormatVisitor visitor,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         ValueSerializer<Object> ser = provider
                 .findPrimaryPropertySerializer(getType(), this)
@@ -200,7 +200,7 @@ public class UnwrappingBeanPropertyWriter
     // need to override as we must get unwrapping instance...
     @Override
     protected ValueSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider)
+            Class<?> type, SerializationContext provider)
     {
         ValueSerializer<Object> serializer;
         if (_nonTrivialBaseType != null) {

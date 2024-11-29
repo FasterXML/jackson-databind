@@ -1,9 +1,9 @@
 package tools.jackson.databind.jsonFormatVisitors;
 
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 
-public interface JsonMapFormatVisitor extends JsonFormatVisitorWithSerializerProvider
+public interface JsonMapFormatVisitor extends JsonFormatVisitorWithSerializationContext
 {
     /**
      * Visit method called to indicate type of keys of the Map type
@@ -25,16 +25,16 @@ public interface JsonMapFormatVisitor extends JsonFormatVisitorWithSerializerPro
     public static class Base
         implements JsonMapFormatVisitor
     {
-        protected SerializerProvider _provider;
+        protected SerializationContext _provider;
 
         public Base() { }
-        public Base(SerializerProvider p) { _provider = p; }
+        public Base(SerializationContext p) { _provider = p; }
 
         @Override
-        public SerializerProvider getProvider() { return _provider; }
+        public SerializationContext getProvider() { return _provider; }
 
         @Override
-        public void setProvider(SerializerProvider p) { _provider = p; }
+        public void setProvider(SerializationContext p) { _provider = p; }
 
         @Override
         public void keyFormat(JsonFormatVisitable handler, JavaType keyType) { }

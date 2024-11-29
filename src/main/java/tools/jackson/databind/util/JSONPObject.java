@@ -51,7 +51,7 @@ public class JSONPObject
      */
 
     @Override
-    public void serializeWithType(JsonGenerator gen, SerializerProvider provider, TypeSerializer typeSer)
+    public void serializeWithType(JsonGenerator gen, SerializationContext provider, TypeSerializer typeSer)
         throws JacksonException
     {
         // No type for JSONP wrapping: value serializer will handle typing for value:
@@ -59,7 +59,7 @@ public class JSONPObject
     }
 
     @Override
-    public void serialize(JsonGenerator gen, SerializerProvider provider)
+    public void serialize(JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         // First, wrapping:

@@ -141,7 +141,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
 
         @Override
         public void serialize(Object value, JsonGenerator g,
-                SerializerProvider provider) {
+                SerializationContext provider) {
             g.writeNumber(_value);
         }
     }
@@ -197,7 +197,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
         public ValueSerializer<?> modifyArraySerializer(SerializationConfig config,
                 ArrayType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
-                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
+                @Override public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
                     g.writeNumber(123);
                 }
             };
@@ -209,7 +209,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
         public ValueSerializer<?> modifyCollectionSerializer(SerializationConfig config,
                 CollectionType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
-                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
+                @Override public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
                     g.writeNumber(123);
                 }
             };
@@ -221,7 +221,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
         public ValueSerializer<?> modifyMapSerializer(SerializationConfig config,
                 MapType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
-                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
+                @Override public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
                     g.writeNumber(123);
                 }
             };
@@ -233,7 +233,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
         public ValueSerializer<?> modifyEnumSerializer(SerializationConfig config,
                 JavaType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
-                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
+                @Override public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
                     g.writeNumber(123);
                 }
             };
@@ -245,7 +245,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
         public ValueSerializer<?> modifyKeySerializer(SerializationConfig config,
                 JavaType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
-                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
+                @Override public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
                     g.writeName("foo");
                 }
             };

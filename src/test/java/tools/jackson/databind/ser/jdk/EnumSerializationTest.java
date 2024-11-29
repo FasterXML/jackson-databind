@@ -72,13 +72,13 @@ public class EnumSerializationTest
         private SerializableEnum() { }
 
         @Override
-        public void serializeWithType(JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
+        public void serializeWithType(JsonGenerator g, SerializationContext provider, TypeSerializer typeSer)
         {
             serialize(g, provider);
         }
 
         @Override
-        public void serialize(JsonGenerator g, SerializerProvider provider)
+        public void serialize(JsonGenerator g, SerializationContext provider)
         {
             g.writeString("foo");
         }
@@ -118,7 +118,7 @@ public class EnumSerializationTest
         public LowerCasingEnumSerializer() { super(Enum.class); }
         @Override
         public void serialize(Enum value, JsonGenerator g,
-                SerializerProvider provider) {
+                SerializationContext provider) {
             g.writeString(value.name().toLowerCase());
         }
     }

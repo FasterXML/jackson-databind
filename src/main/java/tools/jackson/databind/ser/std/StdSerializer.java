@@ -87,7 +87,7 @@ public abstract class StdSerializer<T>
      */
 
     @Override
-    public abstract void serialize(T value, JsonGenerator gen, SerializerProvider provider)
+    public abstract void serialize(T value, JsonGenerator gen, SerializationContext provider)
         throws JacksonException;
 
     /*
@@ -230,7 +230,7 @@ public abstract class StdSerializer<T>
      * <li>Wrapped {@code IOException}s are unpeeled
      *</ul>
      */
-    public void wrapAndThrow(SerializerProvider provider,
+    public void wrapAndThrow(SerializationContext provider,
             Throwable t, Object bean, String fieldName)
         throws JacksonException
     {
@@ -256,7 +256,7 @@ public abstract class StdSerializer<T>
         throw DatabindException.wrapWithPath(t, bean, fieldName);
     }
 
-    public void wrapAndThrow(SerializerProvider provider,
+    public void wrapAndThrow(SerializationContext provider,
             Throwable t, Object bean, int index)
         throws JacksonException
     {
@@ -292,7 +292,7 @@ public abstract class StdSerializer<T>
      * @param existingSerializer (optional) configured content
      *    serializer if one already exists.
      */
-    protected ValueSerializer<?> findContextualConvertingSerializer(SerializerProvider provider,
+    protected ValueSerializer<?> findContextualConvertingSerializer(SerializationContext provider,
             BeanProperty prop, ValueSerializer<?> existingSerializer)
     {
         // 08-Dec-2016, tatu: to fix [databind#357], need to prevent recursive calls for
@@ -324,7 +324,7 @@ public abstract class StdSerializer<T>
         return existingSerializer;
     }
 
-    private ValueSerializer<?> _findConvertingContentSerializer(SerializerProvider provider,
+    private ValueSerializer<?> _findConvertingContentSerializer(SerializationContext provider,
             AnnotationIntrospector intr, BeanProperty prop, ValueSerializer<?> existingSerializer)
     {
         AnnotatedMember m = prop.getMember();
@@ -347,7 +347,7 @@ public abstract class StdSerializer<T>
      * Helper method used to locate filter that is needed, based on filter id
      * this serializer was constructed with.
      */
-    protected PropertyFilter findPropertyFilter(SerializerProvider provider,
+    protected PropertyFilter findPropertyFilter(SerializationContext provider,
             Object filterId, Object valueToFilter)
     {
         FilterProvider filters = provider.getFilterProvider();
@@ -367,7 +367,7 @@ public abstract class StdSerializer<T>
      *
      * @param typeForDefaults Type (erased) used for finding default format settings, if any
      */
-    protected JsonFormat.Value findFormatOverrides(SerializerProvider provider,
+    protected JsonFormat.Value findFormatOverrides(SerializationContext provider,
             BeanProperty prop, Class<?> typeForDefaults)
     {
         if (prop != null) {
@@ -384,7 +384,7 @@ public abstract class StdSerializer<T>
      *
      * @param typeForDefaults Type (erased) used for finding default format settings, if any
      */
-    protected Boolean findFormatFeature(SerializerProvider provider,
+    protected Boolean findFormatFeature(SerializationContext provider,
             BeanProperty prop, Class<?> typeForDefaults, JsonFormat.Feature feat)
     {
         JsonFormat.Value format = findFormatOverrides(provider, prop, typeForDefaults);
@@ -394,7 +394,7 @@ public abstract class StdSerializer<T>
         return null;
     }
 
-    protected JsonInclude.Value findIncludeOverrides(SerializerProvider provider,
+    protected JsonInclude.Value findIncludeOverrides(SerializationContext provider,
             BeanProperty prop, Class<?> typeForDefaults)
     {
         if (prop != null) {
@@ -407,7 +407,7 @@ public abstract class StdSerializer<T>
     /**
      * Convenience method for finding out possibly configured content value serializer.
      */
-    protected ValueSerializer<?> findAnnotatedContentSerializer(SerializerProvider serializers,
+    protected ValueSerializer<?> findAnnotatedContentSerializer(SerializationContext serializers,
             BeanProperty property)
     {
         if (property != null) {
@@ -447,7 +447,7 @@ public abstract class StdSerializer<T>
     }
 
     // @since 3.0
-    protected JacksonException _wrapIOFailure(SerializerProvider ctxt, IOException e) {
+    protected JacksonException _wrapIOFailure(SerializationContext ctxt, IOException e) {
         return JacksonIOException.construct(e, ctxt.getGenerator());
     }
 }

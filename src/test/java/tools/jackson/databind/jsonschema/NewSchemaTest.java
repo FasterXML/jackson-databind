@@ -144,10 +144,10 @@ public class NewSchemaTest extends DatabindTestUtil
                     }
                     BeanPropertyWriter bpw = (BeanPropertyWriter) prop;
                     ValueSerializer<?> ser = bpw.getSerializer();
-                    final SerializerProvider prov = getProvider();
+                    final SerializationContext prov = getProvider();
                     if (ser == null) {
                         if (prov == null) {
-                            throw new Error("SerializerProvider missing");
+                            throw new Error("SerializationContext missing");
                         }
                         ser = prov.findPrimaryPropertySerializer(prop.getType(), prop);
                     }
@@ -314,7 +314,7 @@ public class NewSchemaTest extends DatabindTestUtil
                             BeanPropertyWriter bpw = (BeanPropertyWriter) prop;
                             ser = bpw.getSerializer();
                         }
-                        final SerializerProvider prov = getProvider();
+                        final SerializationContext prov = getProvider();
                         if (ser == null) {
                             ser = prov.findPrimaryPropertySerializer(prop.getType(), prop);
                         }

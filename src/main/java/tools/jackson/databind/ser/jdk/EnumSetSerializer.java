@@ -34,7 +34,7 @@ public class EnumSetSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, EnumSet<? extends Enum<?>> value) {
+    public boolean isEmpty(SerializationContext prov, EnumSet<? extends Enum<?>> value) {
         return value.isEmpty();
     }
 
@@ -45,7 +45,7 @@ public class EnumSetSerializer
 
     @Override
     public final void serialize(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
-            SerializerProvider provider) throws JacksonException
+            SerializationContext provider) throws JacksonException
     {
         final int len = value.size();
         if (len == 1) {
@@ -63,7 +63,7 @@ public class EnumSetSerializer
 
     @Override
     public void serializeContents(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
-            SerializerProvider ctxt)
+            SerializationContext ctxt)
         throws JacksonException
     {
         ValueSerializer<Object> enumSer = _elementSerializer;

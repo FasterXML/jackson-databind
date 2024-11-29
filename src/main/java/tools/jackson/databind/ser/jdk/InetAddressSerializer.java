@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
@@ -36,7 +36,7 @@ public class InetAddressSerializer
     }
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
         JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
@@ -54,7 +54,7 @@ public class InetAddressSerializer
     }
 
     @Override
-    public void serialize(InetAddress value, JsonGenerator g, SerializerProvider provider)
+    public void serialize(InetAddress value, JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         String str;
@@ -78,7 +78,7 @@ public class InetAddressSerializer
 
     @Override
     public void serializeWithType(InetAddress value, JsonGenerator g,
-            SerializerProvider ctxt, TypeSerializer typeSer) throws JacksonException
+            SerializationContext ctxt, TypeSerializer typeSer) throws JacksonException
     {
         // Better ensure we don't use specific sub-classes...
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,

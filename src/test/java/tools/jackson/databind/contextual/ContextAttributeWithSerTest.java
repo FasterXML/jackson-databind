@@ -26,7 +26,7 @@ public class ContextAttributeWithSerTest
 
         @Override
         public void serialize(String value, JsonGenerator jgen,
-                SerializerProvider provider)
+                SerializationContext provider)
         {
             Integer I = (Integer) provider.getAttribute(KEY);
             if (I == null) {

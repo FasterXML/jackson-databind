@@ -108,7 +108,7 @@ public class DecimalNode
     }
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider)
+    public final void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         g.writeNumber(_value);

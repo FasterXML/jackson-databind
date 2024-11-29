@@ -6,7 +6,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
@@ -20,7 +20,7 @@ public class OptionalLongSerializer extends StdScalarSerializer<OptionalLong>
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, OptionalLong value) {
+    public boolean isEmpty(SerializationContext provider, OptionalLong value) {
         return (value == null) || !value.isPresent();
     }
 
@@ -36,7 +36,7 @@ public class OptionalLongSerializer extends StdScalarSerializer<OptionalLong>
     }
 
     @Override
-    public void serialize(OptionalLong value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(OptionalLong value, JsonGenerator jgen, SerializationContext provider)
         throws JacksonException
     {
         if (value.isPresent()) {

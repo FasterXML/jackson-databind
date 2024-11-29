@@ -194,7 +194,7 @@ public class JsonValueSerializationTest
 
         @Override
         public void serialize(Bean838 value, JsonGenerator gen,
-                SerializerProvider provider) {
+                SerializationContext provider) {
             gen.writeNumber(42);
         }
     }

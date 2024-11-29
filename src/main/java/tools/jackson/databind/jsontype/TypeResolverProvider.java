@@ -47,7 +47,7 @@ public class TypeResolverProvider
      *
      * @return Type resolver builder for given type, if one found; null if none
      */
-    public TypeSerializer findTypeSerializer(SerializerProvider ctxt,
+    public TypeSerializer findTypeSerializer(SerializationContext ctxt,
             JavaType baseType, AnnotatedClass classInfo)
     {
         final SerializationConfig config = ctxt.getConfig();
@@ -100,7 +100,7 @@ public class TypeResolverProvider
     /**********************************************************************
      */
 
-    public TypeSerializer findPropertyTypeSerializer(SerializerProvider ctxt,
+    public TypeSerializer findPropertyTypeSerializer(SerializationContext ctxt,
             AnnotatedMember accessor, JavaType baseType)
     {
         TypeResolverBuilder<?> b = null;
@@ -146,7 +146,7 @@ public class TypeResolverProvider
         return b.buildTypeDeserializer(ctxt, baseType, subtypes);
     }
 
-    public TypeSerializer findPropertyContentTypeSerializer(SerializerProvider ctxt,
+    public TypeSerializer findPropertyContentTypeSerializer(SerializationContext ctxt,
             AnnotatedMember accessor, JavaType containerType)
     {
         final JavaType contentType = containerType.getContentType();

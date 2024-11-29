@@ -3,7 +3,7 @@ package tools.jackson.databind.ser.jackson;
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
@@ -23,7 +23,7 @@ public class TokenBufferSerializer
     public TokenBufferSerializer() { super(TokenBuffer.class); }
 
     @Override
-    public void serialize(TokenBuffer value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(TokenBuffer value, JsonGenerator jgen, SerializationContext provider)
         throws JacksonException
     {
         value.serialize(jgen);
@@ -40,7 +40,7 @@ public class TokenBufferSerializer
      * than doing introspection on both serialization and deserialization.
      */
     @Override
-    public final void serializeWithType(TokenBuffer value, JsonGenerator g, SerializerProvider ctxt,
+    public final void serializeWithType(TokenBuffer value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

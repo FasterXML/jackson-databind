@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.module.SimpleModule;
@@ -103,7 +103,7 @@ public class NumberSerTest extends DatabindTestUtil
         private final DecimalFormat df = createDecimalFormatForDefaultLocale("0.0");
 
         @Override
-        public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers) {
+        public void serialize(BigDecimal value, JsonGenerator gen, SerializationContext serializers) {
             gen.writeString(df.format(value));
         }
     }
@@ -112,7 +112,7 @@ public class NumberSerTest extends DatabindTestUtil
         private final DecimalFormat df = createDecimalFormatForDefaultLocale("0.0");
 
         @Override
-        public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers) {
+        public void serialize(BigDecimal value, JsonGenerator gen, SerializationContext serializers) {
             gen.writeNumber(df.format(value));
         }
     }

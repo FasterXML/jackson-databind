@@ -37,7 +37,7 @@ public class ContextualKeyTypesTest extends DatabindTestUtil
         }
 
         @Override
-        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(String value, JsonGenerator g, SerializationContext provider)
         {
             if (_prefix != null) {
                 value = _prefix + value;
@@ -46,7 +46,7 @@ public class ContextualKeyTypesTest extends DatabindTestUtil
         }
 
         @Override
-        public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        public ValueSerializer<?> createContextual(SerializationContext prov, BeanProperty property)
         {
             return new ContextualKeySerializer(_prefix+":");
         }

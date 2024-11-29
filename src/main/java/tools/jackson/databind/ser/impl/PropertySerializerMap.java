@@ -5,7 +5,7 @@ import java.util.function.UnaryOperator;
 
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 
 /**
@@ -52,7 +52,7 @@ public abstract class PropertySerializerMap
      * and construct new map instance if warranted, and return both.
      */
     public final SerializerAndMapResult findAndAddPrimarySerializer(JavaType type,
-            SerializerProvider provider, BeanProperty property)
+            SerializationContext provider, BeanProperty property)
     {
         ValueSerializer<Object> serializer = provider.findPrimaryPropertySerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
@@ -65,21 +65,21 @@ public abstract class PropertySerializerMap
      * and construct new map instance if warranted, and return both.
      */
     public final SerializerAndMapResult findAndAddSecondarySerializer(Class<?> type,
-            SerializerProvider provider, BeanProperty property)
+            SerializationContext provider, BeanProperty property)
     {
         ValueSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
 
     public final SerializerAndMapResult findAndAddSecondarySerializer(JavaType type,
-            SerializerProvider provider, BeanProperty property)
+            SerializationContext provider, BeanProperty property)
     {
         ValueSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 
     public final SerializerAndMapResult findAndAddSecondarySerializer(Class<?> type,
-            SerializerProvider provider, BeanProperty property,
+            SerializationContext provider, BeanProperty property,
             UnaryOperator<ValueSerializer<Object>> serTransformer)
     {
         ValueSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
@@ -88,7 +88,7 @@ public abstract class PropertySerializerMap
     }
 
     public final SerializerAndMapResult findAndAddSecondarySerializer(JavaType type,
-            SerializerProvider provider, BeanProperty property,
+            SerializationContext provider, BeanProperty property,
             UnaryOperator<ValueSerializer<Object>> serTransformer)
     {
         ValueSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
@@ -104,14 +104,14 @@ public abstract class PropertySerializerMap
      * and construct new map instance if warranted, and return both.
      */
     public final SerializerAndMapResult findAndAddRootValueSerializer(Class<?> type,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         ValueSerializer<Object> serializer = provider.findTypedValueSerializer(type, false);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
 
     public final SerializerAndMapResult findAndAddRootValueSerializer(JavaType type,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         ValueSerializer<Object> serializer = provider.findTypedValueSerializer(type, false);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
@@ -124,7 +124,7 @@ public abstract class PropertySerializerMap
      * and construct new map instance if warranted, and return both.
      */
     public final SerializerAndMapResult findAndAddKeySerializer(Class<?> type,
-            SerializerProvider provider, BeanProperty property)
+            SerializationContext provider, BeanProperty property)
     {
         ValueSerializer<Object> serializer = provider.findKeySerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));

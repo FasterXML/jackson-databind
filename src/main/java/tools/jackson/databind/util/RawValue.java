@@ -4,7 +4,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.SerializableString;
 import tools.jackson.databind.JacksonSerializable;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsontype.TypeSerializer;
 
 /**
@@ -55,7 +55,7 @@ public class RawValue
     }
 
     @Override
-    public void serialize(JsonGenerator gen, SerializerProvider serializers) throws JacksonException
+    public void serialize(JsonGenerator gen, SerializationContext serializers) throws JacksonException
     {
         if (_value instanceof JacksonSerializable) {
             ((JacksonSerializable) _value).serialize(gen, serializers);
@@ -65,7 +65,7 @@ public class RawValue
     }
 
     @Override
-    public void serializeWithType(JsonGenerator gen, SerializerProvider serializers,
+    public void serializeWithType(JsonGenerator gen, SerializationContext serializers,
             TypeSerializer typeSer) throws JacksonException
     {
         if (_value instanceof JacksonSerializable) {
@@ -81,7 +81,7 @@ public class RawValue
     public void serialize(JsonGenerator gen) throws JacksonException
     {
         if (_value instanceof JacksonSerializable) {
-            // No SerializerProvider passed, must go via generator, callback
+            // No SerializationContext passed, must go via generator, callback
             gen.writePOJO(_value);
         } else {
             _serialize(gen);

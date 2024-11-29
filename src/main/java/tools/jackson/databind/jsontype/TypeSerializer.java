@@ -6,7 +6,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.core.util.VersionUtil;
 import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * Interface for serializing type information regarding instances of specified
@@ -33,7 +33,7 @@ public abstract class TypeSerializer
      *<p>
      * NOTE: since 3.0 has received context object as first argument.
      */
-    public abstract TypeSerializer forProperty(SerializerProvider ctxt,
+    public abstract TypeSerializer forProperty(SerializationContext ctxt,
             BeanProperty prop);
 
     /*
@@ -124,7 +124,7 @@ public abstract class TypeSerializer
      * @param typeId Details of what type id is to be written, how.
      */
     public abstract WritableTypeId writeTypePrefix(JsonGenerator g,
-            SerializerProvider ctxt, WritableTypeId typeId) throws JacksonException;
+            SerializationContext ctxt, WritableTypeId typeId) throws JacksonException;
 
     /**
      * Method called to write the "closing" part of type information for given
@@ -136,5 +136,5 @@ public abstract class TypeSerializer
      * @param typeId Details of what type id is to be written, how.
      */
     public abstract WritableTypeId writeTypeSuffix(JsonGenerator g,
-            SerializerProvider ctxt, WritableTypeId typeId) throws JacksonException;
+            SerializationContext ctxt, WritableTypeId typeId) throws JacksonException;
 }

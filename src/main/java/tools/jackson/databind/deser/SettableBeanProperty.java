@@ -387,7 +387,7 @@ public abstract class SettableBeanProperty
 
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         if (isRequired()) {
             objectVisitor.property(this);

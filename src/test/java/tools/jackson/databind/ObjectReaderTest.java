@@ -544,12 +544,12 @@ public class ObjectReaderTest
         }
 
         @Override
-        public void serialize(JsonGenerator g, SerializerProvider ctxt) {
+        public void serialize(JsonGenerator g, SerializationContext ctxt) {
             // ignore, will not be called
         }
 
         @Override
-        public void serializeWithType(JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer) {
+        public void serializeWithType(JsonGenerator g, SerializationContext ctxt, TypeSerializer typeSer) {
             // ignore, will not be called
         }
 
@@ -665,12 +665,12 @@ public class ObjectReaderTest
         }
 
         @Override
-        public void serialize(JsonGenerator g, SerializerProvider ctxt) {
+        public void serialize(JsonGenerator g, SerializationContext ctxt) {
             // ignore, will not be called
         }
 
         @Override
-        public void serializeWithType(JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer) {
+        public void serializeWithType(JsonGenerator g, SerializationContext ctxt, TypeSerializer typeSer) {
             // ignore, will not be called
         }
 

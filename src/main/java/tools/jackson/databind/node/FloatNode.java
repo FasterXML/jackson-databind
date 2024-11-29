@@ -5,7 +5,7 @@ import java.math.BigInteger;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberOutput;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * {@code JsonNode} implementation for efficiently containing 32-bit
@@ -103,7 +103,7 @@ public class FloatNode extends NumericNode
     }
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider)
+    public final void serialize(JsonGenerator g, SerializationContext provider)
             throws JacksonException {
         g.writeNumber(_value);
     }

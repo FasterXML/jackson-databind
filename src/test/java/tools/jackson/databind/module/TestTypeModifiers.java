@@ -83,7 +83,7 @@ public class TestTypeModifiers extends DatabindTestUtil
     {
         public XxxSerializer() { super(Object.class); }
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
+        public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
             g.writeString("xxx:"+value);
         }
     }
@@ -138,7 +138,7 @@ public class TestTypeModifiers extends DatabindTestUtil
         }
 
         @Override
-        public void serialize(MapMarker<?,?> value, JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(MapMarker<?,?> value, JsonGenerator jgen, SerializationContext provider)
         {
             jgen.writeStartObject();
             if (_keySerializer == null) {
@@ -173,7 +173,7 @@ public class TestTypeModifiers extends DatabindTestUtil
     {
         public MyCollectionSerializer() { super(MyCollectionLikeType.class); }
         @Override
-        public void serialize(MyCollectionLikeType value, JsonGenerator g, SerializerProvider provider) {
+        public void serialize(MyCollectionLikeType value, JsonGenerator g, SerializationContext provider) {
             g.writeStartArray();
             g.writeNumber(value.value);
             g.writeEndArray();

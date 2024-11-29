@@ -95,7 +95,7 @@ public class JacksonAnnotationIntrospectorTest
     public static class QNameSerializer extends ValueSerializer<QName> {
 
         @Override
-        public void serialize(QName value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(QName value, JsonGenerator g, SerializationContext provider)
         {
             g.writeString(value.toString());
         }

@@ -44,7 +44,7 @@ public class AnyGetterWriter
 
     // Note: NOT part of ResolvableSerializer...
     @SuppressWarnings("unchecked")
-    public void resolve(SerializerProvider provider)
+    public void resolve(SerializationContext provider)
     {
         // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
         ValueSerializer<?> ser = provider.handlePrimaryContextualization(_serializer, _property);
@@ -54,7 +54,7 @@ public class AnyGetterWriter
         }
     }
 
-    public void getAndSerialize(Object bean, JsonGenerator gen, SerializerProvider provider)
+    public void getAndSerialize(Object bean, JsonGenerator gen, SerializationContext provider)
         throws Exception
     {
         Object value = _accessor.getValue(bean);
@@ -74,7 +74,7 @@ public class AnyGetterWriter
         _serializer.serialize(value, gen, provider);
     }
 
-    public void getAndFilter(Object bean, JsonGenerator gen, SerializerProvider provider,
+    public void getAndFilter(Object bean, JsonGenerator gen, SerializationContext provider,
             PropertyFilter filter)
         throws Exception
     {

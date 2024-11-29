@@ -8,7 +8,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.tree.ArrayTreeNode;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.exc.JsonNodeException;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.util.RawValue;
@@ -187,7 +187,7 @@ public class ArrayNode
      */
 
     @Override
-    public boolean isEmpty(SerializerProvider serializers) {
+    public boolean isEmpty(SerializationContext serializers) {
         return _children.isEmpty();
     }
 
@@ -288,7 +288,7 @@ public class ArrayNode
      */
 
     @Override
-    public void serialize(JsonGenerator g, SerializerProvider provider)
+    public void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         final List<JsonNode> c = _children;
@@ -301,7 +301,7 @@ public class ArrayNode
     }
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer)
+    public void serializeWithType(JsonGenerator g, SerializationContext ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,

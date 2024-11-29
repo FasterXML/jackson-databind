@@ -32,20 +32,20 @@ extends StdScalarSerializer<Blob>
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, Blob value) {
+    public boolean isEmpty(SerializationContext provider, Blob value) {
         // Could see if "length == 0" but that might be expensive operation
         return (value == null);
     }
 
     @Override
-    public void serialize(Blob value, JsonGenerator gen, SerializerProvider ctxt)
+    public void serialize(Blob value, JsonGenerator gen, SerializationContext ctxt)
             throws JacksonException {
         _writeValue(value, gen, ctxt);
     }
 
     // Copied from {@code tools.jackson.databind.ser.std.ByteArraySerializer}
     @Override
-    public void serializeWithType(Blob value, JsonGenerator gen, SerializerProvider ctxt,
+    public void serializeWithType(Blob value, JsonGenerator gen, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -56,7 +56,7 @@ extends StdScalarSerializer<Blob>
         typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
-    protected void _writeValue(Blob value, JsonGenerator gen, SerializerProvider ctxt)
+    protected void _writeValue(Blob value, JsonGenerator gen, SerializationContext ctxt)
             throws JacksonException
     {
         InputStream in = null;

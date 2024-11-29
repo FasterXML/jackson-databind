@@ -97,7 +97,7 @@ public class IterableSerializationTest extends DatabindTestUtil
 
     static class ASerializer extends ValueSerializer<A> {
         @Override
-        public void serialize(A a, JsonGenerator g, SerializerProvider provider)
+        public void serialize(A a, JsonGenerator g, SerializationContext provider)
         {
             g.writeStartArray();
             g.writeString("Hello world.");

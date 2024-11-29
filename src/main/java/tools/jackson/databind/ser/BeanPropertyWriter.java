@@ -606,7 +606,7 @@ public class BeanPropertyWriter
      * serializer.
      */
     @Override
-    public void serializeAsProperty(Object bean, JsonGenerator g, SerializerProvider ctxt)
+    public void serializeAsProperty(Object bean, JsonGenerator g, SerializationContext ctxt)
         throws Exception
     {
         // inlined 'get()'
@@ -667,7 +667,7 @@ public class BeanPropertyWriter
      * omission.
      */
     @Override
-    public void serializeAsOmittedProperty(Object bean, JsonGenerator g, SerializerProvider ctxt)
+    public void serializeAsOmittedProperty(Object bean, JsonGenerator g, SerializationContext ctxt)
         throws Exception
     {
         if (!g.canOmitProperties()) {
@@ -681,7 +681,7 @@ public class BeanPropertyWriter
      * the difference is that no property names are written.
      */
     @Override
-    public void serializeAsElement(Object bean, JsonGenerator g, SerializerProvider ctxt)
+    public void serializeAsElement(Object bean, JsonGenerator g, SerializationContext ctxt)
         throws Exception
     {
         // inlined 'get()'
@@ -740,7 +740,7 @@ public class BeanPropertyWriter
      */
     @Override
     public void serializeAsOmittedElement(Object bean, JsonGenerator g,
-            SerializerProvider prov)
+            SerializationContext prov)
         throws Exception
     {
         if (_nullSerializer != null) {
@@ -759,7 +759,7 @@ public class BeanPropertyWriter
     // Also part of BeanProperty implementation
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor v,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         if (v != null) {
             if (isRequired()) {
@@ -777,7 +777,7 @@ public class BeanPropertyWriter
      */
 
     protected ValueSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> rawType, SerializerProvider provider)
+            Class<?> rawType, SerializationContext provider)
     {
         JavaType t;
         if (_nonTrivialBaseType != null) {
@@ -822,7 +822,7 @@ public class BeanPropertyWriter
      *         is no way handle it
      */
     protected boolean _handleSelfReference(Object bean, JsonGenerator g,
-            SerializerProvider ctxt, ValueSerializer<?> ser)
+            SerializationContext ctxt, ValueSerializer<?> ser)
         throws JacksonException
     {
         if (!ser.usesObjectId()) {

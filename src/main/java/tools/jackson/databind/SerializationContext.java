@@ -45,7 +45,7 @@ import tools.jackson.databind.util.TokenBuffer;
  * details are delegated to {@link SerializerFactory} instance.
  *<p>
  */
-public abstract class SerializerProvider
+public abstract class SerializationContext
     extends DatabindContext
     implements // NOTE: not JDK serializable with 3.x (factory that creates these is)
         ObjectWriteContext // 3.0, for use by jackson-core
@@ -172,7 +172,7 @@ public abstract class SerializerProvider
     /**********************************************************************
      */
 
-    protected SerializerProvider(TokenStreamFactory streamFactory,
+    protected SerializationContext(TokenStreamFactory streamFactory,
             SerializationConfig config, GeneratorSettings generatorConfig,
             SerializerFactory f, SerializerCache cache)
     {
@@ -203,7 +203,7 @@ public abstract class SerializerProvider
         _knownSerializers = _serializerCache.getReadOnlyLookupMap();
     }
 
-    protected SerializerProvider(SerializerProvider src, SerializerCache serializerCache)
+    protected SerializationContext(SerializationContext src, SerializerCache serializerCache)
     {
         _streamFactory = src._streamFactory;
         _serializerFactory = src._serializerFactory;
@@ -449,7 +449,7 @@ public abstract class SerializerProvider
     }
 
     @Override
-    public SerializerProvider setAttribute(Object key, Object value)
+    public SerializationContext setAttribute(Object key, Object value)
     {
         _attributes = _attributes.withPerCallAttribute(key, value);
         return this;
@@ -1088,7 +1088,7 @@ public abstract class SerializerProvider
      * Method called for primary property serializers (ones
      * directly created to serialize values of a POJO property),
      * to handle details of contextualization, calling
-     * {@link ValueSerializer#createContextual(SerializerProvider, BeanProperty)} with given property context.
+     * {@link ValueSerializer#createContextual(SerializationContext, BeanProperty)} with given property context.
      *
      * @param property Property for which the given primary serializer is used; never null.
      */
@@ -1108,7 +1108,7 @@ public abstract class SerializerProvider
      * but instead created as a dependant serializer -- such as value serializers
      * for structured types, or serializers for root values)
      * to handle details of contextualization, calling
-     * {@link ValueSerializer#createContextual(SerializerProvider, BeanProperty)} with given property context.
+     * {@link ValueSerializer#createContextual(SerializationContext, BeanProperty)} with given property context.
      * Given that these serializers are not directly related to given property
      * (or, in case of root value property, to any property), annotations
      * accessible may or may not be relevant.

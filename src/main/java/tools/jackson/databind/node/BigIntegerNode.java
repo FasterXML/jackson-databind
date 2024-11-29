@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 
 import tools.jackson.core.*;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * Numeric node that contains simple 64-bit integer values.
@@ -103,7 +103,7 @@ public class BigIntegerNode
     }
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider)
+    public final void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         g.writeNumber(_value);

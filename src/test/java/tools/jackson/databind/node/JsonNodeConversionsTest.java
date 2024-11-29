@@ -58,7 +58,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     static class Issue467Serializer extends ValueSerializer<Issue467Bean> {
         @Override
         public void serialize(Issue467Bean value, JsonGenerator g,
-                SerializerProvider provider) {
+                SerializationContext provider) {
             g.writePOJO(new Issue467TmpBean(value.i));
         }
     }
@@ -66,7 +66,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     static class Issue467TreeSerializer extends ValueSerializer<Issue467Tree> {
         @Override
         public void serialize(Issue467Tree value, JsonGenerator g,
-                SerializerProvider provider) {
+                SerializationContext provider) {
             g.writeTree(BooleanNode.TRUE);
         }
     }
@@ -96,14 +96,14 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         }
 
         @Override
-        public void serialize(final JsonGenerator jgen, final SerializerProvider provider)
+        public void serialize(final JsonGenerator jgen, final SerializationContext provider)
         {
             jgen.writeTree(node);
         }
 
         @Override
         public void serializeWithType(JsonGenerator g,
-                SerializerProvider ctxt, TypeSerializer typeSer)
+                SerializationContext ctxt, TypeSerializer typeSer)
         {
             WritableTypeId typeIdDef = new WritableTypeId(this, JsonToken.START_OBJECT);
             typeSer.writeTypePrefix(g, ctxt, typeIdDef);

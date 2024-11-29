@@ -82,7 +82,7 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public void serializeAsProperty(Object map, JsonGenerator gen,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         _keySerializer.serialize(_key, gen, provider);
         if (_typeSerializer == null) {
@@ -94,7 +94,7 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public void serializeAsOmittedProperty(Object map, JsonGenerator gen,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         if (!gen.canOmitProperties()) {
             gen.writeOmittedProperty(getName());
@@ -103,7 +103,7 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public void serializeAsElement(Object map, JsonGenerator gen,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         if (_typeSerializer == null) {
             _valueSerializer.serialize(_value, gen, provider);
@@ -114,7 +114,7 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public void serializeAsOmittedElement(Object value, JsonGenerator gen,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         gen.writeNull();
     }
@@ -127,7 +127,7 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         _property.depositSchemaProperty(objectVisitor, provider);
     }

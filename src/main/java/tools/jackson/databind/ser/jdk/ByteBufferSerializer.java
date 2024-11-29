@@ -15,7 +15,7 @@ public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
     public ByteBufferSerializer() { super(ByteBuffer.class); }
 
     @Override
-    public void serialize(ByteBuffer bbuf, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(ByteBuffer bbuf, JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         // first, simple case when wrapping an array...

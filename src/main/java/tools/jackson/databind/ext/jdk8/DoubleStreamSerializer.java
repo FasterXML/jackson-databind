@@ -4,7 +4,7 @@ import java.util.stream.DoubleStream;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -26,7 +26,7 @@ public class DoubleStreamSerializer extends StdSerializer<DoubleStream>
     }
 
     @Override
-    public void serialize(DoubleStream stream, JsonGenerator g, SerializerProvider ctxt)
+    public void serialize(DoubleStream stream, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         try (final DoubleStream ds = stream) {

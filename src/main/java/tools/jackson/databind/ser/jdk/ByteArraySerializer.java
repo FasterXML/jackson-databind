@@ -5,7 +5,7 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
@@ -31,12 +31,12 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, byte[] value) {
+    public boolean isEmpty(SerializationContext prov, byte[] value) {
         return value.length == 0;
     }
 
     @Override
-    public void serialize(byte[] value, JsonGenerator g, SerializerProvider provider)
+    public void serialize(byte[] value, JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         g.writeBinary(provider.getConfig().getBase64Variant(),
@@ -44,7 +44,7 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
     }
 
     @Override
-    public void serializeWithType(byte[] value, JsonGenerator g, SerializerProvider ctxt,
+    public void serializeWithType(byte[] value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

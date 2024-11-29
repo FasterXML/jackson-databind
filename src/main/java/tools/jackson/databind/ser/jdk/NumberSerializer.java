@@ -47,7 +47,7 @@ public class NumberSerializer
     }
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider prov,
+    public ValueSerializer<?> createContextual(SerializationContext prov,
             BeanProperty property)
     {
         JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
@@ -66,7 +66,7 @@ public class NumberSerializer
     }
 
     @Override
-    public void serialize(Number value, JsonGenerator g, SerializerProvider provider) throws JacksonException
+    public void serialize(Number value, JsonGenerator g, SerializationContext provider) throws JacksonException
     {
         // should mostly come in as one of these two:
         if (value instanceof BigDecimal) {
@@ -122,14 +122,14 @@ public class NumberSerializer
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider prov, Object value) {
+        public boolean isEmpty(SerializationContext prov, Object value) {
             // As per [databind#2513], should not delegate; also, never empty (numbers do
             // have "default value" to filter by, just not "empty"
             return false;
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
+        public void serialize(Object value, JsonGenerator gen, SerializationContext provider)
             throws JacksonException
         {
             final String text;

@@ -92,7 +92,7 @@ public class StdTypeResolverBuilder
     }
 
     @Override
-    public TypeSerializer buildTypeSerializer(SerializerProvider ctxt,
+    public TypeSerializer buildTypeSerializer(SerializationContext ctxt,
             JavaType baseType, Collection<NamedType> subtypes)
     {
         if (_idType == JsonTypeInfo.Id.NONE) { return null; }

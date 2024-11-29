@@ -17,7 +17,7 @@ import tools.jackson.databind.util.RootNameLookup;
  * Object that contains baseline configuration for serialization
  * process. An instance is owned by {@link ObjectMapper}, which
  * passes an immutable instance for serialization process to
- * {@link SerializerProvider} and {@link SerializerFactory}
+ * {@link SerializationContext} and {@link SerializerFactory}
  * (either directly, or through {@link ObjectWriter}.
  *<p>
  * Note that instances are considered immutable and as such no copies

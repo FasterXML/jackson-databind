@@ -20,12 +20,12 @@ public class JsonInclude4464Test {
         }
 
         @Override
-        public void serialize(Bar value, JsonGenerator gen, SerializerProvider provider) {
+        public void serialize(Bar value, JsonGenerator gen, SerializationContext provider) {
             gen.writePOJO(value);
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider provider, Bar value) {
+        public boolean isEmpty(SerializationContext provider, Bar value) {
             return "I_AM_EMPTY".equals(value.getName());
         }
     }

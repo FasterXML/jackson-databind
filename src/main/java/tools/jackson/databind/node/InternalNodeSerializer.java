@@ -43,21 +43,21 @@ class InternalNodeSerializer
         protected final BaseJsonNode _root;
 
         // Non-final as passed when `serialize()` is called
-        protected SerializerProvider _context;
+        protected SerializationContext _context;
 
         public WrapperForSerializer(BaseJsonNode root) {
             _root = root;
         }
 
         @Override
-        public void serialize(JsonGenerator g, SerializerProvider ctxt) throws JacksonException
+        public void serialize(JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             _context = ctxt;
             _serializeNonRecursive(g, _root);
         }
 
         @Override
-        public void serializeWithType(JsonGenerator gen, SerializerProvider serializers,
+        public void serializeWithType(JsonGenerator gen, SerializationContext serializers,
                 TypeSerializer typeSer) throws JacksonException
         {
             // Should not really be called given usage, so

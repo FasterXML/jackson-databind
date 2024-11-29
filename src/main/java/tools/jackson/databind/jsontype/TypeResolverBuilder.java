@@ -62,7 +62,7 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * @param baseType Base type that constructed resolver will
      *    handle; super type of all types it will be used for.
      */
-    public TypeSerializer buildTypeSerializer(SerializerProvider ctxt,
+    public TypeSerializer buildTypeSerializer(SerializationContext ctxt,
             JavaType baseType, Collection<NamedType> subtypes);
 
     /**

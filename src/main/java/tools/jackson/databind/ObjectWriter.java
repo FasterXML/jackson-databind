@@ -51,9 +51,9 @@ public class ObjectWriter
     protected final SerializationConfig _config;
 
     /**
-     * Factory used for constructing per-call {@link SerializerProvider}s.
+     * Factory used for constructing per-call {@link SerializationContext}s.
      *<p>
-     * Note: while serializers are only exposed {@link SerializerProvider},
+     * Note: while serializers are only exposed {@link SerializationContext},
      * mappers and readers need to access additional API defined by
      * {@link SerializationContextExt}
      */
@@ -567,7 +567,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(OutputStream target) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializerProvider(), target);
+        return _generatorFactory.createGenerator(_serializationContext(), target);
     }
 
     /**
@@ -580,7 +580,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(OutputStream target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializerProvider(), target, enc);
+        return _generatorFactory.createGenerator(_serializationContext(), target, enc);
     }
 
     /**
@@ -593,7 +593,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(Writer target) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializerProvider(), target);
+        return _generatorFactory.createGenerator(_serializationContext(), target);
     }
 
     /**
@@ -606,7 +606,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(File target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializerProvider(), target, enc);
+        return _generatorFactory.createGenerator(_serializationContext(), target, enc);
     }
 
     /**
@@ -619,7 +619,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(Path target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializerProvider(), target, enc);
+        return _generatorFactory.createGenerator(_serializationContext(), target, enc);
     }
 
     /**
@@ -632,7 +632,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(DataOutput target) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializerProvider(), target);
+        return _generatorFactory.createGenerator(_serializationContext(), target);
     }
 
     /*
@@ -670,7 +670,7 @@ public class ObjectWriter
         throws JacksonException
     {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
@@ -692,7 +692,7 @@ public class ObjectWriter
         throws JacksonException
     {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
@@ -714,7 +714,7 @@ public class ObjectWriter
         throws JacksonException
     {
         _assertNotNull("target", g);
-        return _newSequenceWriter(_serializerProvider(), false, g, false);
+        return _newSequenceWriter(_serializationContext(), false, g, false);
     }
 
     /**
@@ -730,7 +730,7 @@ public class ObjectWriter
      */
     public SequenceWriter writeValues(Writer target) throws JacksonException {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
                 _generatorFactory.createGenerator(ctxt, target), true);
     }
@@ -748,14 +748,14 @@ public class ObjectWriter
      */
     public SequenceWriter writeValues(OutputStream target) throws JacksonException {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     public SequenceWriter writeValues(DataOutput target) throws JacksonException {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
                 _generatorFactory.createGenerator(ctxt, target), true);
     }
@@ -777,7 +777,7 @@ public class ObjectWriter
         throws JacksonException
     {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
@@ -801,7 +801,7 @@ public class ObjectWriter
         throws JacksonException
     {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
@@ -824,7 +824,7 @@ public class ObjectWriter
         throws JacksonException
     {
         _assertNotNull("g", g);
-        return _newSequenceWriter(_serializerProvider(), true, g, false);
+        return _newSequenceWriter(_serializationContext(), true, g, false);
     }
 
     /**
@@ -842,7 +842,7 @@ public class ObjectWriter
      */
     public SequenceWriter writeValuesAsArray(Writer target) throws JacksonException {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
                 _generatorFactory.createGenerator(ctxt, target), true);
     }
@@ -862,14 +862,14 @@ public class ObjectWriter
      */
     public SequenceWriter writeValuesAsArray(OutputStream target) throws JacksonException {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     public SequenceWriter writeValuesAsArray(DataOutput target) throws JacksonException {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
                 _generatorFactory.createGenerator(ctxt, target), true);
     }
@@ -954,7 +954,7 @@ public class ObjectWriter
         {
             Closeable toClose = (Closeable) value;
             try {
-                _prefetch.serialize(g, value, _serializerProvider());
+                _prefetch.serialize(g, value, _serializationContext());
                 if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                     g.flush();
                 }
@@ -968,7 +968,7 @@ public class ObjectWriter
                 throw JacksonIOException.construct(e, g);
             }
         } else {
-            _prefetch.serialize(g, value, _serializerProvider());
+            _prefetch.serialize(g, value, _serializationContext());
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 g.flush();
             }
@@ -989,7 +989,7 @@ public class ObjectWriter
         throws JacksonException
     {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         _configAndWriteValue(ctxt,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), value);
     }
@@ -1004,7 +1004,7 @@ public class ObjectWriter
         throws JacksonException
     {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         _configAndWriteValue(ctxt,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), value);
     }
@@ -1023,7 +1023,7 @@ public class ObjectWriter
     public void writeValue(OutputStream target, Object value) throws JacksonException
     {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         _configAndWriteValue(ctxt,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), value);
     }
@@ -1041,7 +1041,7 @@ public class ObjectWriter
     public void writeValue(Writer target, Object value) throws JacksonException
     {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         _configAndWriteValue(ctxt,
                 _generatorFactory.createGenerator(ctxt, target), value);
     }
@@ -1049,7 +1049,7 @@ public class ObjectWriter
     public void writeValue(DataOutput target, Object value) throws JacksonException
     {
         _assertNotNull("target", target);
-        SerializationContextExt ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializationContext();
         _configAndWriteValue(ctxt,
                 _generatorFactory.createGenerator(ctxt, target), value);
     }
@@ -1065,7 +1065,7 @@ public class ObjectWriter
         // alas, we have to pull the recycler directly here...
         final BufferRecycler br = _generatorFactory._getBufferRecycler();
         try (SegmentedStringWriter sw = new SegmentedStringWriter(br)) {
-            final SerializationContextExt ctxt = _serializerProvider();
+            final SerializationContextExt ctxt = _serializationContext();
             _configAndWriteValue(ctxt,
                     _generatorFactory.createGenerator(ctxt, sw), value);
             return sw.getAndClear();
@@ -1085,7 +1085,7 @@ public class ObjectWriter
     {
         final BufferRecycler br = _generatorFactory._getBufferRecycler();
         try (ByteArrayBuilder bb = new ByteArrayBuilder(br)) {
-            final SerializationContextExt ctxt = _serializerProvider();
+            final SerializationContextExt ctxt = _serializationContext();
             _configAndWriteValue(ctxt,
                     _generatorFactory.createGenerator(ctxt, bb, JsonEncoding.UTF8), value);
             return bb.getClearAndRelease();
@@ -1123,7 +1123,7 @@ public class ObjectWriter
     {
         Closeable toClose = (Closeable) value;
         try {
-            _prefetch.serialize(gen, value, _serializerProvider());
+            _prefetch.serialize(gen, value, _serializationContext());
             Closeable tmpToClose = toClose;
             toClose = null;
             tmpToClose.close();
@@ -1170,7 +1170,7 @@ public class ObjectWriter
     public <T extends JsonNode> T valueToTree(Object fromValue)
         throws JacksonException
     {
-        return _serializerProvider().valueToTree(fromValue);
+        return _serializationContext().valueToTree(fromValue);
     }
 
     /*
@@ -1193,7 +1193,7 @@ public class ObjectWriter
     {
         _assertNotNull("type", type);
         _assertNotNull("visitor", visitor);
-        _serializerProvider().acceptJsonFormatVisitor(type, visitor);
+        _serializationContext().acceptJsonFormatVisitor(type, visitor);
     }
 
     public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor)
@@ -1211,9 +1211,9 @@ public class ObjectWriter
 
     /**
      * Overridable helper method used for constructing
-     * {@link SerializerProvider} to use for serialization.
+     * {@link SerializationContext} to use for serialization.
      */
-    protected final SerializationContextExt _serializerProvider() {
+    protected final SerializationContextExt _serializationContext() {
         return _serializationContexts.createContext(_config, _generatorSettings);
     }
 
@@ -1303,13 +1303,13 @@ public class ObjectWriter
             // But one more trick: `java.lang.Object` has no serialized, but may
             // have `TypeSerializer` to use
             if (newType.isJavaLangObject()) {
-                SerializationContextExt ctxt = parent._serializerProvider();
+                SerializationContextExt ctxt = parent._serializationContext();
                 TypeSerializer typeSer = ctxt.findTypeSerializer(newType);
                 return new Prefetch(null, null, typeSer);
             }
 
             if (parent.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
-                SerializationContextExt ctxt = parent._serializerProvider();
+                SerializationContextExt ctxt = parent._serializationContext();
                 // 17-Dec-2014, tatu: Need to be bit careful here; TypeSerializers are NOT cached,
                 //   so although it'd seem like a good idea to look for those first, and avoid
                 //   serializer for polymorphic types, it is actually more efficient to do the

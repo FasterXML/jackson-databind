@@ -5,7 +5,7 @@ import java.util.List;
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsontype.TypeSerializer;
 
 /**
@@ -40,7 +40,7 @@ public abstract class ValueNode
     @Override public abstract JsonToken asToken();
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializerProvider ctxt,
+    public void serializeWithType(JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

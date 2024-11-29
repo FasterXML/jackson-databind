@@ -2,7 +2,7 @@ package tools.jackson.databind.ser.jdk;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
@@ -23,20 +23,20 @@ public final class StringSerializer
     public StringSerializer() { super(String.class, false); }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Object value) {
+    public boolean isEmpty(SerializationContext prov, Object value) {
         String str = (String) value;
         return str.isEmpty();
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(Object value, JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         gen.writeString((String) value);
     }
 
     @Override
-    public final void serializeWithType(Object value, JsonGenerator gen, SerializerProvider provider,
+    public final void serializeWithType(Object value, JsonGenerator gen, SerializationContext provider,
             TypeSerializer typeSer)
         throws JacksonException
     {

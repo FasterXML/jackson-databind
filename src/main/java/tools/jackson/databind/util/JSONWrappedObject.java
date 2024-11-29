@@ -63,7 +63,7 @@ public class JSONWrappedObject implements JacksonSerializable
      */
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
+    public void serializeWithType(JsonGenerator g, SerializationContext provider, TypeSerializer typeSer)
         throws JacksonException
     {
         // No type for JSONP wrapping: value serializer will handle typing for value:
@@ -71,7 +71,7 @@ public class JSONWrappedObject implements JacksonSerializable
     }
 
     @Override
-    public void serialize(JsonGenerator g, SerializerProvider provider)
+    public void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         // First, wrapping:

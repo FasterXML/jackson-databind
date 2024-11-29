@@ -60,7 +60,7 @@ public class TestVirtualProperties extends DatabindTestUtil
         }
 
         @Override
-        protected Object value(Object bean, JsonGenerator jgen, SerializerProvider prov) {
+        protected Object value(Object bean, JsonGenerator jgen, SerializationContext prov) {
             if (_name.toString().equals("id")) {
                 return "abc123";
             }

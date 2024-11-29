@@ -2,7 +2,7 @@ package tools.jackson.databind.ser.impl;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -26,7 +26,7 @@ public class UnsupportedTypeSerializer
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator g, SerializerProvider ctxt) throws JacksonException {
+    public void serialize(Object value, JsonGenerator g, SerializationContext ctxt) throws JacksonException {
         ctxt.reportBadDefinition(_type, _message);
     }
 }

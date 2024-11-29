@@ -199,7 +199,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      */
 
     @Override
-    public boolean isEmpty(SerializerProvider serializers) {
+    public boolean isEmpty(SerializationContext serializers) {
         return _children.isEmpty();
     }
 
@@ -416,7 +416,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      */
     @SuppressWarnings("deprecation")
     @Override
-    public void serialize(JsonGenerator g, SerializerProvider ctxt)
+    public void serialize(JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         final int len = _children.size();
@@ -446,7 +446,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
     @SuppressWarnings("deprecation")
     @Override
-    public void serializeWithType(JsonGenerator g, SerializerProvider ctxt,
+    public void serializeWithType(JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -475,7 +475,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      * Helper method shared and called by {@link #serialize} and {@link #serializeWithType}
      * in cases where actual filtering is needed based on configuration.
      */
-    protected void serializeFilteredContents(final JsonGenerator g, final SerializerProvider ctxt,
+    protected void serializeFilteredContents(final JsonGenerator g, final SerializationContext ctxt,
             final boolean trimEmptyArray, final boolean skipNulls)
         throws JacksonException
     {
@@ -506,7 +506,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @since 2.16
      */
-    protected Map<String, JsonNode> _contentsToSerialize(SerializerProvider ctxt) {
+    protected Map<String, JsonNode> _contentsToSerialize(SerializationContext ctxt) {
         if (ctxt.isEnabled(JsonNodeFeature.WRITE_PROPERTIES_SORTED)) {
             if (!_children.isEmpty()
                     // 02-Jun-2024, tatu: Avoid unnecessary copy for custom impls

@@ -39,13 +39,13 @@ public class TestEmptyClass
     static class NonZeroSerializer extends ValueSerializer<NonZero>
     {
         @Override
-        public void serialize(NonZero value, JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(NonZero value, JsonGenerator jgen, SerializationContext provider)
         {
             jgen.writeNumber(value.nr);
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider provider, NonZero value) {
+        public boolean isEmpty(SerializationContext provider, NonZero value) {
             if (value == null) return true;
             return (value.nr == 0);
         }

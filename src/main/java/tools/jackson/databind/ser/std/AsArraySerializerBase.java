@@ -120,7 +120,7 @@ public abstract class AsArraySerializerBase<T>
      * known statically.
      */
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
         TypeSerializer typeSer = _valueTypeSerializer;
@@ -195,7 +195,7 @@ public abstract class AsArraySerializerBase<T>
     // variant that passes size of array to output, which is helpful with some data formats
     /*
     @Override
-    public void serialize(T value, JsonGenerator gen, SerializerProvider ctxt) throws JacksonException
+    public void serialize(T value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException
     {
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 && hasSingleElement(value)) {
@@ -209,7 +209,7 @@ public abstract class AsArraySerializerBase<T>
     */
 
     @Override
-    public void serializeWithType(T value, JsonGenerator g, SerializerProvider ctxt,
+    public void serializeWithType(T value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -221,7 +221,7 @@ public abstract class AsArraySerializerBase<T>
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
-    protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider)
+    protected abstract void serializeContents(T value, JsonGenerator gen, SerializationContext provider)
         throws JacksonException;
 
     @Override

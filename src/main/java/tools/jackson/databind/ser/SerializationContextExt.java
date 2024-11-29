@@ -20,16 +20,16 @@ import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.TokenBuffer;
 
 /**
- * Extension over {@link SerializerProvider} that adds methods needed by
+ * Extension over {@link SerializationContext} that adds methods needed by
  * {@link ObjectMapper} (and {@link ObjectWriter}) but that are not to be exposed
  * as general context during serialization.
  *<p>
- * Also note that all custom {@link SerializerProvider}
+ * Also note that all custom {@link SerializationContext}
  * implementations must sub-class this class: {@link ObjectMapper}
  * requires this type, not basic provider type.
  */
 public class SerializationContextExt
-    extends SerializerProvider
+    extends SerializationContext
 {
     /*
     /**********************************************************************

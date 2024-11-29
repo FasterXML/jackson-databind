@@ -90,7 +90,7 @@ public class AnyGetterTest extends DatabindTestUtil
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider ctxt)
+        public void serialize(Object value, JsonGenerator g, SerializationContext ctxt)
         {
             StringBuilder sb = new StringBuilder();
             for (Map.Entry<?,?> entry : ((Map<?,?>) value).entrySet()) {
@@ -128,7 +128,7 @@ public class AnyGetterTest extends DatabindTestUtil
 
         @Override
         public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) {
+                SerializationContext provider) {
             gen.writeString(value.toUpperCase());
         }
     }

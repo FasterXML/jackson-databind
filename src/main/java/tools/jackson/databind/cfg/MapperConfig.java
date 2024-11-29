@@ -486,7 +486,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * This method is usually only called by framework itself, since there
      * are convenience methods available via
-     * {@link DeserializationContext} and {@link SerializerProvider} that
+     * {@link DeserializationContext} and {@link SerializationContext} that
      * take care of cloning and thread-safe reuse.
      */
     public final DateFormat getDateFormat() { return _base.getDateFormat(); }

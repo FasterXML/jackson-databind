@@ -250,9 +250,9 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         // 06-Aug-2013, tatu: We may actually want to use equality,
         //   instead of identity... so:
         if (isEnabled(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)) {
-            return new HashMap<Object,WritableObjectId>();
+            return new HashMap<>();
         }
-        return new IdentityHashMap<Object,WritableObjectId>();
+        return new IdentityHashMap<>();
     }
 
     /*

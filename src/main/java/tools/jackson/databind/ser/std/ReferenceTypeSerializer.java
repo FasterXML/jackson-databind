@@ -149,7 +149,7 @@ public abstract class ReferenceTypeSerializer<T>
      */
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
         TypeSerializer typeSer = _valueTypeSerializer;
@@ -237,7 +237,7 @@ public abstract class ReferenceTypeSerializer<T>
         return refSer;
     }
 
-    protected boolean _useStatic(SerializerProvider serializers, BeanProperty property,
+    protected boolean _useStatic(SerializationContext serializers, BeanProperty property,
             JavaType referredType)
     {
         // First: no serializer for `Object.class`, must be dynamic
@@ -278,7 +278,7 @@ public abstract class ReferenceTypeSerializer<T>
      */
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, T value) throws JacksonException
+    public boolean isEmpty(SerializationContext provider, T value) throws JacksonException
     {
         // First, absent value (note: null check is just sanity check here)
         if (!_isValuePresent(value)) {
@@ -317,7 +317,7 @@ public abstract class ReferenceTypeSerializer<T>
      */
 
     @Override
-    public void serialize(T ref, JsonGenerator g, SerializerProvider provider)
+    public void serialize(T ref, JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         Object value = _getReferencedIfPresent(ref);
@@ -339,7 +339,7 @@ public abstract class ReferenceTypeSerializer<T>
     }
 
     @Override
-    public void serializeWithType(T ref, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(T ref, JsonGenerator g, SerializationContext provider,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -397,7 +397,7 @@ public abstract class ReferenceTypeSerializer<T>
      * Helper method that encapsulates logic of retrieving and caching required
      * serializer.
      */
-    private final ValueSerializer<Object> _findCachedSerializer(SerializerProvider provider,
+    private final ValueSerializer<Object> _findCachedSerializer(SerializationContext provider,
             Class<?> rawType)
     {
         ValueSerializer<Object> ser = _dynamicValueSerializers.serializerFor(rawType);
@@ -423,7 +423,7 @@ public abstract class ReferenceTypeSerializer<T>
         return ser;
     }
 
-    private final ValueSerializer<Object> _findSerializer(SerializerProvider provider,
+    private final ValueSerializer<Object> _findSerializer(SerializationContext provider,
         JavaType type, BeanProperty prop)
     {
         // 13-Mar-2017, tatu: Used to call `findTypeValueSerializer()`, but contextualization

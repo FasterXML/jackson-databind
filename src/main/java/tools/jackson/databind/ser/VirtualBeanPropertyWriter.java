@@ -108,7 +108,7 @@ public abstract class VirtualBeanPropertyWriter
      * may choose to not even use this method (by overriding {@link #serializeAsProperty})
      * and define a bogus implementation.
      */
-    protected abstract Object value(Object bean, JsonGenerator g, SerializerProvider prov) throws Exception;
+    protected abstract Object value(Object bean, JsonGenerator g, SerializationContext prov) throws Exception;
 
     /**
      * Contextualization method called on a newly constructed virtual bean property.
@@ -133,7 +133,7 @@ public abstract class VirtualBeanPropertyWriter
      */
 
     @Override
-    public void serializeAsProperty(Object bean, JsonGenerator g, SerializerProvider prov)
+    public void serializeAsProperty(Object bean, JsonGenerator g, SerializationContext prov)
         throws Exception
     {
         // NOTE: mostly copied from base class, but off-lined get() access
@@ -179,10 +179,10 @@ public abstract class VirtualBeanPropertyWriter
     }
 
     // This one's fine as-is from base class
-    //public void serializeAsOmittedProperty(Object bean, JsonGenerator g, SerializerProvider prov) throws Exception
+    //public void serializeAsOmittedProperty(Object bean, JsonGenerator g, SerializationContext prov) throws Exception
 
     @Override
-    public void serializeAsElement(Object bean, JsonGenerator g, SerializerProvider prov)
+    public void serializeAsElement(Object bean, JsonGenerator g, SerializationContext prov)
         throws Exception
     {
         // NOTE: mostly copied from base class, but off-lined get() access
@@ -229,5 +229,5 @@ public abstract class VirtualBeanPropertyWriter
     }
 
     // This one's fine as-is from base class
-    //public void serializeAsOmittedElement(Object bean, JsonGenerator g, SerializerProvider prov)
+    //public void serializeAsOmittedElement(Object bean, JsonGenerator g, SerializationContext prov)
 }

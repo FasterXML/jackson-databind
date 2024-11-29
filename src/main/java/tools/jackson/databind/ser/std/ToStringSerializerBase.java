@@ -5,7 +5,7 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
 
@@ -23,12 +23,12 @@ public abstract class ToStringSerializerBase
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Object value) {
+    public boolean isEmpty(SerializationContext prov, Object value) {
         return valueToString(value).isEmpty();
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(Object value, JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         gen.writeString(valueToString(value));
@@ -42,7 +42,7 @@ public abstract class ToStringSerializerBase
      * change this behavior.
      */
     @Override
-    public void serializeWithType(Object value, JsonGenerator g, SerializerProvider ctxt,
+    public void serializeWithType(Object value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

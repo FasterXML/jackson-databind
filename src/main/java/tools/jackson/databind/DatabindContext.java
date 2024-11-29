@@ -22,7 +22,7 @@ import tools.jackson.databind.util.Converter;
 
 /**
  * Shared base class for {@link DeserializationContext} and
- * {@link SerializerProvider}, context objects passed through data-binding
+ * {@link SerializationContext}, context objects passed through data-binding
  * process. Designed so that some of implementations can rely on shared
  * aspects like access to secondary contextual objects like type factories
  * or handler instantiators.

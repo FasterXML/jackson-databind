@@ -39,7 +39,7 @@ public class JavaSqlDateSerializer
     }
 
     @Override
-    public void serialize(java.sql.Date value, JsonGenerator g, SerializerProvider provider)
+    public void serialize(java.sql.Date value, JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         if (_asTimestamp(provider)) {

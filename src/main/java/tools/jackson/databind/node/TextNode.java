@@ -5,7 +5,7 @@ import java.util.Objects;
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.util.ByteArrayBuilder;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.exc.InvalidFormatException;
 
 /**
@@ -147,7 +147,7 @@ e.getMessage()),
      */
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider)
+    public final void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         g.writeString(_value);

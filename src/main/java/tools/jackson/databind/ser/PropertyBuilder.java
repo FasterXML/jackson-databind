@@ -86,7 +86,7 @@ public class PropertyBuilder
      *    to use for contained values (only used for properties that are
      *    of container type)
      */
-    protected BeanPropertyWriter buildWriter(SerializerProvider ctxt,
+    protected BeanPropertyWriter buildWriter(SerializationContext ctxt,
             BeanPropertyDefinition propDef, JavaType declaredType, ValueSerializer<?> ser,
             TypeSerializer typeSer, TypeSerializer contentTypeSer,
             AnnotatedMember am, boolean defaultUseStaticTyping)

@@ -115,7 +115,7 @@ public class SimpleBeanPropertyFilter
 
     @Override
     public void serializeAsProperty(Object pojo, JsonGenerator g,
-            SerializerProvider provider, PropertyWriter writer)
+            SerializationContext provider, PropertyWriter writer)
         throws Exception
     {
         if (include(writer)) {
@@ -126,7 +126,7 @@ public class SimpleBeanPropertyFilter
     }
 
     @Override
-    public void serializeAsElement(Object elementValue, JsonGenerator g, SerializerProvider provider,
+    public void serializeAsElement(Object elementValue, JsonGenerator g, SerializationContext provider,
             PropertyWriter writer)
         throws Exception
     {
@@ -138,7 +138,7 @@ public class SimpleBeanPropertyFilter
     @Override
     public void depositSchemaProperty(PropertyWriter writer,
             JsonObjectFormatVisitor objectVisitor,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         if (include(writer)) {
             writer.depositSchemaProperty(objectVisitor, provider);

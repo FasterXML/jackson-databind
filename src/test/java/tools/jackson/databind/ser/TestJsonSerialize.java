@@ -117,7 +117,7 @@ public class TestJsonSerialize
         public Bar294Serializer() { super(Bar294.class); }
         @Override
         public void serialize(Bar294 bar, JsonGenerator g,
-            SerializerProvider provider)
+            SerializationContext provider)
         {
             g.writeString(bar.id);
         }

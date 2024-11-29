@@ -22,7 +22,7 @@ public class NullSerializer
     private NullSerializer() { super(Object.class); }
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(Object value, JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         gen.writeNull();
@@ -35,7 +35,7 @@ public class NullSerializer
      * by JSON filter; caller cannot know what kind of serializer it gets handed.
      */
     @Override
-    public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider serializers,
+    public void serializeWithType(Object value, JsonGenerator gen, SerializationContext serializers,
             TypeSerializer typeSer)
         throws JacksonException
     {

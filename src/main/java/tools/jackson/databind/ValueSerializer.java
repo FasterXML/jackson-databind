@@ -45,7 +45,7 @@ import tools.jackson.databind.util.NameTransformer;
  *<p>
  * NOTE: various <code>serialize</code> methods are never (to be) called
  * with null values -- caller <b>must</b> handle null values, usually
- * by calling {@link SerializerProvider#findNullValueSerializer} to obtain
+ * by calling {@link SerializationContext#findNullValueSerializer} to obtain
  * serializer to use.
  * This also means that custom serializers cannot be directly used to change
  * the output to produce when serializing null values.
@@ -63,7 +63,7 @@ public abstract class ValueSerializer<T>
      */
 
     /**
-     * Method called after {@link SerializerProvider} has registered
+     * Method called after {@link SerializationContext} has registered
      * the serializer, but before it has returned it to the caller.
      * Called object can then resolve its dependencies to other types,
      * including self-references (direct or indirect).
@@ -74,7 +74,7 @@ public abstract class ValueSerializer<T>
      * @param provider Provider that has constructed serializer this method
      *   is called on.
      */
-    public void resolve(SerializerProvider provider) {
+    public void resolve(SerializationContext provider) {
         // Default implementation does nothing
     }
 
@@ -101,7 +101,7 @@ public abstract class ValueSerializer<T>
      * @return Serializer to use for serializing values of specified property;
      *   may be this instance or a new instance.
      */
-    public ValueSerializer<?> createContextual(SerializerProvider prov,
+    public ValueSerializer<?> createContextual(SerializationContext prov,
             BeanProperty property) {
         // default implementation returns instance unmodified
         return this;
@@ -219,7 +219,7 @@ public abstract class ValueSerializer<T>
      * @param serializers Provider that can be used to get serializers for
      *   serializing Objects value contains, if any.
      */
-    public abstract void serialize(T value, JsonGenerator gen, SerializerProvider serializers)
+    public abstract void serialize(T value, JsonGenerator gen, SerializationContext serializers)
         throws JacksonException;
 
     /**
@@ -249,7 +249,7 @@ public abstract class ValueSerializer<T>
      *   serializing Objects value contains, if any.
      * @param typeSer Type serializer to use for including type information
      */
-    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider serializers,
+    public void serializeWithType(T value, JsonGenerator gen, SerializationContext serializers,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -334,7 +334,7 @@ public abstract class ValueSerializer<T>
      *<p>
      * Default implementation will consider only null values to be empty.
      */
-    public boolean isEmpty(SerializerProvider provider, T value) {
+    public boolean isEmpty(SerializationContext provider, T value) {
         return (value == null);
     }
 

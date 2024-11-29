@@ -6,7 +6,7 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 /**
  * Interface that can be implemented by objects that know how to
  * serialize themselves to JSON, using {@link JsonGenerator}
- * (and {@link SerializerProvider} if necessary).
+ * (and {@link SerializationContext} if necessary).
  *<p>
  * Note that implementing this interface binds implementing object
  * closely to Jackson API, and that it is often not necessary to do
@@ -25,7 +25,7 @@ public interface JacksonSerializable
      * Serialization method called when no additional type information is
      * to be included in serialization.
      */
-    public void serialize(JsonGenerator gen, SerializerProvider serializers)
+    public void serialize(JsonGenerator gen, SerializationContext serializers)
         throws JacksonException;
 
     /**
@@ -41,7 +41,7 @@ public interface JacksonSerializable
      * Note that some types (most notably, "natural" types: String, Integer,
      * Double and Boolean) never include type information.
      */
-    public void serializeWithType(JsonGenerator gen, SerializerProvider serializers,
+    public void serializeWithType(JsonGenerator gen, SerializationContext serializers,
             TypeSerializer typeSer)
         throws JacksonException;
 
@@ -57,7 +57,7 @@ public interface JacksonSerializable
          * Method that may be called on instance to determine if it is considered
          * "empty" for purposes of serialization filtering or not.
          */
-        public boolean isEmpty(SerializerProvider serializers) {
+        public boolean isEmpty(SerializationContext serializers) {
             return false;
         }
     }

@@ -18,7 +18,7 @@ public class UnknownSerializer
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider ctxt) throws JacksonException
+    public void serialize(Object value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException
     {
         // 27-Nov-2009, tatu: As per [JACKSON-201] may or may not fail...
         if (ctxt.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
@@ -28,7 +28,7 @@ public class UnknownSerializer
     }
 
     @Override
-    public final void serializeWithType(Object value, JsonGenerator gen, SerializerProvider ctxt,
+    public final void serializeWithType(Object value, JsonGenerator gen, SerializationContext ctxt,
             TypeSerializer typeSer) throws JacksonException
     {
         if (ctxt.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
@@ -38,11 +38,11 @@ public class UnknownSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, Object value) {
+    public boolean isEmpty(SerializationContext provider, Object value) {
         return true;
     }
 
-    protected void failForEmpty(SerializerProvider prov, Object value)
+    protected void failForEmpty(SerializationContext prov, Object value)
     {
         final Class<?> cl = value.getClass();
         if (NativeImageUtil.needsReflectionConfiguration(cl)) {

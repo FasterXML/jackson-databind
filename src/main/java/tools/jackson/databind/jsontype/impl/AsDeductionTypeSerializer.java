@@ -7,7 +7,7 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsontype.TypeSerializer;
 
 public class AsDeductionTypeSerializer extends TypeSerializerBase
@@ -23,7 +23,7 @@ public class AsDeductionTypeSerializer extends TypeSerializerBase
     }
 
     @Override
-    public TypeSerializer forProperty(SerializerProvider ctxt, BeanProperty prop) {
+    public TypeSerializer forProperty(SerializationContext ctxt, BeanProperty prop) {
         return this;
     }
 
@@ -32,7 +32,7 @@ public class AsDeductionTypeSerializer extends TypeSerializerBase
     public As getTypeInclusion() { return As.EXISTING_PROPERTY; }
 
     @Override
-    public WritableTypeId writeTypePrefix(JsonGenerator g, SerializerProvider ctxt,
+    public WritableTypeId writeTypePrefix(JsonGenerator g, SerializationContext ctxt,
             WritableTypeId idMetadata) throws JacksonException
     {
         // NOTE: We can NOT simply skip writing since we may have to
@@ -58,7 +58,7 @@ public class AsDeductionTypeSerializer extends TypeSerializerBase
     }
 
     @Override
-    public WritableTypeId writeTypeSuffix(JsonGenerator g, SerializerProvider ctxt,
+    public WritableTypeId writeTypeSuffix(JsonGenerator g, SerializationContext ctxt,
             WritableTypeId idMetadata) throws JacksonException
     {
         return (idMetadata == null) ? null

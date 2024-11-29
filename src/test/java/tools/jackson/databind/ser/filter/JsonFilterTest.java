@@ -65,7 +65,7 @@ public class JsonFilterTest extends DatabindTestUtil
 
     static class CheckSiblingContextFilter extends SimpleBeanPropertyFilter {
         @Override
-        public void serializeAsProperty(Object bean, JsonGenerator jgen, SerializerProvider prov, PropertyWriter writer) throws Exception {
+        public void serializeAsProperty(Object bean, JsonGenerator jgen, SerializationContext prov, PropertyWriter writer) throws Exception {
             TokenStreamContext sc = jgen.streamWriteContext();
 
             if (writer.getName() != null && writer.getName().equals("c")) {

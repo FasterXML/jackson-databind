@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 
 /**
@@ -31,7 +31,7 @@ public class AsExternalTypeSerializer extends TypeSerializerBase
     }
 
     @Override
-    public AsExternalTypeSerializer forProperty(SerializerProvider ctxt,
+    public AsExternalTypeSerializer forProperty(SerializationContext ctxt,
             BeanProperty prop) {
         return (_property == prop) ? this : new AsExternalTypeSerializer(_idResolver, prop, _typePropertyName);
     }

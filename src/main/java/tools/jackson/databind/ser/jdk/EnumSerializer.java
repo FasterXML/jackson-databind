@@ -92,7 +92,7 @@ public class EnumSerializer
      * choice here, however.
      */
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
         JsonFormat.Value format = findFormatOverrides(ctxt,
@@ -124,7 +124,7 @@ public class EnumSerializer
      */
 
     @Override
-    public final void serialize(Enum<?> en, JsonGenerator g, SerializerProvider ctxt)
+    public final void serialize(Enum<?> en, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         if (_valuesByEnumNaming != null) {
@@ -153,7 +153,7 @@ public class EnumSerializer
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-        SerializerProvider serializers = visitor.getProvider();
+        SerializationContext serializers = visitor.getProvider();
         if (_serializeAsIndex(serializers)) {
             visitIntFormat(visitor, typeHint, JsonParser.NumberType.INT);
             return;
@@ -184,7 +184,7 @@ public class EnumSerializer
     /**********************************************************************
      */
 
-    protected final boolean _serializeAsIndex(SerializerProvider ctxt)
+    protected final boolean _serializeAsIndex(SerializationContext ctxt)
     {
         if (_serializeAsIndex != null) {
             return _serializeAsIndex;

@@ -1,7 +1,7 @@
 package tools.jackson.databind.node;
 
 import tools.jackson.core.*;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * This concrete value class is used to contain boolean (true / false)
@@ -87,7 +87,7 @@ public class BooleanNode
     }
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider)
+    public final void serialize(JsonGenerator g, SerializationContext provider)
             throws JacksonException {
         g.writeBoolean(_value);
     }

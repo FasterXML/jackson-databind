@@ -65,7 +65,7 @@ public class JDKMiscSerializers
         public AtomicBooleanSerializer() { super(AtomicBoolean.class, false); }
 
         @Override
-        public void serialize(AtomicBoolean value, JsonGenerator gen, SerializerProvider provider) throws JacksonException {
+        public void serialize(AtomicBoolean value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
             gen.writeBoolean(value.get());
         }
 
@@ -81,7 +81,7 @@ public class JDKMiscSerializers
         public AtomicIntegerSerializer() { super(AtomicInteger.class, false); }
 
         @Override
-        public void serialize(AtomicInteger value, JsonGenerator gen, SerializerProvider provider) throws JacksonException {
+        public void serialize(AtomicInteger value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
             gen.writeNumber(value.get());
         }
 
@@ -98,7 +98,7 @@ public class JDKMiscSerializers
         public AtomicLongSerializer() { super(AtomicLong.class, false); }
 
         @Override
-        public void serialize(AtomicLong value, JsonGenerator gen, SerializerProvider provider) throws JacksonException {
+        public void serialize(AtomicLong value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
             gen.writeNumber(value.get());
         }
 

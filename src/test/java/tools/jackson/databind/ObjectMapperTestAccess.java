@@ -13,6 +13,6 @@ public abstract class ObjectMapperTestAccess
     }
 
     public static BeanDescription beanDescriptionForSer(ObjectMapper mapper, Class<?> type) {
-        return mapper._serializerProvider().introspectBeanDescription(mapper.constructType(type));
+        return mapper._serializationContext().introspectBeanDescription(mapper.constructType(type));
     }
 }

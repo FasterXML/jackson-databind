@@ -68,7 +68,7 @@ public class TestMapFiltering extends DatabindTestUtil
 
         @Override
         public void serializeAsProperty(Object bean, JsonGenerator g,
-                SerializerProvider provider, PropertyWriter writer)
+                SerializationContext provider, PropertyWriter writer)
             throws Exception
         {
             String name = writer.getName();
@@ -94,7 +94,7 @@ public class TestMapFiltering extends DatabindTestUtil
 
         @Override
         public void serializeAsElement(Object elementValue, JsonGenerator jgen,
-                SerializerProvider prov, PropertyWriter writer)
+                SerializationContext prov, PropertyWriter writer)
                 throws Exception {
             // not needed for testing
         }
@@ -103,7 +103,7 @@ public class TestMapFiltering extends DatabindTestUtil
 
         public void depositSchemaProperty(PropertyWriter writer,
                 JsonObjectFormatVisitor objectVisitor,
-                SerializerProvider provider) { }
+                SerializationContext provider) { }
     }
 
     // [databind#527]

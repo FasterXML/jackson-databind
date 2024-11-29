@@ -22,7 +22,7 @@ public class ObjectIdReader
 
     /**
      * Blueprint generator instance: actual instance will be
-     * fetched from {@link SerializerProvider} using this as
+     * fetched from {@link SerializationContext} using this as
      * the key.
      */
     public final ObjectIdGenerator<?> generator;

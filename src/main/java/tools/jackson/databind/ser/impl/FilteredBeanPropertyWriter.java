@@ -1,7 +1,7 @@
 package tools.jackson.databind.ser.impl;
 
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.ser.BeanPropertyWriter;
@@ -61,7 +61,7 @@ public abstract class FilteredBeanPropertyWriter
         }
 
         @Override
-        public void serializeAsProperty(Object bean, JsonGenerator gen, SerializerProvider prov)
+        public void serializeAsProperty(Object bean, JsonGenerator gen, SerializationContext prov)
             throws Exception
         {
             Class<?> activeView = prov.getActiveView();
@@ -73,7 +73,7 @@ public abstract class FilteredBeanPropertyWriter
         }
 
         @Override
-        public void serializeAsElement(Object bean, JsonGenerator gen, SerializerProvider prov)
+        public void serializeAsElement(Object bean, JsonGenerator gen, SerializationContext prov)
             throws Exception
         {
             Class<?> activeView = prov.getActiveView();
@@ -86,7 +86,7 @@ public abstract class FilteredBeanPropertyWriter
 
         @Override
         public void depositSchemaProperty(JsonObjectFormatVisitor v,
-                SerializerProvider provider)
+                SerializationContext provider)
         {
             Class<?> activeView = provider.getActiveView();
             if (activeView == null || _view.isAssignableFrom(activeView)) {
@@ -127,7 +127,7 @@ public abstract class FilteredBeanPropertyWriter
         }
 
         @Override
-        public void serializeAsProperty(Object bean, JsonGenerator gen, SerializerProvider prov)
+        public void serializeAsProperty(Object bean, JsonGenerator gen, SerializationContext prov)
             throws Exception
         {
             if (_inView(prov.getActiveView())) {
@@ -138,7 +138,7 @@ public abstract class FilteredBeanPropertyWriter
         }
 
         @Override
-        public void serializeAsElement(Object bean, JsonGenerator gen, SerializerProvider prov)
+        public void serializeAsElement(Object bean, JsonGenerator gen, SerializationContext prov)
             throws Exception
         {
             if (_inView(prov.getActiveView())) {
@@ -150,7 +150,7 @@ public abstract class FilteredBeanPropertyWriter
 
         @Override
         public void depositSchemaProperty(JsonObjectFormatVisitor v,
-                SerializerProvider provider)
+                SerializationContext provider)
         {
             if (_inView(provider.getActiveView())) {
                 super.depositSchemaProperty(v, provider);

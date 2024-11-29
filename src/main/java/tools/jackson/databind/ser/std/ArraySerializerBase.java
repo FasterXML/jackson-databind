@@ -46,7 +46,7 @@ public abstract class ArraySerializerBase<T>
             Boolean unwrapSingle);
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider serializers,
+    public ValueSerializer<?> createContextual(SerializationContext serializers,
             BeanProperty property)
     {
         Boolean unwrapSingle = null;
@@ -65,7 +65,7 @@ public abstract class ArraySerializerBase<T>
     }
 
     @Override
-    public final void serializeWithType(T value, JsonGenerator g, SerializerProvider ctxt,
+    public final void serializeWithType(T value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -77,10 +77,10 @@ public abstract class ArraySerializerBase<T>
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
-    protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)
+    protected abstract void serializeContents(T value, JsonGenerator jgen, SerializationContext provider)
         throws JacksonException;
 
-    protected final boolean _shouldUnwrapSingle(SerializerProvider provider) {
+    protected final boolean _shouldUnwrapSingle(SerializationContext provider) {
         if (_unwrapSingle == null) {
             return provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         }

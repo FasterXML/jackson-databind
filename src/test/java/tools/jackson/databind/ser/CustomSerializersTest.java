@@ -34,7 +34,7 @@ public class CustomSerializersTest extends DatabindTestUtil
     {
         public ElementSerializer() { super(Element.class); }
         @Override
-        public void serialize(Element value, JsonGenerator gen, SerializerProvider provider) {
+        public void serialize(Element value, JsonGenerator gen, SerializationContext provider) {
             gen.writeString("element");
         }
     }
@@ -120,7 +120,7 @@ public class CustomSerializersTest extends DatabindTestUtil
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) {
+                SerializationContext provider) {
             Object parent = gen.currentValue();
             String desc = (parent == null) ? "NULL" : parent.getClass().getSimpleName();
             gen.writeString(desc+"/"+value);
@@ -133,7 +133,7 @@ public class CustomSerializersTest extends DatabindTestUtil
 
         @Override
         public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) {
+                SerializationContext provider) {
             gen.writeString(value.toUpperCase());
         }
     }
@@ -155,7 +155,7 @@ public class CustomSerializersTest extends DatabindTestUtil
     // [databind#2475]
     static class MyFilter2475 extends SimpleBeanPropertyFilter {
         @Override
-        public void serializeAsProperty(Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) throws Exception {
+        public void serializeAsProperty(Object pojo, JsonGenerator jgen, SerializationContext provider, PropertyWriter writer) throws Exception {
             // Ensure that "current value" remains pojo
             final TokenStreamContext ctx = jgen.streamWriteContext();
             final Object curr = ctx.currentValue();
@@ -272,7 +272,7 @@ public class CustomSerializersTest extends DatabindTestUtil
 
         module.addSerializer(Collection.class, new ValueSerializer<Collection>() {
             @Override
-            public void serialize(Collection value, JsonGenerator gen, SerializerProvider provider)
+            public void serialize(Collection value, JsonGenerator gen, SerializationContext provider)
             {
                 if (!value.isEmpty()) {
                     collectionSerializer.serialize(value, gen, provider);

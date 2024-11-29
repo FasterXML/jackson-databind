@@ -137,7 +137,7 @@ public abstract class JDKKeySerializers
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(Object value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
             switch (_typeId) {
@@ -206,7 +206,7 @@ public abstract class JDKKeySerializers
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(Object value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
             Class<?> cls = value.getClass();
@@ -224,7 +224,7 @@ public abstract class JDKKeySerializers
         }
 
         protected ValueSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-                Class<?> type, SerializerProvider provider)
+                Class<?> type, SerializationContext provider)
         {
             // 27-Jun-2017, tatu: [databind#1679] Need to avoid StackOverflowError...
             if (type == Object.class) {
@@ -252,7 +252,7 @@ public abstract class JDKKeySerializers
         public StringKeySerializer() { super(String.class); }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(Object value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
             g.writeName((String) value);
@@ -296,7 +296,7 @@ public abstract class JDKKeySerializers
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider serializers)
+        public void serialize(Object value, JsonGenerator g, SerializationContext serializers)
             throws JacksonException
         {
             if (serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {

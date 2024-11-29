@@ -59,7 +59,7 @@ public class CollectionSerializationTest
         public ListSerializer() { super(List.class); }
 
         @Override
-        public void serialize(List<String> value, JsonGenerator gen, SerializerProvider provider)
+        public void serialize(List<String> value, JsonGenerator gen, SerializationContext provider)
         {
             // just use standard List.toString(), output as JSON String
             gen.writeString(value.toString());

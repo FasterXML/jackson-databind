@@ -187,9 +187,9 @@ public class ObjectMapper
      */
 
     /**
-     * Factory used for constructing per-call {@link SerializerProvider}s.
+     * Factory used for constructing per-call {@link SerializationContext}s.
      *<p>
-     * Note: while serializers are only exposed {@link SerializerProvider},
+     * Note: while serializers are only exposed {@link SerializationContext},
      * mappers and readers need to access additional API defined by
      * {@link SerializationContextExt}
      */
@@ -754,7 +754,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(OutputStream out) throws JacksonException {
         _assertNotNull("out", out);
-        return _streamFactory.createGenerator(_serializerProvider(), out);
+        return _streamFactory.createGenerator(_serializationContext(), out);
     }
 
     /**
@@ -767,7 +767,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws JacksonException {
         _assertNotNull("out", out);
-        return _streamFactory.createGenerator(_serializerProvider(), out, enc);
+        return _streamFactory.createGenerator(_serializationContext(), out, enc);
     }
 
     /**
@@ -780,7 +780,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(Writer w) throws JacksonException {
         _assertNotNull("w", w);
-        return _streamFactory.createGenerator(_serializerProvider(), w);
+        return _streamFactory.createGenerator(_serializationContext(), w);
     }
 
     /**
@@ -793,7 +793,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(File f, JsonEncoding enc) throws JacksonException {
         _assertNotNull("f", f);
-        return _streamFactory.createGenerator(_serializerProvider(), f, enc);
+        return _streamFactory.createGenerator(_serializationContext(), f, enc);
     }
 
     /**
@@ -806,7 +806,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(Path path, JsonEncoding enc) throws JacksonException {
         _assertNotNull("path", path);
-        return _streamFactory.createGenerator(_serializerProvider(), path, enc);
+        return _streamFactory.createGenerator(_serializationContext(), path, enc);
     }
 
     /**
@@ -819,7 +819,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(DataOutput out) throws JacksonException {
         _assertNotNull("out", out);
-        return _streamFactory.createGenerator(_serializerProvider(), out);
+        return _streamFactory.createGenerator(_serializationContext(), out);
     }
 
     /*
@@ -934,7 +934,7 @@ public class ObjectMapper
     {
         _assertNotNull("g", g);
         SerializationConfig config = serializationConfig();
-        _serializerProvider(config).serializeValue(g, rootNode);
+        _serializationContext(config).serializeValue(g, rootNode);
         if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
             g.flush();
         }
@@ -1235,7 +1235,7 @@ public class ObjectMapper
         if (config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _writeCloseableValue(g, value, config);
         } else {
-            _serializerProvider(config).serializeValue(g, value);
+            _serializationContext(config).serializeValue(g, value);
             if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 g.flush();
             }
@@ -1358,7 +1358,7 @@ public class ObjectMapper
     {
         // 02-Mar-2021, tatu: [databind#2411] Rewrite "valueToTree()" impl; old
         //   impl left for reference
-        return _serializerProvider().valueToTree(fromValue);
+        return _serializationContext().valueToTree(fromValue);
     }
 
     /*
@@ -1764,7 +1764,7 @@ public class ObjectMapper
     public void writeValue(File file, Object value) throws JacksonException
     {
         _assertNotNull("file", file);
-        SerializationContextExt prov = _serializerProvider();
+        SerializationContextExt prov = _serializationContext();
         _configAndWriteValue(prov,
                 _streamFactory.createGenerator(prov, file, JsonEncoding.UTF8), value);
     }
@@ -1778,7 +1778,7 @@ public class ObjectMapper
     public void writeValue(Path path, Object value) throws JacksonException
     {
         _assertNotNull("path", path);
-        SerializationContextExt prov = _serializerProvider();
+        SerializationContextExt prov = _serializationContext();
         _configAndWriteValue(prov,
                 _streamFactory.createGenerator(prov, path, JsonEncoding.UTF8), value);
     }
@@ -1797,7 +1797,7 @@ public class ObjectMapper
     public void writeValue(OutputStream out, Object value) throws JacksonException
     {
         _assertNotNull("out", out);
-        SerializationContextExt prov = _serializerProvider();
+        SerializationContextExt prov = _serializationContext();
         _configAndWriteValue(prov,
                 _streamFactory.createGenerator(prov, out, JsonEncoding.UTF8), value);
     }
@@ -1805,7 +1805,7 @@ public class ObjectMapper
     public void writeValue(DataOutput out, Object value) throws JacksonException
     {
         _assertNotNull("out", out);
-        SerializationContextExt prov = _serializerProvider();
+        SerializationContextExt prov = _serializationContext();
         _configAndWriteValue(prov,
                 _streamFactory.createGenerator(prov, out), value);
     }
@@ -1823,7 +1823,7 @@ public class ObjectMapper
     public void writeValue(Writer w, Object value) throws JacksonException
     {
         _assertNotNull("w", w);
-        SerializationContextExt prov = _serializerProvider();
+        SerializationContextExt prov = _serializationContext();
         _configAndWriteValue(prov, _streamFactory.createGenerator(prov, w), value);
     }
 
@@ -1839,7 +1839,7 @@ public class ObjectMapper
         final BufferRecycler br = _streamFactory._getBufferRecycler();
         // alas, we have to pull the recycler directly here...
         try (SegmentedStringWriter sw = new SegmentedStringWriter(br)) {
-            SerializationContextExt prov = _serializerProvider();
+            SerializationContextExt prov = _serializationContext();
             _configAndWriteValue(prov, _streamFactory.createGenerator(prov, sw), value);
             return sw.getAndClear();
         } finally {
@@ -1859,7 +1859,7 @@ public class ObjectMapper
     {
         final BufferRecycler br = _streamFactory._getBufferRecycler();
         try (ByteArrayBuilder bb = new ByteArrayBuilder(br)) {
-            final SerializationContextExt ctxt = _serializerProvider();
+            final SerializationContextExt ctxt = _serializationContext();
             _configAndWriteValue(ctxt,
                     _streamFactory.createGenerator(ctxt, bb, JsonEncoding.UTF8), value);
             return bb.getClearAndRelease();
@@ -1919,7 +1919,7 @@ public class ObjectMapper
     {
         Closeable toClose = (Closeable) value;
         try {
-            _serializerProvider(cfg).serializeValue(g, value);
+            _serializationContext(cfg).serializeValue(g, value);
             if (cfg.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 g.flush();
             }
@@ -2361,7 +2361,7 @@ public class ObjectMapper
         // first: disable wrapping when writing
         final SerializationConfig config = serializationConfig()
                 .without(SerializationFeature.WRAP_ROOT_VALUE);
-        final SerializationContextExt ctxt = _serializerProvider(config);
+        final SerializationContextExt ctxt = _serializationContext(config);
         TokenBuffer buf = ctxt.bufferForValueConversion();
         // Would like to let buffer decide, but it won't have deser config to check so...
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
@@ -2431,7 +2431,7 @@ public class ObjectMapper
         }
         SerializationConfig config = serializationConfig()
                 .without(SerializationFeature.WRAP_ROOT_VALUE);
-        SerializationContextExt ctxt = _serializerProvider(config);
+        SerializationContextExt ctxt = _serializationContext(config);
         TokenBuffer buf = ctxt.bufferForValueConversion();
         // Would like to let buffer decide, but it won't have deser config to check so...
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
@@ -2487,7 +2487,7 @@ public class ObjectMapper
     {
         _assertNotNull("type", type);
         _assertNotNull("visitor", visitor);
-        _serializerProvider().acceptJsonFormatVisitor(type, visitor);
+        _serializationContext().acceptJsonFormatVisitor(type, visitor);
     }
 
     /*
@@ -2498,16 +2498,16 @@ public class ObjectMapper
 
     /**
      * Overridable helper method used for constructing
-     * {@link SerializerProvider} to use for serialization.
+     * {@link SerializationContext} to use for serialization.
      */
-    protected SerializationContextExt _serializerProvider(SerializationConfig config) {
+    protected SerializationContextExt _serializationContext(SerializationConfig config) {
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
         return _serializationContexts.createContext(config,
                 GeneratorSettings.empty());
     }
 
     // NOTE: only public to allow for testing
-    public SerializationContextExt _serializerProvider() {
+    public SerializationContextExt _serializationContext() {
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
         return _serializationContexts.createContext(serializationConfig(),
                 GeneratorSettings.empty());

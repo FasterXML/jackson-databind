@@ -58,7 +58,7 @@ public final class IndexedStringListSerializer
 
     @Override
     public void serialize(List<String> value, JsonGenerator g,
-            SerializerProvider provider) throws JacksonException
+            SerializationContext provider) throws JacksonException
     {
         final int len = value.size();
         if (len == 1) {
@@ -75,7 +75,7 @@ public final class IndexedStringListSerializer
     }
 
     @Override
-    public void serializeWithType(List<String> value, JsonGenerator g, SerializerProvider ctxt,
+    public void serializeWithType(List<String> value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -87,7 +87,7 @@ public final class IndexedStringListSerializer
     }
 
     private final void serializeContents(List<String> value, JsonGenerator g,
-            SerializerProvider provider, int len) throws JacksonException
+            SerializationContext provider, int len) throws JacksonException
     {
         int i = 0;
         try {

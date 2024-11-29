@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.databind.*;
 
 /**
- * Abstract class that defines API used by {@link SerializerProvider}
+ * Abstract class that defines API used by {@link SerializationContext}
  * to obtain actual
  * {@link ValueSerializer} instances from multiple distinct factories.
  */
@@ -27,7 +27,7 @@ public abstract class SerializerFactory
      *
      * @since 3.0 (last argument added)
      */
-    public abstract ValueSerializer<Object> createSerializer(SerializerProvider ctxt,
+    public abstract ValueSerializer<Object> createSerializer(SerializationContext ctxt,
             JavaType baseType, BeanDescription beanDesc, JsonFormat.Value formatOverride);
 
     /**
@@ -40,7 +40,7 @@ public abstract class SerializerFactory
      * @return Serializer to use, if factory knows it; null if not (in which case default
      *   serializer is to be used)
      */
-    public abstract ValueSerializer<Object> createKeySerializer(SerializerProvider ctxt,
+    public abstract ValueSerializer<Object> createKeySerializer(SerializationContext ctxt,
             JavaType type);
 
     /**
@@ -98,7 +98,7 @@ public abstract class SerializerFactory
      * @deprecated Since 3.0 use variant that takes {@code JsonFormat.Value} argument
      */
     @Deprecated // since 3.0
-    public ValueSerializer<Object> createSerializer(SerializerProvider ctxt, JavaType baseType)
+    public ValueSerializer<Object> createSerializer(SerializationContext ctxt, JavaType baseType)
     {
         BeanDescription beanDesc = ctxt.introspectBeanDescription(baseType);
         return createSerializer(ctxt, baseType, beanDesc, null);

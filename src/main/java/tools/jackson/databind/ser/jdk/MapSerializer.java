@@ -321,7 +321,7 @@ public class MapSerializer
      */
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
         ValueSerializer<?> ser = null;
@@ -467,7 +467,7 @@ public class MapSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Map<?,?> value)
+    public boolean isEmpty(SerializationContext prov, Map<?,?> value)
     {
         if (value.isEmpty()) {
             return true;
@@ -549,7 +549,7 @@ public class MapSerializer
      */
 
     @Override
-    public void serialize(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(Map<?,?> value, JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         gen.writeStartObject(value);
@@ -558,7 +558,7 @@ public class MapSerializer
     }
 
     @Override
-    public void serializeWithType(Map<?,?> value, JsonGenerator gen, SerializerProvider ctxt,
+    public void serializeWithType(Map<?,?> value, JsonGenerator gen, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -582,7 +582,7 @@ public class MapSerializer
      *<p>
      * NOTE: Public only since it also is called by {@code AnyGetterWriter}.
      */
-    public void serializeWithoutTypeInfo(Map<?, ?> value, JsonGenerator gen, SerializerProvider ctxt)
+    public void serializeWithoutTypeInfo(Map<?, ?> value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         if (!value.isEmpty()) {
@@ -617,7 +617,7 @@ public class MapSerializer
      * NOTE: {@code public} only because it is called by code from {@code Guava}
      *  {@code TableSerializer}
      */
-    public void serializeEntries(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
+    public void serializeEntries(Map<?,?> value, JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         // If value type needs polymorphic type handling, some more work needed:
@@ -664,7 +664,7 @@ public class MapSerializer
      * NOTE: {@code public} because other similar methods are (no current known
      * external usage).
      */
-    public void serializeOptionalFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeOptionalFields(Map<?,?> value, JsonGenerator gen, SerializationContext provider,
             Object suppressableValue)
         throws JacksonException
     {
@@ -730,7 +730,7 @@ public class MapSerializer
      * NOTE: {@code public} because other similar methods are (no current known
      * external usage).
      */
-    public void serializeEntriesUsing(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeEntriesUsing(Map<?,?> value, JsonGenerator gen, SerializationContext provider,
             ValueSerializer<Object> ser)
         throws JacksonException
     {
@@ -772,7 +772,7 @@ public class MapSerializer
      * NOTE: {@code public} because other similar methods are (no current known
      * external usage).
      */
-    public void serializeFilteredEntries(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeFilteredEntries(Map<?,?> value, JsonGenerator gen, SerializationContext provider,
             PropertyFilter filter,
             Object suppressableValue)
         throws JacksonException
@@ -834,7 +834,7 @@ public class MapSerializer
      * NOTE: {@code public} because other similar methods are (no current known
      * external usage).
      */
-    public void serializeTypedEntries(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeTypedEntries(Map<?,?> value, JsonGenerator gen, SerializationContext provider,
             Object suppressableValue)
         throws JacksonException
     {
@@ -894,7 +894,7 @@ public class MapSerializer
      *
      * @param bean Enclosing POJO that has any-getter used to obtain "any properties"
      */
-    public void serializeFilteredAnyProperties(SerializerProvider provider, JsonGenerator gen,
+    public void serializeFilteredAnyProperties(SerializationContext provider, JsonGenerator gen,
             Object bean, Map<?,?> value, PropertyFilter filter,
             Object suppressableValue)
         throws JacksonException
@@ -978,7 +978,7 @@ public class MapSerializer
      */
 
     protected Map<?,?> _orderEntries(Map<?,?> input, JsonGenerator gen,
-            SerializerProvider provider) throws JacksonException
+            SerializationContext provider) throws JacksonException
     {
         // minor optimization: may already be sorted?
         if (input instanceof SortedMap<?,?>) {
@@ -1036,7 +1036,7 @@ public class MapSerializer
         return (input instanceof HashMap) && input.containsKey(null);
     }
 
-    protected void _writeNullKeyedEntry(JsonGenerator g, SerializerProvider ctxt,
+    protected void _writeNullKeyedEntry(JsonGenerator g, SerializationContext ctxt,
             Object value) throws JacksonException
     {
         ValueSerializer<Object> keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
@@ -1069,7 +1069,7 @@ public class MapSerializer
         }
     }
 
-    private final ValueSerializer<Object> _findSerializer(SerializerProvider ctxt,
+    private final ValueSerializer<Object> _findSerializer(SerializationContext ctxt,
             Object value)
     {
         final Class<?> cc = value.getClass();

@@ -24,12 +24,12 @@ public class RawSerializer<T>
     }
 
     @Override
-    public void serialize(T value, JsonGenerator g, SerializerProvider ctxt) throws JacksonException {
+    public void serialize(T value, JsonGenerator g, SerializationContext ctxt) throws JacksonException {
         g.writeRawValue(value.toString());
     }
 
     @Override
-    public void serializeWithType(T value, JsonGenerator g, SerializerProvider ctxt,
+    public void serializeWithType(T value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

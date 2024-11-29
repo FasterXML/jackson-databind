@@ -153,7 +153,7 @@ public abstract class TypeBase
      */
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializerProvider ctxt,
+    public void serializeWithType(JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -164,7 +164,7 @@ public abstract class TypeBase
     }
 
     @Override
-    public void serialize(JsonGenerator gen, SerializerProvider provider)
+    public void serialize(JsonGenerator gen, SerializationContext provider)
             throws JacksonException
     {
         gen.writeString(toCanonical());

@@ -2,14 +2,14 @@ package tools.jackson.databind.jsonFormatVisitors;
 
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * Visitor called when properties of a type that maps to JSON Object
  * are being visited: this usually means POJOs, but sometimes other
  * types use it too (like {@link java.util.EnumMap}).
  */
-public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializerProvider
+public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializationContext
 {
     /**
      * Callback method called when a POJO property is being traversed.
@@ -35,16 +35,16 @@ public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializer
     public static class Base
         implements JsonObjectFormatVisitor
     {
-        protected SerializerProvider _provider;
+        protected SerializationContext _provider;
 
         public Base() { }
-        public Base(SerializerProvider p) { _provider = p; }
+        public Base(SerializationContext p) { _provider = p; }
 
         @Override
-        public SerializerProvider getProvider() { return _provider; }
+        public SerializationContext getProvider() { return _provider; }
 
         @Override
-        public void setProvider(SerializerProvider p) { _provider = p; }
+        public void setProvider(SerializationContext p) { _provider = p; }
 
         @Override
         public void property(BeanProperty prop) { }

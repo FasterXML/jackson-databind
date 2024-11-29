@@ -41,7 +41,7 @@ public class TokenBufferTest extends DatabindTestUtil
         }
 
         @Override
-        public void serialize(Foo3816 value, JsonGenerator gen, SerializerProvider provider) {
+        public void serialize(Foo3816 value, JsonGenerator gen, SerializationContext provider) {
             gen.writeStartObject();
             gen.writeName("field");
             gen.writeString(new StringReader("foobar"), 6);

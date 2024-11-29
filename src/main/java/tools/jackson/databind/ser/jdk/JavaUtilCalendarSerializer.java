@@ -4,7 +4,7 @@ import java.text.DateFormat;
 import java.util.Calendar;
 
 import tools.jackson.core.*;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 
 /**
@@ -37,7 +37,7 @@ public class JavaUtilCalendarSerializer
     }
 
     @Override
-    public void serialize(Calendar value, JsonGenerator g, SerializerProvider provider)
+    public void serialize(Calendar value, JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         if (_asTimestamp(provider)) {

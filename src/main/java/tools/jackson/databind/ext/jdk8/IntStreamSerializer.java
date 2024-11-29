@@ -4,7 +4,7 @@ import java.util.stream.IntStream;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -28,7 +28,7 @@ public class IntStreamSerializer extends StdSerializer<IntStream>
     }
 
     @Override
-    public void serialize(IntStream stream, JsonGenerator g, SerializerProvider ctxt)
+    public void serialize(IntStream stream, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         try (IntStream is = stream) {

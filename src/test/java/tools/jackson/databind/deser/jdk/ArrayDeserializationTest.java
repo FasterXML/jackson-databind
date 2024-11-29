@@ -75,7 +75,7 @@ public class ArrayDeserializationTest
         }
 
         @Override
-        public void serialize(JsonGenerator gen, SerializerProvider provider)
+        public void serialize(JsonGenerator gen, SerializationContext provider)
         {
             gen.writeString(_desc);
         }
@@ -90,7 +90,7 @@ public class ArrayDeserializationTest
 
         @Override
         public void serializeWithType(JsonGenerator gen,
-                SerializerProvider provider, TypeSerializer typeSer) {
+                SerializationContext provider, TypeSerializer typeSer) {
         }
     }
 

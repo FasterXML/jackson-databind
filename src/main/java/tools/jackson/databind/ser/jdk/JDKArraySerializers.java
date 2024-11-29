@@ -125,7 +125,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider prov, boolean[] value) {
+        public boolean isEmpty(SerializationContext prov, boolean[] value) {
             return value.length == 0;
         }
 
@@ -135,7 +135,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public final void serialize(boolean[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
+        public final void serialize(boolean[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(provider)) {
@@ -148,7 +148,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public void serializeContents(boolean[] value, JsonGenerator g, SerializerProvider provider)
+        public void serializeContents(boolean[] value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
@@ -192,7 +192,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider prov, short[] value) {
+        public boolean isEmpty(SerializationContext prov, short[] value) {
             return value.length == 0;
         }
 
@@ -202,7 +202,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public final void serialize(short[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
+        public final void serialize(short[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(provider)) {
@@ -215,7 +215,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public void serializeContents(short[] value, JsonGenerator g, SerializerProvider provider)
+        public void serializeContents(short[] value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
@@ -243,12 +243,12 @@ public class JDKArraySerializers
         public CharArraySerializer() { super(char[].class); }
 
         @Override
-        public boolean isEmpty(SerializerProvider prov, char[] value) {
+        public boolean isEmpty(SerializationContext prov, char[] value) {
             return value.length == 0;
         }
 
         @Override
-        public void serialize(char[] value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(char[] value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
@@ -262,7 +262,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public void serializeWithType(char[] value, JsonGenerator g, SerializerProvider ctxt,
+        public void serializeWithType(char[] value, JsonGenerator g, SerializationContext ctxt,
                 TypeSerializer typeSer)
             throws JacksonException
         {
@@ -335,7 +335,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider prov, int[] value) {
+        public boolean isEmpty(SerializationContext prov, int[] value) {
             return value.length == 0;
         }
 
@@ -345,7 +345,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public final void serialize(int[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
+        public final void serialize(int[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(provider)) {
@@ -357,7 +357,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public void serializeContents(int[] value, JsonGenerator g, SerializerProvider provider)
+        public void serializeContents(int[] value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
@@ -401,7 +401,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider prov, long[] value) {
+        public boolean isEmpty(SerializationContext prov, long[] value) {
             return value.length == 0;
         }
 
@@ -411,7 +411,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public final void serialize(long[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
+        public final void serialize(long[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(provider)) {
@@ -423,7 +423,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public void serializeContents(long[] value, JsonGenerator g, SerializerProvider provider)
+        public void serializeContents(long[] value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
@@ -469,7 +469,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider prov, float[] value) {
+        public boolean isEmpty(SerializationContext prov, float[] value) {
             return value.length == 0;
         }
 
@@ -479,7 +479,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public final void serialize(float[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
+        public final void serialize(float[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(provider)) {
@@ -492,7 +492,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public void serializeContents(float[] value, JsonGenerator g, SerializerProvider provider)
+        public void serializeContents(float[] value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
@@ -549,7 +549,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider prov, double[] value) {
+        public boolean isEmpty(SerializationContext prov, double[] value) {
             return value.length == 0;
         }
 
@@ -559,7 +559,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public final void serialize(double[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
+        public final void serialize(double[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(provider)) {
@@ -571,7 +571,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public void serializeContents(double[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
+        public void serializeContents(double[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeNumber(value[i]);

@@ -43,7 +43,7 @@ public class SimpleModuleTest extends DatabindTestUtil
         public CustomBeanSerializer() { super(CustomBean.class); }
 
         @Override
-        public void serialize(CustomBean value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(CustomBean value, JsonGenerator g, SerializationContext provider)
         {
             // We will write it as a String, with '|' as delimiter
             g.writeString(value.str + "|" + value.num);
@@ -71,7 +71,7 @@ public class SimpleModuleTest extends DatabindTestUtil
         public SimpleEnumSerializer() { super(SimpleEnum.class); }
 
         @Override
-        public void serialize(SimpleEnum value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(SimpleEnum value, JsonGenerator g, SerializationContext provider)
         {
             g.writeString(value.name().toLowerCase());
         }
@@ -105,7 +105,7 @@ public class SimpleModuleTest extends DatabindTestUtil
         public BaseSerializer() { super(Base.class); }
 
         @Override
-        public void serialize(Base value, JsonGenerator g, SerializerProvider provider) {
+        public void serialize(Base value, JsonGenerator g, SerializationContext provider) {
             g.writeString("Base:"+value.getText());
         }
     }
@@ -185,14 +185,14 @@ public class SimpleModuleTest extends DatabindTestUtil
 
     static class Serializer3787A extends ValueSerializer<Test3787Bean> {
         @Override
-        public void serialize(Test3787Bean value, JsonGenerator gen, SerializerProvider serializers) {
+        public void serialize(Test3787Bean value, JsonGenerator gen, SerializationContext serializers) {
             gen.writeRaw("a-result");
         }
     }
 
     static class Serializer3787B extends ValueSerializer<Test3787Bean> {
         @Override
-        public void serialize(Test3787Bean value, JsonGenerator gen, SerializerProvider serializers) {
+        public void serialize(Test3787Bean value, JsonGenerator gen, SerializationContext serializers) {
             gen.writeRaw("b-result");
         }
     }

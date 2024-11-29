@@ -107,7 +107,7 @@ public class SerializationAnnotationsTest
     {
         public BogusSerializer() { super(Object.class); }
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(Object value, JsonGenerator g, SerializationContext provider)
         {
             g.writeBoolean(true);
         }
@@ -117,7 +117,7 @@ public class SerializationAnnotationsTest
     {
         public StringSerializer() { super(Object.class); }
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(Object value, JsonGenerator g, SerializationContext provider)
         {
             g.writeString("X"+value+"X");
         }

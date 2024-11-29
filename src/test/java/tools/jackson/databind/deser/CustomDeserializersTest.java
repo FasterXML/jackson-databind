@@ -144,7 +144,7 @@ public class CustomDeserializersTest
 
     static class CustomKeySerializer extends ValueSerializer<CustomKey> {
         @Override
-        public void serialize(CustomKey value, JsonGenerator g, SerializerProvider provider) {
+        public void serialize(CustomKey value, JsonGenerator g, SerializationContext provider) {
             g.writeName(String.valueOf(value.getId()));
         }
     }

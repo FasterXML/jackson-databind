@@ -50,7 +50,7 @@ public class CurrentObject3160Test extends DatabindTestUtil
     // from [databind#2475] test/filter
     static class MyFilter3160 extends SimpleBeanPropertyFilter {
         @Override
-        public void serializeAsProperty(Object pojo, JsonGenerator g, SerializerProvider provider, PropertyWriter writer)
+        public void serializeAsProperty(Object pojo, JsonGenerator g, SerializationContext provider, PropertyWriter writer)
             throws JacksonException
         {
             // Ensure that "current value" remains pojo

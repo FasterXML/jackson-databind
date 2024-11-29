@@ -4,7 +4,7 @@ import java.util.stream.LongStream;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -25,7 +25,7 @@ public class LongStreamSerializer extends StdSerializer<LongStream>
     }
 
     @Override
-    public void serialize(LongStream stream, JsonGenerator g, SerializerProvider ctxt)
+    public void serialize(LongStream stream, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         try (LongStream ls = stream) {

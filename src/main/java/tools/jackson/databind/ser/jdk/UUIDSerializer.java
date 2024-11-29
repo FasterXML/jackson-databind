@@ -40,7 +40,7 @@ public class UUIDSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, UUID value)
+    public boolean isEmpty(SerializationContext prov, UUID value)
     {
         // Null UUID is empty, so...
         return value.getLeastSignificantBits() == 0L
@@ -48,7 +48,7 @@ public class UUIDSerializer
     }
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider serializers,
+    public ValueSerializer<?> createContextual(SerializationContext serializers,
             BeanProperty property)
     {
         JsonFormat.Value format = findFormatOverrides(serializers,
@@ -71,7 +71,7 @@ public class UUIDSerializer
     }
 
     @Override
-    public void serialize(UUID value, JsonGenerator gen, SerializerProvider ctxt)
+    public void serialize(UUID value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         // First: perhaps we could serialize it as raw binary data?
@@ -102,7 +102,7 @@ public class UUIDSerializer
         gen.writeString(ch, 0, 36);
     }
 
-    protected boolean _writeAsBinary(SerializerProvider ctxt)
+    protected boolean _writeAsBinary(SerializationContext ctxt)
     {
         if (_asBinary != null) {
             return _asBinary;

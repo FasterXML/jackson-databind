@@ -50,7 +50,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
 
     @SuppressWarnings("unchecked")
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider serializers,
+    public ValueSerializer<?> createContextual(SerializationContext serializers,
             BeanProperty property)
     {
         ValueSerializer<?> ser = null;
@@ -87,7 +87,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, T value) {
+    public boolean isEmpty(SerializationContext provider, T value) {
         return (value == null) || (value.isEmpty());
     }
 
@@ -112,5 +112,5 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     // just to make sure it gets implemented:
     @Override
     public abstract void serializeWithType(T value, JsonGenerator g,
-            SerializerProvider provider, TypeSerializer typeSer) throws JacksonException;
+            SerializationContext provider, TypeSerializer typeSer) throws JacksonException;
 }

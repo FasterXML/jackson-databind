@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.SerializableString;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.impl.ObjectIdWriter;
 
 /**
@@ -32,7 +32,7 @@ public final class WritableObjectId
      * Method to call to write a reference to object that this id refers. Usually this
      * is done after an earlier call to {@link #writeAsDeclaration}.
      */
-    public boolean writeAsReference(JsonGenerator g, SerializerProvider ctxt, ObjectIdWriter w)
+    public boolean writeAsReference(JsonGenerator g, SerializationContext ctxt, ObjectIdWriter w)
         throws JacksonException
     {
         if ((id != null) && (idWritten || w.alwaysAsId)) {
@@ -62,7 +62,7 @@ public final class WritableObjectId
      * method {@link JsonGenerator#writeObjectId(Object)} (if allowed), or, if not,
      * just writing it as an Object property with specified property name and id value.
      */
-    public void writeAsDeclaration(JsonGenerator g, SerializerProvider ctxt, ObjectIdWriter w)
+    public void writeAsDeclaration(JsonGenerator g, SerializationContext ctxt, ObjectIdWriter w)
         throws JacksonException
     {
         idWritten = true;

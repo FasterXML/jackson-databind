@@ -126,7 +126,7 @@ public class BeanSerializerFactory
      */
     @Override
     @SuppressWarnings("unchecked")
-    public ValueSerializer<Object> createSerializer(SerializerProvider ctxt, JavaType origType,
+    public ValueSerializer<Object> createSerializer(SerializationContext ctxt, JavaType origType,
             BeanDescription beanDesc, JsonFormat.Value formatOverrides)
     {
         // Very first thing, let's check if there is explicit serializer annotation:
@@ -178,7 +178,7 @@ public class BeanSerializerFactory
         return (ValueSerializer<Object>) _createSerializer2(ctxt, beanDesc, type, formatOverrides, staticTyping);
     }
 
-    protected ValueSerializer<?> _createSerializer2(SerializerProvider ctxt,
+    protected ValueSerializer<?> _createSerializer2(SerializationContext ctxt,
             BeanDescription beanDesc, JavaType type, JsonFormat.Value formatOverrides,
             boolean staticTyping)
     {
@@ -267,7 +267,7 @@ public class BeanSerializerFactory
      *  or, if none matched, return {@code null}.
      */
     @SuppressWarnings("unchecked")
-    protected ValueSerializer<Object> constructBeanOrAddOnSerializer(SerializerProvider ctxt,
+    protected ValueSerializer<Object> constructBeanOrAddOnSerializer(SerializationContext ctxt,
             JavaType type, BeanDescription beanDesc, JsonFormat.Value format, boolean staticTyping)
     {
         // 13-Oct-2010, tatu: quick sanity check: never try to create bean serializer for plain Object
@@ -397,7 +397,7 @@ public class BeanSerializerFactory
         return (ValueSerializer<Object>) ser;
     }
 
-    protected ObjectIdWriter constructObjectIdHandler(SerializerProvider ctxt,
+    protected ObjectIdWriter constructObjectIdHandler(SerializationContext ctxt,
             BeanDescription beanDesc, List<BeanPropertyWriter> props)
     {
         ObjectIdInfo objectIdInfo = beanDesc.getObjectIdInfo();
@@ -490,7 +490,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
      * Method used to collect all actual serializable properties.
      * Can be overridden to implement custom detection schemes.
      */
-    protected List<BeanPropertyWriter> findBeanProperties(SerializerProvider ctxt,
+    protected List<BeanPropertyWriter> findBeanProperties(SerializationContext ctxt,
             BeanDescription beanDesc, BeanSerializerBuilder builder)
     {
         List<BeanPropertyDefinition> properties = beanDesc.findProperties();
@@ -652,7 +652,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
      * annotation but can be supplied by module-provided introspectors too.
      * Starting with 2.8 there are also "Config overrides" to consider.
      */
-    protected void removeIgnorableTypes(SerializerProvider ctxt, BeanDescription beanDesc,
+    protected void removeIgnorableTypes(SerializationContext ctxt, BeanDescription beanDesc,
             List<BeanPropertyDefinition> properties)
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
@@ -705,7 +705,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
      * Helper method called to ensure that we do not have "duplicate" type ids.
      * Added to resolve [databind#222]
      */
-    protected List<BeanPropertyWriter> removeOverlappingTypeIds(SerializerProvider ctxt,
+    protected List<BeanPropertyWriter> removeOverlappingTypeIds(SerializationContext ctxt,
             BeanDescription beanDesc, BeanSerializerBuilder builder,
             List<BeanPropertyWriter> props)
     {
@@ -738,7 +738,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
      * Secondary helper method for constructing {@link BeanPropertyWriter} for
      * given member (field or method).
      */
-    protected BeanPropertyWriter _constructWriter(SerializerProvider ctxt,
+    protected BeanPropertyWriter _constructWriter(SerializationContext ctxt,
             BeanPropertyDefinition propDef,
             PropertyBuilder pb, boolean staticTyping, AnnotatedMember accessor)
     {
@@ -769,7 +769,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
                         typeSer, contentTypeSer, accessor, staticTyping);
     }
 
-    protected ValueSerializer<?> _findUnsupportedTypeSerializer(SerializerProvider ctxt,
+    protected ValueSerializer<?> _findUnsupportedTypeSerializer(SerializationContext ctxt,
             JavaType type, BeanDescription beanDesc)
     {
         // 05-May-2020, tatu: Should we check for possible Shape override to "POJO"?
@@ -790,7 +790,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
      *
      * @since 2.13
      */
-    protected boolean _isUnserializableJacksonType(SerializerProvider ctxt,
+    protected boolean _isUnserializableJacksonType(SerializationContext ctxt,
             JavaType type)
     {
         final Class<?> raw = type.getRawClass();

@@ -106,7 +106,7 @@ public class ObjectArraySerializer
      */
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
         TypeSerializer vts = _valueTypeSerializer;
@@ -163,7 +163,7 @@ public class ObjectArraySerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Object[] value) {
+    public boolean isEmpty(SerializationContext prov, Object[] value) {
         return value.length == 0;
     }
 
@@ -179,7 +179,7 @@ public class ObjectArraySerializer
      */
 
     @Override
-    public final void serialize(Object[] value, JsonGenerator g, SerializerProvider ctxt)
+    public final void serialize(Object[] value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         final int len = value.length;
@@ -197,7 +197,7 @@ public class ObjectArraySerializer
     }
 
     @Override
-    public void serializeContents(Object[] value, JsonGenerator g, SerializerProvider ctxt)
+    public void serializeContents(Object[] value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         final int len = value.length;
@@ -238,7 +238,7 @@ public class ObjectArraySerializer
         }
     }
 
-    public void serializeContentsUsing(Object[] value, JsonGenerator g, SerializerProvider provider,
+    public void serializeContentsUsing(Object[] value, JsonGenerator g, SerializationContext provider,
             ValueSerializer<Object> ser) throws JacksonException
     {
         final int len = value.length;
@@ -264,7 +264,7 @@ public class ObjectArraySerializer
         }
     }
 
-    public void serializeTypedContents(Object[] value, JsonGenerator g, SerializerProvider ctxt)
+    public void serializeTypedContents(Object[] value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         final int len = value.length;

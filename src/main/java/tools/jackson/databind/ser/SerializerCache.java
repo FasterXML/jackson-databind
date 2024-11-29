@@ -168,7 +168,7 @@ public final class SerializerCache
     }
 
     public void addAndResolveNonTypedSerializer(Class<?> type, ValueSerializer<Object> ser,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
@@ -184,7 +184,7 @@ public final class SerializerCache
     }
 
     public void addAndResolveNonTypedSerializer(JavaType type, ValueSerializer<Object> ser,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
@@ -205,7 +205,7 @@ public final class SerializerCache
      */
     public void addAndResolveNonTypedSerializer(Class<?> rawType, JavaType fullType,
             ValueSerializer<Object> ser,
-            SerializerProvider provider)
+            SerializationContext provider)
     {
         synchronized (this) {
             Object ob1 = _sharedMap.put(new TypeKey(rawType, false), ser);
@@ -218,7 +218,7 @@ public final class SerializerCache
     }
 
     /**
-     * Method called by StdSerializerProvider#flushCachedSerializers() to
+     * Method called by StdSerializationContext#flushCachedSerializers() to
      * clear all cached serializers
      */
     public synchronized void flush() {

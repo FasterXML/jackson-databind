@@ -104,7 +104,7 @@ public class StdDelegatingSerializer
      */
 
     @Override
-    public void resolve(SerializerProvider ctxt)
+    public void resolve(SerializationContext ctxt)
     {
         if (_delegateSerializer != null) {
             _delegateSerializer.resolve(ctxt);
@@ -112,7 +112,7 @@ public class StdDelegatingSerializer
     }
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
     {
         ValueSerializer<?> delSer = _delegateSerializer;
         JavaType delegateType = _delegateType;
@@ -160,7 +160,7 @@ public class StdDelegatingSerializer
      */
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider ctxt)
+    public void serialize(Object value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         Object delegateValue = convertValue(value);
@@ -178,7 +178,7 @@ public class StdDelegatingSerializer
     }
 
     @Override
-    public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider ctxt,
+    public void serializeWithType(Object value, JsonGenerator gen, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -198,7 +198,7 @@ public class StdDelegatingSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider ctxt, Object value)
+    public boolean isEmpty(SerializationContext ctxt, Object value)
     {
         Object delegateValue = convertValue(value);
         if (delegateValue == null) {
@@ -256,7 +256,7 @@ public class StdDelegatingSerializer
      * {@link java.lang.Object}, and where serializer needs to be located dynamically
      * based on actual value type.
      */
-    protected ValueSerializer<Object> _findSerializer(Object value, SerializerProvider ctxt)
+    protected ValueSerializer<Object> _findSerializer(Object value, SerializationContext ctxt)
     {
         // 17-Apr-2018, tatu: Basically inline `_findAndAddDynamic(...)`
         // 17-Apr-2018, tatu: difficult to know if these are primary or secondary serializers...

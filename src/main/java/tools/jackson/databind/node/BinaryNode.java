@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import tools.jackson.core.*;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * Value node that contains Base64 encoded binary value, which will be
@@ -89,7 +89,7 @@ public class BinaryNode
     }
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider)
+    public final void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         g.writeBinary(provider.getConfig().getBase64Variant(),

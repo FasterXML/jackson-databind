@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JacksonSerializable;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * Value node that contains a wrapped POJO, to be serialized as
@@ -107,7 +107,7 @@ public class POJONode
      */
 
     @Override
-    public final void serialize(JsonGenerator gen, SerializerProvider ctxt) throws JacksonException
+    public final void serialize(JsonGenerator gen, SerializationContext ctxt) throws JacksonException
     {
         if (_value == null) {
             ctxt.defaultSerializeNullValue(gen);

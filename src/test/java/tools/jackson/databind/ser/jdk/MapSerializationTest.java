@@ -35,7 +35,7 @@ public class MapSerializationTest extends DatabindTestUtil
     {
         @Override
         public void serialize(Map<String,String> value,
-                JsonGenerator gen, SerializerProvider provider)
+                JsonGenerator gen, SerializationContext provider)
         {
             // just use standard Map.toString(), output as JSON String
             gen.writeString(value.toString());

@@ -55,7 +55,7 @@ public abstract class DateTimeSerializerBase<T>
     public abstract DateTimeSerializerBase<T> withFormat(Boolean timestamp, DateFormat customFormat);
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider serializers,
+    public ValueSerializer<?> createContextual(SerializationContext serializers,
             BeanProperty property)
     {
         // Note! Should not skip if `property` null since that'd skip check
@@ -135,7 +135,7 @@ df0.getClass().getName()));
      */
 
     @Override
-    public boolean isEmpty(SerializerProvider serializers, T value) {
+    public boolean isEmpty(SerializationContext serializers, T value) {
         // 09-Mar-2017, tatu: as per [databind#1550] timestamp 0 is NOT "empty"; but
         //   with versions up to 2.8.x this was the case. Fixed for 2.9.
 //        return _timestamp(value) == 0L;
@@ -157,7 +157,7 @@ df0.getClass().getName()));
      */
 
     @Override
-    public abstract void serialize(T value, JsonGenerator gen, SerializerProvider serializers)
+    public abstract void serialize(T value, JsonGenerator gen, SerializationContext serializers)
         throws JacksonException;
 
     /*
@@ -166,7 +166,7 @@ df0.getClass().getName()));
     /**********************************************************
      */
 
-    protected boolean _asTimestamp(SerializerProvider serializers)
+    protected boolean _asTimestamp(SerializationContext serializers)
     {
         if (_useTimestamp != null) {
             return _useTimestamp;
@@ -176,7 +176,7 @@ df0.getClass().getName()));
                 return serializers.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             }
             // 12-Jun-2014, tatu: Is it legal not to have provider? Was NPE:ing earlier so leave a check
-            throw new IllegalArgumentException("Null SerializerProvider passed for "+handledType().getName());
+            throw new IllegalArgumentException("Null SerializationContext passed for "+handledType().getName());
         }
         return false;
     }
@@ -192,7 +192,7 @@ df0.getClass().getName()));
         }
     }
 
-    protected void _serializeAsString(Date value, JsonGenerator g, SerializerProvider provider)
+    protected void _serializeAsString(Date value, JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         if (_customFormat == null) {

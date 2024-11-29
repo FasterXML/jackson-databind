@@ -43,7 +43,7 @@ public class IterableSerializer
      */
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Iterable<?> value) {
+    public boolean isEmpty(SerializationContext prov, Iterable<?> value) {
         // Not really good way to implement this, but has to do for now:
         return !value.iterator().hasNext();
     }
@@ -65,7 +65,7 @@ public class IterableSerializer
 
     @Override
     public final void serialize(Iterable<?> value, JsonGenerator g,
-        SerializerProvider ctxt) throws JacksonException
+        SerializationContext ctxt) throws JacksonException
     {
         if (((_unwrapSingle == null) &&
                 ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
@@ -82,7 +82,7 @@ public class IterableSerializer
 
     @Override
     public void serializeContents(Iterable<?> value, JsonGenerator g,
-        SerializerProvider ctxt) throws JacksonException
+        SerializationContext ctxt) throws JacksonException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {

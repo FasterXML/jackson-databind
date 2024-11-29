@@ -6,7 +6,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
@@ -20,7 +20,7 @@ public class OptionalDoubleSerializer extends StdScalarSerializer<OptionalDouble
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, OptionalDouble value) {
+    public boolean isEmpty(SerializationContext provider, OptionalDouble value) {
         return (value == null) || !value.isPresent();
     }
 
@@ -35,7 +35,7 @@ public class OptionalDoubleSerializer extends StdScalarSerializer<OptionalDouble
     }
 
     @Override
-    public void serialize(OptionalDouble value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(OptionalDouble value, JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         if (value.isPresent()) {

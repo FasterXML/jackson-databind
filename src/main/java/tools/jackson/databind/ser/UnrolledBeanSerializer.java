@@ -150,7 +150,7 @@ public class UnrolledBeanSerializer
     }
 
     @Override
-    public void resolve(SerializerProvider provider)
+    public void resolve(SerializationContext provider)
     {
         super.resolve(provider);
         _calcUnrolled();
@@ -163,7 +163,7 @@ public class UnrolledBeanSerializer
      */
 
     @Override
-    public void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(Object bean, JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         // NOTE! We have ensured that "JSON Filter" and "Object Id" cases
@@ -179,7 +179,7 @@ public class UnrolledBeanSerializer
         serializeNonFiltered(bean, gen, provider);
     }
 
-    protected void serializeNonFiltered(Object bean, JsonGenerator gen, SerializerProvider provider)
+    protected void serializeNonFiltered(Object bean, JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         gen.writeStartObject(bean);

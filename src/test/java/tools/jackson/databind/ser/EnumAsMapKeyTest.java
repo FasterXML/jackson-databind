@@ -69,7 +69,7 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
         FOO;
         public static class Serializer extends ValueSerializer<Foo661> {
             @Override
-            public void serialize(Foo661 value, JsonGenerator g, SerializerProvider provider)
+            public void serialize(Foo661 value, JsonGenerator g, SerializationContext provider)
             {
                 g.writeName("X-"+value.name());
             }

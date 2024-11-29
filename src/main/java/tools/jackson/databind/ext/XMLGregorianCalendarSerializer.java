@@ -10,7 +10,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
@@ -40,19 +40,19 @@ public class XMLGregorianCalendarSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, XMLGregorianCalendar value) {
+    public boolean isEmpty(SerializationContext provider, XMLGregorianCalendar value) {
         return _delegate.isEmpty(provider, _convert(value));
     }
 
     @Override
-    public void serialize(XMLGregorianCalendar value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(XMLGregorianCalendar value, JsonGenerator gen, SerializationContext provider)
         throws JacksonException
     {
         _delegate.serialize(_convert(value), gen, provider);
     }
 
     @Override
-    public void serializeWithType(XMLGregorianCalendar value, JsonGenerator g, SerializerProvider ctxt,
+    public void serializeWithType(XMLGregorianCalendar value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer) throws JacksonException
     {
         // 16-Aug-2021, tatu: as per [databind#3217] we cannot simply delegate
@@ -75,7 +75,7 @@ public class XMLGregorianCalendarSerializer
     }
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
     {
         ValueSerializer<?> ser = ctxt.handlePrimaryContextualization(_delegate, property);
         if (ser != _delegate) {

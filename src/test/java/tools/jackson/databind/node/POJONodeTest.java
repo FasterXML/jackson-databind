@@ -25,7 +25,7 @@ public class POJONodeTest extends NodeTestBase
         }
 
         @Override
-        public void serialize(Data value, JsonGenerator gen, SerializerProvider provider)
+        public void serialize(Data value, JsonGenerator gen, SerializationContext provider)
         {
             String attrStr = (String) provider.getAttribute("myAttr");
             gen.writeStartObject();

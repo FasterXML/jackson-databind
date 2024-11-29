@@ -78,7 +78,7 @@ public class TestWithGenerics extends DatabindTestUtil
         public CustomValueSerializer( ValueSerializer<Object> beanSerializer ) { this.beanSerializer = beanSerializer; }
 
         @Override
-        public void serialize( Object value, JsonGenerator g, SerializerProvider provider )
+        public void serialize( Object value, JsonGenerator g, SerializationContext provider )
         {
             beanSerializer.serialize(value, g, provider);
         }
@@ -87,13 +87,13 @@ public class TestWithGenerics extends DatabindTestUtil
         public Class<?> handledType() { return beanSerializer.handledType(); }
 
         @Override
-        public void serializeWithType( Object value, JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer )
+        public void serializeWithType( Object value, JsonGenerator g, SerializationContext provider, TypeSerializer typeSer )
         {
             beanSerializer.serializeWithType(value, g, provider, typeSer);
         }
 
         @Override
-        public void resolve(SerializerProvider provider)
+        public void resolve(SerializationContext provider)
         {
             beanSerializer.resolve(provider);
         }

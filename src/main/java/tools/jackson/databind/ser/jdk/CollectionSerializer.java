@@ -7,7 +7,7 @@ import tools.jackson.core.*;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
@@ -60,7 +60,7 @@ public class CollectionSerializer
      */
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Collection<?> value) {
+    public boolean isEmpty(SerializationContext prov, Collection<?> value) {
         return value.isEmpty();
     }
 
@@ -76,7 +76,7 @@ public class CollectionSerializer
      */
 
     @Override
-    public final void serialize(Collection<?> value, JsonGenerator g, SerializerProvider provider)
+    public final void serialize(Collection<?> value, JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         final int len = value.size();
@@ -94,7 +94,7 @@ public class CollectionSerializer
     }
 
     @Override
-    public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider ctxt)
+    public void serializeContents(Collection<?> value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         if (_elementSerializer != null) {
@@ -138,7 +138,7 @@ public class CollectionSerializer
         }
     }
 
-    public void serializeContentsUsing(Collection<?> value, JsonGenerator g, SerializerProvider provider,
+    public void serializeContentsUsing(Collection<?> value, JsonGenerator g, SerializationContext provider,
             ValueSerializer<Object> ser)
         throws JacksonException
     {

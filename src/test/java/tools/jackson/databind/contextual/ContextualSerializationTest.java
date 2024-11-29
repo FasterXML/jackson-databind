@@ -132,13 +132,13 @@ public class ContextualSerializationTest
         }
 
         @Override
-        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(String value, JsonGenerator g, SerializationContext provider)
         {
             g.writeString(_prefix + value);
         }
 
         @Override
-        public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        public ValueSerializer<?> createContextual(SerializationContext prov, BeanProperty property)
         {
             String prefix = "UNKNOWN";
             Prefix ann = null;
@@ -170,19 +170,19 @@ public class ContextualSerializationTest
         }
 
         @Override
-        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(String value, JsonGenerator g, SerializationContext provider)
         {
             g.writeString("contextual="+isContextual+",resolved="+isResolved);
         }
 
         @Override
-        public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        public ValueSerializer<?> createContextual(SerializationContext prov, BeanProperty property)
         {
             return new ContextualAndResolvable(isResolved, isContextual+1);
         }
 
         @Override
-        public void resolve(SerializerProvider provider) {
+        public void resolve(SerializationContext provider) {
             ++isResolved;
         }
     }
@@ -199,13 +199,13 @@ public class ContextualSerializationTest
         }
 
         @Override
-        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(String value, JsonGenerator g, SerializationContext provider)
         {
             g.writeString(desc+"/"+value);
         }
 
         @Override
-        public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        public ValueSerializer<?> createContextual(SerializationContext prov, BeanProperty property)
         {
             if (property == null) {
                 return new AccumulatingContextual(desc+"/ROOT");

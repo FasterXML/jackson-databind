@@ -6,7 +6,7 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
@@ -37,7 +37,7 @@ public class RecordJsonSerDeser188Test
         }
 
         @Override
-        public void serialize(String value, JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(String value, JsonGenerator jgen, SerializationContext provider)
         {
             jgen.writeString("custom " + value);
         }

@@ -67,12 +67,12 @@ public class JDKStringLikeSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Object value) {
+    public boolean isEmpty(SerializationContext prov, Object value) {
         return value.toString().isEmpty();
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+    public void serialize(Object value, JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         String str;
@@ -112,7 +112,7 @@ public class JDKStringLikeSerializer
      * change this behavior.
      */
     @Override
-    public void serializeWithType(Object value, JsonGenerator g, SerializerProvider ctxt,
+    public void serializeWithType(Object value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

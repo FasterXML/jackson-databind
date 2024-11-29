@@ -19,7 +19,7 @@ public class JavaSqlTimeSerializer
     public JavaSqlTimeSerializer() { super(java.sql.Time.class); }
 
     @Override
-    public void serialize(java.sql.Time value, JsonGenerator g, SerializerProvider provider)
+    public void serialize(java.sql.Time value, JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
         g.writeString(value.toString());

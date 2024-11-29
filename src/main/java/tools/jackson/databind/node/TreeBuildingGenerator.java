@@ -70,7 +70,7 @@ public class TreeBuildingGenerator
         _tokenWriteContext = _rootWriteContext;
     }
 
-    public static TreeBuildingGenerator forSerialization(SerializerProvider ctxt,
+    public static TreeBuildingGenerator forSerialization(SerializationContext ctxt,
             JsonNodeFactory nodeFactory) {
         return new TreeBuildingGenerator(ctxt, nodeFactory);
     }

@@ -1,7 +1,7 @@
 package tools.jackson.databind.ser;
 
 import tools.jackson.core.util.Snapshottable;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * Interface for objects that provides instances of {@link PropertyFilter}
@@ -25,6 +25,6 @@ public abstract class FilterProvider
      *
      * @return Filter to use, if any.
      */
-    public abstract PropertyFilter findPropertyFilter(SerializerProvider ctxt,
+    public abstract PropertyFilter findPropertyFilter(SerializationContext ctxt,
             Object filterId, Object valueToFilter);
 }

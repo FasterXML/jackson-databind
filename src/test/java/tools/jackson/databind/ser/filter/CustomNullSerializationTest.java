@@ -22,7 +22,7 @@ public class CustomNullSerializationTest
     {
         public NullAsFoobarSerializer() { super(Object.class); }
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
+        public void serialize(Object value, JsonGenerator gen, SerializationContext provider)
         {
             gen.writeString("foobar");
         }

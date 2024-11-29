@@ -82,7 +82,7 @@ public abstract class StdDynamicSerializer<T>
     /**********************************************************************
      */
 
-    protected final ValueSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, Class<?> type)
+    protected final ValueSerializer<Object> _findAndAddDynamic(SerializationContext ctxt, Class<?> type)
     {
         PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type,
@@ -93,7 +93,7 @@ public abstract class StdDynamicSerializer<T>
         return result.serializer;
     }
 
-    protected final ValueSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, Class<?> type,
+    protected final ValueSerializer<Object> _findAndAddDynamic(SerializationContext ctxt, Class<?> type,
             UnaryOperator<ValueSerializer<Object>> serTransformer)
     {
         PropertySerializerMap map = _dynamicValueSerializers;
@@ -105,7 +105,7 @@ public abstract class StdDynamicSerializer<T>
         return result.serializer;
     }
 
-    protected final ValueSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, JavaType type)
+    protected final ValueSerializer<Object> _findAndAddDynamic(SerializationContext ctxt, JavaType type)
     {
         PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type,
@@ -116,7 +116,7 @@ public abstract class StdDynamicSerializer<T>
         return result.serializer;
     }
 
-    protected final ValueSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, JavaType type,
+    protected final ValueSerializer<Object> _findAndAddDynamic(SerializationContext ctxt, JavaType type,
             UnaryOperator<ValueSerializer<Object>> serTransformer)
     {
         PropertySerializerMap map = _dynamicValueSerializers;

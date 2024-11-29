@@ -157,7 +157,7 @@ public class ConvertingSerializerTest
     static class TargetSerializer extends ValueSerializer<Target>
     {
         @Override
-        public void serialize(Target a, JsonGenerator g, SerializerProvider provider) {
+        public void serialize(Target a, JsonGenerator g, SerializationContext provider) {
             g.writeString("Target");
         }
     }

@@ -101,7 +101,7 @@ public class HandlerInstantiationTest
         }
 
         @Override
-        public void serialize(MyBean value, JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(MyBean value, JsonGenerator jgen, SerializationContext provider)
         {
             jgen.writeString(_prefix + value.value);
         }

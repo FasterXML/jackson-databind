@@ -103,7 +103,7 @@ public class DefaultTypeResolverBuilder
     }
 
     @Override
-    public TypeSerializer buildTypeSerializer(SerializerProvider ctxt,
+    public TypeSerializer buildTypeSerializer(SerializationContext ctxt,
             JavaType baseType, Collection<NamedType> subtypes)
     {
         return useForType(baseType) ? super.buildTypeSerializer(ctxt, baseType, subtypes) : null;

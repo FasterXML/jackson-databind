@@ -62,7 +62,7 @@ public class StringCollectionSerializer
 
     @Override
     public void serialize(Collection<String> value, JsonGenerator g,
-            SerializerProvider provider) throws JacksonException
+            SerializationContext provider) throws JacksonException
     {
         final int len = value.size();
         if (len == 1) {
@@ -80,7 +80,7 @@ public class StringCollectionSerializer
 
     @Override
     public void serializeWithType(Collection<String> value, JsonGenerator g,
-            SerializerProvider ctxt, TypeSerializer typeSer)
+            SerializationContext ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
@@ -91,7 +91,7 @@ public class StringCollectionSerializer
     }
 
     private final void serializeContents(Collection<String> value, JsonGenerator g,
-            SerializerProvider provider)
+            SerializationContext provider)
         throws JacksonException
     {
         int i = 0;

@@ -29,7 +29,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
     static class KarlSerializer extends ValueSerializer<String>
     {
         @Override
-        public void serialize(String value, JsonGenerator gen, SerializerProvider provider) {
+        public void serialize(String value, JsonGenerator gen, SerializationContext provider) {
             gen.writeName("Karl");
         }
     }
@@ -92,7 +92,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
     static class ABCKeySerializer extends ValueSerializer<ABC> {
         @Override
         public void serialize(ABC value, JsonGenerator gen,
-                SerializerProvider provider) {
+                SerializationContext provider) {
             gen.writeName("xxx"+value);
         }
     }
@@ -102,7 +102,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
         private String _null;
         public NullKeySerializer(String s) { _null = s; }
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) {
+        public void serialize(Object value, JsonGenerator gen, SerializationContext provider) {
             gen.writeName(_null);
         }
     }
@@ -112,7 +112,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
         private String _null;
         public NullValueSerializer(String s) { _null = s; }
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) {
+        public void serialize(Object value, JsonGenerator gen, SerializationContext provider) {
             gen.writeString(_null);
         }
     }
@@ -120,7 +120,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
     static class DefaultKeySerializer extends ValueSerializer<Object>
     {
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
+        public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
             g.writeName("DEFAULT:"+value);
         }
     }

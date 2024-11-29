@@ -3,7 +3,7 @@ package tools.jackson.databind.ser.std;
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
 
@@ -42,7 +42,7 @@ public abstract class StdScalarSerializer<T>
      * change this behavior.
      */
     @Override
-    public void serializeWithType(T value, JsonGenerator g, SerializerProvider ctxt,
+    public void serializeWithType(T value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

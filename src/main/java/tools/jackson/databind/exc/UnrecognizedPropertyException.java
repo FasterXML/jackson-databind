@@ -2,7 +2,7 @@ package tools.jackson.databind.exc;
 
 import java.util.*;
 
-import tools.jackson.core.JsonLocation;
+import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.JsonParser;
 
 /**
@@ -16,7 +16,7 @@ public class UnrecognizedPropertyException
 {
     private static final long serialVersionUID = 1L;
 
-    public UnrecognizedPropertyException(JsonParser p, String msg, JsonLocation loc,
+    public UnrecognizedPropertyException(JsonParser p, String msg, TokenStreamLocation loc,
             Class<?> referringClass, String propName,
             Collection<Object> propertyIds)
     {

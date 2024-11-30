@@ -1513,7 +1513,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         protected transient ByteArrayBuilder _byteBuilder;
 
-        protected JsonLocation _location = null;
+        protected TokenStreamLocation _location = null;
 
         /*
         /******************************************************************
@@ -1540,7 +1540,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _hasNativeIds = (hasNativeTypeIds || hasNativeObjectIds);
         }
 
-        public void setLocation(JsonLocation l) {
+        public void setLocation(TokenStreamLocation l) {
             _location = l;
         }
 
@@ -1702,11 +1702,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override public Object currentValue() { return _parsingContext.currentValue(); }
 
         @Override
-        public JsonLocation currentTokenLocation() { return currentLocation(); }
+        public TokenStreamLocation currentTokenLocation() { return currentLocation(); }
 
         @Override
-        public JsonLocation currentLocation() {
-            return (_location == null) ? JsonLocation.NA : _location;
+        public TokenStreamLocation currentLocation() {
+            return (_location == null) ? TokenStreamLocation.NA : _location;
         }
 
         @Override

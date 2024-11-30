@@ -3,11 +3,11 @@ package tools.jackson.databind.deser.jdk;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import tools.jackson.core.JsonLocation;
+import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.databind.DeserializationConfig;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.deser.ValueInstantiator;
-import tools.jackson.databind.deser.jackson.JsonLocationInstantiator;
+import tools.jackson.databind.deser.jackson.TokenStreamLocationInstantiator;
 
 /**
  * Container for a set of {@link ValueInstantiator}s used for certain critical
@@ -19,8 +19,8 @@ public abstract class JDKValueInstantiators
     public static ValueInstantiator findStdValueInstantiator(DeserializationConfig config,
             Class<?> raw)
     {
-        if (raw == JsonLocation.class) {
-            return new JsonLocationInstantiator();
+        if (raw == TokenStreamLocation.class) {
+            return new TokenStreamLocationInstantiator();
         }
         // [databind#1868]: empty List/Set/Map
         // [databind#2416]: optimize commonly needed default creators

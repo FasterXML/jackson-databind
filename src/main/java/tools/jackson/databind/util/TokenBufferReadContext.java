@@ -14,7 +14,7 @@ public class TokenBufferReadContext extends TokenStreamContext
 {
     protected final TokenStreamContext _parent;
 
-    protected final JsonLocation _startLocation;
+    protected final TokenStreamLocation _startLocation;
 
     // Benefit for reusing?
 //    protected JsonReadContext _child;
@@ -39,11 +39,11 @@ public class TokenBufferReadContext extends TokenStreamContext
             JsonReadContext rc = (JsonReadContext) base;
             _startLocation = rc.startLocation(contentRef);
         } else {
-            _startLocation = JsonLocation.NA;
+            _startLocation = TokenStreamLocation.NA;
         }
     }
 
-    protected TokenBufferReadContext(TokenStreamContext base, JsonLocation startLoc) {
+    protected TokenBufferReadContext(TokenStreamContext base, TokenStreamLocation startLoc) {
         super(base);
         _parent = base.getParent();
         _currentName = base.currentName();
@@ -58,7 +58,7 @@ public class TokenBufferReadContext extends TokenStreamContext
     protected TokenBufferReadContext() {
         super(TYPE_ROOT, -1);
         _parent = null;
-        _startLocation = JsonLocation.NA;
+        _startLocation = TokenStreamLocation.NA;
     }
 
     protected TokenBufferReadContext(TokenBufferReadContext parent, int type, int index) {

@@ -35,12 +35,12 @@ public class DatabindException
         super(processor, msg, problem);
     }
 
-    protected DatabindException(Closeable processor, String msg, JsonLocation loc)
+    protected DatabindException(Closeable processor, String msg, TokenStreamLocation loc)
     {
         super(msg, loc, null);
     }
 
-    protected DatabindException(String msg, JsonLocation loc, Throwable rootCause) {
+    protected DatabindException(String msg, TokenStreamLocation loc, Throwable rootCause) {
         super(msg, loc, rootCause);
     }
 

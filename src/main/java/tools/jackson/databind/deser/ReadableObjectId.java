@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.core.JsonLocation;
+import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 
@@ -139,7 +139,7 @@ public class ReadableObjectId
             _beanType = beanType.getRawClass();
         }
 
-        public JsonLocation getLocation() { return _reference.getLocation(); }
+        public TokenStreamLocation getLocation() { return _reference.getLocation(); }
         public Class<?> getBeanType() { return _beanType; }
 
         public abstract void handleResolvedForwardReference(Object id, Object value)

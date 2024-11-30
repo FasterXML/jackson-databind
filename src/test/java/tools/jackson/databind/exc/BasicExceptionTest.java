@@ -126,7 +126,7 @@ public class BasicExceptionTest extends DatabindTestUtil
             if (str.length != 2) {
                 fail("Should only get one 'at [' marker, got "+(str.length-1)+", source: "+msg);
             }
-            JsonLocation loc = e.getLocation();
+            TokenStreamLocation loc = e.getLocation();
 //          String expectedLocation = "line: 4, column: 3";
             assertEquals(4, loc.getLineNr());
             // 12-Feb-2024, tatu: varies depending on whether [core#1173] is fixed or not...

@@ -25,7 +25,7 @@ public class JacksonTypesSerTest
     public void testLocation() throws IOException
     {
         File f = new File("/tmp/test.json");
-        JsonLocation loc = new JsonLocation(ContentReference.rawReference(f),
+        TokenStreamLocation loc = new TokenStreamLocation(ContentReference.rawReference(f),
                 -1, 100, 13);
         Map<String,Object> result = writeAndMap(MAPPER, loc);
         // 04-Apr-2021, tatu: Jackson 2.x used to output "sourceRef"; no longer in 3.x

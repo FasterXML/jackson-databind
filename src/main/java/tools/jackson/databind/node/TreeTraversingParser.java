@@ -178,13 +178,13 @@ public class TreeTraversingParser
     @Override public Object currentValue() { return _nodeCursor.currentValue(); }
 
     @Override
-    public JsonLocation currentTokenLocation() {
-        return JsonLocation.NA;
+    public TokenStreamLocation currentTokenLocation() {
+        return TokenStreamLocation.NA;
     }
 
     @Override
-    public JsonLocation currentLocation() {
-        return JsonLocation.NA;
+    public TokenStreamLocation currentLocation() {
+        return TokenStreamLocation.NA;
     }
 
     /*

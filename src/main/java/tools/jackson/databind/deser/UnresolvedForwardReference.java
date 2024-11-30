@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import tools.jackson.core.JsonLocation;
+import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DatabindException;
 
@@ -18,7 +18,7 @@ public class UnresolvedForwardReference extends DatabindException
     private ReadableObjectId _roid;
     private List<UnresolvedId> _unresolvedIds;
 
-    public UnresolvedForwardReference(JsonParser p, String msg, JsonLocation loc,
+    public UnresolvedForwardReference(JsonParser p, String msg, TokenStreamLocation loc,
             ReadableObjectId roid)
     {
         super(p, msg, loc);
@@ -44,7 +44,7 @@ public class UnresolvedForwardReference extends DatabindException
         return _roid.getKey().key;
     }
 
-    public void addUnresolvedId(Object id, Class<?> type, JsonLocation where) {
+    public void addUnresolvedId(Object id, Class<?> type, TokenStreamLocation where) {
         _unresolvedIds.add(new UnresolvedId(id, type, where));
     }
 

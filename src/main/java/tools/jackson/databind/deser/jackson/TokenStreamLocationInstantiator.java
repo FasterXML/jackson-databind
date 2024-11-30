@@ -1,6 +1,6 @@
 package tools.jackson.databind.deser.jackson;
 
-import tools.jackson.core.JsonLocation;
+import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.io.ContentReference;
 import tools.jackson.databind.DeserializationConfig;
 import tools.jackson.databind.DeserializationContext;
@@ -12,15 +12,15 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.ValueInstantiator;
 
 /**
- * For {@link JsonLocation}, we should be able to just implement
+ * For {@link TokenStreamLocation}, we should be able to just implement
  * {@link ValueInstantiator} (not that explicit one would be very
  * hard but...)
  */
-public class JsonLocationInstantiator
+public class TokenStreamLocationInstantiator
     extends ValueInstantiator.Base
 {
-    public JsonLocationInstantiator() {
-        super(JsonLocation.class);
+    public TokenStreamLocationInstantiator() {
+        super(TokenStreamLocation.class);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class JsonLocationInstantiator
         //   with 2.13 changed to use `InputSourceReference`... left almost as is,
         //   for compatibility.
         final ContentReference srcRef = ContentReference.unknown();
-        return new JsonLocation(srcRef, _long(args[0]), _long(args[1]),
+        return new TokenStreamLocation(srcRef, _long(args[0]), _long(args[1]),
                 _int(args[2]), _int(args[3]));
     }
 

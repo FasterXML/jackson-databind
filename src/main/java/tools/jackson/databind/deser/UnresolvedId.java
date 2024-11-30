@@ -1,6 +1,6 @@
 package tools.jackson.databind.deser;
 
-import tools.jackson.core.JsonLocation;
+import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.databind.util.ClassUtil;
 
 /**
@@ -10,10 +10,10 @@ import tools.jackson.databind.util.ClassUtil;
  */
 public class UnresolvedId {
     private final Object _id;
-    private final JsonLocation _location;
+    private final TokenStreamLocation _location;
     private final Class<?> _type;
 
-    public UnresolvedId(Object id, Class<?> type, JsonLocation where) {
+    public UnresolvedId(Object id, Class<?> type, TokenStreamLocation where) {
         _id = id;
         _type = type;
         _location = where;
@@ -28,7 +28,7 @@ public class UnresolvedId {
      * The type of object which was expected.
      */
     public Class<?> getType() { return _type; }
-    public JsonLocation getLocation() { return _location; }
+    public TokenStreamLocation getLocation() { return _location; }
 
     @Override
     public String toString() {

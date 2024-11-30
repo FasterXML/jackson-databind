@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
-import tools.jackson.core.JsonLocation;
+import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.JsonParser;
 
 /**
@@ -41,7 +41,7 @@ public abstract class PropertyBindingException
      */
     protected transient String _propertiesAsString;
 
-    protected PropertyBindingException(JsonParser p, String msg, JsonLocation loc,
+    protected PropertyBindingException(JsonParser p, String msg, TokenStreamLocation loc,
             Class<?> referringClass, String propName,
             Collection<Object> propertyIds)
     {

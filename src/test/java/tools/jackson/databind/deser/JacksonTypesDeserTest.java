@@ -24,15 +24,15 @@ public class JacksonTypesDeserTest
     private final ObjectMapper MAPPER = sharedMapper();
 
     @Test
-    public void testJsonLocation() throws Exception
+    public void testTokenStreamLocation() throws Exception
     {
         // note: source reference is untyped, only String guaranteed to work
-        JsonLocation loc = new JsonLocation(ContentReference.rawReference("whatever"),
+        TokenStreamLocation loc = new TokenStreamLocation(ContentReference.rawReference("whatever"),
                 -1, -1, 100, 13);
         // Let's use serializer here; goal is round-tripping
         String ser = MAPPER.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(loc);
-        JsonLocation result = MAPPER.readValue(ser, JsonLocation.class);
+        TokenStreamLocation result = MAPPER.readValue(ser, TokenStreamLocation.class);
         assertNotNull(result);
         // 14-Mar-2021, tatu: Should NOT count on this being retained actually,
         //   after 2.13 (will retain for now)...
@@ -45,9 +45,9 @@ public class JacksonTypesDeserTest
 
     // doesn't really belong here but...
     @Test
-    public void testJsonLocationProps()
+    public void testTokenStreamLocationProps()
     {
-        JsonLocation loc = new JsonLocation(null,  -1, -1, 100, 13);
+        TokenStreamLocation loc = new TokenStreamLocation(null,  -1, -1, 100, 13);
         assertTrue(loc.equals(loc));
         assertFalse(loc.equals(null));
         final Object value = "abx";

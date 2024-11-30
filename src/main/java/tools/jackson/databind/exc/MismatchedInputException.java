@@ -1,6 +1,6 @@
 package tools.jackson.databind.exc;
 
-import tools.jackson.core.JsonLocation;
+import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.JavaType;
@@ -34,7 +34,7 @@ public class MismatchedInputException
         this(p, msg, (JavaType) null);
     }
 
-    protected MismatchedInputException(JsonParser p, String msg, JsonLocation loc) {
+    protected MismatchedInputException(JsonParser p, String msg, TokenStreamLocation loc) {
         super(p, msg, loc);
     }
 

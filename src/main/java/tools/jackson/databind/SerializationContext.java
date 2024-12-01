@@ -45,7 +45,7 @@ import tools.jackson.databind.util.TokenBuffer;
  * details are delegated to {@link SerializerFactory} instance.
  *</p>
  *<p>
- * The equivalent class in Jackson 2 was called SerializerProvider.
+ * NOTE: In Jackson 2.x this class was called {@code SerializerProvider}.
  *</p>
  */
 public abstract class SerializationContext

@@ -64,7 +64,9 @@ public class TestEmptyClass
     {
         // First: without annotations, should complain
         try {
-            MAPPER.writeValueAsString(new Empty());
+            MAPPER.writer()
+                .with(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                    .writeValueAsString(new Empty());
             fail("Should fail");
         } catch (InvalidDefinitionException e) {
             verifyException(e, "No serializer found for class");
@@ -87,11 +89,10 @@ public class TestEmptyClass
     @Test
     public void testEmptyWithFeature() throws Exception
     {
-        // should be enabled by default
-        assertTrue(MAPPER.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
+        // should be disabled by default as of 3.x
+        assertFalse(MAPPER.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
         assertEquals("{}",
                 MAPPER.writer()
-                    .without(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                     .writeValueAsString(new Empty()));
     }
 

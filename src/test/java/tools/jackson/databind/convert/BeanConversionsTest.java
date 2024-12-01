@@ -11,7 +11,6 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
-import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.util.StdConverter;
@@ -248,25 +247,10 @@ public class BeanConversionsTest
 
         // And one more: this time with a minor twist
         final Object plaino = new Object();
-        // first, a failed attempt:
-        try {
-            m = MAPPER.convertValue(plaino, Map.class);
-            fail("Conversion should have failed");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "no properties discovered");
-        }
-
-        ObjectMapper mapper = jsonMapperBuilder()
-                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .build();
-        try {
-            assertEquals("{}", mapper.writer()
-                    .writeValueAsString(plaino));
-        } catch (Exception e) {
-            throw (Exception) e.getCause();
-        }
+        assertEquals("{}", MAPPER.writer()
+                .writeValueAsString(plaino));
         // should now work, via serialization/deserialization:
-        m = mapper.convertValue(plaino, Map.class);
+        m = MAPPER.convertValue(plaino, Map.class);
         assertNotNull(m);
         assertEquals(0, m.size());
     }

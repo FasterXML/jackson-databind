@@ -114,7 +114,7 @@ public class DefaultCreatorDetection4584Test extends DatabindTestUtil
         }
 
         @Override
-        public PotentialCreator findDefaultCreator(MapperConfig<?> config,
+        public PotentialCreator findPreferredCreator(MapperConfig<?> config,
                 AnnotatedClass valueClass,
                 List<PotentialCreator> declaredConstructors,
                 List<PotentialCreator> declaredFactories)

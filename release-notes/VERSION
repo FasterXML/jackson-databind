@@ -73,6 +73,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #4659: Remove use of global static `TypeFactory` singleton from 3.0
 #4664: Change `EnumNamingStrategy.convertEnumToExternalName()` to take `MapperConfig` argument-
  (contributed by Joo-Hyuk K)
+#4818: Rename `AnnotationIntrospector.findDefaultCreator()` as `findPreferredCreator()`
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)
 - Default for `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES` changed to `false` for 3.0

@@ -610,7 +610,7 @@ public class POJOPropertiesCollector
             // 02-Nov-2024, tatu: Alas, naming here is confusing: method properly
             //    should have been "findPrimaryCreator()" so as not to confused with
             //    0-args default Creators...
-            primaryCreator = _annotationIntrospector.findDefaultCreator(_config, _classDef,
+            primaryCreator = _annotationIntrospector.findPreferredCreator(_config, _classDef,
                     constructors, factories);
         }
         // Next: remove creators marked as explicitly disabled

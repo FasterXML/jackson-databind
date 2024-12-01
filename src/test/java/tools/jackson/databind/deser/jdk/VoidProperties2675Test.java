@@ -28,12 +28,15 @@ public class VoidProperties2675Test
      */
 
     private final ObjectMapper VOID_MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.ALLOW_VOID_VALUED_PROPERTIES)
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
             .build();
 
     private final ObjectMapper NO_VOID_MAPPER = jsonMapperBuilder()
             .disable(MapperFeature.ALLOW_VOID_VALUED_PROPERTIES)
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
             .build();
 
     @Test
@@ -42,8 +45,8 @@ public class VoidProperties2675Test
         // with 3.x enabled by default, but may disable
         assertEquals("{\"value\":null}", VOID_MAPPER.writeValueAsString(new VoidBean()));
         try {
-            NO_VOID_MAPPER.writeValueAsString(new VoidBean());
-            fail("Should not pass");
+            String json = NO_VOID_MAPPER.writeValueAsString(new VoidBean());
+            fail("Should not pass; got: "+json);
         } catch (InvalidDefinitionException e) {
             verifyException(e, "no properties discovered");
         }

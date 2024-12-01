@@ -68,9 +68,9 @@ public enum SerializationFeature implements ConfigFeature
      * (like <code>@JsonSerialize</code>): ones that do have annotations
      * do not result in an exception being thrown.
      *<p>
-     * Feature is enabled by default.
+     * Feature is disabled by default as of Jackson 3.0 (in 2.x it was enabled).
      */
-    FAIL_ON_EMPTY_BEANS(true),
+    FAIL_ON_EMPTY_BEANS(false),
 
     /**
      * Feature that determines what happens when a direct self-reference

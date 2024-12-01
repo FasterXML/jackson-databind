@@ -77,16 +77,17 @@ public class TestSerConfig
     {
         SerializationConfig cfg = MAPPER.serializationConfig();
 
-        // First, defaults:
         assertTrue(cfg.isEnabled(MapperFeature.USE_ANNOTATIONS));
         assertTrue(cfg.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS));
 
         assertTrue(cfg.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
 
-        assertFalse(cfg.isEnabled(SerializationFeature.INDENT_OUTPUT));
+        assertEquals(MapperFeature.DEFAULT_VIEW_INCLUSION.enabledByDefault(),
+                cfg.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION));
         assertFalse(cfg.isEnabled(MapperFeature.USE_STATIC_TYPING));
-        assertTrue(cfg.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
-        assertTrue(cfg.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION));
+        assertEquals(SerializationFeature.FAIL_ON_EMPTY_BEANS.enabledByDefault(),
+                cfg.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
+        assertFalse(cfg.isEnabled(SerializationFeature.INDENT_OUTPUT));
     }
 
     @Test

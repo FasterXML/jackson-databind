@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -16,12 +17,11 @@ import com.fasterxml.jackson.databind.deser.std.EnumDeserializer;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
-
-public class EnumCreatorTest
+public class EnumCreatorTest extends DatabindTestUtil
 {
     protected enum EnumWithCreator {
         A, B;
@@ -221,6 +221,35 @@ public class EnumCreatorTest
         }
     }
 
+    static class DataClass4544 {
+        public DataEnum4544 data;
+    }
+
+    public enum DataEnum4544
+    {
+        TEST(0);
+
+        private final int data;
+
+        DataEnum4544(int data) {
+            this.data = data;
+        }
+
+        // Important! Without ignoring accessor will find logical property
+        // that matches Creator parameter... and assume properties-based
+        @JsonIgnore
+        public int getData() {
+            return data;
+        }
+
+        @JsonCreator
+        public static DataEnum4544 of(@ImplicitName("data") int data) {
+            return Arrays.stream(values())
+                    .filter(it -> it.getData() == data)
+                    .findAny().get();
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -392,5 +421,18 @@ public class EnumCreatorTest
                 .readValue("[\"ENUM_A\"]");
         assertEquals(TestEnumFromString.class, ob.getClass());
         assertSame(TestEnumFromString.ENUM_A, ob);
+    }
+
+    // for [databind#4544]
+    @Test
+    void testEnumsWithImplicitNames4544() throws Exception {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new ImplicitNameIntrospector())
+                .build();
+
+        String json = a2q("{'data': 0}");
+        DataClass4544 data = mapper.readValue(json, DataClass4544.class);
+
+        assertEquals(DataEnum4544.TEST, data.data);
     }
 }

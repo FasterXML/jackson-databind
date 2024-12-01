@@ -34,10 +34,15 @@ Project: jackson-databind
  (requested by @nathanukey)
  (fix by Joo-Hyuk K)
 
-2.18.2 (not yet released)
+2.18.2 (27-Nov-2024)
 
 #4733: Wrong serialization of Type Ids for certain types of Enum values
  (reported by @nlisker)
+#4742: Deserialization with Builder, External type id, `@JsonCreator` failing
+ (reported by Bernd A)
+#4777: `StdValueInstantiator.withArgsCreator` is now set for creators with
+  no arguments
+ (reported by @wrongwrong)
 #4783 Possibly wrong behavior of @JsonMerge
  (reported by @nlisker)
  (fix by Joo-Hyuk K)
@@ -49,6 +54,9 @@ Project: jackson-databind
 #4790: Fix `@JsonAnySetter` issue with "setter" method (related to #4639)
  (reported by @bsa01)
  (fix by Joo-Hyuk K)
+#4807: Improve `FactoryBasedEnumDeserializer` to work better with XML module
+#4810: Deserialization using `@JsonCreator` with renamed property failing (since 2.18)
+ (reported by Jonathan M)
 
 2.18.1 (28-Oct-2024)
 
@@ -70,7 +78,7 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
   with the wrong argument
- (fix by wrongwrong)
+ (fix by @wrongwrong)
 
 2.18.0 (26-Sep-2024)
 

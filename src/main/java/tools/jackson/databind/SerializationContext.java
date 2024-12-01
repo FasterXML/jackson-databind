@@ -43,7 +43,10 @@ import tools.jackson.databind.util.TokenBuffer;
  *<p>
  * Provider handles caching aspects of serializer handling; all construction
  * details are delegated to {@link SerializerFactory} instance.
+ *</p>
  *<p>
+ * The equivalent class in Jackson 2 was called SerializerProvider.
+ *</p>
  */
 public abstract class SerializationContext
     extends DatabindContext

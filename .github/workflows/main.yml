@@ -21,18 +21,14 @@ permissions:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: 'ubuntu-22.04'
     strategy:
       fail-fast: false
       matrix:
         java_version: ['8', '11', '17', '21', '22']
-        os: ['ubuntu-22.04']
         include:
           - java_version: '8'
-            os: 'ubuntu-22.04'
             release_build: 'R'
-          - java_version: '8'
-            os: 'windows-latest'
             is_windows: 'W'
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
@@ -55,7 +51,7 @@ jobs:
     - name: Extract project Maven version
       id: projectVersion
       if: ${{ !matrix.is_windows }}
-      run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.4.1:evaluate -DforceStdout -Dexpression=project.version -q)" >> $GITHUB_OUTPUT
+      run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -DforceStdout -Dexpression=project.version -q)" >> $GITHUB_OUTPUT
     - name: Verify Android SDK Compatibility
       if: ${{ matrix.release_build }}
       run: ./mvnw -B -q -ff -ntp -DskipTests animal-sniffer:check

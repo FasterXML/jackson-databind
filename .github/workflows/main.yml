@@ -67,11 +67,11 @@ jobs:
         CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
         # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       run: ./mvnw -B -q -ff -DskipTests -ntp source:jar deploy
-    - name: Generate code coverage
-      if: ${{ github.event_name != 'pull_request' && matrix.release_build }}
+    - name: Generate code coverage 
+      if: ${{ matrix.release_build && github.event_name != 'pull_request' && }}
       run: ./mvnw -B -q -ff -ntp test
     - name: Publish code coverage
-      if: ${{ github.event_name != 'pull_request' && matrix.release_build }}
+      if: ${{ matrix.release_build && github.event_name != 'pull_request' && }}
       uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}

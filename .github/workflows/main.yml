@@ -56,7 +56,7 @@ jobs:
       if: ${{ matrix.release_build }}
       run: ./mvnw -B -q -ff -ntp -DskipTests animal-sniffer:check
     - name: Deploy snapshot
-      if: ${{ github.event_name != 'pull_request' && matrix.release_build && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
+      if: ${{ matrix.release_build && github.event_name != 'pull_request' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
       env:
         CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
         CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}

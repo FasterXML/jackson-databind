@@ -37,6 +37,10 @@
   </scm>
 
   <properties>
+    <!-- [databind#4820]: Java 17 baseline -->
+    <javac.src.version>17</javac.src.version>
+    <javac.target.version>17</javac.target.version>
+
     <!-- 12-Nov-2022, tatu: [databind#3659] Verify Android SDK compatibility.
 
       Baseline compatibility:

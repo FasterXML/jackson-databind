@@ -74,6 +74,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #4664: Change `EnumNamingStrategy.convertEnumToExternalName()` to take `MapperConfig` argument-
  (contributed by Joo-Hyuk K)
 #4818: Rename `AnnotationIntrospector.findDefaultCreator()` as `findPreferredCreator()`
+#4820: Change JDK baseline for Jackson 3.0 from Java 8 to Java 17
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)
 - Default for `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES` changed to `false` for 3.0

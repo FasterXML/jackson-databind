@@ -1215,6 +1215,8 @@ public class ObjectWriter
      * it could serialize an instance of given Class.
      *
      * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
+     * It is recommended to try directly testing de/serialization using actual JSON inputs and outputs
+     * in test cases to ensure correctness and compatibility with real-world use cases.
      */
     @Deprecated // @since 2.18
     public boolean canSerialize(Class<?> type) {
@@ -1229,6 +1231,8 @@ public class ObjectWriter
      * @since 2.3
      *
      * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
+     * It is recommended to try directly testing de/serialization using actual JSON inputs and outputs
+     * in test cases to ensure correctness and compatibility with real-world use cases.
      */
     @Deprecated // @since 2.18
     public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {

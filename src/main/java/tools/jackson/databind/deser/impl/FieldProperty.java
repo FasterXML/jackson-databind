@@ -183,7 +183,7 @@ public final class FieldProperty
     }
 
     @Override
-    public void set(Object instance, Object value)
+    public void set(DeserializationContext ctxt, Object instance, Object value)
     {
         if (value == null) {
             if (_skipNulls) {
@@ -199,7 +199,7 @@ public final class FieldProperty
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
+    public Object setAndReturn(DeserializationContext ctxt, Object instance, Object value)
     {
         if (value == null) {
             if (_skipNulls) {

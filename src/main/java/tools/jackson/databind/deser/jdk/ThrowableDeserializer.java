@@ -166,7 +166,7 @@ public class ThrowableDeserializer
                 if (pending != null) {
                     for (int i = 0, len = pendingIx; i < len; i += 2) {
                         SettableBeanProperty prop = (SettableBeanProperty)pending[i];
-                        prop.set(throwable, pending[i+1]);
+                        prop.set(ctxt, throwable, pending[i+1]);
                     }
                     pending = null;
                 }
@@ -224,7 +224,7 @@ public class ThrowableDeserializer
         if (pending != null) {
             for (int i = 0, len = pendingIx; i < len; i += 2) {
                 SettableBeanProperty prop = (SettableBeanProperty)pending[i];
-                prop.set(throwable, pending[i+1]);
+                prop.set(ctxt, throwable, pending[i+1]);
             }
         }
 

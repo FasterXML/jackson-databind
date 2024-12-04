@@ -897,7 +897,8 @@ public class MapDeserializer
             return id;
         }
 
-        public void resolveForwardReference(Object id, Object value) throws JacksonException
+        public void resolveForwardReference(DeserializationContext ctxt, Object id, Object value)
+            throws JacksonException
         {
             Iterator<MapReferring> iterator = _accumulator.iterator();
             // Resolve ordering after resolution of an id. This means either:
@@ -940,8 +941,10 @@ public class MapDeserializer
         }
 
         @Override
-        public void handleResolvedForwardReference(Object id, Object value) throws JacksonException {
-            _parent.resolveForwardReference(id, value);
+        public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value)
+            throws JacksonException
+        {
+            _parent.resolveForwardReference(ctxt, id, value);
         }
     }
 }

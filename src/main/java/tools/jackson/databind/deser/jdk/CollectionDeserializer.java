@@ -528,7 +528,7 @@ _containerType,
             return id;
         }
 
-        public void resolveForwardReference(Object id, Object value) throws JacksonException
+        public void resolveForwardReference(DeserializationContext ctxt, Object id, Object value) throws JacksonException
         {
             Iterator<CollectionReferring> iterator = _accumulator.iterator();
             // Resolve ordering after resolution of an id. This mean either:
@@ -568,8 +568,8 @@ _containerType,
         }
 
         @Override
-        public void handleResolvedForwardReference(Object id, Object value) throws JacksonException {
-            _parent.resolveForwardReference(id, value);
+        public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value) throws JacksonException {
+            _parent.resolveForwardReference(ctxt, id, value);
         }
     }
 }

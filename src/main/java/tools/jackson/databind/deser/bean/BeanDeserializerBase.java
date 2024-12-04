@@ -1330,11 +1330,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         }
 
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
-        roid.bindItem(pojo);
+        roid.bindItem(ctxt, pojo);
         // also: may need to set a property value as well
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp != null) {
-            return idProp.setAndReturn(pojo, id);
+            return idProp.setAndReturn(ctxt, pojo, id);
         }
         return pojo;
     }

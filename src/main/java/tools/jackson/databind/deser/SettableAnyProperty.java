@@ -217,7 +217,7 @@ public abstract class SettableAnyProperty
         try {
             Object key = (_keyDeserializer == null) ? propName
                     : _keyDeserializer.deserializeKey(propName, ctxt);
-            set(instance, key, deserialize(p, ctxt));
+            set(ctxt, instance, key, deserialize(p, ctxt));
         } catch (UnresolvedForwardReference reference) {
             if (_valueDeserializer.getObjectIdReader(ctxt) == null) {
                 throw DatabindException.from(p, "Unresolved forward reference but no identity info.", reference);
@@ -240,10 +240,10 @@ public abstract class SettableAnyProperty
         return _valueDeserializer.deserialize(p, ctxt);
     }
 
-    public void set(Object instance, Object propName, Object value) throws JacksonException
+    public void set(DeserializationContext ctxt, Object instance, Object propName, Object value) throws JacksonException
     {
         try {
-            _set(instance, propName, value);
+            _set(ctxt, instance, propName, value);
         } catch (JacksonException e) {
             throw e;
         } catch (Exception e) {
@@ -251,7 +251,7 @@ public abstract class SettableAnyProperty
         }
     }
 
-    protected abstract void _set(Object instance, Object propName, Object value) throws Exception;
+    protected abstract void _set(DeserializationContext ctxt, Object instance, Object propName, Object value) throws Exception;
 
     /*
     /**********************************************************************
@@ -306,14 +306,14 @@ public abstract class SettableAnyProperty
         }
 
         @Override
-        public void handleResolvedForwardReference(Object id, Object value)
+        public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value)
             throws JacksonException
         {
             if (!hasId(id)) {
                 throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id.toString()
                         + "] that wasn't previously registered.");
             }
-            _parent.set(_pojo, _propName, value);
+            _parent.set(ctxt, _pojo, _propName, value);
         }
     }
 
@@ -337,7 +337,8 @@ public abstract class SettableAnyProperty
         }
 
         @Override
-        protected void _set(Object instance, Object propName, Object value) throws Exception
+        protected void _set(DeserializationContext ctxt, Object instance, Object propName, Object value)
+            throws Exception
         {
             // note: cannot use 'setValue()' due to taking 2 args
             ((AnnotatedMethod) _setter).callOnWith(instance, propName, value);
@@ -379,7 +380,8 @@ public abstract class SettableAnyProperty
 
         @SuppressWarnings("unchecked")
         @Override
-        protected void _set(Object instance, Object propName, Object value) throws Exception
+        protected void _set(DeserializationContext ctxt, Object instance, Object propName, Object value)
+            throws Exception
         {
             AnnotatedField field = (AnnotatedField) _setter;
             Map<Object,Object> val = (Map<Object,Object>) field.getValue(instance);
@@ -443,7 +445,7 @@ public abstract class SettableAnyProperty
         }
 
         @Override
-        protected void _set(Object instance, Object propName, Object value) throws Exception {
+        protected void _set(DeserializationContext ctxt, Object instance, Object propName, Object value) throws Exception {
             setProperty(instance, (String) propName, (JsonNode) value);
         }
 
@@ -509,7 +511,7 @@ public abstract class SettableAnyProperty
 
         @SuppressWarnings("unchecked")
         @Override
-        protected void _set(Object instance, Object propName, Object value)
+        protected void _set(DeserializationContext ctxt, Object instance, Object propName, Object value)
         {
             ((Map<Object, Object>) instance).put(propName, value);
         }
@@ -553,7 +555,7 @@ public abstract class SettableAnyProperty
         }
 
         @Override
-        protected void _set(Object instance, Object propName, Object value)
+        protected void _set(DeserializationContext ctxt, Object instance, Object propName, Object value)
             throws Exception
         {
             ((ObjectNode) instance).set((String) propName, (JsonNode) value);

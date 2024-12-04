@@ -52,7 +52,7 @@ public class ReadableObjectId
      * Method called to assign actual POJO to which ObjectId refers to: will
      * also handle referring properties, if any, by assigning POJO.
      */
-    public void bindItem(Object ob) throws JacksonException
+    public void bindItem(DeserializationContext ctxt, Object ob) throws JacksonException
     {
         _resolver.bindItem(_key, ob);
         _item = ob;
@@ -61,7 +61,7 @@ public class ReadableObjectId
             Iterator<Referring> it = _referringProperties.iterator();
             _referringProperties = null;
             while (it.hasNext()) {
-                it.next().handleResolvedForwardReference(id, ob);
+                it.next().handleResolvedForwardReference(ctxt, id, ob);
             }
         }
     }
@@ -142,8 +142,10 @@ public class ReadableObjectId
         public TokenStreamLocation getLocation() { return _reference.getLocation(); }
         public Class<?> getBeanType() { return _beanType; }
 
-        public abstract void handleResolvedForwardReference(Object id, Object value)
+        public abstract void handleResolvedForwardReference(DeserializationContext ctxt,
+                Object id, Object value)
             throws JacksonException;
+
         public boolean hasId(Object id) {
             return id.equals(_reference.getUnresolvedId());
         }

@@ -60,23 +60,23 @@ public final class ManagedReferenceProperty
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt, Object instance)
             throws JacksonException
     {
-        set(instance, delegate.deserialize(p, ctxt));
+        set(ctxt, instance, delegate.deserialize(p, ctxt));
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p, DeserializationContext ctxt, Object instance)
             throws JacksonException
     {
-        return setAndReturn(instance, deserialize(p, ctxt));
+        return setAndReturn(ctxt, instance, deserialize(p, ctxt));
     }
 
     @Override
-    public final void set(Object instance, Object value) {
-        setAndReturn(instance, value);
+    public final void set(DeserializationContext ctxt, Object instance, Object value) {
+        setAndReturn(ctxt, instance, value);
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
+    public Object setAndReturn(DeserializationContext ctxt, Object instance, Object value)
     {
         /* 04-Feb-2014, tatu: As per [#390], it may be necessary to switch the
          *   ordering of forward/backward references, and start with back ref.
@@ -85,25 +85,25 @@ public final class ManagedReferenceProperty
             if (_isContainer) { // ok, this gets ugly... but has to do for now
                 if (value instanceof Object[]) {
                     for (Object ob : (Object[]) value) {
-                        if (ob != null) { _backProperty.set(ob, instance); }
+                        if (ob != null) { _backProperty.set(ctxt, ob, instance); }
                     }
                 } else if (value instanceof Collection<?>) {
                     for (Object ob : (Collection<?>) value) {
-                        if (ob != null) { _backProperty.set(ob, instance); }
+                        if (ob != null) { _backProperty.set(ctxt, ob, instance); }
                     }
                 } else if (value instanceof Map<?,?>) {
                     for (Object ob : ((Map<?,?>) value).values()) {
-                        if (ob != null) { _backProperty.set(ob, instance); }
+                        if (ob != null) { _backProperty.set(ctxt, ob, instance); }
                     }
                 } else {
                     throw new IllegalStateException("Unsupported container type ("+value.getClass().getName()
                             +") when resolving reference '"+_referenceName+"'");
                 }
             } else {
-                _backProperty.set(value, instance);
+                _backProperty.set(ctxt, value, instance);
             }
         }
         // and then the forward reference itself
-        return delegate.setAndReturn(instance, value);
+        return delegate.setAndReturn(ctxt, instance, value);
 	}
 }

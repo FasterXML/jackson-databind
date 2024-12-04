@@ -1,4 +1,4 @@
-package tools.jackson.databind.jdk9;
+package tools.jackson.databind.ext.jdk9;
 
 import java.util.Collections;
 import java.util.List;

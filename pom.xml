@@ -37,6 +37,10 @@
   </scm>
 
   <properties>
+    <!-- [databind#4820]: Java 17 baseline -->
+    <javac.src.version>17</javac.src.version>
+    <javac.target.version>17</javac.target.version>
+
     <!-- 12-Nov-2022, tatu: [databind#3659] Verify Android SDK compatibility.
 
       Baseline compatibility:
@@ -281,7 +285,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <version>1.22</version>
+        <version>1.24</version>
         <configuration>
           <signature>
             <groupId>com.toasttab.android</groupId>

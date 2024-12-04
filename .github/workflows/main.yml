@@ -4,7 +4,6 @@ on:
     branches:
     - master
     - "3.0"
-    - "2.19"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -12,7 +11,6 @@ on:
     branches:
     - master
     - "3.0"
-    - "2.19"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -26,13 +24,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['8', '11', '17', '21', '22']
+        java_version: ['17', '21', '22']
         os: ['ubuntu-22.04']
         include:
-          - java_version: '8'
+          - java_version: '17'
             os: 'ubuntu-22.04'
             release_build: 'R'
-          - java_version: '8'
+          - java_version: '17'
             os: 'windows-latest'
             is_windows: 'W'
     env:

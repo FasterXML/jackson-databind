@@ -45,6 +45,7 @@ public class ExceptionUtil {
      * @param throwable to check
      * @return whether the <code>Throwable</code> is a fatal error
      */
+    @SuppressWarnings("removal")
     private static boolean isFatal(Throwable throwable) {
         return (throwable instanceof VirtualMachineError
                 || throwable instanceof ThreadDeath

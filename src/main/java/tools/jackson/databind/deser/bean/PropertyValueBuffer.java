@@ -155,14 +155,14 @@ public class PropertyValueBuffer
     }
 
     /**
-     * A variation of {@link #getParameters(SettableBeanProperty[])} that
+     * A variation of {@link #getParameters} that
      * accepts a single property.  Whereas the plural form eagerly fetches and
      * validates all properties, this method may be used (along with
      * {@link #hasParameter(SettableBeanProperty)}) to let applications only
      * fetch the properties defined in the JSON source itself, and to have some
      * other customized behavior for missing properties.
      */
-    public Object getParameter(SettableBeanProperty prop)
+    public Object getParameter(DeserializationContext ctxt, SettableBeanProperty prop)
         throws DatabindException
     {
         Object value;
@@ -174,7 +174,7 @@ public class PropertyValueBuffer
         // 28-Sep-2024 : [databind#4508] Support any-setter flowing through creator
         if ((value == null) && (_anyParamSetter != null )
                 && (prop.getCreatorIndex() == _anyParamSetter.getParameterIndex())) {
-            value = _createAndSetAnySetterValue();
+            value = _createAndSetAnySetterValue(ctxt);
         }
         if (value == null && _context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             return _context.reportInputMismatch(prop,
@@ -191,7 +191,7 @@ public class PropertyValueBuffer
      * returns <code>true</code> (to indicate all creator properties are found), or when
      * then whole JSON Object has been processed,
      */
-    public Object[] getParameters(SettableBeanProperty[] props)
+    public Object[] getParameters(DeserializationContext ctxt, SettableBeanProperty[] props)
         throws DatabindException
     {
         // quick check to see if anything else is needed
@@ -214,7 +214,7 @@ public class PropertyValueBuffer
         }
         // [databind#562] since 2.18 : Respect @JsonAnySetter in @JsonCreator
         if (_anyParamSetter != null) {
-            _creatorParameters[_anyParamSetter.getParameterIndex()] = _createAndSetAnySetterValue();
+            _creatorParameters[_anyParamSetter.getParameterIndex()] = _createAndSetAnySetterValue(ctxt);
         }
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             for (int ix = 0; ix < props.length; ++ix) {
@@ -232,11 +232,11 @@ public class PropertyValueBuffer
     /**
      * Helper method called to create and set any values buffered for "any setter"
      */
-    private Object _createAndSetAnySetterValue() throws DatabindException
+    private Object _createAndSetAnySetterValue(DeserializationContext ctxt) throws DatabindException
     {
         Object anySetterParameterObject = _anyParamSetter.createParameterObject();
         for (PropertyValue pv = _anyParamBuffered; pv != null; pv = pv.next) {
-            pv.setValue(anySetterParameterObject);
+            pv.setValue(ctxt, anySetterParameterObject);
         }
         return anySetterParameterObject;
     }
@@ -318,11 +318,11 @@ public class PropertyValueBuffer
         if (_objectIdReader != null) {
             if (_idValue != null) {
                 ReadableObjectId roid = ctxt.findObjectId(_idValue, _objectIdReader.generator, _objectIdReader.resolver);
-                roid.bindItem(bean);
+                roid.bindItem(ctxt, bean);
                 // also: may need to set a property value as well
                 SettableBeanProperty idProp = _objectIdReader.idProperty;
                 if (idProp != null) {
-                    return idProp.setAndReturn(bean, _idValue);
+                    return idProp.setAndReturn(ctxt, bean, _idValue);
                 }
             } else {
                 // 07-Jun-2016, tatu: Trying to improve error messaging here...

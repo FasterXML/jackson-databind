@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser.bean;
 
 import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.deser.SettableAnyProperty;
 import tools.jackson.databind.deser.SettableBeanProperty;
 
@@ -27,7 +28,7 @@ public abstract class PropertyValue
      * Method called to assign stored value of this property to specified
      * bean instance
      */
-    public abstract void assign(Object bean) throws JacksonException;
+    public abstract void assign(DeserializationContext ctxt, Object bean) throws JacksonException;
 
     /**
      * Method called to assign stored value of this property to specified
@@ -35,7 +36,7 @@ public abstract class PropertyValue
      *
      * @since 2.18
      */
-    public void setValue(Object parameterObject)
+    public void setValue(DeserializationContext ctxt, Object parameterObject)
         throws JacksonException
     {
         throw new UnsupportedOperationException("Should not be called by this type " + getClass().getName());
@@ -64,9 +65,9 @@ public abstract class PropertyValue
         }
 
         @Override
-        public void assign(Object bean) throws JacksonException
+        public void assign(DeserializationContext ctxt, Object bean) throws JacksonException
         {
-            _property.set(bean, value);
+            _property.set(ctxt, bean, value);
         }
     }
 
@@ -92,9 +93,9 @@ public abstract class PropertyValue
         }
 
         @Override
-        public void assign(Object bean) throws JacksonException
+        public void assign(DeserializationContext ctxt, Object bean) throws JacksonException
         {
-            _property.set(bean, _propertyName, value);
+            _property.set(ctxt, bean, _propertyName, value);
         }
     }
 
@@ -115,7 +116,7 @@ public abstract class PropertyValue
 
         @SuppressWarnings("unchecked")
         @Override
-        public void assign(Object bean) throws JacksonException
+        public void assign(DeserializationContext ctxt, Object bean) throws JacksonException
         {
             ((java.util.Map<Object,Object>) bean).put(_key, value);
         }
@@ -143,17 +144,17 @@ public abstract class PropertyValue
         }
 
         @Override
-        public void assign(Object bean) throws JacksonException
+        public void assign(DeserializationContext ctxt, Object bean) throws JacksonException
         {
             // do nothing, as we are not assigning to a bean
             // instead, we are assigning to a parameter object via setValue field.
         }
 
         @Override
-        public void setValue(Object parameterObject) throws JacksonException
+        public void setValue(DeserializationContext ctxt, Object parameterObject) throws JacksonException
         {
             // AnyParameter
-            _property.set(parameterObject, _propertyName, value);
+            _property.set(ctxt, parameterObject, _propertyName, value);
         }
     }
 }

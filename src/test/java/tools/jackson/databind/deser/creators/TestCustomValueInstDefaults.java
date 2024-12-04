@@ -22,7 +22,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder
  * Exercises a custom value instantiator with an overridden
  * {@link ValueInstantiator#createFromObjectWith(DeserializationContext, SettableBeanProperty[], PropertyValueBuffer)}
  * as well as the {@link PropertyValueBuffer#hasParameter(SettableBeanProperty)}
- * and {@link PropertyValueBuffer#getParameter(SettableBeanProperty)} methods.
+ * and {@link PropertyValueBuffer#getParameter} methods.
  */
 @SuppressWarnings("serial")
 public class TestCustomValueInstDefaults
@@ -135,13 +135,13 @@ public class TestCustomValueInstDefaults
             for (SettableBeanProperty prop : props) {
                 if (buffer.hasParameter(prop)) {
                     if (prop.getName().equals("a")) {
-                        a = (Integer) buffer.getParameter(prop);
+                        a = (Integer) buffer.getParameter(ctxt, prop);
                     } else if (prop.getName().equals("b")) {
-                        b = (Integer) buffer.getParameter(prop);
+                        b = (Integer) buffer.getParameter(ctxt, prop);
                     } else if (prop.getName().equals("c")) {
-                        c = (String) buffer.getParameter(prop);
+                        c = (String) buffer.getParameter(ctxt, prop);
                     } else if (prop.getName().equals("d")) {
-                        d = (String) buffer.getParameter(prop);
+                        d = (String) buffer.getParameter(ctxt, prop);
                     }
                 }
             }
@@ -195,7 +195,7 @@ public class TestCustomValueInstDefaults
             for (SettableBeanProperty prop : props) {
                 if (buffer.hasParameter(prop)) {
                     String name = prop.getName();
-                    Object value = buffer.getParameter(prop);
+                    Object value = buffer.getParameter(ctxt, prop);
                     if (name.equals("i01")) i01 = (Integer) value;
                     else if (name.equals("i02")) i02 = (Integer) value;
                     else if (name.equals("i03")) i03 = (Integer) value;

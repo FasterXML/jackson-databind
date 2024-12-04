@@ -219,7 +219,7 @@ public class ExternalTypeHandler
                     SettableBeanProperty prop = extProp.getProperty();
                     Object result = TypeDeserializer.deserializeIfNatural(buffered, ctxt, prop.getType());
                     if (result != null) {
-                        prop.set(bean, result);
+                        prop.set(ctxt, bean, result);
                         continue;
                     }
                 }
@@ -330,7 +330,7 @@ public class ExternalTypeHandler
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = _properties[i].getProperty();
             if (prop.getCreatorIndex() < 0) {
-                prop.set(bean, values[i]);
+                prop.set(ctxt, bean, values[i]);
             }
         }
         return bean;
@@ -390,7 +390,7 @@ public class ExternalTypeHandler
         JsonToken t = p2.nextToken();
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
         if (t == JsonToken.VALUE_NULL) {
-            _properties[index].getProperty().set(bean, null);
+            _properties[index].getProperty().set(ctxt, bean, null);
             return;
         }
         TokenBuffer merged = ctxt.bufferForInputBuffering(p);

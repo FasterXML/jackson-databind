@@ -143,14 +143,14 @@ public final class SetterlessProperty
     }
 
     @Override
-    public final void set(Object instance, Object value) {
+    public final void set(DeserializationContext ctxt, Object instance, Object value) {
         throw new UnsupportedOperationException("Should never call `set()` on setterless property ('"+getName()+"')");
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
+    public Object setAndReturn(DeserializationContext ctxt, Object instance, Object value)
     {
-        set(instance, value);
+        set(ctxt, instance, value);
         return instance;
     }
 }

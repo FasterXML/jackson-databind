@@ -87,19 +87,19 @@ _creator.getDeclaringClass().getName(), e.getMessage()));
             }
             _valueDeserializer.deserialize(p, ctxt, value);
         }
-        set(bean, value);
+        set(ctxt, bean, value);
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p, DeserializationContext ctxt, Object instance)
         throws JacksonException
     {
-        return setAndReturn(instance, deserialize(p, ctxt));
+        return setAndReturn(ctxt, instance, deserialize(p, ctxt));
     }
 
 // these are fine with defaults
-//    public final void set(Object instance, Object value) { }
-//    public Object setAndReturn(Object instance, Object value) { }
+//    public final void set(DeserializationContext ctxt, Object instance, Object value) { }
+//    public Object setAndReturn(DeserializationContext ctxt, Object instance, Object value) { }
 
     /*
     /**********************************************************

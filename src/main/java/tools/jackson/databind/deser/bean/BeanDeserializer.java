@@ -1333,14 +1333,15 @@ public class BeanDeserializer
         }
 
         @Override
-        public void handleResolvedForwardReference(Object id, Object value)
+        public void handleResolvedForwardReference(DeserializationContext ctxt,
+                Object id, Object value)
         {
             if (_bean == null) {
                 _context.reportInputMismatch(_prop,
 "Cannot resolve ObjectId forward reference using property '%s' (of type %s): Bean not yet resolved",
 _prop.getName(), _prop.getDeclaringClass().getName());
         }
-            _prop.set(_bean, value);
+            _prop.set(ctxt, _bean, value);
         }
     }
 }

@@ -254,12 +254,12 @@ public abstract class ValueInstantiator
      * behavior with respect to missing properties.
      *<p>
      * The default implementation of this method uses
-     * {@link PropertyValueBuffer#getParameters(SettableBeanProperty[])} to read
+     * {@link PropertyValueBuffer#getParameters} to read
      * and validate all properties in bulk, possibly substituting defaults for
      * missing properties or throwing exceptions for missing properties.  An
      * overridden implementation of this method could, for example, use
-     * {@link PropertyValueBuffer#hasParameter(SettableBeanProperty)} and
-     * {@link PropertyValueBuffer#getParameter(SettableBeanProperty)} to safely
+     * {@link PropertyValueBuffer#hasParameter} and
+     * {@link PropertyValueBuffer#getParameter} to safely
      * read the present properties only, and to have some other behavior for the
      * missing properties.
      */
@@ -267,7 +267,7 @@ public abstract class ValueInstantiator
             SettableBeanProperty[] props, PropertyValueBuffer buffer)
         throws JacksonException
     {
-        return createFromObjectWith(ctxt, buffer.getParameters(props));
+        return createFromObjectWith(ctxt, buffer.getParameters(ctxt, props));
     }
 
     /**

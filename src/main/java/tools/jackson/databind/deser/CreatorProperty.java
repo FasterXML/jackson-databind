@@ -218,7 +218,7 @@ public class CreatorProperty
             Object instance) throws JacksonException
     {
         _verifySetter();
-        _fallbackSetter.set(instance, deserialize(p, ctxt));
+        _fallbackSetter.set(ctxt, instance, deserialize(p, ctxt));
     }
 
     @Override
@@ -226,21 +226,21 @@ public class CreatorProperty
             DeserializationContext ctxt, Object instance) throws JacksonException
     {
         _verifySetter();
-        return _fallbackSetter.setAndReturn(instance, deserialize(p, ctxt));
+        return _fallbackSetter.setAndReturn(ctxt, instance, deserialize(p, ctxt));
     }
 
     @Override
-    public void set(Object instance, Object value)
+    public void set(DeserializationContext ctxt, Object instance, Object value)
     {
         _verifySetter();
-        _fallbackSetter.set(instance, value);
+        _fallbackSetter.set(ctxt, instance, value);
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
+    public Object setAndReturn(DeserializationContext ctxt, Object instance, Object value)
     {
         _verifySetter();
-        return _fallbackSetter.setAndReturn(instance, value);
+        return _fallbackSetter.setAndReturn(ctxt,instance, value);
     }
 
     @Override

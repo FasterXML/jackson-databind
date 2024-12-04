@@ -173,7 +173,8 @@ public final class MethodProperty
     }
 
     @Override
-    public final void set(Object instance, Object value) throws JacksonException
+    public final void set(DeserializationContext ctxt, Object instance, Object value)
+        throws JacksonException
     {
         if (value == null) {
             if (_skipNulls) {
@@ -189,7 +190,8 @@ public final class MethodProperty
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws JacksonException
+    public Object setAndReturn(DeserializationContext ctxt,
+            Object instance, Object value) throws JacksonException
     {
         if (value == null) {
             if (_skipNulls) {

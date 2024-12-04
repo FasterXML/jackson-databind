@@ -503,7 +503,8 @@ public abstract class SettableBeanProperty
      * implementations, creator-backed properties for example do not
      * support this method.
      */
-    public abstract void set(Object instance, Object value);
+    public abstract void set(DeserializationContext ctxt,
+            Object instance, Object value);
 
     /**
      * Method called to assign given value to this property, on
@@ -514,7 +515,8 @@ public abstract class SettableBeanProperty
      * implementations, creator-backed properties for example do not
      * support this method.
      */
-    public abstract Object setAndReturn(Object instance, Object value);
+    public abstract Object setAndReturn(DeserializationContext ctxt,
+            Object instance, Object value);
 
     /**
      * This method is needed by some specialized bean deserializers,
@@ -797,13 +799,13 @@ public abstract class SettableBeanProperty
         }
 
         @Override
-        public void set(Object instance, Object value) {
-            delegate.set(instance, value);
+        public void set(DeserializationContext ctxt, Object instance, Object value) {
+            delegate.set(ctxt, instance, value);
         }
 
         @Override
-        public Object setAndReturn(Object instance, Object value) {
-            return delegate.setAndReturn(instance, value);
+        public Object setAndReturn(DeserializationContext ctxt, Object instance, Object value) {
+            return delegate.setAndReturn(ctxt, instance, value);
         }
     }
 }

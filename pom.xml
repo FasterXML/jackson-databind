@@ -172,7 +172,7 @@
       <releases><enabled>false</enabled></releases>
       <snapshots><enabled>true</enabled></snapshots>
     </repository>
-    <!--
+    <!-- and old repo for jackson-annotations -->
     <repository>
       <id>sonatype-nexus-snapshots-old</id>
       <name>Sonatype Nexus Snapshots (old)</name>
@@ -180,7 +180,6 @@
       <releases><enabled>false</enabled></releases>
       <snapshots><enabled>true</enabled></snapshots>
     </repository>
-    -->
 
   </repositories>
 

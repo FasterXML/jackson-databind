@@ -8,8 +8,11 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
+// [databind#3355] Deserialization fails depending on the order of deserialized
+// objects with "Cannot construct instance (although at least one Creator exists)"
 public class DeserializationWithCreatorPropertyOrder3355Test
-        extends DatabindTestUtil {
+        extends DatabindTestUtil
+{
 
     public static class Common3355 {
         private final String property;
@@ -47,7 +50,9 @@ public class DeserializationWithCreatorPropertyOrder3355Test
 
     @JacksonTestFailureExpected
     @Test
-    public void testDeserFailing() throws Exception {
+    public void testDeserFailing()
+            throws Exception
+    {
         final String objectJson = "{ \"property\": \"valueOne\" }";
         final String containersJson = "{ \"common\": { \"property\": \"valueTwo\" } }";
 
@@ -56,11 +61,12 @@ public class DeserializationWithCreatorPropertyOrder3355Test
         // If we deserialize inner object first, outer object FAILS
         final Common3355 object = objectMapper.readValue(objectJson, Common3355.class);
         final ContainerFail3355 container = objectMapper.readValue(containersJson, ContainerFail3355.class);
-        System.out.println();
     }
 
     @Test
-    public void testDeserPassing() throws Exception {
+    public void testDeserPassing()
+            throws Exception
+    {
         final String objectJson = "{ \"property\": \"valueOne\" }";
         final String containersJson = "{ \"common\": { \"property\": \"valueTwo\" } }";
 
@@ -69,7 +75,6 @@ public class DeserializationWithCreatorPropertyOrder3355Test
         // If we deserialize outer object first, it WORKS
         final ContainerFail3355 container = objectMapper.readValue(containersJson, ContainerFail3355.class);
         final Common3355 object = objectMapper.readValue(objectJson, Common3355.class);
-        System.out.println();
     }
 
 }

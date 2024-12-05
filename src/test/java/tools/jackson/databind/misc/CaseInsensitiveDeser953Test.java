@@ -18,6 +18,7 @@ public class CaseInsensitiveDeser953Test extends DatabindTestUtil
         public int someId;
     }
 
+    @SuppressWarnings("deprecation") // Locale constructors deprecated in JDK 19
     private final Locale LOCALE_EN = new Locale("en", "US");
 
     private final ObjectMapper INSENSITIVE_MAPPER_EN = jsonMapperBuilder()
@@ -25,6 +26,7 @@ public class CaseInsensitiveDeser953Test extends DatabindTestUtil
             .defaultLocale(LOCALE_EN)
             .build();
 
+    @SuppressWarnings("deprecation") // Locale constructors deprecated in JDK 19
     private final Locale LOCALE_TR = new Locale("tr", "TR");
 
     private final ObjectMapper INSENSITIVE_MAPPER_TR = jsonMapperBuilder()

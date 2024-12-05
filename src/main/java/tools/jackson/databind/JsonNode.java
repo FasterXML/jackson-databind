@@ -102,7 +102,7 @@ public abstract class JsonNode
      * @return Node that is either a copy of this node (and all non-leaf
      *    children); or, for immutable leaf nodes, node itself.
      */
-    public abstract <T extends JsonNode> T deepCopy();
+    public abstract JsonNode deepCopy();
 
     /*
     /**********************************************************************

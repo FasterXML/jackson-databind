@@ -95,6 +95,7 @@ public class JDKTypeSerializationTest
         assertEquals(q("USD"), MAPPER.writeValueAsString(usd));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testLocale() throws IOException
     {

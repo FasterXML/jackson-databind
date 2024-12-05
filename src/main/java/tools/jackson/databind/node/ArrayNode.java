@@ -47,7 +47,6 @@ public class ArrayNode
     }
 
     // note: co-variant to allow caller-side type safety
-    @SuppressWarnings("unchecked")
     @Override
     public ArrayNode deepCopy()
     {

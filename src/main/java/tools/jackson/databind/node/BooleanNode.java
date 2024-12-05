@@ -54,6 +54,9 @@ public class BooleanNode
     }
 
     @Override
+    public BooleanNode deepCopy() { return this; }
+
+    @Override
     public boolean booleanValue() {
         return _value;
     }

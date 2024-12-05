@@ -267,6 +267,7 @@ public class JDKFromStringDeserializer
         return -1;
     }
 
+    @SuppressWarnings("deprecation") // Locale constructors deprecated in JDK 19
     private Locale _deserializeLocale(String fullValue, DeserializationContext ctxt)
         throws JacksonException
     {

@@ -45,7 +45,6 @@ public class ObjectNode
      * have to, as long as sub-types override the method but...
      */
     // note: co-variant for type safety
-    @SuppressWarnings("unchecked")
     @Override
     public ObjectNode deepCopy()
     {

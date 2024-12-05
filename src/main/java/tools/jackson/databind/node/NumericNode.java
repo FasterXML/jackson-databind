@@ -21,6 +21,10 @@ public abstract class NumericNode
         return JsonNodeType.NUMBER;
     }
 
+    // Overridden for type co-variance
+    @Override
+    public NumericNode deepCopy() { return this; }
+    
     // // // Let's re-abstract so sub-classes handle them
 
     @Override

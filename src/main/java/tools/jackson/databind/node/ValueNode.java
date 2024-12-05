@@ -33,9 +33,8 @@ public abstract class ValueNode
      * All current value nodes are immutable, so we can just return
      * them as is.
      */
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends JsonNode> T deepCopy() { return (T) this; }
+    public ValueNode deepCopy() { return this; }
 
     @Override public abstract JsonToken asToken();
 

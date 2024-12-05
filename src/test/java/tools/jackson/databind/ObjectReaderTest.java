@@ -554,9 +554,8 @@ public class ObjectReaderTest
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public <T extends JsonNode> T deepCopy() {
-            return (T) new CustomObjectNode(_delegate);
+        public CustomObjectNode deepCopy() {
+            return new CustomObjectNode(_delegate);
         }
 
         @Override
@@ -675,9 +674,8 @@ public class ObjectReaderTest
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public <T extends JsonNode> T deepCopy() {
-            return (T) new DelegatingArrayNode(_delegate);
+        public DelegatingArrayNode deepCopy() {
+            return new DelegatingArrayNode(_delegate);
         }
 
         @Override

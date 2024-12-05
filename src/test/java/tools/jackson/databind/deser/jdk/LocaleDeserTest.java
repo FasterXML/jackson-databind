@@ -15,7 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static tools.jackson.databind.testutil.DatabindTestUtil.q;
 
-// Tests for `java.util.Locale`
+// Tests for `java.util.Locale`.
+// NOTE: warnings are due to JDK 19 deprecating Locale constructors
+@SuppressWarnings("deprecation")
 public class LocaleDeserTest
 {
     private final Locale[] LOCALES = new Locale[]

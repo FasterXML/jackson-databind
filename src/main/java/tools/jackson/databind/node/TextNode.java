@@ -53,6 +53,9 @@ public class TextNode
     @Override public JsonToken asToken() { return JsonToken.VALUE_STRING; }
 
     @Override
+    public TextNode deepCopy() { return this; }
+
+    @Override
     public String textValue() {
         return _value;
     }

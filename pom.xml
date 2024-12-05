@@ -332,7 +332,6 @@
                 </goals>
                 <configuration>
                   <sources>  
-                    <source>src/test-jdk11/java</source>
                     <source>src/test-jdk17/java</source>
                 </sources>
                 </configuration>
@@ -384,7 +383,6 @@
                 </goals>
                 <configuration>
                   <sources>
-                    <source>src/test-jdk11/java</source>
                     <source>src/test-jdk17/java</source>
                     <source>src/test-jdk21/java</source>
                   </sources>

@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.records.tofix;
 
 import java.util.Collections;
 

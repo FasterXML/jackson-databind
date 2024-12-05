@@ -208,6 +208,8 @@
         <version>${version.plugin.surefire}</version>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <!-- Needed by some of the tests -->
+          <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
           <classpathDependencyExcludes>
             <exclude>javax.measure:jsr-275</exclude>
           </classpathDependencyExcludes>
@@ -248,15 +250,17 @@
         </executions>
       </plugin>
 
-      <!-- 17-Sep-2017, tatu: With 3.0 need to ensure parameter names compiled in
-        -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
           <compilerArgs>
+            <!-- Must ensure parameter names compiled (for tests) -->
             <arg>-parameters</arg>
+            <!-- Are these needed? -->
+            <arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
+            <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
           </compilerArgs>
         </configuration>
       </plugin>
@@ -338,28 +342,6 @@
               </execution>
             </executions>
           </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <!-- Enable Java 17 for all sources so that Intellij picks the right language level -->
-              <source>17</source>
-              <release>17</release>
-              <compilerArgs>
-                <arg>-parameters</arg>
-                <arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
-                <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
-              </compilerArgs>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
-            </configuration>
-          </plugin>
         </plugins>
       </build>
     </profile>
@@ -383,7 +365,6 @@
                 </goals>
                 <configuration>
                   <sources>
-                    <source>src/test-jdk17/java</source>
                     <source>src/test-jdk21/java</source>
                   </sources>
                 </configuration>

@@ -23,6 +23,7 @@ jobs:
           - 'FasterXML/jackson-dataformat-xml'
           - 'FasterXML/jackson-datatypes-collections'
           - 'FasterXML/jackson-datatypes-misc'
+          - 'FasterXML/jackson-datatype-joda'
           - 'FasterXML/jackson-module-kotlin'
           - 'FasterXML/jackson-module-scala'
           - 'FasterXML/jackson-jaxrs-providers'

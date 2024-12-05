@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,10 +34,7 @@ class RecordCreatorSerialization4452Test extends DatabindTestUtil
         }
     }
 
-    private final ObjectMapper OBJECT_MAPPER =
-            JsonMapper.builder()
-                    .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
-                    .build();
+    private final ObjectMapper OBJECT_MAPPER = newJsonMapper();
 
     @Test
     public void testPlain() throws Exception

@@ -27,7 +27,6 @@ public class RecordImplicitSingleValueUsePropertiesBasedCreatorsTest extends Dat
     }
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
             .constructorDetector(ConstructorDetector.USE_PROPERTIES_BASED)
             .build();
 

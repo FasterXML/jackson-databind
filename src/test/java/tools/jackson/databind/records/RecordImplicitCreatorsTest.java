@@ -325,11 +325,7 @@ public class RecordImplicitCreatorsTest extends DatabindTestUtil
     @Test
     public void testDeserializeMultipleConstructorsRecord_WithImplicitParameterNames_WillUseCanonicalConstructor() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
-                .build();
-
-        RecordWithNonCanonicalConstructor value = mapper.readValue(
+        RecordWithNonCanonicalConstructor value = MAPPER.readValue(
                 "{\"id\":123,\"name\":\"Bob\",\"email\":\"bob@example.com\"}",
                 RecordWithNonCanonicalConstructor.class);
 
@@ -339,10 +335,7 @@ public class RecordImplicitCreatorsTest extends DatabindTestUtil
     @Test
     public void testDeserializeMultipleConstructorsRecord_WithImplicitParameterNames_WillIgnoreNonCanonicalConstructor() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
-                .build();
-        RecordWithNonCanonicalConstructor value = mapper.readValue(
+        RecordWithNonCanonicalConstructor value = MAPPER.readValue(
                 "{\"id\":123,\"email\":\"bob@example.com\"}",
                 RecordWithNonCanonicalConstructor.class);
 

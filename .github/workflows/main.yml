@@ -43,7 +43,7 @@ jobs:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
-        server-id: sonatype-nexus-snapshots
+        server-id: sonatype-nexus-snapshots-new
         server-username: CI_DEPLOY_USERNAME
         server-password: CI_DEPLOY_PASSWORD
         # See https://github.com/actions/setup-java/blob/v2/docs/advanced-usage.md#Publishing-using-Apache-Maven

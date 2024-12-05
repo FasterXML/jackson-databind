@@ -185,19 +185,27 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <inherited>true</inherited>
+        <configuration>
+          <compilerArgs>
+            <!-- Must ensure parameter names compiled (for tests) -->
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+
+      <plugin> <!-- default settings are fine, just need to enable here -->
+        <!-- Inherited from oss-base. Generate PackageVersion.java.-->
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
         <executions>
           <execution>
+            <id>generate-package-version-java</id>
+            <phase>prepare-package</phase>
             <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>report</id>
-            <phase>test</phase>
-            <goals>
-              <goal>report</goal>
+              <goal>replace</goal>
             </goals>
           </execution>
         </executions>
@@ -235,34 +243,23 @@
         </configuration>
       </plugin>
 
-      <plugin> <!-- default settings are fine, just need to enable here -->
-        <!-- Inherited from oss-base. Generate PackageVersion.java.-->
-        <groupId>com.google.code.maven-replacer-plugin</groupId>
-        <artifactId>replacer</artifactId>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>generate-package-version-java</id>
-            <phase>prepare-package</phase>
             <goals>
-              <goal>replace</goal>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
             </goals>
           </execution>
         </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <inherited>true</inherited>
-        <configuration>
-          <compilerArgs>
-            <!-- Must ensure parameter names compiled (for tests) -->
-            <arg>-parameters</arg>
-            <!-- Are these needed? -->
-            <arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
-            <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
-          </compilerArgs>
-        </configuration>
       </plugin>
 
       <plugin>
@@ -381,8 +378,6 @@
               <release>21</release>
               <compilerArgs>
                 <arg>-parameters</arg>
-                <arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
-                <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
               </compilerArgs>
             </configuration>
           </plugin>
@@ -487,7 +482,7 @@
                 <path>
                   <groupId>com.google.errorprone</groupId>
                   <artifactId>error_prone_core</artifactId>
-                  <version>2.4.0</version>
+                  <version>2.36.0</version>
                 </path>
               </annotationProcessorPaths>
             </configuration>

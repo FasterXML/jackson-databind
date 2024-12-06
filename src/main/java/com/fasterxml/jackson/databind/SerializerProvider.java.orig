@@ -47,10 +47,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * {@link com.fasterxml.jackson.databind.ser.DefaultSerializerProvider}.
  * Only this instance can be used for actual serialization calls; blueprint
  * object is only to be used for creating instances.
- *<p>
- * NOTE: in Jackson 3.x this class will be renamed as {@code SerializationContext}
- * to align with {@link DeserializationContext}.
- *
  */
 public abstract class SerializerProvider
     extends DatabindContext

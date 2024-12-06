@@ -1420,7 +1420,8 @@ public abstract class AnnotationIntrospector
      * NOTE: naming of this method is unfortunately inconsistent in that "default Creator"
      * has other meanings than "primary Creator" -- in other places Jackson code
      * refers to no-arguments Constructors as "default Creators". So this method
-     * ought to have been named {@code findPrimaryCreator()}.
+     * ought to have been named {@code findPreferredCreator()} (and will in fact
+     * be renamed as such in Jackson 3.0).
      *
      * @param config Configuration settings in effect (for deserialization)
      * @param valueClass Class being instantiated; defines Creators passed

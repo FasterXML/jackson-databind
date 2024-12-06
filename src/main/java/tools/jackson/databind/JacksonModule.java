@@ -20,7 +20,7 @@ import tools.jackson.databind.type.TypeModifier;
  * support for new data types.
  *<p>
  * NOTE: was named just {@code Module} in Jackson 2.x but renamed due to naming
- * conflict with Java 9+ {@code java.lang.Module}
+ * conflict with Java 9+ {@link java.lang.Module}
  */
 public abstract class JacksonModule
     implements Versioned

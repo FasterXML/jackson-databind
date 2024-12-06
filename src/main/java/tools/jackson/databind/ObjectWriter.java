@@ -950,9 +950,9 @@ public class ObjectWriter
     {
         _assertNotNull("g", g);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof Closeable))
+                && (value instanceof AutoCloseable))
         {
-            Closeable toClose = (Closeable) value;
+            AutoCloseable toClose = (AutoCloseable) value;
             try {
                 _prefetch.serialize(g, value, _serializationContext());
                 if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
@@ -966,6 +966,8 @@ public class ObjectWriter
                 toClose.close();
             } catch (IOException e) {
                 throw JacksonIOException.construct(e, g);
+            } catch (Exception e) {
+                ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
             }
         } else {
             _prefetch.serialize(g, value, _serializationContext());
@@ -1101,7 +1103,8 @@ public class ObjectWriter
     protected final void _configAndWriteValue(SerializationContextExt ctxt,
             JsonGenerator gen, Object value) throws JacksonException
     {
-        if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
+        if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
+                && (value instanceof AutoCloseable)) {
             _writeCloseable(gen, value);
             return;
         }
@@ -1121,10 +1124,10 @@ public class ObjectWriter
     private final void _writeCloseable(JsonGenerator gen, Object value)
         throws JacksonException
     {
-        Closeable toClose = (Closeable) value;
+        AutoCloseable toClose = (AutoCloseable) value;
         try {
             _prefetch.serialize(gen, value, _serializationContext());
-            Closeable tmpToClose = toClose;
+            AutoCloseable tmpToClose = toClose;
             toClose = null;
             tmpToClose.close();
         } catch (Exception e) {

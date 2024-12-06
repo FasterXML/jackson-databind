@@ -129,22 +129,27 @@ public enum SerializationFeature implements ConfigFeature
     /**********************************************************************
      */
 
-     /**
-      * Feature that determines whether <code>close</code> method of
-      * serialized <b>root level</b> objects (ones for which <code>ObjectMapper</code>'s
-      * writeValue() (or equivalent) method is called)
-      * that implement {@link java.io.Closeable}
-      * is called after serialization or not. If enabled, <b>close()</b> will
-      * be called after serialization completes (whether succesfully, or
-      * due to an error manifested by an exception being thrown). You can
-      * think of this as sort of "finally" processing.
-      *<p>
-      * NOTE: only affects behavior with <b>root</b> objects, and not other
-      * objects reachable from the root object. Put another way, only one
-      * call will be made for each 'writeValue' call.
+    /**
+     * Feature that determines whether {@code close()} method of
+     * serialized <b>root level</b> objects (ones for which {@link ObjectMapper}'s
+     * (and {@link ObjectWriter}'s)
+     * writeValue() (or equivalent) method is called)
+     * that implement {@link java.lang.AutoCloseable}
+     * is called after serialization or not. If enabled, <b>close()</b> will
+     * be called after serialization completes (whether successfully, or
+     * due to an error manifested by an exception being thrown). You can
+     * think of this as sort of "finally" processing.
+     *<p>
+     * NOTE: only affects behavior with <b>root</b> objects, and not other
+     * objects reachable from the root object. Put another way, only one
+     * call will be made for each 'writeValue' call.
+     *<p>
+     * NOTE: in Jackson 2.x this used to only apply to {@link java.io.Closeable}s,
+     * but now it also applies to {@link java.lang.AutoCloseable}s as well (as
+     * of Jackson 3.0).
      *<p>
      * Feature is disabled by default.
-      */
+     */
     CLOSE_CLOSEABLE(false),
 
     /**

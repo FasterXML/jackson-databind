@@ -1,20 +1,23 @@
 package com.fasterxml.jackson.databind.tofix;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#3355] Deserialization fails depending on the order of deserialized
 // objects with "Cannot construct instance (although at least one Creator exists)"
-public class DeserializationWithCreatorPropertyOrder3355Test
-        extends DatabindTestUtil
+public class CreatorWithIgnoreProperties3355Test
+    extends DatabindTestUtil
 {
-
-    public static class Common3355 {
+    static class Common3355 {
         private final String property;
         private final ContainerFail3355 container;
 
@@ -34,7 +37,7 @@ public class DeserializationWithCreatorPropertyOrder3355Test
         }
     }
 
-    public static class ContainerFail3355 {
+    static class ContainerFail3355 {
         private final Common3355 common;
 
         @JsonCreator
@@ -48,33 +51,34 @@ public class DeserializationWithCreatorPropertyOrder3355Test
         }
     }
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     @JacksonTestFailureExpected
     @Test
-    public void testDeserFailing()
-            throws Exception
+    public void testDeserFailing() throws Exception
     {
         final String objectJson = "{ \"property\": \"valueOne\" }";
         final String containersJson = "{ \"common\": { \"property\": \"valueTwo\" } }";
 
-        final ObjectMapper objectMapper = newJsonMapper();
-
         // If we deserialize inner object first, outer object FAILS
-        final Common3355 object = objectMapper.readValue(objectJson, Common3355.class);
-        final ContainerFail3355 container = objectMapper.readValue(containersJson, ContainerFail3355.class);
+        Common3355 object = MAPPER.readValue(objectJson, Common3355.class);
+        ContainerFail3355 container = MAPPER.readValue(containersJson, ContainerFail3355.class);
+
+        assertNotNull(object);
+        assertNotNull(container);
     }
 
     @Test
-    public void testDeserPassing()
-            throws Exception
+    public void testDeserPassing() throws Exception
     {
         final String objectJson = "{ \"property\": \"valueOne\" }";
         final String containersJson = "{ \"common\": { \"property\": \"valueTwo\" } }";
 
-        final ObjectMapper objectMapper = newJsonMapper();
-
         // If we deserialize outer object first, it WORKS
-        final ContainerFail3355 container = objectMapper.readValue(containersJson, ContainerFail3355.class);
-        final Common3355 object = objectMapper.readValue(objectJson, Common3355.class);
-    }
+        final ContainerFail3355 container = MAPPER.readValue(containersJson, ContainerFail3355.class);
+        final Common3355 object = MAPPER.readValue(objectJson, Common3355.class);
 
+        assertNotNull(object);
+        assertNotNull(container);
+    }
 }

@@ -391,7 +391,7 @@ public final class ClassUtil
      * secondary exception without masking original one.
      */
     public static void closeOnFailAndThrowAsJacksonE(JsonGenerator g,
-            Closeable toClose, Exception fail)
+            AutoCloseable toClose, Exception fail)
         throws JacksonException
     {
         if (g != null) {

@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SerializationFeaturesTest
     extends DatabindTestUtil
 {
-    static class CloseableBean implements Closeable
+    static class CloseableBean implements AutoCloseable
     {
         public int a = 3;
 
@@ -43,7 +43,7 @@ public class SerializationFeaturesTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @SuppressWarnings("resource")
     @Test
@@ -54,10 +54,23 @@ public class SerializationFeaturesTest
         MAPPER.writeValueAsString(bean);
         assertFalse(bean.wasClosed);
 
-        // but can enable it:
+        // via writer as well
         bean = new CloseableBean();
         MAPPER.writer()
-            .with(SerializationFeature.CLOSE_CLOSEABLE)
+            .writeValueAsString(bean);
+        assertFalse(bean.wasClosed);
+        
+        // but can enable it:
+        ObjectMapper mapper2 = jsonMapperBuilder()
+                .enable(SerializationFeature.CLOSE_CLOSEABLE)
+                .build();
+        bean = new CloseableBean();
+        mapper2.writeValueAsString(bean);
+        assertTrue(bean.wasClosed);
+
+        // and same via writer
+        bean = new CloseableBean();
+        mapper2.writer()
             .writeValueAsString(bean);
         assertTrue(bean.wasClosed);
 

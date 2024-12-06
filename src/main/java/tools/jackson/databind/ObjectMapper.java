@@ -1232,7 +1232,8 @@ public class ObjectMapper
             }
         }
         */
-        if (config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
+        if (config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
+                && (value instanceof AutoCloseable)) {
             _writeCloseableValue(g, value, config);
         } else {
             _serializationContext(config).serializeValue(g, value);
@@ -1876,7 +1877,8 @@ public class ObjectMapper
             JsonGenerator g, Object value)
         throws JacksonException
     {
-        if (prov.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
+        if (prov.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
+                && (value instanceof AutoCloseable)) {
             _configAndWriteCloseable(prov, g, value);
             return;
         }
@@ -1897,10 +1899,10 @@ public class ObjectMapper
             JsonGenerator g, Object value)
         throws JacksonException
     {
-        Closeable toClose = (Closeable) value;
+        AutoCloseable toClose = (AutoCloseable) value;
         try {
             prov.serializeValue(g, value);
-            Closeable tmpToClose = toClose;
+            AutoCloseable tmpToClose = toClose;
             toClose = null;
             tmpToClose.close();
         } catch (Exception e) {

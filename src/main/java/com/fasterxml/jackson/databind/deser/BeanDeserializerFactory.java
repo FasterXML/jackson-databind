@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.deser.impl.*;
@@ -438,20 +439,27 @@ ClassUtil.name(propName)));
         }
         AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
-            // [databind#3497]: must consider possible PropertyNamingStrategy
-            String name = "cause";
-            PropertyNamingStrategy pts = config.getPropertyNamingStrategy();
-            if (pts != null) {
-                name = pts.nameForSetterMethod(config, am, "cause");
-            }
-            SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(ctxt.getConfig(), am,
-                    new PropertyName(name));
-            SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
-                    am.getParameterType(0));
-            if (prop != null) {
-                // 21-Aug-2011, tatus: We may actually have found 'cause' property
-                //   to set... but let's replace it just in case, otherwise can end up with odd errors.
-                builder.addOrReplaceProperty(prop, true);
+            SettableBeanProperty causeCreatorProp = builder.findProperty(PropertyName.construct("cause"));
+            // [databind#4827] : Consider case where sub-classed `Exception` has `JsonCreator` with `cause` parameter
+            if (causeCreatorProp instanceof CreatorProperty) {
+                // Set fallback-setter null, so `fixAccess()` does not happen duringn build
+                ((CreatorProperty) causeCreatorProp).setFallbackSetter(null);
+            } else {
+                // [databind#3497]: must consider possible PropertyNamingStrategy
+                String name = "cause";
+                PropertyNamingStrategy pts = config.getPropertyNamingStrategy();
+                if (pts != null) {
+                    name = pts.nameForSetterMethod(config, am, "cause");
+                }
+                SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(ctxt.getConfig(), am,
+                        new PropertyName(name));
+                SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
+                        am.getParameterType(0));
+                if (prop != null) {
+                    // 21-Aug-2011, tatus: We may actually have found 'cause' property
+                    //   to set... but let's replace it just in case, otherwise can end up with odd errors.
+                    builder.addOrReplaceProperty(prop, true);
+                }
             }
         }
         // update builder now that all information is in?

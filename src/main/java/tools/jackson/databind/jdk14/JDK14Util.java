@@ -1,6 +1,8 @@
 package tools.jackson.databind.jdk14;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
+import java.util.Arrays;
 import java.util.List;
 
 import tools.jackson.databind.PropertyName;
@@ -20,7 +22,12 @@ import tools.jackson.databind.util.NativeImageUtil;
 public class JDK14Util
 {
     public static String[] getRecordFieldNames(Class<?> recordType) {
-        return RecordAccessor.instance().getRecordFieldNames(recordType);
+        final RecordComponent[] components = recordType.getRecordComponents();
+        if (components == null) {
+            // not a record, or no reflective access on native image
+            return null;
+        }
+        return Arrays.stream(components).map(RecordComponent::getName).toArray(String[]::new);
     }
 
     /**
@@ -108,26 +115,6 @@ e.getClass().getName(), e.getMessage()), e);
                 throw PROBLEM;
             }
             return INSTANCE;
-        }
-
-        public String[] getRecordFieldNames(Class<?> recordType) throws IllegalArgumentException
-        {
-            final Object[] components = recordComponents(recordType);
-            if (components == null) {
-                // not a record, or no reflective access on native image
-                return null;
-            }
-            final String[] names = new String[components.length];
-            for (int i = 0; i < components.length; i++) {
-                try {
-                    names[i] = (String) RECORD_COMPONENT_GET_NAME.invoke(components[i]);
-                } catch (Exception e) {
-                    throw new IllegalArgumentException(String.format(
-"Failed to access name of field #%d (of %d) of Record type %s",
-i, components.length, ClassUtil.nameOf(recordType)), e);
-                }
-            }
-            return names;
         }
 
         public RawTypeName[] getRecordFields(Class<?> recordType) throws IllegalArgumentException

@@ -1672,6 +1672,11 @@ Kevin Baes (BaesKevin@github)
    as `BigDecimal` when used with `@JsonTypeInfo` and `JsonTypeInfo.As.EXISTING_PROPERTY`
  (2.16.0)
 
+John Hendrikx (hjohn@github)
+ * Reported #3277: Combination of `@JsonUnwrapped` and `@JsonAnySetter` results in `BigDecimal`
+  instead of `Double`
+ (2.16.0)
+
 David Schlosnagle (schlosna@github)
  * Contributed #4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
   (2.16.0)
@@ -1723,3 +1728,17 @@ Jan Pachol (janpacho@github)
  * Reported #4175: Exception when deserialization of `private` record with
    default constructor
   (2.16.0)
+
+Pieter Dirk Soels (Badbond@github)
+ * Reported #4302: Problem deserializing some type of Enums when using
+  `PropertyNamingStrategy`
+  (2.16.2)
+
+Stephane Bailliez (sbailliez@github)
+ * Reported #4409: Deserialization of enums with name defined with different cases
+   leads to `InvalidDefinitionException`: Multiple fields representing property
+  (2.16.2)
+
+Guillaume Jardillier (Mugiwara84@github)
+ * Reported #4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
+  (2.16.3)

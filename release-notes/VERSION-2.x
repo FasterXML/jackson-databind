@@ -5,8 +5,39 @@ Project: jackson-databind
 ------------------------------------------------------------------------
 
 2.17.0 (not yet released)
+Not yet released:
 
-2.16.1 (not yet released)
+
+2.16.3 (not yet released)
+
+#4564: Possible 2.16.0 Enum-as-JSON-Object serialization regression
+ (reported by Guillaume J)
+ (fix contributed by Joo-Hyuk K)
+#4581: Incompatible Constructor Parameter Type in `EnumDeserializer`
+ (reported by @Hunter-Lam)
+#4787: Wrong `String.format()` in `StdDelegatingDeserializer` hides actual error
+ (reported by @Horus1337)
+
+2.16.2 (09-Mar-2024)
+
+#4302: Problem deserializing some type of Enums when using `PropertyNamingStrategy`
+ (reported by Pieter D-S)
+ (fix contributed by Joo-Hyuk K)
+#4303: `ObjectReader` is not serializable if it's configured for polymorphism
+ (reported by @asardaes)
+ (fix contributed by Joo-Hyuk K)
+#4316: NPE when deserializing `JsonAnySetter` in `Throwable`
+ (reported by @jpraet)
+ (fix contributed by Joo-Hyuk K)
+#4355: Jackson 2.16 fails attempting to obtain `ObjectWriter` for an `Enum` of which
+  some value returns null from `toString()`
+ (reported by @YutaHiguchi-bsn)
+#4409: Deserialization of enums with name defined with different cases leads to
+  `InvalidDefinitionException`: Multiple fields representing property
+ (reported by Stephane B)
+ (fix contributed by Joo-Hyuk K)
+
+2.16.1 (24-Dec-2023)
 
 #4200: `JsonSetter(contentNulls = FAIL)` is ignored in delegating
   `@JsonCreator` argument
@@ -29,6 +60,9 @@ Project: jackson-databind
 #3133: Map deserialization results in different numeric classes based on
   json ordering (BigDecimal / Double) when used in combination with @JsonSubTypes
  (reported by @mreiterer)
+#3277: Combination of `@JsonUnwrapped` and `@JsonAnySetter` results in `BigDecimal`
+  instead of `Double`
+ (reported John H)
 #3251: Generic class with generic field of runtime type `Double` is deserialized
   as `BigDecimal` when used with `@JsonTypeInfo` and `JsonTypeInfo.As.EXISTING_PROPERTY`
  (reported by Kevin B)
@@ -121,7 +155,7 @@ Project: jackson-databind
   deserialising empty Object
  (reported by @nocny-x)
 
-2.15.4 (not yet released)
+2.15.4 (15-Feb-2024)
 
 #1172: `@JsonView` doesn't work with `@JsonCreator`
  (reported by Dmitry B)
@@ -129,6 +163,13 @@ Project: jackson-databind
   does not work
  (reported by @jonasho)
  (fix contributed by Joo-Hyuk K)
+#4303: `ObjectReader` is not serializable if it's configured for polymorphism
+ (reported by @asardaes)
+ (fix contributed by Joo-Hyuk K)
+#4378: `TextNode.equals()` throws `NullPointerException` when `TextNode`
+  constructed with `null`
+ (reported by @Javed6234)
+ (fix contributed by @pjfanning)
 
 2.15.3 (12-Oct-2023)
 

@@ -3,10 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.ConfigOverride;
@@ -623,6 +620,21 @@ public class POJOPropertyBuilder
                     continue;
                 }
             }
+            // 11-Jan-2024, tatu: Wrt [databind#4302] problem here is that we have
+            //   Enum constant fields (static!) added due to change in 2.16.0 (see
+            //  {@code AnnotatedFieldCollector#_isIncludableField}) and they can
+            //  conflict with actual fields.
+            /// Let's resolve conflict in favor of non-static Field.
+            final boolean currStatic = field.isStatic();
+            final boolean nextStatic = nextField.isStatic();
+
+            if (currStatic != nextStatic) {
+                if (currStatic) {
+                    field = nextField;
+                }
+                continue;
+            }
+
             throw new IllegalArgumentException("Multiple fields representing property \""+getName()+"\": "
                     +field.getFullName()+" vs "+nextField.getFullName());
         }

@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
+import static org.junit.Assert.assertNotEquals;
+
 public class TextNodeTest extends NodeTestBase
 {
     public void testText()
@@ -35,5 +37,20 @@ public class TextNodeTest extends NodeTestBase
         assertTrue(TextNode.valueOf("true").asBoolean(false));
         assertFalse(TextNode.valueOf("false").asBoolean(true));
         assertFalse(TextNode.valueOf("false").asBoolean(false));
+    }
+
+    public void testEquals()
+    {
+        assertEquals(new TextNode(null), new TextNode(null));
+        assertEquals(new TextNode("abc"), new TextNode("abc"));
+        assertNotEquals(new TextNode(null), new TextNode("def"));
+        assertNotEquals(new TextNode("abc"), new TextNode("def"));
+        assertNotEquals(new TextNode("abc"), new TextNode(null));
+    }
+
+    public void testHashCode()
+    {
+        assertEquals(0, new TextNode(null).hashCode());
+        assertEquals("abc".hashCode(), new TextNode("abc").hashCode());
     }
 }

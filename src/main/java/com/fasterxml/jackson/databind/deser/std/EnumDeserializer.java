@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -19,7 +20,6 @@ import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
 import com.fasterxml.jackson.databind.util.EnumResolver;
-import java.util.Optional;
 
 /**
  * Deserializer class that can deserialize instances of
@@ -83,7 +83,7 @@ public class EnumDeserializer
     @Deprecated
     public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
     {
-        this(byNameResolver, caseInsensitive, null, null);
+        this(byNameResolver, Boolean.TRUE.equals(caseInsensitive), null);
     }
 
     /**
@@ -92,7 +92,7 @@ public class EnumDeserializer
      */
     @Deprecated
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
-                            EnumResolver byEnumNamingResolver)
+            EnumResolver byEnumNamingResolver)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
@@ -108,7 +108,7 @@ public class EnumDeserializer
      * @since 2.16
      */
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
-                            EnumResolver byEnumNamingResolver, EnumResolver toStringResolver)
+            EnumResolver byEnumNamingResolver, EnumResolver toStringResolver)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
@@ -130,7 +130,7 @@ public class EnumDeserializer
         _lookupByName = base._lookupByName;
         _enumsByIndex = base._enumsByIndex;
         _enumDefaultValue = base._enumDefaultValue;
-        _caseInsensitive = caseInsensitive;
+        _caseInsensitive = Boolean.TRUE.equals(caseInsensitive);
         _isFromIntValue = base._isFromIntValue;
         _useDefaultValueForUnknownEnum = useDefaultValueForUnknownEnum;
         _useNullForUnknownEnum = useNullForUnknownEnum;

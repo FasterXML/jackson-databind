@@ -5,6 +5,8 @@ import java.io.IOException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -407,18 +409,17 @@ public abstract class ReferenceTypeSerializer<T>
         // 19-Apr-2016, tatu: In order to basically "skip" the whole wrapper level
         //    (which is what non-polymorphic serialization does too), we will need
         //    to simply delegate call, I think, and NOT try to use it here.
-
-        // Otherwise apply type-prefix/suffix, then std serialize:
-        /*
-        typeSer.writeTypePrefixForScalar(ref, g);
-        serialize(ref, g, provider);
-        typeSer.writeTypeSuffixForScalar(ref, g);
-        */
+        // Otherwise apply in order [ type-prefix -> value -> type-suffix ] then std serialize:
+        // prefix
+        WritableTypeId typeId = typeSer.writeTypePrefix(g, typeSer.typeId(ref, JsonToken.VALUE_STRING));
+        // content
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             ser = _findCachedSerializer(provider, value.getClass());
         }
         ser.serializeWithType(value, g, provider, typeSer);
+        // suffix
+        typeSer.writeTypeSuffix(g, typeId);
     }
 
     /*

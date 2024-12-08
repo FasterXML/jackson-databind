@@ -257,6 +257,6 @@ public abstract class ReferenceTypeDeserializer<T>
         if (_valueTypeDeserializer == null) {
             return deserialize(p, ctxt);
         }
-        return referenceValue(_valueTypeDeserializer.deserializeTypedFromAny(p, ctxt));
+        return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 }

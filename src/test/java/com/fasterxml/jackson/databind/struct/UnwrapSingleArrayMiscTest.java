@@ -83,14 +83,15 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
     }
 
     @Test
-    public void mytest() throws IOException {
+    public void testDeserializeArrayWithNullElement() throws IOException {
         String json = "{\"value\": [null]}";
 
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(StringWrapper.class);
         JsonFactory factory = new JsonFactory();
         JsonParser p = factory.createParser(json);
-        StringWrapper m = r.readValue(p);
-        System.out.println(m);
+        StringWrapper v = r.readValue(p);
+        assertNotNull(v);
+        assertNull(v.value);
     }
 
 

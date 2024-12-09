@@ -12,8 +12,8 @@ import tools.jackson.databind.cfg.ConstructorDetector;
 import tools.jackson.databind.cfg.HandlerInstantiator;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
-import tools.jackson.databind.jdk14.JDK14Util;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.RecordUtil;
 
 /**
  * Helper class used for aggregating information about all possible
@@ -605,7 +605,7 @@ public class POJOPropertiesCollector
         // Needs to be done early to get implicit names populated
         final PotentialCreator primaryCreator;
         if (_isRecordType) {
-            primaryCreator = JDK14Util.findCanonicalRecordConstructor(_config, _classDef, constructors);
+            primaryCreator = RecordUtil.findCanonicalRecordConstructor(_config, _classDef, constructors);
         } else {
             // 02-Nov-2024, tatu: Alas, naming here is confusing: method properly
             //    should have been "findPrimaryCreator()" so as not to confused with

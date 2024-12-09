@@ -12,7 +12,7 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.cfg.MapperConfig;
-import tools.jackson.databind.jdk14.JDK14Util;
+import tools.jackson.databind.util.RecordUtil;
 
 /**
  * Default {@link AccessorNamingStrategy} used by Jackson: to be used either as-is,
@@ -502,7 +502,7 @@ public class DefaultAccessorNamingStrategy
                     // trickier: regular fields are ok (handled differently), but should
                     // we also allow getter discovery? For now let's do so
                     "get", "is", null);
-            String[] recordFieldNames = JDK14Util.getRecordFieldNames(forClass.getRawType());
+            String[] recordFieldNames = RecordUtil.getRecordFieldNames(forClass.getRawType());
             // 01-May-2022, tatu: Due to [databind#3417] may return null when no info available
             _fieldNames = recordFieldNames == null ?
                     Collections.emptySet() :

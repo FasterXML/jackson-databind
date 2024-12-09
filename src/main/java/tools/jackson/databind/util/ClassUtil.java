@@ -219,7 +219,7 @@ public final class ClassUtil
     }
 
     /**
-     * Helper method for detecting Java14-added new {@code Record} types
+     * Helper method for detecting Java14-added {@code Record} types
      */
     public static boolean isRecordType(Class<?> cls) {
         return cls.isRecord();

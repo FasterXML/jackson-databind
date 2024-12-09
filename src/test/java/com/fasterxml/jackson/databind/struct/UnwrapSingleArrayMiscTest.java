@@ -1,9 +1,12 @@
 package com.fasterxml.jackson.databind.struct;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -77,5 +80,21 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
         } catch (MismatchedInputException e) {
             verifyException(e, "more than one value");
         }
+    }
+
+    @Test
+    public void mytest() throws IOException {
+        String json = "{\"value\": [null]}";
+
+        ObjectReader r = UNWRAPPING_MAPPER.readerFor(StringWrapper.class);
+        JsonFactory factory = new JsonFactory();
+        JsonParser p = factory.createParser(json);
+        StringWrapper m = r.readValue(p);
+        System.out.println(m);
+    }
+
+
+    public static class StringWrapper {
+        public String value;
     }
 }

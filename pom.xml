@@ -300,6 +300,10 @@
               -->
             <ignore>java.beans.ConstructorProperties</ignore>
             <ignore>java.beans.Transient</ignore>
+            <!-- 08-Dec-2024, tatu: [databind#2593] need to ignore "StackTraceElement"
+                constructor(s)
+            -->
+            <ignore>java.lang.StackTraceElement</ignore>
           </ignores>
         </configuration>
       </plugin>

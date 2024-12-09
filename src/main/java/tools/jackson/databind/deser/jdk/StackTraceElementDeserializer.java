@@ -71,14 +71,17 @@ public class StackTraceElementDeserializer
     {
         // 21-May-2016, tatu: With Java 9, could use different constructor, probably
         //   via different module, and throw exception here if extra args passed
-        return new StackTraceElement(className, methodName, fileName, lineNumber);
+        // 08-Dec-2024, tatu: With Jackson 3.0 can use full Java 9 introduced
+        //   constructor, finally
+        return new StackTraceElement(classLoaderName, moduleName, moduleVersion,
+                className, methodName, fileName, lineNumber);
     }
 
     /**
      * Intermediate class used both for convenience of binding and
      * to support {@code PropertyNamingStrategy}.
      */
-    public final static class Adapter {
+    protected final static class Adapter {
         // NOTE: some String fields must not be nulls
         public String className = "", classLoaderName;
         public String declaringClass, format;

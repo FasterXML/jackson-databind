@@ -1,21 +1,34 @@
 Here are people who have contributed to the development of Jackson JSON processor
 databind core component, version 3.x
-Version numbers in brackets indicate release in which the problem was fixed
+(version numbers in brackets indicate release in which the problem was fixed)
 
 (note: for older credits, see `CREDITS-2.x` instead)
 
-Tatu Saloranta, tatu.saloranta@iki.fi: author
+Author: Tatu Saloranta, tatu.saloranta@iki.fi: author
 
-Alexander Koshman (akoshman@github)
+Co-Authors (with only partial listings below):
+
+* Joo Hyuk Kim (@JooHyukKim)
+* PJ Fanning (@pjfanning)
+* Sim Yih Tsern (@yihtsern)
+
+----------------------------------------------------------------------------
+
+Alexander Koshman (@akoshman)
  * Requested #1600: Serializing locale with underscore, not standard hyphen	
   [3.0.0]
 
-XakepSDK@github
+@XakepSDK
  * Requested #2013: Allow use of `java.nio.file.Path` for `readValue()`, `writeValue()`
   [3.0.0]
  * Requested #2411: `valueToTree()` during serialization (via `SerializerProvider()`)
   [3.0.0]
 
-Sven Döring (sdoeringNew@github)
+Sven Döring (@sdoeringNew)
  * Contributed #2013: Allow use of `java.nio.file.Path` for `readValue()`, `writeValue()`
   [3.0.0]
+
+Michael Dillon (@michaelcdillon)
+#2593: StackTraceElement w/ >= Java 9 doesn't deserialize properly
+ (requested by Michael D)
+

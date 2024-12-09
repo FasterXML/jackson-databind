@@ -140,12 +140,10 @@ public class ExceptionDeserializationTest
     @Test
     public void testExceptionCauseDeserialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-
         final IOException exp = new IOException("the outer exception", new Throwable("the cause"));
 
-        final String value = mapper.writeValueAsString(exp);
-        final IOException act = mapper.readValue(value, IOException.class);
+        final String value = MAPPER.writeValueAsString(exp);
+        final IOException act = MAPPER.readValue(value, IOException.class);
 
         assertNotNull(act.getCause());
         assertEquals(exp.getCause().getMessage(), act.getCause().getMessage());
@@ -155,13 +153,11 @@ public class ExceptionDeserializationTest
     @Test
     public void testSuppressedGenericThrowableDeserialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-
         final IOException exp = new IOException("the outer exception");
         exp.addSuppressed(new Throwable("the suppressed exception"));
 
-        final String value = mapper.writeValueAsString(exp);
-        final IOException act = mapper.readValue(value, IOException.class);
+        final String value = MAPPER.writeValueAsString(exp);
+        final IOException act = MAPPER.readValue(value, IOException.class);
 
         assertNotNull(act.getSuppressed());
         assertEquals(1, act.getSuppressed().length);

@@ -45,12 +45,13 @@
 
       Baseline compatibility:
 
-      * Jackson 2.16: compatible with Android SDK 26 and up
-      * Jackson 3.0:  compatible with Android SDK 28 and up
+      * Jackson 2.13: compatible with Android SDK 24 and up
+      * Jackson 2.14 - 2.18: compatible with Android SDK 26 and up
+      * Jackson 3.0: compatible with Android SDK 34 and up (need Record access)
       -->
 
-    <version.android.sdk>28</version.android.sdk>
-    <version.android.sdk.signature>0.5.1</version.android.sdk.signature>
+    <version.android.sdk>34</version.android.sdk>
+    <version.android.sdk.signature>0.10.0</version.android.sdk.signature>
 
     <version.bytebuddy>1.14.13</version.bytebuddy>
     <version.mockito>4.11.0</version.mockito>

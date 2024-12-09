@@ -80,8 +80,11 @@ public class StackTraceElementDeserializer
     /**
      * Intermediate class used both for convenience of binding and
      * to support {@code PropertyNamingStrategy}.
+     *<p>
+     * NOTE: MUST remain {@code public} for JDK 17 at least to avoid
+     * needing opening up access separately.
      */
-    protected final static class Adapter {
+    public final static class Adapter {
         // NOTE: some String fields must not be nulls
         public String className = "", classLoaderName;
         public String declaringClass, format;

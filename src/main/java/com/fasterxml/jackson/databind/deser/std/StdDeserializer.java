@@ -360,6 +360,9 @@ public abstract class StdDeserializer<T>
             T result = (T) handleNestedArrayForSingle(p, ctxt);
             return result;
         }
+        if (p.currentToken() == JsonToken.VALUE_NULL) {
+            return getNullValue(ctxt);
+        }
         return (T) deserialize(p, ctxt);
     }
 

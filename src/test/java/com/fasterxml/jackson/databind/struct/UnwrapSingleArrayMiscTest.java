@@ -1,14 +1,13 @@
 package com.fasterxml.jackson.databind.struct;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -21,6 +20,10 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
     private final ObjectMapper UNWRAPPING_MAPPER = jsonMapperBuilder()
             .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
             .build();
+
+    public static class StringWrapper {
+        public String value;
+    }
 
     /*
     /**********************************************************
@@ -83,19 +86,16 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
     }
 
     @Test
-    public void testDeserializeArrayWithNullElement() throws IOException {
+    public void testDeserializeArrayWithNullElement() throws Exception
+    {
         String json = "{\"value\": [null]}";
 
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(StringWrapper.class);
         JsonFactory factory = new JsonFactory();
         JsonParser p = factory.createParser(json);
         StringWrapper v = r.readValue(p);
+
         assertNotNull(v);
         assertNull(v.value);
-    }
-
-
-    public static class StringWrapper {
-        public String value;
     }
 }

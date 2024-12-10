@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.deser.impl.*;
@@ -442,7 +441,7 @@ ClassUtil.name(propName)));
             SettableBeanProperty causeCreatorProp = builder.findProperty(PropertyName.construct("cause"));
             // [databind#4827] : Consider case where sub-classed `Exception` has `JsonCreator` with `cause` parameter
             if (causeCreatorProp instanceof CreatorProperty) {
-                // Set fallback-setter null, so `fixAccess()` does not happen duringn build
+                // Set fallback-setter as null, so `fixAccess()` does not happen during build
                 ((CreatorProperty) causeCreatorProp).setFallbackSetter(null);
             } else {
                 // [databind#3497]: must consider possible PropertyNamingStrategy

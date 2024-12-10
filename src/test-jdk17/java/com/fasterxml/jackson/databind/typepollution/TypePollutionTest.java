@@ -1,21 +1,17 @@
 package com.fasterxml.jackson.databind.typepollution;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import io.micronaut.test.typepollution.FocusListener;
-import io.micronaut.test.typepollution.ThresholdFocusListener;
-import io.micronaut.test.typepollution.TypePollutionTransformer;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import io.micronaut.test.typepollution.FocusListener;
+import io.micronaut.test.typepollution.ThresholdFocusListener;
+import io.micronaut.test.typepollution.TypePollutionTransformer;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.function.Executable;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class TypePollutionTest {
     private static final int THRESHOLD = 1000;

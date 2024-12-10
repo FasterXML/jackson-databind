@@ -1,14 +1,14 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import com.fasterxml.jackson.core.*;
-
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
@@ -18,6 +18,12 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * Specifically optimized version for {@link java.util.Collection}s
@@ -171,16 +177,15 @@ public final class StringCollectionDeserializer
     /**********************************************************
      */
 
-    @SuppressWarnings("unchecked")
     @Override
     public Collection<String> deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         if (_delegateDeserializer != null) {
-            return (Collection<String>) _valueInstantiator.createUsingDelegate(ctxt,
-                    _delegateDeserializer.deserialize(p, ctxt));
+            return castToCollection(_valueInstantiator.createUsingDelegate(ctxt,
+                    _delegateDeserializer.deserialize(p, ctxt)));
         }
-        final Collection<String> result = (Collection<String>) _valueInstantiator.createUsingDefault(ctxt);
+        final Collection<String> result = castToCollection(_valueInstantiator.createUsingDefault(ctxt));
         return deserialize(p, ctxt, result);
     }
 
@@ -273,7 +278,6 @@ public final class StringCollectionDeserializer
      * throw an exception, or try to handle value as if member of implicit
      * array, depending on configuration.
      */
-    @SuppressWarnings("unchecked")
     private final Collection<String> handleNonArray(JsonParser p, DeserializationContext ctxt,
             Collection<String> result) throws IOException
     {
@@ -285,7 +289,7 @@ public final class StringCollectionDeserializer
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 return _deserializeFromString(p, ctxt);
             }
-            return (Collection<String>) ctxt.handleUnexpectedToken(_containerType, p);
+            return castToCollection(ctxt.handleUnexpectedToken(_containerType, p));
         }
         // Strings are one of "native" (intrinsic) types, so there's never type deserializer involved
         JsonDeserializer<String> valueDes = _valueDeserializer;
@@ -307,15 +311,15 @@ public final class StringCollectionDeserializer
                     final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
                             CoercionInputShape.EmptyString);
                     if (act != CoercionAction.Fail) {
-                        return (Collection<String>) _deserializeFromEmptyString(p, ctxt, act, handledType(),
-                                "empty String (\"\")");
+                        return castToCollection(_deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                "empty String (\"\")"));
                     }
                 } else if (_isBlank(textValue)) {
                     final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), handledType(),
                             CoercionAction.Fail);
                     if (act != CoercionAction.Fail) {
-                        return (Collection<String>) _deserializeFromEmptyString(p, ctxt, act, handledType(),
-                                "blank String (all whitespace)");
+                        return castToCollection(_deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                "blank String (all whitespace)"));
                     }
                 }
                 // if coercion failed, we can still add it to a list
@@ -329,5 +333,20 @@ public final class StringCollectionDeserializer
         }
         result.add(value);
         return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Collection<String> castToCollection(Object o) {
+        if (o != null) {
+            // fast path for specific classes to avoid type pollution:
+            // https://micronaut-projects.github.io/micronaut-test/latest/guide/#typePollution
+            if (o.getClass() == ArrayList.class) {
+                return (ArrayList<String>) o;
+            }
+            if (o.getClass() == HashSet.class) {
+                return (HashSet<String>) o;
+            }
+        }
+        return (Collection<String>) o;
     }
 }

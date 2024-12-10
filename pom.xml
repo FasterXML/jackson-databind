@@ -320,35 +320,6 @@
     </profile>
     <!-- 07-Dec-2021, tatu: This is a huge mess, sorry folks... -->
     <profile>
-      <!-- And different set up for JDK 17 -->
-      <id>java17</id>
-      <activation>
-        <jdk>17</jdk>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>add-test-source</id>
-                <phase>generate-test-sources</phase>
-                <goals>
-                  <goal>add-test-source</goal>
-                </goals>
-                <configuration>
-                  <sources>  
-                    <source>src/test-jdk17/java</source>
-                </sources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
       <!-- And different set up for JDK 21 -->
       <id>java21</id>
       <activation>

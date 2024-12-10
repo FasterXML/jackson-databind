@@ -32,6 +32,11 @@ Project: jackson-databind
 #4773: `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not apply to Maps
   with uncomparable keys
  (requested by @nathanukey)
+
+2.18.3 (not yet released)
+
+#4827: Subclassed Throwable deserialization fails since v2.18.0 - no creator
+  index for property 'cause'
  (fix by Joo-Hyuk K)
 
 2.18.2 (27-Nov-2024)

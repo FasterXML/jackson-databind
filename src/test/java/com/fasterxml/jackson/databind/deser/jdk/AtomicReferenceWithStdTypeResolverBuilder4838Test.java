@@ -1,35 +1,109 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import org.junit.jupiter.api.Test;
-
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+// Reported via [modules-java8#86] Cannot read `Optional`s written with `StdTypeResolverBuilder`
 public class AtomicReferenceWithStdTypeResolverBuilder4838Test
-        extends DatabindTestUtil {
+        extends DatabindTestUtil
+{
 
-    static class Wrapper4383Test {
-        public AtomicReference<Long> ref;
+    public static class Foo<T> {
+        public AtomicReference<T> value;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Foo<?> foo = (Foo<?>) o;
+            return Objects.equals(value.get(), foo.value.get());
+        }
+    }
+
+    public static class Pojo86 {
+        public String name;
+
+        public static Pojo86 valueOf(String name) {
+            Pojo86 pojo = new Pojo86();
+            pojo.name = name;
+            return pojo;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Pojo86 pojo86 = (Pojo86) o;
+            return Objects.equals(name, pojo86.name);
+        }
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    public static abstract class Animal {
+        public String name;
+
+        protected Animal(String name) {
+            this.name = name;
+        }
+    }
+
+    public static class Dog extends Animal {
+        @JsonCreator
+        public Dog(@JsonProperty("name") String name) {
+            super(name);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return (obj instanceof Dog) && name.equals(((Dog) obj).name);
+        }
     }
 
     @Test
-    public void testPropertyAnnotationForReferences() throws Exception {
-        Wrapper4383Test w = jsonMapperBuilder()
-                .setDefaultTyping(
-                        new StdTypeResolverBuilder()
-                                .init(JsonTypeInfo.Id.CLASS, null)
-                                .inclusion(JsonTypeInfo.As.WRAPPER_OBJECT))
-                .build()
-                .readValue("{\"ref\": 99}", Wrapper4383Test.class);
-
-        assertNotNull(w);
-        assertNotNull(w.ref);
-        assertEquals(99, w.ref.get());
+    public void testRoundTrip() throws Exception {
+        _test(new AtomicReference<>("MyName"), String.class);
+        _test(new AtomicReference<>(42), Integer.class);
+        _test(new AtomicReference<>(Pojo86.valueOf("PojoName")), Pojo86.class);
     }
 
+    @Test
+    public void testPolymorphic() throws Exception {
+        _test(new AtomicReference<>(new Dog("Buddy")), Animal.class);
+    }
+
+    private <T> void _test(AtomicReference<T> value, Class<?> type) throws Exception {
+        ObjectMapper mapper = configureObjectMapper();
+
+        // Serialize
+        Foo<T> foo = new Foo<>();
+        foo.value = value;
+        String json = mapper.writeValueAsString(foo);
+
+        // Deserialize
+        Foo<T> bean = mapper.readValue(json, mapper.getTypeFactory().constructParametricType(Foo.class, type));
+
+        // Compare the underlying values of AtomicReference
+        assertEquals(foo.value.get(), bean.value.get());
+    }
+
+    private ObjectMapper configureObjectMapper() {
+        return jsonMapperBuilder()
+                // this is what's causing failure in later versions.....
+                .setDefaultTyping(
+                    new StdTypeResolverBuilder()
+                            .init(JsonTypeInfo.Id.CLASS, null)
+                            .inclusion(JsonTypeInfo.As.WRAPPER_OBJECT)
+                ).build();
+    }
 }

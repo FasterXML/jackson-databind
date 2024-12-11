@@ -257,6 +257,9 @@ public abstract class ReferenceTypeDeserializer<T>
         if (_valueTypeDeserializer == null) {
             return deserialize(p, ctxt);
         }
+        // [modules-java8#86] Since 2.19.0, Cannot read `Optional`s written with `StdTypeResolverBuilder`
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
+        // Previously was...
+        // return referenceValue(_valueTypeDeserializer.deserializeTypedFromAny(p, ctxt));
     }
 }

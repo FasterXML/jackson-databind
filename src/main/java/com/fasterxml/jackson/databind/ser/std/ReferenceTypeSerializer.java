@@ -409,16 +409,14 @@ public abstract class ReferenceTypeSerializer<T>
         // 19-Apr-2016, tatu: In order to basically "skip" the whole wrapper level
         //    (which is what non-polymorphic serialization does too), we will need
         //    to simply delegate call, I think, and NOT try to use it here.
-        // Otherwise apply in order [ type-prefix -> value -> type-suffix ] then std serialize:
-        // prefix
+
+        // [modules-java8#86] Since 2.19.0, Bringing back the prefix and suffix writing part
         WritableTypeId typeId = typeSer.writeTypePrefix(g, typeSer.typeId(ref, JsonToken.VALUE_STRING));
-        // content
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             ser = _findCachedSerializer(provider, value.getClass());
         }
         ser.serializeWithType(value, g, provider, typeSer);
-        // suffix
         typeSer.writeTypeSuffix(g, typeId);
     }
 

@@ -38,6 +38,8 @@ Project: jackson-databind
 #4827: Subclassed Throwable deserialization fails since v2.18.0 - no creator
   index for property 'cause'
  (fix by Joo-Hyuk K)
+#4844: Fix wrapped array hanlding wrt `null` by `StdDeserializer`
+ (fix by Stanislav S)
 
 2.18.2 (27-Nov-2024)
 

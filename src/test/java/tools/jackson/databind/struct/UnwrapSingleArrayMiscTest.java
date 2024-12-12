@@ -19,6 +19,10 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
             .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
             .build();
 
+    static class StringWrapper {
+        public String value;
+    }
+
     /*
     /**********************************************************
     /* Tests methods, POJOs
@@ -77,5 +81,17 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
         } catch (MismatchedInputException e) {
             verifyException(e, "more than one value");
         }
+    }
+
+    // [databind#4844]: should work for wrapped null values too
+    @Test
+    public void testDeserializeArrayWithNullElement() throws Exception
+    {
+        StringWrapper v = UNWRAPPING_MAPPER
+            .readerFor(StringWrapper.class)
+            .readValue("{\"value\": [null]}");
+        
+        assertNotNull(v);
+        assertNull(v.value);
     }
 }

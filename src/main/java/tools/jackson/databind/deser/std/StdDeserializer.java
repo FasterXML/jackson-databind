@@ -310,6 +310,12 @@ public abstract class StdDeserializer<T>
             T result = (T) handleNestedArrayForSingle(p, ctxt);
             return result;
         }
+        // 11-Dec-2024: [databind#4844] Caller needs to handle nulls before delegating
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
+            @SuppressWarnings("unchecked")
+            T result = (T) getNullValue(ctxt);
+            return result;
+        }
         return (T) deserialize(p, ctxt);
     }
 

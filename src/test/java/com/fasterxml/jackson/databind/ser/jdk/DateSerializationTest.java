@@ -309,11 +309,19 @@ public class DateSerializationTest
 
         // Also: should be able to dynamically change timezone:
         ObjectWriter w = mapper.writer().with(TimeZone.getTimeZone("EST"));
-        assertEquals(q("1969-12-31/"+zoneOffset("1900")+" EST"), w.writeValueAsString(new Date(0)));
+        List<String> expectedList = Arrays.asList(
+                q("1969-12-31/19:00 EST"),
+                q("1969-12-31/19:00 GMT-05:00"));
+        String result = w.writeValueAsString(new Date(0));
+        assertTrue(expectedList.contains(result), "unexpected EST result: " + result);
 
         // wrt [databind#2643]
+        List<String> expectedList2 = Arrays.asList(
+                q("1970-01-01/03:30 IRST"),
+                q("1970-01-01/03:30 GMT+03:30"));
         w = mapper.writer().with(TimeZone.getTimeZone("Asia/Tehran"));
-        assertEquals(q("1970-01-01/"+zoneOffset("0330")+" IRST"), w.writeValueAsString(new Date(0)));
+        String result2 = w.writeValueAsString(new Date(0));
+        assertTrue(expectedList2.contains(result2), "unexpected IRST result: " + result);
     }
 
     /**

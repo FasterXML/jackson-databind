@@ -53,7 +53,7 @@
     <version.android.sdk>34</version.android.sdk>
     <version.android.sdk.signature>0.10.0</version.android.sdk.signature>
 
-    <version.bytebuddy>1.14.13</version.bytebuddy>
+    <version.bytebuddy>1.15.10</version.bytebuddy>
     <version.mockito>5.14.2</version.mockito>
 
     <!-- Can not use default, since group id != Java package name here -->

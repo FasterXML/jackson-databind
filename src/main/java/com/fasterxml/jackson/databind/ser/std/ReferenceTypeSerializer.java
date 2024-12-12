@@ -5,6 +5,8 @@ import java.io.IOException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -408,17 +410,14 @@ public abstract class ReferenceTypeSerializer<T>
         //    (which is what non-polymorphic serialization does too), we will need
         //    to simply delegate call, I think, and NOT try to use it here.
 
-        // Otherwise apply type-prefix/suffix, then std serialize:
-        /*
-        typeSer.writeTypePrefixForScalar(ref, g);
-        serialize(ref, g, provider);
-        typeSer.writeTypeSuffixForScalar(ref, g);
-        */
+        // [modules-java8#86] Since 2.19.0, Bringing back the prefix and suffix writing part
+        WritableTypeId typeId = typeSer.writeTypePrefix(g, typeSer.typeId(ref, JsonToken.VALUE_STRING));
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             ser = _findCachedSerializer(provider, value.getClass());
         }
         ser.serializeWithType(value, g, provider, typeSer);
+        typeSer.writeTypeSuffix(g, typeId);
     }
 
     /*

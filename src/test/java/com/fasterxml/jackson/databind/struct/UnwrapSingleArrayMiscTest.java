@@ -21,7 +21,7 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
             .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
             .build();
 
-    public static class StringWrapper {
+    static class StringWrapper {
         public String value;
     }
 
@@ -85,16 +85,14 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
         }
     }
 
+    // [databind#4844]: should work for wrapped null values too
     @Test
     public void testDeserializeArrayWithNullElement() throws Exception
     {
-        String json = "{\"value\": [null]}";
-
-        ObjectReader r = UNWRAPPING_MAPPER.readerFor(StringWrapper.class);
-        JsonFactory factory = new JsonFactory();
-        JsonParser p = factory.createParser(json);
-        StringWrapper v = r.readValue(p);
-
+        StringWrapper v = UNWRAPPING_MAPPER
+            .readerFor(StringWrapper.class)
+            .readValue("{\"value\": [null]}");
+        
         assertNotNull(v);
         assertNull(v.value);
     }

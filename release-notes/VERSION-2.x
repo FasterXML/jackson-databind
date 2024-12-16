@@ -12,6 +12,9 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4844: Fix wrapped array hanlding wrt `null` by `StdDeserializer`
  (fix by Stanislav S)
+#4849 Not able to deserialize Enum with default typing after upgrading 2.15.4 -> 2.17.1
+ (reported by Kornel Zemla)
+ (fix by Joo-Hyuk K)
 
 2.18.2 (27-Nov-2024)
 

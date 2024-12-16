@@ -147,6 +147,11 @@ public class AsArrayTypeDeserializer
                 }
                 return id;
             }
+            // [databind#4849] Since 2.18.3, Should maybe allow defaultTyping without defaultImpl if type is already known
+            String id = _idResolver.idFromBaseType();
+            if (id != null && _baseType.isConcrete()) {
+                return id;
+            }
              ctxt.reportWrongTokenException(baseType(), JsonToken.START_ARRAY,
                      "need Array value to contain `As.WRAPPER_ARRAY` type information for class "+baseTypeName());
              return null;

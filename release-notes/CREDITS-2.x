@@ -1858,3 +1858,6 @@ Jonathan Mesny (@jmesny)
  * Reported #4810: Deserialization using `@JsonCreator` with renamed property failing (since 2.18)
   (2.18.2)
 
+Stanislav Shcherbakov (@glorrian)
+ * Contributed #4844: Fix wrapped array hanlding wrt `null` by `StdDeserializer`
+  (2.18.3)

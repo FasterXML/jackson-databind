@@ -4,6 +4,15 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.18.3 (not yet released)
+
+#4827: Subclassed Throwable deserialization fails since v2.18.0 - no creator
+  index for property 'cause'
+ (reported by @nilswieber)
+ (fix by Joo-Hyuk K)
+#4844: Fix wrapped array hanlding wrt `null` by `StdDeserializer`
+ (fix by Stanislav S)
+
 2.18.2 (27-Nov-2024)
 
 #4733: Wrong serialization of Type Ids for certain types of Enum values

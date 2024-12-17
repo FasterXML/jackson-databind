@@ -5,22 +5,24 @@ import java.util.EnumSet;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY;
 import static com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4849] Not able to deserialize Enum with default typing after upgrading 2.15.4 -> 2.17.1
 public class EnumSetDeserializationWithDefaultTyping4849Test
+    extends DatabindTestUtil
 {
-    public enum TestEnum4849 {
+    enum TestEnum4849 {
         TEST_ENUM_VALUE
     }
 
@@ -28,16 +30,14 @@ public class EnumSetDeserializationWithDefaultTyping4849Test
 
     private ObjectMapper configureMapper4849()
     {
-        ObjectMapper mapper = newJsonMapper();
-
         final PolymorphicTypeValidator validator = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType("com.fasterxml.jackson")
                 .allowIfSubType("java")
                 .build();
 
+        @SuppressWarnings("serial")
         ObjectMapper.DefaultTypeResolverBuilder resolverBuilder
                 = new ObjectMapper.DefaultTypeResolverBuilder(NON_FINAL, validator) {
-
             @Override
             public boolean useForType(JavaType t) {
                 return true;
@@ -48,10 +48,9 @@ public class EnumSetDeserializationWithDefaultTyping4849Test
                 .init(JsonTypeInfo.Id.CLASS, null)
                 .inclusion(PROPERTY);
 
-        mapper.setDefaultTyping(stdTypeResolverBuilder);
-        mapper.configure(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION, true);
-
-        return mapper;
+        return jsonMapperBuilder()
+                .setDefaultTyping(stdTypeResolverBuilder)
+                .build();
     }
 
     @Test

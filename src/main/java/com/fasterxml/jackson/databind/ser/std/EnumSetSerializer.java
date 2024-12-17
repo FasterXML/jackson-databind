@@ -26,8 +26,7 @@ public class EnumSetSerializer
 
     @Override
     public EnumSetSerializer _withValueTypeSerializer(TypeSerializer vts) {
-        // no typing for enums (always "hard" type)
-        return this;
+        return new EnumSetSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);
     }
 
     @Override
@@ -70,18 +69,35 @@ public class EnumSetSerializer
             SerializerProvider provider)
         throws IOException
     {
+        gen.assignCurrentValue(value);
+        if (_valueTypeSerializer != null) {
+            // 16-Dec-2024, tatu: As per [databind#4849], need to support polymorphic
+            //   types for elements
+             _serializeTypedContents(value, gen, provider, _valueTypeSerializer);
+             return;
+        }
         JsonSerializer<Object> enumSer = _elementSerializer;
-        /* Need to dynamically find instance serializer; unfortunately
-         * that seems to be the only way to figure out type (no accessors
-         * to the enum class that set knows)
-         */
+        // Need to dynamically find instance serializer; unfortunately
+        // that seems to be the only way to figure out type (no accessors
+        // to the enum class that set knows)
         for (Enum<?> en : value) {
             if (enumSer == null) {
-                // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
-                //   not bother with typed serializer variant here
                 enumSer = provider.findContentValueSerializer(en.getDeclaringClass(), _property);
             }
             enumSer.serialize(en, gen, provider);
+        }
+    }
+
+    private void _serializeTypedContents(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
+            SerializerProvider provider, TypeSerializer vts)
+        throws IOException
+    {
+        JsonSerializer<Object> enumSer = _elementSerializer;
+        for (Enum<?> en : value) {
+            if (enumSer == null) {
+                enumSer = provider.findContentValueSerializer(en.getDeclaringClass(), _property);
+            }
+            enumSer.serializeWithType(en, gen, provider, vts);
         }
     }
 }

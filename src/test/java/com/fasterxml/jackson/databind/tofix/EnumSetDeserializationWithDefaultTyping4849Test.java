@@ -71,11 +71,11 @@ public class EnumSetDeserializationWithDefaultTyping4849Test
         throws Exception
     {
         // Given : Hard-coded output from Jackson 2.15.4
-        String array = String.format("[\"java.util.EnumSet<%s>\",[\"%s\"]]",
+        String input = String.format("[\"java.util.EnumSet<%s>\",[\"%s\"]]",
                 TestEnum4849.class.getName(),
                 TestEnum4849.TEST_ENUM_VALUE.name());
         // When
-        Object deserialized = MAPPER.readValue(array, Object.class);
+        Object deserialized = MAPPER.readValue(input, Object.class);
         // Then
         assertEquals(EnumSet.of(TestEnum4849.TEST_ENUM_VALUE), deserialized);
     }

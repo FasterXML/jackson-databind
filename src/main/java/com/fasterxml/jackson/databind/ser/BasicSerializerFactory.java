@@ -725,7 +725,7 @@ public abstract class BasicSerializerFactory
                     if (!enumType.isEnumImplType()) { // usually since it's `Enum.class`
                         enumType = null;
                     }
-                    ser = buildEnumSetSerializer(enumType);
+                    ser = buildEnumSetSerializer(enumType, elementTypeSerializer);
                 } else {
                     Class<?> elementRaw = type.getContentType().getRawClass();
                     if (isIndexedList(raw)) {
@@ -781,8 +781,20 @@ public abstract class BasicSerializerFactory
         return new CollectionSerializer(elemType, staticTyping, vts, valueSerializer);
     }
 
+    @Deprecated // since 2.19
     public JsonSerializer<?> buildEnumSetSerializer(JavaType enumType) {
         return new EnumSetSerializer(enumType);
+    }
+
+    /**
+     * @since 2.18.3
+     */
+    public JsonSerializer<?> buildEnumSetSerializer(JavaType enumType, TypeSerializer vts) {
+        EnumSetSerializer ser = new EnumSetSerializer(enumType);
+        if (vts == null) {
+            return ser;
+        }
+        return ser.withValueTypeSerializer(vts);
     }
 
     /*

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
@@ -49,5 +50,6 @@ public class EnumSetPolymorphicDeser4214Test
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(enumSetHolder);
         EnumSetHolder result = mapper.readValue(json, EnumSetHolder.class);
         assertEquals(result, enumSetHolder);
+        assertTrue(result.enumSet instanceof EnumSet<?>);
     }
 }

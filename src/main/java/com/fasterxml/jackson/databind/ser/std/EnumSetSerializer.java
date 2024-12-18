@@ -26,7 +26,8 @@ public class EnumSetSerializer
 
     @Override
     public EnumSetSerializer _withValueTypeSerializer(TypeSerializer vts) {
-        return new EnumSetSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);
+        // no typing for enum elements (always strongly typed), so don't change
+        return this;
     }
 
     @Override
@@ -47,7 +48,7 @@ public class EnumSetSerializer
     }
 
     @Override
-    public final void serialize(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
+    public void serialize(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
             SerializerProvider provider) throws IOException
     {
         final int len = value.size();
@@ -70,12 +71,6 @@ public class EnumSetSerializer
         throws IOException
     {
         gen.assignCurrentValue(value);
-        if (_valueTypeSerializer != null) {
-            // 16-Dec-2024, tatu: As per [databind#4849], need to support polymorphic
-            //   types for elements
-             _serializeTypedContents(value, gen, provider, _valueTypeSerializer);
-             return;
-        }
         JsonSerializer<Object> enumSer = _elementSerializer;
         // Need to dynamically find instance serializer; unfortunately
         // that seems to be the only way to figure out type (no accessors
@@ -85,19 +80,6 @@ public class EnumSetSerializer
                 enumSer = provider.findContentValueSerializer(en.getDeclaringClass(), _property);
             }
             enumSer.serialize(en, gen, provider);
-        }
-    }
-
-    private void _serializeTypedContents(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
-            SerializerProvider provider, TypeSerializer vts)
-        throws IOException
-    {
-        JsonSerializer<Object> enumSer = _elementSerializer;
-        for (Enum<?> en : value) {
-            if (enumSer == null) {
-                enumSer = provider.findContentValueSerializer(en.getDeclaringClass(), _property);
-            }
-            enumSer.serializeWithType(en, gen, provider, vts);
         }
     }
 }

@@ -39,13 +39,14 @@ public class EnumSetPolymorphicDeser4214Test
     {
         // Need to use Default Typing to trigger issue
         ObjectMapper mapper = jsonMapperBuilder()
-                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder().allowIfBaseType(Object.class).build(),
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(Object.class).build(),
                         DefaultTyping.NON_FINAL_AND_ENUMS)
                 .build();
 
         EnumSetHolder enumSetHolder = new EnumSetHolder();
         enumSetHolder.enumSet = EnumSet.allOf(MyEnum.class);
-        String json = mapper.writeValueAsString(enumSetHolder);
+        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(enumSetHolder);
         EnumSetHolder result = mapper.readValue(json, EnumSetHolder.class);
         assertEquals(result, enumSetHolder);
     }

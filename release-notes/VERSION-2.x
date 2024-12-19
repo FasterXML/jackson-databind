@@ -10,7 +10,7 @@ Project: jackson-databind
   index for property 'cause'
  (reported by @nilswieber)
  (fix by Joo-Hyuk K)
-#4844: Fix wrapped array hanlding wrt `null` by `StdDeserializer`
+#4844: Fix wrapped array handling wrt `null` by `StdDeserializer`
  (fix by Stanislav S)
 #4849 Not able to deserialize Enum with default typing after upgrading 2.15.4 -> 2.17.1
  (reported by Kornel Zemla)

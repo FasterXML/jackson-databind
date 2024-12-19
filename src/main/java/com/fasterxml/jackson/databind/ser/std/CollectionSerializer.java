@@ -136,7 +136,7 @@ public class CollectionSerializer
             return;
         }
         PropertySerializerMap serializers = _dynamicSerializers;
-        // [databind#4849]/[databiund#4214]: need to check for EnumSet
+        // [databind#4849]/[databind#4214]: need to check for EnumSet
         final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
                 ? null : _valueTypeSerializer;
 

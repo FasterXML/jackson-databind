@@ -264,7 +264,7 @@ public class TestCustomSerializers extends DatabindTestUtil
     public void testCustomLists() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
-        JsonSerializer<?> ser = new CollectionSerializer(null, false, null, null);
+        JsonSerializer<?> ser = new CollectionSerializer(MAPPER.constructType(Object.class), false, null, null);
         final JsonSerializer<Object> collectionSerializer = (JsonSerializer<Object>) ser;
 
         module.addSerializer(Collection.class, new JsonSerializer<Collection>() {

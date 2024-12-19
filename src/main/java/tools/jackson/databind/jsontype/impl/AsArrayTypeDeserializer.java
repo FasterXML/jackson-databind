@@ -139,9 +139,9 @@ public class AsArrayTypeDeserializer
                 }
                 return id;
             }
-             ctxt.reportWrongTokenException(baseType(), JsonToken.START_ARRAY,
-                     "need Array value to contain `As.WRAPPER_ARRAY` type information for class "+baseTypeName());
-             return null;
+            ctxt.reportWrongTokenException(baseType(), JsonToken.START_ARRAY,
+                    "need Array value to contain `As.WRAPPER_ARRAY` type information for class "+baseTypeName());
+            return null;
         }
         // And then type id as a String
         JsonToken t = p.nextToken();

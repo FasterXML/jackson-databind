@@ -103,7 +103,7 @@ public abstract class AsArraySerializerBase<T>
         _unwrapSingle = unwrapSingle;
     }
 
-    public abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
+    protected abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle);
 

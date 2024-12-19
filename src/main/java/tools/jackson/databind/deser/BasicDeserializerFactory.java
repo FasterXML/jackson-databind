@@ -784,8 +784,7 @@ i, candidate);
                 }
                 // One special type: EnumSet:
                 if (EnumSet.class.isAssignableFrom(collectionClass)) {
-                    deser = new EnumSetDeserializer(contentType, null,
-                            contentTypeDeser);
+                    deser = new EnumSetDeserializer(contentType, null);
                 }
             }
         }

@@ -26,7 +26,7 @@ public class PolymorphicDeserWithJsonUnwrapped4792Test
     static class SubA implements Parent {
         @JsonUnwrapped
         @JsonProperty(access = READ_ONLY)
-        private Model model;
+        Model model;
 
         @JsonCreator
         public SubA(@JsonProperty("model") Model model) {

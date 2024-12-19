@@ -29,12 +29,6 @@ public class EnumSetDeserializer
     protected ValueDeserializer<Enum<?>> _enumDeserializer;
 
     /**
-     * If element instances have polymorphic type information, this
-     * is the type deserializer that can handle it.
-     */
-    protected final TypeDeserializer _valueTypeDeserializer;
-
-    /**
      * Handler we need for dealing with nulls.
      */
     protected final NullValueProvider _nullProvider;
@@ -59,8 +53,7 @@ public class EnumSetDeserializer
      */
 
     @SuppressWarnings("unchecked")
-    public EnumSetDeserializer(JavaType enumType, ValueDeserializer<?> deser,
-            TypeDeserializer valueTypeDeser)
+    public EnumSetDeserializer(JavaType enumType, ValueDeserializer<?> deser)
     {
         super(EnumSet.class);
         _enumType = enumType;
@@ -69,7 +62,6 @@ public class EnumSetDeserializer
             throw new IllegalArgumentException("Type "+enumType+" not Java Enum type");
         }
         _enumDeserializer = (ValueDeserializer<Enum<?>>) deser;
-        _valueTypeDeserializer = valueTypeDeser;
         _unwrapSingle = null;
         _nullProvider = null;
         _skipNullValues = false;
@@ -77,12 +69,11 @@ public class EnumSetDeserializer
 
     @SuppressWarnings("unchecked" )
     protected EnumSetDeserializer(EnumSetDeserializer base,
-            ValueDeserializer<?> deser, TypeDeserializer valueTypeDeser,
+            ValueDeserializer<?> deser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         super(base);
         _enumType = base._enumType;
         _enumDeserializer = (ValueDeserializer<Enum<?>>) deser;
-        _valueTypeDeserializer = base._valueTypeDeserializer;
         _nullProvider = nuller;
         _skipNullValues = NullsConstantProvider.isSkipper(nuller);
         _unwrapSingle = unwrapSingle;
@@ -92,21 +83,18 @@ public class EnumSetDeserializer
         if (_enumDeserializer == deser) {
             return this;
         }
-        return new EnumSetDeserializer(this, deser, _valueTypeDeserializer,
-                _nullProvider, _unwrapSingle);
+        return new EnumSetDeserializer(this, deser, _nullProvider, _unwrapSingle);
     }
 
-    public EnumSetDeserializer withResolved(ValueDeserializer<?> deser,
-            TypeDeserializer valueTypeDeser,
-            NullValueProvider nuller, Boolean unwrapSingle) {
+    protected EnumSetDeserializer withResolved(ValueDeserializer<?> deser,
+            NullValueProvider nuller, Boolean unwrapSingle)
+    {
         if ((Objects.equals(_unwrapSingle, unwrapSingle))
                 && (_enumDeserializer == deser)
-                && (_valueTypeDeserializer == valueTypeDeser)
                 && (_nullProvider == deser)) {
             return this;
         }
-        return new EnumSetDeserializer(this, deser, _valueTypeDeserializer,
-                nuller, unwrapSingle);
+        return new EnumSetDeserializer(this, deser, nuller, unwrapSingle);
     }
 
     /*
@@ -122,9 +110,7 @@ public class EnumSetDeserializer
     @Override
     public boolean isCachable() {
         // One caveat: content deserializer should prevent caching
-        if ((_enumType.getValueHandler() != null)
-                // Another: polymorphic deserialization
-                || (_valueTypeDeserializer != null)) {
+        if (_enumType.getValueHandler() != null) {
             return false;
         }
         return true;
@@ -171,12 +157,7 @@ public class EnumSetDeserializer
         } else { // if directly assigned, probably not yet contextual, so:
             deser = ctxt.handleSecondaryContextualization(deser, property, _enumType);
         }
-        // and finally, type deserializer needs context as well
-        TypeDeserializer valueTypeDeser = _valueTypeDeserializer;
-        if (valueTypeDeser != null) {
-            valueTypeDeser = valueTypeDeser.forProperty(property);
-        }
-        return withResolved(deser, valueTypeDeser,
+        return withResolved(deser,
                 findContentNullProvider(ctxt, property, deser), unwrapSingle);
     }
 
@@ -212,10 +193,8 @@ public class EnumSetDeserializer
     protected final EnumSet<?> _deserialize(JsonParser p, DeserializationContext ctxt,
             EnumSet result) throws JacksonException
     {
-        JsonToken t;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
-
         try {
+            JsonToken t;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 // What to do with nulls? Fail or ignore? Fail, for now (note: would fail if we
                 // passed it to EnumDeserializer, too, but in general nulls should never be passed
@@ -226,10 +205,8 @@ public class EnumSetDeserializer
                         continue;
                     }
                     value = (Enum<?>) _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = _enumDeserializer.deserialize(p, ctxt);
                 } else {
-                    value = (Enum<?>) _enumDeserializer.deserializeWithType(p, ctxt, typeDeser);
+                    value = _enumDeserializer.deserialize(p, ctxt);
                 }
                 if (value != null) {
                     result.add(value);

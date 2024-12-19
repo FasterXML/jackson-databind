@@ -52,6 +52,7 @@ public class CustomSerializersTest extends DatabindTestUtil
      */
     static class CustomEscapes extends CharacterEscapes
     {
+        private static final long serialVersionUID = 1L;
         private final int[] _asciiEscapes;
 
         public CustomEscapes() {
@@ -267,7 +268,8 @@ public class CustomSerializersTest extends DatabindTestUtil
     public void testCustomLists() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
-        ValueSerializer<?> ser = new CollectionSerializer(null, false, null, null);
+        ValueSerializer<?> ser = new CollectionSerializer(MAPPER.constructType(Object.class),
+                false, null, null);
         final ValueSerializer<Object> collectionSerializer = (ValueSerializer<Object>) ser;
 
         module.addSerializer(Collection.class, new ValueSerializer<Collection>() {

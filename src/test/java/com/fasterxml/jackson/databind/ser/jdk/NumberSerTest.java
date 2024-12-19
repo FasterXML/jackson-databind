@@ -223,7 +223,7 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     // default locale is en_US
-    private static DecimalFormat createDecimalFormatForDefaultLocale(final String pattern) {
+    static DecimalFormat createDecimalFormatForDefaultLocale(final String pattern) {
         return new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
     }
 }

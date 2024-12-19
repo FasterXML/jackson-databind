@@ -283,7 +283,7 @@ public class ObjectMapperTest
 
         JsonMapper m3 = m2.rebuild()
                 .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-                .enumNamingStrategy(EnumNamingStrategies.CamelCaseStrategy.INSTANCE)
+                .enumNamingStrategy(EnumNamingStrategies.UPPER_CAMEL_CASE)
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
                 .enable(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)
                 .build();

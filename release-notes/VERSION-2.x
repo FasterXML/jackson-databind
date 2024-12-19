@@ -31,8 +31,18 @@ Project: jackson-databind
  (reported by Eduard G)
 #4773: `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not apply to Maps
   with uncomparable keys
- (requested by @nathanukey)
+ (requested by @nathanukey
+#4849 Not able to deserialize Enum with default typing after upgrading 2.15.4 -> 2.17.1
+ (reported by Kornel Zemla)
+
+2.18.3 (not yet released)
+
+#4827: Subclassed Throwable deserialization fails since v2.18.0 - no creator
+  index for property 'cause'
+ (reported by @nilswieber)
  (fix by Joo-Hyuk K)
+#4844: Fix wrapped array handling wrt `null` by `StdDeserializer`
+ (fix by Stanislav S)
 
 2.18.2 (27-Nov-2024)
 

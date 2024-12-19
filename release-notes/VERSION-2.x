@@ -34,7 +34,6 @@ Project: jackson-databind
  (requested by @nathanukey
 #4849 Not able to deserialize Enum with default typing after upgrading 2.15.4 -> 2.17.1
  (reported by Kornel Zemla)
- (fix by Joo-Hyuk K)
 
 2.18.3 (not yet released)
 

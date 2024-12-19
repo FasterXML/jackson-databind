@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
@@ -27,6 +28,15 @@ public class CollectionSerializer
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Flag that indicates that we may need to check for EnumSet dynamically
+     * during serialization: problem being that we can't always do it statically.
+     * But we can figure out when there is a possibility wrt type signature we get.
+     *
+     * @since 2.18.3
+     */
+    private final boolean _maybeEnumSet;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -39,6 +49,10 @@ public class CollectionSerializer
     public CollectionSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
             JsonSerializer<Object> valueSerializer) {
         super(Collection.class, elemType, staticTyping, vts, valueSerializer);
+        // Unfortunately we can't check for EnumSet statically (if type indicated it,
+        // we'd have constructed `EnumSetSerializer` instead). But we can check that
+        // element type could possibly be an Enum.
+        _maybeEnumSet = elemType.isEnumType() || elemType.isJavaLangObject();
     }
 
     /**
@@ -55,6 +69,7 @@ public class CollectionSerializer
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
             Boolean unwrapSingle) {
         super(src, property, vts, valueSerializer, unwrapSingle);
+        _maybeEnumSet = src._maybeEnumSet;
     }
 
     @Override
@@ -121,7 +136,9 @@ public class CollectionSerializer
             return;
         }
         PropertySerializerMap serializers = _dynamicSerializers;
-        final TypeSerializer typeSer = _valueTypeSerializer;
+        // [databind#4849]/[databiund#4214]: need to check for EnumSet
+        final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
+                ? null : _valueTypeSerializer;
 
         int i = 0;
         try {
@@ -159,7 +176,9 @@ public class CollectionSerializer
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
-            TypeSerializer typeSer = _valueTypeSerializer;
+            // [databind#4849]/[databiund#4214]: need to check for EnumSet
+            final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
+                    ? null : _valueTypeSerializer;
             int i = 0;
             do {
                 Object elem = it.next();

@@ -46,7 +46,7 @@ public class EnumSetPolymorphicDeser4214Test
 
         EnumSetHolder enumSetHolder = new EnumSetHolder();
         enumSetHolder.enumSet = EnumSet.allOf(MyEnum.class);
-        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(enumSetHolder);
+        String json = mapper.writeValueAsString(enumSetHolder);
         EnumSetHolder result = mapper.readValue(json, EnumSetHolder.class);
         assertEquals(result, enumSetHolder);
     }

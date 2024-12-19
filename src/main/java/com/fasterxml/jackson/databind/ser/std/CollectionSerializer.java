@@ -6,7 +6,6 @@ import java.util.EnumSet;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;

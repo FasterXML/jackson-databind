@@ -3,15 +3,14 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.StringWriter;
 import java.util.*;
 
-
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
@@ -167,7 +166,7 @@ public class TestRootType
     public void testJackson398() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
-        JavaType collectionType = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, BaseClass398.class);
+        JavaType collectionType = defaultTypeFactory().constructCollectionType(ArrayList.class, BaseClass398.class);
         List<TestClass398> typedList = new ArrayList<TestClass398>();
         typedList.add(new TestClass398());
 

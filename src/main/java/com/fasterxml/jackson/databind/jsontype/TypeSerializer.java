@@ -2,11 +2,12 @@ package com.fasterxml.jackson.databind.jsontype;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.core.util.VersionUtil;
 import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Interface for serializing type information regarding instances of specified

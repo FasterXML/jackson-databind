@@ -5,14 +5,12 @@ import java.io.StringWriter;
 import java.util.*;
 
 import javax.xml.namespace.QName;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -20,7 +18,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -204,7 +201,7 @@ public class JacksonAnnotationIntrospectorTest
         JacksonAnnotationIntrospector ai = new JacksonAnnotationIntrospector();
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(mapper.getSerializationConfig(),
                 TypeResolverBean.class);
-        JavaType baseType = TypeFactory.defaultInstance().constructType(TypeResolverBean.class);
+        JavaType baseType = defaultTypeFactory().constructType(TypeResolverBean.class);
         TypeResolverBuilder<?> rb = ai.findTypeResolver(mapper.getDeserializationConfig(), ac, baseType);
         assertNotNull(rb);
         assertSame(DummyBuilder.class, rb.getClass());

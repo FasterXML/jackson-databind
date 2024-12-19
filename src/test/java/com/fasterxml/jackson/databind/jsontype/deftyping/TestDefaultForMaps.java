@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeNameIdResolver;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 

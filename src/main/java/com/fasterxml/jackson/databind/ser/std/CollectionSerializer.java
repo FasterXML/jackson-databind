@@ -54,16 +54,6 @@ public class CollectionSerializer
         _maybeEnumSet = elemType.isEnumType() || elemType.isJavaLangObject();
     }
 
-    /**
-     * @deprecated since 2.6
-     */
-    @Deprecated // since 2.6
-    public CollectionSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
-            BeanProperty property, JsonSerializer<Object> valueSerializer) {
-        // note: assumption is 'property' is always passed as null
-        this(elemType, staticTyping, vts, valueSerializer);
-    }
-
     public CollectionSerializer(CollectionSerializer src,
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
             Boolean unwrapSingle) {
@@ -175,7 +165,7 @@ public class CollectionSerializer
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
-            // [databind#4849]/[databiund#4214]: need to check for EnumSet
+            // [databind#4849]/[databind#4214]: need to check for EnumSet
             final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
                     ? null : _valueTypeSerializer;
             int i = 0;

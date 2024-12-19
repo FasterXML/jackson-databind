@@ -93,16 +93,6 @@ public class EnumSetDeserializer
     }
 
     /**
-     * @since 2.7
-     * @deprecated Since 2.10.1
-     */
-    @Deprecated
-    protected EnumSetDeserializer(EnumSetDeserializer base,
-            JsonDeserializer<?> deser, Boolean unwrapSingle) {
-        this(base, deser, base._nullProvider, unwrapSingle);
-    }
-
-    /**
      * @since 2.10.1
      */
     @SuppressWarnings("unchecked" )

@@ -788,7 +788,7 @@ i, candidate);
             if (contentDeser == null) { // not defined by annotation
                 // One special type: EnumSet:
                 if (EnumSet.class.isAssignableFrom(collectionClass)) {
-                    deser = new EnumSetDeserializer(contentType, null, null);
+                    deser = new EnumSetDeserializer(contentType, null);
                 }
             }
         }

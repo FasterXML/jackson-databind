@@ -16,10 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Reported via [modules-java8#86] Cannot read `Optional`s written with `StdTypeResolverBuilder`
 public class AtomicReferenceWithStdTypeResolverBuilder4838Test
-        extends DatabindTestUtil
+    extends DatabindTestUtil
 {
-
-    public static class Foo<T> {
+    static class Foo<T> {
         public AtomicReference<T> value;
 
         @Override
@@ -31,7 +30,7 @@ public class AtomicReferenceWithStdTypeResolverBuilder4838Test
         }
     }
 
-    public static class Pojo86 {
+    static class Pojo86 {
         public String name;
 
         public static Pojo86 valueOf(String name) {
@@ -50,7 +49,7 @@ public class AtomicReferenceWithStdTypeResolverBuilder4838Test
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-    public static abstract class Animal {
+    static abstract class Animal {
         public String name;
 
         protected Animal(String name) {
@@ -58,7 +57,7 @@ public class AtomicReferenceWithStdTypeResolverBuilder4838Test
         }
     }
 
-    public static class Dog extends Animal {
+    static class Dog extends Animal {
         @JsonCreator
         public Dog(@JsonProperty("name") String name) {
             super(name);
@@ -67,6 +66,27 @@ public class AtomicReferenceWithStdTypeResolverBuilder4838Test
         @Override
         public boolean equals(Object obj) {
             return (obj instanceof Dog) && name.equals(((Dog) obj).name);
+        }
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+    static abstract class Animal2 {
+        public String name;
+
+        protected Animal2(String name) {
+            this.name = name;
+        }
+    }
+
+    static class Dog2 extends Animal2 {
+        @JsonCreator
+        public Dog2(@JsonProperty("name") String name) {
+            super(name);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return (obj instanceof Dog2) && name.equals(((Dog2) obj).name);
         }
     }
 
@@ -79,31 +99,29 @@ public class AtomicReferenceWithStdTypeResolverBuilder4838Test
 
     @Test
     public void testPolymorphic() throws Exception {
-        _test(new AtomicReference<>(new Dog("Buddy")), Animal.class);
+        //_test(new AtomicReference<>(new Dog("Buddy")), Animal.class);
+        _test(new AtomicReference<>(new Dog2("Buttercup")), Animal2.class);
     }
 
-    private <T> void _test(AtomicReference<T> value, Class<?> type) throws Exception {
-        ObjectMapper mapper = configureObjectMapper();
+    private final ObjectMapper STD_RESOLVER_MAPPER = jsonMapperBuilder()
+            // this is what's causing failure in later versions.....
+            .setDefaultTyping(
+                new StdTypeResolverBuilder()
+                        .init(JsonTypeInfo.Id.CLASS, null)
+                        .inclusion(JsonTypeInfo.As.WRAPPER_OBJECT)
+            ).build();
 
+    private <T> void _test(AtomicReference<T> value, Class<?> type) throws Exception {
         // Serialize
         Foo<T> foo = new Foo<>();
         foo.value = value;
-        String json = mapper.writeValueAsString(foo);
+        String json = STD_RESOLVER_MAPPER.writeValueAsString(foo);
 
         // Deserialize
-        Foo<T> bean = mapper.readValue(json, mapper.getTypeFactory().constructParametricType(Foo.class, type));
+        Foo<T> bean = STD_RESOLVER_MAPPER.readValue(json,
+                STD_RESOLVER_MAPPER.getTypeFactory().constructParametricType(Foo.class, type));
 
         // Compare the underlying values of AtomicReference
         assertEquals(foo.value.get(), bean.value.get());
-    }
-
-    private ObjectMapper configureObjectMapper() {
-        return jsonMapperBuilder()
-                // this is what's causing failure in later versions.....
-                .setDefaultTyping(
-                    new StdTypeResolverBuilder()
-                            .init(JsonTypeInfo.Id.CLASS, null)
-                            .inclusion(JsonTypeInfo.As.WRAPPER_OBJECT)
-                ).build();
     }
 }

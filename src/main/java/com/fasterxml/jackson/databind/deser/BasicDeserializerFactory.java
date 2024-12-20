@@ -268,7 +268,9 @@ public abstract class BasicDeserializerFactory
                 // Start by assigning the primary (and only) properties-based creator
                 _addSelectedPropertiesBasedCreator(ctxt, beanDesc, creators,
                         CreatorCandidate.construct(config.getAnnotationIntrospector(),
-                                primaryPropsBased.creator(), primaryPropsBased.propertyDefs()));
+                                primaryPropsBased.creator(), primaryPropsBased.propertyDefs()),
+                                // [databind#4860] Since 2.18.3 consider case with ConstructorDetector
+                                ctorDetector.singleArgCreatorDefaultsToProperties());
             }
         }
 
@@ -517,7 +519,9 @@ public abstract class BasicDeserializerFactory
      */
     private void _addSelectedPropertiesBasedCreator(DeserializationContext ctxt,
             BeanDescription beanDesc, CreatorCollector creators,
-            CreatorCandidate candidate)
+            CreatorCandidate candidate,
+            // [databind#4860] Since 2.18.3 consider case with ConstructorDetector
+            boolean singleArgCreatorDefaultsToProperties)
         throws JsonMappingException
     {
         final int paramCount = candidate.paramCount();
@@ -545,10 +549,13 @@ public abstract class BasicDeserializerFactory
                     _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
                 }
                 // Must be injectable or have name; without either won't work
-                if ((name == null) && (injectId == null)) {
+                if ((name == null) && (injectId == null)
+                    // [databind#4860] Since 2.18.3 consider case with ConstructorDetector
+                    && !singleArgCreatorDefaultsToProperties
+                ) {
                     ctxt.reportBadTypeDefinition(beanDesc,
-"Argument #%d of Creator %s has no property name (and is not Injectable): can not use as property-based Creator",
-i, candidate);
+                        "Argument #%d of Creator %s has no property name (and is not Injectable): can not use as property-based Creator",
+                        i, candidate);
                 }
             }
             properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);

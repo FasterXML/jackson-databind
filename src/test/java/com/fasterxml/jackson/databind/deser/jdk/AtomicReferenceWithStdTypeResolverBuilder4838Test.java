@@ -101,13 +101,13 @@ public class AtomicReferenceWithStdTypeResolverBuilder4838Test
     }
 
     @Test
-    public void testPolymorphic() throws Exception {
+    public void testPolymorphicWithWrapperObject() throws Exception {
         _test(new AtomicReference<>(new Dog("Buddy")), Animal.class,
                 STD_RESOLVER_MAPPER_WRAPPER_OBJECT);
     }
 
     @Test
-    public void testPolymorphic2() throws Exception {
+    public void testPolymorphicWithWrapperArray() throws Exception {
         _test(new AtomicReference<>(new Dog2("Buttercup")), Animal2.class,
                 STD_RESOLVER_MAPPER_WRAPPER_ARRAY);
     }

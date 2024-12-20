@@ -99,7 +99,7 @@ public class AtomicReferenceWithStdTypeResolverBuilder4838Test
 
     @Test
     public void testPolymorphic() throws Exception {
-        //_test(new AtomicReference<>(new Dog("Buddy")), Animal.class);
+        _test(new AtomicReference<>(new Dog("Buddy")), Animal.class);
         _test(new AtomicReference<>(new Dog2("Buttercup")), Animal2.class);
     }
 

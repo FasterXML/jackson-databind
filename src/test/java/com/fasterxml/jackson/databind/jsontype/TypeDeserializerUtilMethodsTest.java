@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.jsontype;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

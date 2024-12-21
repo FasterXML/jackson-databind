@@ -2,8 +2,9 @@ package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.databind.*;
 

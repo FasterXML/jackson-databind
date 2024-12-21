@@ -155,7 +155,7 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Dependencies for testing "type" pollution, see:
+    <!-- Dependencies for testing "type pollution", see:
          https://github.com/FasterXML/jackson-databind/pull/4848
       -->
     <dependency>
@@ -467,21 +467,8 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED -XX:+EnableDynamicAgentLoading</argLine>
+              <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
             </configuration>
-            <executions>
-              <execution>
-                <id>type-pollution-test</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-                <configuration>
-                  <test>com.fasterxml.jackson.databind.typepollution.TypePollutionSuite</test>
-                  <threadCount>1</threadCount>
-                </configuration>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>

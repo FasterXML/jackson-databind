@@ -9,8 +9,7 @@ import org.junit.platform.suite.api.Suite;
 @SelectPackages("com.fasterxml.jackson.databind")
 @ExcludePackages("com.fasterxml.jackson.databind.typepollution")
 @ExcludeClassNamePatterns({
-        "com\\.fasterxml\\.jackson\\.databind\\.MapperFootprintTest",
-        ".*\\.failing\\..*"
+        "com\\.fasterxml\\.jackson\\.databind\\.MapperFootprintTest"
 })
 public class PrimarySuite {
 }

@@ -69,7 +69,7 @@ public class AtomicReferenceWithStdTypeResolverBuilder4838Test
         }
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
     static abstract class Animal2 {
         public String name;
 
@@ -92,27 +92,18 @@ public class AtomicReferenceWithStdTypeResolverBuilder4838Test
 
     @Test
     public void testRoundTrip() throws Exception {
-        _test(new AtomicReference<>("MyName"), String.class,
-                STD_RESOLVER_MAPPER_WRAPPER_OBJECT);
-        _test(new AtomicReference<>(42), Integer.class,
-                STD_RESOLVER_MAPPER_WRAPPER_OBJECT);
-        _test(new AtomicReference<>(Pojo86.valueOf("PojoName")), Pojo86.class,
-                STD_RESOLVER_MAPPER_WRAPPER_OBJECT);
+        _test(new AtomicReference<>("MyName"), String.class);
+        _test(new AtomicReference<>(42), Integer.class);
+        _test(new AtomicReference<>(Pojo86.valueOf("PojoName")), Pojo86.class);
     }
 
     @Test
-    public void testPolymorphicWithWrapperObject() throws Exception {
-        _test(new AtomicReference<>(new Dog("Buddy")), Animal.class,
-                STD_RESOLVER_MAPPER_WRAPPER_OBJECT);
+    public void testPolymorphic() throws Exception {
+        _test(new AtomicReference<>(new Dog("Buddy")), Animal.class);
+        _test(new AtomicReference<>(new Dog2("Buttercup")), Animal2.class);
     }
 
-    @Test
-    public void testPolymorphicWithWrapperArray() throws Exception {
-        _test(new AtomicReference<>(new Dog2("Buttercup")), Animal2.class,
-                STD_RESOLVER_MAPPER_WRAPPER_ARRAY);
-    }
-
-    private final ObjectMapper STD_RESOLVER_MAPPER_WRAPPER_OBJECT = jsonMapperBuilder()
+    private final ObjectMapper STD_RESOLVER_MAPPER = jsonMapperBuilder()
             // this is what's causing failure in later versions.....
             .setDefaultTyping(
                 new StdTypeResolverBuilder()
@@ -120,25 +111,15 @@ public class AtomicReferenceWithStdTypeResolverBuilder4838Test
                         .inclusion(JsonTypeInfo.As.WRAPPER_OBJECT)
             ).build();
 
-    private final ObjectMapper STD_RESOLVER_MAPPER_WRAPPER_ARRAY = jsonMapperBuilder()
-            // this is what's causing failure in later versions.....
-            .setDefaultTyping(
-                    new StdTypeResolverBuilder()
-                            .init(JsonTypeInfo.Id.CLASS, null)
-                            .inclusion(JsonTypeInfo.As.WRAPPER_ARRAY)
-            ).build();
-
-    private <T> void _test(AtomicReference<T> value, Class<?> type, ObjectMapper mapper)
-            throws Exception
-    {
+    private <T> void _test(AtomicReference<T> value, Class<?> type) throws Exception {
         // Serialize
         Foo<T> foo = new Foo<>();
         foo.value = value;
-        String json = mapper.writeValueAsString(foo);
+        String json = STD_RESOLVER_MAPPER.writeValueAsString(foo);
 
         // Deserialize
-        Foo<T> bean = mapper.readValue(json,
-                mapper.getTypeFactory().constructParametricType(Foo.class, type));
+        Foo<T> bean = STD_RESOLVER_MAPPER.readValue(json,
+                STD_RESOLVER_MAPPER.getTypeFactory().constructParametricType(Foo.class, type));
 
         // Compare the underlying values of AtomicReference
         assertEquals(foo.value.get(), bean.value.get());

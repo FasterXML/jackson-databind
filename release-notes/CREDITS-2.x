@@ -1865,6 +1865,11 @@ Stanislav Shcherbakov (@glorrian)
  * Contributed #4844: Fix wrapped array hanlding wrt `null` by `StdDeserializer`
   (2.18.3)
 
+Tomáš Poledný (@Saljack)
+ * Reported #4860: `ConstructorDetector.USE_PROPERTIES_BASED` does not work with
+   multiple constructors since 2.18
+  (2.18.3)
+
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
   (2.19.0)

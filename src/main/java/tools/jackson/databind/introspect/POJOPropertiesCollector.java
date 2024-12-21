@@ -659,8 +659,7 @@ public class POJOPropertiesCollector
         }
 
         // One more thing: if neither explicit (constructor or factory) nor
-        // canonical (constructor?), consider implicit Constructor with
-        // all named.
+        // canonical (constructor?), consider implicit Constructor with all named.
         final ConstructorDetector ctorDetector = _config.getConstructorDetector();
         if (!creators.hasPropertiesBasedOrDelegating()
                 && !ctorDetector.requireCtorAnnotation()) {
@@ -963,10 +962,17 @@ ctor.creator()));
                 if (ctorDetector.singleArgCreatorDefaultsToDelegating()) {
                     return false;
                 }
+                // 20-Dec-2024, tatu: [databind#4860] Cannot detect as properties-based
+                //   without implicit name (Injectable was checked earlier)
+                String implicitParamName = ctor.implicitNameSimple(0);
+                if (implicitParamName == null) {
+                    return false;
+                }
+
                 // if not, prefer Properties-based if explicit preference OR
                 // property with same name with at least one visible accessor
                 if (!ctorDetector.singleArgCreatorDefaultsToProperties()) {
-                    POJOPropertyBuilder prop = props.get(ctor.implicitNameSimple(0));
+                    POJOPropertyBuilder prop = props.get(implicitParamName);
                     if ((prop == null) || !prop.anyVisible() || prop.anyIgnorals()) {
                         return false;
                     }

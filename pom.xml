@@ -211,8 +211,7 @@
             <exclude>javax.measure:jsr-275</exclude>
           </classpathDependencyExcludes>
           <excludes>
-            <exclude>com.fasterxml.jackson.databind.MapperFootprintTest</exclude>
-            <exclude>**/failing/**/*.java</exclude>
+           <exclude>com.fasterxml.jackson.databind.MapperFootprintTest</exclude>
           </excludes>
           <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
                   ... although not 100% sure this makes much difference TBH
@@ -228,8 +227,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.16</link>
-            <link>https://fasterxml.github.io/jackson-core/javadoc/2.16</link>
+            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.18</link>
+            <link>https://fasterxml.github.io/jackson-core/javadoc/2.18</link>
           </links>
         </configuration>
       </plugin>

@@ -995,6 +995,7 @@ ctor.creator()));
             return false;
         }
         ctor.introspectParamNames(_config);
+
         // As usual, 1-param case is distinct
         if (ctor.paramCount() != 1) {
             if (!ctor.hasNameOrInjectForAllParams(_config)) {
@@ -1011,8 +1012,8 @@ ctor.creator()));
                 if (ctorDetector.singleArgCreatorDefaultsToDelegating()) {
                     return false;
                 }
-                // 20-Dec-2024, tatu: [databind#4860]Cannot detect as properties-based without
-                //   implicit name (Injectable was checked above)
+                // 20-Dec-2024, tatu: [databind#4860] Cannot detect as properties-based
+                //   without implicit name (Injectable was checked earlier)
                 String implicitParamName = ctor.implicitNameSimple(0);
                 if (implicitParamName == null) {
                     return false;

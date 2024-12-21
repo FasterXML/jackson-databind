@@ -115,12 +115,6 @@
       <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-suite-engine</artifactId>
-      <version>1.10.2</version>
-      <scope>test</scope>
-    </dependency>
     <dependency> <!-- added in 2.16 -->
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
@@ -146,12 +140,6 @@
       <version>0.16</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>io.micronaut.test</groupId>
-      <artifactId>micronaut-test-type-pollution</artifactId>
-      <version>4.6.2</version>
-      <scope>test</scope>
-    </dependency>
     <!-- Since 2.17, started using Mockito instead of Powermock -->
     <!-- For testing with static methods -->
     <dependency>
@@ -164,6 +152,22 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-inline</artifactId>
       <version>${version.mockito}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Dependencies for testing "type" pollution, see:
+         https://github.com/FasterXML/jackson-databind/pull/4848
+      -->
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-suite-engine</artifactId>
+      <version>1.10.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.micronaut.test</groupId>
+      <artifactId>micronaut-test-type-pollution</artifactId>
+      <version>4.6.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

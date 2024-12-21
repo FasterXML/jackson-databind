@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * Specifically optimized version for {@link java.util.Collection}s
@@ -331,6 +329,7 @@ public final class StringCollectionDeserializer
         return result;
     }
 
+    // @since 2.18
     @SuppressWarnings("unchecked")
     private static Collection<String> castToCollection(Object o) {
         if (o != null) {

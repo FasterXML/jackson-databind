@@ -329,6 +329,10 @@ public final class StringCollectionDeserializer
         return result;
     }
 
+    // Used to avoid type pollution: see
+    //   https://micronaut-projects.github.io/micronaut-test/latest/guide/#typePollution
+    // for details
+    //
     // @since 2.18
     @SuppressWarnings("unchecked")
     private static Collection<String> castToCollection(Object o) {

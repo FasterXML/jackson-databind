@@ -425,6 +425,8 @@ Jonas Konrad (yawkat@github)
   * Contributed fix for #3655: `ObjectMapper` default heap consumption increased significantly
     from 2.13.x to 2.14.0
    (2.14.1)
+  * Contributed fix for #4848: Avoid type pollution in `StringCollectionDeserializer`
+   (2.18.3)
 
 Jirka Kremser (Jiri-Kremser@github)
   * Suggested #924: SequenceWriter.writeAll() could accept Iterable

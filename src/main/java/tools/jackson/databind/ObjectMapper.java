@@ -830,7 +830,7 @@ public class ObjectMapper
 
     /**
      *<p>
-     * Note: return type is co-variant, as basic ObjectCodec
+     * Note: return type is co-variant, as basic {@link TreeCodec}
      * abstraction cannot refer to concrete node types (as it's
      * part of core package, whereas impls are part of mapper
      * package)
@@ -842,7 +842,7 @@ public class ObjectMapper
 
     /**
      *<p>
-     * Note: return type is co-variant, as basic ObjectCodec
+     * Note: return type is co-variant, as basic {@link TreeCodec}
      * abstraction cannot refer to concrete node types (as it's
      * part of core package, whereas impls are part of mapper
      * package)

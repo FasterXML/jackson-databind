@@ -112,7 +112,6 @@ public abstract class JsonNode
 
 //  public abstract JsonToken asToken();
 //  public abstract JsonToken traverse();
-//  public abstract JsonToken traverse(ObjectCodec codec);
 //  public abstract JsonParser.NumberType numberType();
 
     @Override

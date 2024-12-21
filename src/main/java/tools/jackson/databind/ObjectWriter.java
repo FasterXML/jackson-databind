@@ -937,7 +937,7 @@ public class ObjectWriter
 
     /*
     /**********************************************************************
-    /* Serialization methods; ones from ObjectCodec first
+    /* Serialization methods (writeValue variants)
     /**********************************************************************
      */
 
@@ -976,12 +976,6 @@ public class ObjectWriter
             }
         }
     }
-
-    /*
-    /**********************************************************************
-    /* Serialization methods, others
-    /**********************************************************************
-     */
 
     /**
      * Method that can be used to serialize any Java value as

@@ -12,6 +12,8 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4844: Fix wrapped array hanlding wrt `null` by `StdDeserializer`
  (fix by Stanislav S)
+#4848: Avoid type pollution in `StringCollectionDeserializer`
+ (contributed by Jonas K)
 #4860: `ConstructorDetector.USE_PROPERTIES_BASED` does not work with
   multiple constructors since 2.18
  (reported by Tomáš P)

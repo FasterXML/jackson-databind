@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
@@ -90,6 +90,27 @@ public class AtomicReferenceWithStdTypeResolverBuilder4838Test
         }
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY)
+    static abstract class Animal3 {
+        public String name;
+
+        protected Animal3(String name) {
+            this.name = name;
+        }
+    }
+
+    static class Dog3 extends Animal3 {
+        @JsonCreator
+        public Dog3(@JsonProperty("name") String name) {
+            super(name);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return (obj instanceof Dog3) && name.equals(((Dog3) obj).name);
+        }
+    }
+
     @Test
     public void testRoundTrip() throws Exception {
         _test(new AtomicReference<>("MyName"), String.class);
@@ -98,9 +119,40 @@ public class AtomicReferenceWithStdTypeResolverBuilder4838Test
     }
 
     @Test
-    public void testPolymorphic() throws Exception {
+    public void testPolymorphicWrapperObject() throws Exception {
+        // Note that default typing set to WRAPPER_OBJECT as well
         _test(new AtomicReference<>(new Dog("Buddy")), Animal.class);
+    }
+
+    @Test
+    public void testPolymorphicProperty() throws Exception {
         _test(new AtomicReference<>(new Dog2("Buttercup")), Animal2.class);
+    }
+
+    @Test
+    public void testPolymorphicWrapperArray() throws Exception {
+        _test(new AtomicReference<>(new Dog3("Buddy")), Animal3.class);
+    }
+
+    @Test
+    public void testAtomicReferenceWithMapAndCollection() throws Exception {
+        // Test AtomicReference with Map
+        Map<String, Integer> sampleMap = new HashMap<>();
+        sampleMap.put("key1", 1);
+        sampleMap.put("key2", 2);
+        _test(new AtomicReference<>(sampleMap), Map.class);
+
+        // Test AtomicReference with List
+        List<String> sampleList = Arrays.asList("value1", "value2", "value3");
+        _test(new AtomicReference<>(sampleList), List.class);
+
+        // Test AtomicReference with Set
+        Set<Integer> sampleSet = new HashSet<>(Arrays.asList(1, 2, 3));
+        _test(new AtomicReference<>(sampleSet), Set.class);
+
+        // Test AtomicReference with Queue
+        Queue<String> sampleQueue = new LinkedList<>(Arrays.asList("q1", "q2", "q3"));
+        _test(new AtomicReference<>(sampleQueue), Queue.class);
     }
 
     private final ObjectMapper STD_RESOLVER_MAPPER = jsonMapperBuilder()

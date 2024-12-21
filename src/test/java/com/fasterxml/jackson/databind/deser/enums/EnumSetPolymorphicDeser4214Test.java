@@ -10,10 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static org.junit.jupiter.api.Assertions.*;
 
 // For [databind#4214]
 public class EnumSetPolymorphicDeser4214Test
@@ -50,6 +48,6 @@ public class EnumSetPolymorphicDeser4214Test
         String json = mapper.writeValueAsString(enumSetHolder);
         EnumSetHolder result = mapper.readValue(json, EnumSetHolder.class);
         assertEquals(result, enumSetHolder);
-        assertTrue(result.enumSet instanceof EnumSet<?>);
+        assertInstanceOf(EnumSet.class, result.enumSet);
     }
 }

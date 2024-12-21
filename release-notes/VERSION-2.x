@@ -31,7 +31,7 @@ Project: jackson-databind
  (reported by Eduard G)
 #4773: `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not apply to Maps
   with uncomparable keys
- (requested by @nathanukey
+ (requested by @nathanukey)
 #4849 Not able to deserialize Enum with default typing after upgrading 2.15.4 -> 2.17.1
  (reported by Kornel Zemla)
 

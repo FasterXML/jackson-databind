@@ -138,14 +138,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- For heap usage testing see https://github.com/FasterXML/jackson-databind/pull/3675 -->
-    <dependency>
-      <groupId>org.openjdk.jol</groupId>
-      <artifactId>jol-core</artifactId>
-      <version>0.16</version>
-      <scope>test</scope>
-    </dependency>
-
     <!-- Since 2.17, started using Mockito instead of Powermock -->
     <!-- For testing with static methods -->
     <dependency>
@@ -217,9 +209,6 @@
           <classpathDependencyExcludes>
             <exclude>javax.measure:jsr-275</exclude>
           </classpathDependencyExcludes>
-          <excludes>
-            <exclude>tools.jackson.databind.MapperFootprintTest</exclude>
-          </excludes>
           <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
                   ... although not 100% sure this makes much difference TBH
             -->

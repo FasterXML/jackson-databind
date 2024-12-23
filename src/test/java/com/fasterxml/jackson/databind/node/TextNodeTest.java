@@ -40,6 +40,8 @@ public class TextNodeTest extends NodeTestBase
         assertTrue(TextNode.valueOf("true").asBoolean(false));
         assertFalse(TextNode.valueOf("false").asBoolean(true));
         assertFalse(TextNode.valueOf("false").asBoolean(false));
+
+        assertNonContainerStreamMethods(n);
     }
 
     @Test

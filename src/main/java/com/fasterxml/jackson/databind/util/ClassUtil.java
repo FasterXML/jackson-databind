@@ -42,6 +42,9 @@ public final class ClassUtil
      * @since 2.19
      */
     public static <T> Stream<T> emptyStream() {
+        // Looking at its implementation, seems there ought to be simpler/more
+        // efficient way to create and return a shared singleton but... no luck
+        // so far. So just use this for convenience for now:
         return Stream.empty();
     }
 

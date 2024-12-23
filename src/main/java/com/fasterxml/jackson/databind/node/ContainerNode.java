@@ -63,7 +63,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     protected abstract ObjectNode _withObject(JsonPointer origPtr,
             JsonPointer currentPtr,
             OverwriteMode overwriteMode, boolean preferIndex);
-    
+
     /*
     /**********************************************************
     /* JsonNodeCreator implementation, Enumerated/singleton types

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.stream.Stream;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -21,7 +22,7 @@ public final class ClassUtil
 
     private final static Ctor[] NO_CTORS = new Ctor[0];
 
-    private final static Iterator<?> EMPTY_ITERATOR = Collections.emptyIterator();
+    private final static Iterator<Object> EMPTY_ITERATOR = Collections.emptyIterator();
 
     /*
     /**********************************************************************
@@ -32,6 +33,16 @@ public final class ClassUtil
     @SuppressWarnings("unchecked")
     public static <T> Iterator<T> emptyIterator() {
         return (Iterator<T>) EMPTY_ITERATOR;
+    }
+
+    /**
+     * @since 2.19
+     */
+    public static <T> Stream<T> emptyStream() {
+        // Looking at its implementation, seems there ought to be simpler/more
+        // efficient way to create and return a shared singleton but... no luck
+        // so far. So just use this for convenience for now:
+        return Stream.empty();
     }
 
     /*

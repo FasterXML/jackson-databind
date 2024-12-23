@@ -45,6 +45,8 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(ShortNode.valueOf((short) 0).canConvertToLong());
         assertTrue(ShortNode.valueOf(Short.MAX_VALUE).canConvertToLong());
         assertTrue(ShortNode.valueOf(Short.MIN_VALUE).canConvertToLong());
+
+        assertNonContainerStreamMethods(n);
     }
 
     @Test
@@ -103,6 +105,7 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(IntNode.valueOf(Integer.MAX_VALUE).canConvertToLong());
         assertTrue(IntNode.valueOf(Integer.MIN_VALUE).canConvertToLong());
 
+        assertNonContainerStreamMethods(n);
     }
 
     @Test
@@ -132,6 +135,8 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(LongNode.valueOf(0L).canConvertToLong());
         assertTrue(LongNode.valueOf(Long.MAX_VALUE).canConvertToLong());
         assertTrue(LongNode.valueOf(Long.MIN_VALUE).canConvertToLong());
+
+        assertNonContainerStreamMethods(n);
     }
 
     @Test
@@ -195,6 +200,8 @@ public class NumberNodesTest extends NodeTestBase
         n = (DoubleNode) num;
         assertEquals(-0.0, n.doubleValue());
         assertEquals("-0.0", String.valueOf(n.doubleValue()));
+
+        assertNonContainerStreamMethods(n);
     }
 
     @Test
@@ -266,6 +273,8 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(FloatNode.valueOf(0L).canConvertToLong());
         assertTrue(FloatNode.valueOf(Integer.MAX_VALUE).canConvertToLong());
         assertTrue(FloatNode.valueOf(Integer.MIN_VALUE).canConvertToLong());
+
+        assertNonContainerStreamMethods(n);
     }
 
     @Test
@@ -324,6 +333,8 @@ public class NumberNodesTest extends NodeTestBase
 
         // also, equality should work ok
         assertEquals(result, DecimalNode.valueOf(value));
+
+        assertNonContainerStreamMethods(n);
     }
 
     @Test
@@ -389,6 +400,8 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(BigIntegerNode.valueOf(BigInteger.ZERO).canConvertToLong());
         assertTrue(BigIntegerNode.valueOf(BigInteger.valueOf(Long.MAX_VALUE)).canConvertToLong());
         assertTrue(BigIntegerNode.valueOf(BigInteger.valueOf(Long.MIN_VALUE)).canConvertToLong());
+
+        assertNonContainerStreamMethods(n);
     }
 
     @Test

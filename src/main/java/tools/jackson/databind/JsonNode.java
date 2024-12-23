@@ -3,6 +3,8 @@ package tools.jackson.databind;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.exc.JsonNodeException;
@@ -1002,6 +1004,44 @@ public abstract class JsonNode
      */
     public Set<Map.Entry<String, JsonNode>> properties() {
         return Collections.emptySet();
+    }
+
+    /**
+     * Returns a stream of all value nodes of this Node, iff
+     * this node is an {@code ArrayNode} or {@code ObjectNode}.
+     * In case of {@code Object} node, property names (keys) are not included, only values.
+     * For other types of nodes, returns empty stream.
+     *
+     * @since 2.19
+     */
+    public Stream<JsonNode> valueStream() {
+        return ClassUtil.emptyStream();
+    }
+
+    /**
+     * Returns a stream of all value nodes of this Node, iff
+     * this node is an an {@code ObjectNode}.
+     * For other types of nodes, returns empty stream.
+     *
+     * @since 2.19
+     */
+    public Stream<Map.Entry<String, JsonNode>> entryStream() {
+        return ClassUtil.emptyStream();
+    }
+
+    /**
+     * If this node is an {@code ObjectNode}, erforms the given action for each entry
+     * until all entries have been processed or the action throws an exception.
+     * Exceptions thrown by the action are relayed to the caller.     
+     * For other node types, no action is performed.
+     *<p>
+     * Actions are performed in the order of entries, same as order returned by
+     * method {@link #properties()}.
+     * 
+     * @param action Action to perform for each entry
+     */
+    public void forEachEntry(BiConsumer<? super String, ? super JsonNode> action) {
+        // No-op for all but ObjectNode
     }
 
     /*

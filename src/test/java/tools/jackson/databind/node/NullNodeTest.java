@@ -70,8 +70,9 @@ public class NullNodeTest extends NodeTestBase
 
         assertNodeNumbersForNonNumeric(n);
 
-        // 2.4
         assertEquals("null", n.asText());
+
+        assertNonContainerStreamMethods(n);
     }
 
     @Test

@@ -34,4 +34,16 @@ abstract class NodeTestBase extends DatabindTestUtil
 
         assertTrue(n.isEmpty());
     }
+
+    // Testing for non-ContainerNode (ValueNode) stream method implementations
+    //
+    // @since 2.19
+    protected void assertNonContainerStreamMethods(ValueNode n)
+    {
+        assertEquals(0, n.valueStream().count());
+        assertEquals(0, n.entryStream().count());
+
+        // And then empty forEachEntry()
+        n.forEachEntry((k, v) -> { throw new UnsupportedOperationException(); });
+    }
 }

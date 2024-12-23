@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Stream;
 
 import tools.jackson.core.*;
 import tools.jackson.core.tree.ArrayTreeNode;
@@ -257,6 +258,11 @@ public class ArrayNode
         }
         return _reportRequiredViolation("No value at index #%d [0, %d) of `ArrayNode`",
                 index, _children.size());
+    }
+
+    @Override // @since 2.19
+    public Stream<JsonNode> valueStream() {
+        return _children.stream();
     }
 
     @Override

@@ -3,6 +3,8 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import tools.jackson.core.*;
 import tools.jackson.core.tree.ObjectTreeNode;
@@ -289,7 +291,22 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     public Set<Map.Entry<String, JsonNode>> properties() {
         return _children.entrySet();
     }
-    
+
+    @Override // @since 2.19
+    public Stream<JsonNode> valueStream() {
+        return _children.values().stream();
+    }
+
+    @Override // @since 2.19
+    public Stream<Map.Entry<String, JsonNode>> entryStream() {
+        return _children.entrySet().stream();
+    }
+
+    @Override // @since 2.19
+    public void forEachEntry(BiConsumer<? super String, ? super JsonNode> action) {
+        _children.forEach(action);
+    }
+
     @Override
     public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
     {

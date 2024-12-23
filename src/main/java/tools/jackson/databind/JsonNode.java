@@ -230,6 +230,11 @@ public abstract class JsonNode
         return ClassUtil.emptyIterator();
     }
 
+    @Override
+    public Spliterator<String> propertyNamesSpliterator() {
+        return Spliterators.emptySpliterator();
+    }
+
     /**
      * Method for locating node specified by given JSON pointer instances.
      * Method will never return null; if no matching node exists,
@@ -974,6 +979,12 @@ public abstract class JsonNode
     public final Iterator<JsonNode> iterator() { return elements(); }
 
     /**
+     * Same as calling {@link #elementsSpliterator()}.
+     */
+    @Override
+    public final Spliterator<JsonNode> spliterator() { return elementsSpliterator(); }
+
+    /**
      * Method for accessing all value nodes of this Node, iff
      * this node is a JSON Array or Object node. In case of Object node,
      * field names (keys) are not included, only values.
@@ -984,11 +995,30 @@ public abstract class JsonNode
     }
 
     /**
+     * Method for accessing all value nodes of this Node, iff
+     * this node is a JSON Array or Object node. In case of Object node,
+     * field names (keys) are not included, only values.
+     * For other types of nodes, returns empty <code>Spliterator</code>.
+     */
+    public Spliterator<JsonNode> elementsSpliterator() {
+        return Spliterators.emptySpliterator();
+    }
+
+    /**
      * @return Iterator that can be used to traverse all key/value pairs for
      *   object nodes; empty iterator (no contents) for other types
      */
     public Iterator<Map.Entry<String, JsonNode>> fields() {
         return ClassUtil.emptyIterator();
+    }
+
+    /**
+     * @return <code>Spliterator</code> that can be used to traverse all key/value pairs
+     *   for object nodes; empty spliterator (no contents) for other types
+     * @since 3.0
+     */
+    public Spliterator<Map.Entry<String, JsonNode>> fieldsSpliterator() {
+        return Spliterators.spliteratorUnknownSize(fields(), Spliterator.ORDERED);
     }
 
     /**

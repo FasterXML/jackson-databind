@@ -230,6 +230,11 @@ public class ArrayNode
     }
 
     @Override
+    public Spliterator<JsonNode> elementsSpliterator() {
+        return _children.spliterator();
+    }
+
+    @Override
     public JsonNode get(int index) {
         if ((index >= 0) && (index < _children.size())) {
             return _children.get(index);

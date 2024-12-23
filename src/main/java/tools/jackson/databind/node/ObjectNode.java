@@ -236,6 +236,11 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     @Override
+    public Spliterator<JsonNode> elementsSpliterator() {
+        return _children.values().spliterator();
+    }
+
+    @Override
     public JsonNode get(int index) { return null; }
 
     @Override
@@ -246,6 +251,11 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     @Override
     public Iterator<String> propertyNames() {
         return _children.keySet().iterator();
+    }
+
+    @Override
+    public Spliterator<String> propertyNamesSpliterator() {
+        return _children.keySet().spliterator();
     }
 
     @Override
@@ -279,6 +289,11 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     @Override
     public Iterator<Map.Entry<String, JsonNode>> fields() {
         return _children.entrySet().iterator();
+    }
+
+    @Override
+    public Spliterator<Map.Entry<String, JsonNode>> fieldsSpliterator() {
+        return _children.entrySet().spliterator();
     }
 
     /**

@@ -999,6 +999,8 @@ public abstract class JsonNode
      * this node is a JSON Array or Object node. In case of Object node,
      * field names (keys) are not included, only values.
      * For other types of nodes, returns empty <code>Spliterator</code>.
+     *
+     * @since 3.0
      */
     public Spliterator<JsonNode> elementsSpliterator() {
         return Spliterators.emptySpliterator();

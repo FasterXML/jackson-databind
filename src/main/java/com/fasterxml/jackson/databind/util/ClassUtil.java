@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -21,7 +22,7 @@ public final class ClassUtil
     private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
     private final static Ctor[] NO_CTORS = new Ctor[0];
 
-    private final static Iterator<?> EMPTY_ITERATOR = Collections.emptyIterator();
+    private final static Iterator<Object> EMPTY_ITERATOR = Collections.emptyIterator();
 
     /*
     /**********************************************************
@@ -35,6 +36,13 @@ public final class ClassUtil
     @SuppressWarnings("unchecked")
     public static <T> Iterator<T> emptyIterator() {
         return (Iterator<T>) EMPTY_ITERATOR;
+    }
+
+    /**
+     * @since 2.19
+     */
+    public static <T> Stream<T> emptyStream() {
+        return Stream.empty();
     }
 
     /*

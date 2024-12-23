@@ -69,6 +69,8 @@ public class NullNodeTest extends NodeTestBase
         assertFalse(n.has(3));
 
         assertNodeNumbersForNonNumeric(n);
+
+        assertNonContainerStreamMethods(n);
     }
 
     @Test

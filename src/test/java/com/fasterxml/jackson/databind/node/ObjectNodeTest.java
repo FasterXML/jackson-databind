@@ -553,6 +553,34 @@ public class ObjectNodeTest
         assertEquals("a/1,b/true,c/\"stuff\"", _toString(n));
     }
 
+    // [databind#4863]: valueStream(), entryStream(), forEachEntry()
+    @Test
+    public void testStreamMethods()
+    {
+        ObjectMapper mapper = objectMapper();
+        ObjectNode obj = mapper.createObjectNode();
+        JsonNode n1 = obj.numberNode(42);
+        JsonNode n2 = obj.textNode("foo");
+
+        obj.set("a", n1);
+        obj.set("b", n2);
+
+        // First, valueStream() testing
+        assertEquals(2, obj.valueStream().count());
+        assertEquals(Arrays.asList(n1, n2),
+                obj.valueStream().collect(Collectors.toList()));
+
+        // And then entryStream() (empty)
+        assertEquals(2, obj.entryStream().count());
+        assertEquals(new ArrayList<>(obj.properties()),
+                obj.entryStream().collect(Collectors.toList()));
+
+        // And then empty forEachEntry()
+        final LinkedHashMap<String,JsonNode> map = new LinkedHashMap<>();
+        obj.forEachEntry((k, v) -> { map.put(k, v); });
+        assertEquals(obj.properties(), map.entrySet());
+    }
+
     private String _toString(JsonNode n) {
         return n.properties().stream()
                 .map(e -> e.getKey() + "/" + e.getValue())

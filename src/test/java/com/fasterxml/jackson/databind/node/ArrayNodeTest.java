@@ -1,8 +1,9 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
@@ -13,8 +14,6 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.util.RawValue;
 
-import static java.util.Arrays.asList;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -24,7 +23,7 @@ public class ArrayNodeTest
     extends DatabindTestUtil
 {
     @Test
-    public void testDirectCreation() throws IOException
+    public void testDirectCreation() throws Exception
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
 
@@ -108,7 +107,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testDirectCreation2() throws IOException
+    public void testDirectCreation2() throws Exception
     {
         JsonNodeFactory f = objectMapper().getNodeFactory();
         ArrayList<JsonNode> list = new ArrayList<>();
@@ -139,7 +138,7 @@ public class ArrayNodeTest
     }
 
     @Test
-    public void testArraySet() throws IOException {
+    public void testArraySet() throws Exception {
         final ArrayNode array = JsonNodeFactory.instance.arrayNode();
         for (int i = 0; i < 20; i++) {
             array.add("Original Data");
@@ -267,7 +266,7 @@ public class ArrayNodeTest
         final ArrayNode array = JsonNodeFactory.instance.arrayNode();
 
         // test
-        array.addAll(asList(null, JsonNodeFactory.instance.objectNode()));
+        array.addAll(Arrays.asList(null, JsonNodeFactory.instance.objectNode()));
 
         // assertions
         assertEquals(2, array.size());
@@ -478,5 +477,29 @@ public class ArrayNodeTest
         } catch (MismatchedInputException e) {
             verifyException(e, "from Integer value (token `JsonToken.VALUE_NUMBER_INT`)");
         }
+    }
+
+    // [databind#4863]: valueStream(), entryStream(), forEachEntry()
+    @Test
+    public void testStreamMethods()
+    {
+        ObjectMapper mapper = objectMapper();
+        ArrayNode arr = mapper.createArrayNode();
+        arr.add(1).add("foo");
+        JsonNode n1 = arr.get(0);
+        JsonNode n2 = arr.get(1);
+
+        // First, valueStream() testing
+        assertEquals(2, arr.valueStream().count());
+        assertEquals(Arrays.asList(n1, n2),
+                arr.valueStream().collect(Collectors.toList()));
+
+        // And then entryStream() (empty)
+        assertEquals(0, arr.entryStream().count());
+        assertEquals(Arrays.asList(),
+                arr.entryStream().collect(Collectors.toList()));
+
+        // And then empty forEachEntry()
+        arr.forEachEntry((k, v) -> { throw new UnsupportedOperationException(); });
     }
 }

@@ -191,7 +191,6 @@ public abstract class JsonNode
     @Override
     public abstract JsonNode get(int index);
 
-
     /**
      * Method for accessing value of the specified element of
      * an array node, wrapped in an {@link Optional}. For other nodes,

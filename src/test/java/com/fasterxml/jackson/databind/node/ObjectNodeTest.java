@@ -146,7 +146,7 @@ public class ObjectNodeTest
         assertFalse(n.fields().hasNext());
         assertFalse(n.fieldNames().hasNext());
         assertNull(n.get("a"));
-        assertTrue(n.optional("a").isEmpty());
+        assertFalse(n.optional("a").isPresent());
         assertTrue(n.path("a").isMissingNode());
 
         TextNode text = TextNode.valueOf("x");

@@ -279,8 +279,16 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     public JsonNode get(int index) { return null; }
 
     @Override
-    public JsonNode get(String propertyName) {
-        return _children.get(propertyName);
+    public JsonNode get(String fieldName) {
+        return _children.get(fieldName);
+    }
+
+    /**
+     * @since 2.19
+     */
+    @Override
+    public Optional<JsonNode> optional(String fieldName) {
+        return Optional.ofNullable(get(fieldName));
     }
 
     @Override

@@ -191,6 +191,33 @@ public abstract class JsonNode
     @Override
     public abstract JsonNode get(int index);
 
+
+    /**
+     * Method for accessing value of the specified element of
+     * an array node, wrapped in an {@link Optional}. For other nodes,
+     * an empty Optional is always returned.
+     *<p>
+     * For array nodes, index specifies
+     * exact location within array and allows for efficient iteration
+     * over child elements (underlying storage is guaranteed to
+     * be efficiently indexable, i.e. has random-access to elements).
+     * If index is less than 0, or equal-or-greater than
+     * <code>node.size()</code>, an empty Optional is returned; no exception is
+     * thrown for any index.
+     *<p>
+     * NOTE: if the element value has been explicitly set as <code>null</code>
+     * (which is different from removal!),
+     * a {@link com.fasterxml.jackson.databind.node.NullNode} will be returned
+     * wrapped in an Optional, not an empty Optional.
+     *
+     * @return Optional containing the node that represents the value of the specified element,
+     *   if this node is an array and has the specified element and otherwise, an
+     *   empty Optional, never null.
+     *
+     * @since 2.19
+     */
+    public Optional<JsonNode> optional(int index) { return Optional.empty(); }
+
     /**
      * Method for accessing value of the specified field of
      * an object node. If this node is not an object (or it
@@ -208,6 +235,27 @@ public abstract class JsonNode
      */
     @Override
     public JsonNode get(String fieldName) { return null; }
+
+    /**
+     * Method for accessing value of the specified field of
+     * an object node. If this node is not an object (or it
+     * does not have a value for specified field name), or
+     * if there is no field with such name, empty {@link Optional}
+     * is returned.
+     *<p>
+     * NOTE: if the property value has been explicitly set as <code>null</code>
+     * (which is different from removal!), an Optional containing
+     * {@link com.fasterxml.jackson.databind.node.NullNode} will be returned,
+     * not null.
+     *
+     * @return Optional that may contain value of the specified field,
+     *  if this node is an object and has value for the specified
+     *  field. Empty Optional otherwise never null.
+     *
+     * @since 2.19
+     */
+    public Optional<JsonNode> optional(String fieldName) { return Optional.empty(); }
+
     /**
      * This method is similar to {@link #get(String)}, except
      * that instead of returning null if no such value exists (due

@@ -155,7 +155,7 @@ abstract class NodeCursor
 
         public ArrayCursor(JsonNode n, NodeCursor p) {
             super(TokenStreamContext.TYPE_ARRAY, p);
-            _contents = n.elements();
+            _contents = n.values();
         }
 
         @Override

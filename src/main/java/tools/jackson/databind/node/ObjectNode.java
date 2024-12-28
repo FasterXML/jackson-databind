@@ -231,7 +231,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     public boolean isEmpty() { return _children.isEmpty(); }
 
     @Override
-    public Iterator<JsonNode> elements() {
+    public Iterator<JsonNode> values() {
         return _children.values().iterator();
     }
 

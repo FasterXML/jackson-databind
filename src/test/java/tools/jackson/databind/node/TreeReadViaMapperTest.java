@@ -41,7 +41,7 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
 
             ObjectNode main = (ObjectNode) result;
             assertEquals("Image", main.propertyNames().next());
-            JsonNode ob = main.elements().next();
+            JsonNode ob = main.values().next();
             assertType(ob, ObjectNode.class);
             ObjectNode imageMap = (ObjectNode) ob;
 
@@ -75,7 +75,7 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
             assertTrue(ob.isArray());
             ArrayNode idList = (ArrayNode) ob;
             assertEquals(4, idList.size());
-            assertEquals(4, calcLength(idList.elements()));
+            assertEquals(4, calcLength(idList.values()));
             assertEquals(4, calcLength(idList.iterator()));
             {
                 int[] values = new int[] {

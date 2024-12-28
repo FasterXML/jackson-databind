@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.util.Comparator;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -214,5 +215,57 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertTrue(obj.isObject());
         assertEquals(1, obj.size());
         assertEquals(2, obj.path("a").asInt());
+    }
+
+    @Test
+    public void testOptionalMethodOnAllNodeTypes() throws Exception {
+        // Test ObjectNode
+        ObjectNode objectNode = MAPPER.createObjectNode();
+        objectNode.put("existingField", "value");
+        assertTrue(objectNode.optional("existingField").isPresent());
+        assertEquals("value", objectNode.optional("existingField").get().asText());
+        assertFalse(objectNode.optional("missingField").isPresent());
+
+        // Test ArrayNode
+        ArrayNode arrayNode = MAPPER.createArrayNode();
+        arrayNode.add("firstElement");
+        assertTrue(arrayNode.optional(0).isPresent());
+        assertEquals("firstElement", arrayNode.optional(0).get().asText());
+        assertFalse(arrayNode.optional(1).isPresent());
+
+        // Test TextNode
+        TextNode textNode = TextNode.valueOf("sampleText");
+        assertFalse(textNode.optional("anyField").isPresent());
+        assertFalse(textNode.optional(0).isPresent());
+
+        // Test IntNode
+        IntNode intNode = IntNode.valueOf(42);
+        assertFalse(intNode.optional("anyField").isPresent());
+        assertFalse(intNode.optional(0).isPresent());
+
+        // Test LongNode
+        LongNode longNode = LongNode.valueOf(123456789L);
+        assertFalse(longNode.optional("anyField").isPresent());
+        assertFalse(longNode.optional(0).isPresent());
+
+        // Test DoubleNode
+        DoubleNode doubleNode = DoubleNode.valueOf(3.14);
+        assertFalse(doubleNode.optional("anyField").isPresent());
+        assertFalse(doubleNode.optional(0).isPresent());
+
+        // Test DecimalNode
+        DecimalNode decimalNode = DecimalNode.valueOf(new java.math.BigDecimal("12345.6789"));
+        assertFalse(decimalNode.optional("anyField").isPresent());
+        assertFalse(decimalNode.optional(0).isPresent());
+
+        // Test NullNode
+        NullNode nullNode = NullNode.getInstance();
+        assertFalse(nullNode.optional("anyField").isPresent());
+        assertFalse(nullNode.optional(0).isPresent());
+
+        // Test BooleanNode
+        BooleanNode booleanNode = BooleanNode.TRUE;
+        assertFalse(booleanNode.optional("anyField").isPresent());
+        assertFalse(booleanNode.optional(0).isPresent());
     }
 }

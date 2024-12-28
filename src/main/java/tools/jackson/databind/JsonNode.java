@@ -966,12 +966,12 @@ public abstract class JsonNode
      */
 
     /**
-     * Same as calling {@link #elements}; implemented so that
+     * Same as calling {@link #values()}; implemented so that
      * convenience "for-each" loop can be used for looping over elements
      * of JSON Array constructs.
      */
     @Override
-    public final Iterator<JsonNode> iterator() { return elements(); }
+    public final Iterator<JsonNode> iterator() { return values(); }
 
     /**
      * Method for accessing all value nodes of this Node, iff
@@ -979,7 +979,7 @@ public abstract class JsonNode
      * field names (keys) are not included, only values.
      * For other types of nodes, returns empty iterator.
      */
-    public Iterator<JsonNode> elements() {
+    public Iterator<JsonNode> values() {
         return ClassUtil.emptyIterator();
     }
 
@@ -1056,7 +1056,7 @@ public abstract class JsonNode
      * If no matching field is found in this node or its descendants, returns null.
      *<p>
      * Note that traversal is done in document order (that is, order in which
-     * nodes are iterated if using {@link JsonNode#elements()})
+     * nodes are iterated if using {@link JsonNode#values()})
      *
      * @param fieldName Name of field to look for
      *

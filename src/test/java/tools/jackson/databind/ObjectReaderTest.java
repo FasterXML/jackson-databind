@@ -534,7 +534,7 @@ public class ObjectReaderTest
         }
 
         @Override
-        public Iterator<JsonNode> elements() {
+        public Iterator<JsonNode> values() {
             return Collections.emptyIterator();
         }
 
@@ -654,8 +654,8 @@ public class ObjectReaderTest
         }
 
         @Override
-        public Iterator<JsonNode> elements() {
-            return _delegate.elements();
+        public Iterator<JsonNode> values() {
+            return _delegate.values();
         }
 
         @Override

@@ -225,7 +225,7 @@ public class ArrayNode
      * (before was only generic {@link java.util.Iterator}).
      */
     @Override
-    public Iterator<JsonNode> elements() {
+    public Iterator<JsonNode> values() {
         return _children.listIterator();
     }
 

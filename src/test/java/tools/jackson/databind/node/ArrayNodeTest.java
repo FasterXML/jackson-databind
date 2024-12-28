@@ -35,7 +35,7 @@ public class ArrayNodeTest
         assertFalse(n.canConvertToExactIntegral());
 
         assertStandardEquals(n);
-        assertFalse(n.elements().hasNext());
+        assertFalse(n.values().hasNext());
         assertFalse(n.propertyNames().hasNext());
         assertTrue(n.isEmpty());
         TextNode text = TextNode.valueOf("x");
@@ -43,7 +43,7 @@ public class ArrayNodeTest
         assertEquals(1, n.size());
         assertFalse(n.isEmpty());
         assertFalse(0 == n.hashCode());
-        assertTrue(n.elements().hasNext());
+        assertTrue(n.values().hasNext());
         // no field names for arrays
         assertFalse(n.propertyNames().hasNext());
         assertNull(n.get("x")); // not used with arrays

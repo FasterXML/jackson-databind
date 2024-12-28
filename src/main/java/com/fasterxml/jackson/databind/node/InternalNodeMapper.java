@@ -96,7 +96,7 @@ final class InternalNodeMapper {
         {
             if (node instanceof ObjectNode) {
                 g.writeStartObject(this, node.size());
-                _serializeNonRecursive(g, new IteratorStack(), node.fields());
+                _serializeNonRecursive(g, new IteratorStack(), node.properties().iterator());
             } else if (node instanceof ArrayNode) {
                 g.writeStartArray(this, node.size());
                 _serializeNonRecursive(g, new IteratorStack(), node.elements());
@@ -127,7 +127,7 @@ final class InternalNodeMapper {
                     }
                     if (value instanceof ObjectNode) {
                         stack.push(currIt);
-                        currIt = value.fields();
+                        currIt = value.properties().iterator();
                         g.writeStartObject(value, value.size());
                     } else if (value instanceof ArrayNode) {
                         stack.push(currIt);

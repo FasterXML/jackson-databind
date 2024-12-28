@@ -108,7 +108,7 @@ public class ObjectNodeTest
 
         // Ok, then, let's traverse via extended interface
         ObjectNode obNode = (ObjectNode) root;
-        Iterator<Map.Entry<String,JsonNode>> fit = obNode.fields();
+        Iterator<Map.Entry<String,JsonNode>> fit = obNode.properties().iterator();
         // we also know that LinkedHashMap is used, i.e. order preserved
         assertTrue(fit.hasNext());
         Map.Entry<String,JsonNode> en = fit.next();
@@ -143,7 +143,7 @@ public class ObjectNodeTest
         assertTrue(n.isEmpty());
 
         assertFalse(n.elements().hasNext());
-        assertFalse(n.fields().hasNext());
+        assertTrue(n.properties().isEmpty());
         assertFalse(n.fieldNames().hasNext());
         assertNull(n.get("a"));
         assertTrue(n.path("a").isMissingNode());
@@ -153,7 +153,7 @@ public class ObjectNodeTest
 
         assertEquals(1, n.size());
         assertTrue(n.elements().hasNext());
-        assertTrue(n.fields().hasNext());
+        assertTrue(n.properties().iterator().hasNext());
         assertTrue(n.fieldNames().hasNext());
         assertSame(text, n.get("a"));
         assertSame(text, n.path("a"));

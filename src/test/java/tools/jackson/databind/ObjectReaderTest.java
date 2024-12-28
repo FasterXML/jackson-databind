@@ -515,7 +515,7 @@ public class ObjectReaderTest
         private final ObjectNode _delegate;
 
         CustomObjectNode(ObjectNode delegate) {
-            this._delegate = delegate;
+            _delegate = delegate;
         }
 
         @Override
@@ -529,8 +529,8 @@ public class ObjectReaderTest
         }
 
         @Override
-        public Iterator<Entry<String, JsonNode>> fields() {
-            return _delegate.fields();
+        public Set<Map.Entry<String, JsonNode>> properties() {
+            return _delegate.properties();
         }
 
         @Override

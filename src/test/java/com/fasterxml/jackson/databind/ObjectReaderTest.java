@@ -25,8 +25,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import tools.jackson.databind.JsonNode;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;

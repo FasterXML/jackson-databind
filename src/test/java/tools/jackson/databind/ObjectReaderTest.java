@@ -3,7 +3,6 @@ package tools.jackson.databind;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,12 +20,11 @@ import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.node.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.*;
-
-public class ObjectReaderTest
+public class ObjectReaderTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 

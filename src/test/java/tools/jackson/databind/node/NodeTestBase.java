@@ -41,7 +41,7 @@ abstract class NodeTestBase extends DatabindTestUtil
     protected void assertNonContainerStreamMethods(ValueNode n)
     {
         assertEquals(0, n.valueStream().count());
-        assertEquals(0, n.entryStream().count());
+        assertEquals(0, n.propertyStream().count());
 
         // And then empty forEachEntry()
         n.forEachEntry((k, v) -> { throw new UnsupportedOperationException(); });

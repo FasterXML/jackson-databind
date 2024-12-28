@@ -192,7 +192,7 @@ abstract class NodeCursor
         public ObjectCursor(JsonNode n, NodeCursor p)
         {
             super(TokenStreamContext.TYPE_OBJECT, p);
-            _contents = n.fields();
+            _contents = n.properties().iterator();
             _needEntry = true;
         }
 

@@ -230,11 +230,6 @@ public abstract class JsonNode
         return ClassUtil.emptyIterator();
     }
 
-    @Override
-    public Spliterator<String> propertyNamesSpliterator() {
-        return Spliterators.emptySpliterator();
-    }
-
     /**
      * Method for locating node specified by given JSON pointer instances.
      * Method will never return null; if no matching node exists,
@@ -979,10 +974,10 @@ public abstract class JsonNode
     public final Iterator<JsonNode> iterator() { return values(); }
 
     /**
-     * Same as calling {@link #elementsSpliterator()}.
+     * Same as calling {@link #valuesSpliterator()}.
      */
     @Override
-    public final Spliterator<JsonNode> spliterator() { return elementsSpliterator(); }
+    public final Spliterator<JsonNode> spliterator() { return valuesSpliterator(); }
 
     /**
      * Method for accessing all value nodes of this Node, iff
@@ -1002,8 +997,8 @@ public abstract class JsonNode
      *
      * @since 3.0
      */
-    public Spliterator<JsonNode> elementsSpliterator() {
-        return Spliterators.emptySpliterator();
+    public Spliterator<JsonNode> valuesSpliterator() {
+        return Spliterators.spliteratorUnknownSize(values(), Spliterator.ORDERED);
     }
 
     /**

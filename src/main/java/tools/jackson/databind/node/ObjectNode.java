@@ -236,7 +236,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     @Override
-    public Spliterator<JsonNode> elementsSpliterator() {
+    public Spliterator<JsonNode> valuesSpliterator() {
         return _children.values().spliterator();
     }
 

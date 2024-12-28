@@ -230,7 +230,7 @@ public class ArrayNode
     }
 
     @Override
-    public Spliterator<JsonNode> elementsSpliterator() {
+    public Spliterator<JsonNode> valuesSpliterator() {
         return _children.spliterator();
     }
 

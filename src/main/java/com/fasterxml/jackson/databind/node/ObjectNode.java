@@ -338,7 +338,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     @Override // @since 2.19
-    public Stream<Map.Entry<String, JsonNode>> entryStream() {
+    public Stream<Map.Entry<String, JsonNode>> propertyStream() {
         return _children.entrySet().stream();
     }
 

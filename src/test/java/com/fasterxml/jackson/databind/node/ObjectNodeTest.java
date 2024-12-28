@@ -571,9 +571,9 @@ public class ObjectNodeTest
                 obj.valueStream().collect(Collectors.toList()));
 
         // And then entryStream() (empty)
-        assertEquals(2, obj.entryStream().count());
+        assertEquals(2, obj.propertyStream().count());
         assertEquals(new ArrayList<>(obj.properties()),
-                obj.entryStream().collect(Collectors.toList()));
+                obj.propertyStream().collect(Collectors.toList()));
 
         // And then empty forEachEntry()
         final LinkedHashMap<String,JsonNode> map = new LinkedHashMap<>();

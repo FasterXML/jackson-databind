@@ -65,6 +65,8 @@ public class JsonNodeBasicTest extends NodeTestBase
         // also, equality should work ok
         assertEquals(result, BooleanNode.valueOf(true));
         assertEquals(result, BooleanNode.getTrue());
+
+        assertNonContainerStreamMethods(f);
     }
 
     @Test
@@ -92,6 +94,8 @@ public class JsonNodeBasicTest extends NodeTestBase
 
         assertEquals("AAMD", new BinaryNode(data).asText());
         assertNodeNumbersForNonNumeric(n);
+
+        assertNonContainerStreamMethods(n2);
     }
 
     @Test
@@ -110,6 +114,8 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertNodeNumbersForNonNumeric(n);
         // but if wrapping actual number, use it
         assertNodeNumbers(new POJONode(Integer.valueOf(123)), 123, 123.0);
+
+        assertNonContainerStreamMethods(n);
     }
 
     // [databind#743]

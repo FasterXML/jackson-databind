@@ -154,6 +154,22 @@
       <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- Dependencies for testing "type pollution", see:
+         https://github.com/FasterXML/jackson-databind/pull/4848
+      -->
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-suite-engine</artifactId>
+      <version>1.10.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.micronaut.test</groupId>
+      <artifactId>micronaut-test-type-pollution</artifactId>
+      <version>4.6.2</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find
@@ -213,6 +229,7 @@
           <excludes>
             <exclude>com.fasterxml.jackson.databind.MapperFootprintTest</exclude>
           </excludes>
+          <test>com.fasterxml.jackson.databind.PrimarySuite</test>
           <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
                   ... although not 100% sure this makes much difference TBH
             -->
@@ -227,8 +244,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.16</link>
-            <link>https://fasterxml.github.io/jackson-core/javadoc/2.16</link>
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/2.19.0</link>>
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/2.19.0</link>>
           </links>
         </configuration>
       </plugin>
@@ -386,6 +403,19 @@
             <configuration>
               <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
             </configuration>
+            <executions>
+              <execution>
+                <id>type-pollution-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <test>com.fasterxml.jackson.databind.typepollution.TypePollutionSuite</test>
+                  <threadCount>1</threadCount>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

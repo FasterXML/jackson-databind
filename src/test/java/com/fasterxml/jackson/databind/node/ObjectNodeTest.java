@@ -108,7 +108,7 @@ public class ObjectNodeTest
 
         // Ok, then, let's traverse via extended interface
         ObjectNode obNode = (ObjectNode) root;
-        Iterator<Map.Entry<String,JsonNode>> fit = obNode.fields();
+        Iterator<Map.Entry<String,JsonNode>> fit = obNode.properties().iterator();
         // we also know that LinkedHashMap is used, i.e. order preserved
         assertTrue(fit.hasNext());
         Map.Entry<String,JsonNode> en = fit.next();
@@ -143,7 +143,7 @@ public class ObjectNodeTest
         assertTrue(n.isEmpty());
 
         assertFalse(n.elements().hasNext());
-        assertFalse(n.fields().hasNext());
+        assertTrue(n.properties().isEmpty());
         assertFalse(n.fieldNames().hasNext());
         assertNull(n.get("a"));
         assertTrue(n.path("a").isMissingNode());
@@ -153,7 +153,7 @@ public class ObjectNodeTest
 
         assertEquals(1, n.size());
         assertTrue(n.elements().hasNext());
-        assertTrue(n.fields().hasNext());
+        assertTrue(n.properties().iterator().hasNext());
         assertTrue(n.fieldNames().hasNext());
         assertSame(text, n.get("a"));
         assertSame(text, n.path("a"));
@@ -551,6 +551,34 @@ public class ObjectNodeTest
         JsonNode n = MAPPER.readTree(a2q(
                 "{ 'a':1, 'b':true,'c':'stuff'}"));
         assertEquals("a/1,b/true,c/\"stuff\"", _toString(n));
+    }
+
+    // [databind#4863]: valueStream(), entryStream(), forEachEntry()
+    @Test
+    public void testStreamMethods()
+    {
+        ObjectMapper mapper = objectMapper();
+        ObjectNode obj = mapper.createObjectNode();
+        JsonNode n1 = obj.numberNode(42);
+        JsonNode n2 = obj.textNode("foo");
+
+        obj.set("a", n1);
+        obj.set("b", n2);
+
+        // First, valueStream() testing
+        assertEquals(2, obj.valueStream().count());
+        assertEquals(Arrays.asList(n1, n2),
+                obj.valueStream().collect(Collectors.toList()));
+
+        // And then entryStream() (empty)
+        assertEquals(2, obj.propertyStream().count());
+        assertEquals(new ArrayList<>(obj.properties()),
+                obj.propertyStream().collect(Collectors.toList()));
+
+        // And then empty forEachEntry()
+        final LinkedHashMap<String,JsonNode> map = new LinkedHashMap<>();
+        obj.forEachEntry((k, v) -> { map.put(k, v); });
+        assertEquals(obj.properties(), map.entrySet());
     }
 
     private String _toString(JsonNode n) {

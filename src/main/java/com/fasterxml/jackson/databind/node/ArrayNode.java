@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -286,6 +287,11 @@ public class ArrayNode
         }
         return _reportRequiredViolation("No value at index #%d [0, %d) of `ArrayNode`",
                 index, _children.size());
+    }
+
+    @Override // @since 2.19
+    public Stream<JsonNode> valueStream() {
+        return _children.stream();
     }
 
     @Override

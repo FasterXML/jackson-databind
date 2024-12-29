@@ -31,9 +31,11 @@ Project: jackson-databind
  (reported by Eduard G)
 #4773: `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not apply to Maps
   with uncomparable keys
- (requested by @nathanukey
+ (requested by @nathanukey)
 #4849 Not able to deserialize Enum with default typing after upgrading 2.15.4 -> 2.17.1
  (reported by Kornel Zemla)
+#4863: Add basic Stream support in `JsonNode`: `valueStream()`, `propertyStream()`,
+  `forEachEntry()`
 
 2.18.3 (not yet released)
 
@@ -43,6 +45,12 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4844: Fix wrapped array handling wrt `null` by `StdDeserializer`
  (fix by Stanislav S)
+#4848: Avoid type pollution in `StringCollectionDeserializer`
+ (contributed by Jonas K)
+#4860: `ConstructorDetector.USE_PROPERTIES_BASED` does not work with
+  multiple constructors since 2.18
+ (reported by Tomáš P)
+ (fix by Joo-Hyuk K, @cowtowncoder)
 
 2.18.2 (27-Nov-2024)
 

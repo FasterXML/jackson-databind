@@ -974,10 +974,10 @@ public abstract class JsonNode
     public final Iterator<JsonNode> iterator() { return values(); }
 
     /**
-     * Same as calling {@link #valuesSpliterator()}.
+     * Same as calling {@link #valueSpliterator()}.
      */
     @Override
-    public final Spliterator<JsonNode> spliterator() { return valuesSpliterator(); }
+    public final Spliterator<JsonNode> spliterator() { return valueSpliterator(); }
 
     /**
      * Method for accessing all value nodes of this Node, iff
@@ -997,7 +997,7 @@ public abstract class JsonNode
      *
      * @since 3.0
      */
-    public Spliterator<JsonNode> valuesSpliterator() {
+    public Spliterator<JsonNode> valueSpliterator() {
         return Spliterators.spliteratorUnknownSize(values(), Spliterator.ORDERED);
     }
 
@@ -1011,16 +1011,7 @@ public abstract class JsonNode
      */
     @Deprecated // since 2.19
     public Iterator<Map.Entry<String, JsonNode>> fields() {
-        return ClassUtil.emptyIterator();
-    }
-
-    /**
-     * @return <code>Spliterator</code> that can be used to traverse all key/value pairs
-     *   for object nodes; empty spliterator (no contents) for other types
-     * @since 3.0
-     */
-    public Spliterator<Map.Entry<String, JsonNode>> fieldsSpliterator() {
-        return Spliterators.spliteratorUnknownSize(fields(), Spliterator.ORDERED);
+        return properties().iterator();
     }
 
     /**
@@ -1039,6 +1030,15 @@ public abstract class JsonNode
         return Collections.emptySet();
     }
 
+    /**
+     * @return {@code Spliterator} that can be used to traverse all key/value pairs
+     *   for object nodes; empty spliterator (no contents) for other types
+     * @since 3.0
+     */
+    public Spliterator<Map.Entry<String, JsonNode>> propertySpliterator() {
+        return properties().spliterator();
+    }
+    
     /**
      * Returns a stream of all value nodes of this Node, iff
      * this node is an {@code ArrayNode} or {@code ObjectNode}.

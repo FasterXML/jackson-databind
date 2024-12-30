@@ -231,31 +231,11 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     public boolean isEmpty() { return _children.isEmpty(); }
 
     @Override
-    public Iterator<JsonNode> values() {
-        return _children.values().iterator();
-    }
-
-    @Override
-    public Spliterator<JsonNode> valuesSpliterator() {
-        return _children.values().spliterator();
-    }
-
-    @Override
     public JsonNode get(int index) { return null; }
 
     @Override
     public JsonNode get(String propertyName) {
         return _children.get(propertyName);
-    }
-
-    @Override
-    public Iterator<String> propertyNames() {
-        return _children.keySet().iterator();
-    }
-
-    @Override
-    public Spliterator<String> propertyNamesSpliterator() {
-        return _children.keySet().spliterator();
     }
 
     @Override
@@ -282,21 +262,29 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _reportRequiredViolation("No value for property '%s' of `ObjectNode`", propertyName);
     }
 
-    /**
-     * Method to use for accessing all properties (with both names
-     * and values) of this JSON Object.
-     *
-     * @deprecated since 2.19 Use instead {@link #properties()}.
-     */
-    @Deprecated // since 2.19
     @Override
-    public Iterator<Map.Entry<String, JsonNode>> fields() {
-        return _children.entrySet().iterator();
+    public Iterator<JsonNode> values() {
+        return _children.values().iterator();
     }
 
     @Override
-    public Spliterator<Map.Entry<String, JsonNode>> fieldsSpliterator() {
-        return _children.entrySet().spliterator();
+    public Spliterator<JsonNode> valueSpliterator() {
+        return _children.values().spliterator();
+    }
+
+    @Override // @since 2.19
+    public Stream<JsonNode> valueStream() {
+        return _children.values().stream();
+    }
+
+    @Override
+    public Iterator<String> propertyNames() {
+        return _children.keySet().iterator();
+    }
+
+    @Override
+    public Spliterator<String> propertyNameSpliterator() {
+        return _children.keySet().spliterator();
     }
 
     /**
@@ -310,9 +298,9 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _children.entrySet();
     }
 
-    @Override // @since 2.19
-    public Stream<JsonNode> valueStream() {
-        return _children.values().stream();
+    @Override
+    public Spliterator<Map.Entry<String, JsonNode>> propertySpliterator() {
+        return _children.entrySet().spliterator();
     }
 
     @Override // @since 2.19

@@ -1,6 +1,7 @@
 package tools.jackson.databind.node;
 
 import java.util.Comparator;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -213,5 +214,38 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertTrue(obj.isObject());
         assertEquals(1, obj.size());
         assertEquals(2, obj.path("a").asInt());
+    }
+
+    // [databind#4867]
+    @Test
+    public void testAsOptional() {
+        // Test with MissingNode
+        JsonNode missingNode = MissingNode.getInstance();
+        Optional<JsonNode> missingOptional = missingNode.asOptional();
+        assertFalse(missingOptional.isPresent());
+
+        // Test with ObjectNode
+        ObjectNode objectNode = MAPPER.createObjectNode();
+        Optional<JsonNode> objectOptional = objectNode.asOptional();
+        assertTrue(objectOptional.isPresent());
+        assertEquals(objectNode, objectOptional.get());
+
+        // Test with ArrayNode
+        ArrayNode arrayNode = MAPPER.createArrayNode();
+        Optional<JsonNode> arrayOptional = arrayNode.asOptional();
+        assertTrue(arrayOptional.isPresent());
+        assertEquals(arrayNode, arrayOptional.get());
+
+        // Test with TextNode
+        TextNode textNode = TextNode.valueOf("text");
+        Optional<JsonNode> textOptional = textNode.asOptional();
+        assertTrue(textOptional.isPresent());
+        assertEquals(textNode, textOptional.get());
+
+        // Test with NullNode
+        NullNode nullNode = NullNode.getInstance();
+        Optional<JsonNode> nullOptional = nullNode.asOptional();
+        assertTrue(nullOptional.isPresent());
+        assertEquals(nullNode, nullOptional.get());
     }
 }

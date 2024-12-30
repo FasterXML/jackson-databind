@@ -1071,6 +1071,8 @@ public abstract class JsonNode
      * this node is a JSON Array or Object node. In case of Object node,
      * field names (keys) are not included, only values.
      * For other types of nodes, returns empty iterator.
+     * <p>
+     * Note: In Jackson 3, this method will be renamed to {@code values()}.
      */
     public Iterator<JsonNode> elements() {
         return ClassUtil.emptyIterator();

@@ -192,6 +192,24 @@ public abstract class JsonNode
     public abstract JsonNode get(int index);
 
     /**
+     * Method for accessing value of the specified field of
+     * an object node. If this node is not an object (or it
+     * does not have a value for specified field name), or
+     * if there is no field with such name, null is returned.
+     *<p>
+     * NOTE: if the property value has been explicitly set as <code>null</code>
+     * (which is different from removal!),
+     * a {@link com.fasterxml.jackson.databind.node.NullNode} will be returned,
+     * not null.
+     *
+     * @return Node that represent value of the specified field,
+     *   if this node is an object and has value for the specified
+     *   field. Null otherwise.
+     */
+    @Override
+    public JsonNode get(String fieldName) { return null; }
+
+    /**
      * Method for accessing value of the specified element of
      * an array node, wrapped in an {@link Optional}. For other nodes,
      * an empty Optional is always returned.
@@ -221,24 +239,6 @@ public abstract class JsonNode
      * Method for accessing value of the specified field of
      * an object node. If this node is not an object (or it
      * does not have a value for specified field name), or
-     * if there is no field with such name, null is returned.
-     *<p>
-     * NOTE: if the property value has been explicitly set as <code>null</code>
-     * (which is different from removal!),
-     * a {@link com.fasterxml.jackson.databind.node.NullNode} will be returned,
-     * not null.
-     *
-     * @return Node that represent value of the specified field,
-     *   if this node is an object and has value for the specified
-     *   field. Null otherwise.
-     */
-    @Override
-    public JsonNode get(String fieldName) { return null; }
-
-    /**
-     * Method for accessing value of the specified field of
-     * an object node. If this node is not an object (or it
-     * does not have a value for specified field name), or
      * if there is no field with such name, empty {@link Optional}
      * is returned.
      *<p>
@@ -253,7 +253,7 @@ public abstract class JsonNode
      *
      * @since 2.19
      */
-    public Optional<JsonNode> optional(String fieldName) { return Optional.empty(); }
+    public Optional<JsonNode> optional(String propertyName) { return Optional.empty(); }
 
     /**
      * This method is similar to {@link #get(String)}, except

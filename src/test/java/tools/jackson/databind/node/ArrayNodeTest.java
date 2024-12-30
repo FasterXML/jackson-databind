@@ -48,6 +48,7 @@ public class ArrayNodeTest
         assertFalse(n.propertyNames().hasNext());
         assertNull(n.get("x")); // not used with arrays
         assertTrue(n.path("x").isMissingNode());
+        assertFalse(n.optional("x").isPresent());
         assertSame(text, n.get(0));
 
         // single element, so:
@@ -438,12 +439,16 @@ public class ArrayNodeTest
         // plus see that we can access stuff
         assertEquals(NullNode.instance, result.path(0));
         assertEquals(NullNode.instance, result.get(0));
+        assertEquals(NullNode.instance, result.optional(0).get());
         assertEquals(BooleanNode.FALSE, result.path(1));
         assertEquals(BooleanNode.FALSE, result.get(1));
+        assertEquals(BooleanNode.FALSE, result.optional(1).get());
         assertEquals(2, result.size());
 
         assertNull(result.get(-1));
         assertNull(result.get(2));
+        assertFalse(result.optional(-1).isPresent());
+        assertFalse(result.optional(2).isPresent());
         JsonNode missing = result.path(2);
         assertTrue(missing.isMissingNode());
         assertTrue(result.path(-100).isMissingNode());

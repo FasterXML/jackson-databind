@@ -206,7 +206,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
     /*
     /**********************************************************************
-    /* Implementation of core JsonNode API
+    /* Implementation of core JsonNode API: simple accessors
     /**********************************************************************
      */
 
@@ -244,8 +244,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     @Override
-    public Iterator<String> propertyNames() {
-        return _children.keySet().iterator();
+    public Optional<JsonNode> optional(String propertyName) {
+        return Optional.ofNullable(get(propertyName));
     }
 
     @Override
@@ -270,6 +270,20 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
             return n;
         }
         return _reportRequiredViolation("No value for property '%s' of `ObjectNode`", propertyName);
+    }
+
+    /*
+    /**********************************************************************
+    /* Implementation of core JsonNode API: content traversal
+    /**********************************************************************
+     */
+    
+    /**
+     * @since 2.19
+     */
+    @Override
+    public Iterator<String> propertyNames() {
+        return _children.keySet().iterator();
     }
 
     /**

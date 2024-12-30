@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #1467: Support `@JsonUnwrapped` with `@JsonCreator`
  (implementation by Liam F)
+#2145: Add `JsonNode.optional(String name)` and `optional(int index)` methods
+ (fix by Joo-Hyuk K)
 #2461: Nested `@JsonUnwrapped` property names not correctly handled
  (reported by @plovell)
  (fix contributed by @SandeepGaur2016)

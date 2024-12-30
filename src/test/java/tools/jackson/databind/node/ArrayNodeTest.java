@@ -496,9 +496,9 @@ public class ArrayNodeTest
                 arr.valueStream().collect(Collectors.toList()));
 
         // And then entryStream() (empty)
-        assertEquals(0, arr.entryStream().count());
+        assertEquals(0, arr.propertyStream().count());
         assertEquals(Arrays.asList(),
-                arr.entryStream().collect(Collectors.toList()));
+                arr.propertyStream().collect(Collectors.toList()));
 
         // And then empty forEachEntry()
         arr.forEachEntry((k, v) -> { throw new UnsupportedOperationException(); });

@@ -285,7 +285,10 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     /**
      * Method to use for accessing all properties (with both names
      * and values) of this JSON Object.
+     *
+     * @deprecated since 2.19 Use instead {@link #properties()}.
      */
+    @Deprecated // since 2.19
     @Override
     public Iterator<Map.Entry<String, JsonNode>> fields() {
         return _children.entrySet().iterator();
@@ -313,7 +316,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     @Override // @since 2.19
-    public Stream<Map.Entry<String, JsonNode>> entryStream() {
+    public Stream<Map.Entry<String, JsonNode>> propertyStream() {
         return _children.entrySet().stream();
     }
 

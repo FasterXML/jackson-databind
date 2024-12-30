@@ -279,8 +279,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     public JsonNode get(int index) { return null; }
 
     @Override
-    public JsonNode get(String fieldName) {
-        return _children.get(fieldName);
+    public JsonNode get(String propertyName) {
+        return _children.get(propertyName);
     }
 
     /**

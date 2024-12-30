@@ -767,7 +767,7 @@ public abstract class JsonNode
      * @since 2.19
      */
     public Optional<JsonNode> asOptional() {
-        return Optional.ofNullable(this.isMissingNode() ? null : this);
+        return Optional.of(this);
     }
 
     /*

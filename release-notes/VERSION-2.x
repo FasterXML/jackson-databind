@@ -36,6 +36,8 @@ Project: jackson-databind
  (reported by Kornel Zemla)
 #4863: Add basic Stream support in `JsonNode`: `valueStream()`, `propertyStream()`,
   `forEachEntry()`
+#4867: Add `Optional<JsonNode> JsonNode.asOptional()` convenience method
+ (fix by Joo-Hyuk K)
 
 2.18.3 (not yet released)
 

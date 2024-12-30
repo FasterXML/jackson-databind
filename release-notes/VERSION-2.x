@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #1467: Support `@JsonUnwrapped` with `@JsonCreator`
  (implementation by Liam F)
+#2145: Add `JsonNode.optional(String name)` and `optional(int index)` methods
+ (fix by Joo-Hyuk K)
 #2461: Nested `@JsonUnwrapped` property names not correctly handled
  (reported by @plovell)
  (fix contributed by @SandeepGaur2016)
@@ -36,6 +38,8 @@ Project: jackson-databind
  (reported by Kornel Zemla)
 #4863: Add basic Stream support in `JsonNode`: `valueStream()`, `propertyStream()`,
   `forEachEntry()`
+#4867: Add `Optional<JsonNode> JsonNode.asOptional()` convenience method
+ (fix by Joo-Hyuk K)
 
 2.18.3 (not yet released)
 

@@ -806,6 +806,17 @@ public abstract class JsonNode
         return defaultValue;
     }
 
+    /**
+     * Method that will return a {@link JsonNode} wrapped in Java's {@link Optional}.
+     *
+     * @return `Optional<JsonNode>` containing this node, or {@link Optional#empty()}
+     *        if this is a {@link MissingNode}.
+     * @since 2.19
+     */
+    public Optional<JsonNode> asOptional() {
+        return Optional.of(this);
+    }
+
     /*
     /**********************************************************************
     /* Public API, extended traversal (2.10) with "required()"
@@ -1066,9 +1077,14 @@ public abstract class JsonNode
     }
 
     /**
+     * NOTE: This method is deprecated, use {@link #properties()} instead.
+     *
      * @return Iterator that can be used to traverse all key/value pairs for
      *   object nodes; empty iterator (no contents) for other types
+     *  
+     * @deprecated As of 2.19, replaced by {@link #properties()}
      */
+    @Deprecated // since 2.19
     public Iterator<Map.Entry<String, JsonNode>> fields() {
         return ClassUtil.emptyIterator();
     }
@@ -1077,6 +1093,7 @@ public abstract class JsonNode
      * Accessor that will return properties of {@code ObjectNode}
      * similar to how {@link Map#entrySet()} works; 
      * for other node types will return empty {@link java.util.Set}.
+     * Replacement for {@link JsonNode#fields()}.
      *
      * @return Set of properties, if this node is an {@code ObjectNode}
      * ({@link JsonNode#isObject()} returns {@code true}); empty
@@ -1101,24 +1118,26 @@ public abstract class JsonNode
     }
 
     /**
-     * Returns a stream of all value nodes of this Node, iff
-     * this node is an an {@code ObjectNode}.
+     * Returns a stream of all properties (key, value pairs) of this Node,
+     * iff this node is an an {@code ObjectNode}.
      * For other types of nodes, returns empty stream.
      *
      * @since 2.19
      */
-    public Stream<Map.Entry<String, JsonNode>> entryStream() {
+    public Stream<Map.Entry<String, JsonNode>> propertyStream() {
         return ClassUtil.emptyStream();
     }
 
     /**
-     * If this node is an {@code ObjectNode}, erforms the given action for each entry
+     * If this node is an {@code ObjectNode}, performs the given action for each
+     * property (key, value pair)
      * until all entries have been processed or the action throws an exception.
      * Exceptions thrown by the action are relayed to the caller.     
      * For other node types, no action is performed.
      *<p>
-     * Actions are performed in the order of entries, same as order returned by
+     * Actions are performed in the order of properties, same as order returned by
      * method {@link #properties()}.
+     * This is generally the document order of properties in JSON object.
      * 
      * @param action Action to perform for each entry
      */

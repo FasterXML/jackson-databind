@@ -108,7 +108,7 @@ public class ObjectNodeTest
 
         // Ok, then, let's traverse via extended interface
         ObjectNode obNode = (ObjectNode) root;
-        Iterator<Map.Entry<String,JsonNode>> fit = obNode.fields();
+        Iterator<Map.Entry<String,JsonNode>> fit = obNode.properties().iterator();
         // we also know that LinkedHashMap is used, i.e. order preserved
         assertTrue(fit.hasNext());
         Map.Entry<String,JsonNode> en = fit.next();
@@ -143,7 +143,7 @@ public class ObjectNodeTest
         assertTrue(n.isEmpty());
 
         assertFalse(n.elements().hasNext());
-        assertFalse(n.fields().hasNext());
+        assertTrue(n.properties().isEmpty());
         assertFalse(n.fieldNames().hasNext());
         assertNull(n.get("a"));
         assertFalse(n.optional("a").isPresent());
@@ -154,7 +154,7 @@ public class ObjectNodeTest
 
         assertEquals(1, n.size());
         assertTrue(n.elements().hasNext());
-        assertTrue(n.fields().hasNext());
+        assertTrue(n.properties().iterator().hasNext());
         assertTrue(n.fieldNames().hasNext());
         assertSame(text, n.get("a"));
         assertSame(text, n.path("a"));
@@ -573,9 +573,9 @@ public class ObjectNodeTest
                 obj.valueStream().collect(Collectors.toList()));
 
         // And then entryStream() (empty)
-        assertEquals(2, obj.entryStream().count());
+        assertEquals(2, obj.propertyStream().count());
         assertEquals(new ArrayList<>(obj.properties()),
-                obj.entryStream().collect(Collectors.toList()));
+                obj.propertyStream().collect(Collectors.toList()));
 
         // And then empty forEachEntry()
         final LinkedHashMap<String,JsonNode> map = new LinkedHashMap<>();

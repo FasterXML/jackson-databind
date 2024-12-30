@@ -146,6 +146,7 @@ public class ObjectNodeTest
         assertTrue(n.properties().isEmpty());
         assertFalse(n.fieldNames().hasNext());
         assertNull(n.get("a"));
+        assertFalse(n.optional("a").isPresent());
         assertTrue(n.path("a").isMissingNode());
 
         TextNode text = TextNode.valueOf("x");
@@ -249,6 +250,7 @@ public class ObjectNodeTest
         JsonNode n = o1.get("x");
         assertNotNull(n);
         assertSame(n, NullNode.instance);
+        assertEquals(NullNode.instance, o1.optional("x").get());
 
         o1.put("str", (String) null);
         n = o1.get("str");

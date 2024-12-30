@@ -269,6 +269,14 @@ public class ArrayNode
     @Override
     public JsonNode get(String fieldName) { return null; }
 
+    /**
+     * @since 2.19
+     */
+    @Override
+    public Optional<JsonNode> optional(int index) {
+        return Optional.ofNullable(get(index));
+    }
+
     @Override
     public JsonNode path(String fieldName) { return MissingNode.getInstance(); }
 

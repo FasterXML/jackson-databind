@@ -736,6 +736,17 @@ public abstract class JsonNode
         return defaultValue;
     }
 
+    /**
+     * Method that will return a {@link JsonNode} wrapped in Java's {@link Optional}.
+     *
+     * @return `Optional<JsonNode>` containing this node, or {@link Optional#empty()}
+     *        if this is a {@link MissingNode}.
+     * @since 2.19
+     */
+    public Optional<JsonNode> asOptional() {
+        return Optional.of(this);
+    }
+
     /*
     /**********************************************************************
     /* Public API, extended traversal (2.10) with "required()"

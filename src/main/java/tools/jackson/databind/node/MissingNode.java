@@ -1,6 +1,7 @@
 package tools.jackson.databind.node;
 
 import java.util.List;
+import java.util.Optional;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JsonNode;
@@ -65,24 +66,8 @@ public final class MissingNode
     */
 
     @Override
-    public final void serialize(JsonGenerator g, SerializationContext provider)
-        throws JacksonException
-    {
-        /* Nothing to output... should we signal an error tho?
-         * Chances are, this is an erroneous call. For now, let's
-         * not do that; serialize as explicit null. Why? Because we
-         * cannot just omit a value as JSON Object field name may have
-         * been written out.
-         */
-        g.writeNull();
-    }
-
-    @Override
-    public void serializeWithType(JsonGenerator g, SerializationContext provider,
-            TypeSerializer typeSer)
-        throws JacksonException
-    {
-        g.writeNull();
+    public Optional<JsonNode> asOptional() {
+        return Optional.empty();
     }
 
     @SuppressWarnings("unchecked")
@@ -139,9 +124,36 @@ public final class MissingNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Serialization: bit tricky as we don't really have a value
+    /**********************************************************************
+     */
+
+    @Override
+    public final void serialize(JsonGenerator g, SerializationContext provider)
+        throws JacksonException
+    {
+        /* Nothing to output... should we signal an error tho?
+         * Chances are, this is an erroneous call. For now, let's
+         * not do that; serialize as explicit null. Why? Because we
+         * cannot just omit a value as JSON Object field name may have
+         * been written out.
+         */
+        g.writeNull();
+    }
+
+    @Override
+    public void serializeWithType(JsonGenerator g, SerializationContext provider,
+            TypeSerializer typeSer)
+        throws JacksonException
+    {
+        g.writeNull();
+    }
+
+    /*
+    /**********************************************************************
     /* Standard method overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

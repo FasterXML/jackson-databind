@@ -257,8 +257,7 @@ public class ArrayNode
      * {@inheritDoc}
      *<p>
      * NOTE: actual underlying implementation returns {@link java.util.ListIterator}
-     * from {@link java.util.List#listIterator()} that contains elements, since Jackson 2.18
-     * (before was only generic {@link java.util.Iterator}).
+     * from {@link java.util.List#listIterator()} that contains elements.
      */
     @Override
     public Collection<JsonNode> values() {
@@ -273,6 +272,13 @@ public class ArrayNode
     @Override
     public Stream<JsonNode> valueStream() {
         return _children.stream();
+    }
+
+    /**
+     * Alias of {@link #values()}.
+     */
+    public Collection<JsonNode> elements() {
+        return values();
     }
 
     @Override

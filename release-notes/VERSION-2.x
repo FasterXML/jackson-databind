@@ -40,6 +40,7 @@ Project: jackson-databind
   `forEachEntry()`
 #4867: Add `Optional<JsonNode> JsonNode.asOptional()` convenience method
  (fix by Joo-Hyuk K)
+#4869: Add `JsonNode.values()` to replace `elements()`
 
 2.18.3 (not yet released)
 

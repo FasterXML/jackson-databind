@@ -1029,7 +1029,7 @@ public abstract class JsonNode
      * of JSON Array constructs.
      */
     @Override
-    public final Iterator<JsonNode> iterator() { return values(); }
+    public final Iterator<JsonNode> iterator() { return values().iterator(); }
 
     /**
      * Same as calling {@link #valueSpliterator()}.
@@ -1043,8 +1043,8 @@ public abstract class JsonNode
      * field names (keys) are not included, only values.
      * For other types of nodes, returns empty iterator.
      */
-    public Iterator<JsonNode> values() {
-        return ClassUtil.emptyIterator();
+    public Collection<JsonNode> values() {
+        return Collections.emptyList();
     }
 
     /**
@@ -1056,7 +1056,7 @@ public abstract class JsonNode
      * @since 3.0
      */
     public Spliterator<JsonNode> valueSpliterator() {
-        return Spliterators.spliteratorUnknownSize(values(), Spliterator.ORDERED);
+        return values().spliterator();
     }
 
     /**

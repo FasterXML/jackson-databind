@@ -274,8 +274,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      */
 
     @Override
-    public Iterator<JsonNode> values() {
-        return _children.values().iterator();
+    public Collection<JsonNode> values() {
+        return _children.values();
     }
 
     @Override

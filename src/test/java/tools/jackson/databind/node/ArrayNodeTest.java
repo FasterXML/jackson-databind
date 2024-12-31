@@ -35,7 +35,7 @@ public class ArrayNodeTest
         assertFalse(n.canConvertToExactIntegral());
 
         assertStandardEquals(n);
-        assertFalse(n.values().hasNext());
+        assertFalse(n.values().iterator().hasNext());
         assertEquals(0, n.valueSpliterator().estimateSize());
         assertFalse(n.propertyNames().hasNext());
         assertNotNull(n.propertyNameSpliterator());
@@ -45,7 +45,7 @@ public class ArrayNodeTest
         assertEquals(1, n.size());
         assertFalse(n.isEmpty());
         assertNotEquals(0, n.hashCode());
-        assertTrue(n.values().hasNext());
+        assertTrue(n.values().iterator().hasNext());
         // no field names for arrays
         assertFalse(n.propertyNames().hasNext());
         assertNull(n.get("x")); // not used with arrays

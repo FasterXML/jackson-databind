@@ -275,6 +275,11 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _children.values().iterator();
     }
 
+    @Override // @since 2.19
+    public Iterator<JsonNode> values() {
+        return _children.values().iterator();
+    }
+
     @Override
     public JsonNode get(int index) { return null; }
 

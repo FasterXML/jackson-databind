@@ -1067,15 +1067,22 @@ public abstract class JsonNode
     public final Iterator<JsonNode> iterator() { return elements(); }
 
     /**
+     * Alias for {@link #values()}.
+     */
+    public Iterator<JsonNode> elements() {
+        return ClassUtil.emptyIterator();
+    }
+
+    /**
      * Method for accessing all value nodes of this Node, iff
      * this node is a JSON Array or Object node. In case of Object node,
      * field names (keys) are not included, only values.
      * For other types of nodes, returns empty iterator.
-     * <p>
-     * Note: In Jackson 3, this method will be renamed to {@code values()}.
+     *
+     * @since 2.19
      */
-    public Iterator<JsonNode> elements() {
-        return ClassUtil.emptyIterator();
+    public Iterator<JsonNode> values() {
+        return elements();
     }
 
     /**

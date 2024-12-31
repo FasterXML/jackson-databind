@@ -217,18 +217,6 @@ public class ArrayNode
     @Override // since 2.10
     public boolean isEmpty() { return _children.isEmpty(); }
 
-    /**
-     * {@inheritDoc}
-     *<p>
-     * NOTE: actual underlying implementation returns {@link java.util.ListIterator}
-     * from {@link java.util.List#listIterator()} that contains elements, since Jackson 2.18
-     * (before was only generic {@link java.util.Iterator}).
-     */
-    @Override
-    public Iterator<JsonNode> values() {
-        return _children.listIterator();
-    }
-
     @Override
     public JsonNode get(int index) {
         if ((index >= 0) && (index < _children.size())) {
@@ -268,6 +256,23 @@ public class ArrayNode
                 index, _children.size());
     }
 
+    /**
+     * {@inheritDoc}
+     *<p>
+     * NOTE: actual underlying implementation returns {@link java.util.ListIterator}
+     * from {@link java.util.List#listIterator()} that contains elements, since Jackson 2.18
+     * (before was only generic {@link java.util.Iterator}).
+     */
+    @Override
+    public Iterator<JsonNode> values() {
+        return _children.listIterator();
+    }
+
+    @Override
+    public Spliterator<JsonNode> valueSpliterator() {
+        return _children.spliterator();
+    }
+    
     @Override // @since 2.19
     public Stream<JsonNode> valueStream() {
         return _children.stream();

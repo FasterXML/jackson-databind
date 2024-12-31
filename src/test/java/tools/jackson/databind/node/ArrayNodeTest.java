@@ -36,13 +36,15 @@ public class ArrayNodeTest
 
         assertStandardEquals(n);
         assertFalse(n.values().hasNext());
+        assertEquals(0, n.valueSpliterator().estimateSize());
         assertFalse(n.propertyNames().hasNext());
+        assertNotNull(n.propertyNameSpliterator());
         assertTrue(n.isEmpty());
         TextNode text = TextNode.valueOf("x");
         n.add(text);
         assertEquals(1, n.size());
         assertFalse(n.isEmpty());
-        assertFalse(0 == n.hashCode());
+        assertNotEquals(0, n.hashCode());
         assertTrue(n.values().hasNext());
         // no field names for arrays
         assertFalse(n.propertyNames().hasNext());

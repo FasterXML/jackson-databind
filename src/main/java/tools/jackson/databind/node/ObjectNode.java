@@ -231,11 +231,6 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     public boolean isEmpty() { return _children.isEmpty(); }
 
     @Override
-    public Iterator<JsonNode> values() {
-        return _children.values().iterator();
-    }
-
-    @Override
     public JsonNode get(int index) { return null; }
 
     @Override
@@ -277,25 +272,30 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     /* Implementation of core JsonNode API: content traversal
     /**********************************************************************
      */
-    
-    /**
-     * @since 2.19
-     */
+
+    @Override
+    public Iterator<JsonNode> values() {
+        return _children.values().iterator();
+    }
+
+    @Override
+    public Spliterator<JsonNode> valueSpliterator() {
+        return _children.values().spliterator();
+    }
+
+    @Override // @since 2.19
+    public Stream<JsonNode> valueStream() {
+        return _children.values().stream();
+    }
+
     @Override
     public Iterator<String> propertyNames() {
         return _children.keySet().iterator();
     }
 
-    /**
-     * Method to use for accessing all properties (with both names
-     * and values) of this JSON Object.
-     *
-     * @deprecated since 2.19 Use instead {@link #properties()}.
-     */
-    @Deprecated // since 2.19
     @Override
-    public Iterator<Map.Entry<String, JsonNode>> fields() {
-        return _children.entrySet().iterator();
+    public Spliterator<String> propertyNameSpliterator() {
+        return _children.keySet().spliterator();
     }
 
     /**
@@ -309,9 +309,9 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _children.entrySet();
     }
 
-    @Override // @since 2.19
-    public Stream<JsonNode> valueStream() {
-        return _children.values().stream();
+    @Override
+    public Spliterator<Map.Entry<String, JsonNode>> propertySpliterator() {
+        return _children.entrySet().spliterator();
     }
 
     @Override // @since 2.19

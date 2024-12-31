@@ -1060,29 +1060,13 @@ public abstract class JsonNode
     }
 
     /**
-     * NOTE: This method is deprecated, use {@link #properties()} instead.
-     *
-     * @return Iterator that can be used to traverse all key/value pairs for
-     *   object nodes; empty iterator (no contents) for other types
-     *  
-     * @deprecated As of 2.19, replaced by {@link #properties()}
-     */
-    @Deprecated // since 2.19
-    public Iterator<Map.Entry<String, JsonNode>> fields() {
-        return properties().iterator();
-    }
-
-    /**
      * Accessor that will return properties of {@code ObjectNode}
      * similar to how {@link Map#entrySet()} works; 
      * for other node types will return empty {@link java.util.Set}.
-     * Replacement for {@link JsonNode#fields()}.
      *
      * @return Set of properties, if this node is an {@code ObjectNode}
      * ({@link JsonNode#isObject()} returns {@code true}); empty
      * {@link java.util.Set} otherwise.
-     *
-     * @since 2.15
      */
     public Set<Map.Entry<String, JsonNode>> properties() {
         return Collections.emptySet();

@@ -86,6 +86,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #4840: Increase minimum Android SDK required to 34 for Jackson 3.0
 #4865: Add spliterator support in `JsonNode`
  (contributed by @pjfanning)
+#4875: Remove `JsonNode.fields()` from 3.0
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)
 - Default for `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES` changed to `false` for 3.0

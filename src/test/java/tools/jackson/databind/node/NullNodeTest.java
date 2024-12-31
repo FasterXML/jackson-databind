@@ -60,7 +60,7 @@ public class NullNodeTest extends NodeTestBase
         assertEquals(0, n.size());
         assertTrue(n.isEmpty());
         assertTrue(n.values().isEmpty());
-        assertFalse(n.propertyNames().hasNext());
+        assertTrue(n.propertyNames().isEmpty());
         // path is never null; but does point to missing node
         assertNotNull(n.path("xyz"));
         assertTrue(n.path("xyz").isMissingNode());

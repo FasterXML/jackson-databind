@@ -226,7 +226,7 @@ public class ArrayNode
     }
 
     @Override
-    public JsonNode get(String fieldName) { return null; }
+    public JsonNode get(String propertyName) { return null; }
 
     @Override
     public Optional<JsonNode> optional(int index) {
@@ -234,7 +234,7 @@ public class ArrayNode
     }
 
     @Override
-    public JsonNode path(String fieldName) { return MissingNode.getInstance(); }
+    public JsonNode path(String propertyName) { return MissingNode.getInstance(); }
 
     @Override
     public JsonNode path(int index) {
@@ -340,10 +340,10 @@ public class ArrayNode
      */
 
     @Override
-    public JsonNode findValue(String fieldName)
+    public JsonNode findValue(String propertyName)
     {
         for (JsonNode node : _children) {
-            JsonNode value = node.findValue(fieldName);
+            JsonNode value = node.findValue(propertyName);
             if (value != null) {
                 return value;
             }
@@ -352,28 +352,28 @@ public class ArrayNode
     }
 
     @Override
-    public List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar)
+    public List<JsonNode> findValues(String propertyName, List<JsonNode> foundSoFar)
     {
         for (JsonNode node : _children) {
-            foundSoFar = node.findValues(fieldName, foundSoFar);
+            foundSoFar = node.findValues(propertyName, foundSoFar);
         }
         return foundSoFar;
     }
 
     @Override
-    public List<String> findValuesAsText(String fieldName, List<String> foundSoFar)
+    public List<String> findValuesAsText(String propertyName, List<String> foundSoFar)
     {
         for (JsonNode node : _children) {
-            foundSoFar = node.findValuesAsText(fieldName, foundSoFar);
+            foundSoFar = node.findValuesAsText(propertyName, foundSoFar);
         }
         return foundSoFar;
     }
 
     @Override
-    public ObjectNode findParent(String fieldName)
+    public ObjectNode findParent(String propertyName)
     {
         for (JsonNode node : _children) {
-            JsonNode parent = node.findParent(fieldName);
+            JsonNode parent = node.findParent(propertyName);
             if (parent != null) {
                 return (ObjectNode) parent;
             }
@@ -382,10 +382,10 @@ public class ArrayNode
     }
 
     @Override
-    public List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar)
+    public List<JsonNode> findParents(String propertyName, List<JsonNode> foundSoFar)
     {
         for (JsonNode node : _children) {
-            foundSoFar = node.findParents(fieldName, foundSoFar);
+            foundSoFar = node.findParents(propertyName, foundSoFar);
         }
         return foundSoFar;
     }

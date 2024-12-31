@@ -205,7 +205,7 @@ public class TestCustomEnumKeyDeserializer extends DatabindTestUtil
         ObjectNode ob = (ObjectNode) tree;
 
         JsonNode inner = ob.get("replacements");
-        String firstFieldName = inner.propertyNames().next();
+        String firstFieldName = inner.propertyNames().iterator().next();
         assertEquals("green", firstFieldName);
     }
 

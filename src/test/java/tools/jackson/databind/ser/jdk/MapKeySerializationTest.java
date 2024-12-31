@@ -208,7 +208,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
         JsonNode tree = mapper.convertValue(outerMap, JsonNode.class);
 
         JsonNode innerNode = tree.get("inner");
-        String key = innerNode.propertyNames().next();
+        String key = innerNode.propertyNames().iterator().next();
         assertEquals("xxxA", key);
     }
 

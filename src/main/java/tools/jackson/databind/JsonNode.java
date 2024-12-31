@@ -273,8 +273,8 @@ public abstract class JsonNode
     public abstract JsonNode path(int index);
 
     @Override
-    public Iterator<String> propertyNames() {
-        return ClassUtil.emptyIterator();
+    public Collection<String> propertyNames() {
+        return Collections.emptySet();
     }
 
     /**

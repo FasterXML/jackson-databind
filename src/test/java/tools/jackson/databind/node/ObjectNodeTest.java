@@ -143,7 +143,7 @@ public class ObjectNodeTest
         assertStandardEquals(n);
         assertTrue(n.isEmpty());
 
-        assertFalse(n.values().hasNext());
+        assertTrue(n.values().isEmpty());
         assertTrue(n.properties().isEmpty());
         assertFalse(n.propertyNames().hasNext());
         assertNull(n.get("a"));
@@ -154,9 +154,9 @@ public class ObjectNodeTest
         assertSame(n, n.set("a", text));
 
         assertEquals(1, n.size());
-        assertTrue(n.values().hasNext());
         assertFalse(n.properties().isEmpty());
         assertTrue(n.propertyNames().hasNext());
+        assertFalse(n.values().isEmpty());
         assertSame(text, n.get("a"));
         assertSame(text, n.path("a"));
         assertNull(n.get("b"));

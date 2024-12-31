@@ -72,7 +72,7 @@ class InternalNodeSerializer
                 _serializeNonRecursive(g, new IteratorStack(), node.properties().iterator());
             } else if (node instanceof ArrayNode) {
                 g.writeStartArray(this, node.size());
-                _serializeNonRecursive(g, new IteratorStack(), node.values());
+                _serializeNonRecursive(g, new IteratorStack(), node.iterator());
             } else {
                 node.serialize(g, _context);
             }
@@ -104,7 +104,7 @@ class InternalNodeSerializer
                         g.writeStartObject(value, value.size());
                     } else if (value instanceof ArrayNode) {
                         stack.push(currIt);
-                        currIt = value.values();
+                        currIt = value.iterator();
                         g.writeStartArray(value, value.size());
                     } else if (value instanceof POJONode) {
                         // [databind#3262] Problematic case, try to handle

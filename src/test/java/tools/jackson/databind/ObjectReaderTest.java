@@ -532,8 +532,8 @@ public class ObjectReaderTest extends DatabindTestUtil
         }
 
         @Override
-        public Iterator<JsonNode> values() {
-            return Collections.emptyIterator();
+        public Collection<JsonNode> values() {
+            return Collections.emptyList();
         }
 
         @Override
@@ -652,7 +652,7 @@ public class ObjectReaderTest extends DatabindTestUtil
         }
 
         @Override
-        public Iterator<JsonNode> values() {
+        public Collection<JsonNode> values() {
             return _delegate.values();
         }
 

@@ -37,7 +37,7 @@ public class TestDefaultForTreeNodes extends DatabindTestUtil
         String json = DEFAULT_MAPPER.writeValueAsString(foo);
 
         JsonNode jsonNode = DEFAULT_MAPPER.readTree(json);
-        assertEquals(jsonNode.get("bar").textValue(), foo.bar);
+        assertEquals(jsonNode.get("bar").stringValue(), foo.bar);
     }
 
     @Test
@@ -45,6 +45,6 @@ public class TestDefaultForTreeNodes extends DatabindTestUtil
     {
         Foo foo = new Foo("baz");
         JsonNode jsonNode = DEFAULT_MAPPER.valueToTree(foo);
-        assertEquals(jsonNode.get("bar").textValue(), foo.bar);
+        assertEquals(jsonNode.get("bar").stringValue(), foo.bar);
     }
 }

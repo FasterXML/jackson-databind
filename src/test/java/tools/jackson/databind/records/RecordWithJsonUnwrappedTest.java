@@ -26,9 +26,9 @@ public class RecordWithJsonUnwrappedTest extends DatabindTestUtil
 
         ObjectNode tree = MAPPER.valueToTree(initial);
 
-        assertEquals("unrelatedValue", tree.get("unrelated").textValue());
-        assertEquals("value1", tree.get("property1").textValue());
-        assertEquals("value2", tree.get("property2").textValue());
+        assertEquals("unrelatedValue", tree.get("unrelated").stringValue());
+        assertEquals("value1", tree.get("property1").stringValue());
+        assertEquals("value2", tree.get("property2").stringValue());
 
         RecordWithJsonUnwrapped outer = MAPPER.treeToValue(tree, RecordWithJsonUnwrapped.class);
 

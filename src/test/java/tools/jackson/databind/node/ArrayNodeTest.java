@@ -180,7 +180,7 @@ public class ArrayNodeTest
         assertEquals(231.5D, array.get(12).doubleValue(), 0.000000001d);
         assertEquals(0, BigDecimal.TEN.compareTo(array.get(13).decimalValue()));
         assertEquals(BigInteger.ONE, array.get(14).bigIntegerValue());
-        assertEquals("Modified Data", array.get(15).textValue());
+        assertEquals("Modified Data", array.get(15).stringValue());
         assertTrue(array.get(16).booleanValue());
         assertFalse(array.get(17).booleanValue());
         assertArrayEquals(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, array.get(18).binaryValue());
@@ -188,9 +188,9 @@ public class ArrayNodeTest
         assertEquals(20, array.size());
         for (int i = 0; i < 20; i++) {
             if (i <= 18) {
-                assertNotEquals("Original Data", array.get(i).textValue());
+                assertNotEquals("Original Data", array.get(i).stringValue());
             } else {
-                assertEquals("Original Data", array.get(i).textValue());
+                assertEquals("Original Data", array.get(i).stringValue());
             }
         }
     }

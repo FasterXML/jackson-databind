@@ -204,7 +204,7 @@ public class TreeTraversingParser
         case PROPERTY_NAME:
             return _nodeCursor.currentName();
         case VALUE_STRING:
-            return currentNode().textValue();
+            return currentNode().stringValue();
         case VALUE_NUMBER_INT:
         case VALUE_NUMBER_FLOAT:
             return String.valueOf(currentNode().numberValue());

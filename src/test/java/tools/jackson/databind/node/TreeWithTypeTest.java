@@ -42,8 +42,8 @@ public class TreeWithTypeTest extends DatabindTestUtil
         {
            ObjectReadContext oc = jsonParser.objectReadContext();
            JsonNode node = oc.readTree(jsonParser);
-           return new SavedCookie(node.path("name").textValue(),
-                   node.path("value").textValue());
+           return new SavedCookie(node.path("name").stringValue(),
+                   node.path("value").stringValue());
         }
 
         @Override
@@ -69,7 +69,7 @@ public class TreeWithTypeTest extends DatabindTestUtil
         String json = MAPPER.writeValueAsString(foo);
 
         JsonNode jsonNode = MAPPER.readTree(json);
-        assertEquals(jsonNode.get("bar").textValue(), foo.bar);
+        assertEquals(jsonNode.get("bar").stringValue(), foo.bar);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class TreeWithTypeTest extends DatabindTestUtil
         String json = mapper.writeValueAsString(foo);
 
         JsonNode jsonNode = mapper.readTree(json);
-        assertEquals(jsonNode.get("bar").textValue(), foo.bar);
+        assertEquals(jsonNode.get("bar").stringValue(), foo.bar);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class TreeWithTypeTest extends DatabindTestUtil
                 .build();
         String json = "{\"@class\":\""+CLASS+"\",\"bar\":\"baz\"}";
         JsonNode jsonNode = mapper.readTree(json);
-        assertEquals(jsonNode.get("bar").textValue(), "baz");
+        assertEquals(jsonNode.get("bar").stringValue(), "baz");
     }
 
     @Test
@@ -104,7 +104,7 @@ public class TreeWithTypeTest extends DatabindTestUtil
 
         Foo foo = new Foo("baz");
         JsonNode jsonNode = MAPPER.valueToTree(foo);
-        assertEquals(jsonNode.get("bar").textValue(), foo.bar);
+        assertEquals(jsonNode.get("bar").stringValue(), foo.bar);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class TreeWithTypeTest extends DatabindTestUtil
                 .build();
         Foo foo = new Foo("baz");
         JsonNode jsonNode = mapper.valueToTree(foo);
-        assertEquals(jsonNode.get("bar").textValue(), foo.bar);
+        assertEquals(jsonNode.get("bar").stringValue(), foo.bar);
     }
 
     @Test

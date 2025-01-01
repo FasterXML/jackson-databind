@@ -56,7 +56,7 @@ public class TextNode
     public TextNode deepCopy() { return this; }
 
     @Override
-    public String textValue() {
+    public String stringValue() {
         return _value;
     }
 

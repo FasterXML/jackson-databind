@@ -527,7 +527,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
         JsonNode jsonNode =  MAPPER.readTree(inputStream);
 
-        assertEquals(jsonNode.textValue(), "value");
+        assertEquals(jsonNode.stringValue(), "value");
     }
 
     @Test
@@ -537,7 +537,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
         JsonNode jsonNode = MAPPER.readTree(path.toFile());
 
-        assertEquals(jsonNode.textValue(), "value");
+        assertEquals(jsonNode.stringValue(), "value");
     }
 
     @Test
@@ -547,7 +547,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
         JsonNode jsonNode = MAPPER.readTree(path);
 
-        assertEquals(jsonNode.textValue(), "value");
+        assertEquals(jsonNode.stringValue(), "value");
     }
 
     @Test
@@ -557,7 +557,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
         JsonNode jsonNode = MAPPER.readTree(path.toUri().toURL());
 
-        assertEquals(jsonNode.textValue(), "value");
+        assertEquals(jsonNode.stringValue(), "value");
     }
 
     @Test
@@ -566,7 +566,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Reader reader = new StringReader("\"value\"");
         JsonNode jsonNode = MAPPER.readTree(reader);
 
-        assertEquals(jsonNode.textValue(), "value");
+        assertEquals(jsonNode.stringValue(), "value");
     }
 
     @Test
@@ -576,12 +576,12 @@ public class ObjectMapperTest extends DatabindTestUtil
         byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
         JsonNode jsonNode1 = MAPPER.readTree(bytes);
 
-        assertEquals(jsonNode1.textValue(), "value");
+        assertEquals(jsonNode1.stringValue(), "value");
 
         // without offset and length
         JsonNode jsonNode2 = MAPPER.readTree(bytes, 0, bytes.length);
 
-        assertEquals(jsonNode2.textValue(), "value");
+        assertEquals(jsonNode2.stringValue(), "value");
     }
 
     @Test
@@ -590,7 +590,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         String string = "\"value\"";
         JsonNode jsonNode = MAPPER.readTree(string);
 
-        assertEquals(jsonNode.textValue(), "value");
+        assertEquals(jsonNode.stringValue(), "value");
     }
 
     @Test

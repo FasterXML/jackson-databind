@@ -211,7 +211,7 @@ public class ObjectNodeTest
         // but can replace with straight set
         old = root.replace("key", f.numberNode(72));
         assertNotNull(old);
-        assertEquals("foobar", old.textValue());
+        assertEquals("foobar", old.stringValue());
     }
 
     @Test
@@ -293,7 +293,7 @@ public class ObjectNodeTest
         assertEquals(3, ob.size());
         assertSame(ob, ob.without(Arrays.asList("a", "c")));
         assertEquals(1, ob.size());
-        assertEquals("b", ob.get("b").textValue());
+        assertEquals("b", ob.get("b").stringValue());
     }
 
     @Test
@@ -306,9 +306,9 @@ public class ObjectNodeTest
         assertEquals(3, ob.size());
         assertSame(ob, ob.retain("a", "c"));
         assertEquals(2, ob.size());
-        assertEquals("a", ob.get("a").textValue());
+        assertEquals("a", ob.get("a").stringValue());
         assertNull(ob.get("b"));
-        assertEquals("c", ob.get("c").textValue());
+        assertEquals("c", ob.get("c").stringValue());
     }
 
     @Test

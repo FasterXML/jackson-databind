@@ -530,19 +530,21 @@ public abstract class JsonNode
     /**
      * Method to use for accessing String values.
      * Does <b>NOT</b> do any conversions for non-String value nodes;
-     * for non-String values (ones for which {@link #isTextual} returns
+     * for non-String values (ones for which {@link #isString} returns
      * false) null will be returned.
      * For String values, null is never returned (but empty Strings may be)
+     *<p>
+     * NOTE: in Jackson 2.x, was {@code textValue()}.
      *
-     * @return Textual value this node contains, iff it is a textual
-     *   JSON node (comes from JSON String value entry)
+     * @return String value this node contains, iff node is created from
+     *   a String value.
      */
-    public String textValue() { return null; }
+    public String stringValue() { return null; }
 
     /**
      * Method to use for accessing binary content of binary nodes (nodes
      * for which {@link #isBinary} returns true); or for Text Nodes
-     * (ones for which {@link #textValue} returns non-null value),
+     * (ones for which {@link #stringValue} returns non-null value),
      * to read decoded base64 data.
      * For other types of nodes, returns null.
      *

@@ -84,7 +84,7 @@ public class StringNode
             throw InvalidFormatException.from(
                     null, /* Alas, no processor to pass */
                     String.format(
-"Cannot access contents of StringNode as binary due to broken Base64 encoding: %s",
+"Cannot access contents of `StringNode` as binary due to broken Base64 encoding: %s",
 e.getMessage()),
                     str, byte[].class);
         }

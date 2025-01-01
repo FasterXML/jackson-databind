@@ -52,7 +52,7 @@ public class Base64DecodingTest
             /*byte[] b =*/ nodeValue.binaryValue();
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot access contents of TextNode as binary");
+            verifyException(e, "Cannot access contents of `StringNode` as binary");
             verifyException(e, "Illegal character '!'");
         }
     }

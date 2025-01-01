@@ -60,7 +60,7 @@ public class TreeDeserializationTest
         JsonNode out = mapper.readValue( generated, JsonNode.class );   //crashes here
         assertTrue(out.isObject());
         assertEquals(1, out.size());
-        String value = out.path("field").asText();
+        String value = out.path("field").asString();
         assertNotNull(value);
     }
 }

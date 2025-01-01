@@ -62,7 +62,7 @@ public class BooleanNode
     }
 
     @Override
-    public String asText() {
+    public String asString() {
         return _value ? "true" : "false";
     }
 

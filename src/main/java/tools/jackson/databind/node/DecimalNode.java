@@ -103,7 +103,7 @@ public class DecimalNode
     public BigDecimal decimalValue() { return _value; }
 
     @Override
-    public String asText() {
+    public String asString() {
         return _value.toString();
     }
 

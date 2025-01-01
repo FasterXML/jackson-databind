@@ -47,7 +47,7 @@ public abstract class NumericNode
      */
 
     @Override
-    public abstract String asText();
+    public abstract String asString();
 
     @Override
     public final int asInt() {

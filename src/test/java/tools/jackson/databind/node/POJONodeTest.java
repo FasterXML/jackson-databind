@@ -70,7 +70,7 @@ public class POJONodeTest extends NodeTestBase
         assertNotNull(json);
 
         JsonNode result = MAPPER.readTree(json);
-        String msg = result.path("test").asText();
+        String msg = result.path("test").asString();
         assertTrue(msg.startsWith("[ERROR:"),
                 "Wrong fail message: "+msg);
         assertTrue(msg.contains("InvalidDefinitionException"),

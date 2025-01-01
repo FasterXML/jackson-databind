@@ -93,7 +93,7 @@ public class BigIntegerNode
      */
 
     @Override
-    public String asText() {
+    public String asString() {
         return _value.toString();
     }
 

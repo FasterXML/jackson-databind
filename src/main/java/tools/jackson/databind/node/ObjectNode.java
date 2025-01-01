@@ -388,7 +388,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
                 if (foundSoFar == null) {
                     foundSoFar = new ArrayList<String>();
                 }
-                foundSoFar.add(entry.getValue().asText());
+                foundSoFar.add(entry.getValue().asString());
             } else { // only add children if parent not added
                 foundSoFar = entry.getValue().findValuesAsString(propertyName,
                     foundSoFar);

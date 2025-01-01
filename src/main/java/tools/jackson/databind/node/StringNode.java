@@ -103,12 +103,12 @@ e.getMessage()),
      */
 
     @Override
-    public String asText() {
+    public String asString() {
         return _value;
     }
 
     @Override
-    public String asText(String defaultValue) {
+    public String asString(String defaultValue) {
         return (_value == null) ? defaultValue : _value;
     }
 

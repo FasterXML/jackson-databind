@@ -33,8 +33,8 @@ public class StringNodeTest extends NodeTestBase
         n = StringNode.valueOf("foobar");
         assertNodeNumbersForNonNumeric(n);
 
-        assertEquals("foobar", n.asText());
-        assertEquals("", empty.asText());
+        assertEquals("foobar", n.asString());
+        assertEquals("", empty.asString());
 
         assertTrue(StringNode.valueOf("true").asBoolean(true));
         assertTrue(StringNode.valueOf("true").asBoolean(false));

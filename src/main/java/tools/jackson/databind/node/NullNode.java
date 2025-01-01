@@ -37,9 +37,9 @@ public class NullNode
     public NullNode deepCopy() { return this; }
 
     @Override
-    public String asText(String defaultValue) { return defaultValue; }
+    public String asString(String defaultValue) { return defaultValue; }
 
-    @Override public String asText() { return "null"; }
+    @Override public String asString() { return "null"; }
 
     @SuppressWarnings("unchecked")
     @Override

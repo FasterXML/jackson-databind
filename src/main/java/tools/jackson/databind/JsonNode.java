@@ -662,11 +662,15 @@ public abstract class JsonNode
 
     /**
      * Method that will return a valid String representation of
-     * the container value, if the node is a value node
+     * the contained value, if the node is a value node
      * (method {@link #isValueNode} returns true),
      * otherwise empty String.
+     *<p>
+     * NOTE: this is NOT same as {@link #toString()} in that result is
+     * <p>NOT VALID ENCODED JSON</p> for all nodes (but is for some, like
+     * {@code NumberNode}s and {@code BooleanNode}s).
      */
-    public abstract String asText();
+    public abstract String asString();
 
     /**
      * Returns the text value of this node or the provided {@code defaultValue} if this node
@@ -676,9 +680,25 @@ public abstract class JsonNode
      * @param defaultValue The default value to return if this node's text value is absent.
      * @return The text value of this node, or {@code defaultValue} if the text value is absent.
      */
-    public String asText(String defaultValue) {
-        String str = asText();
+    public String asString(String defaultValue) {
+        String str = asString();
         return (str == null) ? defaultValue : str;
+    }
+
+    /**
+     * @deprecated Use {@link #asString()} instead.
+     */
+    @Deprecated // since 3.0
+    public final String asText() {
+        return asString();
+    }
+
+    /**
+     * @deprecated Use {@link #asString(String)} instead.
+     */
+    @Deprecated // since 3.0
+    public String asText(String defaultValue) {
+        return asString(defaultValue);
     }
 
     /**

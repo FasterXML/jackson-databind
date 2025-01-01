@@ -212,7 +212,7 @@ public class TreeTraversingParser
             JsonNode n = currentNode();
             if (n != null && n.isBinary()) {
                 // this will convert it to base64
-                return n.asText();
+                return n.asString();
             }
         default:
             return _currToken.asString();

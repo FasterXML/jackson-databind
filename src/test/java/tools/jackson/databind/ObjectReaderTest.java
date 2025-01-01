@@ -582,7 +582,7 @@ public class ObjectReaderTest extends DatabindTestUtil
         }
 
         @Override
-        public String asText() {
+        public String asString() {
             return "";
         }
 
@@ -702,7 +702,7 @@ public class ObjectReaderTest extends DatabindTestUtil
         }
 
         @Override
-        public String asText() {
+        public String asString() {
             return "";
         }
 

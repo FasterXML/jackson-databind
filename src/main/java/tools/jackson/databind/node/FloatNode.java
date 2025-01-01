@@ -93,7 +93,7 @@ public class FloatNode extends NumericNode
     }
 
     @Override
-    public String asText() {
+    public String asString() {
         return String.valueOf(_value);
     }
 

@@ -11,12 +11,9 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
-import tools.jackson.databind.jsontype.TypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-
-import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

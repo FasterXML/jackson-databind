@@ -1,6 +1,5 @@
 package tools.jackson.databind.ser.bean;
 
-import java.util.Iterator;
 import java.util.Map.Entry;
 
 import tools.jackson.core.JsonGenerator;

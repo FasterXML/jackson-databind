@@ -579,7 +579,7 @@ public class TestNamingStrategyStd extends DatabindTestUtil
         assertEquals("1", result.id);
         assertNotNull(result.json);
         assertEquals(2, result.json.size());
-        assertEquals("bing", result.json.path("baz").asText());
+        assertEquals("bing", result.json.path("baz").asString());
     }
 
     @Test

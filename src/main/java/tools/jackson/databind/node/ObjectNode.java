@@ -381,16 +381,16 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     @Override
-    public List<String> findValuesAsText(String propertyName, List<String> foundSoFar)
+    public List<String> findValuesAsString(String propertyName, List<String> foundSoFar)
     {
         for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
             if (propertyName.equals(entry.getKey())) {
                 if (foundSoFar == null) {
                     foundSoFar = new ArrayList<String>();
                 }
-                foundSoFar.add(entry.getValue().asText());
+                foundSoFar.add(entry.getValue().asString());
             } else { // only add children if parent not added
-                foundSoFar = entry.getValue().findValuesAsText(propertyName,
+                foundSoFar = entry.getValue().findValuesAsString(propertyName,
                     foundSoFar);
             }
         }

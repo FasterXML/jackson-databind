@@ -54,8 +54,8 @@ public class NullNodeTest extends NodeTestBase
         assertEquals(BigDecimal.ZERO, n.decimalValue());
         assertEquals(BigInteger.ZERO, n.bigIntegerValue());
         // may be odd but...
-        assertEquals("null", n.asText());
-        assertEquals("fallback", n.asText("fallback"));
+        assertEquals("null", n.asString());
+        assertEquals("fallback", n.asString("fallback"));
 
         assertEquals(0, n.size());
         assertTrue(n.isEmpty());
@@ -70,7 +70,7 @@ public class NullNodeTest extends NodeTestBase
 
         assertNodeNumbersForNonNumeric(n);
 
-        assertEquals("null", n.asText());
+        assertEquals("null", n.asString());
 
         assertNonContainerStreamMethods(n);
     }
@@ -83,8 +83,8 @@ public class NullNodeTest extends NodeTestBase
         assertNotNull(n);
         assertTrue(n.isNull());
         assertFalse(n.isNumber());
-        assertFalse(n.isTextual());
-        assertEquals("null", n.asText());
+        assertFalse(n.isString());
+        assertEquals("null", n.asString());
         assertEquals(n, NullNode.instance);
 
         n = objectMapper().readTree("null");

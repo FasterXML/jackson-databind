@@ -61,7 +61,7 @@ public class POJONodeTest extends NodeTestBase
     // `JsonNode.toString()` will use internal "default" ObjectMapper which
     // does not (and cannot) have modules for external datatypes, such as
     // Java 8 Date/Time types. So we'll catch IOException/RuntimeException for
-    // POJONode, produce something like "[ERROR: (type) [msg]" TextNode for that case?
+    // POJONode, produce something like "[ERROR: (type) [msg]" StringNode for that case?
     @Test
     public void testAddJava8DateAsPojo() throws Exception
     {
@@ -70,7 +70,7 @@ public class POJONodeTest extends NodeTestBase
         assertNotNull(json);
 
         JsonNode result = MAPPER.readTree(json);
-        String msg = result.path("test").asText();
+        String msg = result.path("test").asString();
         assertTrue(msg.startsWith("[ERROR:"),
                 "Wrong fail message: "+msg);
         assertTrue(msg.contains("InvalidDefinitionException"),

@@ -87,7 +87,7 @@ public class ObjectNodeTest
         assertFalse(root.isEmpty());
 
         assertFalse(root.isBoolean());
-        assertFalse(root.isTextual());
+        assertFalse(root.isString());
         assertFalse(root.isNumber());
         assertFalse(root.canConvertToInt());
         assertFalse(root.canConvertToLong());
@@ -103,7 +103,7 @@ public class ObjectNodeTest
         assertTrue(it.hasNext());
         n = it.next();
         assertNotNull(n);
-        assertEquals(TextNode.valueOf("x"), n);
+        assertEquals(StringNode.valueOf("x"), n);
 
         assertFalse(it.hasNext());
 
@@ -119,7 +119,7 @@ public class ObjectNodeTest
         assertTrue(fit.hasNext());
         en = fit.next();
         assertEquals("b", en.getKey());
-        assertEquals(TextNode.valueOf("x"), en.getValue());
+        assertEquals(StringNode.valueOf("x"), en.getValue());
 
         // Plus: we should be able to modify the node via iterator too:
         fit.remove();
@@ -150,7 +150,7 @@ public class ObjectNodeTest
         assertFalse(n.optional("a").isPresent());
         assertTrue(n.path("a").isMissingNode());
 
-        TextNode text = TextNode.valueOf("x");
+        StringNode text = StringNode.valueOf("x");
         assertSame(n, n.set("a", text));
 
         assertEquals(1, n.size());
@@ -211,7 +211,7 @@ public class ObjectNodeTest
         // but can replace with straight set
         old = root.replace("key", f.numberNode(72));
         assertNotNull(old);
-        assertEquals("foobar", old.textValue());
+        assertEquals("foobar", old.stringValue());
     }
 
     @Test
@@ -293,7 +293,7 @@ public class ObjectNodeTest
         assertEquals(3, ob.size());
         assertSame(ob, ob.without(Arrays.asList("a", "c")));
         assertEquals(1, ob.size());
-        assertEquals("b", ob.get("b").textValue());
+        assertEquals("b", ob.get("b").stringValue());
     }
 
     @Test
@@ -306,9 +306,9 @@ public class ObjectNodeTest
         assertEquals(3, ob.size());
         assertSame(ob, ob.retain("a", "c"));
         assertEquals(2, ob.size());
-        assertEquals("a", ob.get("a").textValue());
+        assertEquals("a", ob.get("a").stringValue());
         assertNull(ob.get("b"));
-        assertEquals("c", ob.get("c").textValue());
+        assertEquals("c", ob.get("c").stringValue());
     }
 
     @Test

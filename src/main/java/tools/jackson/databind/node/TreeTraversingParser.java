@@ -204,7 +204,7 @@ public class TreeTraversingParser
         case PROPERTY_NAME:
             return _nodeCursor.currentName();
         case VALUE_STRING:
-            return currentNode().textValue();
+            return currentNode().stringValue();
         case VALUE_NUMBER_INT:
         case VALUE_NUMBER_FLOAT:
             return String.valueOf(currentNode().numberValue());
@@ -212,7 +212,7 @@ public class TreeTraversingParser
             JsonNode n = currentNode();
             if (n != null && n.isBinary()) {
                 // this will convert it to base64
-                return n.asText();
+                return n.asString();
             }
         default:
             return _currToken.asString();
@@ -359,9 +359,9 @@ public class TreeTraversingParser
         JsonNode n = currentNode();
         if (n != null) {
             // [databind#2096]: although `binaryValue()` works for real binary node
-            // and embedded "POJO" node, coercion from TextNode may require variant, so:
-            if (n instanceof TextNode) {
-                return ((TextNode) n).getBinaryValue(b64variant);
+            // and embedded "POJO" node, coercion from `StringNode` may require variant, so:
+            if (n instanceof StringNode) {
+                return ((StringNode) n).getBinaryValue(b64variant);
             }
             return n.binaryValue();
         }

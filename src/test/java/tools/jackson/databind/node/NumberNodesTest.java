@@ -34,7 +34,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(1L, n.longValue());
         assertEquals(BigDecimal.ONE, n.decimalValue());
         assertEquals(BigInteger.ONE, n.bigIntegerValue());
-        assertEquals("1", n.asText());
+        assertEquals("1", n.asString());
 
         assertNodeNumbers(n, 1, 1.0);
 
@@ -62,7 +62,7 @@ public class NumberNodesTest extends NodeTestBase
         assertFalse(result.isFloatingPointNumber());
         assertFalse(result.isDouble());
         assertFalse(result.isNull());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
         assertFalse(result.isMissingNode());
 
         assertTrue(result.canConvertToInt());
@@ -71,7 +71,7 @@ public class NumberNodesTest extends NodeTestBase
 
         assertEquals(value, result.numberValue().intValue());
         assertEquals(value, result.intValue());
-        assertEquals(String.valueOf(value), result.asText());
+        assertEquals(String.valueOf(value), result.asString());
         assertEquals((double) value, result.doubleValue());
         assertEquals((long) value, result.longValue());
 
@@ -91,9 +91,9 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(1L, n.longValue());
         assertEquals(BigDecimal.ONE, n.decimalValue());
         assertEquals(BigInteger.ONE, n.bigIntegerValue());
-        assertEquals("1", n.asText());
+        assertEquals("1", n.asString());
         // 2.4
-        assertEquals("1", n.asText("foo"));
+        assertEquals("1", n.asString("foo"));
 
         assertNodeNumbers(n, 1, 1.0);
 
@@ -120,7 +120,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(1L, n.longValue());
         assertEquals(BigDecimal.ONE, n.decimalValue());
         assertEquals(BigInteger.ONE, n.bigIntegerValue());
-        assertEquals("1", n.asText());
+        assertEquals("1", n.asString());
 
         assertNodeNumbers(n, 1, 1.0);
 
@@ -153,12 +153,12 @@ public class NumberNodesTest extends NodeTestBase
         assertFalse(result.isFloatingPointNumber());
         assertFalse(result.isDouble());
         assertFalse(result.isNull());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
         assertFalse(result.isMissingNode());
 
         assertEquals(value, result.numberValue().longValue());
         assertEquals(value, result.longValue());
-        assertEquals(String.valueOf(value), result.asText());
+        assertEquals(String.valueOf(value), result.asString());
         assertEquals((double) value, result.doubleValue());
 
         assertFalse(result.canConvertToInt());
@@ -181,7 +181,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(0.25, n.doubleValue());
         assertNotNull(n.decimalValue());
         assertEquals(BigInteger.ZERO, n.bigIntegerValue());
-        assertEquals("0.25", n.asText());
+        assertEquals("0.25", n.asString());
 
         assertNodeNumbers(DoubleNode.valueOf(4.5), 4, 4.5);
 
@@ -219,14 +219,14 @@ public class NumberNodesTest extends NodeTestBase
         assertFalse(result.isInt());
         assertFalse(result.isLong());
         assertFalse(result.isIntegralNumber());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
         assertFalse(result.isMissingNode());
 
         assertEquals(value, result.doubleValue());
         assertEquals(value, result.numberValue().doubleValue());
         assertEquals((int) value, result.intValue());
         assertEquals((long) value, result.longValue());
-        assertEquals(String.valueOf(value), result.asText());
+        assertEquals(String.valueOf(value), result.asString());
 
         // also, equality should work ok
         assertEquals(result, DoubleNode.valueOf(value));
@@ -248,7 +248,7 @@ public class NumberNodesTest extends NodeTestBase
 
         // NOTE: conversion to double NOT as simple as with exact numbers like 0.25:
         assertEquals(0.45f, n.floatValue());
-        assertEquals("0.45", n.asText());
+        assertEquals("0.45", n.asString());
 
         // so; as double we'll get more complex number; however, should round-trip
         // to something that gets printed the same way. But not exact value, alas, hence:
@@ -257,7 +257,7 @@ public class NumberNodesTest extends NodeTestBase
         assertNotNull(n.decimalValue());
         // possibly surprisingly, however, this will produce same output:
         assertEquals(BigInteger.ZERO, n.bigIntegerValue());
-        assertEquals("0.45", n.asText());
+        assertEquals("0.45", n.asString());
 
         // 1.6:
         assertNodeNumbers(FloatNode.valueOf(4.5f), 4, 4.5f);
@@ -293,7 +293,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(1, n.intValue());
         assertEquals(1L, n.longValue());
         assertEquals(BigDecimal.ONE, n.decimalValue());
-        assertEquals("1", n.asText());
+        assertEquals("1", n.asString());
 
         assertNodeNumbers(n, 1, 1.0);
 
@@ -321,7 +321,7 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(result.isBigDecimal());
         assertFalse(result.isDouble());
         assertFalse(result.isNull());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
         assertFalse(result.isMissingNode());
 
         assertFalse(result.canConvertToExactIntegral());
@@ -329,7 +329,7 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(result.canConvertToLong());
 
         assertEquals(value, result.numberValue());
-        assertEquals(value.toString(), result.asText());
+        assertEquals(value.toString(), result.asString());
 
         // also, equality should work ok
         assertEquals(result, DecimalNode.valueOf(value));
@@ -374,7 +374,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(1, n.intValue());
         assertEquals(1L, n.longValue());
         assertEquals(BigInteger.ONE, n.bigIntegerValue());
-        assertEquals("1", n.asText());
+        assertEquals("1", n.asString());
         assertNodeNumbers(n, 1, 1.0);
 
         BigInteger maxLong = BigInteger.valueOf(Long.MAX_VALUE);

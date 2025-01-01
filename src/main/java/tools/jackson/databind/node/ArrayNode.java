@@ -361,10 +361,10 @@ public class ArrayNode
     }
 
     @Override
-    public List<String> findValuesAsText(String propertyName, List<String> foundSoFar)
+    public List<String> findValuesAsString(String propertyName, List<String> foundSoFar)
     {
         for (JsonNode node : _children) {
-            foundSoFar = node.findValuesAsText(propertyName, foundSoFar);
+            foundSoFar = node.findValuesAsString(propertyName, foundSoFar);
         }
         return foundSoFar;
     }

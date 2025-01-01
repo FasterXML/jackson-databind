@@ -28,7 +28,7 @@ public class ArrayNodeTest
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
 
         assertFalse(n.isBoolean());
-        assertFalse(n.isTextual());
+        assertFalse(n.isString());
         assertFalse(n.isNumber());
         assertFalse(n.canConvertToInt());
         assertFalse(n.canConvertToLong());
@@ -39,7 +39,7 @@ public class ArrayNodeTest
         assertEquals(0, n.valueSpliterator().estimateSize());
         assertTrue(n.propertyNames().isEmpty());
         assertTrue(n.isEmpty());
-        TextNode text = TextNode.valueOf("x");
+        StringNode text = StringNode.valueOf("x");
         n.add(text);
         assertEquals(1, n.size());
         assertFalse(n.isEmpty());
@@ -78,10 +78,10 @@ public class ArrayNodeTest
         n.addAll(n2);
         assertEquals(3, n.size());
 
-        assertFalse(n.get(0).isTextual());
+        assertFalse(n.get(0).isString());
         assertNotNull(n.remove(0));
         assertEquals(2, n.size());
-        assertTrue(n.get(0).isTextual());
+        assertTrue(n.get(0).isString());
         assertNull(n.remove(-1));
         assertNull(n.remove(100));
         assertEquals(2, n.size());
@@ -93,7 +93,7 @@ public class ArrayNodeTest
         assertNull(n.get(10000));
         assertNull(n.remove(-4));
 
-        TextNode text2 = TextNode.valueOf("b");
+        StringNode text2 = StringNode.valueOf("b");
         n.insert(0, text2);
         assertEquals(4, n.size());
         assertSame(text2, n.get(0));
@@ -117,7 +117,7 @@ public class ArrayNodeTest
         ArrayNode n = new ArrayNode(f, list);
         assertEquals(2, n.size());
         assertTrue(n.get(0).isBoolean());
-        assertTrue(n.get(1).isTextual());
+        assertTrue(n.get(1).isString());
 
         // also, should fail with invalid set attempt
         try {
@@ -130,7 +130,7 @@ public class ArrayNodeTest
         assertEquals(3, n.size());
         assertTrue(n.get(0).isBoolean());
         assertTrue(n.get(1).isNull());
-        assertTrue(n.get(2).isTextual());
+        assertTrue(n.get(2).isString());
 
         n.removeAll();
         n.insert(0, (JsonNode) null);
@@ -180,7 +180,7 @@ public class ArrayNodeTest
         assertEquals(231.5D, array.get(12).doubleValue(), 0.000000001d);
         assertEquals(0, BigDecimal.TEN.compareTo(array.get(13).decimalValue()));
         assertEquals(BigInteger.ONE, array.get(14).bigIntegerValue());
-        assertEquals("Modified Data", array.get(15).textValue());
+        assertEquals("Modified Data", array.get(15).stringValue());
         assertTrue(array.get(16).booleanValue());
         assertFalse(array.get(17).booleanValue());
         assertArrayEquals(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, array.get(18).binaryValue());
@@ -188,9 +188,9 @@ public class ArrayNodeTest
         assertEquals(20, array.size());
         for (int i = 0; i < 20; i++) {
             if (i <= 18) {
-                assertNotEquals("Original Data", array.get(i).textValue());
+                assertNotEquals("Original Data", array.get(i).stringValue());
             } else {
-                assertEquals("Original Data", array.get(i).textValue());
+                assertEquals("Original Data", array.get(i).stringValue());
             }
         }
     }
@@ -404,12 +404,12 @@ public class ArrayNodeTest
         assertTrue(n1.equals(n2));
         assertTrue(n2.equals(n1));
 
-        n1.add(TextNode.valueOf("Test"));
+        n1.add(StringNode.valueOf("Test"));
 
         assertFalse(n1.equals(n2));
         assertFalse(n2.equals(n1));
 
-        n2.add(TextNode.valueOf("Test"));
+        n2.add(StringNode.valueOf("Test"));
 
         assertTrue(n1.equals(n2));
         assertTrue(n2.equals(n1));
@@ -426,7 +426,7 @@ public class ArrayNodeTest
         assertFalse(result.isObject());
         assertFalse(result.isNumber());
         assertFalse(result.isNull());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
 
         // and let's add stuff...
         result.add(false);

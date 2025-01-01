@@ -111,7 +111,7 @@ public abstract class ValueNode
     }
 
     @Override
-    public final List<String> findValuesAsText(String fieldName, List<String> foundSoFar) {
+    public final List<String> findValuesAsString(String fieldName, List<String> foundSoFar) {
         return foundSoFar;
     }
 

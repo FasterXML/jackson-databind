@@ -101,7 +101,7 @@ public class EnumCreatorTest extends DatabindTestUtil
 
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public static EnumWithDelegateModeJsonCreator create(JsonNode json) {
-            return EnumWithDelegateModeJsonCreator.valueOf(json.get("name").asText());
+            return EnumWithDelegateModeJsonCreator.valueOf(json.get("name").asString());
         }
     }
 

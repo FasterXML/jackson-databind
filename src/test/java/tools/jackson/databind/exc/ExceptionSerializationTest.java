@@ -138,7 +138,7 @@ public class ExceptionSerializationTest
         // but should be able to serialize new exception we got
         String json = MAPPER.writeValueAsString(e);
         JsonNode root = MAPPER.readTree(json);
-        String msg = root.path("message").asText();
+        String msg = root.path("message").asString();
         String MATCH = "cannot construct instance";
         if (!msg.toLowerCase().contains(MATCH)) {
             fail("Exception should contain '"+MATCH+"', does not: '"+msg+"'");

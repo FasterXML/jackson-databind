@@ -52,9 +52,9 @@ public final class MissingNode
 
     @Override public JsonToken asToken() { return JsonToken.NOT_AVAILABLE; }
 
-    @Override public String asText() { return ""; }
+    @Override public String asString() { return ""; }
 
-    @Override public String asText(String defaultValue) { return defaultValue; }
+    @Override public String asString(String defaultValue) { return defaultValue; }
 
     // // Note: not a numeric node, hence default 'asXxx()' are fine:
 
@@ -114,7 +114,7 @@ public final class MissingNode
     }
 
     @Override
-    public List<String> findValuesAsText(String fieldName, List<String> foundSoFar) {
+    public List<String> findValuesAsString(String fieldName, List<String> foundSoFar) {
         return foundSoFar;
     }
 

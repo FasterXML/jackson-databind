@@ -31,7 +31,7 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertStandardEquals(f);
         assertFalse(f.booleanValue());
         assertFalse(f.asBoolean());
-        assertEquals("false", f.asText());
+        assertEquals("false", f.asString());
         assertEquals(JsonToken.VALUE_FALSE, f.asToken());
 
         assertFalse(f.isNumber());
@@ -47,7 +47,7 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertStandardEquals(t);
         assertTrue(t.booleanValue());
         assertTrue(t.asBoolean());
-        assertEquals("true", t.asText());
+        assertEquals("true", t.asString());
         assertEquals(JsonToken.VALUE_TRUE, t.asToken());
 
         assertNodeNumbers(f, 0, 0.0);
@@ -56,11 +56,11 @@ public class JsonNodeBasicTest extends NodeTestBase
         JsonNode result = objectMapper().readTree("true\n");
         assertFalse(result.isNull());
         assertFalse(result.isNumber());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
         assertTrue(result.isBoolean());
         assertType(result, BooleanNode.class);
         assertTrue(result.booleanValue());
-        assertEquals("true", result.asText());
+        assertEquals("true", result.asString());
         assertFalse(result.isMissingNode());
 
         // also, equality should work ok
@@ -93,7 +93,7 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertTrue(n.equals(n2));
         assertEquals("\"Aw==\"", n.toString());
 
-        assertEquals("AAMD", new BinaryNode(data).asText());
+        assertEquals("AAMD", new BinaryNode(data).asString());
         assertNodeNumbersForNonNumeric(n);
 
         assertNonContainerStreamMethods(n2);
@@ -105,7 +105,7 @@ public class JsonNodeBasicTest extends NodeTestBase
         POJONode n = new POJONode("x"); // not really a pojo but that's ok
         assertStandardEquals(n);
         assertEquals(n, new POJONode("x"));
-        assertEquals("x", n.asText());
+        assertEquals("x", n.asString());
         // 10-Dec-2018, tatu: With 2.10, should serialize same as via ObjectMapper/ObjectWriter
         assertEquals("\"x\"", n.toString());
 
@@ -222,7 +222,7 @@ public class JsonNodeBasicTest extends NodeTestBase
         ArrayNode arrayNode = MAPPER.createArrayNode();
         arrayNode.add("firstElement");
         assertTrue(arrayNode.optional(0).isPresent());
-        assertEquals("firstElement", arrayNode.optional(0).get().asText());
+        assertEquals("firstElement", arrayNode.optional(0).get().asString());
         assertFalse(arrayNode.optional(1).isPresent());
         assertFalse(arrayNode.optional(-1).isPresent());
         assertFalse(arrayNode.optional(999).isPresent());
@@ -234,7 +234,7 @@ public class JsonNodeBasicTest extends NodeTestBase
         ObjectNode objectNode = MAPPER.createObjectNode();
         objectNode.put("existingField", "value");
         assertTrue(objectNode.optional("existingField").isPresent());
-        assertEquals("value", objectNode.optional("existingField").get().asText());
+        assertEquals("value", objectNode.optional("existingField").get().asString());
         assertFalse(objectNode.optional("missingField").isPresent());
         assertFalse(objectNode.optional(0).isPresent());
         assertFalse(objectNode.optional(-1).isPresent());
@@ -267,17 +267,14 @@ public class JsonNodeBasicTest extends NodeTestBase
     @Test
     public void testOptionalAccessorOnOtherTypes() throws Exception
     {
-        // Test TextNode
-        TextNode textNode = TextNode.valueOf("sampleText");
-        assertFalse(textNode.optional("anyField").isPresent());
-        assertFalse(textNode.optional(0).isPresent());
+        StringNode stringNode = StringNode.valueOf("sampleText");
+        assertFalse(stringNode.optional("anyField").isPresent());
+        assertFalse(stringNode.optional(0).isPresent());
 
-        // Test NullNode
         NullNode nullNode = NullNode.getInstance();
         assertFalse(nullNode.optional("anyField").isPresent());
         assertFalse(nullNode.optional(0).isPresent());
 
-        // Test BooleanNode
         BooleanNode booleanNode = BooleanNode.TRUE;
         assertFalse(booleanNode.optional("anyField").isPresent());
         assertFalse(booleanNode.optional(0).isPresent());
@@ -303,11 +300,11 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertTrue(arrayOptional.isPresent());
         assertEquals(arrayNode, arrayOptional.get());
 
-        // Test with TextNode
-        TextNode textNode = TextNode.valueOf("text");
-        Optional<JsonNode> textOptional = textNode.asOptional();
+        // Test with StringNode
+        StringNode stringNode = StringNode.valueOf("text");
+        Optional<JsonNode> textOptional = stringNode.asOptional();
         assertTrue(textOptional.isPresent());
-        assertEquals(textNode, textOptional.get());
+        assertEquals(stringNode, textOptional.get());
 
         // Test with NullNode
         NullNode nullNode = NullNode.getInstance();

@@ -55,21 +55,21 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
             assertEquals(SAMPLE_SPEC_VALUE_HEIGHT, ob.intValue());
 
             ob = imageMap.get("Title");
-            assertTrue(ob.isTextual());
-            assertEquals(SAMPLE_SPEC_VALUE_TITLE, ob.textValue());
+            assertTrue(ob.isString());
+            assertEquals(SAMPLE_SPEC_VALUE_TITLE, ob.stringValue());
 
             ob = imageMap.get("Thumbnail");
             assertType(ob, ObjectNode.class);
             ObjectNode tn = (ObjectNode) ob;
             ob = tn.get("Url");
-            assertTrue(ob.isTextual());
-            assertEquals(SAMPLE_SPEC_VALUE_TN_URL, ob.textValue());
+            assertTrue(ob.isString());
+            assertEquals(SAMPLE_SPEC_VALUE_TN_URL, ob.stringValue());
             ob = tn.get("Height");
             assertTrue(ob.isIntegralNumber());
             assertEquals(SAMPLE_SPEC_VALUE_TN_HEIGHT, ob.intValue());
             ob = tn.get("Width");
-            assertTrue(ob.isTextual());
-            assertEquals(SAMPLE_SPEC_VALUE_TN_WIDTH, ob.textValue());
+            assertTrue(ob.isString());
+            assertEquals(SAMPLE_SPEC_VALUE_TN_WIDTH, ob.stringValue());
 
             ob = imageMap.get("IDs");
             assertTrue(ob.isArray());
@@ -153,14 +153,14 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
 
         assertTrue(result.isIntegralNumber());
         assertTrue(result.isInt());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
         assertEquals(12, result.intValue());
 
         result = mapper.readTree(p);
-        assertTrue(result.isTextual());
+        assertTrue(result.isString());
         assertFalse(result.isIntegralNumber());
         assertFalse(result.isInt());
-        assertEquals("string", result.textValue());
+        assertEquals("string", result.stringValue());
 
         result = mapper.readTree(p);
         assertTrue(result.isArray());

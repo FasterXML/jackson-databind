@@ -223,7 +223,7 @@ public class TreeTraversingParserTest
     @Test
     public void testTextAsBinary() throws Exception
     {
-        TextNode n = new TextNode("   APs=\n");
+        StringNode n = new StringNode("   APs=\n");
         JsonParser p = n.traverse(ObjectReadContext.empty());
         assertNull(p.currentToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
@@ -236,7 +236,7 @@ public class TreeTraversingParserTest
         assertTrue(p.isClosed());
 
         // Also: let's verify we get an exception for garbage...
-        n = new TextNode("?!??");
+        n = new StringNode("?!??");
         p = n.traverse(ObjectReadContext.empty());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         try {

@@ -18,8 +18,8 @@ public class MissingNodeTest extends NodeTestBase
         MissingNode n = MissingNode.getInstance();
         assertTrue(n.isMissingNode());
         assertEquals(JsonToken.NOT_AVAILABLE, n.asToken());
-        assertEquals("", n.asText());
-        assertEquals("default", n.asText("default"));
+        assertEquals("", n.asString());
+        assertEquals("default", n.asString("default"));
         assertStandardEquals(n);
         // 10-Dec-2018, tatu: With 2.10, should serialize same as via ObjectMapper/ObjectWriter
         // 10-Dec-2019, tatu: Surprise! No, this is not how it worked in 2.9, nor does it make
@@ -63,7 +63,7 @@ public class MissingNodeTest extends NodeTestBase
         assertEquals(0, onode.size());
         assertFalse(onode.isMissingNode()); // real node
         assertTrue(onode.asOptional().isPresent());
-        assertNull(onode.textValue());
+        assertNull(onode.stringValue());
 
         // how about dereferencing?
         assertNull(onode.get(0));

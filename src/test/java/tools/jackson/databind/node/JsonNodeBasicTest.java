@@ -267,17 +267,14 @@ public class JsonNodeBasicTest extends NodeTestBase
     @Test
     public void testOptionalAccessorOnOtherTypes() throws Exception
     {
-        // Test TextNode
-        StringNode textNode = StringNode.valueOf("sampleText");
-        assertFalse(textNode.optional("anyField").isPresent());
-        assertFalse(textNode.optional(0).isPresent());
+        StringNode stringNode = StringNode.valueOf("sampleText");
+        assertFalse(stringNode.optional("anyField").isPresent());
+        assertFalse(stringNode.optional(0).isPresent());
 
-        // Test NullNode
         NullNode nullNode = NullNode.getInstance();
         assertFalse(nullNode.optional("anyField").isPresent());
         assertFalse(nullNode.optional(0).isPresent());
 
-        // Test BooleanNode
         BooleanNode booleanNode = BooleanNode.TRUE;
         assertFalse(booleanNode.optional("anyField").isPresent());
         assertFalse(booleanNode.optional(0).isPresent());
@@ -303,11 +300,11 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertTrue(arrayOptional.isPresent());
         assertEquals(arrayNode, arrayOptional.get());
 
-        // Test with TextNode
-        StringNode textNode = StringNode.valueOf("text");
-        Optional<JsonNode> textOptional = textNode.asOptional();
+        // Test with StringNode
+        StringNode stringNode = StringNode.valueOf("text");
+        Optional<JsonNode> textOptional = stringNode.asOptional();
         assertTrue(textOptional.isPresent());
-        assertEquals(textNode, textOptional.get());
+        assertEquals(stringNode, textOptional.get());
 
         // Test with NullNode
         NullNode nullNode = NullNode.getInstance();

@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TextNodeTest extends NodeTestBase
+public class StringNodeTest extends NodeTestBase
 {
     @Test
-    public void testText()
+    public void testBasics()
     {
         assertNull(StringNode.valueOf(null));
         StringNode empty = StringNode.valueOf("");

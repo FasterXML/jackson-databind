@@ -359,7 +359,7 @@ public class TreeTraversingParser
         JsonNode n = currentNode();
         if (n != null) {
             // [databind#2096]: although `binaryValue()` works for real binary node
-            // and embedded "POJO" node, coercion from TextNode may require variant, so:
+            // and embedded "POJO" node, coercion from `StringNode` may require variant, so:
             if (n instanceof StringNode) {
                 return ((StringNode) n).getBinaryValue(b64variant);
             }

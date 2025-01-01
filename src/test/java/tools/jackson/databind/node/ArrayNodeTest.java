@@ -38,7 +38,6 @@ public class ArrayNodeTest
         assertFalse(n.values().iterator().hasNext());
         assertEquals(0, n.valueSpliterator().estimateSize());
         assertTrue(n.propertyNames().isEmpty());
-        assertNotNull(n.propertyNameSpliterator());
         assertTrue(n.isEmpty());
         TextNode text = TextNode.valueOf("x");
         n.add(text);

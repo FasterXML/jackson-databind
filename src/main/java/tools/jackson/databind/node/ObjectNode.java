@@ -293,16 +293,9 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _children.keySet();
     }
 
-    @Override
-    public Spliterator<String> propertyNameSpliterator() {
-        return _children.keySet().spliterator();
-    }
-
     /**
      * Method to use for accessing all properties (with both names
      * and values) of this JSON Object.
-     *
-     * @since 2.15
      */
     @Override
     public Set<Map.Entry<String, JsonNode>> properties() {

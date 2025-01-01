@@ -200,7 +200,7 @@ public abstract class JsonNode
      *   field. Null otherwise.
      */
     @Override
-    public JsonNode get(String fieldName) { return null; }
+    public JsonNode get(String propertyName) { return null; }
 
     /**
      * Method for accessing value of the specified element of
@@ -259,7 +259,7 @@ public abstract class JsonNode
      */
 
     @Override
-    public abstract JsonNode path(String fieldName);
+    public abstract JsonNode path(String propertyName);
 
     /**
      * This method is similar to {@link #get(int)}, except
@@ -459,7 +459,7 @@ public abstract class JsonNode
     /**
      * Method that can be used to check if this node represents
      * binary data (Base64 encoded). Although this will be externally
-     * written as JSON String value, {@link #isTextual} will
+     * written as JSON String value, {@link #isString} will
      * return false if this method returns true.
      *
      * @return True if this node represents base64 encoded binary data
@@ -543,7 +543,7 @@ public abstract class JsonNode
 
     /**
      * Method to use for accessing binary content of binary nodes (nodes
-     * for which {@link #isBinary} returns true); or for Text Nodes
+     * for which {@link #isBinary} returns true); or for String Nodes
      * (ones for which {@link #stringValue} returns non-null value),
      * to read decoded base64 data.
      * For other types of nodes, returns null.
@@ -842,10 +842,10 @@ public abstract class JsonNode
     /**
      * Method is functionally equivalent to
      *{@code
-     *   path(fieldName).required()
+     *   path(propertyName).required()
      *}
      * and can be used to check that this node is an {@code ObjectNode} (that is, represents
-     * JSON Object value) and has value for specified property with key {@code fieldName}
+     * JSON Object value) and has value for specified property with key {@code propertyName}
      * (but note that value may be explicit JSON null value).
      * If this node is Object Node and has value for specified property, matching value
      * is returned; otherwise {@link IllegalArgumentException} is thrown.
@@ -953,20 +953,20 @@ public abstract class JsonNode
      *<p>
      * This method is equivalent to:
      *<pre>
-     *   node.get(fieldName) != null
+     *   node.get(propertyName) != null
      *</pre>
      * (since return value of get() is node, not value node contains)
      *<p>
      * NOTE: when explicit <code>null</code> values are added, this
      * method will return <code>true</code> for such properties.
      *
-     * @param fieldName Name of element to check
+     * @param propertyName Name of element to check
      *
      * @return True if this node is a JSON Object node, and has a property
      *   entry with specified name (with any value, including null value)
      */
-    public boolean has(String fieldName) {
-        return get(fieldName) != null;
+    public boolean has(String propertyName) {
+        return get(propertyName) != null;
     }
 
     /**
@@ -1001,13 +1001,11 @@ public abstract class JsonNode
      *<p>
      * This method is functionally equivalent to:
      *<pre>
-     *   node.get(fieldName) != null &amp;&amp; !node.get(fieldName).isNull()
+     *   node.get(propertyName) != null &amp;&amp; !node.get(propertyName).isNull()
      *</pre>
-     *
-     * @since 2.1
      */
-    public boolean hasNonNull(String fieldName) {
-        JsonNode n = get(fieldName);
+    public boolean hasNonNull(String propertyName) {
+        JsonNode n = get(propertyName);
         return (n != null) && !n.isNull();
     }
 
@@ -1019,8 +1017,6 @@ public abstract class JsonNode
      *<pre>
      *   node.get(index) != null &amp;&amp; !node.get(index).isNull()
      *</pre>
-     *
-     * @since 2.1
      */
     public boolean hasNonNull(int index) {
         JsonNode n = get(index);
@@ -1145,11 +1141,11 @@ public abstract class JsonNode
      * Note that traversal is done in document order (that is, order in which
      * nodes are iterated if using {@link JsonNode#values()})
      *
-     * @param fieldName Name of field to look for
+     * @param propertyName Name of field to look for
      *
      * @return Value of first matching node found, if any; null if none
      */
-    public abstract JsonNode findValue(String fieldName);
+    public abstract JsonNode findValue(String propertyName);
 
     /**
      * Method for finding JSON Object fields with specified name -- both immediate
@@ -1160,11 +1156,11 @@ public abstract class JsonNode
      * If no matching fields are found in this node or its descendants, returns
      * an empty List.
      *
-     * @param fieldName Name of field to look for
+     * @param propertyName Name of field to look for
      */
-    public final List<JsonNode> findValues(String fieldName)
+    public final List<JsonNode> findValues(String propertyName)
     {
-        List<JsonNode> result = findValues(fieldName, null);
+        List<JsonNode> result = findValues(propertyName, null);
         if (result == null) {
             return Collections.emptyList();
         }
@@ -1175,9 +1171,9 @@ public abstract class JsonNode
      * Similar to {@link #findValues}, but will additionally convert
      * values into Strings, calling {@link #asText}.
      */
-    public final List<String> findValuesAsText(String fieldName)
+    public final List<String> findValuesAsString(String propertyName)
     {
-        List<String> result = findValuesAsText(fieldName, null);
+        List<String> result = findValuesAsString(propertyName, null);
         if (result == null) {
             return Collections.emptyList();
         }
@@ -1191,45 +1187,45 @@ public abstract class JsonNode
      * returns true; and all value access methods return empty or
      * missing value.
      *
-     * @param fieldName Name of field to look for
+     * @param propertyName Name of field to look for
      *
      * @return Value of first matching node found; or if not found, a
      *    "missing node" (non-null instance that has no value)
      */
-    public abstract JsonNode findPath(String fieldName);
+    public abstract JsonNode findPath(String propertyName);
 
     /**
      * Method for finding a JSON Object that contains specified field,
      * within this node or its descendants.
      * If no matching field is found in this node or its descendants, returns null.
      *
-     * @param fieldName Name of field to look for
+     * @param propertyName Name of field to look for
      *
      * @return Value of first matching node found, if any; null if none
      */
-    public abstract JsonNode findParent(String fieldName);
+    public abstract JsonNode findParent(String propertyName);
 
     /**
      * Method for finding a JSON Object that contains specified field,
      * within this node or its descendants.
      * If no matching field is found in this node or its descendants, returns null.
      *
-     * @param fieldName Name of field to look for
+     * @param propertyName Name of field to look for
      *
      * @return Value of first matching node found, if any; null if none
      */
-    public final List<JsonNode> findParents(String fieldName)
+    public final List<JsonNode> findParents(String propertyName)
     {
-        List<JsonNode> result = findParents(fieldName, null);
+        List<JsonNode> result = findParents(propertyName, null);
         if (result == null) {
             return Collections.emptyList();
         }
         return result;
     }
 
-    public abstract List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar);
-    public abstract List<String> findValuesAsText(String fieldName, List<String> foundSoFar);
-    public abstract List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar);
+    public abstract List<JsonNode> findValues(String propertyName, List<JsonNode> foundSoFar);
+    public abstract List<String> findValuesAsString(String propertyName, List<String> foundSoFar);
+    public abstract List<JsonNode> findParents(String propertyName, List<JsonNode> foundSoFar);
 
     /*
     /**********************************************************************

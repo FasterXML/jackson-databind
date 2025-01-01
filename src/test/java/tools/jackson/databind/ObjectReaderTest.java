@@ -602,7 +602,7 @@ public class ObjectReaderTest extends DatabindTestUtil
         }
 
         @Override
-        public List<String> findValuesAsText(String fieldName, List<String> foundSoFar) {
+        public List<String> findValuesAsString(String fieldName, List<String> foundSoFar) {
             return foundSoFar;
         }
 
@@ -722,7 +722,7 @@ public class ObjectReaderTest extends DatabindTestUtil
         }
 
         @Override
-        public List<String> findValuesAsText(String fieldName, List<String> foundSoFar) {
+        public List<String> findValuesAsString(String fieldName, List<String> foundSoFar) {
             return foundSoFar;
         }
 

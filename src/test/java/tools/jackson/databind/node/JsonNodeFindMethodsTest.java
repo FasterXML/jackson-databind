@@ -81,7 +81,7 @@ public class JsonNodeFindMethodsTest
         assertEquals(42, nodes.get(1).path("value").intValue());
 
         // and finally, convenience conversion method
-        List<String> values = root.findValuesAsText("value");
+        List<String> values = root.findValuesAsString("value");
         assertEquals(2, values.size());
         assertEquals("3", values.get(0));
         assertEquals("42", values.get(1));

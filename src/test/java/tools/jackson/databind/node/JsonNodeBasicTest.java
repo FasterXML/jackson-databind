@@ -268,7 +268,7 @@ public class JsonNodeBasicTest extends NodeTestBase
     public void testOptionalAccessorOnOtherTypes() throws Exception
     {
         // Test TextNode
-        TextNode textNode = TextNode.valueOf("sampleText");
+        StringNode textNode = StringNode.valueOf("sampleText");
         assertFalse(textNode.optional("anyField").isPresent());
         assertFalse(textNode.optional(0).isPresent());
 
@@ -304,7 +304,7 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertEquals(arrayNode, arrayOptional.get());
 
         // Test with TextNode
-        TextNode textNode = TextNode.valueOf("text");
+        StringNode textNode = StringNode.valueOf("text");
         Optional<JsonNode> textOptional = textNode.asOptional();
         assertTrue(textOptional.isPresent());
         assertEquals(textNode, textOptional.get());

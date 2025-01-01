@@ -132,9 +132,9 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     {
         assertEquals(9, IntNode.valueOf(9).asInt());
         assertEquals(7, LongNode.valueOf(7L).asInt());
-        assertEquals(13, new TextNode("13").asInt());
-        assertEquals(0, new TextNode("foobar").asInt());
-        assertEquals(27, new TextNode("foobar").asInt(27));
+        assertEquals(13, new StringNode("13").asInt());
+        assertEquals(0, new StringNode("foobar").asInt());
+        assertEquals(27, new StringNode("foobar").asInt(27));
         assertEquals(1, BooleanNode.TRUE.asInt());
     }
 
@@ -147,10 +147,10 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         assertTrue(IntNode.valueOf(1).asBoolean());
         assertFalse(LongNode.valueOf(0).asBoolean());
         assertTrue(LongNode.valueOf(-34L).asBoolean());
-        assertTrue(new TextNode("true").asBoolean());
-        assertFalse(new TextNode("false").asBoolean());
-        assertFalse(new TextNode("barf").asBoolean());
-        assertTrue(new TextNode("barf").asBoolean(true));
+        assertTrue(new StringNode("true").asBoolean());
+        assertFalse(new StringNode("false").asBoolean());
+        assertFalse(new StringNode("barf").asBoolean());
+        assertTrue(new StringNode("barf").asBoolean(true));
 
         assertTrue(new POJONode(Boolean.TRUE).asBoolean());
     }
@@ -231,7 +231,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
                 input[i] = (byte) i;
             }
             for (Base64Variant variant : VARIANTS) {
-                TextNode n = new TextNode(variant.encode(input));
+                StringNode n = new StringNode(variant.encode(input));
                 byte[] data = null;
                 try {
                     data = n.getBinaryValue(variant);

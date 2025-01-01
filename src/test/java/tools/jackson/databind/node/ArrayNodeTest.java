@@ -39,7 +39,7 @@ public class ArrayNodeTest
         assertEquals(0, n.valueSpliterator().estimateSize());
         assertTrue(n.propertyNames().isEmpty());
         assertTrue(n.isEmpty());
-        TextNode text = TextNode.valueOf("x");
+        StringNode text = StringNode.valueOf("x");
         n.add(text);
         assertEquals(1, n.size());
         assertFalse(n.isEmpty());
@@ -93,7 +93,7 @@ public class ArrayNodeTest
         assertNull(n.get(10000));
         assertNull(n.remove(-4));
 
-        TextNode text2 = TextNode.valueOf("b");
+        StringNode text2 = StringNode.valueOf("b");
         n.insert(0, text2);
         assertEquals(4, n.size());
         assertSame(text2, n.get(0));
@@ -404,12 +404,12 @@ public class ArrayNodeTest
         assertTrue(n1.equals(n2));
         assertTrue(n2.equals(n1));
 
-        n1.add(TextNode.valueOf("Test"));
+        n1.add(StringNode.valueOf("Test"));
 
         assertFalse(n1.equals(n2));
         assertFalse(n2.equals(n1));
 
-        n2.add(TextNode.valueOf("Test"));
+        n2.add(StringNode.valueOf("Test"));
 
         assertTrue(n1.equals(n2));
         assertTrue(n2.equals(n1));

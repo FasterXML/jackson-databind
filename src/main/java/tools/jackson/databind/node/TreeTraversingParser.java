@@ -360,8 +360,8 @@ public class TreeTraversingParser
         if (n != null) {
             // [databind#2096]: although `binaryValue()` works for real binary node
             // and embedded "POJO" node, coercion from TextNode may require variant, so:
-            if (n instanceof TextNode) {
-                return ((TextNode) n).getBinaryValue(b64variant);
+            if (n instanceof StringNode) {
+                return ((StringNode) n).getBinaryValue(b64variant);
             }
             return n.binaryValue();
         }

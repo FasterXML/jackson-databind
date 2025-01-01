@@ -241,7 +241,7 @@ public class JsonNodeFactory
      * String value
      */
     @Override
-    public TextNode textNode(String text) { return TextNode.valueOf(text); }
+    public StringNode textNode(String text) { return StringNode.valueOf(text); }
 
     /**
      * Factory method for constructing a node that represents given

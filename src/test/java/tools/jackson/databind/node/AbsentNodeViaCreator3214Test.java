@@ -14,8 +14,8 @@ public class AbsentNodeViaCreator3214Test extends DatabindTestUtil
 {
     static class Pojo3214
     {
-        JsonNode fromCtor = TextNode.valueOf("x");
-        JsonNode fromSetter = TextNode.valueOf("x");
+        JsonNode fromCtor = StringNode.valueOf("x");
+        JsonNode fromSetter = StringNode.valueOf("x");
 
         @JsonCreator
         public Pojo3214(@JsonProperty("node") JsonNode n) {

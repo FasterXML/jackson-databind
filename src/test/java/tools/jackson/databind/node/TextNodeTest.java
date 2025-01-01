@@ -9,19 +9,19 @@ public class TextNodeTest extends NodeTestBase
     @Test
     public void testText()
     {
-        assertNull(TextNode.valueOf(null));
-        TextNode empty = TextNode.valueOf("");
+        assertNull(StringNode.valueOf(null));
+        StringNode empty = StringNode.valueOf("");
         assertStandardEquals(empty);
-        assertSame(TextNode.EMPTY_STRING_NODE, empty);
+        assertSame(StringNode.EMPTY_STRING_NODE, empty);
 
         assertEquals(0, empty.size());
         assertTrue(empty.isEmpty());
 
-        assertNodeNumbers(TextNode.valueOf("-3"), -3, -3.0);
-        assertNodeNumbers(TextNode.valueOf("17.75"), 17, 17.75);
+        assertNodeNumbers(StringNode.valueOf("-3"), -3, -3.0);
+        assertNodeNumbers(StringNode.valueOf("17.75"), 17, 17.75);
 
         long value = 127353264013893L;
-        TextNode n = TextNode.valueOf(String.valueOf(value));
+        StringNode n = StringNode.valueOf(String.valueOf(value));
         assertEquals(value, n.asLong());
 
         assertFalse(n.isNumber());
@@ -30,16 +30,16 @@ public class TextNodeTest extends NodeTestBase
         assertFalse(n.canConvertToExactIntegral());
 
         // and then with non-numeric input
-        n = TextNode.valueOf("foobar");
+        n = StringNode.valueOf("foobar");
         assertNodeNumbersForNonNumeric(n);
 
         assertEquals("foobar", n.asText());
         assertEquals("", empty.asText());
 
-        assertTrue(TextNode.valueOf("true").asBoolean(true));
-        assertTrue(TextNode.valueOf("true").asBoolean(false));
-        assertFalse(TextNode.valueOf("false").asBoolean(true));
-        assertFalse(TextNode.valueOf("false").asBoolean(false));
+        assertTrue(StringNode.valueOf("true").asBoolean(true));
+        assertTrue(StringNode.valueOf("true").asBoolean(false));
+        assertFalse(StringNode.valueOf("false").asBoolean(true));
+        assertFalse(StringNode.valueOf("false").asBoolean(false));
 
         assertNonContainerStreamMethods(n);
     }
@@ -47,13 +47,13 @@ public class TextNodeTest extends NodeTestBase
     @Test
     public void testEquals()
     {
-        assertEquals(new TextNode("abc"), new TextNode("abc"));
-        assertNotEquals(new TextNode("abc"), new TextNode("def"));
+        assertEquals(new StringNode("abc"), new StringNode("abc"));
+        assertNotEquals(new StringNode("abc"), new StringNode("def"));
     }
 
     @Test
     public void testHashCode()
     {
-        assertEquals("abc".hashCode(), new TextNode("abc").hashCode());
+        assertEquals("abc".hashCode(), new StringNode("abc").hashCode());
     }
 }

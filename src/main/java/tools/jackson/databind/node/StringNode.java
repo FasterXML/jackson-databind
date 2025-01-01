@@ -9,19 +9,19 @@ import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.exc.InvalidFormatException;
 
 /**
- * Value node that contains a text value.
+ * Value node that contains a String value.
  */
-public class TextNode
+public class StringNode
     extends ValueNode
 {
     private static final long serialVersionUID = 3L;
 
-    final static TextNode EMPTY_STRING_NODE = new TextNode("");
+    final static StringNode EMPTY_STRING_NODE = new StringNode("");
 
     protected final String _value;
 
-    public TextNode(String v) {
-        // 01-Mar-2024, tatu: [databind#4381] No null-valued TextNodes
+    public StringNode(String v) {
+        // 01-Mar-2024, tatu: [databind#4381] No null-valued StringNodes
         _value = Objects.requireNonNull(v);
     }
 
@@ -31,10 +31,10 @@ public class TextNode
      * this is the case for empty Strings, in future possible for
      * others as well. If null is passed, will return null.
      *
-     * @return Resulting {@link TextNode} object, if <b>v</b>
+     * @return Resulting {@link StringNode} object, if <b>v</b>
      *   is NOT null; null if it is.
      */
-    public static TextNode valueOf(String v)
+    public static StringNode valueOf(String v)
     {
         if (v == null) {
             return null;
@@ -42,7 +42,7 @@ public class TextNode
         if (v.isEmpty()) {
             return EMPTY_STRING_NODE;
         }
-        return new TextNode(v);
+        return new StringNode(v);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class TextNode
     @Override public JsonToken asToken() { return JsonToken.VALUE_STRING; }
 
     @Override
-    public TextNode deepCopy() { return this; }
+    public StringNode deepCopy() { return this; }
 
     @Override
     public String stringValue() {
@@ -61,11 +61,11 @@ public class TextNode
     }
 
     /**
-     * Method for accessing textual contents assuming they were
-     * base64 encoded; if so, they are decoded and resulting binary
+     * Method for accessing content String assuming they were
+     * base64 encoded; if so, content is decoded and resulting binary
      * data is returned.
      *
-     * @throws JacksonException if textual contents are not valid Base64 content
+     * @throws JacksonException if String contents are not valid Base64 encoded content
      */
     @SuppressWarnings("resource")
     public byte[] getBinaryValue(Base64Variant b64variant) throws JacksonException
@@ -84,7 +84,7 @@ public class TextNode
             throw InvalidFormatException.from(
                     null, /* Alas, no processor to pass */
                     String.format(
-"Cannot access contents of TextNode as binary due to broken Base64 encoding: %s",
+"Cannot access contents of StringNode as binary due to broken Base64 encoding: %s",
 e.getMessage()),
                     str, byte[].class);
         }
@@ -167,8 +167,8 @@ e.getMessage()),
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof TextNode) {
-            return Objects.equals(((TextNode) o)._value, _value);
+        if (o instanceof StringNode) {
+            return Objects.equals(((StringNode) o)._value, _value);
         }
         return false;
     }

@@ -103,7 +103,7 @@ public class ObjectNodeTest
         assertTrue(it.hasNext());
         n = it.next();
         assertNotNull(n);
-        assertEquals(TextNode.valueOf("x"), n);
+        assertEquals(StringNode.valueOf("x"), n);
 
         assertFalse(it.hasNext());
 
@@ -119,7 +119,7 @@ public class ObjectNodeTest
         assertTrue(fit.hasNext());
         en = fit.next();
         assertEquals("b", en.getKey());
-        assertEquals(TextNode.valueOf("x"), en.getValue());
+        assertEquals(StringNode.valueOf("x"), en.getValue());
 
         // Plus: we should be able to modify the node via iterator too:
         fit.remove();
@@ -150,7 +150,7 @@ public class ObjectNodeTest
         assertFalse(n.optional("a").isPresent());
         assertTrue(n.path("a").isMissingNode());
 
-        TextNode text = TextNode.valueOf("x");
+        StringNode text = StringNode.valueOf("x");
         assertSame(n, n.set("a", text));
 
         assertEquals(1, n.size());

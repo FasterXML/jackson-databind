@@ -87,7 +87,7 @@ public class ObjectNodeTest
         assertFalse(root.isEmpty());
 
         assertFalse(root.isBoolean());
-        assertFalse(root.isTextual());
+        assertFalse(root.isString());
         assertFalse(root.isNumber());
         assertFalse(root.canConvertToInt());
         assertFalse(root.canConvertToLong());

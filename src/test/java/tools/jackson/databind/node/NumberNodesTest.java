@@ -62,7 +62,7 @@ public class NumberNodesTest extends NodeTestBase
         assertFalse(result.isFloatingPointNumber());
         assertFalse(result.isDouble());
         assertFalse(result.isNull());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
         assertFalse(result.isMissingNode());
 
         assertTrue(result.canConvertToInt());
@@ -153,7 +153,7 @@ public class NumberNodesTest extends NodeTestBase
         assertFalse(result.isFloatingPointNumber());
         assertFalse(result.isDouble());
         assertFalse(result.isNull());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
         assertFalse(result.isMissingNode());
 
         assertEquals(value, result.numberValue().longValue());
@@ -219,7 +219,7 @@ public class NumberNodesTest extends NodeTestBase
         assertFalse(result.isInt());
         assertFalse(result.isLong());
         assertFalse(result.isIntegralNumber());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
         assertFalse(result.isMissingNode());
 
         assertEquals(value, result.doubleValue());
@@ -321,7 +321,7 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(result.isBigDecimal());
         assertFalse(result.isDouble());
         assertFalse(result.isNull());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
         assertFalse(result.isMissingNode());
 
         assertFalse(result.canConvertToExactIntegral());

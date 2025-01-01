@@ -28,7 +28,7 @@ public class ArrayNodeTest
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
 
         assertFalse(n.isBoolean());
-        assertFalse(n.isTextual());
+        assertFalse(n.isString());
         assertFalse(n.isNumber());
         assertFalse(n.canConvertToInt());
         assertFalse(n.canConvertToLong());
@@ -78,10 +78,10 @@ public class ArrayNodeTest
         n.addAll(n2);
         assertEquals(3, n.size());
 
-        assertFalse(n.get(0).isTextual());
+        assertFalse(n.get(0).isString());
         assertNotNull(n.remove(0));
         assertEquals(2, n.size());
-        assertTrue(n.get(0).isTextual());
+        assertTrue(n.get(0).isString());
         assertNull(n.remove(-1));
         assertNull(n.remove(100));
         assertEquals(2, n.size());
@@ -117,7 +117,7 @@ public class ArrayNodeTest
         ArrayNode n = new ArrayNode(f, list);
         assertEquals(2, n.size());
         assertTrue(n.get(0).isBoolean());
-        assertTrue(n.get(1).isTextual());
+        assertTrue(n.get(1).isString());
 
         // also, should fail with invalid set attempt
         try {
@@ -130,7 +130,7 @@ public class ArrayNodeTest
         assertEquals(3, n.size());
         assertTrue(n.get(0).isBoolean());
         assertTrue(n.get(1).isNull());
-        assertTrue(n.get(2).isTextual());
+        assertTrue(n.get(2).isString());
 
         n.removeAll();
         n.insert(0, (JsonNode) null);
@@ -426,7 +426,7 @@ public class ArrayNodeTest
         assertFalse(result.isObject());
         assertFalse(result.isNumber());
         assertFalse(result.isNull());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
 
         // and let's add stuff...
         result.add(false);

@@ -83,7 +83,7 @@ public class NullNodeTest extends NodeTestBase
         assertNotNull(n);
         assertTrue(n.isNull());
         assertFalse(n.isNumber());
-        assertFalse(n.isTextual());
+        assertFalse(n.isString());
         assertEquals("null", n.asText());
         assertEquals(n, NullNode.instance);
 

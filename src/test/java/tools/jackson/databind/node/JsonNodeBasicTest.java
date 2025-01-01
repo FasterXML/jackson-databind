@@ -56,7 +56,7 @@ public class JsonNodeBasicTest extends NodeTestBase
         JsonNode result = objectMapper().readTree("true\n");
         assertFalse(result.isNull());
         assertFalse(result.isNumber());
-        assertFalse(result.isTextual());
+        assertFalse(result.isString());
         assertTrue(result.isBoolean());
         assertType(result, BooleanNode.class);
         assertTrue(result.booleanValue());

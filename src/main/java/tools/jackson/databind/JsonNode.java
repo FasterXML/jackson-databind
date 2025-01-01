@@ -424,13 +424,21 @@ public abstract class JsonNode
     public boolean isBigInteger() { return false; }
 
     /**
-     * Method that checks whether this node represents basic JSON String
+     * Method that checks whether this node represents JSON String
      * value.
      */
-    public final boolean isTextual() {
+    public final boolean isString() {
         return getNodeType() == JsonNodeType.STRING;
     }
 
+    /**
+     * @deprecated Use {@link #isString} instead.
+     */
+    @Deprecated // since 3.0
+    public boolean isTextual() {
+        return isString();
+    }
+    
     /**
      * Method that can be used to check if this node was created from
      * JSON boolean value (literals "true" and "false").

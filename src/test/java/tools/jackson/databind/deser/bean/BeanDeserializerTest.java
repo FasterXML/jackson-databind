@@ -196,7 +196,7 @@ public class BeanDeserializerTest
         public Issue1912SubBean deserialize(JsonParser p, DeserializationContext ctxt)
         {
             p.nextName(); // read "a"
-            Issue1912SubBean object = new Issue1912SubBean(p.nextTextValue() + "_custom");
+            Issue1912SubBean object = new Issue1912SubBean(p.nextStringValue() + "_custom");
             p.nextToken();
             return object;
         }

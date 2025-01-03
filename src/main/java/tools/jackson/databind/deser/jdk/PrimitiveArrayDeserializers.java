@@ -261,9 +261,9 @@ public abstract class PrimitiveArrayDeserializers<T>
             JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_STRING) {
                 // note: can NOT return shared internal buffer, must copy:
-                char[] buffer = p.getTextCharacters();
-                int offset = p.getTextOffset();
-                int len = p.getTextLength();
+                char[] buffer = p.getStringCharacters();
+                int offset = p.getStringOffset();
+                int len = p.getStringLength();
 
                 return Arrays.copyOfRange(buffer, offset, offset + len);
             }
@@ -273,7 +273,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                 while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                     String str;
                     if (t == JsonToken.VALUE_STRING) {
-                        str = p.getText();
+                        str = p.getString();
                     } else if (t == JsonToken.VALUE_NULL) {
                         if (_nuller != null) {
                             _nuller.getNullValue(ctxt);
@@ -460,7 +460,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                     String msg = e.getOriginalMessage();
                     if (msg.contains("base64")) {
                         return (byte[]) ctxt.handleWeirdStringValue(byte[].class,
-                                p.getText(), msg);
+                                p.getString(), msg);
                     }
                 }
             }

@@ -142,7 +142,7 @@ public final class StringArrayDeserializer
 
         try {
             while (true) {
-                String value = p.nextTextValue();
+                String value = p.nextStringValue();
                 if (value == null) {
                     JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
@@ -199,7 +199,7 @@ public final class StringArrayDeserializer
                  *   assume that's what we use due to custom deserializer
                  */
                 String value;
-                if (p.nextTextValue() == null) {
+                if (p.nextStringValue() == null) {
                     JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
                         break;
@@ -261,7 +261,7 @@ public final class StringArrayDeserializer
 
         try {
             while (true) {
-                String value = p.nextTextValue();
+                String value = p.nextStringValue();
                 if (value == null) {
                     JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
@@ -303,7 +303,7 @@ public final class StringArrayDeserializer
                 value = (String) _nullProvider.getNullValue(ctxt);
             } else {
                 if (p.hasToken(JsonToken.VALUE_STRING)) {
-                    String textValue = p.getText();
+                    String textValue = p.getString();
                     // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
                     if (textValue.isEmpty()) {
                         final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),

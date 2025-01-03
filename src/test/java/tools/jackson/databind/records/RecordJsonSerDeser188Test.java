@@ -52,7 +52,7 @@ public class RecordJsonSerDeser188Test
         @Override
         public String deserialize(JsonParser jp, DeserializationContext ctxt)
         {
-            return "custom-deser" + jp.getText();
+            return "custom-deser" + jp.getString();
         }
     }
 

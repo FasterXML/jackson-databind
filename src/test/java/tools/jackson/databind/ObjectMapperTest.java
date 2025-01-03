@@ -343,7 +343,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
         JsonParser jsonParser =  MAPPER.createParser(inputStream);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     @Test
@@ -353,7 +353,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
         JsonParser jsonParser = MAPPER.createParser(path.toFile());
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     @Test
@@ -363,7 +363,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
         JsonParser jsonParser = MAPPER.createParser(path);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     @Test
@@ -373,7 +373,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
         JsonParser jsonParser = MAPPER.createParser(path.toUri().toURL());
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     @Test
@@ -382,7 +382,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Reader reader = new StringReader("\"value\"");
         JsonParser jsonParser = MAPPER.createParser(reader);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     @Test
@@ -391,7 +391,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
         JsonParser jsonParser = MAPPER.createParser(bytes);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     @Test
@@ -400,7 +400,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         String string = "\"value\"";
         JsonParser jsonParser = MAPPER.createParser(string);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     @Test
@@ -409,7 +409,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         char[] chars = "\"value\"".toCharArray();
         JsonParser jsonParser = MAPPER.createParser(chars);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     @Test
@@ -419,7 +419,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         DataInput dataInput = new DataInputStream(inputStream);
         JsonParser jsonParser = MAPPER.createParser(dataInput);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     @Test

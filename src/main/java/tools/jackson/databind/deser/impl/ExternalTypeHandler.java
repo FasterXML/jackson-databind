@@ -85,7 +85,7 @@ public class ExternalTypeHandler
         if (ob == null) {
             return false;
         }
-        final String typeId = p.getText();
+        final String typeId = p.getString();
         // 28-Nov-2016, tatu: For [databind#291], need separate handling
         if (ob instanceof List<?>) {
             boolean result = false;
@@ -147,7 +147,7 @@ public class ExternalTypeHandler
             // For now, let's assume it's same type (either type id OR value)
             // for all mappings, so we'll only check first one
             if (prop.hasTypePropertyName(propName)) {
-                String typeId = p.getText();
+                String typeId = p.getString();
                 p.skipChildren();
                 _typeIds[index] = typeId;
                 while (it.hasNext()) {

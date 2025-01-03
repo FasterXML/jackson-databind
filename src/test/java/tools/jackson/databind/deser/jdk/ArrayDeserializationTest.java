@@ -109,7 +109,7 @@ public class ArrayDeserializationTest
         {
             List<NonDeserializable> list = new ArrayList<NonDeserializable>();
             while (p.nextToken() != JsonToken.END_ARRAY) {
-                list.add(new NonDeserializable(p.getText(), false));
+                list.add(new NonDeserializable(p.getString(), false));
             }
             return list.toArray(new NonDeserializable[0]);
         }

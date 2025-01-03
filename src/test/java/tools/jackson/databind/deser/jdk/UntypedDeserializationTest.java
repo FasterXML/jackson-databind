@@ -36,7 +36,7 @@ public class UntypedDeserializationTest
 
         @Override
         public String deserialize(JsonParser p, DeserializationContext ctxt) {
-            return p.getText().toUpperCase();
+            return p.getString().toUpperCase();
         }
     }
 
@@ -66,7 +66,7 @@ public class UntypedDeserializationTest
         {
             ArrayList<Object> list = new ArrayList<Object>();
             while (p.nextValue() != JsonToken.END_ARRAY) {
-                list.add("X"+p.getText());
+                list.add("X"+p.getString());
             }
             return list;
         }
@@ -92,7 +92,7 @@ public class UntypedDeserializationTest
         {
             Map<String,Object> map = new LinkedHashMap<String,Object>();
             while (p.nextValue() != JsonToken.END_OBJECT) {
-                map.put(p.currentName(), "Y"+p.getText());
+                map.put(p.currentName(), "Y"+p.getString());
             }
             return map;
         }

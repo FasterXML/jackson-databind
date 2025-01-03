@@ -38,7 +38,7 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
     {
         // The critical path: ensure we handle the common case first.
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            return p.getText();
+            return p.getString();
         }
         // [databind#381]
         if (p.hasToken(JsonToken.START_ARRAY)) {

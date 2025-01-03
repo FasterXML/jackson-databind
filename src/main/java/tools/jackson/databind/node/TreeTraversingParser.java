@@ -194,7 +194,7 @@ public class TreeTraversingParser
      */
 
     @Override
-    public String getText()
+    public String getString()
     {
         if (_currToken == null) {
             return null;
@@ -220,22 +220,22 @@ public class TreeTraversingParser
     }
 
     @Override
-    public char[] getTextCharacters() {
-        return getText().toCharArray();
+    public char[] getStringCharacters() {
+        return getString().toCharArray();
     }
 
     @Override
-    public int getTextLength() {
-        return getText().length();
+    public int getStringLength() {
+        return getString().length();
     }
 
     @Override
-    public int getTextOffset() {
+    public int getStringOffset() {
         return 0;
     }
 
     @Override
-    public boolean hasTextCharacters() {
+    public boolean hasStringCharacters() {
         // generally we do not have efficient access as char[], hence:
         return false;
     }

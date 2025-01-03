@@ -337,7 +337,7 @@ public abstract class StdDeserializer<T>
         String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            text = p.getText();
+            text = p.getString();
             break;
         case JsonTokenId.ID_NUMBER_INT:
             // may accept ints too, (0 == false, otherwise true)
@@ -450,7 +450,7 @@ public abstract class StdDeserializer<T>
         String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            text = p.getText();
+            text = p.getString();
             break;
         case JsonTokenId.ID_NUMBER_INT:
             // may accept ints too, (0 == false, otherwise true)
@@ -506,7 +506,7 @@ public abstract class StdDeserializer<T>
         String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            text = p.getText();
+            text = p.getString();
             break;
         case JsonTokenId.ID_NUMBER_FLOAT:
             CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Byte.TYPE);
@@ -579,7 +579,7 @@ public abstract class StdDeserializer<T>
         String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            text = p.getText();
+            text = p.getString();
             break;
         case JsonTokenId.ID_NUMBER_FLOAT:
             CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Short.TYPE);
@@ -650,7 +650,7 @@ public abstract class StdDeserializer<T>
         String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            text = p.getText();
+            text = p.getString();
             break;
         case JsonTokenId.ID_NUMBER_FLOAT:
             final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Integer.TYPE);
@@ -735,7 +735,7 @@ public abstract class StdDeserializer<T>
         String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            text = p.getText();
+            text = p.getString();
             break;
         case JsonTokenId.ID_NUMBER_FLOAT: // coercing may work too
             final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, targetType);
@@ -801,7 +801,7 @@ public abstract class StdDeserializer<T>
         String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            text = p.getText();
+            text = p.getString();
             break;
         case JsonTokenId.ID_NUMBER_FLOAT:
             final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Long.TYPE);
@@ -877,7 +877,7 @@ public abstract class StdDeserializer<T>
         String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            text = p.getText();
+            text = p.getString();
             break;
         case JsonTokenId.ID_NUMBER_FLOAT:
             final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, targetType);
@@ -933,7 +933,7 @@ public abstract class StdDeserializer<T>
         String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            text = p.getText();
+            text = p.getString();
             break;
         case JsonTokenId.ID_NUMBER_INT:
             final CoercionAction act = _checkIntToFloatCoercion(p, ctxt, Float.TYPE);
@@ -1049,7 +1049,7 @@ public abstract class StdDeserializer<T>
         String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            text = p.getText();
+            text = p.getString();
             break;
         case JsonTokenId.ID_NUMBER_INT:
             final CoercionAction act = _checkIntToFloatCoercion(p, ctxt, Double.TYPE);
@@ -1172,7 +1172,7 @@ public abstract class StdDeserializer<T>
         String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            text = p.getText();
+            text = p.getString();
             break;
         case JsonTokenId.ID_NUMBER_INT:
             {
@@ -1285,7 +1285,7 @@ public abstract class StdDeserializer<T>
 
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            return p.getText();
+            return p.getString();
         // 07-Nov-2019, tatu: [databind#2535] Need to support byte[]->Base64 same as `StringDeserializer`
         case JsonTokenId.ID_EMBEDDED_OBJECT:
             Object ob = p.getEmbeddedObject();
@@ -1420,7 +1420,7 @@ value, _coercedTypeDesc());
                 rawTargetType, CoercionInputShape.Float);
         if (act == CoercionAction.Fail) {
             return _checkCoercionFail(ctxt, act, rawTargetType, p.getNumberValue(),
-                    "Floating-point value ("+p.getText()+")");
+                    "Floating-point value ("+p.getString()+")");
         }
         return act;
     }
@@ -1463,7 +1463,7 @@ value, _coercedTypeDesc());
                 rawTargetType, inputShape);
         if (act == CoercionAction.Fail) {
             return _checkCoercionFail(ctxt, act, rawTargetType, inputValue,
-                    inputShape.name() + " value (" + p.getText() + ")");
+                    inputShape.name() + " value (" + p.getString() + ")");
         }
         return act;
     }
@@ -1476,7 +1476,7 @@ value, _coercedTypeDesc());
                 rawTargetType, CoercionInputShape.Integer);
         if (act == CoercionAction.Fail) {
             return _checkCoercionFail(ctxt, act, rawTargetType, p.getNumberValue(),
-                    "Integer value (" + p.getText() + ")");
+                    "Integer value (" + p.getString() + ")");
         }
         return act;
     }
@@ -1489,7 +1489,7 @@ value, _coercedTypeDesc());
         switch (act) {
         case Fail:
             _checkCoercionFail(ctxt, act, rawTargetType, p.getNumberValue(),
-                    "Integer value ("+p.getText()+")");
+                    "Integer value ("+p.getString()+")");
             return Boolean.FALSE;
         case AsNull:
             return null;
@@ -1504,7 +1504,7 @@ value, _coercedTypeDesc());
             // but minor optimization for common case is possible:
             return p.getIntValue() != 0;
         }
-        return !"0".equals(p.getText());
+        return !"0".equals(p.getString());
     }
 
     protected CoercionAction _checkCoercionFail(DeserializationContext ctxt,

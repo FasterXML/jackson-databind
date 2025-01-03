@@ -152,7 +152,7 @@ public abstract class TypeDeserializer
         switch (t) {
         case VALUE_STRING:
             if (base.isAssignableFrom(String.class)) {
-                return p.getText();
+                return p.getString();
             }
             break;
         case VALUE_NUMBER_INT:

@@ -51,7 +51,7 @@ public class ContextualWithAnnDeserializerTest
         @Override
         public StringValue deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            return new StringValue(""+_fieldName+"="+p.getText());
+            return new StringValue(""+_fieldName+"="+p.getString());
         }
 
         @Override

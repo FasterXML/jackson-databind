@@ -1155,10 +1155,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeName(p.currentName());
             break;
         case VALUE_STRING:
-            if (p.hasTextCharacters()) {
-                writeString(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
+            if (p.hasStringCharacters()) {
+                writeString(p.getStringCharacters(), p.getStringOffset(), p.getStringLength());
             } else {
-                writeString(p.getText());
+                writeString(p.getString());
             }
             break;
         case VALUE_NUMBER_INT:
@@ -1297,10 +1297,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
         switch (t) {
         case VALUE_STRING:
-            if (p.hasTextCharacters()) {
-                writeString(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
+            if (p.hasStringCharacters()) {
+                writeString(p.getStringCharacters(), p.getStringOffset(), p.getStringLength());
             } else {
-                writeString(p.getText());
+                writeString(p.getString());
             }
             break;
         case VALUE_NUMBER_INT:
@@ -1726,7 +1726,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          */
 
         @Override
-        public String getText()
+        public String getString()
         {
             // common cases first:
             if (_currToken == JsonToken.VALUE_STRING
@@ -1750,22 +1750,22 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        public char[] getTextCharacters() {
-            String str = getText();
+        public char[] getStringCharacters() {
+            String str = getString();
             return (str == null) ? null : str.toCharArray();
         }
 
         @Override
-        public int getTextLength() {
-            String str = getText();
+        public int getStringLength() {
+            String str = getString();
             return (str == null) ? 0 : str.length();
         }
 
         @Override
-        public int getTextOffset() { return 0; }
+        public int getStringOffset() { return 0; }
 
         @Override
-        public boolean hasTextCharacters() {
+        public boolean hasStringCharacters() {
             // We never have raw buffer available, so:
             return false;
         }
@@ -2054,7 +2054,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_currToken != JsonToken.VALUE_STRING) {
                 throw _constructReadException("Current token ("+_currToken+") not VALUE_STRING (or VALUE_EMBEDDED_OBJECT with byte[]), cannot access as binary");
             }
-            final String str = getText();
+            final String str = getString();
             if (str == null) {
                 return null;
             }

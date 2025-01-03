@@ -199,14 +199,14 @@ public class DatabindTestUtil
 
     private static void verifyFieldName(JsonParser p, String expName)
     {
-        assertEquals(expName, p.getText());
+        assertEquals(expName, p.getString());
         assertEquals(expName, p.currentName());
     }
 
     private static void verifyIntValue(JsonParser p, long expValue)
     {
         // First, via textual
-        assertEquals(String.valueOf(expValue), p.getText());
+        assertEquals(String.valueOf(expValue), p.getString());
     }
 
     /**
@@ -506,10 +506,10 @@ public class DatabindTestUtil
     protected static String getAndVerifyText(JsonParser jp)
     {
         // Ok, let's verify other accessors
-        int actLen = jp.getTextLength();
-        char[] ch = jp.getTextCharacters();
-        String str2 = new String(ch, jp.getTextOffset(), actLen);
-        String str = jp.getText();
+        int actLen = jp.getStringLength();
+        char[] ch = jp.getStringCharacters();
+        String str2 = new String(ch, jp.getStringOffset(), actLen);
+        String str = jp.getString();
 
         if (str.length() !=  actLen) {
             fail("Internal problem (jp.token == "+jp.currentToken()+"): jp.getText().length() ['"+str+"'] == "+str.length()+"; jp.getTextLength() == "+actLen);

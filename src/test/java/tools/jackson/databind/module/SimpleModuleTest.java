@@ -55,7 +55,7 @@ public class SimpleModuleTest extends DatabindTestUtil
         @Override
         public CustomBean deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            String text = p.getText();
+            String text = p.getString();
             int ix = text.indexOf('|');
             if (ix < 0) {
                 throw new StreamReadException(p, "Failed to parse String value of \""+text+"\"");
@@ -82,7 +82,7 @@ public class SimpleModuleTest extends DatabindTestUtil
         @Override
         public SimpleEnum deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            return SimpleEnum.valueOf(p.getText().toUpperCase());
+            return SimpleEnum.valueOf(p.getString().toUpperCase());
         }
     }
 

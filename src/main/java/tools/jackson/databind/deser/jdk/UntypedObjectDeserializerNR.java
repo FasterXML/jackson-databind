@@ -65,7 +65,7 @@ final class UntypedObjectDeserializerNR
             return _deserializeNR(p, ctxt, Scope.rootArrayScope());
 
         case JsonTokenId.ID_STRING:
-            return p.getText();
+            return p.getString();
         case JsonTokenId.ID_NUMBER_INT:
             if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
                 return _coerceIntegral(p, ctxt);
@@ -226,7 +226,7 @@ final class UntypedObjectDeserializerNR
                         // but for arrays need to go to main loop
                         continue outer_loop;
                     case JsonTokenId.ID_STRING:
-                        value = p.getText();
+                        value = p.getString();
                         break;
                     case JsonTokenId.ID_NUMBER_INT:
                         value = intCoercions ?  _coerceIntegral(p, ctxt) : p.getNumberValue();
@@ -279,7 +279,7 @@ final class UntypedObjectDeserializerNR
                         currScope = currScope.finishBranchArray(useJavaArray);
                         break arrayLoop;
                     case JsonTokenId.ID_STRING:
-                        value = p.getText();
+                        value = p.getString();
                         break;
                     case JsonTokenId.ID_NUMBER_INT:
                         value = intCoercions ?  _coerceIntegral(p, ctxt) : p.getNumberValue();
@@ -314,7 +314,7 @@ final class UntypedObjectDeserializerNR
     {
         switch (tokenType) {
         case JsonTokenId.ID_STRING:
-            return p.getText();
+            return p.getString();
         case JsonTokenId.ID_NUMBER_INT:
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                 return p.getBigIntegerValue();

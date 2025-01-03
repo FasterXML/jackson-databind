@@ -109,7 +109,7 @@ public class TokenBufferTest extends DatabindTestUtil
         p = buf.asParser(ObjectReadContext.empty());
         assertNull(p.currentToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("abc", p.getText());
+        assertEquals("abc", p.getString());
         assertNull(p.nextToken());
         p.close();
 
@@ -518,7 +518,7 @@ public class TokenBufferTest extends DatabindTestUtil
             // second part: As per [databind#362], should NOT use binary with TokenBuffer
             JsonParser p = buf.asParser(ObjectReadContext.empty());
             assertEquals(JsonToken.VALUE_STRING, p.nextToken());
-            String str = p.getText();
+            String str = p.getString();
             assertEquals(value, str);
             p.close();
         }
@@ -707,7 +707,7 @@ public class TokenBufferTest extends DatabindTestUtil
 
         assertToken(JsonToken.START_ARRAY, seq.nextToken());
         assertToken(JsonToken.VALUE_STRING, seq.nextToken());
-        assertEquals("test", seq.getText());
+        assertEquals("test", seq.getString());
         // end of first parser input, should switch over:
 
         assertToken(JsonToken.START_ARRAY, seq.nextToken());
@@ -761,7 +761,7 @@ public class TokenBufferTest extends DatabindTestUtil
 
         assertToken(JsonToken.START_ARRAY, combo.nextToken());
         assertToken(JsonToken.VALUE_STRING, combo.nextToken());
-        assertEquals("a", combo.getText());
+        assertEquals("a", combo.getString());
         assertToken(JsonToken.VALUE_NUMBER_INT, combo.nextToken());
         assertEquals(13, combo.getIntValue());
         assertToken(JsonToken.END_ARRAY, combo.nextToken());

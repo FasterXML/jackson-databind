@@ -56,7 +56,7 @@ public class ManualReadPerfUntypedStream extends ObjectReaderTestBase
             JsonToken t;
             while ((t = p.nextToken()) != null) {
                 if (t == JsonToken.VALUE_STRING) {
-                    p.getText();
+                    p.getString();
                 } else if (t.isNumeric()) {
                     p.getNumberValue();
                 }

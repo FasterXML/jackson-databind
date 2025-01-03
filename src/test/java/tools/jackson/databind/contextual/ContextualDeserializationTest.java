@@ -106,7 +106,7 @@ public class ContextualDeserializationTest
         @Override
         public StringValue deserialize(JsonParser jp, DeserializationContext ctxt)
         {
-            return new StringValue(""+_fieldName+"="+jp.getText());
+            return new StringValue(""+_fieldName+"="+jp.getString());
         }
 
         @Override
@@ -134,7 +134,7 @@ public class ContextualDeserializationTest
         @Override
         public StringValue deserialize(JsonParser jp, DeserializationContext ctxt)
         {
-            return new StringValue(""+_fieldName+"="+jp.getText());
+            return new StringValue(""+_fieldName+"="+jp.getString());
         }
 
         @Override

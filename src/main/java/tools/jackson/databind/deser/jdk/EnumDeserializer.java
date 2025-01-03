@@ -181,7 +181,7 @@ public class EnumDeserializer
         // 04-Sep-2020, tatu: for 2.11.3 / 2.12.0, removed "FIELD_NAME" as allowed;
         //   did not work and gave odd error message.
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            return _fromString(p, ctxt, p.getText());
+            return _fromString(p, ctxt, p.getString());
         }
 
         // But let's consider int acceptable as well (if within ordinal range)
@@ -191,7 +191,7 @@ public class EnumDeserializer
             if (_isFromIntValue) {
                 // ... whether to rely on "getText()" returning String, or get number, convert?
                 // For now assume all format backends can produce String:
-                return _fromString(p, ctxt, p.getText());
+                return _fromString(p, ctxt, p.getString());
             }
             return _fromInteger(p, ctxt, p.getIntValue());
         }

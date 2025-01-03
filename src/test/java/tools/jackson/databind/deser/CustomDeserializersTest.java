@@ -266,7 +266,7 @@ public class CustomDeserializersTest
         @Override
         public String deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            return p.getText().toUpperCase();
+            return p.getString().toUpperCase();
         }
     }
 

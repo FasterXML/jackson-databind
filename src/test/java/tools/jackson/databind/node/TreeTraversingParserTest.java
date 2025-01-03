@@ -57,39 +57,39 @@ public class TreeTraversingParserTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertNull(p.currentName());
-        assertEquals(JsonToken.START_OBJECT.asString(), p.getText(),
+        assertEquals(JsonToken.START_OBJECT.asString(), p.getString(),
                 "Expected START_OBJECT");
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.currentName());
-        assertEquals("a", p.getText());
+        assertEquals("a", p.getString());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("a", p.currentName());
         assertEquals(123, p.getIntValue());
-        assertEquals("123", p.getText());
+        assertEquals("123", p.getString());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("list", p.currentName());
-        assertEquals("list", p.getText());
+        assertEquals("list", p.getString());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertEquals("list", p.currentName());
-        assertEquals(JsonToken.START_ARRAY.asString(), p.getText());
+        assertEquals(JsonToken.START_ARRAY.asString(), p.getString());
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertNull(p.currentName());
         assertEquals(12.25, p.getDoubleValue(), 0);
-        assertEquals("12.25", p.getText());
+        assertEquals("12.25", p.getString());
 
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
         assertNull(p.currentName());
-        assertEquals(JsonToken.VALUE_NULL.asString(), p.getText());
+        assertEquals(JsonToken.VALUE_NULL.asString(), p.getString());
 
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertNull(p.currentName());
         assertTrue(p.getBooleanValue());
-        assertEquals(JsonToken.VALUE_TRUE.asString(), p.getText());
+        assertEquals(JsonToken.VALUE_TRUE.asString(), p.getString());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertNull(p.currentName());
@@ -214,7 +214,7 @@ public class TreeTraversingParserTest
         assertArrayEquals(inputBinary, data);
 
         // but as importantly, can be viewed as base64 encoded thing:
-        assertEquals("APs=", p.getText());
+        assertEquals("APs=", p.getString());
 
         assertNull(p.nextToken());
         p.close();

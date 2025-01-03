@@ -33,7 +33,7 @@ public class OptionalLongDeserializer extends BaseScalarOptionalDeserializer<Opt
         CoercionAction act;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            String text = p.getText();
+            String text = p.getString();
             act = _checkFromStringCoercion(ctxt, text);
             if (act == CoercionAction.AsNull) {
                 return (OptionalLong) getNullValue(ctxt);

@@ -178,7 +178,7 @@ public class CoerceToBooleanTest
             assertSame(p, e.processor());
 
             assertToken(JsonToken.VALUE_STRING, p.currentToken());
-            assertEquals(unquotedValue, p.getText());
+            assertEquals(unquotedValue, p.getString());
         }
     }
 
@@ -419,7 +419,7 @@ public class CoerceToBooleanTest
 
         assertToken(tokenType, p.currentToken());
 
-        final String text = p.getText();
+        final String text = p.getString();
         if (!tokenValue.equals(text)) {
             String textDesc = (text == null) ? "NULL" : q(text);
             fail("Token text ("+textDesc+") via parser of type "+p.getClass().getName()

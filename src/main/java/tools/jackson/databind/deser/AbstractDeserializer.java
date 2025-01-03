@@ -273,7 +273,7 @@ handledType().getName()));
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             if (_acceptString) {
-                return p.getText();
+                return p.getString();
             }
             break;
         case JsonTokenId.ID_NUMBER_INT:

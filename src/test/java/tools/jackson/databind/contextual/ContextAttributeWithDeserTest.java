@@ -31,7 +31,7 @@ public class ContextAttributeWithDeserTest
             }
             int i = I.intValue();
             ctxt.setAttribute(KEY, Integer.valueOf(i + 1));
-            return p.getText()+"/"+i;
+            return p.getString()+"/"+i;
         }
 
     }

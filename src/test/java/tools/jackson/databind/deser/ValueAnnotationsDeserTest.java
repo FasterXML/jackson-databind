@@ -74,7 +74,7 @@ public class ValueAnnotationsDeserTest
         public RootString deserialize(JsonParser p, DeserializationContext ctxt)
         {
             if (p.hasToken(JsonToken.VALUE_STRING)) {
-                return new RootStringImpl(p.getText());
+                return new RootStringImpl(p.getString());
             }
             return (RootString) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }

@@ -94,7 +94,7 @@ public class AsWrapperTypeDeserializer
             ctxt.reportWrongTokenException(baseType(), JsonToken.START_OBJECT,
                     "need JSON Object to contain As.WRAPPER_OBJECT type information for class "+baseTypeName());
         }
-        final String typeId = p.getText();
+        final String typeId = p.getString();
         ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
         p.nextToken();
 

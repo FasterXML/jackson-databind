@@ -47,7 +47,7 @@ public class MapDeserializationTest
         public CustomMap deserialize(JsonParser p, DeserializationContext ctxt)
         {
             CustomMap result = new CustomMap();
-            result.put("x", p.getText());
+            result.put("x", p.getString());
             return result;
         }
     }

@@ -268,7 +268,7 @@ public class NumberDeserializers
 
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
-                text = p.getText();
+                text = p.getString();
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT:
                 final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
@@ -354,7 +354,7 @@ public class NumberDeserializers
             String text;
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
-                text = p.getText();
+                text = p.getString();
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT:
                 final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
@@ -431,14 +431,14 @@ public class NumberDeserializers
                 // 23-Jun-2020, tatu: Unlike real numeric types, Character/char does not
                 //   have canonical shape in JSON, and String in particular does not need
                 //   coercion -- as long as it has length of 1.
-                text = p.getText();
+                text = p.getString();
                 break;
             case JsonTokenId.ID_NUMBER_INT: // ok iff Unicode value
                 CoercionAction act = ctxt.findCoercionAction(logicalType(), _valueClass, CoercionInputShape.Integer);
                 switch (act) {
                 case Fail:
                     _checkCoercionFail(ctxt, act, _valueClass, p.getNumberValue(),
-                            "Integer value ("+p.getText()+")");
+                            "Integer value ("+p.getString()+")");
                     // fall-through in unlikely case of returning
                 case AsNull:
                     return getNullValue(ctxt);
@@ -582,7 +582,7 @@ public class NumberDeserializers
             String text;
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
-                text = p.getText();
+                text = p.getString();
                 break;
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Float) getNullValue(ctxt);
@@ -681,7 +681,7 @@ public class NumberDeserializers
             String text;
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
-                text = p.getText();
+                text = p.getString();
                 break;
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Double) getNullValue(ctxt);
@@ -772,7 +772,7 @@ public class NumberDeserializers
             String text;
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
-                text = p.getText();
+                text = p.getString();
                 break;
             case JsonTokenId.ID_NUMBER_INT:
                 if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
@@ -909,7 +909,7 @@ public class NumberDeserializers
             String text;
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
-                text = p.getText();
+                text = p.getString();
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT:
                 final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
@@ -992,7 +992,7 @@ public class NumberDeserializers
             case JsonTokenId.ID_NUMBER_FLOAT:
                 return p.getDecimalValue();
             case JsonTokenId.ID_STRING:
-                text = p.getText();
+                text = p.getString();
                 break;
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
             case JsonTokenId.ID_START_OBJECT:

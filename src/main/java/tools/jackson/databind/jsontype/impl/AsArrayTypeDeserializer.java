@@ -148,7 +148,7 @@ public class AsArrayTypeDeserializer
         if ((t == JsonToken.VALUE_STRING)
                 // 25-Nov-2022, tatu: [databind#1761] Also accept other scalars
             || ((t != null) && t.isScalarValue())) {
-            String result = p.getText();
+            String result = p.getString();
             p.nextToken();
             return result;
         }

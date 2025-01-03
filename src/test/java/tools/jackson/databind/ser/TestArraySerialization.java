@@ -27,14 +27,14 @@ public class TestArraySerialization
         JsonParser p = MAPPER.createParser(data);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("abc", p.getText());
+        assertEquals("abc", p.getString());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        String actual = p.getText();
+        String actual = p.getString();
         assertEquals(str.length(), actual.length());
         assertEquals(str, actual);
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(str, p.getText());
+        assertEquals(str, p.getString());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertNull(p.nextToken());
         p.close();

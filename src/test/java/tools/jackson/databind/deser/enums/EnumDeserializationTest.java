@@ -53,7 +53,7 @@ public class EnumDeserializationTest
         @Override
         public TestEnum deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            return TestEnum.valueOf(p.getText().toUpperCase());
+            return TestEnum.valueOf(p.getString().toUpperCase());
         }
     }
 

@@ -77,7 +77,7 @@ public class HandlerInstantiationTest
         @Override
         public MyBean deserialize(JsonParser jp, DeserializationContext ctxt)
         {
-            return new MyBean(_prefix+jp.getText());
+            return new MyBean(_prefix+jp.getString());
         }
     }
 

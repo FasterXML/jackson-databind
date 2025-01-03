@@ -38,7 +38,7 @@ public class CollectionDeserTest
         public CustomList deserialize(JsonParser jp, DeserializationContext ctxt)
         {
             CustomList result = new CustomList();
-            result.add(jp.getText());
+            result.add(jp.getString());
             return result;
         }
     }

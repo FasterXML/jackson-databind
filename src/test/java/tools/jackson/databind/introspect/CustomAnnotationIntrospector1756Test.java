@@ -41,7 +41,7 @@ public class CustomAnnotationIntrospector1756Test extends DatabindTestUtil
 
       @Override
       public String deserialize(JsonParser p, DeserializationContext ctxt) {
-        return p.getText();
+        return p.getString();
       }
     }
 

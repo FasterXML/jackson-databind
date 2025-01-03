@@ -349,7 +349,7 @@ public class ObjectArrayDeserializer
             value = _nullProvider.getNullValue(ctxt);
         } else {
             if (p.hasToken(JsonToken.VALUE_STRING)) {
-                String textValue = p.getText();
+                String textValue = p.getString();
                 // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
                 if (textValue.isEmpty()) {
                     final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),

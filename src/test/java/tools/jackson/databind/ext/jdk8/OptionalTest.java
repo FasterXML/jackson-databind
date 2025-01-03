@@ -113,7 +113,7 @@ public class OptionalTest
         @Override
         public String deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            return p.getText().toLowerCase();
+            return p.getString().toLowerCase();
         }
     }
 

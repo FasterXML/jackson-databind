@@ -134,7 +134,7 @@ public abstract class DateBasedDeserializer<T>
     {
         if (_customFormat != null) {
             if (p.hasToken(JsonToken.VALUE_STRING)) {
-                String str = p.getText().trim();
+                String str = p.getString().trim();
                 if (str.isEmpty()) {
                     final CoercionAction act = _checkFromStringCoercion(ctxt, str);
                     switch (act) { // note: Fail handled above

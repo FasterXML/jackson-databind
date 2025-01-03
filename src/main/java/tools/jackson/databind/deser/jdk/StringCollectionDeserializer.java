@@ -195,7 +195,7 @@ public final class StringCollectionDeserializer
         try {
             while (true) {
                 // First the common case:
-                String value = p.nextTextValue();
+                String value = p.nextStringValue();
                 if (value != null) {
                     result.add(value);
                     continue;
@@ -231,7 +231,7 @@ public final class StringCollectionDeserializer
                  *   assume that's what we use due to custom deserializer
                  */
                 String value;
-                if (p.nextTextValue() == null) {
+                if (p.nextStringValue() == null) {
                     JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
                         break;
@@ -295,7 +295,7 @@ public final class StringCollectionDeserializer
             value = (String) _nullProvider.getNullValue(ctxt);
         } else {
             if (p.hasToken(JsonToken.VALUE_STRING)) {
-                String textValue = p.getText();
+                String textValue = p.getString();
                 // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
                 if (textValue.isEmpty()) {
                     final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),

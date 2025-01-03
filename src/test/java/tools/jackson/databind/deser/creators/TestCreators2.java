@@ -42,7 +42,7 @@ public class TestCreators2
         @Override
         public byte[] deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            String str = p.getText();
+            String str = p.getString();
             try {
                 return str.getBytes("UTF-8");
             } catch (IOException e) {

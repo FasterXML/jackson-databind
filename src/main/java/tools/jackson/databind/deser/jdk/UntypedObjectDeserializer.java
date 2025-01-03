@@ -278,7 +278,7 @@ public class UntypedObjectDeserializer
             if (_stringDeserializer != null) {
                 return _stringDeserializer.deserialize(p, ctxt);
             }
-            return p.getText();
+            return p.getString();
 
         case JsonTokenId.ID_NUMBER_INT:
             if (_numberDeserializer != null) {
@@ -331,7 +331,7 @@ public class UntypedObjectDeserializer
             if (_stringDeserializer != null) {
                 return _stringDeserializer.deserialize(p, ctxt);
             }
-            return p.getText();
+            return p.getString();
 
         case JsonTokenId.ID_NUMBER_INT:
             if (_numberDeserializer != null) {
@@ -400,7 +400,7 @@ public class UntypedObjectDeserializer
             if (_stringDeserializer != null) {
                 return _stringDeserializer.deserialize(p, ctxt, intoValue);
             }
-            return p.getText();
+            return p.getString();
 
         case JsonTokenId.ID_NUMBER_INT:
             if (_numberDeserializer != null) {

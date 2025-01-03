@@ -88,7 +88,7 @@ public class TestCustomEnumKeyDeserializer extends DatabindTestUtil
 
         @Override
         public TestEnum deserialize(JsonParser p, DeserializationContext ctxt) {
-            String code = p.getText();
+            String code = p.getString();
             try {
                 return TestEnum.lookup(code);
             } catch (IllegalArgumentException e) {
@@ -218,7 +218,7 @@ public class TestCustomEnumKeyDeserializer extends DatabindTestUtil
             @Override
             public SuperTypeEnum deserialize(JsonParser p, DeserializationContext deserializationContext)
             {
-                return SuperTypeEnum.valueOf(p.getText());
+                return SuperTypeEnum.valueOf(p.getString());
             }
         });
         ObjectMapper mapper = jsonMapperBuilder()

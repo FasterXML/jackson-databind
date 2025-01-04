@@ -1050,18 +1050,14 @@ public abstract class JsonNode
      */
 
     /**
-     * Same as calling {@link #values()}; implemented so that
-     * convenience "for-each" loop can be used for looping over elements
+     * implemented so that convenience "for-each" loop can be used for looping over elements
      * of JSON Array constructs.
      */
     @Override
     public final Iterator<JsonNode> iterator() { return values().iterator(); }
 
-    /**
-     * Same as calling {@link #valueSpliterator()}.
-     */
     @Override
-    public final Spliterator<JsonNode> spliterator() { return valueSpliterator(); }
+    public final Spliterator<JsonNode> spliterator() { return values().spliterator(); }
 
     /**
      * Method for accessing all value nodes of this Node, iff
@@ -1071,18 +1067,6 @@ public abstract class JsonNode
      */
     public Collection<JsonNode> values() {
         return Collections.emptyList();
-    }
-
-    /**
-     * Method for accessing all value nodes of this Node, iff
-     * this node is a JSON Array or Object node. In case of Object node,
-     * field names (keys) are not included, only values.
-     * For other types of nodes, returns empty <code>Spliterator</code>.
-     *
-     * @since 3.0
-     */
-    public Spliterator<JsonNode> valueSpliterator() {
-        return values().spliterator();
     }
 
     /**
@@ -1098,15 +1082,6 @@ public abstract class JsonNode
         return Collections.emptySet();
     }
 
-    /**
-     * @return {@code Spliterator} that can be used to traverse all key/value pairs
-     *   for object nodes; empty spliterator (no contents) for other types
-     * @since 3.0
-     */
-    public Spliterator<Map.Entry<String, JsonNode>> propertySpliterator() {
-        return properties().spliterator();
-    }
-    
     /**
      * Returns a stream of all value nodes of this Node, iff
      * this node is an {@code ArrayNode} or {@code ObjectNode}.

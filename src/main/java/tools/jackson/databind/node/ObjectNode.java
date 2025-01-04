@@ -278,11 +278,6 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _children.values();
     }
 
-    @Override
-    public Spliterator<JsonNode> valueSpliterator() {
-        return _children.values().spliterator();
-    }
-
     @Override // @since 2.19
     public Stream<JsonNode> valueStream() {
         return _children.values().stream();
@@ -300,11 +295,6 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     @Override
     public Set<Map.Entry<String, JsonNode>> properties() {
         return _children.entrySet();
-    }
-
-    @Override
-    public Spliterator<Map.Entry<String, JsonNode>> propertySpliterator() {
-        return _children.entrySet().spliterator();
     }
 
     @Override // @since 2.19

@@ -263,11 +263,6 @@ public class ArrayNode
     public Collection<JsonNode> values() {
         return _children;
     }
-
-    @Override
-    public Spliterator<JsonNode> valueSpliterator() {
-        return _children.spliterator();
-    }
     
     @Override
     public Stream<JsonNode> valueStream() {

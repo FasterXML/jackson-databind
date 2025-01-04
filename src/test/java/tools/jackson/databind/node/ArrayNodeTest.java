@@ -36,7 +36,6 @@ public class ArrayNodeTest
 
         assertStandardEquals(n);
         assertFalse(n.values().iterator().hasNext());
-        assertEquals(0, n.valueSpliterator().estimateSize());
         assertTrue(n.propertyNames().isEmpty());
         assertTrue(n.isEmpty());
         StringNode text = StringNode.valueOf("x");

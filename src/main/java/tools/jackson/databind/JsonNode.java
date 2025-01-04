@@ -1050,7 +1050,7 @@ public abstract class JsonNode
      */
 
     /**
-     * implemented so that convenience "for-each" loop can be used for looping over elements
+     * Implemented so that convenience "for-each" loop can be used for looping over elements
      * of JSON Array constructs.
      */
     @Override

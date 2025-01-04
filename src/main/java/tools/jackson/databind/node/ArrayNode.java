@@ -256,17 +256,11 @@ public class ArrayNode
     /**
      * {@inheritDoc}
      *<p>
-     * NOTE: actual underlying implementation returns {@link java.util.ListIterator}
-     * from {@link java.util.List#listIterator()} that contains elements.
+     * NOTE: this returns the live <code>List</code> and not a copy.
      */
     @Override
     public Collection<JsonNode> values() {
         return _children;
-    }
-
-    @Override
-    public Spliterator<JsonNode> valueSpliterator() {
-        return _children.spliterator();
     }
     
     @Override

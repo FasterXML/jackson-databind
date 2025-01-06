@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test for type-based ignoral, both via annotations (<code>JsonIgnoreType</code>)
  * and "config overrides" (2.8 and above).
  */
-public class TestIgnoredTypes extends DatabindTestUtil
+public class IgnoredTypesTest extends DatabindTestUtil
 {
     @JsonIgnoreType
     class IgnoredType { // note: non-static, can't be deserialized

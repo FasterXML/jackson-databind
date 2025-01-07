@@ -84,6 +84,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #4820: Change JDK baseline for Jackson 3.0 from Java 8 to Java 17
 #4835: Remove dynamic work-arounds wrt accessing `Record` definition
 #4840: Increase minimum Android SDK required to 34 for Jackson 3.0
+#4858: Change default of `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES`
+  to `true` for 3.0
 #4875: Remove `JsonNode.fields()` from 3.0
 #4879: Rename `TextNode` as `StringNode`; `JsonNode.xxxTextYyy()` (mostly) as
   `JsonNode.xxxStringYyy()` [JSTEP-3]

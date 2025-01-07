@@ -168,7 +168,13 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
     @Test
     public void testWithCreatorAndView() throws Exception
     {
-        ObjectReader reader = MAPPER.readerFor(CreatorValue.class);
+        // 06-Jan-2025, tatu: NOTE! need to make sure Default View Inclusion
+        //   is enabled for tests to work as expected
+        ObjectReader reader = jsonMapperBuilder()
+                .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .build()
+                .readerFor(CreatorValue.class);
+
         CreatorValue value;
 
         // First including values in view

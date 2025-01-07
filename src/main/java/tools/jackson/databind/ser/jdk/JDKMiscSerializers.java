@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser.jdk;
 
+import java.io.ByteArrayOutputStream;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
@@ -49,6 +50,9 @@ public class JDKMiscSerializers
         // And then some stranger types... not 100% they are needed but:
         if ((raw == Void.class) || (raw == Void.TYPE)) {
             return NullSerializer.instance;
+        }
+        if (ByteArrayOutputStream.class.isAssignableFrom(raw)) {
+            return new ByteArrayOutputStreamSerializer();
         }
         return null;
     }
@@ -106,6 +110,33 @@ public class JDKMiscSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
             visitIntFormat(visitor, typeHint, JsonParser.NumberType.LONG);
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Serializers, other
+    /**********************************************************************
+     */
+
+    /**
+     * @since 3.0
+     */
+    public static class ByteArrayOutputStreamSerializer
+        extends StdScalarSerializer<ByteArrayOutputStream>
+    {
+        public ByteArrayOutputStreamSerializer() { super(ByteArrayOutputStream.class, false); }
+
+        @Override
+        public void serialize(ByteArrayOutputStream value, JsonGenerator gen,
+                SerializationContext ctxt) throws JacksonException {
+            gen.writeBinary(value.toByteArray());
+        }
+
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+            acceptJsonFormatVisitorForBinary(visitor, typeHint);
         }
     }
 }

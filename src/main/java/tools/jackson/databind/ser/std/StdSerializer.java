@@ -106,6 +106,25 @@ public abstract class StdSerializer<T>
         visitor.expectAnyFormat(typeHint);
     }
 
+    /**
+     * Helper method for handling Binary values: typically serialized as Base64-encoded
+     * data (in textual formats) or native binary (binary formats).
+     */
+    protected void acceptJsonFormatVisitorForBinary(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+    {
+        // 14-Mar-2016, tatu: while logically (and within JVM) binary, gets often encoded
+        // as Base64 String, let's try to indicate it is array of Bytes... difficult,
+        // thanks to JSON Schema's lackluster set of types available
+        //
+        // TODO: make work either as String/base64, or array of numbers,
+        //   with a qualifier that can be used to determine it's byte[]
+
+        JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+        if (v2 != null) {
+            v2.itemsFormat(JsonFormatTypes.INTEGER);
+        }
+    }
+
     /*
     /**********************************************************************
     /* Helper methods for JSON Schema generation

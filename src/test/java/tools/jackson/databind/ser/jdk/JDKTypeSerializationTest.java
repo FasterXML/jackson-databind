@@ -258,4 +258,15 @@ public class JDKTypeSerializationTest
         assertNotNull(cl);
         assertEquals(0, cl.size());
     }
+
+    // [databind#3522]: ByteArrayOutputStream 
+    @Test
+    public void testByteArrayOutputStreamSerialization() throws Exception
+    {
+        byte[] bytes = new byte[] { 1, 11, 111 };
+        final String exp = MAPPER.writeValueAsString(bytes);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        baos.write(bytes);
+        assertEquals(exp, MAPPER.writeValueAsString(baos));
+    }
 }

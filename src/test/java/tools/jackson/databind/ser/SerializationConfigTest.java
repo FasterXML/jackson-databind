@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for checking handling of SerializationConfig.
  */
-public class TestSerConfig
+public class SerializationConfigTest
     extends DatabindTestUtil
 {
     /*

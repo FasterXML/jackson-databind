@@ -4,8 +4,6 @@ import java.nio.ByteBuffer;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
-import tools.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
-import tools.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.util.ByteBufferBackedInputStream;
@@ -33,12 +31,7 @@ public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
     }
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-    {
-        // 31-Mar-2017, tatu: Use same type as `ByteArraySerializer`: not optimal but has to do
-        JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
-        if (v2 != null) {
-            v2.itemsFormat(JsonFormatTypes.INTEGER);
-        }
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
+        acceptJsonFormatVisitorForBinary(visitor, typeHint);
     }
 }

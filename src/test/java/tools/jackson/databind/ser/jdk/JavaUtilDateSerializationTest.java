@@ -433,10 +433,4 @@ public class JavaUtilDateSerializationTest
         String result = w.writeValueAsString(date);
         assertTrue(expected.contains(result), "unexpected result: " + result);
     }
-
-    private String zoneOffset(String raw) {
-        // Add colon or not -- difference between 2.10 and earlier, 2.11 and later
-        return raw.substring(0, 2) + ":" + raw.substring(2); // 2.11 and later
-//        return raw; // 2.10 and earlier
-    }
 }

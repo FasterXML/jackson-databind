@@ -207,7 +207,8 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
             MAPPER.readValue(json, ValueClassXY.class);
             fail("should not pass with extra element");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Unexpected JSON values");
+            // Looks like we get either "Unexpected JSON values" or "Unexpected JSON value(s)"
+            verifyException(e, "Unexpected JSON value");
         }
 
         // but actually fine if skip-unknown set

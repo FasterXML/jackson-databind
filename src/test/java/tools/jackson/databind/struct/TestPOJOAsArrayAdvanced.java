@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -88,7 +89,11 @@ public class TestPOJOAsArrayAdvanced extends DatabindTestUtil
     /*****************************************************
      */
 
-    private final static ObjectMapper MAPPER = newJsonMapper();
+    // 06-Jan-2025, tatu: NOTE! need to make sure Default View Inclusion
+    //   is enabled for tests to work as expected
+    private final static ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .build();
 
     @Test
     public void testWithView() throws Exception

@@ -10,6 +10,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class ScalarConversionTest
 {
+    // 08-Jan-2025, tatu: Need to allow null-to-int coercion here
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
             .build();

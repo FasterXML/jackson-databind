@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -104,7 +105,10 @@ public class RecordWithJsonIgnoreTest extends DatabindTestUtil
 
     @Test
     public void testDeserializeJsonIgnorePrimitiveTypeRecord() throws Exception {
-        RecordWithIgnorePrimitiveType value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", RecordWithIgnorePrimitiveType.class);
+        RecordWithIgnorePrimitiveType value = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build()
+                .readValue("{\"id\":123,\"name\":\"Bob\"}", RecordWithIgnorePrimitiveType.class);
         assertEquals(new RecordWithIgnorePrimitiveType(0, "Bob"), value);
     }
 }

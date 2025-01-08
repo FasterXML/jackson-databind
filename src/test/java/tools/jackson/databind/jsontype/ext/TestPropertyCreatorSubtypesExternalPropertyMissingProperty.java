@@ -127,9 +127,11 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
     {
         final ObjectMapper mapper = new ObjectMapper();
         BOX_READER_PASS = mapper.readerFor(Box.class)
-            .without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
+            .without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
+            .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
         BOX_READER_FAIL = mapper.readerFor(Box.class)
-            .with(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
+            .with(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
+            .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
     }
 
     /**

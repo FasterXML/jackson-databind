@@ -105,7 +105,9 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
     /*****************************************************
      */
 
-    private final static ObjectMapper MAPPER = newJsonMapper();
+    private final static ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build();
 
     @Test
     public void testSimpleBuilder() throws Exception

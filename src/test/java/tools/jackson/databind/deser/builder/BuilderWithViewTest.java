@@ -86,6 +86,7 @@ public class BuilderWithViewTest
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
         .disable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
+        .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
         .build();
 
     @Test

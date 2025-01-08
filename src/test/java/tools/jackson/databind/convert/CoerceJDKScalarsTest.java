@@ -86,6 +86,7 @@ public class CoerceJDKScalarsTest
     {
         Object result = COERCING_MAPPER.readerFor(type)
                 .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .readValue("\"\"");
         if (exp == null) {
             assertNull(result);

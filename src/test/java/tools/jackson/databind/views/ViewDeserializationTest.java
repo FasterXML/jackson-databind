@@ -134,12 +134,14 @@ public class ViewDeserializationTest extends DatabindTestUtil
 
         result = mapper.readerFor(ViewsAndCreatorBean.class)
                 .withView(ViewA.class)
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .readValue(a2q("{'a':1,'b':2}"));
         assertEquals(1, result.a);
         assertEquals(0, result.b);
 
         result = mapper.readerFor(ViewsAndCreatorBean.class)
                 .withView(ViewB.class)
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .readValue(a2q("{'a':1,'b':2}"));
         assertEquals(0, result.a);
         assertEquals(2, result.b);
@@ -147,6 +149,7 @@ public class ViewDeserializationTest extends DatabindTestUtil
         // and actually... fine to skip incompatible stuff too
         result = mapper.readerFor(ViewsAndCreatorBean.class)
                 .withView(ViewB.class)
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .readValue(a2q("{'a':[ 1, 23, { } ],'b':2}"));
         assertEquals(0, result.a);
         assertEquals(2, result.b);

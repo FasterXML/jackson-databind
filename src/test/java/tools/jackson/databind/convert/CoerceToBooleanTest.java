@@ -52,7 +52,9 @@ public class CoerceToBooleanTest
         public void setPrimitive(boolean v) { primitive = v; }
     }
 
-    private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
+    private final ObjectMapper DEFAULT_MAPPER = jsonMapperBuilder()
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build();
 
     private final ObjectMapper LEGACY_NONCOERCING_MAPPER = jsonMapperBuilder()
             .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)

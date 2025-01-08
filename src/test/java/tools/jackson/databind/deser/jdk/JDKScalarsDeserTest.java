@@ -25,7 +25,9 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
  */
 public class JDKScalarsDeserTest
 {
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build();
 
     private final static String NAN_STRING = "NaN";
 

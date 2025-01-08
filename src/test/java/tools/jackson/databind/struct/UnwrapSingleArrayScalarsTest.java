@@ -40,6 +40,7 @@ public class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
         // [databind#381]
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .build();
         BooleanBean result = mapper.readValue(new StringReader("{\"v\":[true]}"), BooleanBean.class);
         assertTrue(result._v);

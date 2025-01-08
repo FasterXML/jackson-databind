@@ -18,8 +18,7 @@ import tools.jackson.databind.exc.ValueInstantiationException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.q;
-import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class TestCreators2
 {
@@ -264,7 +263,10 @@ public class TestCreators2
     @Test
     public void testMissingPrimitives() throws Exception
     {
-        Primitives p = MAPPER.readValue("{}", Primitives.class);
+        Primitives p = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build()
+                .readValue("{}", Primitives.class);
         assertFalse(p.b);
         assertEquals(0, p.x);
         assertEquals(0.0, p.d);

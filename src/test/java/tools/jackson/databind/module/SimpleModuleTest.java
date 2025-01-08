@@ -214,6 +214,8 @@ public class SimpleModuleTest extends DatabindTestUtil
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 // since 3.0 not enabled by default
                 .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                // since 3.0 enabled by default
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .build();
         // first: serialization failure:
         try {

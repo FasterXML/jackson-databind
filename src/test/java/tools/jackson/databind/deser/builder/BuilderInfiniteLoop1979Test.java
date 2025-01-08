@@ -7,11 +7,13 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 //first for [databind#1978] but follow up for [databind#1979]
 public class BuilderInfiniteLoop1979Test
+    extends DatabindTestUtil
 {
     static class Builder
     {
@@ -93,7 +95,9 @@ public class BuilderInfiniteLoop1979Test
     public void testInfiniteLoop1978() throws Exception
     {
         String json = "{\"sub.el1\":34,\"sub.el2\":\"some text\"}";
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
         Bean bean = mapper.readValue( json, Bean.class );
         assertNotNull(bean);
     }

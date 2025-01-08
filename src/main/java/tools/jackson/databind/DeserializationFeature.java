@@ -126,7 +126,7 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
      */
-    FAIL_ON_NULL_FOR_PRIMITIVES(false),
+    FAIL_ON_NULL_FOR_PRIMITIVES(true),
 
     /**
      * Feature that determines whether JSON integer numbers are valid

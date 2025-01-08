@@ -27,9 +27,9 @@ public class SimpleModuleTest extends DatabindTestUtil
     final static class CustomBean
     {
         protected String str;
-        protected int num;
+        protected Integer num;
 
-        public CustomBean(String s, int i) {
+        public CustomBean(String s, Integer i) {
             str = s;
             num = i;
         }
@@ -214,8 +214,6 @@ public class SimpleModuleTest extends DatabindTestUtil
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 // since 3.0 not enabled by default
                 .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                // since 3.0 enabled by default
-                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .build();
         // first: serialization failure:
         try {

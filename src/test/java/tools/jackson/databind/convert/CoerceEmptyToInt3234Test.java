@@ -3,14 +3,13 @@ package tools.jackson.databind.convert;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-
 // [databind#3234]
 public class CoerceEmptyToInt3234Test
+    extends DatabindTestUtil
 {
     static class BasicIntWrapper {
         public int value = 13;
@@ -24,7 +23,10 @@ public class CoerceEmptyToInt3234Test
         public double value = -1.25;
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            // 08-Jan-2025, tatu: Need to allow null-to-int coercion for some tests
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build();
     private final ObjectReader READER_INT_BASIC = MAPPER.readerFor(BasicIntWrapper.class);
     private final ObjectReader READER_LONG_BASIC = MAPPER.readerFor(BasicLongWrapper.class);
     private final ObjectReader READER_DOUBLE_BASIC = MAPPER.readerFor(BasicDoubleWrapper.class);

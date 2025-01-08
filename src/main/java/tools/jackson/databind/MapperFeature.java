@@ -263,9 +263,9 @@ public enum MapperFeature
      * properties are included in all views if there is no
      * {@link com.fasterxml.jackson.annotation.JsonView} annotation.
      *<p>
-     * Feature is enabled by default.
+     * Feature is enabled by default in 2.x: will be disabled in 3.0.
      */
-    DEFAULT_VIEW_INCLUSION(false),
+    DEFAULT_VIEW_INCLUSION(true),
 
     /*
     /**********************************************************************

@@ -379,7 +379,7 @@ public enum MapperFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default.
      */
-    DEFAULT_VIEW_INCLUSION(true),
+    DEFAULT_VIEW_INCLUSION(false),
 
     /*
     /******************************************************

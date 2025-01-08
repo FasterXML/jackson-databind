@@ -127,7 +127,8 @@ public enum DeserializationFeature implements ConfigFeature
      * is thrown to indicate this; if not, default value is used
      * (0 for 'int', 0.0 for double, same defaulting as what JVM uses).
      *<p>
-     * Feature is disabled by default.
+     * Feature is disabled by default for Jackson 2.x: will be changed
+     * to enabled in 3.0.
      */
     FAIL_ON_NULL_FOR_PRIMITIVES(false),
 

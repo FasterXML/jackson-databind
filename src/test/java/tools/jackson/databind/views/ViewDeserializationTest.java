@@ -45,14 +45,14 @@ public class ViewDeserializationTest extends DatabindTestUtil
     static class ViewsAndCreatorBean
     {
         @JsonView(ViewA.class)
-        public int a;
+        public Integer a;
 
         @JsonView(ViewB.class)
-        public int b;
+        public Integer b;
 
         @JsonCreator
-        public ViewsAndCreatorBean(@JsonProperty("a") int a,
-                @JsonProperty("b") int b)
+        public ViewsAndCreatorBean(@JsonProperty("a") Integer a,
+                @JsonProperty("b") Integer b)
         {
             this.a = a;
             this.b = b;
@@ -136,19 +136,19 @@ public class ViewDeserializationTest extends DatabindTestUtil
                 .withView(ViewA.class)
                 .readValue(a2q("{'a':1,'b':2}"));
         assertEquals(1, result.a);
-        assertEquals(0, result.b);
+        assertEquals(null, result.b);
 
         result = mapper.readerFor(ViewsAndCreatorBean.class)
                 .withView(ViewB.class)
                 .readValue(a2q("{'a':1,'b':2}"));
-        assertEquals(0, result.a);
+        assertEquals(null, result.a);
         assertEquals(2, result.b);
 
         // and actually... fine to skip incompatible stuff too
         result = mapper.readerFor(ViewsAndCreatorBean.class)
                 .withView(ViewB.class)
                 .readValue(a2q("{'a':[ 1, 23, { } ],'b':2}"));
-        assertEquals(0, result.a);
+        assertEquals(null, result.a);
         assertEquals(2, result.b);
     }
 }

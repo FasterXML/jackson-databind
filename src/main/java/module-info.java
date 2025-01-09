@@ -1,4 +1,4 @@
-// Generated 14-Mar-2019 using Moditect maven plugin
+// Jackson 3.x module-info
 module tools.jackson.databind {
     // required for
     // java.beans.ConstructorProperties

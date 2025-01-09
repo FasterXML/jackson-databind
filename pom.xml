@@ -247,10 +247,6 @@
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>org.moditect</groupId>
-        <artifactId>moditect-maven-plugin</artifactId>
-      </plugin>
       <!-- 03-Nov-2020, tatu: Add LICENSE from main level -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>

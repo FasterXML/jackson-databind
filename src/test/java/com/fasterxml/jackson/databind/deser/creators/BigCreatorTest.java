@@ -50,7 +50,9 @@ public class BigCreatorTest
         }
     }
 
-    private final ObjectReader BIGGIE_READER = sharedMapper().readerFor(Biggie.class);
+    private final ObjectReader BIGGIE_READER = sharedMapper()
+            .readerFor(Biggie.class)
+            .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
 
     @Test
     public void testBigPartial() throws Exception

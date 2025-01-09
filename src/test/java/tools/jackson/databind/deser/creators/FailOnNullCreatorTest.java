@@ -32,19 +32,19 @@ public class FailOnNullCreatorTest
         }
     }
 
-    private final ObjectReader POINT_READER = sharedMapper().readerFor(Person.class);
+    private final ObjectReader PERSON_READER = sharedMapper().readerFor(Person.class);
 
     @Test
     public void testRequiredNonNullParam() throws Exception
     {
         Person p;
         // First: fine if feature is not enabled
-        p = POINT_READER.readValue(a2q("{}"));
+        p = PERSON_READER.readValue(a2q("{}"));
         assertEquals(null, p.name);
         assertEquals(Integer.valueOf(0), p.age);
 
         // Second: fine if feature is enabled but default value is not null
-        ObjectReader r = POINT_READER.with(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
+        ObjectReader r = PERSON_READER.with(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
         p = r.readValue(a2q("{'name':'John', 'age': null}"));
         assertEquals("John", p.name);
         assertEquals(Integer.valueOf(0), p.age);

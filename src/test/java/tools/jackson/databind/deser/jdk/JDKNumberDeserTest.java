@@ -157,14 +157,18 @@ public class JDKNumberDeserTest
         assertNull(MAPPER.readValue(NULL_JSON, Float.class));
         assertNull(MAPPER.readValue(NULL_JSON, Double.class));
 
-        assertEquals(Byte.valueOf((byte) 0), MAPPER.readValue(NULL_JSON, Byte.TYPE));
-        assertEquals(Short.valueOf((short) 0), MAPPER.readValue(NULL_JSON, Short.TYPE));
+        ObjectMapper nullOksMapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+
+        assertEquals(Byte.valueOf((byte) 0), nullOksMapper.readValue(NULL_JSON, Byte.TYPE));
+        assertEquals(Short.valueOf((short) 0), nullOksMapper.readValue(NULL_JSON, Short.TYPE));
         // Character is bit special, can't do:
-//        assertEquals(Character.valueOf((char) 0), MAPPER.readValue(JSON, Character.TYPE));
-        assertEquals(Integer.valueOf(0), MAPPER.readValue(NULL_JSON, Integer.TYPE));
-        assertEquals(Long.valueOf(0L), MAPPER.readValue(NULL_JSON, Long.TYPE));
-        assertEquals(Float.valueOf(0f), MAPPER.readValue(NULL_JSON, Float.TYPE));
-        assertEquals(Double.valueOf(0d), MAPPER.readValue(NULL_JSON, Double.TYPE));
+//        assertEquals(Character.valueOf((char) 0), nullOksMapper.readValue(JSON, Character.TYPE));
+        assertEquals(Integer.valueOf(0), nullOksMapper.readValue(NULL_JSON, Integer.TYPE));
+        assertEquals(Long.valueOf(0L), nullOksMapper.readValue(NULL_JSON, Long.TYPE));
+        assertEquals(Float.valueOf(0f), nullOksMapper.readValue(NULL_JSON, Float.TYPE));
+        assertEquals(Double.valueOf(0d), nullOksMapper.readValue(NULL_JSON, Double.TYPE));
 
         assertNull(MAPPER.readValue(NULL_JSON, BigInteger.class));
         assertNull(MAPPER.readValue(NULL_JSON, BigDecimal.class));

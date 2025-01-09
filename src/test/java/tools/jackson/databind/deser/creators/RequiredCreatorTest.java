@@ -64,8 +64,7 @@ public class RequiredCreatorTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    private final ObjectReader POINT_READER = MAPPER.readerFor(FascistPoint.class)
-            .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+    private final ObjectReader POINT_READER = MAPPER.readerFor(FascistPoint.class);
 
     @Test
     public void testRequiredAnnotatedParam() throws Exception

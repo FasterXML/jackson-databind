@@ -146,23 +146,26 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
     @Test
     public void testWithCreator() throws Exception
     {
-        CreatorValue value = MAPPER.readValue("[1,2,3]", CreatorValue.class);
+        ObjectReader r = MAPPER.readerFor(CreatorValue.class)
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+        
+        CreatorValue value = r.readValue("[1,2,3]");
         assertEquals(1, value.a);
         assertEquals(2, value.b);
         assertEquals(3, value.c);
 
         // and should be ok with partial too?
-        value = MAPPER.readValue("[1,2]", CreatorValue.class);
+        value = r.readValue("[1,2]");
         assertEquals(1, value.a);
         assertEquals(2, value.b);
         assertEquals(0, value.c);
 
-        value = MAPPER.readValue("[1]", CreatorValue.class);
+        value = r.readValue("[1]");
         assertEquals(1, value.a);
         assertEquals(0, value.b);
         assertEquals(0, value.c);
 
-        value = MAPPER.readValue("[]", CreatorValue.class);
+        value = r.readValue("[]");
         assertEquals(0, value.a);
         assertEquals(0, value.b);
         assertEquals(0, value.c);

@@ -78,9 +78,7 @@ public class BiggerDataTest
     /**********************************************************
      */
 
-	private final ObjectMapper MAPPER = JsonMapper.builder()
-			.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-			.build();
+	private final ObjectMapper MAPPER = JsonMapper.builder().build();
 
 	@Test
 	public void testReading() throws Exception

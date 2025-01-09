@@ -27,9 +27,9 @@ public class SimpleModuleTest extends DatabindTestUtil
     final static class CustomBean
     {
         protected String str;
-        protected int num;
+        protected Integer num;
 
-        public CustomBean(String s, int i) {
+        public CustomBean(String s, Integer i) {
             str = s;
             num = i;
         }

@@ -108,6 +108,7 @@ public class RecordExplicitCreatorsTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS) // So that test cases don't have to assert weird error messages
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
             .build();
 
     /*

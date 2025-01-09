@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -120,6 +121,7 @@ public class TestPOJOAsArrayAdvanced extends DatabindTestUtil
     {
         AsArrayWithViewAndCreator result = MAPPER.readerFor(AsArrayWithViewAndCreator.class)
                 .withView(ViewB.class)
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .readValue("[1,2,3]");
         // should include 'c' (not view-able) and 'b' (include in ViewB) but not 'a'
         assertEquals(3, result.c);

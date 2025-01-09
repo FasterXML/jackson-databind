@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.Nulls;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
@@ -41,6 +42,10 @@ public class RecordNullHandling3847Test extends DatabindTestUtil {
             .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.FAIL)
                     .withContentNulls(Nulls.FAIL))
             .withCoercionConfigDefaults(config -> config.setCoercion(CoercionInputShape.String, CoercionAction.Fail))
+            .build();
+
+    private final ObjectMapper DEFAULT_MAPPER = jsonMapperBuilder()
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
             .build();
 
     @Test
@@ -118,13 +123,14 @@ public class RecordNullHandling3847Test extends DatabindTestUtil {
 
     @Test
     public void testRecordDefaultNullDeserialization() throws Exception {
-        PlainRecord pr = new ObjectMapper().readValue("{}", PlainRecord.class);
+        PlainRecord pr = DEFAULT_MAPPER.readValue("{}", PlainRecord.class);
         assertNull(pr.fieldName);
     }
 
     @Test
     public void testIntRecordDefaultNullDeserialization() throws Exception {
-        IntRecord ir = new ObjectMapper().readValue("{}", IntRecord.class);
+        IntRecord ir = DEFAULT_MAPPER.readerFor(IntRecord.class)
+                .readValue("{}");
         assertNull(ir.description);
         assertEquals(0, ir.value);
     }

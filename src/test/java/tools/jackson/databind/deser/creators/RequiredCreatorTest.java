@@ -8,6 +8,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
@@ -15,11 +16,11 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 public class RequiredCreatorTest
 {
     static class FascistPoint {
-        int x, y;
+        Integer x, y;
 
         @JsonCreator
-        public FascistPoint(@JsonProperty(value="x", required=true) int x,
-                @JsonProperty(value="y", required=false) int y)
+        public FascistPoint(@JsonProperty(value="x", required=true) Integer x,
+                @JsonProperty(value="y", required=false) Integer y)
         {
             this.x = x;
             this.y = y;
@@ -81,7 +82,7 @@ public class RequiredCreatorTest
         // also fine if 'y' is MIA
         p = POINT_READER.readValue(a2q("{'x':3}"));
         assertEquals(3, p.x);
-        assertEquals(0, p.y);
+        assertNull(p.y);
 
         // but not so good if 'x' missing
         try {
@@ -100,7 +101,7 @@ public class RequiredCreatorTest
         // as per above, ok to miss 'y' with default settings:
         p = POINT_READER.readValue(a2q("{'x':2}"));
         assertEquals(2, p.x);
-        assertEquals(0, p.y);
+        assertNull(p.y);
 
         // but not if global checks desired
         ObjectReader r = POINT_READER.with(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES);

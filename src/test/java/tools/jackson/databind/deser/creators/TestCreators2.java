@@ -15,13 +15,12 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.exc.ValueInstantiationException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.q;
-import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
-
 public class TestCreators2
+    extends DatabindTestUtil
 {
     static class HashTest
     {
@@ -264,7 +263,10 @@ public class TestCreators2
     @Test
     public void testMissingPrimitives() throws Exception
     {
-        Primitives p = MAPPER.readValue("{}", Primitives.class);
+        Primitives p = MAPPER
+                .readerFor(Primitives.class)
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .readValue("{}");
         assertFalse(p.b);
         assertEquals(0, p.x);
         assertEquals(0.0, p.d);

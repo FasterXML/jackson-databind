@@ -189,8 +189,8 @@ public class DefaultCreatorDetection4584Test extends DatabindTestUtil
         assertEquals(POJO4584.factoryString(null),
                 readerWith(new PrimaryCreatorFindingIntrospector(JsonCreator.Mode.PROPERTIES,
                         String.class, Integer.TYPE))
-                    .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-                    .readValue(a2q("{}")));
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .readValue(a2q("{}")));
     }
 
     /*

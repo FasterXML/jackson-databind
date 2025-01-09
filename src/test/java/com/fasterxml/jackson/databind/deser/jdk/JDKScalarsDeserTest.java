@@ -129,7 +129,10 @@ public class JDKScalarsDeserTest
         public Void value;
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    // [databind#4858] Changes defaults for 3.0 so ensure configs work for 2.x and 3.x
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build();
 
     /*
     /**********************************************************

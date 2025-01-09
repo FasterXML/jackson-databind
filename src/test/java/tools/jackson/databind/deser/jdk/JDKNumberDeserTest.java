@@ -102,7 +102,7 @@ public class JDKNumberDeserTest
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testNaN() throws Exception

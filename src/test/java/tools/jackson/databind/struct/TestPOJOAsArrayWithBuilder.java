@@ -145,7 +145,7 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
     {
         ObjectReader r = MAPPER.readerFor(CreatorValue.class)
                 .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-        
+
         CreatorValue value = r.readValue("[1,2,3]");
         assertEquals(1, value.a);
         assertEquals(2, value.b);

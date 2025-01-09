@@ -32,7 +32,9 @@ public class FailOnNullCreatorTest
         }
     }
 
-    private final ObjectReader PERSON_READER = sharedMapper().readerFor(Person.class);
+    private final ObjectReader PERSON_READER = sharedMapper()
+            .readerFor(Person.class)
+            .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
 
     @Test
     public void testRequiredNonNullParam() throws Exception

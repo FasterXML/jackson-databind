@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass;
@@ -60,7 +61,8 @@ public class RecordDeserialization3906Test extends DatabindTestUtil
     @Test
     public void testEmptyJsonToRecordWorkAround() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .changeDefaultVisibility(vc -> 
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .changeDefaultVisibility(vc ->
                    vc.withVisibility(PropertyAccessor.ALL, Visibility.NONE)
                    .withVisibility(PropertyAccessor.CREATOR, Visibility.ANY))
                 .build();
@@ -72,7 +74,8 @@ public class RecordDeserialization3906Test extends DatabindTestUtil
     @Test
     public void testEmptyJsonToRecordCreatorsVisible() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .changeDefaultVisibility(vc -> 
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .changeDefaultVisibility(vc ->
                    vc.withVisibility(PropertyAccessor.CREATOR, Visibility.NON_PRIVATE))
                 .build();
 
@@ -97,7 +100,9 @@ public class RecordDeserialization3906Test extends DatabindTestUtil
                     }
                 });
             }
-        }).build();
+        })
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build();
 
         Record3906 recordDeser = mapper.readValue("{}", Record3906.class);
         assertEquals(new Record3906(null, 0), recordDeser);
@@ -105,7 +110,9 @@ public class RecordDeserialization3906Test extends DatabindTestUtil
 
     @Test
     public void testEmptyJsonToRecordDirectAutoDetectConfig() throws Exception {
-        ObjectMapper mapper = newJsonMapper();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
 
         Record3906Annotated recordDeser = mapper.readValue("{}", Record3906Annotated.class);
         assertEquals(new Record3906Annotated(null, 0), recordDeser);
@@ -113,7 +120,9 @@ public class RecordDeserialization3906Test extends DatabindTestUtil
 
     @Test
     public void testEmptyJsonToRecordJsonCreator() throws Exception {
-        ObjectMapper mapper = newJsonMapper();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
 
         Record3906Creator recordDeser = mapper.readValue("{}", Record3906Creator.class);
         assertEquals(new Record3906Creator(null, 0), recordDeser);
@@ -143,6 +152,7 @@ public class RecordDeserialization3906Test extends DatabindTestUtil
                         });
                     }
                 })
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .build();
 
         assertEquals(new Record3906(null, 0),

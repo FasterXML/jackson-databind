@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
-import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -95,10 +94,7 @@ public class BuilderInfiniteLoop1979Test
     public void testInfiniteLoop1978() throws Exception
     {
         String json = "{\"sub.el1\":34,\"sub.el2\":\"some text\"}";
-        ObjectMapper mapper = jsonMapperBuilder()
-                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-                .build();
-        Bean bean = mapper.readValue( json, Bean.class );
+        Bean bean = sharedMapper().readValue( json, Bean.class );
         assertNotNull(bean);
     }
 }

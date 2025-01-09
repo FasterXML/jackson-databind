@@ -18,9 +18,9 @@ public class BuilderInfiniteLoop1979Test
     static class Builder
     {
          private SubBean temp;
-         private int id;
+         private Integer id;
 
-         Builder(@JsonProperty("beanId") int beanId) {
+         Builder(@JsonProperty("beanId") Integer beanId) {
               this.id = beanId;
          }
 
@@ -41,10 +41,10 @@ public class BuilderInfiniteLoop1979Test
     @JsonDeserialize(builder = Builder.class)
     static class Bean
     {
-        int id;
+        Integer id;
         SubBean thing;
 
-        public Bean(int id) {
+        public Bean(Integer id) {
             this.id = id;
         }
 

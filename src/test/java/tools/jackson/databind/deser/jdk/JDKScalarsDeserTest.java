@@ -25,10 +25,6 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
  */
 public class JDKScalarsDeserTest
 {
-    private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-            .build();
-
     private final static String NAN_STRING = "NaN";
 
     final static class BooleanBean {
@@ -133,6 +129,11 @@ public class JDKScalarsDeserTest
     static class VoidBean {
         public Void value;
     }
+
+    // [databind#4858] Changes defaults for 3.0 so ensure configs work for 2.x and 3.x
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build();
 
     /*
     /**********************************************************

@@ -147,34 +147,35 @@ public class JDKNumberDeserTest
     @Test
     public void testTextualNullAsNumber() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
+        final String NULL_JSON = q("null");
+        assertNull(MAPPER.readValue(NULL_JSON, Byte.class));
+        assertNull(MAPPER.readValue(NULL_JSON, Short.class));
+        // Character is bit special, can't do:
+//        assertNull(MAPPER.readValue(JSON, Character.class));
+        assertNull(MAPPER.readValue(NULL_JSON, Integer.class));
+        assertNull(MAPPER.readValue(NULL_JSON, Long.class));
+        assertNull(MAPPER.readValue(NULL_JSON, Float.class));
+        assertNull(MAPPER.readValue(NULL_JSON, Double.class));
+
+        ObjectMapper nullOksMapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .build();
-        final String NULL_JSON = q("null");
-        assertNull(mapper.readValue(NULL_JSON, Byte.class));
-        assertNull(mapper.readValue(NULL_JSON, Short.class));
-        // Character is bit special, can't do:
-//        assertNull(mapper.readValue(JSON, Character.class));
-        assertNull(mapper.readValue(NULL_JSON, Integer.class));
-        assertNull(mapper.readValue(NULL_JSON, Long.class));
-        assertNull(mapper.readValue(NULL_JSON, Float.class));
-        assertNull(mapper.readValue(NULL_JSON, Double.class));
 
-        assertEquals(Byte.valueOf((byte) 0), mapper.readValue(NULL_JSON, Byte.TYPE));
-        assertEquals(Short.valueOf((short) 0), mapper.readValue(NULL_JSON, Short.TYPE));
+        assertEquals(Byte.valueOf((byte) 0), nullOksMapper.readValue(NULL_JSON, Byte.TYPE));
+        assertEquals(Short.valueOf((short) 0), nullOksMapper.readValue(NULL_JSON, Short.TYPE));
         // Character is bit special, can't do:
-//        assertEquals(Character.valueOf((char) 0), mapper.readValue(JSON, Character.TYPE));
-        assertEquals(Integer.valueOf(0), mapper.readValue(NULL_JSON, Integer.TYPE));
-        assertEquals(Long.valueOf(0L), mapper.readValue(NULL_JSON, Long.TYPE));
-        assertEquals(Float.valueOf(0f), mapper.readValue(NULL_JSON, Float.TYPE));
-        assertEquals(Double.valueOf(0d), mapper.readValue(NULL_JSON, Double.TYPE));
+//        assertEquals(Character.valueOf((char) 0), nullOksMapper.readValue(JSON, Character.TYPE));
+        assertEquals(Integer.valueOf(0), nullOksMapper.readValue(NULL_JSON, Integer.TYPE));
+        assertEquals(Long.valueOf(0L), nullOksMapper.readValue(NULL_JSON, Long.TYPE));
+        assertEquals(Float.valueOf(0f), nullOksMapper.readValue(NULL_JSON, Float.TYPE));
+        assertEquals(Double.valueOf(0d), nullOksMapper.readValue(NULL_JSON, Double.TYPE));
 
-        assertNull(mapper.readValue(NULL_JSON, BigInteger.class));
-        assertNull(mapper.readValue(NULL_JSON, BigDecimal.class));
+        assertNull(MAPPER.readValue(NULL_JSON, BigInteger.class));
+        assertNull(MAPPER.readValue(NULL_JSON, BigDecimal.class));
 
         // Also: verify failure for at least some
         try {
-            mapper.readerFor(Integer.TYPE).with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            MAPPER.readerFor(Integer.TYPE).with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .readValue(NULL_JSON);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {

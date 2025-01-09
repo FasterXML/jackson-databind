@@ -270,20 +270,22 @@ public class NullConversionsForContentTest
     public void testNullsAsEmptyWithPrimitiveArrays() throws Exception
     {
         final String JSON = a2q("{'values':[null]}");
+        ObjectReader r = MAPPER.reader()
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
 
         // int[]
         {
-            NullContentAsEmpty<int[]> result = MAPPER.readerFor(new TypeReference<NullContentAsEmpty<int[]>>() { })
-                    .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-                            .readValue(JSON);
+            NullContentAsEmpty<int[]> result = r.forType
+                    (new TypeReference<NullContentAsEmpty<int[]>>() { })
+                    .readValue(JSON);
             assertEquals(1, result.values.length);
             assertEquals(0, result.values[0]);
         }
 
         // long[]
         {
-            NullContentAsEmpty<long[]> result = MAPPER.readerFor(new TypeReference<NullContentAsEmpty<long[]>>() { })
-                    .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            NullContentAsEmpty<long[]> result = r.forType
+                    (new TypeReference<NullContentAsEmpty<long[]>>() { })
                     .readValue(JSON);
             assertEquals(1, result.values.length);
             assertEquals(0L, result.values[0]);
@@ -291,13 +293,13 @@ public class NullConversionsForContentTest
 
         // boolean[]
         {
-            NullContentAsEmpty<boolean[]> result = MAPPER.readerFor(new TypeReference<NullContentAsEmpty<boolean[]>>() { })
-                    .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            NullContentAsEmpty<boolean[]> result = r.forType
+                    (new TypeReference<NullContentAsEmpty<boolean[]>>() { })
                     .readValue(JSON);
             assertEquals(1, result.values.length);
             assertFalse(result.values[0]);
         }
-}
+    }
 
     @Test
     public void testNullsAsEmptyWithMaps() throws Exception

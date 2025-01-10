@@ -1,4 +1,4 @@
-// Jackson 3.x module-info
+// Jackson 3.x module-info for Main artifact
 module tools.jackson.databind {
     // required for
     // java.beans.ConstructorProperties
@@ -9,6 +9,7 @@ module tools.jackson.databind {
     // these types were suggested as transitive, but aren't actually
     // exposed externally (only within internal APIs)
     requires static java.sql;
+    requires static java.sql.rowset;
 
     // 05-Nov-2020, tatu: made optional in 2.x ("static") but for simplicity
     //    is (for now?) hard dep on 3.0. May want to change

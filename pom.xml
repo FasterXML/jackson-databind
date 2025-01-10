@@ -205,7 +205,10 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <!-- Needed by some of the tests -->
-          <argLine>--add-opens=java.base/java.lang=tools.jackson.databind --add-opens=java.base/java.util=tools.jackson.databind</argLine>
+          <argLine>--add-opens=java.base/java.lang=tools.jackson.databind
+                   --add-opens=java.base/java.util=tools.jackson.databind
+                   --add-opens=java.sql/java.sql=tools.jackson.databind
+          </argLine>
           <classpathDependencyExcludes>
             <exclude>javax.measure:jsr-275</exclude>
           </classpathDependencyExcludes>

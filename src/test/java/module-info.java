@@ -1,8 +1,8 @@
 // Jackson 3.x module-info for Tests
 module tools.jackson.databind {
-    requires static java.desktop;
-    requires static java.sql;
-    requires static java.sql.rowset;
+    requires java.desktop;
+    requires java.sql;
+    requires java.sql.rowset;
     requires java.xml;
 
     // but we probably do want to expose streaming, annotations

@@ -44,9 +44,16 @@ module tools.jackson.databind {
     opens tools.jackson.databind.util;
 
     // Additional test opens (not exported by main)
+    opens java.util;
+
+    opens tools.jackson.databind.access;
+    opens tools.jackson.databind.deser.inject;
+    opens tools.jackson.databind.deser.merge;
+    opens tools.jackson.databind.testutil.failure;
+    opens tools.jackson.databind.tofix;
     opens tools.jackson.databind.util.internal;
+    opens tools.jackson.databind.views;
 
     // Also needed for some reason
     uses tools.jackson.databind.JacksonModule;
-    uses tools.jackson.databind.util.internal.PrivateMaxEntriesMap;
 }

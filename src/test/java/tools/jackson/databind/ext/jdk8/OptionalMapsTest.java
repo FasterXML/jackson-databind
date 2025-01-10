@@ -4,6 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.ObjectMapper;
@@ -29,6 +31,7 @@ public class OptionalMapsTest
     /**********************************************************************
      */
 
+    @Test
     public void testMapElementInclusion() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder().changeDefaultPropertyInclusion(

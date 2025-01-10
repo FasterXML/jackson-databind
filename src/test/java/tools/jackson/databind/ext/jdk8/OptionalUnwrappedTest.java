@@ -3,6 +3,8 @@ package tools.jackson.databind.ext.jdk8;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import tools.jackson.core.json.JsonFactory;
@@ -52,30 +54,30 @@ public class OptionalUnwrappedTest
         public String name;
     }
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+    
+    @Test
     public void testUntypedWithOptionalsNotNulls() throws Exception
     {
-		final ObjectMapper mapper = newJsonMapper();
 		String jsonExp = a2q("{'XX.name':'Bob'}");
-		String jsonAct = mapper.writeValueAsString(new OptionalParent());
+		String jsonAct = MAPPER.writeValueAsString(new OptionalParent());
 		assertEquals(jsonExp, jsonAct);
 	}
 
 	// for [datatype-jdk8#20]
-	public void testShouldSerializeUnwrappedOptional() throws Exception {
-         final ObjectMapper mapper = newJsonMapper();
+    @Test
+    public void testShouldSerializeUnwrappedOptional() throws Exception {
+        assertEquals("{\"id\":\"foo\"}",
+                MAPPER.writeValueAsString(new Bean("foo", Optional.<Bean2>empty())));
+    }
 
-	    assertEquals("{\"id\":\"foo\"}",
-	            mapper.writeValueAsString(new Bean("foo", Optional.<Bean2>empty())));
-	}
-
-	// for [datatype-jdk8#26]
-	public void testPropogatePrefixToSchema() throws Exception {
-        final ObjectMapper mapper = newJsonMapper();
-
+    // for [datatype-jdk8#26]
+    @Test
+    public void testPropogatePrefixToSchema() throws Exception {
         final AtomicReference<String> propertyName = new AtomicReference<>();
-        mapper.acceptJsonFormatVisitor(OptionalParent.class, new JsonFormatVisitorWrapper.Base(
+        MAPPER.acceptJsonFormatVisitor(OptionalParent.class, new JsonFormatVisitorWrapper.Base(
                 new SerializationContextExt.Impl(new JsonFactory(),
-                        mapper.serializationConfig(), null,
+                        MAPPER.serializationConfig(), null,
                         BeanSerializerFactory.instance, new SerializerCache())) {
             @Override
             public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {

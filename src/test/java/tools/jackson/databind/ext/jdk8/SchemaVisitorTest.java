@@ -3,6 +3,8 @@ package tools.jackson.databind.ext.jdk8;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.databind.*;
@@ -37,6 +39,7 @@ public class SchemaVisitorTest
     }
 
     // for [datatype-jdk8#25]
+    @Test
     public void testOptionalLong() throws Exception
     {
         final AtomicReference<Object> result = new AtomicReference<>();
@@ -56,6 +59,7 @@ public class SchemaVisitorTest
     }
 
     // for [datatype-jdk8#25]
+    @Test
     public void testOptionalDouble() throws Exception
     {
         final AtomicReference<Object> result = new AtomicReference<>();

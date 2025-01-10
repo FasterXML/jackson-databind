@@ -2,6 +2,8 @@ package tools.jackson.databind.ext.jdk8;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
@@ -10,7 +12,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PolymoprhicOptionalTest
+public class PolymorphicOptionalTest
     extends DatabindTestUtil
 {
     // For [datatype-jdk8#14]
@@ -29,6 +31,7 @@ public class PolymoprhicOptionalTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [datatype-jdk8#14]
+    @Test
     public void testPolymorphic14() throws Exception
     {
         final Container dto = new Container();

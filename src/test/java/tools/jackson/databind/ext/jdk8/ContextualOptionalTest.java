@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.TimeZone;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -35,6 +37,7 @@ public class ContextualOptionalTest extends DatabindTestUtil
     /**********************************************************
      */
 
+    @Test
     public void testContextualOptionals() throws Exception
     {
         SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");

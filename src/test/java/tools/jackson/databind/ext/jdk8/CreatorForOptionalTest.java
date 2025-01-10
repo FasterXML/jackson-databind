@@ -2,6 +2,8 @@ package tools.jackson.databind.ext.jdk8;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -38,6 +40,7 @@ public class CreatorForOptionalTest
     /**
      * Test to ensure that creator parameters use defaulting
      */
+    @Test
     public void testCreatorWithOptional() throws Exception
     {
         CreatorWithOptionalStrings bean = MAPPER.readValue(

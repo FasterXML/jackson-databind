@@ -5,6 +5,8 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.ReferenceType;
@@ -16,6 +18,7 @@ public class JDK8TypesTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testOptionalsAreReferentialTypes() throws Exception
     {
         JavaType t = MAPPER.constructType(Optional.class);

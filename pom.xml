@@ -129,14 +129,6 @@
       <version>31.1-jre</version>
       <scope>test</scope>
     </dependency>
-    
-    <!-- For testing TestNoClassDefFoundDeserializer -->
-    <dependency>
-      <groupId>javax.measure</groupId>
-      <artifactId>jsr-275</artifactId>
-      <version>0.9.1</version>
-      <scope>test</scope>
-    </dependency>
 
     <!-- Since 2.17, started using Mockito instead of Powermock -->
     <!-- For testing with static methods -->
@@ -209,9 +201,6 @@
                    --add-opens=java.base/java.util=tools.jackson.databind
                    --add-opens=java.sql/java.sql=tools.jackson.databind
           </argLine>
-          <classpathDependencyExcludes>
-            <exclude>javax.measure:jsr-275</exclude>
-          </classpathDependencyExcludes>
           <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
                   ... although not 100% sure this makes much difference TBH
             -->

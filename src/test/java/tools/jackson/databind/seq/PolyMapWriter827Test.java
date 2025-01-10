@@ -3,7 +3,7 @@ package tools.jackson.databind.seq;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.type.TypeReference;
@@ -12,6 +12,8 @@ import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [databind#827]
 public class PolyMapWriter827Test extends DatabindTestUtil
@@ -32,6 +34,7 @@ public class PolyMapWriter827Test extends DatabindTestUtil
         }
     }
 
+    @Test
     public void testPolyCustomKeySerializer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -48,6 +51,6 @@ public class PolyMapWriter827Test extends DatabindTestUtil
 
         final ObjectWriter writer = mapper.writerFor(new TypeReference<Map<CustomKey,String>>() { });
         String json = writer.writeValueAsString(map);
-        Assert.assertEquals("[\"java.util.HashMap\",{\"foo,1\":\"bar\"}]", json);
+        assertEquals("[\"java.util.HashMap\",{\"foo,1\":\"bar\"}]", json);
     }
 }

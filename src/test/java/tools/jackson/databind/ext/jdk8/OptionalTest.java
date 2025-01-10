@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
@@ -117,35 +119,40 @@ public class OptionalTest
         }
     }
 
-    private ObjectMapper MAPPER = newJsonMapper();
-
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
     public void testStringAbsent() throws Exception
     {
         assertFalse(roundtrip(Optional.empty(), OPTIONAL_STRING_TYPE).isPresent());
     }
 
+    @Test
     public void testStringPresent() throws Exception
     {
         assertEquals("test", roundtrip(Optional.of("test"), OPTIONAL_STRING_TYPE).get());
     }
 
+    @Test
     public void testBeanAbsent() throws Exception
     {
         assertFalse(roundtrip(Optional.empty(), OPTIONAL_BEAN_TYPE).isPresent());
     }
 
+    @Test
     public void testBeanPresent() throws Exception
     {
         final TestBean bean = new TestBean(Integer.MAX_VALUE, "woopwoopwoopwoopwoop");
         assertEquals(bean, roundtrip(Optional.of(bean), OPTIONAL_BEAN_TYPE).get());
     }
 
+    @Test
     public void testBeanWithCreator() throws Exception
     {
         final Issue4Entity emptyEntity = new Issue4Entity(Optional.empty());
@@ -157,6 +164,7 @@ public class OptionalTest
         }
     }
 
+    @Test
     public void testOptionalStringInBean() throws Exception
     {
         OptionalStringBean bean = MAPPER.readValue("{\"value\":\"xyz\"}", OptionalStringBean.class);
@@ -165,6 +173,7 @@ public class OptionalTest
     }
 
     // To support [datatype-jdk8#8]
+    @Test
     public void testExcludeIfOptionalAbsent() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -186,6 +195,7 @@ public class OptionalTest
                 mapper.writeValueAsString(new OptionalStringBean(null)));
     }
 
+    @Test
     public void testWithCustomDeserializer() throws Exception
     {
         CaseChangingStringWrapper w = MAPPER.readValue(a2q("{'value':'FoobaR'}"),
@@ -194,6 +204,7 @@ public class OptionalTest
     }
 
     // [modules-java8#36]
+    @Test
     public void testWithCustomDeserializerIfOptionalAbsent() throws Exception
     {
         // 10-Aug-2017, tatu: Actually this is not true: missing value does not trigger
@@ -207,6 +218,7 @@ public class OptionalTest
                 CaseChangingStringWrapper.class).value);
     }
 
+    @Test
     public void testCustomSerializer() throws Exception
     {
         final String VALUE = "fooBAR";
@@ -214,6 +226,7 @@ public class OptionalTest
         assertEquals(json, a2q("{'value':'FOOBAR'}"));
     }
 
+    @Test
     public void testCustomSerializerIfOptionalAbsent() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -236,6 +249,7 @@ public class OptionalTest
     }
 
     // [modules-java8#33]: Verify against regression...
+    @Test
     public void testOtherRefSerializers() throws Exception
     {
         String json = MAPPER.writeValueAsString(new AtomicReference<String>("foo"));

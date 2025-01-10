@@ -14,7 +14,7 @@ import org.junit.rules.ExpectedException;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.ObjectMapper;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class StreamTestBase
     // 19-Sep-2017, tatu: For some reason doing this will break `ExpectedException` rule.

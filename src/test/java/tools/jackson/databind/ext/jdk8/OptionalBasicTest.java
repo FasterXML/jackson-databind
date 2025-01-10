@@ -2,6 +2,8 @@ package tools.jackson.databind.ext.jdk8;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -64,6 +66,7 @@ public class OptionalBasicTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testOptionalTypeResolution() throws Exception {
 		// With 2.6, we need to recognize it as ReferenceType
 		JavaType t = MAPPER.constructType(Optional.class);
@@ -72,29 +75,33 @@ public class OptionalBasicTest
 		assertTrue(t.isReferenceType());
 	}
 
-	public void testDeserAbsent() throws Exception {
-		Optional<?> value = MAPPER.readValue("null",
-				new TypeReference<Optional<String>>() {
-				});
-		assertFalse(value.isPresent());
-	}
+    @Test
+    public void testDeserAbsent() throws Exception {
+        Optional<?> value = MAPPER.readValue("null",
+                new TypeReference<Optional<String>>() {
+        });
+        assertFalse(value.isPresent());
+    }
 
-	public void testDeserSimpleString() throws Exception {
+    @Test
+    public void testDeserSimpleString() throws Exception {
 		Optional<?> value = MAPPER.readValue("\"simpleString\"",
 				new TypeReference<Optional<String>>() {
 				});
 		assertTrue(value.isPresent());
 		assertEquals("simpleString", value.get());
-	}
+    }
 
-	public void testDeserInsideObject() throws Exception {
+    @Test
+    public void testDeserInsideObject() throws Exception {
 		OptionalData data = MAPPER.readValue("{\"myString\":\"simpleString\"}",
 				OptionalData.class);
 		assertTrue(data.myString.isPresent());
 		assertEquals("simpleString", data.myString.get());
-	}
+    }
 
-	public void testDeserComplexObject() throws Exception {
+    @Test
+    public void testDeserComplexObject() throws Exception {
 		TypeReference<Optional<OptionalData>> type = new TypeReference<Optional<OptionalData>>() {
 		};
 		Optional<OptionalData> data = MAPPER.readValue(
@@ -102,8 +109,9 @@ public class OptionalBasicTest
 		assertTrue(data.isPresent());
 		assertTrue(data.get().myString.isPresent());
 		assertEquals("simpleString", data.get().myString.get());
-	}
+    }
 
+    @Test
 	public void testDeserGeneric() throws Exception {
 		TypeReference<Optional<OptionalGenericData<String>>> type = new TypeReference<Optional<OptionalGenericData<String>>>() {
 		};
@@ -114,16 +122,19 @@ public class OptionalBasicTest
 		assertEquals("simpleString", data.get().myData.get());
 	}
 
+    @Test
 	public void testSerAbsent() throws Exception {
 		String value = MAPPER.writeValueAsString(Optional.empty());
 		assertEquals("null", value);
 	}
 
+    @Test
 	public void testSerSimpleString() throws Exception {
 		String value = MAPPER.writeValueAsString(Optional.of("simpleString"));
 		assertEquals("\"simpleString\"", value);
 	}
 
+    @Test
 	public void testSerInsideObject() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = Optional.of("simpleString");
@@ -131,6 +142,7 @@ public class OptionalBasicTest
 		assertEquals("{\"myString\":\"simpleString\"}", value);
 	}
 
+    @Test
 	public void testSerComplexObject() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = Optional.of("simpleString");
@@ -138,6 +150,7 @@ public class OptionalBasicTest
 		assertEquals("{\"myString\":\"simpleString\"}", value);
 	}
 
+    @Test
 	public void testSerGeneric() throws Exception {
 		OptionalGenericData<String> data = new OptionalGenericData<String>();
 		data.myData = Optional.of("simpleString");
@@ -145,6 +158,7 @@ public class OptionalBasicTest
 		assertEquals("{\"myData\":\"simpleString\"}", value);
 	}
 
+    @Test
 	public void testSerOptDefault() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = Optional.empty();
@@ -155,6 +169,7 @@ public class OptionalBasicTest
 		assertEquals("{\"myString\":null}", value);
 	}
 
+    @Test
 	public void testSerOptNull() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = null;
@@ -164,6 +179,7 @@ public class OptionalBasicTest
 		assertEquals("{}", value);
 	}
 
+    @Test
 	public void testSerOptNonEmpty() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = null;
@@ -174,6 +190,7 @@ public class OptionalBasicTest
 		assertEquals("{}", value);
 	}
 
+    @Test
 	public void testWithTypingEnabled() throws Exception {
 	    final ObjectMapper mapper = jsonMapperBuilder()
 	            // ENABLE TYPING
@@ -190,6 +207,7 @@ public class OptionalBasicTest
 		assertEquals(myData.myString, deserializedMyData.myString);
 	}
 
+    @Test
 	public void testObjectId() throws Exception {
 		final Unit input = new Unit();
 		input.link(input);
@@ -202,6 +220,7 @@ public class OptionalBasicTest
 		assertSame(result, base);
 	}
 
+    @Test
 	public void testOptionalCollection() throws Exception {
 
 		TypeReference<List<Optional<String>>> typeReference = new TypeReference<List<Optional<String>>>() {
@@ -222,6 +241,7 @@ public class OptionalBasicTest
 		}
 	}
 
+    @Test
 	public void testPolymorphic() throws Exception
 	{
 	    final Container dto = new Container();

@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonMerge;
 
 import tools.jackson.databind.ObjectMapper;
@@ -23,6 +25,7 @@ public class OptionalMergeTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [modules-java8#214]: ReferenceType of List, merge
+    @Test
     public void testMergeToListViaRef() throws Exception
     {
         OptionalListWrapper base = MAPPER.readValue(a2q("{'list':['a']}"),

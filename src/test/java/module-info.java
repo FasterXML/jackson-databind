@@ -7,9 +7,9 @@ module tools.jackson.databind {
 
     // but we probably do want to expose streaming, annotations
     // as transitive dependencies streaming types at least part of API
-    requires transitive com.fasterxml.jackson.annotation;
+    requires com.fasterxml.jackson.annotation;
 
-    requires transitive tools.jackson.core;
+    requires tools.jackson.core;
 
     // // Actual Test dependencies
 
@@ -44,11 +44,24 @@ module tools.jackson.databind {
     opens tools.jackson.databind.util;
 
     // Additional test opens (not exported by main)
-    opens java.util;
-
     opens tools.jackson.databind.access;
+    opens tools.jackson.databind.contextual;
+    opens tools.jackson.databind.deser.creators;
+    opens tools.jackson.databind.deser.dos;
+    opens tools.jackson.databind.deser.enums;
     opens tools.jackson.databind.deser.inject;
     opens tools.jackson.databind.deser.merge;
+    opens tools.jackson.databind.deser.validate;
+    opens tools.jackson.databind.jsontype.vld;
+    opens tools.jackson.databind.misc;
+    opens tools.jackson.databind.mixins;
+    opens tools.jackson.databind.objectid;
+    opens tools.jackson.databind.records;
+    opens tools.jackson.databind.records.tofix;
+    opens tools.jackson.databind.ser.enums;
+    opens tools.jackson.databind.ser.filter;
+    opens tools.jackson.databind.seq;
+    opens tools.jackson.databind.struct;
     opens tools.jackson.databind.testutil.failure;
     opens tools.jackson.databind.tofix;
     opens tools.jackson.databind.util.internal;

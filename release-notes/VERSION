@@ -90,6 +90,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #4875: Remove `JsonNode.fields()` from 3.0
 #4879: Rename `TextNode` as `StringNode`; `JsonNode.xxxTextYyy()` (mostly) as
   `JsonNode.xxxStringYyy()` [JSTEP-3]
+#4891: Change 3.0 to use `module-info.java` directly for build (instead of via Moditect)
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)
 - Default for `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES` changed to `false` for 3.0

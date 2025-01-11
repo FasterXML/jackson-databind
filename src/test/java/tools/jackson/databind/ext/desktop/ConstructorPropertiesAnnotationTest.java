@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser.creators;
+package tools.jackson.databind.ext.desktop;
 
 import java.beans.ConstructorProperties;
 import java.util.*;
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class CreatorPropertiesTest
+public class ConstructorPropertiesAnnotationTest
 {
     static class Issue905Bean {
         // 08-Nov-2015, tatu: Note that in real code we would most likely use same

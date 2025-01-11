@@ -10,12 +10,14 @@ import tools.jackson.databind.introspect.AnnotatedWithParams;
 
 public class JavaBeansAnnotationsImpl extends JavaBeansAnnotations
 {
+    public final static JavaBeansAnnotationsImpl instance = new JavaBeansAnnotationsImpl();
+    
     @SuppressWarnings("unused") // compiler warns, just needed side-effects
     private final Class<?> _bogus;
 
     public JavaBeansAnnotationsImpl() {
-    // Trigger loading of annotations that only JDK 7 has, to trigger
-    // early fail (see [databind#2466])
+        // Trigger loading of annotations that only JDK 7 has, to trigger
+        // early fail (see [databind#2466])
         Class<?> cls = Transient.class;
         cls = ConstructorProperties.class;
         _bogus = cls;

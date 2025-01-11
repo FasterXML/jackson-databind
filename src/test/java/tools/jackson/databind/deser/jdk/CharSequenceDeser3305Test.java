@@ -58,7 +58,7 @@ public class CharSequenceDeser3305Test
         String serialized = MAPPER.writeValueAsString(appId);
 
         //Without a fix fails on JDK17 with
-        //org.junit.ComparisonFailure:
+        // ComparisonFailure:
         //Expected :{"empty":false}
         //Actual   :"3074457345618296002"
         assertEquals("\"" + APP_ID + "\"", serialized);

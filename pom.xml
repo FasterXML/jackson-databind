@@ -197,7 +197,9 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <!-- Needed by some of the tests -->
-          <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+          <argLine>--add-opens=java.base/java.lang=tools.jackson.databind
+                   --add-opens=java.base/java.util=tools.jackson.databind
+          </argLine>
           <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
                   ... although not 100% sure this makes much difference TBH
             -->
@@ -236,10 +238,6 @@
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>org.moditect</groupId>
-        <artifactId>moditect-maven-plugin</artifactId>
-      </plugin>
       <!-- 03-Nov-2020, tatu: Add LICENSE from main level -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -334,7 +332,9 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+               <argLine>--add-opens=java.base/java.lang=tools.jackson.databind
+                        --add-opens=java.base/java.util=tools.jackson.databind
+               </argLine>
             </configuration>
           </plugin>
         </plugins>

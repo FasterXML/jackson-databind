@@ -1,5 +1,6 @@
 // Jackson 3.x module-info for Main artifact
-module tools.jackson.databind {
+module tools.jackson.databind
+{
     // required for
     // java.beans.ConstructorProperties
     // java.beans.Transient

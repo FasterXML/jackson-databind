@@ -1,4 +1,4 @@
-package tools.jackson.databind.ext;
+package tools.jackson.databind.deser.jdk;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,7 +11,7 @@ import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestJava7Types extends DatabindTestUtil
+public class Java7TypesTest extends DatabindTestUtil
 {
     private boolean isWindows() {
         return System.getProperty("os.name").contains("Windows");

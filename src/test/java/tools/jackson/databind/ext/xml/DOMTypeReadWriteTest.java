@@ -1,4 +1,4 @@
-package tools.jackson.databind.ext;
+package tools.jackson.databind.ext.xml;
 
 import java.io.StringReader;
 

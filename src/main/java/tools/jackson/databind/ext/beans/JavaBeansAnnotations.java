@@ -8,8 +8,8 @@ import tools.jackson.databind.util.ExceptionUtil;
 
 /**
  * Since 2 JDK7-added annotations were left out of JDK 9+ core modules,
- * moved into "java.beans", support for them will be left as dynamic
- * for Jackson 3.x, and handled via this class
+ * moved into "java.beans" (module {@code java.desktop}), support for them
+ * will be left as dynamic for Jackson 3.x, and handled via this class
  */
 public abstract class JavaBeansAnnotations
 {

@@ -47,13 +47,13 @@ module tools.jackson.databind {
     opens tools.jackson.databind.type;
     opens tools.jackson.databind.util;
 
-    // Additional test opens (not exported by main)
+    // Additional test opens (not exported by main, or needed from src/test/java)
+    // needed by JUnit and other test libs
     opens tools.jackson.databind.access;
     opens tools.jackson.databind.contextual;
     opens tools.jackson.databind.convert;
     opens tools.jackson.databind.deser.builder;
     opens tools.jackson.databind.deser.creators;
-    opens tools.jackson.databind.deser.creators.jdk8;
     opens tools.jackson.databind.deser.dos;
     opens tools.jackson.databind.deser.enums;
     opens tools.jackson.databind.deser.filter;
@@ -65,7 +65,6 @@ module tools.jackson.databind {
     opens tools.jackson.databind.ext.jdk8;
     opens tools.jackson.databind.ext.jdk9;
     opens tools.jackson.databind.ext.jdk17;
-    opens tools.jackson.databind.ext.sql;
     opens tools.jackson.databind.format;
     opens tools.jackson.databind.interop;
     opens tools.jackson.databind.jsonschema;

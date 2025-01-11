@@ -63,10 +63,12 @@ module tools.jackson.databind
     opens tools.jackson.databind.deser.merge;
     opens tools.jackson.databind.deser.validate;
     opens tools.jackson.databind.ext;
+    opens tools.jackson.databind.ext.desktop;
     opens tools.jackson.databind.ext.jdk8;
     opens tools.jackson.databind.ext.jdk9;
     opens tools.jackson.databind.ext.jdk17;
     opens tools.jackson.databind.ext.sql;
+    opens tools.jackson.databind.ext.xml;
     opens tools.jackson.databind.format;
     opens tools.jackson.databind.interop;
     opens tools.jackson.databind.jsonschema;

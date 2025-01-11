@@ -25,7 +25,7 @@ public abstract class JavaBeansAnnotations
             // no-op
         } catch (Throwable t) {
             // 09-Sep-2019, tatu: Used to log earlier, but with 2.10 let's not log
-//            java.util.logging.Logger.getLogger(Java7Support.class.getName())
+//            java.util.logging.Logger.getLogger(JavaBeansAnnotations.class.getName())
 //                .warning("Unable to load JDK7 annotations (@ConstructorProperties, @Transient): no Java7 annotation support added");
             ExceptionUtil.rethrowIfFatal(t);
         }

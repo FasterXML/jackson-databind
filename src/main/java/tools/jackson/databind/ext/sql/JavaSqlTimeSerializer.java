@@ -16,6 +16,8 @@ import tools.jackson.databind.ser.std.StdScalarSerializer;
 public class JavaSqlTimeSerializer
     extends StdScalarSerializer<java.sql.Time>
 {
+    public final static JavaSqlTimeSerializer instance = new JavaSqlTimeSerializer();
+
     public JavaSqlTimeSerializer() { super(java.sql.Time.class); }
 
     @Override

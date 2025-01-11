@@ -43,7 +43,8 @@ module tools.jackson.databind
     exports tools.jackson.databind.node;
     exports tools.jackson.databind.ser;
     exports tools.jackson.databind.ser.bean;
-//    exports tools.jackson.databind.ser.impl;
+    // 11-Jan-2025, tatu: Needed by XML module, alas:
+    exports tools.jackson.databind.ser.impl;
     exports tools.jackson.databind.ser.jackson;
     exports tools.jackson.databind.ser.jdk;
     exports tools.jackson.databind.ser.std;

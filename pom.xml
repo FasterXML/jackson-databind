@@ -333,7 +333,10 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+               <argLine>--add-opens=java.base/java.lang=tools.jackson.databind
+                        --add-opens=java.base/java.util=tools.jackson.databind
+                        --add-opens=java.sql/java.sql=tools.jackson.databind
+               </argLine>
             </configuration>
           </plugin>
         </plugins>

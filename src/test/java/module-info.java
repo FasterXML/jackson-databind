@@ -13,8 +13,12 @@ module tools.jackson.databind {
 
     // // Actual Test dependencies
 
+    // Guava testlib needed by CLMH tests, alas; brings in junit4
     requires guava.testlib;
+    // JUnit4 should NOT be needed but is transitively required
+    requires junit;
     requires org.assertj.core;
+    requires org.mockito;
     requires org.junit.jupiter.api;
     requires org.junit.jupiter.params;
 
@@ -61,6 +65,7 @@ module tools.jackson.databind {
     opens tools.jackson.databind.ext.jdk8;
     opens tools.jackson.databind.ext.jdk9;
     opens tools.jackson.databind.ext.jdk17;
+    opens tools.jackson.databind.ext.sql;
     opens tools.jackson.databind.format;
     opens tools.jackson.databind.interop;
     opens tools.jackson.databind.jsonschema;

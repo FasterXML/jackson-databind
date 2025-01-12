@@ -27,6 +27,8 @@ import tools.jackson.databind.ser.std.StdScalarSerializer;
 public class JavaSqlBlobSerializer
 extends StdScalarSerializer<Blob>
 {
+    public final static JavaSqlBlobSerializer instance = new JavaSqlBlobSerializer();
+
     public JavaSqlBlobSerializer()  {
         super(Blob.class);
     }

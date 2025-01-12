@@ -87,8 +87,8 @@ import static tools.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainSta
  */
 //@ThreadSafe
 public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
-        implements ConcurrentMap<K, V>, Serializable {
-
+    implements ConcurrentMap<K, V>, Serializable
+{
     /*
      * This class performs a best-effort bounding of a ConcurrentHashMap using a
      * page-replacement algorithm to determine which entries to evict when the

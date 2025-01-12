@@ -1,4 +1,4 @@
-package tools.jackson.databind.introspect;
+package tools.jackson.databind.ext.desktop;
 
 import java.beans.Transient;
 import java.io.Serializable;

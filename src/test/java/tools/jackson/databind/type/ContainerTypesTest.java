@@ -2,7 +2,7 @@ package tools.jackson.databind.type;
 
 import java.util.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;

@@ -4,6 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
@@ -69,8 +71,9 @@ public class TestOptionalWithPolymorphic
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testOptionalMapsFoo() throws Exception {
 
 		Map<String, Object> foo = new LinkedHashMap<>();
@@ -84,6 +87,7 @@ public class TestOptionalWithPolymorphic
 		_test(MAPPER, foo);
     }
 
+    @Test
     public void testOptionalMapsBar() throws Exception {
 
 		Map<String, Object> bar = new LinkedHashMap<>();
@@ -97,6 +101,7 @@ public class TestOptionalWithPolymorphic
 		_test(MAPPER, bar);
     }
 
+    @Test
     public void testOptionalMapsBaz() throws Exception {
 		Map<String, Object> baz = new LinkedHashMap<>();
 		Map<String, Object> loop = new LinkedHashMap<>();
@@ -109,6 +114,7 @@ public class TestOptionalWithPolymorphic
 		_test(MAPPER, baz);
     }
 
+    @Test
     public void testOptionalWithTypeAnnotation13() throws Exception
     {
         AbstractOptional result = MAPPER.readValue("{\"value\" : 5}",

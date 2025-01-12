@@ -1,5 +1,6 @@
-// Generated 14-Mar-2019 using Moditect maven plugin
-module tools.jackson.databind {
+// Jackson 3.x module-info for Main artifact
+module tools.jackson.databind
+{
     // required for
     // java.beans.ConstructorProperties
     // java.beans.Transient
@@ -9,6 +10,7 @@ module tools.jackson.databind {
     // these types were suggested as transitive, but aren't actually
     // exposed externally (only within internal APIs)
     requires static java.sql;
+    requires static java.sql.rowset;
 
     // 05-Nov-2020, tatu: made optional in 2.x ("static") but for simplicity
     //    is (for now?) hard dep on 3.0. May want to change
@@ -41,7 +43,8 @@ module tools.jackson.databind {
     exports tools.jackson.databind.node;
     exports tools.jackson.databind.ser;
     exports tools.jackson.databind.ser.bean;
-//    exports tools.jackson.databind.ser.impl;
+    // 11-Jan-2025, tatu: Needed by XML module, alas:
+    exports tools.jackson.databind.ser.impl;
     exports tools.jackson.databind.ser.jackson;
     exports tools.jackson.databind.ser.jdk;
     exports tools.jackson.databind.ser.std;

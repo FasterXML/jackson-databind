@@ -15,6 +15,8 @@ import tools.jackson.databind.deser.jdk.DateBasedDeserializer;
 public class JavaSqlDateDeserializer
     extends DateBasedDeserializer<java.sql.Date>
 {
+    public final static JavaSqlDateDeserializer instance = new JavaSqlDateDeserializer();
+
     public JavaSqlDateDeserializer() { super(java.sql.Date.class); }
     public JavaSqlDateDeserializer(JavaSqlDateDeserializer src, DateFormat df, String formatString) {
         super(src, df, formatString);

@@ -2,6 +2,8 @@ package tools.jackson.databind.ext.jdk8;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -22,12 +24,14 @@ public class OptionalWithEmptyTest
         }
     }
 
+    @Test
     public void testOptionalFromEmpty() throws Exception {
         Optional<?> value = MAPPER.readValue(q(""), new TypeReference<Optional<Integer>>() {});
         assertEquals(false, value.isPresent());
     }
 
     // for [datatype-jdk8#23]
+    @Test
     public void testBooleanWithEmpty() throws Exception
     {
         // and looks like a special, somewhat non-conforming case is what a user had

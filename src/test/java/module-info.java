@@ -1,4 +1,4 @@
-// Jackson 3.x module-info for Tests
+// Jackson 3.x module-info for jackson-databind Tests
 module tools.jackson.databind
 {
     requires java.desktop;

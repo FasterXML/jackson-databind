@@ -28,6 +28,9 @@ public class InvalidNullException
     /**********************************************************
      */
 
+    /**
+     * @since 2.19
+     */
     protected InvalidNullException(JsonParser p, String msg, PropertyName pname) {
         super(p, msg);
         _propertyName = pname;

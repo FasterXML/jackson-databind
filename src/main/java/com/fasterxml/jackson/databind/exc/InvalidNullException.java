@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.exc;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.PropertyName;
@@ -27,11 +28,15 @@ public class InvalidNullException
     /**********************************************************
      */
 
+    protected InvalidNullException(JsonParser p, String msg, PropertyName pname) {
+        super(p, msg);
+        _propertyName = pname;
+    }
+
     protected InvalidNullException(DeserializationContext ctxt, String msg,
             PropertyName pname)
     {
-        super(ctxt == null ? null : ctxt.getParser(), msg);
-        _propertyName = pname;
+        this(ctxt == null ? null : ctxt.getParser(), msg, pname);
     }
 
     public static InvalidNullException from(DeserializationContext ctxt,

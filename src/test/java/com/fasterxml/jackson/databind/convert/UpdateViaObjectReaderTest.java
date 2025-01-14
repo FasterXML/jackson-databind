@@ -80,6 +80,7 @@ public class UpdateViaObjectReaderTest
             }
             /*JsonNode node =*/ p.readValueAsTree();
 
+            p.skipChildren(); // important, must consume input
             DataA da = new DataA();
             da.i = 5;
             return da;

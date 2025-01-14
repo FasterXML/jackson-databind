@@ -6,21 +6,16 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
-
 /**
- * Test for validating {@link com.fasterxml.jackson.databind.DeserializationFeature#FAIL_ON_TRAILING_TOKENS}.
+ * Test for validating {@link DeserializationFeature#FAIL_ON_TRAILING_TOKENS}.
  */
-public class FullStreamReadTest
+public class FullStreamReadTest extends DatabindTestUtil
 {
     private final static String JSON_OK_ARRAY = " [ 1, 2, 3]    ";
     private final static String JSON_OK_ARRAY_WITH_COMMENT = JSON_OK_ARRAY + " // stuff ";
@@ -42,35 +37,40 @@ public class FullStreamReadTest
     @Test
     public void testMapperAcceptTrailing() throws Exception
     {
-        assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
+
+        assertFalse(mapper.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
 
         // by default, should be ok to read, all
-        _verifyArray(MAPPER.readTree(JSON_OK_ARRAY));
-        _verifyArray(MAPPER.readTree(JSON_OK_ARRAY_WITH_COMMENT));
-        _verifyArray(MAPPER.readTree(JSON_FAIL_ARRAY));
+        _verifyArray(mapper.readTree(JSON_OK_ARRAY));
+        _verifyArray(mapper.readTree(JSON_OK_ARRAY_WITH_COMMENT));
+        _verifyArray(mapper.readTree(JSON_FAIL_ARRAY));
 
         // and also via "untyped"
-        _verifyCollection(MAPPER.readValue(JSON_OK_ARRAY, List.class));
-        _verifyCollection(MAPPER.readValue(JSON_OK_ARRAY_WITH_COMMENT, List.class));
-        _verifyCollection(MAPPER.readValue(JSON_FAIL_ARRAY, List.class));
+        _verifyCollection(mapper.readValue(JSON_OK_ARRAY, List.class));
+        _verifyCollection(mapper.readValue(JSON_OK_ARRAY_WITH_COMMENT, List.class));
+        _verifyCollection(mapper.readValue(JSON_FAIL_ARRAY, List.class));
 
         // ditto for getting `null` and some other token
 
-        assertTrue(MAPPER.readTree(JSON_OK_NULL).isNull());
-        assertTrue(MAPPER.readTree(JSON_OK_NULL_WITH_COMMENT).isNull());
-        assertTrue(MAPPER.readTree(JSON_FAIL_NULL).isNull());
+        assertTrue(mapper.readTree(JSON_OK_NULL).isNull());
+        assertTrue(mapper.readTree(JSON_OK_NULL_WITH_COMMENT).isNull());
+        assertTrue(mapper.readTree(JSON_FAIL_NULL).isNull());
 
-        assertNull(MAPPER.readValue(JSON_OK_NULL, Object.class));
-        assertNull(MAPPER.readValue(JSON_OK_NULL_WITH_COMMENT, Object.class));
-        assertNull(MAPPER.readValue(JSON_FAIL_NULL, Object.class));
+        assertNull(mapper.readValue(JSON_OK_NULL, Object.class));
+        assertNull(mapper.readValue(JSON_OK_NULL_WITH_COMMENT, Object.class));
+        assertNull(mapper.readValue(JSON_FAIL_NULL, Object.class));
     }
 
     @Test
     public void testMapperFailOnTrailing() throws Exception
     {
         // but things change if we enforce checks
-        ObjectMapper strict = newJsonMapper()
-                .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
+        ObjectMapper strict = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
         assertTrue(strict.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
 
         // some still ok
@@ -177,8 +177,8 @@ public class FullStreamReadTest
     @Test
     public void testReaderAcceptTrailing() throws Exception
     {
-        ObjectReader R = MAPPER.reader();
-        assertFalse(R.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
+        ObjectReader R = MAPPER.reader()
+                .without(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
 
         _verifyArray(R.readTree(JSON_OK_ARRAY));
         _verifyArray(R.readTree(JSON_OK_ARRAY_WITH_COMMENT));

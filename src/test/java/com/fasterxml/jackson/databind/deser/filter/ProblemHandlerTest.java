@@ -147,6 +147,7 @@ public class ProblemHandlerTest
                 String failureMsg)
             throws IOException
         {
+            p.skipChildren();
             return value;
         }
     }

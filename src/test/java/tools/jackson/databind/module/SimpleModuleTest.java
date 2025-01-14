@@ -168,6 +168,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     static class Deserializer3787A extends ValueDeserializer<Test3787Bean> {
         @Override
         public Test3787Bean deserialize(JsonParser p, DeserializationContext ctxt) {
+            p.skipChildren();
             Test3787Bean simpleTestBean = new Test3787Bean();
             simpleTestBean.value = "I am A";
             return simpleTestBean;
@@ -177,6 +178,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     static class Deserializer3787B extends ValueDeserializer<Test3787Bean> {
         @Override
         public Test3787Bean deserialize(JsonParser p, DeserializationContext ctxt)  {
+            p.skipChildren();
             Test3787Bean simpleTestBean = new Test3787Bean();
             simpleTestBean.value = "I am B";
             return simpleTestBean;
@@ -551,7 +553,8 @@ public class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAddModuleWithDeserializerTwiceThenOnlyLatestIsKept_reverseOrder() throws Exception {
+    public void testAddModuleWithDeserializerTwiceThenOnlyLatestIsKept_reverseOrder() throws Exception
+    {
         SimpleModule firstModule = new SimpleModule()
             .addDeserializer(Test3787Bean.class, new Deserializer3787A());
         SimpleModule secondModule = new SimpleModule()

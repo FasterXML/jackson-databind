@@ -14,6 +14,15 @@ module tools.jackson.databind
 
     // // Actual Test dependencies
 
+    // Shared Jackson test functionality
+
+    // 13-Jan-2025, tatu: Cannot use module dependency here yet
+    //   for some reason
+    //
+    // requires tools.jackson.core.testutil;
+
+    // Test frameworks, libraries:
+
     // Guava testlib needed by CLMH tests, alas; brings in junit4
     requires guava.testlib;
     // JUnit4 should NOT be needed but is transitively required

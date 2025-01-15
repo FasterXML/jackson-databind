@@ -416,12 +416,14 @@ public class JDKStringLikeTypeDeserTest
             byte[] data = bytes.toByteArray();
             assertEquals(16, data.length);
 
-            buf.writePOJO(data);
-
-            UUID value2 = MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), UUID.class);
-
-            assertEquals(value, value2);
-            buf.close();
+            // Let's create fresh TokenBuffer, not reuse one
+            try (TokenBuffer buf2 = TokenBuffer.forGeneration()) {
+                buf2.writePOJO(data);
+    
+                UUID value2 = MAPPER.readValue(buf2.asParser(), UUID.class);
+    
+                assertEquals(value, value2);
+            }
         }
     }
 }

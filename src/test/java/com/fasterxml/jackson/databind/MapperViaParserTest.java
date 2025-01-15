@@ -106,7 +106,10 @@ public class MapperViaParserTest
     @Test
     public void testIncrementalPojoReading() throws IOException
     {
-        JsonFactory jf = new MappingJsonFactory();
+        ObjectMapper mapper = JsonMapper.builder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
+        JsonFactory jf = mapper.getFactory();
         final String JSON = "[ 1, true, null, \"abc\" ]";
         JsonParser p = jf.createParser(new StringReader(JSON));
 

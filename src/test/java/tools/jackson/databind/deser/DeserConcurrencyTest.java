@@ -41,6 +41,7 @@ public class DeserConcurrencyTest
                 ctxt.reportInputMismatch(Bean.class,
                         "Deserializer not yet completely resolved");
             }
+            p.skipChildren(); // consume the value
             Bean b = new Bean();
             b.value = 13;
             return b;

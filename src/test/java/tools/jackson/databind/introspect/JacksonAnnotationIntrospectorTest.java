@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonParser;
+import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.*;
 import tools.jackson.databind.cfg.MapperConfig;
@@ -95,12 +94,11 @@ public class JacksonAnnotationIntrospectorTest
     public static class QNameSerializer extends ValueSerializer<QName> {
 
         @Override
-        public void serialize(QName value, JsonGenerator g, SerializationContext provider)
+        public void serialize(QName value, JsonGenerator g, SerializationContext ctxt)
         {
             g.writeString(value.toString());
         }
     }
-
 
     public static class QNameDeserializer extends StdDeserializer<QName>
     {
@@ -108,7 +106,10 @@ public class JacksonAnnotationIntrospectorTest
         @Override
         public QName deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            return QName.valueOf(p.readValueAs(String.class));
+            if (!p.hasToken(JsonToken.VALUE_STRING)) {
+                 throw new IllegalArgumentException("Unexpected token "+p.currentToken());
+            }
+            return QName.valueOf(p.getText());
         }
     }
 

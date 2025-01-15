@@ -26,21 +26,24 @@ public class TestBlocking
     @Test
     public void testEagerAdvance() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonParser jp = createParserUsingReader("[ 1  ");
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
+        JsonParser p = createParserUsingReader("[ 1  ");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
         // And then try to map just a single entry: shouldn't fail:
-        Integer I = mapper.readValue(jp, Integer.class);
+        Integer I = mapper.readValue(p, Integer.class);
         assertEquals(Integer.valueOf(1), I);
 
         // and should fail only now:
         try {
-            jp.nextToken();
+            p.nextToken();
+            fail("Should not pass");
         } catch (JacksonException ioe) {
             verifyException(ioe, "Unexpected end-of-input: expected close marker for ARRAY");
         }
-        jp.close();
+        p.close();
     }
 }

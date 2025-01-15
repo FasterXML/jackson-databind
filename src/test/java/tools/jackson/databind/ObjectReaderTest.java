@@ -462,7 +462,7 @@ public class ObjectReaderTest extends DatabindTestUtil
         ObjectMapper mapper = JsonMapper.builder().addHandler(new DeserializationProblemHandler(){
             @Override
             public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p, ValueDeserializer<?> deserializer, Object beanOrClass, String propertyName) {
-                p.readValueAsTree();
+                ctxt.readTree(p);
                 return true;
             }
         }).build();

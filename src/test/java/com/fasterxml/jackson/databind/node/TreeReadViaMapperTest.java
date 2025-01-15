@@ -148,10 +148,11 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
     @Test
     public void testMultiple() throws Exception
     {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
         String JSON = "12  \"string\" [ 1, 2, 3 ]";
-        JsonFactory jf = new JsonFactory();
-        JsonParser p = jf.createParser(new StringReader(JSON));
-        final ObjectMapper mapper = objectMapper();
+        JsonParser p = mapper.createParser(JSON);
         JsonNode result = mapper.readTree(p);
 
         assertTrue(result.isIntegralNumber());

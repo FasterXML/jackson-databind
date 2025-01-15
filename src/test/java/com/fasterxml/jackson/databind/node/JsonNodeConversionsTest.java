@@ -159,10 +159,10 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     public static class LeafDeserializer extends JsonDeserializer<Leaf>
     {
         @Override
-        public Leaf deserialize(JsonParser jp, DeserializationContext ctxt)
+        public Leaf deserialize(JsonParser p, DeserializationContext ctxt)
                 throws IOException
         {
-            JsonNode tree = (JsonNode) jp.readValueAsTree();
+            JsonNode tree = ctxt.readTree(p);
             Leaf leaf = new Leaf();
             leaf.value = tree.get("value").intValue();
             return leaf;

@@ -26,7 +26,9 @@ public class TestBlocking
     @Test
     public void testEagerAdvance() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
         JsonParser p = createParserUsingReader("[ 1  ");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());

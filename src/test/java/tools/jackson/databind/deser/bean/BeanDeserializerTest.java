@@ -169,7 +169,9 @@ public class BeanDeserializerTest
         }
     }
 
-    public static class Issue1912CustomBeanDeserializer extends ValueDeserializer<Issue1912Bean> {
+    public static class Issue1912CustomBeanDeserializer
+        extends ValueDeserializer<Issue1912Bean>
+    {
         private BeanDeserializer defaultDeserializer;
 
         public Issue1912CustomBeanDeserializer(BeanDeserializer defaultDeserializer) {
@@ -179,15 +181,25 @@ public class BeanDeserializerTest
         @Override
         public Issue1912Bean deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            // this is need on some cases, this populate _propertyBasedCreator
-            defaultDeserializer.resolve(ctxt);
-
             p.nextName(); // read subBean
-            p.nextToken(); // read start object
+            if (p.nextToken() != JsonToken.START_OBJECT) {
+                throw new IllegalArgumentException("Unexpected token "+p.currentToken());
+            }
 
             Issue1912SubBean subBean = (Issue1912SubBean) defaultDeserializer.findProperty("subBean").deserialize(p, ctxt);
+            // Must also read trailing END_OBJECT
+            if (p.nextToken() != JsonToken.END_OBJECT) {
+                throw new IllegalArgumentException("Unexpected token "+p.currentToken());
+            }
 
             return new Issue1912Bean(subBean);
+        }
+
+        @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        {
+            return new Issue1912CustomBeanDeserializer(
+                    (BeanDeserializer) defaultDeserializer.createContextual(ctxt, property));
         }
     }
 

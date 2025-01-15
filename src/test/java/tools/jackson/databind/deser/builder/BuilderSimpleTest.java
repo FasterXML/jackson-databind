@@ -409,7 +409,7 @@ public class BuilderSimpleTest
     @Test
     public void testSelfBuilder777() throws Exception
     {
-        SelfBuilder777 result = MAPPER.readValue(a2q("{'x':3}'"),
+        SelfBuilder777 result = MAPPER.readValue(a2q("{'x':3}"),
                 SelfBuilder777.class);
         assertNotNull(result);
         assertEquals(3, result.x);

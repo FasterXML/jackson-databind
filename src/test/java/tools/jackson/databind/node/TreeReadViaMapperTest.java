@@ -150,7 +150,7 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
                 .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
                 .build();
         String JSON = "12  \"string\" [ 1, 2, 3 ]";
-        JsonParser p = mapper.createParser(new StringReader(JSON));
+        JsonParser p = mapper.createParser(JSON);
         JsonNode result = mapper.readTree(p);
 
         assertTrue(result.isIntegralNumber());

@@ -247,10 +247,9 @@ public enum DeserializationFeature implements ConfigFeature
      * for binding the full value, and nothing more (except for possible ignorable
      * white space or comments, if supported by data format).
      *<p>
-     * Feature is disabled by default (so that no check is made for possible trailing
-     * token(s)) for backwards compatibility reasons.
+     * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
      */
-    FAIL_ON_TRAILING_TOKENS(false),
+    FAIL_ON_TRAILING_TOKENS(true),
 
     /**
      * Feature that determines whether Jackson code should catch

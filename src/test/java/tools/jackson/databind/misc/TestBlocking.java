@@ -24,7 +24,7 @@ public class TestBlocking
      * quite yet.
      */
     @Test
-    public void testEagerAdvance() throws IOException
+    public void testEagerAdvance() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)

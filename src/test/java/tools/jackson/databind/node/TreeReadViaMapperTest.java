@@ -146,7 +146,9 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
     @Test
     public void testMultiple() throws Exception
     {
-        final ObjectMapper mapper = objectMapper();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
         String JSON = "12  \"string\" [ 1, 2, 3 ]";
         JsonParser p = mapper.createParser(new StringReader(JSON));
         JsonNode result = mapper.readTree(p);

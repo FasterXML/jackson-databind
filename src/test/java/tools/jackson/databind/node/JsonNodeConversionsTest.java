@@ -161,7 +161,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         @Override
         public Leaf deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            JsonNode tree = (JsonNode) p.readValueAsTree();
+            JsonNode tree = ctxt.readTree(p);
             Leaf leaf = new Leaf();
             leaf.value = tree.get("value").intValue();
             return leaf;

@@ -1,5 +1,7 @@
 package tools.jackson.databind.exc;
 
+import tools.jackson.core.JsonParser;
+
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.PropertyName;
@@ -8,11 +10,9 @@ import tools.jackson.databind.util.ClassUtil;
 /**
  * Exception thrown if a `null` value is being encountered for a property
  * designed as "fail on null" property (see {@link com.fasterxml.jackson.annotation.JsonSetter}).
- *
- * @since 2.9
  */
 public class InvalidNullException
-    extends MismatchedInputException // since 2.9
+    extends MismatchedInputException
 {
     private static final long serialVersionUID = 1L; // silly Eclipse, warnings
 
@@ -27,11 +27,18 @@ public class InvalidNullException
     /**********************************************************
      */
 
+    /**
+     * @since 2.19
+     */
+    protected InvalidNullException(JsonParser p, String msg, PropertyName pname) {
+        super(p, msg);
+        _propertyName = pname;
+    }
+
     protected InvalidNullException(DeserializationContext ctxt, String msg,
             PropertyName pname)
     {
-        super(ctxt == null ? null : ctxt.getParser(), msg);
-        _propertyName = pname;
+        this(ctxt == null ? null : ctxt.getParser(), msg, pname);
     }
 
     public static InvalidNullException from(DeserializationContext ctxt,

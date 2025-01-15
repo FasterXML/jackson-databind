@@ -78,21 +78,25 @@ public class JacksonTypesDeserTest
     public void testTokenBufferWithSample() throws Exception
     {
         // First, try standard sample doc:
-        TokenBuffer result = MAPPER.readValue(SAMPLE_DOC_JSON_SPEC, TokenBuffer.class);
-        verifyJsonSpecSampleDoc(result.asParser(ObjectReadContext.empty()), true);
-        result.close();
+        try (TokenBuffer result = MAPPER.readValue(SAMPLE_DOC_JSON_SPEC, TokenBuffer.class)) {
+            verifyJsonSpecSampleDoc(result.asParser(ObjectReadContext.empty()), true);
+        }
     }
 
     @SuppressWarnings("resource")
     @Test
     public void testTokenBufferWithSequence() throws Exception
     {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
+        
         // and then sequence of other things
-        JsonParser p = MAPPER.createParser("[ 32, [ 1 ], \"abc\", { \"a\" : true } ]");
+        JsonParser p = mapper.createParser("[ 32, [ 1 ], \"abc\", { \"a\" : true } ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        TokenBuffer buf = MAPPER.readValue(p, TokenBuffer.class);
+        TokenBuffer buf = mapper.readValue(p, TokenBuffer.class);
 
         // check manually...
         JsonParser bufParser = buf.asParser(ObjectReadContext.empty());
@@ -101,7 +105,7 @@ public class JacksonTypesDeserTest
         assertNull(bufParser.nextToken());
 
         // then bind to another
-        buf = MAPPER.readValue(p, TokenBuffer.class);
+        buf = mapper.readValue(p, TokenBuffer.class);
         bufParser = buf.asParser(ObjectReadContext.empty());
         assertToken(JsonToken.START_ARRAY, bufParser.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, bufParser.nextToken());
@@ -110,13 +114,13 @@ public class JacksonTypesDeserTest
         assertNull(bufParser.nextToken());
 
         // third one, with automatic binding
-        buf = MAPPER.readValue(p, TokenBuffer.class);
-        String str = MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), String.class);
+        buf = mapper.readValue(p, TokenBuffer.class);
+        String str = mapper.readValue(buf.asParser(ObjectReadContext.empty()), String.class);
         assertEquals("abc", str);
 
         // and ditto for last one
-        buf = MAPPER.readValue(p, TokenBuffer.class);
-        Map<?,?> map = MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), Map.class);
+        buf = mapper.readValue(p, TokenBuffer.class);
+        Map<?,?> map = mapper.readValue(buf.asParser(ObjectReadContext.empty()), Map.class);
         assertEquals(1, map.size());
         assertEquals(Boolean.TRUE, map.get("a"));
 

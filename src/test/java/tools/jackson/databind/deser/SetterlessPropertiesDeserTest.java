@@ -23,14 +23,14 @@ public class SetterlessPropertiesDeserTest
 {
     static class CollectionBean
     {
-        List<String> _values = new ArrayList<String>();
+        List<String> _values = new ArrayList<>();
 
         public List<String> getValues() { return _values; }
     }
 
     static class MapBean
     {
-        Map<String,Integer> _values = new HashMap<String,Integer>();
+        Map<String,Integer> _values = new HashMap<>();
 
         public Map<String,Integer> getValues() { return _values; }
     }
@@ -38,7 +38,7 @@ public class SetterlessPropertiesDeserTest
     // testing to verify that field has precedence over getter, for lists
     static class Dual
     {
-        @JsonProperty("list") protected List<Integer> values = new ArrayList<Integer>();
+        @JsonProperty("list") protected List<Integer> values = new ArrayList<>();
 
         public Dual() { }
 
@@ -129,7 +129,7 @@ public class SetterlessPropertiesDeserTest
         ObjectMapper m = jsonMapperBuilder()
                 .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
                 .build();
-        Dual value = m.readValue("{\"list\":[1,2,3]}, valueType)", Dual.class);
+        Dual value = m.readValue("{\"list\":[1,2,3]}", Dual.class);
         assertNotNull(value);
         assertEquals(3, value.values.size());
     }

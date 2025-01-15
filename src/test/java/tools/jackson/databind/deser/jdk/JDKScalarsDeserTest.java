@@ -14,16 +14,16 @@ import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
  * Unit tests for verifying handling of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
 public class JDKScalarsDeserTest
+    extends DatabindTestUtil
 {
     private final static String NAN_STRING = "NaN";
 
@@ -548,7 +548,7 @@ public class JDKScalarsDeserTest
 
     /**
      * Then a unit test to verify that we can conveniently bind sequence of
-     * space-separate simple values
+     * space-separated simple values
      */
     @Test
     public void testSequenceOfInts() throws Exception
@@ -560,12 +560,15 @@ public class JDKScalarsDeserTest
             sb.append(" ");
             sb.append(i);
         }
-        JsonParser p = MAPPER.createParser(sb.toString());
-        for (int i = 0; i < NR_OF_INTS; ++i) {
-            Integer result = MAPPER.readValue(p, Integer.class);
-            assertEquals(Integer.valueOf(i), result);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
+        try (JsonParser p = mapper.createParser(sb.toString())) {
+            for (int i = 0; i < NR_OF_INTS; ++i) {
+                Integer result = mapper.readValue(p, Integer.class);
+                assertEquals(Integer.valueOf(i), result);
+            }
         }
-        p.close();
     }
 
     /*

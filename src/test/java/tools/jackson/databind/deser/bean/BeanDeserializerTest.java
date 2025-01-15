@@ -100,8 +100,9 @@ public class BeanDeserializerTest
         }
 
         @Override
-        public Object deserialize(JsonParser jp, DeserializationContext ctxt)
+        public Object deserialize(JsonParser p, DeserializationContext ctxt)
         {
+            p.skipChildren();
             return new Bean(a, b);
         }
     }
@@ -247,8 +248,9 @@ public class BeanDeserializerTest
         public ValueDeserializer<?> modifyArrayDeserializer(DeserializationConfig config, ArrayType valueType,
                 BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
             return (ValueDeserializer<?>) new StdDeserializer<Object>(Object.class) {
-                @Override public Object deserialize(JsonParser jp,
+                @Override public Object deserialize(JsonParser p,
                         DeserializationContext ctxt) {
+                    p.skipChildren();
                     return new String[] { "foo" };
                 }
             };
@@ -260,8 +262,9 @@ public class BeanDeserializerTest
         public ValueDeserializer<?> modifyCollectionDeserializer(DeserializationConfig config, CollectionType valueType,
                 BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
             return (ValueDeserializer<?>) new StdDeserializer<Object>(Object.class) {
-                @Override public Object deserialize(JsonParser jp,
+                @Override public Object deserialize(JsonParser p,
                         DeserializationContext ctxt) {
+                    p.skipChildren();
                     ArrayList<String> list = new ArrayList<String>();
                     list.add("foo");
                     return list;
@@ -275,8 +278,9 @@ public class BeanDeserializerTest
         public ValueDeserializer<?> modifyMapDeserializer(DeserializationConfig config, MapType valueType,
                 BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
             return (ValueDeserializer<?>) new StdDeserializer<Object>(Object.class) {
-                @Override public Object deserialize(JsonParser jp,
+                @Override public Object deserialize(JsonParser p,
                         DeserializationContext ctxt) {
+                    p.skipChildren();
                     HashMap<String,String> map = new HashMap<String,String>();
                     map.put("a", "foo");
                     return map;

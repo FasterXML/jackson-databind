@@ -168,7 +168,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     static class Deserializer3787A extends ValueDeserializer<Test3787Bean> {
         @Override
         public Test3787Bean deserialize(JsonParser p, DeserializationContext ctxt) {
-            p.skipChildren();
+            p.skipChildren(); // important to consume value
             Test3787Bean simpleTestBean = new Test3787Bean();
             simpleTestBean.value = "I am A";
             return simpleTestBean;
@@ -178,7 +178,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     static class Deserializer3787B extends ValueDeserializer<Test3787Bean> {
         @Override
         public Test3787Bean deserialize(JsonParser p, DeserializationContext ctxt)  {
-            p.skipChildren();
+            p.skipChildren(); // important to consume value
             Test3787Bean simpleTestBean = new Test3787Bean();
             simpleTestBean.value = "I am B";
             return simpleTestBean;

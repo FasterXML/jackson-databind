@@ -1,4 +1,4 @@
-// Jackson 3.x module-info for Tests
+// Jackson 3.x module-info for jackson-databind Tests
 module tools.jackson.databind
 {
     requires java.desktop;
@@ -13,6 +13,15 @@ module tools.jackson.databind
     requires tools.jackson.core;
 
     // // Actual Test dependencies
+
+    // Shared Jackson test functionality
+
+    // 13-Jan-2025, tatu: Cannot use module dependency here yet
+    //   for some reason
+    //
+    // requires tools.jackson.core.testutil;
+
+    // Test frameworks, libraries:
 
     // Guava testlib needed by CLMH tests, alas; brings in junit4
     requires guava.testlib;

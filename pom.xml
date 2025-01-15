@@ -108,6 +108,18 @@
     </dependency>
 
     <!-- Test dependencies -->
+
+    <!-- 13-Jan-2025, tatu: Use the new (in 3.0) shared core test-jar
+        for some shared test functionality.
+      -->
+    <dependency>
+      <groupId>tools.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version.core}</version>
+      <classifier>tests</classifier>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>

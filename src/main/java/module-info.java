@@ -32,8 +32,10 @@ module tools.jackson.databind
     exports tools.jackson.databind.deser.jdk;
     exports tools.jackson.databind.deser.std;
     exports tools.jackson.databind.exc;
-    // No need to expose these handlers?
-//    exports tools.jackson.databind.ext;
+    exports tools.jackson.databind.ext;
+    exports tools.jackson.databind.ext.jdk8;
+    // Needed by Ion module for SqlDate deserializer:
+    exports tools.jackson.databind.ext.sql;
     exports tools.jackson.databind.introspect;
     exports tools.jackson.databind.json;
     exports tools.jackson.databind.jsonFormatVisitors;

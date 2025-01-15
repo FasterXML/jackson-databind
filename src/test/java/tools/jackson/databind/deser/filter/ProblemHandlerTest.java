@@ -137,6 +137,7 @@ public class ProblemHandlerTest
                 JavaType targetType, JsonToken t, JsonParser p,
                 String failureMsg)
         {
+            p.skipChildren();
             return value;
         }
     }

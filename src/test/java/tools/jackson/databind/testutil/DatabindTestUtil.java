@@ -2,11 +2,11 @@ package tools.jackson.databind.testutil;
 
 import java.io.*;
 import java.lang.annotation.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.testutil.JacksonTestUtilBase;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * as part of JUnit 5 migration.
  */
 public class DatabindTestUtil
+    extends JacksonTestUtilBase
 {
     // @since 2.18
     // Helper annotation to work around lack of implicit name access with Jackson 2.x
@@ -409,34 +410,9 @@ public class DatabindTestUtil
 
     /*
     /**********************************************************************
-    /* Encoding or String representations
-    /**********************************************************************
-     */
-
-    public static String a2q(String json) {
-        return json.replace("'", "\"");
-    }
-
-    public static String q(String str) {
-        return '"'+str+'"';
-    }
-
-    public static byte[] utf8Bytes(String str) {
-        return str.getBytes(StandardCharsets.UTF_8);
-    }
-
-    /*
-    /**********************************************************************
     /* Additional assertion methods
     /**********************************************************************
      */
-
-    public static void assertToken(JsonToken expToken, JsonToken actToken)
-    {
-        if (actToken != expToken) {
-            fail("Expected token "+expToken+", current token "+actToken);
-        }
-    }
 
     public static void assertValidLocation(TokenStreamLocation location) {
         assertNotNull(location, "Should have non-null location");
@@ -476,78 +452,6 @@ public class DatabindTestUtil
         assertFalse(o.equals(SINGLETON_OBJECT));
         // just for fun, let's also call hash code...
         o.hashCode();
-    }
-
-    /**
-     * @param e Exception to check
-     * @param anyMatches Array of Strings of which AT LEAST ONE ("any") has to be included
-     *    in {@code e.getMessage()} -- using case-INSENSITIVE comparison
-     */
-    public static void verifyException(Throwable e, String... anyMatches)
-    {
-        String msg = e.getMessage();
-        String lmsg = (msg == null) ? "" : msg.toLowerCase();
-        for (String match : anyMatches) {
-            String lmatch = match.toLowerCase();
-            if (lmsg.contains(lmatch)) {
-                return;
-            }
-        }
-        fail("Expected an exception with one of substrings ("
-            + Arrays.asList(anyMatches)+"): got one (of type "+e.getClass().getName()
-            +") with message \""+msg+"\"");
-    }
-
-    /**
-     * Method that gets textual contents of the current token using
-     * available methods, and ensures results are consistent, before
-     * returning them
-     */
-    protected static String getAndVerifyText(JsonParser jp)
-    {
-        // Ok, let's verify other accessors
-        int actLen = jp.getStringLength();
-        char[] ch = jp.getStringCharacters();
-        String str2 = new String(ch, jp.getStringOffset(), actLen);
-        String str = jp.getString();
-
-        if (str.length() !=  actLen) {
-            fail("Internal problem (jp.token == "+jp.currentToken()+"): jp.getText().length() ['"+str+"'] == "+str.length()+"; jp.getTextLength() == "+actLen);
-        }
-        assertEquals(str, str2, "String access via getText(), getTextXxx() must be the same");
-
-        return str;
-    }
-
-    /*
-    /**********************************************************
-    /* JDK ser/deser
-    /**********************************************************
-     */
-
-    public static byte[] jdkSerialize(Object o)
-    {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream(2000);
-        try (ObjectOutputStream obOut = new ObjectOutputStream(bytes)) {
-            obOut.writeObject(o);
-            obOut.close();
-            return bytes.toByteArray();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T jdkDeserialize(byte[] raw)
-    {
-        try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw))) {
-            return (T) objIn.readObject();
-        } catch (ClassNotFoundException e) {
-            fail("Missing class: "+e.getMessage());
-            return null;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     /*

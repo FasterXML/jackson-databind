@@ -498,8 +498,6 @@ public class BeanDeserializer
             return bean;
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
-        // [databind#631]: Assign current value, to be accessible by custom deserializers
-        p.assignCurrentValue(bean);
 
         // First: do we have native Object Ids (like YAML)?
         if (p.canReadObjectId()) {
@@ -524,6 +522,9 @@ public class BeanDeserializer
             // should we check what exactly it is... ?
             return bean;
         }
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        // [databind#4184]: but only if we have at least one property
+        p.assignCurrentValue(bean);
         if (_needViewProcesing) {
             Class<?> view = ctxt.getActiveView();
             if (view != null) {

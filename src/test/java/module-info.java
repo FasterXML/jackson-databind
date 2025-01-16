@@ -95,7 +95,6 @@ module tools.jackson.databind
     opens tools.jackson.databind.ser.filter;
     opens tools.jackson.databind.seq;
     opens tools.jackson.databind.struct;
-    opens tools.jackson.databind.testutil.failure;
     opens tools.jackson.databind.tofix;
     opens tools.jackson.databind.util.internal;
     opens tools.jackson.databind.views;

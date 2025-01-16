@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
@@ -13,7 +14,6 @@ import tools.jackson.databind.deser.jdk.CollectionDeserializer;
 import tools.jackson.databind.deser.std.DelegatingDeserializer;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import tools.jackson.databind.type.CollectionLikeType;
 
 import static org.junit.jupiter.api.Assertions.assertSame;

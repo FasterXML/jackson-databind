@@ -27,13 +27,17 @@ module tools.jackson.databind
     exports tools.jackson.databind.cfg;
     exports tools.jackson.databind.deser;
     exports tools.jackson.databind.deser.bean;
-//    exports tools.jackson.databind.deser.impl;
+    // Alas multiple types from this package are exported. Would
+    // ideally move, but for now expose
+    exports tools.jackson.databind.deser.impl;
     exports tools.jackson.databind.deser.jackson;
     exports tools.jackson.databind.deser.jdk;
     exports tools.jackson.databind.deser.std;
     exports tools.jackson.databind.exc;
-    // No need to expose these handlers?
-//    exports tools.jackson.databind.ext;
+    exports tools.jackson.databind.ext;
+    exports tools.jackson.databind.ext.jdk8;
+    // Needed by Ion module for SqlDate deserializer:
+    exports tools.jackson.databind.ext.sql;
     exports tools.jackson.databind.introspect;
     exports tools.jackson.databind.json;
     exports tools.jackson.databind.jsonFormatVisitors;

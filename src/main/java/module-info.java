@@ -27,7 +27,9 @@ module tools.jackson.databind
     exports tools.jackson.databind.cfg;
     exports tools.jackson.databind.deser;
     exports tools.jackson.databind.deser.bean;
-//    exports tools.jackson.databind.deser.impl;
+    // Alas multiple types from this package are exported. Would
+    // ideally move, but for now expose
+    exports tools.jackson.databind.deser.impl;
     exports tools.jackson.databind.deser.jackson;
     exports tools.jackson.databind.deser.jdk;
     exports tools.jackson.databind.deser.std;

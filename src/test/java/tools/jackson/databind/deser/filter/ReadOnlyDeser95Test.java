@@ -1,7 +1,5 @@
 package tools.jackson.databind.deser.filter;
 
-import java.beans.ConstructorProperties;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

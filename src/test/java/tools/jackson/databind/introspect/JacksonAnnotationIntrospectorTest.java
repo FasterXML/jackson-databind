@@ -109,7 +109,7 @@ public class JacksonAnnotationIntrospectorTest
             if (!p.hasToken(JsonToken.VALUE_STRING)) {
                  throw new IllegalArgumentException("Unexpected token "+p.currentToken());
             }
-            return QName.valueOf(p.getText());
+            return QName.valueOf(p.getString());
         }
     }
 

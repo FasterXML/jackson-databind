@@ -16,10 +16,10 @@ module tools.jackson.databind
 
     // Shared Jackson test functionality
 
-    // 13-Jan-2025, tatu: Cannot use module dependency here yet
-    //   for some reason
+    // 15-Jan-2025, tatu: missing module-info for `tools.jackson.core` can't yet add
+    //  (but will be included in Class path just not Module path)
     //
-    // requires tools.jackson.core.testutil;
+    //requires tools.jackson.core.testutil;
 
     // Test frameworks, libraries:
 

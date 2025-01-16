@@ -2,7 +2,6 @@ package tools.jackson.databind.testutil;
 
 import java.io.*;
 import java.lang.annotation.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import tools.jackson.core.*;

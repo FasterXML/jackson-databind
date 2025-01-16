@@ -26,6 +26,12 @@ public class JsonMapper extends ObjectMapper
             super(f);
         }
 
+        /**
+         * NOTE: while public, not exposed as part of public API.
+         *
+         * @param state State from which to restore state of this builder
+         */
+        @SuppressWarnings("exports")
         public Builder(StateImpl state) {
             super(state);
         }

@@ -3,8 +3,6 @@ package tools.jackson.databind.ext.beans;
 import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.introspect.Annotated;
 import tools.jackson.databind.introspect.AnnotatedParameter;
-import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.util.ExceptionUtil;
 
 /**
  * Since 2 JDK7-added annotations were left out of JDK 9+ core modules,

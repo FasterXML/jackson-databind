@@ -54,7 +54,7 @@
     <version.android.sdk.signature>0.10.0</version.android.sdk.signature>
 
     <version.bytebuddy>1.15.10</version.bytebuddy>
-    <version.mockito>5.14.2</version.mockito>
+    <version.mockito>5.15.2</version.mockito>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>tools.jackson.databind.*;version=${project.version}</osgi.export>

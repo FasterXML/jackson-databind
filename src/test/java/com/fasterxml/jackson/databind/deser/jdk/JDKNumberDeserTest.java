@@ -440,6 +440,7 @@ public class JDKNumberDeserTest
                 a2q("{'decimalHolder':100.00,'number':50}"),
                 DeserializationIssue4917.class);
         assertEquals(new BigDecimal("100.00"), issue.decimalHolder.value);
+        assertEquals(50.0, issue.number);
     }
 
 }

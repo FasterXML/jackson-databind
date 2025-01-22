@@ -81,6 +81,24 @@ public class JDKNumberDeserTest
         public BigDecimalHolder2784 holder;
     }
 
+    static class DeserializationIssue4917 {
+        public DecimalHolder4917 decimalHolder;
+        public Double number;
+    }
+
+    static class DecimalHolder4917 {
+        public BigDecimal value;
+
+        public DecimalHolder4917(BigDecimal value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        static DecimalHolder4917 of(BigDecimal value) {
+            return new DecimalHolder4917(value);
+        }
+    }
+
     /*
     /**********************************************************************
     /* Helper classes, serializers/deserializers/resolvers
@@ -413,6 +431,15 @@ public class JDKNumberDeserTest
     {
         byte[] b = utf8Bytes(BIG_DEC_STR);
         assertEquals(BIG_DEC, MAPPER.readValue(b, 0, b.length, BigDecimal.class));
+    }
+
+    @Test
+    public void bigDecimal4917() throws Exception
+    {
+        DeserializationIssue4917 issue = MAPPER.readValue(
+                a2q("{'decimalHolder':100.00,'number':50}"),
+                DeserializationIssue4917.class);
+        assertEquals(new BigDecimal("100.00"), issue.decimalHolder.value);
     }
 
 }

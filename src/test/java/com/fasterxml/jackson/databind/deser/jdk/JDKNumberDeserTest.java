@@ -91,6 +91,11 @@ public class JDKNumberDeserTest
         public int number;
     }
 
+    static class DeserializationIssue4917V3 {
+        public BigDecimal decimal;
+        public double number;
+    }
+
     static class DecimalHolder4917 {
         public BigDecimal value;
 
@@ -455,6 +460,16 @@ public class JDKNumberDeserTest
                 a2q("{'decimalHolder':100.00,'number':50}"),
                 DeserializationIssue4917V2.class);
         assertEquals(new BigDecimal("100.00"), issue.decimalHolder.value);
+        assertEquals(50, issue.number);
+    }
+
+    @Test
+    public void bigDecimal4917V3() throws Exception
+    {
+        DeserializationIssue4917V3 issue = MAPPER.readValue(
+                a2q("{'decimal':100.00,'number':50}"),
+                DeserializationIssue4917V3.class);
+        assertEquals(new BigDecimal("100.00"), issue.decimal);
         assertEquals(50, issue.number);
     }
 

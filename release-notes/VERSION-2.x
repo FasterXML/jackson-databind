@@ -18,6 +18,8 @@ Project: jackson-databind
   multiple constructors since 2.18
  (reported by Tomáš P)
  (fix by Joo-Hyuk K, @cowtowncoder)
+#4896: Coercion shouldn't be necessary for Enums specifying an empty string
+ (reported by @joaocanaverde-blue)
 
 2.18.2 (27-Nov-2024)
 

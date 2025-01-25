@@ -177,7 +177,7 @@ public class JacksonAnnotationIntrospector
     /**********************************************************
      */
 
-    // @since 2.19 no longer overridden; been depracated since 2.8
+    // @since 2.19 no longer overridden; been deprecated since 2.8
     //public String findEnumValue(Enum<?> value)
 
     @Override // since 2.7

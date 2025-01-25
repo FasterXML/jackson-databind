@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
   <!-- is to indicate to Gradle or any Gradle module metadata file consumer  -->
@@ -17,7 +17,6 @@
   <artifactId>jackson-databind</artifactId>
   <version>3.0.0-SNAPSHOT</version>
   <name>jackson-databind</name>
-
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
   <url>https://github.com/FasterXML/jackson</url>
   <inceptionYear>2008</inceptionYear>
@@ -54,7 +53,7 @@
     <version.android.sdk.signature>0.10.0</version.android.sdk.signature>
 
     <version.bytebuddy>1.15.10</version.bytebuddy>
-    <version.mockito>5.14.2</version.mockito>
+    <version.mockito>5.15.2</version.mockito>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>tools.jackson.databind.*;version=${project.version}</osgi.export>

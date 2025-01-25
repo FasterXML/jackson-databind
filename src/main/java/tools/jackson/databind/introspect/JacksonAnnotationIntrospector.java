@@ -167,7 +167,7 @@ public class JacksonAnnotationIntrospector
     /**********************************************************************
      */
 
-    @Override // since 2.16
+    @Override
     public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
             Enum<?>[] enumValues, String[] names)
     {
@@ -176,7 +176,9 @@ public class JacksonAnnotationIntrospector
             JsonProperty property = field.getAnnotation(JsonProperty.class);
             if (property != null) {
                 String propValue = property.value();
-                if (propValue != null && !propValue.isEmpty()) {
+                if (propValue != null) {
+                    // 24-Jan-2025, tatu: [databind#4896] Should not skip "" with enums
+                    // && !propValue.isEmpty()) {
                     enumToPropertyMap.put(field.getName(), propValue);
                 }
             }

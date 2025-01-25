@@ -80,7 +80,11 @@ public class ViewSerializationTest extends DatabindTestUtil
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    // Ensure `MapperFeature.DEFAULT_VIEW_INCLUSION` is enabled
+    // (its default differs b/w Jackson 2.x and 3.x)
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .build();
 
     @SuppressWarnings("unchecked")
     @Test

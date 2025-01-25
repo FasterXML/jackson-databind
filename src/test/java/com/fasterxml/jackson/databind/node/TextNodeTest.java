@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.node;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TextNodeTest extends NodeTestBase
@@ -42,6 +40,8 @@ public class TextNodeTest extends NodeTestBase
         assertTrue(TextNode.valueOf("true").asBoolean(false));
         assertFalse(TextNode.valueOf("false").asBoolean(true));
         assertFalse(TextNode.valueOf("false").asBoolean(false));
+
+        assertNonContainerStreamMethods(n);
     }
 
     @Test

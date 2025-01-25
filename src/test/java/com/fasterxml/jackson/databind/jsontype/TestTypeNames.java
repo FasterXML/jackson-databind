@@ -2,18 +2,16 @@ package com.fasterxml.jackson.databind.jsontype;
 
 import java.util.*;
 
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -91,7 +89,7 @@ public class TestTypeNames extends DatabindTestUtil
         };
         String json = MAPPER.writeValueAsString(input);
         List<Animal> output = MAPPER.readValue(json,
-                TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Animal.class));
+                defaultTypeFactory().constructCollectionType(ArrayList.class, Animal.class));
         assertEquals(input.length, output.size());
         for (int i = 0, len = input.length; i < len; ++i) {
             assertEquals(input[i], output.get(i), "Entry #"+i+" differs, input = '"+json+"'");

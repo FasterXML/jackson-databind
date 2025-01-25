@@ -6,6 +6,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
@@ -71,6 +72,7 @@ public class IsGetterRenaming2527Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .annotationIntrospector(new MyIntrospector())
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
             .build();
 
     @Test

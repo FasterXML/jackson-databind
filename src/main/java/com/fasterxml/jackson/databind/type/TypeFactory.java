@@ -1,11 +1,6 @@
 package com.fasterxml.jackson.databind.type;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.BaseStream;
@@ -15,13 +10,9 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.util.ArrayBuilders;
-import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.LRUMap;
-import com.fasterxml.jackson.databind.util.LookupCache;
+import com.fasterxml.jackson.databind.util.*;
 
 /**
  * Class used for creating concrete {@link JavaType} instances,
@@ -70,7 +61,6 @@ import com.fasterxml.jackson.databind.util.LookupCache;
  *   </li>
  *</ul>
  */
-@SuppressWarnings({"rawtypes" })
 public class TypeFactory // note: was final in 2.9, removed from 2.10
     implements java.io.Serializable
 {
@@ -78,8 +68,6 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
 
     /**
      * Default size used to construct {@link #_typeCache}.
-     *
-     * Used to be passed inline.
      *
      * @since 2.16
      */
@@ -223,6 +211,14 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     }
 
     /**
+     * Method used to construct a new default/standard {@code TypeFactory}
+     * instance; an instance which has no custom configuration.
+     *
+     * @since 2.19
+     */
+    public static TypeFactory createDefaultInstance() { return new TypeFactory(); }
+
+    /**
      * "Mutant factory" method which will construct a new instance with specified
      * {@link TypeModifier} added as the first modifier to call (in case there
      * are multiple registered).
@@ -316,7 +312,9 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * <code>java.lang.Object</code>.
      */
     public static JavaType unknownType() {
-        return defaultInstance()._unknownType();
+        // 11-Oct-2024, tatu: Used to call via "defaultInstance()" pre-2.19 but
+        //   since we have static object to refer, just return directly
+        return CORE_TYPE_OBJECT;
     }
 
     /**
@@ -340,6 +338,8 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
             return rawClass(((WildcardType) t).getUpperBounds()[0]);
         }
         // fallback
+        // 12-Oct-2024, tatu: Seems unnecessary (replacing with throw does not
+        //   fail any tests), but left for 2.x, changed in 3.0
         return defaultInstance().constructType(t).getRawClass();
     }
 
@@ -919,6 +919,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * NOTE: type modifiers are NOT called on Collection type itself; but are called
      * for contained types.
      */
+    @SuppressWarnings({"rawtypes" })
     public CollectionType constructCollectionType(Class<? extends Collection> collectionClass,
             Class<?> elementClass) {
         return constructCollectionType(collectionClass,
@@ -931,6 +932,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * NOTE: type modifiers are NOT called on Collection type itself; but are called
      * for contained types.
      */
+    @SuppressWarnings({"rawtypes" })
     public CollectionType constructCollectionType(Class<? extends Collection> collectionClass,
             JavaType elementType)
     {
@@ -982,6 +984,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
      */
+    @SuppressWarnings({"rawtypes" })
     public MapType constructMapType(Class<? extends Map> mapClass,
             Class<?> keyClass, Class<?> valueClass) {
         JavaType kt, vt;
@@ -999,6 +1002,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself.
      */
+    @SuppressWarnings({"rawtypes" })
     public MapType constructMapType(Class<? extends Map> mapClass, JavaType keyType, JavaType valueType) {
         TypeBindings bindings = TypeBindings.createIfNeeded(mapClass, new JavaType[] { keyType, valueType });
         MapType result = (MapType) _fromClass(null, mapClass, bindings);
@@ -1228,6 +1232,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      *<p>
      * This method should only be used if parameterization is completely unavailable.
      */
+    @SuppressWarnings({"rawtypes" })
     public CollectionType constructRawCollectionType(Class<? extends Collection> collectionClass) {
         return constructCollectionType(collectionClass, unknownType());
     }
@@ -1258,6 +1263,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      *<p>
      * This method should only be used if parameterization is completely unavailable.
      */
+    @SuppressWarnings({"rawtypes" })
     public MapType constructRawMapType(Class<? extends Map> mapClass) {
         return constructMapType(mapClass, unknownType(), unknownType());
     }
@@ -1402,11 +1408,10 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
     }
 
     protected JavaType _unknownType() {
-        /* 15-Sep-2015, tatu: Prior to 2.7, we constructed new instance for each call.
-         *    This may have been due to potential mutability of the instance; but that
-         *    should not be issue any more, and creation is somewhat wasteful. So let's
-         *    try reusing singleton/flyweight instance.
-         */
+        // 15-Sep-2015, tatu: Prior to 2.7, we constructed new instance for each call.
+        //    This may have been due to potential mutability of the instance; but that
+        //    should not be issue any more, and creation is somewhat wasteful. So let's
+        //    try reusing singleton/fly-weight instance.
         return CORE_TYPE_OBJECT;
     }
 

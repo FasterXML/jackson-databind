@@ -1,13 +1,15 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.util.Comparator;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import com.fasterxml.jackson.databind.util.RawValue;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,6 +66,8 @@ public class JsonNodeBasicTest extends NodeTestBase
         // also, equality should work ok
         assertEquals(result, BooleanNode.valueOf(true));
         assertEquals(result, BooleanNode.getTrue());
+
+        assertNonContainerStreamMethods(f);
     }
 
     @Test
@@ -91,6 +95,8 @@ public class JsonNodeBasicTest extends NodeTestBase
 
         assertEquals("AAMD", new BinaryNode(data).asText());
         assertNodeNumbersForNonNumeric(n);
+
+        assertNonContainerStreamMethods(n2);
     }
 
     @Test
@@ -109,6 +115,8 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertNodeNumbersForNonNumeric(n);
         // but if wrapping actual number, use it
         assertNodeNumbers(new POJONode(Integer.valueOf(123)), 123, 123.0);
+
+        assertNonContainerStreamMethods(n);
     }
 
     // [databind#743]
@@ -207,5 +215,105 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertTrue(obj.isObject());
         assertEquals(1, obj.size());
         assertEquals(2, obj.path("a").asInt());
+    }
+
+    // [databind#2145]
+    @Test
+    public void testOptionalAccessorOnArray() throws Exception {
+        ArrayNode arrayNode = MAPPER.createArrayNode();
+        arrayNode.add("firstElement");
+        assertTrue(arrayNode.optional(0).isPresent());
+        assertEquals("firstElement", arrayNode.optional(0).get().asText());
+        assertFalse(arrayNode.optional(1).isPresent());
+        assertFalse(arrayNode.optional(-1).isPresent());
+        assertFalse(arrayNode.optional(999).isPresent());
+        assertFalse(arrayNode.optional("anyField").isPresent());
+    }
+
+    @Test
+    public void testOptionalAccessorOnObject() throws Exception {
+        ObjectNode objectNode = MAPPER.createObjectNode();
+        objectNode.put("existingField", "value");
+        assertTrue(objectNode.optional("existingField").isPresent());
+        assertEquals("value", objectNode.optional("existingField").get().asText());
+        assertFalse(objectNode.optional("missingField").isPresent());
+        assertFalse(objectNode.optional(0).isPresent());
+        assertFalse(objectNode.optional(-1).isPresent());
+    }
+
+    @Test
+    public void testOptionalAccessorOnNumbers() throws Exception
+    {
+        // Test IntNode
+        IntNode intNode = IntNode.valueOf(42);
+        assertFalse(intNode.optional("anyField").isPresent());
+        assertFalse(intNode.optional(0).isPresent());
+
+        // Test LongNode
+        LongNode longNode = LongNode.valueOf(123456789L);
+        assertFalse(longNode.optional("anyField").isPresent());
+        assertFalse(longNode.optional(0).isPresent());
+
+        // Test DoubleNode
+        DoubleNode doubleNode = DoubleNode.valueOf(3.14);
+        assertFalse(doubleNode.optional("anyField").isPresent());
+        assertFalse(doubleNode.optional(0).isPresent());
+
+        // Test DecimalNode
+        DecimalNode decimalNode = DecimalNode.valueOf(new java.math.BigDecimal("12345.6789"));
+        assertFalse(decimalNode.optional("anyField").isPresent());
+        assertFalse(decimalNode.optional(0).isPresent());
+    }
+
+    @Test
+    public void testOptionalAccessorOnOtherTypes() throws Exception
+    {
+        // Test TextNode
+        TextNode textNode = TextNode.valueOf("sampleText");
+        assertFalse(textNode.optional("anyField").isPresent());
+        assertFalse(textNode.optional(0).isPresent());
+
+        // Test NullNode
+        NullNode nullNode = NullNode.getInstance();
+        assertFalse(nullNode.optional("anyField").isPresent());
+        assertFalse(nullNode.optional(0).isPresent());
+
+        // Test BooleanNode
+        BooleanNode booleanNode = BooleanNode.TRUE;
+        assertFalse(booleanNode.optional("anyField").isPresent());
+        assertFalse(booleanNode.optional(0).isPresent());
+    }
+
+    // [databind#4867]
+    @Test
+    public void testAsOptional() {
+        // Test with MissingNode
+        JsonNode missingNode = MissingNode.getInstance();
+        Optional<JsonNode> missingOptional = missingNode.asOptional();
+        assertFalse(missingOptional.isPresent());
+
+        // Test with ObjectNode
+        ObjectNode objectNode = MAPPER.createObjectNode();
+        Optional<JsonNode> objectOptional = objectNode.asOptional();
+        assertTrue(objectOptional.isPresent());
+        assertEquals(objectNode, objectOptional.get());
+
+        // Test with ArrayNode
+        ArrayNode arrayNode = MAPPER.createArrayNode();
+        Optional<JsonNode> arrayOptional = arrayNode.asOptional();
+        assertTrue(arrayOptional.isPresent());
+        assertEquals(arrayNode, arrayOptional.get());
+
+        // Test with TextNode
+        TextNode textNode = TextNode.valueOf("text");
+        Optional<JsonNode> textOptional = textNode.asOptional();
+        assertTrue(textOptional.isPresent());
+        assertEquals(textNode, textOptional.get());
+
+        // Test with NullNode
+        NullNode nullNode = NullNode.getInstance();
+        Optional<JsonNode> nullOptional = nullNode.asOptional();
+        assertTrue(nullOptional.isPresent());
+        assertEquals(nullNode, nullOptional.get());
     }
 }

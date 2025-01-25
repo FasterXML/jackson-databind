@@ -4,7 +4,6 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;

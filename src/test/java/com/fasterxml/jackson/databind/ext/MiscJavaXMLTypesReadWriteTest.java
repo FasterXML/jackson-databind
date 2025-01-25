@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ext;
 
 import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
@@ -102,7 +101,7 @@ public class MiscJavaXMLTypesReadWriteTest
     public void testDeserializerLoading()
     {
         CoreXMLDeserializers sers = new CoreXMLDeserializers();
-        TypeFactory f = TypeFactory.defaultInstance();
+        TypeFactory f = defaultTypeFactory();
         sers.findBeanDeserializer(f.constructType(Duration.class), null, null);
         sers.findBeanDeserializer(f.constructType(XMLGregorianCalendar.class), null, null);
         sers.findBeanDeserializer(f.constructType(QName.class), null, null);

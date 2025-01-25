@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
@@ -49,6 +48,13 @@ public class UntypedObjectDeserializer
     protected JsonDeserializer<Object> _numberDeserializer;
 
     /**
+     * Object.class may also have custom key deserializer
+     *
+     * @since 2.19
+     */
+    private KeyDeserializer _customKeyDeserializer;
+
+    /**
      * If {@link java.util.List} has been mapped to non-default implementation,
      * we'll store type here
      *
@@ -74,7 +80,7 @@ public class UntypedObjectDeserializer
      */
     @Deprecated
     public UntypedObjectDeserializer() {
-        this(null, null);
+        this(null, (JavaType) null);
     }
 
     public UntypedObjectDeserializer(JavaType listType, JavaType mapType) {
@@ -96,6 +102,7 @@ public class UntypedObjectDeserializer
         _numberDeserializer = (JsonDeserializer<Object>) numberDeser;
         _listType = base._listType;
         _mapType = base._mapType;
+        _customKeyDeserializer = base._customKeyDeserializer;
         _nonMerging = base._nonMerging;
     }
 
@@ -112,7 +119,25 @@ public class UntypedObjectDeserializer
         _numberDeserializer = base._numberDeserializer;
         _listType = base._listType;
         _mapType = base._mapType;
+        _customKeyDeserializer = base._customKeyDeserializer;
         _nonMerging = nonMerging;
+    }
+
+    /**
+     * @since 2.19
+     */
+    protected UntypedObjectDeserializer(UntypedObjectDeserializer base,
+            KeyDeserializer keyDeser)
+    {
+        super(Object.class);
+        _mapDeserializer = base._mapDeserializer;
+        _listDeserializer = base._listDeserializer;
+        _stringDeserializer = base._stringDeserializer;
+        _numberDeserializer = base._numberDeserializer;
+        _listType = base._listType;
+        _mapType = base._mapType;
+        _nonMerging = base._nonMerging;
+        _customKeyDeserializer = keyDeser;
     }
 
     /*
@@ -191,19 +216,32 @@ public class UntypedObjectDeserializer
         // 14-Jun-2017, tatu: [databind#1625]: may want to block merging, for root value
         boolean preventMerge = (property == null)
                 && Boolean.FALSE.equals(ctxt.getConfig().getDefaultMergeable(Object.class));
+        // Since 2.19, 31-Aug-2024: [databind#4680] Allow custom key deserializer for Object.class
+        KeyDeserializer customKeyDeser = ctxt.findKeyDeserializer(ctxt.constructType(Object.class), property);
+        // but make sure to ignore standard/default key deserializer (perf optimization)
+        if (customKeyDeser != null) {
+            if (ClassUtil.isJacksonStdImpl(customKeyDeser)) {
+                customKeyDeser = null;
+            }
+        }
         // 20-Apr-2014, tatu: If nothing custom, let's use "vanilla" instance,
         //     simpler and can avoid some of delegation
         if ((_stringDeserializer == null) && (_numberDeserializer == null)
                 && (_mapDeserializer == null) && (_listDeserializer == null)
+                && (customKeyDeser == null) // [databind#4680] Since 2.19 : Allow custom key deserializer for Object.class
                 &&  getClass() == UntypedObjectDeserializer.class) {
             return UntypedObjectDeserializerNR.instance(preventMerge);
         }
 
+        UntypedObjectDeserializer deser = this;
         if (preventMerge != _nonMerging) {
-            return new UntypedObjectDeserializer(this, preventMerge);
+            deser = new UntypedObjectDeserializer(deser, preventMerge);
         }
-
-        return this;
+        //  [databind#4680] Since 2.19 : Allow custom key deserializer for Object.class
+        if (customKeyDeser != null) {
+            deser = new UntypedObjectDeserializer(deser, customKeyDeser);
+        }
+        return deser;
     }
 
     /*
@@ -497,6 +535,7 @@ public class UntypedObjectDeserializer
             // empty map might work; but caller may want to modify... so better just give small modifiable
             return new LinkedHashMap<>(2);
         }
+        key1 = _customDeserializeKey(key1, ctxt);
         // minor optimization; let's handle 1 and 2 entry cases separately
         // 24-Mar-2015, tatu: Ideally, could use one of 'nextXxx()' methods, but for
         //   that we'd need new method(s) in JsonDeserializer. So not quite yet.
@@ -509,6 +548,8 @@ public class UntypedObjectDeserializer
             result.put(key1, value1);
             return result;
         }
+        key2 = _customDeserializeKey(key2, ctxt);
+
         p.nextToken();
         Object value2 = deserialize(p, ctxt);
 
@@ -522,6 +563,8 @@ public class UntypedObjectDeserializer
             }
             return result;
         }
+        key = _customDeserializeKey(key, ctxt);
+
         // And then the general case; default map size is 16
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
         result.put(key1, value1);
@@ -536,9 +579,9 @@ public class UntypedObjectDeserializer
             final Object oldValue = result.put(key, newValue);
             if (oldValue != null) {
                 return _mapObjectWithDups(p, ctxt, result, key, oldValue, newValue,
-                        p.nextFieldName());
+                        _customDeserializeNullableKey(p.nextFieldName(), ctxt));
             }
-        } while ((key = p.nextFieldName()) != null);
+        } while ((key = _customDeserializeNullableKey(p.nextFieldName(), ctxt)) != null);
         return result;
     }
 
@@ -560,10 +603,42 @@ public class UntypedObjectDeserializer
             if ((oldValue != null) && squashDups) {
                 _squashDups(result, key, oldValue, newValue);
             }
-            nextKey = p.nextFieldName();
+            nextKey = _customDeserializeNullableKey(p.nextFieldName(), ctxt);
         }
 
         return result;
+    }
+
+    /**
+     * Helper function to allow custom key deserialization without null handling.
+     * Similar to {@link #_customDeserializeNullableKey(String, DeserializationContext)}, but
+     * null handling is done by the caller.
+     *
+     * @returns Custom-deserialized key if both custom key deserializer is set.
+     *          Otherwise the original key.
+     */
+    private final String _customDeserializeKey(String key, DeserializationContext ctxt) throws IOException {
+        if (_customKeyDeserializer != null) {
+            return (String) _customKeyDeserializer.deserializeKey(key, ctxt);
+        }
+        return key;
+    }
+
+    /**
+     * Helper function to allow custom key deserialization with null handling.
+     * Similar to {@link #_customDeserializeKey(String, DeserializationContext)}, but instead
+     * only returns custom-deserialized key if key is not null.
+     *
+     * @returns Custom-deserialized key if both custom key deserializer is set and key is not null.
+     *          Otherwise the original key.
+     */
+    private final String _customDeserializeNullableKey(String key, DeserializationContext ctxt) throws IOException {
+        if (_customKeyDeserializer != null) {
+            if (key != null) {
+                return (String) _customKeyDeserializer.deserializeKey(key, ctxt);
+            }
+        }
+        return key;
     }
 
     @SuppressWarnings("unchecked")

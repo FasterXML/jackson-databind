@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
@@ -510,6 +511,22 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _mapper.setPropertyNamingStrategy(s);
         return _this();
     }
+
+    /**
+     * Method for configuring {@link EnumNamingStrategy} to use for adapting
+     * POJO enum names (internal) into content property names (external)
+     *
+     * @param s Strategy instance to use
+     *
+     * @return Builder instance itself to allow chaining
+     *
+     * @since 2.19
+     */
+    public B enumNamingStrategy(EnumNamingStrategy s) {
+        _mapper.setEnumNamingStrategy(s);
+        return _this();
+    }
+
 
     /**
      * Method for configuring {@link AccessorNamingStrategy} to use for auto-detecting

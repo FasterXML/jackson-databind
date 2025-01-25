@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
@@ -15,7 +16,6 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
-import java.util.Collections;
 
 /**
  * Simple interface for extensions that can be registered with {@link ObjectMapper}

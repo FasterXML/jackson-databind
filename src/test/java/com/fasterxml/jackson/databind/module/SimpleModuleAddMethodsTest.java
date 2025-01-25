@@ -1,5 +1,12 @@
 package com.fasterxml.jackson.databind.module;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
@@ -7,13 +14,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,7 +52,8 @@ public class SimpleModuleAddMethodsTest extends DatabindTestUtil
 
     static class ClassDogDeserializer extends JsonDeserializer<Dog> {
         @Override
-        public Dog deserialize(JsonParser p, DeserializationContext ctxt) {
+        public Dog deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            p.skipChildren();
             return new Dog("class-dog");
         }
     }
@@ -73,7 +74,8 @@ public class SimpleModuleAddMethodsTest extends DatabindTestUtil
 
     static class ModuleDogDeserializer extends JsonDeserializer<Dog> {
         @Override
-        public Dog deserialize(JsonParser p, DeserializationContext ctxt) {
+        public Dog deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            p.skipChildren();
             return new Dog("module-dog");
         }
     }
@@ -143,6 +145,7 @@ public class SimpleModuleAddMethodsTest extends DatabindTestUtil
     static class BuildSuccessBeanDeserializer extends JsonDeserializer<BuildSuccessBean> {
         @Override
         public BuildSuccessBean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            p.skipChildren();
             return new BuildSuccessBean(7, 8);
         }
     }

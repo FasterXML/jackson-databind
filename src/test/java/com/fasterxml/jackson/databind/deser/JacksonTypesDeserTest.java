@@ -59,7 +59,7 @@ public class JacksonTypesDeserTest
     @Test
     public void testJavaType() throws Exception
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         // first simple type:
         String json = MAPPER.writeValueAsString(tf.constructType(String.class));
         assertEquals(q(java.lang.String.class.getName()), json);
@@ -77,21 +77,25 @@ public class JacksonTypesDeserTest
     public void testTokenBufferWithSample() throws Exception
     {
         // First, try standard sample doc:
-        TokenBuffer result = MAPPER.readValue(SAMPLE_DOC_JSON_SPEC, TokenBuffer.class);
-        verifyJsonSpecSampleDoc(result.asParser(), true);
-        result.close();
+        try (TokenBuffer result = MAPPER.readValue(SAMPLE_DOC_JSON_SPEC, TokenBuffer.class)) {
+            verifyJsonSpecSampleDoc(result.asParser(), true);
+        }
     }
 
     @SuppressWarnings("resource")
     @Test
     public void testTokenBufferWithSequence() throws Exception
     {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
+        
         // and then sequence of other things
-        JsonParser jp = MAPPER.createParser("[ 32, [ 1 ], \"abc\", { \"a\" : true } ]");
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        JsonParser p = mapper.createParser("[ 32, [ 1 ], \"abc\", { \"a\" : true } ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
 
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        TokenBuffer buf = MAPPER.readValue(jp, TokenBuffer.class);
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        TokenBuffer buf = mapper.readValue(p, TokenBuffer.class);
 
         // check manually...
         JsonParser bufParser = buf.asParser();
@@ -100,7 +104,7 @@ public class JacksonTypesDeserTest
         assertNull(bufParser.nextToken());
 
         // then bind to another
-        buf = MAPPER.readValue(jp, TokenBuffer.class);
+        buf = mapper.readValue(p, TokenBuffer.class);
         bufParser = buf.asParser();
         assertToken(JsonToken.START_ARRAY, bufParser.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, bufParser.nextToken());
@@ -109,18 +113,18 @@ public class JacksonTypesDeserTest
         assertNull(bufParser.nextToken());
 
         // third one, with automatic binding
-        buf = MAPPER.readValue(jp, TokenBuffer.class);
-        String str = MAPPER.readValue(buf.asParser(), String.class);
+        buf = mapper.readValue(p, TokenBuffer.class);
+        String str = mapper.readValue(buf.asParser(), String.class);
         assertEquals("abc", str);
 
         // and ditto for last one
-        buf = MAPPER.readValue(jp, TokenBuffer.class);
-        Map<?,?> map = MAPPER.readValue(buf.asParser(), Map.class);
+        buf = mapper.readValue(p, TokenBuffer.class);
+        Map<?,?> map = mapper.readValue(buf.asParser(), Map.class);
         assertEquals(1, map.size());
         assertEquals(Boolean.TRUE, map.get("a"));
 
-        assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-        assertNull(jp.nextToken());
+        assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        assertNull(p.nextToken());
     }
 
     // 10k does it, 5k not, but use bit higher values just in case

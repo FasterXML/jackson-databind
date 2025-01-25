@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 
-
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
@@ -202,6 +202,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     static class Deserializer3787A extends JsonDeserializer<Test3787Bean> {
         @Override
         public Test3787Bean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            p.skipChildren(); // important to consume value
             Test3787Bean simpleTestBean = new Test3787Bean();
             simpleTestBean.value = "I am A";
             return simpleTestBean;
@@ -211,6 +212,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     static class Deserializer3787B extends JsonDeserializer<Test3787Bean> {
         @Override
         public Test3787Bean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            p.skipChildren(); // important to consume value
             Test3787Bean simpleTestBean = new Test3787Bean();
             simpleTestBean.value = "I am B";
             return simpleTestBean;
@@ -492,7 +494,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAddSerializerTwiceThenOnlyLatestIsKept() throws JsonProcessingException {
+    public void testAddSerializerTwiceThenOnlyLatestIsKept() throws Exception {
         SimpleModule module = new SimpleModule()
             .addSerializer(Test3787Bean.class, new Serializer3787A())
             .addSerializer(Test3787Bean.class, new Serializer3787B());
@@ -503,7 +505,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept() throws JsonProcessingException {
+    public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept() throws Exception {
         SimpleModule firstModule = new SimpleModule()
             .addSerializer(Test3787Bean.class, new Serializer3787A());
         SimpleModule secondModule = new SimpleModule()
@@ -520,7 +522,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept_reverseOrder() throws JsonProcessingException {
+    public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept_reverseOrder() throws Exception {
         SimpleModule firstModule = new SimpleModule()
             .addSerializer(Test3787Bean.class, new Serializer3787A());
         SimpleModule secondModule = new SimpleModule()

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
@@ -282,6 +283,7 @@ public class ObjectMapperTest
 
         JsonMapper m3 = m2.rebuild()
                 .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+                .enumNamingStrategy(EnumNamingStrategies.UPPER_CAMEL_CASE)
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
                 .enable(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)
                 .build();

@@ -205,7 +205,6 @@ public class EnumDeserializationTest
         }
     }
 
-
     @JsonDeserialize(using = AnEnumDeserializer.class, keyUsing = AnEnumKeyDeserializer.class)
     public enum LanguageCodeMixin {
     }
@@ -277,6 +276,18 @@ public class EnumDeserializationTest
             }
             return candidate;
         }
+    }
+
+    // [databind#4896]
+    enum YesOrNoOrEmpty4896 {
+        @JsonProperty("")
+        EMPTY,
+
+        @JsonProperty("yes")
+        YES,
+
+        @JsonProperty("no")
+        NO;
     }
 
     /*
@@ -814,4 +825,15 @@ public class EnumDeserializationTest
             .isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
     }
 
+    // [databind#4896]
+    @Test
+    public void testEnumReadFromEmptyString() throws Exception {
+        // First, regular value
+        assertEquals(YesOrNoOrEmpty4896.YES,
+                MAPPER.readerFor(YesOrNoOrEmpty4896.class)
+                    .readValue(q("yes")));
+        assertEquals(YesOrNoOrEmpty4896.EMPTY,
+            MAPPER.readerFor(YesOrNoOrEmpty4896.class)
+                .readValue(q("")));
+    }
 }

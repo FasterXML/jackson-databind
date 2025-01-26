@@ -15,8 +15,6 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 public class MapConversionsTest
 {
-    final ObjectMapper MAPPER = newJsonMapper();
-
     enum AB { A, B; }
 
     static class Bean {
@@ -24,7 +22,7 @@ public class MapConversionsTest
         public String B;
     }
 
-    // [Issue#287]
+    // [databind#287]
 
     @JsonSerialize(converter=RequestConverter.class)
     static class Request {
@@ -49,6 +47,8 @@ public class MapConversionsTest
     /* Test methods
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /**
      * Test that verifies that we can go between couple of types of Maps...

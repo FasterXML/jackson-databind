@@ -58,6 +58,9 @@ Project: jackson-databind
   multiple constructors since 2.18
  (reported by Tomáš P)
  (fix by Joo-Hyuk K, @cowtowncoder)
+#4878: When serializing a Map via Converter(StdDelegatingSerializer),
+  a NullPointerException is thrown due to missing key serializer
+ (reported by @wrongwrong)
 #4908: Deserialization behavior change with @JsonCreator and
   @ConstructorProperties between 2.17 and 2.18
  (reported by Gustavo B)

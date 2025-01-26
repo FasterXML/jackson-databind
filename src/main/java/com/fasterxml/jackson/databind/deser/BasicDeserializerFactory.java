@@ -1244,10 +1244,9 @@ factory.toString()));
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
-        BeanDescription beanDesc = null;
+        final BeanDescription beanDesc = config.introspectClassAnnotations(type);
         KeyDeserializer deser = null;
         if (_factoryConfig.hasKeyDeserializers()) {
-            beanDesc = config.introspectClassAnnotations(type);
             for (KeyDeserializers d  : _factoryConfig.keyDeserializers()) {
                 deser = d.findKeyDeserializer(type, config, beanDesc);
                 if (deser != null) {
@@ -1259,9 +1258,6 @@ factory.toString()));
         // the only non-standard thing is this:
         if (deser == null) {
             // [databind#2452]: Support `@JsonDeserialize(keyUsing = ...)`
-            if (beanDesc == null) {
-                beanDesc = config.introspectClassAnnotations(type.getRawClass());
-            }
             deser = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
             if (deser == null) {
                 if (type.isEnumType()) {

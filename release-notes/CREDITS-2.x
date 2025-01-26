@@ -1868,3 +1868,8 @@ Tomáš Poledný (@Saljack)
  * Reported #4860: `ConstructorDetector.USE_PROPERTIES_BASED` does not work with
    multiple constructors since 2.18
   (2.18.3)
+
+Gustavo Bazan (@gssbzn)
+ * Reported #4908: Deserialization behavior change with @JsonCreator and
+   @ConstructorProperties between 2.17 and 2.18
+  (2.18.3)

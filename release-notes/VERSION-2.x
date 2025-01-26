@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.18.3 (not yet released)
 
+#4444: The `KeyDeserializer` specified in the class with `@JsonDeserialize(keyUsing = ...)`
+  is overwritten by the `KeyDeserializer` specified in the `ObjectMapper`.
+ (fix by @wrongwrong)
 #4827: Subclassed Throwable deserialization fails since v2.18.0 - no creator
   index for property 'cause'
  (reported by @nilswieber)

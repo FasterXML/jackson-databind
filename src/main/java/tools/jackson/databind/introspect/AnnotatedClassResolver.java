@@ -56,8 +56,8 @@ public class AnnotatedClassResolver
 
         // Also... JDK types do not have annotations that are of interest to us
         // At least JDK container types
-        _collectAnnotations = (_intr != null) &&
-                (!ClassUtil.isJDKClass(_class) || !_type.isContainerType());
+        // 25-Jan-2025, tatu: [databind#4907] not just Container types, all JDK types
+        _collectAnnotations = (_intr != null) && !ClassUtil.isJDKClass(_class);
     }
 
     AnnotatedClassResolver(MapperConfig<?> config, Class<?> cls, MixInResolver r) {
@@ -70,7 +70,7 @@ public class AnnotatedClassResolver
                 ? config.getAnnotationIntrospector() : null;
         _primaryMixin = (r == null) ? null : r.findMixInClassFor(_class);
 
-        _collectAnnotations = (_intr != null);
+        _collectAnnotations = (_intr != null) && !ClassUtil.isJDKClass(_class);
     }
 
     /*
@@ -151,7 +151,6 @@ public class AnnotatedClassResolver
                 resolveClassAnnotations(superTypes),
                 _bindings, _mixInResolver,
                 _collectAnnotations);
-
     }
 
     AnnotatedClass resolveWithoutSuperTypes() {

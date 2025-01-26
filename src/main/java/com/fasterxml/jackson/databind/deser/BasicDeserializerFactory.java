@@ -979,12 +979,6 @@ public abstract class BasicDeserializerFactory
                         mapClass = type.getRawClass();
                         // But if so, also need to re-check creators...
                         beanDesc = config.introspectForCreation(type);
-                    } else {
-                        // [databind#292]: Actually, may be fine, but only if polymorphic deser enabled
-                        if (type.getTypeHandler() == null) {
-                            throw new IllegalArgumentException("Cannot find a deserializer for non-concrete Map type "+type);
-                        }
-                        deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
                     }
                 } else {
                     // 10-Jan-2017, tatu: `java.util.Collections` types need help:

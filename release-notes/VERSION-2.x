@@ -21,6 +21,8 @@ Project: jackson-databind
 #4908: Deserialization behavior change with @JsonCreator and
   @ConstructorProperties between 2.17 and 2.18
  (reported by Gustavo B)
+#4922: Failing `@JsonMerge` with a custom Map
+ (reported by @nlisker)
 
 2.18.2 (27-Nov-2024)
 

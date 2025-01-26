@@ -1,5 +1,9 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.io.IOException;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -7,10 +11,6 @@ import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -40,7 +40,8 @@ public class TestKeyDeserializerOverwritten {
     }
 
     // It is not declared as new TypeReference<> because it causes a compile error in Java 8.
-    TypeReference<Map<MyKey, String>> typeRef = new TypeReference<Map<MyKey, String>>() {};
+    TypeReference<Map<MyKey, String>> typeRef = new TypeReference<Map<MyKey, String>>() {
+    };
 
     @Test
     void withoutForClass() throws JsonProcessingException {

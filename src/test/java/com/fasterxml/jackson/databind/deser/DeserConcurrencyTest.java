@@ -38,11 +38,12 @@ public class DeserConcurrencyTest
         protected volatile boolean resolved = false;
 
         @Override
-        public Bean deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public Bean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             if (!resolved) {
                 throw new IOException("Deserializer not yet completely resolved");
             }
+            p.skipChildren(); // consume the value
             Bean b = new Bean();
             b.value = 13;
             return b;

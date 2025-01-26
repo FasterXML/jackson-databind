@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -113,6 +114,7 @@ public class StdDelegatingSerializer
             if (delegateType == null) {
                 delegateType = _converter.getOutputType(provider.getTypeFactory());
             }
+
             // 02-Apr-2015, tatu: For "dynamic case", where type is only specified as
             //    java.lang.Object (or missing generic), [databind#731]
             if (!delegateType.isJavaLangObject()) {
@@ -276,10 +278,17 @@ public class StdDelegatingSerializer
      *
      * @since 2.6
      */
+    @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> _findSerializer(Object value, SerializerProvider serializers)
         throws JsonMappingException
     {
         // NOTE: will NOT call contextualization
-        return serializers.findValueSerializer(value.getClass());
+        JsonSerializer<Object> ser = serializers.findValueSerializer(value.getClass());
+        // ... so we need to do it separately
+        if (ser instanceof ContextualSerializer) {
+            // 25-Jan-2025, tatu: Should we hold on to `BeanProperty` from `createContextual`?
+            ser = (JsonSerializer<Object>)((ContextualSerializer) ser).createContextual(serializers, null);
+        }
+        return ser;
     }
 }

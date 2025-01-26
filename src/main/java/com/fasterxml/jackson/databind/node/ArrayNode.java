@@ -246,6 +246,11 @@ public class ArrayNode
     @Override // since 2.10
     public boolean isEmpty() { return _children.isEmpty(); }
 
+    @Override
+    public Iterator<JsonNode> elements() {
+        return _children.listIterator();
+    }
+
     /**
      * {@inheritDoc}
      *<p>
@@ -253,8 +258,8 @@ public class ArrayNode
      * from {@link java.util.List#listIterator()} that contains elements, since Jackson 2.18
      * (before was only generic {@link java.util.Iterator}).
      */
-    @Override
-    public Iterator<JsonNode> elements() {
+    @Override // @since 2.19
+    public Iterator<JsonNode> values() {
         return _children.listIterator();
     }
 
@@ -268,6 +273,14 @@ public class ArrayNode
 
     @Override
     public JsonNode get(String fieldName) { return null; }
+
+    /**
+     * @since 2.19
+     */
+    @Override
+    public Optional<JsonNode> optional(int index) {
+        return Optional.ofNullable(get(index));
+    }
 
     @Override
     public JsonNode path(String fieldName) { return MissingNode.getInstance(); }

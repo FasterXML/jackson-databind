@@ -95,14 +95,14 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
     static class JSOGRefDeserializer extends JsonDeserializer<JSOGRef>
     {
       @Override
-      public JSOGRef deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
-          JsonNode node = p.readValueAsTree();
+      public JSOGRef deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+          JsonNode node = ctxt.readTree(p);
           if (node.isTextual()) {
               return new JSOGRef(node.asInt());
           }
           JsonNode n = node.get(REF_KEY);
           if (n == null) {
-              ctx.reportInputMismatch(JSOGRef.class, "Could not find key '"+REF_KEY
+              ctxt.reportInputMismatch(JSOGRef.class, "Could not find key '"+REF_KEY
                       +"' from ("+node.getClass().getName()+"): "+node);
           }
           return new JSOGRef(n.asInt());

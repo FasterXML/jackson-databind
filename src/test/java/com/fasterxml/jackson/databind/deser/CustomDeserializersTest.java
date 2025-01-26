@@ -623,7 +623,7 @@ public class CustomDeserializersTest
         assertEquals(new Point(13, -4), result.point);
 
         // also, try some edge conditions
-        result = MAPPER.readValue(a2q("{'name':4})"), NamedPoint.class);
+        result = MAPPER.readValue(a2q("{'name':4}"), NamedPoint.class);
         assertNotNull(result);
         assertEquals("4", result.name);
         assertNull(result.point);

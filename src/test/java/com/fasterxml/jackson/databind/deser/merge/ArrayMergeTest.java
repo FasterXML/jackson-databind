@@ -129,6 +129,7 @@ public class ArrayMergeTest
         MergedX<byte[]> input = new MergedX<byte[]>(new byte[] { 1, 2 });
         MergedX<byte[]> result = MAPPER
                 .readerFor(new TypeReference<MergedX<byte[]>>() {})
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .withValueToUpdate(input)
                 .readValue(a2q("{'value':[4, 6.0, null]}"));
         assertSame(input, result);

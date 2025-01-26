@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #1467: Support `@JsonUnwrapped` with `@JsonCreator`
  (implementation by Liam F)
+#2145: Add `JsonNode.optional(String name)` and `optional(int index)` methods
+ (fix by Joo-Hyuk K)
 #2461: Nested `@JsonUnwrapped` property names not correctly handled
  (reported by @plovell)
  (fix contributed by @SandeepGaur2016)
@@ -36,6 +38,11 @@ Project: jackson-databind
  (reported by Kornel Zemla)
 #4863: Add basic Stream support in `JsonNode`: `valueStream()`, `propertyStream()`,
   `forEachEntry()`
+#4867: Add `Optional<JsonNode> JsonNode.asOptional()` convenience method
+ (fix by Joo-Hyuk K)
+#4869: Add `JsonNode.values()` to replace `elements()`
+#4896: Coercion shouldn't be necessary for Enums specifying an empty string
+ (reported by @joaocanaverde-blue)
 
 2.18.3 (not yet released)
 
@@ -51,6 +58,14 @@ Project: jackson-databind
   multiple constructors since 2.18
  (reported by Tomáš P)
  (fix by Joo-Hyuk K, @cowtowncoder)
+#4878: When serializing a Map via Converter(StdDelegatingSerializer),
+  a NullPointerException is thrown due to missing key serializer
+ (reported by @wrongwrong)
+#4908: Deserialization behavior change with @JsonCreator and
+  @ConstructorProperties between 2.17 and 2.18
+ (reported by Gustavo B)
+#4922: Failing `@JsonMerge` with a custom Map
+ (reported by @nlisker)
 
 2.18.2 (27-Nov-2024)
 

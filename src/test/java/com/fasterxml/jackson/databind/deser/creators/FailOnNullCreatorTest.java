@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
@@ -25,7 +26,7 @@ public class FailOnNullCreatorTest
 
         @JsonCreator
         public Person(@JsonProperty(value="name") String name,
-                      @JsonProperty(value="age") int age)
+                      @JsonProperty(value="age") Integer age)
         {
             this.name = name;
             this.age = age;
@@ -41,13 +42,13 @@ public class FailOnNullCreatorTest
         // First: fine if feature is not enabled
         p = POINT_READER.readValue(a2q("{}"));
         assertEquals(null, p.name);
-        assertEquals(Integer.valueOf(0), p.age);
+        assertNull(p.age);
 
         // Second: fine if feature is enabled but default value is not null
         ObjectReader r = POINT_READER.with(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
         p = POINT_READER.readValue(a2q("{'name':'John', 'age': null}"));
         assertEquals("John", p.name);
-        assertEquals(Integer.valueOf(0), p.age);
+        assertNull(p.age);
 
         // Third: throws exception if property is missing
         try {

@@ -78,7 +78,7 @@ public class UpdateViaObjectReaderTest
                         +p.currentToken());
                 // never gets here
             }
-            /*JsonNode node =*/ p.readValueAsTree();
+            /*JsonNode node =*/ ctxt.readTree(p);
 
             DataA da = new DataA();
             da.i = 5;

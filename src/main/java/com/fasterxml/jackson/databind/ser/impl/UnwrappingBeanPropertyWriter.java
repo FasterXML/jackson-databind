@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.util.Iterator;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.core.JsonGenerator;

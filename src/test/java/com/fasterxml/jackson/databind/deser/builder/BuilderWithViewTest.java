@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 
@@ -51,9 +52,9 @@ public class BuilderWithViewTest
     @JsonDeserialize(builder=CreatorBuilderXY.class)
     static class CreatorValueXY
     {
-        final int _x, _y;
+        final Integer _x, _y;
 
-        protected CreatorValueXY(int x, int y) {
+        protected CreatorValueXY(Integer x, Integer y) {
             _x = x;
             _y = y;
         }
@@ -62,11 +63,11 @@ public class BuilderWithViewTest
     @JsonIgnoreProperties({ "bogus" })
     static class CreatorBuilderXY
     {
-        public int x, y;
+        public Integer x, y;
 
         @JsonCreator
-        public CreatorBuilderXY(@JsonProperty("x") @JsonView(ViewX.class) int x,
-                @JsonProperty("y") @JsonView(ViewY.class) int y)
+        public CreatorBuilderXY(@JsonProperty("x") @JsonView(ViewX.class) Integer x,
+                @JsonProperty("y") @JsonView(ViewY.class) Integer y)
         {
             this.x = x;
             this.y = y;
@@ -110,12 +111,12 @@ public class BuilderWithViewTest
                 .withView(ViewX.class)
                 .readValue(json);
         assertEquals(5, resultX._x);
-        assertEquals(0, resultX._y);
+        assertNull(resultX._y);
 
         CreatorValueXY resultY = MAPPER.readerFor(CreatorValueXY.class)
                 .withView(ViewY.class)
                 .readValue(json);
-        assertEquals(0, resultY._x);
+        assertNull(resultY._x);
         assertEquals(10, resultY._y);
     }
 }

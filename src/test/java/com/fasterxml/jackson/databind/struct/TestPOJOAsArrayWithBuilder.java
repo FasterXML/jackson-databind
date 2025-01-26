@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -145,23 +146,26 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
     @Test
     public void testWithCreator() throws Exception
     {
-        CreatorValue value = MAPPER.readValue("[1,2,3]", CreatorValue.class);
+        ObjectReader r = MAPPER.readerFor(CreatorValue.class)
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+        
+        CreatorValue value = r.readValue("[1,2,3]");
         assertEquals(1, value.a);
         assertEquals(2, value.b);
         assertEquals(3, value.c);
 
         // and should be ok with partial too?
-        value = MAPPER.readValue("[1,2]", CreatorValue.class);
+        value = r.readValue("[1,2]");
         assertEquals(1, value.a);
         assertEquals(2, value.b);
         assertEquals(0, value.c);
 
-        value = MAPPER.readValue("[1]", CreatorValue.class);
+        value = r.readValue("[1]");
         assertEquals(1, value.a);
         assertEquals(0, value.b);
         assertEquals(0, value.c);
 
-        value = MAPPER.readValue("[]", CreatorValue.class);
+        value = r.readValue("[]");
         assertEquals(0, value.a);
         assertEquals(0, value.b);
         assertEquals(0, value.c);
@@ -170,7 +174,13 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
     @Test
     public void testWithCreatorAndView() throws Exception
     {
-        ObjectReader reader = MAPPER.readerFor(CreatorValue.class);
+        // 06-Jan-2025, tatu: NOTE! need to make sure Default View Inclusion
+        //   is enabled for tests to work as expected
+        ObjectReader reader = jsonMapperBuilder()
+                .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .build()
+                .readerFor(CreatorValue.class);
+
         CreatorValue value;
 
         // First including values in view
@@ -200,7 +210,8 @@ public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
             MAPPER.readValue(json, ValueClassXY.class);
             fail("should not pass with extra element");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Unexpected JSON values");
+            // Looks like we get either "Unexpected JSON values" or "Unexpected JSON value(s)"
+            verifyException(e, "Unexpected JSON value");
         }
 
         // but actually fine if skip-unknown set

@@ -275,6 +275,11 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _children.values().iterator();
     }
 
+    @Override // @since 2.19
+    public Iterator<JsonNode> values() {
+        return _children.values().iterator();
+    }
+
     @Override
     public JsonNode get(int index) { return null; }
 
@@ -283,9 +288,12 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _children.get(propertyName);
     }
 
+    /**
+     * @since 2.19
+     */
     @Override
-    public Iterator<String> fieldNames() {
-        return _children.keySet().iterator();
+    public Optional<JsonNode> optional(String propertyName) {
+        return Optional.ofNullable(get(propertyName));
     }
 
     @Override
@@ -310,6 +318,11 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
             return n;
         }
         return _reportRequiredViolation("No value for property '%s' of `ObjectNode`", propertyName);
+    }
+
+    @Override
+    public Iterator<String> fieldNames() {
+        return _children.keySet().iterator();
     }
 
     /**

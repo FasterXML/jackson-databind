@@ -13,8 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MapConversionsTest
 {
-    final ObjectMapper MAPPER = new ObjectMapper();
-
     enum AB { A, B; }
 
     static class Bean {
@@ -22,7 +20,7 @@ public class MapConversionsTest
         public String B;
     }
 
-    // [Issue#287]
+    // [databind#287]
 
     @JsonSerialize(converter=RequestConverter.class)
     static class Request {
@@ -47,6 +45,8 @@ public class MapConversionsTest
     /* Test methods
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
      * Test that verifies that we can go between couple of types of Maps...

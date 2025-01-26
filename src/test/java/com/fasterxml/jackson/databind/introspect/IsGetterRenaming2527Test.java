@@ -72,6 +72,7 @@ public class IsGetterRenaming2527Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .annotationIntrospector(new MyIntrospector())
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
             .build();
 
     @Test

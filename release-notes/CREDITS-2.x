@@ -1853,6 +1853,10 @@ wrongwrong (@k163377)
  * Reported #4878: When serializing a Map via Converter(StdDelegatingSerializer),
    a NullPointerException is thrown due to missing key serializer
   (2.18.3)
+ * Contributed fix for #4444: The `KeyDeserializer` specified in the class with
+   `@JsonDeserialize(keyUsing = ...)` is overwritten by the `KeyDeserializer`
+    specified in the `ObjectMapper`.
+  (2.18.3)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing

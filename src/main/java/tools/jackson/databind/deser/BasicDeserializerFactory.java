@@ -1207,8 +1207,11 @@ factory.toString()));
     {
         final DeserializationConfig config = ctxt.getConfig();
         final BeanDescription beanDesc = ctxt.introspectBeanDescription(type);
-        KeyDeserializer deser = null;
-        if (_factoryConfig.hasKeyDeserializers()) {
+
+        // [databind#2452]: Support `@JsonDeserialize(keyUsing = ...)`
+        KeyDeserializer deser = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
+
+        if ((deser == null) && _factoryConfig.hasKeyDeserializers()) {
             for (KeyDeserializers d  : _factoryConfig.keyDeserializers()) {
                 deser = d.findKeyDeserializer(type, config, beanDesc);
                 if (deser != null) {
@@ -1219,14 +1222,10 @@ factory.toString()));
 
         // the only non-standard thing is this:
         if (deser == null) {
-            // [databind#2452]: Support `@JsonDeserialize(keyUsing = ...)`
-            deser = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
-            if (deser == null) {
-                if (type.isEnumType()) {
-                    deser = _createEnumKeyDeserializer(ctxt, type);
-                } else {
-                    deser = JDKKeyDeserializers.findStringBasedKeyDeserializer(ctxt, type);
-                }
+            if (type.isEnumType()) {
+                deser = _createEnumKeyDeserializer(ctxt, type);
+            } else {
+                deser = JDKKeyDeserializers.findStringBasedKeyDeserializer(ctxt, type);
             }
         }
         // and then post-processing

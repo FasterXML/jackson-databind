@@ -39,7 +39,8 @@ public class TestKeyDeserializerOverwritten {
         }
     }
 
-    TypeReference<Map<MyKey, String>> typeRef = new TypeReference<>() {};
+    // It is not declared as new TypeReference<> because it causes a compile error in Java 8.
+    TypeReference<Map<MyKey, String>> typeRef = new TypeReference<Map<MyKey, String>>() {};
 
     @Test
     void withoutForClass() throws JsonProcessingException {

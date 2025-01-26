@@ -1872,6 +1872,11 @@ Tomáš Poledný (@Saljack)
    multiple constructors since 2.18
   (2.18.3)
 
+Gustavo Bazan (@gssbzn)
+ * Reported #4908: Deserialization behavior change with @JsonCreator and
+   @ConstructorProperties between 2.17 and 2.18
+  (2.18.3)
+
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
   (2.19.0)

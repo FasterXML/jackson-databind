@@ -1844,9 +1844,12 @@ Maxim Valeev (@MaximValeev)
   (2.18.1)
 
 wrongwrong (@k163377)
- * Contributed #4749: Fixed problem in StdDelegatingSerializer#serializeWithType where final serializer lookup was done
-   on the pre-converted value when _delegateSerializer was null
+ * Contributed #4749: Fixed problem in StdDelegatingSerializer#serializeWithType where final
+   serializer lookup was done on the pre-converted value when _delegateSerializer was null
   (2.18.1)
+ * Reported #4878: When serializing a Map via Converter(StdDelegatingSerializer),
+   a NullPointerException is thrown due to missing key serializer
+  (2.18.3)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing

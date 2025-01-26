@@ -58,6 +58,9 @@ Project: jackson-databind
   multiple constructors since 2.18
  (reported by Tomáš P)
  (fix by Joo-Hyuk K, @cowtowncoder)
+#4908: Deserialization behavior change with @JsonCreator and
+  @ConstructorProperties between 2.17 and 2.18
+ (reported by Gustavo B)
 
 2.18.2 (27-Nov-2024)
 

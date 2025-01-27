@@ -81,6 +81,34 @@ public class JDKNumberDeserTest
         public BigDecimalHolder2784 holder;
     }
 
+    static class DeserializationIssue4917 {
+        public DecimalHolder4917 decimalHolder;
+        public double number;
+    }
+
+    static class DeserializationIssue4917V2 {
+        public DecimalHolder4917 decimalHolder;
+        public int number;
+    }
+
+    static class DeserializationIssue4917V3 {
+        public BigDecimal decimal;
+        public double number;
+    }
+
+    static class DecimalHolder4917 {
+        public BigDecimal value;
+
+        private DecimalHolder4917(BigDecimal value) {
+            this.value = value;
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        static DecimalHolder4917 of(BigDecimal value) {
+            return new DecimalHolder4917(value);
+        }
+    }
+
     /*
     /**********************************************************************
     /* Helper classes, serializers/deserializers/resolvers
@@ -415,4 +443,34 @@ public class JDKNumberDeserTest
         assertEquals(BIG_DEC, MAPPER.readValue(b, 0, b.length, BigDecimal.class));
     }
 
+    // [databind#4917]    
+    @Test
+    public void bigDecimal4917() throws Exception
+    {
+        DeserializationIssue4917 issue = MAPPER.readValue(
+                a2q("{'decimalHolder':100.00,'number':50}"),
+                DeserializationIssue4917.class);
+        assertEquals(new BigDecimal("100.00"), issue.decimalHolder.value);
+        assertEquals(50.0, issue.number);
+    }
+
+    @Test
+    public void bigDecimal4917V2() throws Exception
+    {
+        DeserializationIssue4917V2 issue = MAPPER.readValue(
+                a2q("{'decimalHolder':100.00,'number':50}"),
+                DeserializationIssue4917V2.class);
+        assertEquals(new BigDecimal("100.00"), issue.decimalHolder.value);
+        assertEquals(50, issue.number);
+    }
+
+    @Test
+    public void bigDecimal4917V3() throws Exception
+    {
+        DeserializationIssue4917V3 issue = MAPPER.readValue(
+                a2q("{'decimal':100.00,'number':50}"),
+                DeserializationIssue4917V3.class);
+        assertEquals(new BigDecimal("100.00"), issue.decimal);
+        assertEquals(50, issue.number);
+    }
 }

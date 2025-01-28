@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,7 +27,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public class ToEmptyObjectSerializer
     extends StdSerializer<Object>
 {
-    protected ToEmptyObjectSerializer(Class<?> raw) {
+    // `public` since 2.19
+    public ToEmptyObjectSerializer(Class<?> raw) {
         super(raw, false);
     }
 

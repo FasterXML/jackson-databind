@@ -4,10 +4,11 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -274,6 +275,11 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _children.values().iterator();
     }
 
+    @Override // @since 2.19
+    public Iterator<JsonNode> values() {
+        return _children.values().iterator();
+    }
+
     @Override
     public JsonNode get(int index) { return null; }
 
@@ -282,9 +288,12 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _children.get(propertyName);
     }
 
+    /**
+     * @since 2.19
+     */
     @Override
-    public Iterator<String> fieldNames() {
-        return _children.keySet().iterator();
+    public Optional<JsonNode> optional(String propertyName) {
+        return Optional.ofNullable(get(propertyName));
     }
 
     @Override
@@ -311,10 +320,18 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _reportRequiredViolation("No value for property '%s' of `ObjectNode`", propertyName);
     }
 
+    @Override
+    public Iterator<String> fieldNames() {
+        return _children.keySet().iterator();
+    }
+
     /**
      * Method to use for accessing all properties (with both names
      * and values) of this JSON Object.
+     *
+     * @deprecated since 2.19 Use instead {@link #properties()}.
      */
+    @Deprecated // since 2.19
     @Override
     public Iterator<Map.Entry<String, JsonNode>> fields() {
         return _children.entrySet().iterator();
@@ -330,7 +347,22 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     public Set<Map.Entry<String, JsonNode>> properties() {
         return _children.entrySet();
     }
-    
+
+    @Override // @since 2.19
+    public Stream<JsonNode> valueStream() {
+        return _children.values().stream();
+    }
+
+    @Override // @since 2.19
+    public Stream<Map.Entry<String, JsonNode>> propertyStream() {
+        return _children.entrySet().stream();
+    }
+
+    @Override // @since 2.19
+    public void forEachEntry(BiConsumer<? super String, ? super JsonNode> action) {
+        _children.forEach(action);
+    }
+
     @Override
     public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
     {

@@ -3,11 +3,12 @@ package com.fasterxml.jackson.databind.node;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.TreeDeserializationTest.Bean;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -147,10 +148,11 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
     @Test
     public void testMultiple() throws Exception
     {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
         String JSON = "12  \"string\" [ 1, 2, 3 ]";
-        JsonFactory jf = new JsonFactory();
-        JsonParser p = jf.createParser(new StringReader(JSON));
-        final ObjectMapper mapper = objectMapper();
+        JsonParser p = mapper.createParser(JSON);
         JsonNode result = mapper.readTree(p);
 
         assertTrue(result.isIntegralNumber());

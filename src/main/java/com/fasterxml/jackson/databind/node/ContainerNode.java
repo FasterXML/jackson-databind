@@ -2,9 +2,9 @@ package com.fasterxml.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.util.RawValue;
 
@@ -54,6 +54,10 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
 
     @Override
     public abstract JsonNode get(String fieldName);
+
+    // Both ArrayNode and ObjectNode must re-implement
+    @Override // @since 2.19
+    public abstract Stream<JsonNode> valueStream();
 
     @Override
     protected abstract ObjectNode _withObject(JsonPointer origPtr,

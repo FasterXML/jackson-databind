@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
-
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -107,7 +106,10 @@ public class MapperViaParserTest
     @Test
     public void testIncrementalPojoReading() throws IOException
     {
-        JsonFactory jf = new MappingJsonFactory();
+        ObjectMapper mapper = JsonMapper.builder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
+        JsonFactory jf = mapper.getFactory();
         final String JSON = "[ 1, true, null, \"abc\" ]";
         JsonParser p = jf.createParser(new StringReader(JSON));
 
@@ -117,10 +119,9 @@ public class MapperViaParserTest
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(Integer.valueOf(1), p.readValueAs(Integer.class));
         assertEquals(Boolean.TRUE, p.readValueAs(Boolean.class));
-        /* note: null can be returned both when there is no more
-         * data in current scope, AND when Json null literal is
-         * bound!
-         */
+
+        // note: null can be returned both when there is no more
+        // data in current scope, AND when Json null literal is bound!
         assertNull(p.readValueAs(Object.class));
         // but we can verify that it was Json null by:
         assertEquals(JsonToken.VALUE_NULL, p.getLastClearedToken());

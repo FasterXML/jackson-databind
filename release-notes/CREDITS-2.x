@@ -1830,6 +1830,9 @@ Eduard Gomoliako (@Gems)
  * Reported #4602: Possible wrong use of _arrayDelegateDeserializer in
    BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
   (2.18.0)
+ * Reported #4772: Serialization and deserialization issue of sub-types used with
+  `JsonTypeInfo.Id.DEDUCTION` where sub-types are Object and Array
+  (2.19.0)
 
 Mathijs Vogelzang (@mathijs81)
  * Reported #4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
@@ -1880,3 +1883,24 @@ Gustavo Bazan (@gssbzn)
  * Reported #4908: Deserialization behavior change with @JsonCreator and
    @ConstructorProperties between 2.17 and 2.18
   (2.18.3)
+
+Liam Feid (@fxshlein)
+ * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
+  (2.19.0)
+
+@SandeepGaur2016
+ * Contributed fix for #2461: Nested `@JsonUnwrapped` property names not correctly handled
+  (2.19.0)
+
+Geoffrey Grebert (@ggrebert)
+ * Contributed #2951: Allow inverting `@JsonProperty(access=)` so it can work differently
+   on server side and client side
+  (2.19.0)
+
+Konstantin Maliuga (@badoken)
+ * Contributed #4674: Allow setting global enum naming strategy similar to property naming strategy
+  (2.19.0)
+
+Lars Benedetto (@lbenedetto)
+ * Contributed #4676: Support other enum naming strategies than camelCase
+  (2.19.0)

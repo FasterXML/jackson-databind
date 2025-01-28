@@ -8,13 +8,13 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("serial")
-public class MapWithGenericValuesDeserTest
+public class MapWithGenericValuesDeserTest extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -154,7 +154,7 @@ public class MapWithGenericValuesDeserTest
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<KeyTypeCtor,Integer> map = mapper.readValue("{\"a\":123}",
-                TypeFactory.defaultInstance().constructMapType(HashMap.class, KeyTypeCtor.class, Integer.class));
+                defaultTypeFactory().constructMapType(HashMap.class, KeyTypeCtor.class, Integer.class));
         assertEquals(1, map.size());
         Map.Entry<?,?> entry = map.entrySet().iterator().next();
         assertEquals(Integer.valueOf(123), entry.getValue());
@@ -168,7 +168,7 @@ public class MapWithGenericValuesDeserTest
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<KeyTypeCtor,Integer> map = mapper.readValue("{\"a\":123}",
-                TypeFactory.defaultInstance().constructMapType(HashMap.class, KeyTypeFactory.class, Integer.class));
+                defaultTypeFactory().constructMapType(HashMap.class, KeyTypeFactory.class, Integer.class));
         assertEquals(1, map.size());
         Map.Entry<?,?> entry = map.entrySet().iterator().next();
         assertEquals(Integer.valueOf(123), entry.getValue());

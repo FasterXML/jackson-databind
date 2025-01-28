@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.node;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonPointer;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;

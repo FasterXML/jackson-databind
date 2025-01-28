@@ -75,7 +75,11 @@ public class TypedArraySerTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    // Since one of the tests uses VIEW inclusion, let's specify inclusion
+    // (as default varies between Jackson 2.x and 3.x)
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .build();
 
     @Test
     public void testListWithPolymorphic() throws Exception

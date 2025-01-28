@@ -10,13 +10,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.JsonParser;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.*;
-import com.fasterxml.jackson.databind.deser.impl.CreatorCandidate;
-import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
-import com.fasterxml.jackson.databind.deser.impl.JDKValueInstantiators;
-import com.fasterxml.jackson.databind.deser.impl.JavaUtilCollectionsDeserializers;
+import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
@@ -48,12 +44,6 @@ public abstract class BasicDeserializerFactory
     private final static Class<?> CLASS_ITERABLE = Iterable.class;
     private final static Class<?> CLASS_MAP_ENTRY = Map.Entry.class;
     private final static Class<?> CLASS_SERIALIZABLE = Serializable.class;
-
-    /**
-     * We need a placeholder for creator properties that don't have name
-     * but are marked with `@JsonWrapped` annotation.
-     */
-    protected final static PropertyName UNWRAPPED_CREATOR_PARAM_NAME = new PropertyName("@JsonUnwrapped");
 
     /*
     /**********************************************************
@@ -413,11 +403,7 @@ public abstract class BasicDeserializerFactory
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
-                    /*
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
-                    ++explicitNameCount;
-                    */
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.creatorParamName(i), i, param, null);
                 }
             }
 
@@ -434,7 +420,7 @@ public abstract class BasicDeserializerFactory
 */
         }
     }
-    
+
     private void _addImplicitDelegatingFactories(DeserializationContext ctxt,
             VisibilityChecker<?> vchecker,
             CreatorCollector creators,
@@ -542,7 +528,7 @@ public abstract class BasicDeserializerFactory
                 //   as that will not work with Creators well at all
                 NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.creatorParamName(i), i, param, null);
                 }
                 // Must be injectable or have name; without either won't work
                 if ((name == null) && (injectId == null)) {
@@ -607,17 +593,6 @@ public abstract class BasicDeserializerFactory
             return true;
         }
         return false;
-    }
-
-    // 01-Dec-2016, tatu: As per [databind#265] we cannot yet support passing
-    //   of unwrapped values through creator properties, so fail fast
-    private void _reportUnwrappedCreatorProperty(DeserializationContext ctxt,
-            BeanDescription beanDesc, AnnotatedParameter param)
-        throws JsonMappingException
-    {
-        ctxt.reportBadTypeDefinition(beanDesc,
-"Cannot define Creator parameter %d as `@JsonUnwrapped`: combination not yet supported",
-                param.getIndex());
     }
 
     /**
@@ -813,8 +788,7 @@ public abstract class BasicDeserializerFactory
             if (contentDeser == null) { // not defined by annotation
                 // One special type: EnumSet:
                 if (EnumSet.class.isAssignableFrom(collectionClass)) {
-                    deser = new EnumSetDeserializer(contentType, null,
-                            contentTypeDeser);
+                    deser = new EnumSetDeserializer(contentType, null);
                 }
             }
         }
@@ -980,6 +954,8 @@ public abstract class BasicDeserializerFactory
                         // But if so, also need to re-check creators...
                         beanDesc = config.introspectForCreation(type);
                     }
+                    // 11-Nov-2024, tatu: Related to [databind#4783] let's not fail on
+                    //    abstract Maps so they can work with merge (or factory methods)
                 } else {
                     // 10-Jan-2017, tatu: `java.util.Collections` types need help:
                     deser = JavaUtilCollectionsDeserializers.findForMap(ctxt, type);
@@ -1848,7 +1824,7 @@ factory.toString()));
     {
         Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
-                namingDef, config.canOverrideAccessModifiers());
+                namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
         return enumNamingStrategy == null ? null
                 : EnumResolver.constructUsingEnumNamingStrategy(config, annotatedClass, enumNamingStrategy);
     }
@@ -1865,7 +1841,7 @@ factory.toString()));
             AnnotatedClass annotatedClass) {
         Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
-            namingDef, config.canOverrideAccessModifiers());
+            namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
         return enumNamingStrategy == null ? null
             : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);
     }

@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
@@ -408,7 +409,7 @@ public class ObjectMapper
     protected final static BaseSettings DEFAULT_BASE = new BaseSettings(
             null, // cannot share global ClassIntrospector any more (2.5+)
             DEFAULT_ANNOTATION_INTROSPECTOR,
-             null, TypeFactory.defaultInstance(),
+            null, null, TypeFactory.defaultInstance(),
             null, StdDateFormat.instance, null,
             Locale.getDefault(),
             null, // to indicate "use Jackson default TimeZone" (UTC since Jackson 2.7)
@@ -1748,6 +1749,24 @@ public class ObjectMapper
     public PropertyNamingStrategy getPropertyNamingStrategy() {
         // arbitrary choice but let's do:
         return _serializationConfig.getPropertyNamingStrategy();
+    }
+
+    /**
+     * Method for setting custom enum naming strategy to use.
+     *
+     * @since 2.19
+     */
+    public ObjectMapper setEnumNamingStrategy(EnumNamingStrategy s) {
+        _serializationConfig = _serializationConfig.with(s);
+        _deserializationConfig = _deserializationConfig.with(s);
+        return this;
+    }
+
+    /**
+     * @since 2.19
+     */
+    public EnumNamingStrategy getEnumNamingStrategy() {
+        return _serializationConfig.getEnumNamingStrategy();
     }
 
     /**

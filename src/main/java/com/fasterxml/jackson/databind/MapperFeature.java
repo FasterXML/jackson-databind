@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 
@@ -280,6 +281,16 @@ public enum MapperFeature implements ConfigFeature
      */
     OVERRIDE_PUBLIC_ACCESS_MODIFIERS(true),
 
+    /**
+     * Feature that inverse logic in {@link JsonProperty#access}
+     * for <code>READ_ONLY</code> and <code>WRITE_ONLY</code>.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 2.19
+     */
+    INVERSE_READ_WRITE_ACCESS(false),
+
     /*
     /******************************************************
     /* Type-handling features
@@ -366,7 +377,7 @@ public enum MapperFeature implements ConfigFeature
      * properties are included in all views if there is no
      * {@link com.fasterxml.jackson.annotation.JsonView} annotation.
      *<p>
-     * Feature is enabled by default.
+     * Feature is enabled by default in 2.x: will be disabled in 3.0.
      */
     DEFAULT_VIEW_INCLUSION(true),
 

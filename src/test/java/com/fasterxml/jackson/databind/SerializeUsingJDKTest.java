@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-
 /**
  * Tests to verify that most core Jackson components can be serialized
  * using default JDK serialization: this feature is useful for some
@@ -223,7 +222,7 @@ public class SerializeUsingJDKTest
     @Test
     public void testTypeFactory() throws Exception
     {
-        TypeFactory orig = TypeFactory.defaultInstance();
+        TypeFactory orig = defaultTypeFactory();
         JavaType t = orig.constructType(JavaType.class);
         assertNotNull(t);
 

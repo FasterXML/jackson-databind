@@ -158,9 +158,8 @@ public class BeanAsArrayDeserializer
             return _deserializeFromNonArray(p, ctxt);
         }
 
-        /* No good way to verify that we have an array... although could I guess
-         * check via JsonParser. So let's assume everything is working fine, for now.
-         */
+        // No good way to verify that we have an array... although could I guess
+        // check via JsonParser. So let's assume everything is working fine, for now.
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
@@ -259,7 +258,7 @@ public class BeanAsArrayDeserializer
             p.skipChildren();
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
-        if (!_ignoreAllUnknown) {
+        if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
             ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                     "Unexpected JSON values; expected at most %d properties (in JSON Array)",
                     propCount);

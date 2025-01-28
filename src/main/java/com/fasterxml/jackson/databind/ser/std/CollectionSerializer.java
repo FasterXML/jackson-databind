@@ -2,10 +2,10 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -27,6 +27,15 @@ public class CollectionSerializer
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Flag that indicates that we may need to check for EnumSet dynamically
+     * during serialization: problem being that we can't always do it statically.
+     * But we can figure out when there is a possibility wrt type signature we get.
+     *
+     * @since 2.18.3
+     */
+    private final boolean _maybeEnumSet;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -39,22 +48,17 @@ public class CollectionSerializer
     public CollectionSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
             JsonSerializer<Object> valueSerializer) {
         super(Collection.class, elemType, staticTyping, vts, valueSerializer);
-    }
-
-    /**
-     * @deprecated since 2.6
-     */
-    @Deprecated // since 2.6
-    public CollectionSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
-            BeanProperty property, JsonSerializer<Object> valueSerializer) {
-        // note: assumption is 'property' is always passed as null
-        this(elemType, staticTyping, vts, valueSerializer);
+        // Unfortunately we can't check for EnumSet statically (if type indicated it,
+        // we'd have constructed `EnumSetSerializer` instead). But we can check that
+        // element type could possibly be an Enum.
+        _maybeEnumSet = elemType.isEnumType() || elemType.isJavaLangObject();
     }
 
     public CollectionSerializer(CollectionSerializer src,
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
             Boolean unwrapSingle) {
         super(src, property, vts, valueSerializer, unwrapSingle);
+        _maybeEnumSet = src._maybeEnumSet;
     }
 
     @Override
@@ -121,7 +125,9 @@ public class CollectionSerializer
             return;
         }
         PropertySerializerMap serializers = _dynamicSerializers;
-        final TypeSerializer typeSer = _valueTypeSerializer;
+        // [databind#4849]/[databind#4214]: need to check for EnumSet
+        final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
+                ? null : _valueTypeSerializer;
 
         int i = 0;
         try {
@@ -159,7 +165,9 @@ public class CollectionSerializer
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
-            TypeSerializer typeSer = _valueTypeSerializer;
+            // [databind#4849]/[databind#4214]: need to check for EnumSet
+            final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
+                    ? null : _valueTypeSerializer;
             int i = 0;
             do {
                 Object elem = it.next();

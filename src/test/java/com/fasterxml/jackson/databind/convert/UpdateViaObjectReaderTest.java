@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -77,7 +78,7 @@ public class UpdateViaObjectReaderTest
                         +p.currentToken());
                 // never gets here
             }
-            /*JsonNode node =*/ p.readValueAsTree();
+            /*JsonNode node =*/ ctxt.readTree(p);
 
             DataA da = new DataA();
             da.i = 5;

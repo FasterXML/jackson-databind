@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.MissingNode;
@@ -207,6 +208,53 @@ public abstract class JsonNode
      */
     @Override
     public JsonNode get(String fieldName) { return null; }
+
+    /**
+     * Method for accessing value of the specified element of
+     * an array node, wrapped in an {@link Optional}. For other nodes,
+     * an empty Optional is always returned.
+     *<p>
+     * For array nodes, index specifies
+     * exact location within array and allows for efficient iteration
+     * over child elements (underlying storage is guaranteed to
+     * be efficiently indexable, i.e. has random-access to elements).
+     * If index is less than 0, or equal-or-greater than
+     * <code>node.size()</code>, an empty Optional is returned; no exception is
+     * thrown for any index.
+     *<p>
+     * NOTE: if the element value has been explicitly set as <code>null</code>
+     * (which is different from removal!),
+     * a {@link com.fasterxml.jackson.databind.node.NullNode} will be returned
+     * wrapped in an Optional, not an empty Optional.
+     *
+     * @return Optional containing the node that represents the value of the specified element,
+     *   if this node is an array and has the specified element and otherwise, an
+     *   empty Optional, never null.
+     *
+     * @since 2.19
+     */
+    public Optional<JsonNode> optional(int index) { return Optional.empty(); }
+
+    /**
+     * Method for accessing value of the specified field of
+     * an object node. If this node is not an object (or it
+     * does not have a value for specified field name), or
+     * if there is no field with such name, empty {@link Optional}
+     * is returned.
+     *<p>
+     * NOTE: if the property value has been explicitly set as <code>null</code>
+     * (which is different from removal!), an Optional containing
+     * {@link com.fasterxml.jackson.databind.node.NullNode} will be returned,
+     * not null.
+     *
+     * @return Optional that may contain value of the specified field,
+     *  if this node is an object and has value for the specified
+     *  field. Empty Optional otherwise never null.
+     *
+     * @since 2.19
+     */
+    public Optional<JsonNode> optional(String propertyName) { return Optional.empty(); }
+
     /**
      * This method is similar to {@link #get(String)}, except
      * that instead of returning null if no such value exists (due
@@ -758,6 +806,17 @@ public abstract class JsonNode
         return defaultValue;
     }
 
+    /**
+     * Method that will return a {@link JsonNode} wrapped in Java's {@link Optional}.
+     *
+     * @return `Optional<JsonNode>` containing this node, or {@link Optional#empty()}
+     *        if this is a {@link MissingNode}.
+     * @since 2.19
+     */
+    public Optional<JsonNode> asOptional() {
+        return Optional.of(this);
+    }
+
     /*
     /**********************************************************************
     /* Public API, extended traversal (2.10) with "required()"
@@ -1008,19 +1067,33 @@ public abstract class JsonNode
     public final Iterator<JsonNode> iterator() { return elements(); }
 
     /**
-     * Method for accessing all value nodes of this Node, iff
-     * this node is a JSON Array or Object node. In case of Object node,
-     * field names (keys) are not included, only values.
-     * For other types of nodes, returns empty iterator.
+     * Alias for {@link #values()}.
      */
     public Iterator<JsonNode> elements() {
         return ClassUtil.emptyIterator();
     }
 
     /**
+     * Method for accessing all value nodes of this Node, iff
+     * this node is a JSON Array or Object node. In case of Object node,
+     * field names (keys) are not included, only values.
+     * For other types of nodes, returns empty iterator.
+     *
+     * @since 2.19
+     */
+    public Iterator<JsonNode> values() {
+        return elements();
+    }
+
+    /**
+     * NOTE: This method is deprecated, use {@link #properties()} instead.
+     *
      * @return Iterator that can be used to traverse all key/value pairs for
      *   object nodes; empty iterator (no contents) for other types
+     *  
+     * @deprecated As of 2.19, replaced by {@link #properties()}
      */
+    @Deprecated // since 2.19
     public Iterator<Map.Entry<String, JsonNode>> fields() {
         return ClassUtil.emptyIterator();
     }
@@ -1029,6 +1102,7 @@ public abstract class JsonNode
      * Accessor that will return properties of {@code ObjectNode}
      * similar to how {@link Map#entrySet()} works; 
      * for other node types will return empty {@link java.util.Set}.
+     * Replacement for {@link JsonNode#fields()}.
      *
      * @return Set of properties, if this node is an {@code ObjectNode}
      * ({@link JsonNode#isObject()} returns {@code true}); empty
@@ -1038,6 +1112,46 @@ public abstract class JsonNode
      */
     public Set<Map.Entry<String, JsonNode>> properties() {
         return Collections.emptySet();
+    }
+
+    /**
+     * Returns a stream of all value nodes of this Node, iff
+     * this node is an {@code ArrayNode} or {@code ObjectNode}.
+     * In case of {@code Object} node, property names (keys) are not included, only values.
+     * For other types of nodes, returns empty stream.
+     *
+     * @since 2.19
+     */
+    public Stream<JsonNode> valueStream() {
+        return ClassUtil.emptyStream();
+    }
+
+    /**
+     * Returns a stream of all properties (key, value pairs) of this Node,
+     * iff this node is an an {@code ObjectNode}.
+     * For other types of nodes, returns empty stream.
+     *
+     * @since 2.19
+     */
+    public Stream<Map.Entry<String, JsonNode>> propertyStream() {
+        return ClassUtil.emptyStream();
+    }
+
+    /**
+     * If this node is an {@code ObjectNode}, performs the given action for each
+     * property (key, value pair)
+     * until all entries have been processed or the action throws an exception.
+     * Exceptions thrown by the action are relayed to the caller.     
+     * For other node types, no action is performed.
+     *<p>
+     * Actions are performed in the order of properties, same as order returned by
+     * method {@link #properties()}.
+     * This is generally the document order of properties in JSON object.
+     * 
+     * @param action Action to perform for each entry
+     */
+    public void forEachEntry(BiConsumer<? super String, ? super JsonNode> action) {
+        // No-op for all but ObjectNode
     }
 
     /*

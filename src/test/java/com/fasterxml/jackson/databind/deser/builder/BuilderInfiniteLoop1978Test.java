@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import com.fasterxml.jackson.databind.*;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,9 +15,9 @@ public class BuilderInfiniteLoop1978Test
     static class Builder
     {
          private SubBean temp;
-         private int id;
+         private Integer id;
 
-         Builder(@JsonProperty("beanId") int beanId) {
+         Builder(@JsonProperty("beanId") Integer beanId) {
               this.id = beanId;
          }
 
@@ -39,10 +38,10 @@ public class BuilderInfiniteLoop1978Test
     @JsonDeserialize(builder = Builder.class)
     static class Bean
     {
-        int id;
+        Integer id;
         SubBean thing;
 
-        public Bean(int id) {
+        public Bean(Integer id) {
             this.id = id;
         }
 

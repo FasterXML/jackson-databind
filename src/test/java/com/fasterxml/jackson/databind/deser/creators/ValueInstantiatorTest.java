@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -251,7 +250,7 @@ public class ValueInstantiatorTest
 
         @Override
         public JavaType getDelegateType(DeserializationConfig config) {
-            return TypeFactory.defaultInstance().constructType(Object.class);
+            return defaultTypeFactory().constructType(Object.class);
         }
 
         @Override

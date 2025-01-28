@@ -11,7 +11,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.NumberInput;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.EnumFeature;
@@ -195,11 +194,6 @@ public class StdKeyDeserializer extends KeyDeserializer
         case TYPE_DOUBLE:
             return _parseDouble(key);
         case TYPE_LOCALE:
-            try {
-                return _deser._deserialize(key, ctxt);
-            } catch (IllegalArgumentException e) {
-                return _weirdKey(ctxt, key, e);
-            }
         case TYPE_CURRENCY:
             try {
                 return _deser._deserialize(key, ctxt);

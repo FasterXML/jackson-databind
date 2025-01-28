@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.creators;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,7 +50,9 @@ public class BigCreatorTest
         }
     }
 
-    private final ObjectReader BIGGIE_READER = sharedMapper().readerFor(Biggie.class);
+    private final ObjectReader BIGGIE_READER = sharedMapper()
+            .readerFor(Biggie.class)
+            .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
 
     @Test
     public void testBigPartial() throws Exception

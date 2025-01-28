@@ -11,11 +11,11 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4827] Subclassed Throwable deserialization fails since v2.18.0
-//                no creator index for property 'cause'
+// no creator index for property 'cause'
 public class SubclassedThrowableDeserialization4827Test
         extends DatabindTestUtil
 {
-
+    @SuppressWarnings("serial")
     public static class SubclassedExceptionJava extends Exception {
         @JsonCreator
         public SubclassedExceptionJava(

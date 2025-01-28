@@ -361,8 +361,6 @@ public class BeanDeserializer
             return bean;
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
-        // [databind#631]: Assign current value, to be accessible by custom deserializers
-        p.assignCurrentValue(bean);
 
         // First: do we have native Object Ids (like YAML)?
         if (p.canReadObjectId()) {
@@ -390,6 +388,9 @@ public class BeanDeserializer
             }
         }
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+            // [databind#631]: Assign current value, to be accessible by custom serializers
+            // [databind#4184]: but only if we have at least one property
+            p.assignCurrentValue(bean);
             String propName = p.currentName();
             do {
                 p.nextToken();
@@ -680,6 +681,9 @@ public class BeanDeserializer
         throws IOException
     {
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+            // [databind#631]: Assign current value, to be accessible by custom serializers
+            // [databind#4184]: but only if we have at least one property
+            p.assignCurrentValue(bean);
             String propName = p.currentName();
             do {
                 p.nextToken();
@@ -940,6 +944,11 @@ public class BeanDeserializer
                 continue;
             }
         }
+
+        // We could still have some not-yet-set creator properties that are unwrapped.
+        // These have to be processed last, because 'tokens' contains all properties
+        // that remain after regular deserialization.
+        buffer = _unwrappedPropertyHandler.processUnwrappedCreatorProperties(p, ctxt, buffer, tokens);
 
         // We hit END_OBJECT, so:
         Object bean;

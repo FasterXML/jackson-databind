@@ -198,11 +198,6 @@ public class JDKKeyDeserializer extends KeyDeserializer
         case TYPE_DOUBLE:
             return _parseDouble(key);
         case TYPE_LOCALE:
-            try {
-                return _deser._deserialize(key, ctxt);
-            } catch (IllegalArgumentException | IOException e) {
-                return _weirdKey(ctxt, key, e);
-            }
         case TYPE_CURRENCY:
             try {
                 return _deser._deserialize(key, ctxt);

@@ -27,7 +27,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public class ToEmptyObjectSerializer
     extends StdSerializer<Object>
 {
-    protected ToEmptyObjectSerializer(Class<?> raw) {
+    // `public` since 2.19
+    public ToEmptyObjectSerializer(Class<?> raw) {
         super(raw, false);
     }
 

@@ -94,7 +94,8 @@ public final class CompactStringObjectMap
         return result;
     }
 
-    public Object find(String key) {
+    public Object find(String key)
+    {
         int slot = key.hashCode() & _hashMask;
         int ix = (slot<<1);
         Object match = _hashArea[ix];

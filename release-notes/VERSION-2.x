@@ -41,9 +41,14 @@ Project: jackson-databind
 #4867: Add `Optional<JsonNode> JsonNode.asOptional()` convenience method
  (fix by Joo-Hyuk K)
 #4869: Add `JsonNode.values()` to replace `elements()`
+#4896: Coercion shouldn't be necessary for Enums specifying an empty string
+ (reported by @joaocanaverde-blue)
 
 2.18.3 (not yet released)
 
+#4444: The `KeyDeserializer` specified in the class with `@JsonDeserialize(keyUsing = ...)`
+  is overwritten by the `KeyDeserializer` specified in the `ObjectMapper`.
+ (fix by @wrongwrong)
 #4827: Subclassed Throwable deserialization fails since v2.18.0 - no creator
   index for property 'cause'
  (reported by @nilswieber)
@@ -56,6 +61,18 @@ Project: jackson-databind
   multiple constructors since 2.18
  (reported by Tomáš P)
  (fix by Joo-Hyuk K, @cowtowncoder)
+#4878: When serializing a Map via Converter(StdDelegatingSerializer),
+  a NullPointerException is thrown due to missing key serializer
+ (reported by @wrongwrong)
+#4908: Deserialization behavior change with @JsonCreator and
+  @ConstructorProperties between 2.17 and 2.18
+ (reported by Gustavo B)
+#4917: `BigDecimal` deserialization issue when using `@JsonCreator`
+ (reported by @dbachdev)
+#4922: Failing `@JsonMerge` with a custom Map
+ (reported by @nlisker)
+#4932: Conversion of `MissingNode` throws `JsonProcessingException`
+ (reported by @ludgerb)
 
 2.18.2 (27-Nov-2024)
 

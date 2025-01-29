@@ -2094,6 +2094,9 @@ public class ObjectReader
             }
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = valueToUpdate;
+        } else if (t == JsonToken.NOT_AVAILABLE) {
+            // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
+            result = valueToUpdate;
         } else { // pointing to event other than null
             result = ctxt.readRootValue(p, _valueType, _findRootDeserializer(ctxt), _valueToUpdate);
         }
@@ -2119,6 +2122,9 @@ public class ObjectReader
                     result = _valueToUpdate;
                 }
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
+                result = _valueToUpdate;
+            } else if (t == JsonToken.NOT_AVAILABLE) {
+                // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
                 result = _valueToUpdate;
             } else {
                 result = ctxt.readRootValue(p, _valueType, _findRootDeserializer(ctxt), _valueToUpdate);

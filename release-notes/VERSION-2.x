@@ -71,6 +71,8 @@ Project: jackson-databind
  (reported by @dbachdev)
 #4922: Failing `@JsonMerge` with a custom Map
  (reported by @nlisker)
+#4932: Conversion of `MissingNode` throws `JsonProcessingException`
+ (reported by @ludgerb)
 
 2.18.2 (27-Nov-2024)
 

@@ -2382,6 +2382,9 @@ public class ObjectMapper
                 result = _findRootDeserializer(readCtxt, toValueType).getNullValue(readCtxt);
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
+            } else if (t == JsonToken.NOT_AVAILABLE) {
+                // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
+                result = null;
             } else { // pointing to event other than null
                 ValueDeserializer<Object> deser = _findRootDeserializer(readCtxt, toValueType);
                 // note: no handling of unwrapping
@@ -2539,6 +2542,9 @@ public class ObjectMapper
             result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
+        } else if (t == JsonToken.NOT_AVAILABLE) {
+            // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
+            result = null;
         } else { // pointing to event other than null
             result = ctxt.readRootValue(p, valueType, _findRootDeserializer(ctxt, valueType), null);
         }
@@ -2562,6 +2568,9 @@ public class ObjectMapper
                 // Ask deserializer what 'null value' to use:
                 result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
+                result = null;
+            } else if (t == JsonToken.NOT_AVAILABLE) {
+                // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
                 result = null;
             } else {
                 result = ctxt.readRootValue(p, valueType,

@@ -562,6 +562,8 @@ public abstract class SerializationContext
      * sequence. This method is mostly used for root-level serializer
      * handling to allow for simpler caching. A call can always be replaced
      * by equivalent calls to access serializer and type serializer separately.
+     * Note: contextualization (call to {@link ValueSerializer#createContextual}) is done
+     * before returning the {@link ValueSerializer}.
      *
      * @param rawType Type for purpose of locating a serializer; usually dynamic
      *   runtime type, but can also be static declared type, depending on configuration
@@ -595,6 +597,8 @@ public abstract class SerializationContext
      * sequence. This method is mostly used for root-level serializer
      * handling to allow for simpler caching. A call can always be replaced
      * by equivalent calls to access serializer and type serializer separately.
+     * Note: contextualization (call to {@link ValueSerializer#createContextual}) is done
+     * before returning the {@link ValueSerializer}.
      *
      * @param valueType Declared type of value being serialized (which may not
      *    be actual runtime type); used for finding both value serializer and
@@ -626,6 +630,8 @@ public abstract class SerializationContext
      * property. This is most often used for root-level values (when writing
      * sequences), but may sometimes be used for more esoteric value handling for
      * delegation.
+     * Note: contextualization (call to {@link ValueSerializer#createContextual}) is done
+     * before returning the {@link ValueSerializer}.
      *
      * @since 3.0
      */
@@ -648,6 +654,8 @@ public abstract class SerializationContext
      * property. This is most often used for root-level values (when writing
      * sequences), but may sometimes be used for more esoteric value handling for
      * delegation.
+     * Note: contextualization (call to {@link ValueSerializer#createContextual}) is done
+     * before returning the {@link ValueSerializer}.
      *
      * @since 3.0
      */
@@ -671,6 +679,8 @@ public abstract class SerializationContext
      * handling value of the property). Difference (if any) has to do with contextual resolution,
      * and method(s) called: this method should only be called when caller is
      * certain that this is the primary property value serializer.
+     * Contextualization (call to {@link ValueSerializer#createContextual(SerializationContext, BeanProperty)}
+     * will be done before returning the {@link ValueSerializer}.
      *
      * @param property Property that is being handled; will never be null, and its
      *    type has to match <code>valueType</code> parameter.
@@ -685,6 +695,9 @@ public abstract class SerializationContext
         return handlePrimaryContextualization(ser, property);
     }
 
+    /**
+     * @see #findPrimaryPropertySerializer(JavaType, BeanProperty)
+     */
     public ValueSerializer<Object> findPrimaryPropertySerializer(Class<?> rawType,
             BeanProperty property)
     {
@@ -745,9 +758,7 @@ public abstract class SerializationContext
      */
 
     /**
-     * Method variant used when we do NOT want contextualization to happen; it will need
-     * to be handled at a later point, but caller wants to be able to do that
-     * as needed; sometimes to avoid infinite loops
+     * @see #findValueSerializer(JavaType)
      */
     public ValueSerializer<Object> findValueSerializer(Class<?> rawType)
     {
@@ -764,8 +775,9 @@ public abstract class SerializationContext
 
     /**
      * Method variant used when we do NOT want contextualization to happen; it will need
-     * to be handled at a later point, but caller wants to be able to do that
-     * as needed; sometimes to avoid infinite loops
+     * to be done at a later point (many serializers are not in operational state before
+     * contextualization, call to {@link ValueSerializer#createContextual(SerializationContext, BeanProperty)}),
+     * but caller wants to be able to do that at a later point; sometimes to avoid infinite loops
      */
     public ValueSerializer<Object> findValueSerializer(JavaType valueType)
     {

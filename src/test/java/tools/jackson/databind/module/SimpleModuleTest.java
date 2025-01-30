@@ -553,7 +553,8 @@ public class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAddModuleWithDeserializerTwiceThenOnlyLatestIsKept_reverseOrder() throws Exception {
+    public void testAddModuleWithDeserializerTwiceThenOnlyLatestIsKept_reverseOrder() throws Exception
+    {
         SimpleModule firstModule = new SimpleModule()
             .addDeserializer(Test3787Bean.class, new Deserializer3787A());
         SimpleModule secondModule = new SimpleModule()

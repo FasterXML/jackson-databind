@@ -63,6 +63,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #3046: Rename `JsonSerializable` as `JacksonSerializable`
 #3047: Rename `Bean[De]SerializerModifier` as `Value[De]SerializerModifier`
 #3070: Change default for `SerializationFeature.FAIL_ON_EMPTY_BEANS` to `false`
+#3406: Change default of `DeserializationFeature.FAIL_ON_TRAILING_TOKENS` to `true` for 3.0
+ (suggested by @yawkat)
 #3522: Support serializing `ByteArrayOutputStream` as "simple" Binary value
 #3536: Create new exception type `JsonNodeException` for use by `JsonNode`-related problems
 #3542: Rename "com.fasterxml.jackson" -> "tools.jackson"

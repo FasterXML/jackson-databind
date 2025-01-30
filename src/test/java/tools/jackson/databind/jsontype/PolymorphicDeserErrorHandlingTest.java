@@ -54,7 +54,7 @@ public class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
         ObjectReader reader = MAPPER.readerFor(BaseUnknownWrapper.class)
                 .without(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
         BaseUnknownWrapper w = reader.readValue(a2q
-                ("{'value':{'clazz':'com.foobar.Nothing'}}'"));
+                ("{'value':{'clazz':'com.foobar.Nothing'}}"));
         assertNotNull(w);
     }
 

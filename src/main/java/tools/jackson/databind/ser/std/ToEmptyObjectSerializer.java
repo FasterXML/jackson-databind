@@ -20,7 +20,7 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 public class ToEmptyObjectSerializer
     extends StdSerializer<Object>
 {
-    protected ToEmptyObjectSerializer(Class<?> raw) {
+    public ToEmptyObjectSerializer(Class<?> raw) {
         super(raw);
     }
 

@@ -1850,6 +1850,13 @@ wrongwrong (@k163377)
  * Contributed #4749: Fixed problem in StdDelegatingSerializer#serializeWithType where final
    serializer lookup was done on the pre-converted value when _delegateSerializer was null
   (2.18.1)
+ * Reported #4878: When serializing a Map via Converter(StdDelegatingSerializer),
+   a NullPointerException is thrown due to missing key serializer
+  (2.18.3)
+ * Contributed fix for #4444: The `KeyDeserializer` specified in the class with
+   `@JsonDeserialize(keyUsing = ...)` is overwritten by the `KeyDeserializer`
+    specified in the `ObjectMapper`.
+  (2.18.3)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing
@@ -1870,6 +1877,11 @@ Stanislav Shcherbakov (@glorrian)
 Tomáš Poledný (@Saljack)
  * Reported #4860: `ConstructorDetector.USE_PROPERTIES_BASED` does not work with
    multiple constructors since 2.18
+  (2.18.3)
+
+Gustavo Bazan (@gssbzn)
+ * Reported #4908: Deserialization behavior change with @JsonCreator and
+   @ConstructorProperties between 2.17 and 2.18
   (2.18.3)
 
 Liam Feid (@fxshlein)

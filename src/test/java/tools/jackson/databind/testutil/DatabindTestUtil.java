@@ -6,7 +6,6 @@ import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testutil.JacksonTestUtilBase;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
@@ -24,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DatabindTestUtil
     extends JacksonTestUtilBase
 {
-    // @since 2.18
     // Helper annotation to work around lack of implicit name access with Jackson 2.x
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
@@ -32,7 +30,6 @@ public class DatabindTestUtil
         String value();
     }
 
-    // @since 2.18
     @SuppressWarnings("serial")
     static public class ImplicitNameIntrospector extends JacksonAnnotationIntrospector
     {

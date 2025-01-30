@@ -3,7 +3,6 @@ package tools.jackson.databind.tofix;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
-import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -15,6 +14,7 @@ import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 

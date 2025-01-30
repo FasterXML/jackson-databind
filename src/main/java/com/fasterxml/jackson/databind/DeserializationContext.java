@@ -1074,7 +1074,7 @@ public abstract class DeserializationContext
      */
     public <T> T readTreeAsValue(JsonNode n, Class<T> targetType) throws IOException
     {
-        if (n == null) {
+        if (n == null || n.isMissingNode()) {
             return null;
         }
         try (TreeTraversingParser p = _treeAsTokens(n)) {
@@ -1098,7 +1098,7 @@ public abstract class DeserializationContext
      */
     public <T> T readTreeAsValue(JsonNode n, JavaType targetType) throws IOException
     {
-        if (n == null) {
+        if (n == null || n.isMissingNode()) {
             return null;
         }
         try (TreeTraversingParser p = _treeAsTokens(n)) {

@@ -3,10 +3,10 @@ package tools.jackson.databind.records.tofix;
 import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
-import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 

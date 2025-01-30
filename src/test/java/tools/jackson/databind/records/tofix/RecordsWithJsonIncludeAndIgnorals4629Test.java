@@ -2,13 +2,12 @@ package tools.jackson.databind.records.tofix;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

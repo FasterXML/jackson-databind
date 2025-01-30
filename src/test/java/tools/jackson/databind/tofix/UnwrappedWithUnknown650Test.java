@@ -3,12 +3,12 @@ package tools.jackson.databind.tofix;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.fail;
 

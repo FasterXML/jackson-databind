@@ -13,6 +13,10 @@ public class DeserializationContextTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    static class Bean4934 {
+        public String value;
+    }
+
     // [databind#4934]
     @Test
     public void testTreeAsValueFromNulls() throws Exception
@@ -23,6 +27,9 @@ public class DeserializationContextTest extends DatabindTestUtil
 
             assertNull(ctxt.readTreeAsValue(nodeF.nullNode(), Boolean.class));
             assertEquals(Boolean.FALSE, ctxt.readTreeAsValue(nodeF.nullNode(), Boolean.TYPE));
+
+            // Only fixed in 2.19:
+            //assertNull(ctxt.readTreeAsValue(nodeF.nullNode(), Bean4934.class));
 
         }
     }
@@ -39,6 +46,8 @@ public class DeserializationContextTest extends DatabindTestUtil
             // Absent becomes `null` for now as well
             assertNull(ctxt.readTreeAsValue(nodeF.missingNode(), Boolean.TYPE));
 
+            // Only fixed in 2.19:
+            //assertNull(ctxt.readTreeAsValue(nodeF.missingNode(), Bean4934.class));
         }
     }
 }

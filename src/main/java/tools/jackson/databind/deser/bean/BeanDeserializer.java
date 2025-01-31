@@ -402,7 +402,7 @@ public class BeanDeserializer
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                throw wrapAndThrow(e, bean, p.currentName(), ctxt);
+                throw wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
 
             // Elem #2
@@ -415,7 +415,7 @@ public class BeanDeserializer
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                throw wrapAndThrow(e, bean, p.currentName(), ctxt);
+                throw wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             ix = p.nextNameMatch(_propNameMatcher);
         }
@@ -442,7 +442,7 @@ public class BeanDeserializer
                 try {
                     _propsByIndex[ix].deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, p.currentName(), ctxt);
+                    wrapAndThrow(e, bean, _propsByIndex[ix].getName(), ctxt);
                 }
                 continue;
             }
@@ -537,7 +537,7 @@ public class BeanDeserializer
                 try {
                     _propsByIndex[ix].deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, p.currentName(), ctxt);
+                    throw wrapAndThrow(e, bean, _propsByIndex[ix].getName(), ctxt);
                 }
                 continue;
             }
@@ -846,7 +846,7 @@ public class BeanDeserializer
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, p.currentName(), ctxt);
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }

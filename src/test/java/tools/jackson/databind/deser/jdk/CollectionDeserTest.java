@@ -266,32 +266,42 @@ public class CollectionDeserTest
 
     // for [databind#506]
     @Test
-    public void testArrayIndexForExceptions() throws Exception
+    public void testArrayIndexForExceptions1() throws Exception
     {
-        final String OBJECTS_JSON = "[ \"KEY2\", false ]";
         try {
-            MAPPER.readValue(OBJECTS_JSON, Key[].class);
+            MAPPER.readValue("[ \"KEY2\", false ]", Key[].class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot deserialize");
+            verifyException(e, "Cannot deserialize value of type");
+            verifyException(e, "from Boolean value");
             assertEquals(1, e.getPath().size());
             assertEquals(1, e.getPath().get(0).getIndex());
         }
+    }
 
+    @Test
+    public void testArrayIndexForExceptions2() throws Exception
+    {
         try {
             MAPPER.readValue("[ \"xyz\", { } ]", String[].class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot deserialize");
+            verifyException(e, "Cannot deserialize value of type");
+            verifyException(e, "from Object value");
             assertEquals(1, e.getPath().size());
             assertEquals(1, e.getPath().get(0).getIndex());
         }
+    }
 
+    @Test
+    public void testArrayIndexForExceptions3() throws Exception
+    {
         try {
-            MAPPER.readValue("{\"keys\":"+OBJECTS_JSON+"}", KeyListBean.class);
+            MAPPER.readValue("{\"keys\":[ \"KEY2\", false ]}", KeyListBean.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot deserialize");
+            verifyException(e, "Cannot deserialize value of type");
+            verifyException(e, "from Boolean value");
             assertEquals(2, e.getPath().size());
             // Bean has no index, but has name:
             assertEquals(-1, e.getPath().get(0).getIndex());

@@ -400,7 +400,19 @@ public abstract class DeserializationContext
             reportBadDefinition(type,
                     "Could not find `ValueDeserializer` for type "+ClassUtil.getTypeDescription(type));
         }
-        return (T) deser.deserialize(p, this);
+        return (T) _readValue(p, deser);
+    }
+
+    /**
+     * Helper method that should handle special cases for deserialization; most
+     * notably handling {@code null} (and possibly absent values).
+     */
+    private Object _readValue(JsonParser p, ValueDeserializer<Object> deser) throws JacksonException
+    {
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
+             return deser.getNullValue(this);
+        }
+        return deser.deserialize(p, this);
     }
 
     /*
@@ -1106,7 +1118,7 @@ public abstract class DeserializationContext
                     "Could not find `ValueDeserializer` for type %s (via property %s)",
                     ClassUtil.getTypeDescription(type), ClassUtil.nameOf(prop)));
         }
-        return (T) deser.deserialize(p, this);
+        return (T) _readValue(p, deser);
     }
 
     /**
@@ -1169,7 +1181,7 @@ public abstract class DeserializationContext
         p.nextToken();
         return p;
     }
-
+    
     /*
     /**********************************************************************
     /* Methods for problem handling

@@ -1,7 +1,6 @@
 package tools.jackson.databind.tofix;
 
 import org.junit.jupiter.api.Test;
-import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -14,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 // Test case for a regression in 3.0, worked in 2.11
 public class BuilderAdvanced2580Test

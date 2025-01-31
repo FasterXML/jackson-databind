@@ -14,13 +14,6 @@ module tools.jackson.databind
 
     // // Actual Test dependencies
 
-    // Shared Jackson test functionality
-
-    // 15-Jan-2025, tatu: missing module-info for `tools.jackson.core` can't yet add
-    //  (but will be included in Class path just not Module path)
-    //
-    //requires tools.jackson.core.testutil;
-
     // Test frameworks, libraries:
 
     // Guava testlib needed by CLMH tests, alas; brings in junit4
@@ -95,6 +88,7 @@ module tools.jackson.databind
     opens tools.jackson.databind.ser.filter;
     opens tools.jackson.databind.seq;
     opens tools.jackson.databind.struct;
+    opens tools.jackson.databind.testutil.failure;
     opens tools.jackson.databind.tofix;
     opens tools.jackson.databind.util.internal;
     opens tools.jackson.databind.views;

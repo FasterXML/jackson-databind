@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.junit.jupiter.api.Test;
-import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.objectid.Employee;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;

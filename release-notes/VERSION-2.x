@@ -43,6 +43,9 @@ Project: jackson-databind
 #4869: Add `JsonNode.values()` to replace `elements()`
 #4896: Coercion shouldn't be necessary for Enums specifying an empty string
  (reported by @joaocanaverde-blue)
+#4934: `DeserializationContext.readTreeAsValue()` handles null nodes
+  differently from `ObjectMapper.treeToValue()`
+ (reported by Floris W)
 
 2.18.3 (not yet released)
 

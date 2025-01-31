@@ -989,9 +989,9 @@ public abstract class DeserializationContext
             return reportBadDefinition(type,
                     "Could not find JsonDeserializer for type "+ClassUtil.getTypeDescription(type));
         }
-        return (T) deser.deserialize(p, this);
+        return (T) _readValue(p, deser);
     }
-
+    
     /**
      * Convenience method that may be used by composite or container deserializers,
      * for reading one-off values for the composite type, taking into account
@@ -1023,7 +1023,7 @@ public abstract class DeserializationContext
                     "Could not find JsonDeserializer for type %s (via property %s)",
                     ClassUtil.getTypeDescription(type), ClassUtil.nameOf(prop)));
         }
-        return (T) deser.deserialize(p, this);
+        return (T) _readValue(p, deser);
     }
 
     /**
@@ -1116,6 +1116,20 @@ public abstract class DeserializationContext
         return p;
     }
 
+    /**
+     * Helper method that should handle special cases for deserialization; most
+     * notably handling {@code null} (and possibly absent values).
+     *
+     * @since 2.19
+     */
+    private Object _readValue(JsonParser p, JsonDeserializer<Object> deser) throws IOException
+    {
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
+             return deser.getNullValue(this);
+        }
+        return deser.deserialize(p, this);
+    }
+    
     /*
     /**********************************************************
     /* Methods for problem handling

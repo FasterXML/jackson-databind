@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.ext;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,17 @@ public class MiscJavaXMLTypesReadWriteTest
     {
         QName qn = new QName("http://abc", "tag", "prefix");
         assertEquals(q(qn.toString()), MAPPER.writeValueAsString(qn));
+    }
+
+    @Test
+    public void testQNameSerToObject() throws Exception {
+        QName qn = new QName("http://abc", "tag", "prefix");
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(QName.class, cfg -> cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT)))
+                .build();
+
+        assertEquals(a2q("{'localPart':'tag','namespaceURI':'http://abc','prefix':'prefix'}"), mapper.writeValueAsString(qn));
     }
 
     @Test
@@ -119,6 +131,21 @@ public class MiscJavaXMLTypesReadWriteTest
         qn = MAPPER.readValue(q(""), QName.class);
         assertNotNull(qn);
         assertEquals("", qn.getLocalPart());
+    }
+
+    @Test
+    public void testQNameDeserFromObject() throws Exception
+    {
+        String qstr = a2q("{'namespaceURI':'http://abc','localPart':'tag','prefix':'prefix'}");
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(QName.class, cfg -> cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT)))
+                .build();
+
+        QName qn = mapper.readValue(qstr, QName.class);
+
+        assertEquals("http://abc", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("prefix", qn.getPrefix());
     }
 
     @Test

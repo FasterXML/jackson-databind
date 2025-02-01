@@ -255,13 +255,11 @@ public enum SerializationFeature implements ConfigFeature
      * representation may mean either simple number, or an array of numbers,
      * depending on type.
      *<p>
-     * Note: whether {@link java.util.Map} keys are serialized as Strings
-     * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS}.
-     *<p>
-     * Feature is enabled by default, so that period/duration are by default
-     * serialized as timestamps.
+     * Feature is disabled by default as of Jackson 3.0 (in 2.x it was enabled),
+     * so that period/duration are by default serialized as textual values,
+     * NOT timestamps.
      */
-    WRITE_DURATIONS_AS_TIMESTAMPS(true),
+    WRITE_DURATIONS_AS_TIMESTAMPS(false),
 
     /**
      * Feature that determines how type <code>char[]</code> is serialized:

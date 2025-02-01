@@ -54,16 +54,17 @@ public class MiscJavaXMLTypesReadWriteTest
     @Test
     public void testXMLGregorianCalendarSerAndDeser() throws Exception
     {
+        ObjectMapper withMapper = jsonMapperBuilder().enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build();
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         XMLGregorianCalendar cal = dtf.newXMLGregorianCalendar
             (1974, 10, 10, 18, 15, 17, 123, 0);
 
         long timestamp = cal.toGregorianCalendar().getTimeInMillis();
         String numStr = String.valueOf(timestamp);
-        assertEquals(numStr, MAPPER.writeValueAsString(cal));
+        assertEquals(numStr, withMapper.writeValueAsString(cal));
 
         // [JACKSON-403] Needs to come back ok as well:
-        XMLGregorianCalendar calOut = MAPPER.readValue(numStr, XMLGregorianCalendar.class);
+        XMLGregorianCalendar calOut = withMapper.readValue(numStr, XMLGregorianCalendar.class);
         assertNotNull(calOut);
         assertEquals(timestamp, calOut.toGregorianCalendar().getTimeInMillis());
 

@@ -50,6 +50,7 @@ public class TestDefaultForScalars
 
     private final ObjectMapper DEFAULT_TYPING_MAPPER = jsonMapperBuilder()
                     .activateDefaultTyping(NoCheckSubTypeValidator.instance)
+                    .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                     .build();
 
     /**

@@ -405,6 +405,8 @@ public class JsonIncludeTest
     @Test
     public void testInclusionOfCalendar() throws Exception
     {
+        ObjectWriter writerWithout = MAPPER.writer().without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
         final Calendar input = new GregorianCalendar();
         input.setTimeInMillis(0L);
         assertEquals(a2q("{'value':0}"),

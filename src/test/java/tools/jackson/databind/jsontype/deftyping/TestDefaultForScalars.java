@@ -106,6 +106,7 @@ public class TestDefaultForScalars
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.JAVA_LANG_OBJECT)
+                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build();
         Object[] input = new Object[] {
                 "abc", new Date(1234567), null, Integer.valueOf(456)

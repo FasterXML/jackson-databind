@@ -105,7 +105,8 @@ public class JavaUtilDateSerializationTest
         // default is to output time stamps...
         assertFalse(MAPPER.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
         // shouldn't matter which offset we give...
-        String json = MAPPER.writeValueAsString(new Date(199L));
+        String json = MAPPER.writer().with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(new Date(199L));
         assertEquals("199", json);
     }
 

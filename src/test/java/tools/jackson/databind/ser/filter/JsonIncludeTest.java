@@ -392,11 +392,13 @@ public class JsonIncludeTest
     @Test
     public void testInclusionOfDate() throws Exception
     {
+        ObjectWriter writerWith = MAPPER.writer().with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
         final Date input = new Date(0L);
         assertEquals(a2q("{'value':0}"),
-                MAPPER.writeValueAsString(new NonEmptyDate(input)));
+                writerWith.writeValueAsString(new NonEmptyDate(input)));
         assertEquals("{}",
-                MAPPER.writeValueAsString(new NonDefaultDate(input)));
+                writerWith.writeValueAsString(new NonDefaultDate(input)));
 
 
     }
@@ -405,13 +407,13 @@ public class JsonIncludeTest
     @Test
     public void testInclusionOfCalendar() throws Exception
     {
-        ObjectWriter writerWithout = MAPPER.writer().without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        ObjectWriter writerWith = MAPPER.writer().with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         final Calendar input = new GregorianCalendar();
         input.setTimeInMillis(0L);
         assertEquals(a2q("{'value':0}"),
-                MAPPER.writeValueAsString(new NonEmptyCalendar(input)));
+                writerWith.writeValueAsString(new NonEmptyCalendar(input)));
         assertEquals("{}",
-                MAPPER.writeValueAsString(new NonDefaultCalendar(input)));
+                writerWith.writeValueAsString(new NonDefaultCalendar(input)));
     }
 }

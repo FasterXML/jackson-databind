@@ -493,13 +493,16 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     @Test
     public void testWithAsValue() throws Exception
     {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .build();
         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy(12345L));
-        String json = MAPPER.writeValueAsString(input);
+        String json = mapper.writeValueAsString(input);
         assertNotNull(json);
         assertEquals("{\"value\":12345,\"type\":\"thingy\"}", json);
 
         // and get it back too:
-        ExternalTypeWithNonPOJO result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
+        ExternalTypeWithNonPOJO result = mapper.readValue(json, ExternalTypeWithNonPOJO.class);
         assertNotNull(result);
         assertNotNull(result.value);
         assertEquals(AsValueThingy.class, result.value.getClass());

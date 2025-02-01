@@ -80,7 +80,7 @@ public class SerializationConfigTest
         assertTrue(cfg.isEnabled(MapperFeature.USE_ANNOTATIONS));
         assertTrue(cfg.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS));
 
-        assertTrue(cfg.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
+        assertFalse(cfg.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
 
         assertEquals(MapperFeature.DEFAULT_VIEW_INCLUSION.enabledByDefault(),
                 cfg.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION));

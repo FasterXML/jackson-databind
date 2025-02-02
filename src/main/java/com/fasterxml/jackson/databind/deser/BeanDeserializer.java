@@ -456,8 +456,11 @@ public class BeanDeserializer
                         bean = wrapInstantiationProblem(e, ctxt);
                     }
                     if (bean == null) {
-                        return ctxt.handleInstantiationProblem(handledType(), null,
-                                _creatorReturnedNullException());
+                        // [databind#4938] 2025-Feb-02, Since 2.19, Allow returning `null` from creator
+                        return null;
+                        // [databind#4938] 2025-Feb-02, Since 2.19, Allow returning `null` from creator
+                        // return ctxt.handleInstantiationProblem(handledType(), null,
+                        //        _creatorReturnedNullException());
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.assignCurrentValue(bean);

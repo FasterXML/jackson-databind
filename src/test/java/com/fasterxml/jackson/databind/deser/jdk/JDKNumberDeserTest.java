@@ -548,7 +548,7 @@ public class JDKNumberDeserTest
     // https://github.com/FasterXML/jackson-core/issues/1397
     @Test
     public void issue1397() throws Exception {
-        var dataString = a2q("{" +
+        final String dataString = a2q("{" +
                       "'results': [ { " +
                       "'radius': 179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, " +
                       "'type': 'center', " +
@@ -558,9 +558,9 @@ public class JDKNumberDeserTest
 
         Root object = MAPPER.readValue(dataString, Root.class);
 
-        CenterResult result = (CenterResult) Arrays.stream(object.getResults()).findFirst().orElseThrow();
+        CenterResult result = (CenterResult) Arrays.stream(object.getResults()).findFirst().get();
 
-        System.out.println(result.getCenter().getX());
-        System.out.println(result.getCenter().getY());
+        assertEquals(-11.0d, result.getCenter().getX());
+        assertEquals(-2.0d, result.getCenter().getY());
     }
 }

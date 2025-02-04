@@ -548,8 +548,7 @@ public class JDKNumberDeserTest
     // https://github.com/FasterXML/jackson-core/issues/1397
     @Test
     public void issue1397() throws Exception {
-        final String dataString = a2q("{" +
-                      "'results': [ { " +
+        final String dataString = a2q("{ 'results': [ { " +
                       "'radius': 179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, " +
                       "'type': 'center', " +
                       "'center': { " +

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -107,6 +108,79 @@ public class JDKNumberDeserTest
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         static DecimalHolder4917 of(BigDecimal value) {
             return new DecimalHolder4917(value);
+        }
+    }
+
+    static class Point {
+        private Double x;
+        private Double y;
+
+        public Double getX() {
+            return x;
+        }
+
+        public void setX(Double x) {
+            this.x = x;
+        }
+
+        public Double getY() {
+            return y;
+        }
+
+        public void setY(Double y) {
+            this.y = y;
+        }
+    }
+
+    @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.EXISTING_PROPERTY,
+            property = "type",
+            visible = true)
+    @JsonSubTypes(@JsonSubTypes.Type(value = CenterResult.class, name = "center"))
+    static abstract class Result {
+        private String type;
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+    }
+
+    static class CenterResult extends Result {
+        private Point center;
+
+        private Double radius;
+
+        public Double getRadius() {
+            return radius;
+        }
+
+        public void setRadius(Double radius) {
+            this.radius = radius;
+        }
+
+        public Point getCenter() {
+            return center;
+        }
+
+        public void setCenter(Point center) {
+            this.center = center;
+        }
+    }
+
+    static class Root {
+        private Result[] results;
+
+        public Result[] getResults() {
+            return results;
+        }
+
+        public void setResults(Result[] results) {
+            this.results = results;
         }
     }
 
@@ -469,5 +543,23 @@ public class JDKNumberDeserTest
                 DeserializationIssue4917V3.class);
         assertEquals(new BigDecimal("100.00"), issue.decimal);
         assertEquals(50, issue.number);
+    }
+
+    // https://github.com/FasterXML/jackson-core/issues/1397
+    @Test
+    public void issue1397() throws Exception {
+        final String dataString = a2q("{ 'results': [ { " +
+                      "'radius': 179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, " +
+                      "'type': 'center', " +
+                      "'center': { " +
+                      "'x': -11.0, " +
+                      "'y': -2.0 } } ] }");
+
+        Root object = MAPPER.readValue(dataString, Root.class);
+
+        CenterResult result = (CenterResult) Arrays.stream(object.getResults()).findFirst().get();
+
+        assertEquals(-11.0d, result.getCenter().getX());
+        assertEquals(-2.0d, result.getCenter().getY());
     }
 }

@@ -44,6 +44,8 @@ public class SqlDateSerializationTest extends DatabindTestUtil
     @Test
     public void testSqlDate() throws Exception
     {
+        ObjectWriter writer = MAPPER.writer()
+                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         // use date 1999-04-01 (note: months are 0-based, use constant)
         final java.sql.Date date99 = javaSqlDate(1999, Calendar.APRIL, 1);
         final java.sql.Date date0 = new java.sql.Date(0);
@@ -52,14 +54,14 @@ public class SqlDateSerializationTest extends DatabindTestUtil
         //   defaults in 2.9, even if this changes behavior.
 
         assertEquals(String.valueOf(date99.getTime()),
-                MAPPER.writeValueAsString(date99));
+                writer.writeValueAsString(date99));
 
         assertEquals(a2q("{'date':0}"),
-                MAPPER.writeValueAsString(new SqlDateAsDefaultBean(0L)));
+                writer.writeValueAsString(new SqlDateAsDefaultBean(0L)));
 
         // but may explicitly force timestamp too
         assertEquals(a2q("{'date':0}"),
-                MAPPER.writeValueAsString(new SqlDateAsNumberBean(0L)));
+                writer.writeValueAsString(new SqlDateAsNumberBean(0L)));
 
         // And also should be able to use String output as need be:
         ObjectWriter w = MAPPER.writer().without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

@@ -140,7 +140,7 @@ public abstract class JsonNode
     }
 
     @Override
-    public boolean isContainerNode() {
+    public boolean isContainer() {
         return false;
     }
 

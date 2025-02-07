@@ -33,7 +33,7 @@ public class NullNodeTest extends NodeTestBase
         NullNode n = NullNode.instance;
 
         // basic properties
-        assertFalse(n.isContainerNode());
+        assertFalse(n.isContainer());
         assertFalse(n.isBigDecimal());
         assertFalse(n.isBigInteger());
         assertFalse(n.isBinary());

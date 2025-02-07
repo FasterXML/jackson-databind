@@ -1,6 +1,5 @@
 package tools.jackson.databind.deser.jdk;
 
-import java.io.IOException;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;

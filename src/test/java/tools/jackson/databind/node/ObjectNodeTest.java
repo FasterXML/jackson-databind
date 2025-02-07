@@ -80,7 +80,7 @@ public class ObjectNodeTest
 
         // basic properties first:
         assertFalse(root.isValueNode());
-        assertTrue(root.isContainerNode());
+        assertTrue(root.isContainer());
         assertFalse(root.isArray());
         assertTrue(root.isObject());
         assertEquals(2, root.size());

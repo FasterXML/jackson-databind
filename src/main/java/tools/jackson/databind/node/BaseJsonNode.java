@@ -180,7 +180,7 @@ public abstract class BaseJsonNode
         case NULLS:
             return node.isNull();
         case SCALARS:
-            return !node.isContainerNode();
+            return !node.isContainer();
         default:
         case ALL:
             return true;

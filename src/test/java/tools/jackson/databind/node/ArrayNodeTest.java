@@ -35,7 +35,7 @@ public class ArrayNodeTest
         assertFalse(n.canConvertToExactIntegral());
         assertTrue(n.isArray());
         assertFalse(n.isObject());
-        assertTrue(n.isContainerNode());
+        assertTrue(n.isContainer());
 
         assertStandardEquals(n);
         assertFalse(n.values().iterator().hasNext());

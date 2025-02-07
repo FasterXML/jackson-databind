@@ -32,7 +32,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     protected ContainerNode() { _nodeFactory = null; } // only for JDK ser
 
     @Override
-    public boolean isContainerNode() {
+    public boolean isContainer() {
         return true;
     }
 

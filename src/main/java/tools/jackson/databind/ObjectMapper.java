@@ -2497,6 +2497,27 @@ public class ObjectMapper
 
     /*
     /**********************************************************************
+    /* Extended Public API: caches
+    /**********************************************************************
+     */
+
+    /**
+     * Method that will clear all caches this mapper owns.
+     *<p>
+     * This method should not be needed in normal operation, but may be
+     * useful to avoid class-loader memory leaks when reloading applications.
+     *
+     * @since 2.19
+     */
+    public void clearCaches() {
+        _rootDeserializers.clear();
+        _typeFactory.clearCache();
+        _deserializationContexts.flushCachedDeserializers();
+        _serializationContexts.flushCachedSerializers();
+    }
+
+    /*
+    /**********************************************************************
     /* Internal methods for serialization, overridable
     /**********************************************************************
      */

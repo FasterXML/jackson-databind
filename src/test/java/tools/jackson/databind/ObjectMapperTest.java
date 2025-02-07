@@ -15,6 +15,7 @@ import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.MinimalPrettyPrinter;
 import tools.jackson.databind.cfg.DeserializationContexts;
+import tools.jackson.databind.cfg.SerializationContexts;
 import tools.jackson.databind.deser.DeserializerCache;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import tools.jackson.databind.json.JsonMapper;
@@ -889,8 +890,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         }
     }
 
-    @Test
-    private static void test_method_failsIfArgumentIsNull(Runnable runnable) throws Exception
+    private void test_method_failsIfArgumentIsNull(Runnable runnable) throws Exception
     {
         try {
             runnable.run();
@@ -899,5 +899,40 @@ public class ObjectMapperTest extends DatabindTestUtil
             verifyException(expected, "Argument \"");
             verifyException(expected, "\" is null");
         }
+    }
+
+    @Test
+    public void testClearCaches() throws Exception
+    {
+        ObjectMapper m = newJsonMapper();
+
+        // At first, ser/deser caches should be empty
+        assertEquals(0, ((DeserializationContexts.DefaultImpl) m._deserializationContexts)
+                .cacheForTests().cachedDeserializersCount());
+        assertEquals(0, m._rootDeserializers.size());
+        assertEquals(0, ((SerializationContexts.DefaultImpl) m._serializationContexts)
+                .cacheForTests().size());
+
+        // Serialize and deserialize to fill caches
+        final String JSON = "{ \"x\" : 3 }";
+        Bean bean = m.readValue(JSON, Bean.class);
+        assertNotNull(bean);
+        m.writeValueAsString("test");
+        // Caches should not be empty any longer
+        assertNotEquals(0, m._rootDeserializers.size());
+        assertNotEquals(0, ((DeserializationContexts.DefaultImpl) m._deserializationContexts)
+                .cacheForTests().cachedDeserializersCount());
+        assertNotEquals(0, ((SerializationContexts.DefaultImpl)m._serializationContexts)
+                .cacheForTests().size());
+
+        // Clear caches
+        m.clearCaches();
+
+        // Caches should be empty
+        assertEquals(0, ((DeserializationContexts.DefaultImpl) m._deserializationContexts)
+                .cacheForTests().cachedDeserializersCount());
+        assertEquals(0, m._rootDeserializers.size());
+        assertEquals(0, ((SerializationContexts.DefaultImpl) m._serializationContexts)
+                .cacheForTests().size());
     }
 }

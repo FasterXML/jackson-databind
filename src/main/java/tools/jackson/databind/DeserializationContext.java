@@ -841,6 +841,19 @@ public abstract class DeserializationContext
         return kd;
     }
 
+    /**
+     * Method that will drop all dynamically constructed deserializers (ones that
+     * are counted as result value for {@link DeserializerCache#cachedDeserializersCount}).
+     * This can be used to remove memory usage (in case some deserializers are
+     * only used once or so), or to force re-construction of deserializers after
+     * configuration changes for mapper than owns the provider.
+
+     * @since 2.19
+     */
+    public void flushCachedDeserializers() {
+        _cache.flushCachedDeserializers();
+    }
+
     /*
     /**********************************************************************
     /* Public API, ObjectId handling

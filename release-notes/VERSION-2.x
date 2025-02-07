@@ -46,6 +46,8 @@ Project: jackson-databind
 #4934: `DeserializationContext.readTreeAsValue()` handles null nodes
   differently from `ObjectMapper.treeToValue()`
  (reported by Floris W)
+#4953: Allow clearing all caches to avoid classloader leaks
+ (contributed by Joren I)
 
 2.18.3 (not yet released)
 

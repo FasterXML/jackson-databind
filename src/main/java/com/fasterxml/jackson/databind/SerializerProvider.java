@@ -1291,6 +1291,8 @@ public abstract class SerializerProvider
      * This can be used to remove memory usage (in case some serializers are
      * only used once or so), or to force re-construction of serializers after
      * configuration changes for mapper than owns the provider.
+
+     * @since 2.19
      */
     public void flushCachedSerializers() {
         _serializerCache.flush();

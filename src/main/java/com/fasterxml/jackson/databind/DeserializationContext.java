@@ -713,6 +713,8 @@ public abstract class DeserializationContext
      * This can be used to remove memory usage (in case some deserializers are
      * only used once or so), or to force re-construction of deserializers after
      * configuration changes for mapper than owns the provider.
+
+     * @since 2.19
      */
     public void flushCachedDeserializers() {
         _cache.flushCachedDeserializers();

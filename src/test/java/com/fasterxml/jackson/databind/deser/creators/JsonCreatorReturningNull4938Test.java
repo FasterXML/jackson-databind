@@ -1,12 +1,18 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.util.*;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.FiveMinuteUser;
+import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -106,6 +112,32 @@ public class JsonCreatorReturningNull4938Test
         _testDeserialize(disabled, "{ \"unknown\": null, \"unknown2\": \"hello\", \"en\": null, \"de\": null, \"fr\": null }");
         // ...with unknown properties mixed
         _testDeserialize(disabled, "{ \"unknown\": null, \"en\": null, \"unknown2\": \"hello\", \"de\": null, \"fr\": null }");
+    }
+
+    @Test
+    void testDeserializeToNullWithStream()
+            throws Exception
+    {
+        // Should all fail...
+        TreeMap<String, String> map = new TreeMap<>();
+
+        map.put("aa", "aa");
+        map.put("cc", "cc");
+        map.put("de", null);
+        map.put("en", null);
+        map.put("fr", null);
+        map.put("za", "zz");
+        map.put("zb", "zz");
+        map.put("zc", "zz");
+
+        byte[] bytes = MAPPER.writeValueAsBytes(map);
+        try (InputStream in = new ByteArrayInputStream(bytes)) {
+            Localized3 result = MAPPER.readerFor(Localized3.class)
+                    .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(in);
+            // Check if read all the bytes
+            assertEquals(-1, in.read());
+        }
     }
 
     private void _testDeserialize(ObjectReader reader, String JSON)

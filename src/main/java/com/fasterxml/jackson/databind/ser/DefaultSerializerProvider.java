@@ -553,16 +553,6 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         return _serializerCache.size();
     }
 
-    /**
-     * Method that will drop all serializers currently cached by this provider.
-     * This can be used to remove memory usage (in case some serializers are
-     * only used once or so), or to force re-construction of serializers after
-     * configuration changes for mapper than owns the provider.
-     */
-    public void flushCachedSerializers() {
-        _serializerCache.flush();
-    }
-
     /*
     /**********************************************************
     /* Extended API called by ObjectMapper: other

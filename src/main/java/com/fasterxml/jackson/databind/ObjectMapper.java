@@ -4796,17 +4796,18 @@ public class ObjectMapper
      */
 
     /**
-     * Method that will clear all caches.
-     * This can be used to remove memory usage or to force re-construction cached entries after configuration changes.
-     * Can also be used to avoid class-loader memory leaks when reloading applications.
-
+     * Method that will clear all caches this mapper owns.
+     *<p>
+     * This method should not be needed in normal operation, but may be
+     * useful to avoid class-loader memory leaks when reloading applications.
+     *
      * @since 2.19
      */
     public void clearCaches() {
         _rootDeserializers.clear();
-        getTypeFactory().clearCache();
-        getDeserializationContext().flushCachedDeserializers();
-        getSerializerProvider().flushCachedSerializers();
+        _typeFactory.clearCache();
+        _deserializationContext.flushCachedDeserializers();
+        _serializerProvider.flushCachedSerializers();
     }
 
     /*

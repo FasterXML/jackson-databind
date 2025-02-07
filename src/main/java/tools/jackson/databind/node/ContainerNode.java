@@ -31,6 +31,11 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
 
     protected ContainerNode() { _nodeFactory = null; } // only for JDK ser
 
+    @Override
+    public boolean isContainerNode() {
+        return true;
+    }
+
     // all containers are mutable: can't define:
 //    @Override public abstract <T extends JsonNode> T deepCopy();
 

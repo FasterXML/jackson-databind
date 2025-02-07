@@ -140,9 +140,8 @@ public abstract class JsonNode
     }
 
     @Override
-    public final boolean isContainerNode() {
-        final JsonNodeType type = getNodeType();
-        return type == JsonNodeType.OBJECT || type == JsonNodeType.ARRAY;
+    public boolean isContainerNode() {
+        return false;
     }
 
     @Override

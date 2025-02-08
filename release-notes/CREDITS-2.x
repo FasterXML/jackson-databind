@@ -1853,6 +1853,10 @@ wrongwrong (@k163377)
  * Reported #4878: When serializing a Map via Converter(StdDelegatingSerializer),
    a NullPointerException is thrown due to missing key serializer
   (2.18.3)
+ * Contributed fix for #4444: The `KeyDeserializer` specified in the class with
+   `@JsonDeserialize(keyUsing = ...)` is overwritten by the `KeyDeserializer`
+    specified in the `ObjectMapper`.
+  (2.18.3)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing
@@ -1899,4 +1903,13 @@ Konstantin Maliuga (@badoken)
 
 Lars Benedetto (@lbenedetto)
  * Contributed #4676: Support other enum naming strategies than camelCase
+  (2.19.0)
+
+Floris Westerman (@FWest98)
+ * Reported #4934: `DeserializationContext.readTreeAsValue()` handles null nodes
+   differently from `ObjectMapper.treeToValue()`
+  (2.19.0)
+
+Joren Inghelbrecht (@jin-harmoney)
+ * Contributed #4953: Allow clearing all caches to avoid classloader leaks
   (2.19.0)

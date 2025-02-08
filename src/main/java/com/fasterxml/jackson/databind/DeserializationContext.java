@@ -707,6 +707,19 @@ public abstract class DeserializationContext
         return kd;
     }
 
+    /**
+     * Method that will drop all dynamically constructed deserializers (ones that
+     * are counted as result value for {@link DeserializerCache#cachedDeserializersCount}).
+     * This can be used to remove memory usage (in case some deserializers are
+     * only used once or so), or to force re-construction of deserializers after
+     * configuration changes for mapper than owns the provider.
+
+     * @since 2.19
+     */
+    public void flushCachedDeserializers() {
+        _cache.flushCachedDeserializers();
+    }
+
     /*
     /**********************************************************
     /* Public API, ObjectId handling
@@ -989,9 +1002,9 @@ public abstract class DeserializationContext
             return reportBadDefinition(type,
                     "Could not find JsonDeserializer for type "+ClassUtil.getTypeDescription(type));
         }
-        return (T) deser.deserialize(p, this);
+        return (T) _readValue(p, deser);
     }
-
+    
     /**
      * Convenience method that may be used by composite or container deserializers,
      * for reading one-off values for the composite type, taking into account
@@ -1023,7 +1036,7 @@ public abstract class DeserializationContext
                     "Could not find JsonDeserializer for type %s (via property %s)",
                     ClassUtil.getTypeDescription(type), ClassUtil.nameOf(prop)));
         }
-        return (T) deser.deserialize(p, this);
+        return (T) _readValue(p, deser);
     }
 
     /**
@@ -1074,7 +1087,7 @@ public abstract class DeserializationContext
      */
     public <T> T readTreeAsValue(JsonNode n, Class<T> targetType) throws IOException
     {
-        if (n == null) {
+        if (n == null || n.isMissingNode()) {
             return null;
         }
         try (TreeTraversingParser p = _treeAsTokens(n)) {
@@ -1098,7 +1111,7 @@ public abstract class DeserializationContext
      */
     public <T> T readTreeAsValue(JsonNode n, JavaType targetType) throws IOException
     {
-        if (n == null) {
+        if (n == null || n.isMissingNode()) {
             return null;
         }
         try (TreeTraversingParser p = _treeAsTokens(n)) {
@@ -1116,6 +1129,20 @@ public abstract class DeserializationContext
         return p;
     }
 
+    /**
+     * Helper method that should handle special cases for deserialization; most
+     * notably handling {@code null} (and possibly absent values).
+     *
+     * @since 2.19
+     */
+    private Object _readValue(JsonParser p, JsonDeserializer<Object> deser) throws IOException
+    {
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
+             return deser.getNullValue(this);
+        }
+        return deser.deserialize(p, this);
+    }
+    
     /*
     /**********************************************************
     /* Methods for problem handling

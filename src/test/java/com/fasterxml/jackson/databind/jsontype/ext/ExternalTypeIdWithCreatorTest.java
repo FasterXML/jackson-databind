@@ -112,7 +112,7 @@ public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
     // [databind#1198]
     @Test
     public void testFails() throws Exception {
-        String json = "{ \"name\": \"foo\", \"attack\":\"right\" } }";
+        String json = "{ \"name\": \"foo\", \"attack\":\"right\" } ";
 
         Character character = MAPPER.readValue(json, Character.class);
 
@@ -124,7 +124,7 @@ public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
     // [databind#1198]
     @Test
     public void testWorks() throws Exception {
-        String json = "{ \"name\": \"foo\", \"preferredAttack\": \"KICK\", \"attack\":\"right\" } }";
+        String json = "{ \"name\": \"foo\", \"preferredAttack\": \"KICK\", \"attack\":\"right\" }";
 
         Character character = MAPPER.readValue(json, Character.class);
 

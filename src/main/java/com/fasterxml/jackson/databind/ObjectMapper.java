@@ -4791,6 +4791,27 @@ public class ObjectMapper
 
     /*
     /**********************************************************
+    /* Extended Public API: caches
+    /**********************************************************
+     */
+
+    /**
+     * Method that will clear all caches this mapper owns.
+     *<p>
+     * This method should not be needed in normal operation, but may be
+     * useful to avoid class-loader memory leaks when reloading applications.
+     *
+     * @since 2.19
+     */
+    public void clearCaches() {
+        _rootDeserializers.clear();
+        _typeFactory.clearCache();
+        _deserializationContext.flushCachedDeserializers();
+        _serializerProvider.flushCachedSerializers();
+    }
+
+    /*
+    /**********************************************************
     /* Internal factory methods for type ids, overridable
     /**********************************************************
      */
@@ -4916,6 +4937,9 @@ public class ObjectMapper
             result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
+        } else if (t == JsonToken.NOT_AVAILABLE) {
+            // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
+            result = null;
         } else { // pointing to event other than null
             result = ctxt.readRootValue(p, valueType, _findRootDeserializer(ctxt, valueType), null);
         }
@@ -4939,6 +4963,9 @@ public class ObjectMapper
                 // Ask JsonDeserializer what 'null value' to use:
                 result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
+                result = null;
+            } else if (t == JsonToken.NOT_AVAILABLE) {
+                // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
                 result = null;
             } else {
                 result = ctxt.readRootValue(p, valueType,

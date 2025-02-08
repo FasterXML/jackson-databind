@@ -1244,10 +1244,12 @@ factory.toString()));
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
-        BeanDescription beanDesc = null;
-        KeyDeserializer deser = null;
-        if (_factoryConfig.hasKeyDeserializers()) {
-            beanDesc = config.introspectClassAnnotations(type);
+        final BeanDescription beanDesc = config.introspectClassAnnotations(type);
+
+        // [databind#2452]: Support `@JsonDeserialize(keyUsing = ...)`
+        KeyDeserializer deser = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
+
+        if (deser == null && _factoryConfig.hasKeyDeserializers()) {
             for (KeyDeserializers d  : _factoryConfig.keyDeserializers()) {
                 deser = d.findKeyDeserializer(type, config, beanDesc);
                 if (deser != null) {
@@ -1258,17 +1260,10 @@ factory.toString()));
 
         // the only non-standard thing is this:
         if (deser == null) {
-            // [databind#2452]: Support `@JsonDeserialize(keyUsing = ...)`
-            if (beanDesc == null) {
-                beanDesc = config.introspectClassAnnotations(type.getRawClass());
-            }
-            deser = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
-            if (deser == null) {
-                if (type.isEnumType()) {
-                    deser = _createEnumKeyDeserializer(ctxt, type);
-                } else {
-                    deser = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
-                }
+            if (type.isEnumType()) {
+                deser = _createEnumKeyDeserializer(ctxt, type);
+            } else {
+                deser = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
             }
         }
         // and then post-processing

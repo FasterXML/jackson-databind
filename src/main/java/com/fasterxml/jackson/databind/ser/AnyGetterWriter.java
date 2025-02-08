@@ -13,11 +13,15 @@ import com.fasterxml.jackson.databind.ser.std.MapSerializer;
  * (Map) properties
  */
 public class AnyGetterWriter extends BeanPropertyWriter
+    implements java.io.Serializable // since 2.19
 {
+    // As of 2.19
+    private static final long serialVersionUID = 1L;
+
     protected final BeanProperty _property;
 
     /**
-     * Method (or field) that represents the "any getter"
+     * Method (or Field) that represents the "any getter"
      */
     protected final AnnotatedMember _accessor;
 

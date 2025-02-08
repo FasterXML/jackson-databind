@@ -38,7 +38,6 @@ public class ShapeArrayWithAnyGetter4961Test
 
     final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     public void testSerializeArrayWithAnyGetterWithWrapper() throws Exception {
         WrapperForAnyGetter wrapper = new WrapperForAnyGetter();
@@ -46,7 +45,10 @@ public class ShapeArrayWithAnyGetter4961Test
 
         String json = MAPPER.writeValueAsString(wrapper);
 
-        // Fails Actual   :{"value":{"firstProperty":"first","secondProperties":"second","forthProperty":"forth","third_A":"third_A","third_B":"third_B"}}
+        // In 2.19, Fails Actual
+        //     : {"value":{"firstProperty":"first","secondProperties":"second","forthProperty":"forth","third_A":"third_A","third_B":"third_B"}}
+        // Getting better, after #4775 in 2.19, fails Actual
+        //     : {"value":["first","second",{"third_A":"third_A","third_B":"third_B"},"forth"]}
         assertEquals(a2q("{'value':" +
                 "[" +
                 "'first'," +
@@ -58,14 +60,17 @@ public class ShapeArrayWithAnyGetter4961Test
                 "}"), json);
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void testSerializeArrayWithAnyGetterAsRoot() throws Exception {
         BeanWithAnyGetter bean = new BeanWithAnyGetter();
 
         String json = MAPPER.writeValueAsString(bean);
 
-        // Fails Actual : {"firstProperty":"first","secondProperties":"second","forthProperty":"forth","third_A":"third_A","third_B":"third_B"}
+        // In 2.19, Fails Actual
+        //     : {"firstProperty":"first","secondProperties":"second","forthProperty":"forth","third_A":"third_A","third_B":"third_B"}
+
+        // Getting better, after #4775 in 2.19, fails Actual
+        //     : ["first","second",{"third_A":"third_A","third_B":"third_B"},"forth"]
         assertEquals(a2q("[" +
                 "'first'," +
                 "'second'," +

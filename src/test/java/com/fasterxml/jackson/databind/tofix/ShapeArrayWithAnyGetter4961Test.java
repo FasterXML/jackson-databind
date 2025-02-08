@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -37,6 +38,7 @@ public class ShapeArrayWithAnyGetter4961Test
 
     final ObjectMapper MAPPER = newJsonMapper();
 
+    @JacksonTestFailureExpected
     @Test
     public void testSerializeArrayWithAnyGetterWithWrapper() throws Exception {
         WrapperForAnyGetter wrapper = new WrapperForAnyGetter();
@@ -56,6 +58,7 @@ public class ShapeArrayWithAnyGetter4961Test
                 "}"), json);
     }
 
+    @JacksonTestFailureExpected
     @Test
     public void testSerializeArrayWithAnyGetterAsRoot() throws Exception {
         BeanWithAnyGetter bean = new BeanWithAnyGetter();

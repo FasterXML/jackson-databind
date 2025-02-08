@@ -38,6 +38,7 @@ public class ShapeArrayWithAnyGetter4961Test
 
     final ObjectMapper MAPPER = newJsonMapper();
 
+    @JacksonTestFailureExpected
     @Test
     public void testSerializeArrayWithAnyGetterWithWrapper() throws Exception {
         WrapperForAnyGetter wrapper = new WrapperForAnyGetter();
@@ -60,6 +61,7 @@ public class ShapeArrayWithAnyGetter4961Test
                 "}"), json);
     }
 
+    @JacksonTestFailureExpected
     @Test
     public void testSerializeArrayWithAnyGetterAsRoot() throws Exception {
         BeanWithAnyGetter bean = new BeanWithAnyGetter();

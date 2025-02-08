@@ -237,6 +237,57 @@ public class TokenBufferTest extends DatabindTestUtil
     }
 
     @Test
+    public void testNumberIntAsString() throws IOException
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber("123", true);
+            try (JsonParser p = buf.asParser()) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
+                assertEquals(123, p.getIntValue());
+            }
+        }
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber("-123", true);
+            try (JsonParser p = buf.asParser()) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
+                assertEquals(-123L, p.getLongValue());
+            }
+        }
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber("123", false);
+            try (JsonParser p = buf.asParser()) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(NumberType.BIG_DECIMAL, p.getNumberType());
+                assertEquals(123.0, p.getFloatValue());
+            }
+        }
+        // legacy method assumes Decimal type
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber("123");
+            try (JsonParser p = buf.asParser()) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(NumberType.BIG_DECIMAL, p.getNumberType());
+                assertEquals(123.0, p.getFloatValue());
+            }
+        }
+    }
+
+    @Test
+    public void testNumberNonIntAsStringNoCoerce() throws IOException
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber("1234.567", true);
+            try (JsonParser p = buf.asParser()) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
+                assertThrows(NumberFormatException.class, p::getIntValue);
+            }
+        }
+    }
+
+    @Test
     public void testBigIntAsString() throws IOException
     {
         try (TokenBuffer buf = new TokenBuffer(null, false)) {

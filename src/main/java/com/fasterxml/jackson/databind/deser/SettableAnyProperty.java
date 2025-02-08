@@ -195,6 +195,20 @@ public abstract class SettableAnyProperty
     public int getParameterIndex() { return -1; }
 
     /**
+     * Method called to check whether this property is field
+     *
+     * @since 2.18.1
+     */
+    public boolean isFieldType() { return _setterIsField; }
+
+    /**
+     * Method called to check whether this property is method
+     *
+     * @return 2.18.2
+     */
+    public boolean isSetterType() { return _setter instanceof AnnotatedMethod; }
+
+    /**
      * Create an instance of value to pass through Creator parameter.
      *
      * @since 2.18

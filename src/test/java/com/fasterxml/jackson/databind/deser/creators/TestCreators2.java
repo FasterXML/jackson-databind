@@ -187,6 +187,37 @@ public class TestCreators2
         }
     }
 
+    // [databind#4515]
+
+    static class ConstructorBeanPropsExplicit4515 {
+        int x;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        protected ConstructorBeanPropsExplicit4515(@JsonProperty("x") int x) {
+            this.x = x;
+        }
+    }
+
+    static class ConstructorBeanPropsWithName4515 {
+        int x;
+
+        @JsonCreator
+        protected ConstructorBeanPropsWithName4515(@JsonProperty("x") int x) {
+            this.x = x;
+        }
+    }
+
+    static class FactoryBeanPropsExplicit4515 {
+        double d;
+
+        private FactoryBeanPropsExplicit4515(double value, boolean dummy) { d = value; }
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        protected static FactoryBeanPropsExplicit4515 createIt(@JsonProperty("f") double value) {
+            return new FactoryBeanPropsExplicit4515(value, true);
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -322,10 +353,35 @@ public class TestCreators2
     // [databind#1476]
     @Test
     public void testConstructorChoice() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        MultiPropCreator1476 pojo = mapper.readValue("{ \"intField\": 1, \"stringField\": \"foo\" }",
+        MultiPropCreator1476 pojo = MAPPER.readValue("{ \"intField\": 1, \"stringField\": \"foo\" }",
                 MultiPropCreator1476.class);
         assertEquals(1, pojo.getIntField());
         assertEquals("foo", pojo.getStringField());
+    }
+
+    // [databind#4515]: simple cases, properties-based explicit annotations
+
+    @Test
+    public void testPropsBasedConstructorExplicit() throws Exception
+    {
+        ConstructorBeanPropsExplicit4515 bean = MAPPER.readValue("{ \"x\" : 42 }",
+                ConstructorBeanPropsExplicit4515.class);
+        assertEquals(42, bean.x);
+    }
+
+    @Test
+    public void testPropsBasedConstructorWithName() throws Exception
+    {
+        ConstructorBeanPropsWithName4515 bean = MAPPER.readValue("{ \"x\" : 28 }",
+                ConstructorBeanPropsWithName4515.class);
+        assertEquals(28, bean.x);
+    }
+
+    @Test
+    public void testPropsBasedFactoryExplicit() throws Exception
+    {
+        FactoryBeanPropsExplicit4515 bean = MAPPER.readValue("{ \"f\" : 0.5 }",
+                FactoryBeanPropsExplicit4515.class);
+        assertEquals(0.5, bean.d);
     }
 }

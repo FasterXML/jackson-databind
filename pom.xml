@@ -9,11 +9,11 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.18.0-SNAPSHOT</version>
+    <version>2.18.3-SNAPSHOT</version>
   </parent>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.18.0-SNAPSHOT</version>
+  <version>2.18.3-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>jar</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -31,7 +31,7 @@
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
     <url>https://github.com/FasterXML/jackson-databind</url>
-    <tag>HEAD</tag>
+    <tag>jackson-databind-2.18.2</tag>
   </scm>
 
   <properties>
@@ -46,8 +46,7 @@
          Baseline compatibility:
 
          * Jackson 2.13 compatible with Android SDK 24 and up
-         * Jackson 2.14, 2.15 compatible with Android SDK 26 and up
-         * Jackson 2.16 compatible with Android SDK 26 and up
+         * Jackson 2.14 - 2.18 compatible with Android SDK 26 and up
 
       -->
     <version.android.sdk>26</version.android.sdk>
@@ -69,7 +68,7 @@
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2024-02-27T01:47:51Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2024-11-28T01:11:23Z</project.build.outputTimestamp>
   </properties>
 
   <dependencyManagement>
@@ -212,8 +211,7 @@
             <exclude>javax.measure:jsr-275</exclude>
           </classpathDependencyExcludes>
           <excludes>
-            <exclude>com.fasterxml.jackson.databind.MapperFootprintTest</exclude>
-            <exclude>**/failing/**/*.java</exclude>
+           <exclude>com.fasterxml.jackson.databind.MapperFootprintTest</exclude>
           </excludes>
           <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
                   ... although not 100% sure this makes much difference TBH
@@ -229,8 +227,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.16</link>
-            <link>https://fasterxml.github.io/jackson-core/javadoc/2.16</link>
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/2.18.0</link>>
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/2.18.0</link>>
           </links>
         </configuration>
       </plugin>
@@ -332,17 +330,9 @@
               <release>11</release>
               <compilerArgs>
                 <arg>-parameters</arg>
-                <arg>--enable-preview</arg>
               </compilerArgs>
               <fork>true</fork>
               <useIncrementalCompilation>true</useIncrementalCompilation>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <argLine>--enable-preview</argLine>
             </configuration>
           </plugin>
         </plugins>

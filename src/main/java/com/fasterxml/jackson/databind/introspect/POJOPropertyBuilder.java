@@ -135,9 +135,7 @@ public class POJOPropertyBuilder
         } else if (other._ctorParameters != null) {
             return 1;
         }
-        /* otherwise sort by external name (including sorting of
-         * ctor parameters)
-         */
+        // otherwise sort by external name (including sorting of ctor parameters)
         return getName().compareTo(other.getName());
     }
 
@@ -997,6 +995,15 @@ public class POJOPropertyBuilder
     }
 
     /**
+     * Mutator that will simply drop any fields property may have.
+     *
+     * @since 2.18
+     */
+    public void removeFields() {
+        _fields = null;
+    }
+
+    /**
      * Method called to trim unnecessary entries, such as implicit
      * getter if there is an explict one available. This is important
      * for later stages, to avoid unnecessary conflicts.
@@ -1211,10 +1218,36 @@ public class POJOPropertyBuilder
         renamed = _findExplicitNames(_getters, renamed);
         renamed = _findExplicitNames(_setters, renamed);
         renamed = _findExplicitNames(_ctorParameters, renamed);
-        if (renamed == null) {
-            return Collections.emptySet();
+        return (renamed == null) ? Collections.emptySet() : renamed;
+    }
+
+    /**
+     * Method find out if this property has specified explicit name: this
+     * is generally needed for properties that have not yet been renamed
+     * (Creator-detection).
+     *
+     * @param name Name to check against
+     *
+     * @return True if this property has specified explicit name
+     *
+     * @since 2.18.2
+     */
+    public boolean hasExplicitName(PropertyName name) {
+        return _hasExplicitName(_fields, name)
+                || _hasExplicitName(_getters, name)
+                || _hasExplicitName(_setters, name)
+                || _hasExplicitName(_ctorParameters, name);
+    }
+
+    private boolean _hasExplicitName(Linked<? extends AnnotatedMember> node,
+            PropertyName nameToMatch)
+    {
+        for (; node != null; node = node.next) {
+            if (node.isNameExplicit && nameToMatch.equals(node.name)) {
+                return true;
+            }
         }
-        return renamed;
+        return false;
     }
 
     /**

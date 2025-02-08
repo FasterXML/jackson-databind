@@ -5,8 +5,8 @@ package com.fasterxml.jackson.databind;
  *
  * @since 2.15
  */
-public class EnumNamingStrategies {
-
+public class EnumNamingStrategies
+{
     private EnumNamingStrategies() {}
 
     /**
@@ -45,10 +45,10 @@ public class EnumNamingStrategies {
      *
      * @since 2.15
      */
-    public static class CamelCaseStrategy implements EnumNamingStrategy {
-
+    public static class CamelCaseStrategy implements EnumNamingStrategy
+    {
         /**
-         * An intance of {@link CamelCaseStrategy} for reuse.
+         * An instance of {@link CamelCaseStrategy} for reuse.
          *
          * @since 2.15
          */

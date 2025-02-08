@@ -129,8 +129,8 @@ public class TypeParser
         return String.format("'%s...'[truncated %d charaters]",
                 str.substring(0, 1000), str.length() - 1000);
     }
-    
-    final static class MyTokenizer extends StringTokenizer
+
+    final protected static class MyTokenizer extends StringTokenizer
     {
         protected final String _input;
 

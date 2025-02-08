@@ -260,10 +260,16 @@ public abstract class BasicDeserializerFactory
         if (potentialCreators.hasPropertiesBased()) {
             PotentialCreator primaryPropsBased = potentialCreators.propertiesBased;
 
-            // Start by assigning the primary (and only) properties-based creator
-            _addSelectedPropertiesBasedCreator(ctxt, beanDesc, creators,
-                    CreatorCandidate.construct(config.getAnnotationIntrospector(),
-                            primaryPropsBased.creator(), primaryPropsBased.propertyDefs()));
+            // 12-Nov-2024, tatu: [databind#4777] We may have collected a 0-args Factory
+            //   method; and if so, may need to "pull it out" as default creator
+            if (primaryPropsBased.paramCount() == 0) {
+                creators.setDefaultCreator(primaryPropsBased.creator());
+            } else {
+                // Start by assigning the primary (and only) properties-based creator
+                _addSelectedPropertiesBasedCreator(ctxt, beanDesc, creators,
+                        CreatorCandidate.construct(config.getAnnotationIntrospector(),
+                                primaryPropsBased.creator(), primaryPropsBased.propertyDefs()));
+            }
         }
 
         // Continue with explicitly annotated delegating Creators
@@ -283,9 +289,10 @@ public abstract class BasicDeserializerFactory
                 // First things first: the "default constructor" (zero-arg
                 // constructor; whether implicit or explicit) is NOT included
                 // in list of constructors, so needs to be handled separately.
-                AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
-                if (defaultCtor != null) {
-                    if (!creators.hasDefaultCreator() || _hasCreatorAnnotation(config, defaultCtor)) {
+                // However, we may have added one for 0-args Factory method earlier, so:
+                if (!creators.hasDefaultCreator()) {
+                    AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
+                    if (defaultCtor != null) {
                         creators.setDefaultCreator(defaultCtor);
                     }
                 }
@@ -468,6 +475,13 @@ public abstract class BasicDeserializerFactory
         int ix = -1;
         final int argCount = candidate.paramCount();
         SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
+        // [databind#4688]: Should still accept 0-arg (explicitly delegated) creator
+        //   for backwards-compatibility (worked in 2.17 and before)
+        if (argCount == 0) {
+            // "Convert" to property-based since that works well
+            creators.addPropertyCreator(candidate.creator(), true, properties);
+            return true;
+        }
         for (int i = 0; i < argCount; ++i) {
             AnnotatedParameter param = candidate.parameter(i);
             JacksonInject.Value injectId = candidate.injection(i);
@@ -534,7 +548,7 @@ public abstract class BasicDeserializerFactory
                 if ((name == null) && (injectId == null)) {
                     ctxt.reportBadTypeDefinition(beanDesc,
 "Argument #%d of Creator %s has no property name (and is not Injectable): can not use as property-based Creator",
-i, candidate);
+                        i, candidate);
                 }
             }
             properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
@@ -817,13 +831,7 @@ i, candidate);
         if (deser == null) {
             if (type.isInterface() || type.isAbstract()) {
                 CollectionType implType = _mapAbstractCollectionType(type, config);
-                if (implType == null) {
-                    // [databind#292]: Actually, may be fine, but only if polymorphich deser enabled
-                    if (type.getTypeHandler() == null) {
-                        throw new IllegalArgumentException("Cannot find a deserializer for non-concrete Collection type "+type);
-                    }
-                    deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
-                } else {
+                if (implType != null) {
                     type = implType;
                     // But if so, also need to re-check creators...
                     beanDesc = config.introspectForCreation(type);
@@ -965,18 +973,12 @@ i, candidate);
              */
             if (deser == null) {
                 if (type.isInterface() || type.isAbstract()) {
-                    MapType fallback = _mapAbstractMapType(type, config);
-                    if (fallback != null) {
-                        type = (MapType) fallback;
+                    MapType implType = _mapAbstractMapType(type, config);
+                    if (implType != null) {
+                        type = (MapType) implType;
                         mapClass = type.getRawClass();
                         // But if so, also need to re-check creators...
                         beanDesc = config.introspectForCreation(type);
-                    } else {
-                        // [databind#292]: Actually, may be fine, but only if polymorphic deser enabled
-                        if (type.getTypeHandler() == null) {
-                            throw new IllegalArgumentException("Cannot find a deserializer for non-concrete Map type "+type);
-                        }
-                        deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
                     }
                 } else {
                     // 10-Jan-2017, tatu: `java.util.Collections` types need help:
@@ -1266,10 +1268,12 @@ factory.toString()));
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
-        BeanDescription beanDesc = null;
-        KeyDeserializer deser = null;
-        if (_factoryConfig.hasKeyDeserializers()) {
-            beanDesc = config.introspectClassAnnotations(type);
+        final BeanDescription beanDesc = config.introspectClassAnnotations(type);
+
+        // [databind#2452]: Support `@JsonDeserialize(keyUsing = ...)`
+        KeyDeserializer deser = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
+
+        if (deser == null && _factoryConfig.hasKeyDeserializers()) {
             for (KeyDeserializers d  : _factoryConfig.keyDeserializers()) {
                 deser = d.findKeyDeserializer(type, config, beanDesc);
                 if (deser != null) {
@@ -1280,17 +1284,10 @@ factory.toString()));
 
         // the only non-standard thing is this:
         if (deser == null) {
-            // [databind#2452]: Support `@JsonDeserialize(keyUsing = ...)`
-            if (beanDesc == null) {
-                beanDesc = config.introspectClassAnnotations(type.getRawClass());
-            }
-            deser = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
-            if (deser == null) {
-                if (type.isEnumType()) {
-                    deser = _createEnumKeyDeserializer(ctxt, type);
-                } else {
-                    deser = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
-                }
+            if (type.isEnumType()) {
+                deser = _createEnumKeyDeserializer(ctxt, type);
+            } else {
+                deser = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
             }
         }
         // and then post-processing

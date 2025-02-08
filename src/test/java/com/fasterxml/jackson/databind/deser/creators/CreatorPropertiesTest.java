@@ -147,4 +147,27 @@ public class CreatorPropertiesTest
 //System.err.println("JsON: "+MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(testData));
         assertEquals(3, testData.size());
     }
+
+    static class Something4908 {
+        @JsonProperty("value")
+        private final String _value;
+
+        String getValue() {
+            return _value;
+        }
+
+        @JsonCreator
+        @ConstructorProperties({"value"})
+        Something4908(String pValue) {
+            _value = pValue;
+        }
+    }
+
+    // [databind#4908] @ConstructorProperties and @JsonCreator
+    @Test
+    public void testConstructorPropertyAndJsonCreator() throws Exception {
+        Something4908 value = MAPPER.readValue(a2q("{'value':'abc'}"),
+                Something4908.class);
+        assertEquals("abc", value.getValue());
+    }
 }

@@ -47,6 +47,10 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * {@link com.fasterxml.jackson.databind.ser.DefaultSerializerProvider}.
  * Only this instance can be used for actual serialization calls; blueprint
  * object is only to be used for creating instances.
+ *<p>
+ * NOTE: in Jackson 3.x this class will be renamed as {@code SerializationContext}
+ * to align with {@link DeserializationContext}.
+ *
  */
 public abstract class SerializerProvider
     extends DatabindContext
@@ -556,6 +560,9 @@ public abstract class SerializerProvider
      * Note that serializers produced should NOT handle polymorphic serialization
      * aspects; separate {@link TypeSerializer} is to be constructed by caller
      * if and as necessary.
+     *<p>
+     * Note: this call will also contextualize serializer (call
+     * {@code serializer.createContextual()}) before returning it.
      *
      * @throws JsonMappingException if there are fatal problems with
      *   accessing suitable serializer; including that of not
@@ -598,7 +605,8 @@ public abstract class SerializerProvider
      * This is necessary for accurate handling of external type information,
      * to handle polymorphic types.
      *<p>
-     * Note: this call will also contextualize serializer before returning it.
+     * Note: this call will also contextualize serializer (call
+     * {@code serializer.createContextual()}) before returning it.
      *
      * @param property When creating secondary serializers, property for which
      *   serializer is needed: annotations of the property (or bean that contains it)
@@ -630,9 +638,10 @@ public abstract class SerializerProvider
     }
 
     /**
-     * Method variant used when we do NOT want contextualization to happen; it will need
-     * to be handled at a later point, but caller wants to be able to do that
-     * as needed; sometimes to avoid infinite loops
+     * Serializer lookup variant used when we do NOT want contextualization to happen;
+     * while contextualization MUST be handled at some point (many serializers will not be
+     * in usable state before contextualization), but caller wants to be able to do that
+     * later; sometimes to avoid infinite loops.
      *
      * @since 2.5
      */
@@ -659,9 +668,10 @@ public abstract class SerializerProvider
     }
 
     /**
-     * Method variant used when we do NOT want contextualization to happen; it will need
-     * to be handled at a later point, but caller wants to be able to do that
-     * as needed; sometimes to avoid infinite loops
+     * Serializer lookup variant used when we do NOT want contextualization to happen;
+     * while contextualization MUST be handled at some point (many serializers will not be
+     * in usable state before contextualization), but caller wants to be able to do that
+     * later; sometimes to avoid infinite loops.
      *
      * @since 2.5
      */
@@ -693,8 +703,10 @@ public abstract class SerializerProvider
      * certain that this is the primary property value serializer.
      *
      * @param valueType Type of values to serialize
-     * @param property Property that is being handled; will never be null, and its
-     *    type has to match <code>valueType</code> parameter.
+     * @param property Property that directly refers to value being serialized (optional,
+     *    may be {@code null} for root level serializers).
+     *    Should not be null if property is known. If not null,
+     *    its type must match {@code valueType} argument.
      *
      * @since 2.3
      */

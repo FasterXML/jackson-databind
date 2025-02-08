@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.creators;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
@@ -26,6 +27,56 @@ public class ConstructorDetectorTest extends DatabindTestUtil
         SingleArgNotAnnotated() { v = -1; }
 
         public SingleArgNotAnnotated(@ImplicitName("value") int value) {
+            v = value;
+        }
+    }
+
+    static class SingleArgByte {
+        protected byte v;
+
+        SingleArgByte() { v = -1; }
+
+        public SingleArgByte(@ImplicitName("value") byte value) {
+            v = value;
+        }
+    }
+
+    static class SingleArgShort {
+        protected short v;
+
+        SingleArgShort() { v = -1; }
+
+        public SingleArgShort(@ImplicitName("value") short value) {
+            v = value;
+        }
+    }
+
+    static class SingleArgLong {
+        protected long v;
+
+        SingleArgLong() { v = -1; }
+
+        public SingleArgLong(@ImplicitName("value") long value) {
+            v = value;
+        }
+    }
+
+    static class SingleArgFloat {
+        protected float v;
+
+        SingleArgFloat() { v = -1.0f; }
+
+        public SingleArgFloat(@ImplicitName("value") float value) {
+            v = value;
+        }
+    }
+
+    static class SingleArgDouble {
+        protected double v;
+
+        SingleArgDouble() { v = -1.0; }
+
+        public SingleArgDouble(@ImplicitName("value") double value) {
             v = value;
         }
     }
@@ -89,9 +140,24 @@ public class ConstructorDetectorTest extends DatabindTestUtil
             return field;
         }
     }
-    
+
+    // [databind#4860]
+    @JsonPropertyOrder({ "id", "name "})
+    static class Foo4860 {
+        public String id;
+        public String name;
+
+        public Foo4860() { }
+
+        public Foo4860(String id) {
+            // should not be called as of Jackson 2.x
+            throw new IllegalStateException("Should not auto-detect args-taking constructor");
+        }
+    }
+
     private final ObjectMapper MAPPER_PROPS = mapperFor(ConstructorDetector.USE_PROPERTIES_BASED);
     private final ObjectMapper MAPPER_DELEGATING = mapperFor(ConstructorDetector.USE_DELEGATING);
+    private final ObjectMapper MAPPER_DEFAULT = mapperFor(ConstructorDetector.DEFAULT);
     private final ObjectMapper MAPPER_EXPLICIT = mapperFor(ConstructorDetector.EXPLICIT_ONLY);
 
     private final ObjectMapper MAPPER_MUST_ANNOTATE = mapperFor(ConstructorDetector.DEFAULT
@@ -109,6 +175,55 @@ public class ConstructorDetectorTest extends DatabindTestUtil
         SingleArgNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
                 SingleArgNotAnnotated.class);
         assertEquals(137, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesNonAnnotatedDecimal() throws Exception
+    {
+        SingleArgNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'value' : 137.0 }"),
+            SingleArgNotAnnotated.class);
+        assertEquals(137, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesByte() throws Exception
+    {
+        SingleArgByte value = MAPPER_PROPS.readValue(a2q("{'value' : -99 }"),
+            SingleArgByte.class);
+        assertEquals(-99, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesShort() throws Exception
+    {
+        SingleArgShort value = MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
+            SingleArgShort.class);
+        assertEquals(137, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesLong() throws Exception
+    {
+        String val = Long.toString(Long.MAX_VALUE);
+        SingleArgLong value = MAPPER_PROPS.readValue(a2q("{'value' : " + val + " }"),
+            SingleArgLong.class);
+        assertEquals(Long.MAX_VALUE, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesFloat() throws Exception
+    {
+        SingleArgFloat value = MAPPER_PROPS.readValue(a2q("{'value' : 136.99 }"),
+            SingleArgFloat.class);
+        assertEquals(136.99f, value.v);
+    }
+
+    @Test
+    public void test1ArgDefaultsToPropertiesDouble() throws Exception
+    {
+        SingleArgDouble value = MAPPER_PROPS.readValue(a2q("{'value' : 999999999999999999.99 }"),
+            SingleArgDouble.class);
+        assertEquals(999999999999999999.99, value.v);
     }
 
     @Test
@@ -280,6 +395,42 @@ public class ConstructorDetectorTest extends DatabindTestUtil
         }
     }
 
+    // [databind#4860]
+    @Test
+    public void testDeserialization4860PropsBased() throws Exception {
+        _test4680With(MAPPER_PROPS);
+    }
+
+    @Test
+    public void testDeserialization4860Delegating() throws Exception {
+        _test4680With(MAPPER_DELEGATING);
+    }
+
+    @Test
+    public void testDeserialization4860Default() throws Exception {
+        _test4680With(MAPPER_DEFAULT);
+    }
+
+    @Test
+    public void testDeserialization4860Explicit() throws Exception {
+        _test4680With(MAPPER_EXPLICIT);
+    }
+
+    private void _test4680With(ObjectMapper mapper) throws Exception
+    {
+        _test4680With(mapper, "{}", a2q("{'id':null,'name':null}"));
+        _test4680With(mapper, a2q("{'id':'something'}"),
+                a2q("{'id':'something','name':null}"));
+        _test4680With(mapper, a2q("{'id':'something','name':'name'}"),
+                a2q("{'id':'something','name':'name'}"));
+    }
+
+    private void _test4680With(ObjectMapper mapper, String input, String output) throws Exception
+    {
+        Foo4860 result = mapper.readValue(input, Foo4860.class);
+        assertEquals(output, mapper.writeValueAsString(result));
+    }
+    
     /*
     /**********************************************************************
     /* Helper methods

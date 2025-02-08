@@ -8,8 +8,9 @@ Author: Tatu Saloranta, tatu.saloranta@iki.fi
 
 Co-Authors (with only partial listings below):
 
-* Joo Hyuk Kim (JooHyukKim@github)
-* PJ Fanning (pjfanning@github)
+* Joo Hyuk Kim (@JooHyukKim)
+* PJ Fanning (@pjfanning)
+* Sim Yih Tsern (@yihtsern)
 
 ----------------------------------------------------------------------------
 
@@ -424,6 +425,8 @@ Jonas Konrad (yawkat@github)
   * Contributed fix for #3655: `ObjectMapper` default heap consumption increased significantly
     from 2.13.x to 2.14.0
    (2.14.1)
+  * Contributed fix for #4848: Avoid type pollution in `StringCollectionDeserializer`
+   (2.18.3)
 
 Jirka Kremser (Jiri-Kremser@github)
   * Suggested #924: SequenceWriter.writeAll() could accept Iterable
@@ -848,6 +851,8 @@ Carter Kozak (carterkozak@github)
   * Contributed #3876: `TypeFactory` cache performance degradation with
     `constructSpecializedType()`
    (2.15.0)
+  * Contributed #4688: Should allow deserializing with no-arg `@JsonCreator(mode = DELEGATING)`
+   (2.18.0)
 
 Reinhard Prechtl (dnno@github)
   * Reported #2034: Serialization problem with type specialization of nested generic types
@@ -1624,9 +1629,9 @@ Sim Yih Tsern (yihtsern@github)
  * Contributed fix for #3897: 2.15.0 breaks deserialization when POJO/Record only has a
    single field and is marked `Access.WRITE_ONLY`
   (2.15.1)
- * Contributed fux fix #3968: Records with additional constructors failed to deserialize
+ * Contributed fix for #3968: Records with additional constructors failed to deserialize
   (2.15.3)
-
+ ... and many more (as of 2.18)
 
 Ajay Siwach (Siwach16@github)
   * Contributed #3637: Add enum features into `@JsonFormat.Feature`
@@ -1667,6 +1672,9 @@ Antti Lampinen (arlampin@github)
   * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
     and is marked `Access.WRITE_ONLY`
    (2.15.1)
+  * Reported #4724: Deserialization behavior change with Records, `@JsonCreator` and
+   `@JsonValue` between 2.17 and 2.18
+   (2.18.1)
 
 Dmitry Bolotin (dbolotin@github)
   * Reported #1172: `@JsonView` doesn't work with `@JsonCreator`
@@ -1790,35 +1798,85 @@ Susan Witts (susanw1@github)
    assign to property '@id'
   (2.17.2)
 
-Ulf Dreyer (u3r@github)
+Ulf Dreyer (@u3r)
  * Reported #4085: `@JsonView` does not work on class-level for records
   (2.18.0)
 
-Mark Herkrath (herkrath@github)
+Mark Herkrath (@herkrath)
  * Reported #4356: `BeanDeserializerModifier::updateBuilder()` doesn't work for
    beans with Creator methods
   (2.18.0)
 
-David Moten (davidmoten@github)
+David Moten (@davidmoten)
  * Contributed #4453: Allow JSON Integer to deserialize into a single-arg constructor of
    parameter type `double`
   (2.18.0)
 
-Teodor Danciu (teodord@github)
+Teodor Danciu (@teodord)
  * Reported #4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
    not called on the serializer
   (2.18.0)
 
-Matthew Luckam (mluckam@github)
+Matthew Luckam (@mluckam)
  * Contributed #4483: Remove `final` on method BeanSerializer.serialize()
   (2.18.0)
 
-Alexandre Jacob (ajacob@github)
+Alexandre Jacob (@ajacob)
  * Reported #4545: Unexpected deserialization behavior with `@JsonCreator`,
    `@JsonProperty` and javac `-parameters`
   (2.18.0)
 
-Eduard Gomoliako (Gems@github)
+Eduard Gomoliako (@Gems)
  * Reported #4602: Possible wrong use of _arrayDelegateDeserializer in
    BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
   (2.18.0)
+
+Mathijs Vogelzang (@mathijs81)
+ * Reported #4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
+  (2.18.0)
+
+Rikkarth (@rikkarth)
+ * Contributed #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
+  (2.18.0)
+
+Maxim Valeev (@MaximValeev)
+ * Reported #4508: Deserialized JsonAnySetter field in Kotlin data class is null
+  (2.18.1)
+
+wrongwrong (@k163377)
+ * Contributed #4749: Fixed problem in StdDelegatingSerializer#serializeWithType where final
+   serializer lookup was done on the pre-converted value when _delegateSerializer was null
+  (2.18.1)
+ * Reported #4878: When serializing a Map via Converter(StdDelegatingSerializer),
+   a NullPointerException is thrown due to missing key serializer
+  (2.18.3)
+ * Contributed fix for #4444: The `KeyDeserializer` specified in the class with
+   `@JsonDeserialize(keyUsing = ...)` is overwritten by the `KeyDeserializer`
+    specified in the `ObjectMapper`.
+  (2.18.3)
+
+Bernd Ahlers (@bernd)
+ * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing
+  (2.18.2)
+
+Mike Minicki (@martel)
+ * Reported #4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
+  (2.18.2)
+
+Jonathan Mesny (@jmesny)
+ * Reported #4810: Deserialization using `@JsonCreator` with renamed property failing (since 2.18)
+  (2.18.2)
+
+Stanislav Shcherbakov (@glorrian)
+ * Contributed #4844: Fix wrapped array hanlding wrt `null` by `StdDeserializer`
+  (2.18.3)
+
+Tomáš Poledný (@Saljack)
+ * Reported #4860: `ConstructorDetector.USE_PROPERTIES_BASED` does not work with
+   multiple constructors since 2.18
+  (2.18.3)
+
+Gustavo Bazan (@gssbzn)
+ * Reported #4908: Deserialization behavior change with @JsonCreator and
+   @ConstructorProperties between 2.17 and 2.18
+  (2.18.3)

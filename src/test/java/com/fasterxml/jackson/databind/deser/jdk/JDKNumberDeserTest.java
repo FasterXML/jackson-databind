@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -80,6 +81,107 @@ public class JDKNumberDeserTest
     static class NestedBigDecimalHolder2784 {
         @JsonUnwrapped
         public BigDecimalHolder2784 holder;
+    }
+
+    static class DeserializationIssue4917 {
+        public DecimalHolder4917 decimalHolder;
+        public double number;
+    }
+
+    static class DeserializationIssue4917V2 {
+        public DecimalHolder4917 decimalHolder;
+        public int number;
+    }
+
+    static class DeserializationIssue4917V3 {
+        public BigDecimal decimal;
+        public double number;
+    }
+
+    static class DecimalHolder4917 {
+        public BigDecimal value;
+
+        private DecimalHolder4917(BigDecimal value) {
+            this.value = value;
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        static DecimalHolder4917 of(BigDecimal value) {
+            return new DecimalHolder4917(value);
+        }
+    }
+
+    static class Point {
+        private Double x;
+        private Double y;
+
+        public Double getX() {
+            return x;
+        }
+
+        public void setX(Double x) {
+            this.x = x;
+        }
+
+        public Double getY() {
+            return y;
+        }
+
+        public void setY(Double y) {
+            this.y = y;
+        }
+    }
+
+    @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.EXISTING_PROPERTY,
+            property = "type",
+            visible = true)
+    @JsonSubTypes(@JsonSubTypes.Type(value = CenterResult.class, name = "center"))
+    static abstract class Result {
+        private String type;
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+    }
+
+    static class CenterResult extends Result {
+        private Point center;
+
+        private Double radius;
+
+        public Double getRadius() {
+            return radius;
+        }
+
+        public void setRadius(Double radius) {
+            this.radius = radius;
+        }
+
+        public Point getCenter() {
+            return center;
+        }
+
+        public void setCenter(Point center) {
+            this.center = center;
+        }
+    }
+
+    static class Root {
+        private Result[] results;
+
+        public Result[] getResults() {
+            return results;
+        }
+
+        public void setResults(Result[] results) {
+            this.results = results;
+        }
     }
 
     /*
@@ -385,5 +487,79 @@ public class JDKNumberDeserTest
         final String JSON = "{\"value\": 5.00}";
         NestedBigDecimalHolder2784 result = mapper.readValue(JSON, NestedBigDecimalHolder2784.class);
         assertEquals(new BigDecimal("5.00"), result.holder.value);
+    }
+
+    private final String BIG_DEC_STR;
+    {
+        StringBuilder sb = new StringBuilder("-1234.");
+        // Above 500 chars we get a problem:
+        for (int i = 520; --i >= 0; ) {
+            sb.append('0');
+        }
+        BIG_DEC_STR = sb.toString();
+    }
+    private final BigDecimal BIG_DEC = new BigDecimal(BIG_DEC_STR);
+
+    // [databind#4694]: decoded wrong by jackson-core/FDP for over 500 char numbers
+    @Test
+    public void bigDecimal4694FromString() throws Exception
+    {
+        assertEquals(BIG_DEC, MAPPER.readValue(BIG_DEC_STR, BigDecimal.class));
+    }
+
+    @Test
+    public void bigDecimal4694FromBytes() throws Exception
+    {
+        byte[] b = utf8Bytes(BIG_DEC_STR);
+        assertEquals(BIG_DEC, MAPPER.readValue(b, 0, b.length, BigDecimal.class));
+    }
+
+    // [databind#4917]    
+    @Test
+    public void bigDecimal4917() throws Exception
+    {
+        DeserializationIssue4917 issue = MAPPER.readValue(
+                a2q("{'decimalHolder':100.00,'number':50}"),
+                DeserializationIssue4917.class);
+        assertEquals(new BigDecimal("100.00"), issue.decimalHolder.value);
+        assertEquals(50.0, issue.number);
+    }
+
+    @Test
+    public void bigDecimal4917V2() throws Exception
+    {
+        DeserializationIssue4917V2 issue = MAPPER.readValue(
+                a2q("{'decimalHolder':100.00,'number':50}"),
+                DeserializationIssue4917V2.class);
+        assertEquals(new BigDecimal("100.00"), issue.decimalHolder.value);
+        assertEquals(50, issue.number);
+    }
+
+    @Test
+    public void bigDecimal4917V3() throws Exception
+    {
+        DeserializationIssue4917V3 issue = MAPPER.readValue(
+                a2q("{'decimal':100.00,'number':50}"),
+                DeserializationIssue4917V3.class);
+        assertEquals(new BigDecimal("100.00"), issue.decimal);
+        assertEquals(50, issue.number);
+    }
+
+    // https://github.com/FasterXML/jackson-core/issues/1397
+    @Test
+    public void issue1397() throws Exception {
+        final String dataString = a2q("{ 'results': [ { " +
+                      "'radius': 179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, " +
+                      "'type': 'center', " +
+                      "'center': { " +
+                      "'x': -11.0, " +
+                      "'y': -2.0 } } ] }");
+
+        Root object = MAPPER.readValue(dataString, Root.class);
+
+        CenterResult result = (CenterResult) Arrays.stream(object.getResults()).findFirst().get();
+
+        assertEquals(-11.0d, result.getCenter().getX());
+        assertEquals(-2.0d, result.getCenter().getY());
     }
 }

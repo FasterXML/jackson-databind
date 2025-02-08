@@ -4,7 +4,83 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.18.0 (not yet released)
+2.18.3 (not yet released)
+
+#4444: The `KeyDeserializer` specified in the class with `@JsonDeserialize(keyUsing = ...)`
+  is overwritten by the `KeyDeserializer` specified in the `ObjectMapper`.
+ (fix by @wrongwrong)
+#4827: Subclassed Throwable deserialization fails since v2.18.0 - no creator
+  index for property 'cause'
+ (reported by @nilswieber)
+ (fix by Joo-Hyuk K)
+#4844: Fix wrapped array hanlding wrt `null` by `StdDeserializer`
+ (fix by Stanislav S)
+#4848: Avoid type pollution in `StringCollectionDeserializer`
+ (contributed by Jonas K)
+#4860: `ConstructorDetector.USE_PROPERTIES_BASED` does not work with
+  multiple constructors since 2.18
+ (reported by Tomáš P)
+ (fix by Joo-Hyuk K, @cowtowncoder)
+#4878: When serializing a Map via Converter(StdDelegatingSerializer),
+  a NullPointerException is thrown due to missing key serializer
+ (reported by @wrongwrong)
+#4908: Deserialization behavior change with @JsonCreator and
+  @ConstructorProperties between 2.17 and 2.18
+ (reported by Gustavo B)
+#4917: `BigDecimal` deserialization issue when using `@JsonCreator`
+ (reported by @dbachdev)
+#4922: Failing `@JsonMerge` with a custom Map
+ (reported by @nlisker)
+#4932: Conversion of `MissingNode` throws `JsonProcessingException`
+ (reported by @ludgerb)
+
+2.18.2 (27-Nov-2024)
+
+#4733: Wrong serialization of Type Ids for certain types of Enum values
+ (reported by @nlisker)
+#4742: Deserialization with Builder, External type id, `@JsonCreator` failing
+ (reported by Bernd A)
+#4777: `StdValueInstantiator.withArgsCreator` is now set for creators with
+  no arguments
+ (reported by @wrongwrong)
+#4783 Possibly wrong behavior of @JsonMerge
+ (reported by @nlisker)
+ (fix by Joo-Hyuk K)
+#4787: Wrong `String.format()` in `StdDelegatingDeserializer` hides actual error
+ (reported by @Horus1337)
+#4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
+ (reported by Mike M)
+ (fix by Joo-Hyuk K)
+#4790: Fix `@JsonAnySetter` issue with "setter" method (related to #4639)
+ (reported by @bsa01)
+ (fix by Joo-Hyuk K)
+#4807: Improve `FactoryBasedEnumDeserializer` to work better with XML module
+#4810: Deserialization using `@JsonCreator` with renamed property failing (since 2.18)
+ (reported by Jonathan M)
+
+2.18.1 (28-Oct-2024)
+
+#4508: Deserialized JsonAnySetter field in Kotlin data class is null
+ (reported by @MaximValeev)
+ (fix by Joo-Hyuk K)
+#4639: @JsonAnySetter on field ignoring unrecognized properties if they are
+  declared before the last recognized properties in JSON
+ (reported by Sim Y-T)
+ (fix by Joo-Hyuk K)
+#4718: Should not fail on trying to serialize `java.time.DateTimeException`
+#4724: Deserialization behavior change with Records, `@JsonCreator` and
+  `@JsonValue` between 2.17 and 2.18
+ (reported by Antti L)
+#4727: Eclipse having issues due`module-info` class "lost" on 2.18.0 jars
+#4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
+  are not included in json if default is `null`
+ (reported by @ragnhov)
+ (fix by Joo-Hyuk K)
+#4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
+  with the wrong argument
+ (fix by @wrongwrong)
+
+2.18.0 (26-Sep-2024)
 
 #562: Allow `@JsonAnySetter` to flow through Creators
  (reported by Benson M)
@@ -13,9 +89,14 @@ Project: jackson-databind
 #2977: Incompatible `FAIL_ON_MISSING_PRIMITIVE_PROPERTIES` and
   field level `@JsonProperty`
  (reported by @GeorgiPetkov)
+#3120: Return `ListIterator` from `ArrayNode.elements()`
+ (requested by @ludgerb)
+ (fix by Joo-Hyuk K)
 #3241: `constructorDetector` seems to invalidate `defaultSetterInfo`
   for nullability
  (reported by @joca-bt)
+#3439: Java Record `@JsonAnySetter` value is null after deserialization
+ (reported by @oujesky)
 #4085: `@JsonView` does not work on class-level for records
  (reported by Ulf D)
 #4119: Exception when deserialization uses a record with a constructor
@@ -55,6 +136,31 @@ Project: jackson-databind
 #4602: Possible wrong use of _arrayDelegateDeserializer in
   BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
  (reported by Eduard G)
+#4617: Record property serialization order not preserved
+ (reported by @GeorgiPetkov)
+#4626: `@JsonIgnore` on Record property ignored for deserialization, if
+  there is getter override
+ (reported by Sim Y-T)
+#4630: `@JsonIncludeProperties`, `@JsonIgnoreProperties` ignored when serializing
+  Records, if there is getter override
+ (reported by Sim Y-T)
+#4634: `@JsonAnySetter` not working when annotated on both constructor
+  parameter & field
+ (contributed by Sim Y-T)
+#4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
+ (reported by Mathijs V)
+#4688: Should allow deserializing with no-arg `@JsonCreator(mode = DELEGATING)`
+ (contributed by Carter K)
+#4694: Deserializing `BigDecimal` with large number of decimals result in incorrect value
+ (reported by @lnthai2002)
+#4699: Add extra `writeNumber()` method in `TokenBuffer`
+ (contributed by @pjfanning)
+#4709: Add `JacksonCollectors` with `toArrayNode()` implementation
+ (contributed by @rikkarth)
+
+2.17.3 (01-Nov-2024)
+
+#4718: Should not fail on trying to serialize `java.time.DateTimeException`
 
 2.17.2 (05-Jul-2024)
 
@@ -160,6 +266,8 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #4581: Incompatible Constructor Parameter Type in `EnumDeserializer`
  (reported by @Hunter-Lam)
+#4787: Wrong `String.format()` in `StdDelegatingDeserializer` hides actual error
+ (reported by @Horus1337)
 
 2.16.2 (09-Mar-2024)
 

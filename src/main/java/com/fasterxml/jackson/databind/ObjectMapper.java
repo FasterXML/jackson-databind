@@ -3637,6 +3637,8 @@ public class ObjectMapper
      *  serializable)
      *
      * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
+     * It is recommended to try directly testing serialization using actual JSON inputs and outputs
+     * in test cases to ensure correctness and compatibility with real-world use cases.
      */
     @Deprecated // @since 2.18
     public boolean canSerialize(Class<?> type) {
@@ -3651,6 +3653,8 @@ public class ObjectMapper
      * @since 2.3
      *
      * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
+     * It is recommended to try directly testing serialization using actual JSON inputs and outputs
+     * in test cases to ensure correctness and compatibility with real-world use cases.
      */
     @Deprecated // @since 2.18
     public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
@@ -3675,6 +3679,8 @@ public class ObjectMapper
      *  serializable)
      *
      * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
+     * It is recommended to try directly testing deserialization using actual JSON inputs and outputs
+     * in test cases to ensure correctness and compatibility with real-world use cases.
      */
     @Deprecated // @since 2.18
     public boolean canDeserialize(JavaType type)
@@ -3691,6 +3697,8 @@ public class ObjectMapper
      * @since 2.3
      *
      * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
+     * It is recommended to try directly testing deserialization using actual JSON inputs and outputs
+     * in test cases to ensure correctness and compatibility with real-world use cases.
      */
     @Deprecated // @since 2.18
     public boolean canDeserialize(JavaType type, AtomicReference<Throwable> cause)
@@ -4889,6 +4897,9 @@ public class ObjectMapper
             result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
+        } else if (t == JsonToken.NOT_AVAILABLE) {
+            // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
+            result = null;
         } else { // pointing to event other than null
             result = ctxt.readRootValue(p, valueType, _findRootDeserializer(ctxt, valueType), null);
         }
@@ -4912,6 +4923,9 @@ public class ObjectMapper
                 // Ask JsonDeserializer what 'null value' to use:
                 result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
+                result = null;
+            } else if (t == JsonToken.NOT_AVAILABLE) {
+                // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
                 result = null;
             } else {
                 result = ctxt.readRootValue(p, valueType,

@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -18,6 +20,10 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
     private final ObjectMapper UNWRAPPING_MAPPER = jsonMapperBuilder()
             .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
             .build();
+
+    static class StringWrapper {
+        public String value;
+    }
 
     /*
     /**********************************************************
@@ -77,5 +83,17 @@ public class UnwrapSingleArrayMiscTest extends DatabindTestUtil
         } catch (MismatchedInputException e) {
             verifyException(e, "more than one value");
         }
+    }
+
+    // [databind#4844]: should work for wrapped null values too
+    @Test
+    public void testDeserializeArrayWithNullElement() throws Exception
+    {
+        StringWrapper v = UNWRAPPING_MAPPER
+            .readerFor(StringWrapper.class)
+            .readValue("{\"value\": [null]}");
+        
+        assertNotNull(v);
+        assertNull(v.value);
     }
 }

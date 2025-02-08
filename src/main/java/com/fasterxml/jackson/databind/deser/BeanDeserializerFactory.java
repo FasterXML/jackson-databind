@@ -438,20 +438,27 @@ ClassUtil.name(propName)));
         }
         AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
-            // [databind#3497]: must consider possible PropertyNamingStrategy
-            String name = "cause";
-            PropertyNamingStrategy pts = config.getPropertyNamingStrategy();
-            if (pts != null) {
-                name = pts.nameForSetterMethod(config, am, "cause");
-            }
-            SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(ctxt.getConfig(), am,
-                    new PropertyName(name));
-            SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
-                    am.getParameterType(0));
-            if (prop != null) {
-                // 21-Aug-2011, tatus: We may actually have found 'cause' property
-                //   to set... but let's replace it just in case, otherwise can end up with odd errors.
-                builder.addOrReplaceProperty(prop, true);
+            SettableBeanProperty causeCreatorProp = builder.findProperty(PropertyName.construct("cause"));
+            // [databind#4827] : Consider case where sub-classed `Exception` has `JsonCreator` with `cause` parameter
+            if (causeCreatorProp instanceof CreatorProperty) {
+                // Set fallback-setter as null, so `fixAccess()` does not happen during build
+                ((CreatorProperty) causeCreatorProp).setFallbackSetter(null);
+            } else {
+                // [databind#3497]: must consider possible PropertyNamingStrategy
+                String name = "cause";
+                PropertyNamingStrategy pts = config.getPropertyNamingStrategy();
+                if (pts != null) {
+                    name = pts.nameForSetterMethod(config, am, "cause");
+                }
+                SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(ctxt.getConfig(), am,
+                        new PropertyName(name));
+                SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
+                        am.getParameterType(0));
+                if (prop != null) {
+                    // 21-Aug-2011, tatus: We may actually have found 'cause' property
+                    //   to set... but let's replace it just in case, otherwise can end up with odd errors.
+                    builder.addOrReplaceProperty(prop, true);
+                }
             }
         }
         // update builder now that all information is in?
@@ -666,12 +673,7 @@ ClassUtil.name(propName)));
               BeanDescription beanDesc, SettableBeanProperty[] creatorProps)
             throws JsonMappingException
     {
-        // Find the regular method/field level any-setter
-        AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
-        if (anySetter != null) {
-            return constructAnySetter(ctxt, beanDesc, anySetter);
-        }
-        // else look for any-setter via @JsonCreator
+        // Look for any-setter via @JsonCreator
         if (creatorProps != null) {
             for (SettableBeanProperty prop : creatorProps) {
                 AnnotatedMember member = prop.getMember();
@@ -679,6 +681,11 @@ ClassUtil.name(propName)));
                     return constructAnySetter(ctxt, beanDesc, member);
                 }
             }
+        }
+        // else find the regular method/field level any-setter
+        AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
+        if (anySetter != null) {
+            return constructAnySetter(ctxt, beanDesc, anySetter);
         }
         // not found, that's fine, too
         return null;

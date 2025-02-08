@@ -21,6 +21,9 @@ import java.util.Collections;
  * Simple interface for extensions that can be registered with {@link ObjectMapper}
  * to provide a well-defined set of extensions to default functionality; such as
  * support for new data types.
+ *<p>
+ * NOTE: in Jackson 3.x this class will be renamed as {@code JacksonModule}
+ * to avoid naming conflict with JDK 9's {@code java.lang.module.Module}.
  */
 public abstract class Module
     implements Versioned
@@ -197,6 +200,7 @@ public abstract class Module
          *
          * @param d Object that can be called to find deserializer for types supported
          *   by module (null returned for non-supported types)
+         * @see #addKeyDeserializers is used to register key deserializers (for Map keys)
          */
         public void addDeserializers(Deserializers d);
 
@@ -213,6 +217,7 @@ public abstract class Module
          *
          * @param s Object that can be called to find serializer for types supported
          *   by module (null returned for non-supported types)
+         * @see #addKeySerializers is used to register key serializers (for Map keys)
          */
         public void addSerializers(Serializers s);
 

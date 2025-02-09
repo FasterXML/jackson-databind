@@ -48,7 +48,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
     /**
      * @deprecated Since 2.19, use one that takes {@link BeanPropertyWriter} instead.
      */
-    @SuppressWarnings("unchecked")
+    @Deprecated
     public AnyGetterWriter(BeanProperty property,
             AnnotatedMember accessor, JsonSerializer<?> serializer)
     {
@@ -58,6 +58,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
     /**
      * @since 2.8.3
      */
+    @Override
     public void fixAccess(SerializationConfig config) {
         _accessor.fixAccess(
                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Test to verify that the order of properties is preserved when using @JsonPropertyOrder
  * with @JsonUnwrapped and @JsonAnyGetter
  */
-public class JsonPropertyOrderWithAnyGetter4388Test extends DatabindTestUtil {
+public class AnyGetterOrdering4388Test extends DatabindTestUtil {
     // Base class with properties
     static class BaseWithProperties {
         public String entityName;

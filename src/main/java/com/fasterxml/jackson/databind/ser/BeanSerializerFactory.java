@@ -461,7 +461,7 @@ public class BeanSerializerFactory
             BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
                     anyGetter, PropertyMetadata.STD_OPTIONAL);
 
-            // Check if there is a accessor exposed for the anyGetter
+            // Check if there is an accessor exposed for the anyGetter
             BeanPropertyWriter anyGetterProp = null;
             int anyGetterIndex = -1;
             for (int i = 0; i < props.size(); i++) {

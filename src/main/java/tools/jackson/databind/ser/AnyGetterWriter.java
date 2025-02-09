@@ -12,12 +12,16 @@ import tools.jackson.databind.ser.jdk.MapSerializer;
  * for serializing {@link com.fasterxml.jackson.annotation.JsonAnyGetter} annotated
  * (Map) properties
  */
-public class AnyGetterWriter
+public class AnyGetterWriter extends BeanPropertyWriter
+    implements java.io.Serializable // since 2.19
 {
+    // As of 2.19
+    private static final long serialVersionUID = 1L;
+
     protected final BeanProperty _property;
 
     /**
-     * Method (or field) that represents the "any getter"
+     * Method (or Field) that represents the "any getter"
      */
     protected final AnnotatedMember _accessor;
 
@@ -25,10 +29,14 @@ public class AnyGetterWriter
 
     protected MapSerializer _mapSerializer;
 
+    /**
+     * @since 2.19
+     */
     @SuppressWarnings("unchecked")
-    public AnyGetterWriter(BeanProperty property,
+    public AnyGetterWriter(BeanPropertyWriter parent, BeanProperty property,
             AnnotatedMember accessor, ValueSerializer<?> serializer)
     {
+        super(parent);
         _accessor = accessor;
         _property = property;
         _serializer = (ValueSerializer<Object>) serializer;
@@ -37,6 +45,7 @@ public class AnyGetterWriter
         }
     }
 
+    @Override
     public void fixAccess(SerializationConfig config) {
         _accessor.fixAccess(
                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -72,6 +81,11 @@ public class AnyGetterWriter
             return;
         }
         _serializer.serialize(value, gen, provider);
+    }
+
+    @Override
+    public void serializeAsProperty(Object bean, JsonGenerator gen, SerializationContext prov) throws Exception {
+        getAndSerialize(bean, gen, prov);
     }
 
     public void getAndFilter(Object bean, JsonGenerator gen, SerializationContext provider,

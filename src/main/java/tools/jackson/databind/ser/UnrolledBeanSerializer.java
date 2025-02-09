@@ -210,9 +210,6 @@ public class UnrolledBeanSerializer
             case 0:
             }
             prop = null;
-            if (_anyGetterWriter != null) {
-                _anyGetterWriter.getAndSerialize(bean, gen, provider);
-            }
         } catch (Exception e) {
             String name = (prop == null) ? "[anySetter]" : prop.getName();
             wrapAndThrow(provider, e, bean, name);

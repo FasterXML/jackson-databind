@@ -58,12 +58,6 @@ public abstract class BeanSerializerBase
     final protected BeanPropertyWriter[] _filteredProps;
 
     /**
-     * Handler for {@link com.fasterxml.jackson.annotation.JsonAnyGetter}
-     * annotated properties
-     */
-    final protected AnyGetterWriter _anyGetterWriter;
-
-    /**
      * Id of the bean property filter to use, if any; null if none.
      */
     final protected Object _propertyFilterId;
@@ -110,13 +104,11 @@ public abstract class BeanSerializerBase
             // 20-Sep-2019, tatu: Actually not just that but also "dummy" serializer for
             //     case of no bean properties, too
             _typeId = null;
-            _anyGetterWriter = null;
             _propertyFilterId = null;
             _objectIdWriter = null;
             _serializationShape = null;
         } else {
             _typeId = builder.getTypeId();
-            _anyGetterWriter = builder.getAnyGetter();
             _propertyFilterId = builder.getFilterId();
             _objectIdWriter = builder.getObjectIdWriter();
             JsonFormat.Value format = builder.getBeanDescription().findExpectedFormat(type.getRawClass());
@@ -141,7 +133,6 @@ public abstract class BeanSerializerBase
         _filteredProps = filteredProperties;
 
         _typeId = src._typeId;
-        _anyGetterWriter = src._anyGetterWriter;
         _objectIdWriter = src._objectIdWriter;
         _propertyFilterId = src._propertyFilterId;
         _serializationShape = src._serializationShape;
@@ -162,7 +153,6 @@ public abstract class BeanSerializerBase
         _filteredProps = src._filteredProps;
 
         _typeId = src._typeId;
-        _anyGetterWriter = src._anyGetterWriter;
         _objectIdWriter = objectIdWriter;
         _propertyFilterId = filterId;
         _serializationShape = src._serializationShape;
@@ -195,7 +185,6 @@ public abstract class BeanSerializerBase
         _filteredProps = (fpropsOut == null) ? null : fpropsOut.toArray(NO_PROPS);
 
         _typeId = src._typeId;
-        _anyGetterWriter = src._anyGetterWriter;
         _objectIdWriter = src._objectIdWriter;
         _propertyFilterId = src._propertyFilterId;
         _serializationShape = src._serializationShape;
@@ -349,9 +338,11 @@ public abstract class BeanSerializerBase
         }
 
         // also, any-getter may need to be resolved
-        if (_anyGetterWriter != null) {
-            // 23-Feb-2015, tatu: Misleading, as this actually triggers call to contextualization...
-            _anyGetterWriter.resolve(provider);
+        for (int i = 0; i < _props.length; i++) {
+            BeanPropertyWriter prop = _props[i];
+            if (prop instanceof AnyGetterWriter) {
+                ((AnyGetterWriter) prop).resolve(provider);
+            }
         }
     }
 
@@ -601,7 +592,9 @@ public abstract class BeanSerializerBase
      */
     public boolean canCreateArraySerializer() {
         return (_objectIdWriter == null)
-                && (_anyGetterWriter == null);
+                // 08-Feb-2025, tatu: [databind#4775] any-getter is fine now
+                //&& (_anyGetterWriter == null)
+                ;
     }
 
     /*
@@ -770,11 +763,9 @@ public abstract class BeanSerializerBase
                 prop = props[i++];
                 prop.serializeAsProperty(bean, gen, provider);
             }
-            if (_anyGetterWriter != null) {
-                prop = null;
-                _anyGetterWriter.getAndSerialize(bean, gen, provider);
-            }
         } catch (Exception e) {
+            // 08-Feb-2025, tatu: !!! As per [databind#4775] should no longer need
+            //   special handling for any-setter here, right?
             String name = (prop == null) ? "[anySetter]" : prop.getName();
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
@@ -839,10 +830,6 @@ public abstract class BeanSerializerBase
                     prop.serializeAsProperty(bean, g, provider);
                 }
             }
-            if (_anyGetterWriter != null) {
-                prop = null;
-                _anyGetterWriter.getAndSerialize(bean, g, provider);
-            }
         } catch (Exception e) {
             String name = (prop == null) ? "[anySetter]" : prop.getName();
             wrapAndThrow(provider, e, bean, name);
@@ -894,9 +881,6 @@ public abstract class BeanSerializerBase
                 if (prop != null) { // can have nulls in filtered list
                     filter.serializeAsProperty(bean, g, provider, prop);
                 }
-            }
-            if (_anyGetterWriter != null) {
-                _anyGetterWriter.getAndFilter(bean, g, provider, filter);
             }
         } catch (Exception e) {
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();

@@ -31,6 +31,7 @@ import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.Converter;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NativeImageUtil;
+import tools.jackson.databind.util.SimpleBeanPropertyDefinition;
 
 /**
  * Factory class that can provide serializers for any regular Java beans
@@ -364,7 +365,33 @@ public class BeanSerializerFactory
             PropertyName name = PropertyName.construct(anyGetter.getName());
             BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
                     anyGetter, PropertyMetadata.STD_OPTIONAL);
-            builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, anySer));
+
+            // Check if there is an accessor exposed for the anyGetter
+            BeanPropertyWriter anyGetterProp = null;
+            int anyGetterIndex = -1;
+            for (int i = 0; i < props.size(); i++) {
+                BeanPropertyWriter prop = props.get(i);
+                // Either any-getter as field...
+                if (Objects.equals(prop.getName(), anyGetter.getName())
+                    // or as method
+                    || Objects.equals(prop.getMember().getMember(), anyGetter.getMember()))
+                {
+                    anyGetterProp = prop;
+                    anyGetterIndex = i;
+                    break;
+                }
+            }
+            if (anyGetterIndex != -1) {
+                // There is prop is already in place, just need to replace it
+                AnyGetterWriter anyGetterWriter = new AnyGetterWriter(anyGetterProp, anyProp, anyGetter, anySer);
+                props.set(anyGetterIndex, anyGetterWriter);
+            } else {
+                // Otherwise just add it at the end, but won't be sorted...
+                // This is case where JsonAnyGetter is private/protected,
+                BeanPropertyDefinition anyGetterPropDef = SimpleBeanPropertyDefinition.construct(config, anyGetter, name);
+                BeanPropertyWriter anyPropWriter = _constructWriter(ctxt, anyGetterPropDef, new PropertyBuilder(config, beanDesc), staticTyping, anyGetter);
+                props.add(new AnyGetterWriter(anyPropWriter, anyProp, anyGetter, anySer));
+            }
         }
         // Next: need to gather view information, if any:
         processViews(config, builder);

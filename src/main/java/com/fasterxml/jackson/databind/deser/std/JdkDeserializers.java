@@ -24,20 +24,11 @@ public class JdkDeserializers
                 AtomicLong.class,
                 StackTraceElement.class,
                 ByteBuffer.class,
-                Void.class
+                Void.class,
+                ThreadGroup.class // @since 2.19
         };
         for (Class<?> cls : types) { _classNames.add(cls.getName()); }
         for (Class<?> cls : FromStringDeserializer.types()) { _classNames.add(cls.getName()); }
-    }
-
-    /**
-     * @deprecated Since 2.14 use the variant that takes one more argument
-     */
-    @Deprecated // since 2.14
-    public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
-        throws JsonMappingException
-    {
-        return find(null, rawType, clsName);
     }
 
     /**
@@ -72,6 +63,9 @@ public class JdkDeserializers
             }
             if (rawType == Void.class) {
                 return NullifyingDeserializer.instance;
+            }
+            if (rawType == ThreadGroup.class) { // @since 2.19
+                return new ThreadGroupDeserializer();
             }
         }
         return null;

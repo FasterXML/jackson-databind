@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.impl.MapEntryAsPOJOSerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.UnsupportedTypeSerializer;
@@ -389,6 +390,12 @@ public class BeanSerializerFactory
         //      things like ObjectMapper, JsonParser or JsonGenerator...
         if (_isUnserializableJacksonType(prov, type)) {
             return new ToEmptyObjectSerializer(type);
+        }
+        // 08-Feb-2025, tatu: [databind#4963] Need to have explicit serializer for
+        //   Map.Entry type that are from JDK (for others just use regular introspection)
+        if (type.isTypeOrSubTypeOf(Map.Entry.class)
+                && ClassUtil.isJDKClass(type.getRawClass())) {
+            return (JsonSerializer<Object>)(JsonSerializer<?>) MapEntryAsPOJOSerializer.create(prov, type);
         }
         final SerializationConfig config = prov.getConfig();
         BeanSerializerBuilder builder = constructBeanSerializerBuilder(beanDesc);

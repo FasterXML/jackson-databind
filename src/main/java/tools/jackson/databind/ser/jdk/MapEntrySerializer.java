@@ -342,7 +342,8 @@ public class MapEntrySerializer
                     if (valueSer.isEmpty(ctxt, valueElem)) {
                         return;
                     }
-                } if (_suppressableValue.equals(valueElem)) {
+                }
+                else if (_suppressableValue.equals(valueElem)) {
                     return;
                 }
             }

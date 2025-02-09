@@ -21,6 +21,7 @@ import tools.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
 import tools.jackson.databind.ser.impl.ObjectIdWriter;
 import tools.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import tools.jackson.databind.ser.impl.UnsupportedTypeSerializer;
+import tools.jackson.databind.ser.jdk.MapEntryAsPOJOSerializer;
 import tools.jackson.databind.ser.jdk.MapSerializer;
 import tools.jackson.databind.ser.std.StdDelegatingSerializer;
 import tools.jackson.databind.ser.std.ToEmptyObjectSerializer;
@@ -292,6 +293,12 @@ public class BeanSerializerFactory
         //      things like ObjectMapper, JsonParser or JsonGenerator...
         if (_isUnserializableJacksonType(ctxt, type)) {
             return new ToEmptyObjectSerializer(type);
+        }
+        // 08-Feb-2025, tatu: [databind#4963] Need to have explicit serializer for
+        //   Map.Entry type that are from JDK (for others just use regular introspection)
+        if (type.isTypeOrSubTypeOf(Map.Entry.class)
+                && ClassUtil.isJDKClass(type.getRawClass())) {
+            return (ValueSerializer<Object>)(ValueSerializer<?>) MapEntryAsPOJOSerializer.create(ctxt, type);
         }
         final SerializationConfig config = ctxt.getConfig();
         BeanSerializerBuilder builder = constructBeanSerializerBuilder(config, beanDesc);

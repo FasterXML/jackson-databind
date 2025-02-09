@@ -48,6 +48,7 @@ Project: jackson-databind
  (reported by Floris W)
 #4953: Allow clearing all caches to avoid classloader leaks
  (contributed by Joren I)
+#4959: Add explicit deserializer for `ThreadGroup`
 
 2.18.3 (not yet released)
 

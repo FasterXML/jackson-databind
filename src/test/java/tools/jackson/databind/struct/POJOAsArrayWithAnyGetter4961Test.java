@@ -13,7 +13,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4961] Serialization for `JsonFormat.Shape.ARRAY` does not work when there is `@JsonAnyGetter`
-public class ShapeArrayWithAnyGetter4961Test
+public class POJOAsArrayWithAnyGetter4961Test
     extends DatabindTestUtil
 {
 

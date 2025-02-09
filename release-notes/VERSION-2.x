@@ -51,6 +51,9 @@ Project: jackson-databind
 #4953: Allow clearing all caches to avoid classloader leaks
  (contributed by Joren I)
 #4959: Add explicit deserializer for `ThreadGroup`
+#4961: Serialization for `JsonFormat.Shape.ARRAY` does not work when
+  there is `@JsonAnyGetter`
+ (fix by Joo-Hyuk K)
 #4963: Serializing `Map.Entry` as Bean with `@JsonFormat.shape = Shape.OBJECT`
   fails on JDK 17+
 

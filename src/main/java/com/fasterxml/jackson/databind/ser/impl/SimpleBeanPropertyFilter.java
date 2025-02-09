@@ -218,6 +218,8 @@ public class SimpleBeanPropertyFilter
             writer.serializeAsField(pojo, jgen, provider);
         } else if (!jgen.canOmitFields()) { // since 2.3
             writer.serializeAsOmittedField(pojo, jgen, provider);
+        } else if (writer instanceof AnyGetterWriter) {
+            ((AnyGetterWriter) writer).getAndFilter(pojo, jgen, provider, this);
         }
     }
 

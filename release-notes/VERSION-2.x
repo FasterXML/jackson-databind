@@ -18,6 +18,8 @@ Project: jackson-databind
    server and client side
  (requested by @qianlong)
  (contributed by Geoffrey G)
+#4388: Allow using `@JsonPropertyOrder` with "any" (`@JsonAnyGetter`)  properties
+ (fix by Joo-Hyuk K)
 #4674: Allow setting global enum naming strategy similar to property naming strategy
  (requested by @hajdamak)
  (contributed by Konstantin M)

@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.struct;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -6,9 +6,9 @@ import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,8 +21,8 @@ public class ShapeArrayWithAnyGetter4961Test
         public BeanWithAnyGetter value;
     }
 
-    @JsonPropertyOrder({ "firstProperty", "secondProperties", "anyProperty", "forthProperty" })
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder({ "firstProperty", "secondProperties", "forthProperty" })
     static class BeanWithAnyGetter {
         public String firstProperty = "first";
         public String secondProperties = "second";
@@ -36,9 +36,8 @@ public class ShapeArrayWithAnyGetter4961Test
         }
     }
 
-    final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     public void testSerializeArrayWithAnyGetterWithWrapper() throws Exception {
         WrapperForAnyGetter wrapper = new WrapperForAnyGetter();
@@ -46,39 +45,15 @@ public class ShapeArrayWithAnyGetter4961Test
 
         String json = MAPPER.writeValueAsString(wrapper);
 
-        // In 2.19, Fails Actual
-        //     : {"value":{"firstProperty":"first","secondProperties":"second","forthProperty":"forth","third_A":"third_A","third_B":"third_B"}}
-        // Getting better, after #4775 in 2.19, fails Actual
-        //     : {"value":["first","second",{"third_A":"third_A","third_B":"third_B"},"forth"]}
-        assertEquals(a2q("{'value':" +
-                "[" +
-                "'first'," +
-                "'second'," +
-                "'forth'," +
-                "'third_A'," +
-                "'third_B'" +
-                "]" +
-                "}"), json);
+        assertEquals(a2q("{\"value\":[\"first\",\"second\",\"forth\",{\"third_A\":\"third_A\",\"third_B\":\"third_B\"}]}"), json);
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void testSerializeArrayWithAnyGetterAsRoot() throws Exception {
         BeanWithAnyGetter bean = new BeanWithAnyGetter();
 
         String json = MAPPER.writeValueAsString(bean);
 
-        // In 2.19, Fails Actual
-        //     : {"firstProperty":"first","secondProperties":"second","forthProperty":"forth","third_A":"third_A","third_B":"third_B"}
-
-        // Getting better, after #4775 in 2.19, fails Actual
-        //     : ["first","second",{"third_A":"third_A","third_B":"third_B"},"forth"]
-        assertEquals(a2q("[" +
-                "'first'," +
-                "'second'," +
-                "'forth'," +
-                "'third_A'," +
-                "'third_B'" +
-                "]"), json);
+        assertEquals(a2q("[\"first\",\"second\",\"forth\",{\"third_A\":\"third_A\",\"third_B\":\"third_B\"}]"), json);
     }
 }

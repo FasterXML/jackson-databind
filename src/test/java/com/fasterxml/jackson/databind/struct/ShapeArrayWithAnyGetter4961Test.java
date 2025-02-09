@@ -21,6 +21,7 @@ public class ShapeArrayWithAnyGetter4961Test
     }
 
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder({ "firstProperty", "secondProperties", "forthProperty" })
     static class BeanWithAnyGetter {
         public String firstProperty = "first";
         public String secondProperties = "second";
@@ -34,7 +35,7 @@ public class ShapeArrayWithAnyGetter4961Test
         }
     }
 
-    final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSerializeArrayWithAnyGetterWithWrapper() throws Exception {

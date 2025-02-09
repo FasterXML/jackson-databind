@@ -392,7 +392,6 @@
               <release>17</release>
               <compilerArgs>
                 <arg>-parameters</arg>
-                <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
               </compilerArgs>
             </configuration>
           </plugin>
@@ -457,7 +456,6 @@
               <release>21</release>
               <compilerArgs>
                 <arg>-parameters</arg>
-                <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
               </compilerArgs>
             </configuration>
           </plugin>

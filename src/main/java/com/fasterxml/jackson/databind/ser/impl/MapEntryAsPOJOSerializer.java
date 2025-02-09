@@ -37,10 +37,8 @@ public class MapEntryAsPOJOSerializer extends StdSerializer<Map.Entry<?,?>>
             throws IOException
     {
         gen.writeStartObject(value);
-        gen.writeFieldName("key");
-        ctxt.defaultSerializeValue(value.getKey(), gen);
-        gen.writeFieldName("value");
-        ctxt.defaultSerializeValue(value.getValue(), gen);
+        ctxt.defaultSerializeField("key",value.getKey(), gen);
+        ctxt.defaultSerializeField("value", value.getValue(), gen);
         gen.writeEndObject();
     }
 }

@@ -50,6 +50,7 @@ Project: jackson-databind
  (reported by Floris W)
 #4953: Allow clearing all caches to avoid classloader leaks
  (contributed by Joren I)
+#4955: Add more remove methods for `ArrayNode`, `ObjectNode` [STEP-3]
 #4959: Add explicit deserializer for `ThreadGroup`
 #4961: Serialization for `JsonFormat.Shape.ARRAY` does not work when
   there is `@JsonAnyGetter`

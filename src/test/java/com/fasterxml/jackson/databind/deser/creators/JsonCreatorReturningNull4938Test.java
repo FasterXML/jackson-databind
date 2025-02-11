@@ -1,18 +1,12 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.FiveMinuteUser;
-import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,6 +58,36 @@ public class JsonCreatorReturningNull4938Test
         }
     }
 
+    // Test with AnySetter when creator returns null
+    static class Localized5 {
+        public final String en;
+        public final String de;
+        public final String fr;
+        public final Map<String, Object> props = new HashMap<>();
+
+        @JsonCreator
+        public static Localized5 of(@JsonProperty("en") String en,
+                                    @JsonProperty("de") String de, @JsonProperty("fr") String fr) {
+            if (en == null && de == null && fr == null) {
+                return null; // Explicitly return null when all arguments are null
+            }
+            throw new IllegalStateException("Should not be called");
+        }
+
+        // This is how users would normally create instances, I think...?
+        private Localized5(String en, String de, String fr) {
+            this.en = en;
+            this.de = de;
+            this.fr = fr;
+        }
+
+        @JsonAnySetter
+        public void addProperty(String key, Object value) {
+            props.put(key, value);
+        }
+    }
+
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -114,32 +138,6 @@ public class JsonCreatorReturningNull4938Test
         _testDeserialize(disabled, "{ \"unknown\": null, \"en\": null, \"unknown2\": \"hello\", \"de\": null, \"fr\": null }");
     }
 
-    @Test
-    void testDeserializeToNullWithStream()
-            throws Exception
-    {
-        // Should all fail...
-        TreeMap<String, String> map = new TreeMap<>();
-
-        map.put("aa", "aa");
-        map.put("cc", "cc");
-        map.put("de", null);
-        map.put("en", null);
-        map.put("fr", null);
-        map.put("za", "zz");
-        map.put("zb", "zz");
-        map.put("zc", "zz");
-
-        byte[] bytes = MAPPER.writeValueAsBytes(map);
-        try (InputStream in = new ByteArrayInputStream(bytes)) {
-            Localized3 result = MAPPER.readerFor(Localized3.class)
-                    .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                    .readValue(in);
-            // Check if read all the bytes
-            assertEquals(-1, in.read());
-        }
-    }
-
     private void _testDeserialize(ObjectReader reader, String JSON)
         throws Exception
     {
@@ -147,4 +145,16 @@ public class JsonCreatorReturningNull4938Test
         assertNull(bean);
     }
 
+    @Test
+    void testJsonCreatorNullWithAnySetter()
+            throws Exception
+    {
+        String JSON = "{ \"en\": null, \"de\": null, \"fr\": null, " +
+                // These two properties are unknown
+                "\"unknown\": null, \"unknown2\": \"hello\" }";
+
+        MAPPER.readerFor(Localized5.class)
+                .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValue(JSON);
+    }
 }

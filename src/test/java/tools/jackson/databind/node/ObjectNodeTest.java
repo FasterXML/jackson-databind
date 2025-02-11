@@ -271,9 +271,6 @@ public class ObjectNodeTest
         assertEquals(4, o1.size());
     }
 
-    /**
-     * Another test to verify [JACKSON-227]...
-     */
     @Test
     public void testNullChecking2()
     {
@@ -564,6 +561,38 @@ public class ObjectNodeTest
         final LinkedHashMap<String,JsonNode> map = new LinkedHashMap<>();
         obj.forEachEntry((k, v) -> { map.put(k, v); });
         assertEquals(obj.properties(), map.entrySet());
+    }
+
+    @Test
+    public void testRemoveAll() throws Exception
+    {
+        assertEquals(_objNode("{}"),
+                _objNode("{'a':1, 'b':2, 'c':3}").removeAll());
+    }
+
+    // [databind#4955]: remove methods
+    @Test
+    public void testRemoveIf() throws Exception
+    {
+        assertEquals(_objNode("{'c':3}"),
+                _objNode("{'a':1, 'b':2, 'c':3}")
+                .removeIf(value -> value.asInt() <= 2));
+        assertEquals(_objNode("{'a':1}"),
+                _objNode("{'a':1, 'b':2, 'c':3}")
+                .removeIf(value -> value.asInt() > 1));
+    }
+
+    // [databind#4955]: remove methods
+    @Test
+    public void testRemoveNulls() throws Exception
+    {
+        assertEquals(_objNode("{'b':2}"),
+                _objNode("{'a':null,'b':2,'c':null}")
+                .removeNulls());
+    }
+
+    private ObjectNode _objNode(String json) throws Exception {
+        return (ObjectNode) MAPPER.readTree(a2q(json));
     }
 
     private String _toString(JsonNode n) {

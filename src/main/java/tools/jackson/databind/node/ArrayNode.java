@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import tools.jackson.core.*;
@@ -526,6 +527,12 @@ public class ArrayNode
         return this;
     }
 
+    @Override
+    public ArrayNode removeIf(Predicate<? super JsonNode> predicate) {
+        _children.removeIf(predicate);
+        return this;
+    }
+    
     /*
     /**********************************************************************
     /* Extended ArrayNode API, mutators, generic; addXxx()/insertXxx()/setXxx()

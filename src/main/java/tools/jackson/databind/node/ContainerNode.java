@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import tools.jackson.core.*;
@@ -175,4 +176,32 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
      * @return Container node itself (to allow method call chaining)
      */
     public abstract T removeAll();
+
+    /**
+     * Method for removing matching those children (value) nodes container has that
+     * match given predicate.
+     *
+     * @param predicate Predicate to use for matching: anything matching will be removed
+     *
+     * @return Container node itself (to allow method call chaining)
+     *
+     * @since 2.19
+     */
+    public abstract T removeIf(Predicate<? super JsonNode> predicate);
+
+    /**
+     * Method for removing {@code null} children (value) nodes container has (that is,
+     * children for which {@code isNull()} returns true).
+     * Short-cut for:
+     *<pre>
+     *     removeIf(JsonNode::isNull);
+     *<pre>
+     *
+     * @return Container node itself (to allow method call chaining)
+     *
+     * @since 2.19
+     */
+    public T removeNulls() {
+        return removeIf(JsonNode::isNull);
+    }
 }

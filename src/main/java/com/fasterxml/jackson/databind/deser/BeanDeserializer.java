@@ -456,14 +456,19 @@ public class BeanDeserializer
                         bean = wrapInstantiationProblem(e, ctxt);
                     }
                     if (bean == null) {
-                        return ctxt.handleInstantiationProblem(handledType(), null,
-                                _creatorReturnedNullException());
+                        // [databind#4938] Since 2.19, Allow returning `null` from creator, but
+                        // only after doing the regular handling of buffered properties
+                        // return ctxt.handleInstantiationProblem(handledType(), null,
+                        //        _creatorReturnedNullException());
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.assignCurrentValue(bean);
 
-                    //  polymorphic?
-                    if (bean.getClass() != _beanType.getRawClass()) {
+                    // [databind#4938] Since 2.19, creators may return `null`
+                    if ((bean != null) &&
+                        //  polymorphic?
+                        bean.getClass() != _beanType.getRawClass())
+                    {
                         return handlePolymorphic(p, ctxt, p.streamReadConstraints(), bean, unknown);
                     }
                     if (unknown != null) { // nope, just extra unknown stuff...

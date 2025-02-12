@@ -18,6 +18,8 @@ Project: jackson-databind
    server and client side
  (requested by @qianlong)
  (contributed by Geoffrey G)
+#4388: Allow using `@JsonPropertyOrder` with "any" (`@JsonAnyGetter`)  properties
+ (fix by Joo-Hyuk K)
 #4674: Allow setting global enum naming strategy similar to property naming strategy
  (requested by @hajdamak)
  (contributed by Konstantin M)
@@ -48,6 +50,13 @@ Project: jackson-databind
  (reported by Floris W)
 #4953: Allow clearing all caches to avoid classloader leaks
  (contributed by Joren I)
+#4955: Add more remove methods for `ArrayNode`, `ObjectNode` [STEP-3]
+#4959: Add explicit deserializer for `ThreadGroup`
+#4961: Serialization for `JsonFormat.Shape.ARRAY` does not work when
+  there is `@JsonAnyGetter`
+ (fix by Joo-Hyuk K)
+#4963: Serializing `Map.Entry` as Bean with `@JsonFormat.shape = Shape.OBJECT`
+  fails on JDK 17+
 
 2.18.3 (not yet released)
 

@@ -554,8 +554,10 @@ public class POJOPropertiesCollector
                         _anySetterField = new LinkedList<>();
                     }
                     _anySetterField.add(f);
+                    // 07-Feb-2025: [databind#4775]: Skip the rest of processing, but only
+                    //    for "any-setter', not any-getter
+                    continue;
                 }
-                continue;
             }
             String implName = ai.findImplicitPropertyName(f);
             if (implName == null) {
@@ -1125,10 +1127,11 @@ ctor.creator()));
                 _anyGetters = new LinkedList<>();
             }
             _anyGetters.add(m);
-            return;
+            // 07-Feb-2025: [databind#4775] Do not stop processing here
+            //   (used to return)
         }
         // @JsonKey?
-        if (Boolean.TRUE.equals(ai.hasAsKey(_config, m))) {
+        else if (Boolean.TRUE.equals(ai.hasAsKey(_config, m))) {
             if (_jsonKeyAccessors == null) {
                 _jsonKeyAccessors = new LinkedList<>();
             }
@@ -1136,7 +1139,7 @@ ctor.creator()));
             return;
         }
         // @JsonValue?
-        if (Boolean.TRUE.equals(ai.hasAsValue(m))) {
+        else if (Boolean.TRUE.equals(ai.hasAsValue(m))) {
             if (_jsonValueAccessors == null) {
                 _jsonValueAccessors = new LinkedList<>();
             }

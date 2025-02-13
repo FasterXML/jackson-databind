@@ -53,6 +53,15 @@ public class StringNode
     @Override public JsonToken asToken() { return JsonToken.VALUE_STRING; }
 
     @Override
+    protected String _valueDesc() {
+        String s = _value;
+        if (s.length() > 100) {
+             return String.format("\"%s\"[...]", s.substring(0, 100));
+        }
+        return "\""+_value+"\"";
+    }
+
+    @Override
     public StringNode deepCopy() { return this; }
 
     @Override

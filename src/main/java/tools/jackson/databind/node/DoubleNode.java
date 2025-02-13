@@ -41,7 +41,7 @@ public class DoubleNode
 
     /*
     /**********************************************************************
-    /* Overrridden JsonNode methods
+    /* Overridden JsonNode methods, simple properties
     /**********************************************************************
      */
 
@@ -52,17 +52,23 @@ public class DoubleNode
     public boolean isDouble() { return true; }
 
     @Override public boolean canConvertToInt() {
-        return (_value >= Integer.MIN_VALUE && _value <= Integer.MAX_VALUE);
-    }
-    @Override public boolean canConvertToLong() {
-        return (_value >= Long.MIN_VALUE && _value <= Long.MAX_VALUE);
+        return canConvertToExactIntegral() && _inIntRange();
     }
 
-    @Override // since 2.12
-    public boolean canConvertToExactIntegral() {
-        return !Double.isNaN(_value) && !Double.isInfinite(_value)
-                && (_value == Math.rint(_value));
+    @Override public boolean canConvertToLong() {
+        return canConvertToExactIntegral() && _inLongRange();
     }
+
+    @Override
+    public boolean canConvertToExactIntegral() {
+        return !isNaN() && !_hasFractionalPart();
+    }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
 
     @Override
     public Number numberValue() {
@@ -73,7 +79,25 @@ public class DoubleNode
     public short shortValue() { return (short) _value; }
 
     @Override
-    public int intValue() { return (int) _value; }
+    public int intValue() {
+        if (isNaN() || !_inIntRange()) {
+            _reportCoercionFail("intValue()", Integer.TYPE,
+                    "value not in 32-bit `int` range");
+        }
+        if (_hasFractionalPart()) {
+            _reportCoercionFail("intValue()", Integer.TYPE,
+                    "value has fractional part");
+        }
+        return (int) _value;
+    }
+
+    @Override
+    public int intValue(int defaultValue) {
+        if (isNaN() || !_inIntRange() || _hasFractionalPart()) {
+             return defaultValue;
+        }
+        return (int) _value;
+    }
 
     @Override
     public long longValue() { return (long) _value; }
@@ -128,6 +152,15 @@ public class DoubleNode
         // same as hashCode Double.class uses
         long l = Double.doubleToLongBits(_value);
         return ((int) l) ^ (int) (l >> 32);
+    }
 
+    private boolean _hasFractionalPart() { return _value != Math.rint(_value); }
+
+    private boolean _inIntRange() {
+        return (_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
+    }
+
+    private boolean _inLongRange() {
+        return (_value >= Long.MIN_VALUE) && (_value <= Long.MAX_VALUE);
     }
 }

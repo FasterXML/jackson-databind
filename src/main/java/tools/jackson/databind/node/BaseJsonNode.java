@@ -49,6 +49,23 @@ public abstract class BaseJsonNode
 
     /*
     /**********************************************************************
+    /* Defaulting for scalar access
+    /**********************************************************************
+     */
+
+    @Override
+    public int intValue() {
+        return _reportCoercionFail("intValue()", Integer.TYPE, "value type not numeric");
+    }
+
+    @Override
+    public int intValue(int defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    /*
+    /**********************************************************************
     /* Basic definitions for non-container types
     /**********************************************************************
      */
@@ -261,6 +278,14 @@ public abstract class BaseJsonNode
     /**********************************************************************
      */
 
+    protected <T> T _reportCoercionFail(String method, Class<?> targetType,
+            String message)
+    {
+        throw JsonNodeException.from(this, "'%s' method `%s` cannot convert value %s to %s: %s",
+                getClass().getSimpleName(), method,
+                _valueDesc(), ClassUtil.nameOf(targetType), message);
+    }
+
     /**
      * Helper method that throws {@link JsonNodeException} as a result of
      * this node being of wrong type
@@ -286,4 +311,10 @@ public abstract class BaseJsonNode
         }
         return null;
     }
+
+    /**
+     * Method for implementation classes to return a short description of contained
+     * value, to be used in error messages.
+     */
+    protected abstract String _valueDesc();
 }

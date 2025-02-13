@@ -24,7 +24,12 @@ public abstract class NumericNode
     // Overridden for type co-variance
     @Override
     public NumericNode deepCopy() { return this; }
-    
+
+    @Override
+    protected final String _valueDesc() {
+        return asString();
+    }
+
     // // // Let's re-abstract so sub-classes handle them
 
     @Override
@@ -32,6 +37,7 @@ public abstract class NumericNode
 
     @Override public abstract Number numberValue();
     @Override public abstract int intValue();
+    @Override public abstract int intValue(int defaultValue);
     @Override public abstract long longValue();
     @Override public abstract double doubleValue();
     @Override public abstract BigDecimal decimalValue();
@@ -41,9 +47,9 @@ public abstract class NumericNode
     @Override public abstract boolean canConvertToLong();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General type coercions
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -92,8 +98,5 @@ public abstract class NumericNode
      *
      * @since 2.9
      */
-    public boolean isNaN() {
-        return false;
-    }
-
+    public abstract boolean isNaN();
 }

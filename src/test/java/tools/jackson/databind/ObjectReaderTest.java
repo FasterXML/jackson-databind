@@ -517,6 +517,11 @@ public class ObjectReaderTest extends DatabindTestUtil
         }
 
         @Override
+        protected String _valueDesc() {
+            return "<CUSTOM>";
+        }
+        
+        @Override
         public boolean isObject() {
             return true;
         }
@@ -639,6 +644,11 @@ public class ObjectReaderTest extends DatabindTestUtil
 
         DelegatingArrayNode(ArrayNode delegate) {
             this._delegate = delegate;
+        }
+
+        @Override
+        protected String _valueDesc() {
+            return "<CUSTOM>";
         }
 
         @Override

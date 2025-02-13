@@ -27,14 +27,20 @@ public class ArrayNode
 
     private final List<JsonNode> _children;
 
+    /*
+    /**********************************************************************
+    /* Construction
+    /**********************************************************************
+     */
+    
     public ArrayNode(JsonNodeFactory nf) {
         super(nf);
-        _children = new ArrayList<JsonNode>();
+        _children = new ArrayList<>();
     }
 
     public ArrayNode(JsonNodeFactory nf, int capacity) {
         super(nf);
-        _children = new ArrayList<JsonNode>(capacity);
+        _children = new ArrayList<>(capacity);
     }
 
     public ArrayNode(JsonNodeFactory nf, List<JsonNode> children) {
@@ -43,11 +49,22 @@ public class ArrayNode
                 "Must not pass `null` for 'children' argument");
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods
+    /**********************************************************************
+     */
+
     @Override
     protected JsonNode _at(JsonPointer ptr) {
         return get(ptr.getMatchingIndex());
     }
 
+    @Override
+    protected String _valueDesc() {
+        return "[...(" + _children.size() + " elements)]";
+    }
+    
     // note: co-variant to allow caller-side type safety
     @Override
     public ArrayNode deepCopy()

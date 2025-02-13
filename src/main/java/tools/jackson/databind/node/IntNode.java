@@ -48,7 +48,7 @@ public class IntNode
 
     /*
     /**********************************************************************
-    /* BaseJsonNode extended API
+    /* Overridden JsonNode methods
     /**********************************************************************
      */
 
@@ -57,18 +57,15 @@ public class IntNode
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.INT; }
 
-    /*
-    /**********************************************************************
-    /* Overrridden JsonNode methods
-    /**********************************************************************
-     */
-
     @Override
     public boolean isIntegralNumber() { return true; }
 
     @Override
     public boolean isInt() { return true; }
 
+    @Override
+    public boolean isNaN() { return false; }
+    
     @Override public boolean canConvertToInt() { return true; }
     @Override public boolean canConvertToLong() { return true; }
 
@@ -83,6 +80,9 @@ public class IntNode
     @Override
     public int intValue() { return _value; }
 
+    @Override
+    public int intValue(int defaultValue) { return _value; }
+    
     @Override
     public long longValue() { return (long) _value; }
 

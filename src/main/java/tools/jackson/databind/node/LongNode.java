@@ -28,7 +28,7 @@ public class LongNode
 
     /*
     /**********************************************************************
-    /* Overrridden JsonNode methods
+    /* Overridden JsonNode methods
     /**********************************************************************
      */
 
@@ -36,19 +36,27 @@ public class LongNode
 
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.LONG; }
-
-
     @Override
     public boolean isIntegralNumber() { return true; }
 
     @Override
     public boolean isLong() { return true; }
 
+    @Override
+    public boolean isNaN() { return false; }
+
     @Override public boolean canConvertToInt() {
         return (_value >= Integer.MIN_VALUE && _value <= Integer.MAX_VALUE);
     }
+
     @Override public boolean canConvertToLong() { return true; }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
+    
     @Override
     public Number numberValue() {
         return Long.valueOf(_value);
@@ -58,7 +66,18 @@ public class LongNode
     public short shortValue() { return (short) _value; }
 
     @Override
-    public int intValue() { return (int) _value; }
+    public int intValue() {
+        if (canConvertToInt()) {
+            return (int) _value;
+        }
+        return _reportCoercionFail("intValue()", Integer.TYPE,
+                "value not in 32-bit `int` range");
+    }
+
+    @Override
+    public int intValue(int defaultValue) {
+        return canConvertToInt() ? (int) _value : defaultValue;
+    }
 
     @Override
     public long longValue() { return _value; }

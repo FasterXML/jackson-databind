@@ -257,7 +257,7 @@ public abstract class BaseJsonNode
 
     /*
     /**********************************************************************
-    /* Other helper methods for subtypes
+    /* Helper method: error reporting
     /**********************************************************************
      */
 
@@ -268,6 +268,12 @@ public abstract class BaseJsonNode
     protected <T> T _reportWrongNodeType(String msgTemplate, Object...args) {
         throw JsonNodeException.from(this, String.format(msgTemplate, args));
     }
+
+    /*
+    /**********************************************************************
+    /* Other helper methods for subtypes
+    /**********************************************************************
+     */
 
     protected BigInteger _bigIntFromBigDec(BigDecimal value) {
         StreamReadConstraints.defaults().validateBigIntegerScale(value.scale());

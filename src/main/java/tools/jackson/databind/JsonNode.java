@@ -522,9 +522,25 @@ public abstract class JsonNode
 
     /*
     /**********************************************************************
-    /* Public API, straight value access
+    /* Public API, scalar value access (exact, converting)
     /**********************************************************************
      */
+
+    // // Scalar access: generic
+
+    /**
+     * Method that will return a {@link JsonNode} wrapped in Java's {@link Optional}.
+     * All nodes except of {@link MissingNode} will return non-empty {@link Optional};
+     * {@link MissingNode} will return empty {@link Optional}.
+     *
+     * @return {@code Optional<JsonNode>} containing this node, or {@link Optional#empty()}
+     *        if this is a {@link MissingNode}.
+     */
+    public Optional<JsonNode> asOptional() {
+        return Optional.of(this);
+    }
+
+    // // Scalar access: Strings
 
     /**
      * Method to use for accessing String values.
@@ -539,125 +555,6 @@ public abstract class JsonNode
      *   a String value.
      */
     public String stringValue() { return null; }
-
-    /**
-     * Method to use for accessing binary content of binary nodes (nodes
-     * for which {@link #isBinary} returns true); or for String Nodes
-     * (ones for which {@link #stringValue} returns non-null value),
-     * to read decoded base64 data.
-     * For other types of nodes, returns null.
-     *
-     * @return Binary data this node contains, iff it is a binary
-     *   node; null otherwise
-     */
-    public byte[] binaryValue() {
-        return null;
-    }
-
-    /**
-     * Method to use for accessing JSON boolean values (value
-     * literals 'true' and 'false').
-     * For other types, always returns false.
-     *
-     * @return Boolean value this node contains, if any; false for
-     *   non-boolean nodes.
-     */
-    public boolean booleanValue() { return false; }
-
-    /**
-     * Returns numeric value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true); otherwise
-     * returns null
-     *
-     * @return Number value this node contains, if any (null for non-number
-     *   nodes).
-     */
-    public Number numberValue() { return null; }
-
-    /**
-     * Returns 16-bit short value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.
-     * For floating-point numbers, value is truncated using default
-     * Java coercion, similar to how cast from double to short operates.
-     *
-     * @return Short value this node contains, if any; 0 for non-number
-     *   nodes.
-     */
-    public short shortValue() { return 0; }
-
-    /**
-     * Returns integer value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.
-     * For floating-point numbers, value is truncated using default
-     * Java coercion, similar to how cast from double to int operates.
-     *
-     * @return Integer value this node contains, if any; 0 for non-number
-     *   nodes.
-     */
-    public int intValue() { return 0; }
-
-    /**
-     * Returns 64-bit long value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.
-     * For floating-point numbers, value is truncated using default
-     * Java coercion, similar to how cast from double to long operates.
-     *
-     * @return Long value this node contains, if any; 0 for non-number
-     *   nodes.
-     */
-    public long longValue() { return 0L; }
-
-    /**
-     * Returns 32-bit floating value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.0.
-     * For integer values, conversion is done using coercion; this means
-     * that an overflow is possible for `long` values
-     *
-     * @return 32-bit float value this node contains, if any; 0.0 for non-number nodes.
-     */
-    public float floatValue() { return 0.0f; }
-
-    /**
-     * Returns 64-bit floating point (double) value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.0.
-     * For integer values, conversion is done using coercion; this may result
-     * in overflows with {@link BigInteger} values.
-     *
-     * @return 64-bit double value this node contains, if any; 0.0 for non-number nodes.
-     */
-    public double doubleValue() { return 0.0; }
-
-    /**
-     * Returns floating point value for this node (as {@link BigDecimal}), <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns <code>BigDecimal.ZERO</code>.
-     *
-     * @return {@link BigDecimal} value this node contains, if numeric node; <code>BigDecimal.ZERO</code> for non-number nodes.
-     */
-    public BigDecimal decimalValue() { return BigDecimal.ZERO; }
-
-    /**
-     * Returns integer value for this node (as {@link BigInteger}), <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns <code>BigInteger.ZERO</code>.
-     *<p>
-     * May also throw {@link tools.jackson.core.exc.StreamConstraintsException}
-     *   if the scale of the underlying {@link BigDecimal} is too large to convert.
-     *
-     * @return {@link BigInteger} value this node contains, if numeric node; <code>BigInteger.ZERO</code> for non-number nodes.
-     */
-    public BigInteger bigIntegerValue() { return BigInteger.ZERO; }
-
-    /*
-    /**********************************************************************
-    /* Public API, value access with conversion(s)/coercion(s)
-    /**********************************************************************
-     */
 
     /**
      * Method that will return a valid String representation of
@@ -700,89 +597,33 @@ public abstract class JsonNode
         return asString(defaultValue);
     }
 
-    /**
-     * Method that will try to convert value of this node to a Java <b>int</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to an int (including structured types
-     * like Objects and Arrays),
-     * default value of <b>0</b> will be returned; no exceptions are thrown.
-     */
-    public int asInt() {
-        return asInt(0);
-    }
+    // // Scalar access: Binary
 
     /**
-     * Method that will try to convert value of this node to a Java <b>int</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to an int (including structured types
-     * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * Method to use for accessing binary content of binary nodes (nodes
+     * for which {@link #isBinary} returns true); or for String Nodes
+     * (ones for which {@link #stringValue} returns non-null value),
+     * to read decoded base64 data.
+     * For other types of nodes, returns null.
+     *
+     * @return Binary data this node contains, iff it is a binary
+     *   node; null otherwise
      */
-    public int asInt(int defaultValue) {
-        return defaultValue;
+    public byte[] binaryValue() {
+        return null;
     }
 
-    /**
-     * Method that will try to convert value of this node to a Java <b>long</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to a long (including structured types
-     * like Objects and Arrays),
-     * default value of <b>0</b> will be returned; no exceptions are thrown.
-     */
-    public long asLong() {
-        return asLong(0L);
-    }
+    // // Scalar access: Boolean
 
     /**
-     * Method that will try to convert value of this node to a Java <b>long</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to a long (including structured types
-     * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * Method to use for accessing JSON boolean values (value
+     * literals 'true' and 'false').
+     * For other types, always returns false.
+     *
+     * @return Boolean value this node contains, if any; false for
+     *   non-boolean nodes.
      */
-    public long asLong(long defaultValue) {
-        return defaultValue;
-    }
-
-    /**
-     * Method that will try to convert value of this node to a Java <b>double</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to an int (including structured types
-     * like Objects and Arrays),
-     * default value of <b>0.0</b> will be returned; no exceptions are thrown.
-     */
-    public double asDouble() {
-        return asDouble(0.0);
-    }
-
-    /**
-     * Method that will try to convert value of this node to a Java <b>double</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to an int (including structured types
-     * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
-     */
-    public double asDouble(double defaultValue) {
-        return defaultValue;
-    }
+    public boolean booleanValue() { return false; }
 
     /**
      * Method that will try to convert value of this node to a Java <b>boolean</b>.
@@ -812,20 +653,198 @@ public abstract class JsonNode
         return defaultValue;
     }
 
+    // // Scalar access: Numbers, generic
+
     /**
-     * Method that will return a {@link JsonNode} wrapped in Java's {@link Optional}.
+     * Returns numeric value for this node, <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true); otherwise
+     * returns null
      *
-     * @return `Optional<JsonNode>` containing this node, or {@link Optional#empty()}
-     *        if this is a {@link MissingNode}.
-     * @since 2.19
+     * @return Number value this node contains, if any (null for non-number
+     *   nodes).
      */
-    public Optional<JsonNode> asOptional() {
-        return Optional.of(this);
+    public Number numberValue() { return null; }
+
+    // // Scalar access: Numbers, Java short
+
+    /**
+     * Returns 16-bit short value for this node, <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns 0.
+     * For floating-point numbers, value is truncated using default
+     * Java coercion, similar to how cast from double to short operates.
+     *
+     * @return Short value this node contains, if any; 0 for non-number
+     *   nodes.
+     */
+    public short shortValue() { return 0; }
+
+    // // Scalar access: Numbers, Java int
+
+    /**
+     * Returns integer value for this node, <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns 0.
+     * For floating-point numbers, value is truncated using default
+     * Java coercion, similar to how cast from double to int operates.
+     *
+     * @return Integer value this node contains, if any; 0 for non-number
+     *   nodes.
+     */
+    public int intValue() { return 0; }
+
+    /**
+     * Method that will try to convert value of this node to a Java <b>int</b>.
+     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
+     * and 1 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
+     *<p>
+     * If representation cannot be converted to an int (including structured types
+     * like Objects and Arrays),
+     * default value of <b>0</b> will be returned; no exceptions are thrown.
+     */
+    public int asInt() {
+        return asInt(0);
     }
+
+    /**
+     * Method that will try to convert value of this node to a Java <b>int</b>.
+     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
+     * and 1 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
+     *<p>
+     * If representation cannot be converted to an int (including structured types
+     * like Objects and Arrays),
+     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     */
+    public int asInt(int defaultValue) {
+        return defaultValue;
+    }
+
+    // // Scalar access: Numbers, Java long
+
+    /**
+     * Returns 64-bit long value for this node, <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns 0.
+     * For floating-point numbers, value is truncated using default
+     * Java coercion, similar to how cast from double to long operates.
+     *
+     * @return Long value this node contains, if any; 0 for non-number
+     *   nodes.
+     */
+    public long longValue() { return 0L; }
+
+    /**
+     * Method that will try to convert value of this node to a Java <b>long</b>.
+     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
+     * and 1 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
+     *<p>
+     * If representation cannot be converted to a long (including structured types
+     * like Objects and Arrays),
+     * default value of <b>0</b> will be returned; no exceptions are thrown.
+     */
+    public long asLong() {
+        return asLong(0L);
+    }
+
+    /**
+     * Method that will try to convert value of this node to a Java <b>long</b>.
+     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
+     * and 1 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
+     *<p>
+     * If representation cannot be converted to a long (including structured types
+     * like Objects and Arrays),
+     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     */
+    public long asLong(long defaultValue) {
+        return defaultValue;
+    }
+
+    // // Scalar access: Numbers, Java BigInteger
+
+    /**
+     * Returns integer value for this node (as {@link BigInteger}), <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns <code>BigInteger.ZERO</code>.
+     *<p>
+     * May also throw {@link tools.jackson.core.exc.StreamConstraintsException}
+     *   if the scale of the underlying {@link BigDecimal} is too large to convert.
+     *
+     * @return {@link BigInteger} value this node contains, if numeric node; <code>BigInteger.ZERO</code> for non-number nodes.
+     */
+    public BigInteger bigIntegerValue() { return BigInteger.ZERO; }
+
+    // // Scalar access: Numbers, Java float
+
+    /**
+     * Returns 32-bit floating value for this node, <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns 0.0.
+     * For integer values, conversion is done using coercion; this means
+     * that an overflow is possible for `long` values
+     *
+     * @return 32-bit float value this node contains, if any; 0.0 for non-number nodes.
+     */
+    public float floatValue() { return 0.0f; }
+
+    // // Scalar access: Numbers, Java double
+
+    /**
+     * Returns 64-bit floating point (double) value for this node, <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns 0.0.
+     * For integer values, conversion is done using coercion; this may result
+     * in overflows with {@link BigInteger} values.
+     *
+     * @return 64-bit double value this node contains, if any; 0.0 for non-number nodes.
+     */
+    public double doubleValue() { return 0.0; }
+
+    /**
+     * Method that will try to convert value of this node to a Java <b>double</b>.
+     * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
+     * and 1.0 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
+     *<p>
+     * If representation cannot be converted to an int (including structured types
+     * like Objects and Arrays),
+     * default value of <b>0.0</b> will be returned; no exceptions are thrown.
+     */
+    public double asDouble() {
+        return asDouble(0.0);
+    }
+
+    /**
+     * Method that will try to convert value of this node to a Java <b>double</b>.
+     * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
+     * and 1.0 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
+     *<p>
+     * If representation cannot be converted to an int (including structured types
+     * like Objects and Arrays),
+     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     */
+    public double asDouble(double defaultValue) {
+        return defaultValue;
+    }
+
+    // // Scalar access: Numbers, Java BigDecimal
+
+    /**
+     * Returns floating point value for this node (as {@link BigDecimal}), <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns <code>BigDecimal.ZERO</code>.
+     *
+     * @return {@link BigDecimal} value this node contains, if numeric node; <code>BigDecimal.ZERO</code> for non-number nodes.
+     */
+    public BigDecimal decimalValue() { return BigDecimal.ZERO; }
 
     /*
     /**********************************************************************
-    /* Public API, extended traversal (2.10) with "required()"
+    /* Public API, extended traversal with "required()"
     /**********************************************************************
      */
 
@@ -876,9 +895,7 @@ public abstract class JsonNode
      * @throws IllegalArgumentException if this node is not an Object node or if it does not
      *   have value for specified property
      */
-    public JsonNode required(String propertyName) {
-        return _reportRequiredViolation("Node of type `%s` has no fields", getClass().getName());
-    }
+    public abstract JsonNode required(String propertyName);
 
     /**
      * Method is functionally equivalent to
@@ -898,9 +915,7 @@ public abstract class JsonNode
      * @throws IllegalArgumentException if this node is not an Array node or if it does not
      *   have value for specified index
      */
-    public JsonNode required(int index) {
-        return _reportRequiredViolation("Node of type `%s` has no indexed values", getClass().getName());
-    }
+    public abstract JsonNode required(int index);
 
     /**
      * Method is functionally equivalent to

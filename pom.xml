@@ -195,10 +195,10 @@
             <goal>prepare-agent</goal>
           </goals>
         </execution>
-        <!-- attached to Maven test phase -->
+        <!-- attached to Maven verify phase (could use test too) -->
         <execution>
 	  <id>report</id>
-	  <phase>test</phase>
+	  <phase>verify</phase>
 	  <goals>
 	    <goal>report</goal>
 	    </goals>

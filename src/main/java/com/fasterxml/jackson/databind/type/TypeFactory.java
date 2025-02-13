@@ -1123,11 +1123,10 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     /**
      * Factory method for constructing {@link JavaType} that
      * represents a parameterized type. For example, to represent
-     * type {@code List<Set<Integer>>}, you could
+     * type {@code Foo<Bar, Baz>}, you could
      * call
      *<pre>
-     *  JavaType inner = TypeFactory.constructParametricType(Set.class, Integer.class);
-     *  return TypeFactory.constructParametricType(List.class, inner);
+     *  return TypeFactory.constructParametricType(Foo.class, Bar.class, Baz.class);
      *</pre>
      *<p>
      * NOTE: since 2.11.2 {@link TypeModifier}s ARE called on result (fix for [databind#2796])

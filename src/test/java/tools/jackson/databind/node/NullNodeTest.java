@@ -49,8 +49,9 @@ public class NullNodeTest extends NodeTestBase
         // fallback accessors
         assertFalse(n.booleanValue());
         assertNull(n.numberValue());
-        assertEquals(0, n.intValue());
-        assertEquals(0L, n.longValue());
+        // No longer legal in 3.0 due to being non-number type
+        assertEquals(222, n.intValue(222));
+        assertEquals(333L, n.asLong(333L));
         assertEquals(BigDecimal.ZERO, n.decimalValue());
         assertEquals(BigInteger.ZERO, n.bigIntegerValue());
         // may be odd but...

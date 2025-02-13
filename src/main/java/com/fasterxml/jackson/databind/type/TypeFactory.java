@@ -1126,7 +1126,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * type {@code Foo<Bar, Baz>}, you could
      * call
      *<pre>
-     *  return TypeFactory.constructParametricType(Foo.class, Bar.class, Baz.class);
+     *  return typeFactory.constructParametricType(Foo.class, Bar.class, Baz.class);
      *</pre>
      *<p>
      * NOTE: since 2.11.2 {@link TypeModifier}s ARE called on result (fix for [databind#2796])
@@ -1150,8 +1150,8 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * represents a parameterized type. For example, to represent
      * type {@code List<Set<Integer>>}, you could
      *<pre>
-     *  JavaType inner = TypeFactory.constructParametricType(Set.class, Integer.class);
-     *  return TypeFactory.constructParametricType(List.class, inner);
+     *  JavaType inner = typeFactory.constructParametricType(Set.class, Integer.class);
+     *  return typeFactory.constructParametricType(List.class, inner);
      *</pre>
      *<p>
      * NOTE: since 2.11.2 {@link TypeModifier}s ARE called on result (fix for [databind#2796])
@@ -1173,7 +1173,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * is useful if you already have the type's parameters such
      * as those found on {@link JavaType}. For example, you could call
      * <pre>
-     *   return TypeFactory.constructParametricType(ArrayList.class, javaType.getBindings());
+     *   return typeFactory.constructParametricType(ArrayList.class, javaType.getBindings());
      * </pre>
      * This effectively applies the parameterized types from one
      * {@link JavaType} to another class.

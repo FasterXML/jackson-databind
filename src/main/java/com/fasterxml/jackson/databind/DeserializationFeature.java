@@ -371,15 +371,15 @@ public enum DeserializationFeature implements ConfigFeature
 
     /**
      * Feature that can be enabled to allow JSON empty String
-     * value ("") to be bound as `null` for POJOs and other structured
+     * value ({@code ""}) to be bound as {@code null} for POJOs and other structured
      * values ({@link java.util.Map}s, {@link java.util.Collection}s).
-     * If disabled, standard POJOs can only be bound from JSON `null` or
+     * If disabled, standard POJOs can only be bound from JSON {@code null} or
      * JSON Object (standard meaning that no custom deserializers or
      * constructors are defined; both of which can add support for other
      * kinds of JSON values); if enabled, empty JSON String can be taken
      * to be equivalent of JSON null.
      *<p>
-     * NOTE: this does NOT apply to scalar values such as booleans, numbers
+     * NOTE: this does NOT apply to scalar values such as Strings, booleans, numbers
      * and date/time types;
      * whether these can be coerced depends on
      * {@link MapperFeature#ALLOW_COERCION_OF_SCALARS}.
@@ -390,13 +390,13 @@ public enum DeserializationFeature implements ConfigFeature
 
     /**
      * Feature that can be enabled to allow empty JSON Array
-     * value (that is, <code>[ ]</code>) to be bound to POJOs (and
-     * with 2.9, other values too) as `null`.
-     * If disabled, standard POJOs can only be bound from JSON `null` or
+     * value (that is, {@code[ ]} to be bound to POJOs (and
+     * with 2.9, other values too) as {@code null}.
+     * If disabled, standard POJOs can only be bound from JSON {@code null} or
      * JSON Object (standard meaning that no custom deserializers or
      * constructors are defined; both of which can add support for other
      * kinds of JSON values); if enabled, empty JSON Array will be taken
-     * to be equivalent of JSON null.
+     * to be equivalent of JSON {@code null}.
      *<p>
      * Feature is disabled by default.
      *

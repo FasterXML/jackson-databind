@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.impl.MapEntryAsPOJOSerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.UnsupportedTypeSerializer;
@@ -25,11 +26,7 @@ import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToEmptyObjectSerializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
-import com.fasterxml.jackson.databind.util.BeanUtil;
-import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.Converter;
-import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
-import com.fasterxml.jackson.databind.util.NativeImageUtil;
+import com.fasterxml.jackson.databind.util.*;
 
 /**
  * Factory class that can provide serializers for any regular Java beans
@@ -394,6 +391,12 @@ public class BeanSerializerFactory
         if (_isUnserializableJacksonType(prov, type)) {
             return new ToEmptyObjectSerializer(type);
         }
+        // 08-Feb-2025, tatu: [databind#4963] Need to have explicit serializer for
+        //   Map.Entry type that are from JDK (for others just use regular introspection)
+        if (type.isTypeOrSubTypeOf(Map.Entry.class)
+                && ClassUtil.isJDKClass(type.getRawClass())) {
+            return (JsonSerializer<Object>)(JsonSerializer<?>) MapEntryAsPOJOSerializer.create(prov, type);
+        }
         final SerializationConfig config = prov.getConfig();
         BeanSerializerBuilder builder = constructBeanSerializerBuilder(beanDesc);
         builder.setConfig(config);
@@ -457,7 +460,33 @@ public class BeanSerializerFactory
             PropertyName name = PropertyName.construct(anyGetter.getName());
             BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
                     anyGetter, PropertyMetadata.STD_OPTIONAL);
-            builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, anySer));
+
+            // Check if there is an accessor exposed for the anyGetter
+            BeanPropertyWriter anyGetterProp = null;
+            int anyGetterIndex = -1;
+            for (int i = 0; i < props.size(); i++) {
+                BeanPropertyWriter prop = props.get(i);
+                // Either any-getter as field...
+                if (Objects.equals(prop.getName(), anyGetter.getName())
+                    // or as method
+                    || Objects.equals(prop.getMember().getMember(), anyGetter.getMember()))
+                {
+                    anyGetterProp = prop;
+                    anyGetterIndex = i;
+                    break;
+                }
+            }
+            if (anyGetterIndex != -1) {
+                // There is prop is already in place, just need to replace it
+                AnyGetterWriter anyGetterWriter = new AnyGetterWriter(anyGetterProp, anyProp, anyGetter, anySer);
+                props.set(anyGetterIndex, anyGetterWriter);
+            } else {
+                // Otherwise just add it at the end, but won't be sorted...
+                // This is case where JsonAnyGetter is private/protected,
+                BeanPropertyDefinition anyGetterPropDef = SimpleBeanPropertyDefinition.construct(config, anyGetter, name);
+                BeanPropertyWriter anyPropWriter = _constructWriter(prov, anyGetterPropDef, new PropertyBuilder(config, beanDesc), staticTyping, anyGetter);
+                props.add(new AnyGetterWriter(anyPropWriter, anyProp, anyGetter, anySer));
+            }
         }
         // Next: need to gather view information, if any:
         processViews(config, builder);

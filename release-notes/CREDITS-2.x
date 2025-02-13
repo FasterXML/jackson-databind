@@ -1909,3 +1909,7 @@ Floris Westerman (@FWest98)
  * Reported #4934: `DeserializationContext.readTreeAsValue()` handles null nodes
    differently from `ObjectMapper.treeToValue()`
   (2.19.0)
+
+Joren Inghelbrecht (@jin-harmoney)
+ * Contributed #4953: Allow clearing all caches to avoid classloader leaks
+  (2.19.0)

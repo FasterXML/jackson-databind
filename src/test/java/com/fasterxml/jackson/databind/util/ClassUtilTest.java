@@ -222,7 +222,7 @@ public class ClassUtilTest extends DatabindTestUtil
         assertEquals(TestEnum.class, ClassUtil.findEnumType(TestEnum.B));
     }
 
-    // Some trouble with JDK 16+
+    // Some trouble with JDK 17+ (unless --add-opens to force access added)
     @Test
     public void testFindEnumSetTypeJDK()
     {
@@ -231,7 +231,7 @@ public class ClassUtilTest extends DatabindTestUtil
         assertEquals(TestEnum.class, ClassUtil.findEnumType(EnumSet.noneOf(TestEnum.class)));
     }
 
-    // Some trouble with JDK 16+
+    // Some trouble with JDK 17+ (unless --add-opens to force access added)
     @Test
     public void testFindEnumMapTypeJDK()
     {

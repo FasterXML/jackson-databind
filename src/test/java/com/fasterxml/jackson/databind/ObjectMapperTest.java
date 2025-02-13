@@ -409,6 +409,30 @@ public class ObjectMapperTest
         assertEquals(4, m._deserializationContext._cache.cachedDeserializersCount());
     }
 
+    @Test
+    public void testClearCaches() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+
+        // Serialize and deserialize to fill caches
+        final String JSON = "{ \"x\" : 3 }";
+        Bean bean = m.readValue(JSON, Bean.class);
+        m.writeValueAsString("test");
+
+        // Caches should not be empty
+        assertNotEquals(0, m._deserializationContext._cache.cachedDeserializersCount());
+        assertNotEquals(0, m._rootDeserializers.size());
+        assertNotEquals(0, m._serializerProvider.cachedSerializersCount());
+
+        // Clear caches
+        m.clearCaches();
+
+        // Caches should be empty
+        assertEquals(0, m._deserializationContext._cache.cachedDeserializersCount());
+        assertEquals(0, m._rootDeserializers.size());
+        assertEquals(0, m._serializerProvider.cachedSerializersCount());
+    }
+
     // For [databind#689]
     @Test
     public void testCustomDefaultPrettyPrinter() throws Exception

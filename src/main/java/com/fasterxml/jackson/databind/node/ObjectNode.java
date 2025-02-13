@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.*;
@@ -815,6 +816,12 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     public ObjectNode removeAll()
     {
         _children.clear();
+        return this;
+    }
+
+    @Override
+    public ObjectNode removeIf(Predicate<? super JsonNode> predicate) {
+        _children.values().removeIf(predicate);
         return this;
     }
 

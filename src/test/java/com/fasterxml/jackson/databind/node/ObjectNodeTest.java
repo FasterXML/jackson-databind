@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
-
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -441,7 +441,7 @@ public class ObjectNodeTest
 
         // first: verify defaults:
         assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY));
-        ObjectNode root = (ObjectNode) MAPPER.readTree(DUP_JSON);
+        ObjectNode root = _objNode(DUP_JSON);
         assertEquals(2, root.path("a").asInt());
 
         // and then enable checks:
@@ -609,7 +609,10 @@ public class ObjectNodeTest
     }
 
     private ObjectNode _objNode(String json) throws Exception {
-        return (ObjectNode) MAPPER.readTree(a2q(json));
+        // Use different read method for better code coverage
+        try (JsonParser p = MAPPER.createParser(a2q(json))) {
+            return (ObjectNode) MAPPER.reader().readTree(p);
+        }
     }
 
     private String _toString(JsonNode n) {

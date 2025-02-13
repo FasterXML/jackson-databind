@@ -52,6 +52,11 @@ public final class MissingNode
 
     @Override public JsonToken asToken() { return JsonToken.NOT_AVAILABLE; }
 
+    @Override
+    protected String _valueDesc() {
+        return "<missing>";
+    }
+    
     @Override public String asString() { return ""; }
 
     @Override public String asString(String defaultValue) { return defaultValue; }

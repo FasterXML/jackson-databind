@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.JsonNodeException;
@@ -420,7 +421,7 @@ public class ObjectNodeTest
 
         // first: verify defaults:
         assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY));
-        ObjectNode root = (ObjectNode) MAPPER.readTree(DUP_JSON);
+        ObjectNode root = _objNode(DUP_JSON);
         assertEquals(2, root.path("a").asInt());
 
         // and via ObjectReader, too:
@@ -592,7 +593,10 @@ public class ObjectNodeTest
     }
 
     private ObjectNode _objNode(String json) throws Exception {
-        return (ObjectNode) MAPPER.readTree(a2q(json));
+        // Use different read method for better code coverage
+        try (JsonParser p = MAPPER.createParser(a2q(json))) {
+            return (ObjectNode) MAPPER.reader().readTree(p);
+        }
     }
 
     private String _toString(JsonNode n) {

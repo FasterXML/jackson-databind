@@ -189,7 +189,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
      * Short-cut for:
      *<pre>
      *     removeIf(JsonNode::isNull);
-     *<pre>
+     *</pre>
      *
      * @return Container node itself (to allow method call chaining)
      *

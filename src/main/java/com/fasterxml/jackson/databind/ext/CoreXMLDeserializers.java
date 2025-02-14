@@ -115,11 +115,13 @@ public class CoreXMLDeserializers extends Deserializers.Base
 
             JsonNode localPart = tree.get("localPart");
             if (localPart == null) {
-                ctxt.reportInputMismatch(this, "QName is missing required property: 'localPart'");
+                ctxt.reportInputMismatch(this,
+                        "Object value for `QName` is missing required property 'localPart'");
             }
 
             if (!localPart.isTextual()) {
-                ctxt.reportInputMismatch(this, "QName property 'localPart' must be a STRING, not %s",
+                ctxt.reportInputMismatch(this,
+                        "Object value property 'localPart' for `QName` must be of type STRING, not %s",
                         localPart.getNodeType());
             }
 

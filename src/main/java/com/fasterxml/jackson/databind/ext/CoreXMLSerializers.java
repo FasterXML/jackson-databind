@@ -130,7 +130,7 @@ public class CoreXMLSerializers extends Serializers.Base
     {
         private static final long serialVersionUID = 1L;
 
-        public static JsonSerializer<?> instance = new QNameSerializer();
+        public final static JsonSerializer<?> instance = new QNameSerializer();
 
         public QNameSerializer() {
             super(QName.class);

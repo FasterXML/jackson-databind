@@ -121,6 +121,9 @@ public class CoreXMLSerializers extends Serializers.Base
         }
     }
 
+    /**
+     * @since 2.19
+     */
     public static class QNameSerializer
         extends StdSerializer<QName>
         implements ContextualSerializer
@@ -148,27 +151,42 @@ public class CoreXMLSerializers extends Serializers.Base
         }
 
         @Override
-        public void serialize(QName value, JsonGenerator g, SerializerProvider provider)
+        public void serialize(QName value, JsonGenerator g, SerializerProvider ctxt)
             throws IOException
         {
-            g.writeStartObject();
-            g.writeObjectField("localPart", value.getLocalPart());
-            if(!value.getNamespaceURI().isEmpty()) g.writeObjectField("namespaceURI", value.getNamespaceURI());
-            if(!value.getPrefix().isEmpty()) g.writeObjectField("prefix", value.getPrefix());
+            g.writeStartObject(value);
+            serializeProperties(value, g, ctxt);
             g.writeEndObject();
         }
 
         @Override
-        public final void serializeWithType(QName value, JsonGenerator g, SerializerProvider provider,
-                                            TypeSerializer typeSer)
+        public final void serializeWithType(QName value, JsonGenerator g, SerializerProvider ctxt,
+                TypeSerializer typeSer)
             throws IOException
         {
-            g.writeObject(value);
+            WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                    typeSer.typeId(value, JsonToken.START_OBJECT));
+            serializeProperties(value, g, ctxt);
+            typeSer.writeTypeSuffix(g, typeIdDef);
+        }
+
+        private void serializeProperties(QName value, JsonGenerator g, SerializerProvider ctxt)
+            throws IOException
+        {
+            g.writeStringField("localPart", value.getLocalPart());
+            if (!value.getNamespaceURI().isEmpty()) {
+                g.writeStringField("namespaceURI", value.getNamespaceURI());
+            }
+            if (!value.getPrefix().isEmpty()) {
+                g.writeStringField("prefix", value.getPrefix());
+            }
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
-            visitor.expectBooleanFormat(typeHint);
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException {
+            /*JsonObjectFormatVisitor v =*/ visitor.expectObjectFormat(typeHint);
+            // TODO: would need to visit properties too, see `BeanSerializerBase`
         }
     }
 }

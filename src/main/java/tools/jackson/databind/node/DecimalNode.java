@@ -40,40 +40,41 @@ public class DecimalNode
 
     /*
     /**********************************************************************
-    /* BaseJsonNode extended API
+    /* Overridden JsonNode methods, simple properties
     /**********************************************************************
      */
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_FLOAT; }
-
+    
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.BIG_DECIMAL; }
 
-    /*
-    /**********************************************************************
-    /* Overridden JsonNode methods
-    /**********************************************************************
-     */
+    @Override
+    public boolean isBigDecimal() { return true; }
 
     @Override
     public boolean isFloatingPointNumber() { return true; }
 
     @Override
-    public boolean isBigDecimal() { return true; }
-
+    public boolean isNaN() { return false; }
+    
     @Override public boolean canConvertToInt() {
-        return (_value.compareTo(MIN_INTEGER) >= 0) && (_value.compareTo(MAX_INTEGER) <= 0);
+        return _inIntRange() && canConvertToExactIntegral();
     }
     @Override public boolean canConvertToLong() {
-        return (_value.compareTo(MIN_LONG) >= 0) && (_value.compareTo(MAX_LONG) <= 0);
+        return _inLongRange() && canConvertToExactIntegral();
     }
 
     @Override // since 2.12
     public boolean canConvertToExactIntegral() {
-        return (_value.signum() == 0)
-                || (_value.scale() <= 0)
-                || (_value.stripTrailingZeros().scale() <= 0);
+        return !_hasFractionalPart();
     }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
 
     @Override
     public Number numberValue() { return _value; }
@@ -82,7 +83,25 @@ public class DecimalNode
     public short shortValue() { return _value.shortValue(); }
 
     @Override
-    public int intValue() { return _value.intValue(); }
+    public int intValue() {
+        if (!_inIntRange()) {
+            _reportCoercionFail("intValue()", Integer.TYPE,
+                    "value not in 32-bit `int` range");
+        }
+        if (_hasFractionalPart()) {
+            _reportCoercionFail("intValue()", Integer.TYPE,
+                    "value has fractional part");
+        }
+        return _value.intValue();
+    }
+
+    @Override
+    public int intValue(int defaultValue) {
+        if (!_inIntRange() || _hasFractionalPart()) {
+             return defaultValue;
+        }
+        return _value.intValue();
+    }
 
     @Override
     public long longValue() { return _value.longValue(); }
@@ -129,5 +148,19 @@ public class DecimalNode
     @Override
     public int hashCode() {
         return _value.hashCode();
+    }
+
+    private boolean _hasFractionalPart() {
+        return (_value.signum() != 0)
+               && (_value.scale() > 0)
+               && (_value.stripTrailingZeros().scale() > 0);
+    }
+    
+    private boolean _inIntRange() {
+        return (_value.compareTo(MIN_INTEGER) >= 0) && (_value.compareTo(MAX_INTEGER) <= 0);
+    }
+
+    private boolean _inLongRange() {
+        return (_value.compareTo(MIN_LONG) >= 0) && (_value.compareTo(MAX_LONG) <= 0);
     }
 }

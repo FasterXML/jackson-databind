@@ -5,6 +5,7 @@ import java.util.Objects;
 import tools.jackson.core.*;
 import tools.jackson.databind.JacksonSerializable;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Value node that contains a wrapped POJO, to be serialized as
@@ -27,6 +28,11 @@ public class POJONode
      */
 
     @Override
+    protected String _valueDesc() {
+        return "{POJO of type "+ClassUtil.classNameOf(_value)+"}";
+    }
+
+    @Override
     public JsonNodeType getNodeType() {
         return JsonNodeType.POJO;
     }
@@ -34,7 +40,8 @@ public class POJONode
     @Override
     public boolean isEmbeddedValue() { return true; }
 
-    @Override public JsonToken asToken() { return JsonToken.VALUE_EMBEDDED_OBJECT; }
+    @Override
+    public JsonToken asToken() { return JsonToken.VALUE_EMBEDDED_OBJECT; }
 
     /**
      * As it is possible that some implementations embed byte[] as POJONode

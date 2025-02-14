@@ -19,6 +19,12 @@ public class BinaryNode
 
     protected final byte[] _data;
 
+    /*
+    /**********************************************************************
+    /* Construction
+    /**********************************************************************
+     */
+
     public BinaryNode(byte[] data)
     {
         // 01-Mar-2024, tatu: [databind#4381] No null-valued JsonNodes
@@ -56,6 +62,12 @@ public class BinaryNode
         return new BinaryNode(data, offset, length);
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods
+    /**********************************************************************
+     */
+    
     @Override
     public JsonNodeType getNodeType()
     {
@@ -71,6 +83,11 @@ public class BinaryNode
         return JsonToken.VALUE_EMBEDDED_OBJECT;
     }
 
+    @Override
+    protected String _valueDesc() {
+        return "[...(" + _data.length + " bytes)]";
+    }
+    
     /**
      *<p>
      * Note: caller is not to modify returned array in any way, since

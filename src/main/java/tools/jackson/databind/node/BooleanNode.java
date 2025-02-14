@@ -40,7 +40,7 @@ public class BooleanNode
 
     /*
     /**********************************************************************
-    /* Overrridden JsonNode methods
+    /* Overridden JsonNode methods
     /**********************************************************************
      */
 
@@ -51,6 +51,11 @@ public class BooleanNode
 
     @Override public JsonToken asToken() {
         return _value ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
+    }
+
+    @Override
+    protected String _valueDesc() {
+        return asString();
     }
 
     @Override

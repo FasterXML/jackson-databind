@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -122,7 +123,13 @@ public class JsonCreatorReturningNull4938Test
         ObjectReader enabled = MAPPER.readerFor(Localized4.class)
                 .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         // ...with unknown properties in front
-        _testDeserialize(enabled, "{ \"en\": null, \"de\": null, \"fr\": null, \"unknown\": null, \"unknown2\": \"hello\" }");
+        try {
+            enabled.readValue("{ \"en\": null, \"de\": null, \"fr\": null, \"unknown\": null, \"unknown2\": \"hello\" }");
+            fail("Should not pass");
+        } catch (UnrecognizedPropertyException e) {
+            // We fail with the FIRST unknown property
+            verifyException(e, "Unrecognized field \"unknown\"");
+        }
     }
 
     // Test to verify we are reading til the end of the OBJECT
@@ -139,19 +146,12 @@ public class JsonCreatorReturningNull4938Test
                 .with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
         // ...with unknown properties in front
         try {
-            _testDeserialize(enabled, "{ \"en\": null, \"de\": null, \"fr\": null, \"unknown\": null, \"unknown2\": \"hello\" }" +
+            enabled.readValue( "{ \"en\": null, \"de\": null, \"fr\": null, \"unknown\": null, \"unknown2\": \"hello\" }" +
                     "!!!!!!!!!!!!BOOM!!!!!!!!!!!!!!");
             fail("Should not pass");
         } catch (JsonParseException e) {
             verifyException(e, "Unexpected character ('!'");
         }
-    }
-
-    private void _testDeserialize(ObjectReader reader, String JSON)
-        throws Exception
-    {
-        Localized4 bean = reader.readValue(JSON);
-        assertNull(bean);
     }
 
     @Test

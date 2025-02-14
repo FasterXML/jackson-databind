@@ -113,27 +113,25 @@ public class CoreXMLDeserializers extends Deserializers.Base
         {
             JsonNode tree = ctxt.readTree(p);
 
-            if (!tree.has("localPart")) {
-                throw new JsonParseException("QName is missing required field: localPart");
-            }
-
             JsonNode localPart = tree.get("localPart");
-            if (!localPart.isTextual()) {
-                throw new JsonParseException("QName field \"localPart\" must be of type String.");
+            if (localPart == null) {
+                ctxt.reportInputMismatch(this, "QName is missing required property: 'localPart'");
             }
 
-            if (tree.has("namespaceURI")) {
-                JsonNode namespaceURI = tree.get("namespaceURI");
+            if (!localPart.isTextual()) {
+                ctxt.reportInputMismatch(this, "QName property 'localPart' must be a STRING, not %s",
+                        localPart.getNodeType());
+            }
 
+            JsonNode namespaceURI = tree.get("namespaceURI");
+            if (namespaceURI != null) {
                 if (tree.has("prefix")) {
                     JsonNode prefix = tree.get("prefix");
                     return new QName(namespaceURI.asText(), localPart.asText(), prefix.asText());
                 }
-
                 return new QName(namespaceURI.asText(), localPart.asText());
-            } else {
-                return new QName(localPart.asText());
             }
+            return new QName(localPart.asText());
         }
 
         @Override

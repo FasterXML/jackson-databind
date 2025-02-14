@@ -195,10 +195,10 @@
             <goal>prepare-agent</goal>
           </goals>
         </execution>
-        <!-- attached to Maven test phase -->
+        <!-- attached to Maven verify phase (could use test too) -->
         <execution>
 	  <id>report</id>
-	  <phase>test</phase>
+	  <phase>verify</phase>
 	  <goals>
 	    <goal>report</goal>
 	    </goals>
@@ -244,8 +244,9 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/2.19.0</link>>
-            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/2.19.0</link>>
+	    <!-- 13-Feb-2025, tatu: Should change link when 2.19.0 released -->
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/2.18.2</link>>
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/2.18.2</link>>
           </links>
         </configuration>
       </plugin>
@@ -399,7 +400,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <argLine>--add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+              <argLine>@{argLine} --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
             </configuration>
             <executions>
               <execution>
@@ -463,7 +464,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <argLine>--add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+              <argLine>@{argLine} --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
             </configuration>
           </plugin>
         </plugins>

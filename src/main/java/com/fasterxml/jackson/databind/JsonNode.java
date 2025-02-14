@@ -809,7 +809,7 @@ public abstract class JsonNode
     /**
      * Method that will return a {@link JsonNode} wrapped in Java's {@link Optional}.
      *
-     * @return `Optional<JsonNode>` containing this node, or {@link Optional#empty()}
+     * @return {@code Optional<JsonNode>} containing this node, or {@link Optional#empty()}
      *        if this is a {@link MissingNode}.
      * @since 2.19
      */

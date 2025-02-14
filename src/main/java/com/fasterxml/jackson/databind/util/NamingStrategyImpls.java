@@ -7,7 +7,7 @@ package com.fasterxml.jackson.databind.util;
  */
 public enum NamingStrategyImpls {
   /**
-   * beanName -> beanName
+   * beanName {@code ->} beanName
    */
   LOWER_CAMEL_CASE {
     @Override
@@ -17,7 +17,7 @@ public enum NamingStrategyImpls {
   },
 
   /**
-   * beanName -> BeanName
+   * beanName {@code ->} BeanName
    */
   UPPER_CAMEL_CASE {
     @Override
@@ -38,7 +38,7 @@ public enum NamingStrategyImpls {
   },
 
   /**
-   * beanName -> bean_name
+   * beanName {@code ->} bean_name
    */
   SNAKE_CASE {
     @Override
@@ -71,7 +71,7 @@ public enum NamingStrategyImpls {
   },
 
   /**
-   * beanName -> BEAN_NAME
+   * beanName {@code ->} BEAN_NAME
    */
   UPPER_SNAKE_CASE {
     @Override
@@ -85,7 +85,7 @@ public enum NamingStrategyImpls {
   },
 
   /**
-   * beanName -> beanname
+   * beanName {@code ->} beanname
    */
   LOWER_CASE {
     @Override
@@ -98,7 +98,7 @@ public enum NamingStrategyImpls {
   },
 
   /**
-   * beanName -> bean-name
+   * beanName {@code ->} bean-name
    */
   KEBAB_CASE {
     @Override
@@ -108,7 +108,7 @@ public enum NamingStrategyImpls {
   },
 
   /**
-   * beanName -> bean.name
+   * beanName {@code ->} bean.name
    */
   LOWER_DOT_CASE {
     @Override

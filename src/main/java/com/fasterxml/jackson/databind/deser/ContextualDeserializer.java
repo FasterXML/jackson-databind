@@ -35,7 +35,7 @@ public interface ContextualDeserializer
      * @return Deserializer to use for deserializing values of specified property;
      *   may be this instance or a new instance.
      *
-     * @throws JsonMappingException
+     * @throws JsonMappingException If there is problem with contextualization
      */
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)

@@ -16,7 +16,8 @@ import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
  * JDK 1.5. Types are directly needed by JAXB, but may be unavailable on some
  * limited platforms; hence separate out from basic deserializer factory.
  */
-public class CoreXMLDeserializers extends Deserializers.Base {
+public class CoreXMLDeserializers extends Deserializers.Base
+{
     protected final static QName EMPTY_QNAME = QName.valueOf("");
 
     /**
@@ -25,7 +26,6 @@ public class CoreXMLDeserializers extends Deserializers.Base {
      * introspection) can be expensive we better reuse the instance.
      */
     final static DatatypeFactory _dataTypeFactory;
-
     static {
         try {
             _dataTypeFactory = DatatypeFactory.newInstance();
@@ -36,7 +36,8 @@ public class CoreXMLDeserializers extends Deserializers.Base {
 
     @Override
     public JsonDeserializer<?> findBeanDeserializer(JavaType type,
-                                                    DeserializationConfig config, BeanDescription beanDesc) {
+        DeserializationConfig config, BeanDescription beanDesc)
+    {
         Class<?> raw = type.getRawClass();
         if (raw == QName.class) {
             return new Std(raw, TYPE_QNAME);
@@ -76,7 +77,8 @@ public class CoreXMLDeserializers extends Deserializers.Base {
      *
      * @since 2.4
      */
-    public static class Std extends FromStringDeserializer<Object> {
+    public static class Std extends FromStringDeserializer<Object>
+    {
         private static final long serialVersionUID = 1L;
 
         protected final int _kind;
@@ -88,7 +90,8 @@ public class CoreXMLDeserializers extends Deserializers.Base {
 
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException {
+            throws IOException
+        {
             // GregorianCalendar also allows integer value (timestamp),
             // which needs separate handling
             if (_kind == TYPE_G_CALENDAR) {
@@ -105,7 +108,9 @@ public class CoreXMLDeserializers extends Deserializers.Base {
             return super.deserialize(p, ctxt);
         }
 
-        private QName _parseQNameObject(JsonParser p, DeserializationContext ctxt) throws IOException {
+        private QName _parseQNameObject(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+        {
             JsonNode tree = ctxt.readTree(p);
 
             if (!tree.has("localPart")) {
@@ -133,22 +138,24 @@ public class CoreXMLDeserializers extends Deserializers.Base {
 
         @Override
         protected Object _deserialize(String value, DeserializationContext ctxt)
-                throws IOException {
+            throws IOException
+        {
             switch (_kind) {
-                case TYPE_DURATION:
-                    return _dataTypeFactory.newDuration(value);
-                case TYPE_QNAME:
-                    return QName.valueOf(value);
-                case TYPE_G_CALENDAR:
-                    Date d;
-                    try {
-                        d = _parseDate(value, ctxt);
-                    } catch (JsonMappingException e) {
-                        // try to parse from native XML Schema 1.0 lexical representation String,
-                        // which includes time-only formats not handled by parseXMLGregorianCalendarFromJacksonFormat(...)
-                        return _dataTypeFactory.newXMLGregorianCalendar(value);
-                    }
-                    return _gregorianFromDate(ctxt, d);
+            case TYPE_DURATION:
+                return _dataTypeFactory.newDuration(value);
+            case TYPE_QNAME:
+                return QName.valueOf(value);
+            case TYPE_G_CALENDAR:
+                Date d;
+                try {
+                    d = _parseDate(value, ctxt);
+                }
+                catch (JsonMappingException e) {
+                    // try to parse from native XML Schema 1.0 lexical representation String,
+                    // which includes time-only formats not handled by parseXMLGregorianCalendarFromJacksonFormat(...)
+                    return _dataTypeFactory.newXMLGregorianCalendar(value);
+                }
+                return _gregorianFromDate(ctxt, d);
             }
             throw new IllegalStateException();
         }
@@ -162,7 +169,8 @@ public class CoreXMLDeserializers extends Deserializers.Base {
         }
 
         protected XMLGregorianCalendar _gregorianFromDate(DeserializationContext ctxt,
-                                                          Date d) {
+                Date d)
+        {
             if (d == null) {
                 return null;
             }
@@ -174,6 +182,5 @@ public class CoreXMLDeserializers extends Deserializers.Base {
             }
             return _dataTypeFactory.newXMLGregorianCalendar(calendar);
         }
-
     }
 }

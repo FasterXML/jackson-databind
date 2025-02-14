@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.ext;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
@@ -42,7 +42,8 @@ public class MiscJavaXMLTypesReadWriteTest
     }
 
     @Test
-    public void testQNameSerToObject() throws Exception {
+    public void testQNameSerToObject() throws Exception
+    {
         QName qn = new QName("http://abc", "tag", "prefix");
 
         ObjectMapper mapper = jsonMapperBuilder()

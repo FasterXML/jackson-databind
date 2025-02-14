@@ -33,7 +33,8 @@ class QNameAsObjectReadWrite4771Test extends DatabindTestUtil
 
     @ParameterizedTest
     @MethodSource("provideAllPerumtationsOfQNameConstructor")
-    void testQNameWithObjectSerialization(QName originalQName) throws JsonProcessingException {
+    void testQNameWithObjectSerialization(QName originalQName) throws JsonProcessingException
+    {
         BeanWithQName bean = new BeanWithQName(originalQName);
 
         String json = MAPPER.writeValueAsString(bean);
@@ -45,7 +46,8 @@ class QNameAsObjectReadWrite4771Test extends DatabindTestUtil
         assertEquals(originalQName.getPrefix(), deserializedQName.getPrefix());
     }
 
-    static Stream<Arguments> provideAllPerumtationsOfQNameConstructor() {
+    static Stream<Arguments> provideAllPerumtationsOfQNameConstructor()
+    {
         return Stream.of(
                 Arguments.of(new QName("test-local-part")),
                 Arguments.of(new QName("test-namespace-uri", "test-local-part")),

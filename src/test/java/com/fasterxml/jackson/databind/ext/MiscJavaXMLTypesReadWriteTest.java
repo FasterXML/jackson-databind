@@ -194,7 +194,6 @@ public class MiscJavaXMLTypesReadWriteTest
     /**********************************************************************
      */
 
-
     @Test
     public void testPolymorphicXMLGregorianCalendar() throws Exception
     {

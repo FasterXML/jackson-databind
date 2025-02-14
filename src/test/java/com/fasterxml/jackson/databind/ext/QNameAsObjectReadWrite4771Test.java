@@ -1,35 +1,35 @@
 package com.fasterxml.jackson.databind.ext;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import java.util.stream.Stream;
+import javax.xml.namespace.QName;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.xml.namespace.QName;
-import java.util.stream.Stream;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class QNameAsObjectReadWrite4771Test extends DatabindTestUtil
 {
-
     private final ObjectMapper MAPPER = newJsonMapper();
 
     static class BeanWithQName {
         @JsonFormat(shape = JsonFormat.Shape.OBJECT)
         public QName qname;
 
-        public BeanWithQName() {
-        }
+        BeanWithQName() { }
 
         public BeanWithQName(QName qName) {
             this.qname = qName;
         }
     }
-
 
     @ParameterizedTest
     @MethodSource("provideAllPerumtationsOfQNameConstructor")
@@ -54,5 +54,4 @@ class QNameAsObjectReadWrite4771Test extends DatabindTestUtil
                 Arguments.of(new QName("test-namespace-uri", "test-local-part", "test-prefix"))
         );
     }
-
 }

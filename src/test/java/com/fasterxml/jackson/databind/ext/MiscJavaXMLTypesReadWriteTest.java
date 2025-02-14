@@ -4,7 +4,9 @@ import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -34,10 +36,22 @@ public class MiscJavaXMLTypesReadWriteTest
      */
 
     @Test
-    public void testQNameSer() throws Exception
+    public void testQNameSerDefault() throws Exception
     {
         QName qn = new QName("http://abc", "tag", "prefix");
         assertEquals(q(qn.toString()), MAPPER.writeValueAsString(qn));
+    }
+
+    @Test
+    public void testQNameSerToObject() throws Exception
+    {
+        QName qn = new QName("http://abc", "tag", "prefix");
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(QName.class, cfg -> cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT)))
+                .build();
+
+        assertEquals(a2q("{'localPart':'tag','namespaceURI':'http://abc','prefix':'prefix'}"), mapper.writeValueAsString(qn));
     }
 
     @Test
@@ -122,6 +136,37 @@ public class MiscJavaXMLTypesReadWriteTest
     }
 
     @Test
+    public void testQNameDeserFromObject() throws Exception
+    {
+        String qstr = a2q("{'namespaceURI':'http://abc','localPart':'tag','prefix':'prefix'}");
+        // Ok to read with standard ObjectMapper, no `@JsonFormat` needed
+        QName qn = MAPPER.readValue(qstr, QName.class);
+
+        assertEquals("http://abc", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("prefix", qn.getPrefix());
+    }
+
+    @Test
+    public void testQNameDeserFail() throws Exception
+    {
+        try {
+            MAPPER.readValue("{}", QName.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Object value for `QName` is missing required property 'localPart'");
+        }
+
+        try {
+            MAPPER.readValue(a2q("{'localPart': 123}"), QName.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Object value property 'localPart'");
+            verifyException(e, "must be of type STRING, not NUMBER");
+        }
+    }
+
+    @Test
     public void testXMLGregorianCalendarDeser() throws Exception
     {
         DatatypeFactory dtf = DatatypeFactory.newInstance();
@@ -148,7 +193,6 @@ public class MiscJavaXMLTypesReadWriteTest
     /* Polymorphic handling tests
     /**********************************************************************
      */
-
 
     @Test
     public void testPolymorphicXMLGregorianCalendar() throws Exception

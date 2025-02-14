@@ -31,7 +31,8 @@ Project: jackson-databind
  (reported by @devdanylo)
  (fix by Joo-Hyuk K)
 #4771: `QName` (de)serialization ignores prefix
- (contributed by @mcvayc)
+ (reported by @jpraet)
+ (fix contributed by @mcvayc)
 #4772: Serialization and deserialization issue of sub-types used with
   `JsonTypeInfo.Id.DEDUCTION` where sub-types are Object and Array
  (reported by Eduard G)

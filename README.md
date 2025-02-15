@@ -599,7 +599,7 @@ usually a Jackson module.
 `master` branch is for developing the next major Jackson version -- 3.0 -- but there
 are active maintenance branches in which much of development happens:
 
-* `2.19` is the branch for "next" minor version to release (as of July 2023)
+* `2.19` is the branch for "next" minor version to release (as of February 2025)
 * `2.18` is the current stable minor 2.x version
 * `2.17` is for selected backported fixes
 

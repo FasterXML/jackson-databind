@@ -44,9 +44,13 @@ public class OptionalHandlerFactory
         }
 
         String className = rawType.getName();
-        if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML) || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
-            if (Duration.class.isAssignableFrom(rawType) || QName.class.isAssignableFrom(rawType)) {
+        if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
+                || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
+            if (Duration.class.isAssignableFrom(rawType)) {
                 return ToStringSerializer.instance;
+            }
+            if (QName.class.isAssignableFrom(rawType)) {
+                return QNameSerializer.instance;
             }
             if (XMLGregorianCalendar.class.isAssignableFrom(rawType)) {
                 return XMLGregorianCalendarSerializer.instance;

@@ -54,6 +54,9 @@
 
     <version.bytebuddy>1.15.10</version.bytebuddy>
     <version.mockito>4.11.0</version.mockito>
+    <version.maven-enforcer-plugin>3.5.0</version.maven-enforcer-plugin>
+    <version.jacoco-maven-plugin>0.8.12</version.jacoco-maven-plugin>
+    <jacocoStrict>true</jacocoStrict>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
@@ -84,6 +87,16 @@
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy-agent</artifactId>
         <version>${version.bytebuddy}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>${version.maven-enforcer-plugin}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${version.jacoco-maven-plugin}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -194,6 +207,9 @@
           <goals>
             <goal>prepare-agent</goal>
           </goals>
+          <configuration>
+              <propertyName>jacoco.argLine</propertyName>
+          </configuration>
         </execution>
         <!-- attached to Maven test phase -->
         <execution>
@@ -214,6 +230,23 @@
             <id>enforce-properties</id>
 	    <phase>validate</phase>
             <goals><goal>enforce</goal></goals>
+          </execution>
+          <execution>
+            <id>enforce-jacoco-exec</id>
+            <phase>test</phase>
+            <goals>
+                <goal>enforce</goal>
+            </goals>
+            <configuration>
+                <rules>
+                    <requireFilesExist>
+                        <files>
+                            <file>${project.build.directory}/jacoco.exec</file>
+                        </files>
+                    </requireFilesExist>
+                </rules>
+                <fail>${jacocoStrict}</fail>
+            </configuration>
           </execution>
         </executions>
       </plugin>

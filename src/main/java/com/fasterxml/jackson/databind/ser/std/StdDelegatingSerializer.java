@@ -174,7 +174,7 @@ public class StdDelegatingSerializer
     {
         // 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
         //    let's give it a chance?
-        Object delegateValue = convertValue(value);
+        Object delegateValue = convertValue(value, provider);
         // consider null (to be consistent with serialize method above)
         if (delegateValue == null) {
             provider.defaultSerializeNull(gen);
@@ -268,6 +268,21 @@ public class StdDelegatingSerializer
      */
     protected Object convertValue(Object value) {
         return _converter.convert(value);
+    }
+
+    /**
+     * Method called to convert from source Java value into delegate
+     * value (which will be serialized using standard Jackson serializer for delegate type)
+     *<P>
+     * The default implementation uses configured {@link Converter} to do
+     * conversion.
+     *
+     * @param value Value to convert
+     *
+     * @return Result of conversion
+     */
+    protected Object convertValue(Object value, SerializerProvider provider) {
+        return _converter.convert(value, provider);
     }
 
     /**

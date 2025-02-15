@@ -28,24 +28,35 @@ public class ShortNode
 
     /*
     /**********************************************************************
-    /* Overridden JsonNode methods
+    /* Overridden JsonNode methods, simple properties
     /**********************************************************************
      */
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
 
     @Override
-    public JsonParser.NumberType numberType() { return JsonParser.NumberType.INT; }			// should be SHORT
-
+    public JsonParser.NumberType numberType() {
+        // No SHORT enum so
+        return JsonParser.NumberType.INT;
+    }
 
     @Override
     public boolean isIntegralNumber() { return true; }
 
     @Override
+    public boolean isNaN() { return false; }
+    
+    @Override
     public boolean isShort() { return true; }
 
     @Override public boolean canConvertToInt() { return true; }
     @Override public boolean canConvertToLong() { return true; }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
 
     @Override
     public Number numberValue() {
@@ -58,6 +69,9 @@ public class ShortNode
     @Override
     public int intValue() { return _value; }
 
+    @Override
+    public int intValue(int defaultValue) { return _value; }
+    
     @Override
     public long longValue() { return _value; }
 

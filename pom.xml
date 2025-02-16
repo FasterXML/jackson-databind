@@ -54,8 +54,6 @@
 
     <version.bytebuddy>1.15.10</version.bytebuddy>
     <version.mockito>4.11.0</version.mockito>
-    <version.maven-enforcer-plugin>3.5.0</version.maven-enforcer-plugin>
-    <version.jacoco-maven-plugin>0.8.12</version.jacoco-maven-plugin>
     <jacocoStrict>true</jacocoStrict>
 
     <!-- Can not use default, since group id != Java package name here -->
@@ -87,16 +85,6 @@
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy-agent</artifactId>
         <version>${version.bytebuddy}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>${version.maven-enforcer-plugin}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>${version.jacoco-maven-plugin}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -207,14 +195,11 @@
           <goals>
             <goal>prepare-agent</goal>
           </goals>
-          <configuration>
-              <propertyName>jacoco.argLine</propertyName>
-          </configuration>
         </execution>
         <!-- attached to Maven test phase -->
         <execution>
 	  <id>report</id>
-	  <phase>test</phase>
+	  <phase>verify</phase>
 	  <goals>
 	    <goal>report</goal>
 	    </goals>
@@ -233,7 +218,7 @@
           </execution>
           <execution>
             <id>enforce-jacoco-exec</id>
-            <phase>test</phase>
+            <phase>verify</phase>
             <goals>
                 <goal>enforce</goal>
             </goals>

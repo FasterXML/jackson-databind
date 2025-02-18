@@ -161,7 +161,7 @@ public class EnumDeserializationTest
     }
 
     static enum StrictEnumCreator {
-        A, B;
+        A, B, @JsonEnumDefaultValue UNKNOWN;
 
         @JsonCreator public static StrictEnumCreator fromId(String value) {
             for (StrictEnumCreator e: values()) {
@@ -463,6 +463,19 @@ public class EnumDeserializationTest
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
         assertNull(reader.forType(StrictEnumCreator.class).readValue("\"NO-SUCH-VALUE\""));
         assertNull(reader.forType(StrictEnumCreator.class).readValue(" 4343 "));
+    }
+
+    @Test
+    public void testAllowUnknownEnumValuesReadAsDefaultWithCreatorMethod() throws Exception
+    {
+        ObjectReader reader = MAPPER.reader(
+            DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        assertEquals(
+            StrictEnumCreator.UNKNOWN,
+            reader.forType(StrictEnumCreator.class).readValue("\"NO-SUCH-VALUE\""));
+        assertEquals(
+            StrictEnumCreator.UNKNOWN,
+            reader.forType(StrictEnumCreator.class).readValue(" 4343 "));
     }
 
     @Test

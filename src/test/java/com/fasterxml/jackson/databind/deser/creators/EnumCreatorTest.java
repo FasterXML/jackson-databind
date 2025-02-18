@@ -125,7 +125,8 @@ public class EnumCreatorTest extends DatabindTestUtil
                 for (AnnotatedMethod am : factoryMethods) {
                     final JsonCreator creator = am.getAnnotation(JsonCreator.class);
                     if (creator != null) {
-                        return EnumDeserializer.deserializerForCreator(config, type, am, null, null);
+                        return EnumDeserializer.deserializerForCreator(
+                            config, type, am, null, null, null);
                     }
                 }
             }

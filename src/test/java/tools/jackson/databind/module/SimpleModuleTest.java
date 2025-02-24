@@ -1,9 +1,7 @@
 package tools.jackson.databind.module;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.StringReader;
-import java.lang.reflect.Type;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -14,7 +12,6 @@ import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperBuilder;
-import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;

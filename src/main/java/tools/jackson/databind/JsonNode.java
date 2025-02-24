@@ -856,7 +856,8 @@ public abstract class JsonNode
      * this node is numeric ({@link #isNumber} returns true). For other
      * types returns <code>BigDecimal.ZERO</code>.
      *
-     * @return {@link BigDecimal} value this node contains, if numeric node; <code>BigDecimal.ZERO</code> for non-number nodes.
+     * @return {@link BigDecimal} value this node contains, if numeric node;
+     *   {@code BigDecimal.ZERO} for non-number nodes.
      */
     public BigDecimal decimalValue() { return BigDecimal.ZERO; }
 

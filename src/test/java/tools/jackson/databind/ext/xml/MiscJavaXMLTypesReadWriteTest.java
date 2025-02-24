@@ -4,8 +4,12 @@ import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.core.json.JsonWriteFeature;
+
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -33,13 +37,26 @@ public class MiscJavaXMLTypesReadWriteTest
             .build();
 
     @Test
-    public void testQNameSer() throws Exception
+    public void testQNameSerDefault() throws Exception
     {
         QName qn = new QName("http://abc", "tag", "prefix");
         assertEquals(q(qn.toString()),
                 MAPPER.writer()
                     .without(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
                     .writeValueAsString(qn));
+    }
+
+    @Test
+    public void testQNameSerToObject() throws Exception
+    {
+        QName qn = new QName("http://abc", "tag", "prefix");
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(QName.class, cfg -> cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT)))
+                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
+                .build();
+
+        assertEquals(a2q("{'localPart':'tag','namespaceURI':'http://abc','prefix':'prefix'}"), mapper.writeValueAsString(qn));
     }
 
     @Test
@@ -109,6 +126,37 @@ public class MiscJavaXMLTypesReadWriteTest
         qn = MAPPER.readValue(q(""), QName.class);
         assertNotNull(qn);
         assertEquals("", qn.getLocalPart());
+    }
+
+    @Test
+    public void testQNameDeserFromObject() throws Exception
+    {
+        String qstr = a2q("{'namespaceURI':'http://abc','localPart':'tag','prefix':'prefix'}");
+        // Ok to read with standard ObjectMapper, no `@JsonFormat` needed
+        QName qn = MAPPER.readValue(qstr, QName.class);
+
+        assertEquals("http://abc", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("prefix", qn.getPrefix());
+    }
+
+    @Test
+    public void testQNameDeserFail() throws Exception
+    {
+        try {
+            MAPPER.readValue("{}", QName.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Object value for `QName` is missing required property 'localPart'");
+        }
+
+        try {
+            MAPPER.readValue(a2q("{'localPart': 123}"), QName.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Object value property 'localPart'");
+            verifyException(e, "must be of type STRING, not NUMBER");
+        }
     }
 
     @Test

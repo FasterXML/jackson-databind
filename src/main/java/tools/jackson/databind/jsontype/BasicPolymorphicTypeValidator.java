@@ -17,6 +17,7 @@ import tools.jackson.databind.JavaType;
  *<br>
  * For example:
  *<pre>
+ *  [ADD EXAMPLE HERE]
  *</pre>
  */
 public class BasicPolymorphicTypeValidator

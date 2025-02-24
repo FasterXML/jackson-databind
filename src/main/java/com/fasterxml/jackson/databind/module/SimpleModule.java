@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
  * NOTE: that [de]serializers are registered as "default" [de]serializers. 
  * As a result, they will have lower priority than the ones indicated through annotations on 
  * both Class and property-associated annotations -- for example, 
- * {@link com.fasterxml.jackson.databind.annotation.JsonDeserialize}.<br/>
+ * {@link com.fasterxml.jackson.databind.annotation.JsonDeserialize}.<br>
  * In cases where both module-based [de]serializers and annotation-based [de]serializers are registered, 
  * the [de]serializer specified by the annotation will take precedence.
  *<p>

@@ -31,7 +31,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>2.17.1</jackson.version>
+  <jackson.version>2.18.2</jackson.version>
   ...
 </properties>
 
@@ -599,9 +599,9 @@ usually a Jackson module.
 `master` branch is for developing the next major Jackson version -- 3.0 -- but there
 are active maintenance branches in which much of development happens:
 
-* `2.16` is the branch for "next" minor version to release (as of July 2023)
-* `2.15` is the current stable minor 2.x version
-* `2.14` is for selected backported fixes
+* `2.19` is the branch for "next" minor version to release (as of February 2025)
+* `2.18` is the current stable minor 2.x version
+* `2.17` is for selected backported fixes
 
 Older branches are usually not maintained after being declared as closed
 on [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases) page,

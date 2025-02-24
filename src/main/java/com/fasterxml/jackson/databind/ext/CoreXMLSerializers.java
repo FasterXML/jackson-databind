@@ -7,6 +7,7 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
@@ -34,8 +35,11 @@ public class CoreXMLSerializers extends Serializers.Base
             JavaType type, BeanDescription beanDesc)
     {
         Class<?> raw = type.getRawClass();
-        if (Duration.class.isAssignableFrom(raw) || QName.class.isAssignableFrom(raw)) {
+        if (Duration.class.isAssignableFrom(raw)) {
             return ToStringSerializer.instance;
+        }
+        if (QName.class.isAssignableFrom(raw)) {
+            return QNameSerializer.instance;
         }
         if (XMLGregorianCalendar.class.isAssignableFrom(raw)) {
             return XMLGregorianCalendarSerializer.instance;
@@ -114,6 +118,75 @@ public class CoreXMLSerializers extends Serializers.Base
 
         protected Calendar _convert(XMLGregorianCalendar input) {
             return (input == null) ? null : input.toGregorianCalendar();
+        }
+    }
+
+    /**
+     * @since 2.19
+     */
+    public static class QNameSerializer
+        extends StdSerializer<QName>
+        implements ContextualSerializer
+    {
+        private static final long serialVersionUID = 1L;
+
+        public final static JsonSerializer<?> instance = new QNameSerializer();
+
+        public QNameSerializer() {
+            super(QName.class);
+        }
+
+        @Override
+        public JsonSerializer<?> createContextual(SerializerProvider serializers, BeanProperty property)
+            throws JsonMappingException
+        {
+            JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
+            if (format != null) {
+                JsonFormat.Shape shape = format.getShape();
+                if (shape == JsonFormat.Shape.OBJECT) {
+                    return this;
+                }
+            }
+            return ToStringSerializer.instance;
+        }
+
+        @Override
+        public void serialize(QName value, JsonGenerator g, SerializerProvider ctxt)
+            throws IOException
+        {
+            g.writeStartObject(value);
+            serializeProperties(value, g, ctxt);
+            g.writeEndObject();
+        }
+
+        @Override
+        public final void serializeWithType(QName value, JsonGenerator g, SerializerProvider ctxt,
+                TypeSerializer typeSer)
+            throws IOException
+        {
+            WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                    typeSer.typeId(value, JsonToken.START_OBJECT));
+            serializeProperties(value, g, ctxt);
+            typeSer.writeTypeSuffix(g, typeIdDef);
+        }
+
+        private void serializeProperties(QName value, JsonGenerator g, SerializerProvider ctxt)
+            throws IOException
+        {
+            g.writeStringField("localPart", value.getLocalPart());
+            if (!value.getNamespaceURI().isEmpty()) {
+                g.writeStringField("namespaceURI", value.getNamespaceURI());
+            }
+            if (!value.getPrefix().isEmpty()) {
+                g.writeStringField("prefix", value.getPrefix());
+            }
+        }
+
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException {
+            /*JsonObjectFormatVisitor v =*/ visitor.expectObjectFormat(typeHint);
+            // TODO: would need to visit properties too, see `BeanSerializerBase`
         }
     }
 }

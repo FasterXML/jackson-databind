@@ -511,9 +511,9 @@ ClassUtil.name(propName)));
             BeanDescription beanDesc, BeanDeserializerBuilder builder)
         throws JsonMappingException
     {
-        final boolean isConcrete = !beanDesc.getType().isAbstract();
-        final SettableBeanProperty[] creatorProps = isConcrete
-                ? builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig())
+        final ValueInstantiator valueInstantiator = builder.getValueInstantiator();
+        final SettableBeanProperty[] creatorProps = (valueInstantiator != null)
+                ? valueInstantiator.getFromObjectArguments(ctxt.getConfig())
                 : null;
         final boolean hasCreatorProps = (creatorProps != null);
 

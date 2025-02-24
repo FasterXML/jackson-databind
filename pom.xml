@@ -55,6 +55,8 @@
     <version.bytebuddy>1.15.10</version.bytebuddy>
     <version.mockito>5.15.2</version.mockito>
 
+    <jacocoStrict>true</jacocoStrict>
+
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>tools.jackson.databind.*;version=${project.version}</osgi.export>
     <!-- fix for databind#2299: using jackson-databind in an OSGi environment under Android -->
@@ -249,6 +251,35 @@
             <goals>
               <goal>report</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Important: enable enforcer plug-in: -->
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions> <!-- or?  combine.children="merge"> -->
+          <execution>
+            <id>enforce-properties</id>
+         <phase>validate</phase>
+            <goals><goal>enforce</goal></goals>
+          </execution>
+          <execution>
+            <id>enforce-jacoco-exec</id>
+            <phase>verify</phase>
+            <goals>
+                <goal>enforce</goal>
+            </goals>
+            <configuration>
+                <rules>
+                    <requireFilesExist>
+                        <files>
+                            <file>${project.build.directory}/jacoco.exec</file>
+                        </files>
+                    </requireFilesExist>
+                </rules>
+                <fail>${jacocoStrict}</fail>
+            </configuration>
           </execution>
         </executions>
       </plugin>

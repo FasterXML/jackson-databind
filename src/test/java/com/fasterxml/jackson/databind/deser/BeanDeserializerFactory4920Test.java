@@ -1,5 +1,10 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.io.IOException;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -8,10 +13,6 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
@@ -20,20 +21,6 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMappe
  * breaking {@link com.fasterxml.jackson.databind.jsontype.impl.AsExternalTypeDeserializer}.
  */
 public class BeanDeserializerFactory4920Test {
-
-    @Test
-    void testDeserializeAbstract() throws Exception {
-        ObjectMapper objectMapper = jsonMapperBuilder().build();
-
-        //language=JSON
-        String json = "{ \"value\": \"1234567890\", \"type\": \"" + StringValue.class.getName() + "\" }";
-
-        TypedData actual = objectMapper.readValue(json, TypedData.class);
-
-        Assertions.assertNotNull(actual);
-        Assertions.assertInstanceOf(StringValue.class, actual.getValue());
-        Assertions.assertEquals("1234567890", ((StringValue) actual.getValue()).getValue());
-    }
 
     private interface TypedData {
         @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type", visible = true)
@@ -125,5 +112,19 @@ public class BeanDeserializerFactory4920Test {
         public long getValue() {
             return value;
         }
+    }
+
+    @Test
+    void testDeserializeAbstract() throws Exception {
+        ObjectMapper objectMapper = jsonMapperBuilder().build();
+
+        //language=JSON
+        String json = "{ \"value\": \"1234567890\", \"type\": \"" + StringValue.class.getName() + "\" }";
+
+        TypedData actual = objectMapper.readValue(json, TypedData.class);
+
+        Assertions.assertNotNull(actual);
+        Assertions.assertInstanceOf(StringValue.class, actual.getValue());
+        Assertions.assertEquals("1234567890", ((StringValue) actual.getValue()).getValue());
     }
 }

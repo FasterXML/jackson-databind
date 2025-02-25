@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.creators;
 
 import java.io.IOException;
 
@@ -14,15 +14,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 /**
- * Unit test for [databind#4920]: Creator properties are ignored on abstract types when collecting bean properties,
- * breaking {@link com.fasterxml.jackson.databind.jsontype.impl.AsExternalTypeDeserializer}.
+ * Unit test for [databind#4920]: Creator properties are ignored on abstract types when
+ * collecting bean properties, breaking
+ * {@link com.fasterxml.jackson.databind.jsontype.impl.AsExternalTypeDeserializer}.
  */
-public class BeanDeserializerFactory4920Test {
-
-    private interface TypedData {
+public class BeanDeserializerFactory4920Test
+{
+    interface TypedData {
         @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type", visible = true)
         @JsonTypeIdResolver(ValueTypeIdResolver.class)
         Value getValue();
@@ -85,10 +86,10 @@ public class BeanDeserializerFactory4920Test {
         }
     }
 
-    private interface Value {
+    interface Value {
     }
 
-    private static final class StringValue implements Value {
+    static final class StringValue implements Value {
 
         private final String value;
 
@@ -101,7 +102,7 @@ public class BeanDeserializerFactory4920Test {
         }
     }
 
-    private static final class LongValue implements Value {
+    static final class LongValue implements Value {
 
         private final long value;
 
@@ -116,7 +117,7 @@ public class BeanDeserializerFactory4920Test {
 
     @Test
     void testDeserializeAbstract() throws Exception {
-        ObjectMapper objectMapper = jsonMapperBuilder().build();
+        ObjectMapper objectMapper = newJsonMapper();
 
         //language=JSON
         String json = "{ \"value\": \"1234567890\", \"type\": \"" + StringValue.class.getName() + "\" }";

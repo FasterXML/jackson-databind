@@ -1880,3 +1880,8 @@ Gustavo Bazan (@gssbzn)
  * Reported #4908: Deserialization behavior change with @JsonCreator and
    @ConstructorProperties between 2.17 and 2.18
   (2.18.3)
+
+Zhen Lin Low (@zhenlin-pay2)
+ * Reported, fixed #4920: Creator properties are ignored on abstract types
+   when collecting bean properties, breaking AsExternalTypeDeserializer
+  (2.18.3)

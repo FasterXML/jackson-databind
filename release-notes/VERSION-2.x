@@ -86,6 +86,9 @@ Project: jackson-databind
  (reported by Gustavo B)
 #4917: `BigDecimal` deserialization issue when using `@JsonCreator`
  (reported by @dbachdev)
+#4920: Creator properties are ignored on abstract types when collecting
+  bean properties, breaking AsExternalTypeDeserializer
+ (reported, fix contributed by Zhen L-L)
 #4922: Failing `@JsonMerge` with a custom Map
  (reported by @nlisker)
 #4932: Conversion of `MissingNode` throws `JsonProcessingException`

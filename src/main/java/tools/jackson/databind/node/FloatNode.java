@@ -29,7 +29,7 @@ public class FloatNode extends NumericNode
 
     /*
     /**********************************************************************
-    /* BaseJsonNode extended API
+    /* Overridden JsonNode methods, simple properties
     /**********************************************************************
      */
 
@@ -38,12 +38,6 @@ public class FloatNode extends NumericNode
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.FLOAT; }
 
-    /*
-    /**********************************************************************
-    /* Overrridden JsonNode methods
-    /**********************************************************************
-     */
-
     @Override
     public boolean isFloatingPointNumber() { return true; }
 
@@ -51,18 +45,23 @@ public class FloatNode extends NumericNode
     public boolean isFloat() { return true; }
 
     @Override public boolean canConvertToInt() {
-        return (_value >= Integer.MIN_VALUE && _value <= Integer.MAX_VALUE);
+        return canConvertToExactIntegral() && _inIntRange();
     }
 
     @Override public boolean canConvertToLong() {
-        return (_value >= Long.MIN_VALUE && _value <= Long.MAX_VALUE);
+        return canConvertToExactIntegral() && _inLongRange();
     }
 
-    @Override // since 2.12
+    @Override
     public boolean canConvertToExactIntegral() {
-        return !Float.isNaN(_value) && !Float.isInfinite(_value)
-                && (_value == Math.round(_value));
+        return !isNaN() && !_hasFractionalPart();
     }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
 
     @Override
     public Number numberValue() {
@@ -73,7 +72,25 @@ public class FloatNode extends NumericNode
     public short shortValue() { return (short) _value; }
 
     @Override
-    public int intValue() { return (int) _value; }
+    public int intValue() {
+        if (isNaN() || !_inIntRange()) {
+            _reportCoercionFail("intValue()", Integer.TYPE,
+                    "value not in 32-bit `int` range");
+        }
+        if (_hasFractionalPart()) {
+            _reportCoercionFail("intValue()", Integer.TYPE,
+                    "value has fractional part");
+        }
+        return (int) _value;
+    }
+
+    @Override
+    public int intValue(int defaultValue) {
+        if (isNaN() || !_inIntRange() || _hasFractionalPart()) {
+             return defaultValue;
+        }
+        return (int) _value;
+    }
 
     @Override
     public long longValue() { return (long) _value; }
@@ -125,5 +142,15 @@ public class FloatNode extends NumericNode
     @Override
     public int hashCode() {
         return Float.floatToIntBits(_value);
+    }
+
+    private boolean _hasFractionalPart() { return _value != Math.round(_value); }
+
+    private boolean _inIntRange() {
+        return (_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
+    }
+
+    private boolean _inLongRange() {
+        return (_value >= Long.MIN_VALUE) && (_value <= Long.MAX_VALUE);
     }
 }

@@ -469,15 +469,14 @@ public abstract class JsonNode
 
     /**
      * Method that can be used to check whether this node is a numeric
-     * node ({@link #isNumber} would return true) AND its value fits
-     * within Java's 32-bit signed integer type, <code>int</code>.
-     * Note that floating-point numbers are convertible if the integral
-     * part fits without overflow (as per standard Java coercion rules)
+     * node ({@link #isNumber} would return true)
+     * AND can be converted without loss to it (that is, its value fits
+     * within Java's 32-bit signed integer type, <code>int</code> and
+     * if it is a floating-point number, it does not have fractional part).
      *<p>
      * NOTE: this method does not consider possible value type conversion
-     * from JSON String into Number; so even if this method returns false,
-     * it is possible that {@link #asInt} could still succeed
-     * if node is a JSON String representing integral number, or boolean.
+     * from non-number types like JSON String into Number; so even if this method returns false,
+     * it is possible that {@link #asInt} could still succeed.
      *
      * @since 2.0
      */
@@ -485,15 +484,14 @@ public abstract class JsonNode
 
     /**
      * Method that can be used to check whether this node is a numeric
-     * node ({@link #isNumber} would return true) AND its value fits
-     * within Java's 64-bit signed integer type, <code>long</code>.
-     * Note that floating-point numbers are convertible if the integral
-     * part fits without overflow (as per standard Java coercion rules)
+     * node ({@link #isNumber} would return true)
+     * AND can be converted without loss to it (that is, its value fits
+     * within Java's 64-bit signed integer type, <code>long</code> and
+     * if it is a floating-point number, it does not have fractional part).
      *<p>
      * NOTE: this method does not consider possible value type conversion
-     * from JSON String into Number; so even if this method returns false,
-     * it is possible that {@link #asLong} could still succeed
-     * if node is a JSON String representing integral number, or boolean.
+     * from non-number types like JSON String into Number; so even if this method returns false,
+     * it is possible that {@link #asLong} could still succeed.
      */
     public boolean canConvertToLong() { return false; }
 
@@ -682,16 +680,36 @@ public abstract class JsonNode
     // // Scalar access: Numbers, Java int
 
     /**
-     * Returns integer value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.
-     * For floating-point numbers, value is truncated using default
-     * Java coercion, similar to how cast from double to int operates.
+     * Method that will try to access value of this node as a Java {@code int}:
+     * but if node value cannot be expressed <b>exactly</b> as an int,
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Integer values that fit in Java 32-bit signed {@code int} range
+     *   </li>
+     *  <li>JSON Floating-point values that fit in Java 32-bit signed {@code int} range
+     *    AND do not have fractional part.
+     *    </li>
+     * </ul>
+     *<p>
+     * NOTE: for more lenient conversions, use {@link #asInt()}
      *
-     * @return Integer value this node contains, if any; 0 for non-number
-     *   nodes.
+     * @return Int value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node cannot be converted to Java {@code int}
      */
-    public int intValue() { return 0; }
+    public abstract int intValue();
+
+    /**
+     * Method similar to {@link #intValue()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to Java {@code int}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to Java {@code int}
+     *
+     * @return Java {@code int} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
+     */
+    public abstract int intValue(int defaultValue);
 
     /**
      * Method that will try to convert value of this node to a Java <b>int</b>.

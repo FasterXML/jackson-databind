@@ -36,9 +36,9 @@ public class BigIntegerNode
     public static BigIntegerNode valueOf(BigInteger v) { return new BigIntegerNode(v); }
 
     /*
-    /**********************************************************
-    /* Overridden JsonNode methods
-    /**********************************************************
+    /**********************************************************************
+    /* Overridden JsonNode methods, simple properties
+    /**********************************************************************
      */
 
     @Override
@@ -48,18 +48,30 @@ public class BigIntegerNode
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.BIG_INTEGER; }
 
     @Override
+    public boolean isBigInteger() { return true; }
+
+    @Override
     public boolean isIntegralNumber() { return true; }
 
     @Override
-    public boolean isBigInteger() { return true; }
+    public boolean isNaN() { return false; }
 
     @Override public boolean canConvertToInt() {
-        return (_value.compareTo(MIN_INTEGER) >= 0) && (_value.compareTo(MAX_INTEGER) <= 0);
-    }
-    @Override public boolean canConvertToLong() {
-        return (_value.compareTo(MIN_LONG) >= 0) && (_value.compareTo(MAX_LONG) <= 0);
+        return (_value.compareTo(MIN_INTEGER) >= 0)
+                && (_value.compareTo(MAX_INTEGER) <= 0);
     }
 
+    @Override public boolean canConvertToLong() {
+        return (_value.compareTo(MIN_LONG) >= 0)
+                && (_value.compareTo(MAX_LONG) <= 0);
+    }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
+    
     @Override
     public Number numberValue() {
         return _value;
@@ -69,7 +81,18 @@ public class BigIntegerNode
     public short shortValue() { return _value.shortValue(); }
 
     @Override
-    public int intValue() { return _value.intValue(); }
+    public int intValue() {
+        if (canConvertToInt()) {
+            return _value.intValue();
+        }
+        return _reportCoercionFail("intValue()", Integer.TYPE,
+                "value not in 32-bit `int` range");
+    }
+
+    @Override
+    public int intValue(int defaultValue) {
+        return canConvertToInt() ? _value.intValue() : defaultValue;
+    }
 
     @Override
     public long longValue() { return _value.longValue(); }

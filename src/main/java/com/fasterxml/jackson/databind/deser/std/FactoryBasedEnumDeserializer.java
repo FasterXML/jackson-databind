@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.EnumResolver;
 
 /**
  * Deserializer that uses a single-String static factory method
@@ -34,6 +36,7 @@ class FactoryBasedEnumDeserializer
     protected final JsonDeserializer<?> _deser;
     protected final ValueInstantiator _valueInstantiator;
     protected final SettableBeanProperty[] _creatorProps;
+    protected final Enum<?> _defaultValue;
 
     protected final boolean _hasArgs;
 
@@ -45,7 +48,8 @@ class FactoryBasedEnumDeserializer
     private transient volatile PropertyBasedCreator _propCreator;
 
     public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
-            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
+            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps,
+            EnumResolver enumResolver)
     {
         super(cls);
         _factory = f;
@@ -56,6 +60,13 @@ class FactoryBasedEnumDeserializer
         _deser = null;
         _valueInstantiator = valueInstantiator;
         _creatorProps = creatorProps;
+        _defaultValue = Objects.nonNull(enumResolver)? enumResolver.getDefaultValue() : null;
+    }
+
+    public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
+            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
+    {
+        this(cls, f, paramType, valueInstantiator, creatorProps, null);
     }
 
     /**
@@ -70,6 +81,7 @@ class FactoryBasedEnumDeserializer
         _deser = null;
         _valueInstantiator = null;
         _creatorProps = null;
+        _defaultValue = null;
     }
 
     protected FactoryBasedEnumDeserializer(FactoryBasedEnumDeserializer base,
@@ -80,6 +92,7 @@ class FactoryBasedEnumDeserializer
         _hasArgs = base._hasArgs;
         _valueInstantiator = base._valueInstantiator;
         _creatorProps = base._creatorProps;
+        _defaultValue = base._defaultValue;
 
         _deser = deser;
     }
@@ -201,6 +214,10 @@ class FactoryBasedEnumDeserializer
                 // [databind#1642]:
                 if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                     return null;
+                }
+
+                if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
+                    return _defaultValue;
                 }
                 // 12-Oct-2021, tatu: Should probably try to provide better exception since
                 //   we likely hit argument incompatibility... Or can this happen?

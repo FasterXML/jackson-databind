@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -93,10 +94,12 @@ public class BeanDeserializerFactory4920Test
 
         private final String value;
 
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public StringValue(String value) {
             this.value = value;
         }
 
+        @JsonValue
         public String getValue() {
             return value;
         }
@@ -106,10 +109,12 @@ public class BeanDeserializerFactory4920Test
 
         private final long value;
 
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public LongValue(long value) {
             this.value = value;
         }
 
+        @JsonValue
         public long getValue() {
             return value;
         }

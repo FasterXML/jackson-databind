@@ -1,4 +1,4 @@
-package tools.jackson.databind.misc;
+package tools.jackson.databind.util;
 
 import java.util.Arrays;
 

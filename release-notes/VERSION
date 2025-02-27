@@ -98,8 +98,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `JsonNode.xxxStringYyy()` [JSTEP-3]
 #4891: Change 3.0 to use `module-info.java` directly for build (instead of via Moditect)
 #4956: Rename `JsonNode.isContainerNode()` as `isContainerNode()`
-#4992: Add `JsonNodeFactory.stringNode()` as replacement for
- `JsonNodeFactory.textNode()` [JSTEP-3]
+#4992: Rename `JsonNodeFactory.textNode()` as `JsonNodeFactory.stringNode()` [JSTEP-3]
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)
 - Default for `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES` changed to `false` for 3.0

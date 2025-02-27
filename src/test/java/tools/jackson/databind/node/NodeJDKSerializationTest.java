@@ -84,7 +84,7 @@ public class NodeJDKSerializationTest extends DatabindTestUtil
     {
         testNodeRoundtrip(MAPPER.getNodeFactory().nullNode());
 
-        testNodeRoundtrip(MAPPER.getNodeFactory().textNode("Foobar"));
+        testNodeRoundtrip(MAPPER.getNodeFactory().stringNode("Foobar"));
 
         testNodeRoundtrip(MAPPER.getNodeFactory().booleanNode(true));
         testNodeRoundtrip(MAPPER.getNodeFactory().booleanNode(false));

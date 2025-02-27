@@ -993,7 +993,7 @@ public class ObjectReader
 
     @Override
     public JsonNode stringNode(String text) {
-        return _config.getNodeFactory().textNode(text);
+        return _config.getNodeFactory().stringNode(text);
     }
 
     @Override

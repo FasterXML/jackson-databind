@@ -501,9 +501,9 @@ ClassUtil.name(propName)));
     protected void addBeanProps(DeserializationContext ctxt,
             BeanDescription beanDesc, BeanDeserializerBuilder builder)
     {
-        final boolean isConcrete = !beanDesc.getType().isAbstract();
-        final SettableBeanProperty[] creatorProps = isConcrete
-                ? builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig())
+        final ValueInstantiator valueInstantiator = builder.getValueInstantiator();
+        final SettableBeanProperty[] creatorProps = (valueInstantiator != null)
+                ? valueInstantiator.getFromObjectArguments(ctxt.getConfig())
                 : null;
         final boolean hasCreatorProps = (creatorProps != null);
 

@@ -125,7 +125,7 @@ public class JsonNodeIntValueTest
     {
         _assertFailIntForNonNumber(NODES.booleanNode(true));
         _assertFailIntForNonNumber(NODES.binaryNode(new byte[3]));
-        _assertFailIntForNonNumber(NODES.textNode("false"));
+        _assertFailIntForNonNumber(NODES.stringNode("false"));
         _assertFailIntForNonNumber(NODES.rawValueNode(new RawValue("abc")));
         _assertFailIntForNonNumber(NODES.pojoNode(Boolean.TRUE));
     }

@@ -10,12 +10,12 @@
   <parent>
     <groupId>tools.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0-rc1-SNAPSHOT</version>
   </parent>
 
   <groupId>tools.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.0.0-rc1-SNAPSHOT</version>
   <name>jackson-databind</name>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
   <url>https://github.com/FasterXML/jackson</url>
@@ -70,7 +70,7 @@
     <packageVersion.package>tools.jackson.databind.cfg</packageVersion.package>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2022-09-18T00:00:00Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-02-27T00:07:25Z</project.build.outputTimestamp>
   </properties>
 
   <dependencyManagement>
@@ -239,20 +239,6 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>report</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
       <!-- Important: enable enforcer plug-in: -->
@@ -334,9 +320,8 @@
         <skipTests>true</skipTests>
       </properties>
     </profile>
-    <!-- 07-Dec-2021, tatu: This is a huge mess, sorry folks... -->
     <profile>
-      <!-- And different set up for JDK 21 -->
+      <!-- Different set up for JDK 21 tests (baseline JDK 17) -->
       <id>java21</id>
       <activation>
         <jdk>[21,)</jdk>

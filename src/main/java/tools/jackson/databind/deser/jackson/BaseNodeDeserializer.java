@@ -262,7 +262,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
                             stack, nodeFactory.arrayNode());
                     break;
                 case JsonTokenId.ID_STRING:
-                    value = nodeFactory.textNode(p.getString());
+                    value = nodeFactory.stringNode(p.getString());
                     break;
                 case JsonTokenId.ID_NUMBER_INT:
                     value = _fromInt(p, ctxt, nodeFactory);
@@ -345,7 +345,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
                         }
                         continue outer_loop;
                         case JsonTokenId.ID_STRING:
-                            value = nodeFactory.textNode(p.getString());
+                            value = nodeFactory.stringNode(p.getString());
                             break;
                         case JsonTokenId.ID_NUMBER_INT:
                             value = _fromInt(p, intCoercionFeats, nodeFactory);
@@ -400,7 +400,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
                         case JsonTokenId.ID_END_ARRAY:
                             break arrayLoop;
                         case JsonTokenId.ID_STRING:
-                            currArray.add(nodeFactory.textNode(p.getString()));
+                            currArray.add(nodeFactory.stringNode(p.getString()));
                             continue arrayLoop;
                         case JsonTokenId.ID_NUMBER_INT:
                             currArray.add(_fromInt(p, intCoercionFeats, nodeFactory));
@@ -440,7 +440,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
             case JsonTokenId.ID_END_OBJECT:
                 return nodeF.objectNode();
             case JsonTokenId.ID_STRING:
-                return nodeF.textNode(p.getString());
+                return nodeF.stringNode(p.getString());
             case JsonTokenId.ID_NUMBER_INT:
                 return _fromInt(p, ctxt, nodeF);
             case JsonTokenId.ID_NUMBER_FLOAT:

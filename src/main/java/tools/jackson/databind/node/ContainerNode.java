@@ -151,7 +151,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     public final ValueNode numberNode(Double v) { return _nodeFactory.numberNode(v); }
 
     @Override
-    public final StringNode textNode(String text) { return _nodeFactory.textNode(text); }
+    public final StringNode stringNode(String text) { return _nodeFactory.stringNode(text); }
 
     @Override
     public final BinaryNode binaryNode(byte[] data) { return _nodeFactory.binaryNode(data); }

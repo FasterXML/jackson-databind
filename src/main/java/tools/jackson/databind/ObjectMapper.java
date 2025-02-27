@@ -859,7 +859,7 @@ public class ObjectMapper
 
     @Override
     public JsonNode stringNode(String text) {
-        return _deserializationConfig.getNodeFactory().textNode(text);
+        return _deserializationConfig.getNodeFactory().stringNode(text);
     }
 
     @Override

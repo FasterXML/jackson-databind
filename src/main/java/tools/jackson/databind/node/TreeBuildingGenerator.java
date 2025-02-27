@@ -615,7 +615,7 @@ public class TreeBuildingGenerator
         @Override
         public void writeNumber(ValueNode v) { _node = v; }
         @Override
-        public void writeString(String v) { _node = _nodeFactory.textNode(v); }
+        public void writeString(String v) { _node = _nodeFactory.stringNode(v); }
 
         @Override
         public void writePOJO(Object value) { _node = _nodeFactory.pojoNode(value); }

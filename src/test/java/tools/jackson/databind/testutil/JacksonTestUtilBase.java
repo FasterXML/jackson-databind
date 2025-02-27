@@ -90,6 +90,9 @@ public class JacksonTestUtilBase
      */
     public static void verifyException(Throwable e, String... anyMatches)
     {
+        if (e == null) {
+             fail("Should have failed, but did not");
+        }
         String msg = e.getMessage();
         String lmsg = (msg == null) ? "" : msg.toLowerCase();
         for (String match : anyMatches) {

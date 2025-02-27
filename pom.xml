@@ -55,8 +55,7 @@
     <version.bytebuddy>1.15.10</version.bytebuddy>
     <version.mockito>5.15.2</version.mockito>
 
-    <!-- 26-Feb-2025, tatu: temporarily suspend enforcement -->
-    <jacocoStrict>false</jacocoStrict>
+    <jacocoStrict>true</jacocoStrict>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>tools.jackson.databind.*;version=${project.version}</osgi.export>
@@ -215,8 +214,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <!-- Needed by some of the tests -->
-          <!-- Note: need to prepend with "${argLine}" to make JaCoCo work -->
-          <argLine>--add-opens=java.base/java.util=tools.jackson.databind
+          <argLine>${argLine} --add-opens=java.base/java.util=tools.jackson.databind
           </argLine>
           <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
                   ... although not 100% sure this makes much difference TBH
@@ -365,8 +363,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-               <!-- Note: need to prepend with "${argLine}" to make JaCoCo work -->
-               <argLine>--add-opens=java.base/java.util=tools.jackson.databind
+               <argLine>${argLine} --add-opens=java.base/java.util=tools.jackson.databind
                </argLine>
             </configuration>
           </plugin>

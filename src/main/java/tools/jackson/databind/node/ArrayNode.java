@@ -729,7 +729,7 @@ public class ArrayNode
      * @return This array node, to allow chaining
      */
     public ArrayNode add(String v) {
-        return _add((v == null) ? nullNode() : textNode(v));
+        return _add((v == null) ? nullNode() : stringNode(v));
     }
 
     /**
@@ -950,7 +950,7 @@ public class ArrayNode
      * @return This array node, to allow chaining
      */
     public ArrayNode insert(int index, String v) {
-        return _insert(index, (v == null) ? nullNode() : textNode(v));
+        return _insert(index, (v == null) ? nullNode() : stringNode(v));
     }
 
     /**
@@ -1121,7 +1121,7 @@ public class ArrayNode
      * @return This node (to allow chaining)
      */
     public ArrayNode set(int index, String v) {
-        return _set(index, (v == null) ? nullNode() : textNode(v));
+        return _set(index, (v == null) ? nullNode() : stringNode(v));
     }
 
     /**

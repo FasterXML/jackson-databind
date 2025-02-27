@@ -45,7 +45,13 @@ public interface JsonNodeCreator
 
     // Textual nodes
 
-    public ValueNode textNode(String text);
+    public ValueNode stringNode(String text);
+
+    /**
+     * @deprecated since 3.0 Use {@link #stringNode(String)} instead
+     */
+    @Deprecated // since 3.0
+    public default ValueNode textNode(String text) { return stringNode(text); }
 
     // Other value (non-structured) nodes
 

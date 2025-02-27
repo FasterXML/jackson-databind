@@ -117,7 +117,7 @@ public class ArrayNodeTest
         JsonNodeFactory f = MAPPER.getNodeFactory();
         ArrayList<JsonNode> list = new ArrayList<>();
         list.add(f.booleanNode(true));
-        list.add(f.textNode("foo"));
+        list.add(f.stringNode("foo"));
         ArrayNode n = new ArrayNode(f, list);
         assertEquals(2, n.size());
         assertTrue(n.get(0).isBoolean());

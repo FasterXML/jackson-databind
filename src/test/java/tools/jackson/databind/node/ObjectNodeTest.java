@@ -202,7 +202,7 @@ public class ObjectNodeTest
         final JsonNodeFactory f = JsonNodeFactory.instance;
         ObjectNode root = f.objectNode();
         JsonNode old;
-        old = root.putIfAbsent("key", f.textNode("foobar"));
+        old = root.putIfAbsent("key", f.stringNode("foobar"));
         assertNull(old);
         assertEquals(1, root.size());
         old = root.putIfAbsent("key", f.numberNode(3));
@@ -528,7 +528,7 @@ public class ObjectNodeTest
     {
         // Nothing to traverse for other types
         assertEquals("", _toString(MAPPER.createArrayNode()));
-        assertEquals("", _toString(MAPPER.getNodeFactory().textNode("foo")));
+        assertEquals("", _toString(MAPPER.getNodeFactory().stringNode("foo")));
 
         // But yes for ObjectNode:
         JsonNode n = MAPPER.readTree(a2q(
@@ -543,7 +543,7 @@ public class ObjectNodeTest
         ObjectMapper mapper = objectMapper();
         ObjectNode obj = mapper.createObjectNode();
         JsonNode n1 = obj.numberNode(42);
-        JsonNode n2 = obj.textNode("foo");
+        JsonNode n2 = obj.stringNode("foo");
 
         obj.set("a", n1);
         obj.set("b", n2);

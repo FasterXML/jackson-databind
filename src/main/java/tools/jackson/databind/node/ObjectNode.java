@@ -983,7 +983,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      */
     public ObjectNode put(String propertyName, String v) {
         return _put(propertyName, (v == null) ? nullNode()
-                : textNode(v));
+                : stringNode(v));
     }
 
     /**

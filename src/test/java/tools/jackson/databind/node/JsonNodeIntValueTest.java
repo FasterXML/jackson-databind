@@ -228,6 +228,25 @@ public class JsonNodeIntValueTest
     }
 
     @Test
+    public void shortValueFromNumberFPFailRange()
+    {
+        // Can only fail for underflow/overflow: and that only for Long / BigInteger
+        final long underflow = Short.MIN_VALUE - 1L;
+        final long overflow =  Short.MAX_VALUE + 1L;
+
+        _assertFailShortForValueRange(NODES.numberNode((double)underflow));
+        _assertFailShortForValueRange(NODES.numberNode((double)overflow));
+
+        // Float is too inexact for using same test as Double, so:
+
+        _assertFailShortForValueRange(NODES.numberNode(-Float.MAX_VALUE));
+        _assertFailShortForValueRange(NODES.numberNode(Float.MAX_VALUE));
+
+        _assertFailShortForValueRange(NODES.numberNode(BigDecimal.valueOf(underflow)));
+        _assertFailShortForValueRange(NODES.numberNode(BigDecimal.valueOf(overflow)));
+    }
+    
+    @Test
     public void intValueFromNumberFPFailFraction()
     {
         _assertFailIntValueForFraction(NODES.numberNode(100.5f));
@@ -274,6 +293,16 @@ public class JsonNodeIntValueTest
         _assertDefaultIntForValueRange(NODES.rawValueNode(new RawValue("abc")));
         _assertFailIntForNonNumber(NODES.pojoNode(Boolean.TRUE));
         _assertDefaultIntForValueRange(NODES.pojoNode(Boolean.TRUE));
+    }
+
+    @Test
+    public void shortValueFromNonNumberScalarFail()
+    {
+        _assertFailShortForNonNumber(NODES.booleanNode(true));
+        _assertFailShortForNonNumber(NODES.binaryNode(new byte[3]));
+        _assertFailShortForNonNumber(NODES.stringNode("123"));
+        _assertFailShortForNonNumber(NODES.rawValueNode(new RawValue("abc")));
+        _assertFailShortForNonNumber(NODES.pojoNode(Boolean.TRUE));
     }
 
     @Test
@@ -340,6 +369,15 @@ public class JsonNodeIntValueTest
     private void _assertFailIntForNonNumber(JsonNode node) {
         Exception e = assertThrows(JsonNodeException.class,
                 () ->  node.intValue(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+            .contains("cannot convert value")
+            .contains("value type not numeric");
+    }
+
+    private void _assertFailShortForNonNumber(JsonNode node) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.shortValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("cannot convert value")

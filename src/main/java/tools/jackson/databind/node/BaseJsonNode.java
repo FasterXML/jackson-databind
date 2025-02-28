@@ -55,6 +55,11 @@ public abstract class BaseJsonNode
      */
 
     @Override
+    public short shortValue() {
+        return _reportCoercionFail("shortValue()", Short.TYPE, "value type not numeric");
+    }
+
+    @Override
     public int intValue() {
         return _reportCoercionFail("intValue()", Integer.TYPE, "value type not numeric");
     }
@@ -301,6 +306,16 @@ public abstract class BaseJsonNode
     protected <T> T _reportShortCoercionRangeFail(String method) {
         return _reportCoercionFail(method, Short.TYPE,
             "value not in 16-bit `short` range");
+    }
+
+    protected <T> T _reportIntCoercionFractionFail(String method) {
+        return _reportCoercionFail(method, Integer.TYPE,
+                "value has fractional part");
+    }
+
+    protected <T> T _reportShortCoercionFractionFail(String method) {
+        return _reportCoercionFail(method, Short.TYPE,
+                "value has fractional part");
     }
 
     /**

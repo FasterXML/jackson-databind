@@ -86,11 +86,10 @@ public class DecimalNode
     @Override
     public short shortValue() {
         if (!_inShortRange()) {
-            return _reportIntCoercionRangeFail("shortValue()");
+            return _reportShortCoercionRangeFail("shortValue()");
         }
         if (_hasFractionalPart()) {
-            _reportCoercionFail("shortValue()", Short.TYPE,
-                    "value has fractional part");
+            _reportShortCoercionFractionFail("shortValue()");
         }
         return _value.shortValue();
     }
@@ -101,8 +100,7 @@ public class DecimalNode
             return _reportIntCoercionRangeFail("intValue()");
         }
         if (_hasFractionalPart()) {
-            _reportCoercionFail("intValue()", Integer.TYPE,
-                    "value has fractional part");
+            _reportIntCoercionFractionFail("intValue()");
         }
         return _value.intValue();
     }

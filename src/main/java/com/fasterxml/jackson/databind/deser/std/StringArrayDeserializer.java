@@ -179,6 +179,31 @@ public final class StringArrayDeserializer
         }
         String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
         ctxt.returnObjectBuffer(buffer);
+        if (result != null) {
+            if (result.length == 0) {
+                // [databind#4949]: Coercion from empty array not applied
+                result = handleEmptyArray(result, ctxt);
+            }
+        }
+        return result;
+    }
+
+    private String[] handleEmptyArray(String[] result, DeserializationContext ctxt)
+            throws JsonMappingException
+    {
+        final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(), CoercionInputShape.EmptyArray);
+        switch (act) {
+            case AsNull:
+                return null;
+            case AsEmpty:
+                return NO_STRINGS;
+            case Fail:
+                return ctxt.reportInputMismatch(this,
+                        "Cannot coerce empty Array to %s (but could if enabling coercion using `CoercionConfig`)",
+                        _coercedTypeDesc());
+            case TryConvert:
+                return result;
+        }
         return result;
     }
 

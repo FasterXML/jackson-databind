@@ -192,17 +192,8 @@ public final class StringArrayDeserializer
             throws JsonMappingException
     {
         final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(), CoercionInputShape.EmptyArray);
-        switch (act) {
-            case AsNull:
-                return null;
-            case AsEmpty:
-                return NO_STRINGS;
-            case Fail:
-                return ctxt.reportInputMismatch(this,
-                        "Cannot coerce empty Array to %s (but could if enabling coercion using `CoercionConfig`)",
-                        _coercedTypeDesc());
-            case TryConvert:
-                return result;
+        if (act == CoercionAction.AsNull) {
+            return null;
         }
         return result;
     }

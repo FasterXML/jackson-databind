@@ -82,7 +82,13 @@ public class IntNode
     }
 
     @Override
-    public short shortValue() { return (short) _value; }
+    public short shortValue() {
+        if (_value >= Short.MIN_VALUE && _value <= Short.MAX_VALUE) {
+            return (short) _value;
+        }
+        return _reportCoercionFail("intValue()", Integer.TYPE,
+                "value not in 16-bit `short` range");
+    }
 
     @Override
     public int intValue() { return _value; }

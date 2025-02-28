@@ -79,7 +79,16 @@ public class BigIntegerNode
     }
 
     @Override
-    public short shortValue() { return _value.shortValue(); }
+    public short shortValue() {
+        if (canConvertToInt()) {
+            int v = _value.intValue();
+            if (v >= Short.MIN_VALUE && v <= Short.MAX_VALUE) {
+                return (short) v;
+            }
+        }
+        return _reportCoercionFail("intValue()", Integer.TYPE,
+                "value not in 16-bit `short` range");
+    }
 
     @Override
     public int intValue() {

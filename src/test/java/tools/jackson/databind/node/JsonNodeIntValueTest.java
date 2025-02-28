@@ -16,7 +16,9 @@ import java.util.OptionalInt;
 
 /**
  * Tests for [databind#4958], JsonNode.intValue() (and related) parts
- * over all types
+ * over all types.
+ *<p>
+ * Also contains tests for {@code JsonNode.shortValue()}.
  */
 public class JsonNodeIntValueTest
     extends DatabindTestUtil
@@ -82,6 +84,37 @@ public class JsonNodeIntValueTest
     }
 
     @Test
+    public void shortValueFromNumberIntOk()
+    {
+        final short SHORT_1 = (short) 1;
+        final short MIN_SHORT = Short.MIN_VALUE;
+        final short MAX_SHORT = Short.MAX_VALUE;
+        
+        // First safe from `short`
+        assertEquals(SHORT_1, NODES.numberNode((short) 1).shortValue());
+        assertEquals((int)Short.MIN_VALUE, NODES.numberNode(MIN_SHORT).shortValue());
+        assertEquals((int)Short.MAX_VALUE, NODES.numberNode(MAX_SHORT).shortValue());
+
+        // Then other integer types
+
+        assertEquals(SHORT_1, NODES.numberNode((byte) 1).shortValue());
+        assertEquals((short) Byte.MIN_VALUE, NODES.numberNode(Byte.MIN_VALUE).shortValue());
+        assertEquals((short) Byte.MAX_VALUE, NODES.numberNode(Byte.MAX_VALUE).shortValue());
+
+        assertEquals(SHORT_1, NODES.numberNode(1).shortValue());
+        assertEquals(MIN_SHORT, NODES.numberNode((int) MIN_SHORT).shortValue());
+        assertEquals(MAX_SHORT, NODES.numberNode((int) MAX_SHORT).shortValue());
+
+        assertEquals(SHORT_1, NODES.numberNode(1L).shortValue());
+        assertEquals(MIN_SHORT, NODES.numberNode((long) MIN_SHORT).shortValue());
+        assertEquals(MAX_SHORT, NODES.numberNode((long) MAX_SHORT).shortValue());
+
+        assertEquals(SHORT_1, NODES.numberNode(BigInteger.valueOf(1)).shortValue());
+        assertEquals(MIN_SHORT, NODES.numberNode(BigInteger.valueOf(MIN_SHORT)).shortValue());
+        assertEquals(MAX_SHORT, NODES.numberNode(BigInteger.valueOf(MAX_SHORT)).shortValue());
+    }
+
+    @Test
     public void intValueFromNumberIntFailRange() {
         // Can only fail for underflow/overflow: and that only for Long / BigInteger
         final long underflow = -1L + Integer.MIN_VALUE;
@@ -96,6 +129,19 @@ public class JsonNodeIntValueTest
         _assertDefaultIntForValueRange(NODES.numberNode(BigInteger.valueOf(underflow)));
         _assertFailIntForValueRange(NODES.numberNode(BigInteger.valueOf(overflow)));
         _assertDefaultIntForValueRange(NODES.numberNode(BigInteger.valueOf(overflow)));
+    }
+
+    @Test
+    public void shortValueFromNumberIntFailRange() {
+        // Can only fail for underflow/overflow: and that only for Long / BigInteger
+        final int underflow = -1 + Short.MIN_VALUE;
+        final int overflow = +1 + Short.MAX_VALUE;
+
+        _assertFailShortForValueRange(NODES.numberNode(underflow));
+        _assertFailShortForValueRange(NODES.numberNode(overflow));
+
+        _assertFailShortForValueRange(NODES.numberNode(BigInteger.valueOf(underflow)));
+        _assertFailShortForValueRange(NODES.numberNode(BigInteger.valueOf(overflow)));
     }
 
     // // // intValue() + Numbers/FPs
@@ -223,6 +269,15 @@ public class JsonNodeIntValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("value not in 32-bit `int` range");
+    }
+
+    private void _assertFailShortForValueRange(JsonNode node) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.shortValue(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+            .contains("cannot convert value")
+            .contains("value not in 16-bit `short` range");
     }
 
     private void _assertDefaultIntForValueRange(JsonNode node) {

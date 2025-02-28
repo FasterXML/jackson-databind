@@ -182,13 +182,13 @@ public final class StringArrayDeserializer
         if (result != null) {
             if (result.length == 0) {
                 // [databind#4949]: Coercion from empty array not applied
-                result = handleEmptyArray(result, ctxt);
+                result = coerceEmptyArray(result, ctxt);
             }
         }
         return result;
     }
 
-    private String[] handleEmptyArray(String[] result, DeserializationContext ctxt)
+    private String[] coerceEmptyArray(String[] result, DeserializationContext ctxt)
             throws JsonMappingException
     {
         final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(), CoercionInputShape.EmptyArray);

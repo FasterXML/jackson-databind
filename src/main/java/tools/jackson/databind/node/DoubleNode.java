@@ -77,13 +77,21 @@ public class DoubleNode
     }
 
     @Override
-    public short shortValue() { return (short) _value; }
+    public short shortValue() {
+        if (!_inShortRange()) {
+            return _reportShortCoercionRangeFail("shortValue()");
+        }
+        if (_hasFractionalPart()) {
+            _reportCoercionFail("shortValue()", Short.TYPE,
+                    "value has fractional part");
+        }
+        return (short) _value;
+    }
 
     @Override
     public int intValue() {
-        if (isNaN() || !_inIntRange()) {
-            _reportCoercionFail("intValue()", Integer.TYPE,
-                    "value not in 32-bit `int` range");
+        if (!_inIntRange()) {
+            return _reportIntCoercionRangeFail("intValue()");
         }
         if (_hasFractionalPart()) {
             _reportCoercionFail("intValue()", Integer.TYPE,
@@ -94,7 +102,7 @@ public class DoubleNode
 
     @Override
     public int intValue(int defaultValue) {
-        if (isNaN() || !_inIntRange() || _hasFractionalPart()) {
+        if (!_inIntRange() || _hasFractionalPart()) {
              return defaultValue;
         }
         return (int) _value;
@@ -102,7 +110,7 @@ public class DoubleNode
 
     @Override
     public OptionalInt intValueOpt() {
-        if (isNaN() || !_inIntRange() || _hasFractionalPart()) {
+        if (!_inIntRange() || _hasFractionalPart()) {
             return OptionalInt.empty();
        }
        return OptionalInt.of((int) _value);
@@ -165,11 +173,15 @@ public class DoubleNode
 
     private boolean _hasFractionalPart() { return _value != Math.rint(_value); }
 
+    private boolean _inShortRange() {
+        return !isNaN() && (_value >= Short.MIN_VALUE) && (_value <= Short.MAX_VALUE);
+    }
+
     private boolean _inIntRange() {
-        return (_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
+        return !isNaN() &&(_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
     }
 
     private boolean _inLongRange() {
-        return (_value >= Long.MIN_VALUE) && (_value <= Long.MAX_VALUE);
+        return !isNaN() && (_value >= Long.MIN_VALUE) && (_value <= Long.MAX_VALUE);
     }
 }

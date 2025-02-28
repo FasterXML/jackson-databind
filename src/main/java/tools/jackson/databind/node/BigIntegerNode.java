@@ -86,8 +86,7 @@ public class BigIntegerNode
                 return (short) v;
             }
         }
-        return _reportCoercionFail("intValue()", Integer.TYPE,
-                "value not in 16-bit `short` range");
+        return _reportShortCoercionRangeFail("shortValue()");
     }
 
     @Override
@@ -95,8 +94,7 @@ public class BigIntegerNode
         if (canConvertToInt()) {
             return _value.intValue();
         }
-        return _reportCoercionFail("intValue()", Integer.TYPE,
-                "value not in 32-bit `int` range");
+        return _reportIntCoercionRangeFail("intValue()");
     }
 
     @Override

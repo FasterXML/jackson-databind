@@ -293,6 +293,16 @@ public abstract class BaseJsonNode
                 _valueDesc(), ClassUtil.nameOf(targetType), message);
     }
 
+    protected <T> T _reportIntCoercionRangeFail(String method) {
+        return _reportCoercionFail(method, Integer.TYPE,
+            "value not in 32-bit `int` range");
+    }
+
+    protected <T> T _reportShortCoercionRangeFail(String method) {
+        return _reportCoercionFail(method, Short.TYPE,
+            "value not in 16-bit `short` range");
+    }
+
     /**
      * Helper method that throws {@link JsonNodeException} as a result of
      * this node being of wrong type

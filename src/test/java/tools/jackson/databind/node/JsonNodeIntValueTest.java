@@ -158,8 +158,8 @@ public class JsonNodeIntValueTest
 
         assertEquals(1, NODES.numberNode(1.0d).intValue());
         assertEquals(1, NODES.numberNode(1.0d).intValue(99));
-        assertEquals(100_000, NODES.numberNode(100_000.0f).intValue());
-        assertEquals(100_000, NODES.numberNode(100_000.0f).intValue(99));
+        assertEquals(100_000, NODES.numberNode(100_000.0d).intValue());
+        assertEquals(100_000, NODES.numberNode(100_000.0d).intValue(99));
         assertEquals(-100_000, NODES.numberNode(-100_000.0d).intValue());
         assertEquals(-100_000, NODES.numberNode(-100_000.0d).intValue(99));
         assertEquals(Integer.MIN_VALUE, NODES.numberNode((double) Integer.MIN_VALUE).intValue());
@@ -179,6 +179,27 @@ public class JsonNodeIntValueTest
                 NODES.numberNode(BigDecimal.valueOf((double) Integer.MAX_VALUE)).intValue());
         assertEquals(Integer.MAX_VALUE,
                 NODES.numberNode(BigDecimal.valueOf((double) Integer.MAX_VALUE)).intValue(99));
+    }
+
+    @Test
+    public void shortValueFromNumberFPOk()
+    {
+        assertEquals(1, NODES.numberNode(1.0f).shortValue());
+        assertEquals(10_000, NODES.numberNode(10_000.0f).shortValue());
+        assertEquals(-10_000, NODES.numberNode(-10_000.0f).shortValue());
+
+        assertEquals(1, NODES.numberNode(1.0d).shortValue());
+        assertEquals(10_000, NODES.numberNode(10_000.0d).shortValue());
+        assertEquals(-10_000, NODES.numberNode(-10_000.0d).shortValue());
+        assertEquals(Short.MIN_VALUE, NODES.numberNode((double) Short.MIN_VALUE).shortValue());
+        assertEquals(Short.MAX_VALUE, NODES.numberNode((double) Short.MAX_VALUE).shortValue());
+
+        assertEquals(1,
+                NODES.numberNode(BigDecimal.valueOf(1.0d)).shortValue());
+        assertEquals(Short.MIN_VALUE,
+                NODES.numberNode(BigDecimal.valueOf((double) Short.MIN_VALUE)).shortValue());
+        assertEquals(Short.MAX_VALUE,
+                NODES.numberNode(BigDecimal.valueOf((double) Short.MAX_VALUE)).shortValue());
     }
 
     @Test
@@ -223,6 +244,19 @@ public class JsonNodeIntValueTest
         _assertDefaultIntForValueRange(NODES.numberNode(BigDecimal.valueOf(100.5d)));
         _assertFailIntValueForFraction(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
         _assertDefaultIntForValueRange(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
+    }
+
+    @Test
+    public void shortValueFromNumberFPFailFraction()
+    {
+        _assertFailShortValueForFraction(NODES.numberNode(100.5f));
+        _assertFailShortValueForFraction(NODES.numberNode(-0.25f));
+
+        _assertFailShortValueForFraction(NODES.numberNode(100.5d));
+        _assertFailShortValueForFraction(NODES.numberNode(-0.25d));
+        
+        _assertFailShortValueForFraction(NODES.numberNode(BigDecimal.valueOf(100.5d)));
+        _assertFailShortValueForFraction(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
     }
 
     // // // intValue() + non-Numeric types
@@ -292,6 +326,15 @@ public class JsonNodeIntValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("to `int`: value has fractional part");
+    }
+
+    private void _assertFailShortValueForFraction(JsonNode node) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.shortValue(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+            .contains("cannot convert value")
+            .contains("to `short`: value has fractional part");
     }
 
     private void _assertFailIntForNonNumber(JsonNode node) {

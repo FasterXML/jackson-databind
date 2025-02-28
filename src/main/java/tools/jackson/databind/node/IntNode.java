@@ -86,8 +86,7 @@ public class IntNode
         if (_value >= Short.MIN_VALUE && _value <= Short.MAX_VALUE) {
             return (short) _value;
         }
-        return _reportCoercionFail("intValue()", Integer.TYPE,
-                "value not in 16-bit `short` range");
+        return _reportShortCoercionRangeFail("shortValue()");
     }
 
     @Override

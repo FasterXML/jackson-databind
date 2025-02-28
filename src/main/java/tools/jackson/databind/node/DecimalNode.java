@@ -19,6 +19,8 @@ public class DecimalNode
 
     public static final DecimalNode ZERO = new DecimalNode(BigDecimal.ZERO);
 
+    private final static BigDecimal MIN_SHORT = BigDecimal.valueOf(Short.MIN_VALUE);
+    private final static BigDecimal MAX_SHORT = BigDecimal.valueOf(Short.MAX_VALUE);
     private final static BigDecimal MIN_INTEGER = BigDecimal.valueOf(Integer.MIN_VALUE);
     private final static BigDecimal MAX_INTEGER = BigDecimal.valueOf(Integer.MAX_VALUE);
     private final static BigDecimal MIN_LONG = BigDecimal.valueOf(Long.MIN_VALUE);
@@ -82,13 +84,21 @@ public class DecimalNode
     public Number numberValue() { return _value; }
 
     @Override
-    public short shortValue() { return _value.shortValue(); }
+    public short shortValue() {
+        if (!_inShortRange()) {
+            return _reportIntCoercionRangeFail("shortValue()");
+        }
+        if (_hasFractionalPart()) {
+            _reportCoercionFail("shortValue()", Short.TYPE,
+                    "value has fractional part");
+        }
+        return _value.shortValue();
+    }
 
     @Override
     public int intValue() {
         if (!_inIntRange()) {
-            _reportCoercionFail("intValue()", Integer.TYPE,
-                    "value not in 32-bit `int` range");
+            return _reportIntCoercionRangeFail("intValue()");
         }
         if (_hasFractionalPart()) {
             _reportCoercionFail("intValue()", Integer.TYPE,
@@ -166,6 +176,10 @@ public class DecimalNode
                && (_value.stripTrailingZeros().scale() > 0);
     }
     
+    private boolean _inShortRange() {
+        return (_value.compareTo(MIN_SHORT) >= 0) && (_value.compareTo(MAX_SHORT) <= 0);
+    }
+
     private boolean _inIntRange() {
         return (_value.compareTo(MIN_INTEGER) >= 0) && (_value.compareTo(MAX_INTEGER) <= 0);
     }

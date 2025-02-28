@@ -69,8 +69,7 @@ public class LongNode
         if (_value >= Short.MIN_VALUE && _value <= Short.MAX_VALUE) {
             return (short) _value;
         }
-        return _reportCoercionFail("intValue()", Integer.TYPE,
-                "value not in 16-bit `short` range");
+        return _reportShortCoercionRangeFail("shortValue()");
     }
 
     @Override
@@ -78,8 +77,7 @@ public class LongNode
         if (canConvertToInt()) {
             return (int) _value;
         }
-        return _reportCoercionFail("intValue()", Integer.TYPE,
-                "value not in 32-bit `int` range");
+        return _reportIntCoercionRangeFail("intValue()");
     }
 
     @Override

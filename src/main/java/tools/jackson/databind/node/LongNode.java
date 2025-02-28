@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.OptionalInt;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.SerializationContext;
@@ -77,6 +78,11 @@ public class LongNode
     @Override
     public int intValue(int defaultValue) {
         return canConvertToInt() ? (int) _value : defaultValue;
+    }
+
+    @Override
+    public OptionalInt intValueOpt() {
+        return canConvertToInt() ? OptionalInt.of((int) _value) : OptionalInt.empty();
     }
 
     @Override

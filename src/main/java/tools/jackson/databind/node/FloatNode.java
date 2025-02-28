@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.OptionalInt;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberOutput;
@@ -92,6 +93,14 @@ public class FloatNode extends NumericNode
         return (int) _value;
     }
 
+    @Override
+    public OptionalInt intValueOpt() {
+        if (isNaN() || !_inIntRange() || _hasFractionalPart()) {
+            return OptionalInt.empty();
+       }
+       return OptionalInt.of((int) _value);
+    }
+    
     @Override
     public long longValue() { return (long) _value; }
 

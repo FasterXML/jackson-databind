@@ -712,6 +712,16 @@ public abstract class JsonNode
     public abstract int intValue(int defaultValue);
 
     /**
+     * Method similar to {@link #intValue()}, but that will return empty
+     * {@link OptionalInt} ({@code OptionalInt.empty()}) if this node cannot
+     * be converted to Java {@code int}.
+     *
+     * @return Java {@code int} value this node represents, as {@link OptionalInt},
+     * if possible to accurately represent; {@code OptionalInt.empty()} otherwise
+     */
+    public abstract OptionalInt intValueOpt();
+
+    /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
      * and 1 (true), and Strings are parsed using default Java language integer

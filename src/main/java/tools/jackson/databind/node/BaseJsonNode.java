@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.OptionalInt;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JacksonSerializable;
@@ -62,6 +63,12 @@ public abstract class BaseJsonNode
     public int intValue(int defaultValue) {
         // Overridden by NumericNode, for other types return default
         return defaultValue;
+    }
+
+    @Override
+    public OptionalInt intValueOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalInt.empty();
     }
 
     /*

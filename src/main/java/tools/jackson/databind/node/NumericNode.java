@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.OptionalInt;
 
 import tools.jackson.core.JsonParser;
 
@@ -38,6 +39,8 @@ public abstract class NumericNode
     @Override public abstract Number numberValue();
     @Override public abstract int intValue();
     @Override public abstract int intValue(int defaultValue);
+    @Override public abstract OptionalInt intValueOpt();
+
     @Override public abstract long longValue();
     @Override public abstract double doubleValue();
     @Override public abstract BigDecimal decimalValue();

@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.OptionalInt;
 
 /**
  * Tests for [databind#4958], JsonNode.intValue() (and related) parts
@@ -30,39 +31,54 @@ public class JsonNodeIntValueTest
         // First safe from `int`
         assertEquals(1, NODES.numberNode(1).intValue());
         assertEquals(1, NODES.numberNode(1).intValue(99));
+        assertEquals(1, NODES.numberNode(1).intValueOpt().getAsInt());
         assertEquals(Integer.MIN_VALUE, NODES.numberNode(Integer.MIN_VALUE).intValue());
         assertEquals(Integer.MIN_VALUE, NODES.numberNode(Integer.MIN_VALUE).intValue(99));
+        assertEquals(Integer.MIN_VALUE, NODES.numberNode(Integer.MIN_VALUE).intValueOpt().getAsInt());
         assertEquals(Integer.MAX_VALUE, NODES.numberNode(Integer.MAX_VALUE).intValue());
         assertEquals(Integer.MAX_VALUE, NODES.numberNode(Integer.MAX_VALUE).intValue(99));
+        assertEquals(Integer.MAX_VALUE, NODES.numberNode(Integer.MAX_VALUE).intValueOpt().getAsInt());
 
         // Then other integer types
         assertEquals(1, NODES.numberNode((byte) 1).intValue());
         assertEquals(1, NODES.numberNode((byte) 1).intValue(99));
+        assertEquals(1, NODES.numberNode((byte) 1).intValue(99));
         assertEquals((int)Byte.MIN_VALUE, NODES.numberNode(Byte.MIN_VALUE).intValue());
         assertEquals((int)Byte.MIN_VALUE, NODES.numberNode(Byte.MIN_VALUE).intValue(99));
+        assertEquals((int)Byte.MIN_VALUE, NODES.numberNode(Byte.MIN_VALUE).intValueOpt().getAsInt());
         assertEquals((int)Byte.MAX_VALUE, NODES.numberNode(Byte.MAX_VALUE).intValue());
         assertEquals((int)Byte.MAX_VALUE, NODES.numberNode(Byte.MAX_VALUE).intValue(99));
+        assertEquals((int)Byte.MAX_VALUE, NODES.numberNode(Byte.MAX_VALUE).intValueOpt().getAsInt());
 
         assertEquals(1, NODES.numberNode((short) 1).intValue());
         assertEquals(1, NODES.numberNode((short) 1).intValue(99));
+        assertEquals(1, NODES.numberNode((short) 1).intValueOpt().getAsInt());
         assertEquals((int)Short.MIN_VALUE, NODES.numberNode(Short.MIN_VALUE).intValue());
         assertEquals((int)Short.MIN_VALUE, NODES.numberNode(Short.MIN_VALUE).intValue(99));
+        assertEquals((int)Short.MIN_VALUE, NODES.numberNode(Short.MIN_VALUE).intValueOpt().getAsInt());
         assertEquals((int)Short.MAX_VALUE, NODES.numberNode(Short.MAX_VALUE).intValue());
         assertEquals((int)Short.MAX_VALUE, NODES.numberNode(Short.MAX_VALUE).intValue(99));
+        assertEquals((int)Short.MAX_VALUE, NODES.numberNode(Short.MAX_VALUE).intValueOpt().getAsInt());
 
         assertEquals(1, NODES.numberNode(1L).intValue());
         assertEquals(1, NODES.numberNode(1L).intValue(99));
+        assertEquals(1, NODES.numberNode(1L).intValueOpt().getAsInt());
         assertEquals(Integer.MIN_VALUE, NODES.numberNode((long) Integer.MIN_VALUE).intValue());
         assertEquals(Integer.MIN_VALUE, NODES.numberNode((long) Integer.MIN_VALUE).intValue(99));
+        assertEquals(Integer.MIN_VALUE, NODES.numberNode((long) Integer.MIN_VALUE).intValueOpt().getAsInt());
         assertEquals(Integer.MAX_VALUE, NODES.numberNode((long) Integer.MAX_VALUE).intValue());
         assertEquals(Integer.MAX_VALUE, NODES.numberNode((long) Integer.MAX_VALUE).intValue(99));
+        assertEquals(Integer.MAX_VALUE, NODES.numberNode((long) Integer.MAX_VALUE).intValueOpt().getAsInt());
 
         assertEquals(1, NODES.numberNode(BigInteger.valueOf(1)).intValue());
         assertEquals(1, NODES.numberNode(BigInteger.valueOf(1)).intValue(99));
+        assertEquals(1, NODES.numberNode(BigInteger.valueOf(1)).intValueOpt().getAsInt());
         assertEquals(Integer.MIN_VALUE, NODES.numberNode(BigInteger.valueOf(Integer.MIN_VALUE)).intValue());
         assertEquals(Integer.MIN_VALUE, NODES.numberNode(BigInteger.valueOf(Integer.MIN_VALUE)).intValue(99));
+        assertEquals(Integer.MIN_VALUE, NODES.numberNode(BigInteger.valueOf(Integer.MIN_VALUE)).intValueOpt().getAsInt());
         assertEquals(Integer.MAX_VALUE, NODES.numberNode(BigInteger.valueOf(Integer.MAX_VALUE)).intValue());
         assertEquals(Integer.MAX_VALUE, NODES.numberNode(BigInteger.valueOf(Integer.MAX_VALUE)).intValue(99));
+        assertEquals(Integer.MAX_VALUE, NODES.numberNode(BigInteger.valueOf(Integer.MAX_VALUE)).intValueOpt().getAsInt());
     }
 
     @Test
@@ -172,8 +188,8 @@ public class JsonNodeIntValueTest
         _assertDefaultIntForValueRange(NODES.booleanNode(true));
         _assertFailIntForNonNumber(NODES.binaryNode(new byte[3]));
         _assertDefaultIntForValueRange(NODES.binaryNode(new byte[3]));
-        _assertFailIntForNonNumber(NODES.stringNode("false"));
-        _assertDefaultIntForValueRange(NODES.stringNode("false"));
+        _assertFailIntForNonNumber(NODES.stringNode("123"));
+        _assertDefaultIntForValueRange(NODES.stringNode("123"));
         _assertFailIntForNonNumber(NODES.rawValueNode(new RawValue("abc")));
         _assertDefaultIntForValueRange(NODES.rawValueNode(new RawValue("abc")));
         _assertFailIntForNonNumber(NODES.pojoNode(Boolean.TRUE));
@@ -211,6 +227,7 @@ public class JsonNodeIntValueTest
 
     private void _assertDefaultIntForValueRange(JsonNode node) {
         assertEquals(99, node.intValue(99));
+        assertEquals(OptionalInt.empty(), node.intValueOpt());
     }
 
     private void _assertFailIntValueForFraction(JsonNode node) {

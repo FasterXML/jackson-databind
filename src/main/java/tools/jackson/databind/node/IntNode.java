@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.OptionalInt;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.SerializationContext;
@@ -69,6 +70,12 @@ public class IntNode
     @Override public boolean canConvertToInt() { return true; }
     @Override public boolean canConvertToLong() { return true; }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
+
     @Override
     public Number numberValue() {
         return Integer.valueOf(_value);
@@ -82,7 +89,12 @@ public class IntNode
 
     @Override
     public int intValue(int defaultValue) { return _value; }
-    
+
+    @Override
+    public OptionalInt intValueOpt() {
+        return OptionalInt.of(_value);
+    }
+
     @Override
     public long longValue() { return (long) _value; }
 

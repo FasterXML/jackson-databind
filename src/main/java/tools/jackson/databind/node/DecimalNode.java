@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
+import java.util.OptionalInt;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
@@ -61,6 +62,7 @@ public class DecimalNode
     @Override public boolean canConvertToInt() {
         return _inIntRange() && canConvertToExactIntegral();
     }
+
     @Override public boolean canConvertToLong() {
         return _inLongRange() && canConvertToExactIntegral();
     }
@@ -103,6 +105,14 @@ public class DecimalNode
         return _value.intValue();
     }
 
+    @Override
+    public OptionalInt intValueOpt() {
+        if (!_inIntRange() || _hasFractionalPart()) {
+            return OptionalInt.empty();
+       }
+       return OptionalInt.of(_value.intValue());
+    }
+    
     @Override
     public long longValue() { return _value.longValue(); }
 

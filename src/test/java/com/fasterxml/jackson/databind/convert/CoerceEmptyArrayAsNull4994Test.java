@@ -18,20 +18,46 @@ public class CoerceEmptyArrayAsNull4994Test
         public String[] value;
     }
 
+    public static class WrapperObjectArray {
+        public Object[] value;
+    }
+
+    public static class WrapperPojo4994 {
+        public Pojo4994[] value;
+    }
+
+    private final String json = "{\"value\": []}";
+
+    private final ObjectMapper MAPPER_TO_NULL = jsonMapperBuilder()
+            .withCoercionConfigDefaults(cfg ->
+                    cfg.setCoercion(CoercionInputShape.EmptyArray, CoercionAction.AsNull))
+            .build();
+
     @Test
     public void testAsNull()
         throws Exception
     {
-        final ObjectMapper MAPPER_TO_NULL = jsonMapperBuilder()
-                .withCoercionConfigDefaults(cfg ->
-                        cfg.setCoercion(CoercionInputShape.EmptyArray, CoercionAction.AsNull))
-                .build();
-
-        String json = "{\"value\": []}";
-
         Pojo4994 pojo = MAPPER_TO_NULL.readValue(json, Pojo4994.class);
 
         assertNull(pojo.value); // expected: <null> but was: <[]>
+    }
+
+    @Test
+    public void testPojoArrayAsNull()
+            throws Exception
+    {
+        WrapperPojo4994 wrapper = MAPPER_TO_NULL.readValue(json, WrapperPojo4994.class);
+
+        assertNull(wrapper.value);
+    }
+
+    @Test
+    public void testObjectArrayAsNull()
+            throws Exception
+    {
+        WrapperObjectArray wrapper = MAPPER_TO_NULL.readValue(json, WrapperObjectArray.class);
+
+        assertNull(wrapper.value);
     }
 
 }

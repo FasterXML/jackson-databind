@@ -7,23 +7,27 @@ import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 // [databind#4994] CoercionConfig for empty arrays not working as expected
 public class CoerceEmptyArrayAsNull4994Test
     extends DatabindTestUtil
 {
-    public static class Pojo4994 {
+    public static class StringArrayWrapper4994 {
         public String[] value;
     }
 
-    public static class WrapperObjectArray {
+    public static class ObjectArrayWrapper4994 {
         public Object[] value;
     }
 
-    public static class WrapperPojo4994 {
+    public static class PojoArrayWrapper4994 {
         public Pojo4994[] value;
+    }
+
+    public static class Pojo4994 {
+        public String name;
+        public int age;
     }
 
     private final String json = "{\"value\": []}";
@@ -37,7 +41,7 @@ public class CoerceEmptyArrayAsNull4994Test
     public void testAsNull()
         throws Exception
     {
-        Pojo4994 pojo = MAPPER_TO_NULL.readValue(json, Pojo4994.class);
+        StringArrayWrapper4994 pojo = MAPPER_TO_NULL.readValue(json, StringArrayWrapper4994.class);
 
         assertNull(pojo.value); // expected: <null> but was: <[]>
     }
@@ -46,7 +50,7 @@ public class CoerceEmptyArrayAsNull4994Test
     public void testPojoArrayAsNull()
             throws Exception
     {
-        WrapperPojo4994 wrapper = MAPPER_TO_NULL.readValue(json, WrapperPojo4994.class);
+        PojoArrayWrapper4994 wrapper = MAPPER_TO_NULL.readValue(json, PojoArrayWrapper4994.class);
 
         assertNull(wrapper.value);
     }
@@ -55,7 +59,7 @@ public class CoerceEmptyArrayAsNull4994Test
     public void testObjectArrayAsNull()
             throws Exception
     {
-        WrapperObjectArray wrapper = MAPPER_TO_NULL.readValue(json, WrapperObjectArray.class);
+        ObjectArrayWrapper4994 wrapper = MAPPER_TO_NULL.readValue(json, ObjectArrayWrapper4994.class);
 
         assertNull(wrapper.value);
     }

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.18.3 (not yet released)
+2.18.3 (28-Feb-2025)
 
 #4444: The `KeyDeserializer` specified in the class with `@JsonDeserialize(keyUsing = ...)`
   is overwritten by the `KeyDeserializer` specified in the `ObjectMapper`.

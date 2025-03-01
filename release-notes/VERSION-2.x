@@ -61,7 +61,7 @@ Project: jackson-databind
 #4963: Serializing `Map.Entry` as Bean with `@JsonFormat.shape = Shape.OBJECT`
   fails on JDK 17+
 
-2.18.3 (not yet released)
+2.18.3 (28-Feb-2025)
 
 #4444: The `KeyDeserializer` specified in the class with `@JsonDeserialize(keyUsing = ...)`
   is overwritten by the `KeyDeserializer` specified in the `ObjectMapper`.

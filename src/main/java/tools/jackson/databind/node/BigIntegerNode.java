@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.SerializationContext;
@@ -108,7 +109,25 @@ public class BigIntegerNode
     }
     
     @Override
-    public long longValue() { return _value.longValue(); }
+    public long longValue() {
+        if (canConvertToLong()) {
+            return _value.longValue();
+        }
+        return _reportLongCoercionRangeFail("longValue()");
+    }
+
+    @Override
+    public long longValue(long defaultValue) {
+        if (canConvertToLong()) {
+            return _value.longValue();
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalLong longValueOpt() {
+        return canConvertToLong() ? OptionalLong.of(_value.longValue()) : OptionalLong.empty();
+    }
 
     @Override
     public BigInteger bigIntegerValue() { return _value; }

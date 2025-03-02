@@ -684,13 +684,13 @@ public abstract class JsonNode
      *
      * @throws JsonNodeException if node cannot be converted to Java {@code int}
      */
-    public short shortValue() { return 0; }
+    public abstract short shortValue();
 
     // // Scalar access: Numbers, Java int
 
     /**
      * Method that will try to access value of this node as a Java {@code int}:
-     * but if node value cannot be expressed <b>exactly</b> as an int,
+     * but if node value cannot be expressed <b>exactly</b> as an {@code int},
      * a {@link JsonNodeException} will be thrown.
      * Access works for following cases:
      * <ul>
@@ -703,7 +703,7 @@ public abstract class JsonNode
      *<p>
      * NOTE: for more lenient conversions, use {@link #asInt()}
      *
-     * @return Int value this node represents, if possible to accurately represent
+     * @return {@code Int} value this node represents, if possible to accurately represent
      *
      * @throws JsonNodeException if node cannot be converted to Java {@code int}
      */
@@ -761,16 +761,46 @@ public abstract class JsonNode
     // // Scalar access: Numbers, Java long
 
     /**
-     * Returns 64-bit long value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.
-     * For floating-point numbers, value is truncated using default
-     * Java coercion, similar to how cast from double to long operates.
+     * Method that will try to access value of this node as a Java {@code long}:
+     * but if node value cannot be expressed <b>exactly</b> as a {@code long},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Integer values that fit in Java 64-bit signed {@code long} range
+     *   </li>
+     *  <li>JSON Floating-point values that fit in Java 64-bit signed {@code long} range
+     *    AND do not have fractional part.
+     *    </li>
+     * </ul>
+     *<p>
+     * NOTE: for more lenient conversions, use {@link #asLong()}
      *
-     * @return Long value this node contains, if any; 0 for non-number
-     *   nodes.
+     * @return {@code Long} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node cannot be converted to Java {@code long}
      */
-    public long longValue() { return 0L; }
+    public abstract long longValue();
+
+    /**
+     * Method similar to {@link #longValue()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to Java {@code long}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to Java {@code long}
+     *
+     * @return Java {@code long} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
+     */
+    public abstract long longValue(long defaultValue);
+
+    /**
+     * Method similar to {@link #longValue()}, but that will return empty
+     * {@link OptionalLong} ({@code OptionalLong.empty()}) if this node cannot
+     * be converted to Java {@code long}.
+     *
+     * @return Java {@code long} value this node represents, as {@link OptionalLong},
+     * if possible to accurately represent; {@code OptionalLong.empty()} otherwise
+     */
+    public abstract OptionalLong longValueOpt();
 
     /**
      * Method that will try to convert value of this node to a Java <b>long</b>.

@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JacksonSerializable;
@@ -50,7 +51,7 @@ public abstract class BaseJsonNode
 
     /*
     /**********************************************************************
-    /* Defaulting for scalar access
+    /* Defaulting for number access
     /**********************************************************************
      */
 
@@ -79,6 +80,23 @@ public abstract class BaseJsonNode
     public OptionalInt intValueOpt() {
         // Overridden by NumericNode, for other types return default
         return OptionalInt.empty();
+    }
+
+    @Override
+    public long longValue() {
+        return _reportCoercionFail("longValue()", Long.TYPE, "value type not numeric");
+    }
+
+    @Override
+    public long longValue(long defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalLong longValueOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalLong.empty();
     }
 
     /*
@@ -303,14 +321,24 @@ public abstract class BaseJsonNode
                 _valueDesc(), ClassUtil.nameOf(targetType), message);
     }
 
+    protected <T> T _reportShortCoercionRangeFail(String method) {
+        return _reportCoercionFail(method, Short.TYPE,
+            "value not in 16-bit `short` range");
+    }
+
     protected <T> T _reportIntCoercionRangeFail(String method) {
         return _reportCoercionFail(method, Integer.TYPE,
             "value not in 32-bit `int` range");
     }
 
-    protected <T> T _reportShortCoercionRangeFail(String method) {
+    protected <T> T _reportLongCoercionRangeFail(String method) {
+        return _reportCoercionFail(method, Long.TYPE,
+            "value not in 64-bit `long` range");
+    }
+
+    protected <T> T _reportShortCoercionFractionFail(String method) {
         return _reportCoercionFail(method, Short.TYPE,
-            "value not in 16-bit `short` range");
+                "value has fractional part");
     }
 
     protected <T> T _reportIntCoercionFractionFail(String method) {
@@ -318,8 +346,8 @@ public abstract class BaseJsonNode
                 "value has fractional part");
     }
 
-    protected <T> T _reportShortCoercionFractionFail(String method) {
-        return _reportCoercionFail(method, Short.TYPE,
+    protected <T> T _reportLongCoercionFractionFail(String method) {
+        return _reportCoercionFail(method, Long.TYPE,
                 "value has fractional part");
     }
 

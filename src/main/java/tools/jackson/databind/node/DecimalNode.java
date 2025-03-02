@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
@@ -120,10 +121,33 @@ public class DecimalNode
        }
        return OptionalInt.of(_value.intValue());
     }
-    
-    @Override
-    public long longValue() { return _value.longValue(); }
 
+    @Override
+    public long longValue() {
+        if (!_inLongRange()) {
+            return _reportLongCoercionRangeFail("longValue()");
+        }
+        if (_hasFractionalPart()) {
+            _reportLongCoercionFractionFail("longValue()");
+        }
+        return _value.longValue();
+    }
+
+    @Override
+    public long longValue(long defaultValue) {
+        if (!_inLongRange() || _hasFractionalPart()) {
+            return defaultValue;
+        }
+        return _value.longValue();
+    }
+
+    @Override
+    public OptionalLong longValueOpt() {
+        if (!_inLongRange() || _hasFractionalPart()) {
+            return OptionalLong.empty();
+        }
+        return OptionalLong.of(_value.longValue());
+    }
 
     @Override
     public BigInteger bigIntegerValue() {

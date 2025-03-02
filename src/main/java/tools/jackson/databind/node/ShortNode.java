@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.SerializationContext;
@@ -81,6 +82,14 @@ public class ShortNode
     @Override
     public long longValue() { return _value; }
 
+    @Override
+    public long longValue(long defaultValue) { return _value; }
+
+    @Override
+    public OptionalLong longValueOpt() {
+        return OptionalLong.of(_value);
+    }
+    
     @Override
     public float floatValue() { return _value; }
 

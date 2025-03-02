@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberOutput;
@@ -106,9 +107,33 @@ public class FloatNode extends NumericNode
        }
        return OptionalInt.of((int) _value);
     }
-    
+
     @Override
-    public long longValue() { return (long) _value; }
+    public long longValue() {
+        if (!_inLongRange()) {
+            return _reportLongCoercionRangeFail("longValue()");
+        }
+        if (_hasFractionalPart()) {
+            _reportLongCoercionFractionFail("longValue()");
+        }
+        return (long) _value;
+    }
+
+    @Override
+    public long longValue(long defaultValue) {
+        if (!_inLongRange() || _hasFractionalPart()) {
+            return defaultValue;
+       }
+        return (long) _value;
+    }
+
+    @Override
+    public OptionalLong longValueOpt() {
+        if (!_inLongRange() || _hasFractionalPart()) {
+            return OptionalLong.empty();
+       }
+       return OptionalLong.of((long) _value);
+    }
 
     @Override
     public float floatValue() { return _value; }

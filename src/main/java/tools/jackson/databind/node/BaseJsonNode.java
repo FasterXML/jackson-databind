@@ -55,6 +55,11 @@ public abstract class BaseJsonNode
      */
 
     @Override
+    public Number numberValue() {
+        return _reportCoercionFail("numberValue()", Number.class, "value type not numeric");
+    }
+
+    @Override
     public short shortValue() {
         return _reportCoercionFail("shortValue()", Short.TYPE, "value type not numeric");
     }

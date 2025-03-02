@@ -654,26 +654,35 @@ public abstract class JsonNode
     // // Scalar access: Numbers, generic
 
     /**
-     * Returns numeric value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true); otherwise
-     * returns null
+     * Method that will try to access value of this node as {@link Number}
+     * that accurately represents its value, if (and only if) this is
+     * a number node (returns {@code true} for {@link #isNumber}).
+     * If this node is NOT a number node, a {@link JsonNodeException} will be thrown.
      *
-     * @return Number value this node contains, if any (null for non-number
-     *   nodes).
+     * @return Number value this node contains
      */
-    public Number numberValue() { return null; }
+    public abstract Number numberValue();
 
     // // Scalar access: Numbers, Java short
 
     /**
-     * Returns 16-bit short value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.
-     * For floating-point numbers, value is truncated using default
-     * Java coercion, similar to how cast from double to short operates.
+     * Method that will try to access value of this node as 16-bit signed
+     * integer value (Java {@code short}):
+     * but if node value cannot be expressed <b>exactly</b> as a {@code short},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Integer values that fit in Java 16-bit signed {@code short} range
+     *   </li>
+     *  <li>JSON Floating-point values that fit in Java 16-bit signed {@code short} range
+     *    AND do not have fractional part.
+     *    </li>
+     * </ul>
+     *<p>
      *
-     * @return Short value this node contains, if any; 0 for non-number
-     *   nodes.
+     * @return {@code Short} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node cannot be converted to Java {@code int}
      */
     public short shortValue() { return 0; }
 

@@ -1,5 +1,9 @@
 package tools.jackson.databind.node;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.OptionalInt;
+
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.JsonNode;
@@ -9,10 +13,6 @@ import tools.jackson.databind.util.RawValue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.OptionalInt;
 
 /**
  * Tests for [databind#4958], JsonNode.intValue() (and related) parts
@@ -121,14 +121,14 @@ public class JsonNodeIntValueTest
         final long overflow = +1L + Integer.MAX_VALUE;
 
         _assertFailIntForValueRange(NODES.numberNode(underflow));
-        _assertDefaultIntForValueRange(NODES.numberNode(underflow));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(underflow));
         _assertFailIntForValueRange(NODES.numberNode(overflow));
-        _assertDefaultIntForValueRange(NODES.numberNode(overflow));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(overflow));
 
         _assertFailIntForValueRange(NODES.numberNode(BigInteger.valueOf(underflow)));
-        _assertDefaultIntForValueRange(NODES.numberNode(BigInteger.valueOf(underflow)));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(BigInteger.valueOf(underflow)));
         _assertFailIntForValueRange(NODES.numberNode(BigInteger.valueOf(overflow)));
-        _assertDefaultIntForValueRange(NODES.numberNode(BigInteger.valueOf(overflow)));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(BigInteger.valueOf(overflow)));
     }
 
     @Test
@@ -143,7 +143,7 @@ public class JsonNodeIntValueTest
         _assertFailShortForValueRange(NODES.numberNode(BigInteger.valueOf(underflow)));
         _assertFailShortForValueRange(NODES.numberNode(BigInteger.valueOf(overflow)));
     }
-
+    
     // // // intValue() + Numbers/FPs
 
     @Test
@@ -210,21 +210,21 @@ public class JsonNodeIntValueTest
         final long overflow =  Integer.MAX_VALUE + 1L;
 
         _assertFailIntForValueRange(NODES.numberNode((double)underflow));
-        _assertDefaultIntForValueRange(NODES.numberNode((double)underflow));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode((double)underflow));
         _assertFailIntForValueRange(NODES.numberNode((double)overflow));
-        _assertDefaultIntForValueRange(NODES.numberNode((double)overflow));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode((double)overflow));
 
         // Float is too inexact for using same test as Double, so:
 
         _assertFailIntForValueRange(NODES.numberNode(-Float.MAX_VALUE));
-        _assertDefaultIntForValueRange(NODES.numberNode(-Float.MAX_VALUE));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(-Float.MAX_VALUE));
         _assertFailIntForValueRange(NODES.numberNode(Float.MAX_VALUE));
-        _assertDefaultIntForValueRange(NODES.numberNode(Float.MAX_VALUE));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(Float.MAX_VALUE));
 
         _assertFailIntForValueRange(NODES.numberNode(BigDecimal.valueOf(underflow)));
-        _assertDefaultIntForValueRange(NODES.numberNode(BigDecimal.valueOf(underflow)));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(BigDecimal.valueOf(underflow)));
         _assertFailIntForValueRange(NODES.numberNode(BigDecimal.valueOf(overflow)));
-        _assertDefaultIntForValueRange(NODES.numberNode(BigDecimal.valueOf(overflow)));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(BigDecimal.valueOf(overflow)));
     }
 
     @Test
@@ -250,19 +250,19 @@ public class JsonNodeIntValueTest
     public void intValueFromNumberFPFailFraction()
     {
         _assertFailIntValueForFraction(NODES.numberNode(100.5f));
-        _assertDefaultIntForValueRange(NODES.numberNode(100.5f));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(100.5f));
         _assertFailIntValueForFraction(NODES.numberNode(-0.25f));
-        _assertDefaultIntForValueRange(NODES.numberNode(-0.25f));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(-0.25f));
 
         _assertFailIntValueForFraction(NODES.numberNode(100.5d));
-        _assertDefaultIntForValueRange(NODES.numberNode(100.5d));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(100.5d));
         _assertFailIntValueForFraction(NODES.numberNode(-0.25d));
-        _assertDefaultIntForValueRange(NODES.numberNode(-0.25d));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(-0.25d));
         
         _assertFailIntValueForFraction(NODES.numberNode(BigDecimal.valueOf(100.5d)));
-        _assertDefaultIntForValueRange(NODES.numberNode(BigDecimal.valueOf(100.5d)));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(BigDecimal.valueOf(100.5d)));
         _assertFailIntValueForFraction(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
-        _assertDefaultIntForValueRange(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
+        _assertDefaultIntForOtherwiseFailing(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
     }
 
     @Test
@@ -284,15 +284,15 @@ public class JsonNodeIntValueTest
     public void intValueFromNonNumberScalarFail()
     {
         _assertFailIntForNonNumber(NODES.booleanNode(true));
-        _assertDefaultIntForValueRange(NODES.booleanNode(true));
+        _assertDefaultIntForOtherwiseFailing(NODES.booleanNode(true));
         _assertFailIntForNonNumber(NODES.binaryNode(new byte[3]));
-        _assertDefaultIntForValueRange(NODES.binaryNode(new byte[3]));
+        _assertDefaultIntForOtherwiseFailing(NODES.binaryNode(new byte[3]));
         _assertFailIntForNonNumber(NODES.stringNode("123"));
-        _assertDefaultIntForValueRange(NODES.stringNode("123"));
+        _assertDefaultIntForOtherwiseFailing(NODES.stringNode("123"));
         _assertFailIntForNonNumber(NODES.rawValueNode(new RawValue("abc")));
-        _assertDefaultIntForValueRange(NODES.rawValueNode(new RawValue("abc")));
+        _assertDefaultIntForOtherwiseFailing(NODES.rawValueNode(new RawValue("abc")));
         _assertFailIntForNonNumber(NODES.pojoNode(Boolean.TRUE));
-        _assertDefaultIntForValueRange(NODES.pojoNode(Boolean.TRUE));
+        _assertDefaultIntForOtherwiseFailing(NODES.pojoNode(Boolean.TRUE));
     }
 
     @Test
@@ -309,18 +309,18 @@ public class JsonNodeIntValueTest
     public void intValueFromStructuralFail()
     {
         _assertFailIntForNonNumber(NODES.arrayNode(3));
-        _assertDefaultIntForValueRange(NODES.arrayNode(3));
+        _assertDefaultIntForOtherwiseFailing(NODES.arrayNode(3));
         _assertFailIntForNonNumber(NODES.objectNode());
-        _assertDefaultIntForValueRange(NODES.objectNode());
+        _assertDefaultIntForOtherwiseFailing(NODES.objectNode());
     }
 
     @Test
     public void intValueFromMiscOtherFail()
     {
         _assertFailIntForNonNumber(NODES.nullNode());
-        _assertDefaultIntForValueRange(NODES.nullNode());
+        _assertDefaultIntForOtherwiseFailing(NODES.nullNode());
         _assertFailIntForNonNumber(NODES.missingNode());
-        _assertDefaultIntForValueRange(NODES.missingNode());
+        _assertDefaultIntForOtherwiseFailing(NODES.missingNode());
     }
 
     // // // Shared helper methods
@@ -341,11 +341,6 @@ public class JsonNodeIntValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("value not in 16-bit `short` range");
-    }
-
-    private void _assertDefaultIntForValueRange(JsonNode node) {
-        assertEquals(99, node.intValue(99));
-        assertEquals(OptionalInt.empty(), node.intValueOpt());
     }
 
     private void _assertFailIntValueForFraction(JsonNode node) {
@@ -382,5 +377,10 @@ public class JsonNodeIntValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("value type not numeric");
+    }
+
+    private void _assertDefaultIntForOtherwiseFailing(JsonNode node) {
+        assertEquals(99, node.intValue(99));
+        assertEquals(OptionalInt.empty(), node.intValueOpt());
     }
 }

@@ -151,7 +151,10 @@ public class DecimalNode
 
     @Override
     public BigInteger bigIntegerValue() {
-        return _bigIntFromBigDec(_value);
+        if (_hasFractionalPart()) {
+            _reportBigIntegerCoercionFractionFail("bigIntegerValue()");
+        }
+        return _value.toBigInteger();
     }
 
     @Override

@@ -136,6 +136,14 @@ public class FloatNode extends NumericNode
     }
 
     @Override
+    public BigInteger bigIntegerValue() {
+        if (_hasFractionalPart()) {
+            _reportBigIntegerCoercionFractionFail("bigIntegerValue()");
+        }
+        return decimalValue().toBigInteger();
+    }
+
+    @Override
     public float floatValue() { return _value; }
 
     @Override
@@ -143,11 +151,6 @@ public class FloatNode extends NumericNode
 
     @Override
     public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
-
-    @Override
-    public BigInteger bigIntegerValue() {
-        return decimalValue().toBigInteger();
-    }
 
     @Override
     public String asString() {

@@ -1,6 +1,5 @@
 package tools.jackson.databind.node;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -97,6 +96,11 @@ public abstract class BaseJsonNode
     public OptionalLong longValueOpt() {
         // Overridden by NumericNode, for other types return default
         return OptionalLong.empty();
+    }
+
+    @Override
+    public BigInteger bigIntegerValue() {
+        return _reportCoercionFail("bigIntegerValue()", BigInteger.class, "value type not numeric");
     }
 
     /*
@@ -351,6 +355,11 @@ public abstract class BaseJsonNode
                 "value has fractional part");
     }
 
+    protected <T> T _reportBigIntegerCoercionFractionFail(String method) {
+        return _reportCoercionFail(method, BigInteger.class,
+                "value has fractional part");
+    }
+
     /**
      * Helper method that throws {@link JsonNodeException} as a result of
      * this node being of wrong type
@@ -364,11 +373,6 @@ public abstract class BaseJsonNode
     /* Other helper methods for subtypes
     /**********************************************************************
      */
-
-    protected BigInteger _bigIntFromBigDec(BigDecimal value) {
-        StreamReadConstraints.defaults().validateBigIntegerScale(value.scale());
-        return value.toBigInteger();
-    }
 
     protected JsonPointer _jsonPointerIfValid(String exprOrProperty) {
         if (exprOrProperty.isEmpty() || exprOrProperty.charAt(0) == '/') {

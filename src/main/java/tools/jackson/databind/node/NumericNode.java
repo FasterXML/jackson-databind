@@ -47,9 +47,10 @@ public abstract class NumericNode
     @Override public abstract long longValue(long defaultValue);
     @Override public abstract OptionalLong longValueOpt();
 
+    @Override public abstract BigInteger bigIntegerValue();
+
     @Override public abstract double doubleValue();
     @Override public abstract BigDecimal decimalValue();
-    @Override public abstract BigInteger bigIntegerValue();
 
     @Override public abstract boolean canConvertToInt();
     @Override public abstract boolean canConvertToLong();

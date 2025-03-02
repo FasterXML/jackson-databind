@@ -833,16 +833,23 @@ public abstract class JsonNode
     // // Scalar access: Numbers, Java BigInteger
 
     /**
-     * Returns integer value for this node (as {@link BigInteger}), <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns <code>BigInteger.ZERO</code>.
+     * Method that will try to access value of this node as a {@link BigInteger},
+     * but if node value cannot be expressed <b>exactly</b> as a {@link BigInteger},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Integer values
+     *   </li>
+     *  <li>JSON Floating-point values that do not have fractional part.
+     *    </li>
+     * </ul>
      *<p>
-     * May also throw {@link tools.jackson.core.exc.StreamConstraintsException}
-     *   if the scale of the underlying {@link BigDecimal} is too large to convert.
      *
-     * @return {@link BigInteger} value this node contains, if numeric node; <code>BigInteger.ZERO</code> for non-number nodes.
+     * @return {@code BigInteger} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node cannot be converted to Java {@code BigInteger}
      */
-    public BigInteger bigIntegerValue() { return BigInteger.ZERO; }
+    public abstract BigInteger bigIntegerValue();
 
     // // Scalar access: Numbers, Java float
 

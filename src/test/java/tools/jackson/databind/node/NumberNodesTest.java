@@ -181,10 +181,10 @@ public class NumberNodesTest extends NodeTestBase
         //assertEquals(0, n.intValue());
         assertEquals(0.25, n.doubleValue());
         assertNotNull(n.decimalValue());
-        assertEquals(BigInteger.ZERO, n.bigIntegerValue());
         assertEquals("0.25", n.asString());
 
         // No longer legal in 3.0 due to fractional part
+        //assertEquals(BigInteger.ZERO, n.bigIntegerValue());
         //assertNodeNumbers(DoubleNode.valueOf(4.5), 4, 4.5);
 
         assertTrue(DoubleNode.valueOf(0).canConvertToInt());
@@ -260,11 +260,10 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals("0.45",  String.valueOf((float) n.doubleValue()));
 
         assertNotNull(n.decimalValue());
-        // possibly surprisingly, however, this will produce same output:
-        assertEquals(BigInteger.ZERO, n.bigIntegerValue());
         assertEquals("0.45", n.asString());
 
         // No longer legal to convert to integral numbers, due to fractional part
+        // assertEquals(BigInteger.ZERO, n.bigIntegerValue());
         //assertNodeNumbers(FloatNode.valueOf(4.5f), 4, 4.5f);
 
         assertTrue(FloatNode.valueOf(0).canConvertToInt());

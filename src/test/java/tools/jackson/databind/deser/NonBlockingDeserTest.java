@@ -40,6 +40,7 @@ public class NonBlockingDeserTest
         }
         try {
           ((ByteBufferFeeder) parser).feedInput(ByteBuffer.wrap(m.writeValueAsBytes(foos)));
+          ((ByteBufferFeeder) parser).endOfInput();
           final Foo[] result = m.readValue(parser, Foo[].class);
           assertEquals(len, result.length);
         } finally {

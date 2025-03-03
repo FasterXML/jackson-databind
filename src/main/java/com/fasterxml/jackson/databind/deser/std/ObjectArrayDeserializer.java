@@ -6,9 +6,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -237,6 +236,19 @@ public class ObjectArrayDeserializer
             result = buffer.completeAndClearBuffer(chunk, ix, _elementClass);
         }
         ctxt.returnObjectBuffer(buffer);
+        // [databind#4949]: Coercion from empty array not applied
+        if (result.length == 0) {
+            result = coerceEmptyArray(result, ctxt);
+        }
+        return result;
+    }
+
+    private Object[] coerceEmptyArray(Object[] result, DeserializationContext ctxt)
+    {
+        final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(), CoercionInputShape.EmptyArray);
+        if (act == CoercionAction.AsNull) {
+            return null;
+        }
         return result;
     }
 

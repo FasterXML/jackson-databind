@@ -179,6 +179,19 @@ public final class StringArrayDeserializer
         }
         String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
         ctxt.returnObjectBuffer(buffer);
+        // [databind#4949]: Coercion from empty array not applied
+        if (result.length == 0) {
+            result = coerceEmptyArray(result, ctxt);
+        }
+        return result;
+    }
+
+    private String[] coerceEmptyArray(String[] result, DeserializationContext ctxt)
+    {
+        final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(), CoercionInputShape.EmptyArray);
+        if (act == CoercionAction.AsNull) {
+            return null;
+        }
         return result;
     }
 

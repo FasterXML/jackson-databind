@@ -36,6 +36,9 @@ Project: jackson-databind
  (reported by @nlisker)
 #4932: Conversion of `MissingNode` throws `JsonProcessingException`
  (reported by @ludgerb)
+#4994: `CoercionConfig` for `CoercionAction.AsNull` not working on empty array deserialization
+ (reported by @Whi7y)
+ (fix by Joo-Hyuk K)
 
 2.18.2 (27-Nov-2024)
 

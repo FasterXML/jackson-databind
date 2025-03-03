@@ -218,6 +218,11 @@ public class TestCustomSerializers extends DatabindTestUtil
                     }
 
                     @Override
+                    public Object convert(Object value, SerializerProvider provider) {
+                        return value == Super4575.NULL ? null : value;
+                    }
+
+                    @Override
                     public JavaType getInputType(TypeFactory typeFactory) {
                         return typeFactory.constructType(delegateSerializer.handledType());
                     }

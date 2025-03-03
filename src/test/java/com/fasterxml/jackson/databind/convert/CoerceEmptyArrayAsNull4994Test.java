@@ -38,7 +38,7 @@ public class CoerceEmptyArrayAsNull4994Test
             .build();
 
     @Test
-    public void testAsNull()
+    public void testStringArrayAsNullCoercion()
         throws Exception
     {
         StringArrayWrapper4994 pojo = MAPPER_TO_NULL.readValue(json, StringArrayWrapper4994.class);
@@ -47,7 +47,7 @@ public class CoerceEmptyArrayAsNull4994Test
     }
 
     @Test
-    public void testPojoArrayAsNull()
+    public void testPojoArrayAsNullCoercion()
             throws Exception
     {
         PojoArrayWrapper4994 wrapper = MAPPER_TO_NULL.readValue(json, PojoArrayWrapper4994.class);
@@ -56,7 +56,7 @@ public class CoerceEmptyArrayAsNull4994Test
     }
 
     @Test
-    public void testObjectArrayAsNull()
+    public void testObjectArrayAsNullCoercion()
             throws Exception
     {
         ObjectArrayWrapper4994 wrapper = MAPPER_TO_NULL.readValue(json, ObjectArrayWrapper4994.class);

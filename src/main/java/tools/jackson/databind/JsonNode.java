@@ -574,10 +574,7 @@ public abstract class JsonNode
      * @param defaultValue The default value to return if this node's text value is absent.
      * @return The text value of this node, or {@code defaultValue} if the text value is absent.
      */
-    public String asString(String defaultValue) {
-        String str = asString();
-        return (str == null) ? defaultValue : str;
-    }
+    public abstract String asString(String defaultValue);
 
     /**
      * @deprecated Use {@link #asString()} instead.
@@ -607,9 +604,7 @@ public abstract class JsonNode
      * @return Binary data this node contains, iff it is a binary
      *   node; null otherwise
      */
-    public byte[] binaryValue() {
-        return null;
-    }
+    public abstract byte[] binaryValue();
 
     // // Scalar access: Boolean
 
@@ -621,7 +616,7 @@ public abstract class JsonNode
      * @return Boolean value this node contains, if any; false for
      *   non-boolean nodes.
      */
-    public boolean booleanValue() { return false; }
+    public abstract boolean booleanValue();
 
     /**
      * Method that will try to convert value of this node to a Java <b>boolean</b>.
@@ -633,9 +628,7 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * default value of <b>false</b> will be returned; no exceptions are thrown.
      */
-    public boolean asBoolean() {
-        return asBoolean(false);
-    }
+    public abstract boolean asBoolean();
 
     /**
      * Method that will try to convert value of this node to a Java <b>boolean</b>.
@@ -647,9 +640,7 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */
-    public boolean asBoolean(boolean defaultValue) {
-        return defaultValue;
-    }
+    public abstract boolean asBoolean(boolean defaultValue);
 
     // // Scalar access: Numbers, generic
 
@@ -740,9 +731,7 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * default value of <b>0</b> will be returned; no exceptions are thrown.
      */
-    public int asInt() {
-        return asInt(0);
-    }
+    public abstract int asInt();
 
     /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
@@ -754,9 +743,7 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */
-    public int asInt(int defaultValue) {
-        return defaultValue;
-    }
+    public abstract int asInt(int defaultValue);
 
     // // Scalar access: Numbers, Java long
 
@@ -812,9 +799,7 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * default value of <b>0</b> will be returned; no exceptions are thrown.
      */
-    public long asLong() {
-        return asLong(0L);
-    }
+    public abstract long asLong();
 
     /**
      * Method that will try to convert value of this node to a Java <b>long</b>.
@@ -826,9 +811,7 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */
-    public long asLong(long defaultValue) {
-        return defaultValue;
-    }
+    public abstract long asLong(long defaultValue);
 
     // // Scalar access: Numbers, Java BigInteger
 
@@ -925,9 +908,7 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * default value of <b>0.0</b> will be returned; no exceptions are thrown.
      */
-    public double asDouble() {
-        return asDouble(0.0);
-    }
+    public abstract double asDouble();
 
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
@@ -939,9 +920,7 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */
-    public double asDouble(double defaultValue) {
-        return defaultValue;
-    }
+    public abstract double asDouble(double defaultValue);
 
     // // Scalar access: Numbers, Java BigDecimal
 
@@ -981,6 +960,10 @@ public abstract class JsonNode
      * if possible to accurately represent; {@code Optional.empty()} otherwise
      */
     public abstract Optional<BigDecimal> decimalValueOpt();
+
+    public abstract BigDecimal asDecimal();
+    
+    public abstract BigDecimal asDecimal(BigDecimal defaultValue);
 
     /*
     /**********************************************************************

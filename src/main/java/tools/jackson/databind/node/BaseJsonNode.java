@@ -85,6 +85,16 @@ public abstract class BaseJsonNode
     }
 
     @Override
+    public int asInt() {
+        return asInt(0);
+    }
+
+    @Override
+    public int asInt(int defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
     public long longValue() {
         return _reportCoercionFail("longValue()", Long.TYPE, "value type not numeric");
     }
@@ -99,6 +109,16 @@ public abstract class BaseJsonNode
     public OptionalLong longValueOpt() {
         // Overridden by NumericNode, for other types return default
         return OptionalLong.empty();
+    }
+
+    @Override
+    public long asLong() {
+        return asLong(0L);
+    }
+
+    @Override
+    public long asLong(long defaultValue) {
+        return defaultValue;
     }
 
     @Override
@@ -129,6 +149,16 @@ public abstract class BaseJsonNode
     }
 
     @Override
+    public double asDouble() {
+        return asDouble(0.0);
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        return defaultValue;
+    }
+    
+    @Override
     public BigDecimal decimalValue() {
         return _reportCoercionFail("decimalValue()", BigDecimal.class, "value type not numeric");
     }
@@ -142,6 +172,49 @@ public abstract class BaseJsonNode
     @Override
     public Optional<BigDecimal> decimalValueOpt() {
         return Optional.empty();
+    }
+
+    @Override
+    public BigDecimal asDecimal() {
+        return asDecimal(BigDecimal.ZERO);
+    }
+    
+    @Override
+    public BigDecimal asDecimal(BigDecimal defaultValue) {
+        // !!! TODO
+        return decimalValue(defaultValue);
+    }
+
+    /*
+    /**********************************************************************
+    /* Defaulting for non-number scalar access
+    /**********************************************************************
+     */
+
+    @Override
+    public byte[] binaryValue() {
+        return null;
+    }
+
+    @Override
+    public boolean booleanValue() {
+        return false;
+    }
+
+    @Override
+    public boolean asBoolean() {
+        return asBoolean(false);
+    }
+
+    @Override
+    public boolean asBoolean(boolean defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
+    public String asString(String defaultValue) {
+        String str = asString();
+        return (str == null) ? defaultValue : str;
     }
 
     /*

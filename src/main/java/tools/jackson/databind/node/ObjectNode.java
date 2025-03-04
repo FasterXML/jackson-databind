@@ -28,6 +28,12 @@ public class ObjectNode
     // Note: LinkedHashMap for backwards compatibility
     protected final Map<String, JsonNode> _children;
 
+    /*
+    /**********************************************************************
+    /* Construction
+    /**********************************************************************
+     */
+
     public ObjectNode(JsonNodeFactory nc) {
         super(nc);
         _children = new LinkedHashMap<String, JsonNode>();
@@ -39,9 +45,20 @@ public class ObjectNode
                 "Must not pass `null` for 'children' argument");
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods
+    /**********************************************************************
+     */
+
     @Override
     protected JsonNode _at(JsonPointer ptr) {
         return get(ptr.getMatchingProperty());
+    }
+
+    @Override
+    protected String _valueDesc() {
+        return "{...(" + _children.size() + " properties}]";
     }
 
     /* Question: should this delegate to `JsonNodeFactory`? It does not absolutely

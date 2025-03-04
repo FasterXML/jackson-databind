@@ -175,7 +175,7 @@ public class TestDoubleJsonCreator extends DatabindTestUtil
         }
     }
 
-    static final class AliasDouble {
+    public static final class AliasDouble {
         private final double value;
 
         private AliasDouble(double value) {

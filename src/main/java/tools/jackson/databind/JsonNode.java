@@ -469,15 +469,14 @@ public abstract class JsonNode
 
     /**
      * Method that can be used to check whether this node is a numeric
-     * node ({@link #isNumber} would return true) AND its value fits
-     * within Java's 32-bit signed integer type, <code>int</code>.
-     * Note that floating-point numbers are convertible if the integral
-     * part fits without overflow (as per standard Java coercion rules)
+     * node ({@link #isNumber} would return true)
+     * AND can be converted without loss to it (that is, its value fits
+     * within Java's 32-bit signed integer type, <code>int</code> and
+     * if it is a floating-point number, it does not have fractional part).
      *<p>
      * NOTE: this method does not consider possible value type conversion
-     * from JSON String into Number; so even if this method returns false,
-     * it is possible that {@link #asInt} could still succeed
-     * if node is a JSON String representing integral number, or boolean.
+     * from non-number types like JSON String into Number; so even if this method returns false,
+     * it is possible that {@link #asInt} could still succeed.
      *
      * @since 2.0
      */
@@ -485,15 +484,14 @@ public abstract class JsonNode
 
     /**
      * Method that can be used to check whether this node is a numeric
-     * node ({@link #isNumber} would return true) AND its value fits
-     * within Java's 64-bit signed integer type, <code>long</code>.
-     * Note that floating-point numbers are convertible if the integral
-     * part fits without overflow (as per standard Java coercion rules)
+     * node ({@link #isNumber} would return true)
+     * AND can be converted without loss to it (that is, its value fits
+     * within Java's 64-bit signed integer type, <code>long</code> and
+     * if it is a floating-point number, it does not have fractional part).
      *<p>
      * NOTE: this method does not consider possible value type conversion
-     * from JSON String into Number; so even if this method returns false,
-     * it is possible that {@link #asLong} could still succeed
-     * if node is a JSON String representing integral number, or boolean.
+     * from non-number types like JSON String into Number; so even if this method returns false,
+     * it is possible that {@link #asLong} could still succeed.
      */
     public boolean canConvertToLong() { return false; }
 
@@ -576,10 +574,7 @@ public abstract class JsonNode
      * @param defaultValue The default value to return if this node's text value is absent.
      * @return The text value of this node, or {@code defaultValue} if the text value is absent.
      */
-    public String asString(String defaultValue) {
-        String str = asString();
-        return (str == null) ? defaultValue : str;
-    }
+    public abstract String asString(String defaultValue);
 
     /**
      * @deprecated Use {@link #asString()} instead.
@@ -609,9 +604,7 @@ public abstract class JsonNode
      * @return Binary data this node contains, iff it is a binary
      *   node; null otherwise
      */
-    public byte[] binaryValue() {
-        return null;
-    }
+    public abstract byte[] binaryValue();
 
     // // Scalar access: Boolean
 
@@ -623,7 +616,7 @@ public abstract class JsonNode
      * @return Boolean value this node contains, if any; false for
      *   non-boolean nodes.
      */
-    public boolean booleanValue() { return false; }
+    public abstract boolean booleanValue();
 
     /**
      * Method that will try to convert value of this node to a Java <b>boolean</b>.
@@ -635,9 +628,7 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * default value of <b>false</b> will be returned; no exceptions are thrown.
      */
-    public boolean asBoolean() {
-        return asBoolean(false);
-    }
+    public abstract boolean asBoolean();
 
     /**
      * Method that will try to convert value of this node to a Java <b>boolean</b>.
@@ -649,49 +640,86 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */
-    public boolean asBoolean(boolean defaultValue) {
-        return defaultValue;
-    }
+    public abstract boolean asBoolean(boolean defaultValue);
 
     // // Scalar access: Numbers, generic
 
     /**
-     * Returns numeric value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true); otherwise
-     * returns null
+     * Method that will try to access value of this node as {@link Number}
+     * that accurately represents its value, if (and only if) this is
+     * a number node (returns {@code true} for {@link #isNumber}).
+     * If this node is NOT a number node, a {@link JsonNodeException} will be thrown.
      *
-     * @return Number value this node contains, if any (null for non-number
-     *   nodes).
+     * @return Number value this node contains, if numeric node
      */
-    public Number numberValue() { return null; }
+    public abstract Number numberValue();
 
     // // Scalar access: Numbers, Java short
 
     /**
-     * Returns 16-bit short value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.
-     * For floating-point numbers, value is truncated using default
-     * Java coercion, similar to how cast from double to short operates.
+     * Method that will try to access value of this node as 16-bit signed
+     * integer value (Java {@code short}):
+     * but if node value cannot be expressed <b>exactly</b> as a {@code short},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Integer values that fit in Java 16-bit signed {@code short} range
+     *   </li>
+     *  <li>JSON Floating-point values that fit in Java 16-bit signed {@code short} range
+     *    AND do not have fractional part.
+     *    </li>
+     * </ul>
+     *<p>
      *
-     * @return Short value this node contains, if any; 0 for non-number
-     *   nodes.
+     * @return {@code Short} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to Java {@code short}
      */
-    public short shortValue() { return 0; }
+    public abstract short shortValue();
 
     // // Scalar access: Numbers, Java int
 
     /**
-     * Returns integer value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.
-     * For floating-point numbers, value is truncated using default
-     * Java coercion, similar to how cast from double to int operates.
+     * Method that will try to access value of this node as a Java {@code int}:
+     * but if node value cannot be expressed <b>exactly</b> as an {@code int},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Integer values that fit in Java 32-bit signed {@code int} range
+     *   </li>
+     *  <li>JSON Floating-point values that fit in Java 32-bit signed {@code int} range
+     *    AND do not have fractional part.
+     *    </li>
+     * </ul>
+     *<p>
+     * NOTE: for more lenient conversions, use {@link #asInt()}
      *
-     * @return Integer value this node contains, if any; 0 for non-number
-     *   nodes.
+     * @return {@code Int} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to Java {@code int}
      */
-    public int intValue() { return 0; }
+    public abstract int intValue();
+
+    /**
+     * Method similar to {@link #intValue()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to Java {@code int}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to Java {@code int}
+     *
+     * @return Java {@code int} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
+     */
+    public abstract int intValue(int defaultValue);
+
+    /**
+     * Method similar to {@link #intValue()}, but that will return empty
+     * {@link OptionalInt} ({@code OptionalInt.empty()}) if this node cannot
+     * be converted to Java {@code int}.
+     *
+     * @return Java {@code int} value this node represents, as {@link OptionalInt},
+     * if possible to accurately represent; {@code OptionalInt.empty()} otherwise
+     */
+    public abstract OptionalInt intValueOpt();
 
     /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
@@ -703,9 +731,7 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * default value of <b>0</b> will be returned; no exceptions are thrown.
      */
-    public int asInt() {
-        return asInt(0);
-    }
+    public abstract int asInt();
 
     /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
@@ -717,23 +743,51 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */
-    public int asInt(int defaultValue) {
-        return defaultValue;
-    }
+    public abstract int asInt(int defaultValue);
 
     // // Scalar access: Numbers, Java long
 
     /**
-     * Returns 64-bit long value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.
-     * For floating-point numbers, value is truncated using default
-     * Java coercion, similar to how cast from double to long operates.
+     * Method that will try to access value of this node as a Java {@code long}:
+     * but if node value cannot be expressed <b>exactly</b> as a {@code long},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Integer values that fit in Java 64-bit signed {@code long} range
+     *   </li>
+     *  <li>JSON Floating-point values that fit in Java 64-bit signed {@code long} range
+     *    AND do not have fractional part.
+     *    </li>
+     * </ul>
+     *<p>
+     * NOTE: for more lenient conversions, use {@link #asLong()}
      *
-     * @return Long value this node contains, if any; 0 for non-number
-     *   nodes.
+     * @return {@code Long} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to Java {@code long}
      */
-    public long longValue() { return 0L; }
+    public abstract long longValue();
+
+    /**
+     * Method similar to {@link #longValue()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to Java {@code long}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to Java {@code long}
+     *
+     * @return Java {@code long} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
+     */
+    public abstract long longValue(long defaultValue);
+
+    /**
+     * Method similar to {@link #longValue()}, but that will return empty
+     * {@link OptionalLong} ({@code OptionalLong.empty()}) if this node cannot
+     * be converted to Java {@code long}.
+     *
+     * @return Java {@code long} value this node represents, as {@link OptionalLong},
+     * if possible to accurately represent; {@code OptionalLong.empty()} otherwise
+     */
+    public abstract OptionalLong longValueOpt();
 
     /**
      * Method that will try to convert value of this node to a Java <b>long</b>.
@@ -745,9 +799,7 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * default value of <b>0</b> will be returned; no exceptions are thrown.
      */
-    public long asLong() {
-        return asLong(0L);
-    }
+    public abstract long asLong();
 
     /**
      * Method that will try to convert value of this node to a Java <b>long</b>.
@@ -759,50 +811,93 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */
-    public long asLong(long defaultValue) {
-        return defaultValue;
-    }
+    public abstract long asLong(long defaultValue);
 
     // // Scalar access: Numbers, Java BigInteger
 
     /**
-     * Returns integer value for this node (as {@link BigInteger}), <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns <code>BigInteger.ZERO</code>.
+     * Method that will try to access value of this node as a {@link BigInteger},
+     * but if node value cannot be expressed <b>exactly</b> as a {@link BigInteger},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Integer values
+     *   </li>
+     *  <li>JSON Floating-point values that do not have fractional part.
+     *    </li>
+     * </ul>
      *<p>
-     * May also throw {@link tools.jackson.core.exc.StreamConstraintsException}
-     *   if the scale of the underlying {@link BigDecimal} is too large to convert.
      *
-     * @return {@link BigInteger} value this node contains, if numeric node; <code>BigInteger.ZERO</code> for non-number nodes.
+     * @return {@code BigInteger} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to Java {@code BigInteger}
      */
-    public BigInteger bigIntegerValue() { return BigInteger.ZERO; }
+    public abstract BigInteger bigIntegerValue();
 
     // // Scalar access: Numbers, Java float
 
     /**
-     * Returns 32-bit floating value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.0.
-     * For integer values, conversion is done using coercion; this means
-     * that an overflow is possible for `long` values
+     * Method that will try to access value of this node as a Java {@code float}:
+     * but if node value cannot be expressed <b>exactly</b> as a {@code float},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Floating-point values that fit in Java 32-bit {@code double} range
+     *    </li>
+     *  <li>JSON Integer values that fit in Java 32-bit {@code double} range
+     *   </li>
+     * </ul>
+     *<p>
      *
-     * @return 32-bit float value this node contains, if any; 0.0 for non-number nodes.
+     * @return {@code Float} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to Java {@code float}
      */
-    public float floatValue() { return 0.0f; }
+    public abstract float floatValue();
 
     // // Scalar access: Numbers, Java double
 
     /**
-     * Returns 64-bit floating point (double) value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.0.
-     * For integer values, conversion is done using coercion; this may result
-     * in overflows with {@link BigInteger} values.
+     * Method that will try to access value of this node as a Java {@code double}:
+     * but if node value cannot be expressed <b>exactly</b> as a {@code double},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Floating-point values that fit in Java 64-bit {@code double} range
+     *    </li>
+     *  <li>JSON Integer values that fit in Java 64-bit {@code double} range
+     *   </li>
+     * </ul>
+     *<p>
+     * NOTE: for more lenient conversions, use {@link #asDouble()}
      *
-     * @return 64-bit double value this node contains, if any; 0.0 for non-number nodes.
+     * @return {@code Double} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to Java {@code double}
      */
-    public double doubleValue() { return 0.0; }
+    public abstract double doubleValue();
 
+    /**
+     * Method similar to {@link #doubleValue()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to Java {@code double}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to Java {@code double}
+     *
+     * @return Java {@code double} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
+     */
+    public abstract double doubleValue(double defaultValue);
+
+    /**
+     * Method similar to {@link #doubleValue()}, but that will return empty
+     * {@link OptionalLong} ({@code OptionalDouble.empty()}) if this node cannot
+     * be converted to Java {@code double}.
+     *
+     * @return Java {@code double} value this node represents, as {@link OptionalDouble},
+     * if possible to accurately represent; {@code OptionalDouble.empty()} otherwise
+     */
+    public abstract OptionalDouble doubleValueOpt();
+    
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
@@ -813,9 +908,7 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * default value of <b>0.0</b> will be returned; no exceptions are thrown.
      */
-    public double asDouble() {
-        return asDouble(0.0);
-    }
+    public abstract double asDouble();
 
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
@@ -827,21 +920,50 @@ public abstract class JsonNode
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */
-    public double asDouble(double defaultValue) {
-        return defaultValue;
-    }
+    public abstract double asDouble(double defaultValue);
 
     // // Scalar access: Numbers, Java BigDecimal
 
     /**
-     * Returns floating point value for this node (as {@link BigDecimal}), <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns <code>BigDecimal.ZERO</code>.
+     * Method that will try to access value of this node as a Java {@code BigDecimal}:
+     * but if node value cannot be expressed <b>exactly</b> as a {@code BigDecimal},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>All JSON Number values
+     *    </li>
+     * </ul>
+     *<p>
+     * NOTE: for more lenient conversions, use {@link #asDecimal()}
      *
-     * @return {@link BigDecimal} value this node contains, if numeric node;
-     *   {@code BigDecimal.ZERO} for non-number nodes.
+     * @return {@code BigDecimal} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to Java {@code BigDecimal}
      */
-    public BigDecimal decimalValue() { return BigDecimal.ZERO; }
+    public abstract BigDecimal decimalValue();
+
+    /**
+     * Method similar to {@link #decimalValue()}, but that will return {@code defaultValue}
+     * if this node cannot be coerced to Java {@code BigDecimal}.
+     *
+     * @return {@code BigDecimal} value this node represents,
+     * if possible to accurately represent; {@code defaultValue} otherwise
+     */
+    public abstract BigDecimal decimalValue(BigDecimal defaultValue);
+
+    /**
+     * Method similar to {@link #decimalValue()}, but that will return empty
+     * {@link Optional} ({@code Optional.empty()}) if this node cannot
+     * be coerced to {@code BigDecimal}.
+     *
+     * @return Java {@code BigDecimal} value this node represents, as {@code Optional<BigDecimal>},
+     * if possible to accurately represent; {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<BigDecimal> decimalValueOpt();
+
+    public abstract BigDecimal asDecimal();
+    
+    public abstract BigDecimal asDecimal(BigDecimal defaultValue);
 
     /*
     /**********************************************************************

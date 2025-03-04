@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class JsonNodeBasicTest extends NodeTestBase
 {
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testBoolean() throws Exception
@@ -173,8 +173,8 @@ public class JsonNodeBasicTest extends NodeTestBase
                     return 0;
                 }
                 if ((o1 instanceof NumericNode) && (o2 instanceof NumericNode)) {
-                    int d1 = ((NumericNode) o1).asInt();
-                    int d2 = ((NumericNode) o2).asInt();
+                    int d1 = ((NumericNode) o1).numberValue().intValue();
+                    int d2 = ((NumericNode) o2).numberValue().intValue();
                     if (d1 == d2) { // strictly equals because it's integral value
                         return 0;
                     }

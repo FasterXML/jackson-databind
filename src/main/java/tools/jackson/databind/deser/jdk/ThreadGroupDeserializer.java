@@ -1,7 +1,5 @@
 package tools.jackson.databind.deser.jdk;
 
-import java.io.IOException;
-
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.deser.std.StdNodeBasedDeserializer;

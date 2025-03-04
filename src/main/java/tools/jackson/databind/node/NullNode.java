@@ -37,6 +37,11 @@ public class NullNode
     public NullNode deepCopy() { return this; }
 
     @Override
+    protected String _valueDesc() {
+        return "<null>";
+    }
+    
+    @Override
     public String asString(String defaultValue) { return defaultValue; }
 
     @Override public String asString() { return "null"; }

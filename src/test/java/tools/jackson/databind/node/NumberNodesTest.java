@@ -177,13 +177,15 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(0 != n.hashCode());
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, n.asToken());
         assertEquals(JsonParser.NumberType.DOUBLE, n.numberType());
-        assertEquals(0, n.intValue());
+        // No longer legal in 3.0 due to fractional part
+        //assertEquals(0, n.intValue());
         assertEquals(0.25, n.doubleValue());
         assertNotNull(n.decimalValue());
-        assertEquals(BigInteger.ZERO, n.bigIntegerValue());
         assertEquals("0.25", n.asString());
 
-        assertNodeNumbers(DoubleNode.valueOf(4.5), 4, 4.5);
+        // No longer legal in 3.0 due to fractional part
+        //assertEquals(BigInteger.ZERO, n.bigIntegerValue());
+        //assertNodeNumbers(DoubleNode.valueOf(4.5), 4, 4.5);
 
         assertTrue(DoubleNode.valueOf(0).canConvertToInt());
         assertTrue(DoubleNode.valueOf(Integer.MAX_VALUE).canConvertToInt());
@@ -224,8 +226,11 @@ public class NumberNodesTest extends NodeTestBase
 
         assertEquals(value, result.doubleValue());
         assertEquals(value, result.numberValue().doubleValue());
-        assertEquals((int) value, result.intValue());
-        assertEquals((long) value, result.longValue());
+
+        // Can NOT convert to int due to fractional part
+        //assertEquals((int) value, result.intValue());
+        //assertEquals((long) value, result.longValue());
+
         assertEquals(String.valueOf(value), result.asString());
 
         // also, equality should work ok
@@ -241,7 +246,7 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(0 != n.hashCode());
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, n.asToken());
         assertEquals(JsonParser.NumberType.FLOAT, n.numberType());
-        assertEquals(0, n.intValue());
+        assertEquals(0, n.intValue(0));
         assertTrue(n.isFloatingPointNumber());
         assertFalse(n.isIntegralNumber());
         assertFalse(n.canConvertToExactIntegral());
@@ -255,12 +260,11 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals("0.45",  String.valueOf((float) n.doubleValue()));
 
         assertNotNull(n.decimalValue());
-        // possibly surprisingly, however, this will produce same output:
-        assertEquals(BigInteger.ZERO, n.bigIntegerValue());
         assertEquals("0.45", n.asString());
 
-        // 1.6:
-        assertNodeNumbers(FloatNode.valueOf(4.5f), 4, 4.5f);
+        // No longer legal to convert to integral numbers, due to fractional part
+        // assertEquals(BigInteger.ZERO, n.bigIntegerValue());
+        //assertNodeNumbers(FloatNode.valueOf(4.5f), 4, 4.5f);
 
         assertTrue(FloatNode.valueOf(0).canConvertToInt());
         assertTrue(FloatNode.valueOf(Integer.MAX_VALUE).canConvertToInt());
@@ -325,8 +329,9 @@ public class NumberNodesTest extends NodeTestBase
         assertFalse(result.isMissingNode());
 
         assertFalse(result.canConvertToExactIntegral());
-        assertTrue(result.canConvertToInt());
-        assertTrue(result.canConvertToLong());
+        // Cannot convert in 3.0, due to fraction
+        assertFalse(result.canConvertToInt());
+        assertFalse(result.canConvertToLong());
 
         assertEquals(value, result.numberValue());
         assertEquals(value.toString(), result.asString());

@@ -2,6 +2,10 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.JsonParser;
 
@@ -24,26 +28,49 @@ public abstract class NumericNode
     // Overridden for type co-variance
     @Override
     public NumericNode deepCopy() { return this; }
-    
+
+    @Override
+    protected final String _valueDesc() {
+        return asString();
+    }
+
     // // // Let's re-abstract so sub-classes handle them
 
     @Override
     public abstract JsonParser.NumberType numberType();
 
     @Override public abstract Number numberValue();
+
+    @Override public abstract short shortValue();
+
     @Override public abstract int intValue();
+    @Override public abstract int intValue(int defaultValue);
+    @Override public abstract OptionalInt intValueOpt();
+
     @Override public abstract long longValue();
-    @Override public abstract double doubleValue();
-    @Override public abstract BigDecimal decimalValue();
+    @Override public abstract long longValue(long defaultValue);
+    @Override public abstract OptionalLong longValueOpt();
+
     @Override public abstract BigInteger bigIntegerValue();
+
+    @Override public abstract float floatValue();
+
+    @Override public abstract double doubleValue();
+    @Override public abstract double doubleValue(double defaultValue);
+    @Override public abstract OptionalDouble doubleValueOpt();
+
+    @Override public abstract BigDecimal decimalValue();
+
+    @Override public abstract BigDecimal decimalValue(BigDecimal defaultValue);
+    @Override public abstract Optional<BigDecimal> decimalValueOpt();
 
     @Override public abstract boolean canConvertToInt();
     @Override public abstract boolean canConvertToLong();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General type coercions
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -80,9 +107,9 @@ public abstract class NumericNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -92,8 +119,5 @@ public abstract class NumericNode
      *
      * @since 2.9
      */
-    public boolean isNaN() {
-        return false;
-    }
-
+    public abstract boolean isNaN();
 }

@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
+import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
@@ -161,7 +162,31 @@ public class DecimalNode
     public float floatValue() { return _value.floatValue(); }
 
     @Override
-    public double doubleValue() { return _value.doubleValue(); }
+    public double doubleValue() {
+        double d = _value.doubleValue();
+        if (Double.isFinite(d)) {
+            return d;
+        }
+        return _reportDoubleCoercionRangeFail("doubleValue()");
+    }
+
+    @Override
+    public double doubleValue(double defaultValue) {
+        double d = _value.doubleValue();
+        if (Double.isFinite(d)) {
+            return d;
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalDouble doubleValueOpt() {
+        double d = _value.doubleValue();
+        if (Double.isFinite(d)) {
+            return OptionalDouble.of(_value.doubleValue());
+        }
+        return OptionalDouble.empty();
+    }
 
     @Override
     public BigDecimal decimalValue() { return _value; }

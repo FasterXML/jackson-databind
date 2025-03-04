@@ -1,6 +1,7 @@
 package tools.jackson.databind.node;
 
 import java.math.BigInteger;
+import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
@@ -101,6 +102,23 @@ public abstract class BaseJsonNode
     @Override
     public BigInteger bigIntegerValue() {
         return _reportCoercionFail("bigIntegerValue()", BigInteger.class, "value type not numeric");
+    }
+
+    @Override
+    public double doubleValue() {
+        return _reportCoercionFail("doubleValue()", Double.TYPE, "value type not numeric");
+    }
+
+    @Override
+    public double doubleValue(double defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalDouble doubleValueOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalDouble.empty();
     }
 
     /*
@@ -325,37 +343,47 @@ public abstract class BaseJsonNode
                 _valueDesc(), ClassUtil.nameOf(targetType), message);
     }
 
-    protected <T> T _reportShortCoercionRangeFail(String method) {
+    protected short _reportShortCoercionRangeFail(String method) {
         return _reportCoercionFail(method, Short.TYPE,
             "value not in 16-bit `short` range");
     }
 
-    protected <T> T _reportIntCoercionRangeFail(String method) {
+    protected int _reportIntCoercionRangeFail(String method) {
         return _reportCoercionFail(method, Integer.TYPE,
             "value not in 32-bit `int` range");
     }
 
-    protected <T> T _reportLongCoercionRangeFail(String method) {
+    protected long _reportLongCoercionRangeFail(String method) {
         return _reportCoercionFail(method, Long.TYPE,
             "value not in 64-bit `long` range");
     }
 
-    protected <T> T _reportShortCoercionFractionFail(String method) {
+    protected float _reportFloatCoercionRangeFail(String method) {
+        return _reportCoercionFail(method, Float.TYPE,
+            "value not in 32-bit `float` range");
+    }
+
+    protected double _reportDoubleCoercionRangeFail(String method) {
+        return _reportCoercionFail(method, Double.TYPE,
+            "value not in 64-bit `double` range");
+    }
+
+    protected short _reportShortCoercionFractionFail(String method) {
         return _reportCoercionFail(method, Short.TYPE,
                 "value has fractional part");
     }
 
-    protected <T> T _reportIntCoercionFractionFail(String method) {
+    protected int _reportIntCoercionFractionFail(String method) {
         return _reportCoercionFail(method, Integer.TYPE,
                 "value has fractional part");
     }
 
-    protected <T> T _reportLongCoercionFractionFail(String method) {
+    protected long _reportLongCoercionFractionFail(String method) {
         return _reportCoercionFail(method, Long.TYPE,
                 "value has fractional part");
     }
 
-    protected <T> T _reportBigIntegerCoercionFractionFail(String method) {
+    protected BigInteger _reportBigIntegerCoercionFractionFail(String method) {
         return _reportCoercionFail(method, BigInteger.class,
                 "value has fractional part");
     }

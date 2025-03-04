@@ -659,7 +659,7 @@ public abstract class JsonNode
      * a number node (returns {@code true} for {@link #isNumber}).
      * If this node is NOT a number node, a {@link JsonNodeException} will be thrown.
      *
-     * @return Number value this node contains
+     * @return Number value this node contains, if numeric node
      */
     public abstract Number numberValue();
 
@@ -682,7 +682,7 @@ public abstract class JsonNode
      *
      * @return {@code Short} value this node represents, if possible to accurately represent
      *
-     * @throws JsonNodeException if node cannot be converted to Java {@code int}
+     * @throws JsonNodeException if node value cannot be converted to Java {@code short}
      */
     public abstract short shortValue();
 
@@ -705,7 +705,7 @@ public abstract class JsonNode
      *
      * @return {@code Int} value this node represents, if possible to accurately represent
      *
-     * @throws JsonNodeException if node cannot be converted to Java {@code int}
+     * @throws JsonNodeException if node value cannot be converted to Java {@code int}
      */
     public abstract int intValue();
 
@@ -777,7 +777,7 @@ public abstract class JsonNode
      *
      * @return {@code Long} value this node represents, if possible to accurately represent
      *
-     * @throws JsonNodeException if node cannot be converted to Java {@code long}
+     * @throws JsonNodeException if node value cannot be converted to Java {@code long}
      */
     public abstract long longValue();
 
@@ -847,7 +847,7 @@ public abstract class JsonNode
      *
      * @return {@code BigInteger} value this node represents, if possible to accurately represent
      *
-     * @throws JsonNodeException if node cannot be converted to Java {@code BigInteger}
+     * @throws JsonNodeException if node value cannot be converted to Java {@code BigInteger}
      */
     public abstract BigInteger bigIntegerValue();
 
@@ -867,16 +867,46 @@ public abstract class JsonNode
     // // Scalar access: Numbers, Java double
 
     /**
-     * Returns 64-bit floating point (double) value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.0.
-     * For integer values, conversion is done using coercion; this may result
-     * in overflows with {@link BigInteger} values.
+     * Method that will try to access value of this node as a Java {@code double}:
+     * but if node value cannot be expressed <b>exactly</b> as a {@code double},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Floating-point values that fit in Java 64-bit signed {@code double} range
+     *    </li>
+     *  <li>JSON Integer values that fit in Java 64-bit {@code double} range
+     *   </li>
+     * </ul>
+     *<p>
+     * NOTE: for more lenient conversions, use {@link #asDouble()}
      *
-     * @return 64-bit double value this node contains, if any; 0.0 for non-number nodes.
+     * @return {@code Double} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to Java {@code double}
      */
-    public double doubleValue() { return 0.0; }
+    public abstract double doubleValue();
 
+    /**
+     * Method similar to {@link #doubleValue()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to Java {@code double}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to Java {@code double}
+     *
+     * @return Java {@code double} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
+     */
+    public abstract double doubleValue(double defaultValue);
+
+    /**
+     * Method similar to {@link #doubleValue()}, but that will return empty
+     * {@link OptionalLong} ({@code OptionalDouble.empty()}) if this node cannot
+     * be converted to Java {@code double}.
+     *
+     * @return Java {@code double} value this node represents, as {@link OptionalDouble},
+     * if possible to accurately represent; {@code OptionalDouble.empty()} otherwise
+     */
+    public abstract OptionalDouble doubleValueOpt();
+    
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)

@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
@@ -148,6 +149,14 @@ public class FloatNode extends NumericNode
 
     @Override
     public double doubleValue() { return _value; }
+
+    @Override
+    public double doubleValue(double defaultValue) { return _value; }
+
+    @Override
+    public OptionalDouble doubleValueOpt() {
+        return OptionalDouble.of(_value);
+    }
 
     @Override
     public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }

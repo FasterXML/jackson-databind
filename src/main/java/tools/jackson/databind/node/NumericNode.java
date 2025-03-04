@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
@@ -39,6 +40,8 @@ public abstract class NumericNode
 
     @Override public abstract Number numberValue();
 
+    @Override public abstract short shortValue();
+
     @Override public abstract int intValue();
     @Override public abstract int intValue(int defaultValue);
     @Override public abstract OptionalInt intValueOpt();
@@ -49,7 +52,12 @@ public abstract class NumericNode
 
     @Override public abstract BigInteger bigIntegerValue();
 
+    @Override public abstract float floatValue();
+
     @Override public abstract double doubleValue();
+    @Override public abstract double doubleValue(double defaultValue);
+    @Override public abstract OptionalDouble doubleValueOpt();
+
     @Override public abstract BigDecimal decimalValue();
 
     @Override public abstract boolean canConvertToInt();

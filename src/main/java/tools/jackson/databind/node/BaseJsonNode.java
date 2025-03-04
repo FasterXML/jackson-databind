@@ -1,6 +1,8 @@
 package tools.jackson.databind.node;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -124,6 +126,22 @@ public abstract class BaseJsonNode
     public OptionalDouble doubleValueOpt() {
         // Overridden by NumericNode, for other types return default
         return OptionalDouble.empty();
+    }
+
+    @Override
+    public BigDecimal decimalValue() {
+        return _reportCoercionFail("decimalValue()", BigDecimal.class, "value type not numeric");
+    }
+
+    @Override
+    public BigDecimal decimalValue(BigDecimal defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<BigDecimal> decimalValueOpt() {
+        return Optional.empty();
     }
 
     /*

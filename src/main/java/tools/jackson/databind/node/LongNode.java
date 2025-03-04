@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -104,6 +105,9 @@ public class LongNode
     }
 
     @Override
+    public BigInteger bigIntegerValue() { return BigInteger.valueOf(_value); }
+
+    @Override
     public float floatValue() { return _value; }
 
     @Override
@@ -121,7 +125,10 @@ public class LongNode
     public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
 
     @Override
-    public BigInteger bigIntegerValue() { return BigInteger.valueOf(_value); }
+    public BigDecimal decimalValue(BigDecimal defaultValue) { return decimalValue(); }
+
+    @Override
+    public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
 
     @Override
     public String asString() {

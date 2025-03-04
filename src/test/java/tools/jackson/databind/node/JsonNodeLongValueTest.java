@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.exc.JsonNodeException;
-import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.RawValue;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Also contains tests for {@code JsonNode.bigIntegerValue()}.
  */
 public class JsonNodeLongValueTest
-    extends DatabindTestUtil
+    extends NodeTestBase
 {
     private final JsonNodeFactory NODES = newJsonMapper().getNodeFactory();
 
@@ -88,20 +87,20 @@ public class JsonNodeLongValueTest
     {
         // Integer types, byte/short/int/long/BigInteger
         assertEquals(BigInteger.ONE, NODES.numberNode((byte) 1).bigIntegerValue());
-        assertEquals(_bigInteger(Byte.MIN_VALUE), NODES.numberNode(Byte.MIN_VALUE).bigIntegerValue());
-        assertEquals(_bigInteger(Byte.MAX_VALUE), NODES.numberNode(Byte.MAX_VALUE).bigIntegerValue());
+        assertEquals(bigInt(Byte.MIN_VALUE), NODES.numberNode(Byte.MIN_VALUE).bigIntegerValue());
+        assertEquals(bigInt(Byte.MAX_VALUE), NODES.numberNode(Byte.MAX_VALUE).bigIntegerValue());
 
         assertEquals(BigInteger.ONE, NODES.numberNode((short) 1).bigIntegerValue());
-        assertEquals(_bigInteger(Short.MIN_VALUE), NODES.numberNode(Short.MIN_VALUE).bigIntegerValue());
-        assertEquals(_bigInteger(Short.MAX_VALUE), NODES.numberNode(Short.MAX_VALUE).bigIntegerValue());
+        assertEquals(bigInt(Short.MIN_VALUE), NODES.numberNode(Short.MIN_VALUE).bigIntegerValue());
+        assertEquals(bigInt(Short.MAX_VALUE), NODES.numberNode(Short.MAX_VALUE).bigIntegerValue());
 
         assertEquals(BigInteger.ONE, NODES.numberNode(1).bigIntegerValue());
-        assertEquals(_bigInteger(Integer.MIN_VALUE), NODES.numberNode(Integer.MIN_VALUE).bigIntegerValue());
-        assertEquals(_bigInteger(Integer.MAX_VALUE), NODES.numberNode(Integer.MAX_VALUE).bigIntegerValue());
+        assertEquals(bigInt(Integer.MIN_VALUE), NODES.numberNode(Integer.MIN_VALUE).bigIntegerValue());
+        assertEquals(bigInt(Integer.MAX_VALUE), NODES.numberNode(Integer.MAX_VALUE).bigIntegerValue());
 
         assertEquals(BigInteger.ONE, NODES.numberNode(1L).bigIntegerValue());
-        assertEquals(_bigInteger(Long.MIN_VALUE), NODES.numberNode(Long.MIN_VALUE).bigIntegerValue());
-        assertEquals(_bigInteger(Long.MAX_VALUE), NODES.numberNode(Long.MAX_VALUE).bigIntegerValue());
+        assertEquals(bigInt(Long.MIN_VALUE), NODES.numberNode(Long.MIN_VALUE).bigIntegerValue());
+        assertEquals(bigInt(Long.MAX_VALUE), NODES.numberNode(Long.MAX_VALUE).bigIntegerValue());
 
         assertEquals(BigInteger.ONE, NODES.numberNode(BigInteger.ONE).bigIntegerValue());
         assertEquals(BigInteger.valueOf(Long.MIN_VALUE),
@@ -165,18 +164,18 @@ public class JsonNodeLongValueTest
     public void bigIntegerValueFromNumberFPOk()
     {
         assertEquals(BigInteger.ONE, NODES.numberNode(1.0f).bigIntegerValue());
-        assertEquals(_bigInteger(100_000), NODES.numberNode(100_000.0f).bigIntegerValue());
-        assertEquals(_bigInteger(-100_000), NODES.numberNode(-100_000.0f).bigIntegerValue());
+        assertEquals(bigInt(100_000), NODES.numberNode(100_000.0f).bigIntegerValue());
+        assertEquals(bigInt(-100_000), NODES.numberNode(-100_000.0f).bigIntegerValue());
 
-        assertEquals(_bigInteger(1), NODES.numberNode(1.0d).bigIntegerValue());
-        assertEquals(_bigInteger(100_000_000), NODES.numberNode(100_000_000.0d).bigIntegerValue());
-        assertEquals(_bigInteger(-100_000_000), NODES.numberNode(-100_000_000.0d).bigIntegerValue());
+        assertEquals(bigInt(1), NODES.numberNode(1.0d).bigIntegerValue());
+        assertEquals(bigInt(100_000_000), NODES.numberNode(100_000_000.0d).bigIntegerValue());
+        assertEquals(bigInt(-100_000_000), NODES.numberNode(-100_000_000.0d).bigIntegerValue());
 
-        assertEquals(_bigInteger(1),
+        assertEquals(bigInt(1),
                 NODES.numberNode(BigDecimal.valueOf(1.0d)).bigIntegerValue());
-        assertEquals(_bigInteger(Long.MIN_VALUE),
+        assertEquals(bigInt(Long.MIN_VALUE),
                 NODES.numberNode(new BigDecimal(Long.MIN_VALUE+".0")).bigIntegerValue());
-        assertEquals(_bigInteger(Long.MAX_VALUE),
+        assertEquals(bigInt(Long.MAX_VALUE),
                 NODES.numberNode(new BigDecimal(Long.MAX_VALUE+".0")).bigIntegerValue());
     }
 
@@ -352,9 +351,5 @@ public class JsonNodeLongValueTest
     private void _assertDefaultLongForOtherwiseFailing(JsonNode node) {
         assertEquals(99L, node.longValue(99L));
         assertEquals(OptionalLong.empty(), node.longValueOpt());
-    }
-
-    private BigInteger _bigInteger(long l) {
-        return BigInteger.valueOf(l);
     }
 }

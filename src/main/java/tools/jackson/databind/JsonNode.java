@@ -946,14 +946,41 @@ public abstract class JsonNode
     // // Scalar access: Numbers, Java BigDecimal
 
     /**
-     * Returns floating point value for this node (as {@link BigDecimal}), <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns <code>BigDecimal.ZERO</code>.
+     * Method that will try to access value of this node as a Java {@code BigDecimal}:
+     * but if node value cannot be expressed <b>exactly</b> as a {@code BigDecimal},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>All JSON Number values
+     *    </li>
+     * </ul>
+     *<p>
+     * NOTE: for more lenient conversions, use {@link #asDecimal()}
      *
-     * @return {@link BigDecimal} value this node contains, if numeric node;
-     *   {@code BigDecimal.ZERO} for non-number nodes.
+     * @return {@code BigDecimal} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to Java {@code BigDecimal}
      */
-    public BigDecimal decimalValue() { return BigDecimal.ZERO; }
+    public abstract BigDecimal decimalValue();
+
+    /**
+     * Method similar to {@link #decimalValue()}, but that will return {@code defaultValue}
+     * if this node cannot be coerced to Java {@code BigDecimal}.
+     *
+     * @return {@code BigDecimal} value this node represents,
+     * if possible to accurately represent; {@code defaultValue} otherwise
+     */
+    public abstract BigDecimal decimalValue(BigDecimal defaultValue);
+
+    /**
+     * Method similar to {@link #decimalValue()}, but that will return empty
+     * {@link Optional} ({@code Optional.empty()}) if this node cannot
+     * be coerced to {@code BigDecimal}.
+     *
+     * @return Java {@code BigDecimal} value this node represents, as {@code Optional<BigDecimal>},
+     * if possible to accurately represent; {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<BigDecimal> decimalValueOpt();
 
     /*
     /**********************************************************************

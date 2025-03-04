@@ -159,7 +159,13 @@ public class DecimalNode
     }
 
     @Override
-    public float floatValue() { return _value.floatValue(); }
+    public float floatValue() {
+        float f = _value.floatValue();
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return _reportFloatCoercionRangeFail("floatValue()");
+    }
 
     @Override
     public double doubleValue() {

@@ -152,7 +152,13 @@ public class DoubleNode
     }
 
     @Override
-    public float floatValue() { return (float) _value; }
+    public float floatValue() {
+        float f = (float) _value;
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return _reportFloatCoercionRangeFail("floatValue()");
+    }
 
     @Override
     public double doubleValue() { return _value; }

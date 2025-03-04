@@ -105,6 +105,11 @@ public abstract class BaseJsonNode
     }
 
     @Override
+    public float floatValue() {
+        return _reportCoercionFail("floatValue()", Float.TYPE, "value type not numeric");
+    }
+
+    @Override
     public double doubleValue() {
         return _reportCoercionFail("doubleValue()", Double.TYPE, "value type not numeric");
     }

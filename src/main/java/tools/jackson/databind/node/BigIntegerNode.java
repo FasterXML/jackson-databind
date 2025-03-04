@@ -134,7 +134,13 @@ public class BigIntegerNode
     public BigInteger bigIntegerValue() { return _value; }
 
     @Override
-    public float floatValue() { return _value.floatValue(); }
+    public float floatValue() {
+        float f = _value.floatValue();
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return _reportFloatCoercionRangeFail("floatValue()");
+    }
 
     @Override
     public double doubleValue() {

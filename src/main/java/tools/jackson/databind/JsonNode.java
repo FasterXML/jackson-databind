@@ -854,15 +854,23 @@ public abstract class JsonNode
     // // Scalar access: Numbers, Java float
 
     /**
-     * Returns 32-bit floating value for this node, <b>if and only if</b>
-     * this node is numeric ({@link #isNumber} returns true). For other
-     * types returns 0.0.
-     * For integer values, conversion is done using coercion; this means
-     * that an overflow is possible for `long` values
+     * Method that will try to access value of this node as a Java {@code float}:
+     * but if node value cannot be expressed <b>exactly</b> as a {@code float},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Floating-point values that fit in Java 32-bit {@code double} range
+     *    </li>
+     *  <li>JSON Integer values that fit in Java 32-bit {@code double} range
+     *   </li>
+     * </ul>
+     *<p>
      *
-     * @return 32-bit float value this node contains, if any; 0.0 for non-number nodes.
+     * @return {@code Float} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to Java {@code float}
      */
-    public float floatValue() { return 0.0f; }
+    public abstract float floatValue();
 
     // // Scalar access: Numbers, Java double
 
@@ -872,7 +880,7 @@ public abstract class JsonNode
      * a {@link JsonNodeException} will be thrown.
      * Access works for following cases:
      * <ul>
-     *  <li>JSON Floating-point values that fit in Java 64-bit signed {@code double} range
+     *  <li>JSON Floating-point values that fit in Java 64-bit {@code double} range
      *    </li>
      *  <li>JSON Integer values that fit in Java 64-bit {@code double} range
      *   </li>

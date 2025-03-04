@@ -181,7 +181,7 @@ public class JsonNodeFactory
      * that expresses given 32-bit floating point value
      */
     @Override
-    public NumericNode numberNode(float v) { return FloatNode.valueOf((float) v); }
+    public NumericNode numberNode(float v) { return FloatNode.valueOf(v); }
 
     /**
      * Alternate factory method that will handle wrapper value, which may

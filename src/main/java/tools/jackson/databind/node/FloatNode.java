@@ -75,7 +75,7 @@ public class FloatNode extends NumericNode
     @Override
     public short shortValue() {
         if (!_inShortRange()) {
-            return _reportShortCoercionRangeFail("shortValue()");
+            _reportShortCoercionRangeFail("shortValue()");
         }
         if (_hasFractionalPart()) {
             _reportShortCoercionFractionFail("shortValue()");
@@ -86,7 +86,7 @@ public class FloatNode extends NumericNode
     @Override
     public int intValue() {
         if (!_inIntRange()) {
-            return _reportIntCoercionRangeFail("intValue()");
+            _reportIntCoercionRangeFail("intValue()");
         }
         if (_hasFractionalPart()) {
             _reportIntCoercionFractionFail("intValue()");
@@ -113,7 +113,7 @@ public class FloatNode extends NumericNode
     @Override
     public long longValue() {
         if (!_inLongRange()) {
-            return _reportLongCoercionRangeFail("longValue()");
+            _reportLongCoercionRangeFail("longValue()");
         }
         if (_hasFractionalPart()) {
             _reportLongCoercionFractionFail("longValue()");

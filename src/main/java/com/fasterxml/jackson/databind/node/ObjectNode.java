@@ -618,8 +618,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         if (value == null) {
             value = nullNode();
         }
-        _children.put(propertyName, value);
-        return (T) this;
+        return (T) _put(propertyName, value);
     }
 
     /**
@@ -961,8 +960,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      */
     public ObjectNode putNull(String propertyName)
     {
-        _children.put(propertyName, nullNode());
-        return this;
+        return _put(propertyName, nullNode());
     }
 
     /**
@@ -980,8 +978,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Short v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, Short v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v.shortValue()));
     }
 
@@ -994,8 +992,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, int v) {
-        return _put(fieldName, numberNode(v));
+    public ObjectNode put(String propertyName, int v) {
+        return _put(propertyName, numberNode(v));
     }
 
     /**
@@ -1004,8 +1002,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Integer v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, Integer v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v.intValue()));
     }
 
@@ -1018,8 +1016,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, long v) {
-        return _put(fieldName, numberNode(v));
+    public ObjectNode put(String propertyName, long v) {
+        return _put(propertyName, numberNode(v));
     }
 
     /**
@@ -1034,8 +1032,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Long v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, Long v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v.longValue()));
     }
 
@@ -1044,8 +1042,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, float v) {
-        return _put(fieldName, numberNode(v));
+    public ObjectNode put(String propertyName, float v) {
+        return _put(propertyName, numberNode(v));
     }
 
     /**
@@ -1054,8 +1052,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Float v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, Float v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v.floatValue()));
     }
 
@@ -1064,8 +1062,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, double v) {
-        return _put(fieldName, numberNode(v));
+    public ObjectNode put(String propertyName, double v) {
+        return _put(propertyName, numberNode(v));
     }
 
     /**
@@ -1074,8 +1072,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Double v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, Double v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v.doubleValue()));
     }
 
@@ -1084,8 +1082,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, BigDecimal v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, BigDecimal v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v));
     }
 
@@ -1096,8 +1094,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @since 2.9
      */
-    public ObjectNode put(String fieldName, BigInteger v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, BigInteger v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v));
     }
 
@@ -1106,8 +1104,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, String v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, String v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : textNode(v));
     }
 
@@ -1116,8 +1114,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, boolean v) {
-        return _put(fieldName, booleanNode(v));
+    public ObjectNode put(String propertyName, boolean v) {
+        return _put(propertyName, booleanNode(v));
     }
 
     /**
@@ -1126,8 +1124,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Boolean v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, Boolean v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : booleanNode(v.booleanValue()));
     }
 
@@ -1136,8 +1134,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, byte[] v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, byte[] v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : binaryNode(v));
     }
 
@@ -1178,9 +1176,9 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     /**********************************************************
      */
 
-    protected ObjectNode _put(String fieldName, JsonNode value)
+    protected ObjectNode _put(String propertyName, JsonNode value)
     {
-        _children.put(fieldName, value);
+        _children.put(propertyName, value);
         return this;
     }
 }

@@ -318,7 +318,7 @@ public enum DeserializationFeature implements ConfigFeature
      * <p>
      * NOTE: only <b>single</b> wrapper Array is allowed: if multiple attempted, exception
      * will be thrown.
-     *
+     * <p>
      * Feature is disabled by default.
      */
     UNWRAP_SINGLE_VALUE_ARRAYS(false),
@@ -330,7 +330,7 @@ public enum DeserializationFeature implements ConfigFeature
      * a single property with expected root name. If not, a
      * {@link DatabindException} is thrown; otherwise value of the wrapped property
      * will be deserialized as if it was the root value.
-     *<p>
+     * <p>
      * Feature is disabled by default.
      */
     UNWRAP_ROOT_VALUE(false),

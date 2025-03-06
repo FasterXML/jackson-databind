@@ -142,7 +142,7 @@ public class JsonMapper extends ObjectMapper
     /**********************************************************************
      */
 
-    public static JsonMapper.Builder builder() {
+    public static Builder builder() {
         return new Builder(new JsonFactory());
     }
 
@@ -150,9 +150,23 @@ public class JsonMapper extends ObjectMapper
         return new Builder(streamFactory);
     }
 
+    /**
+     * Modifies the settings of this builder to more closely match the default configs used
+     * in Jackson 2.x versions.
+     * <p>
+     *     This method is still a work in progress and may not yet fully replicate the
+     *     default settings of Jackson 2.x.
+     * </p>
+     */
+    public static Builder builderWithJackson2Defaults() {
+        return builder(JsonFactory.builderWithJackson2Defaults().build())
+                .configureForJackson2();
+    }
+
+
     @SuppressWarnings("unchecked")
     @Override
-    public JsonMapper.Builder rebuild() {
+    public Builder rebuild() {
         return new Builder((Builder.StateImpl)_savedBuilderState);
     }
 

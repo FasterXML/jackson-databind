@@ -100,21 +100,6 @@ public class JsonMapper extends ObjectMapper
             return this;
         }
 
-        /**
-         * The builder returned uses default settings more closely
-         * matching the default configs used in Jackson 2.x versions.
-         * <p>
-         *     This method is still a work in progress and may not yet fully replicate the
-         *     default settings of Jackson 2.x.
-         * </p>
-         */
-        @Override
-        public Builder configureForJackson2() {
-            return super.configureForJackson2()
-                    .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
-                    .disable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8);
-        }
-
         protected static class StateImpl extends MapperBuilderState
             implements java.io.Serializable // important!
         {

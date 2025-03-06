@@ -807,9 +807,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * </p>
      */
     public B configureForJackson2() {
-        return disable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
-                .disable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)
-                .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+        return enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .enable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
                 .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)

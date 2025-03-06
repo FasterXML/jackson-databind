@@ -348,6 +348,24 @@ public class BeanDeserializerTest
         }
     }
 
+    static class SimpleValue5008 {
+
+        private final String value;
+
+        public SimpleValue5008(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
     /*
     /********************************************************
     /* Test methods
@@ -497,4 +515,23 @@ public class BeanDeserializerTest
         Issue1912Bean result = mapper.readValue("{\"subBean\": {\"a\":\"foo\"}}", Issue1912Bean.class);
         assertEquals("foo_custom", result.subBean.a);
     }
+
+    // https://github.com/FasterXML/jackson-databind/issues/5008
+    @Test
+    public void testSimpleValue5008() throws Exception {
+        // according to #5008, this only started working in v2.18.0
+        SimpleValue5008 value = MAPPER.readValue(
+                a2q("{'value':'abc123'}"), SimpleValue5008.class);
+        assertEquals("abc123", value.value);
+    }
+
+    // https://github.com/FasterXML/jackson-databind/issues/5008
+    @Test
+    public void testSimpleValue5008Take2() throws Exception {
+        // according to #5008, this only stopped working in v2.18.0
+        SimpleValue5008 value = MAPPER.readValue(
+                a2q("'abc123'"), SimpleValue5008.class);
+        assertEquals("abc123", value.value);
+    }
+
 }

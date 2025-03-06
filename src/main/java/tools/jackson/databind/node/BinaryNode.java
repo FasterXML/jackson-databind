@@ -87,7 +87,13 @@ public class BinaryNode
     protected String _valueDesc() {
         return "[...(" + _data.length + " bytes)]";
     }
-    
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
+
     /**
      *<p>
      * Note: caller is not to modify returned array in any way, since
@@ -104,6 +110,12 @@ public class BinaryNode
     public String asString() {
         return Base64Variants.getDefaultVariant().encode(_data, false);
     }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, other
+    /**********************************************************************
+     */
 
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)

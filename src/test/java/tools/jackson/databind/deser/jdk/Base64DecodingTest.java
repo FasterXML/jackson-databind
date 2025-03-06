@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.JsonNodeException;
 import tools.jackson.databind.exc.MismatchedInputException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,8 +52,8 @@ public class Base64DecodingTest
         try {
             /*byte[] b =*/ nodeValue.binaryValue();
             fail("Should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot access contents of `StringNode` as binary");
+        } catch (JsonNodeException e) {
+            verifyException(e, "method `binaryValue()` cannot convert value");
             verifyException(e, "Illegal character '!'");
         }
     }

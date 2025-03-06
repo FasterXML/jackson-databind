@@ -6,7 +6,6 @@ import tools.jackson.core.*;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.util.ByteArrayBuilder;
 import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.exc.InvalidFormatException;
 
 /**
  * Value node that contains a String value.
@@ -64,6 +63,12 @@ public class StringNode
     @Override
     public StringNode deepCopy() { return this; }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
+
     @Override
     public String stringValue() {
         return _value;
@@ -90,12 +95,8 @@ public class StringNode
         try {
             b64variant.decode(str, builder);
         } catch (IllegalArgumentException e) {
-            throw InvalidFormatException.from(
-                    null, /* Alas, no processor to pass */
-                    String.format(
-"Cannot access contents of `StringNode` as binary due to broken Base64 encoding: %s",
-e.getMessage()),
-                    str, byte[].class);
+            return _reportCoercionFail("binaryValue()", byte[].class,
+                    "value type not binary and Base64-decoding failed with: "+e.getMessage());
         }
         return builder.toByteArray();
     }
@@ -105,12 +106,6 @@ e.getMessage()),
         return getBinaryValue(Base64Variants.getDefaultVariant());
     }
 
-    /*
-    /**********************************************************************
-    /* General type coercions
-    /**********************************************************************
-     */
-
     @Override
     public String asString() {
         return _value;
@@ -118,21 +113,19 @@ e.getMessage()),
 
     @Override
     public String asString(String defaultValue) {
-        return (_value == null) ? defaultValue : _value;
+        return _value;
     }
 
     // note: neither fast nor elegant, but these work for now:
 
     @Override
     public boolean asBoolean(boolean defaultValue) {
-        if (_value != null) {
-            String v = _value.trim();
-            if ("true".equals(v)) {
-                return true;
-            }
-            if ("false".equals(v)) {
-                return false;
-            }
+        String v = _value.trim();
+        if ("true".equals(v)) {
+            return true;
+        }
+        if ("false".equals(v)) {
+            return false;
         }
         return defaultValue;
     }

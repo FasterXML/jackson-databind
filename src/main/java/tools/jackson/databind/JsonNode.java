@@ -595,24 +595,21 @@ public abstract class JsonNode
     // // Scalar access: Binary
 
     /**
-     * Method to use for accessing binary content of binary nodes (nodes
-     * for which {@link #isBinary} returns true); or for String Nodes
-     * (ones for which {@link #stringValue} returns non-null value),
-     * to read decoded base64 data.
-     * For other types of nodes, returns null.
+     * Method that will try to access value of this node as binary value (Java {@code byte[]})
+     * which works if (and only if) node contains binary value (for JSON, Base64-encoded
+     * String, for other formats native binary value): if not,
+     * a {@link JsonNodeException} will be thrown.
+     * To check if this method can be used, you may call {@link #isBinary()}.
+     *<p>
+     * @return Binary value this node represents (if node contains binary value)
      *
-     * @return Binary data this node contains, iff it is a binary
-     *   node; null otherwise
+     * @throws JsonNodeException if node does not contain a Binary value (a
      */
     public abstract byte[] binaryValue();
 
     // // Scalar access: Boolean
 
     /**
-     * Method to use for accessing JSON boolean values (value
-     * literals 'true' and 'false').
-     * For other types, always returns false.
-     * 
      * Method that will try to access value of this node as a Java {@code boolean}
      * which works if (and only if) node contains JSON boolean value: if not,
      * a {@link JsonNodeException} will be thrown.

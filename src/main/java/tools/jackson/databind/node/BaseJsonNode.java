@@ -193,7 +193,8 @@ public abstract class BaseJsonNode
 
     @Override
     public byte[] binaryValue() {
-        return null;
+        return _reportCoercionFail("binaryValue()", Boolean.TYPE,
+                "value type not binary (or convertible to binary via Base64-decoding)");
     }
 
     @Override

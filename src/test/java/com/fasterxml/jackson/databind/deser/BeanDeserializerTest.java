@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -518,8 +519,8 @@ public class BeanDeserializerTest
 
     // https://github.com/FasterXML/jackson-databind/issues/5008
     @Test
+    @JacksonTestFailureExpected
     public void testSimpleValue5008() throws Exception {
-        // according to #5008, this only started working in v2.18.0
         SimpleValue5008 value = MAPPER.readValue(
                 a2q("{'value':'abc123'}"), SimpleValue5008.class);
         assertEquals("abc123", value.value);
@@ -528,7 +529,6 @@ public class BeanDeserializerTest
     // https://github.com/FasterXML/jackson-databind/issues/5008
     @Test
     public void testSimpleValue5008Take2() throws Exception {
-        // according to #5008, this only stopped working in v2.18.0
         SimpleValue5008 value = MAPPER.readValue(
                 a2q("'abc123'"), SimpleValue5008.class);
         assertEquals("abc123", value.value);

@@ -2,8 +2,8 @@
 module tools.jackson.databind
 {
     // required for
-    // java.beans.ConstructorProperties
-    // java.beans.Transient
+    // - `java.beans.ConstructorProperties`
+    // - `java.beans.Transient`
     // support
     requires static java.desktop;
 
@@ -13,7 +13,7 @@ module tools.jackson.databind
     requires static java.sql.rowset;
 
     // 05-Nov-2020, tatu: made optional in 2.x ("static") but for simplicity
-    //    is (for now?) hard dep on 3.0. May want to change
+    //    is (for now?) hard dep on 3.0.
     requires java.xml;
 
     // but we probably do want to expose streaming, annotations

@@ -612,11 +612,38 @@ public abstract class JsonNode
      * Method to use for accessing JSON boolean values (value
      * literals 'true' and 'false').
      * For other types, always returns false.
+     * 
+     * Method that will try to access value of this node as a Java {@code boolean}
+     * which works if (and only if) node contains JSON boolean value: if not,
+     * a {@link JsonNodeException} will be thrown.
+     *<p>
+     * NOTE: for more lenient conversions, use {@link #asBoolean()}
      *
-     * @return Boolean value this node contains, if any; false for
-     *   non-boolean nodes.
+     * @return {@code boolean} value this node represents (if JSON boolean)
+     *
+     * @throws JsonNodeException if node value is not a JSON boolean value
      */
     public abstract boolean booleanValue();
+
+    /**
+     * Method similar to {@link #booleanValue()}, but that will return specified
+     * {@code defaultValue} if this node does not contain a JSON boolean.
+     *
+     * @param defaultValue Value to return if this node does not contain a JSON boolean.
+     *
+     * @return Java {@code boolean} value this node represents (if JSON boolean);
+     *   {@code defaultValue} otherwise
+     */
+    public abstract boolean booleanValue(boolean defaultValue);
+
+    /**
+     * Method similar to {@link #booleanValue()}, but that will return
+     * {@code Optional.empty()} if this node does not contain a JSON boolean.
+     *
+     * @return {@code Optional<Boolean>} value (if node represents JSON boolean);
+     *   {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<Boolean> booleanValueOpt();
 
     /**
      * Method that will try to convert value of this node to a Java <b>boolean</b>.

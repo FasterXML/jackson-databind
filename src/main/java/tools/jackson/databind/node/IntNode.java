@@ -150,6 +150,12 @@ public class IntNode
         return _value != 0;
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, other
+    /**********************************************************************
+     */
+    
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException

@@ -198,7 +198,19 @@ public abstract class BaseJsonNode
 
     @Override
     public boolean booleanValue() {
-        return false;
+        return _reportCoercionFail("booleanValue()", Boolean.TYPE, "value type not boolean");
+    }
+
+    @Override
+    public boolean booleanValue(boolean defaultValue) {
+        // Overridden by BooleanNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<Boolean> booleanValueOpt() {
+        // Overridden by BooleanNode, for other types return default
+        return Optional.empty();
     }
 
     @Override

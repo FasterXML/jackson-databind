@@ -798,6 +798,27 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
+    /**
+     * The builder returned uses default settings more closely
+     * matching the default configs used in Jackson 2.x versions.
+     * <p>
+     *     This method is still a work in progress and may not yet fully replicate the
+     *     default settings of Jackson 2.x.
+     * </p>
+     */
+    public B configureForJackson2() {
+        return disable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
+                .disable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)
+                .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .enable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+    }
+
     /*
     /**********************************************************************
     /* Changing features: parser, generator

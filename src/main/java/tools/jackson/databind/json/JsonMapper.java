@@ -1,14 +1,10 @@
 package tools.jackson.databind.json;
 
-import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.Version;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.json.JsonFactoryBuilder;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.json.JsonWriteFeature;
-import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.cfg.MapperBuilderState;
 import tools.jackson.databind.cfg.PackageVersion;
@@ -163,21 +159,8 @@ public class JsonMapper extends ObjectMapper
      * </p>
      */
     public static Builder builderWithJackson2Defaults() {
-        // TODO replace with call in https://github.com/FasterXML/jackson-core/pull/1411
-        final JsonFactoryBuilder factoryBuilder = JsonFactory.builder()
-                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
-                .disable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
-                .disable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
-                .disable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER);
-        return new Builder(factoryBuilder.build())
-                .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .enable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
-                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+        return builder(JsonFactory.builderWithJackson2Defaults().build())
+                .configureForJackson2();
     }
 
 

@@ -192,7 +192,7 @@ public class ArrayNodeTest
         assertEquals(20, array.size());
         for (int i = 0; i < 20; i++) {
             if (i <= 18) {
-                assertNotEquals("Original Data", array.get(i).stringValue());
+                assertNotEquals("Original Data", array.get(i).asString());
             } else {
                 assertEquals("Original Data", array.get(i).stringValue());
             }

@@ -225,6 +225,23 @@ public abstract class BaseJsonNode
     }
 
     @Override
+    public String stringValue() {
+        return _reportCoercionFail("stringValue()", String.class, "value type not String");
+    }
+
+    @Override
+    public String stringValue(String defaultValue) {
+        // Overridden by StringNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<String> stringValueOpt() {
+        // Overridden by StringNode, for other types return default
+        return Optional.empty();
+    }
+
+    @Override
     public String asString(String defaultValue) {
         String str = asString();
         return (str == null) ? defaultValue : str;

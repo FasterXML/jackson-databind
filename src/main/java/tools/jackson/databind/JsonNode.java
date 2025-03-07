@@ -541,18 +541,47 @@ public abstract class JsonNode
     // // Scalar access: Strings
 
     /**
-     * Method to use for accessing String values.
-     * Does <b>NOT</b> do any conversions for non-String value nodes;
-     * for non-String values (ones for which {@link #isString} returns
-     * false) null will be returned.
-     * For String values, null is never returned (but empty Strings may be)
+     * Method that will try to access value of this node as a Java {@code String}
+     * which works if (and only if) node contains JSON String value:
+     * if not, a {@link JsonNodeException} will be thrown.
+     *<p>
+     * NOTE: for more lenient conversions, use {@link #asString()}
      *<p>
      * NOTE: in Jackson 2.x, was {@code textValue()}.
      *
-     * @return String value this node contains, iff node is created from
-     *   a String value.
+     * @return {@code String} value this node represents (if JSON String)
+     *
+     * @throws JsonNodeException if node value is not a JSON String value
      */
-    public String stringValue() { return null; }
+    public abstract String stringValue();
+
+    /**
+     * Method similar to {@link #stringValue()}, but that will return specified
+     * {@code defaultValue} if this node does not contain a JSON String.
+     *
+     * @param defaultValue Value to return if this node does not contain a JSON String.
+     *
+     * @return Java {@code String} value this node represents (if JSON String);
+     *   {@code defaultValue} otherwise
+     */
+    public abstract String stringValue(String defaultValue);
+
+    /**
+     * Method similar to {@link #stringValue()}, but that will return
+     * {@code Optional.empty()} if this node does not contain a JSON String.
+     *
+     * @return {@code Optional<String>} value (if node represents JSON String);
+     *   {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<String> stringValueOpt();
+
+    /**
+     * @deprecated Use {@link #asString()} instead.
+     */
+    @Deprecated // since 3.0
+    public final String textValue() {
+        return stringValue();
+    }
 
     /**
      * Method that will return a valid String representation of
@@ -618,7 +647,7 @@ public abstract class JsonNode
      *
      * @return {@code boolean} value this node represents (if JSON boolean)
      *
-     * @throws JsonNodeException if node value is not a JSON boolean value
+     * @throws JsonNodeException if node does not represent a JSON boolean value
      */
     public abstract boolean booleanValue();
 

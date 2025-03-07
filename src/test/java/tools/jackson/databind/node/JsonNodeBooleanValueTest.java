@@ -27,7 +27,11 @@ public class JsonNodeBooleanValueTest
     public void booleanValueSuccess()
     {
         assertEquals(true, NODES.booleanNode(true).booleanValue());
+        assertEquals(true, NODES.booleanNode(true).booleanValue(false));
+        assertEquals(true, NODES.booleanNode(true).booleanValueOpt().get());
         assertEquals(false, NODES.booleanNode(false).booleanValue());
+        assertEquals(false, NODES.booleanNode(false).booleanValue(true));
+        assertEquals(false, NODES.booleanNode(false).booleanValueOpt().get());
     }
 
     @Test

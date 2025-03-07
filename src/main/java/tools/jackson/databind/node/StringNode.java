@@ -1,6 +1,7 @@
 package tools.jackson.databind.node;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberInput;
@@ -72,6 +73,16 @@ public class StringNode
     @Override
     public String stringValue() {
         return _value;
+    }
+
+    @Override
+    public String stringValue(String defaultValue) {
+        return _value;
+    }
+
+    @Override
+    public Optional<String> stringValueOpt() {
+        return Optional.of(_value);
     }
 
     /**

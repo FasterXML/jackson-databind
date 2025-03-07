@@ -541,18 +541,47 @@ public abstract class JsonNode
     // // Scalar access: Strings
 
     /**
-     * Method to use for accessing String values.
-     * Does <b>NOT</b> do any conversions for non-String value nodes;
-     * for non-String values (ones for which {@link #isString} returns
-     * false) null will be returned.
-     * For String values, null is never returned (but empty Strings may be)
+     * Method that will try to access value of this node as a Java {@code String}
+     * which works if (and only if) node contains JSON String value:
+     * if not, a {@link JsonNodeException} will be thrown.
+     *<p>
+     * NOTE: for more lenient conversions, use {@link #asString()}
      *<p>
      * NOTE: in Jackson 2.x, was {@code textValue()}.
      *
-     * @return String value this node contains, iff node is created from
-     *   a String value.
+     * @return {@code String} value this node represents (if JSON String)
+     *
+     * @throws JsonNodeException if node value is not a JSON String value
      */
-    public String stringValue() { return null; }
+    public abstract String stringValue();
+
+    /**
+     * Method similar to {@link #stringValue()}, but that will return specified
+     * {@code defaultValue} if this node does not contain a JSON String.
+     *
+     * @param defaultValue Value to return if this node does not contain a JSON String.
+     *
+     * @return Java {@code String} value this node represents (if JSON String);
+     *   {@code defaultValue} otherwise
+     */
+    public abstract String stringValue(String defaultValue);
+
+    /**
+     * Method similar to {@link #stringValue()}, but that will return
+     * {@code Optional.empty()} if this node does not contain a JSON String.
+     *
+     * @return {@code Optional<String>} value (if node represents JSON String);
+     *   {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<String> stringValueOpt();
+
+    /**
+     * @deprecated Use {@link #asString()} instead.
+     */
+    @Deprecated // since 3.0
+    public final String textValue() {
+        return stringValue();
+    }
 
     /**
      * Method that will return a valid String representation of
@@ -595,28 +624,52 @@ public abstract class JsonNode
     // // Scalar access: Binary
 
     /**
-     * Method to use for accessing binary content of binary nodes (nodes
-     * for which {@link #isBinary} returns true); or for String Nodes
-     * (ones for which {@link #stringValue} returns non-null value),
-     * to read decoded base64 data.
-     * For other types of nodes, returns null.
+     * Method that will try to access value of this node as binary value (Java {@code byte[]})
+     * which works if (and only if) node contains binary value (for JSON, Base64-encoded
+     * String, for other formats native binary value): if not,
+     * a {@link JsonNodeException} will be thrown.
+     * To check if this method can be used, you may call {@link #isBinary()}.
+     *<p>
+     * @return Binary value this node represents (if node contains binary value)
      *
-     * @return Binary data this node contains, iff it is a binary
-     *   node; null otherwise
+     * @throws JsonNodeException if node does not contain a Binary value (a
      */
     public abstract byte[] binaryValue();
 
     // // Scalar access: Boolean
 
     /**
-     * Method to use for accessing JSON boolean values (value
-     * literals 'true' and 'false').
-     * For other types, always returns false.
+     * Method that will try to access value of this node as a Java {@code boolean}
+     * which works if (and only if) node contains JSON boolean value: if not,
+     * a {@link JsonNodeException} will be thrown.
+     *<p>
+     * NOTE: for more lenient conversions, use {@link #asBoolean()}
      *
-     * @return Boolean value this node contains, if any; false for
-     *   non-boolean nodes.
+     * @return {@code boolean} value this node represents (if JSON boolean)
+     *
+     * @throws JsonNodeException if node does not represent a JSON boolean value
      */
     public abstract boolean booleanValue();
+
+    /**
+     * Method similar to {@link #booleanValue()}, but that will return specified
+     * {@code defaultValue} if this node does not contain a JSON boolean.
+     *
+     * @param defaultValue Value to return if this node does not contain a JSON boolean.
+     *
+     * @return Java {@code boolean} value this node represents (if JSON boolean);
+     *   {@code defaultValue} otherwise
+     */
+    public abstract boolean booleanValue(boolean defaultValue);
+
+    /**
+     * Method similar to {@link #booleanValue()}, but that will return
+     * {@code Optional.empty()} if this node does not contain a JSON boolean.
+     *
+     * @return {@code Optional<Boolean>} value (if node represents JSON boolean);
+     *   {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<Boolean> booleanValueOpt();
 
     /**
      * Method that will try to convert value of this node to a Java <b>boolean</b>.

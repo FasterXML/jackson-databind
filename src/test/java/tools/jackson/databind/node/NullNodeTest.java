@@ -45,7 +45,6 @@ public class NullNodeTest extends NodeTestBase
         assertFalse(n.canConvertToExactIntegral());
 
         // fallback accessors
-        assertFalse(n.booleanValue());
 
         // may be odd but...
         assertEquals("null", n.asString());

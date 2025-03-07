@@ -63,7 +63,6 @@ public class MissingNodeTest extends NodeTestBase
         assertEquals(0, onode.size());
         assertFalse(onode.isMissingNode()); // real node
         assertTrue(onode.asOptional().isPresent());
-        assertNull(onode.stringValue());
 
         // how about dereferencing?
         assertNull(onode.get(0));

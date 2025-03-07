@@ -193,12 +193,25 @@ public abstract class BaseJsonNode
 
     @Override
     public byte[] binaryValue() {
-        return null;
+        return _reportCoercionFail("binaryValue()", Boolean.TYPE,
+                "value type not binary (or convertible to binary via Base64-decoding)");
     }
 
     @Override
     public boolean booleanValue() {
-        return false;
+        return _reportCoercionFail("booleanValue()", Boolean.TYPE, "value type not boolean");
+    }
+
+    @Override
+    public boolean booleanValue(boolean defaultValue) {
+        // Overridden by BooleanNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<Boolean> booleanValueOpt() {
+        // Overridden by BooleanNode, for other types return default
+        return Optional.empty();
     }
 
     @Override
@@ -209,6 +222,23 @@ public abstract class BaseJsonNode
     @Override
     public boolean asBoolean(boolean defaultValue) {
         return defaultValue;
+    }
+
+    @Override
+    public String stringValue() {
+        return _reportCoercionFail("stringValue()", String.class, "value type not String");
+    }
+
+    @Override
+    public String stringValue(String defaultValue) {
+        // Overridden by StringNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<String> stringValueOpt() {
+        // Overridden by StringNode, for other types return default
+        return Optional.empty();
     }
 
     @Override

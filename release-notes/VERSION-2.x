@@ -60,6 +60,7 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4963: Serializing `Map.Entry` as Bean with `@JsonFormat.shape = Shape.OBJECT`
   fails on JDK 17+
+#4997: `ObjectNode` put methods should do null check for key
 
 2.18.3 (28-Feb-2025)
 

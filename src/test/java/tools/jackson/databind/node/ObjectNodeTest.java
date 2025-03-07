@@ -281,6 +281,23 @@ public class ObjectNodeTest
         dest.setAll(src);
     }
 
+    // for [databind#346]
+    @Test
+    public void testNullKeyChecking()
+    {
+        ObjectNode src = MAPPER.createObjectNode();
+        assertThrows(NullPointerException.class, () -> src.put(null, "a"));
+        assertThrows(NullPointerException.class, () -> src.put(null, 123));
+        assertThrows(NullPointerException.class, () -> src.put(null, 123L));
+        assertThrows(NullPointerException.class, () -> src.putNull(null));
+
+        assertThrows(NullPointerException.class, () -> src.set(null, BooleanNode.TRUE));
+        assertThrows(NullPointerException.class, () -> src.replace(null, BooleanNode.TRUE));
+        
+        assertThrows(NullPointerException.class, () -> src.setAll(Collections.singletonMap(null,
+                MAPPER.createArrayNode())));
+    }
+    
     @Test
     public void testRemove()
     {

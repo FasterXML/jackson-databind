@@ -60,7 +60,10 @@
     <version.bytebuddy>1.15.10</version.bytebuddy>
     <version.mockito>5.15.2</version.mockito>
 
-    <jacocoStrict>true</jacocoStrict>
+    <!-- 07-Mar-2025, tatu: For some reason, release fails due to missing
+           jacoco... so disable for now
+      -->
+    <jacocoStrict>false</jacocoStrict>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>tools.jackson.databind.*;version=${project.version}</osgi.export>

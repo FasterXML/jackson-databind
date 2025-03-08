@@ -35,7 +35,6 @@ import tools.jackson.databind.type.*;
  *  </li>
  * <li>For all other types, {@link #createBeanDeserializer} is used.
  * </ul>
- *<p>
  */
 public abstract class DeserializerFactory
 {

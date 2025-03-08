@@ -1,6 +1,7 @@
 package tools.jackson.databind.cfg;
 
 import tools.jackson.core.TokenStreamFactory;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationConfig;
 import tools.jackson.databind.ser.SerializationContextExt;
@@ -149,5 +150,8 @@ public abstract class SerializationContexts
             return new SerializationContextExt.Impl(_streamFactory,
                     config, genSettings, _serializerFactory, _cache);
         }
+
+        // As per name, just for testing
+        public SerializerCache cacheForTests() { return _cache; }
     }
 }

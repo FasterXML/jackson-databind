@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.JsonNodeException;
@@ -80,7 +81,7 @@ public class ObjectNodeTest
 
         // basic properties first:
         assertFalse(root.isValueNode());
-        assertTrue(root.isContainerNode());
+        assertTrue(root.isContainer());
         assertFalse(root.isArray());
         assertTrue(root.isObject());
         assertEquals(2, root.size());
@@ -201,7 +202,7 @@ public class ObjectNodeTest
         final JsonNodeFactory f = JsonNodeFactory.instance;
         ObjectNode root = f.objectNode();
         JsonNode old;
-        old = root.putIfAbsent("key", f.textNode("foobar"));
+        old = root.putIfAbsent("key", f.stringNode("foobar"));
         assertNull(old);
         assertEquals(1, root.size());
         old = root.putIfAbsent("key", f.numberNode(3));
@@ -271,9 +272,6 @@ public class ObjectNodeTest
         assertEquals(4, o1.size());
     }
 
-    /**
-     * Another test to verify [JACKSON-227]...
-     */
     @Test
     public void testNullChecking2()
     {
@@ -283,6 +281,23 @@ public class ObjectNodeTest
         dest.setAll(src);
     }
 
+    // for [databind#346]
+    @Test
+    public void testNullKeyChecking()
+    {
+        ObjectNode src = MAPPER.createObjectNode();
+        assertThrows(NullPointerException.class, () -> src.put(null, "a"));
+        assertThrows(NullPointerException.class, () -> src.put(null, 123));
+        assertThrows(NullPointerException.class, () -> src.put(null, 123L));
+        assertThrows(NullPointerException.class, () -> src.putNull(null));
+
+        assertThrows(NullPointerException.class, () -> src.set(null, BooleanNode.TRUE));
+        assertThrows(NullPointerException.class, () -> src.replace(null, BooleanNode.TRUE));
+        
+        assertThrows(NullPointerException.class, () -> src.setAll(Collections.singletonMap(null,
+                MAPPER.createArrayNode())));
+    }
+    
     @Test
     public void testRemove()
     {
@@ -423,7 +438,7 @@ public class ObjectNodeTest
 
         // first: verify defaults:
         assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY));
-        ObjectNode root = (ObjectNode) MAPPER.readTree(DUP_JSON);
+        ObjectNode root = _objNode(DUP_JSON);
         assertEquals(2, root.path("a").asInt());
 
         // and via ObjectReader, too:
@@ -530,7 +545,7 @@ public class ObjectNodeTest
     {
         // Nothing to traverse for other types
         assertEquals("", _toString(MAPPER.createArrayNode()));
-        assertEquals("", _toString(MAPPER.getNodeFactory().textNode("foo")));
+        assertEquals("", _toString(MAPPER.getNodeFactory().stringNode("foo")));
 
         // But yes for ObjectNode:
         JsonNode n = MAPPER.readTree(a2q(
@@ -545,7 +560,7 @@ public class ObjectNodeTest
         ObjectMapper mapper = objectMapper();
         ObjectNode obj = mapper.createObjectNode();
         JsonNode n1 = obj.numberNode(42);
-        JsonNode n2 = obj.textNode("foo");
+        JsonNode n2 = obj.stringNode("foo");
 
         obj.set("a", n1);
         obj.set("b", n2);
@@ -564,6 +579,41 @@ public class ObjectNodeTest
         final LinkedHashMap<String,JsonNode> map = new LinkedHashMap<>();
         obj.forEachEntry((k, v) -> { map.put(k, v); });
         assertEquals(obj.properties(), map.entrySet());
+    }
+
+    @Test
+    public void testRemoveAll() throws Exception
+    {
+        assertEquals(_objNode("{}"),
+                _objNode("{'a':1, 'b':2, 'c':3}").removeAll());
+    }
+
+    // [databind#4955]: remove methods
+    @Test
+    public void testRemoveIf() throws Exception
+    {
+        assertEquals(_objNode("{'c':3}"),
+                _objNode("{'a':1, 'b':2, 'c':3}")
+                .removeIf(value -> value.asInt() <= 2));
+        assertEquals(_objNode("{'a':1}"),
+                _objNode("{'a':1, 'b':2, 'c':3}")
+                .removeIf(value -> value.asInt() > 1));
+    }
+
+    // [databind#4955]: remove methods
+    @Test
+    public void testRemoveNulls() throws Exception
+    {
+        assertEquals(_objNode("{'b':2}"),
+                _objNode("{'a':null,'b':2,'c':null}")
+                .removeNulls());
+    }
+
+    private ObjectNode _objNode(String json) throws Exception {
+        // Use different read method for better code coverage
+        try (JsonParser p = MAPPER.createParser(a2q(json))) {
+            return (ObjectNode) MAPPER.reader().readTree(p);
+        }
     }
 
     private String _toString(JsonNode n) {

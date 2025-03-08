@@ -122,6 +122,8 @@ public class SimpleBeanPropertyFilter
             writer.serializeAsProperty(pojo, g, provider);
         } else if (!g.canOmitProperties()) {
             writer.serializeAsOmittedProperty(pojo, g, provider);
+        } else if (writer instanceof AnyGetterWriter) {
+            ((AnyGetterWriter) writer).getAndFilter(pojo, g, provider, this);
         }
     }
 

@@ -1,7 +1,5 @@
 package tools.jackson.databind.misc;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;

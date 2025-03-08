@@ -21,13 +21,13 @@ import tools.jackson.databind.util.UniqueId;
  * NOTE: that [de]serializers are registered as "default" [de]serializers.
  * As a result, they will have lower priority than the ones indicated through annotations on
  * both Class and property-associated annotations -- for example,
- * {@link tools.jackson.databind.annotation.JsonDeserialize}.<br/>
+ * {@link tools.jackson.databind.annotation.JsonDeserialize}.<br>
  * In cases where both module-based [de]serializers and annotation-based [de]serializers are registered,
  * the [de]serializer specified by the annotation will take precedence.
  *<p>
  * NOTE: although it is not expected that sub-types should need to
  * override {@link #setupModule(SetupContext)} method, if they choose
- * to do so they MUST call {@code super.setupModule(context);}
+ * to do so they MUST call {@code super.setupModule(context)}
  * to ensure that registration works as expected.
  *<p>
  * WARNING: when registering {@link ValueSerializer}s and {@link ValueDeserializer}s,

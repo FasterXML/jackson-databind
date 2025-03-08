@@ -1,5 +1,7 @@
 package tools.jackson.databind.module;
 
+import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -10,7 +12,6 @@ import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperBuilder;
-import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -205,38 +206,71 @@ public class SimpleModuleTest extends DatabindTestUtil
     /**********************************************************************
      */
 
+    @Test
+    public void testDeserializationWithoutModule() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                // since 3.0 not enabled by default
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+        final String DOC = "{\"str\":\"ab\",\"num\":2}";
+
+        try {
+            mapper.readValue(DOC, CustomBean.class);
+            fail("Should have caused an exception");
+        } catch (DatabindException e) {
+            verifyException(e, "Unrecognized property");
+        }
+
+        // And then other variations
+        try {
+            mapper.readValue(new StringReader(DOC), CustomBean.class);
+            fail("Should have caused an exception");
+        } catch (DatabindException e) {
+            verifyException(e, "Unrecognized property");
+        }
+
+        try {
+            mapper.readValue(utf8Bytes(DOC), CustomBean.class);
+            fail("Should have caused an exception");
+        } catch (DatabindException e) {
+            verifyException(e, "Unrecognized property");
+        }
+
+        try {
+            mapper.readValue(new ByteArrayInputStream(utf8Bytes(DOC)), CustomBean.class);
+            fail("Should have caused an exception");
+        } catch (DatabindException e) {
+            verifyException(e, "Unrecognized property");
+        }
+    }
+
     /**
      * Basic test to ensure we do not have functioning default
      * serializers for custom types used in tests.
      */
     @Test
-    public void testWithoutModule()
+    public void testSerializationWithoutModule() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 // since 3.0 not enabled by default
                 .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .build();
+
         // first: serialization failure:
         try {
             mapper.writeValueAsString(new CustomBean("foo", 3));
             fail("Should have caused an exception");
-        } catch (JacksonException e) {
+        } catch (DatabindException e) {
             verifyException(e, "No serializer found");
         }
 
-        // then deserialization
+        // and with another write call for test coverage
         try {
-            mapper.readValue("{\"str\":\"ab\",\"num\":2}", CustomBean.class);
+            mapper.writeValueAsBytes(new CustomBean("foo", 3));
             fail("Should have caused an exception");
-        } catch (UnrecognizedPropertyException e) {
-            // 20-Sep-2017, tatu: Jackson 2.x had different exception; 3.x finds implicits too
-            verifyException(e, "Unrecognized property \"str\"");
-
-            /*
-            verifyException(e, "Cannot construct");
-            verifyException(e, "no creators");
-            */
+        } catch (DatabindException e) {
+            verifyException(e, "No serializer found");
         }
     }
 

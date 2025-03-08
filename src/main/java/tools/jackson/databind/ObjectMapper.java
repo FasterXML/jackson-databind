@@ -859,7 +859,7 @@ public class ObjectMapper
 
     @Override
     public JsonNode stringNode(String text) {
-        return _deserializationConfig.getNodeFactory().textNode(text);
+        return _deserializationConfig.getNodeFactory().stringNode(text);
     }
 
     @Override
@@ -2493,6 +2493,27 @@ public class ObjectMapper
         _assertNotNull("type", type);
         _assertNotNull("visitor", visitor);
         _serializationContext().acceptJsonFormatVisitor(type, visitor);
+    }
+
+    /*
+    /**********************************************************************
+    /* Extended Public API: caches
+    /**********************************************************************
+     */
+
+    /**
+     * Method that will clear all caches this mapper owns.
+     *<p>
+     * This method should not be needed in normal operation, but may be
+     * useful to avoid class-loader memory leaks when reloading applications.
+     *
+     * @since 2.19
+     */
+    public void clearCaches() {
+        _rootDeserializers.clear();
+        _typeFactory.clearCache();
+        _deserializationContexts.flushCachedDeserializers();
+        _serializationContexts.flushCachedSerializers();
     }
 
     /*

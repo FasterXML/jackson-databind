@@ -980,11 +980,10 @@ public class TypeFactory
     /**
      * Factory method for constructing {@link JavaType} that
      * represents a parameterized type. For example, to represent
-     * type {@code List<Set<Integer>>}, you could
+     * type {@code Foo<Bar, Baz>}, you could
      * call
      *<pre>
-     *  JavaType inner = TypeFactory.constructParametricType(Set.class, Integer.class);
-     *  return TypeFactory.constructParametricType(List.class, inner);
+     *  return typeFactory.constructParametricType(Foo.class, Bar.class, Baz.class);
      *</pre>
      *
      * @param parametrized Type-erased type to parameterize
@@ -1004,8 +1003,8 @@ public class TypeFactory
      * represents a parameterized type. For example, to represent
      * type {@code List<Set<Integer>>}, you could
      *<pre>
-     *  JavaType inner = TypeFactory.constructParametricType(Set.class, Integer.class);
-     *  return TypeFactory.constructParametricType(List.class, inner);
+     *  JavaType inner = typeFactory.constructParametricType(Set.class, Integer.class);
+     *  return typeFactory.constructParametricType(List.class, inner);
      *</pre>
      *
      * @param rawType Actual type-erased type
@@ -1025,7 +1024,7 @@ public class TypeFactory
      * is useful if you already have the type's parameters such
      * as those found on {@link JavaType}. For example, you could call
      * <pre>
-     *   return TypeFactory.constructParametricType(ArrayList.class, javaType.getBindings());
+     *   return typeFactory.constructParametricType(ArrayList.class, javaType.getBindings());
      * </pre>
      * This effectively applies the parameterized types from one
      * {@link JavaType} to another class.

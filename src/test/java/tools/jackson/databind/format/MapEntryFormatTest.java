@@ -188,6 +188,7 @@ public class MapEntryFormatTest extends DatabindTestUtil
                 .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
                 .build();
         Map.Entry<String,String> input = new BeanWithMapEntry("foo", "bar").entry;
-        assertTrue(mapper.writeValueAsString(input).equals(a2q("{'key':'foo','value':'bar'}")) || mapper.writeValueAsString(input).equals(a2q("{'value':'bar','key':'foo'}")));
+        assertTrue(mapper.writeValueAsString(input).equals(a2q("{'key':'foo','value':'bar'}"))
+                || mapper.writeValueAsString(input).equals(a2q("{'value':'bar','key':'foo'}")));
     }
 }

@@ -45,7 +45,7 @@ public class MissingNodeTest extends NodeTestBase
         String JSON = "[ { }, [ ] ]";
         JsonNode result = objectMapper().readTree(new StringReader(JSON));
 
-        assertTrue(result.isContainerNode());
+        assertTrue(result.isContainer());
         assertTrue(result.isArray());
         assertEquals(2, result.size());
 
@@ -58,12 +58,11 @@ public class MissingNodeTest extends NodeTestBase
         Iterator<JsonNode> it = result.iterator();
 
         JsonNode onode = it.next();
-        assertTrue(onode.isContainerNode());
+        assertTrue(onode.isContainer());
         assertTrue(onode.isObject());
         assertEquals(0, onode.size());
         assertFalse(onode.isMissingNode()); // real node
         assertTrue(onode.asOptional().isPresent());
-        assertNull(onode.stringValue());
 
         // how about dereferencing?
         assertNull(onode.get(0));
@@ -83,7 +82,7 @@ public class MissingNodeTest extends NodeTestBase
         // and same for the array node
 
         JsonNode anode = it.next();
-        assertTrue(anode.isContainerNode());
+        assertTrue(anode.isContainer());
         assertTrue(anode.isArray());
         assertFalse(anode.isMissingNode()); // real node
         assertEquals(0, anode.size());

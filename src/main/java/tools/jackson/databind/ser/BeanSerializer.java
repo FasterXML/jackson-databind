@@ -131,7 +131,7 @@ public class BeanSerializer
         if (canCreateArraySerializer()) {
             return BeanAsArraySerializer.construct(this);
         }
-        // already is one, so:
+        // cannot change so jus use this one
         return this;
     }
 

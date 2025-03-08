@@ -91,6 +91,20 @@ public abstract class DeserializationContexts
 
     /*
     /**********************************************************************
+    /* Extended API
+    /**********************************************************************
+     */
+
+    /**
+     * Method that will drop all dynamically constructed deserializers (ones that
+     * are counted as result value for {@link DeserializerCache#cachedDeserializersCount}).
+     */
+    public void flushCachedDeserializers() {
+        _cache.flushCachedDeserializers();
+    }    
+
+    /*
+    /**********************************************************************
     /* Vanilla implementation
     /**********************************************************************
      */

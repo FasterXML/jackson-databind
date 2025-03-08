@@ -5,7 +5,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
-3.0.0 (not yet released)
+3.0.0-rc1 (07-Mar-2025)
 
 #493: Change `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES` default to `false`
  (contributed by Joo-Hyuk K)
@@ -88,12 +88,24 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #4820: Change JDK baseline for Jackson 3.0 from Java 8 to Java 17
 #4835: Remove dynamic work-arounds wrt accessing `Record` definition
 #4840: Increase minimum Android SDK required to 34 for Jackson 3.0
+#4845: Change default of `SerializationFeature.WRITE_DATES_AS_TIMESTAMPS`
+  to `false` in 3.0
+#4846: Change default of `SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS`
+  to `false` in 3.0
 #4858: Change default of `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES`
   to `true` for 3.0
 #4875: Remove `JsonNode.fields()` from 3.0
 #4879: Rename `TextNode` as `StringNode`; `JsonNode.xxxTextYyy()` (mostly) as
   `JsonNode.xxxStringYyy()` [JSTEP-3]
 #4891: Change 3.0 to use `module-info.java` directly for build (instead of via Moditect)
+#4956: Rename `JsonNode.isContainerNode()` as `isContainerNode()`
+#4958: Extend, improve set of number value accessors for `JsonNode`
+  (`JsonNode.intValue()` etc) [JSTEP-3]
+#4991: Extend, improve set of non-number scalar value accessors for `JsonNode`
+  (`JsonNode.booleanValue()` etc) [JSTEP-3]
+#4992: Rename `JsonNodeFactory.textNode()` as `JsonNodeFactory.stringNode()` [JSTEP-3]
+#5004: Add `JsonMapper.builderWithJackson2Defaults()`
+ (fixed by @pjfanning)
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)
 - Default for `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES` changed to `false` for 3.0

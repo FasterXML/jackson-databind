@@ -24,7 +24,7 @@
  * <p>
  * The {@link tools.jackson.databind.util.internal.PrivateMaxEntriesMap}
  * class supplies an efficient, scalable, thread-safe, bounded map. As with the
- * <tt>Java Collections Framework</tt> the "Concurrent" prefix is used to
+ * {@code Java Collections Framework} the "Concurrent" prefix is used to
  * indicate that the map is not governed by a single exclusion lock.
  *
  * @see <a href="http://code.google.com/p/concurrentlinkedhashmap/">

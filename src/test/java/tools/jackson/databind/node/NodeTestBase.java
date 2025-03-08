@@ -5,6 +5,10 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Optional;
+
 abstract class NodeTestBase extends DatabindTestUtil
 {
     protected void assertNodeNumbersForNonNumeric(JsonNode n)
@@ -45,5 +49,13 @@ abstract class NodeTestBase extends DatabindTestUtil
 
         // And then empty forEachEntry()
         n.forEachEntry((k, v) -> { throw new UnsupportedOperationException(); });
+    }
+
+    protected static BigDecimal bigDec(long l) { return new BigDecimal(l); }
+    protected static BigDecimal bigDec(double d) { return new BigDecimal(d); }
+    protected static BigDecimal bigDec(String str) { return new BigDecimal(str); }
+
+    protected static BigInteger bigInt(long l) {
+        return BigInteger.valueOf(l);
     }
 }

@@ -311,10 +311,6 @@ public class BeanAsArraySerializer
                     prop.serializeAsElement(bean, gen, provider);
                 }
             }
-            // NOTE: any getters cannot be supported either
-            //if (_anyGetterWriter != null) {
-            //    _anyGetterWriter.getAndSerialize(bean, gen, provider);
-            //}
         } catch (Exception e) {
             wrapAndThrow(provider, e, bean, prop.getName());
         } catch (StackOverflowError e) {

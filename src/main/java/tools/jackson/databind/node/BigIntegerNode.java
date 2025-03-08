@@ -3,6 +3,10 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.SerializationContext;
@@ -36,9 +40,9 @@ public class BigIntegerNode
     public static BigIntegerNode valueOf(BigInteger v) { return new BigIntegerNode(v); }
 
     /*
-    /**********************************************************
-    /* Overridden JsonNode methods
-    /**********************************************************
+    /**********************************************************************
+    /* Overridden JsonNode methods, simple properties
+    /**********************************************************************
      */
 
     @Override
@@ -48,43 +52,138 @@ public class BigIntegerNode
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.BIG_INTEGER; }
 
     @Override
+    public boolean isBigInteger() { return true; }
+
+    @Override
     public boolean isIntegralNumber() { return true; }
 
     @Override
-    public boolean isBigInteger() { return true; }
+    public boolean isNaN() { return false; }
 
     @Override public boolean canConvertToInt() {
-        return (_value.compareTo(MIN_INTEGER) >= 0) && (_value.compareTo(MAX_INTEGER) <= 0);
-    }
-    @Override public boolean canConvertToLong() {
-        return (_value.compareTo(MIN_LONG) >= 0) && (_value.compareTo(MAX_LONG) <= 0);
+        return (_value.compareTo(MIN_INTEGER) >= 0)
+                && (_value.compareTo(MAX_INTEGER) <= 0);
     }
 
+    @Override public boolean canConvertToLong() {
+        return (_value.compareTo(MIN_LONG) >= 0)
+                && (_value.compareTo(MAX_LONG) <= 0);
+    }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
+    
     @Override
     public Number numberValue() {
         return _value;
     }
 
     @Override
-    public short shortValue() { return _value.shortValue(); }
+    public short shortValue() {
+        if (canConvertToInt()) {
+            int v = _value.intValue();
+            if (v >= Short.MIN_VALUE && v <= Short.MAX_VALUE) {
+                return (short) v;
+            }
+        }
+        return _reportShortCoercionRangeFail("shortValue()");
+    }
 
     @Override
-    public int intValue() { return _value.intValue(); }
+    public int intValue() {
+        if (canConvertToInt()) {
+            return _value.intValue();
+        }
+        return _reportIntCoercionRangeFail("intValue()");
+    }
 
     @Override
-    public long longValue() { return _value.longValue(); }
+    public int intValue(int defaultValue) {
+        return canConvertToInt() ? _value.intValue() : defaultValue;
+    }
+
+    @Override
+    public OptionalInt intValueOpt() {
+        return canConvertToInt() ? OptionalInt.of(_value.intValue()) : OptionalInt.empty();
+    }
+    
+    @Override
+    public long longValue() {
+        if (canConvertToLong()) {
+            return _value.longValue();
+        }
+        return _reportLongCoercionRangeFail("longValue()");
+    }
+
+    @Override
+    public long longValue(long defaultValue) {
+        if (canConvertToLong()) {
+            return _value.longValue();
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalLong longValueOpt() {
+        return canConvertToLong() ? OptionalLong.of(_value.longValue()) : OptionalLong.empty();
+    }
 
     @Override
     public BigInteger bigIntegerValue() { return _value; }
 
     @Override
-    public float floatValue() { return _value.floatValue(); }
+    public float floatValue() {
+        float f = _value.floatValue();
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return _reportFloatCoercionRangeFail("floatValue()");
+    }
 
     @Override
-    public double doubleValue() { return _value.doubleValue(); }
+    public double doubleValue() {
+        double d = _value.doubleValue();
+        if (Double.isFinite(d)) {
+            return d;
+        }
+        return _reportDoubleCoercionRangeFail("doubleValue()");
+    }
 
     @Override
-    public BigDecimal decimalValue() { return new BigDecimal(_value); }
+    public double doubleValue(double defaultValue) {
+        double d = _value.doubleValue();
+        if (Double.isFinite(d)) {
+            return d;
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalDouble doubleValueOpt() {
+        double d = _value.doubleValue();
+        if (Double.isFinite(d)) {
+            return OptionalDouble.of(_value.doubleValue());
+        }
+        return OptionalDouble.empty();
+    }
+
+    @Override
+    public BigDecimal decimalValue() {
+        return new BigDecimal(_value);
+    }
+
+    @Override
+    public BigDecimal decimalValue(BigDecimal defaultValue) {
+        return new BigDecimal(_value);
+    }
+
+    @Override
+    public Optional<BigDecimal> decimalValueOpt() {
+        return Optional.of(new BigDecimal(_value));
+    }
 
     /*
     /**********************************************************
@@ -102,6 +201,12 @@ public class BigIntegerNode
         return !BigInteger.ZERO.equals(_value);
     }
 
+    /*
+    /**********************************************************
+    /* Other overrides
+    /**********************************************************
+     */
+    
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException
@@ -125,4 +230,10 @@ public class BigIntegerNode
     public int hashCode() {
         return Objects.hashCode(_value);
     }
+
+    /*
+    /**********************************************************
+    /* Other overrides
+    /**********************************************************
+     */
 }

@@ -2,6 +2,10 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.SerializationContext;
@@ -48,7 +52,7 @@ public class IntNode
 
     /*
     /**********************************************************************
-    /* BaseJsonNode extended API
+    /* Overridden JsonNode methods
     /**********************************************************************
      */
 
@@ -57,20 +61,23 @@ public class IntNode
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.INT; }
 
-    /*
-    /**********************************************************************
-    /* Overrridden JsonNode methods
-    /**********************************************************************
-     */
-
     @Override
     public boolean isIntegralNumber() { return true; }
 
     @Override
     public boolean isInt() { return true; }
 
+    @Override
+    public boolean isNaN() { return false; }
+    
     @Override public boolean canConvertToInt() { return true; }
     @Override public boolean canConvertToLong() { return true; }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
 
     @Override
     public Number numberValue() {
@@ -78,13 +85,34 @@ public class IntNode
     }
 
     @Override
-    public short shortValue() { return (short) _value; }
+    public short shortValue() {
+        if (_value >= Short.MIN_VALUE && _value <= Short.MAX_VALUE) {
+            return (short) _value;
+        }
+        return _reportShortCoercionRangeFail("shortValue()");
+    }
 
     @Override
     public int intValue() { return _value; }
 
     @Override
-    public long longValue() { return (long) _value; }
+    public int intValue(int defaultValue) { return _value; }
+
+    @Override
+    public OptionalInt intValueOpt() {
+        return OptionalInt.of(_value);
+    }
+
+    @Override
+    public long longValue() { return _value; }
+
+    @Override
+    public long longValue(long defaultValue) { return _value; }
+
+    @Override
+    public OptionalLong longValueOpt() {
+        return OptionalLong.of(_value);
+    }
 
     @Override
     public float floatValue() { return (float) _value; }
@@ -92,9 +120,22 @@ public class IntNode
     @Override
     public double doubleValue() { return (double) _value; }
 
+    @Override
+    public double doubleValue(double defaultValue) { return _value; }
+
+    @Override
+    public OptionalDouble doubleValueOpt() {
+        return OptionalDouble.of(_value);
+    }
 
     @Override
     public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
+
+    @Override
+    public BigDecimal decimalValue(BigDecimal defaultValue) { return decimalValue(); }
+
+    @Override
+    public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
 
     @Override
     public BigInteger bigIntegerValue() { return BigInteger.valueOf(_value); }
@@ -109,6 +150,12 @@ public class IntNode
         return _value != 0;
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, other
+    /**********************************************************************
+     */
+    
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException

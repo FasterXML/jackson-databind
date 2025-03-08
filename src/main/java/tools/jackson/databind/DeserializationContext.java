@@ -841,6 +841,19 @@ public abstract class DeserializationContext
         return kd;
     }
 
+    /**
+     * Method that will drop all dynamically constructed deserializers (ones that
+     * are counted as result value for {@link DeserializerCache#cachedDeserializersCount}).
+     * This can be used to remove memory usage (in case some deserializers are
+     * only used once or so), or to force re-construction of deserializers after
+     * configuration changes for mapper than owns the provider.
+
+     * @since 2.19
+     */
+    public void flushCachedDeserializers() {
+        _cache.flushCachedDeserializers();
+    }
+
     /*
     /**********************************************************************
     /* Public API, ObjectId handling
@@ -1838,10 +1851,17 @@ public abstract class DeserializationContext
             JsonParser p, JsonToken trailingToken)
         throws DatabindException
     {
-        throw MismatchedInputException.from(p, targetType, String.format(
-"Trailing token (of type %s) found after value (bound as %s): not allowed as per `DeserializationFeature.FAIL_ON_TRAILING_TOKENS`",
-trailingToken, ClassUtil.nameOf(targetType)
-                ));
+        // 05-Mar-2025, tatu: [databind#5001] Handle non-blocking case separately to give better message
+        if (trailingToken == JsonToken.NOT_AVAILABLE) {
+            throw MismatchedInputException.from(p, targetType,
+"Incomplete content (`JsonToken.NOT_AVAILABLE`) after value (bound as %s):"
++"not allowed as per `DeserializationFeature.FAIL_ON_TRAILING_TOKENS`"
++" (missing call to `InputFeeder.endOfInput()`?)"
+            .formatted(ClassUtil.nameOf(targetType)));
+        }
+        throw MismatchedInputException.from(p, targetType,
+"Trailing token (`JsonToken.%s`) found after value (bound as %s): not allowed as per `DeserializationFeature.FAIL_ON_TRAILING_TOKENS`"
+                .formatted(trailingToken, ClassUtil.nameOf(targetType)));
     }
 
     /*

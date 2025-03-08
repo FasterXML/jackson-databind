@@ -26,6 +26,7 @@ public class JDKMiscDeserializers
         _classNames.add(StackTraceElement.class.getName());
         _classNames.add(ByteBuffer.class.getName());
         _classNames.add(Void.class.getName());
+        _classNames.add(ThreadGroup.class.getName());
         for (Class<?> cls : JDKFromStringDeserializer.types()) {
             _classNames.add(cls.getName());
         }
@@ -60,11 +61,13 @@ public class JDKMiscDeserializers
             if (rawType == Void.class) {
                 return NullifyingDeserializer.instance;
             }
+            if (rawType == ThreadGroup.class) {
+                return new ThreadGroupDeserializer();
+            }
         }
         return null;
     }
 
-    // @since 2.11
     public static boolean hasDeserializerFor(Class<?> rawType) {
         return _classNames.contains(rawType.getName());
     }

@@ -83,7 +83,7 @@ public class FullStreamReadTest extends DatabindTestUtil
             strict.readTree(JSON_FAIL_ARRAY);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Trailing token (of type START_ARRAY)");
+            verifyException(e, "Trailing token (`JsonToken.START_ARRAY`)");
             verifyException(e, "value (bound as `tools.jackson.databind.JsonNode`)");
         }
 
@@ -91,7 +91,7 @@ public class FullStreamReadTest extends DatabindTestUtil
             strict.readValue(JSON_FAIL_ARRAY, List.class);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Trailing token (of type START_ARRAY)");
+            verifyException(e, "Trailing token (`JsonToken.START_ARRAY`)");
             verifyException(e, "value (bound as `java.util.List`)");
         }
 
@@ -135,7 +135,7 @@ public class FullStreamReadTest extends DatabindTestUtil
             strict.readTree(JSON_FAIL_NULL);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Trailing token (of type VALUE_FALSE)");
+            verifyException(e, "Trailing token (`JsonToken.VALUE_FALSE`)");
             verifyException(e, "value (bound as `tools.jackson.databind.JsonNode`)");
         }
 
@@ -143,7 +143,7 @@ public class FullStreamReadTest extends DatabindTestUtil
             strict.readValue(JSON_FAIL_NULL, List.class);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Trailing token (of type VALUE_FALSE)");
+            verifyException(e, "Trailing token (`JsonToken.VALUE_FALSE`)");
             verifyException(e, "value (bound as `java.util.List`)");
         }
 
@@ -203,14 +203,14 @@ public class FullStreamReadTest extends DatabindTestUtil
             strictRForList.readValue(JSON_FAIL_ARRAY);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Trailing token (of type START_ARRAY)");
+            verifyException(e, "Trailing token (`JsonToken.START_ARRAY`)");
             verifyException(e, "value (bound as `java.util.List`)");
         }
         try {
             strictR.readTree(JSON_FAIL_ARRAY);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Trailing token (of type START_ARRAY)");
+            verifyException(e, "Trailing token (`JsonToken.START_ARRAY`)");
             verifyException(e, "value (bound as `tools.jackson.databind.JsonNode`)");
         }
 
@@ -220,7 +220,7 @@ public class FullStreamReadTest extends DatabindTestUtil
                 .readValue(JSON_FAIL_ARRAY);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Trailing token (of type START_ARRAY)");
+            verifyException(e, "Trailing token (`JsonToken.START_ARRAY`)");
             verifyException(e, "value (bound as `java.util.ArrayList`)");
         }
 
@@ -262,7 +262,7 @@ public class FullStreamReadTest extends DatabindTestUtil
             strictRForList.readValue(JSON_FAIL_NULL);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Trailing token (of type VALUE_FALSE)");
+            verifyException(e, "Trailing token (`JsonToken.VALUE_FALSE`)");
             verifyException(e, "value (bound as `java.util.List`)");
         }
 
@@ -270,7 +270,7 @@ public class FullStreamReadTest extends DatabindTestUtil
             strictR.readTree(JSON_FAIL_NULL);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Trailing token (of type VALUE_FALSE)");
+            verifyException(e, "Trailing token (`JsonToken.VALUE_FALSE`)");
             verifyException(e, "value (bound as `tools.jackson.databind.JsonNode`)");
         }
 

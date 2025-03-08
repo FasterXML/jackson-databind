@@ -19,6 +19,12 @@ public class BinaryNode
 
     protected final byte[] _data;
 
+    /*
+    /**********************************************************************
+    /* Construction
+    /**********************************************************************
+     */
+
     public BinaryNode(byte[] data)
     {
         // 01-Mar-2024, tatu: [databind#4381] No null-valued JsonNodes
@@ -56,6 +62,12 @@ public class BinaryNode
         return new BinaryNode(data, offset, length);
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods
+    /**********************************************************************
+     */
+    
     @Override
     public JsonNodeType getNodeType()
     {
@@ -70,6 +82,17 @@ public class BinaryNode
          */
         return JsonToken.VALUE_EMBEDDED_OBJECT;
     }
+
+    @Override
+    protected String _valueDesc() {
+        return "[...(" + _data.length + " bytes)]";
+    }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
 
     /**
      *<p>
@@ -87,6 +110,12 @@ public class BinaryNode
     public String asString() {
         return Base64Variants.getDefaultVariant().encode(_data, false);
     }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, other
+    /**********************************************************************
+     */
 
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)

@@ -1,5 +1,7 @@
 package tools.jackson.databind.node;
 
+import java.util.Optional;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.SerializationContext;
 
@@ -18,6 +20,9 @@ public class BooleanNode
     public final static BooleanNode TRUE = new BooleanNode(true);
     public final static BooleanNode FALSE = new BooleanNode(false);
 
+    private final static Optional<Boolean> OPT_FALSE = Optional.of(false);
+    private final static Optional<Boolean> OPT_TRUE = Optional.of(true);
+    
     private final boolean _value;
 
     /*
@@ -40,7 +45,7 @@ public class BooleanNode
 
     /*
     /**********************************************************************
-    /* Overrridden JsonNode methods
+    /* Overridden JsonNode methods
     /**********************************************************************
      */
 
@@ -54,7 +59,18 @@ public class BooleanNode
     }
 
     @Override
+    protected String _valueDesc() {
+        return asString();
+    }
+
+    @Override
     public BooleanNode deepCopy() { return this; }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
 
     @Override
     public boolean booleanValue() {
@@ -62,8 +78,13 @@ public class BooleanNode
     }
 
     @Override
-    public String asString() {
-        return _value ? "true" : "false";
+    public boolean booleanValue(boolean defaultValue) {
+        return _value;
+    }
+
+    @Override
+    public Optional<Boolean> booleanValueOpt() {
+        return _value ? OPT_TRUE : OPT_FALSE;
     }
 
     @Override
@@ -88,6 +109,17 @@ public class BooleanNode
     public double asDouble(double defaultValue) {
         return _value ? 1.0 : 0.0;
     }
+
+    @Override
+    public String asString() {
+        return _value ? "true" : "false";
+    }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, other
+    /**********************************************************************
+     */
 
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)

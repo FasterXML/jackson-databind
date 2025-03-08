@@ -1,6 +1,5 @@
 package tools.jackson.databind.node;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -12,7 +11,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.databind.*;
-import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.JsonNodeException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -241,7 +240,8 @@ public class TreeTraversingParserTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         try {
             p.getBinaryValue();
-        } catch (InvalidFormatException e) {
+        } catch (JsonNodeException e) {
+            verifyException(e, "method `binaryValue()` cannot convert value");
             verifyException(e, "Illegal character");
         }
         p.close();
@@ -284,7 +284,7 @@ public class TreeTraversingParserTest
     // // // Numeric coercion checks, [databind#2189]
 
     @Test
-    public void testNumberOverflowInt() throws IOException
+    public void testNumberOverflowInt() throws Exception
     {
         final long tooBig = 1L + Integer.MAX_VALUE;
         try (final JsonParser p = MAPPER.readTree("[ "+tooBig+" ]").traverse(ObjectReadContext.empty())) {
@@ -326,7 +326,7 @@ public class TreeTraversingParserTest
     }
 
     @Test
-    public void testNumberOverflowLong() throws IOException
+    public void testNumberOverflowLong() throws Exception
     {
         final BigInteger tooBig = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
         try (final JsonParser p = MAPPER.readTree("[ "+tooBig+" ]").traverse(ObjectReadContext.empty())) {

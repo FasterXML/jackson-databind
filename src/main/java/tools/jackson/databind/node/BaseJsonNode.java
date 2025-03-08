@@ -2,6 +2,10 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JacksonSerializable;
@@ -46,6 +50,202 @@ public abstract class BaseJsonNode
 
     @Override
     public boolean isEmbeddedValue() { return false; }
+
+    /*
+    /**********************************************************************
+    /* Defaulting for number access
+    /**********************************************************************
+     */
+
+    @Override
+    public Number numberValue() {
+        return _reportCoercionFail("numberValue()", Number.class, "value type not numeric");
+    }
+
+    @Override
+    public short shortValue() {
+        return _reportCoercionFail("shortValue()", Short.TYPE, "value type not numeric");
+    }
+
+    @Override
+    public int intValue() {
+        return _reportCoercionFail("intValue()", Integer.TYPE, "value type not numeric");
+    }
+
+    @Override
+    public int intValue(int defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalInt intValueOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalInt.empty();
+    }
+
+    @Override
+    public int asInt() {
+        return asInt(0);
+    }
+
+    @Override
+    public int asInt(int defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
+    public long longValue() {
+        return _reportCoercionFail("longValue()", Long.TYPE, "value type not numeric");
+    }
+
+    @Override
+    public long longValue(long defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalLong longValueOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalLong.empty();
+    }
+
+    @Override
+    public long asLong() {
+        return asLong(0L);
+    }
+
+    @Override
+    public long asLong(long defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
+    public BigInteger bigIntegerValue() {
+        return _reportCoercionFail("bigIntegerValue()", BigInteger.class, "value type not numeric");
+    }
+
+    @Override
+    public float floatValue() {
+        return _reportCoercionFail("floatValue()", Float.TYPE, "value type not numeric");
+    }
+
+    @Override
+    public double doubleValue() {
+        return _reportCoercionFail("doubleValue()", Double.TYPE, "value type not numeric");
+    }
+
+    @Override
+    public double doubleValue(double defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalDouble doubleValueOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalDouble.empty();
+    }
+
+    @Override
+    public double asDouble() {
+        return asDouble(0.0);
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        return defaultValue;
+    }
+    
+    @Override
+    public BigDecimal decimalValue() {
+        return _reportCoercionFail("decimalValue()", BigDecimal.class, "value type not numeric");
+    }
+
+    @Override
+    public BigDecimal decimalValue(BigDecimal defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<BigDecimal> decimalValueOpt() {
+        return Optional.empty();
+    }
+
+    @Override
+    public BigDecimal asDecimal() {
+        return asDecimal(BigDecimal.ZERO);
+    }
+    
+    @Override
+    public BigDecimal asDecimal(BigDecimal defaultValue) {
+        // !!! TODO
+        return decimalValue(defaultValue);
+    }
+
+    /*
+    /**********************************************************************
+    /* Defaulting for non-number scalar access
+    /**********************************************************************
+     */
+
+    @Override
+    public byte[] binaryValue() {
+        return _reportCoercionFail("binaryValue()", Boolean.TYPE,
+                "value type not binary (or convertible to binary via Base64-decoding)");
+    }
+
+    @Override
+    public boolean booleanValue() {
+        return _reportCoercionFail("booleanValue()", Boolean.TYPE, "value type not boolean");
+    }
+
+    @Override
+    public boolean booleanValue(boolean defaultValue) {
+        // Overridden by BooleanNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<Boolean> booleanValueOpt() {
+        // Overridden by BooleanNode, for other types return default
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean asBoolean() {
+        return asBoolean(false);
+    }
+
+    @Override
+    public boolean asBoolean(boolean defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
+    public String stringValue() {
+        return _reportCoercionFail("stringValue()", String.class, "value type not String");
+    }
+
+    @Override
+    public String stringValue(String defaultValue) {
+        // Overridden by StringNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<String> stringValueOpt() {
+        // Overridden by StringNode, for other types return default
+        return Optional.empty();
+    }
+
+    @Override
+    public String asString(String defaultValue) {
+        String str = asString();
+        return (str == null) ? defaultValue : str;
+    }
 
     /*
     /**********************************************************************
@@ -180,7 +380,7 @@ public abstract class BaseJsonNode
         case NULLS:
             return node.isNull();
         case SCALARS:
-            return !node.isContainerNode();
+            return !node.isContainer();
         default:
         case ALL:
             return true;
@@ -257,9 +457,62 @@ public abstract class BaseJsonNode
 
     /*
     /**********************************************************************
-    /* Other helper methods for subtypes
+    /* Helper method: error reporting
     /**********************************************************************
      */
+
+    protected <T> T _reportCoercionFail(String method, Class<?> targetType,
+            String message)
+    {
+        throw JsonNodeException.from(this, "'%s' method `%s` cannot convert value %s to %s: %s",
+                getClass().getSimpleName(), method,
+                _valueDesc(), ClassUtil.nameOf(targetType), message);
+    }
+
+    protected short _reportShortCoercionRangeFail(String method) {
+        return _reportCoercionFail(method, Short.TYPE,
+            "value not in 16-bit `short` range");
+    }
+
+    protected int _reportIntCoercionRangeFail(String method) {
+        return _reportCoercionFail(method, Integer.TYPE,
+            "value not in 32-bit `int` range");
+    }
+
+    protected long _reportLongCoercionRangeFail(String method) {
+        return _reportCoercionFail(method, Long.TYPE,
+            "value not in 64-bit `long` range");
+    }
+
+    protected float _reportFloatCoercionRangeFail(String method) {
+        return _reportCoercionFail(method, Float.TYPE,
+            "value not in 32-bit `float` range");
+    }
+
+    protected double _reportDoubleCoercionRangeFail(String method) {
+        return _reportCoercionFail(method, Double.TYPE,
+            "value not in 64-bit `double` range");
+    }
+
+    protected short _reportShortCoercionFractionFail(String method) {
+        return _reportCoercionFail(method, Short.TYPE,
+                "value has fractional part");
+    }
+
+    protected int _reportIntCoercionFractionFail(String method) {
+        return _reportCoercionFail(method, Integer.TYPE,
+                "value has fractional part");
+    }
+
+    protected long _reportLongCoercionFractionFail(String method) {
+        return _reportCoercionFail(method, Long.TYPE,
+                "value has fractional part");
+    }
+
+    protected BigInteger _reportBigIntegerCoercionFractionFail(String method) {
+        return _reportCoercionFail(method, BigInteger.class,
+                "value has fractional part");
+    }
 
     /**
      * Helper method that throws {@link JsonNodeException} as a result of
@@ -269,10 +522,11 @@ public abstract class BaseJsonNode
         throw JsonNodeException.from(this, String.format(msgTemplate, args));
     }
 
-    protected BigInteger _bigIntFromBigDec(BigDecimal value) {
-        StreamReadConstraints.defaults().validateBigIntegerScale(value.scale());
-        return value.toBigInteger();
-    }
+    /*
+    /**********************************************************************
+    /* Other helper methods for subtypes
+    /**********************************************************************
+     */
 
     protected JsonPointer _jsonPointerIfValid(String exprOrProperty) {
         if (exprOrProperty.isEmpty() || exprOrProperty.charAt(0) == '/') {
@@ -280,4 +534,10 @@ public abstract class BaseJsonNode
         }
         return null;
     }
+
+    /**
+     * Method for implementation classes to return a short description of contained
+     * value, to be used in error messages.
+     */
+    protected abstract String _valueDesc();
 }

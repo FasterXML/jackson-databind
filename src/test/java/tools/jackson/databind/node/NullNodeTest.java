@@ -1,8 +1,6 @@
 package tools.jackson.databind.node;
 
 import java.io.StringWriter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +31,7 @@ public class NullNodeTest extends NodeTestBase
         NullNode n = NullNode.instance;
 
         // basic properties
-        assertFalse(n.isContainerNode());
+        assertFalse(n.isContainer());
         assertFalse(n.isBigDecimal());
         assertFalse(n.isBigInteger());
         assertFalse(n.isBinary());
@@ -47,12 +45,7 @@ public class NullNodeTest extends NodeTestBase
         assertFalse(n.canConvertToExactIntegral());
 
         // fallback accessors
-        assertFalse(n.booleanValue());
-        assertNull(n.numberValue());
-        assertEquals(0, n.intValue());
-        assertEquals(0L, n.longValue());
-        assertEquals(BigDecimal.ZERO, n.decimalValue());
-        assertEquals(BigInteger.ZERO, n.bigIntegerValue());
+
         // may be odd but...
         assertEquals("null", n.asString());
         assertEquals("fallback", n.asString("fallback"));

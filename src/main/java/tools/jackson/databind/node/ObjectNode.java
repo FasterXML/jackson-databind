@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import tools.jackson.core.*;
@@ -27,6 +28,12 @@ public class ObjectNode
     // Note: LinkedHashMap for backwards compatibility
     protected final Map<String, JsonNode> _children;
 
+    /*
+    /**********************************************************************
+    /* Construction
+    /**********************************************************************
+     */
+
     public ObjectNode(JsonNodeFactory nc) {
         super(nc);
         _children = new LinkedHashMap<String, JsonNode>();
@@ -38,9 +45,20 @@ public class ObjectNode
                 "Must not pass `null` for 'children' argument");
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods
+    /**********************************************************************
+     */
+
     @Override
     protected JsonNode _at(JsonPointer ptr) {
         return get(ptr.getMatchingProperty());
+    }
+
+    @Override
+    protected String _valueDesc() {
+        return "{...(" + _children.size() + " properties}]";
     }
 
     /* Question: should this delegate to `JsonNodeFactory`? It does not absolutely
@@ -556,13 +574,15 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         if (value == null) {
             value = nullNode();
         }
-        _children.put(propertyName, value);
-        return this;
+        return _put(propertyName, value);
     }
 
     /**
      * Method for adding given properties to this object node, overriding
      * any existing values for those properties.
+     *<p>
+     * NOTE: {@code null} keys are not allowed; ({@code null} values get
+     * converted to a {@link NullNode}).
      *
      * @param properties Properties to add
      *
@@ -575,7 +595,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
             if (n == null) {
                 n = nullNode();
             }
-            _children.put(en.getKey(), n);
+            _put(en.getKey(), n);
         }
         return this;
     }
@@ -598,7 +618,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      * Method for replacing value of specific property with passed
      * value, and returning previous value (or null if none).
      *
-     * @param propertyName Property of which value to replace
+     * @param propertyName Property of which value to replace: must not be {@code null}
      * @param value Value to set property to, replacing old value if any
      *
      * @return Old value of the property; null if there was no such property
@@ -609,7 +629,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _children.put(propertyName, value);
+        return _children.put(Objects.requireNonNull(propertyName), value);
     }
 
     /**
@@ -625,7 +645,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     /**
-     * Method for removing specified field properties out of
+     * Method for removing specified properties out of
      * this ObjectNode.
      *
      * @param propertyNames Names of properties to remove
@@ -658,7 +678,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *  }
      *</code>
      *
-     * @param propertyName Name of property to set
+     * @param propertyName Name of property to set (must not be {@code null})
      * @param value Value to set to property (if and only if it had no value previously);
      *  if null, will be converted to a {@link NullNode} first.
      *
@@ -670,7 +690,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _children.putIfAbsent(propertyName, value);
+        return _children.putIfAbsent(Objects.requireNonNull(propertyName), value);
     }
 
     /**
@@ -685,10 +705,10 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     /**
-     * Method for removing specified field properties out of
+     * Method for removing specified properties out of
      * this ObjectNode.
      *
-     * @param propertyNames Names of fields to remove
+     * @param propertyNames Names of properties to remove
      *
      * @return This node after removing entries
      */
@@ -711,11 +731,17 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return this;
     }
 
+    @Override
+    public ObjectNode removeIf(Predicate<? super JsonNode> predicate) {
+        _children.values().removeIf(predicate);
+        return this;
+    }
+
     /**
-     * Method for removing all field properties out of this ObjectNode
+     * Method for removing all properties out of this ObjectNode
      * <b>except</b> for ones specified in argument.
      *
-     * @param propertyNames Fields to <b>retain</b> in this ObjectNode
+     * @param propertyNames Properties to <b>retain</b> in this ObjectNode
      *
      * @return This node (to allow call chaining)
      */
@@ -729,7 +755,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      * Method for removing all properties out of this ObjectNode
      * <b>except</b> for ones specified in argument.
      *
-     * @param propertyNames Fields to <b>retain</b> in this ObjectNode
+     * @param propertyNames Properties to <b>retain</b> in this ObjectNode
      *
      * @return This node (to allow call chaining)
      */
@@ -814,8 +840,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      */
     public ObjectNode putNull(String propertyName)
     {
-        _children.put(propertyName, nullNode());
-        return this;
+        return _put(propertyName, nullNode());
     }
 
     /**
@@ -839,7 +864,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for setting value of a property to specified numeric value.
      * The underlying {@link JsonNode} that will be added is constructed
      * using {@link JsonNodeFactory#numberNode(int)}, and may be
      *  "smaller" (like {@link ShortNode}) in cases where value fits within
@@ -863,7 +888,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for setting value of a property to specified numeric value.
      * The underlying {@link JsonNode} that will be added is constructed
      * using {@link JsonNodeFactory#numberNode(long)}, and may be
      *  "smaller" (like {@link IntNode}) in cases where value fits within
@@ -876,7 +901,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for setting value of a property to specified numeric value.
      * The underlying {@link JsonNode} that will be added is constructed
      * using {@link JsonNodeFactory#numberNode(Long)}, and may be
      *  "smaller" (like {@link IntNode}) in cases where value fits within
@@ -893,7 +918,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for setting value of a property to specified numeric value.
      *
      * @return This node (to allow chaining)
      */
@@ -913,7 +938,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for setting value of a property to specified numeric value.
      *
      * @return This node (to allow chaining)
      */
@@ -933,7 +958,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for setting value of a property to specified numeric value.
      *
      * @return This node (to allow chaining)
      */
@@ -943,7 +968,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for setting value of a property to specified numeric value.
      *
      * @return This node (to allow chaining)
      */
@@ -953,17 +978,17 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     /**
-     * Method for setting value of a field to specified String value.
+     * Method for setting value of a property to specified String value.
      *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String propertyName, String v) {
         return _put(propertyName, (v == null) ? nullNode()
-                : textNode(v));
+                : stringNode(v));
     }
 
     /**
-     * Method for setting value of a field to specified String value.
+     * Method for setting value of a property to specified String value.
      *
      * @return This node (to allow chaining)
      */
@@ -983,7 +1008,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     /**
-     * Method for setting value of a field to specified binary value
+     * Method for setting value of a property to specified binary value
      *
      * @return This node (to allow chaining)
      */
@@ -1026,7 +1051,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
     protected ObjectNode _put(String propertyName, JsonNode value)
     {
-        _children.put(propertyName, value);
+        _children.put(Objects.requireNonNull(propertyName), value);
         return this;
     }
 }

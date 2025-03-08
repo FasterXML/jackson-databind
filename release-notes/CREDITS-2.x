@@ -1884,6 +1884,11 @@ Gustavo Bazan (@gssbzn)
    @ConstructorProperties between 2.17 and 2.18
   (2.18.3)
 
+Zhen Lin Low (@zhenlin-pay2)
+ * Reported, fixed #4920: Creator properties are ignored on abstract types
+   when collecting bean properties, breaking AsExternalTypeDeserializer
+  (2.18.3)
+
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
   (2.19.0)
@@ -1908,4 +1913,8 @@ Lars Benedetto (@lbenedetto)
 Floris Westerman (@FWest98)
  * Reported #4934: `DeserializationContext.readTreeAsValue()` handles null nodes
    differently from `ObjectMapper.treeToValue()`
+  (2.19.0)
+
+Joren Inghelbrecht (@jin-harmoney)
+ * Contributed #4953: Allow clearing all caches to avoid classloader leaks
   (2.19.0)

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
   <!-- is to indicate to Gradle or any Gradle module metadata file consumer  -->
@@ -10,12 +9,12 @@
   <parent>
     <groupId>tools.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0-rc2-SNAPSHOT</version>
   </parent>
 
   <groupId>tools.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.0.0-rc2-SNAPSHOT</version>
   <name>jackson-databind</name>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
   <url>https://github.com/FasterXML/jackson</url>
@@ -40,6 +39,11 @@
     <javac.src.version>17</javac.src.version>
     <javac.target.version>17</javac.target.version>
 
+    <!-- 27-Feb-2025, tatu: [databind#4995] define common argline to avoid
+           issues with Eclipse/Idea/surefire-plugin
+      -->
+    <argLine>--add-opens=java.base/java.util=tools.jackson.databind</argLine>
+
     <!-- 12-Nov-2022, tatu: [databind#3659] Verify Android SDK compatibility.
 
       Baseline compatibility:
@@ -55,6 +59,11 @@
     <version.bytebuddy>1.15.10</version.bytebuddy>
     <version.mockito>5.15.2</version.mockito>
 
+    <!-- 07-Mar-2025, tatu: For some reason, release fails due to missing
+           jacoco... so disable for now
+      -->
+    <jacocoStrict>false</jacocoStrict>
+
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>tools.jackson.databind.*;version=${project.version}</osgi.export>
     <!-- fix for databind#2299: using jackson-databind in an OSGi environment under Android -->
@@ -68,7 +77,7 @@
     <packageVersion.package>tools.jackson.databind.cfg</packageVersion.package>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2022-09-18T00:00:00Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-03-08T00:19:42Z</project.build.outputTimestamp>
   </properties>
 
   <dependencyManagement>
@@ -208,28 +217,12 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <version>${version.plugin.surefire}</version>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <!-- Needed by some of the tests -->
-          <argLine>--add-opens=java.base/java.lang=tools.jackson.databind
-                   --add-opens=java.base/java.util=tools.jackson.databind
-          </argLine>
-          <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
-                  ... although not 100% sure this makes much difference TBH
-            -->
-          <threadCount>4</threadCount>
-          <parallel>classes</parallel>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>https://fasterxml.github.io/jackson-annotations/javadoc/3.0.2021-01</link>
-            <link>https://fasterxml.github.io/jackson-core/javadoc/3.0.2021-01</link>
+	    <!-- 13-Feb-2025, tatu: Need to update on 3.0.0-rc1 release! -->
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/latest</link>
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/latest</link>
           </links>
         </configuration>
       </plugin>
@@ -237,18 +230,33 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <executions>
+      </plugin>
+
+      <!-- Important: enable enforcer plug-in: -->
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions> <!-- or?  combine.children="merge"> -->
           <execution>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
+            <id>enforce-properties</id>
+         <phase>validate</phase>
+            <goals><goal>enforce</goal></goals>
           </execution>
           <execution>
-            <id>report</id>
-            <phase>test</phase>
+            <id>enforce-jacoco-exec</id>
+            <phase>verify</phase>
             <goals>
-              <goal>report</goal>
+                <goal>enforce</goal>
             </goals>
+            <configuration>
+                <rules>
+                    <requireFilesExist>
+                        <files>
+                            <file>${project.build.directory}/jacoco.exec</file>
+                        </files>
+                    </requireFilesExist>
+                </rules>
+                <fail>${jacocoStrict}</fail>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -260,7 +268,7 @@
       </plugin>
 
       <plugin>
-        <groupId>de.jjohannes</groupId>
+        <groupId>org.gradlex</groupId>
         <artifactId>gradle-module-metadata-maven-plugin</artifactId>
       </plugin>
 
@@ -303,9 +311,8 @@
         <skipTests>true</skipTests>
       </properties>
     </profile>
-    <!-- 07-Dec-2021, tatu: This is a huge mess, sorry folks... -->
     <profile>
-      <!-- And different set up for JDK 21 -->
+      <!-- Different set up for JDK 21 tests (baseline JDK 17) -->
       <id>java21</id>
       <activation>
         <jdk>[21,)</jdk>
@@ -341,15 +348,6 @@
               <compilerArgs>
                 <arg>-parameters</arg>
               </compilerArgs>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-               <argLine>--add-opens=java.base/java.lang=tools.jackson.databind
-                        --add-opens=java.base/java.util=tools.jackson.databind
-               </argLine>
             </configuration>
           </plugin>
         </plugins>

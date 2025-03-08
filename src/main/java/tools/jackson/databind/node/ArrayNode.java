@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import tools.jackson.core.*;
@@ -26,14 +27,20 @@ public class ArrayNode
 
     private final List<JsonNode> _children;
 
+    /*
+    /**********************************************************************
+    /* Construction
+    /**********************************************************************
+     */
+    
     public ArrayNode(JsonNodeFactory nf) {
         super(nf);
-        _children = new ArrayList<JsonNode>();
+        _children = new ArrayList<>();
     }
 
     public ArrayNode(JsonNodeFactory nf, int capacity) {
         super(nf);
-        _children = new ArrayList<JsonNode>(capacity);
+        _children = new ArrayList<>(capacity);
     }
 
     public ArrayNode(JsonNodeFactory nf, List<JsonNode> children) {
@@ -42,11 +49,22 @@ public class ArrayNode
                 "Must not pass `null` for 'children' argument");
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods
+    /**********************************************************************
+     */
+
     @Override
     protected JsonNode _at(JsonPointer ptr) {
         return get(ptr.getMatchingIndex());
     }
 
+    @Override
+    protected String _valueDesc() {
+        return "[...(" + _children.size() + " elements)]";
+    }
+    
     // note: co-variant to allow caller-side type safety
     @Override
     public ArrayNode deepCopy()
@@ -526,6 +544,12 @@ public class ArrayNode
         return this;
     }
 
+    @Override
+    public ArrayNode removeIf(Predicate<? super JsonNode> predicate) {
+        _children.removeIf(predicate);
+        return this;
+    }
+    
     /*
     /**********************************************************************
     /* Extended ArrayNode API, mutators, generic; addXxx()/insertXxx()/setXxx()
@@ -705,7 +729,7 @@ public class ArrayNode
      * @return This array node, to allow chaining
      */
     public ArrayNode add(String v) {
-        return _add((v == null) ? nullNode() : textNode(v));
+        return _add((v == null) ? nullNode() : stringNode(v));
     }
 
     /**
@@ -926,7 +950,7 @@ public class ArrayNode
      * @return This array node, to allow chaining
      */
     public ArrayNode insert(int index, String v) {
-        return _insert(index, (v == null) ? nullNode() : textNode(v));
+        return _insert(index, (v == null) ? nullNode() : stringNode(v));
     }
 
     /**
@@ -1097,7 +1121,7 @@ public class ArrayNode
      * @return This node (to allow chaining)
      */
     public ArrayNode set(int index, String v) {
-        return _set(index, (v == null) ? nullNode() : textNode(v));
+        return _set(index, (v == null) ? nullNode() : stringNode(v));
     }
 
     /**

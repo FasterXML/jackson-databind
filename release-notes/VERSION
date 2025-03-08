@@ -38,7 +38,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `SerializerProvider`
 #1994: Limit size of `SerializerCache`, auto-flush on exceeding
 #1995: Limit size of `DeserializerCache`, auto-flush on exceeding
-#2013: Allows use of `java.nio.file.Path` for `readValue()`, `writeValue()`
+#2013: Allow use of `java.nio.file.Path` for `readValue()`, `writeValue()`
  (requested by XakepSDK@github; contributed by Sven D)
 #2040: Remove `JsonSerializer.isEmpty()` from 3.0
 #2176: Add `JsonMapper.shared()` static method
@@ -46,7 +46,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #2382: Support `AutoCloseable` with `SerializationFeature.CLOSE_CLOSEABLE`
  (requested by @Logic-32)
 #2405: Make `java.sql.Date` serializer default to same output as `java.util.Date`
-#2411: `valueToTree()` during serialization (via `SerializerProvider()`)
+#2411: Allow `valueToTree()` via `SerializationContext`, add to `ObjectWriter`
  (requested by XakepSDK@github)
 #2539: Add `Deserializers.hasDeserializerFor()` (and something for `DeserializerFactory`)
   to allow detection of explicitly supported types
@@ -62,7 +62,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #3046: Rename `JsonSerializable` as `JacksonSerializable`
 #3047: Rename `Bean[De]SerializerModifier` as `Value[De]SerializerModifier`
 #3070: Change default for `SerializationFeature.FAIL_ON_EMPTY_BEANS` to `false`
-#3406: Change default of `DeserializationFeature.FAIL_ON_TRAILING_TOKENS` to `true` for 3.0
+#3406: Change default of `DeserializationFeature.FAIL_ON_TRAILING_TOKENS` to `true`
  (suggested by @yawkat)
 #3522: Support serializing `ByteArrayOutputStream` as "simple" Binary value
 #3536: Create new exception type `JsonNodeException` for use by `JsonNode`-related problems
@@ -71,12 +71,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #3601: Change `Optional` deserialization from "absent" value into `null`, from "empty"
 #4160: Deprecate `DefaultTyping.EVERYTHING` in `2.x` and remove in `3.0`
 #4381: Prevent construction of `null`-valued `JsonNode`s (like `TextNode`)
-#4552: Change `MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS` default to `false` for 3.0
-#4566: Enable `DeserializationFeature.READ_ENUMS_USING_TO_STRING` by default (3.0)
+#4552: Change `MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS` default to `false`
+#4566: Enable `DeserializationFeature.READ_ENUMS_USING_TO_STRING` by default
  (contributed by Joo-Hyuk K)
-#4567: Enable `SerializationFeature.WRITE_ENUMS_USING_TO_STRING` by default (3.0)
+#4567: Enable `SerializationFeature.WRITE_ENUMS_USING_TO_STRING` by default
  (contributed by Joo-Hyuk K)
-#4572: Change `MapperFeature.SORT_PROPERTIES_ALPHABETICALLY` default to true#
+#4572: Change `MapperFeature.SORT_PROPERTIES_ALPHABETICALLY` default to true
  (contributed by Joo-Hyuk K)
 #4589: Remove `MapperFeature.SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER` from 3.0;
   make logic default

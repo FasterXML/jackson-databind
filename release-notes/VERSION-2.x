@@ -61,6 +61,7 @@ Project: jackson-databind
 #4963: Serializing `Map.Entry` as Bean with `@JsonFormat.shape = Shape.OBJECT`
   fails on JDK 17+
 #4997: `ObjectNode` put methods should do null check for key
+#5014: Add `java.lang.Runnable` as unsafe base type in `DefaultBaseTypeLimitingValidator`
 
 2.18.3 (28-Feb-2025)
 

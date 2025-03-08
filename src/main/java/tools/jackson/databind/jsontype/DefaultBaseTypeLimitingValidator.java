@@ -114,6 +114,8 @@ ClassUtil.classNameOf(getClass()), ClassUtil.classNameOf(baseType.getRawClass())
             UNSAFE.add(java.io.Serializable.class.getName());
             UNSAFE.add(AutoCloseable.class.getName());
             UNSAFE.add(Cloneable.class.getName());
+            // [databind#5014]:
+            UNSAFE.add(Runnable.class.getName());
 
             // and then couple others typically included in JDK, but that we
             // prefer not adding direct reference to

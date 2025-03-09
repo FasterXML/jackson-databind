@@ -1,14 +1,18 @@
 package com.fasterxml.jackson.databind.jsontype;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // https://github.com/FasterXML/jackson-databind/issues/5016
 public class TestPolymorphicDeserialization5016 extends DatabindTestUtil
@@ -67,19 +71,26 @@ public class TestPolymorphicDeserialization5016 extends DatabindTestUtil
         String serialized = mapper.writeValueAsString(plantInfo);
         PlantInfo newInfo0 = mapper.readValue(serialized, PlantInfo.class);
         assertEquals(plantInfo.thisType.name, newInfo0.thisType.name);
-        AnimalInfo newInfo1 = mapper.readValue(serialized, AnimalInfo.class);
-        assertEquals(plantInfo.thisType.name, newInfo1.thisType.name);
+        // AnimalInfo has same JSON structure but incompatible type for `thisType`
+        assertThrows(InvalidTypeIdException.class, () ->
+                mapper.readValue(serialized, AnimalInfo.class));
     }
 
     @Test
     public void testRunnable() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
+                .build();
         AnimalInfo animalInfo = new AnimalInfo();
         animalInfo.thisType = new Dog();
         String serialized = mapper.writeValueAsString(animalInfo);
         AnimalInfo newInfo0 = mapper.readValue(serialized, AnimalInfo.class);
         assertEquals(animalInfo.thisType.name, newInfo0.thisType.name);
-        RunnableInfo newInfo1 = mapper.readValue(serialized, RunnableInfo.class);
-        assertNotNull(newInfo1);
+        try {
+            mapper.readValue(serialized, RunnableInfo.class);
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "PolymorphicTypeValidator");
+            verifyException(e, "denied resolution of all subtypes of base type `java.lang.Runnable`");
+        }
     }
 }

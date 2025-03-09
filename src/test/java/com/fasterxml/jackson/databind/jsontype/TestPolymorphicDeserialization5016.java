@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // https://github.com/FasterXML/jackson-databind/issues/5016
 public class TestPolymorphicDeserialization5016 extends DatabindTestUtil
@@ -24,8 +25,13 @@ public class TestPolymorphicDeserialization5016 extends DatabindTestUtil
         public String name = "cat";
     }
 
-    static class Dog extends Animal {
+    static class Dog extends Animal implements Runnable {
         public String name = "dog";
+
+        @Override
+        public void run() {
+            System.out.println("Dog is running");
+        }
     }
 
     static class Tree extends Plant {
@@ -46,8 +52,15 @@ public class TestPolymorphicDeserialization5016 extends DatabindTestUtil
         public Plant thisType;
     }
 
+    static class RunnableInfo {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "@class")
+        public Runnable thisType;
+    }
+
     @Test
-    public void testDeSerFail() throws IOException {
+    public void testWrongSubtype() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         PlantInfo plantInfo = new PlantInfo();
         plantInfo.thisType = new Tree();
@@ -58,4 +71,15 @@ public class TestPolymorphicDeserialization5016 extends DatabindTestUtil
         assertEquals(plantInfo.thisType.name, newInfo1.thisType.name);
     }
 
+    @Test
+    public void testRunnable() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        AnimalInfo animalInfo = new AnimalInfo();
+        animalInfo.thisType = new Dog();
+        String serialized = mapper.writeValueAsString(animalInfo);
+        AnimalInfo newInfo0 = mapper.readValue(serialized, AnimalInfo.class);
+        assertEquals(animalInfo.thisType.name, newInfo0.thisType.name);
+        RunnableInfo newInfo1 = mapper.readValue(serialized, RunnableInfo.class);
+        assertNotNull(newInfo1);
+    }
 }

@@ -106,7 +106,7 @@ public enum MapperFeature
      * parameter name information is used, but constructor is NOT considered an explicit
      * Creator (although may be discovered as one using other annotations or heuristics).
      *<p>
-     * Feature is mostly used to help inter-operability with frameworks like Lombok
+     * Feature is mostly used to help interoperability with frameworks like Lombok
      * that may automatically generate {@code ConstructorProperties} annotation
      * but without necessarily meaning that constructor should be used as Creator
      * for deserialization.

@@ -814,7 +814,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+                .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
+                .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
     }
 
     /*

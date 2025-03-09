@@ -16,7 +16,6 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.module.SimpleModule;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import tools.jackson.databind.type.ArrayType;
 import tools.jackson.databind.type.CollectionType;
 import tools.jackson.databind.type.MapType;
@@ -522,18 +521,11 @@ public class BeanDeserializerTest
     @Test
     public void testSimpleValue5008() throws Exception {
         // according to #5008, this only started working in v2.18.0
+        // in Jackson 2, you needed to add the ParameterNamesModule
+        // but this is part of Jackson 3
+        // pre Jackson 2.18, "abc123" is what the deserializer expected
         SimpleValue5008 value = MAPPER.readValue(
                 a2q("{'value':'abc123'}"), SimpleValue5008.class);
-        assertEquals("abc123", value.value);
-    }
-
-    // https://github.com/FasterXML/jackson-databind/issues/5008
-    @JacksonTestFailureExpected
-    @Test
-    public void testSimpleValue5008Take2() throws Exception {
-        // according to #5008, this only stopped working in v2.18.0
-        SimpleValue5008 value = MAPPER.readValue(
-                a2q("'abc123'"), SimpleValue5008.class);
         assertEquals("abc123", value.value);
     }
 

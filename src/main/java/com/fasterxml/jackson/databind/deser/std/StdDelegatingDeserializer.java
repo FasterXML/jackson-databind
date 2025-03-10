@@ -170,7 +170,7 @@ public class StdDelegatingDeserializer<T>
         if (delegateValue == null) {
             return null;
         }
-        return convertValue(delegateValue);
+        return convertValue(delegateValue, ctxt);
     }
 
     @Override
@@ -334,6 +334,23 @@ public class StdDelegatingDeserializer<T>
      */
     protected T convertValue(Object delegateValue) {
         return _converter.convert(delegateValue);
+    }
+
+    /**
+     * Method called to convert from "delegate value" (which was deserialized
+     * from JSON using standard Jackson deserializer for delegate type)
+     * into desired target type.
+     *<P>
+     * The default implementation uses configured {@link Converter} to do
+     * conversion.
+     *
+     * @param delegateValue
+     * @param ctxt Context for deserialization (needed for some conversions)
+     *
+     * @return Result of conversion
+     */
+    protected T convertValue(Object delegateValue, DeserializationContext ctxt) {
+        return _converter.convert(delegateValue, ctxt);
     }
 
     /*

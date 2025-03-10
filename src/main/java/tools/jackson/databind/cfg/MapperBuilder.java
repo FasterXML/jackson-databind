@@ -807,17 +807,17 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * </p>
      */
     public B configureForJackson2() {
-        return enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .enable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+        return enable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
+                .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
                 .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
-                .enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
-                .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+                .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .enable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
     }
 
     /*

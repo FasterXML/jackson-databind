@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jsontype;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // https://github.com/FasterXML/jackson-databind/issues/5016
 public class PolymorphicDeserSubtypeCheck5016Test extends DatabindTestUtil
@@ -90,6 +92,7 @@ public class PolymorphicDeserSubtypeCheck5016Test extends DatabindTestUtil
         assertEquals(animalInfo.thisType.name, newInfo0.thisType.name);
         try {
             mapper.readValue(serialized, RunnableInfo.class);
+            fail("Should not pass");
         } catch (InvalidDefinitionException e) {
             verifyException(e, "PolymorphicTypeValidator");
             verifyException(e, "denied resolution of all subtypes of base type `java.lang.Runnable`");

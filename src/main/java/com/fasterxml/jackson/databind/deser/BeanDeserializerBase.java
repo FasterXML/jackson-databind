@@ -1789,7 +1789,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     {
         if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
             handleIgnoredProperty(p, ctxt, beanOrBuilder, propName);
-        } else if (_anySetter != null) {
+        } else if (_anySetter != null
+                // [databind#4938] Even with any-setter, creator may return null, so need to skip
+                && beanOrBuilder != null) {
             try {
                // should we consider return type of any setter?
                 _anySetter.deserializeAndSet(p, ctxt, beanOrBuilder, propName);

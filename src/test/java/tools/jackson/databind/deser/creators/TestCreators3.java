@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
-import tools.jackson.databind.deser.bean.BeanDeserializerTest.SimpleValue5008;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;

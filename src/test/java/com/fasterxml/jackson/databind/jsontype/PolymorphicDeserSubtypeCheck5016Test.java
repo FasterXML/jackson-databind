@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,15 +9,12 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // https://github.com/FasterXML/jackson-databind/issues/5016
-public class TestPolymorphicDeserialization5016 extends DatabindTestUtil
+public class PolymorphicDeserSubtypeCheck5016Test extends DatabindTestUtil
 {
     static abstract class Animal {
         public String name = "animal";
@@ -64,20 +63,23 @@ public class TestPolymorphicDeserialization5016 extends DatabindTestUtil
     }
 
     @Test
-    public void testWrongSubtype() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+    public void testWrongSubtype() throws Exception {
+        ObjectMapper mapper = newJsonMapper();
         PlantInfo plantInfo = new PlantInfo();
         plantInfo.thisType = new Tree();
         String serialized = mapper.writeValueAsString(plantInfo);
         PlantInfo newInfo0 = mapper.readValue(serialized, PlantInfo.class);
         assertEquals(plantInfo.thisType.name, newInfo0.thisType.name);
         // AnimalInfo has same JSON structure but incompatible type for `thisType`
-        assertThrows(InvalidTypeIdException.class, () ->
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class, () ->
                 mapper.readValue(serialized, AnimalInfo.class));
+        verifyException(e, "Could not resolve type id ");
+        verifyException(e, "Not a subtype");
     }
 
+    // java.lang.Runnable not acceptable as safe base type
     @Test
-    public void testRunnable() throws IOException {
+    public void testBlockingOfRunnable() throws Exception {
         ObjectMapper mapper = JsonMapper.builder()
                 .enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
                 .build();

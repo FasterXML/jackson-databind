@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.deser.bean.BeanDeserializerTest.SimpleValue5008;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+import static tools.jackson.databind.testutil.JacksonTestUtilBase.a2q;
 
 // Misc Creator tests, part 3
 public class TestCreators3
@@ -129,15 +131,28 @@ public class TestCreators3
         }
 
         @JsonValue
-        public String getName(){
+        public String getName() {
             return name;
         }
     }
 
+    // https://github.com/FasterXML/jackson-databind/issues/5008
+    static class SimpleValue5008 {
+        private final String value;
+
+        public SimpleValue5008(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -212,6 +227,18 @@ public class TestCreators3
                 .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .readValue("[\"testProduct\"]");
         assertEquals("DELEG:testProduct", result.getName());
+    }
+
+    // https://github.com/FasterXML/jackson-databind/issues/5008
+    @Test
+    public void testSimpleValue5008() throws Exception {
+        // according to #5008, this only started working in v2.18.0
+        // in Jackson 2, you needed to add the ParameterNamesModule
+        // but this is part of Jackson 3
+        // pre Jackson 2.18, "abc123" is what the deserializer expected
+        SimpleValue5008 value = MAPPER.readValue(
+                a2q("{'value':'abc123'}"), SimpleValue5008.class);
+        assertEquals("abc123", value.value);
     }
 }
 

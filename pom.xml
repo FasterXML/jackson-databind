@@ -54,6 +54,7 @@
 
     <version.bytebuddy>1.15.10</version.bytebuddy>
     <version.mockito>4.11.0</version.mockito>
+    <jacocoStrict>true</jacocoStrict>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
@@ -215,6 +216,23 @@
 	    <phase>validate</phase>
             <goals><goal>enforce</goal></goals>
           </execution>
+          <execution>
+            <id>enforce-jacoco-exec</id>
+            <phase>verify</phase>
+            <goals>
+                <goal>enforce</goal>
+            </goals>
+            <configuration>
+                <rules>
+                    <requireFilesExist>
+                        <files>
+                            <file>${project.build.directory}/jacoco.exec</file>
+                        </files>
+                    </requireFilesExist>
+                </rules>
+                <fail>${jacocoStrict}</fail>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
 
@@ -271,7 +289,7 @@
       </plugin>
 
       <plugin>
-        <groupId>de.jjohannes</groupId>
+        <groupId>org.gradlex</groupId>
         <artifactId>gradle-module-metadata-maven-plugin</artifactId>
       </plugin>
 
@@ -362,6 +380,9 @@
       <activation>
         <jdk>17</jdk>
       </activation>
+      <properties>
+        <argLine>--add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+      </properties>
       <build>
         <plugins>
           <plugin>
@@ -399,9 +420,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <argLine>@{argLine} --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
-            </configuration>
             <executions>
               <execution>
                 <id>type-pollution-test</id>
@@ -425,6 +443,9 @@
       <activation>
         <jdk>[21,)</jdk>
       </activation>
+      <properties>
+        <argLine>--add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+      </properties>
       <build>
         <plugins>
           <plugin>
@@ -458,13 +479,6 @@
               <compilerArgs>
                 <arg>-parameters</arg>
               </compilerArgs>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <argLine>@{argLine} --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
             </configuration>
           </plugin>
         </plugins>

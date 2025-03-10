@@ -92,14 +92,48 @@ public class CoreXMLDeserializers extends Deserializers.Base
         public Object deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
-            // For most types, use super impl; but GregorianCalendar also allows
-            // integer value (timestamp), which needs separate handling
+            // GregorianCalendar also allows integer value (timestamp),
+            // which needs separate handling
             if (_kind == TYPE_G_CALENDAR) {
                 if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
                     return _gregorianFromDate(ctxt, _parseDate(p, ctxt));
                 }
             }
+            // QName also allows object value, which needs separate handling
+            if (_kind == TYPE_QNAME) {
+                if (p.hasToken(JsonToken.START_OBJECT)) {
+                    return _parseQNameObject(p, ctxt);
+                }
+            }
             return super.deserialize(p, ctxt);
+        }
+
+        private QName _parseQNameObject(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+        {
+            JsonNode tree = ctxt.readTree(p);
+
+            JsonNode localPart = tree.get("localPart");
+            if (localPart == null) {
+                ctxt.reportInputMismatch(this,
+                        "Object value for `QName` is missing required property 'localPart'");
+            }
+
+            if (!localPart.isTextual()) {
+                ctxt.reportInputMismatch(this,
+                        "Object value property 'localPart' for `QName` must be of type STRING, not %s",
+                        localPart.getNodeType());
+            }
+
+            JsonNode namespaceURI = tree.get("namespaceURI");
+            if (namespaceURI != null) {
+                if (tree.has("prefix")) {
+                    JsonNode prefix = tree.get("prefix");
+                    return new QName(namespaceURI.asText(), localPart.asText(), prefix.asText());
+                }
+                return new QName(namespaceURI.asText(), localPart.asText());
+            }
+            return new QName(localPart.asText());
         }
 
         @Override

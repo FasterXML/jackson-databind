@@ -30,6 +30,9 @@ Project: jackson-databind
   Map object is ignored when Map key type not defined
  (reported by @devdanylo)
  (fix by Joo-Hyuk K)
+#4771: `QName` (de)serialization ignores prefix
+ (reported by @jpraet)
+ (fix contributed by @mcvayc)
 #4772: Serialization and deserialization issue of sub-types used with
   `JsonTypeInfo.Id.DEDUCTION` where sub-types are Object and Array
  (reported by Eduard G)
@@ -57,8 +60,10 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4963: Serializing `Map.Entry` as Bean with `@JsonFormat.shape = Shape.OBJECT`
   fails on JDK 17+
+#4997: `ObjectNode` put methods should do null check for key
+#5014: Add `java.lang.Runnable` as unsafe base type in `DefaultBaseTypeLimitingValidator`
 
-2.18.3 (not yet released)
+2.18.3 (28-Feb-2025)
 
 #4444: The `KeyDeserializer` specified in the class with `@JsonDeserialize(keyUsing = ...)`
   is overwritten by the `KeyDeserializer` specified in the `ObjectMapper`.
@@ -83,6 +88,9 @@ Project: jackson-databind
  (reported by Gustavo B)
 #4917: `BigDecimal` deserialization issue when using `@JsonCreator`
  (reported by @dbachdev)
+#4920: Creator properties are ignored on abstract types when collecting
+  bean properties, breaking AsExternalTypeDeserializer
+ (reported, fix contributed by Zhen L-L)
 #4922: Failing `@JsonMerge` with a custom Map
  (reported by @nlisker)
 #4932: Conversion of `MissingNode` throws `JsonProcessingException`

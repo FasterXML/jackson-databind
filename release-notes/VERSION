@@ -100,6 +100,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #4956: Rename `JsonNode.isContainerNode()` as `isContainerNode()`
 #4958: Extend, improve set of number value accessors for `JsonNode`
   (`JsonNode.intValue()` etc) [JSTEP-3]
+#4968: Add JsonMapper builder support in Jackson 3.0 for optionally creating
+  mappers with Jackson2 config defaults
+ (implemented by @pjfanning)
 #4991: Extend, improve set of non-number scalar value accessors for `JsonNode`
   (`JsonNode.booleanValue()` etc) [JSTEP-3]
 #4992: Rename `JsonNodeFactory.textNode()` as `JsonNodeFactory.stringNode()` [JSTEP-3]

@@ -544,7 +544,7 @@ public class ArrayDeserializationTest
     }
 
     @Test
-    public void testSingleStringToPrimitiveArray() throws JsonProcessingException {
+    public void testSingleStringToPrimitiveArray() throws Exception {
         MAPPER.enable(ACCEPT_SINGLE_VALUE_AS_ARRAY);
         assertLengthValue(MAPPER.readValue("\"true\"", boolean[].class), true);
         assertLengthValue(MAPPER.readValue("\"a\"", char[].class), 'a');

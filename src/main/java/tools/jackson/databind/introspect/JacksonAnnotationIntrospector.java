@@ -419,7 +419,16 @@ public class JacksonAnnotationIntrospector
     {
         JsonProperty ann = _findAnnotation(m, JsonProperty.class);
         if (ann != null) {
-            return ann.required();
+            // 11-Mar-2025, tatu: [databind#5020] Support new "isRequired" annotation
+            OptBoolean required = ann.isRequired();
+            if (required != OptBoolean.DEFAULT) {
+                 return required.asBoolean();
+            }
+            // 11-Mar-2025, tatu: Further, in Jackson 3.0 we will now consider legacy
+            //    property ONLY IF SET TO TRUE (i.e. "false" means "use defaults"
+            if (ann.required()) {
+                return Boolean.TRUE;
+            }
         }
         return null;
     }

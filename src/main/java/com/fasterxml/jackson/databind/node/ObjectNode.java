@@ -87,8 +87,7 @@ public class ObjectNode
                 .getClass().getName() + "`)");
         }
         ObjectNode result = objectNode();
-        _children.put(exprOrProperty, result);
-        return result;
+        return _put(exprOrProperty, result);
     }
 
     @Override
@@ -132,7 +131,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
                 .getClass().getName() + "`)");
         }
         ArrayNode result = arrayNode();
-        _children.put(exprOrProperty, result);
+        _put(exprOrProperty, result);
         return result;
     }
 
@@ -625,6 +624,9 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      * Method for adding given properties to this object node, overriding
      * any existing values for those properties.
      *<p>
+     * NOTE: {@code null} keys are not allowed; ({@code null} values get
+     * converted to a {@link NullNode}).
+     *<p>
      * NOTE: co-variant return type since 2.10
      *
      * @param properties Properties to add
@@ -641,7 +643,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
             if (n == null) {
                 n = nullNode();
             }
-            _children.put(en.getKey(), n);
+            _put(en.getKey(), n);
         }
         return (T) this;
     }
@@ -669,7 +671,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      * Method for replacing value of specific property with passed
      * value, and returning value (or null if none).
      *
-     * @param propertyName Property of which value to replace
+     * @param propertyName Property of which value to replace: must not be {@code null}
      * @param value Value to set property to, replacing old value if any
      *
      * @return Old value of the property; null if there was no such property
@@ -682,7 +684,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _children.put(propertyName, value);
+        return _children.put(Objects.requireNonNull(propertyName), value);
     }
 
     /**
@@ -730,7 +732,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     /**
      * Method that will set specified property, replacing old value, if any.
      *
-     * @param propertyName Name of property to set
+     * @param propertyName Name of property to set (must not be {@code null})
      * @param value Value to set to property; if null, will be converted
      *   to a {@link NullNode} first  (to remove a property, call
      *   {@link #remove} instead).
@@ -746,7 +748,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _children.put(propertyName, value);
+        return _children.put(Objects.requireNonNull(propertyName), value);
     }
 
     /**
@@ -763,7 +765,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *  }
      *</code>
      *
-     * @param propertyName Name of property to set
+     * @param propertyName Name of property to set (must not be {@code null})
      * @param value Value to set to property (if and only if it had no value previously);
      *  if null, will be converted to a {@link NullNode} first.
      *
@@ -777,7 +779,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _children.putIfAbsent(propertyName, value);
+        return _children.putIfAbsent(Objects.requireNonNull(propertyName), value);
     }
 
     /**
@@ -1176,9 +1178,10 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     /**********************************************************
      */
 
+    // @since 2.19
     protected ObjectNode _put(String propertyName, JsonNode value)
     {
-        _children.put(propertyName, value);
+        _children.put(Objects.requireNonNull(propertyName), value);
         return this;
     }
 }

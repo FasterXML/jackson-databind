@@ -20,6 +20,9 @@ Project: jackson-databind
  (contributed by Geoffrey G)
 #4388: Allow using `@JsonPropertyOrder` with "any" (`@JsonAnyGetter`)  properties
  (fix by Joo-Hyuk K)
+#4650: `PrimitiveArrayDeserializers` should deal with single String value if
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY` enabled
+ (reported, fix suggested by @eeren-bm)
 #4674: Allow setting global enum naming strategy similar to property naming strategy
  (requested by @hajdamak)
  (contributed by Konstantin M)
@@ -60,6 +63,9 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4963: Serializing `Map.Entry` as Bean with `@JsonFormat.shape = Shape.OBJECT`
   fails on JDK 17+
+#4997: `ObjectNode` put methods should do null check for key
+#5014: Add `java.lang.Runnable` as unsafe base type in `DefaultBaseTypeLimitingValidator`
+#5020: Support new `@JsonProperty.isRequired` for overridable definition of "required-ness"
 
 2.18.3 (28-Feb-2025)
 

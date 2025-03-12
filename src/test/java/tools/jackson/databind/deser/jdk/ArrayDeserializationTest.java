@@ -7,24 +7,21 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.type.TypeReference;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 import static org.junit.jupiter.api.Assertions.*;
-
-import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
-import static tools.jackson.databind.testutil.DatabindTestUtil.q;
-
 
 /**
  * This unit test suite tries to verify that the "Native" java type
  * mapper can properly re-construct Java array objects from Json arrays.
  */
 public class ArrayDeserializationTest
+    extends DatabindTestUtil
 {
     public final static class Bean1
     {
@@ -145,7 +142,7 @@ public class ArrayDeserializationTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testUntypedArray() throws Exception
@@ -543,14 +540,16 @@ public class ArrayDeserializationTest
 
     @Test
     public void testSingleStringToPrimitiveArray() throws Exception {
-        MAPPER.enable(ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        assertLengthValue(MAPPER.readValue("\"true\"", boolean[].class), true);
-        assertLengthValue(MAPPER.readValue("\"a\"", char[].class), 'a');
-        assertLengthValue(MAPPER.readValue("\"1\"", short[].class), (short) 1);
-        assertLengthValue(MAPPER.readValue("\"1\"", int[].class), 1);
-        assertLengthValue(MAPPER.readValue("\"1\"", long[].class), 1L);
-        assertLengthValue(MAPPER.readValue("\"7.038531e-26\"", float[].class), 7.038531e-26f);
-        assertLengthValue(MAPPER.readValue("\"1.5555\"", double[].class), 1.5555d);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
+        assertLengthValue(mapper.readValue("\"true\"", boolean[].class), true);
+        assertLengthValue(mapper.readValue("\"a\"", char[].class), 'a');
+        assertLengthValue(mapper.readValue("\"1\"", short[].class), (short) 1);
+        assertLengthValue(mapper.readValue("\"1\"", int[].class), 1);
+        assertLengthValue(mapper.readValue("\"1\"", long[].class), 1L);
+        assertLengthValue(mapper.readValue("\"7.038531e-26\"", float[].class), 7.038531e-26f);
+        assertLengthValue(mapper.readValue("\"1.5\"", double[].class), 1.5d);
     }
 
     private void assertLengthValue(boolean[] arr, boolean expt) {

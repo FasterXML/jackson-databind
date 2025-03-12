@@ -487,7 +487,7 @@ public class EnumDeserializationTest
 
     // [databind#4979]
     @Test
-    public void testAllowUnknownEnumValuesReadAsDefaultWithCreatorMethod4979(() throws Exception
+    public void testAllowUnknownEnumValuesReadAsDefaultWithCreatorMethod4979() throws Exception
     {
         ObjectReader reader = MAPPER.reader(
             DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);

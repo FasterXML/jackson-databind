@@ -35,6 +35,8 @@ class FactoryBasedEnumDeserializer
     protected final JsonDeserializer<?> _deser;
     protected final ValueInstantiator _valueInstantiator;
     protected final SettableBeanProperty[] _creatorProps;
+
+    // @since 2.19
     protected final Enum<?> _defaultValue;
 
     protected final boolean _hasArgs;

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -47,6 +46,20 @@ class FactoryBasedEnumDeserializer
      */
     private transient volatile PropertyBasedCreator _propCreator;
 
+    /**
+     * @since 2.8
+     * @deprecated since 2.19
+     */
+    @Deprecated
+    public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
+            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
+    {
+        this(cls, f, paramType, valueInstantiator, creatorProps, null);
+    }
+
+    /**
+     * @since 2.19
+     */
     public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps,
             EnumResolver enumResolver)
@@ -60,13 +73,7 @@ class FactoryBasedEnumDeserializer
         _deser = null;
         _valueInstantiator = valueInstantiator;
         _creatorProps = creatorProps;
-        _defaultValue = Objects.nonNull(enumResolver)? enumResolver.getDefaultValue() : null;
-    }
-
-    public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
-            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
-    {
-        this(cls, f, paramType, valueInstantiator, creatorProps, null);
+        _defaultValue = (enumResolver == null) ? null : enumResolver.getDefaultValue();
     }
 
     /**

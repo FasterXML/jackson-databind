@@ -462,6 +462,11 @@ public class JacksonAnnotationIntrospector
     {
         JsonProperty ann = _findAnnotation(m, JsonProperty.class);
         if (ann != null) {
+            // 11-Mar-2025, tatu: [databind#5020] Support new "isRequired" annotation
+            OptBoolean required = ann.isRequired();
+            if (required != OptBoolean.DEFAULT) {
+                 return required.asBoolean();
+            }
             return ann.required();
         }
         return null;

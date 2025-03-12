@@ -214,7 +214,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     protected T handleNonArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // Empty String can become null...
-        if (p.hasToken(JsonToken.VALUE_STRING)) {
+        if (p.hasToken(JsonToken.VALUE_STRING) && p.getText().isEmpty()) {
             return _deserializeFromString(p, ctxt);
         }
         boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||

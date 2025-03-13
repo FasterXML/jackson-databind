@@ -163,7 +163,7 @@ public class StdDelegatingSerializer
     public void serialize(Object value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
-        Object delegateValue = convertValue(value);
+        Object delegateValue = convertValue(ctxt, value);
         // should we accept nulls?
         if (delegateValue == null) {
             ctxt.defaultSerializeNullValue(gen);
@@ -184,7 +184,7 @@ public class StdDelegatingSerializer
     {
         // 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
         //    let's give it a chance?
-        Object delegateValue = convertValue(value);
+        Object delegateValue = convertValue(ctxt, value);
         // consider null (to be consistent with serialize method above)
         if (delegateValue == null) {
             ctxt.defaultSerializeNullValue(gen);
@@ -200,7 +200,7 @@ public class StdDelegatingSerializer
     @Override
     public boolean isEmpty(SerializationContext ctxt, Object value)
     {
-        Object delegateValue = convertValue(value);
+        Object delegateValue = convertValue(ctxt, value);
         if (delegateValue == null) {
             return true;
         }
@@ -246,8 +246,8 @@ public class StdDelegatingSerializer
      *
      * @return Result of conversion
      */
-    protected Object convertValue(Object value) {
-        return _converter.convert(value);
+    protected Object convertValue(SerializationContext ctxt,Object value) {
+        return _converter.convert(ctxt, value);
     }
 
     /**

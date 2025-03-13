@@ -1,6 +1,6 @@
 package tools.jackson.databind.util;
 
-import tools.jackson.databind.JavaType;
+import tools.jackson.databind.*;
 import tools.jackson.databind.type.TypeFactory;
 
 /**
@@ -16,23 +16,24 @@ import tools.jackson.databind.type.TypeFactory;
  *
  * @see tools.jackson.databind.ser.std.StdDelegatingSerializer
  * @see tools.jackson.databind.deser.std.StdConvertingDeserializer
- *
- * @since 2.1
  */
 public interface Converter<IN,OUT>
 {
     /**
-     * Main conversion method.
+     * Conversion method to use on deserialization side.
      */
-    public OUT convert(IN value);
+    public OUT convert(DeserializationContext ctxt, IN value);
+
+    /**
+     * Conversion method to use on serialization side.
+     */
+    public OUT convert(SerializationContext ctxt, IN value);
 
     /**
      * Method that can be used to find out actual input (source) type; this
      * usually can be determined from type parameters, but may need
      * to be implemented differently from programmatically defined
      * converters (which cannot change static type parameter bindings).
-     *
-     * @since 2.2
      */
     public JavaType getInputType(TypeFactory typeFactory);
 
@@ -41,15 +42,13 @@ public interface Converter<IN,OUT>
      * usually can be determined from type parameters, but may need
      * to be implemented differently from programmatically defined
      * converters (which cannot change static type parameter bindings).
-     *
-     * @since 2.2
      */
     public JavaType getOutputType(TypeFactory typeFactory);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper class(es)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -59,9 +58,9 @@ public interface Converter<IN,OUT>
      * Specifically, this class is to be used as the marker for
      * annotation {@link tools.jackson.databind.annotation.JsonSerialize},
      * property <code>converter</code> (and related)
-     *
-     * @since 2.2
      */
     public abstract static class None
-        implements Converter<Object,Object> { }
+        implements Converter<Object,Object> {
+        private None() { }
+    }
 }

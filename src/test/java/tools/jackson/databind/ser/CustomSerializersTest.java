@@ -213,7 +213,7 @@ public class CustomSerializersTest extends DatabindTestUtil
         public NullSerializer4575(TypeFactory typeFactory, ValueSerializer<?> delegateSerializer,
                 BeanProperty prop) {
             this(
-                new Converter<Object, Object>() {
+                new StdConverter<Object, Object>() {
                     @Override
                     public Object convert(Object value) {
                         return value == Super4575.NULL ? null : value;

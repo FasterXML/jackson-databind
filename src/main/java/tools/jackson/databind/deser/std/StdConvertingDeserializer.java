@@ -155,7 +155,7 @@ public class StdConvertingDeserializer<T>
         if (delegateValue == null) {
             return null;
         }
-        return convertValue(delegateValue);
+        return convertValue(ctxt, delegateValue);
     }
 
     @Override
@@ -177,7 +177,7 @@ public class StdConvertingDeserializer<T>
         if (delegateValue == null) {
             return null;
         }
-        return convertValue(delegateValue);
+        return convertValue(ctxt, delegateValue);
     }
 
     @SuppressWarnings("unchecked")
@@ -263,7 +263,7 @@ public class StdConvertingDeserializer<T>
 
     @Override
     public T getNullValue(DeserializationContext ctxt) {
-        return _convertIfNonNull(_delegateDeserializer.getNullValue(ctxt));
+        return _convertIfNonNull(ctxt, _delegateDeserializer.getNullValue(ctxt));
     }
 
     @Override
@@ -273,12 +273,12 @@ public class StdConvertingDeserializer<T>
 
     @Override
     public Object getAbsentValue(DeserializationContext ctxt) {
-        return _convertIfNonNull(_delegateDeserializer.getAbsentValue(ctxt));
+        return _convertIfNonNull(ctxt, _delegateDeserializer.getAbsentValue(ctxt));
     }
 
     @Override
     public Object getEmptyValue(DeserializationContext ctxt) {
-        return _convertIfNonNull(_delegateDeserializer.getEmptyValue(ctxt));
+        return _convertIfNonNull(ctxt, _delegateDeserializer.getEmptyValue(ctxt));
     }
 
     @Override
@@ -311,22 +311,23 @@ public class StdConvertingDeserializer<T>
      * The default implementation uses configured {@link Converter} to do
      * conversion.
      *
-     * @param delegateValue
+     * @param ctxt Context for deserialization (needed for some conversions)
+     * @param delegateValue Value delegated
      *
      * @return Result of conversion
      */
-    protected T convertValue(Object delegateValue) {
-        return _converter.convert(delegateValue);
+    protected T convertValue(DeserializationContext ctxt, Object delegateValue) {
+        return _converter.convert(ctxt, delegateValue);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected T _convertIfNonNull(Object delegateValue) {
+    protected T _convertIfNonNull(DeserializationContext ctxt, Object delegateValue) {
         return (delegateValue == null) ? null
-                : _converter.convert(delegateValue);
+                : _converter.convert(ctxt, delegateValue);
     }
 }

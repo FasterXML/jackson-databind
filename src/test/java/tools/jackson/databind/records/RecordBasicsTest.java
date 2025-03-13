@@ -324,10 +324,19 @@ public class RecordBasicsTest extends DatabindTestUtil
         return result;
     }
 
-    public static class StringTrimmer implements Converter<String, String> {
+    public static class StringTrimmer implements Converter<String, String>
+    {
+        @Override
+        public String convert(DeserializationContext ctxt, String value) {
+            return _convert(value);
+        }
 
         @Override
-        public String convert(String value) {
+        public String convert(SerializationContext ctxt, String value) {
+            return _convert(value);
+        }
+
+        String _convert(String value) {
             return value.trim();
         }
 

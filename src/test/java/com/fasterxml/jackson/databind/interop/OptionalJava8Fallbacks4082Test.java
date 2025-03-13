@@ -124,7 +124,7 @@ public class OptionalJava8Fallbacks4082Test extends DatabindTestUtil
     @Test
     public void testAllowSerializationWithFeature() throws Exception
     {
-        assertThat(LENIENT_MAPPER.writeValueAsString(Optional.empty())).contains("\"empty\":true");
+        assertThat(LENIENT_MAPPER.writeValueAsString(Optional.empty())).contains("\"present\":false");
         assertThat(LENIENT_MAPPER.writeValueAsString(OptionalInt.of(13))).contains("\"asInt\":13");
         assertThat(LENIENT_MAPPER.writeValueAsString(OptionalLong.of(-1L))).contains("\"asLong\":-1");
         assertThat(LENIENT_MAPPER.writeValueAsString(OptionalDouble.of(0.5))).contains("\"asDouble\":0.5");

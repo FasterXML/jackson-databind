@@ -215,7 +215,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         // Let's still call _deserializeFromString() for empty strings no matter what,
         // and for all values if wrapping not enabled
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            if (!canWrap || _isBlank(p.getText())) {
+            if (!canWrap || _isBlank(p.getString())) {
                 return _deserializeFromString(p, ctxt);
             }
         }

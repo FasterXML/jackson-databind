@@ -220,13 +220,16 @@ class FactoryBasedEnumDeserializer
         } catch (Exception e) {
             Throwable t = ClassUtil.throwRootCauseIfIOE(e);
             if (t instanceof IllegalArgumentException) {
-                // [databind#1642]:
+                // [databind#4979]: unknown as default
+                if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
+                    // ... only if we DO have a default
+                    if (_defaultValue != null) {
+                        return _defaultValue;
+                    }
+                }
+                // [databind#1642]: unknown as null
                 if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                     return null;
-                }
-
-                if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
-                    return _defaultValue;
                 }
                 // 12-Oct-2021, tatu: Should probably try to provide better exception since
                 //   we likely hit argument incompatibility... Or can this happen?

@@ -46,11 +46,14 @@ Project: jackson-databind
  (reported by Kornel Zemla)
 #4863: Add basic Stream support in `JsonNode`: `valueStream()`, `propertyStream()`,
   `forEachEntry()`
-#4867: Add `Optional<JsonNode> JsonNode.asOptional()` convenience method
+#4867: Add `Optional<JsonNode> JsonNode.asOptional()` convenience method##
  (fix by Joo-Hyuk K)
 #4869: Add `JsonNode.values()` to replace `elements()`
 #4896: Coercion shouldn't be necessary for Enums specifying an empty string
  (reported by @joaocanaverde-blue)
+#4915: Cannot access attributes from `Converter`
+ (requested by @jakub-bochenski
+ (fixed by Joo-Hyuk K)
 #4934: `DeserializationContext.readTreeAsValue()` handles null nodes
   differently from `ObjectMapper.treeToValue()`
  (reported by Floris W)

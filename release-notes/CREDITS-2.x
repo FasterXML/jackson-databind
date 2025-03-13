@@ -1918,3 +1918,7 @@ Floris Westerman (@FWest98)
 Joren Inghelbrecht (@jin-harmoney)
  * Contributed #4953: Allow clearing all caches to avoid classloader leaks
   (2.19.0)
+
+Will Paul (@dropofwill)
+ * Contributed #4979: Allow default enums with `@JsonCreator`
+  (2.19.0)

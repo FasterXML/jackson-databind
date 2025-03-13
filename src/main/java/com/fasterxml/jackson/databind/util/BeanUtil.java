@@ -7,6 +7,8 @@ import java.util.GregorianCalendar;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
 /**
@@ -293,11 +295,12 @@ public class BeanUtil
      * "well-known" types for which there would be a datatype module; and if so,
      * return appropriate failure message to give to caller.
      *
-     * @since 2.12
+     * @since 2.19
      */
-    public static String checkUnsupportedType(JavaType type) {
+    public static String checkUnsupportedType(MapperConfig<?> config, JavaType type) {
         final String className = type.getRawClass().getName();
         String typeName, moduleName;
+        MapperFeature failFeature = null;
 
         if (isJava8TimeClass(className)) {
             // [modules-java8#207]: do NOT check/block helper types in sub-packages,
@@ -315,13 +318,32 @@ public class BeanUtil
             typeName =  "Joda date/time";
             moduleName = "com.fasterxml.jackson.datatype:jackson-datatype-joda";
         } else if (isJava8OptionalClass(className)) {
+            failFeature = MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS;
+            final boolean fail = (config == null) || config.isEnabled(failFeature);
+            if (!fail) {
+                 return null;
+            }
             typeName =  "Java 8 optional";
             moduleName = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8";
         } else {
             return null;
         }
-        return String.format("%s type %s not supported by default: add Module \"%s\" to enable handling",
+        String str = String.format("%s type %s not supported by default: add Module \"%s\" to enable handling",
                 typeName, ClassUtil.getTypeDescription(type), moduleName);
+        if (failFeature != null) {
+             str = String.format("%s (or disable `MapperFeature.%s`)",
+                     str, MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS.name());
+        }
+        return str;
+    }
+
+    /**
+     * @since 2.12
+     * @deprecated since 2.19
+     */
+    @Deprecated // since 2.19
+    public static String checkUnsupportedType(JavaType type) {
+        return checkUnsupportedType(null, type);
     }
 
     /**

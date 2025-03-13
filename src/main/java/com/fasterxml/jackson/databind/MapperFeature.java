@@ -647,7 +647,21 @@ public enum MapperFeature implements ConfigFeature
      *
      * @since 2.13
      */
-    APPLY_DEFAULT_VALUES(true)
+    APPLY_DEFAULT_VALUES(true),
+
+    /**
+     * Feature that determines what happens if Java 8 {@link java.util.Optional} (and
+     * other related optional types) are to be serialized or deserialized, but there
+     * are no registered handlers for them.
+     * If enabled, an exception is thrown (to indicate problem, a solution for which is
+     * to register {@code jackson-datatype-jdk8} module); if disabled, the value is
+     * serialized and/or deserialized using regular POJO ("Bean") (de)serialization.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.19
+     */
+    REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS(true)
     ;
 
     private final boolean _defaultState;

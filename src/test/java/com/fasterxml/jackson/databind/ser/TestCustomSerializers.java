@@ -218,7 +218,7 @@ public class TestCustomSerializers extends DatabindTestUtil
                     }
 
                     @Override
-                    public Object convert(Object value, SerializerProvider provider) {
+                    public Object convert(SerializerProvider ctxt, Object value) {
                         return value == Super4575.NULL ? null : value;
                     }
 

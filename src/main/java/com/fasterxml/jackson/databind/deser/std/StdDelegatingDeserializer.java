@@ -170,7 +170,7 @@ public class StdDelegatingDeserializer<T>
         if (delegateValue == null) {
             return null;
         }
-        return convertValue(delegateValue, ctxt);
+        return convertValue(ctxt, delegateValue);
     }
 
     @Override
@@ -344,13 +344,15 @@ public class StdDelegatingDeserializer<T>
      * The default implementation uses configured {@link Converter} to do
      * conversion.
      *
-     * @param delegateValue
      * @param ctxt Context for deserialization (needed for some conversions)
+     * @param delegateValue Value delegated
      *
      * @return Result of conversion
+     *
+     * @since 2.19
      */
-    protected T convertValue(Object delegateValue, DeserializationContext ctxt) {
-        return _converter.convert(delegateValue, ctxt);
+    protected T convertValue(DeserializationContext ctxt, Object delegateValue) {
+        return _converter.convert(ctxt, delegateValue);
     }
 
     /*

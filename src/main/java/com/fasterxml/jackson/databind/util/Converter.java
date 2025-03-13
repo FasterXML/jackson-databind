@@ -32,7 +32,7 @@ public interface Converter<IN,OUT>
      *
      * @since 2.19
      */
-    default OUT convert(IN value, DeserializationContext ctxt) {
+    default OUT convert(DeserializationContext ctxt, IN value) {
         return convert(value);
     }
 
@@ -42,7 +42,7 @@ public interface Converter<IN,OUT>
      *
      * @since 2.19
      */
-    default OUT convert(IN value, SerializerProvider provider) {
+    default OUT convert(SerializerProvider provider, IN value) {
         return convert(value);
     }
 
@@ -83,5 +83,7 @@ public interface Converter<IN,OUT>
      * @since 2.2
      */
     public abstract static class None
-        implements Converter<Object,Object> { }
+        implements Converter<Object,Object> {
+        private None() { }
+    }
 }

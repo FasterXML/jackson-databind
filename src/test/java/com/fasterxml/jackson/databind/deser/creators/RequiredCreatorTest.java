@@ -20,7 +20,7 @@ public class RequiredCreatorTest
 
         @JsonCreator
         public FascistPoint(@JsonProperty(value="x", required=true) Integer x,
-                @JsonProperty(value="y", required=false) Integer y)
+                @JsonProperty(value="y", isRequired=OptBoolean.FALSE) Integer y)
         {
             this.x = x;
             this.y = y;
@@ -34,7 +34,7 @@ public class RequiredCreatorTest
         private String userType;
 
         @JsonCreator
-        public LoginUserResponse(@JsonProperty(value = "otp", required = true) String otp,
+        public LoginUserResponse(@JsonProperty(value = "otp", isRequired = OptBoolean.TRUE) String otp,
                 @JsonProperty(value = "userType", required = true) String userType) {
             this.otp = otp;
             this.userType = userType;

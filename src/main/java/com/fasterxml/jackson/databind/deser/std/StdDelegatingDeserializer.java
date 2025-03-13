@@ -192,7 +192,7 @@ public class StdDelegatingDeserializer<T>
         if (delegateValue == null) {
             return null;
         }
-        return convertValue(delegateValue);
+        return convertValue(ctxt, delegateValue);
     }
 
     @SuppressWarnings("unchecked")
@@ -331,7 +331,10 @@ public class StdDelegatingDeserializer<T>
      * @param delegateValue
      *
      * @return Result of conversion
+     *
+     * @deprecated since 2.19 Call {@link #convertValue(DeserializationContext, Object)}
      */
+    @Deprecated // since 2.19
     protected T convertValue(Object delegateValue) {
         return _converter.convert(delegateValue);
     }

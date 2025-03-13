@@ -154,7 +154,7 @@ public class StdDelegatingSerializer
     @Override
     public void serialize(Object value, JsonGenerator gen, SerializerProvider ctxt) throws IOException
     {
-        Object delegateValue = convertValue(value);
+        Object delegateValue = convertValue(ctxt, value);
         // should we accept nulls?
         if (delegateValue == null) {
             ctxt.defaultSerializeNull(gen);
@@ -190,7 +190,7 @@ public class StdDelegatingSerializer
     @Override
     public boolean isEmpty(SerializerProvider ctxt, Object value)
     {
-        Object delegateValue = convertValue(value);
+        Object delegateValue = convertValue(ctxt, value);
         if (delegateValue == null) {
             return true;
         }
@@ -265,7 +265,10 @@ public class StdDelegatingSerializer
      * @param value Value to convert
      *
      * @return Result of conversion
+     *
+     * @deprecated Since 2.19 use {@link #convertValue(SerializerProvider, Object)} instead
      */
+    @Deprecated
     protected Object convertValue(Object value) {
         return _converter.convert(value);
     }

@@ -152,52 +152,52 @@ public class StdDelegatingSerializer
      */
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider ctxt) throws IOException
     {
-        Object delegateValue = convertValue(value);
+        Object delegateValue = convertValue(ctxt, value);
         // should we accept nulls?
         if (delegateValue == null) {
-            provider.defaultSerializeNull(gen);
+            ctxt.defaultSerializeNull(gen);
             return;
         }
         // 02-Apr-2015, tatu: As per [databind#731] may need to do dynamic lookup
         JsonSerializer<Object> ser = _delegateSerializer;
         if (ser == null) {
-            ser = _findSerializer(delegateValue, provider);
+            ser = _findSerializer(delegateValue, ctxt);
         }
-        ser.serialize(delegateValue, gen, provider);
+        ser.serialize(delegateValue, gen, ctxt);
     }
 
     @Override
-    public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer) throws IOException
     {
         // 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
         //    let's give it a chance?
-        Object delegateValue = convertValue(value);
+        Object delegateValue = convertValue(ctxt, value);
         // consider null (to be consistent with serialize method above)
         if (delegateValue == null) {
-            provider.defaultSerializeNull(gen);
+            ctxt.defaultSerializeNull(gen);
             return;
         }
         JsonSerializer<Object> ser = _delegateSerializer;
         if (ser == null) {
-            ser = _findSerializer(delegateValue, provider);
+            ser = _findSerializer(delegateValue, ctxt);
         }
-        ser.serializeWithType(delegateValue, gen, provider, typeSer);
+        ser.serializeWithType(delegateValue, gen, ctxt, typeSer);
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Object value)
+    public boolean isEmpty(SerializerProvider ctxt, Object value)
     {
-        Object delegateValue = convertValue(value);
+        Object delegateValue = convertValue(ctxt, value);
         if (delegateValue == null) {
             return true;
         }
         if (_delegateSerializer == null) { // best we can do for now, too costly to look up
             return (value == null);
         }
-        return _delegateSerializer.isEmpty(prov, delegateValue);
+        return _delegateSerializer.isEmpty(ctxt, delegateValue);
     }
 
     /*
@@ -265,9 +265,29 @@ public class StdDelegatingSerializer
      * @param value Value to convert
      *
      * @return Result of conversion
+     *
+     * @deprecated Since 2.19 use {@link #convertValue(SerializerProvider, Object)} instead
      */
+    @Deprecated
     protected Object convertValue(Object value) {
         return _converter.convert(value);
+    }
+
+    /**
+     * Method called to convert from source Java value into delegate
+     * value (which will be serialized using standard Jackson serializer for delegate type)
+     *<P>
+     * The default implementation uses configured {@link Converter} to do
+     * conversion.
+     *
+     * @param value Value to convert
+     *
+     * @return Result of conversion
+     *
+     * @since 2.19
+     */
+    protected Object convertValue(SerializerProvider ctxt, Object value) {
+        return _converter.convert(ctxt, value);
     }
 
     /**

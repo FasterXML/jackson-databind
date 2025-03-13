@@ -20,6 +20,9 @@ Project: jackson-databind
  (contributed by Geoffrey G)
 #4388: Allow using `@JsonPropertyOrder` with "any" (`@JsonAnyGetter`)  properties
  (fix by Joo-Hyuk K)
+#4650: `PrimitiveArrayDeserializers` should deal with single String value if
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY` enabled
+ (reported, fix suggested by @eeren-bm)
 #4674: Allow setting global enum naming strategy similar to property naming strategy
  (requested by @hajdamak)
  (contributed by Konstantin M)
@@ -43,11 +46,14 @@ Project: jackson-databind
  (reported by Kornel Zemla)
 #4863: Add basic Stream support in `JsonNode`: `valueStream()`, `propertyStream()`,
   `forEachEntry()`
-#4867: Add `Optional<JsonNode> JsonNode.asOptional()` convenience method
+#4867: Add `Optional<JsonNode> JsonNode.asOptional()` convenience method##
  (fix by Joo-Hyuk K)
 #4869: Add `JsonNode.values()` to replace `elements()`
 #4896: Coercion shouldn't be necessary for Enums specifying an empty string
  (reported by @joaocanaverde-blue)
+#4915: Cannot access attributes from `Converter`
+ (requested by @jakub-bochenski
+ (fixed by Joo-Hyuk K)
 #4934: `DeserializationContext.readTreeAsValue()` handles null nodes
   differently from `ObjectMapper.treeToValue()`
  (reported by Floris W)
@@ -62,6 +68,7 @@ Project: jackson-databind
   fails on JDK 17+
 #4997: `ObjectNode` put methods should do null check for key
 #5014: Add `java.lang.Runnable` as unsafe base type in `DefaultBaseTypeLimitingValidator`
+#5020: Support new `@JsonProperty.isRequired` for overridable definition of "required-ness"
 
 2.18.3 (28-Feb-2025)
 

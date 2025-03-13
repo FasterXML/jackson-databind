@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -25,6 +25,26 @@ public interface Converter<IN,OUT>
      * Main conversion method.
      */
     public OUT convert(IN value);
+
+    /**
+     * Conversion method that also takes in {@link com.fasterxml.jackson.databind.DeserializationContext},
+     * useful for some more complex conversions.
+     *
+     * @since 2.19
+     */
+    default OUT convert(DeserializationContext ctxt, IN value) {
+        return convert(value);
+    }
+
+    /**
+     * Conversion method that also takes in {@link com.fasterxml.jackson.databind.SerializerProvider},
+     * useful for some more complex conversions.
+     *
+     * @since 2.19
+     */
+    default OUT convert(SerializerProvider provider, IN value) {
+        return convert(value);
+    }
 
     /**
      * Method that can be used to find out actual input (source) type; this
@@ -63,5 +83,7 @@ public interface Converter<IN,OUT>
      * @since 2.2
      */
     public abstract static class None
-        implements Converter<Object,Object> { }
+        implements Converter<Object,Object> {
+        private None() { }
+    }
 }

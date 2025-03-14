@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.EnumResolver;
 
 /**
  * Deserializer that uses a single-String static factory method
@@ -35,6 +36,9 @@ class FactoryBasedEnumDeserializer
     protected final ValueInstantiator _valueInstantiator;
     protected final SettableBeanProperty[] _creatorProps;
 
+    // @since 2.19
+    protected final Enum<?> _defaultValue;
+
     protected final boolean _hasArgs;
 
     /**
@@ -44,8 +48,23 @@ class FactoryBasedEnumDeserializer
      */
     private transient volatile PropertyBasedCreator _propCreator;
 
+    /**
+     * @since 2.8
+     * @deprecated since 2.19
+     */
+    @Deprecated
     public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
+    {
+        this(cls, f, paramType, valueInstantiator, creatorProps, null);
+    }
+
+    /**
+     * @since 2.19
+     */
+    public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
+            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps,
+            EnumResolver enumResolver)
     {
         super(cls);
         _factory = f;
@@ -56,6 +75,7 @@ class FactoryBasedEnumDeserializer
         _deser = null;
         _valueInstantiator = valueInstantiator;
         _creatorProps = creatorProps;
+        _defaultValue = (enumResolver == null) ? null : enumResolver.getDefaultValue();
     }
 
     /**
@@ -70,6 +90,7 @@ class FactoryBasedEnumDeserializer
         _deser = null;
         _valueInstantiator = null;
         _creatorProps = null;
+        _defaultValue = null;
     }
 
     protected FactoryBasedEnumDeserializer(FactoryBasedEnumDeserializer base,
@@ -80,6 +101,7 @@ class FactoryBasedEnumDeserializer
         _hasArgs = base._hasArgs;
         _valueInstantiator = base._valueInstantiator;
         _creatorProps = base._creatorProps;
+        _defaultValue = base._defaultValue;
 
         _deser = deser;
     }
@@ -198,7 +220,14 @@ class FactoryBasedEnumDeserializer
         } catch (Exception e) {
             Throwable t = ClassUtil.throwRootCauseIfIOE(e);
             if (t instanceof IllegalArgumentException) {
-                // [databind#1642]:
+                // [databind#4979]: unknown as default
+                if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
+                    // ... only if we DO have a default
+                    if (_defaultValue != null) {
+                        return _defaultValue;
+                    }
+                }
+                // [databind#1642]: unknown as null
                 if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                     return null;
                 }

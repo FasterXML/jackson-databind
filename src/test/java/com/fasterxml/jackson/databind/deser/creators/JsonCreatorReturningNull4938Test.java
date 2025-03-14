@@ -124,7 +124,7 @@ public class JsonCreatorReturningNull4938Test
                 .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         // ...with unknown properties in front
         try {
-            enabled.readValue("{ \"en\": null, \"de\": null, \"fr\": null, \"unknown\": null, \"unknown2\": \"hello\" }");
+            enabled.readValue("{ \"unknown\": null, \"en\": null, \"de\": null, \"fr\": null, \"unknown2\": \"hello\" }");
             fail("Should not pass");
         } catch (UnrecognizedPropertyException e) {
             // We fail with the FIRST unknown property
@@ -132,7 +132,7 @@ public class JsonCreatorReturningNull4938Test
         }
     }
 
-    // Test to verify we are reading til the end of the OBJECT
+    // Test to verify we are reading till the end of the OBJECT
     @Test
     void testDeserializeReadingUntilEndObject()
             throws Exception

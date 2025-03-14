@@ -1789,9 +1789,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     {
         if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
             handleIgnoredProperty(p, ctxt, beanOrBuilder, propName);
-        } else if (_anySetter != null
-                // [databind#4938] Even with any-setter, creator may return null, so need to skip
-                && beanOrBuilder != null) {
+        } else if (_anySetter != null) {
             try {
                // should we consider return type of any setter?
                 _anySetter.deserializeAndSet(p, ctxt, beanOrBuilder, propName);
@@ -1971,10 +1969,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt)
         throws IOException
     {
-        /* 05-Mar-2009, tatu: But one nasty edge is when we get
-         *   StackOverflow: usually due to infinite loop. But that
-         *   often gets hidden within an InvocationTargetException...
-         */
+        // 05-Mar-2009, tatu: But one nasty edge is when we get
+        //   StackOverflow: usually due to infinite loop. But that
+        //   often gets hidden within an InvocationTargetException...
         while (t instanceof InvocationTargetException && t.getCause() != null) {
             t = t.getCause();
         }

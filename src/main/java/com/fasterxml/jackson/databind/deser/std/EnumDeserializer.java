@@ -147,20 +147,20 @@ public class EnumDeserializer
     }
 
     /**
-     * @deprecated Since 2.9
-     */
-    @Deprecated
-    public EnumDeserializer(EnumResolver byNameResolver) {
-        this(byNameResolver, null);
-    }
-
-    /**
-     * @deprecated Since 2.8
+     * Factory method used when Enum instances are to be deserialized
+     * using a creator (static factory method)
+     *
+     * @return Deserializer based on given factory method
+     *
+     * @since 2.8
+     * @deprecated Since 2.19
      */
     @Deprecated
     public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
-            Class<?> enumClass, AnnotatedMethod factory) {
-        return deserializerForCreator(config, enumClass, factory, null, null);
+             Class<?> enumClass, AnnotatedMethod factory,
+             ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps) {
+        return deserializerForCreator(config, enumClass, factory, valueInstantiator,
+                creatorProps, null);
     }
 
     /**
@@ -169,19 +169,19 @@ public class EnumDeserializer
      *
      * @return Deserializer based on given factory method
      *
-     * @since 2.8
+     * @since 2.19
      */
     public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
             Class<?> enumClass, AnnotatedMethod factory,
-            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
+            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps,
+            EnumResolver byNameResolver)
     {
         if (config.canOverrideAccessModifiers()) {
             ClassUtil.checkAndFixAccess(factory.getMember(),
                     config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
-        return new FactoryBasedEnumDeserializer(enumClass, factory,
-                factory.getParameterType(0),
-                valueInstantiator, creatorProps);
+        return new FactoryBasedEnumDeserializer(enumClass, factory, factory.getParameterType(0),
+            valueInstantiator, creatorProps, byNameResolver);
     }
 
     /**

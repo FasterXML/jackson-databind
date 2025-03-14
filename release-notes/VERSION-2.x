@@ -52,14 +52,15 @@ Project: jackson-databind
 #4896: Coercion shouldn't be necessary for Enums specifying an empty string
  (reported by @joaocanaverde-blue)
 #4915: Cannot access attributes from `Converter`
- (requested by @jakub-bochenski#
+ (requested by @jakub-bochenski)
+ (fixed by Joo-Hyuk K)
 #4934: `DeserializationContext.readTreeAsValue()` handles null nodes
   differently from `ObjectMapper.treeToValue()`
  (reported by Floris W)
 #4938: Allow `@JsonCreator` annotated Creator to return `null`
- (reported by @f-aubert
+ (reported by @f-aubert)
  (fixed by Joo-Hyuk K)
-#4953: Allow clearing all caches to avoid classloader leaks
+4953: Allow clearing all caches to avoid classloader leaks
  (contributed by Joren I)
 #4955: Add more remove methods for `ArrayNode`, `ObjectNode` [STEP-3]
 #4959: Add explicit deserializer for `ThreadGroup`

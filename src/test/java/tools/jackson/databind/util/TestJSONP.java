@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.util.JSONPObject;
-import tools.jackson.databind.util.JSONWrappedObject;
 
 import static org.junit.jupiter.api.Assertions.*;
 

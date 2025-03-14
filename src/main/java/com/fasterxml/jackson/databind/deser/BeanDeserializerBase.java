@@ -1969,10 +1969,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt)
         throws IOException
     {
-        /* 05-Mar-2009, tatu: But one nasty edge is when we get
-         *   StackOverflow: usually due to infinite loop. But that
-         *   often gets hidden within an InvocationTargetException...
-         */
+        // 05-Mar-2009, tatu: But one nasty edge is when we get
+        //   StackOverflow: usually due to infinite loop. But that
+        //   often gets hidden within an InvocationTargetException...
         while (t instanceof InvocationTargetException && t.getCause() != null) {
             t = t.getCause();
         }

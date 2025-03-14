@@ -98,15 +98,15 @@ public class EnumDeserializer
      */
     public static ValueDeserializer<?> deserializerForCreator(DeserializationConfig config,
             Class<?> enumClass, AnnotatedMethod factory,
-            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
+            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps,
+            EnumResolver byNameResolver)
     {
         if (config.canOverrideAccessModifiers()) {
             ClassUtil.checkAndFixAccess(factory.getMember(),
                     config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
-        return new FactoryBasedEnumDeserializer(enumClass, factory,
-                factory.getParameterType(0),
-                valueInstantiator, creatorProps);
+        return new FactoryBasedEnumDeserializer(enumClass, factory, factory.getParameterType(0),
+            valueInstantiator, creatorProps, byNameResolver);
     }
 
     /**

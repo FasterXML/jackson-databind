@@ -66,6 +66,8 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4963: Serializing `Map.Entry` as Bean with `@JsonFormat.shape = Shape.OBJECT`
   fails on JDK 17+
+#4979: Allow default enums with `@JsonCreator`
+ (contributed by Will P)
 #4997: `ObjectNode` put methods should do null check for key
 #5006: Add `MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS` to prevent
   failure of `java.util.Optional` (de)serialization without Java 8 module

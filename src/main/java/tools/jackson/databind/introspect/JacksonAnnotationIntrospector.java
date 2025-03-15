@@ -651,13 +651,26 @@ public class JacksonAnnotationIntrospector
     public List<NamedType> findSubtypes(MapperConfig<?> config, Annotated a)
     {
         JsonSubTypes t = _findAnnotation(a, JsonSubTypes.class);
-        if (t == null) return null;
+        if(t != null) {
+            return findSubtypesByJsonSubTypesAnnotation(config, a, t);
+        }
+
+        if(a.getAnnotated() instanceof Class<?> clazz && clazz.isSealed()
+                && clazz.getPermittedSubclasses().length > 0) {
+            return findSubtypesByPermittedSubclasses(config, a, clazz);
+        }
+        
+        return null;
+    }
+    
+    private List<NamedType> findSubtypesByJsonSubTypesAnnotation(MapperConfig<?> config, Annotated a, JsonSubTypes t)
+    {
         JsonSubTypes.Type[] types = t.value();
 
         // 02-Aug-2022, tatu: As per [databind#3500], may need to check uniqueness
         //     of names
         if (t.failOnRepeatedNames()) {
-            return findSubtypesCheckRepeatedNames(a.getName(), types);
+            return findSubtypesByJsonSubTypesAnnotationCheckRepeatedNames(a.getName(), types);
         } else {
             ArrayList<NamedType> result = new ArrayList<NamedType>(types.length);
             for (JsonSubTypes.Type type : types) {
@@ -672,7 +685,7 @@ public class JacksonAnnotationIntrospector
     }
 
     // @since 2.14
-    private List<NamedType> findSubtypesCheckRepeatedNames(String annotatedTypeName, JsonSubTypes.Type[] types)
+    private List<NamedType> findSubtypesByJsonSubTypesAnnotationCheckRepeatedNames(String annotatedTypeName, JsonSubTypes.Type[] types)
     {
         ArrayList<NamedType> result = new ArrayList<NamedType>(types.length);
         Set<String> seenNames = new HashSet<>();
@@ -696,6 +709,15 @@ public class JacksonAnnotationIntrospector
             }
         }
 
+        return result;
+    }
+    
+    private List<NamedType> findSubtypesByPermittedSubclasses(MapperConfig<?> config, Annotated a, Class<?> clazz)
+    {
+        List<NamedType> result = new ArrayList<>(clazz.getPermittedSubclasses().length);
+        for (Class<?> subtype : clazz.getPermittedSubclasses()) {
+            result.add(new NamedType(subtype));
+        }
         return result;
     }
 

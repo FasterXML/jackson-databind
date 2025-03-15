@@ -190,7 +190,7 @@ public class TestSubtypesWithSealedTypes extends DatabindTestUtil
     {
         // must register subtypes
         ObjectMapper mapper = jsonMapperBuilder()
-                .registerSubtypes(SubB.class, SubC.class, SubD.class)
+                // .registerSubtypes(SubB.class, SubC.class, SubD.class)
                 .build();
         String json = mapper.writeValueAsString(new PropertyBean(new SubC()));
         PropertyBean result = mapper.readValue(json, PropertyBean.class);
@@ -202,7 +202,7 @@ public class TestSubtypesWithSealedTypes extends DatabindTestUtil
     public void testSubtypesViaModule() throws Exception
     {
         SimpleModule module = new SimpleModule();
-        module.registerSubtypes(SubB.class, SubC.class, SubD.class);
+        // module.registerSubtypes(SubB.class, SubC.class, SubD.class);
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
@@ -216,7 +216,7 @@ public class TestSubtypesWithSealedTypes extends DatabindTestUtil
         l.add(SubB.class);
         l.add(SubC.class);
         l.add(SubD.class);
-        module.registerSubtypes(l);
+        // module.registerSubtypes(l);
         mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
@@ -246,7 +246,7 @@ public class TestSubtypesWithSealedTypes extends DatabindTestUtil
     public void testDeserializationNonNamed() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .registerSubtypes(SubC.class)
+                // .registerSubtypes(SubC.class)
                 .build();
         // default name should be unqualified class name
         SuperType bean = mapper.readValue("{\"@type\":\"TestSubtypesWithSealedTypes$SubC\", \"c\":1}", SuperType.class);
@@ -258,7 +258,7 @@ public class TestSubtypesWithSealedTypes extends DatabindTestUtil
     public void testDeserializatioNamed() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .registerSubtypes(SubB.class)
+                // .registerSubtypes(SubB.class)
                 .registerSubtypes(new NamedType(SubD.class, "TypeD"))
                 .build();
 

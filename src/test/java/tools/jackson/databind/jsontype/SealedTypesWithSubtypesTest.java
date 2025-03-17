@@ -183,7 +183,7 @@ public class SealedTypesWithSubtypesTest extends DatabindTestUtil
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testPropertyWithSubtypes() throws Exception

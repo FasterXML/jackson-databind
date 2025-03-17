@@ -663,6 +663,7 @@ public class JacksonAnnotationIntrospector
         return null;
     }
     
+    // @since 3.0
     private List<NamedType> findSubtypesByJsonSubTypesAnnotation(MapperConfig<?> config, Annotated a, JsonSubTypes t)
     {
         JsonSubTypes.Type[] types = t.value();
@@ -684,7 +685,7 @@ public class JacksonAnnotationIntrospector
         }
     }
 
-    // @since 2.14
+    // @since 3.0
     private List<NamedType> findSubtypesByJsonSubTypesAnnotationCheckRepeatedNames(String annotatedTypeName, JsonSubTypes.Type[] types)
     {
         ArrayList<NamedType> result = new ArrayList<NamedType>(types.length);
@@ -712,6 +713,7 @@ public class JacksonAnnotationIntrospector
         return result;
     }
     
+    // @since 3.0
     private List<NamedType> findSubtypesByPermittedSubclasses(MapperConfig<?> config, Annotated a, Class<?> clazz)
     {
         List<NamedType> result = new ArrayList<>(clazz.getPermittedSubclasses().length);

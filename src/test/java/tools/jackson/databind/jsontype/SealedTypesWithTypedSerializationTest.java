@@ -115,7 +115,7 @@ public class SealedTypesWithTypedSerializationTest
         // should get a wrapper; keyed by minimal class name ("Cat" here)
         assertEquals(1, result.size());
         // minimal class name is prefixed by dot, and for inner classes it's bit longer
-        Map<?,?> cat = (Map<?,?>) result.get(".TestTypedSerializationWithSealedTypes$Cat");
+        Map<?,?> cat = (Map<?,?>) result.get(".SealedTypesWithTypedSerializationTest$Cat");
         assertNotNull(cat);
         assertEquals(2, cat.size());
         assertEquals("Venla", cat.get("name"));

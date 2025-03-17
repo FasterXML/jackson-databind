@@ -177,7 +177,7 @@ public class SealedTypesWithTypedDeserializationTest
         ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(Animal.class, TypeWithWrapper.class)
                 .build();
-        String JSON = "{\".TestTypedDeserializationWithSealedTypes$Dog\" : "
+        String JSON = "{\".SealedTypesWithTypedDeserializationTest$Dog\" : "
             +asJSONObjectValueString(m, "name", "Scooby", "boneCount", "6")+" }";
         Animal a = m.readValue(JSON, Animal.class);
         assertTrue(a instanceof Animal);

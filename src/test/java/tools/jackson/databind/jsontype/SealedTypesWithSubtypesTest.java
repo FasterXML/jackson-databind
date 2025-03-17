@@ -239,7 +239,7 @@ public class SealedTypesWithSubtypesTest extends DatabindTestUtil
         assertEquals("{\"@type\":\"typeB\",\"b\":1}", mapper.writeValueAsString(bean));
 
         // and default name ought to be simple class name; with context
-        assertEquals("{\"@type\":\"TestSubtypesWithSealedTypes$SubD\",\"d\":0}", mapper.writeValueAsString(new SubD()));
+        assertEquals("{\"@type\":\"SealedTypesWithSubtypesTest$SubD\",\"d\":0}", mapper.writeValueAsString(new SubD()));
     }
 
     @Test
@@ -249,7 +249,7 @@ public class SealedTypesWithSubtypesTest extends DatabindTestUtil
                 // .registerSubtypes(SubC.class)
                 .build();
         // default name should be unqualified class name
-        SuperType bean = mapper.readValue("{\"@type\":\"TestSubtypesWithSealedTypes$SubC\", \"c\":1}", SuperType.class);
+        SuperType bean = mapper.readValue("{\"@type\":\"SealedTypesWithSubtypesTest$SubC\", \"c\":1}", SuperType.class);
         assertSame(SubC.class, bean.getClass());
         assertEquals(1, ((SubC) bean).c);
     }
@@ -280,13 +280,13 @@ public class SealedTypesWithSubtypesTest extends DatabindTestUtil
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, true)
                 .build();
         String json = mapper.writeValueAsString(new EmptyBean());
-        assertEquals("{\"@type\":\"TestSubtypesWithSealedTypes$EmptyBean\"}", json);
+        assertEquals("{\"@type\":\"SealedTypesWithSubtypesTest$EmptyBean\"}", json);
 
         mapper = jsonMapperBuilder()
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
                 .build();
         json = mapper.writeValueAsString(new EmptyBean());
-        assertEquals("{\"@type\":\"TestSubtypesWithSealedTypes$EmptyBean\"}", json);
+        assertEquals("{\"@type\":\"SealedTypesWithSubtypesTest$EmptyBean\"}", json);
 
         // and then with defaults
         mapper = jsonMapperBuilder()
@@ -294,7 +294,7 @@ public class SealedTypesWithSubtypesTest extends DatabindTestUtil
             .activateDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL)
             .build();
         json = mapper.writeValueAsString(new EmptyNonFinal());
-        assertEquals("[\"tools.jackson.databind.jsontype.TestSubtypesWithSealedTypes$EmptyNonFinal\",{}]", json);
+        assertEquals("[\"tools.jackson.databind.jsontype.SealedTypesWithSubtypesTest$EmptyNonFinal\",{}]", json);
     }
 
     @Test

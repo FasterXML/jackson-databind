@@ -134,7 +134,7 @@ public class SealedTypesWithJsonTypeInfoSimpleClassName4061Test extends Databind
   @Test
   public void testMinimalInnerClass() throws Exception {
     String jsonStr =
-        a2q("{'@c':'.JsonTypeInfoSimpleClassName4061WithSealedTypesTest$MinimalInnerSub4061A'}");
+        a2q("{'@c':'.SealedTypesWithJsonTypeInfoSimpleClassName4061Test$MinimalInnerSub4061A'}");
 
     // ser
     assertEquals(jsonStr, MAPPER.writeValueAsString(new MinimalInnerSub4061A()));

@@ -17,7 +17,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestTypedDeserializationWithSealedTypes
+public class SealedTypesWithTypedDeserializationTest
     extends DatabindTestUtil
 {
     /*

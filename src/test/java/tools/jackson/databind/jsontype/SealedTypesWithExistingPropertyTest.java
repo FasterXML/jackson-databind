@@ -15,7 +15,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ExistingPropertyWithSealedTypesTest extends DatabindTestUtil
+public class SealedTypesWithExistingPropertyTest extends DatabindTestUtil
 {
     /**
      * Polymorphic base class - existing property as simple property on subclasses

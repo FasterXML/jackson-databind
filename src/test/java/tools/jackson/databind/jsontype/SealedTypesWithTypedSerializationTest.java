@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.*;
 
-public class TestTypedSerializationWithSealedTypes
+public class SealedTypesWithTypedSerializationTest
     extends DatabindTestUtil
 {
     /*

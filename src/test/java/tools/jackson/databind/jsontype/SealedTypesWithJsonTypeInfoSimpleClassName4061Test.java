@@ -25,7 +25,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
  * Test for <a href="https://github.com/FasterXML/jackson-databind/issues/4061"> [databind#4061] Add
  * JsonTypeInfo.Id.SIMPLE_NAME
  */
-public class JsonTypeInfoSimpleClassName4061WithSealedTypesTest extends DatabindTestUtil {
+public class SealedTypesWithJsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil {
   @JsonTypeInfo(use = JsonTypeInfo.Id.SIMPLE_NAME)
   static sealed class InnerSuper4061 permits InnerSub4061A, InnerSub4061B {
   }
@@ -273,25 +273,25 @@ final class BasicSub4061BForSealedTypes extends BasicSuper4061ForSealedTypes {
 
 
 final class MixedSub4061AForSealedClasses
-    extends JsonTypeInfoSimpleClassName4061WithSealedTypesTest.MixedSuper4061 {
+    extends SealedTypesWithJsonTypeInfoSimpleClassName4061Test.MixedSuper4061 {
 }
 
 
 final class MixedSub4061BForSealedClasses
-    extends JsonTypeInfoSimpleClassName4061WithSealedTypesTest.MixedSuper4061 {
+    extends SealedTypesWithJsonTypeInfoSimpleClassName4061Test.MixedSuper4061 {
 }
 
 
 final class MixedMinimalSub4061AForSealedClasses
-    extends JsonTypeInfoSimpleClassName4061WithSealedTypesTest.MixedMinimalSuper4061 {
+    extends SealedTypesWithJsonTypeInfoSimpleClassName4061Test.MixedMinimalSuper4061 {
 }
 
 
 final class MixedMinimalSub4061BForSealedClasses
-    extends JsonTypeInfoSimpleClassName4061WithSealedTypesTest.MixedMinimalSuper4061 {
+    extends SealedTypesWithJsonTypeInfoSimpleClassName4061Test.MixedMinimalSuper4061 {
 }
 
 
 final class DuplicateSubClassForSealedClasses
-    extends JsonTypeInfoSimpleClassName4061WithSealedTypesTest.DuplicateSuperClass {
+    extends SealedTypesWithJsonTypeInfoSimpleClassName4061Test.DuplicateSuperClass {
 }

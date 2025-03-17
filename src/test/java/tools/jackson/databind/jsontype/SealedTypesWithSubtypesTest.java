@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for detecting sealed types as subtypes. Originally copied from `TestSubtypes`.
  */
-public class TestSubtypesWithSealedTypes extends DatabindTestUtil
+public class SealedTypesWithSubtypesTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
     static abstract sealed class SuperType permits SubB, SubC, SubD {

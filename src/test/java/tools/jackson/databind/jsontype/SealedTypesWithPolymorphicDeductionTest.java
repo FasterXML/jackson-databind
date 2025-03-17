@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.DEDUCTION;
 
 // for [databind#43], deduction-based polymorphism
-public class TestPolymorphicDeductionWithSealedTypes extends DatabindTestUtil {
+public class SealedTypesWithPolymorphicDeductionTest extends DatabindTestUtil {
 
   @JsonTypeInfo(use = DEDUCTION)
   // A general supertype with no properties - used for tests involving {}

@@ -3,7 +3,7 @@ package tools.jackson.databind.datetime;
 import tools.jackson.core.util.JacksonFeature;
 
 /**
- * Configurable on/off features for Java 8 Date/Time module ({@link JavaTimeModule}).
+ * Configurable on/off features for Java 8 Date/Time module ({@link JavaTimeInitializer}).
  *
  * @since 2.16
  */

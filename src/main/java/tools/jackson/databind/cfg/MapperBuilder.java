@@ -17,7 +17,7 @@ import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.core.util.Snapshottable;
 import tools.jackson.databind.*;
 import tools.jackson.databind.datetime.JavaTimeFeature;
-import tools.jackson.databind.datetime.JavaTimeModule;
+import tools.jackson.databind.datetime.JavaTimeInitializer;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.*;
@@ -309,7 +309,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _abstractTypeResolvers = NO_ABSTRACT_TYPE_RESOLVERS;
 
         _defaultAttributes = null;
-        addModule(JavaTimeModule.getInstance());
     }
 
     /**
@@ -429,8 +428,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     {
         if (_savedState == null) {
             _savedState = _saveState();
+            ModuleContextBase ctxt = _constructModuleContext();
+            JavaTimeInitializer.getInstance().setupModule(ctxt);
             if (_modules != null) {
-                ModuleContextBase ctxt = _constructModuleContext();
                 _modules.values().forEach(m -> m.setupModule(ctxt));
                 // and since context may buffer some changes, ensure those are flushed:
                 ctxt.applyChanges(this);

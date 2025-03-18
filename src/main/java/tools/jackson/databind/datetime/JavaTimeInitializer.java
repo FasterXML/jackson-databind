@@ -18,9 +18,6 @@ package tools.jackson.databind.datetime;
 
 import java.time.*;
 
-import tools.jackson.core.Version;
-import tools.jackson.core.json.PackageVersion;
-import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.ValueInstantiators;
@@ -78,31 +75,19 @@ import tools.jackson.databind.datetime.ser.key.ZonedDateTimeKeySerializer;
  *
  * @since 2.6
  */
-public final class JavaTimeModule
-    extends JacksonModule
+public final class JavaTimeInitializer
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
-    private static final JavaTimeModule INSTANCE = new JavaTimeModule();
+    private static final JavaTimeInitializer INSTANCE = new JavaTimeInitializer();
 
-    @Override
-    public String getModuleName() {
-        return getClass().getName();
-    }
-
-    @Override
-    public Version version() {
-        return PackageVersion.VERSION;
-    }
-
-    public static JavaTimeModule getInstance() {
+    public static JavaTimeInitializer getInstance() {
         return INSTANCE;
     }
 
-    private JavaTimeModule() { }
+    private JavaTimeInitializer() { }
 
-    @Override
-    public void setupModule(SetupContext context) {
+    public void setupModule(JacksonModule.SetupContext context) {
         context.addDeserializers(new SimpleDeserializers()
             // // Instant variants:
             .addDeserializer(Instant.class,

@@ -65,13 +65,13 @@ public class POJONodeTest extends NodeTestBase
     @Test
     public void testAddJava8DateAsPojo() throws Exception
     {
-        LocalDateTime dt = LocalDateTime.now();
+        LocalDateTime dt = LocalDateTime.parse("2025-03-31T12:00");
         JsonNode node = MAPPER.createObjectNode().putPOJO("test", dt);
         String json = node.toString();
         assertNotNull(json);
 
         JsonNode result = MAPPER.readTree(json);
         String msg = result.path("test").asString();
-        assertEquals(dt.toString(), msg);
+        assertEquals(dt, LocalDateTime.parse(msg));
     }
 }

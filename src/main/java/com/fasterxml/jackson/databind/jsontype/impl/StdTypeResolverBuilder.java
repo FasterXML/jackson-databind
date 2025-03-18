@@ -24,6 +24,11 @@ public class StdTypeResolverBuilder
     protected JsonTypeInfo.Id _idType;
 
     protected JsonTypeInfo.As _includeAs;
+    
+    /**
+     * The type representing the base class. Typically the class holding the JsonTypeInfo annotation
+     */
+    protected JavaType _jsonTypeInfoAnnotatedClass;
 
     protected String _typeProperty;
 
@@ -91,10 +96,11 @@ public class StdTypeResolverBuilder
     /**
      * @since 2.16
      */
-    public StdTypeResolverBuilder(JsonTypeInfo.Value settings) {
+    public StdTypeResolverBuilder(JsonTypeInfo.Value settings, JavaType annotatedClass) {
         if (settings != null) {
             withSettings(settings);
         }
+        this._jsonTypeInfoAnnotatedClass = annotatedClass;
     }
 
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
@@ -353,16 +359,19 @@ public class StdTypeResolverBuilder
         // Custom id resolver?
         if (_customIdResolver != null) { return _customIdResolver; }
         if (_idType == null) throw new IllegalStateException("Cannot build, 'init()' not yet called");
+        
+        JavaType actualBaseType = _jsonTypeInfoAnnotatedClass != null ? _jsonTypeInfoAnnotatedClass : baseType;
+        
         switch (_idType) {
         case DEDUCTION: // Deduction produces class names to be resolved
         case CLASS:
-            return ClassNameIdResolver.construct(baseType, config, subtypeValidator);
+            return ClassNameIdResolver.construct(actualBaseType, config, subtypeValidator);
         case MINIMAL_CLASS:
-            return MinimalClassNameIdResolver.construct(baseType, config, subtypeValidator);
+            return MinimalClassNameIdResolver.construct(actualBaseType, config, subtypeValidator);
         case SIMPLE_NAME:
-            return SimpleNameIdResolver.construct(config, baseType, subtypes, forSer, forDeser);
+            return SimpleNameIdResolver.construct(config, actualBaseType, subtypes, forSer, forDeser);
         case NAME:
-            return TypeNameIdResolver.construct(config, baseType, subtypes, forSer, forDeser);
+            return TypeNameIdResolver.construct(config, actualBaseType, subtypes, forSer, forDeser);
         case NONE: // hmmh. should never get this far with 'none'
             return null;
         case CUSTOM: // need custom resolver...

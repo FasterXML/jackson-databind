@@ -29,6 +29,14 @@ module tools.jackson.databind
     opens tools.jackson.databind;
     opens tools.jackson.databind.annotation;
     opens tools.jackson.databind.cfg;
+    opens tools.jackson.databind.datetime;
+    opens tools.jackson.databind.datetime.deser;
+    opens tools.jackson.databind.datetime.deser.key;
+    opens tools.jackson.databind.datetime.key;
+    opens tools.jackson.databind.datetime.misc;
+    opens tools.jackson.databind.datetime.ser;
+    opens tools.jackson.databind.datetime.tofix;
+    opens tools.jackson.databind.datetime.util;
     opens tools.jackson.databind.deser;
     opens tools.jackson.databind.deser.bean;
     opens tools.jackson.databind.deser.jackson;

@@ -1,0 +1,39 @@
+package tools.jackson.databind.datetime.tofix;
+
+import java.time.Instant;
+
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.datetime.ModuleTestBase;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+// [modules-java8#359] InstantDeserializer deserializes the nanosecond portion of
+//   fractional timestamps incorrectly: -1.000000001 deserializes to 1969-12-31T23:59:59.000000001Z
+//   instead of 1969-12-31T23:59:58.999999999Z
+public class InstantDeserializerNegative359Test
+    extends ModuleTestBase
+{
+    private final ObjectReader READER = newMapper().readerFor(Instant.class);
+
+    @JacksonTestFailureExpected
+    @Test
+    public void testDeserializationAsFloat04()
+        throws Exception
+    {
+        Instant actual = READER.readValue("-1.000000001");
+        Instant expected = Instant.ofEpochSecond(-1L, -1L);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testDeserializationAsFloat05()
+        throws Exception
+    {
+        Instant actual = READER.readValue("-0.000000001");
+        Instant expected = Instant.ofEpochSecond(0L, -1L);
+        assertEquals(expected, actual);
+    }
+}

@@ -205,7 +205,7 @@ public final class JavaTimeInitializer
         });
     }
 
-    protected AnnotatedMethod _findFactory(AnnotatedClass cls, String name, Class<?>... argTypes)
+    private AnnotatedMethod _findFactory(AnnotatedClass cls, String name, Class<?>... argTypes)
     {
         final int argCount = argTypes.length;
         for (AnnotatedMethod method : cls.getFactoryMethods()) {

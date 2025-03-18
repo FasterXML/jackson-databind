@@ -201,7 +201,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
 
     /**
-     * St of shared mapper features enabled.
+     * Set of shared mapper features enabled.
      */
     protected long _mapperFeatures;
 

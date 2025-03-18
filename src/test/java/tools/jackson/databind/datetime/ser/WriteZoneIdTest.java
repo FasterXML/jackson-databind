@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.datetime.JavaTimeModule;
 import tools.jackson.databind.datetime.MockObjectConfiguration;
 import tools.jackson.databind.datetime.ModuleTestBase;
 
@@ -55,7 +54,6 @@ public class WriteZoneIdTest extends ModuleTestBase
         ZoneId id = ZoneId.of("America/Denver");
         ObjectMapper mapper = mapperBuilder()
                 .addMixIn(ZoneId.class, MockObjectConfiguration.class)
-                .addModule(new JavaTimeModule())
                 .build();
         String value = mapper.writeValueAsString(id);
         assertEquals("[\"java.time.ZoneId\",\"America/Denver\"]", value);

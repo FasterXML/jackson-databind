@@ -26,15 +26,13 @@ public class ModuleTestBase
 
     protected static MapperBuilder<?,?> newMapperBuilder() {
         return JsonMapper.builder()
-                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
-                .addModule(new JavaTimeModule());
+                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES);
     }
 
     protected static MapperBuilder<?,?> newMapperBuilder(TimeZone tz) {
         return JsonMapper.builder()
                 .defaultTimeZone(tz)
-                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
-                .addModule(new JavaTimeModule());
+                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES);
     }
 
     protected static ObjectMapper newMapper(TimeZone tz) {
@@ -44,8 +42,7 @@ public class ModuleTestBase
     protected static JsonMapper.Builder mapperBuilder() {
         return JsonMapper.builder()
                 .defaultLocale(Locale.ENGLISH)
-                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
-                .addModule(new JavaTimeModule());
+                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES);
     }
 
     protected String q(String value) {

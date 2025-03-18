@@ -5,12 +5,9 @@ import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.datetime.JavaTimeFeature;
-import tools.jackson.databind.datetime.JavaTimeModule;
 import tools.jackson.databind.datetime.ModuleTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +19,6 @@ public class InstantDeser291Test
 {
     private final JsonMapper MAPPER = JsonMapper.builder()
         .defaultLocale(Locale.ENGLISH)
-        .addModule(new JavaTimeModule())
         .enable(JavaTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS)
         .build();
     private final ObjectReader READER = MAPPER.readerFor(Instant.class);

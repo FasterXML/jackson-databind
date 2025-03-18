@@ -40,11 +40,8 @@ import tools.jackson.databind.datetime.ser.key.ZonedDateTimeKeySerializer;
 
 /**
  * Class that registers capability of serializing {@code java.time} objects with the Jackson core.
- *
- * <pre>
- * ObjectMapper mapper = new ObjectMapper();
- * mapper.registerModule(new JavaTimeModule());
- * </pre>
+ *<p>
+ * In Jackson 3, the module is automatically registered.
  *<p>
  * Most {@code java.time} types are serialized as numbers (integers or decimals as appropriate) if the
  * {@link tools.jackson.databind.SerializationFeature#WRITE_DATES_AS_TIMESTAMPS} feature is enabled
@@ -86,6 +83,7 @@ public final class JavaTimeModule
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
+    private static final JavaTimeModule INSTANCE = new JavaTimeModule();
 
     @Override
     public String getModuleName() {
@@ -97,7 +95,11 @@ public final class JavaTimeModule
         return PackageVersion.VERSION;
     }
 
-    public JavaTimeModule() { }
+    public static JavaTimeModule getInstance() {
+        return INSTANCE;
+    }
+
+    private JavaTimeModule() { }
 
     @Override
     public void setupModule(SetupContext context) {

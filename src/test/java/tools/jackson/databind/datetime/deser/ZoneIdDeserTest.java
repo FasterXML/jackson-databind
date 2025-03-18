@@ -14,7 +14,6 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.type.LogicalType;
-import tools.jackson.databind.datetime.JavaTimeModule;
 import tools.jackson.databind.datetime.MockObjectConfiguration;
 import tools.jackson.databind.datetime.ModuleTestBase;
 
@@ -43,7 +42,6 @@ public class ZoneIdDeserTest extends ModuleTestBase
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .addMixIn(ZoneId.class, MockObjectConfiguration.class)
-                .addModule(new JavaTimeModule())
                 .build();
         ZoneId value = mapper.readValue("[\"" + ZoneId.class.getName() + "\",\"America/Denver\"]", ZoneId.class);
         assertEquals(ZoneId.of("America/Denver"), value);

@@ -35,7 +35,6 @@ import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.datetime.JavaTimeFeature;
-import tools.jackson.databind.datetime.JavaTimeModule;
 import tools.jackson.databind.datetime.MockObjectConfiguration;
 import tools.jackson.databind.datetime.ModuleTestBase;
 import tools.jackson.databind.datetime.util.DecimalUtils;
@@ -912,7 +911,6 @@ public class ZonedDateTimeSerTest
         String input = a2q("{'value':'3.141592653'}");
 
         Wrapper result = JsonMapper.builder()
-            .addModule(new JavaTimeModule())
             .enable(JavaTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS)
             .build()
             .readerFor(Wrapper.class)

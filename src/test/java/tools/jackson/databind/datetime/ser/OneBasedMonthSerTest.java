@@ -9,7 +9,6 @@ import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 import tools.jackson.databind.datetime.JavaTimeFeature;
-import tools.jackson.databind.datetime.JavaTimeModule;
 import tools.jackson.databind.datetime.ModuleTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,7 +50,6 @@ public class OneBasedMonthSerTest extends ModuleTestBase
 
     private ObjectWriter writerForZeroBased() {
         return JsonMapper.builder()
-                .addModule(new JavaTimeModule())
                 .disable(JavaTimeFeature.ONE_BASED_MONTHS)
                 .build()
                 .writer();
@@ -59,7 +57,6 @@ public class OneBasedMonthSerTest extends ModuleTestBase
 
     private ObjectWriter writerForOneBased() {
         return JsonMapper.builder()
-                .addModule(new JavaTimeModule())
                 .enable(JavaTimeFeature.ONE_BASED_MONTHS)
                 .build()
                 .writer();

@@ -19,7 +19,6 @@ import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.datetime.JavaTimeFeature;
-import tools.jackson.databind.datetime.JavaTimeModule;
 import tools.jackson.databind.datetime.ModuleTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +28,6 @@ public class ZonedDateTimeDeserTest extends ModuleTestBase
     private final ObjectReader READER = newMapper().readerFor(ZonedDateTime.class);
 
     private final ObjectReader READER_NON_NORMALIZED_ZONEID = JsonMapper.builder()
-            .addModule(new JavaTimeModule())
             .disable(JavaTimeFeature.NORMALIZE_DESERIALIZED_ZONE_ID)
             .build()
             .readerFor(ZonedDateTime.class);

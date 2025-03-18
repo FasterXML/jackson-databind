@@ -17,6 +17,7 @@ import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.core.util.Snapshottable;
 import tools.jackson.databind.*;
 import tools.jackson.databind.datetime.JavaTimeFeature;
+import tools.jackson.databind.datetime.JavaTimeModule;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.*;
@@ -308,6 +309,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _abstractTypeResolvers = NO_ABSTRACT_TYPE_RESOLVERS;
 
         _defaultAttributes = null;
+        addModule(JavaTimeModule.getInstance());
     }
 
     /**

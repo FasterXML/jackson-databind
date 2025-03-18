@@ -27,8 +27,9 @@ module tools.jackson.databind
     exports tools.jackson.databind.cfg;
     exports tools.jackson.databind.datetime;
     exports tools.jackson.databind.datetime.deser;
+    exports tools.jackson.databind.datetime.deser.key;
     exports tools.jackson.databind.datetime.ser;
-    exports tools.jackson.databind.datetime.util;
+    exports tools.jackson.databind.datetime.ser.key;
     exports tools.jackson.databind.deser;
     exports tools.jackson.databind.deser.bean;
     // Alas multiple types from this package are exported. Would

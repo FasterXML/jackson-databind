@@ -87,9 +87,6 @@ public final class JavaTimeModule
 {
     private static final long serialVersionUID = 1L;
 
-    private JacksonFeatureSet<JavaTimeFeature> _features
-        = JacksonFeatureSet.fromDefaults(JavaTimeFeature.values());
-
     @Override
     public String getModuleName() {
         return getClass().getName();
@@ -102,33 +99,23 @@ public final class JavaTimeModule
 
     public JavaTimeModule() { }
 
-    public JavaTimeModule enable(JavaTimeFeature f) {
-        _features = _features.with(f);
-        return this;
-    }
-    
-    public JavaTimeModule disable(JavaTimeFeature f) {
-        _features = _features.without(f);
-        return this;
-    }
-
     @Override
     public void setupModule(SetupContext context) {
         context.addDeserializers(new SimpleDeserializers()
             // // Instant variants:
             .addDeserializer(Instant.class,
-                    InstantDeserializer.INSTANT.withFeatures(_features))
+                    InstantDeserializer.INSTANT.withFeatures(context.getJavaTimeFeatures()))
             .addDeserializer(OffsetDateTime.class,
-                    InstantDeserializer.OFFSET_DATE_TIME.withFeatures(_features))
+                    InstantDeserializer.OFFSET_DATE_TIME.withFeatures(context.getJavaTimeFeatures()))
             .addDeserializer(ZonedDateTime.class,
-                    InstantDeserializer.ZONED_DATE_TIME.withFeatures(_features))
+                    InstantDeserializer.ZONED_DATE_TIME.withFeatures(context.getJavaTimeFeatures()))
     
             // // Other deserializers
             .addDeserializer(Duration.class, DurationDeserializer.INSTANCE)
             .addDeserializer(LocalDateTime.class,
-                    LocalDateTimeDeserializer.INSTANCE.withFeatures(_features))
+                    LocalDateTimeDeserializer.INSTANCE.withFeatures(context.getJavaTimeFeatures()))
             .addDeserializer(LocalDate.class,
-                    LocalDateDeserializer.INSTANCE.withFeatures(_features))
+                    LocalDateDeserializer.INSTANCE.withFeatures(context.getJavaTimeFeatures()))
             .addDeserializer(LocalTime.class, LocalTimeDeserializer.INSTANCE)
             .addDeserializer(MonthDay.class, MonthDayDeserializer.INSTANCE)
             .addDeserializer(OffsetTime.class, OffsetTimeDeserializer.INSTANCE)
@@ -186,7 +173,7 @@ public final class JavaTimeModule
         );
 
         // [modules-java8#274]: 1-based Month (de)serializer need to be applied via modifiers:
-        final boolean oneBasedMonthEnabled = _features.isEnabled(JavaTimeFeature.ONE_BASED_MONTHS);
+        final boolean oneBasedMonthEnabled = context.isEnabled(JavaTimeFeature.ONE_BASED_MONTHS);
         context.addDeserializerModifier(new JavaTimeDeserializerModifier(oneBasedMonthEnabled));
         context.addSerializerModifier(new JavaTimeSerializerModifier(oneBasedMonthEnabled));
 

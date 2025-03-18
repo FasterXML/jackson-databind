@@ -912,8 +912,8 @@ public class ZonedDateTimeSerTest
         String input = a2q("{'value':'3.141592653'}");
 
         Wrapper result = JsonMapper.builder()
-            .addModule(new JavaTimeModule()
-                    .enable(JavaTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS))
+            .addModule(new JavaTimeModule())
+            .enable(JavaTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS)
             .build()
             .readerFor(Wrapper.class)
             .readValue(input);

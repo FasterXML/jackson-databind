@@ -58,7 +58,8 @@ public class LocalDateTimeDeserTest
         .build();
 
     private final ObjectReader READER_USING_TIME_ZONE = JsonMapper.builder()
-        .addModule(new JavaTimeModule().enable(JavaTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING))
+        .addModule(new JavaTimeModule())
+        .enable(JavaTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING)
         .build()
         .readerFor(LocalDateTime.class);
 

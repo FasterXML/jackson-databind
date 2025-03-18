@@ -51,14 +51,16 @@ public class OneBasedMonthSerTest extends ModuleTestBase
 
     private ObjectWriter writerForZeroBased() {
         return JsonMapper.builder()
-                .addModule(new JavaTimeModule().disable(JavaTimeFeature.ONE_BASED_MONTHS))
+                .addModule(new JavaTimeModule())
+                .disable(JavaTimeFeature.ONE_BASED_MONTHS)
                 .build()
                 .writer();
     }
 
     private ObjectWriter writerForOneBased() {
         return JsonMapper.builder()
-                .addModule(new JavaTimeModule().enable(JavaTimeFeature.ONE_BASED_MONTHS))
+                .addModule(new JavaTimeModule())
+                .enable(JavaTimeFeature.ONE_BASED_MONTHS)
                 .build()
                 .writer();
     }

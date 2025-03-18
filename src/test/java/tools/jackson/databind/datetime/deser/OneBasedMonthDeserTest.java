@@ -108,7 +108,8 @@ public class OneBasedMonthDeserTest extends ModuleTestBase
     public void testDeserializationWithTypeInfo01_oneBased() throws Exception
     {
         ObjectMapper MAPPER = JsonMapper.builder()
-            .addModule(new JavaTimeModule().enable(JavaTimeFeature.ONE_BASED_MONTHS))
+            .addModule(new JavaTimeModule())
+            .enable(JavaTimeFeature.ONE_BASED_MONTHS)
             .addMixIn(TemporalAccessor.class, MockObjectConfiguration.class)
             .build();
 
@@ -178,15 +179,16 @@ public class OneBasedMonthDeserTest extends ModuleTestBase
 
     private ObjectReader readerForZeroBased() {
         return JsonMapper.builder()
-                .addModule(new JavaTimeModule()
-                        .disable(JavaTimeFeature.ONE_BASED_MONTHS))
+                .addModule(new JavaTimeModule())
+                .disable(JavaTimeFeature.ONE_BASED_MONTHS)
                 .build()
                 .readerFor(Month.class);
     }
 
     private ObjectReader readerForOneBased() {
         return JsonMapper.builder()
-                .addModule(new JavaTimeModule().enable(JavaTimeFeature.ONE_BASED_MONTHS))
+                .addModule(new JavaTimeModule())
+                .enable(JavaTimeFeature.ONE_BASED_MONTHS)
                 .build()
                 .readerFor(Month.class);
     }

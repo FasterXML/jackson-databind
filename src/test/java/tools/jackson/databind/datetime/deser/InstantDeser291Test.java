@@ -22,8 +22,8 @@ public class InstantDeser291Test
 {
     private final JsonMapper MAPPER = JsonMapper.builder()
         .defaultLocale(Locale.ENGLISH)
-        .addModule(new JavaTimeModule()
-            .enable(JavaTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS))
+        .addModule(new JavaTimeModule())
+        .enable(JavaTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS)
         .build();
     private final ObjectReader READER = MAPPER.readerFor(Instant.class);
 

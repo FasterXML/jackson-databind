@@ -29,7 +29,8 @@ public class ZonedDateTimeDeserTest extends ModuleTestBase
     private final ObjectReader READER = newMapper().readerFor(ZonedDateTime.class);
 
     private final ObjectReader READER_NON_NORMALIZED_ZONEID = JsonMapper.builder()
-            .addModule(new JavaTimeModule().disable(JavaTimeFeature.NORMALIZE_DESERIALIZED_ZONE_ID))
+            .addModule(new JavaTimeModule())
+            .disable(JavaTimeFeature.NORMALIZE_DESERIALIZED_ZONE_ID)
             .build()
             .readerFor(ZonedDateTime.class);
     

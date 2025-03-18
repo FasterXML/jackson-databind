@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.function.UnaryOperator;
 
 import tools.jackson.core.*;
+import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.cfg.MutableConfigOverride;
+import tools.jackson.databind.datetime.JavaTimeFeature;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.ser.Serializers;
@@ -146,6 +148,9 @@ public abstract class JacksonModule
         public boolean isEnabled(TokenStreamFactory.Feature f);
         public boolean isEnabled(StreamReadFeature f);
         public boolean isEnabled(StreamWriteFeature f);
+        public boolean isEnabled(JavaTimeFeature f);
+
+        public JacksonFeatureSet<JavaTimeFeature> getJavaTimeFeatures();
 
         /*
         /******************************************************************

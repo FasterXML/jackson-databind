@@ -25,11 +25,6 @@ module tools.jackson.databind
     exports tools.jackson.databind;
     exports tools.jackson.databind.annotation;
     exports tools.jackson.databind.cfg;
-    exports tools.jackson.databind.datetime;
-    exports tools.jackson.databind.datetime.deser;
-    exports tools.jackson.databind.datetime.deser.key;
-    exports tools.jackson.databind.datetime.ser;
-    exports tools.jackson.databind.datetime.ser.key;
     exports tools.jackson.databind.deser;
     exports tools.jackson.databind.deser.bean;
     // Alas multiple types from this package are exported. Would
@@ -40,6 +35,11 @@ module tools.jackson.databind
     exports tools.jackson.databind.deser.std;
     exports tools.jackson.databind.exc;
     exports tools.jackson.databind.ext;
+    exports tools.jackson.databind.ext.datetime;
+    exports tools.jackson.databind.ext.datetime.deser;
+    exports tools.jackson.databind.ext.datetime.deser.key;
+    exports tools.jackson.databind.ext.datetime.ser;
+    exports tools.jackson.databind.ext.datetime.ser.key;
     exports tools.jackson.databind.ext.jdk8;
     // Needed by Ion module for SqlDate deserializer:
     exports tools.jackson.databind.ext.sql;

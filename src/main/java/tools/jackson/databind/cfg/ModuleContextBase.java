@@ -7,7 +7,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.*;
 import tools.jackson.databind.JacksonModule.SetupContext;
-import tools.jackson.databind.datetime.JavaTimeFeature;
+import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.ser.SerializerFactory;

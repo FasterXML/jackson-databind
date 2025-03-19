@@ -8,7 +8,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.cfg.MapperBuilderState;
 import tools.jackson.databind.cfg.PackageVersion;
-import tools.jackson.databind.datetime.JavaTimeFeature;
+import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 
 /**
  * JSON-specific {@link ObjectMapper} implementation.

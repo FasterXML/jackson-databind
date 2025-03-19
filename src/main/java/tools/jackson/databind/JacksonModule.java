@@ -8,7 +8,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.cfg.MutableConfigOverride;
-import tools.jackson.databind.datetime.JavaTimeFeature;
+import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.ser.Serializers;

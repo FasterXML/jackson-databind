@@ -29,6 +29,10 @@ Sven Döring (@sdoeringNew)
   [3.0.0]
 
 Michael Dillon (@michaelcdillon)
-#2593: StackTraceElement w/ >= Java 9 doesn't deserialize properly
- (requested by Michael D)
+ * Requested #2593: StackTraceElement w/ >= Java 9 doesn't deserialize properly
+  [3.0.0]
 
+Andy Boothe (@sigpwned)
+ * Contributed #5025: Add support for automatic detection of subtypes (like `@JsonSubTypes`)
+   from Java 17 sealed types
+  [3.0.0]

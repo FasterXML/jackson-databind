@@ -15,30 +15,33 @@ import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestSubtypes extends DatabindTestUtil
+/**
+ * Unit tests for detecting sealed types as subtypes. Originally copied from `TestSubtypes`.
+ */
+public class SealedTypesWithSubtypesTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
-    static abstract class SuperType {
+    static abstract sealed class SuperType permits SubB, SubC, SubD {
     }
 
     @JsonTypeName("TypeB")
-    static class SubB extends SuperType {
+    static final class SubB extends SuperType {
         public int b = 1;
     }
 
-    static class SubC extends SuperType {
+    static final class SubC extends SuperType {
         public int c = 2;
     }
 
-    static class SubD extends SuperType {
+    static final class SubD extends SuperType {
         public int d;
     }
 
     // "Empty" bean
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
-    static abstract class BaseBean { }
+    static abstract sealed class BaseBean permits EmptyBean { }
 
-    static class EmptyBean extends BaseBean { }
+    static final class EmptyBean extends BaseBean { }
 
     static class EmptyNonFinal { }
 
@@ -54,14 +57,10 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY, property="type")
-    @JsonSubTypes({ @JsonSubTypes.Type(ImplX.class),
-        @JsonSubTypes.Type(ImplY.class),
-        @JsonSubTypes.Type(ImplAbs.class)
-    })
-    static abstract class BaseX { }
+    static abstract sealed class BaseX permits ImplX, ImplY { }
 
     @JsonTypeName("x")
-    static class ImplX extends BaseX {
+    static final class ImplX extends BaseX {
         public int x;
 
         public ImplX() { }
@@ -69,14 +68,16 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     @JsonTypeName("y")
-    static class ImplY extends BaseX {
+    static final class ImplY extends BaseX {
         public int y;
     }
 
+    // DISABLED: Java does not allow "leaf" abstract sealed classes, since a class can't be both
+    // abstract and final.
     // for [databind#919] testing
-    @JsonTypeName("abs")
-    abstract static class ImplAbs extends BaseX {
-    }
+    // @JsonTypeName("abs")
+    // abstract static class ImplAbs extends BaseX {
+    // }
 
     // [databind#663]
     static class AtomicWrapper {
@@ -110,17 +111,15 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, defaultImpl=Default1125.class)
-    @JsonSubTypes({ @JsonSubTypes.Type(Interm1125.class) })
-    static class Base1125 {
+    static sealed class Base1125 permits Interm1125 {
         public int a;
     }
 
-    @JsonSubTypes({ @JsonSubTypes.Type(value=Impl1125.class, name="impl") })
-    static class Interm1125 extends Base1125 {
+    static sealed class Interm1125 extends Base1125 permits Impl1125, Default1125{
         public int b;
     }
 
-    static class Impl1125 extends Interm1125 {
+    static final class Impl1125 extends Interm1125 {
         public int c;
 
         public Impl1125() { }
@@ -131,7 +130,7 @@ public class TestSubtypes extends DatabindTestUtil
         }
     }
 
-    static class Default1125 extends Interm1125 {
+    static final class Default1125 extends Interm1125 {
         public int def;
 
         Default1125() { }
@@ -144,19 +143,19 @@ public class TestSubtypes extends DatabindTestUtil
 
     // [databind#1311]
     @JsonTypeInfo(property = "type", use = JsonTypeInfo.Id.NAME, defaultImpl = Factory1311ImplA.class)
-    interface Factory1311 { }
+    sealed interface Factory1311 permits Factory1311ImplA, Factory1311ImplB { }
 
     @JsonTypeName("implA")
-    static class Factory1311ImplA implements Factory1311 { }
+    static final class Factory1311ImplA implements Factory1311 { }
 
     @JsonTypeName("implB")
-    static class Factory1311ImplB implements Factory1311 { }
+    static final class Factory1311ImplB implements Factory1311 { }
 
     // [databind#2515]
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY, property="#type")
-    static abstract class SuperTypeWithoutDefault { }
+    static abstract sealed class SuperTypeWithoutDefault permits Sub { }
 
-    static class Sub extends SuperTypeWithoutDefault {
+    static final class Sub extends SuperTypeWithoutDefault {
         public int a;
 
         public Sub(){}
@@ -184,14 +183,14 @@ public class TestSubtypes extends DatabindTestUtil
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testPropertyWithSubtypes() throws Exception
     {
         // must register subtypes
         ObjectMapper mapper = jsonMapperBuilder()
-                .registerSubtypes(SubB.class, SubC.class, SubD.class)
+                // .registerSubtypes(SubB.class, SubC.class, SubD.class)
                 .build();
         String json = mapper.writeValueAsString(new PropertyBean(new SubC()));
         PropertyBean result = mapper.readValue(json, PropertyBean.class);
@@ -203,7 +202,7 @@ public class TestSubtypes extends DatabindTestUtil
     public void testSubtypesViaModule() throws Exception
     {
         SimpleModule module = new SimpleModule();
-        module.registerSubtypes(SubB.class, SubC.class, SubD.class);
+        // module.registerSubtypes(SubB.class, SubC.class, SubD.class);
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
@@ -217,7 +216,7 @@ public class TestSubtypes extends DatabindTestUtil
         l.add(SubB.class);
         l.add(SubC.class);
         l.add(SubD.class);
-        module.registerSubtypes(l);
+        // module.registerSubtypes(l);
         mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
@@ -240,17 +239,17 @@ public class TestSubtypes extends DatabindTestUtil
         assertEquals("{\"@type\":\"typeB\",\"b\":1}", mapper.writeValueAsString(bean));
 
         // and default name ought to be simple class name; with context
-        assertEquals("{\"@type\":\"TestSubtypes$SubD\",\"d\":0}", mapper.writeValueAsString(new SubD()));
+        assertEquals("{\"@type\":\"SealedTypesWithSubtypesTest$SubD\",\"d\":0}", mapper.writeValueAsString(new SubD()));
     }
 
     @Test
     public void testDeserializationNonNamed() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .registerSubtypes(SubC.class)
+                // .registerSubtypes(SubC.class)
                 .build();
         // default name should be unqualified class name
-        SuperType bean = mapper.readValue("{\"@type\":\"TestSubtypes$SubC\", \"c\":1}", SuperType.class);
+        SuperType bean = mapper.readValue("{\"@type\":\"SealedTypesWithSubtypesTest$SubC\", \"c\":1}", SuperType.class);
         assertSame(SubC.class, bean.getClass());
         assertEquals(1, ((SubC) bean).c);
     }
@@ -259,7 +258,7 @@ public class TestSubtypes extends DatabindTestUtil
     public void testDeserializatioNamed() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .registerSubtypes(SubB.class)
+                // .registerSubtypes(SubB.class)
                 .registerSubtypes(new NamedType(SubD.class, "TypeD"))
                 .build();
 
@@ -281,13 +280,13 @@ public class TestSubtypes extends DatabindTestUtil
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, true)
                 .build();
         String json = mapper.writeValueAsString(new EmptyBean());
-        assertEquals("{\"@type\":\"TestSubtypes$EmptyBean\"}", json);
+        assertEquals("{\"@type\":\"SealedTypesWithSubtypesTest$EmptyBean\"}", json);
 
         mapper = jsonMapperBuilder()
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
                 .build();
         json = mapper.writeValueAsString(new EmptyBean());
-        assertEquals("{\"@type\":\"TestSubtypes$EmptyBean\"}", json);
+        assertEquals("{\"@type\":\"SealedTypesWithSubtypesTest$EmptyBean\"}", json);
 
         // and then with defaults
         mapper = jsonMapperBuilder()
@@ -295,7 +294,7 @@ public class TestSubtypes extends DatabindTestUtil
             .activateDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL)
             .build();
         json = mapper.writeValueAsString(new EmptyNonFinal());
-        assertEquals("[\"tools.jackson.databind.jsontype.TestSubtypes$EmptyNonFinal\",{}]", json);
+        assertEquals("[\"tools.jackson.databind.jsontype.SealedTypesWithSubtypesTest$EmptyNonFinal\",{}]", json);
     }
 
     @Test
@@ -382,22 +381,22 @@ public class TestSubtypes extends DatabindTestUtil
     // [databind#2525]
     public void testDeserializationWithDuplicateRegisteredSubtypes() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-        // We can register the same class with different names
-        .registerSubtypes(new NamedType(Sub.class, "sub1"))
-        .registerSubtypes(new NamedType(Sub.class, "sub2"))
-        .build();
+            // We can register the same class with different names
+            .registerSubtypes(new NamedType(Sub.class, "sub1"))
+            .registerSubtypes(new NamedType(Sub.class, "sub2"))
+            .build();
 
-        // fields of a POJO will be deserialized correctly according to their field name
-        POJOWrapper pojoWrapper = mapper.readValue("{\"sub1\":{\"#type\":\"sub1\",\"a\":10},\"sub2\":{\"#type\":\"sub2\",\"a\":50}}", POJOWrapper.class);
-        assertEquals(10, pojoWrapper.sub1.a);
-        assertEquals(50, pojoWrapper.sub2.a);
+            // fields of a POJO will be deserialized correctly according to their field name
+            POJOWrapper pojoWrapper = mapper.readValue("{\"sub1\":{\"#type\":\"sub1\",\"a\":10},\"sub2\":{\"#type\":\"sub2\",\"a\":50}}", POJOWrapper.class);
+            assertEquals(10, pojoWrapper.sub1.a);
+            assertEquals(50, pojoWrapper.sub2.a);
 
-        // Instances of the same object can be deserialized with multiple names
-        SuperTypeWithoutDefault sub1 = mapper.readValue("{\"#type\":\"sub1\", \"a\":20}", SuperTypeWithoutDefault.class);
-        assertSame(Sub.class, sub1.getClass());
-        assertEquals(20, ((Sub) sub1).a);
-        SuperTypeWithoutDefault sub2 = mapper.readValue("{\"#type\":\"sub2\", \"a\":30}", SuperTypeWithoutDefault.class);
-        assertSame(Sub.class, sub2.getClass());
-        assertEquals(30, ((Sub) sub2).a);
-    }
+            // Instances of the same object can be deserialized with multiple names
+            SuperTypeWithoutDefault sub1 = mapper.readValue("{\"#type\":\"sub1\", \"a\":20}", SuperTypeWithoutDefault.class);
+            assertSame(Sub.class, sub1.getClass());
+            assertEquals(20, ((Sub) sub1).a);
+            SuperTypeWithoutDefault sub2 = mapper.readValue("{\"#type\":\"sub2\", \"a\":30}", SuperTypeWithoutDefault.class);
+            assertSame(Sub.class, sub2.getClass());
+            assertEquals(30, ((Sub) sub2).a);
+        }
 }

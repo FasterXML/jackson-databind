@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.util.Objects;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.JacksonSerializable;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.util.ClassUtil;
@@ -66,6 +67,8 @@ public class POJONode
         if (_value instanceof String str) {
              return str;
         }
+        // 21-Mar-2025, tatu: [databind#5034] Should we consider RawValue too?
+        //    (for now, won't)
         return null;
     }
 

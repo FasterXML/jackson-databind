@@ -43,20 +43,6 @@ public class POJONode
     @Override
     public JsonToken asToken() { return JsonToken.VALUE_EMBEDDED_OBJECT; }
 
-    /**
-     * As it is possible that some implementations embed byte[] as POJONode
-     * (despite optimal being {@link BinaryNode}), let's add support for exposing
-     * binary data here too.
-     */
-    @Override
-    public byte[] binaryValue()
-    {
-        if (_value instanceof byte[]) {
-            return (byte[]) _value;
-        }
-        return super.binaryValue();
-    }
-
     /*
     /**********************************************************************
     /* General type coercions
@@ -64,22 +50,17 @@ public class POJONode
      */
 
     @Override
-    public String asString() { return (_value == null) ? "null" : _value.toString(); }
-
-    @Override
-    public String asString(String defaultValue) {
-        return (_value == null) ? defaultValue : _value.toString();
-    }
-
-    @Override
-    public boolean asBoolean(boolean defaultValue)
+    protected Boolean _asBoolean()
     {
-        if (_value instanceof Boolean) {
-            return ((Boolean) _value).booleanValue();
+        if (_value == null) {
+            return Boolean.FALSE;
         }
-        return defaultValue;
+        if (_value instanceof Boolean B) {
+            return B;
+        }
+        return null;
     }
-
+    
     @Override
     public int asInt(int defaultValue)
     {
@@ -107,6 +88,28 @@ public class POJONode
         return defaultValue;
     }
 
+    /**
+     * As it is possible that some implementations embed byte[] as POJONode
+     * (despite optimal being {@link BinaryNode}), let's add support for exposing
+     * binary data here too.
+     */
+    @Override
+    public byte[] binaryValue()
+    {
+        if (_value instanceof byte[]) {
+            return (byte[]) _value;
+        }
+        return super.binaryValue();
+    }
+
+    @Override
+    public String asString() { return (_value == null) ? "null" : _value.toString(); }
+
+    @Override
+    public String asString(String defaultValue) {
+        return (_value == null) ? defaultValue : _value.toString();
+    }
+    
     /*
     /**********************************************************************
     /* Public API, serialization

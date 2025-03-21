@@ -672,28 +672,30 @@ public abstract class JsonNode
     public abstract Optional<Boolean> booleanValueOpt();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>boolean</b>.
-     * JSON booleans map naturally; integer numbers other than 0 map to true, and
-     * 0 maps to false
+     * Method that will try to convert value of this node to a Java {@code boolean}.
+     * JSON Booleans map naturally; Integer numbers other than 0 map to true, and
+     * 0 maps to false; {@code null} maps to false
      * and Strings 'true' and 'false' map to corresponding values.
-     *<p>
-     * If representation cannot be converted to a boolean value (including structured types
-     * like Objects and Arrays),
-     * default value of <b>false</b> will be returned; no exceptions are thrown.
+     * Other values (including structured types like Objects and Arrays) will
+     * result in a {@link JsonNodeException} being thrown.
+     *
+     * @return Boolean value this node represents, if coercible; exception otherwise
+     *
+     * @throws JsonNodeException if node cannot be coerced to a Java {@code boolean}
      */
     public abstract boolean asBoolean();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>boolean</b>.
-     * JSON booleans map naturally; integer numbers other than 0 map to true, and
-     * 0 maps to false
-     * and Strings 'true' and 'false' map to corresponding values.
-     *<p>
-     * If representation cannot be converted to a boolean value (including structured types
-     * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * Similar to {@link #asBoolean()}, but instead of throwing an exception for
+     * non-coercible values, will return specified default value.
      */
     public abstract boolean asBoolean(boolean defaultValue);
+
+    /**
+     * Similar to {@link #asBoolean()}, but instead of throwing an exception for
+     * non-coercible values, will return {@code Optional.empty()}.
+     */
+    public abstract Optional<Boolean> asBooleanOpt();
 
     // // Scalar access: Numbers, generic
 

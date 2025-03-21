@@ -138,6 +138,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         assertEquals(1, BooleanNode.TRUE.asInt());
     }
 
+    // note: pre-[databind#5034]
     @Test
     public void testAsBoolean() throws Exception
     {
@@ -149,8 +150,6 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         assertTrue(LongNode.valueOf(-34L).asBoolean());
         assertTrue(new StringNode("true").asBoolean());
         assertFalse(new StringNode("false").asBoolean());
-        assertFalse(new StringNode("barf").asBoolean());
-        assertTrue(new StringNode("barf").asBoolean(true));
 
         assertTrue(new POJONode(Boolean.TRUE).asBoolean());
     }

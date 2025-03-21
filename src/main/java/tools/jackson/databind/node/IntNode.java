@@ -80,6 +80,11 @@ public class IntNode
      */
 
     @Override
+    protected Boolean _asBoolean() {
+        return (_value != 0);
+    }
+    
+    @Override
     public Number numberValue() {
         return Integer.valueOf(_value);
     }
@@ -145,11 +150,6 @@ public class IntNode
         return String.valueOf(_value);
     }
 
-    @Override
-    public boolean asBoolean(boolean defaultValue) {
-        return _value != 0;
-    }
-
     /*
     /**********************************************************************
     /* Overridden JsonNode methods, other
@@ -163,6 +163,12 @@ public class IntNode
         g.writeNumber(_value);
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden standard methods
+    /**********************************************************************
+     */
+    
     @Override
     public boolean equals(Object o)
     {

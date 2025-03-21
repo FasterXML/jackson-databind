@@ -32,6 +32,9 @@ public abstract class BaseJsonNode
 {
     private static final long serialVersionUID = 3L;
 
+    protected final static Optional<Boolean> OPT_FALSE = Optional.of(false);
+    protected final static Optional<Boolean> OPT_TRUE = Optional.of(true);
+
     // Simplest way is by using a helper
     Object writeReplace() {
         return NodeSerialization.from(this);
@@ -216,12 +219,29 @@ public abstract class BaseJsonNode
 
     @Override
     public boolean asBoolean() {
-        return asBoolean(false);
+        Boolean b = _asBoolean();
+        if (b == null) {
+            return _reportCoercionFail("asBoolean()", Boolean.TYPE, "value type not boolean");
+        }
+        return b;
     }
 
     @Override
     public boolean asBoolean(boolean defaultValue) {
-        return defaultValue;
+        Boolean b = _asBoolean();
+        if (b == null) {
+            return defaultValue;
+        }
+        return b;
+    }
+
+    @Override
+    public Optional<Boolean> asBooleanOpt() {
+        Boolean b = _asBoolean();
+        if (b == null) {
+            return Optional.empty();
+        }
+        return b.booleanValue() ? OPT_TRUE : OPT_FALSE;
     }
 
     @Override
@@ -264,7 +284,8 @@ public abstract class BaseJsonNode
     }
 
     // Also, force (re)definition
-    @Override public abstract int hashCode();
+    @Override
+    public abstract int hashCode();
 
     /*
     /**********************************************************************
@@ -414,6 +435,24 @@ public abstract class BaseJsonNode
     {
         // Similar logic to "_withObject()" but the default implementation
         // used for non-container behavior so it'll simply return `null`
+        return null;
+    }
+
+    /*
+    /**********************************************************************
+    /* asXxx() helper methods for sub-classes to implement
+    /**********************************************************************
+     */
+
+    /**
+     * Method sub-classes should override if they can produce {@code boolean}
+     * values via {@link #asBoolean()} -- if not, return {@code null} (in which
+     * case appropriate error will be thrown or default value returned).
+     *
+     * @return Coerced value if possible; otherwise {@code null} to indicate this
+     *     node cannot be coerced.
+     */
+    protected Boolean _asBoolean() {
         return null;
     }
 

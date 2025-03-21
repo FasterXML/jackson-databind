@@ -36,15 +36,26 @@ public class NullNode
     @Override
     public NullNode deepCopy() { return this; }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access
+    /**********************************************************************
+     */
+
     @Override
-    protected String _valueDesc() {
-        return "<null>";
+    protected Boolean _asBoolean() {
+        return Boolean.FALSE;
     }
     
     @Override
     public String asString(String defaultValue) { return defaultValue; }
 
     @Override public String asString() { return "null"; }
+
+    @Override
+    protected String _valueDesc() {
+        return "<null>";
+    }
 
     @SuppressWarnings("unchecked")
     @Override

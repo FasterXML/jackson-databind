@@ -75,6 +75,11 @@ public class BigIntegerNode
     /* Overridden JsonNode methods, scalar access
     /**********************************************************************
      */
+
+    @Override
+    protected Boolean _asBoolean() {
+        return !BigInteger.ZERO.equals(_value);
+    }
     
     @Override
     public Number numberValue() {
@@ -185,20 +190,9 @@ public class BigIntegerNode
         return Optional.of(new BigDecimal(_value));
     }
 
-    /*
-    /**********************************************************
-    /* General type coercions
-    /**********************************************************
-     */
-
     @Override
     public String asString() {
         return _value.toString();
-    }
-
-    @Override
-    public boolean asBoolean(boolean defaultValue) {
-        return !BigInteger.ZERO.equals(_value);
     }
 
     /*

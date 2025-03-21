@@ -71,6 +71,17 @@ public class StringNode
      */
 
     @Override
+    public Boolean _asBoolean() {
+        if ("true".equals(_value)) {
+            return Boolean.TRUE;
+        }
+        if ("false".equals(_value)) {
+            return Boolean.FALSE;
+        }
+        return null;
+    }
+
+    @Override
     public String stringValue() {
         return _value;
     }
@@ -125,20 +136,6 @@ public class StringNode
     @Override
     public String asString(String defaultValue) {
         return _value;
-    }
-
-    // note: neither fast nor elegant, but these work for now:
-
-    @Override
-    public boolean asBoolean(boolean defaultValue) {
-        String v = _value.trim();
-        if ("true".equals(v)) {
-            return true;
-        }
-        if ("false".equals(v)) {
-            return false;
-        }
-        return defaultValue;
     }
 
     @Override

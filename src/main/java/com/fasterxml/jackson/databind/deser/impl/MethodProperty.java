@@ -140,7 +140,7 @@ public final class MethodProperty
         try {
             _setter.invoke(instance, value);
         } catch (Exception e) {
-            _throwAsIOE(p, e, value);
+            _throwAsIOE(ctxt.getConfig(), p, e, value);
         }
     }
 

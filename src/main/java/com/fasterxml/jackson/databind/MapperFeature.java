@@ -661,7 +661,12 @@ public enum MapperFeature implements ConfigFeature
      *
      * @since 2.19
      */
-    REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS(true)
+    REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS(true),
+
+    /**
+     * @since 2.19
+     */
+    WRAP_EXCEPTIONS(true)
     ;
 
     private final boolean _defaultState;

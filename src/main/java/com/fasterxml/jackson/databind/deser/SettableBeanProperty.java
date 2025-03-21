@@ -615,6 +615,32 @@ public abstract class SettableBeanProperty
      * Method that takes in exception of any type, and casts or wraps it
      * to an IOException or its subclass.
      */
+    protected void _throwAsIOE(DeserializationConfig config, JsonParser p, Exception e, Object value) throws IOException
+    {
+        if (e instanceof IllegalArgumentException) {
+            String actType = ClassUtil.classNameOf(value);
+            StringBuilder msg = new StringBuilder("Problem deserializing property '")
+                    .append(getName())
+                    .append("' (expected type: ")
+                    .append(getType())
+                    .append("; actual type: ")
+                    .append(actType).append(")");
+            String origMsg = ClassUtil.exceptionMessage(e);
+            if (origMsg != null) {
+                msg.append(", problem: ")
+                        .append(origMsg);
+            } else {
+                msg.append(" (no error message provided)");
+            }
+            throw JsonMappingException.from(p, msg.toString(), e);
+        }
+        _throwAsIOE(p, e, config.isEnabled(MapperFeature.WRAP_EXCEPTIONS));
+    }
+
+    /**
+     * Method that takes in exception of any type, and casts or wraps it
+     * to an IOException or its subclass.
+     */
     protected void _throwAsIOE(JsonParser p, Exception e, Object value) throws IOException
     {
         if (e instanceof IllegalArgumentException) {
@@ -635,6 +661,23 @@ public abstract class SettableBeanProperty
             throw JsonMappingException.from(p, msg.toString(), e);
         }
         _throwAsIOE(p, e);
+    }
+
+    /**
+     * @since 2.7
+     */
+    protected IOException _throwAsIOE(JsonParser p, Exception e, boolean wrapException) throws IOException
+    {
+        ClassUtil.throwIfIOE(e);
+        ClassUtil.throwIfRTE(e);
+
+        if (wrapException) {
+            // let's wrap the innermost problem
+            Throwable th = ClassUtil.getRootCause(e);
+            throw JsonMappingException.from(p, ClassUtil.exceptionMessage(th), th);
+        } else {
+            throw JsonMappingException.from(p, ClassUtil.exceptionMessage(e.getCause()), e.getCause());
+        }
     }
 
     /**

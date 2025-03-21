@@ -60,7 +60,15 @@ public class POJONode
         }
         return null;
     }
-    
+
+    @Override
+    protected String _asString() {
+        if (_value instanceof String str) {
+             return str;
+        }
+        return null;
+    }
+
     @Override
     public int asInt(int defaultValue)
     {
@@ -102,14 +110,6 @@ public class POJONode
         return super.binaryValue();
     }
 
-    @Override
-    public String asString() { return (_value == null) ? "null" : _value.toString(); }
-
-    @Override
-    public String asString(String defaultValue) {
-        return (_value == null) ? defaultValue : _value.toString();
-    }
-    
     /*
     /**********************************************************************
     /* Public API, serialization

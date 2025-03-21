@@ -107,6 +107,11 @@ public class BooleanNode
     }
 
     @Override
+    protected String _asString() {
+        return _value ? "true" : "false";
+    }
+    
+    @Override
     public int asInt(int defaultValue) {
         return _value ? 1 : 0;
     }
@@ -117,11 +122,6 @@ public class BooleanNode
     @Override
     public double asDouble(double defaultValue) {
         return _value ? 1.0 : 0.0;
-    }
-
-    @Override
-    public String asString() {
-        return _value ? "true" : "false";
     }
 
     /*

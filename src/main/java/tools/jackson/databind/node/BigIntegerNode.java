@@ -80,7 +80,12 @@ public class BigIntegerNode
     protected Boolean _asBoolean() {
         return !BigInteger.ZERO.equals(_value);
     }
-    
+
+    @Override
+    public String _asString() {
+        return _value.toString();
+    }
+
     @Override
     public Number numberValue() {
         return _value;
@@ -188,11 +193,6 @@ public class BigIntegerNode
     @Override
     public Optional<BigDecimal> decimalValueOpt() {
         return Optional.of(new BigDecimal(_value));
-    }
-
-    @Override
-    public String asString() {
-        return _value.toString();
     }
 
     /*

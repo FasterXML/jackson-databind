@@ -202,7 +202,8 @@ public abstract class BaseJsonNode
 
     @Override
     public boolean booleanValue() {
-        return _reportCoercionFail("booleanValue()", Boolean.TYPE, "value type not boolean");
+        return _reportCoercionFail("booleanValue()", Boolean.TYPE,
+                "value type not boolean");
     }
 
     @Override
@@ -221,7 +222,8 @@ public abstract class BaseJsonNode
     public boolean asBoolean() {
         Boolean b = _asBoolean();
         if (b == null) {
-            return _reportCoercionFail("asBoolean()", Boolean.TYPE, "value type not boolean");
+            return _reportCoercionFail("asBoolean()", Boolean.TYPE,
+                    "value type not coercible to `boolean`");
         }
         return b;
     }
@@ -246,7 +248,8 @@ public abstract class BaseJsonNode
 
     @Override
     public String stringValue() {
-        return _reportCoercionFail("stringValue()", String.class, "value type not String");
+        return _reportCoercionFail("stringValue()", String.class,
+                "value type not String");
     }
 
     @Override
@@ -262,9 +265,27 @@ public abstract class BaseJsonNode
     }
 
     @Override
+    public String asString() {
+        String str = _asString();
+        if (str == null) {
+            return _reportCoercionFail("asString()", String.class,
+                    "value type not coercible to `String`");
+        }
+        return str;
+    }
+
+    @Override
     public String asString(String defaultValue) {
-        String str = asString();
-        return (str == null) ? defaultValue : str;
+        String str = _asString();
+        if (str == null) {
+            return defaultValue;
+        }
+        return str;
+    }
+
+    @Override
+    public Optional<String> asStringOpt() {
+        return Optional.ofNullable(_asString());
     }
 
     /*
@@ -453,6 +474,18 @@ public abstract class BaseJsonNode
      *     node cannot be coerced.
      */
     protected Boolean _asBoolean() {
+        return null;
+    }
+
+    /**
+     * Method sub-classes should override if they can produce {@code String}
+     * values via {@link #asString()} -- if not, return {@code null} (in which
+     * case appropriate error will be thrown or default value returned).
+     *
+     * @return Coerced value if possible; otherwise {@code null} to indicate this
+     *     node cannot be coerced.
+     */
+    protected String _asString() {
         return null;
     }
 

@@ -46,11 +46,11 @@ public class NullNode
     protected Boolean _asBoolean() {
         return Boolean.FALSE;
     }
-    
-    @Override
-    public String asString(String defaultValue) { return defaultValue; }
 
-    @Override public String asString() { return "null"; }
+    @Override
+    protected String _asString() {
+        return "";
+    }
 
     @Override
     protected String _valueDesc() {

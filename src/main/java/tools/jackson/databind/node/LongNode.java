@@ -68,6 +68,11 @@ public class LongNode
     }
 
     @Override
+    protected String _asString() {
+        return String.valueOf(_value);
+    }
+
+    @Override
     public Number numberValue() {
         return Long.valueOf(_value);
     }
@@ -134,11 +139,6 @@ public class LongNode
 
     @Override
     public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
-
-    @Override
-    public String asString() {
-        return String.valueOf(_value);
-    }
 
     /*
     /**********************************************************************

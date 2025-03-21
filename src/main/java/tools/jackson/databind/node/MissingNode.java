@@ -56,10 +56,6 @@ public final class MissingNode
     protected String _valueDesc() {
         return "<missing>";
     }
-    
-    @Override public String asString() { return ""; }
-
-    @Override public String asString(String defaultValue) { return defaultValue; }
 
     // // Note: not a numeric node, hence default 'asXxx()' are fine:
 

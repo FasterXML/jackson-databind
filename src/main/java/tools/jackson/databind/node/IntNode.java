@@ -83,6 +83,11 @@ public class IntNode
     protected Boolean _asBoolean() {
         return (_value != 0);
     }
+
+    @Override
+    protected String _asString() {
+        return String.valueOf(_value);
+    }
     
     @Override
     public Number numberValue() {
@@ -144,11 +149,6 @@ public class IntNode
 
     @Override
     public BigInteger bigIntegerValue() { return BigInteger.valueOf(_value); }
-
-    @Override
-    public String asString() {
-        return String.valueOf(_value);
-    }
 
     /*
     /**********************************************************************

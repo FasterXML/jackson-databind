@@ -43,9 +43,6 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     @Override
     public abstract JsonToken asToken();
 
-    @Override
-    public String asString() { return ""; }
-
     /*
     /**********************************************************************
     /* Methods reset as abstract to force real implementation

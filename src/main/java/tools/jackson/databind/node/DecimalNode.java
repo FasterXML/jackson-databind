@@ -84,6 +84,11 @@ public class DecimalNode
      */
 
     @Override
+    public String _asString() {
+        return _value.toString();
+    }
+    
+    @Override
     public Number numberValue() { return _value; }
 
     @Override
@@ -203,11 +208,6 @@ public class DecimalNode
 
     @Override
     public Optional<BigDecimal> decimalValueOpt() { return Optional.of(_value); }
-
-    @Override
-    public String asString() {
-        return _value.toString();
-    }
 
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)

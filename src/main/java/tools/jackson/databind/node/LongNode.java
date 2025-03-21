@@ -61,7 +61,17 @@ public class LongNode
     /* Overridden JsonNode methods, scalar access
     /**********************************************************************
      */
-    
+
+    @Override
+    protected Boolean _asBoolean() {
+        return (_value != 0L);
+    }
+
+    @Override
+    protected String _asString() {
+        return String.valueOf(_value);
+    }
+
     @Override
     public Number numberValue() {
         return Long.valueOf(_value);
@@ -130,15 +140,11 @@ public class LongNode
     @Override
     public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
 
-    @Override
-    public String asString() {
-        return String.valueOf(_value);
-    }
-
-    @Override
-    public boolean asBoolean(boolean defaultValue) {
-        return _value != 0;
-    }
+    /*
+    /**********************************************************************
+    /* Overridden methods, other
+    /**********************************************************************
+     */
 
     @Override
     public final void serialize(JsonGenerator jg, SerializationContext provider)
@@ -146,7 +152,7 @@ public class LongNode
     {
         jg.writeNumber(_value);
     }
-
+    
     @Override
     public boolean equals(Object o)
     {

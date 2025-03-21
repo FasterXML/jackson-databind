@@ -19,9 +19,6 @@ public class BooleanNode
 
     public final static BooleanNode TRUE = new BooleanNode(true);
     public final static BooleanNode FALSE = new BooleanNode(false);
-
-    private final static Optional<Boolean> OPT_FALSE = Optional.of(false);
-    private final static Optional<Boolean> OPT_TRUE = Optional.of(true);
     
     private final boolean _value;
 
@@ -72,6 +69,28 @@ public class BooleanNode
     /**********************************************************************
      */
 
+    // // // Override "asBoolean()" methods as minor optimization
+    
+    @Override
+    public final boolean asBoolean() {
+        return _value;
+    }
+
+    @Override
+    public final boolean asBoolean(boolean defaultValue) {
+        return _value;
+    }
+
+    @Override
+    public Optional<Boolean> asBooleanOpt() {
+        return _value ? OPT_TRUE : OPT_FALSE;
+    }
+    
+    @Override
+    protected Boolean _asBoolean() {
+        return _value;
+    }
+
     @Override
     public boolean booleanValue() {
         return _value;
@@ -88,15 +107,10 @@ public class BooleanNode
     }
 
     @Override
-    public boolean asBoolean() {
-        return _value;
+    protected String _asString() {
+        return _value ? "true" : "false";
     }
-
-    @Override
-    public boolean asBoolean(boolean defaultValue) {
-        return _value;
-    }
-
+    
     @Override
     public int asInt(int defaultValue) {
         return _value ? 1 : 0;
@@ -108,11 +122,6 @@ public class BooleanNode
     @Override
     public double asDouble(double defaultValue) {
         return _value ? 1.0 : 0.0;
-    }
-
-    @Override
-    public String asString() {
-        return _value ? "true" : "false";
     }
 
     /*

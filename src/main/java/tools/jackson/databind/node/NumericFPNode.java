@@ -1,6 +1,7 @@
 package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Optional;
 
 import tools.jackson.core.JsonToken;
@@ -47,6 +48,37 @@ public abstract class NumericFPNode extends NumericNode
     /**********************************************************************
      */
 
+    // // // Integer value accessors
+
+    @Override
+    public final BigInteger bigIntegerValue() {
+        if (isNaN()) {
+            _reportBigDecimalCoercionNaNFail("bigIntegerValue()");
+        }
+        if (_hasFractionalPart()) {
+            _reportBigIntegerCoercionFractionFail("bigIntegerValue()");
+        }
+        return _asBigIntegerValueUnchecked();
+    }
+
+    @Override
+    public final BigInteger bigIntegerValue(BigInteger defaultValue) {
+        if (_hasFractionalPart()) {
+            return defaultValue;
+        }
+        return _asBigIntegerValueUnchecked();
+    }
+
+    @Override
+    public final Optional<BigInteger> bigIntegerValueOpt() {
+        if (_hasFractionalPart()) {
+            return Optional.empty();
+        }
+        return Optional.of(_asBigIntegerValueUnchecked());
+    }
+
+    // // // FP value accessors
+    
     @Override
     public BigDecimal decimalValue() {
         if (isNaN()) {
@@ -103,11 +135,18 @@ public abstract class NumericFPNode extends NumericNode
 
     /**
      * Method for sub-classes to implement; returns the underlying
+     * value as a BigInteger without any checks (wrt NaN), so caller
+     * must ensure validity prior to calling
+     */
+    protected abstract BigInteger _asBigIntegerValueUnchecked();
+
+    /**
+     * Method for sub-classes to implement; returns the underlying
      * value as a BigDecimal without any checks (wrt NaN), so caller
      * must ensure validity prior to calling
      */
     protected abstract BigDecimal _asDecimalValueUnchecked();
-    
+
     protected abstract boolean _hasFractionalPart();
 
     protected abstract boolean _inShortRange();

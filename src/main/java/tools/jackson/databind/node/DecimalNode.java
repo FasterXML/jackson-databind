@@ -61,7 +61,7 @@ public class DecimalNode
 
     /*
     /**********************************************************************
-    /* Overridden JsonNode methods, scalar access
+    /* Overridden JsonNode methods, scalar access, non-numeric
     /**********************************************************************
      */
 
@@ -69,6 +69,12 @@ public class DecimalNode
     public String _asString() {
         return _value.toString();
     }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access, numeric
+    /**********************************************************************
+     */
 
     @Override
     public Number numberValue() { return _value; }
@@ -138,29 +144,6 @@ public class DecimalNode
         return OptionalLong.of(_value.longValue());
     }
 
-    @Override
-    public BigInteger bigIntegerValue() {
-        if (_hasFractionalPart()) {
-            _reportBigIntegerCoercionFractionFail("bigIntegerValue()");
-        }
-        return _value.toBigInteger();
-    }
-
-    @Override
-    public BigInteger bigIntegerValue(BigInteger defaultValue) {
-        if (_hasFractionalPart()) {
-            return defaultValue;
-        }
-        return _value.toBigInteger();
-    }
-
-    @Override
-    public Optional<BigInteger> bigIntegerValueOpt() {
-        if (_hasFractionalPart()) {
-            return Optional.empty();
-        }
-        return Optional.of(_value.toBigInteger());
-    }
 
     @Override
     public float floatValue() {
@@ -227,6 +210,11 @@ public class DecimalNode
     @Override
     protected BigDecimal _asDecimalValueUnchecked() {
         return _value;
+    }
+
+    @Override
+    protected BigInteger _asBigIntegerValueUnchecked() {
+        return _value.toBigInteger();
     }
 
     @Override

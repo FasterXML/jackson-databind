@@ -2,7 +2,6 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -131,30 +130,6 @@ public class FloatNode
     }
 
     @Override
-    public BigInteger bigIntegerValue() {
-        if (_hasFractionalPart()) {
-            _reportBigIntegerCoercionFractionFail("bigIntegerValue()");
-        }
-        return decimalValue().toBigInteger();
-    }
-
-    @Override
-    public BigInteger bigIntegerValue(BigInteger defaultValue) {
-        if (_hasFractionalPart()) {
-            return defaultValue;
-        }
-        return decimalValue().toBigInteger();
-    }
-
-    @Override
-    public Optional<BigInteger> bigIntegerValueOpt() {
-        if (_hasFractionalPart()) {
-            return Optional.empty();
-        }
-        return Optional.of(decimalValue().toBigInteger());
-    }
-    
-    @Override
     public float floatValue() { return _value; }
 
     @Override
@@ -174,6 +149,11 @@ public class FloatNode
     /**********************************************************************
      */
 
+    @Override
+    protected BigInteger _asBigIntegerValueUnchecked() {
+        return BigDecimal.valueOf(_value).toBigInteger();
+    }
+    
     @Override
     protected BigDecimal _asDecimalValueUnchecked() {
         return BigDecimal.valueOf(_value);

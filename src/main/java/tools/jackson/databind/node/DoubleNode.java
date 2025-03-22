@@ -2,7 +2,6 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -51,7 +50,7 @@ public class DoubleNode
 
     /*
     /**********************************************************************
-    /* Overridden JsonNode methods, scalar access
+    /* Overridden JsonNode methods, scalar access, non-numeric
     /**********************************************************************
      */
 
@@ -60,6 +59,12 @@ public class DoubleNode
         return String.valueOf(_value);
     }
     
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access, numeric
+    /**********************************************************************
+     */
+
     @Override
     public Number numberValue() {
         return Double.valueOf(_value);
@@ -131,30 +136,6 @@ public class DoubleNode
     }
 
     @Override
-    public BigInteger bigIntegerValue() {
-        if (_hasFractionalPart()) {
-            _reportBigIntegerCoercionFractionFail("bigIntegerValue()");
-        }
-        return decimalValue().toBigInteger();
-    }
-
-    @Override
-    public BigInteger bigIntegerValue(BigInteger defaultValue) {
-        if (_hasFractionalPart()) {
-            return defaultValue;
-        }
-        return decimalValue().toBigInteger();
-    }
-
-    @Override
-    public Optional<BigInteger> bigIntegerValueOpt() {
-        if (_hasFractionalPart()) {
-            return Optional.empty();
-        }
-        return Optional.of(decimalValue().toBigInteger());
-    }
-
-    @Override
     public float floatValue() {
         float f = (float) _value;
         if (Float.isFinite(f)) {
@@ -180,6 +161,11 @@ public class DoubleNode
     /**********************************************************************
      */
 
+    @Override
+    protected BigInteger _asBigIntegerValueUnchecked() {
+        return BigDecimal.valueOf(_value).toBigInteger();
+    }
+    
     @Override
     protected BigDecimal _asDecimalValueUnchecked() {
         return BigDecimal.valueOf(_value);
@@ -211,7 +197,8 @@ public class DoubleNode
 
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)
-            throws JacksonException {
+        throws JacksonException
+    {
         g.writeNumber(_value);
     }
 

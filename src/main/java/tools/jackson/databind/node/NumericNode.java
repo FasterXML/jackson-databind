@@ -107,26 +107,6 @@ public abstract class NumericNode
         return doubleValue();
     }
 
-    // // asDecimal() easy: can just call decimalValue()
-
-    public abstract BigDecimal asDecimal();
-    /*
-    @Override
-    public BigDecimal asDecimal() {
-        return decimalValue();
-    }
-    */
-    
-    @Override
-    public BigDecimal asDecimal(BigDecimal defaultValue) {
-        return decimalValue(defaultValue);
-    }
-
-    @Override
-    public Optional<BigDecimal> asDecimalOpt() {
-        return decimalValueOpt();
-    }
-
     /*
     /**********************************************************************
     /* Other
@@ -137,8 +117,6 @@ public abstract class NumericNode
      * Convenience method for checking whether this node is a
      * {@link FloatNode} or {@link DoubleNode} that contains
      * "not-a-number" (NaN) value.
-     *
-     * @since 2.9
      */
     public abstract boolean isNaN();
 }

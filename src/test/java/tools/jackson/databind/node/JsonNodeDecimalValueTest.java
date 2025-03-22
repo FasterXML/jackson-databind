@@ -121,33 +121,24 @@ public class JsonNodeDecimalValueTest
     public void failBigDecimalFromNonNumberScalar()
     {
         _assertFailBigDecimalForNonNumber(NODES.booleanNode(true));
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.booleanNode(true));
         _assertFailBigDecimalForNonNumber(NODES.binaryNode(new byte[3]));
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.binaryNode(new byte[3]));
         _assertFailBigDecimalForNonNumber(NODES.stringNode("123"));
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.stringNode("123"));
         _assertFailBigDecimalForNonNumber(NODES.rawValueNode(new RawValue("abc")));
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.rawValueNode(new RawValue("abc")));
         _assertFailBigDecimalForNonNumber(NODES.pojoNode(Boolean.TRUE));
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.pojoNode(Boolean.TRUE));
     }
 
     @Test
     public void failBigDecimalValueFromStructural()
     {
         _assertFailBigDecimalForNonNumber(NODES.arrayNode(3));
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.arrayNode(3));
         _assertFailBigDecimalForNonNumber(NODES.objectNode());
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.objectNode());
     }
 
     @Test
     public void failDoubleValueFromMiscOther()
     {
         _assertFailBigDecimalForNonNumber(NODES.nullNode());
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.nullNode());
         _assertFailBigDecimalForNonNumber(NODES.missingNode());
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.missingNode());
     }
 
     // // // Shared helper methods
@@ -159,9 +150,8 @@ public class JsonNodeDecimalValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("value type not numeric");
-    }
 
-    private void _assertDefaultBigDecimalForOtherwiseFailing(JsonNode node) {
+        // Verify default value handling
         assertEquals(BD_DEFAULT, node.decimalValue(BD_DEFAULT));
         assertEquals(Optional.empty(), node.decimalValueOpt());
     }

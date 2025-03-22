@@ -273,13 +273,13 @@ public class JsonNodeLongValueTest
         _assertFailBigIntegerForNonNumber(NODES.rawValueNode(new RawValue("abc")));
         _assertFailBigIntegerForNonNumber(NODES.pojoNode(Boolean.TRUE));
     }
+
     @Test
     public void bigIntegerValueFromStructuralFail()
     {
         _assertFailBigIntegerForNonNumber(NODES.arrayNode(3));
         _assertFailBigIntegerForNonNumber(NODES.objectNode());
     }
-
 
     @Test
     public void bigIntegerValueFromMiscOtherFail()

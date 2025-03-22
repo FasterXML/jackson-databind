@@ -151,6 +151,22 @@ public class FloatNode extends NumericNode
     }
 
     @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) {
+        if (_hasFractionalPart()) {
+            return defaultValue;
+        }
+        return decimalValue().toBigInteger();
+    }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() {
+        if (_hasFractionalPart()) {
+            return Optional.empty();
+        }
+        return Optional.of(decimalValue().toBigInteger());
+    }
+    
+    @Override
     public float floatValue() { return _value; }
 
     @Override

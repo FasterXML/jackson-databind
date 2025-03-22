@@ -165,6 +165,22 @@ public class DecimalNode
     }
 
     @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) {
+        if (_hasFractionalPart()) {
+            return defaultValue;
+        }
+        return _value.toBigInteger();
+    }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() {
+        if (_hasFractionalPart()) {
+            return Optional.empty();
+        }
+        return Optional.of(_value.toBigInteger());
+    }
+
+    @Override
     public float floatValue() {
         float f = _value.floatValue();
         if (Float.isFinite(f)) {

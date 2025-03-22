@@ -897,6 +897,27 @@ public abstract class JsonNode
      */
     public abstract BigInteger bigIntegerValue();
 
+    /**
+     * Method similar to {@link #bigIntegerValue()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to Java {@code BigInteger}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to Java {@code BigInteger}
+     *
+     * @return Java {@code BigInteger} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
+     */
+    public abstract BigInteger bigIntegerValue(BigInteger defaultValue);
+
+    /**
+     * Method similar to {@link #bigIntegerValue()}, but that will return empty
+     * ({@code Optional.empty()}) if this node cannot
+     * be converted to Java {@code BigInteger}.
+     *
+     * @return Java {@code BigInteger} value this node represents, as {@code Optional<BigInteger>},
+     * if possible to accurately represent; {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<BigInteger> bigIntegerValueOpt();
+
     // // Scalar access: Numbers, Java float
 
     /**

@@ -158,6 +158,22 @@ public class DoubleNode
     }
 
     @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) {
+        if (_hasFractionalPart()) {
+            return defaultValue;
+        }
+        return decimalValue().toBigInteger();
+    }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() {
+        if (_hasFractionalPart()) {
+            return Optional.empty();
+        }
+        return Optional.of(decimalValue().toBigInteger());
+    }
+
+    @Override
     public float floatValue() {
         float f = (float) _value;
         if (Float.isFinite(f)) {
@@ -191,6 +207,12 @@ public class DoubleNode
         return NumberOutput.notFinite(_value);
     }
 
+    /*
+    /**********************************************************************
+    /* Overrides, other
+    /**********************************************************************
+     */
+
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)
             throws JacksonException {
@@ -218,6 +240,12 @@ public class DoubleNode
         long l = Double.doubleToLongBits(_value);
         return ((int) l) ^ (int) (l >> 32);
     }
+
+    /*
+    /**********************************************************************
+    /* Internal methods
+    /**********************************************************************
+     */
 
     private boolean _hasFractionalPart() { return _value != Math.rint(_value); }
 

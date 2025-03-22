@@ -52,6 +52,8 @@ public abstract class NumericNode
     @Override public abstract OptionalLong longValueOpt();
 
     @Override public abstract BigInteger bigIntegerValue();
+    @Override public abstract BigInteger bigIntegerValue(BigInteger defaultValue);
+    @Override public abstract Optional<BigInteger> bigIntegerValueOpt();
 
     @Override public abstract float floatValue();
 

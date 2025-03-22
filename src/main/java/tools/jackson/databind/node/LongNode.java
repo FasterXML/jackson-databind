@@ -118,6 +118,16 @@ public class LongNode
     public BigInteger bigIntegerValue() { return BigInteger.valueOf(_value); }
 
     @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) {
+        return BigInteger.valueOf(_value);
+    }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() {
+        return Optional.of(BigInteger.valueOf(_value));
+    }
+    
+    @Override
     public float floatValue() { return _value; }
 
     @Override

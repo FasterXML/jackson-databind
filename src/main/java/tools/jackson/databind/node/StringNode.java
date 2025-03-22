@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -51,7 +52,8 @@ public class StringNode
         return JsonNodeType.STRING;
     }
 
-    @Override public JsonToken asToken() { return JsonToken.VALUE_STRING; }
+    @Override
+    public JsonToken asToken() { return JsonToken.VALUE_STRING; }
 
     @Override
     protected String _valueDesc() {
@@ -67,7 +69,7 @@ public class StringNode
 
     /*
     /**********************************************************************
-    /* Overridden JsonNode methods, scalar access
+    /* Overridden JsonNode methods, scalar access, non-numeric
     /**********************************************************************
      */
 
@@ -119,21 +121,6 @@ public class StringNode
         return Optional.of(_value);
     }
 
-    @Override
-    public int asInt(int defaultValue) {
-        return NumberInput.parseAsInt(_value, defaultValue);
-    }
-
-    @Override
-    public long asLong(long defaultValue) {
-        return NumberInput.parseAsLong(_value, defaultValue);
-    }
-
-    @Override
-    public double asDouble(double defaultValue) {
-        return NumberInput.parseAsDouble(_value, defaultValue, false);
-    }
-
     /**
      * Method for accessing content String assuming they were
      * base64 encoded; if so, content is decoded and resulting binary
@@ -164,6 +151,68 @@ public class StringNode
     @Override
     public byte[] binaryValue() throws JacksonException {
         return getBinaryValue(Base64Variants.getDefaultVariant());
+    }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access, numeric
+    /**********************************************************************
+     */
+
+    @Override
+    public int asInt(int defaultValue) {
+        return NumberInput.parseAsInt(_value, defaultValue);
+    }
+
+    @Override
+    public long asLong(long defaultValue) {
+        return NumberInput.parseAsLong(_value, defaultValue);
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        return NumberInput.parseAsDouble(_value, defaultValue, false);
+    }
+
+    // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
+
+    @Override
+    public BigDecimal asDecimal() {
+        BigDecimal dec = _tryParseAsBigDecimal();
+        if (dec == null) {
+            return _reportCoercionFail("asDecimal()", BigDecimal.class,
+                    "value not a valid String representation of `BigDecimal`");
+        }
+        return dec;
+    }
+
+    @Override
+    public BigDecimal asDecimal(BigDecimal defaultValue) {
+        BigDecimal dec = _tryParseAsBigDecimal();
+        if (dec == null) {
+            return defaultValue;
+        }
+        return dec;
+    }
+
+    @Override
+    public Optional<BigDecimal> asDecimalOpt() {
+        BigDecimal dec = _tryParseAsBigDecimal();
+        if (dec == null) {
+            return Optional.empty();
+        }
+        return Optional.of(dec);
+    }
+
+    protected BigDecimal _tryParseAsBigDecimal() {
+        if (NumberInput.looksLikeValidNumber(_value)) {
+            try {
+                return NumberInput.parseBigDecimal(_value, true);
+            } catch (NumberFormatException e) {
+                ;
+            }
+        }
+        return null;
     }
 
     /*

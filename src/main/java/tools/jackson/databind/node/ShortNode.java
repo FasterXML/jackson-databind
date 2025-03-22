@@ -14,7 +14,7 @@ import tools.jackson.databind.SerializationContext;
  * Numeric node that contains simple 16-bit integer values.
  */
 public class ShortNode
-    extends NumericNode
+    extends NumericIntNode
 {
     private static final long serialVersionUID = 3L;
 
@@ -36,19 +36,11 @@ public class ShortNode
     /**********************************************************************
      */
 
-    @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
-
     @Override
     public JsonParser.NumberType numberType() {
         // No SHORT enum so
         return JsonParser.NumberType.INT;
     }
-
-    @Override
-    public boolean isIntegralNumber() { return true; }
-
-    @Override
-    public boolean isNaN() { return false; }
     
     @Override
     public boolean isShort() { return true; }

@@ -16,7 +16,7 @@ import tools.jackson.databind.SerializationContext;
  * floating point values simple 32-bit integer values.
  */
 public class DoubleNode
-    extends NumericNode
+    extends NumericFPNode
 {
     private static final long serialVersionUID = 3L;
 
@@ -34,38 +34,19 @@ public class DoubleNode
 
     /*
     /**********************************************************************
-    /* BaseJsonNode extended API
-    /**********************************************************************
-     */
-
-    @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_FLOAT; }
-
-    @Override
-    public JsonParser.NumberType numberType() { return JsonParser.NumberType.DOUBLE; }
-
-    /*
-    /**********************************************************************
     /* Overridden JsonNode methods, simple properties
     /**********************************************************************
      */
 
     @Override
-    public boolean isFloatingPointNumber() { return true; }
+    public JsonParser.NumberType numberType() { return JsonParser.NumberType.DOUBLE; }
 
     @Override
     public boolean isDouble() { return true; }
 
-    @Override public boolean canConvertToInt() {
-        return canConvertToExactIntegral() && _inIntRange();
-    }
-
-    @Override public boolean canConvertToLong() {
-        return canConvertToExactIntegral() && _inLongRange();
-    }
-
     @Override
-    public boolean canConvertToExactIntegral() {
-        return !isNaN() && !_hasFractionalPart();
+    public boolean isNaN() {
+        return NumberOutput.notFinite(_value);
     }
 
     /*
@@ -193,33 +174,33 @@ public class DoubleNode
         return OptionalDouble.of(_value);
     }
 
+    /*
+    /**********************************************************************
+    /* NumericFPNode abstract method impls
+    /**********************************************************************
+     */
+
     @Override
-    public BigDecimal decimalValue() {
-        if (isNaN()) {
-            _reportBigDecimalCoercionNaNFail("decimalValue()");
-        }
+    protected BigDecimal _asDecimalValueUnchecked() {
         return BigDecimal.valueOf(_value);
     }
+    
+    @Override
+    protected boolean _hasFractionalPart() { return _value != Math.rint(_value); }
 
     @Override
-    public BigDecimal decimalValue(BigDecimal defaultValue) {
-        if (isNaN()) {
-            return defaultValue;
-        }
-        return BigDecimal.valueOf(_value);
+    protected boolean _inShortRange() {
+        return !isNaN() && (_value >= Short.MIN_VALUE) && (_value <= Short.MAX_VALUE);
     }
 
     @Override
-    public Optional<BigDecimal> decimalValueOpt() {
-        if (isNaN()) {
-            return Optional.empty();
-        }
-        return Optional.of(decimalValue());
+    protected boolean _inIntRange() {
+        return !isNaN() &&(_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
     }
 
     @Override
-    public boolean isNaN() {
-        return NumberOutput.notFinite(_value);
+    protected boolean _inLongRange() {
+        return !isNaN() && (_value >= Long.MIN_VALUE) && (_value <= Long.MAX_VALUE);
     }
 
     /*
@@ -254,25 +235,5 @@ public class DoubleNode
         // same as hashCode Double.class uses
         long l = Double.doubleToLongBits(_value);
         return ((int) l) ^ (int) (l >> 32);
-    }
-
-    /*
-    /**********************************************************************
-    /* Internal methods
-    /**********************************************************************
-     */
-
-    private boolean _hasFractionalPart() { return _value != Math.rint(_value); }
-
-    private boolean _inShortRange() {
-        return !isNaN() && (_value >= Short.MIN_VALUE) && (_value <= Short.MAX_VALUE);
-    }
-
-    private boolean _inIntRange() {
-        return !isNaN() &&(_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
-    }
-
-    private boolean _inLongRange() {
-        return !isNaN() && (_value >= Long.MIN_VALUE) && (_value <= Long.MAX_VALUE);
     }
 }

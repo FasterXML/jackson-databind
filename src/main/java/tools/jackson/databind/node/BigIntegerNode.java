@@ -15,7 +15,7 @@ import tools.jackson.databind.SerializationContext;
  * Numeric node that contains simple 64-bit integer values.
  */
 public class BigIntegerNode
-    extends NumericNode
+    extends NumericIntNode
 {
     private static final long serialVersionUID = 3L;
 
@@ -46,19 +46,10 @@ public class BigIntegerNode
      */
 
     @Override
-    public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
-
-    @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.BIG_INTEGER; }
 
     @Override
     public boolean isBigInteger() { return true; }
-
-    @Override
-    public boolean isIntegralNumber() { return true; }
-
-    @Override
-    public boolean isNaN() { return false; }
 
     @Override public boolean canConvertToInt() {
         return (_value.compareTo(MIN_INTEGER) >= 0)
@@ -230,10 +221,4 @@ public class BigIntegerNode
     public int hashCode() {
         return Objects.hashCode(_value);
     }
-
-    /*
-    /**********************************************************
-    /* Other overrides
-    /**********************************************************
-     */
 }

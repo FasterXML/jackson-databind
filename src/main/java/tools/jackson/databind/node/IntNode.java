@@ -14,7 +14,7 @@ import tools.jackson.databind.SerializationContext;
  * Numeric node that contains simple 32-bit integer values.
  */
 public class IntNode
-    extends NumericNode
+    extends NumericIntNode
 {
     private static final long serialVersionUID = 3L;
 
@@ -56,20 +56,12 @@ public class IntNode
     /**********************************************************************
      */
 
-    @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
-
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.INT; }
 
     @Override
-    public boolean isIntegralNumber() { return true; }
-
-    @Override
     public boolean isInt() { return true; }
 
-    @Override
-    public boolean isNaN() { return false; }
-    
     @Override public boolean canConvertToInt() { return true; }
     @Override public boolean canConvertToLong() { return true; }
 

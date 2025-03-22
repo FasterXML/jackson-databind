@@ -1,6 +1,9 @@
 package tools.jackson.databind.node;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
+import java.util.Optional;
 
 import tools.jackson.core.*;
 
@@ -39,14 +42,14 @@ public class POJONode
     }
 
     @Override
-    public boolean isEmbeddedValue() { return true; }
+    public JsonToken asToken() { return JsonToken.VALUE_EMBEDDED_OBJECT; }
 
     @Override
-    public JsonToken asToken() { return JsonToken.VALUE_EMBEDDED_OBJECT; }
+    public boolean isEmbeddedValue() { return true; }
 
     /*
     /**********************************************************************
-    /* General type coercions
+    /* Overridden JsonNode methods, scalar access, non-numeric
     /**********************************************************************
      */
 
@@ -72,33 +75,6 @@ public class POJONode
         return null;
     }
 
-    @Override
-    public int asInt(int defaultValue)
-    {
-        if (_value instanceof Number) {
-            return ((Number) _value).intValue();
-        }
-        return defaultValue;
-    }
-
-    @Override
-    public long asLong(long defaultValue)
-    {
-        if (_value instanceof Number) {
-            return ((Number) _value).longValue();
-        }
-        return defaultValue;
-    }
-
-    @Override
-    public double asDouble(double defaultValue)
-    {
-        if (_value instanceof Number) {
-            return ((Number) _value).doubleValue();
-        }
-        return defaultValue;
-    }
-
     /**
      * As it is possible that some implementations embed byte[] as POJONode
      * (despite optimal being {@link BinaryNode}), let's add support for exposing
@@ -113,6 +89,94 @@ public class POJONode
         return super.binaryValue();
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access, numeric
+    /**********************************************************************
+     */
+    
+    @Override
+    public int asInt(int defaultValue)
+    {
+        if (_value instanceof Number N) {
+            return N.intValue();
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public long asLong(long defaultValue)
+    {
+        if (_value instanceof Number N) {
+            return N.longValue();
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public double asDouble(double defaultValue)
+    {
+        if (_value instanceof Number N) {
+            return N.doubleValue();
+        }
+        return defaultValue;
+    }
+
+    // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
+
+    @Override
+    public BigDecimal asDecimal() {
+        BigDecimal dec = _extractAsBigDecimal();
+        if (dec == null) {
+            return super.asDecimal();
+        }
+        return dec;
+    }
+
+    @Override
+    public BigDecimal asDecimal(BigDecimal defaultValue) {
+        BigDecimal dec = _extractAsBigDecimal();
+        if (dec == null) {
+            return defaultValue;
+        }
+        return dec;
+    }
+
+    @Override
+    public Optional<BigDecimal> asDecimalOpt() {
+        BigDecimal dec = _extractAsBigDecimal();
+        if (dec == null) {
+            return Optional.empty();
+        }
+        return Optional.of(dec);
+    }
+
+    protected BigDecimal _extractAsBigDecimal() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return BigDecimal.ZERO;
+        }
+        // Next, coercions from Numbers
+        if (_value instanceof BigDecimal dec) {
+            return dec;
+        }
+        if (_value instanceof BigInteger I) {
+            return new BigDecimal(I);
+        }
+        if (_value instanceof Number N) {
+            if (N instanceof Long || N instanceof Integer || N instanceof Short || N instanceof Byte) {
+                return BigDecimal.valueOf(N.longValue());
+            }
+            // Use doubleValue() as a last resort for Float & Double
+            try {
+                return BigDecimal.valueOf(N.doubleValue());
+            } catch (IllegalArgumentException e) {
+                // got an NaN
+            }
+        }
+        return null;
+    }
+    
     /*
     /**********************************************************************
     /* Public API, serialization

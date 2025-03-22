@@ -15,7 +15,8 @@ import tools.jackson.databind.SerializationContext;
  * {@code JsonNode} implementation for efficiently containing 32-bit
  * `float` values.
  */
-public class FloatNode extends NumericNode
+public class FloatNode
+    extends NumericFPNode
 {
     private static final long serialVersionUID = 3L;
 
@@ -37,28 +38,15 @@ public class FloatNode extends NumericNode
     /**********************************************************************
      */
 
-    @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_FLOAT; }
-
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.FLOAT; }
 
     @Override
-    public boolean isFloatingPointNumber() { return true; }
-
-    @Override
     public boolean isFloat() { return true; }
 
-    @Override public boolean canConvertToInt() {
-        return canConvertToExactIntegral() && _inIntRange();
-    }
-
-    @Override public boolean canConvertToLong() {
-        return canConvertToExactIntegral() && _inLongRange();
-    }
-
     @Override
-    public boolean canConvertToExactIntegral() {
-        return !isNaN() && !_hasFractionalPart();
+    public boolean isNaN() {
+        return NumberOutput.notFinite(_value);
     }
 
     /*
@@ -180,35 +168,41 @@ public class FloatNode extends NumericNode
         return OptionalDouble.of(_value);
     }
 
+    /*
+    /**********************************************************************
+    /* NumericFPNode abstract method impls
+    /**********************************************************************
+     */
+
     @Override
-    public BigDecimal decimalValue() {
-        if (isNaN()) {
-            _reportBigDecimalCoercionNaNFail("decimalValue()");
-        }
+    protected BigDecimal _asDecimalValueUnchecked() {
         return BigDecimal.valueOf(_value);
     }
 
     @Override
-    public BigDecimal decimalValue(BigDecimal defaultValue) {
-        if (isNaN()) {
-            return defaultValue;
-        }
-        return BigDecimal.valueOf(_value);
+    protected boolean _hasFractionalPart() { return _value != Math.round(_value); }
+
+    @Override
+    protected boolean _inShortRange() {
+        return !isNaN() && (_value >= Short.MIN_VALUE) && (_value <= Short.MAX_VALUE);
     }
 
     @Override
-    public Optional<BigDecimal> decimalValueOpt() {
-        if (isNaN()) {
-            return Optional.empty();
-        }
-        return Optional.of(BigDecimal.valueOf(_value));
+    protected boolean _inIntRange() {
+        return !isNaN() && (_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
     }
 
     @Override
-    public boolean isNaN() {
-        return NumberOutput.notFinite(_value);
+    protected boolean _inLongRange() {
+        return !isNaN() && (_value >= Long.MIN_VALUE) && (_value <= Long.MAX_VALUE);
     }
 
+    /*
+    /**********************************************************************
+    /* Overrides, other
+    /**********************************************************************
+     */
+    
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)
             throws JacksonException {
@@ -232,19 +226,5 @@ public class FloatNode extends NumericNode
     @Override
     public int hashCode() {
         return Float.floatToIntBits(_value);
-    }
-
-    private boolean _hasFractionalPart() { return _value != Math.round(_value); }
-
-    private boolean _inShortRange() {
-        return !isNaN() && (_value >= Short.MIN_VALUE) && (_value <= Short.MAX_VALUE);
-    }
-
-    private boolean _inIntRange() {
-        return !isNaN() && (_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
-    }
-
-    private boolean _inLongRange() {
-        return !isNaN() && (_value >= Long.MIN_VALUE) && (_value <= Long.MAX_VALUE);
     }
 }

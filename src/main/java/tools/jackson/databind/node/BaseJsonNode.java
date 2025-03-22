@@ -173,7 +173,6 @@ public abstract class BaseJsonNode
         return defaultValue;
     }
 
-
     @Override
     public BigDecimal decimalValue() {
         return _reportCoercionFail("decimalValue()", BigDecimal.class, "value type not numeric");

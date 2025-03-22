@@ -108,11 +108,14 @@ public abstract class NumericNode
     }
 
     // // asDecimal() easy: can just call decimalValue()
-    
+
+    public abstract BigDecimal asDecimal();
+    /*
     @Override
     public BigDecimal asDecimal() {
         return decimalValue();
     }
+    */
     
     @Override
     public BigDecimal asDecimal(BigDecimal defaultValue) {

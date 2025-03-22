@@ -42,6 +42,19 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     @JsonDeserialize(using = LeafDeserializer.class)
     public static class LeafMixIn { }
 
+    // Deserializer to trigger the problem described in [JACKSON-554]
+    static class LeafDeserializer extends ValueDeserializer<Leaf>
+    {
+        @Override
+        public Leaf deserialize(JsonParser p, DeserializationContext ctxt)
+        {
+            JsonNode tree = ctxt.readTree(p);
+            Leaf leaf = new Leaf();
+            leaf.value = tree.get("value").intValue();
+            return leaf;
+        }
+    }
+
     // for [databind#467]
     @JsonSerialize(using=Issue467Serializer.class)
     static class Issue467Bean  {
@@ -152,19 +165,6 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         assertFalse(new StringNode("false").asBoolean());
 
         assertTrue(new POJONode(Boolean.TRUE).asBoolean());
-    }
-
-    // Deserializer to trigger the problem described in [JACKSON-554]
-    public static class LeafDeserializer extends ValueDeserializer<Leaf>
-    {
-        @Override
-        public Leaf deserialize(JsonParser p, DeserializationContext ctxt)
-        {
-            JsonNode tree = ctxt.readTree(p);
-            Leaf leaf = new Leaf();
-            leaf.value = tree.get("value").intValue();
-            return leaf;
-        }
     }
 
     @Test

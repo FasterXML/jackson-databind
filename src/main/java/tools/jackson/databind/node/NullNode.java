@@ -1,5 +1,8 @@
 package tools.jackson.databind.node;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.SerializationContext;
@@ -38,7 +41,7 @@ public class NullNode
 
     /*
     /**********************************************************************
-    /* Overridden JsonNode methods, scalar access
+    /* Overridden JsonNode methods, scalar access, non-numeric
     /**********************************************************************
      */
 
@@ -52,6 +55,42 @@ public class NullNode
         return "";
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access, numeric
+    /**********************************************************************
+     */
+
+    // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
+
+    @Override
+    public BigDecimal asDecimal() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    public BigDecimal asDecimal(BigDecimal defaultValue) {
+        return asDecimal();
+    }
+
+    @Override
+    public Optional<BigDecimal> asDecimalOpt() {
+        return Optional.of(asDecimal());
+    }
+
+    /*
+    public int asInt(int defaultValue);
+    public long asLong(long defaultValue);
+    public double asDouble(double defaultValue);
+    public boolean asBoolean(boolean defaultValue);
+    */
+
+    /*
+    /**********************************************************************
+    /* Overridden methods, other
+    /**********************************************************************
+     */
+
     @Override
     protected String _valueDesc() {
         return "<null>";
@@ -62,16 +101,7 @@ public class NullNode
     public JsonNode requireNonNull() {
         return _reportRequiredViolation("requireNonNull() called on `NullNode`");
     }
-
-    // as with MissingNode, not considered number node; hence defaults are returned if provided
-
-    /*
-    public int asInt(int defaultValue);
-    public long asLong(long defaultValue);
-    public double asDouble(double defaultValue);
-    public boolean asBoolean(boolean defaultValue);
-    */
-
+    
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException

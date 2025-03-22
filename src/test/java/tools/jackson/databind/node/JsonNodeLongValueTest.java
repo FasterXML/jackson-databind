@@ -2,7 +2,6 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.OptionalLong;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +23,7 @@ public class JsonNodeLongValueTest
 {
     private final JsonNodeFactory NODES = newJsonMapper().getNodeFactory();
 
-    // // // longValue() + Numbers/Integers
+    // longValue() + Numbers/Integers
 
     @Test
     public void longValueFromNumberIntOk()
@@ -83,47 +82,16 @@ public class JsonNodeLongValueTest
     }
 
     @Test
-    public void bigIntegerValueFromNumberIntOk()
-    {
-        // Integer types, byte/short/int/long/BigInteger
-        assertEquals(BigInteger.ONE, NODES.numberNode((byte) 1).bigIntegerValue());
-        assertEquals(bigInt(Byte.MIN_VALUE), NODES.numberNode(Byte.MIN_VALUE).bigIntegerValue());
-        assertEquals(bigInt(Byte.MAX_VALUE), NODES.numberNode(Byte.MAX_VALUE).bigIntegerValue());
-
-        assertEquals(BigInteger.ONE, NODES.numberNode((short) 1).bigIntegerValue());
-        assertEquals(bigInt(Short.MIN_VALUE), NODES.numberNode(Short.MIN_VALUE).bigIntegerValue());
-        assertEquals(bigInt(Short.MAX_VALUE), NODES.numberNode(Short.MAX_VALUE).bigIntegerValue());
-
-        assertEquals(BigInteger.ONE, NODES.numberNode(1).bigIntegerValue());
-        assertEquals(bigInt(Integer.MIN_VALUE), NODES.numberNode(Integer.MIN_VALUE).bigIntegerValue());
-        assertEquals(bigInt(Integer.MAX_VALUE), NODES.numberNode(Integer.MAX_VALUE).bigIntegerValue());
-
-        assertEquals(BigInteger.ONE, NODES.numberNode(1L).bigIntegerValue());
-        assertEquals(bigInt(Long.MIN_VALUE), NODES.numberNode(Long.MIN_VALUE).bigIntegerValue());
-        assertEquals(bigInt(Long.MAX_VALUE), NODES.numberNode(Long.MAX_VALUE).bigIntegerValue());
-
-        assertEquals(BigInteger.ONE, NODES.numberNode(BigInteger.ONE).bigIntegerValue());
-        assertEquals(BigInteger.valueOf(Long.MIN_VALUE),
-                NODES.numberNode(Long.MIN_VALUE).bigIntegerValue());
-        assertEquals(BigInteger.valueOf(Long.MAX_VALUE),
-                NODES.numberNode(Long.MAX_VALUE).bigIntegerValue());
-    }
-    
-    @Test
     public void longValueFromNumberIntFailRange() {
         // Can only fail for underflow/overflow: and that only for Long / BigInteger
         final BigInteger underflow = BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE);
         final BigInteger overflow = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
-
+    
         _assertFailLongForValueRange(NODES.numberNode(underflow));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(underflow));
         _assertFailLongForValueRange(NODES.numberNode(overflow));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(overflow));
     }
 
-    // NOTE: conversion from JSON Integer cannot fail for BigInteger wrt range, hence no tests
-    
-    // // // longValue() + Numbers/FPs
+    // longValue() + Numbers/FPs
 
     @Test
     public void longValueFromNumberFPOk()
@@ -161,25 +129,6 @@ public class JsonNodeLongValueTest
     }
 
     @Test
-    public void bigIntegerValueFromNumberFPOk()
-    {
-        assertEquals(BigInteger.ONE, NODES.numberNode(1.0f).bigIntegerValue());
-        assertEquals(bigInt(100_000), NODES.numberNode(100_000.0f).bigIntegerValue());
-        assertEquals(bigInt(-100_000), NODES.numberNode(-100_000.0f).bigIntegerValue());
-
-        assertEquals(bigInt(1), NODES.numberNode(1.0d).bigIntegerValue());
-        assertEquals(bigInt(100_000_000), NODES.numberNode(100_000_000.0d).bigIntegerValue());
-        assertEquals(bigInt(-100_000_000), NODES.numberNode(-100_000_000.0d).bigIntegerValue());
-
-        assertEquals(bigInt(1),
-                NODES.numberNode(BigDecimal.valueOf(1.0d)).bigIntegerValue());
-        assertEquals(bigInt(Long.MIN_VALUE),
-                NODES.numberNode(new BigDecimal(Long.MIN_VALUE+".0")).bigIntegerValue());
-        assertEquals(bigInt(Long.MAX_VALUE),
-                NODES.numberNode(new BigDecimal(Long.MAX_VALUE+".0")).bigIntegerValue());
-    }
-
-    @Test
     public void longValueFromNumberFPFailRange()
     {
         // For Float and Double both it's tricky to do too-big/too-small accurately so
@@ -188,14 +137,10 @@ public class JsonNodeLongValueTest
         final double overflow_d = Double.MAX_VALUE;
 
         _assertFailLongForValueRange(NODES.numberNode(underflow_d));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(underflow_d));
         _assertFailLongForValueRange(NODES.numberNode(overflow_d));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(overflow_d));
 
         _assertFailLongForValueRange(NODES.numberNode(-Float.MAX_VALUE));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(-Float.MAX_VALUE));
         _assertFailLongForValueRange(NODES.numberNode(Float.MAX_VALUE));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(Float.MAX_VALUE));
 
         // But for BigDecimal can do exact check
         
@@ -203,30 +148,107 @@ public class JsonNodeLongValueTest
         final BigDecimal overflow_big = BigDecimal.valueOf(Long.MAX_VALUE).add(BigDecimal.ONE);
 
         _assertFailLongForValueRange(NODES.numberNode(underflow_big));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(underflow_big));
         _assertFailLongForValueRange(NODES.numberNode(overflow_big));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(overflow_big));
     }
-
-    // NOTE: BigInteger has unlimited range so cannot fail for Under-/Overflow (hence no tests)
 
     @Test
     public void longValueFromNumberFPFailFraction()
     {
         _assertFailLongValueForFraction(NODES.numberNode(100.5f));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(100.5f));
         _assertFailLongValueForFraction(NODES.numberNode(-0.25f));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(-0.25f));
 
         _assertFailLongValueForFraction(NODES.numberNode(100.5d));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(100.5d));
         _assertFailLongValueForFraction(NODES.numberNode(-0.25d));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(-0.25d));
-        
+
         _assertFailLongValueForFraction(NODES.numberNode(BigDecimal.valueOf(100.5d)));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(BigDecimal.valueOf(100.5d)));
         _assertFailLongValueForFraction(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
-        _assertDefaultLongForOtherwiseFailing(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
+    }
+
+    // longValue() + non-Numeric types
+
+    @Test
+    public void longValueFromNonNumberScalarFail()
+    {
+        _assertFailLongForNonNumber(NODES.booleanNode(true));
+        _assertFailLongForNonNumber(NODES.binaryNode(new byte[3]));
+        _assertFailLongForNonNumber(NODES.stringNode("123"));
+        _assertFailLongForNonNumber(NODES.rawValueNode(new RawValue("abc")));
+        _assertFailLongForNonNumber(NODES.pojoNode(Boolean.TRUE));
+    }
+
+    @Test
+    public void longValueFromStructuralFail()
+    {
+        _assertFailLongForNonNumber(NODES.arrayNode(3));
+        _assertFailLongForNonNumber(NODES.objectNode());
+    }
+
+    @Test
+    public void longValueFromMiscOtherFail()
+    {
+        _assertFailLongForNonNumber(NODES.nullNode());
+        _assertFailLongForNonNumber(NODES.missingNode());
+    }
+
+    // // // BigInteger + bigIntegerValue()
+
+    @Test
+    public void bigIntegerValueFromNumberIntOk()
+    {
+        // Integer types, byte/short/int/long/BigInteger
+        assertEquals(BigInteger.ONE, NODES.numberNode((byte) 1).bigIntegerValue());
+        assertEquals(bigInt(Byte.MIN_VALUE), NODES.numberNode(Byte.MIN_VALUE).bigIntegerValue());
+        assertEquals(bigInt(Byte.MAX_VALUE), NODES.numberNode(Byte.MAX_VALUE).bigIntegerValue());
+
+        assertEquals(BigInteger.ONE, NODES.numberNode((short) 1).bigIntegerValue());
+        assertEquals(bigInt(Short.MIN_VALUE), NODES.numberNode(Short.MIN_VALUE).bigIntegerValue());
+        assertEquals(bigInt(Short.MAX_VALUE), NODES.numberNode(Short.MAX_VALUE).bigIntegerValue());
+
+        assertEquals(BigInteger.ONE, NODES.numberNode(1).bigIntegerValue());
+        assertEquals(bigInt(Integer.MIN_VALUE), NODES.numberNode(Integer.MIN_VALUE).bigIntegerValue());
+        assertEquals(bigInt(Integer.MAX_VALUE), NODES.numberNode(Integer.MAX_VALUE).bigIntegerValue());
+
+        assertEquals(BigInteger.ONE, NODES.numberNode(1L).bigIntegerValue());
+        assertEquals(bigInt(Long.MIN_VALUE), NODES.numberNode(Long.MIN_VALUE).bigIntegerValue());
+        assertEquals(bigInt(Long.MAX_VALUE), NODES.numberNode(Long.MAX_VALUE).bigIntegerValue());
+
+        assertEquals(BigInteger.ONE, NODES.numberNode(BigInteger.ONE).bigIntegerValue());
+        assertEquals(BigInteger.valueOf(Long.MIN_VALUE),
+                NODES.numberNode(Long.MIN_VALUE).bigIntegerValue());
+        assertEquals(BigInteger.valueOf(Long.MAX_VALUE),
+                NODES.numberNode(Long.MAX_VALUE).bigIntegerValue());
+    }
+
+    // NOTE: BigInteger has unlimited range so cannot fail for Under-/Overflow (hence no tests)
+
+    @Test
+    public void bigIntegerValueFromNumberFPOk()
+    {
+        assertEquals(BigInteger.ONE, NODES.numberNode(1.0f).bigIntegerValue());
+        assertEquals(bigInt(100_000), NODES.numberNode(100_000.0f).bigIntegerValue());
+        assertEquals(bigInt(-100_000), NODES.numberNode(-100_000.0f).bigIntegerValue());
+    
+        assertEquals(BigInteger.ONE, NODES.numberNode(1.0f).bigIntegerValue(BigInteger.TEN));
+        assertEquals(BigInteger.ONE, NODES.numberNode(1.0f).bigIntegerValueOpt().get());
+        
+        assertEquals(BigInteger.ONE, NODES.numberNode(1.0d).bigIntegerValue());
+        assertEquals(bigInt(100_000_000), NODES.numberNode(100_000_000.0d).bigIntegerValue());
+        assertEquals(bigInt(-100_000_000), NODES.numberNode(-100_000_000.0d).bigIntegerValue());
+    
+        assertEquals(BigInteger.ONE, NODES.numberNode(1.0d).bigIntegerValue(BigInteger.TEN));
+        assertEquals(BigInteger.ONE, NODES.numberNode(1.0d).bigIntegerValueOpt().get());
+    
+        assertEquals(BigInteger.ONE,
+                NODES.numberNode(BigDecimal.valueOf(1.0d)).bigIntegerValue());
+        assertEquals(bigInt(Long.MIN_VALUE),
+                NODES.numberNode(new BigDecimal(Long.MIN_VALUE+".0")).bigIntegerValue());
+        assertEquals(bigInt(Long.MAX_VALUE),
+                NODES.numberNode(new BigDecimal(Long.MAX_VALUE+".0")).bigIntegerValue());
+    
+        assertEquals(BigInteger.ONE,
+                NODES.numberNode(BigDecimal.valueOf(1.0d)).bigIntegerValue(BigInteger.TEN));
+        assertEquals(BigInteger.ONE,
+                NODES.numberNode(BigDecimal.valueOf(1.0d)).bigIntegerValueOpt().get());
     }
 
     @Test
@@ -242,23 +264,6 @@ public class JsonNodeLongValueTest
         _assertFailBigIntegerValueForFraction(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
     }
 
-    // // // longValue() + non-Numeric types
-
-    @Test
-    public void longValueFromNonNumberScalarFail()
-    {
-        _assertFailLongForNonNumber(NODES.booleanNode(true));
-        _assertDefaultLongForOtherwiseFailing(NODES.booleanNode(true));
-        _assertFailLongForNonNumber(NODES.binaryNode(new byte[3]));
-        _assertDefaultLongForOtherwiseFailing(NODES.binaryNode(new byte[3]));
-        _assertFailLongForNonNumber(NODES.stringNode("123"));
-        _assertDefaultLongForOtherwiseFailing(NODES.stringNode("123"));
-        _assertFailLongForNonNumber(NODES.rawValueNode(new RawValue("abc")));
-        _assertDefaultLongForOtherwiseFailing(NODES.rawValueNode(new RawValue("abc")));
-        _assertFailLongForNonNumber(NODES.pojoNode(Boolean.TRUE));
-        _assertDefaultLongForOtherwiseFailing(NODES.pojoNode(Boolean.TRUE));
-    }
-
     @Test
     public void bigIntegerValueFromNonNumberScalarFail()
     {
@@ -268,16 +273,6 @@ public class JsonNodeLongValueTest
         _assertFailBigIntegerForNonNumber(NODES.rawValueNode(new RawValue("abc")));
         _assertFailBigIntegerForNonNumber(NODES.pojoNode(Boolean.TRUE));
     }
-
-    @Test
-    public void longValueFromStructuralFail()
-    {
-        _assertFailLongForNonNumber(NODES.arrayNode(3));
-        _assertDefaultLongForOtherwiseFailing(NODES.arrayNode(3));
-        _assertFailLongForNonNumber(NODES.objectNode());
-        _assertDefaultLongForOtherwiseFailing(NODES.objectNode());
-    }
-
     @Test
     public void bigIntegerValueFromStructuralFail()
     {
@@ -285,14 +280,6 @@ public class JsonNodeLongValueTest
         _assertFailBigIntegerForNonNumber(NODES.objectNode());
     }
 
-    @Test
-    public void longValueFromMiscOtherFail()
-    {
-        _assertFailLongForNonNumber(NODES.nullNode());
-        _assertDefaultLongForOtherwiseFailing(NODES.nullNode());
-        _assertFailLongForNonNumber(NODES.missingNode());
-        _assertDefaultLongForOtherwiseFailing(NODES.missingNode());
-    }
 
     @Test
     public void bigIntegerValueFromMiscOtherFail()
@@ -300,7 +287,7 @@ public class JsonNodeLongValueTest
         _assertFailBigIntegerForNonNumber(NODES.nullNode());
         _assertFailBigIntegerForNonNumber(NODES.missingNode());
     }
-
+    
     // // // Shared helper methods
 
     private void _assertFailLongForValueRange(JsonNode node) {
@@ -310,6 +297,10 @@ public class JsonNodeLongValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("value not in 64-bit `long` range");
+
+        // Verify default value handling
+        assertEquals(1L, node.longValue(1L));
+        assertFalse(node.longValueOpt().isPresent());
     }
 
     private void _assertFailLongValueForFraction(JsonNode node) {
@@ -319,6 +310,10 @@ public class JsonNodeLongValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("to `long`: value has fractional part");
+
+        // Verify default value handling
+        assertEquals(1L, node.longValue(1L));
+        assertFalse(node.longValueOpt().isPresent());
     }
 
     private void _assertFailBigIntegerValueForFraction(JsonNode node) {
@@ -328,6 +323,11 @@ public class JsonNodeLongValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("to `java.math.BigInteger`: value has fractional part");
+
+        // Verify default value handling
+        assertEquals(BigInteger.ONE, node.bigIntegerValue(BigInteger.ONE));
+        assertFalse(node.bigIntegerValueOpt().isPresent());
+
     }
 
     private void _assertFailLongForNonNumber(JsonNode node) {
@@ -337,6 +337,10 @@ public class JsonNodeLongValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("value type not numeric");
+
+        // Verify default value handling
+        assertEquals(1L, node.longValue(1L));
+        assertFalse(node.longValueOpt().isPresent());
     }
 
     private void _assertFailBigIntegerForNonNumber(JsonNode node) {
@@ -346,10 +350,9 @@ public class JsonNodeLongValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("value type not numeric");
-    }
 
-    private void _assertDefaultLongForOtherwiseFailing(JsonNode node) {
-        assertEquals(99L, node.longValue(99L));
-        assertEquals(OptionalLong.empty(), node.longValueOpt());
+        // Verify default value handling
+        assertEquals(BigInteger.ONE, node.bigIntegerValue(BigInteger.ONE));
+        assertFalse(node.bigIntegerValueOpt().isPresent());
     }
 }

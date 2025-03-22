@@ -634,7 +634,7 @@ public abstract class SettableBeanProperty
             }
             throw JsonMappingException.from(p, msg.toString(), e);
         }
-        _throwAsIOE(p, e, config.isEnabled(MapperFeature.WRAP_EXCEPTIONS));
+        _throwAsIOE(p, e, config.isEnabled(MapperFeature.UNWRAP_ROOT_CAUSE));
     }
 
     /**
@@ -666,12 +666,12 @@ public abstract class SettableBeanProperty
     /**
      * @since 2.7
      */
-    protected IOException _throwAsIOE(JsonParser p, Exception e, boolean wrapException) throws IOException
+    protected IOException _throwAsIOE(JsonParser p, Exception e, boolean unwrapRootCause) throws IOException
     {
         ClassUtil.throwIfIOE(e);
         ClassUtil.throwIfRTE(e);
 
-        if (wrapException) {
+        if (unwrapRootCause) {
             // let's wrap the innermost problem
             Throwable th = ClassUtil.getRootCause(e);
             throw JsonMappingException.from(p, ClassUtil.exceptionMessage(th), th);

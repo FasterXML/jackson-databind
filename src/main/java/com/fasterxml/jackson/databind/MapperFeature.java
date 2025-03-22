@@ -666,7 +666,7 @@ public enum MapperFeature implements ConfigFeature
     /**
      * @since 2.19
      */
-    WRAP_EXCEPTIONS(true)
+    UNWRAP_ROOT_CAUSE(true)
     ;
 
     private final boolean _defaultState;

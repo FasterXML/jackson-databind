@@ -37,11 +37,11 @@ public class RetainStacktrace4603Test
     final String JSON = a2q("{'value':3}");
 
     final ObjectMapper enabledMapper = jsonMapperBuilder()
-            .configure(MapperFeature.WRAP_EXCEPTIONS, true)
+            .configure(MapperFeature.UNWRAP_ROOT_CAUSE, true)
             .build();
 
     final ObjectMapper disabledMapper = jsonMapperBuilder()
-            .configure(MapperFeature.WRAP_EXCEPTIONS, false)
+            .configure(MapperFeature.UNWRAP_ROOT_CAUSE, false)
             .build();
 
     final ObjectMapper defaultMapper = newJsonMapper();

@@ -172,7 +172,8 @@ public abstract class BaseJsonNode
     public double asDouble(double defaultValue) {
         return defaultValue;
     }
-    
+
+
     @Override
     public BigDecimal decimalValue() {
         return _reportCoercionFail("decimalValue()", BigDecimal.class, "value type not numeric");
@@ -192,13 +193,20 @@ public abstract class BaseJsonNode
 
     @Override
     public BigDecimal asDecimal() {
-        return asDecimal(BigDecimal.ZERO);
+        return _reportCoercionFail("asDecimal()", BigDecimal.class,
+                "value type not coercible to `BigDecimal`");
     }
-    
+
     @Override
     public BigDecimal asDecimal(BigDecimal defaultValue) {
-        // !!! TODO
-        return decimalValue(defaultValue);
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<BigDecimal> asDecimalOpt() {
+        // Overridden by NumericNode, for other types return default
+        return Optional.empty();
     }
 
     /*
@@ -597,6 +605,11 @@ public abstract class BaseJsonNode
     protected BigInteger _reportBigIntegerCoercionFractionFail(String method) {
         return _reportCoercionFail(method, BigInteger.class,
                 "value has fractional part");
+    }
+
+    protected BigInteger _reportBigDecimalCoercionNaNFail(String method) {
+        return _reportCoercionFail(method, BigDecimal.class,
+                "value non-Finite ('NaN')");
     }
 
     /**

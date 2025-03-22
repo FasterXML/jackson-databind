@@ -194,13 +194,28 @@ public class DoubleNode
     }
 
     @Override
-    public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
+    public BigDecimal decimalValue() {
+        if (isNaN()) {
+            _reportBigDecimalCoercionNaNFail("decimalValue()");
+        }
+        return BigDecimal.valueOf(_value);
+    }
 
     @Override
-    public BigDecimal decimalValue(BigDecimal defaultValue) { return decimalValue(); }
+    public BigDecimal decimalValue(BigDecimal defaultValue) {
+        if (isNaN()) {
+            return defaultValue;
+        }
+        return BigDecimal.valueOf(_value);
+    }
 
     @Override
-    public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
+    public Optional<BigDecimal> decimalValueOpt() {
+        if (isNaN()) {
+            return Optional.empty();
+        }
+        return Optional.of(decimalValue());
+    }
 
     @Override
     public boolean isNaN() {

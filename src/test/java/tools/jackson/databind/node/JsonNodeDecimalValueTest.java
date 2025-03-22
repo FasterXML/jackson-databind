@@ -96,25 +96,45 @@ public class JsonNodeDecimalValueTest
     {
         assertEquals(BD_ONE_O, NODES.numberNode(1.0f).decimalValue());
         assertEquals(BD_ONE_O, NODES.numberNode(1.0f).decimalValue(BD_DEFAULT));
+        assertEquals(BD_ONE_O, NODES.numberNode(1.0f).decimalValueOpt().get());
         assertEquals(bigDec("100000.0"), NODES.numberNode(100_000.0f).decimalValue());
         assertEquals(bigDec("100000.0"), NODES.numberNode(100_000.0f).decimalValue(BD_DEFAULT));
+        assertEquals(bigDec("100000.0"), NODES.numberNode(100_000.0f).decimalValueOpt().get());
         assertEquals(bigDec("-100000.0"), NODES.numberNode(-100_000.0f).decimalValue());
         assertEquals(bigDec("-100000.0"), NODES.numberNode(-100_000.0f).decimalValue(BD_DEFAULT));
-
+        assertEquals(bigDec("-100000.0"), NODES.numberNode(-100_000.0f).decimalValueOpt().get());
+        
         assertEquals(BD_ONE_O, NODES.numberNode(1.0d).decimalValue());
         assertEquals(BD_ONE_O, NODES.numberNode(1.0d).decimalValue(BD_DEFAULT));
+        assertEquals(BD_ONE_O, NODES.numberNode(1.0d).decimalValueOpt().get());
         assertEquals(bigDec("100000.0"), NODES.numberNode(100_000.0d).decimalValue());
         assertEquals(bigDec("100000.0"), NODES.numberNode(100_000.0d).decimalValue(BD_DEFAULT));
+        assertEquals(bigDec("100000.0"), NODES.numberNode(100_000.0d).decimalValueOpt().get());
         assertEquals(bigDec("-100000.0"), NODES.numberNode(-100_000.0d).decimalValue());
         assertEquals(bigDec("-100000.0"), NODES.numberNode(-100_000.0d).decimalValue(BD_DEFAULT));
+        assertEquals(bigDec("-100000.0"), NODES.numberNode(-100_000.0d).decimalValueOpt().get());
 
         assertEquals(new BigDecimal("100.001"),
                 NODES.numberNode(new BigDecimal("100.001")).decimalValue());
+        assertEquals(new BigDecimal("100.001"),
+                NODES.numberNode(new BigDecimal("100.001")).decimalValue(BD_DEFAULT));
+        assertEquals(new BigDecimal("100.001"),
+                NODES.numberNode(new BigDecimal("100.001")).decimalValueOpt().get());
     }
 
     // Cannot fail for Over/Underflow from FP values either
     //@Test public void failBigDecimalFromNumberFPRange() { }
 
+    // But can fail for NaN
+
+    @Test
+    public void decimalValueFromNumberFPFail()
+    {
+        _assertFailBigDecimalForNaN(NODES.numberNode(Float.NaN));
+
+        _assertFailBigDecimalForNaN(NODES.numberNode(Double.NaN));
+    }
+    
     // // // decimalValue() + non-Numeric types
 
     @Test
@@ -150,6 +170,19 @@ public class JsonNodeDecimalValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("value type not numeric");
+
+        // Verify default value handling
+        assertEquals(BD_DEFAULT, node.decimalValue(BD_DEFAULT));
+        assertEquals(Optional.empty(), node.decimalValueOpt());
+    }
+
+    private void _assertFailBigDecimalForNaN(JsonNode node) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.decimalValue(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+            .contains("cannot convert value")
+            .contains("value non-Finite ('NaN')");
 
         // Verify default value handling
         assertEquals(BD_DEFAULT, node.decimalValue(BD_DEFAULT));

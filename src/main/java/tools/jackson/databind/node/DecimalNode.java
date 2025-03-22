@@ -87,7 +87,7 @@ public class DecimalNode
     public String _asString() {
         return _value.toString();
     }
-    
+
     @Override
     public Number numberValue() { return _value; }
 

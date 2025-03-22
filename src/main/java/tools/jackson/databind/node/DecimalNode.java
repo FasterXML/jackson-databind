@@ -87,7 +87,7 @@ public class DecimalNode
     public String _asString() {
         return _value.toString();
     }
-    
+
     @Override
     public Number numberValue() { return _value; }
 
@@ -162,6 +162,22 @@ public class DecimalNode
             _reportBigIntegerCoercionFractionFail("bigIntegerValue()");
         }
         return _value.toBigInteger();
+    }
+
+    @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) {
+        if (_hasFractionalPart()) {
+            return defaultValue;
+        }
+        return _value.toBigInteger();
+    }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() {
+        if (_hasFractionalPart()) {
+            return Optional.empty();
+        }
+        return Optional.of(_value.toBigInteger());
     }
 
     @Override

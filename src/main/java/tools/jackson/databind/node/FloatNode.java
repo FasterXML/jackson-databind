@@ -151,6 +151,22 @@ public class FloatNode extends NumericNode
     }
 
     @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) {
+        if (_hasFractionalPart()) {
+            return defaultValue;
+        }
+        return decimalValue().toBigInteger();
+    }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() {
+        if (_hasFractionalPart()) {
+            return Optional.empty();
+        }
+        return Optional.of(decimalValue().toBigInteger());
+    }
+    
+    @Override
     public float floatValue() { return _value; }
 
     @Override
@@ -165,13 +181,28 @@ public class FloatNode extends NumericNode
     }
 
     @Override
-    public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
+    public BigDecimal decimalValue() {
+        if (isNaN()) {
+            _reportBigDecimalCoercionNaNFail("decimalValue()");
+        }
+        return BigDecimal.valueOf(_value);
+    }
 
     @Override
-    public BigDecimal decimalValue(BigDecimal defaultValue) { return decimalValue(); }
+    public BigDecimal decimalValue(BigDecimal defaultValue) {
+        if (isNaN()) {
+            return defaultValue;
+        }
+        return BigDecimal.valueOf(_value);
+    }
 
     @Override
-    public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
+    public Optional<BigDecimal> decimalValueOpt() {
+        if (isNaN()) {
+            return Optional.empty();
+        }
+        return Optional.of(BigDecimal.valueOf(_value));
+    }
 
     @Override
     public boolean isNaN() {

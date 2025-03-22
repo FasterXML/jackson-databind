@@ -125,6 +125,19 @@ public class IntNode
     }
 
     @Override
+    public BigInteger bigIntegerValue() { return BigInteger.valueOf(_value); }
+
+    @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) {
+        return BigInteger.valueOf(_value);
+    }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() {
+        return Optional.of(BigInteger.valueOf(_value));
+    }
+    
+    @Override
     public float floatValue() { return (float) _value; }
 
     @Override
@@ -146,9 +159,6 @@ public class IntNode
 
     @Override
     public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
-
-    @Override
-    public BigInteger bigIntegerValue() { return BigInteger.valueOf(_value); }
 
     /*
     /**********************************************************************

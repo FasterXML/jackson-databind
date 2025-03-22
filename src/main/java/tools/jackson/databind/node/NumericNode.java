@@ -52,6 +52,8 @@ public abstract class NumericNode
     @Override public abstract OptionalLong longValueOpt();
 
     @Override public abstract BigInteger bigIntegerValue();
+    @Override public abstract BigInteger bigIntegerValue(BigInteger defaultValue);
+    @Override public abstract Optional<BigInteger> bigIntegerValueOpt();
 
     @Override public abstract float floatValue();
 
@@ -60,7 +62,6 @@ public abstract class NumericNode
     @Override public abstract OptionalDouble doubleValueOpt();
 
     @Override public abstract BigDecimal decimalValue();
-
     @Override public abstract BigDecimal decimalValue(BigDecimal defaultValue);
     @Override public abstract Optional<BigDecimal> decimalValueOpt();
 
@@ -104,6 +105,23 @@ public abstract class NumericNode
     @Override
     public final double asDouble(double defaultValue) {
         return doubleValue();
+    }
+
+    // // asDecimal() easy: can just call decimalValue()
+    
+    @Override
+    public BigDecimal asDecimal() {
+        return decimalValue();
+    }
+    
+    @Override
+    public BigDecimal asDecimal(BigDecimal defaultValue) {
+        return decimalValue(defaultValue);
+    }
+
+    @Override
+    public Optional<BigDecimal> asDecimalOpt() {
+        return decimalValueOpt();
     }
 
     /*

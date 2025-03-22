@@ -88,11 +88,9 @@ public class JsonNodeDoubleValueTest
 
         final BigInteger tooBig = BigInteger.TEN.pow(310);      
         final BigInteger tooSmall = tooBig.negate();
-        
+
         _assertFailDoubleForValueRange(NODES.numberNode(tooBig));
-        _assertDefaultDoubleForOtherwiseFailing(NODES.numberNode(tooBig));
         _assertFailDoubleForValueRange(NODES.numberNode(tooSmall));
-        _assertDefaultDoubleForOtherwiseFailing(NODES.numberNode(tooSmall));
     }
 
     // // // doubleValue() + Numbers/FPs
@@ -138,9 +136,7 @@ public class JsonNodeDoubleValueTest
         final BigDecimal tooSmall = tooBig.negate();
 
         _assertFailDoubleForValueRange(NODES.numberNode(tooBig));
-        _assertDefaultDoubleForOtherwiseFailing(NODES.numberNode(tooBig));
         _assertFailDoubleForValueRange(NODES.numberNode(tooSmall));
-        _assertDefaultDoubleForOtherwiseFailing(NODES.numberNode(tooSmall));
     }
 
     // // // doubleValue() + non-Numeric types
@@ -149,33 +145,24 @@ public class JsonNodeDoubleValueTest
     public void failDoubleValueFromNonNumberScalar()
     {
         _assertFailDoubleForNonNumber(NODES.booleanNode(true));
-        _assertDefaultDoubleForOtherwiseFailing(NODES.booleanNode(true));
         _assertFailDoubleForNonNumber(NODES.binaryNode(new byte[3]));
-        _assertDefaultDoubleForOtherwiseFailing(NODES.binaryNode(new byte[3]));
         _assertFailDoubleForNonNumber(NODES.stringNode("123"));
-        _assertDefaultDoubleForOtherwiseFailing(NODES.stringNode("123"));
         _assertFailDoubleForNonNumber(NODES.rawValueNode(new RawValue("abc")));
-        _assertDefaultDoubleForOtherwiseFailing(NODES.rawValueNode(new RawValue("abc")));
         _assertFailDoubleForNonNumber(NODES.pojoNode(Boolean.TRUE));
-        _assertDefaultDoubleForOtherwiseFailing(NODES.pojoNode(Boolean.TRUE));
     }
 
     @Test
     public void failDoubleValueFromStructural()
     {
         _assertFailDoubleForNonNumber(NODES.arrayNode(3));
-        _assertDefaultDoubleForOtherwiseFailing(NODES.arrayNode(3));
         _assertFailDoubleForNonNumber(NODES.objectNode());
-        _assertDefaultDoubleForOtherwiseFailing(NODES.objectNode());
     }
 
     @Test
     public void failDoubleValueFromMiscOther()
     {
         _assertFailDoubleForNonNumber(NODES.nullNode());
-        _assertDefaultDoubleForOtherwiseFailing(NODES.nullNode());
         _assertFailDoubleForNonNumber(NODES.missingNode());
-        _assertDefaultDoubleForOtherwiseFailing(NODES.missingNode());
     }
 
     // // // Shared helper methods
@@ -187,7 +174,10 @@ public class JsonNodeDoubleValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("value not in 64-bit `double` range");
-    }
+
+        assertEquals(-2.25d, node.doubleValue(-2.25d));
+        assertEquals(OptionalDouble.empty(), node.doubleValueOpt());
+}
 
     private void _assertFailDoubleForNonNumber(JsonNode node) {
         Exception e = assertThrows(JsonNodeException.class,
@@ -196,10 +186,8 @@ public class JsonNodeDoubleValueTest
         assertThat(e.getMessage())
             .contains("cannot convert value")
             .contains("value type not numeric");
-    }
 
-    private void _assertDefaultDoubleForOtherwiseFailing(JsonNode node) {
-        assertEquals(-2.25d, node.doubleValue(-2.25d));
+        assertEquals(1.5d, node.doubleValue(1.5d));
         assertEquals(OptionalDouble.empty(), node.doubleValueOpt());
     }
 

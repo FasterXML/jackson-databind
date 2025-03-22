@@ -145,6 +145,12 @@ public class BigIntegerNode
     public BigInteger bigIntegerValue() { return _value; }
 
     @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) { return _value; }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() { return Optional.of(_value); }
+
+    @Override
     public float floatValue() {
         float f = _value.floatValue();
         if (Float.isFinite(f)) {

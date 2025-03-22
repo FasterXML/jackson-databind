@@ -158,6 +158,22 @@ public class DoubleNode
     }
 
     @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) {
+        if (_hasFractionalPart()) {
+            return defaultValue;
+        }
+        return decimalValue().toBigInteger();
+    }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() {
+        if (_hasFractionalPart()) {
+            return Optional.empty();
+        }
+        return Optional.of(decimalValue().toBigInteger());
+    }
+
+    @Override
     public float floatValue() {
         float f = (float) _value;
         if (Float.isFinite(f)) {
@@ -178,18 +194,39 @@ public class DoubleNode
     }
 
     @Override
-    public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
+    public BigDecimal decimalValue() {
+        if (isNaN()) {
+            _reportBigDecimalCoercionNaNFail("decimalValue()");
+        }
+        return BigDecimal.valueOf(_value);
+    }
 
     @Override
-    public BigDecimal decimalValue(BigDecimal defaultValue) { return decimalValue(); }
+    public BigDecimal decimalValue(BigDecimal defaultValue) {
+        if (isNaN()) {
+            return defaultValue;
+        }
+        return BigDecimal.valueOf(_value);
+    }
 
     @Override
-    public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
+    public Optional<BigDecimal> decimalValueOpt() {
+        if (isNaN()) {
+            return Optional.empty();
+        }
+        return Optional.of(decimalValue());
+    }
 
     @Override
     public boolean isNaN() {
         return NumberOutput.notFinite(_value);
     }
+
+    /*
+    /**********************************************************************
+    /* Overrides, other
+    /**********************************************************************
+     */
 
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)
@@ -218,6 +255,12 @@ public class DoubleNode
         long l = Double.doubleToLongBits(_value);
         return ((int) l) ^ (int) (l >> 32);
     }
+
+    /*
+    /**********************************************************************
+    /* Internal methods
+    /**********************************************************************
+     */
 
     private boolean _hasFractionalPart() { return _value != Math.rint(_value); }
 

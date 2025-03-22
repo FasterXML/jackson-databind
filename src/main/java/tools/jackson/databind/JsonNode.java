@@ -897,6 +897,27 @@ public abstract class JsonNode
      */
     public abstract BigInteger bigIntegerValue();
 
+    /**
+     * Method similar to {@link #bigIntegerValue()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to Java {@code BigInteger}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to Java {@code BigInteger}
+     *
+     * @return Java {@code BigInteger} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
+     */
+    public abstract BigInteger bigIntegerValue(BigInteger defaultValue);
+
+    /**
+     * Method similar to {@link #bigIntegerValue()}, but that will return empty
+     * ({@code Optional.empty()}) if this node cannot
+     * be converted to Java {@code BigInteger}.
+     *
+     * @return Java {@code BigInteger} value this node represents, as {@code Optional<BigInteger>},
+     * if possible to accurately represent; {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<BigInteger> bigIntegerValueOpt();
+
     // // Scalar access: Numbers, Java float
 
     /**
@@ -1024,9 +1045,47 @@ public abstract class JsonNode
      */
     public abstract Optional<BigDecimal> decimalValueOpt();
 
+    /**
+     * Method that will try to access value of this node as a {@link BigDecimal}:
+     * but if node value cannot be expressed <b>exactly</b> as a {@code BigDecimal},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Floating-point values (but not "NaN" or "Infinity")
+     *    </li>
+     *  <li>JSON Integer values
+     *   </li>
+     *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
+     *   </li>
+     *  <li>JSON Null (converted to {@link BigDecimal#ZERO}))
+     *   </li>
+     * </ul>
+     *<p>
+     *
+     * @return {@link BigDecimal} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to {@code BigDecimal}
+     */
     public abstract BigDecimal asDecimal();
-    
+
+    /**
+     * Method similar to {@link #asDecimal()}, but that will return {@code defaultValue}
+     * if this node cannot be coerced to Java {@code BigDecimal}.
+     *
+     * @return {@code BigDecimal} value this node represents,
+     * if possible to accurately represent; {@code defaultValue} otherwise
+     */
     public abstract BigDecimal asDecimal(BigDecimal defaultValue);
+
+    /**
+     * Method similar to {@link #asDecimal()}, but that will return empty
+     * {@link Optional} ({@code Optional.empty()}) if this node cannot
+     * be coerced to {@code BigDecimal}.
+     *
+     * @return Java {@code BigDecimal} value this node represents, as {@code Optional<BigDecimal>},
+     * if possible to accurately represent; {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<BigDecimal> asDecimalOpt();
 
     /*
     /**********************************************************************

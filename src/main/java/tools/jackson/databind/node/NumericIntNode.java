@@ -50,7 +50,6 @@ public abstract class NumericIntNode extends NumericNode
         return Optional.of(bigIntegerValue());
     }
 
-    /*
     @Override
     public BigInteger asBigInteger() {
         return bigIntegerValue();
@@ -65,7 +64,6 @@ public abstract class NumericIntNode extends NumericNode
     public Optional<BigInteger> asBigIntegerOpt() {
         return bigIntegerValueOpt();
     }
-    */
 
     // Sub-classes need to define this; but with that can implement other 5 methods
     //

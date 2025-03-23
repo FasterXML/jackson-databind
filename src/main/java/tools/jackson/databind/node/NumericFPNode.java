@@ -116,7 +116,7 @@ public abstract class NumericFPNode extends NumericNode
         }
         return OptionalLong.of(_asLongValueUnchecked());
     }
-    
+
     @Override
     public final BigInteger bigIntegerValue() {
         if (isNaN()) {
@@ -130,7 +130,7 @@ public abstract class NumericFPNode extends NumericNode
 
     @Override
     public final BigInteger bigIntegerValue(BigInteger defaultValue) {
-        if (_hasFractionalPart()) {
+        if (isNaN() || _hasFractionalPart()) {
             return defaultValue;
         }
         return _asBigIntegerValueUnchecked();
@@ -138,7 +138,34 @@ public abstract class NumericFPNode extends NumericNode
 
     @Override
     public final Optional<BigInteger> bigIntegerValueOpt() {
+        if (isNaN() || _hasFractionalPart()) {
+            return Optional.empty();
+        }
+        return Optional.of(_asBigIntegerValueUnchecked());
+    }
+
+    @Override
+    public final BigInteger asBigInteger() {
+        if (isNaN()) {
+            _reportBigDecimalCoercionNaNFail("asBigInteger()");
+        }
         if (_hasFractionalPart()) {
+            _reportBigIntegerCoercionFractionFail("asBigInteger()");
+        }
+        return _asBigIntegerValueUnchecked();
+    }
+
+    @Override
+    public final BigInteger asBigInteger(BigInteger defaultValue) {
+        if (isNaN() || _hasFractionalPart()) {
+            return defaultValue;
+        }
+        return _asBigIntegerValueUnchecked();
+    }
+
+    @Override
+    public final Optional<BigInteger> asBigIntegerOpt() {
+        if (isNaN() || _hasFractionalPart()) {
             return Optional.empty();
         }
         return Optional.of(_asBigIntegerValueUnchecked());

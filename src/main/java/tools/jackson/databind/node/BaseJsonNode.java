@@ -141,7 +141,6 @@ public abstract class BaseJsonNode
         return Optional.empty();
     }
 
-    /*
     @Override
     public BigInteger asBigInteger() {
         return _reportCoercionFail("asBigInteger()", BigInteger.class, "value type not numeric");
@@ -158,7 +157,7 @@ public abstract class BaseJsonNode
         // Overridden by NumericNode, for other types return default
         return Optional.empty();
     }
-    */
+
     @Override
     public float floatValue() {
         return _reportCoercionFail("floatValue()", Float.TYPE, "value type not numeric");

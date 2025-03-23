@@ -122,6 +122,26 @@ public class POJONode
         return defaultValue;
     }
 
+    // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`
+
+    @Override
+    public BigInteger asBigInteger() {
+        BigInteger big = _extractAsBigInteger();
+        return (big == null) ? super.asBigInteger() : big;
+    }
+
+    @Override
+    public BigInteger asBigInteger(BigInteger defaultValue) {
+        BigInteger big = _extractAsBigInteger();
+        return (big == null) ? defaultValue : big;
+    }
+
+    @Override
+    public Optional<BigInteger> asBigIntegerOpt() {
+        BigInteger big = _extractAsBigInteger();
+        return (big == null) ? Optional.empty() : Optional.of(big);
+    }
+
     // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
 
     @Override
@@ -145,10 +165,25 @@ public class POJONode
     @Override
     public Optional<BigDecimal> asDecimalOpt() {
         BigDecimal dec = _extractAsBigDecimal();
-        if (dec == null) {
-            return Optional.empty();
+        return (dec == null) ? Optional.empty() : Optional.of(dec);
+    }
+
+    // Consider only Integral numbers
+    protected BigInteger _extractAsBigInteger() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return BigInteger.ZERO;
         }
-        return Optional.of(dec);
+        // Next, coercions from Numbers
+        if (_value instanceof BigInteger big) {
+            return big;
+        }
+        if (_value instanceof Number N) {
+            if (N instanceof Long || N instanceof Integer || N instanceof Short || N instanceof Byte) {
+                return BigInteger.valueOf(N.longValue());
+            }
+        }
+        return null;
     }
 
     protected BigDecimal _extractAsBigDecimal() {

@@ -1,6 +1,7 @@
 package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Optional;
 
 import tools.jackson.core.*;
@@ -60,6 +61,23 @@ public class NullNode
     /* Overridden JsonNode methods, scalar access, numeric
     /**********************************************************************
      */
+
+    // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`
+
+    @Override
+    public BigInteger asBigInteger() {
+        return BigInteger.ZERO;
+    }
+
+    @Override
+    public BigInteger asBigInteger(BigInteger defaultValue) {
+        return asBigInteger();
+    }
+
+    @Override
+    public Optional<BigInteger> asBigIntegerOpt() {
+        return Optional.of(asBigInteger());
+    }
 
     // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
 

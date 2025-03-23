@@ -930,7 +930,7 @@ public abstract class JsonNode
      * @return {@link BigInteger} value this node represents, if possible to accurately convert;
      *   {@code defaultValue} otherwise
      */
-//    public abstract BigInteger asBigInteger();
+    public abstract BigInteger asBigInteger();
 
     /**
      * Method similar to {@link #asBigInteger()}, but that will return specified
@@ -941,7 +941,7 @@ public abstract class JsonNode
      * @return {@link BigInteger} value this node represents, if possible to accurately convert;
      *   {@code defaultValue} otherwise
      */
-//    public abstract BigInteger asBigInteger(BigInteger defaultValue);
+    public abstract BigInteger asBigInteger(BigInteger defaultValue);
 
     /**
      * Method similar to {@link #bigIntegerValue()}, but that will return empty
@@ -951,8 +951,8 @@ public abstract class JsonNode
      * @return {@link BigInteger} value this node represents, as {@code Optional<BigInteger>},
      * if possible to accurately represent; {@code Optional.empty()} otherwise.
      */
-//    public abstract Optional<BigInteger> asBigIntegerOpt();
-    
+    public abstract Optional<BigInteger> asBigIntegerOpt();
+
     // // Scalar access: Numbers, Java float
 
     /**

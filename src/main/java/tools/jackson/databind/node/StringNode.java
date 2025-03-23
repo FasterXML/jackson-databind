@@ -1,6 +1,7 @@
 package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -174,6 +175,30 @@ public class StringNode
         return NumberInput.parseAsDouble(_value, defaultValue, false);
     }
 
+    // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`
+
+    @Override
+    public BigInteger asBigInteger() {
+        BigInteger big = _tryParseAsBigInteger();
+        if (big == null) {
+            return _reportCoercionFail("asBigInteger()", BigInteger.class,
+                    "value not a valid String representation of `BigInteger`");
+        }
+        return big;
+    }
+
+    @Override
+    public BigInteger asBigInteger(BigInteger defaultValue) {
+        BigInteger big = _tryParseAsBigInteger();
+        return (big == null) ? defaultValue : big;
+    }
+
+    @Override
+    public Optional<BigInteger> asBigIntegerOpt() {
+        BigInteger big = _tryParseAsBigInteger();
+        return (big == null) ? Optional.empty() : Optional.of(big);
+    }
+    
     // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
 
     @Override
@@ -189,19 +214,24 @@ public class StringNode
     @Override
     public BigDecimal asDecimal(BigDecimal defaultValue) {
         BigDecimal dec = _tryParseAsBigDecimal();
-        if (dec == null) {
-            return defaultValue;
-        }
-        return dec;
+        return (dec == null) ? defaultValue : dec;
     }
 
     @Override
     public Optional<BigDecimal> asDecimalOpt() {
         BigDecimal dec = _tryParseAsBigDecimal();
-        if (dec == null) {
-            return Optional.empty();
+        return (dec == null) ? Optional.empty() : Optional.of(dec);
+    }
+
+    protected BigInteger _tryParseAsBigInteger() {
+        if (NumberInput.looksLikeValidNumber(_value)) {
+            try {
+                return NumberInput.parseBigInteger(_value, true);
+            } catch (NumberFormatException e) {
+                ;
+            }
         }
-        return Optional.of(dec);
+        return null;
     }
 
     protected BigDecimal _tryParseAsBigDecimal() {
@@ -214,7 +244,7 @@ public class StringNode
         }
         return null;
     }
-
+    
     /*
     /**********************************************************************
     /* Serialization

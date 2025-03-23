@@ -924,7 +924,7 @@ public abstract class JsonNode
      * <ul>
      *  <li>JSON String values that represent Integer numbers (as per JSON spec)
      *  <li>JSON nulls (converting to {@link BigInteger#ZERO})
-     *  <li>POJO nodes that contain {@link BigInteger}
+     *  <li>POJO nodes that contain Integral number values
      *  </ul>
      *
      * @return {@link BigInteger} value this node represents, if possible to accurately convert;
@@ -1018,28 +1018,42 @@ public abstract class JsonNode
     public abstract OptionalDouble doubleValueOpt();
     
     /**
-     * Method that will try to convert value of this node to a Java <b>double</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * Method similar to {@link #doubleValue()} but in addition to coercing Number
+     * values will also try coerce couple of additional types:
+     * <ul>
+     *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
+     *   </li>
+     *  <li>JSON Null (converted to {@code 0.0d}))
+     *   </li>
+     *  <li>POJO nodes that contain Number values
+     *   </li>
+     * </ul>
      *<p>
-     * If representation cannot be converted to an int (including structured types
-     * like Objects and Arrays),
-     * default value of <b>0.0</b> will be returned; no exceptions are thrown.
+     *
+     * @return Java {@code double} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to Java {@code double}
      */
     public abstract double asDouble();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>double</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to an int (including structured types
-     * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * Method similar to {@link #asDouble()}, but that will return {@code defaultValue}
+     * if this node cannot be coerced to Java {@code double}.
+     *
+     * @return Java {@code double} value this node represents,
+     * if possible to accurately represent; {@code defaultValue} otherwise
      */
     public abstract double asDouble(double defaultValue);
+
+    /**
+     * Method similar to {@link #asDouble()}, but that will return empty
+     * {@link Optional} ({@code Optional.empty()}) if this node cannot
+     * be coerced to Java {@code double}.
+     *
+     * @return Java {@link OptionalDouble} value this node represents,
+     * if possible to accurately represent; {@code OptionalDouble.empty()} otherwise
+     */
+    public abstract OptionalDouble asDoubleOpt();
 
     // // Scalar access: Numbers, Java BigDecimal
 
@@ -1093,6 +1107,8 @@ public abstract class JsonNode
      *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
      *   </li>
      *  <li>JSON Null (converted to {@link BigDecimal#ZERO}))
+     *   </li>
+     *  <li>POJO nodes that contain Number values
      *   </li>
      * </ul>
      *<p>

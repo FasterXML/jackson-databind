@@ -3,7 +3,6 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
@@ -128,20 +127,6 @@ public class IntNode
     public Optional<BigInteger> bigIntegerValueOpt() {
         return Optional.of(BigInteger.valueOf(_value));
     }
-    
-    @Override
-    public float floatValue() { return (float) _value; }
-
-    @Override
-    public double doubleValue() { return (double) _value; }
-
-    @Override
-    public double doubleValue(double defaultValue) { return _value; }
-
-    @Override
-    public OptionalDouble doubleValueOpt() {
-        return OptionalDouble.of(_value);
-    }
 
     @Override
     public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
@@ -151,6 +136,22 @@ public class IntNode
 
     @Override
     public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
+
+    /*
+    /**********************************************************************
+    /* Abstract methods impls for NumericIntNode
+    /**********************************************************************
+     */
+
+    @Override
+    protected float _asFloatValueUnchecked() {
+        return (float) _value;
+    }
+
+    @Override
+    protected double _asDoubleValueUnchecked() {
+        return (double) _value;
+    }
 
     /*
     /**********************************************************************
@@ -165,12 +166,6 @@ public class IntNode
         g.writeNumber(_value);
     }
 
-    /*
-    /**********************************************************************
-    /* Overridden standard methods
-    /**********************************************************************
-     */
-    
     @Override
     public boolean equals(Object o)
     {

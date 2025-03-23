@@ -63,16 +63,37 @@ public class FloatNode
     }
 
     @Override
-    public float floatValue() { return _value; }
+    public float floatValue() {
+        return _value;
+    }
 
     @Override
-    public double doubleValue() { return _value; }
+    public double doubleValue() {
+        return _value;
+    }
 
     @Override
-    public double doubleValue(double defaultValue) { return _value; }
+    public double doubleValue(double defaultValue) {
+        return _value;
+    }
 
     @Override
     public OptionalDouble doubleValueOpt() {
+        return OptionalDouble.of(_value);
+    }
+
+    @Override
+    public double asDouble() {
+        return _value;
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        return _value;
+    }
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
         return OptionalDouble.of(_value);
     }
 

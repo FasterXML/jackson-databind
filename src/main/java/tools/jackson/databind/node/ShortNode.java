@@ -3,7 +3,6 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
@@ -108,20 +107,6 @@ public class ShortNode
     }
 
     @Override
-    public float floatValue() { return _value; }
-
-    @Override
-    public double doubleValue() { return _value; }
-
-    @Override
-    public double doubleValue(double defaultValue) { return _value; }
-
-    @Override
-    public OptionalDouble doubleValueOpt() {
-        return OptionalDouble.of(_value);
-    }
-
-    @Override
     public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
 
     @Override
@@ -129,6 +114,22 @@ public class ShortNode
 
     @Override
     public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
+
+    /*
+    /**********************************************************************
+    /* Abstract methods impls for NumericIntNode
+    /**********************************************************************
+     */
+
+    @Override
+    protected float _asFloatValueUnchecked() {
+        return (float) _value;
+    }
+
+    @Override
+    protected double _asDoubleValueUnchecked() {
+        return (double) _value;
+    }
 
     /*
     /**********************************************************************

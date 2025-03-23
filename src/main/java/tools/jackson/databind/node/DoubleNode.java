@@ -78,13 +78,32 @@ public class DoubleNode
     }
 
     @Override
-    public double doubleValue() { return _value; }
+    public double doubleValue() {
+        return _value;
+    }
 
     @Override
-    public double doubleValue(double defaultValue) { return _value; }
+    public double doubleValue(double defaultValue) {
+        return _value;
+    }
 
     @Override
     public OptionalDouble doubleValueOpt() {
+        return OptionalDouble.of(_value);
+    }
+
+    @Override
+    public double asDouble() {
+        return _value;
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        return _value;
+    }
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
         return OptionalDouble.of(_value);
     }
 

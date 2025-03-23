@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import tools.jackson.core.JsonToken;
 
@@ -36,6 +37,45 @@ public abstract class NumericIntNode extends NumericNode
     /**********************************************************************
      */
 
+    // Float is simple
+
+    @Override
+    public float floatValue() {
+        return _asFloatValueUnchecked();
+    }
+
+    // Double simple (but overridden by BigInteger which needs range checks)
+    
+    @Override
+    public double doubleValue() {
+        return _asDoubleValueUnchecked();
+    }
+
+    @Override
+    public double doubleValue(double defaultValue) {
+        return _asDoubleValueUnchecked();
+    }
+
+    @Override
+    public OptionalDouble doubleValueOpt() {
+        return OptionalDouble.of(_asDoubleValueUnchecked());
+    }
+
+    @Override
+    public double asDouble() {
+        return _asDoubleValueUnchecked();
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        return _asDoubleValueUnchecked();
+    }
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        return OptionalDouble.of(_asDoubleValueUnchecked());
+    }
+    
     // Sub-classes need to define this; but with that can implement other 5 methods
     //
     // public BigInteger bigIntegerValue()
@@ -92,5 +132,7 @@ public abstract class NumericIntNode extends NumericNode
     /**********************************************************************
      */
 
+    protected abstract float _asFloatValueUnchecked();
 
+    protected abstract double _asDoubleValueUnchecked();
 }

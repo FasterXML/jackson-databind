@@ -28,57 +28,26 @@ public class JsonNodeDoubleValueTest
     public void doubleValueFromNumberIntOk()
     {
         final double ONE_D = (double) 1;
+
+        _assertDoubleValue(ONE_D, NODES.numberNode((byte) 1));
+        _assertDoubleValue((double)Byte.MIN_VALUE, NODES.numberNode(Byte.MIN_VALUE));
+        _assertDoubleValue((double)Byte.MAX_VALUE, NODES.numberNode(Byte.MAX_VALUE));
+
+        _assertDoubleValue(ONE_D, NODES.numberNode((short) 1));
+        _assertDoubleValue((double)Short.MIN_VALUE, NODES.numberNode(Short.MIN_VALUE));
+        _assertDoubleValue((double)Short.MAX_VALUE, NODES.numberNode(Short.MAX_VALUE));
+
+        _assertDoubleValue(ONE_D, NODES.numberNode(1));
+        _assertDoubleValue((double) Integer.MIN_VALUE, NODES.numberNode(Integer.MIN_VALUE));
+        _assertDoubleValue((double) Integer.MAX_VALUE, NODES.numberNode(Integer.MAX_VALUE));
         
-        // Then other integer types
-        assertEquals(ONE_D, NODES.numberNode((byte) 1).doubleValue());
-        assertEquals(ONE_D, NODES.numberNode((byte) 1).doubleValue(99));
-        assertEquals(ONE_D, NODES.numberNode((byte) 1).doubleValueOpt().getAsDouble());
-        assertEquals((double)Byte.MIN_VALUE, NODES.numberNode(Byte.MIN_VALUE).doubleValue());
-        assertEquals((double)Byte.MIN_VALUE, NODES.numberNode(Byte.MIN_VALUE).doubleValue(99));
-        assertEquals((double)Byte.MIN_VALUE, NODES.numberNode(Byte.MIN_VALUE).doubleValueOpt().getAsDouble());
-        assertEquals((double)Byte.MAX_VALUE, NODES.numberNode(Byte.MAX_VALUE).doubleValue());
-        assertEquals((double)Byte.MAX_VALUE, NODES.numberNode(Byte.MAX_VALUE).doubleValue(99));
-        assertEquals((double)Byte.MAX_VALUE, NODES.numberNode(Byte.MAX_VALUE).doubleValueOpt().getAsDouble());
+        _assertDoubleValue(ONE_D, NODES.numberNode(1L));
+        _assertDoubleValue((double) Long.MIN_VALUE, NODES.numberNode(Long.MIN_VALUE));
+        _assertDoubleValue((double) Long.MAX_VALUE, NODES.numberNode(Long.MAX_VALUE));
 
-        assertEquals(ONE_D, NODES.numberNode((short) 1).doubleValue());
-        assertEquals(ONE_D, NODES.numberNode((short) 1).doubleValue(99));
-        assertEquals(ONE_D, NODES.numberNode((short) 1).doubleValueOpt().getAsDouble());
-        assertEquals((double)Short.MIN_VALUE, NODES.numberNode(Short.MIN_VALUE).doubleValue());
-        assertEquals((double)Short.MIN_VALUE, NODES.numberNode(Short.MIN_VALUE).doubleValue(99));
-        assertEquals((double)Short.MIN_VALUE, NODES.numberNode(Short.MIN_VALUE).doubleValueOpt().getAsDouble());
-        assertEquals((double)Short.MAX_VALUE, NODES.numberNode(Short.MAX_VALUE).doubleValue());
-        assertEquals((double)Short.MAX_VALUE, NODES.numberNode(Short.MAX_VALUE).doubleValue(99));
-        assertEquals((double)Short.MAX_VALUE, NODES.numberNode(Short.MAX_VALUE).doubleValueOpt().getAsDouble());
-
-        assertEquals(ONE_D, NODES.numberNode(1).doubleValue());
-        assertEquals(ONE_D, NODES.numberNode(1).doubleValue(99));
-        assertEquals(ONE_D, NODES.numberNode(1).doubleValueOpt().getAsDouble());
-        assertEquals((double) Integer.MIN_VALUE, NODES.numberNode(Integer.MIN_VALUE).doubleValue());
-        assertEquals((double) Integer.MIN_VALUE, NODES.numberNode(Integer.MIN_VALUE).doubleValue(99));
-        assertEquals((double) Integer.MIN_VALUE, NODES.numberNode(Integer.MIN_VALUE).doubleValueOpt().getAsDouble());
-        assertEquals((double) Integer.MAX_VALUE, NODES.numberNode(Integer.MAX_VALUE).doubleValue());
-        assertEquals((double) Integer.MAX_VALUE, NODES.numberNode(Integer.MAX_VALUE).doubleValue(99));
-        assertEquals((double) Integer.MAX_VALUE, NODES.numberNode(Integer.MAX_VALUE).doubleValueOpt().getAsDouble());
-        
-        assertEquals(ONE_D, NODES.numberNode(1L).doubleValue());
-        assertEquals(ONE_D, NODES.numberNode(1L).doubleValue(99));
-        assertEquals(ONE_D, NODES.numberNode(1L).doubleValueOpt().getAsDouble());
-        assertEquals((double) Long.MIN_VALUE, NODES.numberNode(Long.MIN_VALUE).doubleValue());
-        assertEquals((double) Long.MIN_VALUE, NODES.numberNode(Long.MIN_VALUE).doubleValue(99));
-        assertEquals((double) Long.MIN_VALUE, NODES.numberNode(Long.MIN_VALUE).doubleValueOpt().getAsDouble());
-        assertEquals((double) Long.MAX_VALUE, NODES.numberNode(Long.MAX_VALUE).doubleValue());
-        assertEquals((double) Long.MAX_VALUE, NODES.numberNode(Long.MAX_VALUE).doubleValue(99));
-        assertEquals((double) Long.MAX_VALUE, NODES.numberNode(Long.MAX_VALUE).doubleValueOpt().getAsDouble());
-
-        assertEquals(ONE_D, NODES.numberNode(BigInteger.valueOf(1)).doubleValue());
-        assertEquals(ONE_D, NODES.numberNode(BigInteger.valueOf(1)).doubleValue(99));
-        assertEquals(ONE_D, NODES.numberNode(BigInteger.valueOf(1)).doubleValueOpt().getAsDouble());
-        assertEquals((double) Long.MIN_VALUE, NODES.numberNode(BigInteger.valueOf(Long.MIN_VALUE)).doubleValue());
-        assertEquals((double) Long.MIN_VALUE, NODES.numberNode(BigInteger.valueOf(Long.MIN_VALUE)).doubleValue(99));
-        assertEquals((double) Long.MIN_VALUE, NODES.numberNode(BigInteger.valueOf(Long.MIN_VALUE)).doubleValueOpt().getAsDouble());
-        assertEquals((double) Long.MAX_VALUE, NODES.numberNode(BigInteger.valueOf(Long.MAX_VALUE)).doubleValue());
-        assertEquals((double) Long.MAX_VALUE, NODES.numberNode(BigInteger.valueOf(Long.MAX_VALUE)).doubleValue(99));
-        assertEquals((double) Long.MAX_VALUE, NODES.numberNode(BigInteger.valueOf(Long.MAX_VALUE)).doubleValueOpt().getAsDouble());
+        _assertDoubleValue(ONE_D, NODES.numberNode(BigInteger.valueOf(1)));
+        _assertDoubleValue((double) Long.MIN_VALUE, NODES.numberNode(BigInteger.valueOf(Long.MIN_VALUE)));
+        _assertDoubleValue((double) Long.MAX_VALUE, NODES.numberNode(BigInteger.valueOf(Long.MAX_VALUE)));
     }
 
     @Test
@@ -98,32 +67,20 @@ public class JsonNodeDoubleValueTest
     @Test
     public void doubleValueFromNumberFPOk()
     {
-        assertEquals(1.0, NODES.numberNode(1.0f).doubleValue());
-        assertEquals(1.0, NODES.numberNode(1.0f).doubleValue(99));
-        assertEquals(100_000.0, NODES.numberNode(100_000.0f).doubleValue());
-        assertEquals(100_000.0, NODES.numberNode(100_000.0f).doubleValue(99));
-        assertEquals(-100_000.0, NODES.numberNode(-100_000.0f).doubleValue());
-        assertEquals(-100_000.0, NODES.numberNode(-100_000.0f).doubleValue(99));
+        _assertDoubleValue(1.0, NODES.numberNode(1.0f));
+        _assertDoubleValue(100_000.0, NODES.numberNode(100_000.0f));
+        _assertDoubleValue(-100_000.0, NODES.numberNode(-100_000.0f));
 
-        assertEquals(1.0, NODES.numberNode(1.0d).doubleValue());
-        assertEquals(1.0, NODES.numberNode(1.0d).doubleValue(99));
-        assertEquals(100_000.0, NODES.numberNode(100_000.0d).doubleValue());
-        assertEquals(100_000.0, NODES.numberNode(100_000.0d).doubleValue(99));
-        assertEquals(-100_000.0, NODES.numberNode(-100_000.0d).doubleValue());
-        assertEquals(-100_000.0, NODES.numberNode(-100_000.0d).doubleValue(99));
+        _assertDoubleValue(1.0, NODES.numberNode(1.0d));
+        _assertDoubleValue(100_000.0, NODES.numberNode(100_000.0d));
+        _assertDoubleValue(-100_000.0, NODES.numberNode(-100_000.0d));
 
-        assertEquals(1.0,
-                NODES.numberNode(BigDecimal.valueOf(1.0d)).doubleValue());
-        assertEquals(1.0,
-                NODES.numberNode(BigDecimal.valueOf(1.0d)).doubleValue(99));
-        assertEquals((double) Long.MIN_VALUE,
-                NODES.numberNode(BigDecimal.valueOf((double) Long.MIN_VALUE)).doubleValue());
-        assertEquals((double) Long.MIN_VALUE,
-                NODES.numberNode(BigDecimal.valueOf((double) Long.MIN_VALUE)).doubleValue(99));
-        assertEquals((double) Long.MAX_VALUE,
-                NODES.numberNode(BigDecimal.valueOf((double) Long.MAX_VALUE)).doubleValue());
-        assertEquals((double) Long.MAX_VALUE,
-                NODES.numberNode(BigDecimal.valueOf((double) Long.MAX_VALUE)).doubleValue(99));
+        _assertDoubleValue(1.0,
+                NODES.numberNode(BigDecimal.valueOf(1.0d)));
+        _assertDoubleValue((double) Long.MIN_VALUE,
+                NODES.numberNode(BigDecimal.valueOf((double) Long.MIN_VALUE)));
+        _assertDoubleValue((double) Long.MAX_VALUE,
+                NODES.numberNode(BigDecimal.valueOf((double) Long.MAX_VALUE)));
     }
 
     @Test
@@ -166,6 +123,14 @@ public class JsonNodeDoubleValueTest
     }
 
     // // // Shared helper methods
+
+    private void _assertDoubleValue(double expected, JsonNode node) {
+        assertEquals(expected, node.doubleValue());
+
+        // and defaults
+        assertEquals(expected, node.doubleValue(-9999.5));
+        assertEquals(expected, node.doubleValueOpt().getAsDouble());
+    }
 
     private void _assertFailDoubleForValueRange(JsonNode node) {
         Exception e = assertThrows(JsonNodeException.class,

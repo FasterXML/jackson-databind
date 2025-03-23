@@ -255,7 +255,7 @@ public abstract class NumericFPNode extends NumericNode
      */
     protected abstract BigInteger _asBigIntegerValueUnchecked();
 
-    // NOTE: we do need these ones (not enough commonality):
+    // NOTE: we do not need these ones (not enough commonality):
     //protected abstract float _asFloatValueUnchecked();
     //protected abstract double _asDoubleValueUnchecked();
 

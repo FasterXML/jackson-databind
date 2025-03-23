@@ -182,12 +182,19 @@ public abstract class BaseJsonNode
 
     @Override
     public double asDouble() {
-        return asDouble(0.0);
+        return _reportCoercionFail("asDouble()", Double.TYPE, "value type not numeric");
     }
 
     @Override
     public double asDouble(double defaultValue) {
+        // Overridden by NumericNode, for other types return default
         return defaultValue;
+    }
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalDouble.empty();
     }
 
     @Override

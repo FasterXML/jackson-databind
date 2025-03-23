@@ -114,6 +114,33 @@ public class DecimalNode
         return OptionalDouble.empty();
     }
 
+    @Override
+    public double asDouble() {
+        double d = _value.doubleValue();
+        if (Double.isFinite(d)) {
+            return d;
+        }
+        return _reportDoubleCoercionRangeFail("asDouble()");
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        double d = _value.doubleValue();
+        if (Double.isFinite(d)) {
+            return d;
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        double d = _value.doubleValue();
+        if (Double.isFinite(d)) {
+            return OptionalDouble.of(_value.doubleValue());
+        }
+        return OptionalDouble.empty();
+    }
+
     // Overridden versions from NumericFPNode (for minor performance gain)
     
     @Override

@@ -63,7 +63,10 @@ public abstract class NumericNode
     @Override public abstract double doubleValue();
     @Override public abstract double doubleValue(double defaultValue);
     @Override public abstract OptionalDouble doubleValueOpt();
-
+    @Override public abstract double asDouble();
+    @Override public abstract double asDouble(double defaultValue);
+    @Override public abstract OptionalDouble asDoubleOpt();
+    
     @Override public abstract BigDecimal decimalValue();
     @Override public abstract BigDecimal decimalValue(BigDecimal defaultValue);
     @Override public abstract Optional<BigDecimal> decimalValueOpt();
@@ -101,16 +104,6 @@ public abstract class NumericNode
     @Override
     public final long asLong(long defaultValue) {
         return longValue();
-    }
-
-    @Override
-    public final double asDouble() {
-        return doubleValue();
-    }
-
-    @Override
-    public final double asDouble(double defaultValue) {
-        return doubleValue();
     }
 
     /*

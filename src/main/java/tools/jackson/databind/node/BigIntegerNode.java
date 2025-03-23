@@ -141,9 +141,13 @@ public class BigIntegerNode
     @Override
     public Optional<BigInteger> bigIntegerValueOpt() { return Optional.of(_value); }
 
+    
+    // // // BigInteger differs a bit from other Integral types as there's
+    // // // range overflow possibility
+
     @Override
     public float floatValue() {
-        float f = _value.floatValue();
+        float f = _asFloatValueUnchecked();
         if (Float.isFinite(f)) {
             return f;
         }
@@ -152,7 +156,7 @@ public class BigIntegerNode
 
     @Override
     public double doubleValue() {
-        double d = _value.doubleValue();
+        double d = _asDoubleValueUnchecked();
         if (Double.isFinite(d)) {
             return d;
         }
@@ -161,16 +165,37 @@ public class BigIntegerNode
 
     @Override
     public double doubleValue(double defaultValue) {
-        double d = _value.doubleValue();
-        if (Double.isFinite(d)) {
-            return d;
-        }
-        return defaultValue;
+        double d = _asDoubleValueUnchecked();
+        return (Double.isFinite(d)) ? d : defaultValue;
     }
 
     @Override
     public OptionalDouble doubleValueOpt() {
-        double d = _value.doubleValue();
+        double d = _asDoubleValueUnchecked();
+        if (Double.isFinite(d)) {
+            return OptionalDouble.of(_value.doubleValue());
+        }
+        return OptionalDouble.empty();
+    }
+
+    @Override
+    public double asDouble() {
+        double d = _asDoubleValueUnchecked();
+        if (Double.isFinite(d)) {
+            return d;
+        }
+        return _reportDoubleCoercionRangeFail("asDouble()");
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        double d = _asDoubleValueUnchecked();
+        return (Double.isFinite(d)) ? d : defaultValue;
+    }
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        double d = _asDoubleValueUnchecked();
         if (Double.isFinite(d)) {
             return OptionalDouble.of(_value.doubleValue());
         }
@@ -193,9 +218,25 @@ public class BigIntegerNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Abstract methods impls for NumericIntNode
+    /**********************************************************************
+     */
+
+    @Override
+    protected float _asFloatValueUnchecked() {
+        return _value.floatValue();
+    }
+
+    @Override
+    protected double _asDoubleValueUnchecked() {
+        return _value.doubleValue();
+    }
+    
+    /*
+    /**********************************************************************
     /* Other overrides
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override

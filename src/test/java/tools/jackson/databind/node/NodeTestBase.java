@@ -17,11 +17,8 @@ abstract class NodeTestBase extends DatabindTestUtil
         assertFalse(n.canConvertToLong());
         assertFalse(n.canConvertToExactIntegral());
 
-        assertEquals(0, n.asInt());
         assertEquals(-42, n.asInt(-42));
-        assertEquals(0, n.asLong());
         assertEquals(12345678901L, n.asLong(12345678901L));
-        assertEquals(0.0, n.asDouble());
         assertEquals(-19.25, n.asDouble(-19.25));
     }
 

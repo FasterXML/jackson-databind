@@ -3,8 +3,6 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberOutput;
@@ -71,71 +69,6 @@ public class DoubleNode
     }
 
     @Override
-    public short shortValue() {
-        if (!_inShortRange()) {
-            return _reportShortCoercionRangeFail("shortValue()");
-        }
-        if (_hasFractionalPart()) {
-            _reportShortCoercionFractionFail("shortValue()");
-        }
-        return (short) _value;
-    }
-
-    @Override
-    public int intValue() {
-        if (!_inIntRange()) {
-            return _reportIntCoercionRangeFail("intValue()");
-        }
-        if (_hasFractionalPart()) {
-            _reportIntCoercionFractionFail("intValue()");
-        }
-        return (int) _value;
-    }
-
-    @Override
-    public int intValue(int defaultValue) {
-        if (!_inIntRange() || _hasFractionalPart()) {
-             return defaultValue;
-        }
-        return (int) _value;
-    }
-
-    @Override
-    public OptionalInt intValueOpt() {
-        if (!_inIntRange() || _hasFractionalPart()) {
-            return OptionalInt.empty();
-       }
-       return OptionalInt.of((int) _value);
-    }
-
-    @Override
-    public long longValue() {
-        if (!_inLongRange()) {
-            return _reportLongCoercionRangeFail("longValue()");
-        }
-        if (_hasFractionalPart()) {
-            _reportLongCoercionFractionFail("longValue()");
-        }
-        return (long) _value;
-    }
-
-    @Override
-    public long longValue(long defaultValue) {
-        if (!_inLongRange() || _hasFractionalPart()) {
-            return defaultValue;
-       }
-        return (long) _value;
-    }
-
-    @Override
-    public OptionalLong longValueOpt() {
-        if (!_inLongRange() || _hasFractionalPart()) {
-            return OptionalLong.empty();
-       }
-       return OptionalLong.of((long) _value);
-    }
-
-    @Override
     public float floatValue() {
         float f = (float) _value;
         if (Float.isFinite(f)) {
@@ -162,10 +95,25 @@ public class DoubleNode
      */
 
     @Override
+    protected short _asShortValueUnchecked() {
+        return (short) _value;
+    }
+
+    @Override
+    protected int _asIntValueUnchecked() {
+        return (int) _value;
+    }
+    
+    @Override
+    protected long _asLongValueUnchecked() {
+        return (long) _value;
+    }
+
+    @Override
     protected BigInteger _asBigIntegerValueUnchecked() {
         return BigDecimal.valueOf(_value).toBigInteger();
     }
-    
+
     @Override
     protected BigDecimal _asDecimalValueUnchecked() {
         return BigDecimal.valueOf(_value);

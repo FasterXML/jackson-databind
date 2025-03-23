@@ -918,6 +918,41 @@ public abstract class JsonNode
      */
     public abstract Optional<BigInteger> bigIntegerValueOpt();
 
+    /**
+     * Method similar to {@link #asBigInteger()}, but that will additionally try to convert
+     * from some non-numeric node types:
+     * <ul>
+     *  <li>JSON String values that represent Integer numbers (as per JSON spec)
+     *  <li>JSON nulls (converting to {@link BigInteger#ZERO})
+     *  <li>POJO nodes that contain {@link BigInteger}
+     *  </ul>
+     *
+     * @return {@link BigInteger} value this node represents, if possible to accurately convert;
+     *   {@code defaultValue} otherwise
+     */
+//    public abstract BigInteger asBigInteger();
+
+    /**
+     * Method similar to {@link #asBigInteger()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to {@link BigInteger}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to {@link BigInteger}
+     *
+     * @return {@link BigInteger} value this node represents, if possible to accurately convert;
+     *   {@code defaultValue} otherwise
+     */
+//    public abstract BigInteger asBigInteger(BigInteger defaultValue);
+
+    /**
+     * Method similar to {@link #bigIntegerValue()}, but that will return empty
+     * ({@code Optional.empty()}) if this node cannot
+     * be converted to Java {@code BigInteger}.
+     *
+     * @return {@link BigInteger} value this node represents, as {@code Optional<BigInteger>},
+     * if possible to accurately represent; {@code Optional.empty()} otherwise.
+     */
+//    public abstract Optional<BigInteger> asBigIntegerOpt();
+    
     // // Scalar access: Numbers, Java float
 
     /**

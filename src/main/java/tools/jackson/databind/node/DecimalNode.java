@@ -5,8 +5,6 @@ import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
@@ -79,71 +77,6 @@ public class DecimalNode
     @Override
     public Number numberValue() { return _value; }
 
-    @Override
-    public short shortValue() {
-        if (!_inShortRange()) {
-            return _reportShortCoercionRangeFail("shortValue()");
-        }
-        if (_hasFractionalPart()) {
-            _reportShortCoercionFractionFail("shortValue()");
-        }
-        return _value.shortValue();
-    }
-
-    @Override
-    public int intValue() {
-        if (!_inIntRange()) {
-            return _reportIntCoercionRangeFail("intValue()");
-        }
-        if (_hasFractionalPart()) {
-            _reportIntCoercionFractionFail("intValue()");
-        }
-        return _value.intValue();
-    }
-
-    @Override
-    public int intValue(int defaultValue) {
-        if (!_inIntRange() || _hasFractionalPart()) {
-             return defaultValue;
-        }
-        return _value.intValue();
-    }
-
-    @Override
-    public OptionalInt intValueOpt() {
-        if (!_inIntRange() || _hasFractionalPart()) {
-            return OptionalInt.empty();
-       }
-       return OptionalInt.of(_value.intValue());
-    }
-
-    @Override
-    public long longValue() {
-        if (!_inLongRange()) {
-            return _reportLongCoercionRangeFail("longValue()");
-        }
-        if (_hasFractionalPart()) {
-            _reportLongCoercionFractionFail("longValue()");
-        }
-        return _value.longValue();
-    }
-
-    @Override
-    public long longValue(long defaultValue) {
-        if (!_inLongRange() || _hasFractionalPart()) {
-            return defaultValue;
-        }
-        return _value.longValue();
-    }
-
-    @Override
-    public OptionalLong longValueOpt() {
-        if (!_inLongRange() || _hasFractionalPart()) {
-            return OptionalLong.empty();
-        }
-        return OptionalLong.of(_value.longValue());
-    }
-
 
     @Override
     public float floatValue() {
@@ -208,13 +141,28 @@ public class DecimalNode
      */
 
     @Override
-    protected BigDecimal _asDecimalValueUnchecked() {
-        return _value;
+    protected short _asShortValueUnchecked() {
+        return _value.shortValue();
+    }
+
+    @Override
+    protected int _asIntValueUnchecked() {
+        return _value.intValue();
+    }
+    
+    @Override
+    protected long _asLongValueUnchecked() {
+        return _value.longValue();
     }
 
     @Override
     protected BigInteger _asBigIntegerValueUnchecked() {
         return _value.toBigInteger();
+    }
+
+    @Override
+    protected BigDecimal _asDecimalValueUnchecked() {
+        return _value;
     }
 
     @Override

@@ -3,6 +3,8 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.JsonToken;
 
@@ -50,6 +52,71 @@ public abstract class NumericFPNode extends NumericNode
 
     // // // Integer value accessors
 
+    @Override
+    public final short shortValue() {
+        if (!_inShortRange()) {
+            return _reportShortCoercionRangeFail("shortValue()");
+        }
+        if (_hasFractionalPart()) {
+            _reportShortCoercionFractionFail("shortValue()");
+        }
+        return _asShortValueUnchecked();
+    }
+
+    @Override
+    public final int intValue() {
+        if (!_inIntRange()) {
+            return _reportIntCoercionRangeFail("intValue()");
+        }
+        if (_hasFractionalPart()) {
+            _reportIntCoercionFractionFail("intValue()");
+        }
+        return _asIntValueUnchecked();
+    }
+
+    @Override
+    public final int intValue(int defaultValue) {
+        if (!_inIntRange() || _hasFractionalPart()) {
+             return defaultValue;
+        }
+        return _asIntValueUnchecked();
+    }
+
+    @Override
+    public final OptionalInt intValueOpt() {
+        if (!_inIntRange() || _hasFractionalPart()) {
+            return OptionalInt.empty();
+       }
+       return OptionalInt.of(_asIntValueUnchecked());
+    }
+
+    @Override
+    public final long longValue() {
+        if (!_inLongRange()) {
+            return _reportLongCoercionRangeFail("longValue()");
+        }
+        if (_hasFractionalPart()) {
+            _reportLongCoercionFractionFail("longValue()");
+        }
+        return _asLongValueUnchecked();
+    }
+
+    @Override
+    public final long longValue(long defaultValue) {
+        if (!_inLongRange() || _hasFractionalPart()) {
+            return defaultValue;
+        }
+        return _asLongValueUnchecked();
+    }
+
+    @Override
+    public final OptionalLong longValueOpt() {
+        if (!_inLongRange() || _hasFractionalPart()) {
+            return OptionalLong.empty();
+        }
+        return OptionalLong.of(_asLongValueUnchecked());
+    }
+    
     @Override
     public final BigInteger bigIntegerValue() {
         if (isNaN()) {
@@ -135,14 +202,39 @@ public abstract class NumericFPNode extends NumericNode
 
     /**
      * Method for sub-classes to implement; returns the underlying
-     * value as a BigInteger without any checks (wrt NaN), so caller
+     * value as a {@code short} without any checks (wrt NaN or value range),
+     * so caller must ensure validity prior to calling
+     */
+    protected abstract short _asShortValueUnchecked();
+    
+    /**
+     * Method for sub-classes to implement; returns the underlying
+     * value as a {@code int} without any checks (wrt NaN or value range),
+     * so caller must ensure validity prior to calling
+     */
+    protected abstract int _asIntValueUnchecked();
+
+    /**
+     * Method for sub-classes to implement; returns the underlying
+     * value as a {@code long} without any checks (wrt NaN or value range),
+     * so caller must ensure validity prior to calling
+     */
+    protected abstract long _asLongValueUnchecked();
+
+    /**
+     * Method for sub-classes to implement; returns the underlying
+     * value as a {@link BigInteger} without any checks (wrt NaN), so caller
      * must ensure validity prior to calling
      */
     protected abstract BigInteger _asBigIntegerValueUnchecked();
 
+    // NOTE: we do need these ones (not enough commonality):
+    //protected abstract float _asFloatValueUnchecked();
+    //protected abstract double _asDoubleValueUnchecked();
+
     /**
      * Method for sub-classes to implement; returns the underlying
-     * value as a BigDecimal without any checks (wrt NaN), so caller
+     * value as a {@link BigDecimal} without any checks (wrt NaN), so caller
      * must ensure validity prior to calling
      */
     protected abstract BigDecimal _asDecimalValueUnchecked();

@@ -31,12 +31,30 @@ public abstract class NumericIntNode extends NumericNode
     @Override
     public final boolean isNaN() { return false; }
 
+    @Override final
+    public boolean canConvertToInt() {
+        return _inIntRange();
+    }
+
+    @Override final
+    public boolean canConvertToLong() {
+        return _inLongRange();
+    }
+
     /*
     /**********************************************************************
     /* Partial implementation of numeric accessors
     /**********************************************************************
      */
 
+    @Override
+    public short shortValue() {
+        if (_inShortRange()) {
+            return (short) _asIntValueUnchecked();
+        }
+        return _reportShortCoercionRangeFail("shortValue()");
+    }
+    
     // Float is simple
 
     @Override
@@ -132,7 +150,15 @@ public abstract class NumericIntNode extends NumericNode
     /**********************************************************************
      */
 
+    protected abstract int _asIntValueUnchecked();
+    
     protected abstract float _asFloatValueUnchecked();
 
     protected abstract double _asDoubleValueUnchecked();
+
+    protected abstract boolean _inShortRange();
+
+    protected abstract boolean _inIntRange();
+
+    protected abstract boolean _inLongRange();
 }

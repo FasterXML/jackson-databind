@@ -61,9 +61,6 @@ public class IntNode
     @Override
     public boolean isInt() { return true; }
 
-    @Override public boolean canConvertToInt() { return true; }
-    @Override public boolean canConvertToLong() { return true; }
-
     /*
     /**********************************************************************
     /* Overridden JsonNode methods, scalar access
@@ -83,14 +80,6 @@ public class IntNode
     @Override
     public Number numberValue() {
         return Integer.valueOf(_value);
-    }
-
-    @Override
-    public short shortValue() {
-        if (_value >= Short.MIN_VALUE && _value <= Short.MAX_VALUE) {
-            return (short) _value;
-        }
-        return _reportShortCoercionRangeFail("shortValue()");
     }
 
     @Override
@@ -144,6 +133,11 @@ public class IntNode
      */
 
     @Override
+    protected int _asIntValueUnchecked() {
+        return _value;
+    }
+
+    @Override
     protected float _asFloatValueUnchecked() {
         return (float) _value;
     }
@@ -152,6 +146,19 @@ public class IntNode
     protected double _asDoubleValueUnchecked() {
         return (double) _value;
     }
+
+    @Override
+    protected boolean _inShortRange() {
+        return (_value >= Short.MIN_VALUE && _value <= Short.MAX_VALUE);
+    }
+
+    @Override
+    protected boolean _inIntRange() {
+        return true;
+    }
+
+    @Override
+    protected boolean _inLongRange() { return true; }
 
     /*
     /**********************************************************************

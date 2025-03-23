@@ -41,13 +41,6 @@ public class LongNode
     @Override
     public boolean isLong() { return true; }
 
-    @Override
-    public boolean canConvertToInt() {
-        return (_value >= Integer.MIN_VALUE && _value <= Integer.MAX_VALUE);
-    }
-
-    @Override public boolean canConvertToLong() { return true; }
-
     /*
     /**********************************************************************
     /* Overridden JsonNode methods, scalar access
@@ -67,14 +60,6 @@ public class LongNode
     @Override
     public Number numberValue() {
         return Long.valueOf(_value);
-    }
-
-    @Override
-    public short shortValue() {
-        if (_value >= Short.MIN_VALUE && _value <= Short.MAX_VALUE) {
-            return (short) _value;
-        }
-        return _reportShortCoercionRangeFail("shortValue()");
     }
 
     @Override
@@ -135,6 +120,11 @@ public class LongNode
      */
 
     @Override
+    protected int _asIntValueUnchecked() {
+        return (int) _value;
+    }
+
+    @Override
     protected float _asFloatValueUnchecked() {
         return (float) _value;
     }
@@ -144,6 +134,19 @@ public class LongNode
         return (double) _value;
     }
 
+    @Override
+    protected boolean _inShortRange() {
+        return (_value >= Short.MIN_VALUE && _value <= Short.MAX_VALUE);
+    }
+
+    @Override
+    protected boolean _inIntRange() {
+        return (_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
+    }
+
+    @Override
+    protected boolean _inLongRange() { return true; }
+    
     /*
     /**********************************************************************
     /* Overridden methods, other

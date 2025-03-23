@@ -51,16 +51,6 @@ public class BigIntegerNode
     @Override
     public boolean isBigInteger() { return true; }
 
-    @Override public boolean canConvertToInt() {
-        return (_value.compareTo(MIN_INTEGER) >= 0)
-                && (_value.compareTo(MAX_INTEGER) <= 0);
-    }
-
-    @Override public boolean canConvertToLong() {
-        return (_value.compareTo(MIN_LONG) >= 0)
-                && (_value.compareTo(MAX_LONG) <= 0);
-    }
-
     /*
     /**********************************************************************
     /* Overridden JsonNode methods, scalar access
@@ -80,17 +70,6 @@ public class BigIntegerNode
     @Override
     public Number numberValue() {
         return _value;
-    }
-
-    @Override
-    public short shortValue() {
-        if (canConvertToInt()) {
-            int v = _value.intValue();
-            if (v >= Short.MIN_VALUE && v <= Short.MAX_VALUE) {
-                return (short) v;
-            }
-        }
-        return _reportShortCoercionRangeFail("shortValue()");
     }
 
     @Override
@@ -224,6 +203,11 @@ public class BigIntegerNode
      */
 
     @Override
+    protected int _asIntValueUnchecked() {
+        return _value.intValue();
+    }
+
+    @Override
     protected float _asFloatValueUnchecked() {
         return _value.floatValue();
     }
@@ -232,7 +216,28 @@ public class BigIntegerNode
     protected double _asDoubleValueUnchecked() {
         return _value.doubleValue();
     }
-    
+
+    @Override
+    protected boolean _inShortRange() {
+        if (_inIntRange()) {
+            int v = _value.intValue();
+            return (v >= Short.MIN_VALUE && v <= Short.MAX_VALUE);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean _inIntRange() {
+        return (_value.compareTo(MIN_INTEGER) >= 0)
+                && (_value.compareTo(MAX_INTEGER) <= 0);
+    }
+
+    @Override
+    protected boolean _inLongRange() {
+        return (_value.compareTo(MIN_LONG) >= 0)
+                && (_value.compareTo(MAX_LONG) <= 0);
+    }
+
     /*
     /**********************************************************************
     /* Other overrides

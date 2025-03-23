@@ -44,9 +44,6 @@ public class ShortNode
     @Override
     public boolean isShort() { return true; }
 
-    @Override public boolean canConvertToInt() { return true; }
-    @Override public boolean canConvertToLong() { return true; }
-
     /*
     /**********************************************************************
     /* Overridden JsonNode methods, scalar access
@@ -68,6 +65,7 @@ public class ShortNode
         return Short.valueOf(_value);
     }
 
+    // Overridden as minor performance optimization
     @Override
     public short shortValue() { return _value; }
 
@@ -122,6 +120,11 @@ public class ShortNode
      */
 
     @Override
+    protected int _asIntValueUnchecked() {
+        return _value;
+    }
+
+    @Override
     protected float _asFloatValueUnchecked() {
         return (float) _value;
     }
@@ -131,6 +134,15 @@ public class ShortNode
         return (double) _value;
     }
 
+    @Override
+    protected boolean _inShortRange() { return true; }
+
+    @Override
+    protected boolean _inIntRange() { return true; }
+
+    @Override
+    protected boolean _inLongRange() { return true; }
+    
     /*
     /**********************************************************************
     /* Overridden JsonNode methods, other

@@ -118,6 +118,18 @@ public class JsonNodeLongValueTest
         _assertFailLongValueForFraction(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
     }
 
+    @Test
+    public void longValueFromNumberFPFailNaN()
+    {
+        _assertFailLongForNaN(NODES.numberNode(Float.NaN));
+        _assertFailLongForNaN(NODES.numberNode(Float.NEGATIVE_INFINITY));
+        _assertFailLongForNaN(NODES.numberNode(Float.POSITIVE_INFINITY));
+
+        _assertFailLongForNaN(NODES.numberNode(Double.NaN));
+        _assertFailLongForNaN(NODES.numberNode(Double.NEGATIVE_INFINITY));
+        _assertFailLongForNaN(NODES.numberNode(Double.POSITIVE_INFINITY));
+    }
+
     // longValue() + non-Numeric types
 
     @Test
@@ -160,6 +172,7 @@ public class JsonNodeLongValueTest
                 () ->  node.longValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
+            .contains("longValue()")
             .contains("cannot convert value")
             .contains("value not in 64-bit `long` range");
 
@@ -173,6 +186,7 @@ public class JsonNodeLongValueTest
                 () ->  node.longValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
+            .contains("longValue()")
             .contains("cannot convert value")
             .contains("to `long`: value has fractional part");
 
@@ -186,8 +200,23 @@ public class JsonNodeLongValueTest
                 () ->  node.longValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
+            .contains("longValue()")
             .contains("cannot convert value")
             .contains("value type not numeric");
+
+        // Verify default value handling
+        assertEquals(1L, node.longValue(1L));
+        assertFalse(node.longValueOpt().isPresent());
+    }
+
+    private void _assertFailLongForNaN(JsonNode node) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.longValue(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+            .contains("longValue()")
+            .contains("cannot convert value")
+            .contains("value non-Finite");
 
         // Verify default value handling
         assertEquals(1L, node.longValue(1L));

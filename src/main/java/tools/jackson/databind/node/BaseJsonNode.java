@@ -630,7 +630,22 @@ public abstract class BaseJsonNode
                 "value has fractional part");
     }
 
-    protected BigInteger _reportBigDecimalCoercionNaNFail(String method) {
+    protected int _reportIntCoercionNaNFail(String method) {
+        return _reportCoercionFail(method, Integer.TYPE,
+                "value non-Finite ('NaN')");
+    }
+
+    protected long _reportLongCoercionNaNFail(String method) {
+        return _reportCoercionFail(method, Long.TYPE,
+                "value non-Finite ('NaN')");
+    }
+
+    protected BigInteger _reportBigIntegerCoercionNaNFail(String method) {
+        return _reportCoercionFail(method, BigInteger.class,
+                "value non-Finite ('NaN')");
+    }
+    
+    protected BigDecimal _reportBigDecimalCoercionNaNFail(String method) {
         return _reportCoercionFail(method, BigDecimal.class,
                 "value non-Finite ('NaN')");
     }

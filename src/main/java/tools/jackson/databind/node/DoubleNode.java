@@ -148,7 +148,7 @@ public class DoubleNode
 
     @Override
     protected boolean _inIntRange() {
-        return !isNaN() &&(_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
+        return !isNaN() && (_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
     }
 
     @Override

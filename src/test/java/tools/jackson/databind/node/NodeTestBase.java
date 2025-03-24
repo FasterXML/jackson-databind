@@ -19,7 +19,8 @@ abstract class NodeTestBase extends DatabindTestUtil
 
         assertEquals(-42, n.asInt(-42));
         assertEquals(12345678901L, n.asLong(12345678901L));
-        assertEquals(-19.25, n.asDouble(-19.25));
+        // As of 3.0, coercion rules vary by specific type so can no longer test this:
+        //assertEquals(-19.25, n.asDouble(-19.25));
     }
 
     // Test to check conversions, coercions

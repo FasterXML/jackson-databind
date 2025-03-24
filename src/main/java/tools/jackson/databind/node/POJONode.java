@@ -113,15 +113,6 @@ public class POJONode
         return defaultValue;
     }
 
-    @Override
-    public double asDouble(double defaultValue)
-    {
-        if (_value instanceof Number N) {
-            return N.doubleValue();
-        }
-        return defaultValue;
-    }
-
     // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`
 
     @Override
@@ -142,6 +133,17 @@ public class POJONode
         return (big == null) ? Optional.empty() : Optional.of(big);
     }
 
+    // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`
+
+    @Override
+    public double asDouble(double defaultValue)
+    {
+        if (_value instanceof Number N) {
+            return N.doubleValue();
+        }
+        return defaultValue;
+    }
+    
     // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
 
     @Override

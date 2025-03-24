@@ -62,8 +62,9 @@ public abstract class NumericIntNode extends NumericNode
         return _asFloatValueUnchecked();
     }
 
-    // Double simple (but overridden by BigInteger which needs range checks)
-    
+    // Double handling straight-forward for all Integral types except BigInteger
+    // (which needs range checks and overrides these implementations)
+
     @Override
     public double doubleValue() {
         return _asDoubleValueUnchecked();

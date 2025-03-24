@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JsonNode;
@@ -79,6 +80,23 @@ public class NullNode
         return Optional.of(asBigInteger());
     }
 
+    // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`
+
+    @Override
+    public double asDouble() {
+        return 0.0d;
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        return asDouble();
+    }
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        return OptionalDouble.of(asDouble());
+    }
+    
     // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
 
     @Override

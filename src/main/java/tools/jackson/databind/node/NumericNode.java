@@ -57,7 +57,7 @@ public abstract class NumericNode
     @Override public abstract BigInteger asBigInteger();
     @Override public abstract BigInteger asBigInteger(BigInteger defaultValue);
     @Override public abstract Optional<BigInteger> asBigIntegerOpt();
-    
+
     @Override public abstract float floatValue();
 
     @Override public abstract double doubleValue();
@@ -66,14 +66,14 @@ public abstract class NumericNode
     @Override public abstract double asDouble();
     @Override public abstract double asDouble(double defaultValue);
     @Override public abstract OptionalDouble asDoubleOpt();
-    
+
     @Override public abstract BigDecimal decimalValue();
     @Override public abstract BigDecimal decimalValue(BigDecimal defaultValue);
     @Override public abstract Optional<BigDecimal> decimalValueOpt();
     @Override public abstract BigDecimal asDecimal();
     @Override public abstract BigDecimal asDecimal(BigDecimal defaultValue);
     @Override public abstract Optional<BigDecimal> asDecimalOpt();
-    
+
     @Override public abstract boolean canConvertToInt();
     @Override public abstract boolean canConvertToLong();
 

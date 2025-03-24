@@ -75,6 +75,11 @@ public class DoubleNode
      */
 
     @Override
+    protected String _asString() {
+        return String.valueOf(_value);
+    }
+    
+    @Override
     public Number numberValue() {
         return Double.valueOf(_value);
     }
@@ -180,11 +185,6 @@ public class DoubleNode
 
     @Override
     public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
-
-    @Override
-    public String asString() {
-        return String.valueOf(_value);
-    }
 
     @Override
     public boolean isNaN() {

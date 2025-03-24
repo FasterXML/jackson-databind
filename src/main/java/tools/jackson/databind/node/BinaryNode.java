@@ -107,7 +107,7 @@ public class BinaryNode
      * but will work correctly.
      */
     @Override
-    public String asString() {
+    protected String _asString() {
         return Base64Variants.getDefaultVariant().encode(_data, false);
     }
 

@@ -7,6 +7,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.util.ByteArrayBuilder;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.exc.JsonNodeException;
 
 /**
  * Value node that contains a String value.
@@ -71,6 +72,17 @@ public class StringNode
      */
 
     @Override
+    public Boolean _asBoolean() {
+        if ("true".equals(_value)) {
+            return Boolean.TRUE;
+        }
+        if ("false".equals(_value)) {
+            return Boolean.FALSE;
+        }
+        return null;
+    }
+
+    @Override
     public String stringValue() {
         return _value;
     }
@@ -85,12 +97,49 @@ public class StringNode
         return Optional.of(_value);
     }
 
+    @Override
+    protected String _asString() {
+        return _value;
+    }
+
+    // Directly override "asText()" variants as minor optimization
+
+    @Override
+    public String asString() {
+        return _value;
+    }
+
+    @Override
+    public String asString(String defaultValue) {
+        return _value;
+    }
+
+    @Override
+    public Optional<String> asStringOpt() {
+        return Optional.of(_value);
+    }
+
+    @Override
+    public int asInt(int defaultValue) {
+        return NumberInput.parseAsInt(_value, defaultValue);
+    }
+
+    @Override
+    public long asLong(long defaultValue) {
+        return NumberInput.parseAsLong(_value, defaultValue);
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        return NumberInput.parseAsDouble(_value, defaultValue, false);
+    }
+
     /**
      * Method for accessing content String assuming they were
      * base64 encoded; if so, content is decoded and resulting binary
      * data is returned.
      *
-     * @throws JacksonException if String contents are not valid Base64 encoded content
+     * @throws JsonNodeException if String contents are not valid Base64 encoded content
      */
     @SuppressWarnings("resource")
     public byte[] getBinaryValue(Base64Variant b64variant) throws JacksonException
@@ -115,45 +164,6 @@ public class StringNode
     @Override
     public byte[] binaryValue() throws JacksonException {
         return getBinaryValue(Base64Variants.getDefaultVariant());
-    }
-
-    @Override
-    public String asString() {
-        return _value;
-    }
-
-    @Override
-    public String asString(String defaultValue) {
-        return _value;
-    }
-
-    // note: neither fast nor elegant, but these work for now:
-
-    @Override
-    public boolean asBoolean(boolean defaultValue) {
-        String v = _value.trim();
-        if ("true".equals(v)) {
-            return true;
-        }
-        if ("false".equals(v)) {
-            return false;
-        }
-        return defaultValue;
-    }
-
-    @Override
-    public int asInt(int defaultValue) {
-        return NumberInput.parseAsInt(_value, defaultValue);
-    }
-
-    @Override
-    public long asLong(long defaultValue) {
-        return NumberInput.parseAsLong(_value, defaultValue);
-    }
-
-    @Override
-    public double asDouble(double defaultValue) {
-        return NumberInput.parseAsDouble(_value, defaultValue, false);
     }
 
     /*

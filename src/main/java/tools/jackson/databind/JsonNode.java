@@ -584,26 +584,34 @@ public abstract class JsonNode
     }
 
     /**
-     * Method that will return a valid String representation of
-     * the contained value, if the node is a value node
-     * (method {@link #isValueNode} returns true),
-     * otherwise empty String.
+     * Method that will try to convert value of this node to a {@code String}.
+     * JSON Strings map naturally; other scalars map to their string representation
+     * (including Binary data as Base64 encoded String);
+     * JSON {@code null}s map to empty String.
+     * Other values (including structured types like Objects and Arrays, and "missing"
+     * value) will result in a {@link JsonNodeException} being thrown.
      *<p>
      * NOTE: this is NOT same as {@link #toString()} in that result is
-     * <p>NOT VALID ENCODED JSON</p> for all nodes (but is for some, like
+     * <p>NOT VALID ENCODED JSON</p> for all nodes (although is for some, like
      * {@code NumberNode}s and {@code BooleanNode}s).
+     *
+     * @return String representation of this node, if coercible; exception otherwise
+     *
+     * @throws JsonNodeException if node cannot be coerced to a {@code String}
      */
     public abstract String asString();
 
     /**
-     * Returns the text value of this node or the provided {@code defaultValue} if this node
-     * does not have a text value. Useful for nodes that are {@link MissingNode} or
-     * {@link tools.jackson.databind.node.NullNode}, ensuring a default value is returned instead of null or missing indicators.
-     *
-     * @param defaultValue The default value to return if this node's text value is absent.
-     * @return The text value of this node, or {@code defaultValue} if the text value is absent.
+     * Similar to {@link #asString()}, but instead of throwing an exception for
+     * non-coercible values, will return specified default value.
      */
     public abstract String asString(String defaultValue);
+
+    /**
+     * Similar to {@link #asString()}, but instead of throwing an exception for
+     * non-coercible values, will return {@code Optional.empty()}.
+     */
+    public abstract Optional<String> asStringOpt();
 
     /**
      * @deprecated Use {@link #asString()} instead.
@@ -672,28 +680,30 @@ public abstract class JsonNode
     public abstract Optional<Boolean> booleanValueOpt();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>boolean</b>.
-     * JSON booleans map naturally; integer numbers other than 0 map to true, and
-     * 0 maps to false
+     * Method that will try to convert value of this node to a Java {@code boolean}.
+     * JSON Booleans map naturally; Integer numbers other than 0 map to true, and
+     * 0 maps to false; {@code null} maps to false
      * and Strings 'true' and 'false' map to corresponding values.
-     *<p>
-     * If representation cannot be converted to a boolean value (including structured types
-     * like Objects and Arrays),
-     * default value of <b>false</b> will be returned; no exceptions are thrown.
+     * Other values (including structured types like Objects and Arrays) will
+     * result in a {@link JsonNodeException} being thrown.
+     *
+     * @return Boolean value this node represents, if coercible; exception otherwise
+     *
+     * @throws JsonNodeException if node cannot be coerced to a Java {@code boolean}
      */
     public abstract boolean asBoolean();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>boolean</b>.
-     * JSON booleans map naturally; integer numbers other than 0 map to true, and
-     * 0 maps to false
-     * and Strings 'true' and 'false' map to corresponding values.
-     *<p>
-     * If representation cannot be converted to a boolean value (including structured types
-     * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * Similar to {@link #asBoolean()}, but instead of throwing an exception for
+     * non-coercible values, will return specified default value.
      */
     public abstract boolean asBoolean(boolean defaultValue);
+
+    /**
+     * Similar to {@link #asBoolean()}, but instead of throwing an exception for
+     * non-coercible values, will return {@code Optional.empty()}.
+     */
+    public abstract Optional<Boolean> asBooleanOpt();
 
     // // Scalar access: Numbers, generic
 

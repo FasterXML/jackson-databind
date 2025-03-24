@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.util.Objects;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.JacksonSerializable;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.util.ClassUtil;
@@ -43,20 +44,6 @@ public class POJONode
     @Override
     public JsonToken asToken() { return JsonToken.VALUE_EMBEDDED_OBJECT; }
 
-    /**
-     * As it is possible that some implementations embed byte[] as POJONode
-     * (despite optimal being {@link BinaryNode}), let's add support for exposing
-     * binary data here too.
-     */
-    @Override
-    public byte[] binaryValue()
-    {
-        if (_value instanceof byte[]) {
-            return (byte[]) _value;
-        }
-        return super.binaryValue();
-    }
-
     /*
     /**********************************************************************
     /* General type coercions
@@ -64,20 +51,25 @@ public class POJONode
      */
 
     @Override
-    public String asString() { return (_value == null) ? "null" : _value.toString(); }
-
-    @Override
-    public String asString(String defaultValue) {
-        return (_value == null) ? defaultValue : _value.toString();
+    protected Boolean _asBoolean()
+    {
+        if (_value == null) {
+            return Boolean.FALSE;
+        }
+        if (_value instanceof Boolean B) {
+            return B;
+        }
+        return null;
     }
 
     @Override
-    public boolean asBoolean(boolean defaultValue)
-    {
-        if (_value instanceof Boolean) {
-            return ((Boolean) _value).booleanValue();
+    protected String _asString() {
+        if (_value instanceof String str) {
+             return str;
         }
-        return defaultValue;
+        // 21-Mar-2025, tatu: [databind#5034] Should we consider RawValue too?
+        //    (for now, won't)
+        return null;
     }
 
     @Override
@@ -105,6 +97,20 @@ public class POJONode
             return ((Number) _value).doubleValue();
         }
         return defaultValue;
+    }
+
+    /**
+     * As it is possible that some implementations embed byte[] as POJONode
+     * (despite optimal being {@link BinaryNode}), let's add support for exposing
+     * binary data here too.
+     */
+    @Override
+    public byte[] binaryValue()
+    {
+        if (_value instanceof byte[]) {
+            return (byte[]) _value;
+        }
+        return super.binaryValue();
     }
 
     /*

@@ -23,6 +23,8 @@ public class JsonNodeStringValueTest
 {
     private final JsonNodeFactory NODES = newJsonMapper().getNodeFactory();
 
+    // // // stringValue() tests
+
     @Test
     public void stringValueSuccess()
     {
@@ -34,40 +36,91 @@ public class JsonNodeStringValueTest
     @Test
     public void stringValueFailFromNumbers()
     {
-        _assertFailForNonString(NODES.numberNode((byte) 1));
-        _assertFailForNonString(NODES.numberNode((short) 2));
-        _assertFailForNonString(NODES.numberNode(3));
-        _assertFailForNonString(NODES.numberNode(4L));
-        _assertFailForNonString(NODES.numberNode(BigInteger.valueOf(5)));
+        _assertStringValueFailForNonString(NODES.numberNode((byte) 1));
+        _assertStringValueFailForNonString(NODES.numberNode((short) 2));
+        _assertStringValueFailForNonString(NODES.numberNode(3));
+        _assertStringValueFailForNonString(NODES.numberNode(4L));
+        _assertStringValueFailForNonString(NODES.numberNode(BigInteger.valueOf(5)));
 
-        _assertFailForNonString(NODES.numberNode(0.25f));
-        _assertFailForNonString(NODES.numberNode(-2.125d));
-        _assertFailForNonString(NODES.numberNode(new BigDecimal("0.1")));
+        _assertStringValueFailForNonString(NODES.numberNode(0.25f));
+        _assertStringValueFailForNonString(NODES.numberNode(-2.125d));
+        _assertStringValueFailForNonString(NODES.numberNode(new BigDecimal("0.1")));
     }
 
     @Test
     public void stringValueFailFromNonNumberScalars()
     {
-        _assertFailForNonString(NODES.binaryNode(new byte[3]));
-        _assertFailForNonString(NODES.rawValueNode(new RawValue("abc")));
-        _assertFailForNonString(NODES.pojoNode(new AtomicInteger(1)));
+        _assertStringValueFailForNonString(NODES.binaryNode(new byte[3]));
+        _assertStringValueFailForNonString(NODES.rawValueNode(new RawValue("abc")));
+        _assertStringValueFailForNonString(NODES.pojoNode(new AtomicInteger(1)));
     }
 
     @Test
-    public void numberValueFromStructural()
+    public void stringValueFromStructural()
     {
-        _assertFailForNonString(NODES.arrayNode(3));
-        _assertFailForNonString(NODES.objectNode());
+        _assertStringValueFailForNonString(NODES.arrayNode(3));
+        _assertStringValueFailForNonString(NODES.objectNode());
     }
 
     @Test
-    public void numberValueFromNonNumberMisc()
+    public void stringValueFromNonNumberMisc()
     {
-        _assertFailForNonString(NODES.nullNode());
-        _assertFailForNonString(NODES.missingNode());
+        _assertStringValueFailForNonString(NODES.nullNode());
+        _assertStringValueFailForNonString(NODES.missingNode());
     }
 
-    private void _assertFailForNonString(JsonNode node) {
+    // // // asString() tests
+
+    @Test
+    public void asStringSuccess()
+    {
+        _assertAsStringSuccess("abc", NODES.stringNode("abc"));
+    }
+
+    @Test
+    public void asStringFromNumbers()
+    {
+        _assertAsStringSuccess("1", NODES.numberNode((byte) 1));
+        _assertAsStringSuccess("2", NODES.numberNode((short) 2));
+        _assertAsStringSuccess("3", NODES.numberNode(3));
+        _assertAsStringSuccess("4", NODES.numberNode(4L));
+        _assertAsStringSuccess("10", NODES.numberNode(BigInteger.TEN));
+
+        _assertAsStringSuccess("0.25", NODES.numberNode(0.25f));
+        _assertAsStringSuccess("-2.125", NODES.numberNode(-2.125d));
+        _assertAsStringSuccess("0.1", NODES.numberNode(new BigDecimal("0.1")));
+    }
+
+    @Test
+    public void asStringForNonNumberScalars()
+    {
+        // Binary converted to Base64
+        _assertAsStringSuccess("AAA=", NODES.binaryNode(new byte[2]));
+        _assertAsStringSuccess("xyz", NODES.pojoNode("xyz"));
+        _assertAsStringFailForNonString(NODES.pojoNode(new AtomicInteger(1)));
+
+        // RawValue's won't convert
+        _assertAsStringFailForNonString(NODES.rawValueNode(new RawValue("abcd")));
+    }
+
+    @Test
+    public void asStringFailForStructural()
+    {
+        _assertAsStringFailForNonString(NODES.arrayNode(3));
+        _assertAsStringFailForNonString(NODES.objectNode());
+    }
+
+    @Test
+    public void asStringFromNonNumberMisc()
+    {
+        _assertAsStringSuccess("", NODES.nullNode());
+
+        _assertAsStringFailForNonString(NODES.missingNode());
+    }
+
+    // // // Helper methods:
+
+    private void _assertStringValueFailForNonString(JsonNode node) {
         Exception e = assertThrows(JsonNodeException.class,
                 () ->  node.stringValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
@@ -78,5 +131,26 @@ public class JsonNodeStringValueTest
         // But also check defaulting
         assertEquals("foo", node.stringValue("foo"));
         assertFalse(node.stringValueOpt().isPresent());
+    }
+
+    private void _assertAsStringSuccess(String expected, JsonNode node) {
+        assertEquals(expected, node.asString());
+
+        // But also fallbacks
+        assertEquals(expected, node.asString("fallback"));
+        assertEquals(expected, node.asStringOpt().get());
+    }
+
+    private void _assertAsStringFailForNonString(JsonNode node) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.asString(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+            .contains("cannot convert value")
+            .contains("value type not coercible to `String`");
+
+        // But also check defaulting
+        assertEquals("foo", node.asString("foo"));
+        assertFalse(node.asStringOpt().isPresent());
     }
 }

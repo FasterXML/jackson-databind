@@ -209,13 +209,14 @@ public class JsonNodeDoubleValueTest
 
         _assertAsDoubleFailForNonNumber(NODES.booleanNode(true));
         _assertAsDoubleFailForNonNumber(NODES.binaryNode(new byte[3]));
-        _assertAsDoubleFailForNonNumber(NODES.stringNode("abc"));
         _assertAsDoubleFailForNonNumber(NODES.rawValueNode(new RawValue("abc")));
         _assertAsDoubleFailForNonNumber(NODES.pojoNode(Boolean.TRUE));
+        _assertAsDoubleFailForNonNumber(NODES.stringNode("abc"),
+                "not a valid String representation of `double`");
 
         // Then passing ones:
-        _assertAsDouble(0.5d, NODES.stringNode("0.5"));
         _assertAsDouble(2.5d, NODES.pojoNode(2.5d));
+        _assertAsDouble(0.5d, NODES.stringNode("0.5"));
     }
 
     @Test
@@ -290,13 +291,17 @@ public class JsonNodeDoubleValueTest
     }
 
     private void _assertAsDoubleFailForNonNumber(JsonNode node) {
+        _assertAsDoubleFailForNonNumber(node, "value type not numeric");
+    }
+
+    private void _assertAsDoubleFailForNonNumber(JsonNode node, String extraMatch) {
         Exception e = assertThrows(JsonNodeException.class,
                 () ->  node.asDouble(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("asDouble()")
             .contains("cannot convert value")
-            .contains("value type not numeric");
+            .contains(extraMatch);
 
         assertEquals(1.5d, node.asDouble(1.5d));
         assertEquals(OptionalDouble.empty(), node.asDoubleOpt());

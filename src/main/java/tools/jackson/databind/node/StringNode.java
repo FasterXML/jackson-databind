@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberInput;
@@ -170,11 +171,6 @@ public class StringNode
         return NumberInput.parseAsLong(_value, defaultValue);
     }
 
-    @Override
-    public double asDouble(double defaultValue) {
-        return NumberInput.parseAsDouble(_value, defaultValue, false);
-    }
-
     // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`
 
     @Override
@@ -197,6 +193,32 @@ public class StringNode
     public Optional<BigInteger> asBigIntegerOpt() {
         BigInteger big = _tryParseAsBigInteger();
         return (big == null) ? Optional.empty() : Optional.of(big);
+    }
+
+    // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`
+
+    @Override
+    public double asDouble()
+    {
+        Double d = _tryParseAsDouble();
+        if (d == null) {
+            return _reportCoercionFail("asDouble()", Double.TYPE,
+                    "value not a valid String representation of `double`");
+        }
+        return (d == null) ? super.asDouble() : d;
+    }
+
+    @Override
+    public double asDouble(double defaultValue)
+    {
+        Double d = _tryParseAsDouble();
+        return (d == null) ? defaultValue : d;
+    }
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        Double d = _tryParseAsDouble();
+        return (d == null) ? OptionalDouble.empty() : OptionalDouble.of(d);
     }
     
     // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
@@ -227,6 +249,17 @@ public class StringNode
         if (NumberInput.looksLikeValidNumber(_value)) {
             try {
                 return NumberInput.parseBigInteger(_value, true);
+            } catch (NumberFormatException e) {
+                ;
+            }
+        }
+        return null;
+    }
+
+    protected Double _tryParseAsDouble() {
+        if (NumberInput.looksLikeValidNumber(_value)) {
+            try {
+                return NumberInput.parseDouble(_value, true);
             } catch (NumberFormatException e) {
                 ;
             }

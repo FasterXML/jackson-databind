@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import tools.jackson.core.*;
 
@@ -136,14 +137,25 @@ public class POJONode
     // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`
 
     @Override
+    public double asDouble()
+    {
+        Double d = _extractAsDouble();
+        return (d == null) ? super.asDouble() : d;
+    }
+
+    @Override
     public double asDouble(double defaultValue)
     {
-        if (_value instanceof Number N) {
-            return N.doubleValue();
-        }
-        return defaultValue;
+        Double d = _extractAsDouble();
+        return (d == null) ? defaultValue : d;
     }
-    
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        Double d = _extractAsDouble();
+        return (d == null) ? OptionalDouble.empty() : OptionalDouble.of(d);
+    }
+
     // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
 
     @Override
@@ -188,6 +200,18 @@ public class POJONode
         return null;
     }
 
+    protected Double _extractAsDouble() {
+        if (_value instanceof Number N) {
+            if (_value instanceof Double D) {
+                return D;
+            }
+            // 24-Mar-2025, tatu: Should probably check for NaN from overflow
+            //    from "too big" `BigDecimal` or `BigInteger`. But will do for now
+            return N.doubleValue();
+        }
+        return null;
+    }
+    
     protected BigDecimal _extractAsBigDecimal() {
         // First, `null` same as `NullNode`
         if (_value == null) {

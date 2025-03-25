@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberInput;
@@ -162,10 +163,27 @@ public class StringNode
      */
 
     @Override
-    public int asInt(int defaultValue) {
-        return NumberInput.parseAsInt(_value, defaultValue);
+    public int asInt() {
+        Integer I = _tryParseAsInteger();
+        if (I == null) {
+            return _reportCoercionFail("asInt()", Integer.TYPE,
+                    "value not a valid String representation of `int`");
+        }
+        return I.intValue();
     }
 
+    @Override
+    public int asInt(int defaultValue) {
+        Integer I = _tryParseAsInteger();
+        return (I == null) ? defaultValue : I;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        Integer I = _tryParseAsInteger();
+        return (I == null) ? OptionalInt.empty() : OptionalInt.of(I);
+    }
+    
     @Override
     public long asLong(long defaultValue) {
         return NumberInput.parseAsLong(_value, defaultValue);
@@ -243,6 +261,18 @@ public class StringNode
     public Optional<BigDecimal> asDecimalOpt() {
         BigDecimal dec = _tryParseAsBigDecimal();
         return (dec == null) ? Optional.empty() : Optional.of(dec);
+    }
+
+    protected Integer _tryParseAsInteger() {
+        if (NumberInput.looksLikeValidNumber(_value)) {
+            try {
+                // NumberUtil does not have a good match so..
+                return Integer.parseInt(_value);
+            } catch (NumberFormatException e) {
+                ;
+            }
+        }
+        return null;
     }
 
     protected BigInteger _tryParseAsBigInteger() {

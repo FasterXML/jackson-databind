@@ -86,6 +86,36 @@ public abstract class NumericFPNode extends NumericNode
     }
 
     @Override
+    public int asInt() {
+        if (!_inIntRange()) {
+            if (isNaN()) {
+                _reportIntCoercionNaNFail("asInt()");
+            }
+            return _reportIntCoercionRangeFail("asInt()");
+        }
+        if (_hasFractionalPart()) {
+            _reportIntCoercionFractionFail("asInt()");
+        }
+        return _asIntValueUnchecked();
+    }
+
+    @Override
+    public int asInt(int defaultValue) {
+        if (!_inIntRange() || _hasFractionalPart()) {
+            return defaultValue;
+        }
+        return _asIntValueUnchecked();
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        if (!_inIntRange() || _hasFractionalPart()) {
+            return OptionalInt.empty();
+        }
+        return OptionalInt.of(_asIntValueUnchecked());
+    }
+
+    @Override
     public final OptionalInt intValueOpt() {
         if (!_inIntRange() || _hasFractionalPart()) {
             return OptionalInt.empty();

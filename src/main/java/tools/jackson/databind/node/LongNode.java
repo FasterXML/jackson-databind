@@ -64,7 +64,7 @@ public class LongNode
 
     @Override
     public int intValue() {
-        if (canConvertToInt()) {
+        if (_inIntRange()) {
             return (int) _value;
         }
         return _reportIntCoercionRangeFail("intValue()");
@@ -72,12 +72,30 @@ public class LongNode
 
     @Override
     public int intValue(int defaultValue) {
-        return canConvertToInt() ? (int) _value : defaultValue;
+        return _inIntRange() ? (int) _value : defaultValue;
     }
 
     @Override
     public OptionalInt intValueOpt() {
-        return canConvertToInt() ? OptionalInt.of((int) _value) : OptionalInt.empty();
+        return _inIntRange() ? OptionalInt.of((int) _value) : OptionalInt.empty();
+    }
+
+    @Override
+    public int asInt() {
+        if (_inIntRange()) {
+            return (int) _value;
+        }
+        return _reportIntCoercionRangeFail("asInt()");
+    }
+
+    @Override
+    public int asInt(int defaultValue) {
+        return _inIntRange() ? (int) _value : defaultValue;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        return _inIntRange() ? OptionalInt.of((int) _value) : OptionalInt.empty();
     }
 
     @Override

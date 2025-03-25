@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 import tools.jackson.core.*;
 
@@ -96,14 +97,28 @@ public class POJONode
     /**********************************************************************
      */
     
+    // `intValue()` (etc) fine as defaults (fail); but need to override `asInt()`
+
     @Override
-    public int asInt(int defaultValue)
+    public int asInt()
     {
-        if (_value instanceof Number N) {
-            return N.intValue();
-        }
-        return defaultValue;
+        Integer I = _extractAsInteger();
+        return (I == null) ? super.asInt() : I;
     }
+
+    @Override
+    public int asInt(int defaultValue) {
+        Integer I = _extractAsInteger();
+        return (I == null) ? defaultValue : I;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        Integer I = _extractAsInteger();
+        return (I == null) ? OptionalInt.empty() : OptionalInt.of(I);
+    }
+
+    // `longValue()` (etc) fine as defaults (fail); but need to override `asLong()`
 
     @Override
     public long asLong(long defaultValue)
@@ -180,6 +195,23 @@ public class POJONode
     public Optional<BigDecimal> asDecimalOpt() {
         BigDecimal dec = _extractAsBigDecimal();
         return (dec == null) ? Optional.empty() : Optional.of(dec);
+    }
+
+    // Consider only Integral numbers
+    protected Integer _extractAsInteger() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return 0;
+        }
+        // Next, coercions from integral Numbers
+        if (_value instanceof Number N) {
+            // !!! TODO: range checks
+            if (N instanceof Long || N instanceof Integer || N instanceof Short || N instanceof Byte
+                    || N instanceof BigInteger) {
+                return N.intValue();
+            }
+        }
+        return null;
     }
 
     // Consider only Integral numbers

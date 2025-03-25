@@ -94,6 +94,22 @@ public class IntNode
     }
 
     @Override
+    public int asInt() {
+        return _value;
+    }
+
+    @Override
+    public int asInt(int defaultValue) {
+        return _value;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        return OptionalInt.of(_value);
+
+    }
+
+    @Override
     public long longValue() { return _value; }
 
     @Override

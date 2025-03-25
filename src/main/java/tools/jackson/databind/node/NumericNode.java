@@ -46,10 +46,22 @@ public abstract class NumericNode
     @Override public abstract int intValue();
     @Override public abstract int intValue(int defaultValue);
     @Override public abstract OptionalInt intValueOpt();
+    @Override public abstract int asInt();
+    @Override public abstract int asInt(int defaultValue);
+    @Override public abstract OptionalInt asIntOpt();
 
     @Override public abstract long longValue();
     @Override public abstract long longValue(long defaultValue);
     @Override public abstract OptionalLong longValueOpt();
+    @Override
+    public final long asLong() {
+        return longValue();
+    }
+
+    @Override
+    public final long asLong(long defaultValue) {
+        return longValue();
+    }
 
     @Override public abstract BigInteger bigIntegerValue();
     @Override public abstract BigInteger bigIntegerValue(BigInteger defaultValue);
@@ -85,26 +97,6 @@ public abstract class NumericNode
 
     @Override
     protected abstract String _asString();
-
-    @Override
-    public final int asInt() {
-        return intValue();
-    }
-
-    @Override
-    public final int asInt(int defaultValue) {
-        return intValue();
-    }
-
-    @Override
-    public final long asLong() {
-        return longValue();
-    }
-
-    @Override
-    public final long asLong(long defaultValue) {
-        return longValue();
-    }
 
     /*
     /**********************************************************************

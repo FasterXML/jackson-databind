@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JsonNode;
@@ -62,6 +63,23 @@ public class NullNode
     /* Overridden JsonNode methods, scalar access, numeric
     /**********************************************************************
      */
+
+    // `intValue()` (etc) fine as defaults (fail); but need to override `asInt()`
+
+    @Override
+    public int asInt() {
+        return 0;
+    }
+
+    @Override
+    public int asInt(int defaultValue) {
+        return 0;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        return OptionalInt.of(0);
+    }
 
     // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`
 

@@ -785,28 +785,44 @@ public abstract class JsonNode
     public abstract OptionalInt intValueOpt();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>int</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * Method similar to {@link #intValue()} but in addition to coercing Number
+     * values (same as {@link #intValue()}), will also try coerce couple of additional types:
+     * <ul>
+     *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
+     *   </li>
+     *  <li>JSON Null (converted to {@code 0}))
+     *   </li>
+     *  <li>POJO nodes that contain Number values
+     *   </li>
+     * </ul>
      *<p>
-     * If representation cannot be converted to an int (including structured types
-     * like Objects and Arrays),
-     * default value of <b>0</b> will be returned; no exceptions are thrown.
+     *
+     * @return {@code int} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to {@code int}
      */
     public abstract int asInt();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>int</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to an int (including structured types
-     * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * Method similar to {@link #intValue()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to {@code int}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to {@code int}
+     *
+     * @return {@code int} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
      */
     public abstract int asInt(int defaultValue);
+
+    /**
+     * Method similar to {@link #asInt()}, but that will return
+     * ({@code OptionalInt.empty()}) if this node cannot
+     * be coerced to {@code double}.
+     *
+     * @return {@link OptionalInt} value this node represents,
+     * if possible to accurately represent; {@code OptionalInt.empty()} otherwise
+     */
+    public abstract OptionalInt asIntOpt();
 
     // // Scalar access: Numbers, Java long
 
@@ -977,7 +993,7 @@ public abstract class JsonNode
     // // Scalar access: Numbers, Java double
 
     /**
-     * Method that will try to access value of this node as a Java {@code double}:
+     * Method that will try to access value of this node as a {@code double}:
      * but if node value cannot be expressed <b>exactly</b> as a {@code double},
      * a {@link JsonNodeException} will be thrown.
      * Access works for following cases:
@@ -992,17 +1008,17 @@ public abstract class JsonNode
      *
      * @return {@code Double} value this node represents, if possible to accurately represent
      *
-     * @throws JsonNodeException if node value cannot be converted to Java {@code double}
+     * @throws JsonNodeException if node value cannot be converted to {@code double}
      */
     public abstract double doubleValue();
 
     /**
      * Method similar to {@link #doubleValue()}, but that will return specified
-     * {@code defaultValue} if this node cannot be converted to Java {@code double}.
+     * {@code defaultValue} if this node cannot be converted to {@code double}.
      *
-     * @param defaultValue Value to return if this node cannot be converted to Java {@code double}
+     * @param defaultValue Value to return if this node cannot be converted to {@code double}
      *
-     * @return Java {@code double} value this node represents, if possible to accurately represent;
+     * @return {@code double} value this node represents, if possible to accurately represent;
      *   {@code defaultValue} otherwise
      */
     public abstract double doubleValue(double defaultValue);
@@ -1016,41 +1032,41 @@ public abstract class JsonNode
      * if possible to accurately represent; {@code OptionalDouble.empty()} otherwise
      */
     public abstract OptionalDouble doubleValueOpt();
-    
+
     /**
      * Method similar to {@link #doubleValue()} but in addition to coercing Number
      * values will also try coerce couple of additional types:
      * <ul>
      *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0.0d}))
+     *  <li>JSON Null (converted to {@code 0.0d})
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
      * </ul>
      *<p>
      *
-     * @return Java {@code double} value this node represents, if possible to accurately represent
+     * @return {@code double} value this node represents, if possible to accurately represent
      *
-     * @throws JsonNodeException if node value cannot be converted to Java {@code double}
+     * @throws JsonNodeException if node value cannot be converted to {@code double}
      */
     public abstract double asDouble();
 
     /**
      * Method similar to {@link #asDouble()}, but that will return {@code defaultValue}
-     * if this node cannot be coerced to Java {@code double}.
+     * if this node cannot be coerced to {@code double}.
      *
-     * @return Java {@code double} value this node represents,
+     * @return {@code double} value this node represents,
      * if possible to accurately represent; {@code defaultValue} otherwise
      */
     public abstract double asDouble(double defaultValue);
 
     /**
-     * Method similar to {@link #asDouble()}, but that will return empty
-     * {@link Optional} ({@code Optional.empty()}) if this node cannot
-     * be coerced to Java {@code double}.
+     * Method similar to {@link #asDouble()}, but that will return
+     * ({@code OptionalDouble.empty()}) if this node cannot
+     * be coerced to {@code double}.
      *
-     * @return Java {@link OptionalDouble} value this node represents,
+     * @return {@link OptionalDouble} value this node represents,
      * if possible to accurately represent; {@code OptionalDouble.empty()} otherwise
      */
     public abstract OptionalDouble asDoubleOpt();

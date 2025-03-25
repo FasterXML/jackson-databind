@@ -89,12 +89,19 @@ public abstract class BaseJsonNode
 
     @Override
     public int asInt() {
-        return asInt(0);
+        return _reportCoercionFail("asInt()", Integer.TYPE, "value type not numeric");
     }
 
     @Override
     public int asInt(int defaultValue) {
+        // Overridden by NumericNode, for other types return default
         return defaultValue;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalInt.empty();
     }
 
     @Override

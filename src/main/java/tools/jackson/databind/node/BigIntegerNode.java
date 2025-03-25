@@ -74,7 +74,7 @@ public class BigIntegerNode
 
     @Override
     public int intValue() {
-        if (canConvertToInt()) {
+        if (_inIntRange()) {
             return _value.intValue();
         }
         return _reportIntCoercionRangeFail("intValue()");
@@ -82,12 +82,30 @@ public class BigIntegerNode
 
     @Override
     public int intValue(int defaultValue) {
-        return canConvertToInt() ? _value.intValue() : defaultValue;
+        return _inIntRange() ? _value.intValue() : defaultValue;
     }
 
     @Override
     public OptionalInt intValueOpt() {
-        return canConvertToInt() ? OptionalInt.of(_value.intValue()) : OptionalInt.empty();
+        return _inIntRange() ? OptionalInt.of(_value.intValue()) : OptionalInt.empty();
+    }
+    
+    @Override
+    public int asInt() {
+        if (_inIntRange()) {
+            return _value.intValue();
+        }
+        return _reportIntCoercionRangeFail("asInt()");
+    }
+
+    @Override
+    public int asInt(int defaultValue) {
+        return _inIntRange() ? _value.intValue() : defaultValue;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        return _inIntRange() ? OptionalInt.of(_value.intValue()) : OptionalInt.empty();
     }
     
     @Override

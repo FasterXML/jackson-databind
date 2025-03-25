@@ -54,7 +54,37 @@ public abstract class NumericIntNode extends NumericNode
         }
         return _reportShortCoercionRangeFail("shortValue()");
     }
-    
+
+    // Sub-classes need to define this; but with that can implement other 5 methods
+
+    @Override
+    public abstract BigInteger bigIntegerValue();
+
+    @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) {
+        return bigIntegerValue();
+    }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() {
+        return Optional.of(bigIntegerValue());
+    }
+
+    @Override
+    public BigInteger asBigInteger() {
+        return bigIntegerValue();
+    }
+
+    @Override
+    public BigInteger asBigInteger(BigInteger defaultValue) {
+        return bigIntegerValue();
+    }
+
+    @Override
+    public Optional<BigInteger> asBigIntegerOpt() {
+        return bigIntegerValueOpt();
+    }
+
     // Float is simple
 
     @Override
@@ -93,35 +123,6 @@ public abstract class NumericIntNode extends NumericNode
     @Override
     public OptionalDouble asDoubleOpt() {
         return OptionalDouble.of(_asDoubleValueUnchecked());
-    }
-    
-    // Sub-classes need to define this; but with that can implement other 5 methods
-    //
-    // public BigInteger bigIntegerValue()
-
-    @Override
-    public BigInteger bigIntegerValue(BigInteger defaultValue) {
-        return bigIntegerValue();
-    }
-
-    @Override
-    public Optional<BigInteger> bigIntegerValueOpt() {
-        return Optional.of(bigIntegerValue());
-    }
-
-    @Override
-    public BigInteger asBigInteger() {
-        return bigIntegerValue();
-    }
-
-    @Override
-    public BigInteger asBigInteger(BigInteger defaultValue) {
-        return bigIntegerValue();
-    }
-
-    @Override
-    public Optional<BigInteger> asBigIntegerOpt() {
-        return bigIntegerValueOpt();
     }
 
     // Sub-classes need to define this; but with that can implement other 5 methods

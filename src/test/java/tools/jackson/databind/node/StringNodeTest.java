@@ -18,7 +18,6 @@ public class StringNodeTest extends NodeTestBase
         assertTrue(empty.isEmpty());
 
         assertNodeNumbers(StringNode.valueOf("-3"), -3, -3.0);
-        assertNodeNumbers(StringNode.valueOf("17.75"), 17, 17.75);
 
         long value = 127353264013893L;
         StringNode n = StringNode.valueOf(String.valueOf(value));

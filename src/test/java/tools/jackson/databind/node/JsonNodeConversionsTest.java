@@ -140,17 +140,6 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = objectMapper();
 
-    @Test
-    public void testAsInt() throws Exception
-    {
-        assertEquals(9, IntNode.valueOf(9).asInt());
-        assertEquals(7, LongNode.valueOf(7L).asInt());
-        assertEquals(13, new StringNode("13").asInt());
-        assertEquals(0, new StringNode("foobar").asInt());
-        assertEquals(27, new StringNode("foobar").asInt(27));
-        assertEquals(1, BooleanNode.TRUE.asInt());
-    }
-
     // note: pre-[databind#5034]
     @Test
     public void testAsBoolean() throws Exception

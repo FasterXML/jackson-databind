@@ -305,6 +305,9 @@
                 constructor(s)
             -->
             <ignore>java.lang.StackTraceElement</ignore>
+            <!-- 2025-03-24 scs: AnimalSniffer does not support @PolymorphicSignature
+                 https://github.com/mojohaus/animal-sniffer/issues/67 -->
+            <ignore>java.lang.invoke.MethodHandle</ignore>
           </ignores>
         </configuration>
       </plugin>

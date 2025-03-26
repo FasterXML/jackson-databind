@@ -50,8 +50,9 @@ public class JsonNodeBasicTest extends NodeTestBase
         assertEquals("true", t.asString());
         assertEquals(JsonToken.VALUE_TRUE, t.asToken());
 
-        assertNodeNumbers(f, 0, 0.0);
-        assertNodeNumbers(t, 1, 1.0);
+        // Booleans cannot be coerced to numbers in 3.0
+        //assertNodeNumbers(f, 0, 0.0);
+        //assertNodeNumbers(t, 1, 1.0);
 
         JsonNode result = objectMapper().readTree("true\n");
         assertFalse(result.isNull());

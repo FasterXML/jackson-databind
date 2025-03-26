@@ -5,6 +5,15 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
+3.0.0-rc2 (not yet released)
+
+#5003: Extend, improve set of `JsonNode.asXxx()` methods for number types
+#5025: Add support for automatic detection of subtypes (like `@JsonSubTypes`)
+  from Java 17 sealed types
+ (contributed by Andy B
+#5034: Extend, improve set of `JsonNode.asXxx()` methods for non-number
+  types (Boolean, String)
+
 3.0.0-rc1 (07-Mar-2025)
 
 #493: Change `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES` default to `false`
@@ -108,11 +117,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #4992: Rename `JsonNodeFactory.textNode()` as `JsonNodeFactory.stringNode()` [JSTEP-3]
 #5004: Add `JsonMapper.builderWithJackson2Defaults()`
  (fixed by @pjfanning)
-#5025: Add support for automatic detection of subtypes (like `@JsonSubTypes`)
-  from Java 17 sealed types
- (contributed by Andy B
-#5034: Extend, improve set of `JsonNode.asXxx()` methods for non-number
-  types (Boolean, String)
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)
 - Default for `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES` changed to `false` for 3.0

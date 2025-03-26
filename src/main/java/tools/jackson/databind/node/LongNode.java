@@ -3,7 +3,6 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
@@ -14,7 +13,7 @@ import tools.jackson.databind.SerializationContext;
  * Numeric node that contains simple 64-bit integer values.
  */
 public class LongNode
-    extends NumericNode
+    extends NumericIntNode
 {
     private static final long serialVersionUID = 3L;
 
@@ -36,25 +35,11 @@ public class LongNode
     /**********************************************************************
      */
 
-    @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
-
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.LONG; }
-    @Override
-    public boolean isIntegralNumber() { return true; }
 
     @Override
     public boolean isLong() { return true; }
-
-    @Override
-    public boolean isNaN() { return false; }
-
-    @Override
-    public boolean canConvertToInt() {
-        return (_value >= Integer.MIN_VALUE && _value <= Integer.MAX_VALUE);
-    }
-
-    @Override public boolean canConvertToLong() { return true; }
 
     /*
     /**********************************************************************
@@ -78,16 +63,8 @@ public class LongNode
     }
 
     @Override
-    public short shortValue() {
-        if (_value >= Short.MIN_VALUE && _value <= Short.MAX_VALUE) {
-            return (short) _value;
-        }
-        return _reportShortCoercionRangeFail("shortValue()");
-    }
-
-    @Override
     public int intValue() {
-        if (canConvertToInt()) {
+        if (_inIntRange()) {
             return (int) _value;
         }
         return _reportIntCoercionRangeFail("intValue()");
@@ -95,12 +72,30 @@ public class LongNode
 
     @Override
     public int intValue(int defaultValue) {
-        return canConvertToInt() ? (int) _value : defaultValue;
+        return _inIntRange() ? (int) _value : defaultValue;
     }
 
     @Override
     public OptionalInt intValueOpt() {
-        return canConvertToInt() ? OptionalInt.of((int) _value) : OptionalInt.empty();
+        return _inIntRange() ? OptionalInt.of((int) _value) : OptionalInt.empty();
+    }
+
+    @Override
+    public int asInt() {
+        if (_inIntRange()) {
+            return (int) _value;
+        }
+        return _reportIntCoercionRangeFail("asInt()");
+    }
+
+    @Override
+    public int asInt(int defaultValue) {
+        return _inIntRange() ? (int) _value : defaultValue;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        return _inIntRange() ? OptionalInt.of((int) _value) : OptionalInt.empty();
     }
 
     @Override
@@ -115,20 +110,27 @@ public class LongNode
     }
 
     @Override
+    public long asLong() { return _value; }
+
+    @Override
+    public long asLong(long defaultValue) { return _value; }
+
+    @Override
+    public OptionalLong asLongOpt() {
+        return OptionalLong.of(_value);
+    }
+
+    @Override
     public BigInteger bigIntegerValue() { return BigInteger.valueOf(_value); }
 
     @Override
-    public float floatValue() { return _value; }
+    public BigInteger bigIntegerValue(BigInteger defaultValue) {
+        return BigInteger.valueOf(_value);
+    }
 
     @Override
-    public double doubleValue() { return _value; }
-
-    @Override
-    public double doubleValue(double defaultValue) { return _value; }
-
-    @Override
-    public OptionalDouble doubleValueOpt() {
-        return OptionalDouble.of(_value);
+    public Optional<BigInteger> bigIntegerValueOpt() {
+        return Optional.of(BigInteger.valueOf(_value));
     }
 
     @Override
@@ -140,6 +142,40 @@ public class LongNode
     @Override
     public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
 
+    /*
+    /**********************************************************************
+    /* Abstract methods impls for NumericIntNode
+    /**********************************************************************
+     */
+
+    @Override
+    protected int _asIntValueUnchecked() {
+        return (int) _value;
+    }
+
+    @Override
+    protected float _asFloatValueUnchecked() {
+        return (float) _value;
+    }
+
+    @Override
+    protected double _asDoubleValueUnchecked() {
+        return (double) _value;
+    }
+
+    @Override
+    protected boolean _inShortRange() {
+        return (_value >= Short.MIN_VALUE && _value <= Short.MAX_VALUE);
+    }
+
+    @Override
+    protected boolean _inIntRange() {
+        return (_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
+    }
+
+    @Override
+    protected boolean _inLongRange() { return true; }
+    
     /*
     /**********************************************************************
     /* Overridden methods, other

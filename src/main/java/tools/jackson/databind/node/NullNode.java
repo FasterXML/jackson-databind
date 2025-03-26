@@ -1,5 +1,12 @@
 package tools.jackson.databind.node;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.SerializationContext;
@@ -38,7 +45,7 @@ public class NullNode
 
     /*
     /**********************************************************************
-    /* Overridden JsonNode methods, scalar access
+    /* Overridden JsonNode methods, scalar access, non-numeric
     /**********************************************************************
      */
 
@@ -52,6 +59,106 @@ public class NullNode
         return "";
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access, numeric
+    /**********************************************************************
+     */
+
+    // `intValue()` (etc) fine as defaults (fail); but need to override `asInt()`
+
+    @Override
+    public int asInt() {
+        return 0;
+    }
+
+    @Override
+    public int asInt(int defaultValue) {
+        return 0;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        return OptionalInt.of(0);
+    }
+
+    // `longValue()` (etc) fine as defaults (fail); but need to override `asLong()`
+
+    @Override
+    public long asLong() { return 0L; }
+
+    @Override
+    public long asLong(long defaultValue) { return 0L; }
+
+    @Override
+    public OptionalLong asLongOpt() {
+        return OptionalLong.of(0L);
+    }
+
+    // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`
+
+    @Override
+    public BigInteger asBigInteger() {
+        return BigInteger.ZERO;
+    }
+
+    @Override
+    public BigInteger asBigInteger(BigInteger defaultValue) {
+        return asBigInteger();
+    }
+
+    @Override
+    public Optional<BigInteger> asBigIntegerOpt() {
+        return Optional.of(asBigInteger());
+    }
+
+    // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`
+
+    @Override
+    public double asDouble() {
+        return 0.0d;
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        return asDouble();
+    }
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        return OptionalDouble.of(asDouble());
+    }
+    
+    // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
+
+    @Override
+    public BigDecimal asDecimal() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    public BigDecimal asDecimal(BigDecimal defaultValue) {
+        return asDecimal();
+    }
+
+    @Override
+    public Optional<BigDecimal> asDecimalOpt() {
+        return Optional.of(asDecimal());
+    }
+
+    /*
+    public int asInt(int defaultValue);
+    public long asLong(long defaultValue);
+    public double asDouble(double defaultValue);
+    public boolean asBoolean(boolean defaultValue);
+    */
+
+    /*
+    /**********************************************************************
+    /* Overridden methods, other
+    /**********************************************************************
+     */
+
     @Override
     protected String _valueDesc() {
         return "<null>";
@@ -62,16 +169,7 @@ public class NullNode
     public JsonNode requireNonNull() {
         return _reportRequiredViolation("requireNonNull() called on `NullNode`");
     }
-
-    // as with MissingNode, not considered number node; hence defaults are returned if provided
-
-    /*
-    public int asInt(int defaultValue);
-    public long asLong(long defaultValue);
-    public double asDouble(double defaultValue);
-    public boolean asBoolean(boolean defaultValue);
-    */
-
+    
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)
         throws JacksonException

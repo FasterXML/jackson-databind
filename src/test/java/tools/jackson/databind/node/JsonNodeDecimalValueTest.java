@@ -25,147 +25,280 @@ public class JsonNodeDecimalValueTest
     private final BigDecimal BD_ONE = BigDecimal.ONE;
     private final BigDecimal BD_ONE_O = new BigDecimal("1.0");
 
-    private final Optional<BigDecimal> BD_ONE_OPT = Optional.of(BD_ONE);
-
     private final BigDecimal BD_DEFAULT = bigDec(12.125);
+
+    // // // decimalValue() tests
     
-    // // // decimalValue() + Numbers/Integers
+    // decimalValue() + Numbers/Integers
 
     @Test
     public void decimalValueFromNumberIntOk()
     {
-        // Then other integer types
-        assertEquals(BD_ONE, NODES.numberNode((byte) 1).decimalValue());
-        assertEquals(BD_ONE, NODES.numberNode((byte) 1).decimalValue(BD_DEFAULT));
-        assertEquals(BD_ONE_OPT, NODES.numberNode((byte) 1).decimalValueOpt());
-        assertEquals(bigDec(Byte.MIN_VALUE), NODES.numberNode(Byte.MIN_VALUE).decimalValue());
-        assertEquals(bigDec(Byte.MIN_VALUE), NODES.numberNode(Byte.MIN_VALUE).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec(Byte.MIN_VALUE), NODES.numberNode(Byte.MIN_VALUE).decimalValueOpt().get());
-        assertEquals(bigDec(Byte.MAX_VALUE), NODES.numberNode(Byte.MAX_VALUE).decimalValue());
-        assertEquals(bigDec(Byte.MAX_VALUE), NODES.numberNode(Byte.MAX_VALUE).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec(Byte.MAX_VALUE), NODES.numberNode(Byte.MAX_VALUE).decimalValueOpt().get());
+        _assertDecimalValue(BD_ONE, NODES.numberNode((byte) 1));
+        _assertDecimalValue(bigDec(Byte.MIN_VALUE), NODES.numberNode(Byte.MIN_VALUE));
+        _assertDecimalValue(bigDec(Byte.MAX_VALUE), NODES.numberNode(Byte.MAX_VALUE));
 
-        assertEquals(BD_ONE, NODES.numberNode((short) 1).decimalValue());
-        assertEquals(BD_ONE, NODES.numberNode((short) 1).decimalValue(BD_DEFAULT));
-        assertEquals(BD_ONE_OPT, NODES.numberNode((short) 1).decimalValueOpt());
-        assertEquals(bigDec(Short.MIN_VALUE), NODES.numberNode(Short.MIN_VALUE).decimalValue());
-        assertEquals(bigDec(Short.MIN_VALUE), NODES.numberNode(Short.MIN_VALUE).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec(Short.MIN_VALUE), NODES.numberNode(Short.MIN_VALUE).decimalValueOpt().get());
-        assertEquals(bigDec(Short.MAX_VALUE), NODES.numberNode(Short.MAX_VALUE).decimalValue());
-        assertEquals(bigDec(Short.MAX_VALUE), NODES.numberNode(Short.MAX_VALUE).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec(Short.MAX_VALUE), NODES.numberNode(Short.MAX_VALUE).decimalValueOpt().get());
+        _assertDecimalValue(BD_ONE, NODES.numberNode((short) 1));
+        _assertDecimalValue(bigDec(Short.MIN_VALUE), NODES.numberNode(Short.MIN_VALUE));
+        _assertDecimalValue(bigDec(Short.MAX_VALUE), NODES.numberNode(Short.MAX_VALUE));
 
-        assertEquals(BD_ONE, NODES.numberNode(1).decimalValue());
-        assertEquals(BD_ONE, NODES.numberNode(1).decimalValue(BD_DEFAULT));
-        assertEquals(BD_ONE_OPT, NODES.numberNode(1).decimalValueOpt());
-        assertEquals(bigDec(Integer.MIN_VALUE), NODES.numberNode(Integer.MIN_VALUE).decimalValue());
-        assertEquals(bigDec(Integer.MIN_VALUE), NODES.numberNode(Integer.MIN_VALUE).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec(Integer.MIN_VALUE), NODES.numberNode(Integer.MIN_VALUE).decimalValueOpt().get());
-        assertEquals(bigDec(Integer.MAX_VALUE), NODES.numberNode(Integer.MAX_VALUE).decimalValue());
-        assertEquals(bigDec(Integer.MAX_VALUE), NODES.numberNode(Integer.MAX_VALUE).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec(Integer.MAX_VALUE), NODES.numberNode(Integer.MAX_VALUE).decimalValueOpt().get());
-        
-        assertEquals(BD_ONE, NODES.numberNode(1L).decimalValue());
-        assertEquals(BD_ONE, NODES.numberNode(1L).decimalValue(BD_DEFAULT));
-        assertEquals(BD_ONE_OPT, NODES.numberNode(1L).decimalValueOpt());
-        assertEquals(bigDec(Long.MIN_VALUE), NODES.numberNode(Long.MIN_VALUE).decimalValue());
-        assertEquals(bigDec(Long.MIN_VALUE), NODES.numberNode(Long.MIN_VALUE).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec(Long.MIN_VALUE), NODES.numberNode(Long.MIN_VALUE).decimalValueOpt().get());
-        assertEquals(bigDec(Long.MAX_VALUE), NODES.numberNode(Long.MAX_VALUE).decimalValue());
-        assertEquals(bigDec(Long.MAX_VALUE), NODES.numberNode(Long.MAX_VALUE).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec(Long.MAX_VALUE), NODES.numberNode(Long.MAX_VALUE).decimalValueOpt().get());
+        _assertDecimalValue(BD_ONE, NODES.numberNode(1));
+        _assertDecimalValue(bigDec(Integer.MIN_VALUE), NODES.numberNode(Integer.MIN_VALUE));
+        _assertDecimalValue(bigDec(Integer.MAX_VALUE), NODES.numberNode(Integer.MAX_VALUE));
 
-        assertEquals(BD_ONE, NODES.numberNode(BigInteger.valueOf(1)).decimalValue());
-        assertEquals(BD_ONE, NODES.numberNode(BigInteger.valueOf(1)).decimalValue(BD_DEFAULT));
-        assertEquals(BD_ONE_OPT, NODES.numberNode(BigInteger.valueOf(1)).decimalValueOpt());
-        assertEquals(bigDec(Long.MIN_VALUE), NODES.numberNode(BigInteger.valueOf(Long.MIN_VALUE)).decimalValue());
-        assertEquals(bigDec(Long.MIN_VALUE), NODES.numberNode(BigInteger.valueOf(Long.MIN_VALUE)).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec(Long.MIN_VALUE), NODES.numberNode(BigInteger.valueOf(Long.MIN_VALUE)).decimalValueOpt().get());
-        assertEquals(bigDec(Long.MAX_VALUE), NODES.numberNode(BigInteger.valueOf(Long.MAX_VALUE)).decimalValue());
-        assertEquals(bigDec(Long.MAX_VALUE), NODES.numberNode(BigInteger.valueOf(Long.MAX_VALUE)).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec(Long.MAX_VALUE), NODES.numberNode(BigInteger.valueOf(Long.MAX_VALUE)).decimalValueOpt().get());
+        _assertDecimalValue(BD_ONE, NODES.numberNode(1L));
+        _assertDecimalValue(bigDec(Long.MIN_VALUE), NODES.numberNode(Long.MIN_VALUE));
+        _assertDecimalValue(bigDec(Long.MAX_VALUE), NODES.numberNode(Long.MAX_VALUE));
+
+        _assertDecimalValue(BD_ONE, NODES.numberNode(BigInteger.valueOf(1)));
+        _assertDecimalValue(bigDec(Long.MIN_VALUE), NODES.numberNode(BigInteger.valueOf(Long.MIN_VALUE)));
+        _assertDecimalValue(bigDec(Long.MAX_VALUE), NODES.numberNode(BigInteger.valueOf(Long.MAX_VALUE)));
     }
 
     // Cannot fail for Over/Underflow from Integer values
     //@Test public void failBigDecimalValueFromNumberIntRange() { }
 
-    // // // decimalValue() + Numbers/FPs
+    // decimalValue() + Numbers/FPs
 
     @Test
     public void decimalValueFromNumberFPOk()
     {
-        assertEquals(BD_ONE_O, NODES.numberNode(1.0f).decimalValue());
-        assertEquals(BD_ONE_O, NODES.numberNode(1.0f).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec("100000.0"), NODES.numberNode(100_000.0f).decimalValue());
-        assertEquals(bigDec("100000.0"), NODES.numberNode(100_000.0f).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec("-100000.0"), NODES.numberNode(-100_000.0f).decimalValue());
-        assertEquals(bigDec("-100000.0"), NODES.numberNode(-100_000.0f).decimalValue(BD_DEFAULT));
+        _assertDecimalValue(BD_ONE_O, NODES.numberNode(1.0f));
 
-        assertEquals(BD_ONE_O, NODES.numberNode(1.0d).decimalValue());
-        assertEquals(BD_ONE_O, NODES.numberNode(1.0d).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec("100000.0"), NODES.numberNode(100_000.0d).decimalValue());
-        assertEquals(bigDec("100000.0"), NODES.numberNode(100_000.0d).decimalValue(BD_DEFAULT));
-        assertEquals(bigDec("-100000.0"), NODES.numberNode(-100_000.0d).decimalValue());
-        assertEquals(bigDec("-100000.0"), NODES.numberNode(-100_000.0d).decimalValue(BD_DEFAULT));
+        _assertDecimalValue(BD_ONE_O, NODES.numberNode(1.0f));
+        _assertDecimalValue(bigDec("100000.0"), NODES.numberNode(100_000.0f));
+        _assertDecimalValue(bigDec("-100000.0"), NODES.numberNode(-100_000.0f));
 
-        assertEquals(new BigDecimal("100.001"),
-                NODES.numberNode(new BigDecimal("100.001")).decimalValue());
+        _assertDecimalValue(BD_ONE_O, NODES.numberNode(1.0d));
+        _assertDecimalValue(bigDec("100000.0"), NODES.numberNode(100_000.0d));
+        _assertDecimalValue(bigDec("-100000.0"), NODES.numberNode(-100_000.0d));
+
+        _assertDecimalValue(new BigDecimal("100.001"),
+                NODES.numberNode(new BigDecimal("100.001")));
     }
 
     // Cannot fail for Over/Underflow from FP values either
     //@Test public void failBigDecimalFromNumberFPRange() { }
 
-    // // // decimalValue() + non-Numeric types
+    // But can fail for NaN
+
+    @Test
+    public void decimalValueFromNumberFPFail()
+    {
+        _assertFailDecimalValueForNaN(NODES.numberNode(Float.NaN));
+        _assertFailDecimalValueForNaN(NODES.numberNode(Float.POSITIVE_INFINITY));
+        _assertFailDecimalValueForNaN(NODES.numberNode(Float.NEGATIVE_INFINITY));
+
+        _assertFailDecimalValueForNaN(NODES.numberNode(Double.NaN));
+        _assertFailDecimalValueForNaN(NODES.numberNode(Double.POSITIVE_INFINITY));
+        _assertFailDecimalValueForNaN(NODES.numberNode(Double.NEGATIVE_INFINITY));
+    }
+
+    // decimalValue() + non-Numeric types
 
     @Test
     public void failBigDecimalFromNonNumberScalar()
     {
-        _assertFailBigDecimalForNonNumber(NODES.booleanNode(true));
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.booleanNode(true));
-        _assertFailBigDecimalForNonNumber(NODES.binaryNode(new byte[3]));
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.binaryNode(new byte[3]));
-        _assertFailBigDecimalForNonNumber(NODES.stringNode("123"));
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.stringNode("123"));
-        _assertFailBigDecimalForNonNumber(NODES.rawValueNode(new RawValue("abc")));
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.rawValueNode(new RawValue("abc")));
-        _assertFailBigDecimalForNonNumber(NODES.pojoNode(Boolean.TRUE));
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.pojoNode(Boolean.TRUE));
+        _assertFailDecimalValueForNonNumber(NODES.booleanNode(true));
+        _assertFailDecimalValueForNonNumber(NODES.binaryNode(new byte[3]));
+        _assertFailDecimalValueForNonNumber(NODES.stringNode("123"));
+        _assertFailDecimalValueForNonNumber(NODES.rawValueNode(new RawValue("abc")));
+        _assertFailDecimalValueForNonNumber(NODES.pojoNode(Boolean.TRUE));
+    }
+
+    @Test
+    public void failBigDecimalValueFromMiscOther()
+    {
+        _assertFailDecimalValueForNonNumber(NODES.nullNode());
+        _assertFailDecimalValueForNonNumber(NODES.missingNode());
     }
 
     @Test
     public void failBigDecimalValueFromStructural()
     {
-        _assertFailBigDecimalForNonNumber(NODES.arrayNode(3));
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.arrayNode(3));
-        _assertFailBigDecimalForNonNumber(NODES.objectNode());
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.objectNode());
+        _assertFailDecimalValueForNonNumber(NODES.arrayNode(3));
+        _assertFailDecimalValueForNonNumber(NODES.objectNode());
+    }
+
+    // // // asDecimal() tests
+
+    @Test
+    public void asDecimalFromNumberIntOk()
+    {
+        _assertAsDecimal(BD_ONE, NODES.numberNode((byte) 1));
+        _assertAsDecimal(bigDec(Byte.MIN_VALUE), NODES.numberNode(Byte.MIN_VALUE));
+        _assertAsDecimal(bigDec(Byte.MAX_VALUE), NODES.numberNode(Byte.MAX_VALUE));
+
+        _assertAsDecimal(BD_ONE, NODES.numberNode((short) 1));
+        _assertAsDecimal(bigDec(Short.MIN_VALUE), NODES.numberNode(Short.MIN_VALUE));
+        _assertAsDecimal(bigDec(Short.MAX_VALUE), NODES.numberNode(Short.MAX_VALUE));
+
+        _assertAsDecimal(BD_ONE, NODES.numberNode(1));
+        _assertAsDecimal(bigDec(Integer.MIN_VALUE), NODES.numberNode(Integer.MIN_VALUE));
+        _assertAsDecimal(bigDec(Integer.MAX_VALUE), NODES.numberNode(Integer.MAX_VALUE));
+
+        _assertAsDecimal(BD_ONE, NODES.numberNode(1L));
+        _assertAsDecimal(bigDec(Long.MIN_VALUE), NODES.numberNode(Long.MIN_VALUE));
+        _assertAsDecimal(bigDec(Long.MAX_VALUE), NODES.numberNode(Long.MAX_VALUE));
+
+        _assertAsDecimal(BD_ONE, NODES.numberNode(BigInteger.valueOf(1)));
+        _assertAsDecimal(bigDec(Long.MIN_VALUE), NODES.numberNode(BigInteger.valueOf(Long.MIN_VALUE)));
+        _assertAsDecimal(bigDec(Long.MAX_VALUE), NODES.numberNode(BigInteger.valueOf(Long.MAX_VALUE)));
     }
 
     @Test
-    public void failDoubleValueFromMiscOther()
+    public void asDecimalFromNumberFPOk()
     {
-        _assertFailBigDecimalForNonNumber(NODES.nullNode());
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.nullNode());
-        _assertFailBigDecimalForNonNumber(NODES.missingNode());
-        _assertDefaultBigDecimalForOtherwiseFailing(NODES.missingNode());
+        _assertAsDecimal(BD_ONE_O, NODES.numberNode(1.0f));
+
+        _assertAsDecimal(BD_ONE_O, NODES.numberNode(1.0f));
+        _assertAsDecimal(bigDec("100000.0"), NODES.numberNode(100_000.0f));
+        _assertAsDecimal(bigDec("-100000.0"), NODES.numberNode(-100_000.0f));
+
+        _assertAsDecimal(BD_ONE_O, NODES.numberNode(1.0d));
+        _assertAsDecimal(bigDec("100000.0"), NODES.numberNode(100_000.0d));
+        _assertAsDecimal(bigDec("-100000.0"), NODES.numberNode(-100_000.0d));
+
+        _assertAsDecimal(new BigDecimal("100.001"),
+                NODES.numberNode(new BigDecimal("100.001")));
     }
 
+    // Cannot fail for Over/Underflow from FP values either
+
+    // But can fail for NaN
+
+    @Test
+    public void asDecimalFromNumberFPFail()
+    {
+        _assertFailAsDecimalForNaN(NODES.numberNode(Float.NaN));
+        _assertFailAsDecimalForNaN(NODES.numberNode(Float.POSITIVE_INFINITY));
+        _assertFailAsDecimalForNaN(NODES.numberNode(Float.NEGATIVE_INFINITY));
+
+        _assertFailAsDecimalForNaN(NODES.numberNode(Double.NaN));
+        _assertFailAsDecimalForNaN(NODES.numberNode(Double.POSITIVE_INFINITY));
+        _assertFailAsDecimalForNaN(NODES.numberNode(Double.NEGATIVE_INFINITY));
+    }
+
+    // asDecimal() + non-Numeric types
+
+    @Test
+    public void asDecimalFromNonNumberScalar()
+    {
+        // Regular failing cases
+        _assertFailAsDecimalForNonNumber(NODES.booleanNode(true));
+        _assertFailAsDecimalForNonNumber(NODES.binaryNode(new byte[3]));
+        _assertFailAsDecimalForNonNumber(NODES.rawValueNode(new RawValue("abc")));
+        _assertFailAsDecimalForNonNumber(NODES.pojoNode(Boolean.TRUE));
+
+        // Special failing cases:
+        _assertFailAsDecimal(NODES.stringNode("abc"),
+                "value not a valid String representation of `BigDecimal`");
+
+
+        // Passing cases
+        _assertAsDecimal(BigDecimal.valueOf(2), NODES.stringNode("2"));
+        _assertAsDecimal(BigDecimal.TEN, NODES.pojoNode(10));
+    }
+
+    @Test
+    public void asDecimalFailFromStructural()
+    {
+        _assertFailAsDecimalForNonNumber(NODES.arrayNode(3));
+        _assertFailAsDecimalForNonNumber(NODES.objectNode());
+    }
+
+    @Test
+    public void asDecimalFromMiscOther()
+    {
+        // "null" becomes "0.0"
+        _assertAsDecimal(BigDecimal.ZERO, NODES.nullNode());
+
+        // but "missing" still fails
+        _assertFailAsDecimalForNonNumber(NODES.missingNode());
+    }
+    
     // // // Shared helper methods
 
-    private void _assertFailBigDecimalForNonNumber(JsonNode node) {
+    private void _assertDecimalValue(BigDecimal expected, JsonNode fromNode)
+    {
+        // main accessor
+        assertEquals(expected, fromNode.decimalValue());
+
+        // but also defaulting
+        assertEquals(expected, fromNode.decimalValue(BD_DEFAULT));
+        assertEquals(expected, fromNode.decimalValueOpt().get());
+    }
+
+    private void _assertAsDecimal(BigDecimal expected, JsonNode fromNode)
+    {
+        // main accessor
+        assertEquals(expected, fromNode.asDecimal());
+
+        // but also defaulting
+        assertEquals(expected, fromNode.asDecimal(BD_DEFAULT));
+        assertEquals(expected, fromNode.asDecimalOpt().get());
+    }
+
+    private void _assertFailDecimalValueForNonNumber(JsonNode node) {
         Exception e = assertThrows(JsonNodeException.class,
                 () ->  node.decimalValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
+            .contains("decimalValue()")
             .contains("cannot convert value")
             .contains("value type not numeric");
-    }
 
-    private void _assertDefaultBigDecimalForOtherwiseFailing(JsonNode node) {
+        // Verify default value handling
         assertEquals(BD_DEFAULT, node.decimalValue(BD_DEFAULT));
         assertEquals(Optional.empty(), node.decimalValueOpt());
     }
 
+    private void _assertFailDecimalValueForNaN(JsonNode node) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.decimalValue(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+            .contains("decimalValue()")
+            .contains("cannot convert value")
+            .contains("value non-Finite ('NaN')");
+
+        // Verify default value handling
+        assertEquals(BD_DEFAULT, node.decimalValue(BD_DEFAULT));
+        assertEquals(Optional.empty(), node.decimalValueOpt());
+    }
+
+    private void _assertFailAsDecimalForNonNumber(JsonNode node) {
+        _assertFailAsDecimal(node, "value type not coercible to `BigDecimal`");
+    }
+
+    private void _assertFailAsDecimal(JsonNode node, String extraFailMsg) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.asDecimal(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+            .contains("asDecimal()")
+            .contains("cannot convert value")
+            .contains(extraFailMsg);
+
+        // Verify default value handling
+        assertEquals(BD_DEFAULT, node.asDecimal(BD_DEFAULT));
+        assertEquals(Optional.empty(), node.asDecimalOpt());
+    }
+
+    private void _assertFailAsDecimalForNaN(JsonNode node) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.asDecimal(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+        .contains("asDecimal()")
+            .contains("cannot convert value")
+            .contains("value non-Finite ('NaN')");
+
+        // Verify default value handling
+        assertEquals(BD_DEFAULT, node.asDecimal(BD_DEFAULT));
+        assertEquals(Optional.empty(), node.asDecimalOpt());
+    }
+    
     protected static Optional<BigDecimal> bigDecOpt(BigDecimal bigDec) {
         return Optional.of(bigDec);
     }

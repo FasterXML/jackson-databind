@@ -89,12 +89,19 @@ public abstract class BaseJsonNode
 
     @Override
     public int asInt() {
-        return asInt(0);
+        return _reportCoercionFail("asInt()", Integer.TYPE, "value type not numeric");
     }
 
     @Override
     public int asInt(int defaultValue) {
+        // Overridden by NumericNode, for other types return default
         return defaultValue;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalInt.empty();
     }
 
     @Override
@@ -116,17 +123,53 @@ public abstract class BaseJsonNode
 
     @Override
     public long asLong() {
-        return asLong(0L);
+        return _reportCoercionFail("asLong()", Long.TYPE, "value type not numeric");
     }
 
     @Override
     public long asLong(long defaultValue) {
+        // Overridden by NumericNode, for other types return default
         return defaultValue;
+    }
+
+    @Override
+    public OptionalLong asLongOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalLong.empty();
     }
 
     @Override
     public BigInteger bigIntegerValue() {
         return _reportCoercionFail("bigIntegerValue()", BigInteger.class, "value type not numeric");
+    }
+
+    @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() {
+        // Overridden by NumericNode, for other types return default
+        return Optional.empty();
+    }
+
+    @Override
+    public BigInteger asBigInteger() {
+        return _reportCoercionFail("asBigInteger()", BigInteger.class, "value type not numeric");
+    }
+
+    @Override
+    public BigInteger asBigInteger(BigInteger defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<BigInteger> asBigIntegerOpt() {
+        // Overridden by NumericNode, for other types return default
+        return Optional.empty();
     }
 
     @Override
@@ -153,14 +196,21 @@ public abstract class BaseJsonNode
 
     @Override
     public double asDouble() {
-        return asDouble(0.0);
+        return _reportCoercionFail("asDouble()", Double.TYPE, "value type not numeric");
     }
 
     @Override
     public double asDouble(double defaultValue) {
+        // Overridden by NumericNode, for other types return default
         return defaultValue;
     }
-    
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalDouble.empty();
+    }
+
     @Override
     public BigDecimal decimalValue() {
         return _reportCoercionFail("decimalValue()", BigDecimal.class, "value type not numeric");
@@ -174,18 +224,26 @@ public abstract class BaseJsonNode
 
     @Override
     public Optional<BigDecimal> decimalValueOpt() {
+        // Overridden by NumericNode, for other types return default
         return Optional.empty();
     }
 
     @Override
     public BigDecimal asDecimal() {
-        return asDecimal(BigDecimal.ZERO);
+        return _reportCoercionFail("asDecimal()", BigDecimal.class,
+                "value type not coercible to `BigDecimal`");
     }
-    
+
     @Override
     public BigDecimal asDecimal(BigDecimal defaultValue) {
-        // !!! TODO
-        return decimalValue(defaultValue);
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<BigDecimal> asDecimalOpt() {
+        // Overridden by NumericNode, for other types return default
+        return Optional.empty();
     }
 
     /*
@@ -584,6 +642,26 @@ public abstract class BaseJsonNode
     protected BigInteger _reportBigIntegerCoercionFractionFail(String method) {
         return _reportCoercionFail(method, BigInteger.class,
                 "value has fractional part");
+    }
+
+    protected int _reportIntCoercionNaNFail(String method) {
+        return _reportCoercionFail(method, Integer.TYPE,
+                "value non-Finite ('NaN')");
+    }
+
+    protected long _reportLongCoercionNaNFail(String method) {
+        return _reportCoercionFail(method, Long.TYPE,
+                "value non-Finite ('NaN')");
+    }
+
+    protected BigInteger _reportBigIntegerCoercionNaNFail(String method) {
+        return _reportCoercionFail(method, BigInteger.class,
+                "value non-Finite ('NaN')");
+    }
+    
+    protected BigDecimal _reportBigDecimalCoercionNaNFail(String method) {
+        return _reportCoercionFail(method, BigDecimal.class,
+                "value non-Finite ('NaN')");
     }
 
     /**

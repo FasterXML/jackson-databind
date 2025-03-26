@@ -118,14 +118,29 @@ public class BigIntegerNode
 
     @Override
     public long longValue(long defaultValue) {
-        if (canConvertToLong()) {
-            return _value.longValue();
-        }
-        return defaultValue;
+        return (canConvertToLong()) ? _value.longValue() : defaultValue;
     }
 
     @Override
     public OptionalLong longValueOpt() {
+        return canConvertToLong() ? OptionalLong.of(_value.longValue()) : OptionalLong.empty();
+    }
+
+    @Override
+    public long asLong() {
+        if (canConvertToLong()) {
+            return _value.longValue();
+        }
+        return _reportLongCoercionRangeFail("asLong()");
+    }
+
+    @Override
+    public long asLong(long defaultValue) {
+        return (canConvertToLong()) ? _value.longValue() : defaultValue;
+    }
+
+    @Override
+    public OptionalLong asLongOpt() {
         return canConvertToLong() ? OptionalLong.of(_value.longValue()) : OptionalLong.empty();
     }
 

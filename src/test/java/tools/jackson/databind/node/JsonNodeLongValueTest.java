@@ -55,8 +55,8 @@ public class JsonNodeLongValueTest
         final BigInteger underflow = BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE);
         final BigInteger overflow = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
     
-        _assertFailLongForValueRange(NODES.numberNode(underflow));
-        _assertFailLongForValueRange(NODES.numberNode(overflow));
+        _assertLongValueFailForValueRange(NODES.numberNode(underflow));
+        _assertLongValueFailForValueRange(NODES.numberNode(overflow));
     }
 
     // longValue() + Numbers/FPs
@@ -90,44 +90,44 @@ public class JsonNodeLongValueTest
         final double underflow_d = -Double.MAX_VALUE;
         final double overflow_d = Double.MAX_VALUE;
 
-        _assertFailLongForValueRange(NODES.numberNode(underflow_d));
-        _assertFailLongForValueRange(NODES.numberNode(overflow_d));
+        _assertLongValueFailForValueRange(NODES.numberNode(underflow_d));
+        _assertLongValueFailForValueRange(NODES.numberNode(overflow_d));
 
-        _assertFailLongForValueRange(NODES.numberNode(-Float.MAX_VALUE));
-        _assertFailLongForValueRange(NODES.numberNode(Float.MAX_VALUE));
+        _assertLongValueFailForValueRange(NODES.numberNode(-Float.MAX_VALUE));
+        _assertLongValueFailForValueRange(NODES.numberNode(Float.MAX_VALUE));
 
         // But for BigDecimal can do exact check
         
         final BigDecimal underflow_big = BigDecimal.valueOf(Long.MIN_VALUE).subtract(BigDecimal.ONE);
         final BigDecimal overflow_big = BigDecimal.valueOf(Long.MAX_VALUE).add(BigDecimal.ONE);
 
-        _assertFailLongForValueRange(NODES.numberNode(underflow_big));
-        _assertFailLongForValueRange(NODES.numberNode(overflow_big));
+        _assertLongValueFailForValueRange(NODES.numberNode(underflow_big));
+        _assertLongValueFailForValueRange(NODES.numberNode(overflow_big));
     }
 
     @Test
     public void longValueFromNumberFPFailFraction()
     {
-        _assertFailLongValueForFraction(NODES.numberNode(100.5f));
-        _assertFailLongValueForFraction(NODES.numberNode(-0.25f));
+        _assertLongValueFailForFraction(NODES.numberNode(100.5f));
+        _assertLongValueFailForFraction(NODES.numberNode(-0.25f));
 
-        _assertFailLongValueForFraction(NODES.numberNode(100.5d));
-        _assertFailLongValueForFraction(NODES.numberNode(-0.25d));
+        _assertLongValueFailForFraction(NODES.numberNode(100.5d));
+        _assertLongValueFailForFraction(NODES.numberNode(-0.25d));
 
-        _assertFailLongValueForFraction(NODES.numberNode(BigDecimal.valueOf(100.5d)));
-        _assertFailLongValueForFraction(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
+        _assertLongValueFailForFraction(NODES.numberNode(BigDecimal.valueOf(100.5d)));
+        _assertLongValueFailForFraction(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
     }
 
     @Test
     public void longValueFromNumberFPFailNaN()
     {
-        _assertFailLongForNaN(NODES.numberNode(Float.NaN));
-        _assertFailLongForNaN(NODES.numberNode(Float.NEGATIVE_INFINITY));
-        _assertFailLongForNaN(NODES.numberNode(Float.POSITIVE_INFINITY));
+        _assertLongValueFailForNaN(NODES.numberNode(Float.NaN));
+        _assertLongValueFailForNaN(NODES.numberNode(Float.NEGATIVE_INFINITY));
+        _assertLongValueFailForNaN(NODES.numberNode(Float.POSITIVE_INFINITY));
 
-        _assertFailLongForNaN(NODES.numberNode(Double.NaN));
-        _assertFailLongForNaN(NODES.numberNode(Double.NEGATIVE_INFINITY));
-        _assertFailLongForNaN(NODES.numberNode(Double.POSITIVE_INFINITY));
+        _assertLongValueFailForNaN(NODES.numberNode(Double.NaN));
+        _assertLongValueFailForNaN(NODES.numberNode(Double.NEGATIVE_INFINITY));
+        _assertLongValueFailForNaN(NODES.numberNode(Double.POSITIVE_INFINITY));
     }
 
     // longValue() + non-Numeric types
@@ -135,28 +135,171 @@ public class JsonNodeLongValueTest
     @Test
     public void longValueFromNonNumberScalarFail()
     {
-        _assertFailLongForNonNumber(NODES.booleanNode(true));
-        _assertFailLongForNonNumber(NODES.binaryNode(new byte[3]));
-        _assertFailLongForNonNumber(NODES.stringNode("123"));
-        _assertFailLongForNonNumber(NODES.rawValueNode(new RawValue("abc")));
-        _assertFailLongForNonNumber(NODES.pojoNode(Boolean.TRUE));
+        _assertLongValueFailForNonNumber(NODES.booleanNode(true));
+        _assertLongValueFailForNonNumber(NODES.binaryNode(new byte[3]));
+        _assertLongValueFailForNonNumber(NODES.stringNode("123"));
+        _assertLongValueFailForNonNumber(NODES.rawValueNode(new RawValue("abc")));
+        _assertLongValueFailForNonNumber(NODES.pojoNode(Boolean.TRUE));
     }
 
     @Test
     public void longValueFromStructuralFail()
     {
-        _assertFailLongForNonNumber(NODES.arrayNode(3));
-        _assertFailLongForNonNumber(NODES.objectNode());
+        _assertLongValueFailForNonNumber(NODES.arrayNode(3));
+        _assertLongValueFailForNonNumber(NODES.objectNode());
     }
 
     @Test
     public void longValueFromMiscOtherFail()
     {
-        _assertFailLongForNonNumber(NODES.nullNode());
-        _assertFailLongForNonNumber(NODES.missingNode());
+        _assertLongValueFailForNonNumber(NODES.nullNode());
+        _assertLongValueFailForNonNumber(NODES.missingNode());
     }
 
-    // // // Shared helper methods
+    // // // asLong() tests
+
+    @Test
+    public void asLongFromNumberIntOk()
+    {
+        // First safe from `long`
+        _assertAsLong(1L, NODES.numberNode(1L));
+        _assertAsLong(Integer.MIN_VALUE, NODES.numberNode(Integer.MIN_VALUE));
+        _assertAsLong(Integer.MAX_VALUE, NODES.numberNode(Integer.MAX_VALUE));
+
+        // Then other integer types, byte/short/int
+        _assertAsLong(1L, NODES.numberNode((byte) 1));
+        _assertAsLong((long)Byte.MIN_VALUE, NODES.numberNode(Byte.MIN_VALUE));
+        _assertAsLong((long)Byte.MAX_VALUE, NODES.numberNode(Byte.MAX_VALUE));
+
+        _assertAsLong(1L, NODES.numberNode((short) 1));
+        _assertAsLong((long)Short.MIN_VALUE, NODES.numberNode(Short.MIN_VALUE));
+        _assertAsLong((long)Short.MAX_VALUE, NODES.numberNode(Short.MAX_VALUE));
+
+        _assertAsLong(1L, NODES.numberNode(1));
+        _assertAsLong((long) Integer.MIN_VALUE, NODES.numberNode(Integer.MIN_VALUE));
+        _assertAsLong((long) Integer.MAX_VALUE, NODES.numberNode(Integer.MAX_VALUE));
+
+        _assertAsLong(1L, NODES.numberNode(BigInteger.valueOf(1)));
+        _assertAsLong(Long.MIN_VALUE, NODES.numberNode(BigInteger.valueOf(Long.MIN_VALUE)));
+        _assertAsLong(Long.MAX_VALUE, NODES.numberNode(BigInteger.valueOf(Long.MAX_VALUE)));
+    }
+
+    @Test
+    public void asLongFromNumberIntFailRange() {
+        // Can only fail for underflow/overflow: and that only for Long / BigInteger
+        final BigInteger underflow = BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE);
+        final BigInteger overflow = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
+    
+        _assertAsLongFailForValueRange(NODES.numberNode(underflow));
+        _assertAsLongFailForValueRange(NODES.numberNode(overflow));
+    }
+
+    // longValue() + Numbers/FPs
+
+    @Test
+    public void asLongFromNumberFPOk()
+    {
+        _assertAsLong(1, NODES.numberNode(1.0f));
+        _assertAsLong(100_000, NODES.numberNode(100_000.0f));
+        _assertAsLong(-100_000, NODES.numberNode(-100_000.0f));
+
+        _assertAsLong(1, NODES.numberNode(1.0d));
+        _assertAsLong(100_000, NODES.numberNode(100_000.0d));
+        _assertAsLong(-100_000, NODES.numberNode(-100_000.0d));
+        _assertAsLong(Long.MIN_VALUE, NODES.numberNode((double) Long.MIN_VALUE));
+        _assertAsLong(Long.MAX_VALUE, NODES.numberNode((double) Long.MAX_VALUE));
+
+        _assertAsLong(1,
+                NODES.numberNode(BigDecimal.valueOf(1.0d)));
+        _assertAsLong(Long.MIN_VALUE,
+                NODES.numberNode(new BigDecimal(Long.MIN_VALUE+".0")));
+        _assertAsLong(Long.MAX_VALUE,
+                NODES.numberNode(new BigDecimal(Long.MAX_VALUE+".0")));
+    }
+
+    @Test
+    public void asLongFromNumberFPFailRange()
+    {
+        // For Float and Double both it's tricky to do too-big/too-small accurately so
+
+        final double underflow_d = -Double.MAX_VALUE;
+        final double overflow_d = Double.MAX_VALUE;
+
+        _assertAsLongFailForValueRange(NODES.numberNode(underflow_d));
+        _assertAsLongFailForValueRange(NODES.numberNode(overflow_d));
+
+        _assertAsLongFailForValueRange(NODES.numberNode(-Float.MAX_VALUE));
+        _assertAsLongFailForValueRange(NODES.numberNode(Float.MAX_VALUE));
+
+        // But for BigDecimal can do exact check
+        
+        final BigDecimal underflow_big = BigDecimal.valueOf(Long.MIN_VALUE).subtract(BigDecimal.ONE);
+        final BigDecimal overflow_big = BigDecimal.valueOf(Long.MAX_VALUE).add(BigDecimal.ONE);
+
+        _assertAsLongFailForValueRange(NODES.numberNode(underflow_big));
+        _assertAsLongFailForValueRange(NODES.numberNode(overflow_big));
+    }
+
+    // !!! TODO: NOT failing with "asLong()"
+    @Test
+    public void asLongFromNumberFPFailFraction()
+    {
+        _assertAsLongFailForFraction(NODES.numberNode(100.5f));
+        _assertAsLongFailForFraction(NODES.numberNode(-0.25f));
+
+        _assertAsLongFailForFraction(NODES.numberNode(100.5d));
+        _assertAsLongFailForFraction(NODES.numberNode(-0.25d));
+
+        _assertAsLongFailForFraction(NODES.numberNode(BigDecimal.valueOf(100.5d)));
+        _assertAsLongFailForFraction(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
+    }
+
+    @Test
+    public void asLongFromNumberFPFailNaN()
+    {
+        _assertAsLongFailForNaN(NODES.numberNode(Float.NaN));
+        _assertAsLongFailForNaN(NODES.numberNode(Float.NEGATIVE_INFINITY));
+        _assertAsLongFailForNaN(NODES.numberNode(Float.POSITIVE_INFINITY));
+
+        _assertAsLongFailForNaN(NODES.numberNode(Double.NaN));
+        _assertAsLongFailForNaN(NODES.numberNode(Double.NEGATIVE_INFINITY));
+        _assertAsLongFailForNaN(NODES.numberNode(Double.POSITIVE_INFINITY));
+    }
+
+    // longValue() + non-Numeric types
+
+    @Test
+    public void asLongFromNonNumberScalarFail()
+    {
+        // Some fail;
+        _assertAsLongFailForNonNumber(NODES.booleanNode(true));
+        _assertAsLongFailForNonNumber(NODES.binaryNode(new byte[3]));
+        _assertAsLongFailForNonNumber(NODES.rawValueNode(new RawValue("abc")));
+        _assertAsLongFailForNonNumber(NODES.pojoNode(Boolean.TRUE));
+        _assertAsLongFailForNonNumber(NODES.stringNode("abcdef"), "not a valid String representation of `long`");
+
+        // Some pass
+        _assertAsLong(123456L, NODES.pojoNode(123456L));
+        _assertAsLong(1234L, NODES.stringNode("1234"));
+    }
+
+    @Test
+    public void asLongFromStructuralFail()
+    {
+        _assertAsLongFailForNonNumber(NODES.arrayNode(3));
+        _assertAsLongFailForNonNumber(NODES.objectNode());
+    }
+
+    @Test
+    public void asLongFromMiscOther()
+    {
+        // NullNode works, Missing fails
+        _assertAsLong(0L, NODES.nullNode());
+
+        _assertAsLongFailForNonNumber(NODES.missingNode());
+    }
+    
+    // // // Shared helper methods, longValue()
 
     private void _assertLongValue(long expected, JsonNode node)
     {
@@ -167,7 +310,7 @@ public class JsonNodeLongValueTest
         assertEquals(expected, node.longValueOpt().getAsLong());
     }
 
-    private void _assertFailLongForValueRange(JsonNode node) {
+    private void _assertLongValueFailForValueRange(JsonNode node) {
         Exception e = assertThrows(JsonNodeException.class,
                 () ->  node.longValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
@@ -181,7 +324,7 @@ public class JsonNodeLongValueTest
         assertFalse(node.longValueOpt().isPresent());
     }
 
-    private void _assertFailLongValueForFraction(JsonNode node) {
+    private void _assertLongValueFailForFraction(JsonNode node) {
         Exception e = assertThrows(JsonNodeException.class,
                 () ->  node.longValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
@@ -195,7 +338,7 @@ public class JsonNodeLongValueTest
         assertFalse(node.longValueOpt().isPresent());
     }
 
-    private void _assertFailLongForNonNumber(JsonNode node) {
+    private void _assertLongValueFailForNonNumber(JsonNode node) {
         Exception e = assertThrows(JsonNodeException.class,
                 () ->  node.longValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
@@ -209,7 +352,7 @@ public class JsonNodeLongValueTest
         assertFalse(node.longValueOpt().isPresent());
     }
 
-    private void _assertFailLongForNaN(JsonNode node) {
+    private void _assertLongValueFailForNaN(JsonNode node) {
         Exception e = assertThrows(JsonNodeException.class,
                 () ->  node.longValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
@@ -222,4 +365,76 @@ public class JsonNodeLongValueTest
         assertEquals(1L, node.longValue(1L));
         assertFalse(node.longValueOpt().isPresent());
     }
+
+    // // // Shared helper methods, asLong()
+
+    private void _assertAsLong(long expected, JsonNode node)
+    {
+        assertEquals(expected, node.asLong());
+
+        // But also fallbacks
+        assertEquals(expected, node.asLong(999999L));
+        assertEquals(expected, node.asLongOpt().getAsLong());
+    }
+
+    private void _assertAsLongFailForValueRange(JsonNode node) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.asLong(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+            .contains("asLong()")
+            .contains("cannot convert value")
+            .contains("value not in 64-bit `long` range");
+
+        // Verify default value handling
+        assertEquals(1L, node.asLong(1L));
+        assertFalse(node.asLongOpt().isPresent());
+    }
+
+    private void _assertAsLongFailForFraction(JsonNode node) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.asLong(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+            .contains("asLong()")
+            .contains("cannot convert value")
+            .contains("to `long`: value has fractional part");
+
+        // Verify default value handling
+        assertEquals(1L, node.asLong(1L));
+        assertFalse(node.asLongOpt().isPresent());
+    }
+
+    private void _assertAsLongFailForNonNumber(JsonNode node) {
+        _assertAsLongFailForNonNumber(node, "value type not numeric");
+    }
+
+    private void _assertAsLongFailForNonNumber(JsonNode node, String extraMsg) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.asLong(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+            .contains("asLong()")
+            .contains("cannot convert value")
+            .contains(extraMsg);
+
+        // Verify default value handling
+        assertEquals(1L, node.asLong(1L));
+        assertFalse(node.asLongOpt().isPresent());
+    }
+
+    private void _assertAsLongFailForNaN(JsonNode node) {
+        Exception e = assertThrows(JsonNodeException.class,
+                () ->  node.asLong(),
+                "For ("+node.getClass().getSimpleName()+") value: "+node);
+        assertThat(e.getMessage())
+            .contains("asLong()")
+            .contains("cannot convert value")
+            .contains("value non-Finite");
+
+        // Verify default value handling
+        assertEquals(1L, node.asLong(1L));
+        assertFalse(node.asLongOpt().isPresent());
+    }
+    
 }

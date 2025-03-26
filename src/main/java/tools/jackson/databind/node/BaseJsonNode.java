@@ -123,12 +123,19 @@ public abstract class BaseJsonNode
 
     @Override
     public long asLong() {
-        return asLong(0L);
+        return _reportCoercionFail("asLong()", Long.TYPE, "value type not numeric");
     }
 
     @Override
     public long asLong(long defaultValue) {
+        // Overridden by NumericNode, for other types return default
         return defaultValue;
+    }
+
+    @Override
+    public OptionalLong asLongOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalLong.empty();
     }
 
     @Override

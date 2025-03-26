@@ -110,6 +110,17 @@ public class LongNode
     }
 
     @Override
+    public long asLong() { return _value; }
+
+    @Override
+    public long asLong(long defaultValue) { return _value; }
+
+    @Override
+    public OptionalLong asLongOpt() {
+        return OptionalLong.of(_value);
+    }
+
+    @Override
     public BigInteger bigIntegerValue() { return BigInteger.valueOf(_value); }
 
     @Override

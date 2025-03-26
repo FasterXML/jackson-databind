@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberInput;
@@ -185,8 +186,25 @@ public class StringNode
     }
     
     @Override
+    public long asLong() {
+        Long L = _tryParseAsLong();
+        if (L == null) {
+            return _reportCoercionFail("asLong()", Long.TYPE,
+                    "value not a valid String representation of `long`");
+        }
+        return L.longValue();
+    }
+
+    @Override
     public long asLong(long defaultValue) {
-        return NumberInput.parseAsLong(_value, defaultValue);
+        Long L = _tryParseAsLong();
+        return (L == null) ? defaultValue : L;
+    }
+
+    @Override
+    public OptionalLong asLongOpt() {
+        Long L = _tryParseAsLong();
+        return (L == null) ? OptionalLong.empty() : OptionalLong.of(L);
     }
 
     // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`
@@ -266,8 +284,19 @@ public class StringNode
     protected Integer _tryParseAsInteger() {
         if (NumberInput.looksLikeValidNumber(_value)) {
             try {
-                // NumberUtil does not have a good match so..
+                // NumberInput does not have a good match so..
                 return Integer.parseInt(_value);
+            } catch (NumberFormatException e) {
+                ;
+            }
+        }
+        return null;
+    }
+
+    protected Long _tryParseAsLong() {
+        if (NumberInput.looksLikeValidNumber(_value)) {
+            try {
+                return NumberInput.parseLong(_value);
             } catch (NumberFormatException e) {
                 ;
             }

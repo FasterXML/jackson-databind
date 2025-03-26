@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 
@@ -100,8 +101,7 @@ public class POJONode
     // `intValue()` (etc) fine as defaults (fail); but need to override `asInt()`
 
     @Override
-    public int asInt()
-    {
+    public int asInt() {
         Integer I = _extractAsInteger();
         return (I == null) ? super.asInt() : I;
     }
@@ -121,12 +121,21 @@ public class POJONode
     // `longValue()` (etc) fine as defaults (fail); but need to override `asLong()`
 
     @Override
-    public long asLong(long defaultValue)
-    {
-        if (_value instanceof Number N) {
-            return N.longValue();
-        }
-        return defaultValue;
+    public long asLong() {
+        Long L = _extractAsLong();
+        return (L == null) ? super.asLong() : L;
+    }
+
+    @Override
+    public long asLong(long defaultValue) {
+        Long L = _extractAsLong();
+        return (L == null) ? defaultValue : L;
+    }
+
+    @Override
+    public OptionalLong asLongOpt() {
+        Long L = _extractAsLong();
+        return (L == null) ? OptionalLong.empty() : OptionalLong.of(L);
     }
 
     // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`
@@ -209,6 +218,23 @@ public class POJONode
             if (N instanceof Long || N instanceof Integer || N instanceof Short || N instanceof Byte
                     || N instanceof BigInteger) {
                 return N.intValue();
+            }
+        }
+        return null;
+    }
+
+    // Consider only Integral numbers
+    protected Long _extractAsLong() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return 0L;
+        }
+        // Next, coercions from integral Numbers
+        if (_value instanceof Number N) {
+            // !!! TODO: range checks
+            if (N instanceof Long || N instanceof Integer || N instanceof Short || N instanceof Byte
+                    || N instanceof BigInteger) {
+                return N.longValue();
             }
         }
         return null;

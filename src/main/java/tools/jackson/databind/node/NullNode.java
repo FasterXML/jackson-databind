@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JsonNode;
@@ -79,6 +80,19 @@ public class NullNode
     @Override
     public OptionalInt asIntOpt() {
         return OptionalInt.of(0);
+    }
+
+    // `longValue()` (etc) fine as defaults (fail); but need to override `asLong()`
+
+    @Override
+    public long asLong() { return 0L; }
+
+    @Override
+    public long asLong(long defaultValue) { return 0L; }
+
+    @Override
+    public OptionalLong asLongOpt() {
+        return OptionalLong.of(0L);
     }
 
     // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`

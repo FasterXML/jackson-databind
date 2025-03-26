@@ -152,7 +152,37 @@ public abstract class NumericFPNode extends NumericNode
         }
         return OptionalLong.of(_asLongValueUnchecked());
     }
-    
+
+    @Override
+    public final long asLong() {
+        if (!_inLongRange()) {
+            if (isNaN()) {
+                _reportLongCoercionNaNFail("asLong()");
+            }
+            return _reportLongCoercionRangeFail("asLong()");
+        }
+        if (_hasFractionalPart()) {
+            _reportLongCoercionFractionFail("asLong()");
+        }
+        return _asLongValueUnchecked();
+    }
+
+    @Override
+    public final long asLong(long defaultValue) {
+        if (!_inLongRange() || _hasFractionalPart()) {
+            return defaultValue;
+        }
+        return _asLongValueUnchecked();
+    }
+
+    @Override
+    public final OptionalLong asLongOpt() {
+        if (!_inLongRange() || _hasFractionalPart()) {
+            return OptionalLong.empty();
+        }
+        return OptionalLong.of(_asLongValueUnchecked());
+    }
+
     @Override
     public final BigInteger bigIntegerValue() {
         if (isNaN()) {

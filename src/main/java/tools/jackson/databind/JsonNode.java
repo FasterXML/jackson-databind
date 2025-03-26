@@ -817,7 +817,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asInt()}, but that will return
      * ({@code OptionalInt.empty()}) if this node cannot
-     * be coerced to {@code double}.
+     * be coerced to {@code int}.
      *
      * @return {@link OptionalInt} value this node represents,
      * if possible to accurately represent; {@code OptionalInt.empty()} otherwise
@@ -849,11 +849,11 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #longValue()}, but that will return specified
-     * {@code defaultValue} if this node cannot be converted to Java {@code long}.
+     * {@code defaultValue} if this node cannot be converted to {@code long}.
      *
-     * @param defaultValue Value to return if this node cannot be converted to Java {@code long}
+     * @param defaultValue Value to return if this node cannot be converted to {@code long}
      *
-     * @return Java {@code long} value this node represents, if possible to accurately represent;
+     * @return {@code long} value this node represents, if possible to accurately represent;
      *   {@code defaultValue} otherwise
      */
     public abstract long longValue(long defaultValue);
@@ -869,28 +869,45 @@ public abstract class JsonNode
     public abstract OptionalLong longValueOpt();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>long</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * Method similar to {@link #longValue()} but in addition to coercing Number
+     * values (same as {@link #longValue()}), will also try coerce couple of additional types:
+     * <ul>
+     *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
+     *   </li>
+     *  <li>JSON Null (converted to {@code 0}))
+     *   </li>
+     *  <li>POJO nodes that contain Number values
+     *   </li>
+     * </ul>
      *<p>
-     * If representation cannot be converted to a long (including structured types
-     * like Objects and Arrays),
-     * default value of <b>0</b> will be returned; no exceptions are thrown.
+     *
+     * @return {@code long} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to {@code long}
      */
     public abstract long asLong();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>long</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to a long (including structured types
-     * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * Method similar to {@link #asLong()}, but that will return specified
+     * {@code defaultValue} if this node cannot be coerced to {@code long}
+     * (instead of throwing an exception).
+     *
+     * @param defaultValue Value to return if this node cannot be coerced to {@code long}
+     *
+     * @return {@code long} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
      */
     public abstract long asLong(long defaultValue);
+
+    /**
+     * Method similar to {@link #asLong()}, but that will return
+     * ({@code OptionalLong.empty()}) if this node cannot
+     * be coerced to {@code long}.
+     *
+     * @return {@link OptionalLong} value this node represents (or can be coerced to),
+     *    {@code OptionalLong.empty()} otherwise
+     */
+    public abstract OptionalLong asLongOpt();
 
     // // Scalar access: Numbers, Java BigInteger
 

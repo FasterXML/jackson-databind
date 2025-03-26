@@ -786,16 +786,20 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #intValue()} but in addition to coercing Number
-     * values (same as {@link #intValue()}), will also try coerce couple of additional types:
+     * values (same as {@link #intValue()}), will also try to coerce a
+     * couple of additional types (or cases):
      * <ul>
-     *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
+     *  <li>JSON Floating-point numbers with fractions (ones without fractions
+     *    are ok for {@link #intValue()}) will be truncated to {@code int}
+     *    (if (and only if) they fit in {@code int} range).
+     *   </li>
+     *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
      *   </li>
      *  <li>JSON Null (converted to {@code 0}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
      * </ul>
-     *<p>
      *
      * @return {@code int} value this node represents, if possible to accurately represent
      *
@@ -870,16 +874,20 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #longValue()} but in addition to coercing Number
-     * values (same as {@link #longValue()}), will also try coerce couple of additional types:
+     * values (same as {@link #longValue()}), will also try to coerce a
+     * couple of additional types (or cases):
      * <ul>
-     *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
+     *  <li>JSON Floating-point numbers with fractions (ones without fractions
+     *    are ok for {@link #longValue()}) will be truncated to {@code long}
+     *    (if (and only if) they fit in {@code long} range).
+     *   </li>
+     *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
      *   </li>
      *  <li>JSON Null (converted to {@code 0}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
      * </ul>
-     *<p>
      *
      * @return {@code long} value this node represents, if possible to accurately represent
      *
@@ -952,12 +960,20 @@ public abstract class JsonNode
     public abstract Optional<BigInteger> bigIntegerValueOpt();
 
     /**
-     * Method similar to {@link #asBigInteger()}, but that will additionally try to convert
-     * from some non-numeric node types:
+     * Method similar to {@link #bigIntegerValue()} but in addition to coercing Number
+     * values (same as {@link #bigIntegerValue()}), will also try to coerce a
+     * couple of additional types (or cases):
      * <ul>
-     *  <li>JSON String values that represent Integer numbers (as per JSON spec)
-     *  <li>JSON nulls (converting to {@link BigInteger#ZERO})
-     *  <li>POJO nodes that contain Integral number values
+     *  <li>JSON Floating-point numbers with fractions (ones without fractions
+     *    are ok for {@link #bigIntegerValue()}) will be <b>truncated</b> to integer value
+     *    (like with {@link BigDecimal#toBigInteger()}))
+     *   </li>
+     *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
+     *   </li>
+     *  <li>JSON Null (converted to {@code 0}))
+     *   </li>
+     *  <li>POJO nodes that contain Number values
+     *   </li>
      *  </ul>
      *
      * @return {@link BigInteger} value this node represents, if possible to accurately convert;

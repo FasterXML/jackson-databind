@@ -245,16 +245,16 @@ public class JsonNodeIntValueTest
     }
     
     @Test
-    public void asIntFromNumberFPFailFraction()
+    public void asIntFromNumberFPWithFraction()
     {
-        _assertAsIntFailForFraction(NODES.numberNode(100.5f));
-        _assertAsIntFailForFraction(NODES.numberNode(-0.25f));
+        _assertAsInt(100, NODES.numberNode(100.75f));
+        _assertAsInt(-1, NODES.numberNode(-1.25f));
 
-        _assertAsIntFailForFraction(NODES.numberNode(100.5d));
-        _assertAsIntFailForFraction(NODES.numberNode(-0.25d));
+        _assertAsInt(100, NODES.numberNode(100.75d));
+        _assertAsInt(-1, NODES.numberNode(-1.25d));
         
-        _assertAsIntFailForFraction(NODES.numberNode(BigDecimal.valueOf(100.5d)));
-        _assertAsIntFailForFraction(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
+        _assertAsInt(100, NODES.numberNode(BigDecimal.valueOf(100.75d)));
+        _assertAsInt(-1, NODES.numberNode(BigDecimal.valueOf(-1.25d)));
     }
 
     @Test
@@ -391,20 +391,6 @@ public class JsonNodeIntValueTest
             .contains("asInt()")
             .contains("cannot convert value")
             .contains("value not in 32-bit `int` range");
-
-        // assert defaulting
-        assertEquals(99, node.asInt(99));
-        assertEquals(OptionalInt.empty(), node.asIntOpt());
-    }
-
-    private void _assertAsIntFailForFraction(JsonNode node) {
-        Exception e = assertThrows(JsonNodeException.class,
-                () ->  node.asInt(),
-                "For ("+node.getClass().getSimpleName()+") value: "+node);
-        assertThat(e.getMessage())
-            .contains("asInt()")
-            .contains("cannot convert value")
-            .contains("to `int`: value has fractional part");
 
         // assert defaulting
         assertEquals(99, node.asInt(99));

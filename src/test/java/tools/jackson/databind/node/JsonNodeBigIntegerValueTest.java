@@ -140,17 +140,21 @@ public class JsonNodeBigIntegerValueTest
                 NODES.numberNode(new BigDecimal(Long.MAX_VALUE+".0")));
     }
 
+    // NOTE: unlike with "bigIntegerValue()", fractions ok: will be rounded
     @Test
-    public void asBigIntegerFromNumberFPFailFraction()
+    public void asBigIntegerFromNumberFPFraction()
     {
-        _assertAsBigIntegerFailForFraction(NODES.numberNode(100.5f));
-        _assertAsBigIntegerFailForFraction(NODES.numberNode(-0.25f));
-
-        _assertAsBigIntegerFailForFraction(NODES.numberNode(100.5d));
-        _assertAsBigIntegerFailForFraction(NODES.numberNode(-0.25d));
+        final BigInteger B100 = bigInt(100);
+        final BigInteger B_MINUS_1 = bigInt(-1);
         
-        _assertAsBigIntegerFailForFraction(NODES.numberNode(BigDecimal.valueOf(100.5d)));
-        _assertAsBigIntegerFailForFraction(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
+        _assertAsBigInteger(B100, NODES.numberNode(100.75f));
+        _assertAsBigInteger(B_MINUS_1, NODES.numberNode(-1.25f));
+
+        _assertAsBigInteger(B100, NODES.numberNode(100.75d));
+        _assertAsBigInteger(B_MINUS_1, NODES.numberNode(-1.25d));
+        
+        _assertAsBigInteger(B100, NODES.numberNode(BigDecimal.valueOf(100.75d)));
+        _assertAsBigInteger(B_MINUS_1, NODES.numberNode(BigDecimal.valueOf(-1.25d)));
     }
 
     @Test
@@ -246,20 +250,6 @@ public class JsonNodeBigIntegerValueTest
         // and then defaulting
         assertEquals(expected, node.asBigInteger(BigInteger.valueOf(9999999L)));
         assertEquals(expected, node.asBigIntegerOpt().get());
-    }
-
-    private void _assertAsBigIntegerFailForFraction(JsonNode node) {
-        Exception e = assertThrows(JsonNodeException.class,
-                () ->  node.asBigInteger(),
-                "For ("+node.getClass().getSimpleName()+") value: "+node);
-        assertThat(e.getMessage())
-            .contains("cannot convert value")
-            .contains("to `java.math.BigInteger`: value has fractional part");
-
-        // Verify default value handling
-        assertEquals(BigInteger.ONE, node.asBigInteger(BigInteger.ONE));
-        assertFalse(node.asBigIntegerOpt().isPresent());
-
     }
 
     private void _assertAsBigIntegerFailForNonNumber(JsonNode node) {

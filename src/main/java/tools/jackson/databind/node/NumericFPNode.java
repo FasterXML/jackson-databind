@@ -86,6 +86,14 @@ public abstract class NumericFPNode extends NumericNode
     }
 
     @Override
+    public final OptionalInt intValueOpt() {
+        if (!_inIntRange() || _hasFractionalPart()) {
+            return OptionalInt.empty();
+       }
+       return OptionalInt.of(_asIntValueUnchecked());
+    }
+
+    @Override
     public int asInt() {
         if (!_inIntRange()) {
             if (isNaN()) {
@@ -93,15 +101,12 @@ public abstract class NumericFPNode extends NumericNode
             }
             return _reportIntCoercionRangeFail("asInt()");
         }
-        if (_hasFractionalPart()) {
-            _reportIntCoercionFractionFail("asInt()");
-        }
         return _asIntValueUnchecked();
     }
 
     @Override
     public int asInt(int defaultValue) {
-        if (!_inIntRange() || _hasFractionalPart()) {
+        if (!_inIntRange()) {
             return defaultValue;
         }
         return _asIntValueUnchecked();
@@ -109,18 +114,10 @@ public abstract class NumericFPNode extends NumericNode
 
     @Override
     public OptionalInt asIntOpt() {
-        if (!_inIntRange() || _hasFractionalPart()) {
+        if (!_inIntRange()) {
             return OptionalInt.empty();
         }
         return OptionalInt.of(_asIntValueUnchecked());
-    }
-
-    @Override
-    public final OptionalInt intValueOpt() {
-        if (!_inIntRange() || _hasFractionalPart()) {
-            return OptionalInt.empty();
-       }
-       return OptionalInt.of(_asIntValueUnchecked());
     }
 
     @Override
@@ -161,15 +158,12 @@ public abstract class NumericFPNode extends NumericNode
             }
             return _reportLongCoercionRangeFail("asLong()");
         }
-        if (_hasFractionalPart()) {
-            _reportLongCoercionFractionFail("asLong()");
-        }
         return _asLongValueUnchecked();
     }
 
     @Override
     public final long asLong(long defaultValue) {
-        if (!_inLongRange() || _hasFractionalPart()) {
+        if (!_inLongRange()) {
             return defaultValue;
         }
         return _asLongValueUnchecked();
@@ -177,7 +171,7 @@ public abstract class NumericFPNode extends NumericNode
 
     @Override
     public final OptionalLong asLongOpt() {
-        if (!_inLongRange() || _hasFractionalPart()) {
+        if (!_inLongRange()) {
             return OptionalLong.empty();
         }
         return OptionalLong.of(_asLongValueUnchecked());
@@ -215,15 +209,12 @@ public abstract class NumericFPNode extends NumericNode
         if (isNaN()) {
             _reportBigIntegerCoercionNaNFail("asBigInteger()");
         }
-        if (_hasFractionalPart()) {
-            _reportBigIntegerCoercionFractionFail("asBigInteger()");
-        }
         return _asBigIntegerValueUnchecked();
     }
 
     @Override
     public final BigInteger asBigInteger(BigInteger defaultValue) {
-        if (isNaN() || _hasFractionalPart()) {
+        if (isNaN()) {
             return defaultValue;
         }
         return _asBigIntegerValueUnchecked();
@@ -231,7 +222,7 @@ public abstract class NumericFPNode extends NumericNode
 
     @Override
     public final Optional<BigInteger> asBigIntegerOpt() {
-        if (isNaN() || _hasFractionalPart()) {
+        if (isNaN()) {
             return Optional.empty();
         }
         return Optional.of(_asBigIntegerValueUnchecked());

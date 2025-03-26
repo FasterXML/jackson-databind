@@ -240,18 +240,17 @@ public class JsonNodeLongValueTest
         _assertAsLongFailForValueRange(NODES.numberNode(overflow_big));
     }
 
-    // !!! TODO: NOT failing with "asLong()"
     @Test
-    public void asLongFromNumberFPFailFraction()
+    public void asLongFromNumberFPWithFraction()
     {
-        _assertAsLongFailForFraction(NODES.numberNode(100.5f));
-        _assertAsLongFailForFraction(NODES.numberNode(-0.25f));
+        _assertAsLong(100L, NODES.numberNode(100.75f));
+        _assertAsLong(-1L, NODES.numberNode(-1.25f));
 
-        _assertAsLongFailForFraction(NODES.numberNode(100.5d));
-        _assertAsLongFailForFraction(NODES.numberNode(-0.25d));
+        _assertAsLong(100L, NODES.numberNode(100.75d));
+        _assertAsLong(-1L, NODES.numberNode(-1.25d));
 
-        _assertAsLongFailForFraction(NODES.numberNode(BigDecimal.valueOf(100.5d)));
-        _assertAsLongFailForFraction(NODES.numberNode(BigDecimal.valueOf(-0.25d)));
+        _assertAsLong(100L, NODES.numberNode(BigDecimal.valueOf(100.75d)));
+        _assertAsLong(-1L, NODES.numberNode(BigDecimal.valueOf(-1.25d)));
     }
 
     @Test
@@ -385,20 +384,6 @@ public class JsonNodeLongValueTest
             .contains("asLong()")
             .contains("cannot convert value")
             .contains("value not in 64-bit `long` range");
-
-        // Verify default value handling
-        assertEquals(1L, node.asLong(1L));
-        assertFalse(node.asLongOpt().isPresent());
-    }
-
-    private void _assertAsLongFailForFraction(JsonNode node) {
-        Exception e = assertThrows(JsonNodeException.class,
-                () ->  node.asLong(),
-                "For ("+node.getClass().getSimpleName()+") value: "+node);
-        assertThat(e.getMessage())
-            .contains("asLong()")
-            .contains("cannot convert value")
-            .contains("to `long`: value has fractional part");
 
         // Verify default value handling
         assertEquals(1L, node.asLong(1L));

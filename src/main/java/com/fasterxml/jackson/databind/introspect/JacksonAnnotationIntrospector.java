@@ -1588,7 +1588,26 @@ public class JacksonAnnotationIntrospector
             if (typeInfo.getIdType() == JsonTypeInfo.Id.NONE) {
                 return _constructNoTypeResolverBuilder();
             }
-            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType);
+
+        	// Search for the annotation through the parent classes/hierarchies
+        	// BEWARE: What if the annotation appears on multiple places? Is there any specific ordering?
+            // Could/should this be a method of Annotated?
+            List<JavaType> superTypes;
+            if (ann instanceof AnnotatedClass) {
+            	superTypes = new ArrayList<>(((AnnotatedClass) ann)._superTypes);
+            	// We want to iterate from
+//            	Collections.reverse(superTypes);
+            } else {
+            	// Could walk the class hierarchy, but how can we get a JavaType from a Class?
+            	superTypes = Collections.emptyList();
+            }
+        	Optional<JavaType> optAnnotatedClass = superTypes.stream().filter(javaType -> null != javaType.getRawClass().getAnnotation(JsonTypeInfo.class)).findFirst();
+        	
+        	// Fallback on the provided baseType if we can not find the annotation from the parent hierarchy of classes
+        	// Or no fallback, as we want to keep the information later we had no clear annotationHolder
+        	JavaType annotatedClass = optAnnotatedClass.orElse(null);
+        	
+            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType, annotatedClass);
         }
         // Does it define a custom type id resolver?
         JsonTypeIdResolver idResInfo = _findAnnotation(ann, JsonTypeIdResolver.class);
@@ -1629,12 +1648,13 @@ public class JacksonAnnotationIntrospector
     /**
      * Helper method for constructing standard {@link TypeResolverBuilder}
      * implementation.
+     * @param annotatedClass 
      *
      * @since 2.16 (backported from Jackson 3.0)
      */
     protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
-            JsonTypeInfo.Value typeInfo, JavaType baseType) {
-        return new StdTypeResolverBuilder(typeInfo);
+            JsonTypeInfo.Value typeInfo, JavaType baseType, JavaType annotatedClass) {
+        return new StdTypeResolverBuilder(typeInfo, annotatedClass);
     }
 
     /**

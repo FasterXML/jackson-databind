@@ -1,7 +1,12 @@
 package tools.jackson.databind.node;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberInput;
@@ -51,7 +56,8 @@ public class StringNode
         return JsonNodeType.STRING;
     }
 
-    @Override public JsonToken asToken() { return JsonToken.VALUE_STRING; }
+    @Override
+    public JsonToken asToken() { return JsonToken.VALUE_STRING; }
 
     @Override
     protected String _valueDesc() {
@@ -67,7 +73,7 @@ public class StringNode
 
     /*
     /**********************************************************************
-    /* Overridden JsonNode methods, scalar access
+    /* Overridden JsonNode methods, scalar access, non-numeric
     /**********************************************************************
      */
 
@@ -119,21 +125,6 @@ public class StringNode
         return Optional.of(_value);
     }
 
-    @Override
-    public int asInt(int defaultValue) {
-        return NumberInput.parseAsInt(_value, defaultValue);
-    }
-
-    @Override
-    public long asLong(long defaultValue) {
-        return NumberInput.parseAsLong(_value, defaultValue);
-    }
-
-    @Override
-    public double asDouble(double defaultValue) {
-        return NumberInput.parseAsDouble(_value, defaultValue, false);
-    }
-
     /**
      * Method for accessing content String assuming they were
      * base64 encoded; if so, content is decoded and resulting binary
@@ -166,6 +157,186 @@ public class StringNode
         return getBinaryValue(Base64Variants.getDefaultVariant());
     }
 
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access, numeric
+    /**********************************************************************
+     */
+
+    @Override
+    public int asInt() {
+        Integer I = _tryParseAsInteger();
+        if (I == null) {
+            return _reportCoercionFail("asInt()", Integer.TYPE,
+                    "value not a valid String representation of `int`");
+        }
+        return I.intValue();
+    }
+
+    @Override
+    public int asInt(int defaultValue) {
+        Integer I = _tryParseAsInteger();
+        return (I == null) ? defaultValue : I;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        Integer I = _tryParseAsInteger();
+        return (I == null) ? OptionalInt.empty() : OptionalInt.of(I);
+    }
+    
+    @Override
+    public long asLong() {
+        Long L = _tryParseAsLong();
+        if (L == null) {
+            return _reportCoercionFail("asLong()", Long.TYPE,
+                    "value not a valid String representation of `long`");
+        }
+        return L.longValue();
+    }
+
+    @Override
+    public long asLong(long defaultValue) {
+        Long L = _tryParseAsLong();
+        return (L == null) ? defaultValue : L;
+    }
+
+    @Override
+    public OptionalLong asLongOpt() {
+        Long L = _tryParseAsLong();
+        return (L == null) ? OptionalLong.empty() : OptionalLong.of(L);
+    }
+
+    // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`
+
+    @Override
+    public BigInteger asBigInteger() {
+        BigInteger big = _tryParseAsBigInteger();
+        if (big == null) {
+            return _reportCoercionFail("asBigInteger()", BigInteger.class,
+                    "value not a valid String representation of `BigInteger`");
+        }
+        return big;
+    }
+
+    @Override
+    public BigInteger asBigInteger(BigInteger defaultValue) {
+        BigInteger big = _tryParseAsBigInteger();
+        return (big == null) ? defaultValue : big;
+    }
+
+    @Override
+    public Optional<BigInteger> asBigIntegerOpt() {
+        BigInteger big = _tryParseAsBigInteger();
+        return (big == null) ? Optional.empty() : Optional.of(big);
+    }
+
+    // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`
+
+    @Override
+    public double asDouble()
+    {
+        Double d = _tryParseAsDouble();
+        if (d == null) {
+            return _reportCoercionFail("asDouble()", Double.TYPE,
+                    "value not a valid String representation of `double`");
+        }
+        return (d == null) ? super.asDouble() : d;
+    }
+
+    @Override
+    public double asDouble(double defaultValue)
+    {
+        Double d = _tryParseAsDouble();
+        return (d == null) ? defaultValue : d;
+    }
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        Double d = _tryParseAsDouble();
+        return (d == null) ? OptionalDouble.empty() : OptionalDouble.of(d);
+    }
+    
+    // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
+
+    @Override
+    public BigDecimal asDecimal() {
+        BigDecimal dec = _tryParseAsBigDecimal();
+        if (dec == null) {
+            return _reportCoercionFail("asDecimal()", BigDecimal.class,
+                    "value not a valid String representation of `BigDecimal`");
+        }
+        return dec;
+    }
+
+    @Override
+    public BigDecimal asDecimal(BigDecimal defaultValue) {
+        BigDecimal dec = _tryParseAsBigDecimal();
+        return (dec == null) ? defaultValue : dec;
+    }
+
+    @Override
+    public Optional<BigDecimal> asDecimalOpt() {
+        BigDecimal dec = _tryParseAsBigDecimal();
+        return (dec == null) ? Optional.empty() : Optional.of(dec);
+    }
+
+    protected Integer _tryParseAsInteger() {
+        if (NumberInput.looksLikeValidNumber(_value)) {
+            try {
+                // NumberInput does not have a good match so..
+                return Integer.parseInt(_value);
+            } catch (NumberFormatException e) {
+                ;
+            }
+        }
+        return null;
+    }
+
+    protected Long _tryParseAsLong() {
+        if (NumberInput.looksLikeValidNumber(_value)) {
+            try {
+                return NumberInput.parseLong(_value);
+            } catch (NumberFormatException e) {
+                ;
+            }
+        }
+        return null;
+    }
+
+    protected BigInteger _tryParseAsBigInteger() {
+        if (NumberInput.looksLikeValidNumber(_value)) {
+            try {
+                return NumberInput.parseBigInteger(_value, true);
+            } catch (NumberFormatException e) {
+                ;
+            }
+        }
+        return null;
+    }
+
+    protected Double _tryParseAsDouble() {
+        if (NumberInput.looksLikeValidNumber(_value)) {
+            try {
+                return NumberInput.parseDouble(_value, true);
+            } catch (NumberFormatException e) {
+                ;
+            }
+        }
+        return null;
+    }
+
+    protected BigDecimal _tryParseAsBigDecimal() {
+        if (NumberInput.looksLikeValidNumber(_value)) {
+            try {
+                return NumberInput.parseBigDecimal(_value, true);
+            } catch (NumberFormatException e) {
+                ;
+            }
+        }
+        return null;
+    }
+    
     /*
     /**********************************************************************
     /* Serialization

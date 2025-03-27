@@ -21,6 +21,11 @@ public class BeanUtil
     /**********************************************************************
      */
 
+    /**
+     * @deprecated since 3.0.0-rc2 Use {@link tools.jackson.databind.introspect.DefaultAccessorNamingStrategy}
+     *    instead
+     */
+    @Deprecated // since 3.0.0-rc2
     public static String stdManglePropertyName(final String basename, final int offset)
     {
         final int end = basename.length();

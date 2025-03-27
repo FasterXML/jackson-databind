@@ -27,6 +27,8 @@ public class ClassNameIdResolver
 
     protected final PolymorphicTypeValidator _subTypeValidator;
 
+    private Set<String> _allowedSubtypes;
+
     /**
      * @deprecated Since 2.10 use variant that takes {@link PolymorphicTypeValidator}
      */
@@ -41,8 +43,7 @@ public class ClassNameIdResolver
      */
     public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
             PolymorphicTypeValidator ptv) {
-        super(baseType, typeFactory);
-        _subTypeValidator = ptv;
+        this(baseType, typeFactory, null, ptv);
     }
 
     /**
@@ -52,6 +53,15 @@ public class ClassNameIdResolver
                                Collection<NamedType> subtypes, PolymorphicTypeValidator ptv) {
         super(baseType, typeFactory);
         _subTypeValidator = ptv;
+        if (subtypes != null) {
+            for (NamedType t : subtypes) {
+                final Class<?> cls = t.getType();
+                if (_allowedSubtypes == null) {
+                    _allowedSubtypes = new HashSet<>();
+                }
+                _allowedSubtypes.add(cls.getName());
+            }
+        }
     }
 
     @Deprecated(since = "2.19")
@@ -93,8 +103,13 @@ public class ClassNameIdResolver
 
     protected JavaType _typeFromId(String id, DatabindContext ctxt) throws IOException
     {
-        // 24-Apr-2019, tatu: [databind#2195] validate as well as resolve:
-        JavaType t = ctxt.resolveAndValidateSubType(_baseType, id, _subTypeValidator);
+        boolean allowed = true;
+        if (_allowedSubtypes != null) {
+            allowed = _allowedSubtypes.contains(id);
+        }
+        final JavaType t = allowed ?
+                ctxt.resolveAndValidateSubType(_baseType, id, _subTypeValidator) :
+                null;
         if (t == null) {
             if (ctxt instanceof DeserializationContext) {
                 // First: we may have problem handlers that can deal with it?

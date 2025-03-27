@@ -436,8 +436,10 @@ public class DefaultAccessorNamingStrategy
      * {@link FirstCharBasedValidator#forFirstNameRule}.
      */
     public static class FirstCharBasedValidator
-        implements BaseNameValidator
+        implements BaseNameValidator, java.io.Serializable
     {
+        private static final long serialVersionUID = 3L;
+
         private final boolean _allowLowerCaseFirstChar;
         private final boolean _allowNonLetterFirstChar;
 

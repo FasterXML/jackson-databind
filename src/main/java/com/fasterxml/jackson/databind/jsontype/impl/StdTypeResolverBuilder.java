@@ -356,9 +356,9 @@ public class StdTypeResolverBuilder
         switch (_idType) {
         case DEDUCTION: // Deduction produces class names to be resolved
         case CLASS:
-            return ClassNameIdResolver.construct(baseType, config, subtypeValidator);
+            return ClassNameIdResolver.construct(baseType, config, subtypes, subtypeValidator);
         case MINIMAL_CLASS:
-            return MinimalClassNameIdResolver.construct(baseType, config, subtypeValidator);
+            return MinimalClassNameIdResolver.construct(baseType, config, subtypes, subtypeValidator);
         case SIMPLE_NAME:
             return SimpleNameIdResolver.construct(config, baseType, subtypes, forSer, forDeser);
         case NAME:

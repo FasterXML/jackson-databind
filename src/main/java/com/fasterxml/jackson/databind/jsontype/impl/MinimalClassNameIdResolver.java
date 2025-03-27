@@ -1,12 +1,14 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -32,8 +34,19 @@ public class MinimalClassNameIdResolver
      */
     protected final String _basePackagePrefix;
 
+    @Deprecated(since = "2.19")
     protected MinimalClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
             PolymorphicTypeValidator ptv)
+    {
+        this(baseType, typeFactory, null, ptv);
+    }
+
+    /**
+     * @since 2.19
+     */
+    protected MinimalClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
+                                         Collection<NamedType> subtypes,
+                                         PolymorphicTypeValidator ptv)
     {
         super(baseType, typeFactory, ptv);
         String base = baseType.getRawClass().getName();
@@ -47,9 +60,19 @@ public class MinimalClassNameIdResolver
         }
     }
 
+    @Deprecated(since = "2.19")
     public static MinimalClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
-            PolymorphicTypeValidator ptv) {
+                                                       PolymorphicTypeValidator ptv) {
         return new MinimalClassNameIdResolver(baseType, config.getTypeFactory(), ptv);
+    }
+
+    /**
+     * @since 2.19
+     */
+    public static MinimalClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
+                                                       Collection<NamedType> subtypes,
+                                                       PolymorphicTypeValidator ptv) {
+        return new MinimalClassNameIdResolver(baseType, config.getTypeFactory(), subtypes, ptv);
     }
 
     @Override

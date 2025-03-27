@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -36,6 +37,7 @@ public class ClassNameIdResolver
 
     /**
      * @since 2.10
+     * @deprecated Since 2.19 use variant that takes {@link Collection<NamedType>}
      */
     public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
             PolymorphicTypeValidator ptv) {
@@ -43,9 +45,28 @@ public class ClassNameIdResolver
         _subTypeValidator = ptv;
     }
 
-    public static ClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
-            PolymorphicTypeValidator ptv) {
+    /**
+     * @since 2.19
+     */
+    public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
+                               Collection<NamedType> subtypes, PolymorphicTypeValidator ptv) {
+        super(baseType, typeFactory);
+        _subTypeValidator = ptv;
+    }
+
+    @Deprecated(since = "2.19")
+    public static ClassNameIdResolver construct(JavaType baseType,
+            MapperConfig<?> config, PolymorphicTypeValidator ptv) {
         return new ClassNameIdResolver(baseType, config.getTypeFactory(), ptv);
+    }
+
+    /**
+     * @since 2.19
+     */
+    public static ClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
+                                                Collection<NamedType> subtypes,
+                                                PolymorphicTypeValidator ptv) {
+        return new ClassNameIdResolver(baseType, config.getTypeFactory(), subtypes, ptv);
     }
 
     @Override

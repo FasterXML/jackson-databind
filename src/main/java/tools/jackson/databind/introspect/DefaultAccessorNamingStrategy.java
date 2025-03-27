@@ -239,15 +239,18 @@ public class DefaultAccessorNamingStrategy
      * <li>Is-getter (for Boolean values): "is"
      *  </li>
      *</ul>
-     * and no additional restrictions on base names accepted (configurable for
-     * limits using {@link BaseNameValidator}), allowing names like
-     * "get_value()" and "getvalue()".
+     * with additional restrictions on base names accepted (configurable for
+     * limits using {@link BaseNameValidator}), preventing names like
+     * "get_value()" and "getvalue()" (unlike Jackson 2.x that allowed these).
      */
     public static class Provider
         extends AccessorNamingStrategy.Provider
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
+
+        private static final BaseNameValidator DEFAULT_BASE_NAME_VALIDATOR
+            = FirstCharBasedValidator.forFirstNameRule(false, false);
 
         protected final String _setterPrefix;
         protected final String _withPrefix;
@@ -259,7 +262,7 @@ public class DefaultAccessorNamingStrategy
 
         public Provider() {
             this("set", JsonPOJOBuilder.DEFAULT_WITH_PREFIX,
-                    "get", "is", null);
+                    "get", "is", DEFAULT_BASE_NAME_VALIDATOR);
         }
 
         protected Provider(Provider p,
@@ -409,7 +412,8 @@ public class DefaultAccessorNamingStrategy
         public AccessorNamingStrategy forBuilder(MapperConfig<?> config,
                 AnnotatedClass builderClass, BeanDescription valueTypeDesc)
         {
-            AnnotationIntrospector ai = config.isAnnotationProcessingEnabled() ? config.getAnnotationIntrospector() : null;
+            AnnotationIntrospector ai = config.isAnnotationProcessingEnabled()
+                    ? config.getAnnotationIntrospector() : null;
             JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(config, builderClass);
             String mutatorPrefix = (builderConfig == null) ? _withPrefix : builderConfig.withPrefix;
             return new DefaultAccessorNamingStrategy(config, builderClass,
@@ -455,11 +459,11 @@ public class DefaultAccessorNamingStrategy
          *    consider difference between "setter-methods" {@code setValue()} and {@code set_value()}.
          *
          * @return Validator instance to use, if any; {@code null} to indicate no additional
-         *   rules applied (case when both arguments are {@code false})
+         *   rules applied (case when both arguments are {@code true})
          */
         public static BaseNameValidator forFirstNameRule(boolean allowLowerCaseFirstChar,
                 boolean allowNonLetterFirstChar) {
-            if (!allowLowerCaseFirstChar && !allowNonLetterFirstChar) {
+            if (allowLowerCaseFirstChar && allowNonLetterFirstChar) {
                 return null;
             }
             return new FirstCharBasedValidator(allowLowerCaseFirstChar,

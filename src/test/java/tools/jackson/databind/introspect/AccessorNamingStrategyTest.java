@@ -217,18 +217,19 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
     public void testFirstLetterConfigs() throws Exception
     {
         final FirstLetterVariesBean input = new FirstLetterVariesBean();
-        final String STD_EXP = a2q("{'4Roses':42,'land':true,'value':31337}");
 
-        // First: vanilla? About anything goes
-        ObjectMapper mapper = newJsonMapper();
-        assertEquals(STD_EXP, mapper.writeValueAsString(input));
+        // First: new (3.0) defaults -- no weird stuff
+        assertEquals(a2q("{'value':31337}"),
+                MAPPER.writeValueAsString(input));
 
+        // First: let's configure with "anything goes" (2.x default):
         // also if explicitly configured as default:
-        mapper = JsonMapper.builder()
+        ObjectMapper mapper = JsonMapper.builder()
                 .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
                         .withFirstCharAcceptance(true, true))
                 .build();
-        assertEquals(STD_EXP, mapper.writeValueAsString(input));
+        assertEquals(a2q("{'4Roses':42,'land':true,'value':31337}"),
+                mapper.writeValueAsString(input));
 
         // But we can vary it
         mapper = JsonMapper.builder()
@@ -246,5 +247,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
                 .build();
         assertEquals(a2q("{'4Roses':42,'value':31337}"),
                 mapper.writeValueAsString(input));
+
+        
     }
 }

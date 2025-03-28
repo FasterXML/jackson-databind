@@ -137,7 +137,7 @@ public final class MethodProperty
         try {
             _setter.invoke(instance, value);
         } catch (Exception e) {
-            _throwAsJacksonE(p, e, value);
+            _throwAsJacksonE(ctxt.getConfig(), p, e, value);
         }
     }
 
@@ -167,7 +167,7 @@ public final class MethodProperty
             Object result = _setter.invoke(instance, value);
             return (result == null) ? instance : result;
         } catch (Exception e) {
-            _throwAsJacksonE(p, e, value);
+            _throwAsJacksonE(ctxt.getConfig(), p, e, value);
             return null;
         }
     }
@@ -185,7 +185,7 @@ public final class MethodProperty
             _setter.invoke(instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsJacksonE(e, value);
+            _throwAsJacksonE(ctxt.getConfig(), e, value);
         }
     }
 
@@ -203,7 +203,7 @@ public final class MethodProperty
             return (result == null) ? instance : result;
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsJacksonE(e, value);
+            _throwAsJacksonE(ctxt.getConfig(), e, value);
             return null;
         }
     }

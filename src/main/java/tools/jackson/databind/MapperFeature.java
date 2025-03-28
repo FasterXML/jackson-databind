@@ -443,7 +443,18 @@ public enum MapperFeature
      *
      * @since 2.13
      */
-    APPLY_DEFAULT_VALUES(true)
+    APPLY_DEFAULT_VALUES(true),
+
+    /**
+     * Feature that determines whether {@link ObjectWriter} and {@link ObjectWriter} unwraps
+     * the root cause of exception before wrapping with Jackson exceptions.
+     *<p>
+     * This is useful to keep the stack trace of the original exception, when customized
+     * exceptions are thrown in extension points such as setter, constructor, creator, etc.
+     *<p>
+     * Feature is enabled by default.
+     */
+    UNWRAP_ROOT_CAUSE(true)
     ;
 
     private final boolean _defaultState;

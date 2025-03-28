@@ -47,17 +47,33 @@ public abstract class ContainerDeserializerBase<T>
      */
     protected final Boolean _unwrapSingle;
 
+    /**
+     * When true, nulls are treated as empty values containers.
+     *
+     * @since 2.19
+     */
+    protected final boolean _treatNullAsEmpty;
+
+    protected ContainerDeserializerBase(JavaType selfType) {
+        this(selfType, null, null);
+    }
+
     protected ContainerDeserializerBase(JavaType selfType,
-            NullValueProvider nuller, Boolean unwrapSingle) {
+                                        NullValueProvider nuller, Boolean unwrapSingle) {
+        this(selfType, nuller, unwrapSingle, false);
+    }
+
+    /**
+     * @since 2.19
+     */
+    protected ContainerDeserializerBase(JavaType selfType,
+            NullValueProvider nuller, Boolean unwrapSingle, boolean treatNullAsEmpty) {
         super(selfType);
         _containerType = selfType;
         _unwrapSingle = unwrapSingle;
         _nullProvider = nuller;
         _skipNullValues = NullsConstantProvider.isSkipper(nuller);
-    }
-
-    protected ContainerDeserializerBase(JavaType selfType) {
-        this(selfType, null, null);
+        _treatNullAsEmpty = treatNullAsEmpty;
     }
 
     /**
@@ -72,11 +88,7 @@ public abstract class ContainerDeserializerBase<T>
      */
     protected ContainerDeserializerBase(ContainerDeserializerBase<?> base,
             NullValueProvider nuller, Boolean unwrapSingle) {
-        super(base._containerType);
-        _containerType = base._containerType;
-        _nullProvider = nuller;
-        _unwrapSingle = unwrapSingle;
-        _skipNullValues = NullsConstantProvider.isSkipper(nuller);
+        this(base._containerType, nuller, unwrapSingle, base._treatNullAsEmpty);
     }
 
     /*
@@ -122,7 +134,7 @@ public abstract class ContainerDeserializerBase<T>
     }
 
     /**
-     * Accesor for deserializer use for deserializing content values.
+     * Accessor for deserializer use for deserializing content values.
      */
     public abstract JsonDeserializer<Object> getContentDeserializer();
 
@@ -146,6 +158,16 @@ public abstract class ContainerDeserializerBase<T>
         } catch (IOException e) {
             return ClassUtil.throwAsMappingException(ctxt, e);
         }
+    }
+
+    @Override // since 2.19
+    public T getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_treatNullAsEmpty) {
+            return (T) getEmptyValue(ctxt);
+        } else if (_nullProvider != null) {
+            return (T) _nullProvider.getNullValue(ctxt);
+        }
+        return super.getNullValue(ctxt);
     }
 
     /*

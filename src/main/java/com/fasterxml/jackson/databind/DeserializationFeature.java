@@ -253,7 +253,7 @@ public enum DeserializationFeature implements ConfigFeature
     FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY(true),
 
     /**
-     * Feature that determines behaviour for data-binding after binding the root value.
+     * Feature that determines behavior for data-binding after binding the root value.
      * If feature is enabled, one more call to
      * {@link com.fasterxml.jackson.core.JsonParser#nextToken} is made to ensure that
      * no more tokens are found (and if any is found,
@@ -271,6 +271,19 @@ public enum DeserializationFeature implements ConfigFeature
      * @since 2.9
      */
     FAIL_ON_TRAILING_TOKENS(false),
+
+    /**
+     * Feature that determines behavior when deserializing polymorphic types of
+     * Id.CLASS or Id.MINIMAL_CLASS type if the subtype is not explicitly registered.
+     * For types like Id.NAME, you already need to declare the subtypes but with
+     * Id.CLASS and Id.MINIMAL_CLASS you do not. If enabled, an exception will be
+     * thrown if a subtype is encountered that has not been explicitly registered.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 2.19
+     */
+    FAIL_ON_POLYMORPHIC_SUBTYPE_CLASS_NOT_EXPLICITLY_REGISTERED(false),
 
     /**
      * Feature that determines whether Jackson code should catch

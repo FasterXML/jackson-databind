@@ -2,14 +2,17 @@ package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializeUsingJDKTest;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import org.junit.jupiter.api.Test;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PolymorphicIdClassDeserTest {
+public class PolymorphicIdClassDeserTest extends DatabindTestUtil {
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     @JsonSubTypes({@JsonSubTypes.Type(value = FooClassImpl.class)})
     static abstract class FooClass { }
@@ -22,7 +25,9 @@ public class PolymorphicIdClassDeserTest {
     /************************************************************
     */
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(DeserializationFeature.FAIL_ON_POLYMORPHIC_SUBTYPE_CLASS_NOT_EXPLICITLY_REGISTERED)
+            .build();
 
     @Test
     public void testDeserialization() throws Exception
@@ -33,7 +38,6 @@ public class PolymorphicIdClassDeserTest {
         FooClass res1 = MAPPER.readValue(foo1, FooClass.class);
         assertTrue(res1 instanceof FooClassImpl);
         // next bit should in theory fail because FooClassImpl2 is not listed as a subtype
-        FooClass res2 = MAPPER.readValue(foo2, FooClass.class);
-        assertTrue(res2 instanceof FooClassImpl2);
+        assertThrows(InvalidTypeIdException.class, () -> MAPPER.readValue(foo2, FooClass.class));
     }
 }

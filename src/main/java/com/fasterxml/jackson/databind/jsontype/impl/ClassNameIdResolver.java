@@ -103,19 +103,21 @@ public class ClassNameIdResolver
 
     protected JavaType _typeFromId(String id, DatabindContext ctxt) throws IOException
     {
-        boolean allowed = true;
-        if (_allowedSubtypes != null) {
-            allowed = _allowedSubtypes.contains(id);
+        DeserializationContext deserializationContext = null;
+        if (ctxt instanceof DeserializationContext) {
+            deserializationContext = (DeserializationContext) ctxt;
         }
-        final JavaType t = allowed ?
-                ctxt.resolveAndValidateSubType(_baseType, id, _subTypeValidator) :
-                null;
-        if (t == null) {
-            if (ctxt instanceof DeserializationContext) {
-                // First: we may have problem handlers that can deal with it?
-                return ((DeserializationContext) ctxt).handleUnknownTypeId(_baseType, id, this, "no such class found");
+        if (_allowedSubtypes != null && deserializationContext != null
+                && deserializationContext.isEnabled(
+                        DeserializationFeature.FAIL_ON_POLYMORPHIC_SUBTYPE_CLASS_NOT_EXPLICITLY_REGISTERED)) {
+            if (!_allowedSubtypes.contains(id)) {
+                throw deserializationContext.invalidTypeIdException(_baseType, id,
+                        "DeserializationFeature.FAIL_ON_POLYMORPHIC_SUBTYPE_CLASS_NOT_EXPLICITLY_REGISTERED is explicitly enabled and the input class is not registered using JsonSubTypes annotation.");
             }
-            // ... meaning that we really should never get here.
+        }
+        final JavaType t = ctxt.resolveAndValidateSubType(_baseType, id, _subTypeValidator);
+        if (t == null && deserializationContext != null) {
+            return deserializationContext.handleUnknownTypeId(_baseType, id, this, "no such class found");
         }
         return t;
     }

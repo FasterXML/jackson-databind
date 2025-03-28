@@ -59,7 +59,7 @@ public abstract class ContainerDeserializerBase<T>
     }
 
     protected ContainerDeserializerBase(JavaType selfType,
-                                        NullValueProvider nuller, Boolean unwrapSingle) {
+            NullValueProvider nuller, Boolean unwrapSingle) {
         this(selfType, nuller, unwrapSingle, false);
     }
 

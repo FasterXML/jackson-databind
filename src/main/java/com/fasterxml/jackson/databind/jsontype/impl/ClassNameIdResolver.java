@@ -64,7 +64,9 @@ public class ClassNameIdResolver
         }
     }
 
-    @Deprecated(since = "2.19")
+    /**
+     * @deprecated since 2.19
+     */
     public static ClassNameIdResolver construct(JavaType baseType,
             MapperConfig<?> config, PolymorphicTypeValidator ptv) {
         return new ClassNameIdResolver(baseType, config.getTypeFactory(), ptv);

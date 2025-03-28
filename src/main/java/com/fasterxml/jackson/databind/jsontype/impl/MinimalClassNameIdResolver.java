@@ -34,7 +34,9 @@ public class MinimalClassNameIdResolver
      */
     protected final String _basePackagePrefix;
 
-    @Deprecated(since = "2.19")
+    /**
+     * @deprecated since 2.19
+     */
     protected MinimalClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
             PolymorphicTypeValidator ptv)
     {
@@ -60,7 +62,9 @@ public class MinimalClassNameIdResolver
         }
     }
 
-    @Deprecated(since = "2.19")
+    /**
+     * @deprecated since 2.19
+     */
     public static MinimalClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
                                                        PolymorphicTypeValidator ptv) {
         return new MinimalClassNameIdResolver(baseType, config.getTypeFactory(), ptv);

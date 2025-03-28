@@ -26,7 +26,7 @@ public class PolymorphicIdClassDeserTest extends DatabindTestUtil {
     */
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .enable(DeserializationFeature.FAIL_ON_POLYMORPHIC_SUBTYPE_CLASS_NOT_EXPLICITLY_REGISTERED)
+            .enable(DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED)
             .build();
 
     @Test

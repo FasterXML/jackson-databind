@@ -283,7 +283,7 @@ public enum DeserializationFeature implements ConfigFeature
      *
      * @since 2.19
      */
-    FAIL_ON_POLYMORPHIC_SUBTYPE_CLASS_NOT_EXPLICITLY_REGISTERED(false),
+    FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED(false),
 
     /**
      * Feature that determines whether Jackson code should catch

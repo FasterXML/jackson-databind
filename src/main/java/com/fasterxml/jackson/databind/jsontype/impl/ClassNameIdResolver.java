@@ -111,10 +111,10 @@ public class ClassNameIdResolver
         }
         if (_allowedSubtypes != null && deserializationContext != null
                 && deserializationContext.isEnabled(
-                        DeserializationFeature.FAIL_ON_POLYMORPHIC_SUBTYPE_CLASS_NOT_EXPLICITLY_REGISTERED)) {
+                        DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED)) {
             if (!_allowedSubtypes.contains(id)) {
                 throw deserializationContext.invalidTypeIdException(_baseType, id,
-                        "DeserializationFeature.FAIL_ON_POLYMORPHIC_SUBTYPE_CLASS_NOT_EXPLICITLY_REGISTERED is explicitly enabled and the input class is not registered using JsonSubTypes annotation.");
+                        "DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED is explicitly enabled and the input class is not registered using JsonSubTypes annotation.");
             }
         }
         final JavaType t = ctxt.resolveAndValidateSubType(_baseType, id, _subTypeValidator);

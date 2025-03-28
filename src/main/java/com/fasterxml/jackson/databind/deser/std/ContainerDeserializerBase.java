@@ -48,7 +48,7 @@ public abstract class ContainerDeserializerBase<T>
     protected final Boolean _unwrapSingle;
 
     /**
-     * When true, nulls are treated as empty values containers.
+     * When true, nulls are treated as empty containers.
      *
      * @since 2.19
      */

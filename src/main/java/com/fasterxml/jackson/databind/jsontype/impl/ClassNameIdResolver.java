@@ -88,6 +88,8 @@ public class ClassNameIdResolver
     @Override
     public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.CLASS; }
 
+    // 28-Mar-2025, tatu: Why is this here; not overridden so... ?
+    @Deprecated // since 2.19
     public void registerSubtype(Class<?> type, String name) {
         // not used with class name - based resolvers
     }
@@ -113,12 +115,12 @@ public class ClassNameIdResolver
         if (ctxt instanceof DeserializationContext) {
             deserializationContext = (DeserializationContext) ctxt;
         }
-        if (_allowedSubtypes != null && deserializationContext != null
+        if ((_allowedSubtypes != null) && (deserializationContext != null)
                 && deserializationContext.isEnabled(
                         DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED)) {
             if (!_allowedSubtypes.contains(id)) {
                 throw deserializationContext.invalidTypeIdException(_baseType, id,
-                        "DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED is explicitly enabled and the input class is not registered using JsonSubTypes annotation.");
+"`DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED` is enabled and the input class is not registered using `@JsonSubTypes` annotation");
             }
         }
         final JavaType t = ctxt.resolveAndValidateSubType(_baseType, id, _subTypeValidator);

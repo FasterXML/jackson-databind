@@ -27,6 +27,17 @@ public class DefaultAccessorNamingStrategy
      * based on various rules.
      */
     public interface BaseNameValidator {
+        /**
+         * Method called to check whether given base name is acceptable: called
+         * for accessor method name after removing prefix.
+         * NOTE: called even if "prefix" is empy (i.e. nothing really removed)
+         * 
+         * @param firstChar First character of the base name
+         * @param basename Full base name (after removing prefix)
+         * @param offset Length of prefix removed
+         *
+         * @return {@ocode true} if base name is acceptable; {@code false} otherwise
+         */
         public boolean accept(char firstChar, String basename, int offset);
     }
 
@@ -383,7 +394,8 @@ public class DefaultAccessorNamingStrategy
         public Provider withFirstCharAcceptance(boolean allowLowerCaseFirstChar,
                 boolean allowNonLetterFirstChar) {
             return withBaseNameValidator(
-                    FirstCharBasedValidator.forFirstNameRule(allowLowerCaseFirstChar, allowNonLetterFirstChar));
+                    FirstCharBasedValidator.forFirstNameRule(allowLowerCaseFirstChar,
+                            allowNonLetterFirstChar));
         }
 
         /**
@@ -430,7 +442,8 @@ public class DefaultAccessorNamingStrategy
 
     /**
      * Simple implementation of {@link BaseNameValidator} that checks the
-     * first character and nothing else.
+     * first character and nothing else if (and only if!) prefix is empty
+     * (so {@code offset} passed is NOT zero).
      *<p>
      * Instances are to be constructed using method
      * {@link FirstCharBasedValidator#forFirstNameRule}.
@@ -474,6 +487,14 @@ public class DefaultAccessorNamingStrategy
 
         @Override
         public boolean accept(char firstChar, String basename, int offset) {
+            // 27-Mar-2025, tatu: [databind#2882] Need to make sure we don't
+            //   try to validate cases where no prefix is removed (mostly case
+            //   for builders, but also for Record-style plain "getters" and
+            //   "setters".
+            if (offset == 0) {
+                return true;
+            }
+            
             // Ok, so... If UTF-16 letter, then check whether lc allowed
             // (title-case and upper-case both assumed to be acceptable by default)
             if (Character.isLetter(firstChar)) {

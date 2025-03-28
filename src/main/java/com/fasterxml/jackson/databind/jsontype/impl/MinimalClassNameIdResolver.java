@@ -37,6 +37,7 @@ public class MinimalClassNameIdResolver
     /**
      * @deprecated since 2.19
      */
+    @Deprecated
     protected MinimalClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
             PolymorphicTypeValidator ptv)
     {
@@ -47,8 +48,8 @@ public class MinimalClassNameIdResolver
      * @since 2.19
      */
     protected MinimalClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
-                                         Collection<NamedType> subtypes,
-                                         PolymorphicTypeValidator ptv)
+            Collection<NamedType> subtypes,
+            PolymorphicTypeValidator ptv)
     {
         super(baseType, typeFactory, subtypes, ptv);
         String base = baseType.getRawClass().getName();
@@ -65,8 +66,9 @@ public class MinimalClassNameIdResolver
     /**
      * @deprecated since 2.19
      */
+    @Deprecated
     public static MinimalClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
-                                                       PolymorphicTypeValidator ptv) {
+            PolymorphicTypeValidator ptv) {
         return new MinimalClassNameIdResolver(baseType, config.getTypeFactory(), ptv);
     }
 
@@ -74,8 +76,8 @@ public class MinimalClassNameIdResolver
      * @since 2.19
      */
     public static MinimalClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
-                                                       Collection<NamedType> subtypes,
-                                                       PolymorphicTypeValidator ptv) {
+            Collection<NamedType> subtypes,
+            PolymorphicTypeValidator ptv) {
         return new MinimalClassNameIdResolver(baseType, config.getTypeFactory(), subtypes, ptv);
     }
 

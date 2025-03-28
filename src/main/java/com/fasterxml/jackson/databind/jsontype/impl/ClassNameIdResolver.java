@@ -27,7 +27,7 @@ public class ClassNameIdResolver
 
     protected final PolymorphicTypeValidator _subTypeValidator;
 
-    private Set<String> _allowedSubtypes;
+    protected final Set<String> _allowedSubtypes;
 
     /**
      * @deprecated Since 2.10 use variant that takes {@link PolymorphicTypeValidator}
@@ -39,8 +39,9 @@ public class ClassNameIdResolver
 
     /**
      * @since 2.10
-     * @deprecated Since 2.19 use variant that takes {@link Collection<NamedType>}
+     * @deprecated Since 2.19 use variant that takes {@code Collection<NamedType>}
      */
+    @Deprecated
     public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
             PolymorphicTypeValidator ptv) {
         this(baseType, typeFactory, null, ptv);
@@ -50,23 +51,26 @@ public class ClassNameIdResolver
      * @since 2.19
      */
     public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
-                               Collection<NamedType> subtypes, PolymorphicTypeValidator ptv) {
+            Collection<NamedType> subtypes, PolymorphicTypeValidator ptv) {
         super(baseType, typeFactory);
         _subTypeValidator = ptv;
+        Set<String> allowedSubtypes = null;
         if (subtypes != null) {
             for (NamedType t : subtypes) {
                 final Class<?> cls = t.getType();
-                if (_allowedSubtypes == null) {
-                    _allowedSubtypes = new HashSet<>();
+                if (allowedSubtypes == null) {
+                    allowedSubtypes = new HashSet<>();
                 }
-                _allowedSubtypes.add(cls.getName());
+                allowedSubtypes.add(cls.getName());
             }
         }
+        _allowedSubtypes = allowedSubtypes; 
     }
 
     /**
      * @deprecated since 2.19
      */
+    @Deprecated
     public static ClassNameIdResolver construct(JavaType baseType,
             MapperConfig<?> config, PolymorphicTypeValidator ptv) {
         return new ClassNameIdResolver(baseType, config.getTypeFactory(), ptv);
@@ -76,8 +80,8 @@ public class ClassNameIdResolver
      * @since 2.19
      */
     public static ClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
-                                                Collection<NamedType> subtypes,
-                                                PolymorphicTypeValidator ptv) {
+            Collection<NamedType> subtypes,
+            PolymorphicTypeValidator ptv) {
         return new ClassNameIdResolver(baseType, config.getTypeFactory(), subtypes, ptv);
     }
 

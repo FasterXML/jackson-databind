@@ -50,7 +50,7 @@ public class MinimalClassNameIdResolver
                                          Collection<NamedType> subtypes,
                                          PolymorphicTypeValidator ptv)
     {
-        super(baseType, typeFactory, ptv);
+        super(baseType, typeFactory, subtypes, ptv);
         String base = baseType.getRawClass().getName();
         int ix = base.lastIndexOf('.');
         if (ix < 0) { // can this ever occur?

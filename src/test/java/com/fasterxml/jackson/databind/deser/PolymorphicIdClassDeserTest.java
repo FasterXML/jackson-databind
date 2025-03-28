@@ -19,6 +19,12 @@ public class PolymorphicIdClassDeserTest extends DatabindTestUtil {
     static class FooClassImpl extends FooClass { }
     static class FooClassImpl2 extends FooClass { }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+    @JsonSubTypes({@JsonSubTypes.Type(value = FooMinClassImpl.class)})
+    static abstract class FooMinClass { }
+    static class FooMinClassImpl extends FooMinClass { }
+    static class FooMinClassImpl2 extends FooMinClass { }
+
     /*
     /************************************************************
     /* Unit tests, valid
@@ -30,7 +36,7 @@ public class PolymorphicIdClassDeserTest extends DatabindTestUtil {
             .build();
 
     @Test
-    public void testDeserialization() throws Exception
+    public void testDeserializationIdClass() throws Exception
     {
         //trying to test if JsonSubTypes enforced
         final String foo1 = MAPPER.writeValueAsString(new FooClassImpl());
@@ -39,5 +45,17 @@ public class PolymorphicIdClassDeserTest extends DatabindTestUtil {
         assertTrue(res1 instanceof FooClassImpl);
         // next bit should in theory fail because FooClassImpl2 is not listed as a subtype
         assertThrows(InvalidTypeIdException.class, () -> MAPPER.readValue(foo2, FooClass.class));
+    }
+
+    @Test
+    public void testDeserializationIdMinimalClass() throws Exception
+    {
+        //trying to test if JsonSubTypes enforced
+        final String foo1 = MAPPER.writeValueAsString(new FooMinClassImpl());
+        final String foo2 = MAPPER.writeValueAsString(new FooMinClassImpl2());
+        FooMinClass res1 = MAPPER.readValue(foo1, FooMinClass.class);
+        assertTrue(res1 instanceof FooMinClassImpl);
+        // next bit should in theory fail because FooMinClassImpl2 is not listed as a subtype
+        assertThrows(InvalidTypeIdException.class, () -> MAPPER.readValue(foo2, FooMinClass.class));
     }
 }

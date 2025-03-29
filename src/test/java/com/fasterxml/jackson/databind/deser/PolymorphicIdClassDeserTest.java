@@ -54,6 +54,16 @@ public class PolymorphicIdClassDeserTest extends DatabindTestUtil {
     @Test
     public void testDeserializationIdClassNoReg() throws Exception
     {
+        final ObjectMapper mapper = newJsonMapper();
+        final String foo1 = mapper.writeValueAsString(new FooClassNoRegSubTypesImpl());
+        // the default mapper should be able to deserialize the object (sub type check not enforced)
+        FooClassNoRegSubTypes res1 = mapper.readValue(foo1, FooClassNoRegSubTypes.class);
+        assertTrue(res1 instanceof FooClassNoRegSubTypesImpl);
+    }
+
+    @Test
+    public void testDefaultDeserializationIdClassNoReg() throws Exception
+    {
         //trying to test if JsonSubTypes enforced
         final String foo1 = MAPPER.writeValueAsString(new FooClassNoRegSubTypesImpl());
         // next bit should fail because FooClassImpl2 is not listed as a subtype (see mapper config)

@@ -504,11 +504,11 @@ public class DefaultAccessorNamingStrategy
          *    consider difference between "setter-methods" {@code setValue()} and {@code set_value()}.
          *
          * @return Validator instance to use, if any; {@code null} to indicate no additional
-         *   rules applied (case when both arguments are {@code false})
+         *   rules applied (case when both arguments are {@code true})
          */
         public static BaseNameValidator forFirstNameRule(boolean allowLowerCaseFirstChar,
                 boolean allowNonLetterFirstChar) {
-            if (!allowLowerCaseFirstChar && !allowNonLetterFirstChar) {
+            if (allowLowerCaseFirstChar && allowNonLetterFirstChar) {
                 return null;
             }
             return new FirstCharBasedValidator(allowLowerCaseFirstChar,

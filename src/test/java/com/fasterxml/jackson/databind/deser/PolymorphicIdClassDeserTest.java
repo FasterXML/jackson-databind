@@ -19,6 +19,10 @@ public class PolymorphicIdClassDeserTest extends DatabindTestUtil {
     static class FooClassImpl extends FooClass { }
     static class FooClassImpl2 extends FooClass { }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+    static abstract class FooClassNoRegSubTypes { }
+    static class FooClassNoRegSubTypesImpl extends FooClassNoRegSubTypes { }
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
     @JsonSubTypes({@JsonSubTypes.Type(value = FooMinClassImpl.class)})
     static abstract class FooMinClass { }
@@ -43,8 +47,17 @@ public class PolymorphicIdClassDeserTest extends DatabindTestUtil {
         final String foo2 = MAPPER.writeValueAsString(new FooClassImpl2());
         FooClass res1 = MAPPER.readValue(foo1, FooClass.class);
         assertTrue(res1 instanceof FooClassImpl);
-        // next bit should in theory fail because FooClassImpl2 is not listed as a subtype
+        // next bit should fail because FooClassImpl2 is not listed as a subtype (see mapper config)
         assertThrows(InvalidTypeIdException.class, () -> MAPPER.readValue(foo2, FooClass.class));
+    }
+
+    @Test
+    public void testDeserializationIdClassNoReg() throws Exception
+    {
+        //trying to test if JsonSubTypes enforced
+        final String foo1 = MAPPER.writeValueAsString(new FooClassNoRegSubTypesImpl());
+        // next bit should fail because FooClassImpl2 is not listed as a subtype (see mapper config)
+        assertThrows(InvalidTypeIdException.class, () -> MAPPER.readValue(foo1, FooClassNoRegSubTypes.class));
     }
 
     @Test
@@ -55,7 +68,7 @@ public class PolymorphicIdClassDeserTest extends DatabindTestUtil {
         final String foo2 = MAPPER.writeValueAsString(new FooMinClassImpl2());
         FooMinClass res1 = MAPPER.readValue(foo1, FooMinClass.class);
         assertTrue(res1 instanceof FooMinClassImpl);
-        // next bit should in theory fail because FooMinClassImpl2 is not listed as a subtype
+        // next bit should fail because FooMinClassImpl2 is not listed as a subtype (see mapper config)
         assertThrows(InvalidTypeIdException.class, () -> MAPPER.readValue(foo2, FooMinClass.class));
     }
 }

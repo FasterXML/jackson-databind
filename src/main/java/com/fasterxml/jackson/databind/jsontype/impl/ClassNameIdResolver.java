@@ -54,14 +54,10 @@ public class ClassNameIdResolver
             Collection<NamedType> subtypes, PolymorphicTypeValidator ptv) {
         super(baseType, typeFactory);
         _subTypeValidator = ptv;
-        Set<String> allowedSubtypes = null;
+        Set<String> allowedSubtypes = new HashSet<>();
         if (subtypes != null) {
             for (NamedType t : subtypes) {
-                final Class<?> cls = t.getType();
-                if (allowedSubtypes == null) {
-                    allowedSubtypes = new HashSet<>();
-                }
-                allowedSubtypes.add(cls.getName());
+                allowedSubtypes.add(t.getType().getName());
             }
         }
         _allowedSubtypes = allowedSubtypes; 

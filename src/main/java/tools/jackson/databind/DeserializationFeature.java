@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import tools.jackson.databind.cfg.ConfigFeature;
+import tools.jackson.databind.cfg.MapperBuilder;
 
 /**
  * Enumeration that defines simple on/off features that affect
@@ -235,7 +236,7 @@ public enum DeserializationFeature implements ConfigFeature
     FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY(true),
 
     /**
-     * Feature that determines behaviour for data-binding after binding the root value.
+     * Feature that determines behavior for data-binding after binding the root value.
      * If feature is enabled, one more call to
      * {@link tools.jackson.core.JsonParser#nextToken} is made to ensure that
      * no more tokens are found (and if any is found,
@@ -250,6 +251,22 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
      */
     FAIL_ON_TRAILING_TOKENS(true),
+
+    /**
+     * Feature that determines behavior when deserializing polymorphic types that use
+     * Class-based Type Id mechanism (either
+     * {@code JsonTypeInfo.Id.CLASS} or {@code JsonTypeInfo.Id.MINIMAL_CLASS}):
+     * If enabled, an exception will be
+     * thrown if a subtype (Class) is encountered that has not been explicitly registered (by
+     * calling {@link MapperBuilder#registerSubtypes} or using annotation
+     * {@link com.fasterxml.jackson.annotation.JsonSubTypes}).
+     *<p>
+     * Note that for Type Name - based Type Id mechanism ({@code JsonTypeInfo.Id.NAME})
+     * you already need to register the subtypes but with so this feature has no effect.
+     *<p>
+     * Feature is disabled by default.
+     */
+    FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED(false),
 
     /**
      * Feature that determines whether Jackson code should catch

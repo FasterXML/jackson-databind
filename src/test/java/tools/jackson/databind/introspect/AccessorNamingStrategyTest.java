@@ -113,7 +113,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = JsonMapper.builder()
+    private final ObjectMapper ACCNAMING2800_MAPPER = JsonMapper.builder()
             .accessorNaming(new AccNaming2800Provider())
             .build();
 
@@ -121,13 +121,13 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
     public void testGetterNaming() throws Exception
     {
         assertEquals(a2q("{'X':3,'Z':true}"),
-                MAPPER.writeValueAsString(new GetterBean2800_XZ()));
+                ACCNAMING2800_MAPPER.writeValueAsString(new GetterBean2800_XZ()));
     }
 
     @Test
     public void testSetterNaming() throws Exception
     {
-        SetterBean2800_Y result = MAPPER.readValue(a2q("{'Y':42}"), SetterBean2800_Y.class);
+        SetterBean2800_Y result = ACCNAMING2800_MAPPER.readValue(a2q("{'Y':42}"), SetterBean2800_Y.class);
         assertEquals(42, result.yyy);
     }
 
@@ -136,10 +136,10 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
     {
         // first serialization
         assertEquals(a2q("{'x':1}"),
-                MAPPER.writeValueAsString(new FieldBean2800_X()));
+                ACCNAMING2800_MAPPER.writeValueAsString(new FieldBean2800_X()));
 
         // then deserialization
-        FieldBean2800_X result = MAPPER.readValue(a2q("{'x':28}"),
+        FieldBean2800_X result = ACCNAMING2800_MAPPER.readValue(a2q("{'x':28}"),
                 FieldBean2800_X.class);
         assertEquals(28, result._x);
         assertEquals(2, result.y);
@@ -217,18 +217,19 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
     public void testFirstLetterConfigs() throws Exception
     {
         final FirstLetterVariesBean input = new FirstLetterVariesBean();
-        final String STD_EXP = a2q("{'4Roses':42,'land':true,'value':31337}");
 
-        // First: vanilla? About anything goes
-        ObjectMapper mapper = newJsonMapper();
-        assertEquals(STD_EXP, mapper.writeValueAsString(input));
+        // First: new (3.0) defaults -- no weird stuff
+        assertEquals(a2q("{'value':31337}"),
+                newJsonMapper().writeValueAsString(input));
 
+        // First: let's configure with "anything goes" (2.x default):
         // also if explicitly configured as default:
-        mapper = JsonMapper.builder()
+        ObjectMapper mapper = JsonMapper.builder()
                 .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
                         .withFirstCharAcceptance(true, true))
                 .build();
-        assertEquals(STD_EXP, mapper.writeValueAsString(input));
+        assertEquals(a2q("{'4Roses':42,'land':true,'value':31337}"),
+                mapper.writeValueAsString(input));
 
         // But we can vary it
         mapper = JsonMapper.builder()
@@ -246,5 +247,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
                 .build();
         assertEquals(a2q("{'4Roses':42,'value':31337}"),
                 mapper.writeValueAsString(input));
+
+        
     }
 }

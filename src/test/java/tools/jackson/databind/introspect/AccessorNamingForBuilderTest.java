@@ -64,6 +64,7 @@ public class AccessorNamingForBuilderTest extends DatabindTestUtil
                 .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
                         .withBuilderPrefix("")
                 )
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();
         ValueClassXY xy = customMapper.readValue(json, ValueClassXY.class);
         assertEquals(29, xy._x);

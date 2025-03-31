@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -99,8 +100,13 @@ public class TestPropertyConflicts extends DatabindTestUtil
     public void testFailWithDupProps() throws Exception
     {
         BeanWithConflict bean = new BeanWithConflict();
+        // Must allow "getx"
+        JsonMapper mapper = JsonMapper.builder()
+                .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
+                        .withFirstCharAcceptance(true, false))
+                .build();
         try {
-            String json = MAPPER.writer().writeValueAsString(bean);
+            String json = mapper.writeValueAsString(bean);
             fail("Should have failed due to conflicting accessor definitions; got JSON = "+json);
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Conflicting getter definitions");

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -27,6 +28,11 @@ public class ClassNameIdResolver
     protected final PolymorphicTypeValidator _subTypeValidator;
 
     /**
+     * @since 2.19 (to support {@code DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED})
+     */
+    protected final Set<String> _allowedSubtypes;
+
+    /**
      * @deprecated Since 2.10 use variant that takes {@link PolymorphicTypeValidator}
      */
     @Deprecated
@@ -36,21 +42,56 @@ public class ClassNameIdResolver
 
     /**
      * @since 2.10
+     * @deprecated Since 2.19 use variant that takes {@code Collection<NamedType>}
      */
+    @Deprecated
     public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
             PolymorphicTypeValidator ptv) {
-        super(baseType, typeFactory);
-        _subTypeValidator = ptv;
+        this(baseType, typeFactory, null, ptv);
     }
 
-    public static ClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
-            PolymorphicTypeValidator ptv) {
+    /**
+     * @since 2.19
+     */
+    public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
+            Collection<NamedType> subtypes, PolymorphicTypeValidator ptv) {
+        super(baseType, typeFactory);
+        _subTypeValidator = ptv;
+        Set<String> allowedSubtypes = null;
+        if (subtypes != null) {
+            for (NamedType t : subtypes) {
+                if (allowedSubtypes == null) {
+                    allowedSubtypes = new HashSet<>();                    
+                }
+                allowedSubtypes.add(t.getType().getName());
+            }
+        }
+        _allowedSubtypes = (allowedSubtypes == null) ? Collections.emptySet() : allowedSubtypes; 
+    }
+
+    /**
+     * @deprecated since 2.19
+     */
+    @Deprecated
+    public static ClassNameIdResolver construct(JavaType baseType,
+            MapperConfig<?> config, PolymorphicTypeValidator ptv) {
         return new ClassNameIdResolver(baseType, config.getTypeFactory(), ptv);
+    }
+
+    /**
+     * @since 2.19
+     */
+    public static ClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
+            Collection<NamedType> subtypes,
+            PolymorphicTypeValidator ptv) {
+        return new ClassNameIdResolver(baseType, config.getTypeFactory(), subtypes, ptv);
     }
 
     @Override
     public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.CLASS; }
 
+    // 28-Mar-2025, tatu: Why is this here; not overridden so... ?
+    @Deprecated // since 2.19
     public void registerSubtype(Class<?> type, String name) {
         // not used with class name - based resolvers
     }
@@ -72,14 +113,21 @@ public class ClassNameIdResolver
 
     protected JavaType _typeFromId(String id, DatabindContext ctxt) throws IOException
     {
-        // 24-Apr-2019, tatu: [databind#2195] validate as well as resolve:
-        JavaType t = ctxt.resolveAndValidateSubType(_baseType, id, _subTypeValidator);
-        if (t == null) {
-            if (ctxt instanceof DeserializationContext) {
-                // First: we may have problem handlers that can deal with it?
-                return ((DeserializationContext) ctxt).handleUnknownTypeId(_baseType, id, this, "no such class found");
+        DeserializationContext deserializationContext = null;
+        if (ctxt instanceof DeserializationContext) {
+            deserializationContext = (DeserializationContext) ctxt;
+        }
+        if ((_allowedSubtypes != null) && (deserializationContext != null)
+                && deserializationContext.isEnabled(
+                        DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED)) {
+            if (!_allowedSubtypes.contains(id)) {
+                throw deserializationContext.invalidTypeIdException(_baseType, id,
+"`DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED` is enabled and the input class is not registered using `@JsonSubTypes` annotation");
             }
-            // ... meaning that we really should never get here.
+        }
+        final JavaType t = ctxt.resolveAndValidateSubType(_baseType, id, _subTypeValidator);
+        if (t == null && deserializationContext != null) {
+            return deserializationContext.handleUnknownTypeId(_baseType, id, this, "no such class found");
         }
         return t;
     }

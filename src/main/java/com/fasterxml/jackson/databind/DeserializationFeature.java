@@ -253,7 +253,7 @@ public enum DeserializationFeature implements ConfigFeature
     FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY(true),
 
     /**
-     * Feature that determines behaviour for data-binding after binding the root value.
+     * Feature that determines behavior for data-binding after binding the root value.
      * If feature is enabled, one more call to
      * {@link com.fasterxml.jackson.core.JsonParser#nextToken} is made to ensure that
      * no more tokens are found (and if any is found,
@@ -271,6 +271,24 @@ public enum DeserializationFeature implements ConfigFeature
      * @since 2.9
      */
     FAIL_ON_TRAILING_TOKENS(false),
+
+    /**
+     * Feature that determines behavior when deserializing polymorphic types that use
+     * Class-based Type Id mechanism (either
+     * {@code JsonTypeInfo.Id.CLASS} or {@code JsonTypeInfo.Id.MINIMAL_CLASS}):
+     * If enabled, an exception will be
+     * thrown if a subtype (Class) is encountered that has not been explicitly registered (by
+     * calling {@link ObjectMapper#registerSubtypes} or
+     * {@link com.fasterxml.jackson.annotation.JsonSubTypes}).
+     *<p>
+     * Note that for Type Name - based Type Id mechanism ({@code JsonTypeInfo.Id.NAME})
+     * you already need to register the subtypes but with so this feature has no effect.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 2.19
+     */
+    FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED(false),
 
     /**
      * Feature that determines whether Jackson code should catch

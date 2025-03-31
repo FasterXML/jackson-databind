@@ -765,7 +765,17 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         if (nt == JsonParser.NumberTypeFP.BIG_DECIMAL) {
             return _fromBigDecimal(ctxt, nodeFactory, p.getDecimalValue());
         }
-        if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+
+        // [databind#4801] Add JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS
+        DatatypeFeatures dtf = ctxt.getDatatypeFeatures();
+        boolean useBigDecimal;
+        if (dtf.isExplicitlySet(JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+            useBigDecimal = dtf.isEnabled(JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        } else {
+            useBigDecimal = ctxt.getConfig().isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        }
+
+        if (useBigDecimal) {
             // [databind#4194] Add an option to fail coercing NaN to BigDecimal
             // Currently, Jackson 2.x allows such coercion, but Jackson 3.x will not
             if (p.isNaN()) {

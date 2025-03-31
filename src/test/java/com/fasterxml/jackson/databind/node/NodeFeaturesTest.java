@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
+import java.math.BigDecimal;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
@@ -156,4 +158,56 @@ public class NodeFeaturesTest extends DatabindTestUtil
     /* Other features
     /**********************************************************************
      */
+
+    // [databind#4801] USE_BIG_DECIMAL_FOR_FLOATS
+    @Test
+    public void testBigDecimalForJsonNodeFeature() throws Exception {
+        final String JSON = "0.1234567890123456789012345678912345"; // Precision-sensitive
+
+        BigDecimal expectedBigDecimal = new BigDecimal("0.1234567890123456789012345678912345"); // Full precision
+        BigDecimal expectedDoubleLossy = new BigDecimal("0.12345678901234568"); // Precision loss
+
+        ObjectMapper mapper;
+
+        // Case 1: Both enabled → Should use BigDecimal
+        mapper = JsonMapper.builder()
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .enable(JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .build();
+        assertEquals(expectedBigDecimal, mapper.readTree(JSON).decimalValue());
+
+        // Case 2: Global enabled, JsonNodeFeature disabled → Should use Double (truncated decimal)
+        mapper = JsonMapper.builder()
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .disable(JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .build();
+        assertEquals(expectedDoubleLossy, mapper.readTree(JSON).decimalValue());
+
+        // Case 3: Global enabled, JsonNodeFeature undefined → Should use BigDecimal (default to global)
+        mapper = JsonMapper.builder()
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .build();
+        assertEquals(expectedBigDecimal, mapper.readTree(JSON).decimalValue());
+
+        // Case 4: Global disabled, JsonNodeFeature enabled → Should use BigDecimal
+        mapper = JsonMapper.builder()
+                .disable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .enable(JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .build();
+        assertEquals(expectedBigDecimal, mapper.readTree(JSON).decimalValue());
+
+        // Case 5: Both disabled → Should use Double (truncated decimal)
+        mapper = JsonMapper.builder()
+                .disable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .disable(JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .build();
+        assertEquals(expectedDoubleLossy, mapper.readTree(JSON).decimalValue());
+
+        // Case 6: Global disabled, JsonNodeFeature undefined → Should use Double (default to global, truncated decimal)
+        mapper = JsonMapper.builder()
+                .disable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .build();
+        assertEquals(expectedDoubleLossy, mapper.readTree(JSON).decimalValue());
+    }
+
 }

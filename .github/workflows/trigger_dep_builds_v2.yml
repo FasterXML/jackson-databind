@@ -29,6 +29,7 @@ jobs:
           - 'FasterXML/jackson-jaxrs-providers'
           - 'FasterXML/jackson-jakarta-rs-providers'
           - 'FasterXML/jackson-integration-tests'
+          - 'FasterXML/jackson-benchmarks'
 
     steps:
       - name: Repository dispatch

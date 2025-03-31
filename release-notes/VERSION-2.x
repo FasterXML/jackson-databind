@@ -76,6 +76,8 @@ Project: jackson-databind
   failure of `java.util.Optional` (de)serialization without Java 8 module
 #5014: Add `java.lang.Runnable` as unsafe base type in `DefaultBaseTypeLimitingValidator`
 #5020: Support new `@JsonProperty.isRequired` for overridable definition of "required-ness"
+#5027: Add `DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED`
+ (contributed by @pjfanning)
 #5052: Minor bug in `FirstCharBasedValidator.forFirstNameRule()`: returns `null`
   in non-default case
 

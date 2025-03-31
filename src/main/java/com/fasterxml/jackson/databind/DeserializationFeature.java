@@ -273,11 +273,16 @@ public enum DeserializationFeature implements ConfigFeature
     FAIL_ON_TRAILING_TOKENS(false),
 
     /**
-     * Feature that determines behavior when deserializing polymorphic types of
-     * Id.CLASS or Id.MINIMAL_CLASS type if the subtype is not explicitly registered.
-     * For types like Id.NAME, you already need to declare the subtypes but with
-     * Id.CLASS and Id.MINIMAL_CLASS you do not. If enabled, an exception will be
-     * thrown if a subtype is encountered that has not been explicitly registered.
+     * Feature that determines behavior when deserializing polymorphic types that use
+     * Class-based Type Id mechanism (either
+     * {@code JsonTypeInfo.Id.CLASS} or {@code JsonTypeInfo.Id.MINIMAL_CLASS}):
+     * If enabled, an exception will be
+     * thrown if a subtype (Class) is encountered that has not been explicitly registered (by
+     * calling {@link ObjectMapper#registerSubtypes} or
+     * {@link com.fasterxml.jackson.annotation.JsonSubTypes}).
+     *<p>
+     * Note that for Type Name - based Type Id mechanism ({@code JsonTypeInfo.Id.NAME})
+     * you already need to register the subtypes but with so this feature has no effect.
      *<p>
      * Feature is disabled by default.
      *

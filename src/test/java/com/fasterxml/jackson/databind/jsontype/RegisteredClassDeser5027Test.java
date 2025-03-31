@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.jsontype;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -11,8 +11,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PolymorphicIdClassDeserTest extends DatabindTestUtil {
-
+// For [databind#5027]
+public class RegisteredClassDeser5027Test extends DatabindTestUtil
+{
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     @JsonSubTypes({@JsonSubTypes.Type(value = FooClassImpl.class)})
     static abstract class FooClass { }

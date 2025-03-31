@@ -27,6 +27,9 @@ public class ClassNameIdResolver
 
     protected final PolymorphicTypeValidator _subTypeValidator;
 
+    /**
+     * @since 2.19 (to support {@code DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED})
+     */
     protected final Set<String> _allowedSubtypes;
 
     /**
@@ -54,13 +57,16 @@ public class ClassNameIdResolver
             Collection<NamedType> subtypes, PolymorphicTypeValidator ptv) {
         super(baseType, typeFactory);
         _subTypeValidator = ptv;
-        Set<String> allowedSubtypes = new HashSet<>();
+        Set<String> allowedSubtypes = null;
         if (subtypes != null) {
             for (NamedType t : subtypes) {
+                if (allowedSubtypes == null) {
+                    allowedSubtypes = new HashSet<>();                    
+                }
                 allowedSubtypes.add(t.getType().getName());
             }
         }
-        _allowedSubtypes = allowedSubtypes; 
+        _allowedSubtypes = (allowedSubtypes == null) ? Collections.emptySet() : allowedSubtypes; 
     }
 
     /**

@@ -446,11 +446,14 @@ public enum MapperFeature
     APPLY_DEFAULT_VALUES(true),
 
     /**
-     * Feature that determines whether {@link ObjectWriter} and {@link ObjectWriter} unwraps
-     * the root cause of exception before wrapping with Jackson exceptions.
+     * Feature that determines whether Jackson handlers unwrap the root cause of
+     * caught exceptions in cases where root cause is wrapped in a Jackson exception
+     * type ({@link tools.jackson.core.JacksonException} or subtype).
      *<p>
-     * This is useful to keep the stack trace of the original exception, when customized
-     * exceptions are thrown in extension points such as setter, constructor, creator, etc.
+     * Unwrapping has the benefit of reducing depth of Exception nesting, but will lose
+     * information about intermediate {@code Exception}s (if any).
+     * Conversely disabling unwrapping has benefit of keeping the full stack trace,
+     * including possible customized exceptions.
      *<p>
      * Feature is enabled by default.
      */

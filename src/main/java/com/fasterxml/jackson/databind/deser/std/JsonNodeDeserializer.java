@@ -768,12 +768,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
 
         // [databind#4801] Add JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS
         DatatypeFeatures dtf = ctxt.getDatatypeFeatures();
-        boolean useBigDecimal;
-        if (dtf.isExplicitlySet(JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-            useBigDecimal = dtf.isEnabled(JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS);
-        } else {
-            useBigDecimal = ctxt.getConfig().isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
-        }
+        Boolean dtfState = dtf.getExplicitState(JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        boolean useBigDecimal = (dtfState == null) // not explicitly set
+                ? ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                    : dtfState.booleanValue();
 
         if (useBigDecimal) {
             // [databind#4194] Add an option to fail coercing NaN to BigDecimal

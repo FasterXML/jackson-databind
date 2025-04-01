@@ -81,7 +81,6 @@ public enum JsonNodeFeature implements DatatypeFeature
      */
     FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION(false),
 
-
     /**
      * Determines whether floating-point numbers should be deserialized into
      * {@link java.math.BigDecimal} when reading {@link com.fasterxml.jackson.databind.JsonNode}s.
@@ -98,7 +97,8 @@ public enum JsonNodeFeature implements DatatypeFeature
      * </ul>
      *
      * <p>
-     * Default value: undefined (relies on {@code DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS}).
+     * Default value is {@code false} but unless explicitly set, handling
+     * depends on more general {@code DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS}).
      *
      * @since 2.19
      */

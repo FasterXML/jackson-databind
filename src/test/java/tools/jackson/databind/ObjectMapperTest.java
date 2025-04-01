@@ -234,18 +234,17 @@ public class ObjectMapperTest extends DatabindTestUtil
     @Test
     public void testDataInputViaMapper() throws Exception
     {
-        byte[] src = "{\"a\":1}".getBytes(StandardCharsets.UTF_8);
-        DataInput input = new MockDataInput(src);
+        DataInput input = new MockDataInput("{\"a\":1, \"b\":[1, 2, 3]}");
         Map<String,Object> map = (Map<String,Object>) MAPPER.readValue(input, Map.class);
         assertEquals(Integer.valueOf(1), map.get("a"));
 
-        input = new MockDataInput(src);
+        input = new MockDataInput("{\"a\":1, \"b\": [1, true]}");
         // and via ObjectReader
         map = MAPPER.readerFor(Map.class)
                 .readValue(input);
         assertEquals(Integer.valueOf(1), map.get("a"));
 
-        input = new MockDataInput(src);
+        input = new MockDataInput("{\"a\":1, \"b\": [\"abc\"]}");
         JsonNode n = MAPPER.readerFor(Map.class)
                 .readTree(input);
         assertNotNull(n);

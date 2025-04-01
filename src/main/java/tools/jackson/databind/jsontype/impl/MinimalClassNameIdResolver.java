@@ -1,11 +1,16 @@
 package tools.jackson.databind.jsontype.impl;
 
+import java.util.Collection;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
+import tools.jackson.databind.type.TypeFactory;
 
 /**
  * Specialization of {@link ClassNameIdResolver} that instead uses a
@@ -30,9 +35,10 @@ public class MinimalClassNameIdResolver
     protected final String _basePackagePrefix;
 
     protected MinimalClassNameIdResolver(JavaType baseType,
+            Collection<NamedType> subtypes,
             PolymorphicTypeValidator ptv)
     {
-        super(baseType, ptv);
+        super(baseType, subtypes, ptv);
         String base = baseType.getRawClass().getName();
         int ix = base.lastIndexOf('.');
         if (ix < 0) { // can this ever occur?
@@ -45,8 +51,9 @@ public class MinimalClassNameIdResolver
     }
 
     public static MinimalClassNameIdResolver construct(JavaType baseType,
+            Collection<NamedType> subtypes,
             PolymorphicTypeValidator ptv) {
-        return new MinimalClassNameIdResolver(baseType, ptv);
+        return new MinimalClassNameIdResolver(baseType, subtypes, ptv);
     }
 
     @Override

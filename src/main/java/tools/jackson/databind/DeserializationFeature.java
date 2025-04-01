@@ -217,7 +217,7 @@ public enum DeserializationFeature implements ConfigFeature
       * bound to parameters of Creator method (constructor or static factory method))
       * are bound to null values - either from the JSON or as a default value. This
       * is useful if you want to avoid nulls in your codebase, and particularly useful
-      * if you are using Java or Scala optionals for non-mandatory fields.
+      * if you are using Java or Scala {@code Optional}s for non-mandatory fields.
       * Feature is disabled by default, so that no exception is thrown for missing creator
       * property values, unless they are explicitly marked as `required`.
       */
@@ -228,7 +228,7 @@ public enum DeserializationFeature implements ConfigFeature
      * {@link com.fasterxml.jackson.annotation.JsonTypeInfo.As#EXTERNAL_PROPERTY} is missing,
      * but associated type id is available. If enabled, a {@link DatabindException} is always
      * thrown when property value is missing (if type id does exist);
-     * if disabled, exception is only thrown if property is marked as `required`.
+     * if disabled, exception is only thrown if property is marked as {@code required}.
      *<p>
      * Feature is enabled by default, so that exception is thrown when a subtype property is
      * missing.
@@ -243,10 +243,15 @@ public enum DeserializationFeature implements ConfigFeature
      * {@link tools.jackson.databind.exc.MismatchedInputException} is thrown); if
      * disabled, no further checks are made.
      *<p>
-     * Feature could alternatively be called <code>READ_FULL_STREAM</code>, since it
+     * Feature could alternatively be called {@code READ_FULL_STREAM}, since it
      * effectively verifies that input stream contains only as much data as is needed
      * for binding the full value, and nothing more (except for possible ignorable
      * white space or comments, if supported by data format).
+     *<p>
+     * NOTE: this feature should usually be disabled when reading from
+     * {@link java.io.DataInput}, since it cannot detect end-of-input efficiently
+     * (but by throwing an {@link java.io.IOException}). Disabling is NOT done
+     * automatically by Jackson: users are recommended to disable it.
      *<p>
      * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
      */

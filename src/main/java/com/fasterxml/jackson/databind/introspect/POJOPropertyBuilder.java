@@ -936,6 +936,8 @@ public class POJOPropertyBuilder
     /**
      * @param inferMutators Whether mutators can be "pulled in" by visible
      *    accessors or not.
+     * @param parent (nullable) Collector to add name ignorals to, if that is
+     *    desired.
      *
      * @since 2.12 (earlier had different signature)
      */

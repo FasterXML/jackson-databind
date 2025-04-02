@@ -7,10 +7,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
-import tools.jackson.databind.type.TypeFactory;
 
 /**
  * Specialization of {@link ClassNameIdResolver} that instead uses a

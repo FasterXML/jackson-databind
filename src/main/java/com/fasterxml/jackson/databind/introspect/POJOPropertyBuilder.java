@@ -955,9 +955,11 @@ public class POJOPropertyBuilder
             // [databind#2719]: Need to add ignorals, first, keeping in mind
             // we have not yet resolved explicit names, so include implicit
             // and possible explicit names
-            parent._collectIgnorals(getName());
-            for (PropertyName pn : findExplicitNames()) {
-                parent._collectIgnorals(pn.getSimpleName());
+            if (parent != null) {
+                parent._collectIgnorals(getName());
+                for (PropertyName pn : findExplicitNames()) {
+                    parent._collectIgnorals(pn.getSimpleName());
+                }
             }
             // Remove setters, creators for sure, but fields too if deserializing
             _setters = null;

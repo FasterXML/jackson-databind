@@ -35,7 +35,7 @@ public class PotentialCreator
      * Parameter definitions if (and only if) this represents a
      * Property-based Creator.
      */
-    private List<BeanPropertyDefinition> propertyDefs;
+    private List<BeanPropertyDefinition> _propertyDefs;
 
     public PotentialCreator(AnnotatedWithParams cr,
             JsonCreator.Mode cm)
@@ -67,7 +67,7 @@ public class PotentialCreator
 
     @SuppressWarnings("unchecked")
     public void assignPropertyDefs(List<? extends BeanPropertyDefinition> propertyDefs) {
-        this.propertyDefs = (List<BeanPropertyDefinition>) propertyDefs;
+        _propertyDefs = (List<BeanPropertyDefinition>) propertyDefs;
     }
 
     public PotentialCreator introspectParamNames(MapperConfig<?> config)
@@ -214,10 +214,10 @@ public class PotentialCreator
     }
 
     public BeanPropertyDefinition[] propertyDefs() {
-        if (propertyDefs == null || propertyDefs.isEmpty()) {
+        if (_propertyDefs == null || _propertyDefs.isEmpty()) {
             return new BeanPropertyDefinition[0];
         }
-        return propertyDefs.toArray(new BeanPropertyDefinition[propertyDefs.size()]);
+        return _propertyDefs.toArray(new BeanPropertyDefinition[_propertyDefs.size()]);
     }
 
     /*

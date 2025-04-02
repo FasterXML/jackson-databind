@@ -933,14 +933,11 @@ public class POJOPropertyBuilder
         _ctorParameters = _removeIgnored(_ctorParameters);
     }
 
-    @Deprecated // since 2.12
-    public JsonProperty.Access removeNonVisible(boolean inferMutators) {
-        return removeNonVisible(inferMutators, null);
-    }
-
     /**
      * @param inferMutators Whether mutators can be "pulled in" by visible
      *    accessors or not.
+     * @param parent (nullable) Collector to add name ignorals to, if that is
+     *    desired.
      *
      * @since 2.12 (earlier had different signature)
      */

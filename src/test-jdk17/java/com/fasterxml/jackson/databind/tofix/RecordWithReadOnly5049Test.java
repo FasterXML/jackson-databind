@@ -37,9 +37,9 @@ public class RecordWithReadOnly5049Test extends DatabindTestUtil
     @Test
     void testRoundtripRecord() throws Exception
     {
-        String json = MAPPER.writeValueAsString(new ReadOnly5049Record("hello", "world"));
-        //System.err.println("JSON/record: "+json);
-        ReadOnly5049Record record = MAPPER.readerFor(ReadOnly5049Record.class).readValue(json);
+        // json = MAPPER.writeValueAsString(new ReadOnly5049Record("hello", "world"));
+        String json = "{\"a\":\"hello\",\"b\":\"world\"}";
+        ReadOnly5049Record record = MAPPER.readValue(json, ReadOnly5049Record.class);
         assertNotNull(record);
         assertNull(record.a());
         assertNull(record.b());

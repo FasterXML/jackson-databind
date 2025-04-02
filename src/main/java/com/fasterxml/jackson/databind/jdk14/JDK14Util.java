@@ -23,6 +23,9 @@ import com.fasterxml.jackson.databind.util.NativeImageUtil;
  * without Jackson itself being run on (or even built with) Java 14.
  * In particular allows better support of {@code java.lang.Record}
  * types (see <a href="https://openjdk.java.net/jeps/359">JEP 359</a>).
+ *<p>
+ * NOTE: actually Records really in JDK 17. But cannot safely change
+ * name of public class.
  *
  * @since 2.12
  */
@@ -197,7 +200,6 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
 
     }
 
-    @Deprecated // since 2.18
     static class RawTypeName {
         public final Class<?> rawType;
         public final String name;

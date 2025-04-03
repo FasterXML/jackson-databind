@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
@@ -530,7 +531,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
     {
         // 13-Jan-2024, tatu: With 2.17 we have `JsonParser.getNumberTypeFP()` which
         //   will return concrete FP type if format has one (JSON doesn't; most binary
-        //   formats do.
+        //   formats do).
         //   But with `DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS` we have mechanism
         //   that may override optimal physical representation. So heuristics to use are:
         //
@@ -548,7 +549,14 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
             }
             return nodeFactory.numberNode(nr);
         }
-        if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+        // [databind#4801] Add JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS
+        DatatypeFeatures dtf = ctxt.getDatatypeFeatures();
+        Boolean dtfState = dtf.getExplicitState(JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        boolean useBigDecimal = (dtfState == null) // not explicitly set
+                ? ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                    : dtfState.booleanValue();
+
+        if (useBigDecimal) {
             // [databind#4194] Add an option to fail coercing NaN to BigDecimal
             // Currently, Jackson 2.x allows such coercion, but Jackson 3.x will not
             if (p.isNaN()) {

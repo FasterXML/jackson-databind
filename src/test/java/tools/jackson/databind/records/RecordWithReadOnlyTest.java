@@ -17,7 +17,7 @@ public class RecordWithReadOnlyTest extends DatabindTestUtil {
     }
 
     record RecordWithReadOnlyNamedProperty(int id,
-                                           @JsonProperty(value = "name", access = Access.READ_ONLY) String name) {
+            @JsonProperty(value = "name", access = Access.READ_ONLY) String name) {
     }
 
     record RecordWithReadOnlyAccessor(int id, String name) {
@@ -29,8 +29,9 @@ public class RecordWithReadOnlyTest extends DatabindTestUtil {
         }
     }
 
-    record RecordWithReadOnlyComponentOverriddenAccessor(int id, @JsonProperty(access = Access.READ_ONLY) String name) {
-
+    record RecordWithReadOnlyComponentOverriddenAccessor(int id,
+            @JsonProperty(access = Access.READ_ONLY) String name)
+    {
         // @JsonProperty on overridden method is not automatically inherited by overriding method
         @Override
         public String name() {
@@ -88,12 +89,14 @@ public class RecordWithReadOnlyTest extends DatabindTestUtil {
     }
 
     /**
-     * Currently documents a bug where a property was NOT ignored during deserialization if given an explicit name.
+     * Currently documents a bug where a property was NOT ignored during deserialization
+     * if given an explicit name.
      * Also reproducible in 2.14.x.
      */
     @Test
     public void testDeserializeReadOnlyNamedProperty() throws Exception {
-        RecordWithReadOnlyNamedProperty value = MAPPER.readValue(a2q("{'id':123,'name':'Bob'}"), RecordWithReadOnlyNamedProperty.class);
+        RecordWithReadOnlyNamedProperty value = MAPPER.readValue(a2q("{'id':123,'name':'Bob'}"),
+                RecordWithReadOnlyNamedProperty.class);
         assertEquals(new RecordWithReadOnlyNamedProperty(123, "Bob"), value); // BUG: should be `null` instead of "Bob"
     }
 
@@ -120,7 +123,8 @@ public class RecordWithReadOnlyTest extends DatabindTestUtil {
 
     /*
     /**********************************************************************
-    /* Test methods, JsonProperty.access=READ_ONLY component, but accessor method was overridden without re-annotating with JsonProperty.access=READ_ONLY
+    /* Test methods, JsonProperty.access=READ_ONLY component, but accessor
+     * method was overridden without re-annotating with JsonProperty.access=READ_ONLY
     /**********************************************************************
      */
 
@@ -153,7 +157,8 @@ public class RecordWithReadOnlyTest extends DatabindTestUtil {
 
     @Test
     public void testDeserializeReadOnlyPrimitiveTypeProperty() throws Exception {
-        RecordWithReadOnlyPrimitiveType value = MAPPER.readValue(a2q("{'id':123,'name':'Bob'}"), RecordWithReadOnlyPrimitiveType.class);
+        RecordWithReadOnlyPrimitiveType value = MAPPER.readValue(a2q("{'id':123,'name':'Bob'}"),
+                RecordWithReadOnlyPrimitiveType.class);
         assertEquals(new RecordWithReadOnlyPrimitiveType(0, "Bob"), value);
     }
 
@@ -171,7 +176,8 @@ public class RecordWithReadOnlyTest extends DatabindTestUtil {
 
     @Test
     public void testDeserializeReadOnlyAllProperties() throws Exception {
-        RecordWithReadOnlyAll value = MAPPER.readValue(a2q("{'id':123,'name':'Bob'}"), RecordWithReadOnlyAll.class);
+        RecordWithReadOnlyAll value = MAPPER.readValue(a2q("{'id':123,'name':'Bob'}"),
+                RecordWithReadOnlyAll.class);
         assertEquals(new RecordWithReadOnlyAll(0, null), value);
     }
 
@@ -183,7 +189,8 @@ public class RecordWithReadOnlyTest extends DatabindTestUtil {
 
     @Test
     public void testDeserializeReadOnlyAllProperties_WithNoArgConstructor() throws Exception {
-        RecordWithReadOnlyAllAndNoArgConstructor value = MAPPER.readValue(a2q("{'id':123,'name':'Bob'}"), RecordWithReadOnlyAllAndNoArgConstructor.class);
+        RecordWithReadOnlyAllAndNoArgConstructor value = MAPPER.readValue(a2q("{'id':123,'name':'Bob'}"),
+                RecordWithReadOnlyAllAndNoArgConstructor.class);
         assertEquals(new RecordWithReadOnlyAllAndNoArgConstructor(0, null), value);
     }
 }

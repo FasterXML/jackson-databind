@@ -36,7 +36,7 @@ public class DefaultAccessorNamingStrategy
          * @param basename Full base name (after removing prefix)
          * @param offset Length of prefix removed
          *
-         * @return {@ocode true} if base name is acceptable; {@code false} otherwise
+         * @return {@code true} if base name is acceptable; {@code false} otherwise
          */
         public boolean accept(char firstChar, String basename, int offset);
     }

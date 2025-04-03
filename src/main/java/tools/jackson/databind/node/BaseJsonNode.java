@@ -32,6 +32,9 @@ public abstract class BaseJsonNode
 {
     private static final long serialVersionUID = 3L;
 
+    protected final static Optional<Boolean> OPT_FALSE = Optional.of(false);
+    protected final static Optional<Boolean> OPT_TRUE = Optional.of(true);
+
     // Simplest way is by using a helper
     Object writeReplace() {
         return NodeSerialization.from(this);
@@ -86,12 +89,19 @@ public abstract class BaseJsonNode
 
     @Override
     public int asInt() {
-        return asInt(0);
+        return _reportCoercionFail("asInt()", Integer.TYPE, "value type not numeric");
     }
 
     @Override
     public int asInt(int defaultValue) {
+        // Overridden by NumericNode, for other types return default
         return defaultValue;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalInt.empty();
     }
 
     @Override
@@ -113,17 +123,53 @@ public abstract class BaseJsonNode
 
     @Override
     public long asLong() {
-        return asLong(0L);
+        return _reportCoercionFail("asLong()", Long.TYPE, "value type not numeric");
     }
 
     @Override
     public long asLong(long defaultValue) {
+        // Overridden by NumericNode, for other types return default
         return defaultValue;
+    }
+
+    @Override
+    public OptionalLong asLongOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalLong.empty();
     }
 
     @Override
     public BigInteger bigIntegerValue() {
         return _reportCoercionFail("bigIntegerValue()", BigInteger.class, "value type not numeric");
+    }
+
+    @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() {
+        // Overridden by NumericNode, for other types return default
+        return Optional.empty();
+    }
+
+    @Override
+    public BigInteger asBigInteger() {
+        return _reportCoercionFail("asBigInteger()", BigInteger.class, "value type not numeric");
+    }
+
+    @Override
+    public BigInteger asBigInteger(BigInteger defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<BigInteger> asBigIntegerOpt() {
+        // Overridden by NumericNode, for other types return default
+        return Optional.empty();
     }
 
     @Override
@@ -150,14 +196,21 @@ public abstract class BaseJsonNode
 
     @Override
     public double asDouble() {
-        return asDouble(0.0);
+        return _reportCoercionFail("asDouble()", Double.TYPE, "value type not numeric");
     }
 
     @Override
     public double asDouble(double defaultValue) {
+        // Overridden by NumericNode, for other types return default
         return defaultValue;
     }
-    
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        // Overridden by NumericNode, for other types return default
+        return OptionalDouble.empty();
+    }
+
     @Override
     public BigDecimal decimalValue() {
         return _reportCoercionFail("decimalValue()", BigDecimal.class, "value type not numeric");
@@ -171,18 +224,26 @@ public abstract class BaseJsonNode
 
     @Override
     public Optional<BigDecimal> decimalValueOpt() {
+        // Overridden by NumericNode, for other types return default
         return Optional.empty();
     }
 
     @Override
     public BigDecimal asDecimal() {
-        return asDecimal(BigDecimal.ZERO);
+        return _reportCoercionFail("asDecimal()", BigDecimal.class,
+                "value type not coercible to `BigDecimal`");
     }
-    
+
     @Override
     public BigDecimal asDecimal(BigDecimal defaultValue) {
-        // !!! TODO
-        return decimalValue(defaultValue);
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<BigDecimal> asDecimalOpt() {
+        // Overridden by NumericNode, for other types return default
+        return Optional.empty();
     }
 
     /*
@@ -199,7 +260,8 @@ public abstract class BaseJsonNode
 
     @Override
     public boolean booleanValue() {
-        return _reportCoercionFail("booleanValue()", Boolean.TYPE, "value type not boolean");
+        return _reportCoercionFail("booleanValue()", Boolean.TYPE,
+                "value type not boolean");
     }
 
     @Override
@@ -216,17 +278,36 @@ public abstract class BaseJsonNode
 
     @Override
     public boolean asBoolean() {
-        return asBoolean(false);
+        Boolean b = _asBoolean();
+        if (b == null) {
+            return _reportCoercionFail("asBoolean()", Boolean.TYPE,
+                    "value type not coercible to `boolean`");
+        }
+        return b;
     }
 
     @Override
     public boolean asBoolean(boolean defaultValue) {
-        return defaultValue;
+        Boolean b = _asBoolean();
+        if (b == null) {
+            return defaultValue;
+        }
+        return b;
+    }
+
+    @Override
+    public Optional<Boolean> asBooleanOpt() {
+        Boolean b = _asBoolean();
+        if (b == null) {
+            return Optional.empty();
+        }
+        return b.booleanValue() ? OPT_TRUE : OPT_FALSE;
     }
 
     @Override
     public String stringValue() {
-        return _reportCoercionFail("stringValue()", String.class, "value type not String");
+        return _reportCoercionFail("stringValue()", String.class,
+                "value type not String");
     }
 
     @Override
@@ -242,9 +323,27 @@ public abstract class BaseJsonNode
     }
 
     @Override
+    public String asString() {
+        String str = _asString();
+        if (str == null) {
+            return _reportCoercionFail("asString()", String.class,
+                    "value type not coercible to `String`");
+        }
+        return str;
+    }
+
+    @Override
     public String asString(String defaultValue) {
-        String str = asString();
-        return (str == null) ? defaultValue : str;
+        String str = _asString();
+        if (str == null) {
+            return defaultValue;
+        }
+        return str;
+    }
+
+    @Override
+    public Optional<String> asStringOpt() {
+        return Optional.ofNullable(_asString());
     }
 
     /*
@@ -264,7 +363,8 @@ public abstract class BaseJsonNode
     }
 
     // Also, force (re)definition
-    @Override public abstract int hashCode();
+    @Override
+    public abstract int hashCode();
 
     /*
     /**********************************************************************
@@ -419,6 +519,36 @@ public abstract class BaseJsonNode
 
     /*
     /**********************************************************************
+    /* asXxx() helper methods for sub-classes to implement
+    /**********************************************************************
+     */
+
+    /**
+     * Method sub-classes should override if they can produce {@code boolean}
+     * values via {@link #asBoolean()} -- if not, return {@code null} (in which
+     * case appropriate error will be thrown or default value returned).
+     *
+     * @return Coerced value if possible; otherwise {@code null} to indicate this
+     *     node cannot be coerced.
+     */
+    protected Boolean _asBoolean() {
+        return null;
+    }
+
+    /**
+     * Method sub-classes should override if they can produce {@code String}
+     * values via {@link #asString()} -- if not, return {@code null} (in which
+     * case appropriate error will be thrown or default value returned).
+     *
+     * @return Coerced value if possible; otherwise {@code null} to indicate this
+     *     node cannot be coerced.
+     */
+    protected String _asString() {
+        return null;
+    }
+
+    /*
+    /**********************************************************************
     /* JacksonSerializable
     /**********************************************************************
      */
@@ -512,6 +642,26 @@ public abstract class BaseJsonNode
     protected BigInteger _reportBigIntegerCoercionFractionFail(String method) {
         return _reportCoercionFail(method, BigInteger.class,
                 "value has fractional part");
+    }
+
+    protected int _reportIntCoercionNaNFail(String method) {
+        return _reportCoercionFail(method, Integer.TYPE,
+                "value non-Finite ('NaN')");
+    }
+
+    protected long _reportLongCoercionNaNFail(String method) {
+        return _reportCoercionFail(method, Long.TYPE,
+                "value non-Finite ('NaN')");
+    }
+
+    protected BigInteger _reportBigIntegerCoercionNaNFail(String method) {
+        return _reportCoercionFail(method, BigInteger.class,
+                "value non-Finite ('NaN')");
+    }
+    
+    protected BigDecimal _reportBigDecimalCoercionNaNFail(String method) {
+        return _reportCoercionFail(method, BigDecimal.class,
+                "value non-Finite ('NaN')");
     }
 
     /**

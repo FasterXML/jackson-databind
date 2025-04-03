@@ -382,22 +382,22 @@ public class TestSubtypes extends DatabindTestUtil
     // [databind#2525]
     public void testDeserializationWithDuplicateRegisteredSubtypes() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-            // We can register the same class with different names
-            .registerSubtypes(new NamedType(Sub.class, "sub1"))
-            .registerSubtypes(new NamedType(Sub.class, "sub2"))
-            .build();
+        // We can register the same class with different names
+        .registerSubtypes(new NamedType(Sub.class, "sub1"))
+        .registerSubtypes(new NamedType(Sub.class, "sub2"))
+        .build();
 
-            // fields of a POJO will be deserialized correctly according to their field name
-            POJOWrapper pojoWrapper = mapper.readValue("{\"sub1\":{\"#type\":\"sub1\",\"a\":10},\"sub2\":{\"#type\":\"sub2\",\"a\":50}}", POJOWrapper.class);
-            assertEquals(10, pojoWrapper.sub1.a);
-            assertEquals(50, pojoWrapper.sub2.a);
+        // fields of a POJO will be deserialized correctly according to their field name
+        POJOWrapper pojoWrapper = mapper.readValue("{\"sub1\":{\"#type\":\"sub1\",\"a\":10},\"sub2\":{\"#type\":\"sub2\",\"a\":50}}", POJOWrapper.class);
+        assertEquals(10, pojoWrapper.sub1.a);
+        assertEquals(50, pojoWrapper.sub2.a);
 
-            // Instances of the same object can be deserialized with multiple names
-            SuperTypeWithoutDefault sub1 = mapper.readValue("{\"#type\":\"sub1\", \"a\":20}", SuperTypeWithoutDefault.class);
-            assertSame(Sub.class, sub1.getClass());
-            assertEquals(20, ((Sub) sub1).a);
-            SuperTypeWithoutDefault sub2 = mapper.readValue("{\"#type\":\"sub2\", \"a\":30}", SuperTypeWithoutDefault.class);
-            assertSame(Sub.class, sub2.getClass());
-            assertEquals(30, ((Sub) sub2).a);
-        }
+        // Instances of the same object can be deserialized with multiple names
+        SuperTypeWithoutDefault sub1 = mapper.readValue("{\"#type\":\"sub1\", \"a\":20}", SuperTypeWithoutDefault.class);
+        assertSame(Sub.class, sub1.getClass());
+        assertEquals(20, ((Sub) sub1).a);
+        SuperTypeWithoutDefault sub2 = mapper.readValue("{\"#type\":\"sub2\", \"a\":30}", SuperTypeWithoutDefault.class);
+        assertSame(Sub.class, sub2.getClass());
+        assertEquals(30, ((Sub) sub2).a);
+    }
 }

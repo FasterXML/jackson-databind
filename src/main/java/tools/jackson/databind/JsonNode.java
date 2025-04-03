@@ -584,26 +584,34 @@ public abstract class JsonNode
     }
 
     /**
-     * Method that will return a valid String representation of
-     * the contained value, if the node is a value node
-     * (method {@link #isValueNode} returns true),
-     * otherwise empty String.
+     * Method that will try to convert value of this node to a {@code String}.
+     * JSON Strings map naturally; other scalars map to their string representation
+     * (including Binary data as Base64 encoded String);
+     * JSON {@code null}s map to empty String.
+     * Other values (including structured types like Objects and Arrays, and "missing"
+     * value) will result in a {@link JsonNodeException} being thrown.
      *<p>
      * NOTE: this is NOT same as {@link #toString()} in that result is
-     * <p>NOT VALID ENCODED JSON</p> for all nodes (but is for some, like
+     * <p>NOT VALID ENCODED JSON</p> for all nodes (although is for some, like
      * {@code NumberNode}s and {@code BooleanNode}s).
+     *
+     * @return String representation of this node, if coercible; exception otherwise
+     *
+     * @throws JsonNodeException if node cannot be coerced to a {@code String}
      */
     public abstract String asString();
 
     /**
-     * Returns the text value of this node or the provided {@code defaultValue} if this node
-     * does not have a text value. Useful for nodes that are {@link MissingNode} or
-     * {@link tools.jackson.databind.node.NullNode}, ensuring a default value is returned instead of null or missing indicators.
-     *
-     * @param defaultValue The default value to return if this node's text value is absent.
-     * @return The text value of this node, or {@code defaultValue} if the text value is absent.
+     * Similar to {@link #asString()}, but instead of throwing an exception for
+     * non-coercible values, will return specified default value.
      */
     public abstract String asString(String defaultValue);
+
+    /**
+     * Similar to {@link #asString()}, but instead of throwing an exception for
+     * non-coercible values, will return {@code Optional.empty()}.
+     */
+    public abstract Optional<String> asStringOpt();
 
     /**
      * @deprecated Use {@link #asString()} instead.
@@ -672,28 +680,30 @@ public abstract class JsonNode
     public abstract Optional<Boolean> booleanValueOpt();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>boolean</b>.
-     * JSON booleans map naturally; integer numbers other than 0 map to true, and
-     * 0 maps to false
+     * Method that will try to convert value of this node to a Java {@code boolean}.
+     * JSON Booleans map naturally; Integer numbers other than 0 map to true, and
+     * 0 maps to false; {@code null} maps to false
      * and Strings 'true' and 'false' map to corresponding values.
-     *<p>
-     * If representation cannot be converted to a boolean value (including structured types
-     * like Objects and Arrays),
-     * default value of <b>false</b> will be returned; no exceptions are thrown.
+     * Other values (including structured types like Objects and Arrays) will
+     * result in a {@link JsonNodeException} being thrown.
+     *
+     * @return Boolean value this node represents, if coercible; exception otherwise
+     *
+     * @throws JsonNodeException if node cannot be coerced to a Java {@code boolean}
      */
     public abstract boolean asBoolean();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>boolean</b>.
-     * JSON booleans map naturally; integer numbers other than 0 map to true, and
-     * 0 maps to false
-     * and Strings 'true' and 'false' map to corresponding values.
-     *<p>
-     * If representation cannot be converted to a boolean value (including structured types
-     * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * Similar to {@link #asBoolean()}, but instead of throwing an exception for
+     * non-coercible values, will return specified default value.
      */
     public abstract boolean asBoolean(boolean defaultValue);
+
+    /**
+     * Similar to {@link #asBoolean()}, but instead of throwing an exception for
+     * non-coercible values, will return {@code Optional.empty()}.
+     */
+    public abstract Optional<Boolean> asBooleanOpt();
 
     // // Scalar access: Numbers, generic
 
@@ -775,28 +785,48 @@ public abstract class JsonNode
     public abstract OptionalInt intValueOpt();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>int</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to an int (including structured types
-     * like Objects and Arrays),
-     * default value of <b>0</b> will be returned; no exceptions are thrown.
+     * Method similar to {@link #intValue()} but in addition to coercing Number
+     * values (same as {@link #intValue()}), will also try to coerce a
+     * couple of additional types (or cases):
+     * <ul>
+     *  <li>JSON Floating-point numbers with fractions (ones without fractions
+     *    are ok for {@link #intValue()}) will be truncated to {@code int}
+     *    (if (and only if) they fit in {@code int} range).
+     *   </li>
+     *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
+     *   </li>
+     *  <li>JSON Null (converted to {@code 0}))
+     *   </li>
+     *  <li>POJO nodes that contain Number values
+     *   </li>
+     * </ul>
+     *
+     * @return {@code int} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to {@code int}
      */
     public abstract int asInt();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>int</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to an int (including structured types
-     * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * Method similar to {@link #intValue()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to {@code int}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to {@code int}
+     *
+     * @return {@code int} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
      */
     public abstract int asInt(int defaultValue);
+
+    /**
+     * Method similar to {@link #asInt()}, but that will return
+     * ({@code OptionalInt.empty()}) if this node cannot
+     * be coerced to {@code int}.
+     *
+     * @return {@link OptionalInt} value this node represents,
+     * if possible to accurately represent; {@code OptionalInt.empty()} otherwise
+     */
+    public abstract OptionalInt asIntOpt();
 
     // // Scalar access: Numbers, Java long
 
@@ -823,11 +853,11 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #longValue()}, but that will return specified
-     * {@code defaultValue} if this node cannot be converted to Java {@code long}.
+     * {@code defaultValue} if this node cannot be converted to {@code long}.
      *
-     * @param defaultValue Value to return if this node cannot be converted to Java {@code long}
+     * @param defaultValue Value to return if this node cannot be converted to {@code long}
      *
-     * @return Java {@code long} value this node represents, if possible to accurately represent;
+     * @return {@code long} value this node represents, if possible to accurately represent;
      *   {@code defaultValue} otherwise
      */
     public abstract long longValue(long defaultValue);
@@ -843,28 +873,49 @@ public abstract class JsonNode
     public abstract OptionalLong longValueOpt();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>long</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to a long (including structured types
-     * like Objects and Arrays),
-     * default value of <b>0</b> will be returned; no exceptions are thrown.
+     * Method similar to {@link #longValue()} but in addition to coercing Number
+     * values (same as {@link #longValue()}), will also try to coerce a
+     * couple of additional types (or cases):
+     * <ul>
+     *  <li>JSON Floating-point numbers with fractions (ones without fractions
+     *    are ok for {@link #longValue()}) will be truncated to {@code long}
+     *    (if (and only if) they fit in {@code long} range).
+     *   </li>
+     *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
+     *   </li>
+     *  <li>JSON Null (converted to {@code 0}))
+     *   </li>
+     *  <li>POJO nodes that contain Number values
+     *   </li>
+     * </ul>
+     *
+     * @return {@code long} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to {@code long}
      */
     public abstract long asLong();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>long</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to a long (including structured types
-     * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * Method similar to {@link #asLong()}, but that will return specified
+     * {@code defaultValue} if this node cannot be coerced to {@code long}
+     * (instead of throwing an exception).
+     *
+     * @param defaultValue Value to return if this node cannot be coerced to {@code long}
+     *
+     * @return {@code long} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
      */
     public abstract long asLong(long defaultValue);
+
+    /**
+     * Method similar to {@link #asLong()}, but that will return
+     * ({@code OptionalLong.empty()}) if this node cannot
+     * be coerced to {@code long}.
+     *
+     * @return {@link OptionalLong} value this node represents (or can be coerced to),
+     *    {@code OptionalLong.empty()} otherwise
+     */
+    public abstract OptionalLong asLongOpt();
 
     // // Scalar access: Numbers, Java BigInteger
 
@@ -886,6 +937,70 @@ public abstract class JsonNode
      * @throws JsonNodeException if node value cannot be converted to Java {@code BigInteger}
      */
     public abstract BigInteger bigIntegerValue();
+
+    /**
+     * Method similar to {@link #bigIntegerValue()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to Java {@code BigInteger}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to Java {@code BigInteger}
+     *
+     * @return Java {@code BigInteger} value this node represents, if possible to accurately represent;
+     *   {@code defaultValue} otherwise
+     */
+    public abstract BigInteger bigIntegerValue(BigInteger defaultValue);
+
+    /**
+     * Method similar to {@link #bigIntegerValue()}, but that will return empty
+     * ({@code Optional.empty()}) if this node cannot
+     * be converted to Java {@code BigInteger}.
+     *
+     * @return Java {@code BigInteger} value this node represents, as {@code Optional<BigInteger>},
+     * if possible to accurately represent; {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<BigInteger> bigIntegerValueOpt();
+
+    /**
+     * Method similar to {@link #bigIntegerValue()} but in addition to coercing Number
+     * values (same as {@link #bigIntegerValue()}), will also try to coerce a
+     * couple of additional types (or cases):
+     * <ul>
+     *  <li>JSON Floating-point numbers with fractions (ones without fractions
+     *    are ok for {@link #bigIntegerValue()}) will be <b>truncated</b> to integer value
+     *    (like with {@link BigDecimal#toBigInteger()}))
+     *   </li>
+     *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
+     *   </li>
+     *  <li>JSON Null (converted to {@code 0}))
+     *   </li>
+     *  <li>POJO nodes that contain Number values
+     *   </li>
+     *  </ul>
+     *
+     * @return {@link BigInteger} value this node represents, if possible to accurately convert;
+     *   {@code defaultValue} otherwise
+     */
+    public abstract BigInteger asBigInteger();
+
+    /**
+     * Method similar to {@link #asBigInteger()}, but that will return specified
+     * {@code defaultValue} if this node cannot be converted to {@link BigInteger}.
+     *
+     * @param defaultValue Value to return if this node cannot be converted to {@link BigInteger}
+     *
+     * @return {@link BigInteger} value this node represents, if possible to accurately convert;
+     *   {@code defaultValue} otherwise
+     */
+    public abstract BigInteger asBigInteger(BigInteger defaultValue);
+
+    /**
+     * Method similar to {@link #bigIntegerValue()}, but that will return empty
+     * ({@code Optional.empty()}) if this node cannot
+     * be converted to Java {@code BigInteger}.
+     *
+     * @return {@link BigInteger} value this node represents, as {@code Optional<BigInteger>},
+     * if possible to accurately represent; {@code Optional.empty()} otherwise.
+     */
+    public abstract Optional<BigInteger> asBigIntegerOpt();
 
     // // Scalar access: Numbers, Java float
 
@@ -911,7 +1026,7 @@ public abstract class JsonNode
     // // Scalar access: Numbers, Java double
 
     /**
-     * Method that will try to access value of this node as a Java {@code double}:
+     * Method that will try to access value of this node as a {@code double}:
      * but if node value cannot be expressed <b>exactly</b> as a {@code double},
      * a {@link JsonNodeException} will be thrown.
      * Access works for following cases:
@@ -926,17 +1041,17 @@ public abstract class JsonNode
      *
      * @return {@code Double} value this node represents, if possible to accurately represent
      *
-     * @throws JsonNodeException if node value cannot be converted to Java {@code double}
+     * @throws JsonNodeException if node value cannot be converted to {@code double}
      */
     public abstract double doubleValue();
 
     /**
      * Method similar to {@link #doubleValue()}, but that will return specified
-     * {@code defaultValue} if this node cannot be converted to Java {@code double}.
+     * {@code defaultValue} if this node cannot be converted to {@code double}.
      *
-     * @param defaultValue Value to return if this node cannot be converted to Java {@code double}
+     * @param defaultValue Value to return if this node cannot be converted to {@code double}
      *
-     * @return Java {@code double} value this node represents, if possible to accurately represent;
+     * @return {@code double} value this node represents, if possible to accurately represent;
      *   {@code defaultValue} otherwise
      */
     public abstract double doubleValue(double defaultValue);
@@ -950,30 +1065,44 @@ public abstract class JsonNode
      * if possible to accurately represent; {@code OptionalDouble.empty()} otherwise
      */
     public abstract OptionalDouble doubleValueOpt();
-    
+
     /**
-     * Method that will try to convert value of this node to a Java <b>double</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * Method similar to {@link #doubleValue()} but in addition to coercing Number
+     * values will also try coerce couple of additional types:
+     * <ul>
+     *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
+     *   </li>
+     *  <li>JSON Null (converted to {@code 0.0d})
+     *   </li>
+     *  <li>POJO nodes that contain Number values
+     *   </li>
+     * </ul>
      *<p>
-     * If representation cannot be converted to an int (including structured types
-     * like Objects and Arrays),
-     * default value of <b>0.0</b> will be returned; no exceptions are thrown.
+     *
+     * @return {@code double} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to {@code double}
      */
     public abstract double asDouble();
 
     /**
-     * Method that will try to convert value of this node to a Java <b>double</b>.
-     * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
-     *<p>
-     * If representation cannot be converted to an int (including structured types
-     * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * Method similar to {@link #asDouble()}, but that will return {@code defaultValue}
+     * if this node cannot be coerced to {@code double}.
+     *
+     * @return {@code double} value this node represents,
+     * if possible to accurately represent; {@code defaultValue} otherwise
      */
     public abstract double asDouble(double defaultValue);
+
+    /**
+     * Method similar to {@link #asDouble()}, but that will return
+     * ({@code OptionalDouble.empty()}) if this node cannot
+     * be coerced to {@code double}.
+     *
+     * @return {@link OptionalDouble} value this node represents,
+     * if possible to accurately represent; {@code OptionalDouble.empty()} otherwise
+     */
+    public abstract OptionalDouble asDoubleOpt();
 
     // // Scalar access: Numbers, Java BigDecimal
 
@@ -1014,9 +1143,49 @@ public abstract class JsonNode
      */
     public abstract Optional<BigDecimal> decimalValueOpt();
 
+    /**
+     * Method that will try to access value of this node as a {@link BigDecimal}:
+     * but if node value cannot be expressed <b>exactly</b> as a {@code BigDecimal},
+     * a {@link JsonNodeException} will be thrown.
+     * Access works for following cases:
+     * <ul>
+     *  <li>JSON Floating-point values (but not "NaN" or "Infinity")
+     *    </li>
+     *  <li>JSON Integer values
+     *   </li>
+     *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
+     *   </li>
+     *  <li>JSON Null (converted to {@link BigDecimal#ZERO}))
+     *   </li>
+     *  <li>POJO nodes that contain Number values
+     *   </li>
+     * </ul>
+     *<p>
+     *
+     * @return {@link BigDecimal} value this node represents, if possible to accurately represent
+     *
+     * @throws JsonNodeException if node value cannot be converted to {@code BigDecimal}
+     */
     public abstract BigDecimal asDecimal();
-    
+
+    /**
+     * Method similar to {@link #asDecimal()}, but that will return {@code defaultValue}
+     * if this node cannot be coerced to Java {@code BigDecimal}.
+     *
+     * @return {@code BigDecimal} value this node represents,
+     * if possible to accurately represent; {@code defaultValue} otherwise
+     */
     public abstract BigDecimal asDecimal(BigDecimal defaultValue);
+
+    /**
+     * Method similar to {@link #asDecimal()}, but that will return empty
+     * {@link Optional} ({@code Optional.empty()}) if this node cannot
+     * be coerced to {@code BigDecimal}.
+     *
+     * @return Java {@code BigDecimal} value this node represents, as {@code Optional<BigDecimal>},
+     * if possible to accurately represent; {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<BigDecimal> asDecimalOpt();
 
     /*
     /**********************************************************************

@@ -9,14 +9,12 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.*;
-import tools.jackson.databind.exc.ValueInstantiationException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NullValueViaCreatorTest
+    extends DatabindTestUtil
 {
     protected static class Container {
         Contained<String> contained;
@@ -120,13 +118,10 @@ public class NullValueViaCreatorTest
     @Test
     public void testCreatorReturningNull()
     {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = newJsonMapper();
+
         String json = "{ \"type\" : \"     \", \"id\" : \"000c0ffb-a0d6-4d2e-a379-4aeaaf283599\" }";
-        try {
-            objectMapper.readValue(json, JsonEntity.class);
-            fail("Should not have succeeded");
-        } catch (ValueInstantiationException e) {
-            verifyException(e, "JSON creator returned null");
-        }
+
+        assertNull(objectMapper.readValue(json, JsonEntity.class));
     }
 }

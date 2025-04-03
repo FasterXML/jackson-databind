@@ -206,13 +206,19 @@ public abstract class PrimitiveArrayDeserializers<T>
     @SuppressWarnings("unchecked")
     protected T handleNonArray(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
-        // Empty String can become null...
-        if (p.hasToken(JsonToken.VALUE_STRING)) {
-            return _deserializeFromString(p, ctxt);
-        }
-        boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
+
+        final boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
+        // 12-Mar-2025, tatu: as per [databind#4650] things get bit tricky with
+        //   single-element wrapping of a String value
+        // Let's still call _deserializeFromString() for empty strings no matter what,
+        // and for all values if wrapping not enabled
+        if (p.hasToken(JsonToken.VALUE_STRING)) {
+            if (!canWrap || _isBlank(p.getString())) {
+                return _deserializeFromString(p, ctxt);
+            }
+        }
         if (canWrap) {
             return handleSingleElementUnwrapped(p, ctxt);
         }

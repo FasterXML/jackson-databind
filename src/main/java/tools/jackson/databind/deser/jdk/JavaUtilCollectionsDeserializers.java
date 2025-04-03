@@ -191,7 +191,16 @@ public abstract class JavaUtilCollectionsDeserializers
         }
 
         @Override
-        public Object convert(Object value) {
+        public Object convert(DeserializationContext ctxt, Object value) {
+            return _convert(value);
+        }
+
+        @Override
+        public Object convert(SerializationContext ctxt, Object value) {
+            return _convert(value);
+        }
+
+        protected Object _convert(Object value) {
             if (value == null) { // is this legal to get?
                 return null;
             }

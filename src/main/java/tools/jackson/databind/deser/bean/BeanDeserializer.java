@@ -26,12 +26,6 @@ import tools.jackson.databind.util.TokenBuffer;
 public class BeanDeserializer
     extends BeanDeserializerBase
 {
-    /**
-     * Lazily constructed exception used as root cause if reporting problem
-     * with creator method that returns <code>null</code> (which is not allowed)
-     */
-    protected transient Exception _nullFromCreator;
-
     // @since 3.0
     protected PropertyNameMatcher _propNameMatcher;
 
@@ -605,14 +599,15 @@ public class BeanDeserializer
                     } catch (Exception e) {
                         bean = wrapInstantiationProblem(e, ctxt);
                     }
-                    if (bean == null) {
-                        return ctxt.handleInstantiationProblem(handledType(), null,
-                                _creatorReturnedNullException());
-                    }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.assignCurrentValue(bean);
+                    // [databind#4938] Since 2.19, allow returning `null` from creator,
+                    //  but if so, need to skip all possibly relevant content
+                    if (bean == null) {
+                        _handleNullFromPropsBasedCreator(p, ctxt, unknown, referrings);
+                        return null;
+                    }
 
-                    //  polymorphic?
                     if (bean.getClass() != _beanType.getRawClass()) {
                         return handlePolymorphic(p, ctxt, bean, unknown);
                     }
@@ -694,6 +689,14 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(e, ctxt);
         }
+        p.assignCurrentValue(bean);
+        // [databind#4938] Since 2.19, allow returning `null` from creator,
+        //  but if so, need to skip all possibly relevant content
+        if (bean == null) {
+            _handleNullFromPropsBasedCreator(null, ctxt, unknown, referrings);
+            return null;
+        }
+
         // 13-Apr-2020, tatu: [databind#2678] need to handle injection here
         if (_injectables != null) {
             injectValues(ctxt, bean);
@@ -1048,6 +1051,16 @@ public class BeanDeserializer
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.assignCurrentValue(bean);
+                    // [databind#4938] Since 2.19, allow returning `null` from creator,
+                    //  but if so, need to skip all possibly relevant content
+                    if (bean == null) {
+                        // 13-Mar-2025, tatu: We don't have "referrings" here for some reason...
+                        //   Nor "unknown" since unwrapping makes it impossible to tell unwrapped
+                        //   and unknown apart
+                        _handleNullFromPropsBasedCreator(p, ctxt, null, null);
+                        return null;
+                    }
+
                     // if so, need to copy all remaining tokens into buffer
                     while (t == JsonToken.PROPERTY_NAME) {
                         // NOTE: do NOT skip name as it needs to be copied; `copyCurrentStructure` does that
@@ -1118,6 +1131,14 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(e, ctxt);
         }
+        // [databind#4938] Since 2.19, allow returning `null` from creator,
+        //  but if so, need to skip all possibly relevant content
+        if (bean == null) {
+            // no "referrings" here either:
+            _handleNullFromPropsBasedCreator(null, ctxt, null, null);
+            return null;
+        }
+
         return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
     }
 
@@ -1292,15 +1313,25 @@ public class BeanDeserializer
         }
     }
 
-    /**
-     * Helper method for getting a lazily construct exception to be reported
-     * to {@link DeserializationContext#handleInstantiationProblem(Class, Object, Throwable)}.
-     */
-    protected Exception _creatorReturnedNullException() {
-        if (_nullFromCreator == null) {
-            _nullFromCreator = new NullPointerException("JSON Creator returned null");
+    protected void _handleNullFromPropsBasedCreator(JsonParser p, DeserializationContext ctxt,
+            TokenBuffer unknown, List<BeanReferring> referrings)
+    {
+        if (p != null) {
+            JsonToken t = p.currentToken();
+            while (t == JsonToken.PROPERTY_NAME) {
+                p.nextToken();
+                p.skipChildren();
+                t = p.nextToken();
+            }
         }
-        return _nullFromCreator;
+        if (unknown != null) { // nope, just extra unknown stuff...
+            handleUnknownProperties(ctxt, null, unknown);
+        }
+        if (referrings != null) {
+            for (BeanReferring referring : referrings) {
+               referring.setBean(null);
+            }
+        }
     }
 
     /**

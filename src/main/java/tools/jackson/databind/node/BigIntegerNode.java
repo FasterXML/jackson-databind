@@ -15,7 +15,7 @@ import tools.jackson.databind.SerializationContext;
  * Numeric node that contains simple 64-bit integer values.
  */
 public class BigIntegerNode
-    extends NumericNode
+    extends NumericIntNode
 {
     private static final long serialVersionUID = 3L;
 
@@ -46,55 +46,35 @@ public class BigIntegerNode
      */
 
     @Override
-    public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
-
-    @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.BIG_INTEGER; }
 
     @Override
     public boolean isBigInteger() { return true; }
-
-    @Override
-    public boolean isIntegralNumber() { return true; }
-
-    @Override
-    public boolean isNaN() { return false; }
-
-    @Override public boolean canConvertToInt() {
-        return (_value.compareTo(MIN_INTEGER) >= 0)
-                && (_value.compareTo(MAX_INTEGER) <= 0);
-    }
-
-    @Override public boolean canConvertToLong() {
-        return (_value.compareTo(MIN_LONG) >= 0)
-                && (_value.compareTo(MAX_LONG) <= 0);
-    }
 
     /*
     /**********************************************************************
     /* Overridden JsonNode methods, scalar access
     /**********************************************************************
      */
-    
+
+    @Override
+    protected Boolean _asBoolean() {
+        return !BigInteger.ZERO.equals(_value);
+    }
+
+    @Override
+    public String _asString() {
+        return _value.toString();
+    }
+
     @Override
     public Number numberValue() {
         return _value;
     }
 
     @Override
-    public short shortValue() {
-        if (canConvertToInt()) {
-            int v = _value.intValue();
-            if (v >= Short.MIN_VALUE && v <= Short.MAX_VALUE) {
-                return (short) v;
-            }
-        }
-        return _reportShortCoercionRangeFail("shortValue()");
-    }
-
-    @Override
     public int intValue() {
-        if (canConvertToInt()) {
+        if (_inIntRange()) {
             return _value.intValue();
         }
         return _reportIntCoercionRangeFail("intValue()");
@@ -102,12 +82,30 @@ public class BigIntegerNode
 
     @Override
     public int intValue(int defaultValue) {
-        return canConvertToInt() ? _value.intValue() : defaultValue;
+        return _inIntRange() ? _value.intValue() : defaultValue;
     }
 
     @Override
     public OptionalInt intValueOpt() {
-        return canConvertToInt() ? OptionalInt.of(_value.intValue()) : OptionalInt.empty();
+        return _inIntRange() ? OptionalInt.of(_value.intValue()) : OptionalInt.empty();
+    }
+    
+    @Override
+    public int asInt() {
+        if (_inIntRange()) {
+            return _value.intValue();
+        }
+        return _reportIntCoercionRangeFail("asInt()");
+    }
+
+    @Override
+    public int asInt(int defaultValue) {
+        return _inIntRange() ? _value.intValue() : defaultValue;
+    }
+
+    @Override
+    public OptionalInt asIntOpt() {
+        return _inIntRange() ? OptionalInt.of(_value.intValue()) : OptionalInt.empty();
     }
     
     @Override
@@ -120,10 +118,7 @@ public class BigIntegerNode
 
     @Override
     public long longValue(long defaultValue) {
-        if (canConvertToLong()) {
-            return _value.longValue();
-        }
-        return defaultValue;
+        return (canConvertToLong()) ? _value.longValue() : defaultValue;
     }
 
     @Override
@@ -132,11 +127,39 @@ public class BigIntegerNode
     }
 
     @Override
+    public long asLong() {
+        if (canConvertToLong()) {
+            return _value.longValue();
+        }
+        return _reportLongCoercionRangeFail("asLong()");
+    }
+
+    @Override
+    public long asLong(long defaultValue) {
+        return (canConvertToLong()) ? _value.longValue() : defaultValue;
+    }
+
+    @Override
+    public OptionalLong asLongOpt() {
+        return canConvertToLong() ? OptionalLong.of(_value.longValue()) : OptionalLong.empty();
+    }
+
+    @Override
     public BigInteger bigIntegerValue() { return _value; }
 
     @Override
+    public BigInteger bigIntegerValue(BigInteger defaultValue) { return _value; }
+
+    @Override
+    public Optional<BigInteger> bigIntegerValueOpt() { return Optional.of(_value); }
+
+    
+    // // // BigInteger differs a bit from other Integral types as there's
+    // // // range overflow possibility
+
+    @Override
     public float floatValue() {
-        float f = _value.floatValue();
+        float f = _asFloatValueUnchecked();
         if (Float.isFinite(f)) {
             return f;
         }
@@ -145,7 +168,7 @@ public class BigIntegerNode
 
     @Override
     public double doubleValue() {
-        double d = _value.doubleValue();
+        double d = _asDoubleValueUnchecked();
         if (Double.isFinite(d)) {
             return d;
         }
@@ -154,16 +177,37 @@ public class BigIntegerNode
 
     @Override
     public double doubleValue(double defaultValue) {
-        double d = _value.doubleValue();
-        if (Double.isFinite(d)) {
-            return d;
-        }
-        return defaultValue;
+        double d = _asDoubleValueUnchecked();
+        return (Double.isFinite(d)) ? d : defaultValue;
     }
 
     @Override
     public OptionalDouble doubleValueOpt() {
-        double d = _value.doubleValue();
+        double d = _asDoubleValueUnchecked();
+        if (Double.isFinite(d)) {
+            return OptionalDouble.of(_value.doubleValue());
+        }
+        return OptionalDouble.empty();
+    }
+
+    @Override
+    public double asDouble() {
+        double d = _asDoubleValueUnchecked();
+        if (Double.isFinite(d)) {
+            return d;
+        }
+        return _reportDoubleCoercionRangeFail("asDouble()");
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        double d = _asDoubleValueUnchecked();
+        return (Double.isFinite(d)) ? d : defaultValue;
+    }
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        double d = _asDoubleValueUnchecked();
         if (Double.isFinite(d)) {
             return OptionalDouble.of(_value.doubleValue());
         }
@@ -186,25 +230,51 @@ public class BigIntegerNode
     }
 
     /*
-    /**********************************************************
-    /* General type coercions
-    /**********************************************************
+    /**********************************************************************
+    /* Abstract methods impls for NumericIntNode
+    /**********************************************************************
      */
 
     @Override
-    public String asString() {
-        return _value.toString();
+    protected int _asIntValueUnchecked() {
+        return _value.intValue();
     }
 
     @Override
-    public boolean asBoolean(boolean defaultValue) {
-        return !BigInteger.ZERO.equals(_value);
+    protected float _asFloatValueUnchecked() {
+        return _value.floatValue();
+    }
+
+    @Override
+    protected double _asDoubleValueUnchecked() {
+        return _value.doubleValue();
+    }
+
+    @Override
+    protected boolean _inShortRange() {
+        if (_inIntRange()) {
+            int v = _value.intValue();
+            return (v >= Short.MIN_VALUE && v <= Short.MAX_VALUE);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean _inIntRange() {
+        return (_value.compareTo(MIN_INTEGER) >= 0)
+                && (_value.compareTo(MAX_INTEGER) <= 0);
+    }
+
+    @Override
+    protected boolean _inLongRange() {
+        return (_value.compareTo(MIN_LONG) >= 0)
+                && (_value.compareTo(MAX_LONG) <= 0);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other overrides
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -230,10 +300,4 @@ public class BigIntegerNode
     public int hashCode() {
         return Objects.hashCode(_value);
     }
-
-    /*
-    /**********************************************************
-    /* Other overrides
-    /**********************************************************
-     */
 }

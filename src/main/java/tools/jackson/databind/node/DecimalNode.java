@@ -5,18 +5,16 @@ import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 
 /**
  * Numeric node that contains values that do not fit in simple
- * integer (int, long) or floating point (double) values.
+ * floating point (double) values.
  */
 public class DecimalNode
-    extends NumericNode
+    extends NumericFPNode
 {
     private static final long serialVersionUID = 3L;
 
@@ -50,8 +48,6 @@ public class DecimalNode
     /**********************************************************************
      */
 
-    @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_FLOAT; }
-    
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.BIG_DECIMAL; }
 
@@ -59,105 +55,28 @@ public class DecimalNode
     public boolean isBigDecimal() { return true; }
 
     @Override
-    public boolean isFloatingPointNumber() { return true; }
+    public boolean isNaN() { return false; }
+
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access, non-numeric
+    /**********************************************************************
+     */
 
     @Override
-    public boolean isNaN() { return false; }
-    
-    @Override public boolean canConvertToInt() {
-        return _inIntRange() && canConvertToExactIntegral();
-    }
-
-    @Override public boolean canConvertToLong() {
-        return _inLongRange() && canConvertToExactIntegral();
-    }
-
-    @Override // since 2.12
-    public boolean canConvertToExactIntegral() {
-        return !_hasFractionalPart();
+    public String _asString() {
+        return _value.toString();
     }
 
     /*
     /**********************************************************************
-    /* Overridden JsonNode methods, scalar access
+    /* Overridden JsonNode methods, scalar access, numeric
     /**********************************************************************
      */
 
     @Override
     public Number numberValue() { return _value; }
 
-    @Override
-    public short shortValue() {
-        if (!_inShortRange()) {
-            return _reportShortCoercionRangeFail("shortValue()");
-        }
-        if (_hasFractionalPart()) {
-            _reportShortCoercionFractionFail("shortValue()");
-        }
-        return _value.shortValue();
-    }
-
-    @Override
-    public int intValue() {
-        if (!_inIntRange()) {
-            return _reportIntCoercionRangeFail("intValue()");
-        }
-        if (_hasFractionalPart()) {
-            _reportIntCoercionFractionFail("intValue()");
-        }
-        return _value.intValue();
-    }
-
-    @Override
-    public int intValue(int defaultValue) {
-        if (!_inIntRange() || _hasFractionalPart()) {
-             return defaultValue;
-        }
-        return _value.intValue();
-    }
-
-    @Override
-    public OptionalInt intValueOpt() {
-        if (!_inIntRange() || _hasFractionalPart()) {
-            return OptionalInt.empty();
-       }
-       return OptionalInt.of(_value.intValue());
-    }
-
-    @Override
-    public long longValue() {
-        if (!_inLongRange()) {
-            return _reportLongCoercionRangeFail("longValue()");
-        }
-        if (_hasFractionalPart()) {
-            _reportLongCoercionFractionFail("longValue()");
-        }
-        return _value.longValue();
-    }
-
-    @Override
-    public long longValue(long defaultValue) {
-        if (!_inLongRange() || _hasFractionalPart()) {
-            return defaultValue;
-        }
-        return _value.longValue();
-    }
-
-    @Override
-    public OptionalLong longValueOpt() {
-        if (!_inLongRange() || _hasFractionalPart()) {
-            return OptionalLong.empty();
-        }
-        return OptionalLong.of(_value.longValue());
-    }
-
-    @Override
-    public BigInteger bigIntegerValue() {
-        if (_hasFractionalPart()) {
-            _reportBigIntegerCoercionFractionFail("bigIntegerValue()");
-        }
-        return _value.toBigInteger();
-    }
 
     @Override
     public float floatValue() {
@@ -196,6 +115,35 @@ public class DecimalNode
     }
 
     @Override
+    public double asDouble() {
+        double d = _value.doubleValue();
+        if (Double.isFinite(d)) {
+            return d;
+        }
+        return _reportDoubleCoercionRangeFail("asDouble()");
+    }
+
+    @Override
+    public double asDouble(double defaultValue) {
+        double d = _value.doubleValue();
+        if (Double.isFinite(d)) {
+            return d;
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalDouble asDoubleOpt() {
+        double d = _value.doubleValue();
+        if (Double.isFinite(d)) {
+            return OptionalDouble.of(_value.doubleValue());
+        }
+        return OptionalDouble.empty();
+    }
+
+    // Overridden versions from NumericFPNode (for minor performance gain)
+    
+    @Override
     public BigDecimal decimalValue() { return _value; }
 
     @Override
@@ -205,9 +153,72 @@ public class DecimalNode
     public Optional<BigDecimal> decimalValueOpt() { return Optional.of(_value); }
 
     @Override
-    public String asString() {
-        return _value.toString();
+    public BigDecimal asDecimal() { return _value;  }
+    
+    @Override
+    public BigDecimal asDecimal(BigDecimal defaultValue) { return _value;  }
+
+    @Override
+    public Optional<BigDecimal> asDecimalOpt() { return Optional.of(_value); }
+
+    /*
+    /**********************************************************************
+    /* NumericFPNode abstract method impls
+    /**********************************************************************
+     */
+
+    @Override
+    protected short _asShortValueUnchecked() {
+        return _value.shortValue();
     }
+
+    @Override
+    protected int _asIntValueUnchecked() {
+        return _value.intValue();
+    }
+    
+    @Override
+    protected long _asLongValueUnchecked() {
+        return _value.longValue();
+    }
+
+    @Override
+    protected BigInteger _asBigIntegerValueUnchecked() {
+        return _value.toBigInteger();
+    }
+
+    @Override
+    protected BigDecimal _asDecimalValueUnchecked() {
+        return _value;
+    }
+
+    @Override
+    protected boolean _hasFractionalPart() {
+        return (_value.signum() != 0)
+               && (_value.scale() > 0)
+               && (_value.stripTrailingZeros().scale() > 0);
+    }
+    
+    @Override
+    protected boolean _inShortRange() {
+        return (_value.compareTo(MIN_SHORT) >= 0) && (_value.compareTo(MAX_SHORT) <= 0);
+    }
+
+    @Override
+    protected boolean _inIntRange() {
+        return (_value.compareTo(MIN_INTEGER) >= 0) && (_value.compareTo(MAX_INTEGER) <= 0);
+    }
+
+    @Override
+    protected boolean _inLongRange() {
+        return (_value.compareTo(MIN_LONG) >= 0) && (_value.compareTo(MAX_LONG) <= 0);
+    }
+
+    /*
+    /**********************************************************************
+    /* Other overrides
+    /**********************************************************************
+     */
 
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)
@@ -231,23 +242,5 @@ public class DecimalNode
     @Override
     public int hashCode() {
         return _value.hashCode();
-    }
-
-    private boolean _hasFractionalPart() {
-        return (_value.signum() != 0)
-               && (_value.scale() > 0)
-               && (_value.stripTrailingZeros().scale() > 0);
-    }
-    
-    private boolean _inShortRange() {
-        return (_value.compareTo(MIN_SHORT) >= 0) && (_value.compareTo(MAX_SHORT) <= 0);
-    }
-
-    private boolean _inIntRange() {
-        return (_value.compareTo(MIN_INTEGER) >= 0) && (_value.compareTo(MAX_INTEGER) <= 0);
-    }
-
-    private boolean _inLongRange() {
-        return (_value.compareTo(MIN_LONG) >= 0) && (_value.compareTo(MAX_LONG) <= 0);
     }
 }

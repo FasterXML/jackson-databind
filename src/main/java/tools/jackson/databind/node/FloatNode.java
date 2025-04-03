@@ -2,10 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Optional;
 import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberOutput;
@@ -15,7 +12,8 @@ import tools.jackson.databind.SerializationContext;
  * {@code JsonNode} implementation for efficiently containing 32-bit
  * `float` values.
  */
-public class FloatNode extends NumericNode
+public class FloatNode
+    extends NumericFPNode
 {
     private static final long serialVersionUID = 3L;
 
@@ -37,28 +35,15 @@ public class FloatNode extends NumericNode
     /**********************************************************************
      */
 
-    @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_FLOAT; }
-
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.FLOAT; }
 
     @Override
-    public boolean isFloatingPointNumber() { return true; }
-
-    @Override
     public boolean isFloat() { return true; }
 
-    @Override public boolean canConvertToInt() {
-        return canConvertToExactIntegral() && _inIntRange();
-    }
-
-    @Override public boolean canConvertToLong() {
-        return canConvertToExactIntegral() && _inLongRange();
-    }
-
     @Override
-    public boolean canConvertToExactIntegral() {
-        return !isNaN() && !_hasFractionalPart();
+    public boolean isNaN() {
+        return NumberOutput.notFinite(_value);
     }
 
     /*
@@ -68,91 +53,29 @@ public class FloatNode extends NumericNode
      */
 
     @Override
+    protected String _asString() {
+        return String.valueOf(_value);
+    }
+
+    @Override
     public Number numberValue() {
         return Float.valueOf(_value);
     }
 
     @Override
-    public short shortValue() {
-        if (!_inShortRange()) {
-            _reportShortCoercionRangeFail("shortValue()");
-        }
-        if (_hasFractionalPart()) {
-            _reportShortCoercionFractionFail("shortValue()");
-        }
-        return (short) _value;
+    public float floatValue() {
+        return _value;
     }
 
     @Override
-    public int intValue() {
-        if (!_inIntRange()) {
-            _reportIntCoercionRangeFail("intValue()");
-        }
-        if (_hasFractionalPart()) {
-            _reportIntCoercionFractionFail("intValue()");
-        }
-        return (int) _value;
+    public double doubleValue() {
+        return _value;
     }
 
     @Override
-    public int intValue(int defaultValue) {
-        if (!_inIntRange() || _hasFractionalPart()) {
-             return defaultValue;
-        }
-        return (int) _value;
+    public double doubleValue(double defaultValue) {
+        return _value;
     }
-
-    @Override
-    public OptionalInt intValueOpt() {
-        if (!_inIntRange() || _hasFractionalPart()) {
-            return OptionalInt.empty();
-       }
-       return OptionalInt.of((int) _value);
-    }
-
-    @Override
-    public long longValue() {
-        if (!_inLongRange()) {
-            _reportLongCoercionRangeFail("longValue()");
-        }
-        if (_hasFractionalPart()) {
-            _reportLongCoercionFractionFail("longValue()");
-        }
-        return (long) _value;
-    }
-
-    @Override
-    public long longValue(long defaultValue) {
-        if (!_inLongRange() || _hasFractionalPart()) {
-            return defaultValue;
-       }
-        return (long) _value;
-    }
-
-    @Override
-    public OptionalLong longValueOpt() {
-        if (!_inLongRange() || _hasFractionalPart()) {
-            return OptionalLong.empty();
-       }
-       return OptionalLong.of((long) _value);
-    }
-
-    @Override
-    public BigInteger bigIntegerValue() {
-        if (_hasFractionalPart()) {
-            _reportBigIntegerCoercionFractionFail("bigIntegerValue()");
-        }
-        return decimalValue().toBigInteger();
-    }
-
-    @Override
-    public float floatValue() { return _value; }
-
-    @Override
-    public double doubleValue() { return _value; }
-
-    @Override
-    public double doubleValue(double defaultValue) { return _value; }
 
     @Override
     public OptionalDouble doubleValueOpt() {
@@ -160,24 +83,75 @@ public class FloatNode extends NumericNode
     }
 
     @Override
-    public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
+    public double asDouble() {
+        return _value;
+    }
 
     @Override
-    public BigDecimal decimalValue(BigDecimal defaultValue) { return decimalValue(); }
+    public double asDouble(double defaultValue) {
+        return _value;
+    }
 
     @Override
-    public Optional<BigDecimal> decimalValueOpt() { return Optional.of(decimalValue()); }
+    public OptionalDouble asDoubleOpt() {
+        return OptionalDouble.of(_value);
+    }
+
+    /*
+    /**********************************************************************
+    /* NumericFPNode abstract method impls
+    /**********************************************************************
+     */
+
+    @Override
+    protected short _asShortValueUnchecked() {
+        return (short) _value;
+    }
+
+    @Override
+    protected int _asIntValueUnchecked() {
+        return (int) _value;
+    }
     
     @Override
-    public String asString() {
-        return String.valueOf(_value);
+    protected long _asLongValueUnchecked() {
+        return (long) _value;
     }
 
     @Override
-    public boolean isNaN() {
-        return NumberOutput.notFinite(_value);
+    protected BigInteger _asBigIntegerValueUnchecked() {
+        return BigDecimal.valueOf(_value).toBigInteger();
     }
 
+    @Override
+    protected BigDecimal _asDecimalValueUnchecked() {
+        return BigDecimal.valueOf(_value);
+    }
+
+    @Override
+    protected boolean _hasFractionalPart() { return _value != Math.round(_value); }
+
+    @Override
+    protected boolean _inShortRange() {
+        return !isNaN() && (_value >= Short.MIN_VALUE) && (_value <= Short.MAX_VALUE);
+    }
+
+    @Override
+    protected boolean _inIntRange() {
+        return !isNaN() && (_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
+    }
+
+    @Override
+    protected boolean _inLongRange() {
+        return !isNaN() && (_value >= Long.MIN_VALUE) && (_value <= Long.MAX_VALUE);
+    }
+
+    /*
+    /**********************************************************************
+    /* Overrides, other
+    /**********************************************************************
+     */
+    
     @Override
     public final void serialize(JsonGenerator g, SerializationContext provider)
             throws JacksonException {
@@ -201,19 +175,5 @@ public class FloatNode extends NumericNode
     @Override
     public int hashCode() {
         return Float.floatToIntBits(_value);
-    }
-
-    private boolean _hasFractionalPart() { return _value != Math.round(_value); }
-
-    private boolean _inShortRange() {
-        return !isNaN() && (_value >= Short.MIN_VALUE) && (_value <= Short.MAX_VALUE);
-    }
-
-    private boolean _inIntRange() {
-        return !isNaN() && (_value >= Integer.MIN_VALUE) && (_value <= Integer.MAX_VALUE);
-    }
-
-    private boolean _inLongRange() {
-        return !isNaN() && (_value >= Long.MIN_VALUE) && (_value <= Long.MAX_VALUE);
     }
 }

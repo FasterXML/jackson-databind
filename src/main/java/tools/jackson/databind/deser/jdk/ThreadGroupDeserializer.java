@@ -19,10 +19,7 @@ public class ThreadGroupDeserializer
 
     @Override
     public ThreadGroup convert(JsonNode root, DeserializationContext ctxt) {
-        String name = root.path("name").asString();
-        if (name == null) {
-            name = "";
-        }
+        String name = root.path("name").asString("");
         return new ThreadGroup(name);
     }
 }

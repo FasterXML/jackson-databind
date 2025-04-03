@@ -1854,9 +1854,9 @@ public abstract class DeserializationContext
         // 05-Mar-2025, tatu: [databind#5001] Handle non-blocking case separately to give better message
         if (trailingToken == JsonToken.NOT_AVAILABLE) {
             throw MismatchedInputException.from(p, targetType,
-"Incomplete content (`JsonToken.NOT_AVAILABLE`) after value (bound as %s):"
-+"not allowed as per `DeserializationFeature.FAIL_ON_TRAILING_TOKENS`"
-+" (missing call to `InputFeeder.endOfInput()`?)"
+("Incomplete content (`JsonToken.NOT_AVAILABLE`) after value (bound as %s):"
++" not allowed as per `DeserializationFeature.FAIL_ON_TRAILING_TOKENS`"
++" (missing call to `InputFeeder.endOfInput()`?)")
             .formatted(ClassUtil.nameOf(targetType)));
         }
         throw MismatchedInputException.from(p, targetType,

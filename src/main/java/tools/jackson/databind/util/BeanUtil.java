@@ -7,6 +7,7 @@ import java.util.GregorianCalendar;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.JavaType;
+import tools.jackson.databind.cfg.MapperConfig;
 
 /**
  * Helper class that contains functionality needed by both serialization
@@ -20,6 +21,11 @@ public class BeanUtil
     /**********************************************************************
      */
 
+    /**
+     * @deprecated since 3.0.0-rc2 Use {@link tools.jackson.databind.introspect.DefaultAccessorNamingStrategy}
+     *    instead
+     */
+    @Deprecated // since 3.0.0-rc2
     public static String stdManglePropertyName(final String basename, final int offset)
     {
         final int end = basename.length();
@@ -107,7 +113,7 @@ public class BeanUtil
      * "well-known" types for which there would be a datatype module; and if so,
      * return appropriate failure message to give to caller.
      */
-    public static String checkUnsupportedType(JavaType type) {
+    public static String checkUnsupportedType(MapperConfig<?> config, JavaType type) {
         final String className = type.getRawClass().getName();
         String typeName, moduleName;
 

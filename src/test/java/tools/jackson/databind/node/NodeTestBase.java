@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Optional;
 
 abstract class NodeTestBase extends DatabindTestUtil
 {
@@ -18,12 +17,10 @@ abstract class NodeTestBase extends DatabindTestUtil
         assertFalse(n.canConvertToLong());
         assertFalse(n.canConvertToExactIntegral());
 
-        assertEquals(0, n.asInt());
-        assertEquals(-42, n.asInt(-42));
-        assertEquals(0, n.asLong());
-        assertEquals(12345678901L, n.asLong(12345678901L));
-        assertEquals(0.0, n.asDouble());
-        assertEquals(-19.25, n.asDouble(-19.25));
+        // As of 3.0, coercion rules vary by specific type so can no longer test these
+        //assertEquals(-42, n.asInt(-42));
+        //assertEquals(12345678901L, n.asLong(12345678901L));
+        //assertEquals(-19.25, n.asDouble(-19.25));
     }
 
     // Test to check conversions, coercions

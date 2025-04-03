@@ -22,6 +22,7 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.node.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.MockDataInput;
 import tools.jackson.databind.type.SimpleType;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -219,32 +220,31 @@ public class ObjectMapperTest extends DatabindTestUtil
         try (DataOutputStream data = new DataOutputStream(bytes)) {
             MAPPER.writeValue((DataOutput) data, input);
         }
-        assertEquals(exp, bytes.toString("UTF-8"));
+        assertEquals(exp, bytes.toString(StandardCharsets.UTF_8));
 
         // and also via ObjectWriter...
         bytes.reset();
         try (DataOutputStream data = new DataOutputStream(bytes)) {
             MAPPER.writer().writeValue((DataOutput) data, input);
         }
-        assertEquals(exp, bytes.toString("UTF-8"));
+        assertEquals(exp, bytes.toString(StandardCharsets.UTF_8));
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testDataInputViaMapper() throws Exception
     {
-        byte[] src = "{\"a\":1}".getBytes("UTF-8");
-        DataInput input = new DataInputStream(new ByteArrayInputStream(src));
+        DataInput input = new MockDataInput("{\"a\":1, \"b\":[1, 2, 3]}");
         Map<String,Object> map = (Map<String,Object>) MAPPER.readValue(input, Map.class);
         assertEquals(Integer.valueOf(1), map.get("a"));
 
-        input = new DataInputStream(new ByteArrayInputStream(src));
+        input = new MockDataInput("{\"a\":1, \"b\": [1, true]}");
         // and via ObjectReader
         map = MAPPER.readerFor(Map.class)
                 .readValue(input);
         assertEquals(Integer.valueOf(1), map.get("a"));
 
-        input = new DataInputStream(new ByteArrayInputStream(src));
+        input = new MockDataInput("{\"a\":1, \"b\": [\"abc\"]}");
         JsonNode n = MAPPER.readerFor(Map.class)
                 .readTree(input);
         assertNotNull(n);
@@ -416,11 +416,10 @@ public class ObjectMapperTest extends DatabindTestUtil
     @Test
     public void test_createParser_DataInput() throws Exception
     {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        DataInput dataInput = new DataInputStream(inputStream);
-        JsonParser jsonParser = MAPPER.createParser(dataInput);
-
-        assertEquals(jsonParser.nextStringValue(), "value");
+        DataInput dataInput = new MockDataInput("\"value\"");
+        try (JsonParser jsonParser = MAPPER.createParser(dataInput)) {
+            assertEquals(jsonParser.nextStringValue(), "value");
+        }
     }
 
     @Test
@@ -712,18 +711,16 @@ public class ObjectMapperTest extends DatabindTestUtil
     @Test
     public void test_readValue_DataInput() throws Exception
     {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        DataInput dataInput1 = new DataInputStream(inputStream);
+        byte[] inputBytes = utf8Bytes("\"value\"");
+        DataInput dataInput1 = new MockDataInput(inputBytes);
         String result1 = MAPPER.readValue(dataInput1, String.class);
         assertEquals(result1, "value");
 
-        inputStream.reset();
-        DataInput dataInput2 = new DataInputStream(inputStream);
+        DataInput dataInput2 = new MockDataInput(inputBytes);
         String result2 = MAPPER.readValue(dataInput2, SimpleType.constructUnsafe(String.class));
         assertEquals(result2, "value");
 
-        inputStream.reset();
-        DataInput dataInput3 = new DataInputStream(inputStream);
+        DataInput dataInput3 = new MockDataInput(inputBytes);
         String result3 = MAPPER.readValue(dataInput3, new TypeReference<String>() {});
         assertEquals(result3, "value");
     }

@@ -7,23 +7,21 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.type.TypeReference;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
-import static tools.jackson.databind.testutil.DatabindTestUtil.q;
-
 
 /**
  * This unit test suite tries to verify that the "Native" java type
  * mapper can properly re-construct Java array objects from Json arrays.
  */
 public class ArrayDeserializationTest
+    extends DatabindTestUtil
 {
     public final static class Bean1
     {
@@ -144,7 +142,7 @@ public class ArrayDeserializationTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testUntypedArray() throws Exception
@@ -538,6 +536,55 @@ public class ArrayDeserializationTest
             String expStr = String.valueOf(i) + "." + String.valueOf(i % 10);
             assertEquals(expStr, String.valueOf(result[i]));
         }
+    }
+
+    @Test
+    public void testSingleStringToPrimitiveArray() throws Exception {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
+        assertLengthValue(mapper.readValue("\"true\"", boolean[].class), true);
+        assertLengthValue(mapper.readValue("\"a\"", char[].class), 'a');
+        assertLengthValue(mapper.readValue("\"1\"", short[].class), (short) 1);
+        assertLengthValue(mapper.readValue("\"1\"", int[].class), 1);
+        assertLengthValue(mapper.readValue("\"1\"", long[].class), 1L);
+        assertLengthValue(mapper.readValue("\"7.038531e-26\"", float[].class), 7.038531e-26f);
+        assertLengthValue(mapper.readValue("\"1.5\"", double[].class), 1.5d);
+    }
+
+    private void assertLengthValue(boolean[] arr, boolean expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
+    }
+
+    private void assertLengthValue(char[] arr, char expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
+    }
+
+    private void assertLengthValue(short[] arr, short expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
+    }
+
+    private void assertLengthValue(int[] arr, int expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
+    }
+
+    private void assertLengthValue(long[] arr, long expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
+    }
+
+    private void assertLengthValue(float[] arr, float expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
+    }
+
+    private void assertLengthValue(double[] arr, double expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
     }
 
     /*

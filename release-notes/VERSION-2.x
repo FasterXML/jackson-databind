@@ -20,6 +20,9 @@ Project: jackson-databind
  (contributed by Geoffrey G)
 #4388: Allow using `@JsonPropertyOrder` with "any" (`@JsonAnyGetter`)  properties
  (fix by Joo-Hyuk K)
+#4650: `PrimitiveArrayDeserializers` should deal with single String value if
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY` enabled
+ (reported, fix suggested by @eeren-bm)
 #4674: Allow setting global enum naming strategy similar to property naming strategy
  (requested by @hajdamak)
  (contributed by Konstantin M)
@@ -39,19 +42,28 @@ Project: jackson-databind
 #4773: `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not apply to Maps
   with uncomparable keys
  (requested by @nathanukey)
+#4801: Add `JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS` to allow overriding
+  `DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS`
+ (fix by Joo-Hyuk K)
 #4849 Not able to deserialize Enum with default typing after upgrading 2.15.4 -> 2.17.1
  (reported by Kornel Zemla)
 #4863: Add basic Stream support in `JsonNode`: `valueStream()`, `propertyStream()`,
   `forEachEntry()`
-#4867: Add `Optional<JsonNode> JsonNode.asOptional()` convenience method
+#4867: Add `Optional<JsonNode> JsonNode.asOptional()` convenience method##
  (fix by Joo-Hyuk K)
 #4869: Add `JsonNode.values()` to replace `elements()`
 #4896: Coercion shouldn't be necessary for Enums specifying an empty string
  (reported by @joaocanaverde-blue)
+#4915: Cannot access attributes from `Converter`
+ (requested by @jakub-bochenski)
+ (fixed by Joo-Hyuk K)
 #4934: `DeserializationContext.readTreeAsValue()` handles null nodes
   differently from `ObjectMapper.treeToValue()`
  (reported by Floris W)
-#4953: Allow clearing all caches to avoid classloader leaks
+#4938: Allow `@JsonCreator` annotated Creator to return `null`
+ (reported by @f-aubert)
+ (fixed by Joo-Hyuk K)
+4953: Allow clearing all caches to avoid classloader leaks
  (contributed by Joren I)
 #4955: Add more remove methods for `ArrayNode`, `ObjectNode` [STEP-3]
 #4959: Add explicit deserializer for `ThreadGroup`
@@ -60,7 +72,17 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 #4963: Serializing `Map.Entry` as Bean with `@JsonFormat.shape = Shape.OBJECT`
   fails on JDK 17+
+#4979: Allow default enums with `@JsonCreator`
+ (contributed by Will P)
 #4997: `ObjectNode` put methods should do null check for key
+#5006: Add `MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS` to prevent
+  failure of `java.util.Optional` (de)serialization without Java 8 module
+#5014: Add `java.lang.Runnable` as unsafe base type in `DefaultBaseTypeLimitingValidator`
+#5020: Support new `@JsonProperty.isRequired` for overridable definition of "required-ness"
+#5027: Add `DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED`
+ (contributed by @pjfanning)
+#5052: Minor bug in `FirstCharBasedValidator.forFirstNameRule()`: returns `null`
+  in non-default case
 
 2.18.3 (28-Feb-2025)
 

@@ -1086,7 +1086,9 @@ public abstract class BasicDeserializerFactory
 "Invalid `@JsonCreator` annotated Enum factory method [%s]: needs to return compatible type",
 factory.toString()));
                     }
-                    deser = EnumDeserializer.deserializerForCreator(config, enumClass, factory, valueInstantiator, creatorProps);
+                    deser = EnumDeserializer.deserializerForCreator(
+                        config, enumClass, factory, valueInstantiator, creatorProps,
+                        constructEnumResolver(ctxt, enumClass, beanDesc));
                     break;
                 }
             }

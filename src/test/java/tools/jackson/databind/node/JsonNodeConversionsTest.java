@@ -42,6 +42,19 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     @JsonDeserialize(using = LeafDeserializer.class)
     public static class LeafMixIn { }
 
+    // Deserializer to trigger the problem described in [JACKSON-554]
+    static class LeafDeserializer extends ValueDeserializer<Leaf>
+    {
+        @Override
+        public Leaf deserialize(JsonParser p, DeserializationContext ctxt)
+        {
+            JsonNode tree = ctxt.readTree(p);
+            Leaf leaf = new Leaf();
+            leaf.value = tree.get("value").intValue();
+            return leaf;
+        }
+    }
+
     // for [databind#467]
     @JsonSerialize(using=Issue467Serializer.class)
     static class Issue467Bean  {
@@ -127,17 +140,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = objectMapper();
 
-    @Test
-    public void testAsInt() throws Exception
-    {
-        assertEquals(9, IntNode.valueOf(9).asInt());
-        assertEquals(7, LongNode.valueOf(7L).asInt());
-        assertEquals(13, new StringNode("13").asInt());
-        assertEquals(0, new StringNode("foobar").asInt());
-        assertEquals(27, new StringNode("foobar").asInt(27));
-        assertEquals(1, BooleanNode.TRUE.asInt());
-    }
-
+    // note: pre-[databind#5034]
     @Test
     public void testAsBoolean() throws Exception
     {
@@ -149,23 +152,8 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         assertTrue(LongNode.valueOf(-34L).asBoolean());
         assertTrue(new StringNode("true").asBoolean());
         assertFalse(new StringNode("false").asBoolean());
-        assertFalse(new StringNode("barf").asBoolean());
-        assertTrue(new StringNode("barf").asBoolean(true));
 
         assertTrue(new POJONode(Boolean.TRUE).asBoolean());
-    }
-
-    // Deserializer to trigger the problem described in [JACKSON-554]
-    public static class LeafDeserializer extends ValueDeserializer<Leaf>
-    {
-        @Override
-        public Leaf deserialize(JsonParser p, DeserializationContext ctxt)
-        {
-            JsonNode tree = ctxt.readTree(p);
-            Leaf leaf = new Leaf();
-            leaf.value = tree.get("value").intValue();
-            return leaf;
-        }
     }
 
     @Test

@@ -27,6 +27,17 @@ public class DefaultAccessorNamingStrategy
      * based on various rules.
      */
     public interface BaseNameValidator {
+        /**
+         * Method called to check whether given base name is acceptable: called
+         * for accessor method name after removing prefix.
+         * NOTE: called even if "prefix" is empy (i.e. nothing really removed)
+         * 
+         * @param firstChar First character of the base name
+         * @param basename Full base name (after removing prefix)
+         * @param offset Length of prefix removed
+         *
+         * @return {@code true} if base name is acceptable; {@code false} otherwise
+         */
         public boolean accept(char firstChar, String basename, int offset);
     }
 
@@ -239,15 +250,18 @@ public class DefaultAccessorNamingStrategy
      * <li>Is-getter (for Boolean values): "is"
      *  </li>
      *</ul>
-     * and no additional restrictions on base names accepted (configurable for
-     * limits using {@link BaseNameValidator}), allowing names like
-     * "get_value()" and "getvalue()".
+     * with additional restrictions on base names accepted (configurable for
+     * limits using {@link BaseNameValidator}), preventing names like
+     * "get_value()" and "getvalue()" (unlike Jackson 2.x that allowed these).
      */
     public static class Provider
         extends AccessorNamingStrategy.Provider
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
+
+        private static final BaseNameValidator DEFAULT_BASE_NAME_VALIDATOR
+            = FirstCharBasedValidator.forFirstNameRule(false, false);
 
         protected final String _setterPrefix;
         protected final String _withPrefix;
@@ -259,7 +273,7 @@ public class DefaultAccessorNamingStrategy
 
         public Provider() {
             this("set", JsonPOJOBuilder.DEFAULT_WITH_PREFIX,
-                    "get", "is", null);
+                    "get", "is", DEFAULT_BASE_NAME_VALIDATOR);
         }
 
         protected Provider(Provider p,
@@ -380,7 +394,8 @@ public class DefaultAccessorNamingStrategy
         public Provider withFirstCharAcceptance(boolean allowLowerCaseFirstChar,
                 boolean allowNonLetterFirstChar) {
             return withBaseNameValidator(
-                    FirstCharBasedValidator.forFirstNameRule(allowLowerCaseFirstChar, allowNonLetterFirstChar));
+                    FirstCharBasedValidator.forFirstNameRule(allowLowerCaseFirstChar,
+                            allowNonLetterFirstChar));
         }
 
         /**
@@ -409,7 +424,8 @@ public class DefaultAccessorNamingStrategy
         public AccessorNamingStrategy forBuilder(MapperConfig<?> config,
                 AnnotatedClass builderClass, BeanDescription valueTypeDesc)
         {
-            AnnotationIntrospector ai = config.isAnnotationProcessingEnabled() ? config.getAnnotationIntrospector() : null;
+            AnnotationIntrospector ai = config.isAnnotationProcessingEnabled()
+                    ? config.getAnnotationIntrospector() : null;
             JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(config, builderClass);
             String mutatorPrefix = (builderConfig == null) ? _withPrefix : builderConfig.withPrefix;
             return new DefaultAccessorNamingStrategy(config, builderClass,
@@ -426,14 +442,17 @@ public class DefaultAccessorNamingStrategy
 
     /**
      * Simple implementation of {@link BaseNameValidator} that checks the
-     * first character and nothing else.
+     * first character and nothing else if (and only if!) prefix is empty
+     * (so {@code offset} passed is NOT zero).
      *<p>
      * Instances are to be constructed using method
      * {@link FirstCharBasedValidator#forFirstNameRule}.
      */
     public static class FirstCharBasedValidator
-        implements BaseNameValidator
+        implements BaseNameValidator, java.io.Serializable
     {
+        private static final long serialVersionUID = 3L;
+
         private final boolean _allowLowerCaseFirstChar;
         private final boolean _allowNonLetterFirstChar;
 
@@ -455,11 +474,11 @@ public class DefaultAccessorNamingStrategy
          *    consider difference between "setter-methods" {@code setValue()} and {@code set_value()}.
          *
          * @return Validator instance to use, if any; {@code null} to indicate no additional
-         *   rules applied (case when both arguments are {@code false})
+         *   rules applied (case when both arguments are {@code true})
          */
         public static BaseNameValidator forFirstNameRule(boolean allowLowerCaseFirstChar,
                 boolean allowNonLetterFirstChar) {
-            if (!allowLowerCaseFirstChar && !allowNonLetterFirstChar) {
+            if (allowLowerCaseFirstChar && allowNonLetterFirstChar) {
                 return null;
             }
             return new FirstCharBasedValidator(allowLowerCaseFirstChar,
@@ -468,6 +487,14 @@ public class DefaultAccessorNamingStrategy
 
         @Override
         public boolean accept(char firstChar, String basename, int offset) {
+            // 27-Mar-2025, tatu: [databind#2882] Need to make sure we don't
+            //   try to validate cases where no prefix is removed (mostly case
+            //   for builders, but also for Record-style plain "getters" and
+            //   "setters".
+            if (offset == 0) {
+                return true;
+            }
+            
             // Ok, so... If UTF-16 letter, then check whether lc allowed
             // (title-case and upper-case both assumed to be acceptable by default)
             if (Character.isLetter(firstChar)) {

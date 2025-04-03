@@ -46,9 +46,8 @@ public class NullNodeTest extends NodeTestBase
 
         // fallback accessors
 
-        // may be odd but...
-        assertEquals("null", n.asString());
-        assertEquals("fallback", n.asString("fallback"));
+        assertEquals("", n.asString());
+        assertEquals("", n.asString("fallback"));
 
         assertEquals(0, n.size());
         assertTrue(n.isEmpty());
@@ -63,7 +62,7 @@ public class NullNodeTest extends NodeTestBase
 
         assertNodeNumbersForNonNumeric(n);
 
-        assertEquals("null", n.asString());
+        assertEquals("", n.asString());
 
         assertNonContainerStreamMethods(n);
     }
@@ -77,7 +76,7 @@ public class NullNodeTest extends NodeTestBase
         assertTrue(n.isNull());
         assertFalse(n.isNumber());
         assertFalse(n.isString());
-        assertEquals("null", n.asString());
+        assertEquals("", n.asString()); // changed in 3.0
         assertEquals(n, NullNode.instance);
 
         n = objectMapper().readTree("null");

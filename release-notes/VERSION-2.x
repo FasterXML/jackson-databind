@@ -42,6 +42,9 @@ Project: jackson-databind
 #4773: `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not apply to Maps
   with uncomparable keys
  (requested by @nathanukey)
+#4801: Add `JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS` to allow overriding
+  `DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS`
+ (fix by Joo-Hyuk K)
 #4849 Not able to deserialize Enum with default typing after upgrading 2.15.4 -> 2.17.1
  (reported by Kornel Zemla)
 #4863: Add basic Stream support in `JsonNode`: `valueStream()`, `propertyStream()`,

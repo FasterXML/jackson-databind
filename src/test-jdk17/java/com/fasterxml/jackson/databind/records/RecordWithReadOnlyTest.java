@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RecordWithReadOnlyTest extends DatabindTestUtil {
-
+public class RecordWithReadOnlyTest extends DatabindTestUtil
+{
     record RecordWithReadOnly(int id, @JsonProperty(access = Access.READ_ONLY) String name) {
     }
 
@@ -94,7 +94,10 @@ public class RecordWithReadOnlyTest extends DatabindTestUtil {
     public void testDeserializeReadOnlyNamedProperty() throws Exception {
         RecordWithReadOnlyNamedProperty value = MAPPER.readValue(a2q("{'id':123,'name':'Bob'}"),
                 RecordWithReadOnlyNamedProperty.class);
-        assertEquals(new RecordWithReadOnlyNamedProperty(123, "Bob"), value); // BUG: should be `null` instead of "Bob"
+
+        // BUG: should be `null` instead of "Bob"
+        // 01-Apr-2025, tatu: Should be in "tofix", then?
+        assertEquals(new RecordWithReadOnlyNamedProperty(123, "Bob"), value);
     }
 
     /*

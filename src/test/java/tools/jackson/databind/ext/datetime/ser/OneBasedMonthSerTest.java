@@ -6,9 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.JavaTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
-
-import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

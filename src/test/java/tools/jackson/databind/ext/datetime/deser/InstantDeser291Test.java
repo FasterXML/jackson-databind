@@ -6,8 +6,8 @@ import java.util.Locale;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.cfg.JavaTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;

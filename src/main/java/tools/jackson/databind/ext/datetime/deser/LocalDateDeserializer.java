@@ -31,7 +31,7 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.cfg.DatatypeFeatures;
-import tools.jackson.databind.ext.datetime.JavaTimeFeature;
+import tools.jackson.databind.cfg.JavaTimeFeature;
 
 /**
  * Deserializer for Java 8 temporal {@link LocalDate}s.

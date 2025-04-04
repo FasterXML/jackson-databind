@@ -13,10 +13,10 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
+import tools.jackson.databind.cfg.JavaTimeFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
 import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 

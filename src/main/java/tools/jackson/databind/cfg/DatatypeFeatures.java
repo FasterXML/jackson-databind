@@ -2,7 +2,6 @@ package tools.jackson.databind.cfg;
 
 import tools.jackson.core.util.JacksonFeature;
 import tools.jackson.core.util.VersionUtil;
-import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 
 /**
  * Immutable value class that contains settings for multiple
@@ -15,9 +14,7 @@ public class DatatypeFeatures
 
     protected final static int FEATURE_INDEX_ENUM = 0;
     protected final static int FEATURE_INDEX_JSON_NODE = 1;
-
-    // !!! TODO: make protected
-    public final static int FEATURE_INDEX_DATETIME = 2;
+    protected final static int FEATURE_INDEX_DATETIME = 2;
 
     private final int _enabledFor1, _enabledFor2, _enabledFor3;
 

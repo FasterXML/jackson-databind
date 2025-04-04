@@ -1,7 +1,6 @@
-package tools.jackson.databind.ext.datetime;
+package tools.jackson.databind.cfg;
 
-import tools.jackson.databind.cfg.DatatypeFeature;
-import tools.jackson.databind.cfg.DatatypeFeatures;
+import tools.jackson.databind.ext.datetime.JavaTimeInitializer;
 
 /**
  * Configurable on/off features for Java 8 Date/Time module ({@link JavaTimeInitializer}).
@@ -35,7 +34,8 @@ public enum JavaTimeFeature implements DatatypeFeature
      * Feature that controls whether stringified numbers (Strings that without
      * quotes would be legal JSON Numbers) may be interpreted as
      * timestamps (enabled) or not (disabled), in case where there is an
-     * explicitly defined pattern ({@code DateTimeFormatter}) for value.
+     * explicitly defined pattern ({@code DateTimeFormatter}, usually by
+     * using {@code @JsonFormat} annotation) for value.
      * <p>
      * Note that when the default pattern is used (no custom pattern defined),
      * stringified numbers are always accepted as timestamps regardless of

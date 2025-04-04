@@ -35,7 +35,7 @@ import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.cfg.DatatypeFeatures;
-import tools.jackson.databind.ext.datetime.JavaTimeFeature;
+import tools.jackson.databind.cfg.JavaTimeFeature;
 import tools.jackson.databind.ext.datetime.util.DecimalUtils;
 
 /**

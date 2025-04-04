@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.DatatypeFeatures;
-import tools.jackson.databind.ext.datetime.JavaTimeFeature;
+import tools.jackson.databind.cfg.JavaTimeFeature;
 
 /**
  * Deserializer for Java 8 temporal {@link LocalDateTime}s.

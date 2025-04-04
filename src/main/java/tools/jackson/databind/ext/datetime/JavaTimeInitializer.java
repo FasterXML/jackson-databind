@@ -38,7 +38,8 @@ import tools.jackson.databind.ext.datetime.ser.key.ZonedDateTimeKeySerializer;
 /**
  * Class that registers capability of serializing {@code java.time} objects with the Jackson core.
  *<p>
- * In Jackson 3, the module is automatically registered.
+ * In Jackson 3, the module is embedded in databind and handlers are automatically
+ * registered: approach is similar to one used by full {@link JacksonModule}s.
  *<p>
  * Most {@code java.time} types are serialized as numbers (integers or decimals as appropriate) if the
  * {@link tools.jackson.databind.SerializationFeature#WRITE_DATES_AS_TIMESTAMPS} feature is enabled
@@ -69,11 +70,6 @@ import tools.jackson.databind.ext.datetime.ser.key.ZonedDateTimeKeySerializer;
  * <li>{@link LocalDate}, {@link LocalTime}, {@link LocalDateTime}, and {@link OffsetTime}, which cannot portably be converted to timestamps
  * and are instead represented as arrays when WRITE_DATES_AS_TIMESTAMPS is enabled.</li>
  * </ul>
- *
- * @author Nick Williams
- * @author Zoltan Kiss
- *
- * @since 2.6
  */
 public final class JavaTimeInitializer
     implements java.io.Serializable

@@ -4,8 +4,6 @@ import tools.jackson.core.util.JacksonFeature;
 
 /**
  * Configurable on/off features for Java 8 Date/Time module ({@link JavaTimeInitializer}).
- *
- * @since 2.16
  */
 public enum JavaTimeFeature implements JacksonFeature
 {
@@ -54,7 +52,7 @@ public enum JavaTimeFeature implements JacksonFeature
     ONE_BASED_MONTHS(false)
     ;
 
-  /**
+    /**
      * Whether feature is enabled or disabled by default.
      */
     private final boolean _defaultState;

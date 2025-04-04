@@ -1,6 +1,6 @@
 package tools.jackson.databind.cfg;
 
-import tools.jackson.databind.ext.datetime.JavaTimeInitializer;
+import tools.jackson.databind.ext.javatime.JavaTimeInitializer;
 
 /**
  * Configurable on/off features for Java 8 Date/Time module ({@link JavaTimeInitializer}).

@@ -35,11 +35,11 @@ module tools.jackson.databind
     exports tools.jackson.databind.deser.std;
     exports tools.jackson.databind.exc;
     exports tools.jackson.databind.ext;
-    exports tools.jackson.databind.ext.datetime;
-    exports tools.jackson.databind.ext.datetime.deser;
-    exports tools.jackson.databind.ext.datetime.deser.key;
-    exports tools.jackson.databind.ext.datetime.ser;
-    exports tools.jackson.databind.ext.datetime.ser.key;
+    exports tools.jackson.databind.ext.javatime;
+    exports tools.jackson.databind.ext.javatime.deser;
+    exports tools.jackson.databind.ext.javatime.deser.key;
+    exports tools.jackson.databind.ext.javatime.ser;
+    exports tools.jackson.databind.ext.javatime.ser.key;
     exports tools.jackson.databind.ext.jdk8;
     // Needed by Ion module for SqlDate deserializer:
     exports tools.jackson.databind.ext.sql;

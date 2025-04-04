@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.cfg.JavaTimeFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -49,14 +49,14 @@ public class OneBasedMonthSerTest extends DateTimeTestBase
 
     private ObjectWriter writerForZeroBased() {
         return JsonMapper.builder()
-                .disable(JavaTimeFeature.ONE_BASED_MONTHS)
+                .disable(DateTimeFeature.ONE_BASED_MONTHS)
                 .build()
                 .writer();
     }
 
     private ObjectWriter writerForOneBased() {
         return JsonMapper.builder()
-                .enable(JavaTimeFeature.ONE_BASED_MONTHS)
+                .enable(DateTimeFeature.ONE_BASED_MONTHS)
                 .build()
                 .writer();
     }

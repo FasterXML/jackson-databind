@@ -16,7 +16,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.cfg.JavaTimeFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.json.JsonMapper;
@@ -28,7 +28,7 @@ public class ZonedDateTimeDeserTest extends DateTimeTestBase
     private final ObjectReader READER = newMapper().readerFor(ZonedDateTime.class);
 
     private final ObjectReader READER_NON_NORMALIZED_ZONEID = JsonMapper.builder()
-            .disable(JavaTimeFeature.NORMALIZE_DESERIALIZED_ZONE_ID)
+            .disable(DateTimeFeature.NORMALIZE_DESERIALIZED_ZONE_ID)
             .build()
             .readerFor(ZonedDateTime.class);
     

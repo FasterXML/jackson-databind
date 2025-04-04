@@ -339,7 +339,7 @@ public class DatatypeFeatures
             DEFAULT_FEATURES = new DatatypeFeatures(
                     collectDefaults(EnumFeature.values()), 0,
                     collectDefaults(JsonNodeFeature.values()), 0,
-                    collectDefaults(JavaTimeFeature.values()), 0
+                    collectDefaults(DateTimeFeature.values()), 0
                     );
         }
 

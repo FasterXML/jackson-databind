@@ -35,7 +35,7 @@ import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.cfg.DatatypeFeatures;
-import tools.jackson.databind.cfg.JavaTimeFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 
 /**
@@ -47,9 +47,9 @@ import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 public class InstantDeserializer<T extends Temporal>
     extends JSR310DateTimeDeserializerBase<T>
 {
-    private final static boolean DEFAULT_NORMALIZE_ZONE_ID = JavaTimeFeature.NORMALIZE_DESERIALIZED_ZONE_ID.enabledByDefault();
+    private final static boolean DEFAULT_NORMALIZE_ZONE_ID = DateTimeFeature.NORMALIZE_DESERIALIZED_ZONE_ID.enabledByDefault();
     private final static boolean DEFAULT_ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS
-        = JavaTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS.enabledByDefault();
+        = DateTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS.enabledByDefault();
 
     /**
      * Constants used to check if ISO 8601 time string is colon-less. See [jackson-modules-java8#131]
@@ -133,7 +133,7 @@ public class InstantDeserializer<T extends Temporal>
 
     /**
      * Flag set from
-     * {@link JavaTimeFeature#NORMALIZE_DESERIALIZED_ZONE_ID} to
+     * {@link DateTimeFeature#NORMALIZE_DESERIALIZED_ZONE_ID} to
      * determine whether {@link ZoneId} is to be normalized during deserialization.
      *
      * @since 2.16
@@ -142,7 +142,7 @@ public class InstantDeserializer<T extends Temporal>
 
     /**
      * Flag set from
-     * {@link JavaTimeFeature#ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS}
+     * {@link DateTimeFeature#ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS}
      * to determine whether stringified numbers are interpreted as timestamps
      * (enabled) nor not (disabled) in addition to a custom pattern ({code DateTimeFormatter}).
      *<p>
@@ -259,8 +259,8 @@ public class InstantDeserializer<T extends Temporal>
         _adjustToContextTZOverride = base._adjustToContextTZOverride;
         _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
 
-        _normalizeZoneId = features.isEnabled(JavaTimeFeature.NORMALIZE_DESERIALIZED_ZONE_ID);
-        _alwaysAllowStringifiedDateTimestamps = features.isEnabled(JavaTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS);
+        _normalizeZoneId = features.isEnabled(DateTimeFeature.NORMALIZE_DESERIALIZED_ZONE_ID);
+        _alwaysAllowStringifiedDateTimestamps = features.isEnabled(DateTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS);
     }
 
     @Override
@@ -277,8 +277,8 @@ public class InstantDeserializer<T extends Temporal>
     }
 
     public InstantDeserializer<T> withFeatures(DatatypeFeatures features) {
-        if ((_normalizeZoneId == features.isEnabled(JavaTimeFeature.NORMALIZE_DESERIALIZED_ZONE_ID))
-                && (_alwaysAllowStringifiedDateTimestamps == features.isEnabled(JavaTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS))
+        if ((_normalizeZoneId == features.isEnabled(DateTimeFeature.NORMALIZE_DESERIALIZED_ZONE_ID))
+                && (_alwaysAllowStringifiedDateTimestamps == features.isEnabled(DateTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS))
         ) {
             return this;
         }

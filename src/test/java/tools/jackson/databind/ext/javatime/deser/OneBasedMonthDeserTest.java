@@ -13,7 +13,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
-import tools.jackson.databind.cfg.JavaTimeFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
@@ -123,7 +123,7 @@ public class OneBasedMonthDeserTest extends DateTimeTestBase
     {
         ObjectMapper MAPPER = JsonMapper.builder()
             .addMixIn(TemporalAccessor.class, MockObjectConfiguration.class)
-            .enable(JavaTimeFeature.ONE_BASED_MONTHS)
+            .enable(DateTimeFeature.ONE_BASED_MONTHS)
             .build();
 
         TemporalAccessor value = MAPPER.readValue("[\"java.time.Month\",11]", TemporalAccessor.class);
@@ -135,7 +135,7 @@ public class OneBasedMonthDeserTest extends DateTimeTestBase
     {
         ObjectMapper MAPPER = JsonMapper.builder()
                 .addMixIn(TemporalAccessor.class, MockObjectConfiguration.class)
-                .disable(JavaTimeFeature.ONE_BASED_MONTHS)
+                .disable(DateTimeFeature.ONE_BASED_MONTHS)
                 .build();
 
         TemporalAccessor value = MAPPER.readValue("[\"java.time.Month\",\"11\"]", TemporalAccessor.class);
@@ -193,14 +193,14 @@ public class OneBasedMonthDeserTest extends DateTimeTestBase
 
     private ObjectReader readerForZeroBased() {
         return JsonMapper.builder()
-                .disable(JavaTimeFeature.ONE_BASED_MONTHS)
+                .disable(DateTimeFeature.ONE_BASED_MONTHS)
                 .build()
                 .readerFor(Month.class);
     }
 
     private ObjectReader readerForOneBased() {
         return JsonMapper.builder()
-                .enable(JavaTimeFeature.ONE_BASED_MONTHS)
+                .enable(DateTimeFeature.ONE_BASED_MONTHS)
                 .build()
                 .readerFor(Month.class);
     }

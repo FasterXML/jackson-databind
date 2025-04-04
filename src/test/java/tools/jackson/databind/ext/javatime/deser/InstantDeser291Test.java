@@ -6,7 +6,7 @@ import java.util.Locale;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.cfg.JavaTimeFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -19,7 +19,7 @@ public class InstantDeser291Test
 {
     private final JsonMapper MAPPER = JsonMapper.builder()
         .defaultLocale(Locale.ENGLISH)
-        .enable(JavaTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS)
+        .enable(DateTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS)
         .build();
     private final ObjectReader READER = MAPPER.readerFor(Instant.class);
 

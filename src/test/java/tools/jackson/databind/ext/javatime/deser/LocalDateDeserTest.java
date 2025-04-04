@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonFormat.Feature;
 
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
-import tools.jackson.databind.cfg.JavaTimeFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.core.type.TypeReference;
 
@@ -33,7 +33,7 @@ public class LocalDateDeserTest extends DateTimeTestBase
     private final ObjectMapper MAPPER = newMapper();
     private final ObjectReader READER = MAPPER.readerFor(LocalDate.class);
     private final ObjectReader READER_USING_TIME_ZONE = JsonMapper.builder()
-        .enable(JavaTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING)
+        .enable(DateTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING)
         .build()
         .readerFor(LocalDate.class);
 

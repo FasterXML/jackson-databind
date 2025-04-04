@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.DatatypeFeatures;
-import tools.jackson.databind.cfg.JavaTimeFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 
 /**
  * Deserializer for Java 8 temporal {@link LocalDateTime}s.
@@ -38,7 +38,7 @@ public class LocalDateTimeDeserializer
     extends JSR310DateTimeDeserializerBase<LocalDateTime>
 {
     private final static boolean DEFAULT_USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING
-        = JavaTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING.enabledByDefault();
+        = DateTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING.enabledByDefault();
 
     private static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
@@ -53,7 +53,7 @@ public class LocalDateTimeDeserializer
 
     /**
      * Flag set from
-     * {@link JavaTimeFeature#USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING}
+     * {@link DateTimeFeature#USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING}
      * to determine whether the {@link java.util.TimeZone} of the
      * {@link tools.jackson.databind.DeserializationContext} is used
      * when leniently deserializing from the UTC/ISO instant format.
@@ -100,7 +100,7 @@ public class LocalDateTimeDeserializer
     protected LocalDateTimeDeserializer(LocalDateTimeDeserializer base, DatatypeFeatures features) {
         super(LocalDateTime.class, base._formatter);
         _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
-        _useTimeZoneForLenientDateParsing = features.isEnabled(JavaTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING);
+        _useTimeZoneForLenientDateParsing = features.isEnabled(DateTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING);
     }
 
     @Override
@@ -133,7 +133,7 @@ public class LocalDateTimeDeserializer
      */
     public LocalDateTimeDeserializer withFeatures(DatatypeFeatures features) {
         if (_useTimeZoneForLenientDateParsing ==
-                features.isEnabled(JavaTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING)) {
+                features.isEnabled(DateTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING)) {
             return this;
         }
         return new LocalDateTimeDeserializer(this, features);

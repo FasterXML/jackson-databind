@@ -1,11 +1,14 @@
 package tools.jackson.databind.cfg;
 
-import tools.jackson.databind.ext.javatime.JavaTimeInitializer;
-
 /**
- * Configurable on/off features for Java 8 Date/Time module ({@link JavaTimeInitializer}).
+ * Configurable on/off features to configure Date/Time handling.
+ * Mostly used to configure
+ * Java 8 Time ({@code java.time}) type handling (see
+ * {@link tools.jackson.databind.ext.javatime.JavaTimeInitializer})
+ * but also to "legacy" ({@link java.util.Date}, {@link java.util.Calendar})
+ * and Joda Date/Time.
  */
-public enum JavaTimeFeature implements DatatypeFeature
+public enum DateTimeFeature implements DatatypeFeature
 {
     /**
      * Feature that determines whether {@link java.time.ZoneId} is normalized
@@ -62,7 +65,7 @@ public enum JavaTimeFeature implements DatatypeFeature
 
     private final int _mask;
 
-    private JavaTimeFeature(boolean enabledByDefault) {
+    private DateTimeFeature(boolean enabledByDefault) {
         _enabledByDefault = enabledByDefault;
         _mask = (1 << ordinal());
     }

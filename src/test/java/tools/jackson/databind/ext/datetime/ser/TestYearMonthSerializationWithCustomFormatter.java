@@ -8,7 +8,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ext.datetime.ser.YearMonthSerializer;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ext.datetime.deser.YearMonthDeserializer;
@@ -16,8 +15,8 @@ import tools.jackson.databind.ext.datetime.deser.YearMonthDeserializer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestYearMonthSerializationWithCustomFormatter {
-
+public class TestYearMonthSerializationWithCustomFormatter
+{
     @ParameterizedTest
     @MethodSource("customFormatters")
     void testSerialization(DateTimeFormatter formatter) throws Exception {

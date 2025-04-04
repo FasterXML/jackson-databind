@@ -5,7 +5,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.stream.Stream;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ext.datetime.ser.LocalTimeSerializer;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ext.datetime.deser.LocalTimeDeserializer;

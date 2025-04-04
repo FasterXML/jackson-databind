@@ -31,10 +31,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberInput;
-import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 import tools.jackson.databind.ext.datetime.util.DecimalUtils;
 
@@ -246,12 +246,9 @@ public class InstantDeserializer<T extends Temporal>
         _alwaysAllowStringifiedDateTimestamps = base._alwaysAllowStringifiedDateTimestamps;
     }
 
-    /**
-     * @since 2.16
-     */
     @SuppressWarnings("unchecked")
     protected InstantDeserializer(InstantDeserializer<T> base,
-            JacksonFeatureSet<JavaTimeFeature> features)
+            DatatypeFeatures features)
     {
         super((Class<T>) base.handledType(), base._formatter);
         parsedToValue = base.parsedToValue;
@@ -279,8 +276,7 @@ public class InstantDeserializer<T extends Temporal>
         return new InstantDeserializer<>(this, _formatter, leniency);
     }
 
-    // @since 2.16
-    public InstantDeserializer<T> withFeatures(JacksonFeatureSet<JavaTimeFeature> features) {
+    public InstantDeserializer<T> withFeatures(DatatypeFeatures features) {
         if ((_normalizeZoneId == features.isEnabled(JavaTimeFeature.NORMALIZE_DESERIALIZED_ZONE_ID))
                 && (_alwaysAllowStringifiedDateTimestamps == features.isEnabled(JavaTimeFeature.ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS))
         ) {

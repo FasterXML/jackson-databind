@@ -4,11 +4,11 @@ import tools.jackson.core.Version;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.json.JsonWriteFeature;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.cfg.MapperBuilderState;
 import tools.jackson.databind.cfg.PackageVersion;
-import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 
 /**
  * JSON-specific {@link ObjectMapper} implementation.
@@ -87,20 +87,6 @@ public class JsonMapper extends ObjectMapper
         public Builder disable(JsonWriteFeature... features) {
             for (JsonWriteFeature f : features) {
                 _formatWriteFeatures &= ~f.getMask();
-            }
-            return this;
-        }
-
-        public Builder enable(JavaTimeFeature... features) {
-            for (JavaTimeFeature f : features) {
-                _javaTimeFeatures = _javaTimeFeatures.with(f);
-            }
-            return this;
-        }
-
-        public Builder disable(JavaTimeFeature... features) {
-            for (JavaTimeFeature f : features) {
-                _javaTimeFeatures = _javaTimeFeatures.without(f);
             }
             return this;
         }

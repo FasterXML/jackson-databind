@@ -13,10 +13,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.DefaultPrettyPrinter;
-import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.core.util.Snapshottable;
 import tools.jackson.databind.*;
-import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 import tools.jackson.databind.ext.datetime.JavaTimeInitializer;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.introspect.*;
@@ -243,12 +241,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * Optional per-format generator feature flags.
      */
     protected int _formatWriteFeatures;
-
-    /**
-     * States of {@link JavaTimeFeature}s to enable/disable.
-     */
-    protected JacksonFeatureSet<JavaTimeFeature> _javaTimeFeatures =
-            JacksonFeatureSet.fromDefaults(JavaTimeFeature.values());
 
     /*
     /**********************************************************************
@@ -495,20 +487,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     public boolean isEnabled(DatatypeFeature f) {
         return _datatypeFeatures.isEnabled(f);
     }
-
     public boolean isEnabled(StreamReadFeature f) {
         return f.enabledIn(_streamReadFeatures);
     }
     public boolean isEnabled(StreamWriteFeature f) {
         return f.enabledIn(_streamWriteFeatures);
-    }
-
-    public boolean isEnabled(JavaTimeFeature f) {
-        return _javaTimeFeatures.isEnabled(f);
-    }
-
-    public JacksonFeatureSet<JavaTimeFeature> getJavaTimeFeatures() {
-        return _javaTimeFeatures;
     }
 
     public DatatypeFeatures datatypeFeatures() {

@@ -11,14 +11,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.ext.datetime.ser.ZonedDateTimeSerializer;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestZonedDateTimeSerializationWithCustomFormatter {
-
+public class TestZonedDateTimeSerializationWithCustomFormatter
+{
     @MethodSource("customFormatters")
     @ParameterizedTest
     public void testSerialization(DateTimeFormatter formatter) throws Exception {

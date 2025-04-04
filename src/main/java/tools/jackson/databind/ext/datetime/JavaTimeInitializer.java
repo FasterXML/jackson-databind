@@ -19,6 +19,7 @@ package tools.jackson.databind.ext.datetime;
 import java.time.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.ValueInstantiators;
 import tools.jackson.databind.deser.std.StdValueInstantiator;
@@ -84,21 +85,22 @@ public final class JavaTimeInitializer
     private JavaTimeInitializer() { }
 
     public void setupModule(JacksonModule.SetupContext context) {
+        final DatatypeFeatures datatypeFeatures = context.datatypeFeatures();
         context.addDeserializers(new SimpleDeserializers()
             // // Instant variants:
             .addDeserializer(Instant.class,
-                    InstantDeserializer.INSTANT.withFeatures(context.getJavaTimeFeatures()))
+                    InstantDeserializer.INSTANT.withFeatures(datatypeFeatures))
             .addDeserializer(OffsetDateTime.class,
-                    InstantDeserializer.OFFSET_DATE_TIME.withFeatures(context.getJavaTimeFeatures()))
+                    InstantDeserializer.OFFSET_DATE_TIME.withFeatures(datatypeFeatures))
             .addDeserializer(ZonedDateTime.class,
-                    InstantDeserializer.ZONED_DATE_TIME.withFeatures(context.getJavaTimeFeatures()))
+                    InstantDeserializer.ZONED_DATE_TIME.withFeatures(datatypeFeatures))
     
             // // Other deserializers
             .addDeserializer(Duration.class, DurationDeserializer.INSTANCE)
             .addDeserializer(LocalDateTime.class,
-                    LocalDateTimeDeserializer.INSTANCE.withFeatures(context.getJavaTimeFeatures()))
+                    LocalDateTimeDeserializer.INSTANCE.withFeatures(datatypeFeatures))
             .addDeserializer(LocalDate.class,
-                    LocalDateDeserializer.INSTANCE.withFeatures(context.getJavaTimeFeatures()))
+                    LocalDateDeserializer.INSTANCE.withFeatures(datatypeFeatures))
             .addDeserializer(LocalTime.class, LocalTimeDeserializer.INSTANCE)
             .addDeserializer(MonthDay.class, MonthDayDeserializer.INSTANCE)
             .addDeserializer(OffsetTime.class, OffsetTimeDeserializer.INSTANCE)

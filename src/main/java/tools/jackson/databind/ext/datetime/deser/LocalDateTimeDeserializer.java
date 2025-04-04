@@ -25,8 +25,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.*;
-import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 
 /**
@@ -97,7 +97,7 @@ public class LocalDateTimeDeserializer
     /**
      * Since 2.19
      */
-    protected LocalDateTimeDeserializer(LocalDateTimeDeserializer base, JacksonFeatureSet<JavaTimeFeature> features) {
+    protected LocalDateTimeDeserializer(LocalDateTimeDeserializer base, DatatypeFeatures features) {
         super(LocalDateTime.class, base._formatter);
         _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
         _useTimeZoneForLenientDateParsing = features.isEnabled(JavaTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING);
@@ -131,7 +131,7 @@ public class LocalDateTimeDeserializer
     /**
      * Since 2.19
      */
-    public LocalDateTimeDeserializer withFeatures(JacksonFeatureSet<JavaTimeFeature> features) {
+    public LocalDateTimeDeserializer withFeatures(DatatypeFeatures features) {
         if (_useTimeZoneForLenientDateParsing ==
                 features.isEnabled(JavaTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING)) {
             return this;

@@ -4,10 +4,9 @@ import java.util.Collection;
 import java.util.function.UnaryOperator;
 
 import tools.jackson.core.*;
-import tools.jackson.core.util.JacksonFeatureSet;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.JacksonModule.SetupContext;
-import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.ser.SerializerFactory;
@@ -128,15 +127,15 @@ public class ModuleContextBase
     }
 
     @Override
-    public boolean isEnabled(JavaTimeFeature f) {
+    public boolean isEnabled(DatatypeFeature f) {
         return _builder.isEnabled(f);
     }
 
     @Override
-    public JacksonFeatureSet<JavaTimeFeature> getJavaTimeFeatures() {
-        return _builder.getJavaTimeFeatures();
+    public DatatypeFeatures datatypeFeatures() {
+        return _builder.datatypeFeatures();
     }
-
+    
     /*
     /**********************************************************************
     /* Mutators for adding deserializers, related

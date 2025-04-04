@@ -15,7 +15,9 @@ public class DatatypeFeatures
 
     protected final static int FEATURE_INDEX_ENUM = 0;
     protected final static int FEATURE_INDEX_JSON_NODE = 1;
-    protected final static int FEATURE_INDEX_DATETIME = 2;
+
+    // !!! TODO: make protected
+    public final static int FEATURE_INDEX_DATETIME = 2;
 
     private final int _enabledFor1, _enabledFor2, _enabledFor3;
 
@@ -108,7 +110,7 @@ public class DatatypeFeatures
             return _with(_enabledFor1, _explicitFor1,
                     _enabledFor2 | mask, _explicitFor2 | mask,
                     _enabledFor3, _explicitFor3);
-        case 3:
+        case 2:
             return _with(_enabledFor1, _explicitFor1,
                     _enabledFor2, _explicitFor2,
                     _enabledFor3 | mask, _explicitFor3 | mask);

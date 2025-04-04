@@ -1,11 +1,12 @@
 package tools.jackson.databind.ext.datetime;
 
-import tools.jackson.core.util.JacksonFeature;
+import tools.jackson.databind.cfg.DatatypeFeature;
+import tools.jackson.databind.cfg.DatatypeFeatures;
 
 /**
  * Configurable on/off features for Java 8 Date/Time module ({@link JavaTimeInitializer}).
  */
-public enum JavaTimeFeature implements JacksonFeature
+public enum JavaTimeFeature implements DatatypeFeature
 {
     /**
      * Feature that determines whether {@link java.time.ZoneId} is normalized
@@ -52,24 +53,29 @@ public enum JavaTimeFeature implements JacksonFeature
     ONE_BASED_MONTHS(false)
     ;
 
+    private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_DATETIME;
+
     /**
      * Whether feature is enabled or disabled by default.
      */
-    private final boolean _defaultState;
+    private final boolean _enabledByDefault;
 
     private final int _mask;
 
-    JavaTimeFeature(boolean enabledByDefault) {
-        _defaultState = enabledByDefault;
+    private JavaTimeFeature(boolean enabledByDefault) {
+        _enabledByDefault = enabledByDefault;
         _mask = (1 << ordinal());
     }
 
     @Override
-    public boolean enabledByDefault() { return _defaultState; }
-
+    public boolean enabledByDefault() { return _enabledByDefault; }
     @Override
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
-
     @Override
     public int getMask() { return _mask; }
+
+    @Override
+    public int featureIndex() {
+        return FEATURE_INDEX;
+    }
 }

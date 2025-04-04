@@ -24,14 +24,13 @@ import java.time.format.DateTimeFormatter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.*;
-import tools.jackson.core.util.JacksonFeatureSet;
 
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
-
+import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 
 /**
@@ -84,7 +83,7 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
     /**
      * Since 2.19
      */
-    protected LocalDateDeserializer(LocalDateDeserializer base, JacksonFeatureSet<JavaTimeFeature> features) {
+    protected LocalDateDeserializer(LocalDateDeserializer base, DatatypeFeatures features) {
         super(LocalDate.class, base._formatter);
         _useTimeZoneForLenientDateParsing = features.isEnabled(JavaTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING);
     }
@@ -105,7 +104,7 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
     /**
      * Since 2.19
      */
-    public LocalDateDeserializer withFeatures(JacksonFeatureSet<JavaTimeFeature> features) {
+    public LocalDateDeserializer withFeatures(DatatypeFeatures features) {
         if (_useTimeZoneForLenientDateParsing ==
                 features.isEnabled(JavaTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING)) {
             return this;

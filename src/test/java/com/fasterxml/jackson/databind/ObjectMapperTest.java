@@ -386,6 +386,16 @@ public class ObjectMapperTest
     }
 
     @Test
+    public void testAutoDetectClasses() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        final String JSON = "{ \"x\" : 3 }";
+
+        Bean bean = m.readValue(JSON);
+        assertNotNull(bean);
+    }
+
+    @Test
     public void testProviderConfig() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

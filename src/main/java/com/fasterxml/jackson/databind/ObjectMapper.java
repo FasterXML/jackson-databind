@@ -3856,6 +3856,34 @@ public class ObjectMapper
     }
 
     /**
+     * Utility method to get the class type from a varargs array.
+     *
+     * @param <T> the generic type
+     * @param array the varargs array
+     * @return the class of the array component
+     */
+    private static <T> Class<T> getClassOf(T[] array) {
+        return (Class<T>) array.getClass().getComponentType();
+    }
+
+    /**
+     * Reads the value from the given JSON content and automatically detects the class type.
+     *
+     * @param <T> the type of the object to read
+     * @param content the JSON string
+     * @param reified don't pass any values here. It's a trick to detect the class type.
+     * @return the deserialized object
+     * @throws JsonProcessingException if there is a problem processing the JSON
+     */
+    public <T> T readValue(String content, T... reified) throws JsonProcessingException {
+        if (reified.length > 0) {
+            throw new IllegalArgumentException("Please don't pass any values here. Java will detect class automatically.");
+        }
+
+        return readValue(content, _typeFactory.constructType(getClassOf(reified)));
+    }
+
+    /**
      * Method to deserialize JSON content from given JSON content String.
      *
      * @throws StreamReadException if underlying input contains invalid content

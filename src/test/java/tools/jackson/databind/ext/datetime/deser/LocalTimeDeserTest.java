@@ -34,11 +34,11 @@ import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LocalTimeDeserTest extends ModuleTestBase
+public class LocalTimeDeserTest extends DateTimeTestBase
 {
     private final ObjectMapper MAPPER = newMapper();
     private final ObjectReader READER = MAPPER.readerFor(LocalTime.class);

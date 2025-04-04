@@ -5,7 +5,7 @@ import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 //   fractional timestamps incorrectly: -1.000000001 deserializes to 1969-12-31T23:59:59.000000001Z
 //   instead of 1969-12-31T23:59:58.999999999Z
 public class InstantDeserializerNegative359Test
-    extends ModuleTestBase
+    extends DateTimeTestBase
 {
     private final ObjectReader READER = newMapper().readerFor(Instant.class);
 

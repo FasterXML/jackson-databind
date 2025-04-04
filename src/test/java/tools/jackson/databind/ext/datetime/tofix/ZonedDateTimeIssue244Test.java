@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test case for https://github.com/FasterXML/jackson-modules-java8/issues/244
  */
-public class ZonedDateTimeIssue244Test extends ModuleTestBase
+public class ZonedDateTimeIssue244Test extends DateTimeTestBase
 {
     private final ObjectMapper MAPPER = mapperBuilder()
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)

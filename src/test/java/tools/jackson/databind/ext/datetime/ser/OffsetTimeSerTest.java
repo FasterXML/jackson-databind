@@ -24,11 +24,11 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OffsetTimeSerTest extends ModuleTestBase
+public class OffsetTimeSerTest extends DateTimeTestBase
 {
     private final ObjectMapper MAPPER = newMapper();
 

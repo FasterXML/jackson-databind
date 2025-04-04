@@ -17,11 +17,11 @@ import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class YearMonthDeserTest extends ModuleTestBase
+public class YearMonthDeserTest extends DateTimeTestBase
 {
     private final ObjectMapper MAPPER = newMapper();
     private final ObjectReader READER = MAPPER.readerFor(YearMonth.class);

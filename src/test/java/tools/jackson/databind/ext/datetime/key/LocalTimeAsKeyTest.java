@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LocalTimeAsKeyTest extends ModuleTestBase
+public class LocalTimeAsKeyTest extends DateTimeTestBase
 {
     private static final LocalTime TIME_0 = LocalTime.ofSecondOfDay(0);
     /*

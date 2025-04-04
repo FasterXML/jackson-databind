@@ -19,11 +19,11 @@ import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ext.datetime.JavaTimeFeature;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ZonedDateTimeDeserTest extends ModuleTestBase
+public class ZonedDateTimeDeserTest extends DateTimeTestBase
 {
     private final ObjectReader READER = newMapper().readerFor(ZonedDateTime.class);
 

@@ -27,12 +27,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LocalDateTimeSerTest
-    extends ModuleTestBase
+    extends DateTimeTestBase
 {
     static class LDTWrapper {
         @JsonFormat(pattern="yyyy-MM-dd'A'HH:mm:ss")

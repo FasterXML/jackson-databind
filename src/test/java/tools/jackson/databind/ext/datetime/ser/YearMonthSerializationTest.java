@@ -28,12 +28,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class YearMonthSerializationTest
-	extends ModuleTestBase
+	extends DateTimeTestBase
 {
     private static class SimpleAggregate
     {

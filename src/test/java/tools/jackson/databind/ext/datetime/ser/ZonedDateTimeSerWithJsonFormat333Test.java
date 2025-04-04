@@ -8,14 +8,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [module-java8#333]: ZonedDateTime serialization with @JsonFormat pattern never uses
 //  while WRITE_DATES_WITH_ZONE_ID enabled #333
 public class ZonedDateTimeSerWithJsonFormat333Test
-    extends ModuleTestBase
+    extends DateTimeTestBase
 {
     public static class ContainerWithPattern333 {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss z")

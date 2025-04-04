@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
 
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DurationDeser337Test extends ModuleTestBase
+public class DurationDeser337Test extends DateTimeTestBase
 {
     @Test
     public void testWithDurationsAsTimestamps() throws Exception

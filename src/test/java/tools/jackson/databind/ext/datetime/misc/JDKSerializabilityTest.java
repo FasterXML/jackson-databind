@@ -10,7 +10,7 @@ import tools.jackson.databind.ext.datetime.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JDKSerializabilityTest extends ModuleTestBase
+public class JDKSerializabilityTest extends DateTimeTestBase
 {
     @Test
     public void testJDKSerializability() throws Exception {

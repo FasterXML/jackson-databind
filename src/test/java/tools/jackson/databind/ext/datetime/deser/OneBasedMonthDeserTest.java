@@ -5,6 +5,9 @@ import java.time.temporal.TemporalAccessor;
 
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
@@ -15,11 +18,11 @@ import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OneBasedMonthDeserTest extends ModuleTestBase
+public class OneBasedMonthDeserTest extends DateTimeTestBase
 {
     static class Wrapper {
         public Month value;
@@ -28,39 +31,51 @@ public class OneBasedMonthDeserTest extends ModuleTestBase
         public Wrapper() { }
     }
 
-    @Test
-    public void testDeserializationAsString01_oneBased() throws Exception
+    @ParameterizedTest
+    @EnumSource(Month.class)
+    public void testDeserializationAsString01_oneBased(Month expectedMonth) throws Exception
     {
-        assertEquals(Month.JANUARY, readerForOneBased().readValue("\"1\""));
+        int monthNum = expectedMonth.getValue();
+        assertEquals(expectedMonth, readerForOneBased().readValue("\"" + monthNum + '"'));
     }
 
-    @Test
-    public void testDeserializationAsString01_zeroBased() throws Exception
+    @ParameterizedTest
+    @EnumSource(Month.class)
+    public void testDeserializationAsString01_zeroBased(Month expectedMonth) throws Exception
     {
-        assertEquals(Month.FEBRUARY, readerForZeroBased().readValue("\"1\""));
+        int monthNum = expectedMonth.ordinal();
+        assertEquals(expectedMonth, readerForZeroBased().readValue("\"" + monthNum + '"'));
     }
 
 
-    @Test
-    public void testDeserializationAsString02_oneBased() throws Exception
+    @ParameterizedTest
+    @EnumSource(Month.class)
+    public void testDeserializationAsString02_oneBased(Month month) throws Exception
     {
-        assertEquals(Month.JANUARY, readerForOneBased().readValue("\"JANUARY\""));
+        assertEquals(month, readerForOneBased().readValue("\"" + month.name() + '"'));
     }
 
-    @Test
-    public void testDeserializationAsString02_zeroBased() throws Exception
+    @ParameterizedTest
+    @EnumSource(Month.class)
+    public void testDeserializationAsString02_zeroBased(Month month) throws Exception
     {
-        assertEquals(Month.JANUARY, readerForZeroBased().readValue("\"JANUARY\""));
+        assertEquals(month, readerForOneBased().readValue("\"" + month.name() + '"'));
     }
 
-    @Test
-    public void testBadDeserializationAsString01_oneBased() {
+    @ParameterizedTest
+    @CsvSource({
+            "notamonth , 'Cannot deserialize value of type `java.time.Month` from String \"notamonth\": not one of the values accepted for Enum class:'",
+            "JANUAR    , 'Cannot deserialize value of type `java.time.Month` from String \"JANUAR\": not one of the values accepted for Enum class:'",
+            "march     , 'Cannot deserialize value of type `java.time.Month` from String \"march\": not one of the values accepted for Enum class:'",
+            "0         , 'Month number 0 not allowed for 1-based Month.'",
+            "13        , 'Month number 13 not allowed for 1-based Month.'",
+    })
+    public void testBadDeserializationAsString01_oneBased(String monthSpec, String expectedMessage) {
+        String value = "\"" + monthSpec + '"';
         assertError(
-            () -> readerForOneBased().readValue("\"notamonth\""),
+            () -> readerForOneBased().readValue(value),
             InvalidFormatException.class,
-            // Order of enumerated values not stable, so don't check:
-            "Cannot deserialize value of type `java.time.Month` from String \"notamonth\":"
-            +" not one of the values accepted for Enum class: ["
+            expectedMessage
         );
     }
 
@@ -107,8 +122,8 @@ public class OneBasedMonthDeserTest extends ModuleTestBase
     public void testDeserializationWithTypeInfo01_oneBased() throws Exception
     {
         ObjectMapper MAPPER = JsonMapper.builder()
-            .enable(JavaTimeFeature.ONE_BASED_MONTHS)
             .addMixIn(TemporalAccessor.class, MockObjectConfiguration.class)
+            .enable(JavaTimeFeature.ONE_BASED_MONTHS)
             .build();
 
         TemporalAccessor value = MAPPER.readValue("[\"java.time.Month\",11]", TemporalAccessor.class);
@@ -120,6 +135,7 @@ public class OneBasedMonthDeserTest extends ModuleTestBase
     {
         ObjectMapper MAPPER = JsonMapper.builder()
                 .addMixIn(TemporalAccessor.class, MockObjectConfiguration.class)
+                .disable(JavaTimeFeature.ONE_BASED_MONTHS)
                 .build();
 
         TemporalAccessor value = MAPPER.readValue("[\"java.time.Month\",\"11\"]", TemporalAccessor.class);

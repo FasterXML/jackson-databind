@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class InstantAsKeyTest extends ModuleTestBase
+public class InstantAsKeyTest extends DateTimeTestBase
 {
     private static final Instant INSTANT_0 = Instant.ofEpochMilli(0);
     private static final String INSTANT_0_STRING = "1970-01-01T00:00:00Z";

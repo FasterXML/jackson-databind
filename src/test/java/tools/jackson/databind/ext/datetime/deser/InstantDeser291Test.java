@@ -8,14 +8,14 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ext.datetime.JavaTimeFeature;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // [modules-java8#291] InstantDeserializer fails to parse negative numeric timestamp strings for
 //   pre-1970 values.
 public class InstantDeser291Test 
-    extends ModuleTestBase
+    extends DateTimeTestBase
 {
     private final JsonMapper MAPPER = JsonMapper.builder()
         .defaultLocale(Locale.ENGLISH)

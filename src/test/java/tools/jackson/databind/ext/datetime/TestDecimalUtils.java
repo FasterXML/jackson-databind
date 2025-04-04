@@ -10,7 +10,7 @@ import tools.jackson.databind.ext.datetime.util.DecimalUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestDecimalUtils extends ModuleTestBase
+public class TestDecimalUtils extends DateTimeTestBase
 {
     @Test
     public void testToDecimal01()

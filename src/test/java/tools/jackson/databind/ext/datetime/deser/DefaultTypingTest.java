@@ -8,11 +8,11 @@ import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DefaultTypingTest extends ModuleTestBase
+public class DefaultTypingTest extends DateTimeTestBase
 {
     static class NoCheckSubTypeValidator
         extends PolymorphicTypeValidator.Base

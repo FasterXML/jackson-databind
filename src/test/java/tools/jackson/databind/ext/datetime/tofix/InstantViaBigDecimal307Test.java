@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // [modules-java8#307]: Loss of precision via JsonNode for BigDecimal-valued
 // things (like Instant)
-public class InstantViaBigDecimal307Test extends ModuleTestBase
+public class InstantViaBigDecimal307Test extends DateTimeTestBase
 {
     public static class Wrapper307 {
         public Instant value;

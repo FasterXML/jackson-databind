@@ -8,12 +8,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class WriteNanosecondsTest extends ModuleTestBase
+public class WriteNanosecondsTest extends DateTimeTestBase
 {
     public static final ZoneId UTC = ZoneId.of("UTC");
 

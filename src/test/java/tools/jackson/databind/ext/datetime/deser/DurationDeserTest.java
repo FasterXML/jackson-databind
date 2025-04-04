@@ -21,11 +21,11 @@ import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DurationDeserTest extends ModuleTestBase
+public class DurationDeserTest extends DateTimeTestBase
 {
     private final ObjectReader READER = newMapper().readerFor(Duration.class);
 

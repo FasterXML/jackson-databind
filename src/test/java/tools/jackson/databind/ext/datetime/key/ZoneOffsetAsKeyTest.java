@@ -7,11 +7,11 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ZoneOffsetAsKeyTest extends ModuleTestBase
+public class ZoneOffsetAsKeyTest extends DateTimeTestBase
 {
     private static final TypeReference<Map<ZoneOffset, String>> TYPE_REF = new TypeReference<Map<ZoneOffset, String>>() {
     };

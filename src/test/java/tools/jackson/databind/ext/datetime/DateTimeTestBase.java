@@ -8,7 +8,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.json.JsonMapper;
 
-public class ModuleTestBase
+public class DateTimeTestBase
 {
     protected static final ZoneId UTC = ZoneId.of("UTC");
 

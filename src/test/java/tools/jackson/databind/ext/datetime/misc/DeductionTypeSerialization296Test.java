@@ -9,12 +9,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // for [modules-java8#296]: problem with `JsonTypeInfo.Id.DEDUCTION`
-public class DeductionTypeSerialization296Test extends ModuleTestBase
+public class DeductionTypeSerialization296Test extends DateTimeTestBase
 {
     static class Wrapper {
         @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)

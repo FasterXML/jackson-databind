@@ -9,11 +9,11 @@ import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 import tools.jackson.databind.ext.datetime.JavaTimeFeature;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class OneBasedMonthSerTest extends ModuleTestBase
+public class OneBasedMonthSerTest extends DateTimeTestBase
 {
     static class Wrapper {
         public Month month;

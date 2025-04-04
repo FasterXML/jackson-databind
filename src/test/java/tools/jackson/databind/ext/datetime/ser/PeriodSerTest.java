@@ -23,11 +23,11 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PeriodSerTest extends ModuleTestBase
+public class PeriodSerTest extends DateTimeTestBase
 {
     private final ObjectMapper MAPPER = newMapper();
 

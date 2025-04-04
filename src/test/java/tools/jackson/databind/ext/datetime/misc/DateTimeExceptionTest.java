@@ -5,11 +5,11 @@ import java.time.DateTimeException;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DateTimeExceptionTest extends ModuleTestBase
+public class DateTimeExceptionTest extends DateTimeTestBase
 {
     private final ObjectMapper MAPPER = newMapper();
 

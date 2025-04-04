@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsonFormatVisitors.*;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DateTimeSchemasTest extends ModuleTestBase
+public class DateTimeSchemasTest extends DateTimeTestBase
 {
     static class VisitorWrapper implements JsonFormatVisitorWrapper {
         SerializationContext serializationContext;

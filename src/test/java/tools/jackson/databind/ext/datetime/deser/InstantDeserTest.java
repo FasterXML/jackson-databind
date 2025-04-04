@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Timeout;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 import tools.jackson.databind.ext.datetime.util.DecimalUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -27,7 +27,7 @@ import tools.jackson.databind.SerializationFeature;
 import static org.junit.jupiter.api.Assertions.*;
 import static tools.jackson.databind.ext.datetime.deser.InstantDeserializer.ISO8601_COLONLESS_OFFSET_REGEX;
 
-public class InstantDeserTest extends ModuleTestBase
+public class InstantDeserTest extends DateTimeTestBase
 {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_INSTANT;
     private static final String CUSTOM_PATTERN = "yyyy-MM-dd HH:mm:ss";

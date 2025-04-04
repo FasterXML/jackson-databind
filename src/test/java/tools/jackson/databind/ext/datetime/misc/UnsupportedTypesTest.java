@@ -6,11 +6,11 @@ import java.time.temporal.TemporalAdjusters;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UnsupportedTypesTest extends ModuleTestBase
+public class UnsupportedTypesTest extends DateTimeTestBase
 {
     // [modules-java8#207]
     static class TAWrapper {

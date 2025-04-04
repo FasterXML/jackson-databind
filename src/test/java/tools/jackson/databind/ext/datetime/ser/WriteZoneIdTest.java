@@ -11,11 +11,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class WriteZoneIdTest extends ModuleTestBase
+public class WriteZoneIdTest extends DateTimeTestBase
 {
     static class DummyClassWithDate {
         @JsonFormat(shape = JsonFormat.Shape.STRING,

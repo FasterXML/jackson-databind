@@ -12,11 +12,11 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DurationSerTest extends ModuleTestBase
+public class DurationSerTest extends DateTimeTestBase
 {
     private final ObjectWriter WRITER = newMapper().writer();
 

@@ -27,11 +27,11 @@ import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LocalTimeSerTest extends ModuleTestBase
+public class LocalTimeSerTest extends DateTimeTestBase
 {
     private final ObjectMapper MAPPER = newMapper();
     private final ObjectWriter writer = MAPPER.writer();

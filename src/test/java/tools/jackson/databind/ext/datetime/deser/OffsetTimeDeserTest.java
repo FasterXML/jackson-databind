@@ -18,11 +18,11 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OffsetTimeDeserTest extends ModuleTestBase
+public class OffsetTimeDeserTest extends DateTimeTestBase
 {
 
     private final TypeReference<Map<String, OffsetTime>> MAP_TYPE_REF = new TypeReference<Map<String, OffsetTime>>() { };

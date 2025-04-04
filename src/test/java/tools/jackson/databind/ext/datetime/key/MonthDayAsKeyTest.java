@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MonthDayAsKeyTest extends ModuleTestBase
+public class MonthDayAsKeyTest extends DateTimeTestBase
 {
     private static final MonthDay MONTH_DAY = MonthDay.of(3, 14);
     private static final String MONTH_DAY_STRING = "--03-14";

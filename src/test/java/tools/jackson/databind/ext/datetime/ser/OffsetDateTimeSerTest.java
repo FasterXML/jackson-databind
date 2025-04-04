@@ -12,13 +12,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 import tools.jackson.databind.ext.datetime.util.DecimalUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OffsetDateTimeSerTest
-    extends ModuleTestBase
+    extends DateTimeTestBase
 {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 

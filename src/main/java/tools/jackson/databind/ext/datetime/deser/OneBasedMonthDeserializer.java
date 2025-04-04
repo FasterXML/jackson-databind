@@ -1,7 +1,6 @@
 package tools.jackson.databind.ext.datetime.deser;
 
 import java.time.Month;
-import java.util.regex.Pattern;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
@@ -10,12 +9,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.deser.std.DelegatingDeserializer;
 import tools.jackson.databind.exc.InvalidFormatException;
 
-/**
- * @since 2.17
- */
 public class OneBasedMonthDeserializer extends DelegatingDeserializer {
-    private static final Pattern HAS_ONE_OR_TWO_DIGITS = Pattern.compile("^\\d{1,2}$");
-
     public OneBasedMonthDeserializer(ValueDeserializer<?> defaultDeserializer) {
         super(defaultDeserializer);
     }
@@ -23,22 +17,51 @@ public class OneBasedMonthDeserializer extends DelegatingDeserializer {
     @Override
     public Object deserialize(JsonParser parser, DeserializationContext context) {
         JsonToken token = parser.currentToken();
-        Month zeroBaseMonth = (Month) getDelegatee().deserialize(parser, context);
-        if (!_isNumericValue(parser.getString(), token)) {
-            return zeroBaseMonth;
+        switch (token) {
+            case VALUE_NUMBER_INT:
+                return _decodeMonth(parser.getIntValue(), parser);
+            case VALUE_STRING:
+                String monthSpec = parser.getString();
+                int oneBasedMonthNumber = _decodeNumber(monthSpec);
+                if (oneBasedMonthNumber >= 0) {
+                    return _decodeMonth(oneBasedMonthNumber, parser);
+                }
+            default:
+                // Otherwise fall through to default handling
+                break;
         }
-        if (zeroBaseMonth == Month.JANUARY) {
-            throw new InvalidFormatException(parser, "Month.JANUARY value not allowed for 1-based Month.", zeroBaseMonth, Month.class);
-        }
-        return zeroBaseMonth.minus(1);
+        return getDelegatee().deserialize(parser, context);
     }
 
-    private boolean _isNumericValue(String text, JsonToken token) {
-        return token == JsonToken.VALUE_NUMBER_INT || _isNumberAsString(text, token);
+    /**
+     * @return Numeric value of input text that represents a 1-digit or 2-digit number.
+     *         Negative value in other cases (empty string, not a number, 3 or more digits).
+     */
+    private int _decodeNumber(String text) {
+        int numValue;
+        switch (text.length()) {
+            case 1:
+                char c = text.charAt(0);
+                boolean cValid = ('0' <= c && c <= '9');
+                numValue = cValid ? (c - '0') : -1;
+                break;
+            case 2:
+                char c1 = text.charAt(0);
+                char c2 = text.charAt(1);
+                boolean c12valid = ('0' <= c1 && c1 <= '9' && '0' <= c2 && c2 <= '9');
+                numValue = c12valid ? (10 * (c1 - '0') + (c2 - '0')) : -1;
+                break;
+            default:
+                numValue = -1;
+        }
+        return numValue;
     }
 
-    private boolean _isNumberAsString(String text, JsonToken token) {
-        return token == JsonToken.VALUE_STRING && HAS_ONE_OR_TWO_DIGITS.matcher(text).matches();
+    private Month _decodeMonth(int oneBasedMonthNumber, JsonParser parser) throws InvalidFormatException {
+        if (Month.JANUARY.getValue() <= oneBasedMonthNumber && oneBasedMonthNumber <= Month.DECEMBER.getValue()) {
+            return Month.of(oneBasedMonthNumber);
+        }
+        throw new InvalidFormatException(parser, "Month number " + oneBasedMonthNumber + " not allowed for 1-based Month.", oneBasedMonthNumber, Integer.class);
     }
 
     @Override

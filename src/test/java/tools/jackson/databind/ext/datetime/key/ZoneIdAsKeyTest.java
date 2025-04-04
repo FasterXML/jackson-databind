@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ZoneIdAsKeyTest extends ModuleTestBase
+public class ZoneIdAsKeyTest extends DateTimeTestBase
 {
     private static final ZoneId ZONE_0 = ZoneId.of("UTC");
     private static final String ZONE_0_STRING = "UTC";

@@ -4,12 +4,12 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DurationUnitConverterTest
-    extends ModuleTestBase
+    extends DateTimeTestBase
 {
     @Test
     public void shouldMapToTemporalUnit() {

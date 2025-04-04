@@ -9,12 +9,12 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OffsetDateTimeDeser279Test extends ModuleTestBase
+public class OffsetDateTimeDeser279Test extends DateTimeTestBase
 {
     // For [modules-java8#279]
     static class Wrapper279 {

@@ -21,13 +21,13 @@ import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 import tools.jackson.databind.ext.datetime.util.DecimalUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class OffsetDateTimeDeserTest
-    extends ModuleTestBase
+    extends DateTimeTestBase
 {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
     private final TypeReference<Map<String, OffsetDateTime>> MAP_TYPE_REF = new TypeReference<Map<String, OffsetDateTime>>() { };

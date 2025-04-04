@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // for [modules-java8#306]
 public class ZonedDateTimeKeyDeserializerTest
-    extends ModuleTestBase
+    extends DateTimeTestBase
 {
     private final ObjectMapper MAPPER = newMapper();
     private final TypeReference<Map<ZonedDateTime, String>> MAP_TYPE_REF

@@ -26,12 +26,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 import tools.jackson.databind.ext.datetime.util.DecimalUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class InstantSerTest extends ModuleTestBase
+public class InstantSerTest extends DateTimeTestBase
 {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_INSTANT;
 

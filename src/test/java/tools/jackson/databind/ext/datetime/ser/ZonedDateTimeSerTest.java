@@ -36,13 +36,13 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ext.datetime.JavaTimeFeature;
 import tools.jackson.databind.ext.datetime.MockObjectConfiguration;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 import tools.jackson.databind.ext.datetime.util.DecimalUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ZonedDateTimeSerTest
-    extends ModuleTestBase
+    extends DateTimeTestBase
 {
     private static final DateTimeFormatter FORMATTER_WITHOUT_ZONEID = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 

@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.ext.datetime.ModuleTestBase;
+import tools.jackson.databind.ext.datetime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LocalDateAsKeyTest extends ModuleTestBase
+public class LocalDateAsKeyTest extends DateTimeTestBase
 {
     private static final LocalDate DATE = LocalDate.of(2015, 3, 14);
     private static final String DATE_STRING = "2015-03-14";

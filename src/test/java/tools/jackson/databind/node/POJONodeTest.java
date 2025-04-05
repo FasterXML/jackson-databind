@@ -65,15 +65,13 @@ public class POJONodeTest extends NodeTestBase
     @Test
     public void testAddJava8DateAsPojo() throws Exception
     {
-        JsonNode node = MAPPER.createObjectNode().putPOJO("test", LocalDateTime.now());
+        LocalDateTime dt = LocalDateTime.parse("2025-03-31T12:00");
+        JsonNode node = MAPPER.createObjectNode().putPOJO("test", dt);
         String json = node.toString();
         assertNotNull(json);
 
         JsonNode result = MAPPER.readTree(json);
         String msg = result.path("test").asString();
-        assertTrue(msg.startsWith("[ERROR:"),
-                "Wrong fail message: "+msg);
-        assertTrue(msg.contains("InvalidDefinitionException"),
-                "Wrong fail message: "+msg);
+        assertEquals(dt, LocalDateTime.parse(msg));
     }
 }

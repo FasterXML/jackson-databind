@@ -17,7 +17,8 @@ jobs:
       matrix:
         repo:
           - 'FasterXML/jackson-modules-base'
-          - 'FasterXML/jackson-modules-java8'
+          # 04-Apr-2025, tatu: No longer needed:
+          # - 'FasterXML/jackson-modules-java8'
           - 'FasterXML/jackson-dataformats-binary'
           - 'FasterXML/jackson-dataformats-text'
           - 'FasterXML/jackson-dataformat-xml'

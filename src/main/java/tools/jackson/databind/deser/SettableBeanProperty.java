@@ -609,8 +609,8 @@ public abstract class SettableBeanProperty
     /**********************************************************************
      */
 
-    protected void _throwAsJacksonE(JsonParser p, Exception e, Object value)
-        throws JacksonException
+    protected void _throwAsJacksonE(DeserializationConfig config, JsonParser p, Exception e, Object value)
+            throws JacksonException
     {
         if (e instanceof IllegalArgumentException) {
             String actType = ClassUtil.classNameOf(value);
@@ -629,22 +629,23 @@ public abstract class SettableBeanProperty
             }
             throw DatabindException.from(p, msg.toString(), e);
         }
-        _throwAsJacksonE(p, e);
+        _throwAsJacksonE(p, e, config.isEnabled(MapperFeature.UNWRAP_ROOT_CAUSE));
     }
 
-    protected void _throwAsJacksonE(JsonParser p, Exception e) throws JacksonException
+    protected void _throwAsJacksonE(DeserializationConfig config, Exception e, Object value) throws JacksonException {
+        _throwAsJacksonE(config, (JsonParser) null, e, value);
+    }
+
+    protected void _throwAsJacksonE(JsonParser p, Exception e, boolean unwrapRootCause) throws JacksonException
     {
         ClassUtil.throwIfRTE(e);
         ClassUtil.throwIfJacksonE(e);
         // let's wrap the innermost problem
-        Throwable th = ClassUtil.getRootCause(e);
+        Throwable th = e;
+        if (unwrapRootCause) {
+            th = ClassUtil.getRootCause(e);
+        }
         throw DatabindException.from(p, ClassUtil.exceptionMessage(th), th);
-    }
-
-    // 10-Oct-2015, tatu: _Should_ be deprecated, too, but its remaining
-    //   callers cannot actually provide a JsonParser
-    protected void _throwAsJacksonE(Exception e, Object value) throws JacksonException {
-        _throwAsJacksonE((JsonParser) null, e, value);
     }
 
     @Override public String toString() { return "[property '"+getName()+"']"; }

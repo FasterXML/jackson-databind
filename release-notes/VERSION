@@ -9,6 +9,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 #5032: Move `jackson-datatype-jsr310` module into `jackson-databind`
  (implemented by @pjfanning)
+#5032: Rename `JavaTimeModule` from `jackson-datatype-jsr310` module as `JavaTimeModule`
 
 3.0.0-rc2 (28-Mar-2025)
 

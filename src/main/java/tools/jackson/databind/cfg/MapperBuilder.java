@@ -16,6 +16,7 @@ import tools.jackson.core.util.DefaultPrettyPrinter;
 import tools.jackson.core.util.Snapshottable;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.*;
+import tools.jackson.databind.ext.javatime.JavaTimeInitializer;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.*;
 import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
@@ -419,8 +420,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     {
         if (_savedState == null) {
             _savedState = _saveState();
+            ModuleContextBase ctxt = _constructModuleContext();
+            JavaTimeInitializer.getInstance().setupModule(ctxt);
             if (_modules != null) {
-                ModuleContextBase ctxt = _constructModuleContext();
                 _modules.values().forEach(m -> m.setupModule(ctxt));
                 // and since context may buffer some changes, ensure those are flushed:
                 ctxt.applyChanges(this);
@@ -485,7 +487,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     public boolean isEnabled(DatatypeFeature f) {
         return _datatypeFeatures.isEnabled(f);
     }
-
     public boolean isEnabled(StreamReadFeature f) {
         return f.enabledIn(_streamReadFeatures);
     }

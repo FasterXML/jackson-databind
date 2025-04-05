@@ -14,17 +14,21 @@ public class DatatypeFeatures
 
     protected final static int FEATURE_INDEX_ENUM = 0;
     protected final static int FEATURE_INDEX_JSON_NODE = 1;
+    protected final static int FEATURE_INDEX_DATETIME = 2;
 
-    private final int _enabledFor1, _enabledFor2;
+    private final int _enabledFor1, _enabledFor2, _enabledFor3;
 
-    private final int _explicitFor1, _explicitFor2;
+    private final int _explicitFor1, _explicitFor2, _explicitFor3;
 
     protected DatatypeFeatures(int enabledFor1, int explicitFor1,
-            int enabledFor2, int explicitFor2)  {
+            int enabledFor2, int explicitFor2,
+            int enabledFor3, int explicitFor3)  {
         _enabledFor1 = enabledFor1;
         _explicitFor1 = explicitFor1;
         _enabledFor2 = enabledFor2;
         _explicitFor2 = explicitFor2;
+        _enabledFor3 = enabledFor3;
+        _explicitFor3 = explicitFor3;
     }
 
     public static DatatypeFeatures defaultFeatures() {
@@ -32,13 +36,16 @@ public class DatatypeFeatures
     }
 
     private DatatypeFeatures _with(int enabledFor1, int explicitFor1,
-            int enabledFor2, int explicitFor2) {
+            int enabledFor2, int explicitFor2,
+            int enabledFor3, int explicitFor3) {
         if ((_enabledFor1 == enabledFor1) && (_explicitFor1 == explicitFor1)
-                && (_enabledFor2 == enabledFor2) && (_explicitFor2 == explicitFor2)) {
+                && (_enabledFor2 == enabledFor2) && (_explicitFor2 == explicitFor2)
+                && (_enabledFor3 == enabledFor3) && (_explicitFor3 == explicitFor3)) {
             return this;
         }
         return new DatatypeFeatures(enabledFor1, explicitFor1,
-                enabledFor2, explicitFor2);
+                enabledFor2, explicitFor2,
+                enabledFor3, explicitFor3);
     }
 
     /*
@@ -61,10 +68,16 @@ public class DatatypeFeatures
         switch (f.featureIndex()) {
         case 0:
             return _with(_enabledFor1 | mask, _explicitFor1 | mask,
-                    _enabledFor2, _explicitFor2);
+                    _enabledFor2, _explicitFor2,
+                    _enabledFor3, _explicitFor3);
         case 1:
             return _with(_enabledFor1, _explicitFor1,
-                    _enabledFor2 | mask, _explicitFor2 | mask);
+                    _enabledFor2 | mask, _explicitFor2 | mask,
+                    _enabledFor3, _explicitFor3);
+        case 2:
+            return _with(_enabledFor1, _explicitFor1,
+                    _enabledFor2, _explicitFor2,
+                    _enabledFor3 | mask, _explicitFor3 | mask);
         default:
             VersionUtil.throwInternal();
             return this;
@@ -88,10 +101,16 @@ public class DatatypeFeatures
         switch (features[0].featureIndex()) {
         case 0:
             return _with(_enabledFor1 | mask, _explicitFor1 | mask,
-                    _enabledFor2, _explicitFor2);
+                    _enabledFor2, _explicitFor2,
+                    _enabledFor3, _explicitFor3);
         case 1:
             return _with(_enabledFor1, _explicitFor1,
-                    _enabledFor2 | mask, _explicitFor2 | mask);
+                    _enabledFor2 | mask, _explicitFor2 | mask,
+                    _enabledFor3, _explicitFor3);
+        case 2:
+            return _with(_enabledFor1, _explicitFor1,
+                    _enabledFor2, _explicitFor2,
+                    _enabledFor3 | mask, _explicitFor3 | mask);
         default:
             VersionUtil.throwInternal();
             return this;
@@ -112,10 +131,16 @@ public class DatatypeFeatures
         switch (f.featureIndex()) {
         case 0:
             return _with(_enabledFor1 & ~mask, _explicitFor1 | mask,
-                    _enabledFor2, _explicitFor2);
+                    _enabledFor2, _explicitFor2,
+                    _enabledFor3, _explicitFor3);
         case 1:
             return _with(_enabledFor1, _explicitFor1,
-                    _enabledFor2 & ~mask, _explicitFor2 | mask);
+                    _enabledFor2 & ~mask, _explicitFor2 | mask,
+                    _enabledFor3, _explicitFor3);
+        case 2:
+            return _with(_enabledFor1, _explicitFor1,
+                    _enabledFor2, _explicitFor2,
+                    _enabledFor3 & ~mask, _explicitFor3 | mask);
         default:
             VersionUtil.throwInternal();
             return this;
@@ -139,10 +164,16 @@ public class DatatypeFeatures
         switch (features[0].featureIndex()) {
         case 0:
             return _with(_enabledFor1 & ~mask, _explicitFor1 | mask,
-                    _enabledFor2, _explicitFor2);
+                    _enabledFor2, _explicitFor2,
+                    _enabledFor3, _explicitFor3);
         case 1:
             return _with(_enabledFor1, _explicitFor1,
-                    _enabledFor2 & ~mask, _explicitFor2 | mask);
+                    _enabledFor2 & ~mask, _explicitFor2 | mask,
+                    _enabledFor3, _explicitFor3);
+        case 2:
+            return _with(_enabledFor1, _explicitFor1,
+                    _enabledFor2, _explicitFor2,
+                    _enabledFor3 & ~mask, _explicitFor3 | mask);
         default:
             VersionUtil.throwInternal();
             return this;
@@ -179,6 +210,8 @@ public class DatatypeFeatures
             return f.enabledIn(_enabledFor1);
         case 1:
             return f.enabledIn(_enabledFor2);
+        case 2:
+            return f.enabledIn(_enabledFor3);
         default:
             VersionUtil.throwInternal();
             return false;
@@ -200,6 +233,8 @@ public class DatatypeFeatures
             return f.enabledIn(_explicitFor1);
         case 1:
             return f.enabledIn(_explicitFor2);
+        case 2:
+            return f.enabledIn(_explicitFor3);
         default:
             VersionUtil.throwInternal();
             return false;
@@ -215,8 +250,6 @@ public class DatatypeFeatures
      * @param f Feature to check
      *
      * @return Whether given feature has been explicitly enabled
-     *
-     * @since 2.15
      */
     public boolean isExplicitlyEnabled(DatatypeFeature f) {
         switch (f.featureIndex()) {
@@ -224,6 +257,8 @@ public class DatatypeFeatures
             return f.enabledIn(_explicitFor1 & _enabledFor1);
         case 1:
             return f.enabledIn(_explicitFor2 & _enabledFor2);
+        case 2:
+            return f.enabledIn(_explicitFor3 & _enabledFor3);
         default:
             VersionUtil.throwInternal();
             return false;
@@ -239,8 +274,6 @@ public class DatatypeFeatures
      * @param f Feature to check
      *
      * @return Whether given feature has been explicitly disabled
-     *
-     * @since 2.15
      */
     public boolean isExplicitlyDisabled(DatatypeFeature f) {
         switch (f.featureIndex()) {
@@ -248,6 +281,8 @@ public class DatatypeFeatures
             return f.enabledIn(_explicitFor1 & ~_enabledFor1);
         case 1:
             return f.enabledIn(_explicitFor2 & ~_enabledFor2);
+        case 2:
+            return f.enabledIn(_explicitFor3 & ~_enabledFor3);
         default:
             VersionUtil.throwInternal();
             return false;
@@ -276,6 +311,11 @@ public class DatatypeFeatures
                 return f.enabledIn(_enabledFor2);
             }
             return null;
+        case 2:
+            if (f.enabledIn(_explicitFor3)) {
+                return f.enabledIn(_enabledFor3);
+            }
+            return null;
         default:
             VersionUtil.throwInternal();
             return null;
@@ -298,7 +338,8 @@ public class DatatypeFeatures
         static {
             DEFAULT_FEATURES = new DatatypeFeatures(
                     collectDefaults(EnumFeature.values()), 0,
-                    collectDefaults(JsonNodeFeature.values()), 0
+                    collectDefaults(JsonNodeFeature.values()), 0,
+                    collectDefaults(DateTimeFeature.values()), 0
                     );
         }
 

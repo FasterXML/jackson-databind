@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 
 /**
- * Vanilla {@link Module} implementation that allows registration
+ * Vanilla {@link com.fasterxml.jackson.databind.Module} implementation that allows registration
  * of serializers and deserializers, bean serializer
  * and deserializer modifiers, registration of subtypes and mix-ins
  * as well as some other commonly

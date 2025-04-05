@@ -196,6 +196,7 @@ public class BeanDeserializerBuilder
      * currently built bean.
      */
     public void  addBackReferenceProperty(String referenceName, SettableBeanProperty prop)
+        throws JsonMappingException
     {
         if (_backRefProperties == null) {
             _backRefProperties = new HashMap<String, SettableBeanProperty>(4);
@@ -204,7 +205,11 @@ public class BeanDeserializerBuilder
         //    NOT work (2 failing unit tests). Not 100% clear why, but for now force
         //    access set early; unfortunate, but since it works....
         if (_config.canOverrideAccessModifiers()) {
-            prop.fixAccess(_config);
+            try {
+                prop.fixAccess(_config);
+            } catch (IllegalArgumentException e) {
+                _handleBadAccess(e);
+            }
         }
         _backRefProperties.put(referenceName, prop);
         // 16-Jan-2018, tatu: As per [databind#1878] we may want to leave it as is, to allow
@@ -221,12 +226,17 @@ public class BeanDeserializerBuilder
     public void addInjectable(PropertyName propName, JavaType propType,
             Annotations contextAnnotations, AnnotatedMember member,
             Object valueId)
+        throws JsonMappingException
     {
         if (_injectables == null) {
             _injectables = new ArrayList<ValueInjector>();
         }
         if ( _config.canOverrideAccessModifiers()) {
-            member.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            try {
+                member.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            } catch (IllegalArgumentException e) {
+                _handleBadAccess(e);
+            }
         }
         _injectables.add(new ValueInjector(propName, propType, member, valueId));
     }
@@ -368,6 +378,7 @@ public class BeanDeserializerBuilder
      * information collected.
      */
     public JsonDeserializer<?> build()
+        throws JsonMappingException
     {
         Collection<SettableBeanProperty> props = _properties.values();
         _fixAccess(props);
@@ -494,6 +505,7 @@ public class BeanDeserializerBuilder
      */
 
     protected void _fixAccess(Collection<SettableBeanProperty> mainProps)
+        throws JsonMappingException
     {
         /* 07-Sep-2016, tatu: Ideally we should be able to avoid forcing
          *   access to properties that are likely ignored, but due to
@@ -519,7 +531,11 @@ public class BeanDeserializerBuilder
                     continue;
                 }
                 */
-                prop.fixAccess(_config);
+                try {
+                    prop.fixAccess(_config);
+                } catch (IllegalArgumentException e) {
+                    _handleBadAccess(e);
+                }
             }
         }
 
@@ -528,7 +544,11 @@ public class BeanDeserializerBuilder
 /*        
         if (_backRefProperties != null) {
             for (SettableBeanProperty prop : _backRefProperties.values()) {
-                prop.fixAccess(_config);
+                try {
+                    prop.fixAccess(_config);
+                } catch (IllegalArgumentException e) {
+                    _handleBadAccess(e);
+                }
             }
         }
         */
@@ -538,10 +558,18 @@ public class BeanDeserializerBuilder
         //    be left as-is? May reconsider based on feedback
         
         if (_anySetter != null) {
-            _anySetter.fixAccess(_config);
+            try {
+                _anySetter.fixAccess(_config);
+            } catch (IllegalArgumentException e) {
+                _handleBadAccess(e);
+            }
         }
         if (_buildMethod != null) {
-            _buildMethod.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            try {
+                _buildMethod.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            } catch (IllegalArgumentException e) {
+                _handleBadAccess(e);
+            }
         }
     }
 
@@ -576,5 +604,25 @@ public class BeanDeserializerBuilder
         Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
         return (B == null) ? _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
                 : B.booleanValue();
+    }
+
+    /**
+     * Helper method for linking root cause to "invalid type definition" exception;
+     * needed for troubleshooting issues with forcing access on later JDKs
+     * (as module definition boundaries are more strictly enforced).
+     *
+     * @since 2.13.2
+     */
+    protected void _handleBadAccess(IllegalArgumentException e0)
+        throws JsonMappingException
+    {
+        try {
+            _context.reportBadTypeDefinition(_beanDesc, e0.getMessage());
+        } catch (DatabindException e) {
+            if (e.getCause() == null) {
+                e.initCause(e0);
+            }
+            throw e;
+        }
     }
 }

@@ -9,11 +9,11 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.13.1-SNAPSHOT</version>
+    <version>2.13.6-SNAPSHOT</version>
   </parent>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.13.1-SNAPSHOT</version>
+  <version>2.13.6-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -26,12 +26,12 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  
+
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
     <url>http://github.com/FasterXML/jackson-databind</url>
-    <tag>HEAD</tag>
+    <tag>jackson-databind-2.13.5</tag>
   </scm>
 
   <properties>
@@ -40,6 +40,15 @@
       -->
     <javac.src.version>1.8</javac.src.version>
     <javac.target.version>1.8</javac.target.version>
+
+    <!-- 12-Nov-2022, tatu: [databind#3659] Verify Android SDK compatibility.
+
+         Baseline compatibility:
+
+         * Jackson 2.13 compatible with Android SDK 24 and up
+      -->
+    <version.android.sdk>24</version.android.sdk>
+    <version.android.sdk.signature>0.5.0</version.android.sdk.signature>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
@@ -118,7 +127,6 @@
 
   <build>
      <plugins>
-
     <plugin>
       <groupId>org.jacoco</groupId>
       <artifactId>jacoco-maven-plugin</artifactId>
@@ -176,8 +184,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.12</link>
-            <link>http://fasterxml.github.com/jackson-core/javadoc/2.12</link>
+            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.13</link>
+            <link>http://fasterxml.github.io/jackson-core/javadoc/2.13</link>
           </links>
         </configuration>
       </plugin>
@@ -204,7 +212,51 @@
       <plugin>
         <groupId>de.jjohannes</groupId>
         <artifactId>gradle-module-metadata-maven-plugin</artifactId>
+        <!-- 13-Oct-2022, tatu: to resolve
+            https://github.com/FasterXML/jackson-databind/issues/3627
+          will need this locally, for now:
+         -->
+        <configuration>
+          <platformDependencies>
+            <dependency>
+              <groupId>com.fasterxml.jackson</groupId>
+              <artifactId>jackson-bom</artifactId>
+              <version>${project.parent.version}</version>
+            </dependency>
+          </platformDependencies>
+        </configuration>
       </plugin>
+
+      <!-- 12-Nov-2022, tatu: [databind#3659] add verification of compatibility
+	   wrt Android SDK versions using AnimalSniffer with "gummy bears" signatures.
+
+           To be run from CI, but manually with:
+
+              mvn animal-sniffer:check
+	-->
+      <plugin>
+	<groupId>org.codehaus.mojo</groupId>
+	<artifactId>animal-sniffer-maven-plugin</artifactId>
+	<version>1.22</version>
+	<configuration>
+          <signature>
+            <groupId>com.toasttab.android</groupId>
+            <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
+            <version>${version.android.sdk.signature}</version>
+          </signature>
+	  <ignores>
+            <!-- These are only accessed (safely) via "Java7SupportImpl.java" so ignore
+              -->
+	    <ignore>java.beans.ConstructorProperties</ignore>
+	    <ignore>java.beans.Transient</ignore>
+	    <ignore>java.nio.file.FileSystemNotFoundException</ignore>
+	    <ignore>java.nio.file.Path</ignore>
+	    <ignore>java.nio.file.Paths</ignore>
+	    <ignore>java.nio.file.spi.FileSystemProvider</ignore>
+	  </ignores>
+	</configuration>
+      </plugin>
+
      </plugins>
   </build>
 
@@ -216,11 +268,11 @@
         <skipTests>true</skipTests>
       </properties>
     </profile>
+    <!-- 07-Dec-2021, tatu: This is a huge mess, sorry folks... -->
     <profile>
-      <!-- Build Record tests using Java 14 if JDK is available -->
-      <id>java14+</id>
+      <id>java14</id>
       <activation>
-        <jdk>[14,)</jdk>
+        <jdk>14</jdk>
       </activation>
       <build>
         <plugins>
@@ -262,6 +314,50 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <argLine>--enable-preview</argLine>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <!-- And different set up for JDK 17 -->
+      <id>java17</id>
+      <activation>
+        <jdk>17</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>add-test-source</id>
+                <phase>generate-test-sources</phase>
+                <goals>
+                  <goal>add-test-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>src/test-jdk14/java</source>
+                    <source>src/test-jdk17/java</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <optimize>true</optimize>
+              <!-- Enable Java 17 for all sources so that Intellij picks the right language level -->
+              <source>17</source>
+              <release>17</release>
+              <compilerArgs>
+                <arg>-parameters</arg>
+              </compilerArgs>
             </configuration>
           </plugin>
         </plugins>

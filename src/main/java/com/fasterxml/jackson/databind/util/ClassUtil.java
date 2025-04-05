@@ -1007,8 +1007,10 @@ public final class ClassUtil
         } catch (RuntimeException se) {
             if ("InaccessibleObjectException".equals(se.getClass().getSimpleName())) {
                 throw new IllegalArgumentException(String.format(
-"Failed to call `setAccess()` on %s '%s' due to `%s`, problem: %s",
-member.getClass().getSimpleName(), member.getName(), se.getClass().getName(), se.getMessage()),
+"Failed to call `setAccess()` on %s '%s' (of class %s) due to `%s`, problem: %s",
+member.getClass().getSimpleName(), member.getName(),
+nameOf(member.getDeclaringClass()),
+se.getClass().getName(), se.getMessage()),
                         se);
             }
             throw se;
@@ -1409,7 +1411,7 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
             }
             // If not found, indicate with exception
             throw new IllegalStateException(String.format(
-"No field named '%s' in class '%s'", expectedName, fromClass.getTypeName()));
+"No field named '%s' in class '%s'", expectedName, fromClass.getName()));
         }
     }
 

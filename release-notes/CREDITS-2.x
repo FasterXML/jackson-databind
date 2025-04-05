@@ -1400,3 +1400,44 @@ Abishek Ravichandran (abrav9595@github)
 李孟宁 (limengning@github)
   * Contributed fix for #1850: `@JsonValue` with integer for enum does not deserialize correctly
   (2.13.0)
+
+Joel Berger (jberger@github)
+  * Reported #3299: Do not automatically trim trailing whitespace from `java.util.regex.Pattern`
+    values
+  (2.13.1)
+
+Sergey Chernov (seregamorph@github)
+  * Suggested the fix for #3305: ObjectMapper serializes `CharSequence` subtypes as POJO
+    instead of as String (JDK 15+)
+  (2.13.1)
+
+Sam Kruglov (Sam-Kruglov@github)
+  * Reported #3344: `Set.of()` (Java 9) cannot be deserialized with polymorphic handling
+  (2.13.2)
+
+Krishna Ghimire (Krishnaghimir@github)
+  * Reported #3369: Deserialization ignores other Object fields when Object or Array
+  value used for enum
+  (2.13.2)
+
+Christoph Dreis (dreis2211@github)
+  * Suggested #3293: Use Method.getParameterCount() where possible
+  (2.13.2)
+
+Matthieu Finiasz (finiasz@github)
+  * Reported #3412: Version 2.13.2 uses `Method.getParameterCount()` which is not
+   supported on Android before API 26
+  (2.13.2)
+
+Taylor S Marks (TaylorSMarks@github)
+  * Contributed fix for #2816: Optimize UntypedObjectDeserializer wrt recursion
+  (2.13.3)
+
+Spence Nace (snace98@github)
+  * Contributed fix for #2816: Optimize UntypedObjectDeserializer wrt recursion
+  (2.13.3)
+
+Jason Harper (jsharper@github)
+  * Reported #3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
+   `PropertyNamingStrategy.UPPER_CAMEL_CASE`
+  (2.13.4, 2.12.7.2)

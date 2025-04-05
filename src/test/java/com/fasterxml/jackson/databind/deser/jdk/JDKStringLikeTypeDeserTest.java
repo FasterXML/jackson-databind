@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
-public class JDKStringLikeTypesTest extends BaseMapTest
+public class JDKStringLikeTypeDeserTest extends BaseMapTest
 {
     static class ParamClassBean
     {
@@ -182,17 +182,23 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         assertEquals(80, address.getPort());
     }
 
-    public void testRegexps() throws IOException
+    public void testPattern() throws IOException
     {
-        final String PATTERN_STR = "abc:\\s?(\\d+)";
-        Pattern exp = Pattern.compile(PATTERN_STR);
-        /* Ok: easiest way is to just serialize first; problem
-         * is the backslash
-         */
+        Pattern exp = Pattern.compile("abc:\\s?(\\d+)");
+        // Ok: easiest way is to just serialize first; problem
+        // is the backslash
         String json = MAPPER.writeValueAsString(exp);
         Pattern result = MAPPER.readValue(json, Pattern.class);
         assertEquals(exp.pattern(), result.pattern());
+
+        // [databind#3290]: actually need to retain at least trailing space
+        // (and since we do that, just retain all...)
+        exp = Pattern.compile("^WIN\\ ");
+        json = MAPPER.writeValueAsString(exp);
+        result = MAPPER.readValue(json, Pattern.class);
+        assertEquals(exp.pattern(), result.pattern());
     }
+
     public void testStackTraceElement() throws Exception
     {
         StackTraceElement elem = null;
@@ -208,7 +214,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         assertEquals(elem.getLineNumber(), back.getLineNumber());
         assertEquals(elem.getClassName(), back.getClassName());
         assertEquals(elem.isNativeMethod(), back.isNativeMethod());
-        assertTrue(back.getClassName().endsWith("JDKStringLikeTypesTest"));
+        assertTrue(back.getClassName().endsWith("JDKStringLikeTypeDeserTest"));
         assertFalse(back.isNativeMethod());
     }
 
@@ -247,6 +253,12 @@ public class JDKStringLikeTypesTest extends BaseMapTest
     public void testStringBuilder() throws Exception
     {
         StringBuilder sb = MAPPER.readValue(q("abc"), StringBuilder.class);
+        assertEquals("abc", sb.toString());
+    }
+
+    public void testStringBuffer() throws Exception
+    {
+        StringBuffer sb = MAPPER.readValue(q("abc"), StringBuffer.class);
         assertEquals("abc", sb.toString());
     }
 

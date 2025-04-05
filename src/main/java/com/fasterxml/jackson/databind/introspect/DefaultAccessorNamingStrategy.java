@@ -79,7 +79,7 @@ public class DefaultAccessorNamingStrategy
         return null;
     }
 
-        @Override
+    @Override
     public String findNameForRegularGetter(AnnotatedMethod am, String name)
     {
         if ((_getterPrefix != null) && name.startsWith(_getterPrefix)) {

@@ -3387,7 +3387,6 @@ public class ObjectMapper
         }
         try {
             context.serializeValue(buf, fromValue);
-            writeValue(buf, fromValue);
             try (JsonParser p = buf.asParser()) {
                 return readTree(p);
             }

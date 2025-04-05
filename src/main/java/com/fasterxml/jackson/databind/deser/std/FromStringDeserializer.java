@@ -74,6 +74,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
 
             // Special impl:
             StringBuilder.class,
+            StringBuffer.class, // since 2.13.3
         };
     }
 
@@ -120,6 +121,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             kind = Std.STD_INET_SOCKET_ADDRESS;
         } else if (rawType == StringBuilder.class) {
             return new StringBuilderDeserializer();
+        } else if (rawType == StringBuffer.class) { // since 2.13.3
+            return new StringBufferDeserializer();
         } else {
             return null;
         }
@@ -151,9 +154,18 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
             text = ctxt.extractScalarFromObject(p, this, _valueClass);
         }
-        if (text.isEmpty() || (text = text.trim()).isEmpty()) {
+        if (text.isEmpty()) {
             // 09-Jun-2020, tatu: Commonly `null` but may coerce to "empty" as well
             return (T) _deserializeFromEmptyString(ctxt);
+        }
+        if (_shouldTrim()) {
+            final String old = text;
+            text = text.trim();
+            if (text != old) {
+                if (text.isEmpty()) {
+                    return (T) _deserializeFromEmptyString(ctxt);
+                }
+            }
         }
         Exception cause = null;
         try {
@@ -180,6 +192,11 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
      * String.
      */
     protected abstract T _deserialize(String value, DeserializationContext ctxt) throws IOException;
+
+    // @since 2.13.1
+    protected boolean _shouldTrim() {
+        return true;
+    }
 
     // @since 2.12
     protected Object _deserializeFromOther(JsonParser p, DeserializationContext ctxt,
@@ -375,6 +392,13 @@ _coercedTypeDesc());
             return getEmptyValue(ctxt);
         }
 
+        // @since 2.13.1
+        @Override
+        protected boolean _shouldTrim() {
+            // 04-Dec-2021, tatu: For [databund#3290]
+            return (_kind != STD_PATTERN);
+        }
+
         protected int _firstHyphenOrUnderscore(String str)
         {
             for (int i = 0, end = str.length(); i < end; ++i) {
@@ -444,9 +468,8 @@ _coercedTypeDesc());
             }
         }
     }
-
+   
     // @since 2.12 to simplify logic a bit: should not use coercions when reading
-    //   String Values
     static class StringBuilderDeserializer extends FromStringDeserializer<Object>
     {
         public StringBuilderDeserializer() {
@@ -480,6 +503,37 @@ _coercedTypeDesc());
             throws IOException
         {
             return new StringBuilder(value);
+        }
+    }
+
+    // @since 2.13.3: duplicated code but for only 2 impls base class seems unnecessary
+    static class StringBufferDeserializer extends FromStringDeserializer<Object>
+    {
+        public StringBufferDeserializer() { super(StringBuffer.class); }
+
+        @Override
+        public LogicalType logicalType() { return LogicalType.Textual; }
+
+        @Override
+        public Object getEmptyValue(DeserializationContext ctxt) {
+            return new StringBuffer();
+        }
+
+        @Override
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        {
+            String text = p.getValueAsString();
+            if (text != null) {
+                return _deserialize(text, ctxt);
+            }
+            return super.deserialize(p, ctxt);
+        }
+
+        @Override
+        protected Object _deserialize(String value, DeserializationContext ctxt)
+            throws IOException
+        {
+            return new StringBuffer(value);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser.filter;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -59,6 +60,25 @@ public class JsonIncludeCustomTest extends BaseMapTest
         public BrokenBean(String v) { value = v; }
     }
 
+    // [databind#3481]
+    static class CountingFooFilter {
+        public final static AtomicInteger counter = new AtomicInteger(0);
+
+        @Override
+        public boolean equals(Object other) {
+            counter.incrementAndGet();
+            return "foo".equals(other);
+        }
+    }
+
+    static class CountingFooBean {
+        @JsonInclude(value=JsonInclude.Include.CUSTOM,
+                valueFilter=CountingFooFilter.class)
+        public String value;
+
+        public CountingFooBean(String v) { value = v; }
+    }
+    
     /*
     /**********************************************************
     /* Test methods, success
@@ -79,8 +99,29 @@ public class JsonIncludeCustomTest extends BaseMapTest
                 .add("a", "1")
                 .add("b", "foo")
                 .add("c", "2");
-        
+
         assertEquals(a2q("{'stuff':{'a':'1','c':'2'}}"), MAPPER.writeValueAsString(input));
+    }
+
+    // [databind#3481]
+    public void testRepeatedCalls() throws Exception
+    {
+        CountingFooFilter.counter.set(0);
+
+        assertEquals(a2q("{'value':'x'}"),
+                MAPPER.writeValueAsString(new CountingFooBean("x")));
+
+        // 06-May-2022, tatu: Maybe surprisingly, we get TWO calls; first one to
+        //    see if `null`s are to be filtered, second time for "real" call        
+        assertEquals(2, CountingFooFilter.counter.get());
+        assertEquals("{}", MAPPER.writeValueAsString(new CountingFooBean("foo")));
+
+        // but beyond initial extra call, as expected
+        assertEquals(3, CountingFooFilter.counter.get());
+
+        // except filter will NOT be called again for `null`s, as per [databind#3481]
+        assertEquals(a2q("{'value':null}"), MAPPER.writeValueAsString(new CountingFooBean(null)));
+        assertEquals(3, CountingFooFilter.counter.get());
     }
 
     /*

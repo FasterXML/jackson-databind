@@ -2,14 +2,15 @@ package com.fasterxml.jackson.databind.deser.dos;
 
 import com.fasterxml.jackson.databind.*;
 
-// [databind#2816], wrt JsonNode
-public class DeepJsonNodeDeser2816Test extends BaseMapTest
+// [databind#3397], wrt JsonNode
+public class DeepJsonNodeDeser3397Test extends BaseMapTest
 {
     // 28-Mar-2021, tatu: Used to fail at 5000 for tree/object,
     // 8000 for tree/array, before work on iterative JsonNode deserializer
-    // ... currently gets a bit slow at 1M but passes
+    // ... currently gets a bit slow at 1M but passes.
+    // But test with 50k as practical limit, to guard against regression
 //    private final static int TOO_DEEP_NESTING = 1_000_000;
-    private final static int TOO_DEEP_NESTING = 9999;
+    private final static int TOO_DEEP_NESTING = 49999;
 
     private final ObjectMapper MAPPER = newJsonMapper();
 

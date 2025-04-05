@@ -169,7 +169,6 @@ public final class AnnotatedConstructor
 
     @Override
     public String toString() {
-        // 03-Nov-2020 ckozak: This can use _constructor.getParameterCount() once java 8 is required.
         final int argCount = _constructor.getParameterTypes().length;
         return String.format("[constructor for %s (%d arg%s), annotations: %s",
                 ClassUtil.nameOf(_constructor.getDeclaringClass()), argCount,

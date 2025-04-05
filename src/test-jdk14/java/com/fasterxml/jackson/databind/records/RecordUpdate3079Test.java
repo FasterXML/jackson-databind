@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.records;
 
 import java.util.Collections;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.*;
 

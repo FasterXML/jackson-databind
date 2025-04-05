@@ -4,11 +4,103 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+Not yet released
+
+#3784: `PrimitiveArrayDeserializers$ByteDeser.deserialize` ignores
+  `DeserializationProblemHandler` for invalid Base64 content
+ (reported by @or-else)
+
+2.13.5 (23-Jan-2023)
+
+#3659: Improve testing (likely via CI) to try to ensure compatibility with
+  specific Android SDKs
+#3661: Jackson 2.13 uses Class.getTypeName() that is only available on Android SDK 26
+  (with fix works on ASDK 24)
+
+2.13.4.2 (13-Oct-2022)
+
+#3627: Gradle module metadata for `2.13.4.1` references non-existent
+  jackson-bom `2.13.4.1` (instead of `2.13.4.20221012`)
+  (NOTE: root cause is [jackson-bom#52])
+
+2.13.4.1 (12-Oct-2022)
+
+#3590: Add check in primitive value deserializers to avoid deep wrapper array
+  nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS` [CVE-2022-42003]
+
+2.13.4 (03-Sep-2022)
+
+#3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
+  `PropertyNamingStrategy.UPPER_CAMEL_CASE`
+ (reported by Jason H)
+ (fix suggested by gsinghlulu@github)
+#3565: `Arrays.asList()` value deserialization has changed from mutable to
+  immutable in 2.13
+ (reported by JonasWilms@github)
+#3582: Add check in `BeanDeserializer._deserializeFromArray()` to prevent
+  use of deeply nested arrays [CVE-2022-42004]
+
+2.13.3 (14-May-2022)
+
+#3412: Version 2.13.2 uses `Method.getParameterCount()` which is not supported on
+  Android before API 26
+#3419: Improve performance of `UnresolvedForwardReference` for forward
+ reference resolution
+(contributed by Gary M)
+#3446: `java.lang.StringBuffer` cannot be deserialized
+ (reported by Lolf1010@github)
+#3450: DeserializationProblemHandler is not working with wrapper type
+  when returning null
+ (reported by LJeanneau@github)
+
+2.13.2.2 (28-Mar-2022)
+
+No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
+
+2.13.2.1 (24-Mar-2022)
+
+#2816: Optimize UntypedObjectDeserializer wrt recursion
+ (contributed by Taylor S, Spence N)
+#3412: Version 2.13.2 uses `Method.getParameterCount()` which is not
+  supported on Android before API 26
+ (reported by Matthew F)
+
+2.13.2 (06-Mar-2022)
+
+#3293: Use Method.getParameterCount() where possible
+ (suggested by Christoph D)
+#3344: `Set.of()` (Java 9) cannot be deserialized with polymorphic handling
+ (reported by Sam K)
+#3368: `SnakeCaseStrategy` causes unexpected `MismatchedInputException` during
+  deserialization
+ (reported by sszuev@github)
+#3369: Deserialization ignores other Object fields when Object or Array
+  value used for enum
+ (reported by Krishna G)
+#3380: `module-info.java` is in `META-INF/versions/11` instead of `META-INF/versions/9`
+
+2.13.1 (19-Dec-2021)
+
+#3006: Argument type mismatch for `enum` with `@JsonCreator` that takes String,
+  gets JSON Number
+ (reported by GrozaAnton@github)
+#3299: Do not automatically trim trailing whitespace from `java.util.regex.Pattern` values
+ (reported by Joel B)
+#3305: ObjectMapper serializes `CharSequence` subtypes as POJO instead of
+  as String (JDK 15+)
+ (reported by stevenupton@github; fix suggested by Sergey C)
+#3308: `ObjectMapper.valueToTree()` fails when
+ `DeserializationFeature.FAIL_ON_TRAILING_TOKENS` is enabled
+ (fix contributed by raphaelNguyen@github)
+#3328: Possible DoS if using JDK serialization to serialize JsonNode
+
 2.13.0 (30-Sep-2021)
 
 #1850: `@JsonValue` with integer for enum does not deserialize correctly
  (reported by tgolden-andplus@github)
  (fix contributed by limengning@github)
+#1988: MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUM does not work for Enum keys of Map
+ (reported by Myp3ik@github)
 #2509: `AnnotatedMethod.getValue()/setValue()` doesn't have useful exception message
  (reported by henryptung@github)
  (fix contributed by Stephan S)
@@ -86,11 +178,40 @@ Project: jackson-databind
 #3280: Can not deserialize json to enum value with Object-/Array-valued input,
   `@JsonCreator`
  (reported by peteryuanpan@github)
+#3397: Optimize `JsonNodeDeserialization` wrt recursion
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 - Extend handling of `FAIL_ON_NULL_FOR_PRIMITIVES` to cover coercion from (Empty) String
   via `AsNull`
 - Add `mvnw` wrapper
+
+2.12.7.2 (02-May-2024)
+
+#3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
+  `PropertyNamingStrategy.UPPER_CAMEL_CASE`
+ (reported by Jason H)
+ (fix suggested by gsinghlulu@github)
+
+2.12.7.1 (12-Oct-2022)
+
+#3582: Add check in `BeanDeserializer._deserializeFromArray()` to prevent
+  use of deeply nested arrays [CVE-2022-42004]
+#3590: Add check in primitive value deserializers to avoid deep wrapper array
+  nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS` [CVE-2022-42003]
+
+2.12.7 (26-May-2022)
+
+#2816: Optimize UntypedObjectDeserializer wrt recursion [CVE-2020-36518]
+
+2.12.6 (15-Dec-2021)
+
+#3280: Can not deserialize json to enum value with Object-/Array-valued input,
+  `@JsonCreator`
+ (reported by peteryuanpan@github)
+#3305: ObjectMapper serializes `CharSequence` subtypes as POJO instead of
+  as String (JDK 15+)
+ (reported by stevenupton@github; fix suggested by Sergey C)
+#3328: Possible DoS if using JDK serialization to serialize JsonNode
 
 2.12.5 (27-Aug-2021)
 

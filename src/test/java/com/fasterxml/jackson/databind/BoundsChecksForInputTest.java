@@ -45,6 +45,9 @@ public class BoundsChecksForInputTest
         final JavaType TYPE = MAPPER.constructType(String.class);
         _testBoundsWithByteArrayInput(
                 (data,offset,len)->MAPPER.readValue(data, offset, len, TYPE));
+
+        _testBoundsWithByteArrayInput(
+                (data,offset,len)->MAPPER.readValue(data, offset, len));
     }
 
     private void _testBoundsWithByteArrayInput(ByteBackedCreation creator) throws Exception

@@ -3056,6 +3056,23 @@ public class ObjectMapper
     }
 
     /**
+     * Reads the value from the given JSON content and automatically detects the class type.
+     *
+     * @param <T> the type of the object to read
+     * @param p the JsonParser
+     * @param reified don't pass any values here. It's a trick to detect the class type.
+     * @return the deserialized object
+     * @throws JsonProcessingException if there is a problem processing the JSON
+     */
+    public <T> T readValue(JsonParser p, T... reified) throws IOException {
+        if (reified.length > 0) {
+            throw new IllegalArgumentException("Please don't pass any values here. Java will detect class automatically.");
+        }
+
+        return readValue(p, _typeFactory.constructType(getClassOf(reified)));
+    }
+
+    /**
      * Method to deserialize JSON content into a Java type, reference
      * to which is passed as argument. Type is passed using so-called
      * "super type token" (see )
@@ -3983,6 +4000,15 @@ public class ObjectMapper
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueType));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(byte[] src, int offset, int len, T... reified) throws IOException {
+        if (reified.length > 0) {
+            throw new IllegalArgumentException("Please don't pass any values here. Java will detect class automatically.");
+        }
+
+        return readValue(src, offset, len, _typeFactory.constructType(getClassOf(reified)));
     }
 
     @SuppressWarnings({ "unchecked" })

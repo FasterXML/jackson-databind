@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.records;
 
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -64,9 +65,10 @@ public class RecordWithJsonIgnoreTest extends DatabindTestUtil
     }
 
     @Test
+    @JacksonTestFailureExpected
     public void testDeserializeJsonIgnoreAndJsonPropertyRecord() throws Exception {
         RecordWithIgnoreJsonProperty value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", RecordWithIgnoreJsonProperty.class);
-        assertEquals(new RecordWithIgnoreJsonProperty(123, "Bob"), value);
+        assertEquals(new RecordWithIgnoreJsonProperty(123, null), value); // should be null, actual "bob" [see databind-4628]
     }
 
     /*

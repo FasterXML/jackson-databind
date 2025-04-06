@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class RecordWithReadOnlyTest extends DatabindTestUtil
 {
@@ -85,19 +87,53 @@ public class RecordWithReadOnlyTest extends DatabindTestUtil
         assertEquals(a2q("{'id':123,'name':'Bob'}"), json);
     }
 
-    /**
-     * Currently documents a bug where a property was NOT ignored during deserialization
-     * if given an explicit name.
-     * Also reproducible in 2.14.x.
-     */
+
     @Test
     public void testDeserializeReadOnlyNamedProperty() throws Exception {
         RecordWithReadOnlyNamedProperty value = MAPPER.readValue(a2q("{'id':123,'name':'Bob'}"),
                 RecordWithReadOnlyNamedProperty.class);
 
-        // BUG: should be `null` instead of "Bob"
-        // 01-Apr-2025, tatu: Should be in "tofix", then?
-        assertEquals(new RecordWithReadOnlyNamedProperty(123, "Bob"), value);
+        assertEquals(new RecordWithReadOnlyNamedProperty(123, null), value);
+    }
+
+    @Test
+    void testRoundtripRecord() throws Exception
+    {
+        record ReadOnly5049Record(
+                @JsonProperty(value = "a", access = JsonProperty.Access.READ_ONLY) String a,
+                @JsonProperty(value = "b", access = JsonProperty.Access.READ_ONLY) String b
+        ) { }
+
+        String json = MAPPER.writeValueAsString(new ReadOnly5049Record("hello", "world"));
+        ReadOnly5049Record record = MAPPER.readValue(json, ReadOnly5049Record.class);
+        assertNotNull(record);
+        assertNull(record.a());
+        assertNull(record.b());
+    }
+
+    @Test
+    void testRoundtripPOJO() throws Exception
+    {
+        class ReadOnly5049Pojo
+        {
+            protected String a, b;
+
+            ReadOnly5049Pojo(
+                    @JsonProperty(value = "a", access = JsonProperty.Access.READ_ONLY) String a,
+                    @JsonProperty(value = "b", access = JsonProperty.Access.READ_ONLY) String b) {
+                this.a = a;
+                this.b = b;
+            }
+
+            public String getA() { return a; }
+            public String getB() { return b; }
+        }
+
+        String json = MAPPER.writeValueAsString(new ReadOnly5049Pojo("hello", "world"));
+        ReadOnly5049Pojo pojo = MAPPER.readerFor(ReadOnly5049Pojo.class).readValue(json);
+        assertNotNull(pojo);
+        assertNull(pojo.a);
+        assertNull(pojo.b);
     }
 
     /*

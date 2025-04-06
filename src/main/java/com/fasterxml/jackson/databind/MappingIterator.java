@@ -162,7 +162,6 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
         }
     }
 
-
     /**
      * Method for getting an "empty" iterator instance: one that never
      * has more values; may be freely shared.

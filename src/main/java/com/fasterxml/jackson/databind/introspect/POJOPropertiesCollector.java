@@ -1798,7 +1798,7 @@ ctor.creator()));
             POJOPropertyBuilder prop)
     {
         final AnnotatedParameter ctorParam = prop.getConstructorParameter();
-        if (creatorProperties != null) {
+        if (creatorProperties != null && ctorParam != null) {
             for (int i = 0, len = creatorProperties.size(); i < len; ++i) {
                 POJOPropertyBuilder cprop = creatorProperties.get(i);
                 if (cprop != null) {

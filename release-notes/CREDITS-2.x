@@ -1889,6 +1889,11 @@ Zhen Lin Low (@zhenlin-pay2)
    when collecting bean properties, breaking AsExternalTypeDeserializer
   (2.18.3)
 
+Fawzi Essam (@iifawz)
+ * Contributed fix for #5049: Duplicate creator property "b" (index 0 vs 1)
+   on simple java record
+  (2.18.3)
+
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
   (2.19.0)

@@ -1492,7 +1492,7 @@ public class ObjectReader
      * @param src Source to read content from
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(InputStream src) throws IOException
+    private <T> T readValue(InputStream src) throws IOException
     {
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(src), false);
@@ -1513,6 +1513,12 @@ public class ObjectReader
     public <T> T readValue(InputStream src, Class<T> valueType) throws IOException
     {
         return (T) forType(valueType).readValue(src);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(InputStream src, T... reified) throws IOException
+    {
+        return forType(getClassOf(reified)).readValue(src);
     }
 
     /**
@@ -1583,6 +1589,26 @@ public class ObjectReader
     public <T> T readValue(String src, Class<T> valueType) throws IOException
     {
         return (T) forType(valueType).readValue(src);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(String src, T... reified) throws IOException {
+        if (reified.length > 0) {
+            throw new IllegalArgumentException("Please don't pass any values here. Java will detect class automatically.");
+        }
+
+        return readValue(src, getClassOf(reified));
+    }
+
+    /**
+     * Utility method to get the class type from a varargs array.
+     *
+     * @param <T> the generic type
+     * @param array the varargs array
+     * @return the class of the array component
+     */
+    private static <T> Class<T> getClassOf(T[] array) {
+        return (Class<T>) array.getClass().getComponentType();
     }
 
     /**

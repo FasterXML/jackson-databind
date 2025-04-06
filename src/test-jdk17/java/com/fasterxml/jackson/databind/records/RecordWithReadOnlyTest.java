@@ -108,9 +108,7 @@ public class RecordWithReadOnlyTest extends DatabindTestUtil {
 
     @Test
     public void testDeserializeReadOnlyNamedProperty() throws Exception {
-        RecordWithReadOnlyNamedProperty value = MAPPER.readValue(a2q("{'id':123,'name':'Bob'}"),
-                RecordWithReadOnlyNamedProperty.class);
-
+        RecordWithReadOnlyNamedProperty value = MAPPER.readValue(a2q("{'id':123,'name':'Bob'}"), RecordWithReadOnlyNamedProperty.class);
         assertEquals(new RecordWithReadOnlyNamedProperty(123, null), value);
     }
 

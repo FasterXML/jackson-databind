@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.records;
 
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

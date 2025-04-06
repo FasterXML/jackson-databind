@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.18.4 (not yet released)
+
+#5049: Duplicate creator property "b" (index 0 vs 1) on simple java record
+ (reported by @richard-melvin)
+ (fix contributed by Fawzi E)
+
 2.18.3 (28-Feb-2025)
 
 #4444: The `KeyDeserializer` specified in the class with `@JsonDeserialize(keyUsing = ...)`

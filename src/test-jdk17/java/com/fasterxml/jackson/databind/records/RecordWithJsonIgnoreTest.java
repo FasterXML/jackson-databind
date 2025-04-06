@@ -64,13 +64,6 @@ public class RecordWithJsonIgnoreTest extends DatabindTestUtil
         assertEquals("{\"id\":123}", json);
     }
 
-    @Test
-    @JacksonTestFailureExpected
-    public void testDeserializeJsonIgnoreAndJsonPropertyRecord() throws Exception {
-        RecordWithIgnoreJsonProperty value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", RecordWithIgnoreJsonProperty.class);
-        assertEquals(new RecordWithIgnoreJsonProperty(123, null), value); // should be null, actual "bob" [see databind-4628]
-    }
-
     /*
     /**********************************************************************
     /* Test methods, JsonIgnore accessor

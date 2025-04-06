@@ -26,7 +26,7 @@ public class RecordWIthJsonIgnoreAndValue4628Test
     @Test
     public void testDeserializeJsonIgnoreRecordWithDifferentName() throws Exception {
         RecordWithIgnoreJsonPropertyDifferentName value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", RecordWithIgnoreJsonPropertyDifferentName.class);
-        assertEquals(new RecordWithIgnoreJsonPropertyDifferentName(123, null), value); // should be null, actual "bob"
+        assertEquals(new RecordWithIgnoreJsonPropertyDifferentName(123, null), value);
     }
 
     @Test

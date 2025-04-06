@@ -13,7 +13,7 @@ Project: jackson-databind
   index for property 'cause'
  (reported by @nilswieber)
  (fix by Joo-Hyuk K)
-#4844: Fix wrapped array hanlding wrt `null` by `StdDeserializer`
+#4844: Fix wrapped array handling wrt `null` by `StdDeserializer`
  (fix by Stanislav S)
 #4848: Avoid type pollution in `StringCollectionDeserializer`
  (contributed by Jonas K)

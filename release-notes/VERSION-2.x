@@ -83,6 +83,8 @@ Project: jackson-databind
  (contributed by @pjfanning)
 #5052: Minor bug in `FirstCharBasedValidator.forFirstNameRule()`: returns `null`
   in non-default case
+#5069: Add copy-constructor for `MappingIterator`
+ (contributed by @wrongwrong)
 
 2.18.3 (28-Feb-2025)
 

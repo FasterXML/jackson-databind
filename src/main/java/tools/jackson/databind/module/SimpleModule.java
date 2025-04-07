@@ -146,7 +146,7 @@ public class SimpleModule
     }
 
     public SimpleModule(String name, Version version, Object registrationId) {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             // So: if constructing plain `SimpleModule`, instances assumed to be
             // distinct, not same, so generate unique id. But if sub-class,
             // class name assumed.

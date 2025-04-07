@@ -200,6 +200,19 @@ public class SimpleModuleTest extends DatabindTestUtil
         }
     }
 
+    // For [databind#5063]
+    static class Module5063A extends SimpleModule {
+        public Module5063A() {
+            super(Version.unknownVersion());
+        }
+    }
+    
+    static class Module5063B extends SimpleModule {
+        public Module5063B() {
+            super(Version.unknownVersion());
+        }
+    }
+
     /*
     /**********************************************************************
     /* Unit tests; first, verifying need for custom handlers
@@ -602,5 +615,16 @@ public class SimpleModuleTest extends DatabindTestUtil
             "{\"value\" : \"I am C\"}", Test3787Bean.class);
         
         assertEquals("I am A", result.value);
+    }
+
+    // For [databind#5063]
+    @Test
+    public void testDuplicateModules5063() {
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(new Module5063A())
+                .addModule(new Module5063B())
+                .build();
+        Collection<?> modules = mapper.getRegisteredModules();
+        assertEquals(2, modules.size());
     }
 }

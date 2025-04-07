@@ -609,7 +609,7 @@ public abstract class SettableBeanProperty
     /**********************************************************************
      */
 
-    protected void _throwAsJacksonE(JsonParser p, Throwable e, Object value)
+    protected void _throwAsJacksonE(JsonParser p, Exception e, Object value)
         throws JacksonException
     {
         if (e instanceof IllegalArgumentException) {
@@ -632,9 +632,8 @@ public abstract class SettableBeanProperty
         _throwAsJacksonE(p, e);
     }
 
-    protected void _throwAsJacksonE(JsonParser p, Throwable e) throws JacksonException
+    protected void _throwAsJacksonE(JsonParser p, Exception e) throws JacksonException
     {
-        ClassUtil.throwIfError(e);
         ClassUtil.throwIfRTE(e);
         ClassUtil.throwIfJacksonE(e);
         // let's wrap the innermost problem
@@ -644,7 +643,7 @@ public abstract class SettableBeanProperty
 
     // 10-Oct-2015, tatu: _Should_ be deprecated, too, but its remaining
     //   callers cannot actually provide a JsonParser
-    protected void _throwAsJacksonE(Throwable e, Object value) throws JacksonException {
+    protected void _throwAsJacksonE(Exception e, Object value) throws JacksonException {
         _throwAsJacksonE((JsonParser) null, e, value);
     }
 

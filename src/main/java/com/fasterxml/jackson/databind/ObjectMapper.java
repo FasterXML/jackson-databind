@@ -658,7 +658,7 @@ public class ObjectMapper
         if (reg == null) {
             _registeredModuleTypes = null;
         } else {
-            _registeredModuleTypes = new LinkedHashSet<Object>(reg);
+            _registeredModuleTypes = new LinkedHashSet<>(reg);
         }
     }
 
@@ -896,7 +896,7 @@ public class ObjectMapper
                 if (_registeredModuleTypes == null) {
                     // plus let's keep them in order too, easier to debug or expose
                     // in registration order if that matter
-                    _registeredModuleTypes = new LinkedHashSet<Object>();
+                    _registeredModuleTypes = new LinkedHashSet<>();
                 }
                 // try adding; if already had it, should skip
                 if (!_registeredModuleTypes.add(typeId)) {

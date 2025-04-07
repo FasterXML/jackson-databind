@@ -53,7 +53,7 @@ public abstract class Module
      * instances are considered to be of same type, for purpose of preventing
      * multiple registrations of "same type of" module
      * (see {@link com.fasterxml.jackson.databind.MapperFeature#IGNORE_DUPLICATE_MODULE_REGISTRATIONS})
-     * If `null` is returned, every instance is considered unique.
+     * If {@code null} is returned, every instance is considered unique.
      * If non-null value is returned, equality of id Objects is used to check whether
      * modules should be considered to be "of same type"
      *<p>

@@ -7,6 +7,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.0-rc3 (not yet released)
 
+#2083: Replace Reflection usage with `MethodHandle` (3.0)
+ (requested by @re-thc)
+ (implemented by Steven S)
 #5032: Move `jackson-datatype-jsr310` module into `jackson-databind` and
   rename `JavaTimeFeature` from `jackson-datatype-jsr310` module as `DateTimeFeature`
  (implemented by @pjfanning)

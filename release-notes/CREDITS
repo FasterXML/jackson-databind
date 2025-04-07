@@ -28,6 +28,10 @@ Sven Döring (@sdoeringNew)
  * Contributed #2013: Allow use of `java.nio.file.Path` for `readValue()`, `writeValue()`
   [3.0.0]
 
+Steven Schlansker (@stevenschlansker)
+ * Contributed #2083: Replace Reflection usage with `MethodHandle` (3.0)
+  [3.0.0]
+
 Michael Dillon (@michaelcdillon)
  * Requested #2593: StackTraceElement w/ >= Java 9 doesn't deserialize properly
   [3.0.0]

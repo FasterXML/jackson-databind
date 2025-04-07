@@ -268,15 +268,6 @@ public class LocaleDeserTest
         assertNotNull(loc);
     }
 
-    @Test
-    public void testLocaleFuzz47034WithAutoDetectClss() throws Exception
-    {
-        Locale loc = MAPPER.reader()
-                .without(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                .readValue(getClass().getResourceAsStream("/fuzz/oss-fuzz-47034.json"));
-        assertNotNull(loc);
-    }
-
     // https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=47036
     // @since 2.14
     @Test

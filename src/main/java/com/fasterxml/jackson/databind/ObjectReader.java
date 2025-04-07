@@ -778,6 +778,20 @@ public class ObjectReader
     }
 
     /**
+     * Method for constructing a new reader instance.
+     */
+    public <T> ObjectReader readerFor(T... reified) {
+        // Detect class type
+        Class<T> clazz = getClassOf(reified);
+
+        // Convert class to JavaType
+        JavaType valueType = _config.getTypeFactory().constructType(clazz);
+
+        return forType(valueType);
+    }
+
+
+    /**
      * Method for constructing a new reader instance that is configured
      * to data bind into specified type.
      *<p>
@@ -1492,7 +1506,7 @@ public class ObjectReader
      * @param src Source to read content from
      */
     @SuppressWarnings("unchecked")
-    private <T> T readValue(InputStream src) throws IOException
+    public <T> T readValue(InputStream src) throws IOException
     {
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(src), false);

@@ -83,6 +83,8 @@ Project: jackson-databind
  (contributed by @pjfanning)
 #5052: Minor bug in `FirstCharBasedValidator.forFirstNameRule()`: returns `null`
   in non-default case
+#5063: `SimpleModule` not registered due to `getTypeId()` returning an empty string
+ (reported by @seadbrane)
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 

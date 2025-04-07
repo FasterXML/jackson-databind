@@ -130,12 +130,17 @@ public class SimpleModule
         // note: generate different name for direct instantiation, sub-classing;
         // this to avoid collision in former case while still addressing
         // [databind#3110]
-        _name = (getClass() == SimpleModule.class)
-                ? "SimpleModule-"+MODULE_ID_SEQ.getAndIncrement()
-                : getClass().getName();
+        _name = _generateName(getClass());
         _version = Version.unknownVersion();
         // 07-Jun-2021, tatu: [databind#3110] Not passed explicitly so...
         _hasExplicitName = false;
+    }
+
+    // @since 2.19
+    private static String _generateName(Class<?> cls) {
+        return (cls == SimpleModule.class)
+                ? "SimpleModule-"+MODULE_ID_SEQ.getAndIncrement()
+                : cls.getName();
     }
 
     /**
@@ -148,10 +153,21 @@ public class SimpleModule
 
     /**
      * Convenience constructor that will use specified Version,
-     * including name from {@link Version#getArtifactId()}.
+     * including name from {@link Version#getArtifactId()}
+     * (if available -- if not, will generate).
      */
     public SimpleModule(Version version) {
-        this(version.getArtifactId(), version);
+        // 07-Apr-2025, tatu: [databind#5063]: check that we actually have a name;
+        //    if not, generate it
+        String maybeName = version.getArtifactId();
+        // Only considered explicit if name is non-null and not empty (i.e. not generated)
+        _hasExplicitName = (maybeName != null) && !maybeName.isEmpty();
+        if (_hasExplicitName) {
+            _name = maybeName;
+        } else {
+            _name = _generateName(getClass());
+        }
+        _version = Version.unknownVersion();
     }
 
     /**

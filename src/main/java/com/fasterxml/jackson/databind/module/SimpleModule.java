@@ -167,7 +167,7 @@ public class SimpleModule
         } else {
             _name = _generateName(getClass());
         }
-        _version = Version.unknownVersion();
+        _version = version;
     }
 
     /**

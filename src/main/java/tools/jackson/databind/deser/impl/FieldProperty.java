@@ -1,7 +1,7 @@
 package tools.jackson.databind.deser.impl;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -9,67 +9,78 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.SettableBeanProperty;
-import tools.jackson.databind.introspect.*;
+import tools.jackson.databind.introspect.AnnotatedField;
+import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.Annotations;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * This concrete sub-class implements property that is set
- * using regular "setter" method.
+ * directly assigning to a Field.
  */
-public final class MethodProperty
+public final class FieldProperty
     extends SettableBeanProperty
 {
-    private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 1L;
 
-    protected final AnnotatedMethod _annotated;
+    final protected AnnotatedField _annotated;
 
     /**
-     * Setter method for modifying property value; used for
-     * "regular" method-accessible properties.
+     * Actual field to set when deserializing this property.
+     * Transient since there is no need to persist; only needed during
+     * construction of objects.
      */
-    protected final transient Method _setter;
+    final protected transient Field _field;
 
-    protected final boolean _skipNulls;
+    /**
+     * @since 2.9
+     */
+    final protected boolean _skipNulls;
 
-    public MethodProperty(BeanPropertyDefinition propDef,
-            JavaType type, TypeDeserializer typeDeser,
-            Annotations contextAnnotations, AnnotatedMethod method)
+    public FieldProperty(BeanPropertyDefinition propDef, JavaType type,
+            TypeDeserializer typeDeser, Annotations contextAnnotations, AnnotatedField field)
     {
         super(propDef, type, typeDeser, contextAnnotations);
-        _annotated = method;
-        _setter = method.getAnnotated();
+        _annotated = field;
+        _field = field.getAnnotated();
         _skipNulls = NullsConstantProvider.isSkipper(_nullProvider);
     }
 
-    protected MethodProperty(MethodProperty src, ValueDeserializer<?> deser,
+    protected FieldProperty(FieldProperty src, ValueDeserializer<?> deser,
             NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
-        _setter = src._setter;
+        _field = src._field;
         _skipNulls = NullsConstantProvider.isSkipper(nva);
     }
 
-    protected MethodProperty(MethodProperty src, PropertyName newName) {
+    protected FieldProperty(FieldProperty src, PropertyName newName) {
         super(src, newName);
         _annotated = src._annotated;
-        _setter = src._setter;
+        _field = src._field;
         _skipNulls = src._skipNulls;
     }
 
     /**
      * Constructor used for JDK Serialization when reading persisted object
      */
-    protected MethodProperty(MethodProperty src, Method m) {
+    protected FieldProperty(FieldProperty src)
+    {
         super(src);
         _annotated = src._annotated;
-        _setter = m;
+        Field f = _annotated.getAnnotated();
+        if (f == null) {
+            throw new IllegalArgumentException("Missing field (broken JDK (de)serialization?)");
+        }
+        _field = f;
         _skipNulls = src._skipNulls;
     }
 
     @Override
     public SettableBeanProperty withName(PropertyName newName) {
-        return new MethodProperty(this, newName);
+        return new FieldProperty(this, newName);
     }
 
     @Override
@@ -79,17 +90,17 @@ public final class MethodProperty
         }
         // 07-May-2019, tatu: As per [databind#2303], must keep VD/NVP in-sync if they were
         NullValueProvider nvp = (_valueDeserializer == _nullProvider) ? deser : _nullProvider;
-        return new MethodProperty(this, deser, nvp);
+        return new FieldProperty(this, deser, nvp);
     }
 
     @Override
     public SettableBeanProperty withNullProvider(NullValueProvider nva) {
-        return new MethodProperty(this, _valueDeserializer, nva);
+        return new FieldProperty(this, _valueDeserializer, nva);
     }
 
     @Override
     public void fixAccess(DeserializationConfig config) {
-        _annotated.fixAccess(
+        ClassUtil.checkAndFixAccess(_field,
                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
     }
 
@@ -113,8 +124,8 @@ public final class MethodProperty
      */
 
     @Override
-    public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
-            Object instance) throws JacksonException
+    public void deserializeAndSet(JsonParser p,
+    		DeserializationContext ctxt, Object instance) throws JacksonException
     {
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
@@ -135,7 +146,7 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         try {
-            _setter.invoke(instance, value);
+            _field.set(instance, value);
         } catch (Exception e) {
             _throwAsJacksonE(p, e, value);
         }
@@ -164,17 +175,15 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         try {
-            Object result = _setter.invoke(instance, value);
-            return (result == null) ? instance : result;
+            _field.set(instance, value);
         } catch (Exception e) {
             _throwAsJacksonE(p, e, value);
-            return null;
         }
+        return instance;
     }
 
     @Override
-    public final void set(DeserializationContext ctxt, Object instance, Object value)
-        throws JacksonException
+    public void set(DeserializationContext ctxt, Object instance, Object value)
     {
         if (value == null) {
             if (_skipNulls) {
@@ -182,7 +191,7 @@ public final class MethodProperty
             }
         }
         try {
-            _setter.invoke(instance, value);
+            _field.set(instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
             _throwAsJacksonE(e, value);
@@ -190,8 +199,7 @@ public final class MethodProperty
     }
 
     @Override
-    public Object setAndReturn(DeserializationContext ctxt,
-            Object instance, Object value) throws JacksonException
+    public Object setAndReturn(DeserializationContext ctxt, Object instance, Object value)
     {
         if (value == null) {
             if (_skipNulls) {
@@ -199,13 +207,12 @@ public final class MethodProperty
             }
         }
         try {
-            Object result = _setter.invoke(instance, value);
-            return (result == null) ? instance : result;
+            _field.set(instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
             _throwAsJacksonE(e, value);
-            return null;
         }
+        return instance;
     }
 
     /*
@@ -215,6 +222,6 @@ public final class MethodProperty
      */
 
     Object readResolve() {
-        return new MethodProperty(this, _annotated.getAnnotated());
+        return new FieldProperty(this);
     }
 }

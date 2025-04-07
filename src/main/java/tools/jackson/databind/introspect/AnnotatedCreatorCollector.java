@@ -66,17 +66,24 @@ final class AnnotatedCreatorCollector
          * ignorable after all annotations have been properly collapsed.
          */
         // AnnotationIntrospector is null if annotations not enabled; if so, can skip:
-        if (_collectAnnotations && _defaultConstructor != null && _intr.hasIgnoreMarker(_config, _defaultConstructor)) {
-            _defaultConstructor = null;
+        if (_collectAnnotations) {
+            if (_defaultConstructor != null) {
+                if (_intr.hasIgnoreMarker(_config, _defaultConstructor)) {
+                    _defaultConstructor = null;
+                }
+            }
+            // count down to allow safe removal
+            for (int i = constructors.size(); --i >= 0; ) {
+                if (_intr.hasIgnoreMarker(_config, constructors.get(i))) {
+                    constructors.remove(i);
+                }
+            }
+            for (int i = factories.size(); --i >= 0; ) {
+                if (_intr.hasIgnoreMarker(_config, factories.get(i))) {
+                    factories.remove(i);
+                }
+            }
         }
-
-        // 06-04-2025, scs: some constructors or factories might not be accessible due to
-        // module access rules, so filter them out now
-        constructors.removeIf(constructor ->
-                constructor == null || (_collectAnnotations && _intr.hasIgnoreMarker(_config, constructor)));
-        factories.removeIf(factory ->
-                factory == null || (_collectAnnotations && _intr.hasIgnoreMarker(_config, factory)));
-
         return new AnnotatedClass.Creators(_defaultConstructor, constructors, factories);
     }
 
@@ -181,9 +188,6 @@ final class AnnotatedCreatorCollector
         // First find all potentially relevant static methods
         for (Method m : ClassUtil.getClassMethods(type.getRawClass())) {
             if (!_isIncludableFactoryMethod(m)) {
-                continue;
-            }
-            if (!ClassUtil.checkAndFixAccess(m, false)) {
                 continue;
             }
             // all factory methods are fine:
@@ -344,14 +348,14 @@ ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
     {
         final int paramCount = m.getParameterCount();
         if (!_collectAnnotations) { // when annotation processing is disabled
-            return AnnotatedMethod.of(typeResCtxt, m, _emptyAnnotationMap(),
+            return new AnnotatedMethod(typeResCtxt, m, _emptyAnnotationMap(),
                     _emptyAnnotationMaps(paramCount));
         }
         if (paramCount == 0) { // common enough we can slightly optimize
-            return AnnotatedMethod.of(typeResCtxt, m, collectAnnotations(m, mixin),
+            return new AnnotatedMethod(typeResCtxt, m, collectAnnotations(m, mixin),
                     NO_ANNOTATION_MAPS);
         }
-        return AnnotatedMethod.of(typeResCtxt, m, collectAnnotations(m, mixin),
+        return new AnnotatedMethod(typeResCtxt, m, collectAnnotations(m, mixin),
                 collectAnnotations(m.getParameterAnnotations(),
                         (mixin == null) ? null : mixin.getParameterAnnotations()));
     }

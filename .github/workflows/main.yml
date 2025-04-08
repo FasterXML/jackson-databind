@@ -1,14 +1,12 @@
 name: Build and Deploy Snapshot
 on:
   push:
-    branches:
-    - 3.x
+    branches: [3.*]
     paths-ignore:
     - "README.md"
     - "release-notes/*"
   pull_request:
-    branches:
-    - 3.x
+    branches: [3.*]
     paths-ignore:
     - "README.md"
     - "release-notes/*"

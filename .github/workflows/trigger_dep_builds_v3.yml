@@ -41,5 +41,5 @@ jobs:
           # Could push information on what was built but not yet
           client-payload: '{"version": "N/A" }'
       - name: Delay between dispatches
-        run: sleep 10s
+        run: sleep 7s
         shell: bash

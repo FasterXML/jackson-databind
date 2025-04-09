@@ -148,7 +148,7 @@ public final class FieldProperty
         try {
             _field.set(instance, value);
         } catch (Exception e) {
-            _throwAsJacksonE(ctxt.getConfig(), p, e, value);
+            _throwAsJacksonE(p, e, value);
         }
     }
 
@@ -177,7 +177,7 @@ public final class FieldProperty
         try {
             _field.set(instance, value);
         } catch (Exception e) {
-            _throwAsJacksonE(ctxt.getConfig(), p, e, value);
+            _throwAsJacksonE(p, e, value);
         }
         return instance;
     }

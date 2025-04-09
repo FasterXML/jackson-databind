@@ -137,7 +137,7 @@ public final class MethodProperty
         try {
             _setter.invoke(instance, value);
         } catch (Exception e) {
-            _throwAsJacksonE(ctxt.getConfig(), p, e, value);
+            _throwAsJacksonE(p, e, value);
         }
     }
 
@@ -167,7 +167,7 @@ public final class MethodProperty
             Object result = _setter.invoke(instance, value);
             return (result == null) ? instance : result;
         } catch (Exception e) {
-            _throwAsJacksonE(ctxt.getConfig(), p, e, value);
+            _throwAsJacksonE(p, e, value);
             return null;
         }
     }

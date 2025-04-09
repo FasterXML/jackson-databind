@@ -18,6 +18,8 @@ Project: jackson-databind
    server and client side
  (requested by @qianlong)
  (contributed by Geoffrey G)
+#3343: Allow BeanPropertyWriter Sub-classes to Override `get()` (remove `final`)
+ (requested by @alzimmermsft)
 #4388: Allow using `@JsonPropertyOrder` with "any" (`@JsonAnyGetter`)  properties
  (fix by Joo-Hyuk K)
 #4650: `PrimitiveArrayDeserializers` should deal with single String value if

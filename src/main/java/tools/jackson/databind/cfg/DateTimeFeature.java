@@ -34,13 +34,20 @@ public enum DateTimeFeature implements DatatypeFeature
     NORMALIZE_DESERIALIZED_ZONE_ID(true),
 
     /**
-     * Feature that determines whether {@link java.time.Month} is serialized
-     * and deserialized as using a zero-based index (FALSE) or a one-based index (TRUE).
-     * For example, "1" would be serialized/deserialized as Month.JANUARY if TRUE and Month.FEBRUARY if FALSE.
+     * Feature that determines whether {@link java.time.Month} is serialized as
+     * and deserialized expected a zero- ({@code false}) or one-based index ({@code true}).
+     * For example, {@code Month.JANUARY} would be serialized as {@code 1} when enabled
+     * but as {@code 0} when disabled.
+     * Conversely JSON Number {@code 1} would be deserialized as {@code Month.JANUARY}
+     * when enabled, but as {@code Month.FEBRUARY} when disabled.
      *<p>
-     * Default setting is false, meaning that Month is serialized/deserialized as a zero-based index.
+     * Default setting is {@code true}, meaning that Month is serialized using one-based index
+     * and deserialized expecting one-based index.
+     *<p>
+     * NOTE: default setting changed between Jackson 2.x (was {@code false}) and Jackson
+     * 3.0 (changed to {@code true}).
      */
-    ONE_BASED_MONTHS(false),
+    ONE_BASED_MONTHS(true),
 
     /**
      * Feature that determines whether the {@link java.util.TimeZone} of the

@@ -96,8 +96,7 @@ public final class JavaTimeInitializer
     
             // // Other deserializers
             .addDeserializer(Duration.class, DurationDeserializer.INSTANCE)
-            .addDeserializer(LocalDateTime.class,
-                    LocalDateTimeDeserializer.INSTANCE.withFeatures(datatypeFeatures))
+            .addDeserializer(LocalDateTime.class, LocalDateTimeDeserializer.INSTANCE)
             .addDeserializer(LocalDate.class, LocalDateDeserializer.INSTANCE)
             .addDeserializer(LocalTime.class, LocalTimeDeserializer.INSTANCE)
             .addDeserializer(MonthDay.class, MonthDayDeserializer.INSTANCE)

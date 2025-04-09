@@ -37,30 +37,14 @@ import tools.jackson.databind.cfg.DateTimeFeature;
 public class LocalDateTimeDeserializer
     extends JSR310DateTimeDeserializerBase<LocalDateTime>
 {
-    private final static boolean DEFAULT_USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING
-        = DateTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING.enabledByDefault();
-
     private static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     public static final LocalDateTimeDeserializer INSTANCE = new LocalDateTimeDeserializer();
 
     /**
      * Flag for <code>JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS</code>
-     *
-     * @since 2.16
      */
     protected final Boolean _readTimestampsAsNanosOverride;
-
-    /**
-     * Flag set from
-     * {@link DateTimeFeature#USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING}
-     * to determine whether the {@link java.util.TimeZone} of the
-     * {@link tools.jackson.databind.DeserializationContext} is used
-     * when leniently deserializing from the UTC/ISO instant format.
-     *
-     * @since 2.19
-     */
-    protected final boolean _useTimeZoneForLenientDateParsing;
 
     protected LocalDateTimeDeserializer() { // was private before 2.12
         this(DEFAULT_FORMATTER);
@@ -69,21 +53,13 @@ public class LocalDateTimeDeserializer
     public LocalDateTimeDeserializer(DateTimeFormatter formatter) {
         super(LocalDateTime.class, formatter);
         _readTimestampsAsNanosOverride = null;
-        _useTimeZoneForLenientDateParsing = DEFAULT_USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING;
     }
 
-    /**
-     * Since 2.10
-     */
     protected LocalDateTimeDeserializer(LocalDateTimeDeserializer base, Boolean leniency) {
         super(base, leniency);
         _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
-        _useTimeZoneForLenientDateParsing = base._useTimeZoneForLenientDateParsing;
     }
 
-    /**
-     * Since 2.16
-     */
     protected LocalDateTimeDeserializer(LocalDateTimeDeserializer base,
         Boolean leniency,
         DateTimeFormatter formatter,
@@ -91,16 +67,11 @@ public class LocalDateTimeDeserializer
         Boolean readTimestampsAsNanosOverride) {
         super(base, leniency, formatter, shape);
         _readTimestampsAsNanosOverride = readTimestampsAsNanosOverride;
-        _useTimeZoneForLenientDateParsing = base._useTimeZoneForLenientDateParsing;
     }
 
-    /**
-     * Since 2.19
-     */
     protected LocalDateTimeDeserializer(LocalDateTimeDeserializer base, DatatypeFeatures features) {
         super(LocalDateTime.class, base._formatter);
         _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
-        _useTimeZoneForLenientDateParsing = features.isEnabled(DateTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING);
     }
 
     @Override
@@ -128,19 +99,9 @@ public class LocalDateTimeDeserializer
         return deser;
     }
 
-    /**
-     * Since 2.19
-     */
-    public LocalDateTimeDeserializer withFeatures(DatatypeFeatures features) {
-        if (_useTimeZoneForLenientDateParsing ==
-                features.isEnabled(DateTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING)) {
-            return this;
-        }
-        return new LocalDateTimeDeserializer(this, features);
-    }
-
     @Override
-    public LocalDateTime deserialize(JsonParser parser, DeserializationContext context) throws JacksonException
+    public LocalDateTime deserialize(JsonParser parser, DeserializationContext context)
+        throws JacksonException
     {
         if (parser.hasTokenId(JsonTokenId.ID_STRING)) {
             return _fromString(parser, context, parser.getString());
@@ -232,7 +193,7 @@ public class LocalDateTimeDeserializer
                 if (string.length() > 10 && string.charAt(10) == 'T') {
                    if (string.endsWith("Z")) {
                        if (isLenient()) {
-                           if (_useTimeZoneForLenientDateParsing) {
+                           if (ctxt.isEnabled(DateTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING)) {
                                return Instant.parse(string).atZone(ctxt.getTimeZone().toZoneId()).toLocalDateTime();
                            }
                            return LocalDateTime.parse(string.substring(0, string.length()-1),

@@ -83,7 +83,9 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
     }
 
     @Override
-    protected LocalDateDeserializer withShape(JsonFormat.Shape shape) { return new LocalDateDeserializer(this, shape); }
+    protected LocalDateDeserializer withShape(JsonFormat.Shape shape) {
+        return new LocalDateDeserializer(this, shape);
+    }
 
     @Override
     public LocalDate deserialize(JsonParser parser, DeserializationContext context)

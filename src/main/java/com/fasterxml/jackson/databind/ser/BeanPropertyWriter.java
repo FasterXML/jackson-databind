@@ -759,7 +759,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     @Override
     public void serializeAsElement(Object bean, JsonGenerator gen,
-            SerializerProvider prov) throws Exception {
+            SerializerProvider prov) throws Exception
+    {
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean)
                 : _accessorMethod.invoke(bean, (Object[]) null);
@@ -818,7 +819,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     @Override
     public void serializeAsPlaceholder(Object bean, JsonGenerator gen,
-            SerializerProvider prov) throws Exception {
+            SerializerProvider prov) throws Exception
+    {
         if (_nullSerializer != null) {
             _nullSerializer.serialize(null, gen, prov);
         } else {
@@ -835,7 +837,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     // Also part of BeanProperty implementation
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor v,
-            SerializerProvider provider) throws JsonMappingException {
+            SerializerProvider provider) throws JsonMappingException
+    {
         if (v != null) {
             if (isRequired()) {
                 v.property(this);
@@ -861,7 +864,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     @Override
     @Deprecated
     public void depositSchemaProperty(ObjectNode propertiesNode,
-            SerializerProvider provider) throws JsonMappingException {
+            SerializerProvider provider) throws JsonMappingException
+    {
         JavaType propType = getSerializationType();
         // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas
         // it doesn't...
@@ -891,7 +895,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     protected JsonSerializer<Object> _findAndAddDynamic(
             PropertySerializerMap map, Class<?> type,
-            SerializerProvider provider) throws JsonMappingException {
+            SerializerProvider provider) throws JsonMappingException
+    {
         PropertySerializerMap.SerializerAndMapResult result;
         if (_nonTrivialBaseType != null) {
             JavaType t = provider.constructSpecializedType(_nonTrivialBaseType,
@@ -914,8 +919,11 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Note: method is final as it should not need to be overridden -- rather,
      * calling method(s) ({@link #serializeAsField}) should be overridden to
      * change the behavior
+     *<p>
+     * NOTE: was {@code final} until Jackson 2.19
      */
-    public final Object get(Object bean) throws Exception {
+    public Object get(Object bean) throws Exception
+    {
         return (_accessorMethod == null) ? _field.get(bean) : _accessorMethod
                 .invoke(bean, (Object[]) null);
     }

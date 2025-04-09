@@ -20,7 +20,6 @@ import java.time.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.DatatypeFeatures;
-import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.ValueInstantiators;
 import tools.jackson.databind.deser.std.StdValueInstantiator;
@@ -158,9 +157,9 @@ public final class JavaTimeInitializer
         );
 
         // [modules-java8#274]: 1-based Month (de)serializer need to be applied via modifiers:
-        final boolean oneBasedMonthEnabled = context.isEnabled(DateTimeFeature.ONE_BASED_MONTHS);
-        context.addDeserializerModifier(new JavaTimeDeserializerModifier(oneBasedMonthEnabled));
-        context.addSerializerModifier(new JavaTimeSerializerModifier(oneBasedMonthEnabled));
+        // [databind#5078]: Should rewrite not to require this
+        context.addDeserializerModifier(new JavaTimeDeserializerModifier());
+        context.addSerializerModifier(new JavaTimeSerializerModifier());
 
         context.addValueInstantiators(new ValueInstantiators.Base() {
             @Override

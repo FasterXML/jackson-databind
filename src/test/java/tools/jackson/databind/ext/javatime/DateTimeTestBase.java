@@ -9,6 +9,7 @@ import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.json.JsonMapper;
 
 public class DateTimeTestBase
+    extends tools.jackson.databind.testutil.DatabindTestUtil
 {
     protected static final ZoneId UTC = ZoneId.of("UTC");
 
@@ -43,27 +44,6 @@ public class DateTimeTestBase
         return JsonMapper.builder()
                 .defaultLocale(Locale.ENGLISH)
                 .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES);
-    }
-
-    protected String q(String value) {
-        return "\"" + value + "\"";
-    }
-
-    protected String a2q(String json) {
-        return json.replace("'", "\"");
-    }
-
-    protected void verifyException(Throwable e, String... matches)
-    {
-        String msg = e.getMessage();
-        String lmsg = (msg == null) ? "" : msg.toLowerCase();
-        for (String match : matches) {
-            String lmatch = match.toLowerCase();
-            if (lmsg.indexOf(lmatch) >= 0) {
-                return;
-            }
-        }
-        throw new Error("Expected an exception with one of substrings ("+Arrays.asList(matches)+"): got one with message \""+msg+"\"");
     }
 
     protected static <T> Map<T, String> asMap(T key, String value) {

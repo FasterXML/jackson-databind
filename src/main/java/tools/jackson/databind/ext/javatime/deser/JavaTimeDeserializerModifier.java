@@ -5,22 +5,19 @@ import java.time.Month;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.ValueDeserializerModifier;
 
-/**
- * @since 2.17
+/* 08-Apr-2025, tatu: we really should rewrite things to have "native"
+ *   {@code MonthDeserializer} and not rely on {@code EnumDeserializer}.
  */
-public class JavaTimeDeserializerModifier extends ValueDeserializerModifier {
+public class JavaTimeDeserializerModifier extends ValueDeserializerModifier
+{
     private static final long serialVersionUID = 1L;
 
-    private final boolean _oneBaseMonths;
-
-    public JavaTimeDeserializerModifier(boolean oneBaseMonths) {
-        _oneBaseMonths = oneBaseMonths;
-    }
+    public JavaTimeDeserializerModifier() { }
 
     @Override
     public ValueDeserializer<?> modifyEnumDeserializer(DeserializationConfig config, JavaType type,
             BeanDescription beanDesc, ValueDeserializer<?> defaultDeserializer) {
-        if (_oneBaseMonths && type.hasRawClass(Month.class)) {
+        if (type.hasRawClass(Month.class)) {
             return new OneBasedMonthDeserializer(defaultDeserializer);
         }
         return defaultDeserializer;

@@ -7,6 +7,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.0-rc3 (not yet released)
 
+#5065: Change default for `DateTimeFeature.ONE_BASED_MONTHS` to `true` in 3.0
 - Branch rename "master" -> "3.x" [JSTEP-12]
 
 3.0.0-rc3 (not yet released)

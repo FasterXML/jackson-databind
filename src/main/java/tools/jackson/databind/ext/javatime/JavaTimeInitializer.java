@@ -19,7 +19,6 @@ package tools.jackson.databind.ext.javatime;
 import java.time.*;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.ValueInstantiators;
 import tools.jackson.databind.deser.std.StdValueInstantiator;

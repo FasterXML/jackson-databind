@@ -915,17 +915,14 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     /**
      * Method that can be used to access value of the property this Object
      * describes, from given bean instance.
-     * <p>
-     * Note: method is final as it should not need to be overridden -- rather,
-     * calling method(s) ({@link #serializeAsField}) should be overridden to
-     * change the behavior
      *<p>
      * NOTE: was {@code final} until Jackson 2.19
      */
     public Object get(Object bean) throws Exception
     {
-        return (_accessorMethod == null) ? _field.get(bean) : _accessorMethod
-                .invoke(bean, (Object[]) null);
+        return (_accessorMethod == null)
+                ? _field.get(bean)
+                : _accessorMethod.invoke(bean, (Object[]) null);
     }
 
     /**

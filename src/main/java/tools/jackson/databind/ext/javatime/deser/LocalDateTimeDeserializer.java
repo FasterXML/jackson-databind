@@ -26,7 +26,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
-import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.cfg.DateTimeFeature;
 
 /**
@@ -46,7 +45,7 @@ public class LocalDateTimeDeserializer
      */
     protected final Boolean _readTimestampsAsNanosOverride;
 
-    protected LocalDateTimeDeserializer() { // was private before 2.12
+    protected LocalDateTimeDeserializer() {
         this(DEFAULT_FORMATTER);
     }
 
@@ -67,11 +66,6 @@ public class LocalDateTimeDeserializer
         Boolean readTimestampsAsNanosOverride) {
         super(base, leniency, formatter, shape);
         _readTimestampsAsNanosOverride = readTimestampsAsNanosOverride;
-    }
-
-    protected LocalDateTimeDeserializer(LocalDateTimeDeserializer base, DatatypeFeatures features) {
-        super(LocalDateTime.class, base._formatter);
-        _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
     }
 
     @Override

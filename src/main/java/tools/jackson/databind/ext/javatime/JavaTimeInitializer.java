@@ -84,15 +84,11 @@ public final class JavaTimeInitializer
     private JavaTimeInitializer() { }
 
     public void setupModule(JacksonModule.SetupContext context) {
-        final DatatypeFeatures datatypeFeatures = context.datatypeFeatures();
         context.addDeserializers(new SimpleDeserializers()
             // // Instant variants:
-            .addDeserializer(Instant.class,
-                    InstantDeserializer.INSTANT.withFeatures(datatypeFeatures))
-            .addDeserializer(OffsetDateTime.class,
-                    InstantDeserializer.OFFSET_DATE_TIME.withFeatures(datatypeFeatures))
-            .addDeserializer(ZonedDateTime.class,
-                    InstantDeserializer.ZONED_DATE_TIME.withFeatures(datatypeFeatures))
+            .addDeserializer(Instant.class, InstantDeserializer.INSTANT)
+            .addDeserializer(OffsetDateTime.class, InstantDeserializer.OFFSET_DATE_TIME)
+            .addDeserializer(ZonedDateTime.class, InstantDeserializer.ZONED_DATE_TIME)
     
             // // Other deserializers
             .addDeserializer(Duration.class, DurationDeserializer.INSTANCE)

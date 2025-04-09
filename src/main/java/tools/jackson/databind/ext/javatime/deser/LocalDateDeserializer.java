@@ -43,15 +43,6 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
     
     public static final LocalDateDeserializer INSTANCE = new LocalDateDeserializer();
 
-    /**
-     * Flag set from
-     * {@link DateTimeFeature#USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING}
-     * to determine whether the {@link java.util.TimeZone} of the
-     * {@link tools.jackson.databind.DeserializationContext} is used
-     * when leniently deserializing from the UTC/ISO instant format.
-     */
-    //protected final boolean _useTimeZoneForLenientDateParsing;
-
     protected LocalDateDeserializer() {
         this(DEFAULT_FORMATTER);
     }

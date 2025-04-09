@@ -10,6 +10,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 // [databind#4628] @JsonIgnore is ignored with read access
 public class RecordWIthJsonIgnoreAndValue4628Test
@@ -21,6 +22,13 @@ public class RecordWIthJsonIgnoreAndValue4628Test
     record RecordWithIgnoreJsonPropertyDifferentName(int id, @JsonIgnore @JsonProperty("name2") String name) {
     }
 
+    static class Pojo4628 {
+        public int id;
+        @JsonIgnore @JsonProperty("name") public String name;
+
+        public Pojo4628() { }
+    }
+    
     private final ObjectMapper MAPPER = newJsonMapper();
 
 
@@ -36,5 +44,14 @@ public class RecordWIthJsonIgnoreAndValue4628Test
     public void testDeserializeJsonIgnoreAndJsonPropertyRecord() throws Exception {
         RecordWithIgnoreJsonProperty value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", RecordWithIgnoreJsonProperty.class);
         assertEquals(new RecordWithIgnoreJsonProperty(123, null), value); // should be null, actual "bob"
+    }
+
+    // But second case works for POJOs
+
+    @Test
+    public void deserializeJsonIgnoreAndJsonPropertyPojo() throws Exception {
+        Pojo4628 value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", Pojo4628.class);
+        assertEquals(123, value.id);
+        assertNull(value.name);
     }
 }

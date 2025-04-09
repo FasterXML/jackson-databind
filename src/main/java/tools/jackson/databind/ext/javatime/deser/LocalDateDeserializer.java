@@ -30,7 +30,6 @@ import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
-import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.cfg.DateTimeFeature;
 
 /**
@@ -40,9 +39,6 @@ import tools.jackson.databind.cfg.DateTimeFeature;
  */
 public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalDate>
 {
-    private final static boolean DEFAULT_USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING
-        = DateTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING.enabledByDefault();
-
     private static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
     
     public static final LocalDateDeserializer INSTANCE = new LocalDateDeserializer();
@@ -54,7 +50,7 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
      * {@link tools.jackson.databind.DeserializationContext} is used
      * when leniently deserializing from the UTC/ISO instant format.
      */
-    protected final boolean _useTimeZoneForLenientDateParsing;
+    //protected final boolean _useTimeZoneForLenientDateParsing;
 
     protected LocalDateDeserializer() {
         this(DEFAULT_FORMATTER);
@@ -62,30 +58,18 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
 
     public LocalDateDeserializer(DateTimeFormatter dtf) {
         super(LocalDate.class, dtf);
-        _useTimeZoneForLenientDateParsing = DEFAULT_USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING;
     }
 
     public LocalDateDeserializer(LocalDateDeserializer base, DateTimeFormatter dtf) {
         super(base, dtf);
-        _useTimeZoneForLenientDateParsing = base._useTimeZoneForLenientDateParsing;
     }
 
     protected LocalDateDeserializer(LocalDateDeserializer base, Boolean leniency) {
         super(base, leniency);
-        _useTimeZoneForLenientDateParsing = base._useTimeZoneForLenientDateParsing;
     }
 
     protected LocalDateDeserializer(LocalDateDeserializer base, JsonFormat.Shape shape) {
         super(base, shape);
-        _useTimeZoneForLenientDateParsing = base._useTimeZoneForLenientDateParsing;
-    }
-
-    /**
-     * Since 2.19
-     */
-    protected LocalDateDeserializer(LocalDateDeserializer base, DatatypeFeatures features) {
-        super(LocalDate.class, base._formatter);
-        _useTimeZoneForLenientDateParsing = features.isEnabled(DateTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING);
     }
 
     @Override
@@ -100,17 +84,6 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
 
     @Override
     protected LocalDateDeserializer withShape(JsonFormat.Shape shape) { return new LocalDateDeserializer(this, shape); }
-
-    /**
-     * Since 2.19
-     */
-    public LocalDateDeserializer withFeatures(DatatypeFeatures features) {
-        if (_useTimeZoneForLenientDateParsing ==
-                features.isEnabled(DateTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING)) {
-            return this;
-        }
-        return new LocalDateDeserializer(this, features);
-    }
 
     @Override
     public LocalDate deserialize(JsonParser parser, DeserializationContext context)
@@ -191,7 +164,7 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
                 if (string.length() > 10 && string.charAt(10) == 'T') {
                     if (isLenient()) {
                         if (string.endsWith("Z")) {
-                            if (_useTimeZoneForLenientDateParsing) {
+                            if (ctxt.isEnabled(DateTimeFeature.USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING)) {
                                 return Instant.parse(string).atZone(ctxt.getTimeZone().toZoneId()).toLocalDate();
                             }
                             return LocalDate.parse(string.substring(0, string.length() - 1),

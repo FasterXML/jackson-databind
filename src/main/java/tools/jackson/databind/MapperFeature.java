@@ -443,21 +443,7 @@ public enum MapperFeature
      *
      * @since 2.13
      */
-    APPLY_DEFAULT_VALUES(true),
-
-    /**
-     * Feature that determines whether Jackson handlers unwrap the root cause of
-     * caught exceptions in cases where root cause is wrapped in a Jackson exception
-     * type ({@link tools.jackson.core.JacksonException} or subtype).
-     *<p>
-     * Unwrapping has the benefit of reducing depth of Exception nesting, but will lose
-     * information about intermediate {@code Exception}s (if any).
-     * Conversely disabling unwrapping has benefit of keeping the full stack trace,
-     * including possible customized exceptions.
-     *<p>
-     * Feature is enabled by default.
-     */
-    UNWRAP_ROOT_CAUSE(true)
+    APPLY_DEFAULT_VALUES(true)
     ;
 
     private final boolean _defaultState;

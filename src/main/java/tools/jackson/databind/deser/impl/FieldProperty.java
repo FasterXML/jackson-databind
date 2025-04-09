@@ -194,7 +194,7 @@ public final class FieldProperty
             _field.set(instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsJacksonE(ctxt.getConfig(), e, value);
+            _throwAsJacksonE(e, value);
         }
     }
 
@@ -210,7 +210,7 @@ public final class FieldProperty
             _field.set(instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsJacksonE(ctxt.getConfig(), e, value);
+            _throwAsJacksonE(e, value);
         }
         return instance;
     }

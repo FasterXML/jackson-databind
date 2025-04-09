@@ -185,7 +185,7 @@ public final class MethodProperty
             _setter.invoke(instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsJacksonE(ctxt.getConfig(), e, value);
+            _throwAsJacksonE(e, value);
         }
     }
 
@@ -203,7 +203,7 @@ public final class MethodProperty
             return (result == null) ? instance : result;
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsJacksonE(ctxt.getConfig(), e, value);
+            _throwAsJacksonE(e, value);
             return null;
         }
     }

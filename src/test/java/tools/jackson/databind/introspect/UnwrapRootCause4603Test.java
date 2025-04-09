@@ -65,35 +65,12 @@ public class UnwrapRootCause4603Test
 
     final ObjectMapper MAPPER = newJsonMapper();
 
-    // Intentionally enable
-    final ObjectMapper ENABLED = jsonMapperBuilder()
-            .configure(MapperFeature.UNWRAP_ROOT_CAUSE, true)
-            .build();
-
-    final ObjectMapper DISABLED = jsonMapperBuilder()
-            .configure(MapperFeature.UNWRAP_ROOT_CAUSE, false)
-            .build();
-
-    // Whether disabled or enabled, should get ArithmeticException
-    @Test
-    public void testExceptionWrappingConfigurationEnabled()
-            throws Exception
-    {
-        DatabindException enabledResult = _tryDeserializeWith(ENABLED);
-        assertInstanceOf(ArithmeticException.class, enabledResult.getCause());
-
-        // Default is same
-        DatabindException defaultResult = _tryDeserializeWith(MAPPER);
-        assertInstanceOf(ArithmeticException.class, defaultResult.getCause());
-
-    }
-
     // Whether disabled or enabled, should get ArithmeticException
     @Test
     public void testExceptionWrappingConfiguration()
             throws Exception
     {
-        DatabindException disabledResult = _tryDeserializeWith(DISABLED);
+        DatabindException disabledResult = _tryDeserializeWith(MAPPER);
         // We are throwing exception inside a setter, so....
         assertInstanceOf(InvocationTargetException.class, disabledResult.getCause());
         assertInstanceOf(CustomException.class, disabledResult.getCause().getCause());
@@ -111,14 +88,8 @@ public class UnwrapRootCause4603Test
             throws Exception
     {
         DatabindException result = assertThrows(DatabindException.class,
-                () -> ENABLED.readValue(a2q("{'a':3}"), AnySetterBean.class));
-        assertInstanceOf(CustomException.class, result.getCause());
-
-        result = assertThrows(DatabindException.class,
-                () -> DISABLED.readValue(a2q("{'a':3}"), AnySetterBean.class));
+                () -> MAPPER.readValue(a2q("{'a':3}"), AnySetterBean.class));
         assertInstanceOf(CustomException.class, result.getCause());
     }
-
-
 
 }

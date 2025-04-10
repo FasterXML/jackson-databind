@@ -3,6 +3,7 @@ package tools.jackson.databind.deser.enums;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,7 +29,7 @@ public class EnumWithNullToString4355Test extends DatabindTestUtil
     }
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING).build();
+            .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING).build();
 
     // [databind#4355]
     @Test

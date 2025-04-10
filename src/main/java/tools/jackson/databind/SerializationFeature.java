@@ -287,51 +287,6 @@ public enum SerializationFeature implements ConfigFeature
     WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS(false),
 
     /**
-     * Feature that determines standard serialization mechanism used for
-     * Enum values: if enabled, return value of <code>Enum.toString()</code>
-     * is used; if disabled, return value of <code>Enum.name()</code> is used.
-     *<p>
-     * Note: this feature should usually have same value
-     * as {@link DeserializationFeature#READ_ENUMS_USING_TO_STRING}.
-     *<p>
-     * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
-     */
-    WRITE_ENUMS_USING_TO_STRING(true),
-
-    /**
-     * Feature that determines whether Java Enum values are serialized
-     * as numbers (true), or textual values (false). If textual values are
-     * used, other settings are also considered.
-     * If this feature is enabled,
-     *  return value of <code>Enum.ordinal()</code>
-     * (an integer) will be used as the serialization.
-     *<p>
-     * Note that this feature has precedence over {@link #WRITE_ENUMS_USING_TO_STRING},
-     * which is only considered if this feature is set to false.
-     *<p>
-     * Note that since 2.10, this does NOT apply to {@link Enum}s written as
-     * keys of {@link java.util.Map} values, which has separate setting,
-     * {@link #WRITE_ENUM_KEYS_USING_INDEX}.
-     *<p>
-     * Feature is disabled by default.
-     */
-    WRITE_ENUMS_USING_INDEX(false),
-
-    /**
-     * Feature that determines whether {link Enum}s
-     * used as {@link java.util.Map} keys are serialized
-     * as using {@link Enum#ordinal()} or not.
-     * Similar to {@link #WRITE_ENUMS_USING_INDEX} used when writing
-     * {@link Enum}s as regular values.
-     *<p>
-     * NOTE: counterpart for this settings is
-     * {@link EnumFeature#READ_ENUM_KEYS_USING_INDEX}.
-     *<p>
-     * Feature is disabled by default.
-     */
-    WRITE_ENUM_KEYS_USING_INDEX(false),
-
-    /**
      * Feature that determines whether Container properties (POJO properties
      * with declared value of Collection or array; i.e. things that produce JSON
      * arrays) that are empty (have no elements)

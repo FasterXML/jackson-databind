@@ -63,7 +63,7 @@ public class EnumsToLCvsJsonProperty4788Test
     {
         assertEquals(
                 "\"Is-A-Prop\"",
-                objectMapper.writer().with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                objectMapper.writer().with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                         .writeValueAsString(SauceC.IS_MY_NAME)
         );
     }

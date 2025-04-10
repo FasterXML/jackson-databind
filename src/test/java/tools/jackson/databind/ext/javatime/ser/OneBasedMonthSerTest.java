@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -25,24 +26,24 @@ public class OneBasedMonthSerTest extends DateTimeTestBase
     public void testSerializationFromEnum() throws Exception
     {
         assertEquals( "\"JANUARY\"" , writerForOneBased()
-            .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+            .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
             .writeValueAsString(Month.JANUARY));
         assertEquals( "\"JANUARY\"" , writerForZeroBased()
-            .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+            .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
             .writeValueAsString(Month.JANUARY));
     }
 
     @Test
     public void testSerializationFromEnumWithPattern_oneBased() throws Exception
     {
-        ObjectWriter w = writerForOneBased().with(SerializationFeature.WRITE_ENUMS_USING_INDEX);
+        ObjectWriter w = writerForOneBased().with(EnumFeature.WRITE_ENUMS_USING_INDEX);
         assertEquals( "{\"month\":1}" , w.writeValueAsString(new Wrapper(Month.JANUARY)));
     }
 
     @Test
     public void testSerializationFromEnumWithPattern_zeroBased() throws Exception
     {
-        ObjectWriter w = writerForZeroBased().with(SerializationFeature.WRITE_ENUMS_USING_INDEX);
+        ObjectWriter w = writerForZeroBased().with(EnumFeature.WRITE_ENUMS_USING_INDEX);
         assertEquals( "{\"month\":0}" , w.writeValueAsString(new Wrapper(Month.JANUARY)));
     }
 

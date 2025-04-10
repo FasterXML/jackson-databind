@@ -8,6 +8,7 @@ import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -29,7 +30,7 @@ public class JsonMapperBuilderTest extends DatabindTestUtil
         assertTrue(mapper.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
         assertTrue(mapper.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
         assertTrue(mapper.isEnabled(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS));
-        assertFalse(mapper.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING));
+        assertFalse(mapper.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING));
         assertTrue(mapper.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
         assertFalse(mapper.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES));
         assertFalse(mapper.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));

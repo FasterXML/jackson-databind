@@ -5,6 +5,7 @@ import java.time.Month;
 import tools.jackson.core.JsonGenerator;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 
 /**
  * @since 2.17
@@ -24,7 +25,7 @@ public class OneBasedMonthSerializer extends ValueSerializer<Month> {
         // 15-Jan-2024, tatu: [modules-java8#274] This is not really sufficient
         //   (see `jackson-databind` `EnumSerializer` for full logic), but has to
         //   do for now. May need to add `@JsonFormat.shape` handling in future.
-        if (ctxt.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+        if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_INDEX)) {
             gen.writeNumber(value.ordinal() + 1);
             return;
         }

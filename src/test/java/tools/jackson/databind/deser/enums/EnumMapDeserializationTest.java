@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -313,13 +314,13 @@ public class EnumMapDeserializationTest
         map.put(MyEnum2457.B, "2");
         assertEquals(a2q("{'A':'1','B':'2'}"),
                 MAPPER.writer()
-                        .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                        .without(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                         .writeValueAsString(map));
 
         // But should be able to override
         assertEquals(a2q("{'"+MyEnum2457.A.toString()+"':'1','"+MyEnum2457.B.toString()+"':'2'}"),
                 MAPPER.writer()
-                    .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                    .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                     .writeValueAsString(map));
     }
 
@@ -338,13 +339,13 @@ public class EnumMapDeserializationTest
         map.put(MyEnum2457Base.B, "2");
         assertEquals(a2q("{'a_mixin':'1','b_mixin':'2'}"),
                 mixinMapper.writer()
-                        .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                        .without(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                         .writeValueAsString(map));
 
         // But should be able to override
         assertEquals(a2q("{'"+MyEnum2457Base.A.toString()+"':'1','"+MyEnum2457Base.B.toString()+"':'2'}"),
                 mixinMapper.writer()
-                        .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                        .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                         .writeValueAsString(map));
     }
 

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.jsonFormatVisitors.*;
 import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -228,7 +229,7 @@ public class NewSchemaTest extends DatabindTestUtil
     public void testSimpleEnum() throws Exception
     {
         final Set<String> values = new TreeSet<String>();
-        ObjectWriter w = MAPPER.writer(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+        ObjectWriter w = MAPPER.writer(EnumFeature.WRITE_ENUMS_USING_TO_STRING);
 
         w.acceptJsonFormatVisitor(TestEnum.class, new JsonFormatVisitorWrapper.Base() {
             @Override

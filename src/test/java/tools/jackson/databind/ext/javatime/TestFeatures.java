@@ -18,7 +18,6 @@ package tools.jackson.databind.ext.javatime;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,14 +34,14 @@ public class TestFeatures
     @Test
     public void testReadDateTimestampsAsNanosecondsSettingEnabledByDefault()
     {
-        assertTrue(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS.enabledByDefault(),
+        assertTrue(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS.enabledByDefault(),
                 "Read date timestamps as nanoseconds setting should be enabled by default.");
     }
 
     @Test
     public void testAdjustDatesToContextTimeZoneSettingEnabledByDefault()
     {
-        assertTrue(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE.enabledByDefault(),
+        assertTrue(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE.enabledByDefault(),
                 "Adjust dates to context time zone setting should be enabled by default.");
     }
 }

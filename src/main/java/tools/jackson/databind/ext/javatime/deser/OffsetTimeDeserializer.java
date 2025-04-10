@@ -25,6 +25,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 
 /**
  * Deserializer for Java 8 temporal {@link OffsetTime}s.
@@ -172,7 +173,7 @@ public class OffsetTimeDeserializer extends JSR310DateTimeDeserializerBase<Offse
 
     protected boolean shouldReadTimestampsAsNanoseconds(DeserializationContext context) {
         return (_readTimestampsAsNanosOverride != null) ? _readTimestampsAsNanosOverride :
-            context.isEnabled(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+            context.isEnabled(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
     }
 
     protected OffsetTime _fromString(JsonParser p, DeserializationContext ctxt,

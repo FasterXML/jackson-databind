@@ -29,6 +29,7 @@ import tools.jackson.core.JsonTokenId;
 import tools.jackson.core.StreamReadCapability;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 import tools.jackson.databind.ext.javatime.util.DurationUnitConverter;
 
@@ -43,7 +44,7 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
      * When defined (not {@code null}) integer values will be converted into duration
      * unit configured for the converter.
      * Using this converter will typically override the value specified in
-     * {@link DeserializationFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS} as it is
+     * {@link DateTimeFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS} as it is
      * considered that the unit set in {@link JsonFormat#pattern()} has precedence
      * since it is more specific.
      *<p>
@@ -209,6 +210,6 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
 
     protected boolean shouldReadTimestampsAsNanoseconds(DeserializationContext context) {
         return (_readTimestampsAsNanosOverride != null) ? _readTimestampsAsNanosOverride :
-            context.isEnabled(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+            context.isEnabled(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
     }
 }

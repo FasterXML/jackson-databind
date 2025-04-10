@@ -31,6 +31,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
@@ -93,7 +94,7 @@ public class LocalTimeDeserTest extends DateTimeTestBase
     public void testDeserializationAsTimestamp03Nanoseconds() throws Exception
     {
         LocalTime value = READER
-                .with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("[9,22,0,57]");
         assertEquals(LocalTime.of(9, 22, 0, 57), value, "The value is not correct.");
     }
@@ -102,7 +103,7 @@ public class LocalTimeDeserTest extends DateTimeTestBase
     public void testDeserializationAsTimestamp03Milliseconds() throws Exception
     {
         LocalTime value = READER
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("[9,22,0,57]");
         assertEquals(LocalTime.of(9, 22, 0, 57000000), value, "The value is not correct.");
     }
@@ -111,7 +112,7 @@ public class LocalTimeDeserTest extends DateTimeTestBase
     public void testDeserializationAsTimestamp04Nanoseconds() throws Exception
     {
         LocalTime value = READER
-                .with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("[22,31,5,829837]");
         assertEquals(LocalTime.of(22, 31, 5, 829837), value, "The value is not correct.");
     }
@@ -120,7 +121,7 @@ public class LocalTimeDeserTest extends DateTimeTestBase
     public void testDeserializationAsTimestamp04Milliseconds01() throws Exception
     {
         LocalTime value = READER
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("[22,31,5,829837]");
         assertEquals(LocalTime.of(22, 31, 5, 829837), value, "The value is not correct.");
     }
@@ -129,7 +130,7 @@ public class LocalTimeDeserTest extends DateTimeTestBase
     public void testDeserializationAsTimestamp04Milliseconds02() throws Exception
     {
         LocalTime value = READER
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("[22,31,5,829]");
         assertEquals(LocalTime.of(22, 31, 5, 829000000), value, "The value is not correct.");
     }
@@ -235,7 +236,7 @@ public class LocalTimeDeserTest extends DateTimeTestBase
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         Temporal value = mapper.readerFor(Temporal.class)
-                .with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("[\"" + LocalTime.class.getName() + "\",[22,31,5,829837]]");
 
         assertNotNull(value, "The value should not be null.");
@@ -252,7 +253,7 @@ public class LocalTimeDeserTest extends DateTimeTestBase
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         Temporal value = mapper.readerFor(Temporal.class)
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("[\"" + LocalTime.class.getName() + "\",[22,31,5,422]]");
         assertTrue(value instanceof LocalTime, "The value should be a LocalTime.");
         assertEquals(time, value, "The value is not correct.");

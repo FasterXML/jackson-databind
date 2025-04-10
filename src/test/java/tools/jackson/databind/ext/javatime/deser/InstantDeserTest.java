@@ -11,18 +11,17 @@ import java.util.regex.Matcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.core.type.TypeReference;
+
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.cfg.DateTimeFeature;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static tools.jackson.databind.ext.javatime.deser.InstantDeserializer.ISO8601_COLONLESS_OFFSET_REGEX;
@@ -233,7 +232,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         Instant date = Instant.ofEpochSecond(0L);
         Instant value = READER
-                .with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("0");
         assertEquals(date, value);
     }
@@ -244,7 +243,7 @@ public class InstantDeserTest extends DateTimeTestBase
         final long ts = 123456789L;
         Instant date = Instant.ofEpochSecond(ts);
         Instant value = READER
-                .with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(String.valueOf(ts));
         assertEquals(date, value);
     }
@@ -256,7 +255,7 @@ public class InstantDeserTest extends DateTimeTestBase
         date = date.minus(date.getNano(), ChronoUnit.NANOS);
 
         Instant value = READER
-                .with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(Long.toString(date.getEpochSecond()));
         assertEquals(date, value);
     }
@@ -285,7 +284,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         Instant date = Instant.ofEpochSecond(0L);
         Instant value = READER
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("0");
         assertEquals(date, value);
     }
@@ -295,7 +294,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         Instant date = Instant.ofEpochSecond(123456789L, 422000000);
         Instant value = READER
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("123456789422");
         assertEquals(date, value);
     }
@@ -307,7 +306,7 @@ public class InstantDeserTest extends DateTimeTestBase
         date = date.minus(date.getNano(), ChronoUnit.NANOS);
 
         Instant value = READER
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(Long.toString(date.toEpochMilli()));
         assertEquals(date, value);
     }
@@ -381,7 +380,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         Instant date = Instant.ofEpochSecond(123456789L, 0);
         ObjectMapper m = newMapperBuilder()
-                .enable(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .enable(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         Temporal value = m.readValue(
@@ -396,7 +395,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         Instant date = Instant.ofEpochSecond(123456789L, 422000000);
         ObjectMapper m = newMapperBuilder()
-                .disable(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .disable(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         Temporal value = m.readValue(
@@ -560,7 +559,7 @@ public class InstantDeserTest extends DateTimeTestBase
         ObjectMapper mapper = newMapperBuilder()
                 .configure(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
                 .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+                .configure(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
                 .build();
 
         Instant givenInstant = LocalDate.of(2016, 1, 1).atStartOfDay().atZone(ZoneOffset.UTC).toInstant();

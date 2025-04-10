@@ -53,7 +53,7 @@ import tools.jackson.databind.ser.std.ToStringSerializer;
  * <p>
  * Granularity of timestamps is controlled through the companion features
  * {@link DateTimeFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS} and
- * {@link DeserializationFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS}. For serialization, timestamps are
+ * {@link DateTimeFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS}. For serialization, timestamps are
  * written as fractional numbers (decimals), where the number is seconds and the decimal is fractional seconds, if
  * {@code WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS} is enabled (it is by default), with resolution as fine as nanoseconds depending on the
  * underlying JDK implementation. If {@code WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS} is disabled, timestamps are written as a whole number of

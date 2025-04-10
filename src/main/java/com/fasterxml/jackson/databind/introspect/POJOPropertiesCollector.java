@@ -1380,6 +1380,10 @@ ctor.creator()));
             Map.Entry<String, POJOPropertyBuilder> entry = it.next();
             POJOPropertyBuilder prop = entry.getValue();
 
+            if (_ignoredPropertyNames != null && _ignoredPropertyNames.contains(prop.getName())) {
+                continue;
+            }
+
             Collection<PropertyName> l = prop.findExplicitNames();
 
             // no explicit names? Implicit one is fine as is

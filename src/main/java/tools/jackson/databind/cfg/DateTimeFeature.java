@@ -1,5 +1,7 @@
 package tools.jackson.databind.cfg;
 
+import tools.jackson.databind.DeserializationFeature;
+
 /**
  * Configurable on/off features to configure Date/Time handling.
  * Mostly used to configure
@@ -101,6 +103,68 @@ public enum DateTimeFeature implements DatatypeFeature
      * as textual (ISO-8601) values.
      */
     WRITE_DATE_KEYS_AS_TIMESTAMPS(false),
+
+    /**
+     * Feature that controls whether numeric timestamp values are
+     * to be written using nanosecond timestamps (enabled) or not (disabled);
+     * <b>if and only if</b> datatype supports such resolution.
+     * Only newer datatypes (such as Java8 Date/Time) support such resolution --
+     * older types (pre-Java8 <b>java.util.Date</b> etc) and Joda do not --
+     * and this setting <b>has no effect</b> on such types.
+     *<p>
+     * If disabled, standard millisecond timestamps are assumed.
+     * This is the counterpart to {@link DeserializationFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS}.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is enabled by default, to support most accurate time values possible.
+     */
+    WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS(true),
+
+    /**
+     * Feature that determines whether timezone/offset included in zoned date/time
+     * values (note: does NOT {@link java.util.Date} will be overridden if there
+     * is an explicitly set context time zone.
+     * If disabled, timezone/offset value is used-is; if enabled, context time zone
+     * is used instead.
+     *<p>
+     * Note that this setting only affects "Zoned" date/time values of
+     * {@code Java 8 date/time} types -- it will have no effect on old
+     * {@link java.util} value handling (of which {@link java.util.Date} has no timezone
+     * information and must use contextual timezone, implicit or explicit; and
+     * {@link java.util.Calendar} which will always use timezone Calendar value has).
+     * Setting is also ignored by Joda date/time values.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is enabled by default for backwards-compatibility purposes
+     * (from Jackson 2.x)
+     */
+    WRITE_DATES_WITH_CONTEXT_TIME_ZONE(true),
+
+    /**
+     * Feature that determines whether date/date-time values should be serialized
+     * so that they include timezone id, in cases where type itself contains
+     * timezone information. Including this information may lead to compatibility
+     * issues because ISO-8601 specification does not define formats that include
+     * such information.
+     *<p>
+     * If enabled, Timezone id should be included using format specified
+     * with Java 8 <code>DateTimeFormatter#ISO_ZONED_DATE_TIME</code> definition
+     * (for example, '2011-12-03T10:15:30+01:00[Europe/Paris]').
+     *<p>
+     * Note: setting has no relevance if date/time values are serialized as timestamps.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is disabled by default, so that zone id is NOT included; rather, timezone
+     * offset is used for ISO-8601 compatibility (if any timezone information is
+     * included in value).
+     */
+    WRITE_DATES_WITH_ZONE_ID(false),
 
     /**
      * Feature that determines whether time values that represents time periods

@@ -59,7 +59,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
         OffsetTime time = OffsetTime.of(9, 22, 0, 57, ZoneOffset.of("-0630"));
         String value = MAPPER.writer()
                 .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(time);
         assertEquals("[9,22,0,57,\"-06:30\"]", value);
     }
@@ -70,7 +70,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
         OffsetTime time = OffsetTime.of(9, 22, 0, 57, ZoneOffset.of("-0630"));
         String value = MAPPER.writer()
                 .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(time);
         assertEquals("[9,22,0,0,\"-06:30\"]", value);
     }
@@ -81,7 +81,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
         OffsetTime time = OffsetTime.of(22, 31, 5, 829837, ZoneOffset.of("+1100"));
         String value = MAPPER.writer()
                 .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(time);
         assertEquals("[22,31,5,829837,\"+11:00\"]", value);
     }
@@ -92,7 +92,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
         OffsetTime time = OffsetTime.of(22, 31, 5, 422829837, ZoneOffset.of("+1100"));
         String value = MAPPER.writer()
                 .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(time);
         assertEquals("[22,31,5,422,\"+11:00\"]", value);
     }
@@ -134,7 +134,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
 
         final ObjectMapper mapper = newMapperBuilder()
                 .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
-                .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, true)
+                .configure(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, true)
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         assertEquals("[\"" + OffsetTime.class.getName() + "\",[22,31,5,829837,\"+11:00\"]]",
@@ -148,7 +148,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
 
         final ObjectMapper mapper = newMapperBuilder()
             .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
-            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+            .configure(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
             .addMixIn(Temporal.class, MockObjectConfiguration.class)
             .build();
 

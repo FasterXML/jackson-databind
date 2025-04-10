@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 
@@ -84,7 +83,7 @@ public class ZonedDateTimeAsKeyTest extends DateTimeTestBase
     @Test
     public void testSerializationToInstantWithoutNanos() throws Exception {
         String value = mapperBuilder().enable(DateTimeFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)
-            .disable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS).build()
+            .disable(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS).build()
             .writerFor(TYPE_REF).writeValueAsString(asMap(DATE_TIME_1, "test"));
         assertEquals(mapAsString(String.valueOf(DATE_TIME_1.toInstant().toEpochMilli()), "test"), value);
     }

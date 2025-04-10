@@ -236,7 +236,7 @@ abstract class JSR310FormattedSerializerBase<T>
             }
         }
         return (ctxt != null)
-                && ctxt.isEnabled(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
+                && ctxt.isEnabled(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
     }
 
     // modules-java8#189: to be overridden by other formatters using this as base class

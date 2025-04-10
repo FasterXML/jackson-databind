@@ -196,7 +196,7 @@ public class DateTimeSchemasTest extends DateTimeTestBase
         // but becomes long
         wrapper = new VisitorWrapper(null, "", new HashMap<String, String>());
         MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .acceptJsonFormatVisitor(ZonedDateTime.class, wrapper);
         properties = wrapper.getTraversedProperties();
         _verifyLongType(properties.get("numberType"));

@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
-import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
@@ -49,7 +48,7 @@ public class DurationSerTest extends DateTimeTestBase
         Duration duration = Duration.ofSeconds(60L, 0);
         String value = WRITER
                 .with(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(duration);
         assertEquals("60"+NO_NANOSECS_SUFFIX, value);
     }
@@ -60,7 +59,7 @@ public class DurationSerTest extends DateTimeTestBase
         Duration duration = Duration.ofSeconds(13498L, 8374);
         String value = WRITER
                 .with(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(duration);
         assertEquals("13498.000008374", value);
     }
@@ -71,7 +70,7 @@ public class DurationSerTest extends DateTimeTestBase
     {
         ObjectWriter w = WRITER
                 .with(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
+                .with(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
 
         // 20-Oct-2020, tatu: Very weird, but "use nanoseconds" actually results
         //   in unit being seconds, with fractions (with nanosec precision)
@@ -87,7 +86,7 @@ public class DurationSerTest extends DateTimeTestBase
     {
         final ObjectWriter w = WRITER
                 .with(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
+                .without(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
         String value = w.writeValueAsString(Duration.ofSeconds(45L, 0));
         assertEquals("45000", value);
 
@@ -101,7 +100,7 @@ public class DurationSerTest extends DateTimeTestBase
     {
         String value = WRITER
                 .with(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(Duration.ofSeconds(13498L, 8374));
         assertEquals("13498000", value);
     }
@@ -112,7 +111,7 @@ public class DurationSerTest extends DateTimeTestBase
         Duration duration = Duration.ofSeconds(13498L, 837481723);
         String value = WRITER
                 .with(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(duration);
         assertEquals("13498837", value);
     }
@@ -143,7 +142,7 @@ public class DurationSerTest extends DateTimeTestBase
         ObjectMapper mapper = newMapperBuilder()
                 .addMixIn(TemporalAmount.class, MockObjectConfiguration.class)
                 .enable(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .enable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .enable(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .build();
         Duration duration = Duration.ofSeconds(13498L, 8374);
         String value = mapper.writeValueAsString(duration);
@@ -157,7 +156,7 @@ public class DurationSerTest extends DateTimeTestBase
         ObjectMapper mapper = newMapperBuilder()
                 .addMixIn(TemporalAmount.class, MockObjectConfiguration.class)
                 .enable(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .disable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .disable(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .build();
         Duration duration = Duration.ofSeconds(13498L, 837481723);
         String value = mapper.writeValueAsString(duration);
@@ -294,7 +293,7 @@ public class DurationSerTest extends DateTimeTestBase
                 .withConfigOverride(Duration.class,
                         cfg -> cfg.setFormat(JsonFormat.Value.forPattern(pattern)))
                 .enable(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .disable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .disable(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .build();
         return mapper;
     }

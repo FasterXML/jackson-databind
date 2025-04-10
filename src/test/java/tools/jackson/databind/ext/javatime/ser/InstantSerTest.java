@@ -23,8 +23,8 @@ import java.time.temporal.Temporal;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
@@ -44,7 +44,7 @@ public class InstantSerTest extends DateTimeTestBase
         Instant date = Instant.ofEpochSecond(0L);
         String value = MAPPER.writer()
                 .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
 
         assertNotNull(value);
@@ -57,7 +57,7 @@ public class InstantSerTest extends DateTimeTestBase
         Instant date = Instant.ofEpochSecond(0L);
         String value = MAPPER.writer()
                 .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("0", value);
     }
@@ -68,7 +68,7 @@ public class InstantSerTest extends DateTimeTestBase
         Instant date = Instant.ofEpochSecond(123456789L, 183917322);
         String value = MAPPER.writer()
                 .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("123456789.183917322", value);
     }
@@ -79,7 +79,7 @@ public class InstantSerTest extends DateTimeTestBase
         Instant date = Instant.ofEpochSecond(123456789L, 183917322);
         String value = MAPPER.writer()
                 .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("123456789183", value);
     }
@@ -90,7 +90,7 @@ public class InstantSerTest extends DateTimeTestBase
         Instant date = Instant.now();
         String value = MAPPER.writer()
                 .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals(DecimalUtils.toDecimal(date.getEpochSecond(), date.getNano()), value);
     }
@@ -101,7 +101,7 @@ public class InstantSerTest extends DateTimeTestBase
         Instant date = Instant.now();
         String value = MAPPER.writer()
                 .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals(Long.toString(date.toEpochMilli()), value);
     }
@@ -142,7 +142,7 @@ public class InstantSerTest extends DateTimeTestBase
         Instant date = Instant.ofEpochSecond(123456789L, 183917322);
         ObjectMapper m = newMapperBuilder()
             .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
-            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, true)
+            .configure(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, true)
             .addMixIn(Temporal.class, MockObjectConfiguration.class)
             .build();
         String value = m.writeValueAsString(date);
@@ -155,7 +155,7 @@ public class InstantSerTest extends DateTimeTestBase
         Instant date = Instant.ofEpochSecond(123456789L, 183917322);
         ObjectMapper m = newMapperBuilder()
                 .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
-                .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+                .configure(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         String value = m.writeValueAsString(date);

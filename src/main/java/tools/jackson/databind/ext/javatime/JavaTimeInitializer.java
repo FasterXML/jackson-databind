@@ -52,7 +52,7 @@ import tools.jackson.databind.ser.std.ToStringSerializer;
  * have built-in translation to and from ISO-8601 formats.
  * <p>
  * Granularity of timestamps is controlled through the companion features
- * {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS} and
+ * {@link DateTimeFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS} and
  * {@link DeserializationFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS}. For serialization, timestamps are
  * written as fractional numbers (decimals), where the number is seconds and the decimal is fractional seconds, if
  * {@code WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS} is enabled (it is by default), with resolution as fine as nanoseconds depending on the

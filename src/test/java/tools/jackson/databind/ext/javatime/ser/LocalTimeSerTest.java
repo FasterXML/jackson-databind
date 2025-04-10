@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
-import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
@@ -72,7 +71,7 @@ public class LocalTimeSerTest extends DateTimeTestBase
     public void testSerializationAsTimestamp03Nanoseconds() throws Exception
     {
         String json = writer.with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(LocalTime.of(9, 22, 0, 57));
         assertEquals("[9,22,0,57]", json, "The value is not correct.");
     }
@@ -83,7 +82,7 @@ public class LocalTimeSerTest extends DateTimeTestBase
         LocalTime time = LocalTime.of(9, 22, 0, 57);
         ObjectMapper mapper = newMapperBuilder()
                 .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
-                .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+                .configure(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
                 .build();
         String value = mapper.writeValueAsString(time);
 
@@ -96,7 +95,7 @@ public class LocalTimeSerTest extends DateTimeTestBase
         LocalTime time = LocalTime.of(22, 31, 5, 829837);
         ObjectMapper mapper = newMapperBuilder()
                 .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
-                .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, true)
+                .configure(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, true)
                 .build();
         String value = mapper.writeValueAsString(time);
         assertEquals("[22,31,5,829837]", value, "The value is not correct.");
@@ -108,7 +107,7 @@ public class LocalTimeSerTest extends DateTimeTestBase
         LocalTime time = LocalTime.of(22, 31, 5, 422829837);
         ObjectMapper mapper = newMapperBuilder()
                 .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .disable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .disable(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .build();
         String value = mapper.writeValueAsString(time);
         assertEquals("[22,31,5,422]", value, "The value is not correct.");
@@ -160,7 +159,7 @@ public class LocalTimeSerTest extends DateTimeTestBase
         LocalTime time = LocalTime.of(22, 31, 5, 829837);
         ObjectMapper m = newMapperBuilder()
                 .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .enable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .enable(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         String json = m.writeValueAsString(time);
@@ -176,7 +175,7 @@ public class LocalTimeSerTest extends DateTimeTestBase
 
         ObjectMapper m = newMapperBuilder()
                 .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .disable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .disable(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         String json = m.writeValueAsString(time);

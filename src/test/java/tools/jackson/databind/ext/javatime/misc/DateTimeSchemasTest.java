@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.jsonFormatVisitors.*;
 
@@ -135,7 +136,7 @@ public class DateTimeSchemasTest extends DateTimeTestBase
     // 05-Feb-2025, tatu: Change defaults to Jackson 2.x wrt serialization
     //    shape (as Timestamps vs Strings)
     private final ObjectMapper MAPPER = mapperBuilder()
-            .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .build();
 
     // // // Local date/time types
@@ -154,7 +155,7 @@ public class DateTimeSchemasTest extends DateTimeTestBase
 
         // but becomes date/time
         wrapper = new VisitorWrapper(null, "", new HashMap<String, String>());
-        MAPPER.writer().without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        MAPPER.writer().without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .acceptJsonFormatVisitor(LocalTime.class, wrapper);
         properties = wrapper.getTraversedProperties();
         _verifyTimeType(properties.get(""));
@@ -173,7 +174,7 @@ public class DateTimeSchemasTest extends DateTimeTestBase
 
         // but becomes date/time
         wrapper = new VisitorWrapper(null, "", new HashMap<String, String>());
-        MAPPER.writer().without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        MAPPER.writer().without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .acceptJsonFormatVisitor(LocalDate.class, wrapper);
         properties = wrapper.getTraversedProperties();
         _verifyDateType(properties.get(""));
@@ -195,7 +196,7 @@ public class DateTimeSchemasTest extends DateTimeTestBase
         // but becomes long
         wrapper = new VisitorWrapper(null, "", new HashMap<String, String>());
         MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .acceptJsonFormatVisitor(ZonedDateTime.class, wrapper);
         properties = wrapper.getTraversedProperties();
         _verifyLongType(properties.get("numberType"));
@@ -203,7 +204,7 @@ public class DateTimeSchemasTest extends DateTimeTestBase
 
         // but becomes date/time
         wrapper = new VisitorWrapper(null, "", new HashMap<String, String>());
-        MAPPER.writer().without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        MAPPER.writer().without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .acceptJsonFormatVisitor(ZonedDateTime.class, wrapper);
         properties = wrapper.getTraversedProperties();
         _verifyDateTimeType(properties.get(""));

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static tools.jackson.databind.ext.javatime.deser.InstantDeserializer.ISO8601_COLONLESS_OFFSET_REGEX;
@@ -540,8 +540,8 @@ public class InstantDeserTest extends DateTimeTestBase
         // First, baseline test with floating-point numbers
         Instant inst = Instant.now();
         String json = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(inst);
         Instant result = READER.readValue(json);
         assertNotNull(result);
@@ -558,8 +558,8 @@ public class InstantDeserTest extends DateTimeTestBase
     public void testRoundTripOfInstantAndJavaUtilDate() throws Exception
     {
         ObjectMapper mapper = newMapperBuilder()
-                .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                .configure(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+                .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
                 .build();
 

@@ -458,7 +458,7 @@ public enum DeserializationFeature implements ConfigFeature
      * and this setting <b>has no effect</b> on such types.
      *<p>
      * If disabled, standard millisecond timestamps are assumed.
-     * This is the counterpart to {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}.
+     * This is the counterpart to {@link DateTimeFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}.
      *<p>
      * Feature is enabled by default, to support most accurate time values possible.
      */

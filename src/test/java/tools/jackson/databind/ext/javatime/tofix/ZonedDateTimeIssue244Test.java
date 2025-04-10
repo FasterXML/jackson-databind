@@ -7,7 +7,7 @@ import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ZonedDateTimeIssue244Test extends DateTimeTestBase
 {
     private final ObjectMapper MAPPER = mapperBuilder()
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .build();
 
     @JacksonTestFailureExpected

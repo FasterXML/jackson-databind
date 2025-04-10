@@ -19,6 +19,7 @@ package tools.jackson.databind.ext.javatime;
 import java.time.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.ValueInstantiators;
 import tools.jackson.databind.deser.std.StdValueInstantiator;
@@ -42,8 +43,8 @@ import tools.jackson.databind.ser.std.ToStringSerializer;
  * registered: approach is similar to one used by full {@link JacksonModule}s.
  *<p>
  * Most {@code java.time} types are serialized as numbers (integers or decimals as appropriate) if the
- * {@link SerializationFeature#WRITE_DATES_AS_TIMESTAMPS} feature is enabled
- * (or, for {@link Duration}, {@link tools.jackson.databind.SerializationFeature#WRITE_DURATIONS_AS_TIMESTAMPS}),
+ * {@link DateTimeFeature#WRITE_DATES_AS_TIMESTAMPS} feature is enabled
+ * (or, for {@link Duration}, {@link DateTimeFeature#WRITE_DURATIONS_AS_TIMESTAMPS}),
  * and otherwise are serialized in standard
  * <a href="http://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO-8601</a> string representation.
  * ISO-8601 specifies formats for representing offset dates and times, zoned dates and times,
@@ -51,7 +52,7 @@ import tools.jackson.databind.ser.std.ToStringSerializer;
  * have built-in translation to and from ISO-8601 formats.
  * <p>
  * Granularity of timestamps is controlled through the companion features
- * {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS} and
+ * {@link DateTimeFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS} and
  * {@link DeserializationFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS}. For serialization, timestamps are
  * written as fractional numbers (decimals), where the number is seconds and the decimal is fractional seconds, if
  * {@code WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS} is enabled (it is by default), with resolution as fine as nanoseconds depending on the

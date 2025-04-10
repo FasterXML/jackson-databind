@@ -236,9 +236,9 @@ public final class SerializationConfig
         SerializationConfig cfg = super.with(df);
         // Also need to toggle this feature based on existence of date format:
         if (df == null) {
-            return cfg.with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            return cfg.with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
         }
-        return cfg.without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return cfg.without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     /*

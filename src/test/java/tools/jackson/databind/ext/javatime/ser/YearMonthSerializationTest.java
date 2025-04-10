@@ -25,8 +25,9 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 
@@ -55,7 +56,7 @@ public class YearMonthSerializationTest
     {
         YearMonth yearMonth = YearMonth.of(1986, Month.JANUARY);
         String value = MAPPER.writer()
-        		.with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        		.with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
         		.writeValueAsString(yearMonth);
 
         assertNotNull(value);
@@ -67,7 +68,7 @@ public class YearMonthSerializationTest
     {
         YearMonth yearMonth = YearMonth.of(2013, Month.AUGUST);
         String value = MAPPER.writer()
-        		.with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        		.with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
         		.writeValueAsString(yearMonth);
 
         assertNotNull(value);
@@ -79,7 +80,7 @@ public class YearMonthSerializationTest
     {
         YearMonth yearMonth = YearMonth.of(1986, Month.JANUARY);
         String value = MAPPER.writer()
-        		.without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        		.without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
         		.writeValueAsString(yearMonth);
 
         assertNotNull(value);
@@ -91,7 +92,7 @@ public class YearMonthSerializationTest
     {
         YearMonth yearMonth = YearMonth.of(2013, Month.AUGUST);
         String value = MAPPER.writer()
-        		.without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        		.without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
         		.writeValueAsString(yearMonth);
         assertEquals('"' + yearMonth.toString() + '"', value);
     }
@@ -101,7 +102,7 @@ public class YearMonthSerializationTest
     {
         YearMonth yearMonth = YearMonth.of(2005, Month.NOVEMBER);
         ObjectMapper mapper = newMapperBuilder()
-        		.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        		.configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                .addMixIn(Temporal.class, MockObjectConfiguration.class)
         		.build();
         String value = mapper.writeValueAsString(yearMonth);

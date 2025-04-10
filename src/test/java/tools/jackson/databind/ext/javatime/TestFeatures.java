@@ -19,7 +19,7 @@ package tools.jackson.databind.ext.javatime;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,7 +28,7 @@ public class TestFeatures
     @Test
     public void testWriteDateTimestampsAsNanosecondsSettingEnabledByDefault()
     {
-        assertTrue(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS.enabledByDefault(),
+        assertTrue(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS.enabledByDefault(),
                 "Write date timestamps as nanoseconds setting should be enabled by default.");
     }
 

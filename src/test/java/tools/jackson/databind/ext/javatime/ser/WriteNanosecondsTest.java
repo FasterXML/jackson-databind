@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,7 +20,7 @@ public class WriteNanosecondsTest extends DateTimeTestBase
     // 05-Feb-2025, tatu: Use Jackson 2.x defaults wrt as-timestamps
     //   serialization
     private final static ObjectMapper MAPPER = mapperBuilder()
-            .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .build();
 
     public static class DummyClass<T> {
@@ -41,7 +41,7 @@ public class WriteNanosecondsTest extends DateTimeTestBase
         DummyClass<Duration> value = new DummyClass<>(Duration.ZERO);
 
         String json = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
                 .writeValueAsString(value);
 
         assertThat(json).contains("\"nanoseconds\":0.0");

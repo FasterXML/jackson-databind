@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.xml.crypto.Data;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamReadException;
@@ -1977,6 +1979,15 @@ public class ObjectMapper
     public ObjectWriter writer(SerializationFeature first,
             SerializationFeature... other) {
         return _newWriter(serializationConfig().with(first, other));
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectWriter} with
+     * specified features enabled (compared to settings that this
+     * mapper instance has).
+     */
+    public ObjectWriter writer(DatatypeFeature f) {
+        return _newWriter(serializationConfig().with(f));
     }
 
     /**

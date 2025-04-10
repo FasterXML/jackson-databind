@@ -14,13 +14,13 @@ module tools.jackson.databind
 
     // 05-Nov-2020, tatu: made optional in 2.x ("static") but for simplicity
     //    is (for now?) hard dep on 3.0.
+    requires java.xml;
 
     // but we probably do want to expose streaming, annotations
     // as transitive dependencies streaming types at least part of API
     requires transitive com.fasterxml.jackson.annotation;
 
     requires transitive tools.jackson.core;
-    requires java.xml.crypto;
 
     exports tools.jackson.databind;
     exports tools.jackson.databind.annotation;

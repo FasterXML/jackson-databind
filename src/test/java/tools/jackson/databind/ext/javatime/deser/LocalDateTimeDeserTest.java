@@ -519,7 +519,7 @@ public class LocalDateTimeDeserTest
     public void testDeserializeToDate() throws Exception
     {
         ObjectMapper m = newMapperBuilder()
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .build();
         String localDateTimeJson = m.writeValueAsString(LocalDateTime.of(1999,10,12,13,45,5));
         assertEquals("\"1999-10-12T13:45:05\"", localDateTimeJson);
@@ -711,12 +711,12 @@ public class LocalDateTimeDeserTest
     public void testDeserializationOfLocalDateTimeMax() throws Exception
     {
         ObjectMapper enabledMapper = mapperBuilder()
-                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build();
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS).build();
         _testLocalDateTimeRoundTrip(enabledMapper, LocalDateTime.MAX);
         _testLocalDateTimeRoundTrip(enabledMapper, LocalDateTime.MIN);
 
         ObjectMapper disabledMapper = mapperBuilder()
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build();
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS).build();
         _testLocalDateTimeRoundTrip(disabledMapper, LocalDateTime.MAX);
         _testLocalDateTimeRoundTrip(disabledMapper, LocalDateTime.MIN);
     }

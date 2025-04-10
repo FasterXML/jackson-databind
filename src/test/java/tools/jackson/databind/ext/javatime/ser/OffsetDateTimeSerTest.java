@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
@@ -45,7 +46,7 @@ public class OffsetDateTimeSerTest
     {
         OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochSecond(0L), Z1);
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("0.0", value);
@@ -56,7 +57,7 @@ public class OffsetDateTimeSerTest
     {
         OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochSecond(0L), Z1);
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("0", value);
@@ -67,7 +68,7 @@ public class OffsetDateTimeSerTest
     {
         OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochSecond(123456789L, 183917322), Z2);
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("123456789.183917322", value);
@@ -78,7 +79,7 @@ public class OffsetDateTimeSerTest
     {
         OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochSecond(123456789L, 183917322), Z2);
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("123456789183", value);
@@ -89,7 +90,7 @@ public class OffsetDateTimeSerTest
     {
         OffsetDateTime date = OffsetDateTime.now(Z3);
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals(DecimalUtils.toDecimal(date.toEpochSecond(), date.getNano()), value);
@@ -100,7 +101,7 @@ public class OffsetDateTimeSerTest
     {
         OffsetDateTime date = OffsetDateTime.now(Z3);
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals(Long.toString(date.toInstant().toEpochMilli()), value);
@@ -111,7 +112,7 @@ public class OffsetDateTimeSerTest
     {
         OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochSecond(0L), Z1);
         String value = MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(date);
         assertEquals('"'
                 + FORMATTER.withZone(Z1).format(date) + '"', value);
@@ -122,7 +123,7 @@ public class OffsetDateTimeSerTest
     {
         OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochSecond(123456789L, 183917322), Z2);
         String value = MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(date);
         assertEquals('"'
                 + FORMATTER.withZone(Z2).format(date) + '"', value);
@@ -133,7 +134,7 @@ public class OffsetDateTimeSerTest
     {
         OffsetDateTime date = OffsetDateTime.now(Z3);
         String value = MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(date);
         assertEquals('"'
                 + FORMATTER.withZone(Z3).format(date) + '"', value);
@@ -163,7 +164,7 @@ public class OffsetDateTimeSerTest
         String value = newMapper()
                 .writer()
                 .with(TimeZone.getTimeZone(Z1))
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(date);
         assertEquals('"' + FORMATTER.format(date) + '"', value);
     }
@@ -175,7 +176,7 @@ public class OffsetDateTimeSerTest
         String value = newMapper()
                 .writer()
                 .with(TimeZone.getTimeZone(Z2))
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(date);
         assertEquals('"' + FORMATTER.format(date) + '"', value);
     }
@@ -187,7 +188,7 @@ public class OffsetDateTimeSerTest
         String value = newMapper()
                 .writer()
                 .with(TimeZone.getTimeZone(Z3))
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(date);
         assertEquals('"' + FORMATTER.format(date) + '"', value);
     }
@@ -197,8 +198,8 @@ public class OffsetDateTimeSerTest
     {
         OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochSecond(123456789L, 183917322), Z2);
         String value = newMapperBuilder()
-                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-                        SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .enable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build()
                 .writeValueAsString(date);
@@ -211,7 +212,7 @@ public class OffsetDateTimeSerTest
         OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochSecond(123456789L, 183917322), Z2);
         String value = newMapperBuilder()
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
-                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .disable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .build()
                 .writeValueAsString(date);
@@ -224,7 +225,7 @@ public class OffsetDateTimeSerTest
         OffsetDateTime date = OffsetDateTime.now(Z3);
         ObjectMapper m = newMapperBuilder()
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
-                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .build();
         String value = m.writeValueAsString(date);
         assertEquals("[\"" + OffsetDateTime.class.getName() + "\",\""
@@ -240,7 +241,7 @@ public class OffsetDateTimeSerTest
             .build()
             .writer()
             .with(TimeZone.getTimeZone(Z3))
-            .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .writeValueAsString(date);
 
         assertEquals("[\"" + OffsetDateTime.class.getName() + "\",\"" + FORMATTER.format(date) + "\"]", value);
@@ -252,7 +253,7 @@ public class OffsetDateTimeSerTest
         String value = MAPPER.writer()
                 .with(TimeZone.getTimeZone(Z2))
                 .without(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATES_WITH_CONTEXT_TIME_ZONE)
                 .writeValueAsString(date);
 
@@ -266,7 +267,7 @@ public class OffsetDateTimeSerTest
         String value = MAPPER.writer()
                 .with(TimeZone.getTimeZone(Z2))
                 .without(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATES_WITH_CONTEXT_TIME_ZONE)
                 .writeValueAsString(date);
 
@@ -283,7 +284,7 @@ public class OffsetDateTimeSerTest
     @Test
     public void testShapeInt() throws Exception {
         String json1 = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(new Pojo1());
         assertEquals("{\"t1\":1651053600000,\"t2\":1651053600.000000000}", json1);
     }

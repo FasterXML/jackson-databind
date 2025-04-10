@@ -10,19 +10,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.EnumNaming;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EnumNamingSerializationTest extends DatabindTestUtil {
-
-    /*
-    /**********************************************************
-    /* Set Up
-    /**********************************************************
-    */
-
-    final ObjectMapper MAPPER = jsonMapperBuilder().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build();
+public class EnumNamingSerializationTest extends DatabindTestUtil
+{
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .build();
 
     @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumFlavorA {

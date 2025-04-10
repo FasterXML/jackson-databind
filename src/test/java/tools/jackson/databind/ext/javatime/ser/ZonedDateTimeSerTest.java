@@ -37,7 +37,6 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
-import tools.jackson.databind.ext.javatime.ser.ZonedDateTimeSerializer;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -90,7 +89,7 @@ public class ZonedDateTimeSerTest
     {
         ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(0L), Z1);
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("0.0", value);
@@ -102,7 +101,7 @@ public class ZonedDateTimeSerTest
         // test for Issue #69
         ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(-14159020000L, 183917322), UTC);
         String serialized = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         ZonedDateTime actual = MAPPER.readValue(serialized, ZonedDateTime.class);
@@ -132,7 +131,7 @@ public class ZonedDateTimeSerTest
     {
         ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(0L), Z1);
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("0", value);
@@ -143,7 +142,7 @@ public class ZonedDateTimeSerTest
     {
         ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(123456789L, 183917322), Z2);
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("123456789.183917322", value);
@@ -154,7 +153,7 @@ public class ZonedDateTimeSerTest
     {
         ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(123456789L, 183917322), Z2);
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("123456789183", value);
@@ -165,7 +164,7 @@ public class ZonedDateTimeSerTest
     {
         ZonedDateTime date = ZonedDateTime.now(Z3);
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals(DecimalUtils.toDecimal(date.toEpochSecond(), date.getNano()), value);
@@ -176,7 +175,7 @@ public class ZonedDateTimeSerTest
     {
         ZonedDateTime date = ZonedDateTime.now(Z3);
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals(Long.toString(date.toInstant().toEpochMilli()), value);
@@ -187,7 +186,7 @@ public class ZonedDateTimeSerTest
     {
         ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(0L), Z1);
         String value = MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(date);
         assertEquals('"'
                 + FORMATTER.withZone(Z1).format(date) + '"', value);
@@ -198,7 +197,7 @@ public class ZonedDateTimeSerTest
     {
         ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(123456789L, 183917322), Z2);
         String value = MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(date);
         assertEquals('"'
                 + FORMATTER.withZone(Z2).format(date) + '"', value);
@@ -209,7 +208,7 @@ public class ZonedDateTimeSerTest
     {
         ZonedDateTime date = ZonedDateTime.now(Z3);
         String value = MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(date);
         assertEquals('"'
                 + FORMATTER.withZone(Z3).format(date) + '"', value);
@@ -222,7 +221,7 @@ public class ZonedDateTimeSerTest
         String value = newMapper()
                 .writer()
                 .with(TimeZone.getTimeZone(Z1))
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(date);
         assertEquals('"' + FORMATTER.format(date) + '"', value);
     }
@@ -234,7 +233,7 @@ public class ZonedDateTimeSerTest
         String value = newMapper()
                 .writer()
                 .with(TimeZone.getTimeZone(Z2))
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(date);
         assertEquals('"' + FORMATTER.format(date) + '"', value);
     }
@@ -246,7 +245,7 @@ public class ZonedDateTimeSerTest
         String value = newMapper()
                 .writer()
                 .with(TimeZone.getTimeZone(Z3))
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(date);
         assertEquals('"' + FORMATTER.format(date) + '"', value);
     }
@@ -255,7 +254,7 @@ public class ZonedDateTimeSerTest
     public void testSerializationAsStringWithZoneIdOff() throws Exception {
         ZonedDateTime date = ZonedDateTime.now(Z3);
         ObjectMapper mapper = newMapperBuilder()
-            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
             .configure(SerializationFeature.WRITE_DATES_WITH_ZONE_ID, false)
             .build();
 
@@ -269,7 +268,7 @@ public class ZonedDateTimeSerTest
         String value = newMapper()
                 .writer()
                 .with(TimeZone.getTimeZone(Z3))
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
                 .writeValueAsString(date);
         assertEquals(q(FORMATTER.format(date)), value);
@@ -279,7 +278,7 @@ public class ZonedDateTimeSerTest
     public void testSerializationAsStringWithZoneIdOn() throws Exception {
         ZonedDateTime date = ZonedDateTime.now(Z3);
         ObjectMapper mapper = newMapperBuilder()
-            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
             .configure(SerializationFeature.WRITE_DATES_WITH_ZONE_ID, true)
             .build();
         String value = mapper.writeValueAsString(date);
@@ -296,7 +295,7 @@ public class ZonedDateTimeSerTest
                 .writer()
                 .with(TimeZone.getTimeZone(Z2))
                 .without(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATES_WITH_CONTEXT_TIME_ZONE)
                 .writeValueAsString(date);
 
@@ -314,7 +313,7 @@ public class ZonedDateTimeSerTest
                 .writer()
                 .with(TimeZone.getTimeZone(Z2))
                 .without(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATES_WITH_CONTEXT_TIME_ZONE)
                 .writeValueAsString(date);
 
@@ -328,7 +327,7 @@ public class ZonedDateTimeSerTest
         String value = MAPPER.writer()
                 .with(TimeZone.getTimeZone(Z2))
                 .without(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATES_WITH_CONTEXT_TIME_ZONE)
                 .writeValueAsString(date);
 
@@ -342,7 +341,7 @@ public class ZonedDateTimeSerTest
         String value = MAPPER.writer()
                 .with(TimeZone.getTimeZone(Z2))
                 .without(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATES_WITH_CONTEXT_TIME_ZONE)
                 .writeValueAsString(date);
 
@@ -358,7 +357,7 @@ public class ZonedDateTimeSerTest
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build()
                 .writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("[\"" + ZonedDateTime.class.getName() + "\",123456789.183917322]", value);
@@ -372,7 +371,7 @@ public class ZonedDateTimeSerTest
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build()
                 .writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(date);
         assertEquals("[\"" + ZonedDateTime.class.getName() + "\",123456789183]", value);
@@ -384,7 +383,7 @@ public class ZonedDateTimeSerTest
         ZonedDateTime date = ZonedDateTime.now(Z3);
         String value = mapperBuilder()
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build()
                 .writeValueAsString(date);
         assertEquals("[\"" + ZonedDateTime.class.getName() + "\",\""
@@ -397,7 +396,7 @@ public class ZonedDateTimeSerTest
         ZonedDateTime date = ZonedDateTime.now(Z3);
         String value = newMapperBuilder()
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build()
                 .writer()
                 .with(TimeZone.getTimeZone(Z3))
@@ -953,7 +952,7 @@ public class ZonedDateTimeSerTest
     @Test
     public void testShapeInt() throws Exception {
         String json1 = mapperBuilder()
-                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build()
                 .writeValueAsString(new Pojo1());
         assertEquals("{\"t1\":1651053600000,\"t2\":1651053600.000000000}", json1);

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,7 +46,7 @@ public class SqlDateSerializationTest extends DatabindTestUtil
     public void testSqlDate() throws Exception
     {
         ObjectWriter writer = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
         // use date 1999-04-01 (note: months are 0-based, use constant)
         final java.sql.Date date99 = javaSqlDate(1999, Calendar.APRIL, 1);
         final java.sql.Date date0 = new java.sql.Date(0);
@@ -64,7 +65,7 @@ public class SqlDateSerializationTest extends DatabindTestUtil
                 writer.writeValueAsString(new SqlDateAsNumberBean(0L)));
 
         // And also should be able to use String output as need be:
-        ObjectWriter w = MAPPER.writer().without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        ObjectWriter w = MAPPER.writer().without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         // 03-Feb-2021, tatu: As per [databind#2405], changed to include time part by
         //   default

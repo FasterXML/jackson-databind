@@ -23,6 +23,7 @@ import java.time.temporal.Temporal;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 
@@ -37,7 +38,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
     {
         OffsetTime time = OffsetTime.of(15, 43, 0, 0, ZoneOffset.of("+0300"));
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(time);
         assertEquals("[15,43,\"+03:00\"]", value);
     }
@@ -47,7 +48,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
     {
         OffsetTime time = OffsetTime.of(9, 22, 57, 0, ZoneOffset.of("-0630"));
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(time);
         assertEquals("[9,22,57,\"-06:30\"]", value);
     }
@@ -57,7 +58,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
     {
         OffsetTime time = OffsetTime.of(9, 22, 0, 57, ZoneOffset.of("-0630"));
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(time);
         assertEquals("[9,22,0,57,\"-06:30\"]", value);
@@ -68,7 +69,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
     {
         OffsetTime time = OffsetTime.of(9, 22, 0, 57, ZoneOffset.of("-0630"));
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(time);
         assertEquals("[9,22,0,0,\"-06:30\"]", value);
@@ -79,7 +80,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
     {
         OffsetTime time = OffsetTime.of(22, 31, 5, 829837, ZoneOffset.of("+1100"));
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(time);
         assertEquals("[22,31,5,829837,\"+11:00\"]", value);
@@ -90,7 +91,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
     {
         OffsetTime time = OffsetTime.of(22, 31, 5, 422829837, ZoneOffset.of("+1100"));
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(time);
         assertEquals("[22,31,5,422,\"+11:00\"]", value);
@@ -101,7 +102,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
     {
         OffsetTime time = OffsetTime.of(15, 43, 0, 0, ZoneOffset.of("+0300"));
         String value = MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(time);
         assertEquals('"' + time.toString() + '"', value);
     }
@@ -111,7 +112,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
     {
         OffsetTime time = OffsetTime.of(9, 22, 57, 0, ZoneOffset.of("-0630"));
         String value = MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(time);
         assertEquals('"' + time.toString() + '"', value);
     }
@@ -121,7 +122,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
     {
         OffsetTime time = OffsetTime.of(22, 31, 5, 829837, ZoneOffset.of("+1100"));
         String value = MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(time);
         assertEquals('"' + time.toString() + '"', value);
     }
@@ -132,7 +133,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
         OffsetTime time = OffsetTime.of(22, 31, 5, 829837, ZoneOffset.of("+1100"));
 
         final ObjectMapper mapper = newMapperBuilder()
-                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true)
+                .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
                 .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, true)
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
@@ -146,7 +147,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
         OffsetTime time = OffsetTime.of(22, 31, 5, 422829837, ZoneOffset.of("+1100"));
 
         final ObjectMapper mapper = newMapperBuilder()
-            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true)
+            .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
             .addMixIn(Temporal.class, MockObjectConfiguration.class)
             .build();
@@ -161,7 +162,7 @@ public class OffsetTimeSerTest extends DateTimeTestBase
         OffsetTime time = OffsetTime.of(22, 31, 5, 829837, ZoneOffset.of("+1100"));
 
         final ObjectMapper mapper = newMapperBuilder()
-                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
 

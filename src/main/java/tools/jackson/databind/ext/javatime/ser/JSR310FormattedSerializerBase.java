@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.jsonFormatVisitors.*;
 
 /**
@@ -190,8 +191,8 @@ abstract class JSR310FormattedSerializerBase<T>
      *
      * @since 2.10
      */
-    protected SerializationFeature getTimestampsFeature() {
-        return SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
+    protected DateTimeFeature getTimestampsFeature() {
+        return DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS;
     }
 
     protected boolean useTimestamp(SerializationContext ctxt) {

@@ -58,8 +58,66 @@ public enum DateTimeFeature implements DatatypeFeature
      * Default setting is disabled, for backwards-compatibility with
      * Jackson 2.18.
      */
-    USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING(false)
+    USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING(false),
 
+    /**
+     * Feature that determines whether Date (and date/time) values
+     * (and Date-based things like {@link java.util.Calendar}s) are to be
+     * serialized as numeric time stamps (true; the default),
+     * or as something else (usually textual representation).
+     * If textual representation is used, the actual format depends on configuration
+     * settings including possible per-property use of {@code @JsonFormat} annotation,
+     * globally configured {@link java.text.DateFormat}.
+     *<p>
+     * For "classic" JDK date types ({@link java.util.Date}, {@link java.util.Calendar})
+     * the default formatting is provided by {@link tools.jackson.databind.util.StdDateFormat},
+     * and corresponds to format String of "yyyy-MM-dd'T'HH:mm:ss.SSSX"
+     * (see {@link java.text.DateFormat} for details of format Strings).
+     * Whether this feature affects handling of other date-related
+     * types depend on handlers of those types, although ideally they
+     * should use this feature
+     *<p>
+     * Note: whether {@link java.util.Map} keys are serialized as Strings
+     * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS} instead of
+     * this feature.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is disabled by default as of Jackson 3.0 (in 2.x it was enabled),
+     * so that date/time are by default serialized as textual values NOT timestamps.
+     */
+    WRITE_DATES_AS_TIMESTAMPS(false),
+
+    /**
+     * Feature that determines whether {@link java.util.Date}s
+     * (and sub-types) used as {@link java.util.Map} keys are serialized
+     * as time stamps or not (if not, will be serialized as textual values).
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is disabled by default, meaning that Date-valued Map keys are serialized
+     * as textual (ISO-8601) values.
+     */
+    WRITE_DATE_KEYS_AS_TIMESTAMPS(false),
+
+    /**
+     * Feature that determines whether time values that represents time periods
+     * (durations, periods, ranges) are to be serialized by default using
+     * a numeric (true) or textual (false) representations. Note that numeric
+     * representation may mean either simple number, or an array of numbers,
+     * depending on type.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is disabled by default as of Jackson 3.0 (in 2.x it was enabled),
+     * so that period/duration are by default serialized as textual values,
+     * NOT timestamps.
+     */
+    WRITE_DURATIONS_AS_TIMESTAMPS(false),
+    
     ;
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_DATETIME;

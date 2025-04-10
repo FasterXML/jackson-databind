@@ -7,6 +7,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 
 import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.SerializationFeature;
@@ -44,6 +45,6 @@ public class ZonedDateTimeKeySerializer extends ValueSerializer<ZonedDateTime> {
     }
 
     private static boolean useTimestamps(SerializationContext ctxt) {
-        return ctxt.isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS);
+        return ctxt.isEnabled(DateTimeFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS);
     }
 }

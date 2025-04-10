@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.cfg.EnumFeature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -39,7 +40,7 @@ public class EnumDefaultRead4403Test
     public void readFromDefault4403() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(Brand4403.class)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         assertEquals(Brand4403.SEAT, r.readValue(q("005")));
         assertEquals(Brand4403.HYUNDAI, r.readValue(q("006")));
         assertEquals(Brand4403.OTHER, r.readValue(q("x")));

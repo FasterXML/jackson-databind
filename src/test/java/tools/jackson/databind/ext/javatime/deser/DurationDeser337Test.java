@@ -5,6 +5,7 @@ import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,7 +16,7 @@ public class DurationDeser337Test extends DateTimeTestBase
     public void testWithDurationsAsTimestamps() throws Exception
     {
         final ObjectMapper MAPPER_DURATION_TIMESTAMPS = mapperBuilder()
-                .enable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+                .enable(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
                 .build();
 
         Duration duration = Duration.parse("PT-43.636S");
@@ -34,7 +35,7 @@ public class DurationDeser337Test extends DateTimeTestBase
     public void testWithoutDurationsAsTimestamps() throws Exception
     {
         ObjectMapper mapper = mapperBuilder()
-                .disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+                .disable(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
                 .build();
 
         Duration duration = Duration.parse("PT-43.636S");

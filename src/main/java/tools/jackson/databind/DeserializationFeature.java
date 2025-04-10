@@ -449,43 +449,6 @@ public enum DeserializationFeature implements ConfigFeature
      */
     READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE(false),
 
-    /**
-     * Feature that controls whether numeric timestamp values are expected
-     * to be written using nanosecond timestamps (enabled) or not (disabled),
-     * <b>if and only if</b> datatype supports such resolution.
-     * Only newer datatypes (such as Java8 Date/Time) support such resolution --
-     * older types (pre-Java8 <b>java.util.Date</b> etc) and Joda do not --
-     * and this setting <b>has no effect</b> on such types.
-     *<p>
-     * If disabled, standard millisecond timestamps are assumed.
-     * This is the counterpart to {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}.
-     *<p>
-     * Feature is enabled by default, to support most accurate time values possible.
-     */
-    READ_DATE_TIMESTAMPS_AS_NANOSECONDS(true),
-
-    /**
-     * Feature that specifies whether context provided {@link java.util.TimeZone}
-     * ({@link DeserializationContext#getTimeZone()} should be used to adjust Date/Time
-     * values on deserialization, even if value itself contains timezone information.
-     * If enabled, contextual <code>TimeZone</code> will essentially override any other
-     * TimeZone information; if disabled, it will only be used if value itself does not
-     * contain any TimeZone information.
-     *<p>
-     * Note that exact behavior depends on date/time types in question; and specifically
-     * JDK type of {@link java.util.Date} does NOT have in-built timezone information
-     * so this setting has no effect.
-     * Further, while {@link java.util.Calendar} does have this information basic
-     * JDK {@link java.text.SimpleDateFormat} is unable to retain parsed zone information,
-     * and as a result, {@link java.util.Calendar} will always get context timezone
-     * adjustment regardless of this setting.
-     *<p>
-     *<p>
-     * Taking above into account, this feature is supported only by extension modules for
-     * Joda and Java 8 date/time datatypes.
-     */
-    ADJUST_DATES_TO_CONTEXT_TIME_ZONE(true),
-
     /*
     /**********************************************************************
     /* Other

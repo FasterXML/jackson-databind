@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.xml.crypto.Data;
-
 import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamReadException;
@@ -549,9 +547,13 @@ public class ObjectMapper
         return _serializationConfig.isEnabled(f);
     }
 
+    /**
+     * Method for checking whether given datatype-specific
+     * feature is enabled.
+     */
     public boolean isEnabled(DatatypeFeature f) {
-        return _deserializationContext().isEnabled(f)
-                || _serializationContext().isEnabled(f);
+        // could call either config object:
+        return _serializationConfig.isEnabled(f);
     }
 
     /*
@@ -1978,15 +1980,6 @@ public class ObjectMapper
     }
 
     /**
-     * Factory method for constructing {@link ObjectWriter} with
-     * specified feature enabled (compared to settings that this
-     * mapper instance has).
-     */
-    public ObjectWriter writer(DatatypeFeature feature) {
-        return _newWriter(serializationConfig().with(feature));
-    }
-
-    /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified {@link DateFormat}; or, if
      * null passed, using timestamp (64-bit number.
@@ -2124,17 +2117,6 @@ public class ObjectMapper
      * without defining expected value type.
      */
     public ObjectReader reader(DeserializationFeature feature) {
-        return _newReader(deserializationConfig().with(feature));
-    }
-
-    /**
-     * Factory method for constructing {@link ObjectReader} with
-     * specified feature enabled (compared to settings that this
-     * mapper instance has).
-     * Note that the resulting instance is NOT usable as is,
-     * without defining expected value type.
-     */
-    public ObjectReader reader(DatatypeFeature feature) {
         return _newReader(deserializationConfig().with(feature));
     }
 

@@ -10,8 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.ext.javatime.ser.ZonedDateTimeSerializer;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 
@@ -31,7 +30,7 @@ public class TestZonedDateTimeSerializationWithCustomFormatter
                 .addModule(new SimpleModule().addSerializer(
                         new ZonedDateTimeSerializer(f)))
                 .defaultTimeZone(TimeZone.getTimeZone("UTC"))
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build();
         return mapper.writeValueAsString(zonedDateTime);
     }

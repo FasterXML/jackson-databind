@@ -811,14 +811,16 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
                 .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
-                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,
+                        DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .enable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING);
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS,
+                        DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .disable(DateTimeFeature.ONE_BASED_MONTHS)
+                ;
     }
 
     /*
@@ -1414,7 +1416,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B defaultDateFormat(DateFormat f) {
         _baseSettings = _baseSettings.with(f);
-        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, (f == null));
+        configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, (f == null));
         return _this();
     }
 

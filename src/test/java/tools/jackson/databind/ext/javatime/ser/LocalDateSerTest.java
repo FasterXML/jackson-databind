@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 
@@ -70,7 +70,7 @@ public class LocalDateSerTest
     {
         LocalDate date = LocalDate.of(1986, Month.JANUARY, 17);
         String value = MAPPER.writer()
-        		.with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        		.with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
         		.writeValueAsString(date);
 
         assertNotNull(value);
@@ -82,7 +82,7 @@ public class LocalDateSerTest
     {
         LocalDate date = LocalDate.of(2013, Month.AUGUST, 21);
         String value = MAPPER.writer()
-        		.with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        		.with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
         		.writeValueAsString(date);
 
         assertNotNull(value);
@@ -94,7 +94,7 @@ public class LocalDateSerTest
     {
         LocalDate date = LocalDate.of(1986, Month.JANUARY, 17);
         String value = MAPPER.writer()
-        		.without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        		.without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
         		.writeValueAsString(date);
 
         assertNotNull(value);
@@ -106,7 +106,7 @@ public class LocalDateSerTest
     {
         LocalDate date = LocalDate.of(2013, Month.AUGUST, 21);
         String value = MAPPER.writer()
-        		.without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        		.without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
         		.writeValueAsString(date);
         assertNotNull(value);
         assertEquals('"' + date.toString() + '"', value);
@@ -116,7 +116,7 @@ public class LocalDateSerTest
     public void testSerializationWithTypeInfo01() throws Exception
     {
         ObjectMapper mapper = newMapperBuilder()
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         LocalDate date = LocalDate.of(2005, Month.NOVEMBER, 5);
@@ -132,7 +132,7 @@ public class LocalDateSerTest
     {
         final LocalDate localDate = LocalDate.of(2017, 12, 5);
         String json = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(new Holder46(localDate, localDate));
         assertEquals(a2q("{\"localDate\":[2017,12,5],\"object\":{\"java.time.LocalDate\":[2017,12,5]}}"),
                 json);

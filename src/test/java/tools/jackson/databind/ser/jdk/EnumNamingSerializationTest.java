@@ -10,20 +10,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.EnumNaming;
-import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EnumNamingSerializationTest extends DatabindTestUtil {
-
-    /*
-    /**********************************************************
-    /* Set Up
-    /**********************************************************
-    */
-
-    final ObjectMapper MAPPER = jsonMapperBuilder().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build();
+public class EnumNamingSerializationTest extends DatabindTestUtil
+{
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .build();
 
     @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumFlavorA {
@@ -80,7 +76,7 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
     @Test
     public void testEnumNamingShouldOverrideToStringFeatue() throws Exception {
         String resultStr = MAPPER.writer()
-            .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+            .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
             .writeValueAsString(EnumFlavorA.CHOCOLATE_CHIPS);
 
         assertEquals(q("chocolateChips"), resultStr);
@@ -119,7 +115,7 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
         enums.put(EnumSauceB.MAYO_NEZZ, "value");
 
         String str = MAPPER.writer()
-                .without(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
                 .writeValueAsString(enums);
 
         assertEquals(a2q("{'mayoNezz':'value'}"), str);

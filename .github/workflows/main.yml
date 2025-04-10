@@ -1,16 +1,12 @@
 name: Build and Deploy Snapshot
 on:
   push:
-    branches:
-    - master
-    - "3.0"
+    branches: [3.*]
     paths-ignore:
     - "README.md"
     - "release-notes/*"
   pull_request:
-    branches:
-    - master
-    - "3.0"
+    branches: [3.*]
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -88,8 +84,8 @@ jobs:
   trigger-dep-build-v3:
     name: Trigger v3 dep builds
     needs: [build]
-    # Only for pushes to default branch
-    if: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
+    # Only for pushes to 3.x branch
+    if: ${{ github.event_name == 'push' && github.ref_name == '3.x' }}
     uses: ./.github/workflows/trigger_dep_builds_v3.yml
     secrets:
       token: ${{ secrets.REPO_DISPATCH }}

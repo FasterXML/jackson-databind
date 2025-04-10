@@ -7,9 +7,9 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 
 import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.SerializationFeature;
 
 public class ZonedDateTimeKeySerializer extends ValueSerializer<ZonedDateTime> {
 
@@ -23,10 +23,9 @@ public class ZonedDateTimeKeySerializer extends ValueSerializer<ZonedDateTime> {
     public void serialize(ZonedDateTime value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
-        /* [modules-java8#127]: Serialization of timezone data is disabled by default, but can be
-         * turned on by enabling `SerializationFeature.WRITE_DATES_WITH_ZONE_ID`
-         */
-        if (ctxt.isEnabled(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)) {
+        // [modules-java8#127]: Serialization of timezone data is disabled by default, but can be
+        // turned on by enabling `SerializationFeature.WRITE_DATES_WITH_ZONE_ID`
+        if (ctxt.isEnabled(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID)) {
             g.writeName(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(value));
         } else if (useTimestamps(ctxt)) {
             if (useNanos(ctxt)) {
@@ -40,10 +39,10 @@ public class ZonedDateTimeKeySerializer extends ValueSerializer<ZonedDateTime> {
     }
 
     private static boolean useNanos(SerializationContext ctxt) {
-        return ctxt.isEnabled(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
+        return ctxt.isEnabled(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
     }
 
     private static boolean useTimestamps(SerializationContext ctxt) {
-        return ctxt.isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS);
+        return ctxt.isEnabled(DateTimeFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS);
     }
 }

@@ -163,7 +163,7 @@ public class LocalDateTimeDeserializer
 
     protected boolean shouldReadTimestampsAsNanoseconds(DeserializationContext context) {
         return (_readTimestampsAsNanosOverride != null) ? _readTimestampsAsNanosOverride :
-            context.isEnabled(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+            context.isEnabled(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
     }
 
     protected LocalDateTime _fromString(JsonParser p, DeserializationContext ctxt,

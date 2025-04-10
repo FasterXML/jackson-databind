@@ -287,12 +287,12 @@ public class InstantDeserializer<T extends Temporal>
 
     protected boolean shouldAdjustToContextTimezone(DeserializationContext context) {
         return (_adjustToContextTZOverride != null) ? _adjustToContextTZOverride :
-                context.isEnabled(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
+                context.isEnabled(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
     }
 
     protected boolean shouldReadTimestampsAsNanoseconds(DeserializationContext context) {
         return (_readTimestampsAsNanosOverride != null) ? _readTimestampsAsNanosOverride :
-            context.isEnabled(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+            context.isEnabled(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
     }
 
     // Helper method to find Strings of form "all digits" and "digits-comma-digits"

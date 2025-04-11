@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -247,7 +248,7 @@ public abstract class SettableAnyProperty
         } catch (JacksonException e) {
             throw e;
         } catch (Exception e) {
-            _throwAsIOE(e, propName, value);
+            _throwAsIOE(ctxt, e, propName, value);
         }
     }
 
@@ -261,31 +262,38 @@ public abstract class SettableAnyProperty
      */
 
     /**
-     * @param e Exception to re-throw or wrap
+     * @param t Exception to re-throw or wrap
      * @param propName Name of property (from Json input) to set
      * @param value Value of the property
      */
-    protected void _throwAsIOE(Exception e, Object propName, Object value)
+    protected void _throwAsIOE(DeserializationContext ctxt, Throwable t, Object propName, Object value)
         throws JacksonException
     {
-        if (e instanceof IllegalArgumentException) {
+        if (t instanceof IllegalArgumentException) {
             String actType = ClassUtil.classNameOf(value);
             StringBuilder msg = new StringBuilder("Problem deserializing \"any-property\" '").append(propName);
             msg.append("' of class "+getClassName()+" (expected type: ").append(_type);
             msg.append("; actual type: ").append(actType).append(")");
-            String origMsg = ClassUtil.exceptionMessage(e);
+            String origMsg = ClassUtil.exceptionMessage(t);
             if (origMsg != null) {
                 msg.append(", problem: ").append(origMsg);
             } else {
                 msg.append(" (no error message provided)");
             }
-            throw DatabindException.from((JsonParser) null, msg.toString(), e);
+            throw DatabindException.from(ctxt, msg.toString(), t);
         }
-        ClassUtil.throwIfJacksonE(e);
-        ClassUtil.throwIfRTE(e);
+        ClassUtil.throwIfJacksonE(t);
+        ClassUtil.throwIfRTE(t);
         // let's wrap the innermost problem
-        Throwable t = ClassUtil.getRootCause(e);
-        throw DatabindException.from((JsonParser) null, ClassUtil.exceptionMessage(t), t);
+        // 11-Apr-2025: [databind#4603] no more general unwrapping
+        // Throwable t = ClassUtil.getRootCause(e);
+        // ... just one:
+        if (t instanceof InvocationTargetException ite) {
+            t = ite.getTargetException();
+            ClassUtil.throwIfRTE(t);
+            ClassUtil.throwIfJacksonE(t);
+        }
+        throw DatabindException.from(ctxt, ClassUtil.exceptionMessage(t), t);
     }
 
     private String getClassName() { return ClassUtil.nameOf(_setter.getDeclaringClass()); }

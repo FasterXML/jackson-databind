@@ -1,0 +1,90 @@
+package tools.jackson.databind.exc;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import com.fasterxml.jackson.annotation.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+// [databind#4603]: Stop unwrapping root cause
+public class UnwrapRootCause4603Test
+    extends DatabindTestUtil
+{
+    @SuppressWarnings("serial")
+    static class CustomException extends RuntimeException {
+        public CustomException(String message) {
+            super(message);
+        }
+    }
+
+    static class Feature1347DeserBean
+    {
+        int value;
+
+        public void setValue(int x) {
+            throw new CustomException("setValue, fail on purpose");
+        }
+    }
+
+    static class AnySetterBean
+    {
+        protected Map<String, Integer> props = new HashMap<String, Integer>();
+
+        @JsonAnySetter
+        public void prop(String name, Integer value) {
+            throw new CustomException("@JsonAnySetter, fail on purpose");
+        }
+    }
+
+    static class Baz {
+        private String qux;
+
+        @JsonCreator
+        public Baz(@JsonProperty("qux") String qux) {
+            this.qux = qux;
+        }
+
+        public String getQux() {
+            return qux;
+        }
+    }
+
+    private static final String JSON = a2q("{'value':3}");
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    // Whether disabled or enabled, should get ArithmeticException
+    @Test
+    public void testExceptionWrappingConfiguration()
+        throws Exception
+    {
+        JacksonException disabledResult = _tryDeserializeWith(MAPPER);
+        // !!! TODO: ought to be DatabindException
+        assertInstanceOf(JacksonException.class, disabledResult);
+        // We are throwing exception inside a setter, but InvocationTargetException
+        // will still be unwrapped
+        assertInstanceOf(CustomException.class, disabledResult.getCause());
+    }
+
+    private JacksonException _tryDeserializeWith(ObjectMapper mapper) {
+        return assertThrows(JacksonException.class,
+                () -> mapper.readValue(JSON, Feature1347DeserBean.class)
+        );
+    }
+
+    @Test
+    public void testWithAnySetter()
+            throws Exception
+    {
+        DatabindException result = assertThrows(DatabindException.class,
+                () -> MAPPER.readValue(a2q("{'a':3}"), AnySetterBean.class));
+        assertInstanceOf(CustomException.class, result.getCause());
+    }
+}

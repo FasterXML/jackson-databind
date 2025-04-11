@@ -251,7 +251,8 @@ public abstract class SettableAnyProperty
         }
     }
 
-    protected abstract void _set(DeserializationContext ctxt, Object instance, Object propName, Object value) throws Exception;
+    protected abstract void _set(DeserializationContext ctxt, Object instance, Object propName, Object value)
+        throws Exception;
 
     /*
     /**********************************************************************

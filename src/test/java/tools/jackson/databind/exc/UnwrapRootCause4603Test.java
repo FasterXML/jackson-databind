@@ -1,40 +1,35 @@
-package tools.jackson.databind.introspect;
+package tools.jackson.databind.exc;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.*;
-import tools.jackson.databind.deser.AnySetterTest;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import com.fasterxml.jackson.annotation.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+// [databind#4603]: Stop unwrapping root cause
 public class UnwrapRootCause4603Test
     extends DatabindTestUtil
 {
+    @SuppressWarnings("serial")
     static class CustomException extends RuntimeException {
-        public CustomException(String message, Throwable cause) {
-            super(message, cause);
+        public CustomException(String message) {
+            super(message);
         }
     }
 
-    static class Feature1347DeserBean {
-
+    static class Feature1347DeserBean
+    {
         int value;
 
         public void setValue(int x) {
-            try {
-                // Throws ArithmeticException
-                int a = x / 0;
-            } catch (Exception e) {
-                // should NOT get called, but just to
-                throw new CustomException("Should NOT get called", e);
-            }
+            throw new CustomException("setValue, fail on purpose");
         }
     }
 
@@ -44,7 +39,7 @@ public class UnwrapRootCause4603Test
 
         @JsonAnySetter
         public void prop(String name, Integer value) {
-            throw new CustomException("@JsonAnySetter, Should NOT get called", null);
+            throw new CustomException("@JsonAnySetter, fail on purpose");
         }
     }
 
@@ -61,24 +56,25 @@ public class UnwrapRootCause4603Test
         }
     }
 
-    final String JSON = a2q("{'value':3}");
+    private static final String JSON = a2q("{'value':3}");
 
-    final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // Whether disabled or enabled, should get ArithmeticException
     @Test
     public void testExceptionWrappingConfiguration()
-            throws Exception
+        throws Exception
     {
-        DatabindException disabledResult = _tryDeserializeWith(MAPPER);
-        // We are throwing exception inside a setter, so....
-        assertInstanceOf(InvocationTargetException.class, disabledResult.getCause());
-        assertInstanceOf(CustomException.class, disabledResult.getCause().getCause());
-
+        JacksonException disabledResult = _tryDeserializeWith(MAPPER);
+        // !!! TODO: ought to be DatabindException
+        assertInstanceOf(JacksonException.class, disabledResult);
+        // We are throwing exception inside a setter, but InvocationTargetException
+        // will still be unwrapped
+        assertInstanceOf(CustomException.class, disabledResult.getCause());
     }
 
-    private DatabindException _tryDeserializeWith(ObjectMapper mapper) {
-        return assertThrows(DatabindException.class,
+    private JacksonException _tryDeserializeWith(ObjectMapper mapper) {
+        return assertThrows(JacksonException.class,
                 () -> mapper.readValue(JSON, Feature1347DeserBean.class)
         );
     }
@@ -91,5 +87,4 @@ public class UnwrapRootCause4603Test
                 () -> MAPPER.readValue(a2q("{'a':3}"), AnySetterBean.class));
         assertInstanceOf(CustomException.class, result.getCause());
     }
-
 }

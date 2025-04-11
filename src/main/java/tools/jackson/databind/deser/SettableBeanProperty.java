@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.InternCache;
@@ -636,7 +637,17 @@ public abstract class SettableBeanProperty
     {
         ClassUtil.throwIfRTE(e);
         ClassUtil.throwIfJacksonE(e);
-        // let's wrap the innermost problem
+
+        // 10-Apr-2025: [databind#4603] no more unwrapping, retain exception
+        // Throwable th = ClassUtil.getRootCause(e);
+        // ... except for InvocationTargetException which we still unwrap as it
+        // adds no value
+        if (e instanceof InvocationTargetException ite) {
+            Throwable t = ite.getTargetException();
+            ClassUtil.throwIfRTE(t);
+            ClassUtil.throwIfJacksonE(t);
+            throw DatabindException.from(p, ClassUtil.exceptionMessage(t), t);
+        }
         throw DatabindException.from(p, ClassUtil.exceptionMessage(e), e);
     }
 

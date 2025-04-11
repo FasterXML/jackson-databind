@@ -249,7 +249,7 @@ public abstract class StdSerializer<T>
      * <li>Wrapped {@code IOException}s are unpeeled
      *</ul>
      */
-    public void wrapAndThrow(SerializationContext provider,
+    public void wrapAndThrow(SerializationContext ctxt,
             Throwable t, Object bean, String fieldName)
         throws JacksonException
     {
@@ -266,16 +266,17 @@ public abstract class StdSerializer<T>
         // Errors to be passed as is, most others not
         ClassUtil.throwIfError(t);
         if (!(t instanceof JacksonException)) {
-            boolean wrap = (provider == null) || provider.isEnabled(SerializationFeature.WRAP_EXCEPTIONS);
+            boolean wrap = (ctxt == null) || ctxt.isEnabled(SerializationFeature.WRAP_EXCEPTIONS);
             if (!wrap) {
                 ClassUtil.throwIfRTE(t);
             }
         }
         // Need to add reference information
-        throw DatabindException.wrapWithPath(t, bean, fieldName);
+        throw DatabindException.wrapWithPath(ctxt, t,
+                new JacksonException.Reference(bean, fieldName));
     }
 
-    public void wrapAndThrow(SerializationContext provider,
+    public void wrapAndThrow(SerializationContext ctxt,
             Throwable t, Object bean, int index)
         throws JacksonException
     {
@@ -288,13 +289,14 @@ public abstract class StdSerializer<T>
         // Errors to be passed as is, most others not
         ClassUtil.throwIfError(t);
         if (!(t instanceof JacksonException)) {
-            boolean wrap = (provider == null) || provider.isEnabled(SerializationFeature.WRAP_EXCEPTIONS);
+            boolean wrap = (ctxt == null) || ctxt.isEnabled(SerializationFeature.WRAP_EXCEPTIONS);
             if (!wrap) {
                 ClassUtil.throwIfRTE(t);
             }
         }
         // Need to add reference information
-        throw DatabindException.wrapWithPath(t, bean, index);
+        throw DatabindException.wrapWithPath(ctxt, t,
+                new JacksonException.Reference(bean, index));
     }
 
     /*

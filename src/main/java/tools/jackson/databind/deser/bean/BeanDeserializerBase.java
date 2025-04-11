@@ -1826,33 +1826,34 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     /**
      * Method that will modify caught exception (passed in as argument)
      * as necessary to include reference information, and to ensure it
-     * is a subtype of {@link IOException}, or an unchecked exception.
+     * is a subtype of {@link DatabindException}, or an unchecked exception.
      *<p>
      * Rules for wrapping and unwrapping are bit complicated; essentially:
      *<ul>
      * <li>Errors are to be passed as is (if uncovered via unwrapping)
-     * <li>"Plain" IOExceptions (ones that are not of type
-     *   {@link DatabindException} are to be passed as is
+     * <li>{@code JacksonException} are to be passed as is
      *</ul>
      * The method always throws but declares its return type as
-     * {@link IOException} in order to allow callers to invoke method as
+     * {@link DatabindException} in order to allow callers to invoke method as
      * {@code throw wrapAndThrow(...);} thereby ensuring complete code
      * coverage is possible. This also ensures that all call paths within
      * this method throw an exception; otherwise they would be required
      * to return.
      */
-    public DatabindException wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
+    public DatabindException wrapAndThrow(Throwable t, Object bean, String fieldName,
+            DeserializationContext ctxt)
     {
         // 23-Aug-2022, tatu: Due to fix to prevent "double-array-wrapping", looks
         //    like 'fieldName' may occasionally be `null`; hence
         if (fieldName == null) {
             fieldName = "";
         }
-        throw DatabindException.wrapWithPath(throwOrReturnThrowable(t, ctxt),
-                bean, fieldName);
+        throw DatabindException.wrapWithPath(ctxt,
+                throwOrReturnThrowable(ctxt, t),
+                new JacksonException.Reference(bean, fieldName));
     }
 
-    private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt)
+    private Throwable throwOrReturnThrowable(DeserializationContext ctxt, Throwable t)
         throws JacksonException
     {
         // 05-Mar-2009, tatu: But one nasty edge is when we get
@@ -1875,7 +1876,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return t;
     }
 
-    protected Object wrapInstantiationProblem(Throwable t, DeserializationContext ctxt)
+    protected Object wrapInstantiationProblem(DeserializationContext ctxt,Throwable t)
         throws JacksonException
     {
         while (t instanceof InvocationTargetException && t.getCause() != null) {

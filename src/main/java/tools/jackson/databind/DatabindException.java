@@ -74,6 +74,29 @@ public class DatabindException
         return new DatabindException(_parser(ctxt), msg);
     }
 
+    // // "Overrides": methods with name same as ones from JacksonException
+    // // (but for static methods no real overriding, static dispatch)
+
+    public static JacksonException wrapWithPath(DeserializationContext ctxt,
+            Throwable src, Reference ref) {
+        // !!! TODO: get `JsonParser`, location from `ctxt`
+        return JacksonException.wrapWithPath(src, ref,
+                (msg, cause) -> new DatabindException(msg, null, cause));
+    }
+    
+    public static JacksonException wrapWithPath(SerializationContext ctxt,
+            Throwable src, Reference ref) {
+        // !!! TODO: get `JsonGenerator` from `ctxt`
+        return JacksonException.wrapWithPath(src, ref,
+                (msg, cause) -> new DatabindException(msg, null, cause));
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods
+    /**********************************************************************
+     */
+
     private static JsonParser _parser(DeserializationContext ctxt) {
         return (ctxt == null) ? null : ctxt.getParser();
     }

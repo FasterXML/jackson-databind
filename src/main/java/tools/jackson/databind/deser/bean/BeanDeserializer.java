@@ -597,7 +597,7 @@ public class BeanDeserializer
                     try {
                         bean = creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        bean = wrapInstantiationProblem(e, ctxt);
+                        bean = wrapInstantiationProblem(ctxt, e);
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.assignCurrentValue(bean);
@@ -687,7 +687,7 @@ public class BeanDeserializer
         try {
             bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
-            return wrapInstantiationProblem(e, ctxt);
+            return wrapInstantiationProblem(ctxt, e);
         }
         p.assignCurrentValue(bean);
         // [databind#4938] Since 2.19, allow returning `null` from creator,
@@ -1047,7 +1047,7 @@ public class BeanDeserializer
                     try {
                         bean = creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        bean = wrapInstantiationProblem(e, ctxt);
+                        bean = wrapInstantiationProblem(ctxt, e);
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.assignCurrentValue(bean);
@@ -1129,7 +1129,7 @@ public class BeanDeserializer
         try {
             bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
-            return wrapInstantiationProblem(e, ctxt);
+            return wrapInstantiationProblem(ctxt, e);
         }
         // [databind#4938] Since 2.19, allow returning `null` from creator,
         //  but if so, need to skip all possibly relevant content
@@ -1309,7 +1309,7 @@ public class BeanDeserializer
         try {
             return ext.complete(p, ctxt, buffer, creator);
         } catch (Exception e) {
-            return wrapInstantiationProblem(e, ctxt);
+            return wrapInstantiationProblem(ctxt, e);
         }
     }
 

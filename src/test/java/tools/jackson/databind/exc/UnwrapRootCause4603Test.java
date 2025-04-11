@@ -57,8 +57,6 @@ public class UnwrapRootCause4603Test
         }
     }
 
-    private static final String JSON = a2q("{'value':3}");
-
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // Whether disabled or enabled, should get ArithmeticException
@@ -66,16 +64,22 @@ public class UnwrapRootCause4603Test
     public void testExceptionWrappingConfiguration()
         throws Exception
     {
-        JacksonException disabledResult = _tryDeserializeWith(MAPPER);
-        assertInstanceOf(DatabindException.class, disabledResult);
+        JacksonException result = _tryDeserializeWith(MAPPER);
+        assertInstanceOf(DatabindException.class, result);
         // We are throwing exception inside a setter, but InvocationTargetException
         // will still be unwrapped
-        assertInstanceOf(CustomException.class, disabledResult.getCause());
+        assertInstanceOf(CustomException.class, result.getCause());
+
+        TokenStreamLocation loc = result.getLocation();
+        assertNotSame(TokenStreamLocation.NA, loc);
+        // happens to point to location after `3`
+        assertEquals(1, loc.getLineNr());
+        assertEquals(11, loc.getColumnNr());
     }
 
     private JacksonException _tryDeserializeWith(ObjectMapper mapper) {
         return assertThrows(JacksonException.class,
-                () -> mapper.readValue(JSON, Feature1347DeserBean.class)
+                () -> mapper.readValue(a2q("{'value':3}"), Feature1347DeserBean.class)
         );
     }
 
@@ -84,11 +88,12 @@ public class UnwrapRootCause4603Test
             throws Exception
     {
         DatabindException result = assertThrows(DatabindException.class,
-                () -> MAPPER.readValue(a2q("{'a':3}"), AnySetterBean.class));
+                () -> MAPPER.readValue(a2q("{'a':72}"), AnySetterBean.class));
         assertInstanceOf(CustomException.class, result.getCause());
         TokenStreamLocation loc = result.getLocation();
         assertNotSame(TokenStreamLocation.NA, loc);
+        // happens to point to location after `72`
         assertEquals(1, loc.getLineNr());
-        assertEquals(2, loc.getColumnNr());
+        assertEquals(8, loc.getColumnNr());
     }
 }

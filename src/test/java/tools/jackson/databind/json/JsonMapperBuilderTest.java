@@ -34,7 +34,7 @@ public class JsonMapperBuilderTest extends DatabindTestUtil
         assertTrue(mapper.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
         assertFalse(mapper.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES));
         assertFalse(mapper.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
-        assertFalse(mapper.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING));
+        assertFalse(mapper.isEnabled(EnumFeature.READ_ENUMS_USING_TO_STRING));
         assertTrue(mapper.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
         assertTrue(mapper.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS));
         assertFalse(mapper.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));

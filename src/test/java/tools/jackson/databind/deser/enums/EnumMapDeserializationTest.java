@@ -169,7 +169,7 @@ public class EnumMapDeserializationTest
     {
         // can't reuse global one due to reconfig
         ObjectReader r = MAPPER.reader()
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+                .with(EnumFeature.READ_ENUMS_USING_TO_STRING);
         EnumMap<LowerCaseEnum,String> value = r.forType(
             new TypeReference<EnumMap<LowerCaseEnum,String>>() { })
                 .readValue("{\"a\":\"value\"}");
@@ -271,14 +271,14 @@ public class EnumMapDeserializationTest
         // first, via EnumMap
         EnumMap<TestEnumWithDefault,String> value = MAPPER
                 .readerFor(new TypeReference<EnumMap<TestEnumWithDefault,String>>() { })
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .readValue("{\"unknown\":\"value\"}");
         assertEquals(1, value.size());
         assertEquals("value", value.get(TestEnumWithDefault.OK));
 
         Map<TestEnumWithDefault,String> value2 = MAPPER
                 .readerFor(new TypeReference<Map<TestEnumWithDefault,String>>() { })
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .readValue("{\"unknown\":\"value\"}");
         assertEquals(1, value2.size());
         assertEquals("value", value2.get(TestEnumWithDefault.OK));
@@ -291,14 +291,14 @@ public class EnumMapDeserializationTest
         // first, via EnumMap
         EnumMap<TestEnumWithDefault,String> value = MAPPER
                 .readerFor(new TypeReference<EnumMap<TestEnumWithDefault,String>>() { })
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .readValue("{\"unknown\":\"value\"}");
         assertEquals(0, value.size());
 
         // then regular Map
         Map<TestEnumWithDefault,String> value2 = MAPPER
                 .readerFor(new TypeReference<Map<TestEnumWithDefault,String>>() { })
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .readValue("{\"unknown\":\"value\"}");
         // 25-Jan-2018, tatu: as per [databind#1883], we upgrade it to `EnumMap`, which won't accept nulls...
         assertEquals(0, value2.size());

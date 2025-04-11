@@ -1,6 +1,6 @@
 package tools.jackson.databind.cfg;
 
-import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.DatabindException;
 
 /**
  * New Datatype-specific configuration options related to handling of
@@ -8,6 +8,12 @@ import tools.jackson.databind.DeserializationFeature;
  */
 public enum EnumFeature implements DatatypeFeature
 {
+    /*
+    /**********************************************************************
+    /* READ
+    /**********************************************************************
+     */
+
     /**
      * Feature that determines standard deserialization mechanism used for
      * Enum values: if enabled, Enums are assumed to have been serialized using
@@ -21,6 +27,81 @@ public enum EnumFeature implements DatatypeFeature
      * @since 2.15
      */
     READ_ENUM_KEYS_USING_INDEX(false),
+
+    /**
+     * Feature that determines whether JSON integer numbers are valid
+     * values to be used for deserializing Java enum values.
+     * If set to 'false' numbers are acceptable and are used to map to
+     * ordinal() of matching enumeration value; if 'true', numbers are
+     * not allowed and a {@link DatabindException} will be thrown.
+     * Latter behavior makes sense if there is concern that accidental
+     * mapping from integer values to enums might happen (and when enums
+     * are always serialized as JSON Strings)
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.DeserializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is disabled by default.
+     */
+    FAIL_ON_NUMBERS_FOR_ENUMS(false),
+
+    /**
+     * Feature that determines the deserialization mechanism used for
+     * Enum values: if enabled, Enums are assumed to have been serialized using
+     * return value of {@code Enum.toString()};
+     * if disabled, return value of {@code Enum.name()} is assumed to have been used.
+     *<p>
+     * Note: this feature should usually have same value
+     * as {@link #WRITE_ENUMS_USING_TO_STRING}.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.DeserializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
+     */
+    READ_ENUMS_USING_TO_STRING(true),
+
+    /**
+     * Feature that allows unknown Enum values to be parsed as {@code null} values.
+     * If disabled, unknown Enum values will throw exceptions.
+     * <p>
+     * Note that in some cases this will effectively ignore unknown {@code Enum} values,
+     * e.g. when the unknown values are used as keys of {@link java.util.EnumMap}
+     * or values of {@link java.util.EnumSet}: this is because these data structures cannot
+     * store {@code null} values.
+     * <p>
+     * Also note that this feature has lower precedence than
+     * {@link #READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE},
+     * meaning this feature will work only if latter feature is disabled.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.DeserializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is disabled by default.
+     */
+    READ_UNKNOWN_ENUM_VALUES_AS_NULL(false),
+
+    /**
+     * Feature that allows unknown Enum values to be ignored and replaced by a predefined value specified through
+     * {@link com.fasterxml.jackson.annotation.JsonEnumDefaultValue @JsonEnumDefaultValue} annotation.
+     * If disabled, unknown Enum values will throw exceptions.
+     * If enabled, but no predefined default Enum value is specified, an exception will be thrown as well.
+     * <p>
+     * Note that this feature has higher precedence than {@link #READ_UNKNOWN_ENUM_VALUES_AS_NULL}.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.DeserializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is disabled by default.
+     */
+    READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE(false),
+
+    /*
+    /**********************************************************************
+    /* WRITE
+    /**********************************************************************
+     */
+
 
     /**
      * Feature that determines standard serialization mechanism used for
@@ -43,7 +124,7 @@ public enum EnumFeature implements DatatypeFeature
      * is used; if disabled, return value of <code>Enum.name()</code> is used.
      *<p>
      * Note: this feature should usually have same value
-     * as {@link DeserializationFeature#READ_ENUMS_USING_TO_STRING}.
+     * as {@link #READ_ENUMS_USING_TO_STRING}.
      *<p>
      * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
      * in Jackson 2.x but was moved here in 3.0.

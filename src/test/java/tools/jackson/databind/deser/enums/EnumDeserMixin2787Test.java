@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -198,7 +199,7 @@ public class EnumDeserMixin2787Test
     }
 
     private JsonMapper.Builder builderWithMixIn(Class<?> target, Class<?> mixin) {
-        return JsonMapper.builder().disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+        return JsonMapper.builder().disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .addMixIn(target, mixin);
     }
 }

@@ -12,6 +12,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.cfg.EnumFeature;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,8 +59,8 @@ public class EnumDeserilizationFeatureOrderTest
     public void testDeserUnknownUsingDefaultBeforeAsNull() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumFruit.class)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
 
         EnumFruit simpleEnumA = reader.readValue(q(""));
 
@@ -70,8 +71,8 @@ public class EnumDeserilizationFeatureOrderTest
     public void testDeserUnknownUsingDefaultBeforeAsNullFlip() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumFruit.class)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
         EnumFruit simpleEnumA = reader.readValue(q(""));
 
@@ -82,7 +83,7 @@ public class EnumDeserilizationFeatureOrderTest
     public void testDeserUnknownAsNull() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumFruit.class)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
 
         EnumFruit simpleEnumA = reader.readValue(q(""));
 
@@ -93,8 +94,8 @@ public class EnumDeserilizationFeatureOrderTest
     public void testDeserWithAliasUsingDefault() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumLetter.class)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
         EnumLetter defaulted = reader.readValue(q("unknownValue"));
 
@@ -105,7 +106,7 @@ public class EnumDeserilizationFeatureOrderTest
     public void testDeserWithAliasAsNull() throws Exception {
         ObjectReader reader = MAPPER
                 .readerFor(EnumLetter.class)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
 
         EnumLetter defaulted = reader.readValue(q("unknownValue"));
 
@@ -117,8 +118,8 @@ public class EnumDeserilizationFeatureOrderTest
         String JSON = a2q("{ 'UNknownWhatEver': 'fresh!'}");
         ObjectReader reader = MAPPER
                 .readerFor(new TypeReference<EnumMap<EnumFruit, String>>() {})
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
         EnumMap<EnumFruit, String> result = reader.readValue(JSON);
 
@@ -131,7 +132,7 @@ public class EnumDeserilizationFeatureOrderTest
         String JSON = a2q("{ 'UNknownWhatEver': 'fresh!'}");
         ObjectReader reader = MAPPER
                 .readerFor(new TypeReference<EnumMap<EnumFruit, String>>() {})
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
 
         EnumMap<EnumFruit, String> result = reader.readValue(JSON);
 
@@ -145,8 +146,8 @@ public class EnumDeserilizationFeatureOrderTest
         String JSON = a2q("{ 'UNknownWhatEver': 'fresh!'}");
         ObjectReader reader = MAPPER
                 .readerFor(new TypeReference<Map<EnumFruit, String>>() {})
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
 
         Map<EnumFruit, String> result = reader.readValue(JSON);
 
@@ -160,7 +161,7 @@ public class EnumDeserilizationFeatureOrderTest
         String JSON = a2q("{ 'UNknownWhatEver': 'fresh!'}");
         ObjectReader reader = MAPPER
                 .readerFor(new TypeReference<Map<EnumFruit, String>>() {})
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
 
         Map<EnumFruit, String> result = reader.readValue(JSON);
 

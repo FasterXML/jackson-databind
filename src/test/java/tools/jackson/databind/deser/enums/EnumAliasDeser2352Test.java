@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -71,7 +72,7 @@ public class EnumAliasDeser2352Test
     @Test
     public void testEnumWithAliasAndToStringSupported() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_2.class)
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+                .with(EnumFeature.READ_ENUMS_USING_TO_STRING);
         MyEnum2352_2 nonAliased = reader.readValue(q("a"));
         assertEquals(MyEnum2352_2.A, nonAliased);
         MyEnum2352_2 singleAlias = reader.readValue(q("singleAlias"));
@@ -86,7 +87,7 @@ public class EnumAliasDeser2352Test
     @Test
     public void testEnumWithAliasAndDefaultForUnknownValueEnabled() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_3.class)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         MyEnum2352_3 nonAliased = reader.readValue(q("A"));
         assertEquals(MyEnum2352_3.A, nonAliased);
         MyEnum2352_3 singleAlias = reader.readValue(q("singleAlias"));

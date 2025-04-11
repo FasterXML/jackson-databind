@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -45,7 +46,7 @@ public class EnumDeserFromIntJsonValueTest
     }
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING).build();
+            .disable(EnumFeature.READ_ENUMS_USING_TO_STRING).build();
 
     // [databind#1850] pass tests
 

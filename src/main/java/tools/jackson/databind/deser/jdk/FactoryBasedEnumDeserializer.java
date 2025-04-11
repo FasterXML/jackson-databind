@@ -262,7 +262,9 @@ class FactoryBasedEnumDeserializer
     protected Object wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
         throws DatabindException
     {
-        throw DatabindException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
+        throw DatabindException.wrapWithPath(ctxt,
+                throwOrReturnThrowable(t, ctxt),
+                new JacksonException.Reference(bean, fieldName));
     }
 
     private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt)

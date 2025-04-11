@@ -449,7 +449,7 @@ public class BeanAsArrayDeserializer
             try {
                 bean = creator.build(ctxt, buffer);
             } catch (Exception e) {
-                return wrapInstantiationProblem(e, ctxt);
+                return wrapInstantiationProblem(ctxt, e);
             }
         }
         return bean;

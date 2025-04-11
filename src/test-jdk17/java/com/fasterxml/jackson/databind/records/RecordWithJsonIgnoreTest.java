@@ -16,8 +16,10 @@ public class RecordWithJsonIgnoreTest extends DatabindTestUtil
     record RecordWithIgnoreJsonProperty(int id, @JsonIgnore @JsonProperty("name") String name) {
     }
 
+    record RecordWithIgnoreJsonPropertyDifferentName(int id, @JsonIgnore @JsonProperty("name2") String name) {
+    }
+    
     record RecordWithIgnoreAccessor(int id, String name) {
-
         @JsonIgnore
         @Override
         public String name() {
@@ -66,6 +68,13 @@ public class RecordWithJsonIgnoreTest extends DatabindTestUtil
         RecordWithIgnoreJsonProperty value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}",
                 RecordWithIgnoreJsonProperty.class);
         assertEquals(new RecordWithIgnoreJsonProperty(123, null), value);
+    }
+
+    @Test
+    public void testDeserializeJsonIgnoreRecordWithDifferentName() throws Exception {
+        RecordWithIgnoreJsonPropertyDifferentName value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}",
+                RecordWithIgnoreJsonPropertyDifferentName.class);
+        assertEquals(new RecordWithIgnoreJsonPropertyDifferentName(123, null), value);
     }
 
     /*

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class SubclassedThrowableDeserialization4827Test
         extends DatabindTestUtil
 {
-
+    @SuppressWarnings("serial")
     public static class SubclassedExceptionJava extends Exception {
         @JsonCreator
         public SubclassedExceptionJava(

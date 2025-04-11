@@ -63,7 +63,8 @@ public class RecordWithJsonIgnoreTest extends DatabindTestUtil
 
     @Test
     public void testDeserializeJsonIgnoreAndJsonPropertyRecord() throws Exception {
-        RecordWithIgnoreJsonProperty value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", RecordWithIgnoreJsonProperty.class);
+        RecordWithIgnoreJsonProperty value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}",
+                RecordWithIgnoreJsonProperty.class);
         assertEquals(new RecordWithIgnoreJsonProperty(123, null), value);
     }
 
@@ -75,10 +76,11 @@ public class RecordWithJsonIgnoreTest extends DatabindTestUtil
 
     @Test
     public void testSerializeJsonIgnoreAccessorRecord() throws Exception {
-        String json = MAPPER.writeValueAsString(new RecordWithIgnoreAccessor(123, "Bob"));
-        assertEquals("{\"id\":123}", json);
+        assertEquals("{\"id\":123}",
+                MAPPER.writeValueAsString(new RecordWithIgnoreAccessor(123, "Bob")));
     }
 
+    // [databind#4628]
     @Test
     public void testDeserializeJsonIgnoreAccessorRecord() throws Exception {
         RecordWithIgnoreAccessor expected = new RecordWithIgnoreAccessor(123, null);

@@ -1887,6 +1887,9 @@ Zhen Lin Low (@zhenlin-pay2)
   (2.18.3)
 
 Fawzi Essam (@iifawzi)
+ * Contributed fix or #4628: `@JsonIgnore` and `@JsonProperty.access=READ_ONLY`
+   on Record property
+  (2.18.4)
  * Contributed fix for #5049: Duplicate creator property "b" (index 0 vs 1)
    on simple java record
-  (2.18.3)
+  (2.18.4)

@@ -1380,6 +1380,8 @@ ctor.creator()));
             Map.Entry<String, POJOPropertyBuilder> entry = it.next();
             POJOPropertyBuilder prop = entry.getValue();
 
+            // 10-Apr-2025: [databind#4628] skip properties that are marked to be ignored
+            // TODO: we are using implicit name, is that ok?
             if (_ignoredPropertyNames != null && _ignoredPropertyNames.contains(prop.getName())) {
                 continue;
             }

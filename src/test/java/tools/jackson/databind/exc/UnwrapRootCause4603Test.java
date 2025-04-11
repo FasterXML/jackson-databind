@@ -6,6 +6,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -85,5 +86,9 @@ public class UnwrapRootCause4603Test
         DatabindException result = assertThrows(DatabindException.class,
                 () -> MAPPER.readValue(a2q("{'a':3}"), AnySetterBean.class));
         assertInstanceOf(CustomException.class, result.getCause());
+        TokenStreamLocation loc = result.getLocation();
+        assertNotSame(TokenStreamLocation.NA, loc);
+        assertEquals(1, loc.getLineNr());
+        assertEquals(2, loc.getColumnNr());
     }
 }

@@ -183,6 +183,7 @@ public class TestAutoDetect extends DatabindTestUtil
             MAPPER.readValue(JSON, Feature1347DeserBean.class);
             fail("Should not pass");
         } catch (JacksonException e) { // should probably be something more specific but...
+            assertInstanceOf(DatabindException.class, e);
             verifyException(e, "Should NOT get called");
         }
 

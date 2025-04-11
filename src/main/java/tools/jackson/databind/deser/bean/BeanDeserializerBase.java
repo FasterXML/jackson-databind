@@ -1841,18 +1841,19 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * this method throw an exception; otherwise they would be required
      * to return.
      */
-    public DatabindException wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
+    public DatabindException wrapAndThrow(Throwable t, Object bean, String fieldName,
+            DeserializationContext ctxt)
     {
         // 23-Aug-2022, tatu: Due to fix to prevent "double-array-wrapping", looks
         //    like 'fieldName' may occasionally be `null`; hence
         if (fieldName == null) {
             fieldName = "";
         }
-        throw DatabindException.wrapWithPath(throwOrReturnThrowable(t, ctxt),
+        throw DatabindException.wrapWithPath(throwOrReturnThrowable(ctxt, t),
                 bean, fieldName);
     }
 
-    private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt)
+    private Throwable throwOrReturnThrowable(DeserializationContext ctxt, Throwable t)
         throws JacksonException
     {
         // 05-Mar-2009, tatu: But one nasty edge is when we get
@@ -1875,7 +1876,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return t;
     }
 
-    protected Object wrapInstantiationProblem(Throwable t, DeserializationContext ctxt)
+    protected Object wrapInstantiationProblem(DeserializationContext ctxt,Throwable t)
         throws JacksonException
     {
         while (t instanceof InvocationTargetException && t.getCause() != null) {

@@ -66,8 +66,7 @@ public class UnwrapRootCause4603Test
         throws Exception
     {
         JacksonException disabledResult = _tryDeserializeWith(MAPPER);
-        // !!! TODO: ought to be DatabindException
-        assertInstanceOf(JacksonException.class, disabledResult);
+        assertInstanceOf(DatabindException.class, disabledResult);
         // We are throwing exception inside a setter, but InvocationTargetException
         // will still be unwrapped
         assertInstanceOf(CustomException.class, disabledResult.getCause());

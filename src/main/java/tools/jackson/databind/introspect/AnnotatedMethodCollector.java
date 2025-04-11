@@ -3,6 +3,7 @@ package tools.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.*;
 
 import tools.jackson.databind.JavaType;
@@ -123,15 +124,7 @@ public class AnnotatedMethodCollector
                 Method old = b.method;
                 if (old == null) { // had "mix-over", replace
                     b.method = m;
-//                } else if (old.getDeclaringClass().isInterface() && !m.getDeclaringClass().isInterface()) {
-                } else if (Modifier.isAbstract(old.getModifiers())
-                        && !Modifier.isAbstract(m.getModifiers())) {
-                    // 06-Jan-2010, tatu: Except that if method we saw first is
-                    // from an interface, and we now find a non-interface definition, we should
-                    //   use this method, but with combination of annotations.
-                    //   This helps (or rather, is essential) with JAXB annotations and
-                    //   may also result in faster method calls (interface calls are slightly
-                    //   costlier than regular method calls)
+                } else if (shouldReplace(old, m)) {
                     b.method = m;
                     // 23-Aug-2017, tatu: [databind#1705] Also need to change the type resolution context if so
                     //    (note: mix-over case above shouldn't need it)
@@ -139,6 +132,45 @@ public class AnnotatedMethodCollector
                 }
             }
         }
+    }
+
+    // 06-Jan-2010, tatu: Except that if method we saw first is
+    // from an interface, and we now find a non-interface definition, we should
+    //   use this method, but with combination of annotations.
+    //   This helps (or rather, is essential) with JAXB annotations and
+    //   may also result in faster method calls (interface calls are slightly
+    //   costlier than regular method calls)
+    // 03-Jan-2021, scs: But we should probably prefer more public interface methods
+    //   (and respect class visibility too!) rather than relying on setAccessible
+    private boolean shouldReplace(Method current, Method replace) {
+        if (accessLevel(replace) > accessLevel(current)) {
+            return true;
+        }
+        if (Proxy.isProxyClass(current.getDeclaringClass())
+                && !Proxy.isProxyClass(replace.getDeclaringClass())) {
+            return true;
+        }
+        return Modifier.isAbstract(current.getModifiers())
+                && !Modifier.isAbstract(replace.getModifiers());
+    }
+
+    private static int accessLevel(Method m) {
+        return Math.min(
+                accessLevel(m.getModifiers()),
+                accessLevel(m.getDeclaringClass().getModifiers()));
+    }
+
+    private static int accessLevel(int modifiers) {
+        if (Modifier.isPublic(modifiers)) {
+            return 3;
+        }
+        if (Modifier.isProtected(modifiers)) {
+            return 2;
+        }
+        if (Modifier.isPrivate(modifiers)) {
+            return 0;
+        }
+        return 1;
     }
 
     protected void _addMethodMixIns(TypeResolutionContext tc, Class<?> targetClass,

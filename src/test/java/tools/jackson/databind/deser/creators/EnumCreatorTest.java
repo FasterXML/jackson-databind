@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.deser.Deserializers;
 import tools.jackson.databind.deser.jdk.EnumDeserializer;
 import tools.jackson.databind.exc.ValueInstantiationException;
@@ -376,7 +377,7 @@ public class EnumCreatorTest extends DatabindTestUtil
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .build();
         String json = mapper.writeValueAsString(Enum1291.V2);
         Enum1291 result = mapper.readValue(json, Enum1291.class);

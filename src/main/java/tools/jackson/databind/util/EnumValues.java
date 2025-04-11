@@ -36,7 +36,7 @@ public final class EnumValues
      *   and name() might change dynamically.
      */
     public static EnumValues construct(SerializationConfig config, AnnotatedClass enumClass) {
-        if (config.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+        if (config.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
             return constructFromToString(config, enumClass);
         }
         return constructFromName(config, enumClass);

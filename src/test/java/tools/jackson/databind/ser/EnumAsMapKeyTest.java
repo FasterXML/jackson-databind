@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -97,7 +98,7 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
      */
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING).build();
+            .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING).build();
 
     @Test
     public void testMapWithEnumKeys() throws Exception
@@ -111,7 +112,7 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
 
         // but can change
         json = MAPPER.writer()
-                .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .writeValueAsString(bean);
         assertEquals("{\"map\":{\"b\":3}}", json);
 
@@ -120,7 +121,7 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
         // 14-Sep-2019, tatu: as per [databind#2129], must NOT use this feature but
         //    instead new `WRITE_ENUM_KEYS_USING_INDEX` added in 2.10
         json = MAPPER.writer()
-                .with(SerializationFeature.WRITE_ENUMS_USING_INDEX)
+                .with(EnumFeature.WRITE_ENUMS_USING_INDEX)
                 .writeValueAsString(bean);
 //        assertEquals(a2q("{'map':{'"+TestEnum.B.ordinal()+"':3}}"), json);
         assertEquals(a2q("{'map':{'B':3}}"), json);
@@ -152,13 +153,13 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
         // but change with setting
         assertEquals(a2q("{'0':3}"),
                 MAPPER.writer()
-                .with(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)
+                .with(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)
                 .writeValueAsString(input));
 
         // but NOT with value settings
         assertEquals(a2q("{'FIRST':3}"),
                 MAPPER.writer()
-                    .with(SerializationFeature.WRITE_ENUMS_USING_INDEX)
+                    .with(EnumFeature.WRITE_ENUMS_USING_INDEX)
                     .writeValueAsString(input));
     }
 
@@ -175,13 +176,13 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
         // but change with setting
         assertEquals(a2q("{'values':{'1':72}}"),
                 MAPPER.writer()
-                .with(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)
+                .with(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)
                 .writeValueAsString(input));
 
         // but NOT with value settings
         assertEquals(a2q("{'values':{'SECOND':72}}"),
                 MAPPER.writer()
-                    .with(SerializationFeature.WRITE_ENUMS_USING_INDEX)
+                    .with(EnumFeature.WRITE_ENUMS_USING_INDEX)
                     .writeValueAsString(input));
     }
 }

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -107,7 +108,7 @@ public class TestDefaultForObject
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-            .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+            .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
             .build();
 
     /**
@@ -251,7 +252,7 @@ public class TestDefaultForObject
         // and then with it
         ObjectMapper m = jsonMapperBuilder()
                 .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
         String json = m.writeValueAsString(input);

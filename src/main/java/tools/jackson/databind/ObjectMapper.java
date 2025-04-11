@@ -1980,6 +1980,15 @@ public class ObjectMapper
     }
 
     /**
+     * Factory method for constructing {@link ObjectWriter} with
+     * specified features enabled (compared to settings that this
+     * mapper instance has).
+     */
+    public ObjectWriter writer(DatatypeFeature f) {
+        return _newWriter(serializationConfig().with(f));
+    }
+
+    /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified {@link DateFormat}; or, if
      * null passed, using timestamp (64-bit number.

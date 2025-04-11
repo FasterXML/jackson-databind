@@ -1,6 +1,6 @@
 package tools.jackson.databind.cfg;
 
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.DeserializationFeature;
 
 /**
  * New Datatype-specific configuration options related to handling of
@@ -14,7 +14,7 @@ public enum EnumFeature implements DatatypeFeature
      * index of <code>Enum</code>;
      *<p>
      * Note: this feature should be symmetric to
-     * as {@link SerializationFeature#WRITE_ENUM_KEYS_USING_INDEX}.
+     * as {@link #WRITE_ENUM_KEYS_USING_INDEX}.
      *<p>
      * Feature is disabled by default.
      *
@@ -34,7 +34,63 @@ public enum EnumFeature implements DatatypeFeature
      *
      * @since 2.15
      */
-    WRITE_ENUMS_TO_LOWERCASE(false);
+    WRITE_ENUMS_TO_LOWERCASE(false),
+
+
+    /**
+     * Feature that determines standard serialization mechanism used for
+     * Enum values: if enabled, return value of <code>Enum.toString()</code>
+     * is used; if disabled, return value of <code>Enum.name()</code> is used.
+     *<p>
+     * Note: this feature should usually have same value
+     * as {@link DeserializationFeature#READ_ENUMS_USING_TO_STRING}.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
+     */
+    WRITE_ENUMS_USING_TO_STRING(true),
+
+    /**
+     * Feature that determines whether Java Enum values are serialized
+     * as numbers (true), or textual values (false). If textual values are
+     * used, other settings are also considered.
+     * If this feature is enabled,
+     *  return value of <code>Enum.ordinal()</code>
+     * (an integer) will be used as the serialization.
+     *<p>
+     * Note that this feature has precedence over {@link #WRITE_ENUMS_USING_TO_STRING},
+     * which is only considered if this feature is set to false.
+     *<p>
+     * Note that since 2.10, this does NOT apply to {@link Enum}s written as
+     * keys of {@link java.util.Map} values, which has separate setting,
+     * {@link #WRITE_ENUM_KEYS_USING_INDEX}.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is disabled by default.
+     */
+    WRITE_ENUMS_USING_INDEX(false),
+
+    /**
+     * Feature that determines whether {link Enum}s
+     * used as {@link java.util.Map} keys are serialized
+     * as using {@link Enum#ordinal()} or not.
+     * Similar to {@link #WRITE_ENUMS_USING_INDEX} used when writing
+     * {@link Enum}s as regular values.
+     *<p>
+     * NOTE: counterpart for this settings is
+     * {@link EnumFeature#READ_ENUM_KEYS_USING_INDEX}.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is disabled by default.
+     */
+    WRITE_ENUM_KEYS_USING_INDEX(false),
+    ;
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_ENUM;
 

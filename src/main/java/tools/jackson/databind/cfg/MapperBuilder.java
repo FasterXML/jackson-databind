@@ -818,7 +818,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
                 .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS,
                         DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .disable(DateTimeFeature.ONE_BASED_MONTHS)
                 ;
     }

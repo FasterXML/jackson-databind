@@ -14,6 +14,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5066: Move date/time `SerializationFeature`s into `DateTimeFeature` (3.0)
 #5067: Move date/time `DeserializationFeature`s into `DateTimeFeature` (3.0)
 - Branch rename "master" -> "3.x" [JSTEP-12]
+#5080: Move Enum-related SerializationFeatures into EnumFeature (3.0)
+ (contributed by Joo-Hyuk K)
 
 3.0.0-rc3 (not yet released)
 

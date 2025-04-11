@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,7 +59,7 @@ public class EnumSerializationMixinTest extends DatabindTestUtil
     @Test
     public void testSerialization() throws Exception {
         ObjectMapper mixinMapper = jsonMapperBuilder()
-                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .addMixIn(EnumBaseA.class, EnumMixinA.class).build();
 
         // equal name(), different toString() value

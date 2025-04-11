@@ -402,7 +402,7 @@ public class EnumDeserializationTest
     public void testEnumsWithIndex() throws Exception
     {
         String json = MAPPER.writer()
-                .with(SerializationFeature.WRITE_ENUMS_USING_INDEX)
+                .with(EnumFeature.WRITE_ENUMS_USING_INDEX)
                 .writeValueAsString(TestEnum.RULES);
         assertEquals(String.valueOf(TestEnum.RULES.ordinal()), json);
         TestEnum result = MAPPER.readValue(json, TestEnum.class);
@@ -819,7 +819,7 @@ public class EnumDeserializationTest
         obj.map = objMap;
 
         String deserObj = MAPPER.writer()
-            .with(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)
+            .with(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)
             .writeValueAsString(obj);
 
         ClassWithEnumMapKey result = MAPPER.reader()

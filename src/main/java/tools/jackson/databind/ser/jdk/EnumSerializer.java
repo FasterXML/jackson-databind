@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.EnumNamingStrategyFactory;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -137,7 +138,7 @@ public class EnumSerializer
             return;
         }
         // [databind#749]: or via toString()?
-        if (ctxt.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+        if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
             g.writeString(_valuesByToString.serializedValueFor(en));
             return;
         }
@@ -164,7 +165,7 @@ public class EnumSerializer
 
             // Use toString()?
             if ((serializers != null) &&
-                    serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+                    serializers.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
                 for (SerializableString value : _valuesByToString.values()) {
                     enums.add(value.getValue());
                 }
@@ -189,7 +190,7 @@ public class EnumSerializer
         if (_serializeAsIndex != null) {
             return _serializeAsIndex;
         }
-        return ctxt.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX);
+        return ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_INDEX);
     }
 
     /**

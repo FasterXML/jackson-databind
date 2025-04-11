@@ -16,6 +16,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 - Branch rename "master" -> "3.x" [JSTEP-12]
 #5080: Move Enum-related SerializationFeatures into EnumFeature (3.0)
  (contributed by Joo-Hyuk K)
+#5079: Move Enum-related DeserializationFeatures into EnumFeature (3.0)
+ (contributed by Joo-Hyuk K)
 
 3.0.0-rc3 (not yet released)
 

@@ -208,7 +208,7 @@ public class CoercionConfigs
             break;
         case Integer:
             if (targetType == LogicalType.Enum) {
-                if (config.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
+                if (config.isEnabled(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
                     return CoercionAction.Fail;
                 }
             }

@@ -142,7 +142,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
                     ClassUtil.exceptionMessage(re));
         }
         if (ClassUtil.isEnumType(_keyClass)
-                && ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+                && ctxt.getConfig().isEnabled(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
             return null;
         }
         return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation");
@@ -418,9 +418,9 @@ public class JDKKeyDeserializer extends KeyDeserializer
             }
             if (e == null) {
                 if ((_enumDefaultValue != null)
-                        && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
+                        && ctxt.isEnabled(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
                     e = _enumDefaultValue;
-                } else if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+                } else if (!ctxt.isEnabled(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                     return ctxt.handleWeirdKey(_keyClass, key, "not one of the values accepted for Enum class: %s",
                         res.getEnumIds());
                 }
@@ -436,7 +436,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
             if (_byEnumNamingResolver != null) {
                 return _byEnumNamingResolver;
             }
-            return ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+            return ctxt.isEnabled(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 ? _byToStringResolver
                 : _byNameResolver;
         }

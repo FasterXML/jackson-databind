@@ -376,7 +376,7 @@ public class EnumCreatorTest extends DatabindTestUtil
     public void testEnumCreators1291() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .build();
         String json = mapper.writeValueAsString(Enum1291.V2);

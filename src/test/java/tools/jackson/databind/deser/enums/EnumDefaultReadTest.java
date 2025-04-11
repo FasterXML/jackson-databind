@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -92,7 +93,7 @@ public class EnumDefaultReadTest
      */
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+            .disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
             .build();
 
     @Test
@@ -133,7 +134,7 @@ public class EnumDefaultReadTest
     public void testWithFailOnNumbers() throws Exception
     {
         ObjectReader r = MAPPER.reader()
-                .with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
+                .with(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
 
         _verifyOkDeserialization(r, "ZERO", SimpleEnum.class, SimpleEnum.ZERO);
         _verifyOkDeserialization(r, "ONE", SimpleEnum.class, SimpleEnum.ONE);
@@ -168,7 +169,7 @@ public class EnumDefaultReadTest
     public void testWithReadUnknownAsDefault() throws Exception
     {
         ObjectReader r = MAPPER.reader()
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
         _verifyOkDeserialization(r, "ZERO", SimpleEnum.class, SimpleEnum.ZERO);
         _verifyOkDeserialization(r, "ONE", SimpleEnum.class, SimpleEnum.ONE);
@@ -204,8 +205,8 @@ public class EnumDefaultReadTest
         throws Exception
     {
         ObjectReader r = MAPPER.reader()
-                .with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+                .with(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
         _verifyOkDeserialization(r, "ZERO", SimpleEnum.class, SimpleEnum.ZERO);
         _verifyOkDeserialization(r, "ONE", SimpleEnum.class, SimpleEnum.ONE);
@@ -251,7 +252,7 @@ public class EnumDefaultReadTest
     public void testEmptyStringAsDefault() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(SimpleEnumWithDefault.class)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         assertEquals(SimpleEnumWithDefault.ONE,
                 r.readValue(q("ONE")));
         assertEquals(SimpleEnumWithDefault.ZERO,
@@ -263,7 +264,7 @@ public class EnumDefaultReadTest
 
         // Also check with `null` coercion as well
         ObjectReader r2 = MAPPER.readerFor(SimpleEnumWithDefault.class)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
         assertNull(r2.readValue(q("")));
         assertNull(r2.readValue(q("    ")));
     }
@@ -292,7 +293,7 @@ public class EnumDefaultReadTest
     public void testEnumDefaultValueViaMixin() throws Exception 
     {
         ObjectMapper mixinMapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .addMixIn(BaseEnumDefault.class, MixinEnumDefault.class)
                 .build();
         
@@ -304,7 +305,7 @@ public class EnumDefaultReadTest
     public void testFirstEnumDefaultValueViaMixin() throws Exception 
     {
         ObjectMapper mixinMapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .addMixIn(BaseOverloaded.class, MixinOverloadedDefault.class)
                 .build();
         

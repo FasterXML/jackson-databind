@@ -127,6 +127,7 @@ public class DatabindException
             if (msg == null || msg.isEmpty()) {
                 msg = "(was "+src.getClass().getName()+")";
             }
+            // 2025-04-11, tatu: No location from generator, currently
             TokenStreamLocation loc = null;
             jme = new DatabindException(g, msg, loc, src);
         }

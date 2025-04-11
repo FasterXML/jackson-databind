@@ -69,7 +69,6 @@ public class UnwrapRootCause4603Test
         // We are throwing exception inside a setter, but InvocationTargetException
         // will still be unwrapped
         assertInstanceOf(CustomException.class, result.getCause());
-
         TokenStreamLocation loc = result.getLocation();
         assertNotSame(TokenStreamLocation.NA, loc);
         // happens to point to location after `3`

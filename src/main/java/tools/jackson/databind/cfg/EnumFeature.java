@@ -115,6 +115,9 @@ public enum EnumFeature implements DatatypeFeature
      * Note: this feature should usually have same value
      * as {@link #READ_ENUMS_USING_TO_STRING}.
      *<p>
+     * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
      * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
      */
     WRITE_ENUMS_USING_TO_STRING(true),
@@ -134,6 +137,9 @@ public enum EnumFeature implements DatatypeFeature
      * keys of {@link java.util.Map} values, which has separate setting,
      * {@link #WRITE_ENUM_KEYS_USING_INDEX}.
      *<p>
+     * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
      * Feature is disabled by default.
      */
     WRITE_ENUMS_USING_INDEX(false),
@@ -147,6 +153,9 @@ public enum EnumFeature implements DatatypeFeature
      *<p>
      * NOTE: counterpart for this settings is
      * {@link EnumFeature#READ_ENUM_KEYS_USING_INDEX}.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
      *<p>
      * Feature is disabled by default.
      */

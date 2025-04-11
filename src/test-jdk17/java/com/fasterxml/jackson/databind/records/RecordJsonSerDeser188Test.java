@@ -50,6 +50,8 @@ public class RecordJsonSerDeser188Test
 
     static class PrefixStringDeserializer extends StdScalarDeserializer<String>
     {
+        private static final long serialVersionUID = 1L;
+
         protected PrefixStringDeserializer() {
             super(String.class);
         }

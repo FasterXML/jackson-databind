@@ -18,6 +18,8 @@ Project: jackson-databind
    server and client side
  (requested by @qianlong)
  (contributed by Geoffrey G)
+#3343: Allow BeanPropertyWriter Sub-classes to Override `get()` (remove `final`)
+ (requested by @alzimmermsft)
 #4388: Allow using `@JsonPropertyOrder` with "any" (`@JsonAnyGetter`)  properties
  (fix by Joo-Hyuk K)
 #4650: `PrimitiveArrayDeserializers` should deal with single String value if
@@ -90,6 +92,10 @@ Project: jackson-databind
 
 2.18.4 (not yet released)
 
+#4628: `@JsonIgnore` and `@JsonProperty.access=READ_ONLY` on Record property
+  ignored for deserialization
+ (reported by Sim Y-T)
+ (fix contributed by Fawzi E)
 #5049: Duplicate creator property "b" (index 0 vs 1) on simple java record
  (reported by @richard-melvin)
  (fix contributed by Fawzi E)

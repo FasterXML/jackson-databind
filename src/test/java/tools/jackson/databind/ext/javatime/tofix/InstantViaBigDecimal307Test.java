@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
@@ -26,7 +26,7 @@ public class InstantViaBigDecimal307Test extends DateTimeTestBase
     private final Instant ISSUED_AT = Instant.ofEpochSecond(1234567890).plusNanos(123456789);
 
     private ObjectMapper MAPPER = mapperBuilder()
-            .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .build();
 
     @Test

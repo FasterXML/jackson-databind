@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.jsonFormatVisitors.*;
 
 /**
@@ -190,8 +191,8 @@ abstract class JSR310FormattedSerializerBase<T>
      *
      * @since 2.10
      */
-    protected SerializationFeature getTimestampsFeature() {
-        return SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
+    protected DateTimeFeature getTimestampsFeature() {
+        return DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS;
     }
 
     protected boolean useTimestamp(SerializationContext ctxt) {
@@ -235,7 +236,7 @@ abstract class JSR310FormattedSerializerBase<T>
             }
         }
         return (ctxt != null)
-                && ctxt.isEnabled(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
+                && ctxt.isEnabled(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
     }
 
     // modules-java8#189: to be overridden by other formatters using this as base class

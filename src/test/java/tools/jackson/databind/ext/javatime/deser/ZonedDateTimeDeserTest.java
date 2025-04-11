@@ -118,7 +118,7 @@ public class ZonedDateTimeDeserTest extends DateTimeTestBase
         String inputString = "2021-02-01T19:49:04.0513486Z[UTC]";
 
         ZonedDateTime converted = newMapperBuilder()
-                .configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false)
+                .configure(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false)
                 .build()
                 .readerFor(ZonedDateTime.class).readValue(q(inputString));
 
@@ -277,7 +277,7 @@ public class ZonedDateTimeDeserTest extends DateTimeTestBase
     @Test
     public void ZonedDateTime_with_offset_can_be_deserialized() throws Exception {
         ObjectReader r = newMapper().readerFor(ZonedDateTime.class)
-                .without(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
+                .without(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
 
         String base = "2015-07-24T12:23:34.184";
         for (String offset : Arrays.asList("+00", "-00")) {

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -392,7 +393,7 @@ public class JsonIncludeTest
     @Test
     public void testInclusionOfDate() throws Exception
     {
-        ObjectWriter writerWith = MAPPER.writer().with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        ObjectWriter writerWith = MAPPER.writer().with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         final Date input = new Date(0L);
         assertEquals(a2q("{'value':0}"),
@@ -407,7 +408,7 @@ public class JsonIncludeTest
     @Test
     public void testInclusionOfCalendar() throws Exception
     {
-        ObjectWriter writerWith = MAPPER.writer().with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        ObjectWriter writerWith = MAPPER.writer().with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         final Calendar input = new GregorianCalendar();
         input.setTimeInMillis(0L);

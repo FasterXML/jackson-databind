@@ -547,6 +547,15 @@ public class ObjectMapper
         return _serializationConfig.isEnabled(f);
     }
 
+    /**
+     * Method for checking whether given datatype-specific
+     * feature is enabled.
+     */
+    public boolean isEnabled(DatatypeFeature f) {
+        // could call either config object:
+        return _serializationConfig.isEnabled(f);
+    }
+
     /*
     /**********************************************************************
     /* Configuration, accessing module information

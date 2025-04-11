@@ -31,9 +31,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberInput;
+
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 
@@ -287,12 +287,12 @@ public class InstantDeserializer<T extends Temporal>
 
     protected boolean shouldAdjustToContextTimezone(DeserializationContext context) {
         return (_adjustToContextTZOverride != null) ? _adjustToContextTZOverride :
-                context.isEnabled(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
+                context.isEnabled(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
     }
 
     protected boolean shouldReadTimestampsAsNanoseconds(DeserializationContext context) {
         return (_readTimestampsAsNanosOverride != null) ? _readTimestampsAsNanosOverride :
-            context.isEnabled(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+            context.isEnabled(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
     }
 
     // Helper method to find Strings of form "all digits" and "digits-comma-digits"

@@ -17,6 +17,7 @@ import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.cfg.ContextAttributes;
 import tools.jackson.databind.cfg.DatatypeFeature;
 import tools.jackson.databind.cfg.DatatypeFeatures;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.cfg.GeneratorSettings;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
@@ -1180,7 +1181,7 @@ public abstract class SerializationContext
     public final void defaultSerializeDateValue(long timestamp, JsonGenerator g)
         throws JacksonException
     {
-        if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
+        if (isEnabled(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)) {
             g.writeNumber(timestamp);
         } else {
             g.writeString(_dateFormat().format(new Date(timestamp)));
@@ -1197,7 +1198,7 @@ public abstract class SerializationContext
     public final void defaultSerializeDateValue(Date date, JsonGenerator g)
         throws JacksonException
     {
-        if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
+        if (isEnabled(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)) {
             g.writeNumber(date.getTime());
         } else {
             g.writeString(_dateFormat().format(date));
@@ -1206,13 +1207,13 @@ public abstract class SerializationContext
 
     /**
      * Method that will handle serialization of Dates used as {@link java.util.Map} keys,
-     * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
+     * based on {@link DateTimeFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
     public void defaultSerializeDateKey(long timestamp, JsonGenerator g)
         throws JacksonException
     {
-        if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
+        if (isEnabled(DateTimeFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             g.writeName(String.valueOf(timestamp));
         } else {
             g.writeName(_dateFormat().format(new Date(timestamp)));
@@ -1221,12 +1222,12 @@ public abstract class SerializationContext
 
     /**
      * Method that will handle serialization of Dates used as {@link java.util.Map} keys,
-     * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
+     * based on {@link DateTimeFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
     public void defaultSerializeDateKey(Date date, JsonGenerator g) throws JacksonException
     {
-        if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
+        if (isEnabled(DateTimeFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             g.writeName(String.valueOf(date.getTime()));
         } else {
             g.writeName(_dateFormat().format(date));

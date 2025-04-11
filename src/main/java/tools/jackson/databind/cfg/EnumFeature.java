@@ -28,6 +28,22 @@ public enum EnumFeature implements DatatypeFeature
      */
     READ_ENUM_KEYS_USING_INDEX(false),
 
+    /**
+     * Feature that determines whether JSON integer numbers are valid
+     * values to be used for deserializing Java enum values.
+     * If set to 'false' numbers are acceptable and are used to map to
+     * ordinal() of matching enumeration value; if 'true', numbers are
+     * not allowed and a {@link DatabindException} will be thrown.
+     * Latter behavior makes sense if there is concern that accidental
+     * mapping from integer values to enums might happen (and when enums
+     * are always serialized as JSON Strings)
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.DeserializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
+     * Feature is disabled by default.
+     */
+    FAIL_ON_NUMBERS_FOR_ENUMS(false),
 
     /**
      * Feature that determines the deserialization mechanism used for
@@ -37,6 +53,9 @@ public enum EnumFeature implements DatatypeFeature
      *<p>
      * Note: this feature should usually have same value
      * as {@link #WRITE_ENUMS_USING_TO_STRING}.
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.DeserializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
      *<p>
      * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
      */
@@ -54,7 +73,10 @@ public enum EnumFeature implements DatatypeFeature
      * Also note that this feature has lower precedence than
      * {@link #READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE},
      * meaning this feature will work only if latter feature is disabled.
-     * <p>
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.DeserializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
+     *<p>
      * Feature is disabled by default.
      */
     READ_UNKNOWN_ENUM_VALUES_AS_NULL(false),
@@ -66,24 +88,13 @@ public enum EnumFeature implements DatatypeFeature
      * If enabled, but no predefined default Enum value is specified, an exception will be thrown as well.
      * <p>
      * Note that this feature has higher precedence than {@link #READ_UNKNOWN_ENUM_VALUES_AS_NULL}.
-     * <p>
-     * Feature is disabled by default.
-     */
-    READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE(false),
-
-    /**
-     * Feature that determines whether JSON integer numbers are valid
-     * values to be used for deserializing Java enum values.
-     * If set to 'false' numbers are acceptable and are used to map to
-     * ordinal() of matching enumeration value; if 'true', numbers are
-     * not allowed and a {@link DatabindException} will be thrown.
-     * Latter behavior makes sense if there is concern that accidental
-     * mapping from integer values to enums might happen (and when enums
-     * are always serialized as JSON Strings)
+     *<p>
+     * Feature used to be one of {@link tools.jackson.databind.DeserializationFeature}s
+     * in Jackson 2.x but was moved here in 3.0.
      *<p>
      * Feature is disabled by default.
      */
-    FAIL_ON_NUMBERS_FOR_ENUMS(false),
+    READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE(false),
 
     /*
     /**********************************************************************

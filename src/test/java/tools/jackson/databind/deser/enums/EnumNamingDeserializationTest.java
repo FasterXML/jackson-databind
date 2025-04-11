@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.EnumNaming;
+import tools.jackson.databind.cfg.EnumFeature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -111,7 +112,7 @@ public class EnumNamingDeserializationTest
     @Test
     public void testEnumNamingTranslateUnknownValueToDefault() throws Exception {
         EnumFlavorA result = MAPPER.readerFor(EnumFlavorA.class)
-            .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+            .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
             .readValue(q("__salted_caramel"));
 
         assertEquals(EnumFlavorA.VANILLA, result);
@@ -120,7 +121,7 @@ public class EnumNamingDeserializationTest
     @Test
     public void testEnumNamingToDefaultNumber() throws Exception {
         EnumFlavorA result = MAPPER.readerFor(EnumFlavorA.class)
-            .without(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
+            .without(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
             .readValue(q("1"));
 
         assertEquals(EnumFlavorA.SALTED_CARAMEL, result);
@@ -129,7 +130,7 @@ public class EnumNamingDeserializationTest
     @Test
     public void testEnumNamingToDefaultEmptyString() throws Exception {
         EnumFlavorA result = MAPPER.readerFor(EnumFlavorA.class)
-            .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+            .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
             .readValue(q(""));
 
         assertEquals(EnumFlavorA.VANILLA, result);
@@ -138,7 +139,7 @@ public class EnumNamingDeserializationTest
     @Test
     public void testOriginalEnamValueShouldNotBeFoundWithEnumNamingStrategy() throws Exception {
         EnumFlavorB result = MAPPER.readerFor(EnumFlavorB.class)
-            .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+            .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
             .readValue(q("PEANUT_BUTTER"));
 
         assertNull(result);
@@ -159,7 +160,7 @@ public class EnumNamingDeserializationTest
         assertEquals(EnumFlavorF.SALTED_CARAMEL, caramel);
 
         EnumFlavorF badCaramel = MAPPER.readerFor(EnumFlavorF.class)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .readValue(q("saltedCaramel"));
         assertNull(badCaramel);
     }

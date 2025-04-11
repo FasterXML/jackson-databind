@@ -107,7 +107,7 @@ public class TestDefaultForObject
      */
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+            .disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
             .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
             .build();
 
@@ -251,7 +251,7 @@ public class TestDefaultForObject
 
         // and then with it
         ObjectMapper m = jsonMapperBuilder()
-                .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();

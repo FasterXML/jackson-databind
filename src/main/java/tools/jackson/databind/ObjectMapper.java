@@ -2142,6 +2142,17 @@ public class ObjectMapper
     }
 
     /**
+     * Factory method for constructing {@link ObjectReader} with
+     * specified feature enabled (compared to settings that this
+     * mapper instance has).
+     * Note that the resulting instance is NOT usable as is,
+     * without defining expected value type.
+     */
+    public ObjectReader reader(DatatypeFeature feature) {
+        return _newReader(deserializationConfig().with(feature));
+    }
+
+    /**
      * Factory method for constructing {@link ObjectReader} that will
      * update given Object (usually Bean, but can be a Collection or Map
      * as well, but NOT an array) with JSON data. Deserialization occurs

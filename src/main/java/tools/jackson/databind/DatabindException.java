@@ -77,16 +77,16 @@ public class DatabindException
     // // "Overrides": methods with name same as ones from JacksonException
     // // (but for static methods no real overriding, static dispatch)
 
-    public static JacksonException wrapWithPath(Throwable src, Object refFrom,
-            String refPropertyName) {
-        return wrapWithPath(src, new Reference(refFrom, refPropertyName));
+    public static JacksonException wrapWithPath(DeserializationContext ctxt,
+            Throwable src, Reference ref) {
+        // !!! TODO: get `JsonParser`, location from `ctxt`
+        return JacksonException.wrapWithPath(src, ref,
+                (msg, cause) -> new DatabindException(msg, null, cause));
     }
-
-    public static JacksonException wrapWithPath(Throwable src, Object refFrom, int index) {
-        return wrapWithPath(src, new Reference(refFrom, index));
-    }
-
-    public static JacksonException wrapWithPath(Throwable src, Reference ref) {
+    
+    public static JacksonException wrapWithPath(SerializationContext ctxt,
+            Throwable src, Reference ref) {
+        // !!! TODO: get `JsonGenerator` from `ctxt`
         return JacksonException.wrapWithPath(src, ref,
                 (msg, cause) -> new DatabindException(msg, null, cause));
     }

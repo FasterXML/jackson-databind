@@ -217,7 +217,8 @@ public class ObjectArrayDeserializer
                 chunk[ix++] = value;
             }
         } catch (Exception e) {
-            throw DatabindException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(chunk, buffer.bufferedSize() + ix));
         }
 
         Object[] result;
@@ -285,7 +286,8 @@ public class ObjectArrayDeserializer
                 chunk[ix++] = value;
             }
         } catch (Exception e) {
-            throw DatabindException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(chunk, buffer.bufferedSize() + ix));
         }
 
         Object[] result;

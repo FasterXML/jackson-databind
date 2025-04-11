@@ -1826,16 +1826,15 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     /**
      * Method that will modify caught exception (passed in as argument)
      * as necessary to include reference information, and to ensure it
-     * is a subtype of {@link IOException}, or an unchecked exception.
+     * is a subtype of {@link DatabindException}, or an unchecked exception.
      *<p>
      * Rules for wrapping and unwrapping are bit complicated; essentially:
      *<ul>
      * <li>Errors are to be passed as is (if uncovered via unwrapping)
-     * <li>"Plain" IOExceptions (ones that are not of type
-     *   {@link DatabindException} are to be passed as is
+     * <li>{@code JacksonException} are to be passed as is
      *</ul>
      * The method always throws but declares its return type as
-     * {@link IOException} in order to allow callers to invoke method as
+     * {@link DatabindException} in order to allow callers to invoke method as
      * {@code throw wrapAndThrow(...);} thereby ensuring complete code
      * coverage is possible. This also ensures that all call paths within
      * this method throw an exception; otherwise they would be required
@@ -1849,8 +1848,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (fieldName == null) {
             fieldName = "";
         }
-        throw DatabindException.wrapWithPath(throwOrReturnThrowable(ctxt, t),
-                bean, fieldName);
+        throw DatabindException.wrapWithPath(ctxt,
+                throwOrReturnThrowable(ctxt, t),
+                new JacksonException.Reference(bean, fieldName));
     }
 
     private Throwable throwOrReturnThrowable(DeserializationContext ctxt, Throwable t)

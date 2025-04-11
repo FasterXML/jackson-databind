@@ -92,6 +92,10 @@ Project: jackson-databind
 
 2.18.4 (not yet released)
 
+#4628: `@JsonIgnore` and `@JsonProperty.access=READ_ONLY` on Record property
+  ignored for deserialization
+ (reported by Sim Y-T)
+ (fix contributed by Fawzi E)
 #5049: Duplicate creator property "b" (index 0 vs 1) on simple java record
  (reported by @richard-melvin)
  (fix contributed by Fawzi E)

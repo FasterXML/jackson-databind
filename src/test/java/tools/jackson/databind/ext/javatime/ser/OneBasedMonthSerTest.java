@@ -5,7 +5,6 @@ import java.time.Month;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectWriter;
-import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;

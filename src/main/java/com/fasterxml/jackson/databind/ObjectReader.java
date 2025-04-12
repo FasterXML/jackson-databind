@@ -1529,12 +1529,6 @@ public class ObjectReader
         return (T) forType(valueType).readValue(src);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(InputStream src, T... reified) throws IOException
-    {
-        return forType(getClassOf(reified)).readValue(src);
-    }
-
     /**
      * Method that binds content read from given input source,
      * using configuration of this reader.
@@ -1603,15 +1597,6 @@ public class ObjectReader
     public <T> T readValue(String src, Class<T> valueType) throws IOException
     {
         return (T) forType(valueType).readValue(src);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(String src, T... reified) throws IOException {
-        if (reified.length > 0) {
-            throw new IllegalArgumentException("Please don't pass any values here. Java will detect class automatically.");
-        }
-
-        return readValue(src, getClassOf(reified));
     }
 
     /**

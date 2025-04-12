@@ -461,9 +461,6 @@ public class ObjectReaderTest extends DatabindTestUtil
         ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
 
         process(reader.readValue(source, POJO.class));
-
-        POJO pojo = reader.readValue(source);
-        process(pojo);
     }
 
     void process(POJO pojo) {

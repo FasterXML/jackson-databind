@@ -778,20 +778,6 @@ public class ObjectReader
     }
 
     /**
-     * Method for constructing a new reader instance.
-     */
-    public <T> ObjectReader readerFor(T... reified) {
-        // Detect class type
-        Class<T> clazz = getClassOf(reified);
-
-        // Convert class to JavaType
-        JavaType valueType = _config.getTypeFactory().constructType(clazz);
-
-        return forType(valueType);
-    }
-
-
-    /**
      * Method for constructing a new reader instance that is configured
      * to data bind into specified type.
      *<p>
@@ -1597,17 +1583,6 @@ public class ObjectReader
     public <T> T readValue(String src, Class<T> valueType) throws IOException
     {
         return (T) forType(valueType).readValue(src);
-    }
-
-    /**
-     * Utility method to get the class type from a varargs array.
-     *
-     * @param <T> the generic type
-     * @param array the varargs array
-     * @return the class of the array component
-     */
-    private static <T> Class<T> getClassOf(T[] array) {
-        return (Class<T>) array.getClass().getComponentType();
     }
 
     /**

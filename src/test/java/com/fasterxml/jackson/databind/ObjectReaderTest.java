@@ -292,13 +292,6 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAutoDetectForReader() throws Exception
-    {
-        Number n = MAPPER.reader().readerFor().readValue("123 ");
-        assertEquals(Integer.valueOf(123), n);
-    }
-
-    @Test
     public void testNoPrefetch() throws Exception
     {
         ObjectReader r = MAPPER.reader()

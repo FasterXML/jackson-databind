@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -98,7 +99,7 @@ public class NullConversionsSkipTest {
     public void testEnumAsNullThenSkip() throws Exception
     {
         Pojo2015 p = MAPPER.readerFor(Pojo2015.class)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .readValue("{\"number\":\"THREE\"}");
         assertEquals(NUMS2015.TWO, p.number);
     }

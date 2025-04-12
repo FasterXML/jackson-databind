@@ -814,7 +814,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
                 .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,
                         DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS,
                         DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)

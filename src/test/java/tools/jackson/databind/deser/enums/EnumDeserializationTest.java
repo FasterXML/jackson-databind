@@ -362,7 +362,7 @@ public class EnumDeserializationTest
     {
         // can't reuse global one due to reconfig
         ObjectMapper m = jsonMapperBuilder()
-                .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .enable(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .build();
         LowerCaseEnum value = m.readValue("\"c\"", LowerCaseEnum.class);
         assertEquals(LowerCaseEnum.C, value);
@@ -372,13 +372,13 @@ public class EnumDeserializationTest
     public void testNumbersToEnums() throws Exception
     {
         // by default numbers are fine:
-        assertFalse(MAPPER.deserializationConfig().isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
+        assertFalse(MAPPER.deserializationConfig().isEnabled(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
         TestEnum value = MAPPER.readValue("1", TestEnum.class);
         assertSame(TestEnum.RULES, value);
 
         // but can also be changed to errors:
         ObjectReader r = MAPPER.readerFor(TestEnum.class)
-                .with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
+                .with(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
         try {
             value = r.readValue("1");
             fail("Expected an error");
@@ -440,7 +440,7 @@ public class EnumDeserializationTest
     public void testAllowUnknownEnumValuesReadAsNull() throws Exception
     {
         // cannot use shared mapper when changing configs...
-        ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        ObjectReader reader = MAPPER.reader(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
         assertNull(reader.forType(TestEnum.class).readValue("\"NO-SUCH-VALUE\""));
         assertNull(reader.forType(TestEnum.class).readValue(" 4343 "));
     }
@@ -452,7 +452,7 @@ public class EnumDeserializationTest
     public void testAllowUnknownEnumValuesReadAsNullWithCreatorMethod() throws Exception
     {
         // cannot use shared mapper when changing configs...
-        ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        ObjectReader reader = MAPPER.reader(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
         assertNull(reader.forType(StrictEnumCreator.class).readValue("\"NO-SUCH-VALUE\""));
         assertNull(reader.forType(StrictEnumCreator.class).readValue(" 4343 "));
     }
@@ -460,7 +460,7 @@ public class EnumDeserializationTest
     @Test
     public void testAllowUnknownEnumValuesForEnumSets() throws Exception
     {
-        EnumSet<TestEnum> result = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+        EnumSet<TestEnum> result = MAPPER.reader(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .forType(new TypeReference<EnumSet<TestEnum>>() { })
                 .readValue("[\"NO-SUCH-VALUE\"]");
         assertEquals(0, result.size());
@@ -469,7 +469,7 @@ public class EnumDeserializationTest
     @Test
     public void testAllowUnknownEnumValuesAsMapKeysReadAsNull() throws Exception
     {
-        ClassWithEnumMapKey result = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+        ClassWithEnumMapKey result = MAPPER.reader(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .forType(ClassWithEnumMapKey.class)
                 .readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}");
         // 25-Jan-2018, tatu: as per [databind#1883], we upgrade it to `EnumMap`, which won't accept nulls...
@@ -483,7 +483,7 @@ public class EnumDeserializationTest
     public void testAllowUnknownEnumValuesReadAsDefaultWithCreatorMethod4979() throws Exception
     {
         ObjectReader reader = MAPPER.reader(
-            DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+            EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         assertEquals(
             StrictEnumCreator.UNKNOWN,
             reader.forType(StrictEnumCreator.class).readValue("\"NO-SUCH-VALUE\""));
@@ -492,7 +492,7 @@ public class EnumDeserializationTest
     @Test
     public void testDoNotAllowUnknownEnumValuesAsMapKeysWhenReadAsNullDisabled() throws Exception
     {
-        assertFalse(MAPPER.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL));
+        assertFalse(MAPPER.isEnabled(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL));
          try {
              MAPPER.readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}", ClassWithEnumMapKey.class);
              fail("Expected an exception for bogus enum value...");
@@ -595,23 +595,23 @@ public class EnumDeserializationTest
     @Test
     public void testEnumWithJsonPropertyRenameWithToString() throws Exception {
         EnumWithPropertyAnno a = MAPPER.readerFor(EnumWithPropertyAnno.class)
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .with(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .readValue(q("a"));
         assertSame(EnumWithPropertyAnno.A, a);
 
         EnumWithPropertyAnno b = MAPPER.readerFor(EnumWithPropertyAnno.class)
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .with(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .readValue(q("b"));
         assertSame(EnumWithPropertyAnno.B, b);
 
         EnumWithPropertyAnno bb = MAPPER.readerFor(EnumWithPropertyAnno.class)
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .with(EnumFeature.READ_ENUMS_USING_TO_STRING)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .readValue(q("bb"));
         assertNull(bb);
 
         EnumWithPropertyAnno c = MAPPER.readerFor(EnumWithPropertyAnno.class)
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .with(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .readValue(q("cc"));
         assertSame(EnumWithPropertyAnno.C, c);
     }
@@ -643,18 +643,18 @@ public class EnumDeserializationTest
     public void testDeserWithToString1161() throws Exception
     {
         Enum1161 result = MAPPER.readerFor(Enum1161.class)
-                .without(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .without(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .readValue(q("A"));
         assertSame(Enum1161.A, result);
 
         result = MAPPER.readerFor(Enum1161.class)
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .with(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .readValue(q("a"));
         assertSame(Enum1161.A, result);
 
         // and once again, going back to defaults
         result = MAPPER.readerFor(Enum1161.class)
-                .without(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .without(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .readValue(q("A"));
         assertSame(Enum1161.A, result);
     }
@@ -662,7 +662,7 @@ public class EnumDeserializationTest
     @Test
     public void testEnumWithDefaultAnnotation() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .build();
 
         EnumWithDefaultAnno myEnum = mapper.readValue("\"foo\"", EnumWithDefaultAnno.class);
@@ -672,7 +672,7 @@ public class EnumDeserializationTest
     @Test
     public void testEnumWithDefaultAnnotationUsingIndexInBound1() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .build();
 
         EnumWithDefaultAnno myEnum = mapper.readValue("1", EnumWithDefaultAnno.class);
@@ -682,7 +682,7 @@ public class EnumDeserializationTest
     @Test
     public void testEnumWithDefaultAnnotationUsingIndexInBound2() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .build();
 
         EnumWithDefaultAnno myEnum = mapper.readValue("2", EnumWithDefaultAnno.class);
@@ -692,7 +692,7 @@ public class EnumDeserializationTest
     @Test
     public void testEnumWithDefaultAnnotationUsingIndexSameAsLength() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .build();
 
         EnumWithDefaultAnno myEnum = mapper.readValue("3", EnumWithDefaultAnno.class);
@@ -702,7 +702,7 @@ public class EnumDeserializationTest
     @Test
     public void testEnumWithDefaultAnnotationUsingIndexOutOfBound() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .build();
 
         EnumWithDefaultAnno myEnum = mapper.readValue("4", EnumWithDefaultAnno.class);
@@ -712,7 +712,7 @@ public class EnumDeserializationTest
     @Test
     public void testEnumWithDefaultAnnotationWithConstructor() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .build();
 
         EnumWithDefaultAnnoAndConstructor myEnum = mapper.readValue("\"foo\"", EnumWithDefaultAnnoAndConstructor.class);
@@ -764,7 +764,7 @@ public class EnumDeserializationTest
     public void testEnumToStringNull2309() throws Exception
     {
         Enum2309 value = MAPPER.readerFor(Enum2309.class)
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .with(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .readValue(q("NON_NULL"));
         assertEquals(Enum2309.NON_NULL, value);
     }

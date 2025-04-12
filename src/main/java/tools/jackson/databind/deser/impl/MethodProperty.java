@@ -180,8 +180,7 @@ public final class MethodProperty
         try {
             _setter.get().invokeExact(instance, value);
         } catch (Throwable e) {
-            // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsJacksonE(e, value);
+            _throwAsJacksonE(ctxt.getParser(), e, value);
         }
     }
 
@@ -198,8 +197,7 @@ public final class MethodProperty
             Object result = _setterReturn.get().invokeExact(instance, value);
             return (result == null) ? instance : result;
         } catch (Throwable e) {
-            // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsJacksonE(e, value);
+            _throwAsJacksonE(ctxt.getParser(), e, value);
             return null;
         }
     }

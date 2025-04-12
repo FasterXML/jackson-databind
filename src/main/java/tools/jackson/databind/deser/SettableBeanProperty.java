@@ -652,12 +652,6 @@ public abstract class SettableBeanProperty
         throw DatabindException.from(p, ClassUtil.exceptionMessage(e), e);
     }
 
-    // 10-Oct-2015, tatu: _Should_ be deprecated, too, but its remaining
-    //   callers cannot actually provide a JsonParser
-    protected void _throwAsJacksonE(Throwable e, Object value) throws JacksonException {
-        _throwAsJacksonE((JsonParser) null, e, value);
-    }
-
     @Override public String toString() { return "[property '"+getName()+"']"; }
 
     /*

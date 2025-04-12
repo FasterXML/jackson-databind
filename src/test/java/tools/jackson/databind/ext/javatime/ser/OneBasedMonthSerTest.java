@@ -24,10 +24,10 @@ public class OneBasedMonthSerTest extends DateTimeTestBase
     @Test
     public void testSerializationFromEnum() throws Exception
     {
-        assertEquals( "\"JANUARY\"" , writerForOneBased()
+        assertEquals(q("JANUARY"), writerForOneBased()
             .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
             .writeValueAsString(Month.JANUARY));
-        assertEquals( "\"JANUARY\"" , writerForZeroBased()
+        assertEquals(q("JANUARY"), writerForZeroBased()
             .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
             .writeValueAsString(Month.JANUARY));
     }
@@ -46,7 +46,6 @@ public class OneBasedMonthSerTest extends DateTimeTestBase
         assertEquals( "{\"month\":0}" , w.writeValueAsString(new Wrapper(Month.JANUARY)));
     }
 
-
     private ObjectWriter writerForZeroBased() {
         return JsonMapper.builder()
                 .disable(DateTimeFeature.ONE_BASED_MONTHS)
@@ -60,5 +59,4 @@ public class OneBasedMonthSerTest extends DateTimeTestBase
                 .build()
                 .writer();
     }
-
 }

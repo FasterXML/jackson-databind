@@ -32,7 +32,8 @@ public class ValueSerializerModifier1612Test extends DatabindTestUtil
         private static final long serialVersionUID = 1L;
 
         @Override
-        public BeanSerializerBuilder updateBuilder(SerializationConfig config, BeanDescription beanDesc,
+        public BeanSerializerBuilder updateBuilder(SerializationConfig config,
+                BeanDescription.Supplier beanDescRef,
                 BeanSerializerBuilder builder) {
             List<BeanPropertyWriter> filtered = new ArrayList<BeanPropertyWriter>(2);
             List<BeanPropertyWriter> properties = builder.getProperties();

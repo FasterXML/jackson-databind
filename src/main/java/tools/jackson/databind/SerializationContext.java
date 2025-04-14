@@ -959,13 +959,13 @@ public abstract class SerializationContext
             JavaType fullType)
     {
         // Important: must introspect all annotations, not just class
-        BeanDescription beanDesc = introspectBeanDescription(fullType);
+        BeanDescription.Supplier beanDescRef = lazyIntrospectBeanDescription(fullType);
         ValueSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
+            ser = _serializerFactory.createSerializer(this, fullType, beanDescRef, null);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
-            reportBadTypeDefinition(beanDesc, ClassUtil.exceptionMessage(iae));
+            reportBadTypeDefinition(beanDescRef.get(), ClassUtil.exceptionMessage(iae));
             ser = null; // never gets here
         }
         // Always cache -- and in this case both for raw and full type
@@ -976,10 +976,10 @@ public abstract class SerializationContext
     protected ValueSerializer<Object> _createAndCacheUntypedSerializer(JavaType type)
     {
         // Important: must introspect all annotations, not just class
-        BeanDescription beanDesc = introspectBeanDescription(type);
+        BeanDescription.Supplier beanDescRef = lazyIntrospectBeanDescription(type);
         ValueSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, type, beanDesc, null);
+            ser = _serializerFactory.createSerializer(this, type, beanDescRef, null);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
             throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
@@ -996,10 +996,10 @@ public abstract class SerializationContext
     protected ValueSerializer<Object> _createAndCachePropertySerializer(Class<?> rawType,
             JavaType fullType, BeanProperty prop)
     {
-        BeanDescription beanDesc = introspectBeanDescription(fullType);
+        BeanDescription.Supplier beanDescRef = lazyIntrospectBeanDescription(fullType);
         ValueSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
+            ser = _serializerFactory.createSerializer(this, fullType, beanDescRef, null);
         } catch (IllegalArgumentException iae) {
             throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
@@ -1008,7 +1008,7 @@ public abstract class SerializationContext
         if (prop == null) {
             return ser;
         }
-        return _checkShapeShifting(fullType, beanDesc, prop, ser);
+        return _checkShapeShifting(fullType, beanDescRef, prop, ser);
     }
 
     /**
@@ -1018,10 +1018,10 @@ public abstract class SerializationContext
     protected ValueSerializer<Object> _createAndCachePropertySerializer(JavaType type,
             BeanProperty prop)
     {
-        BeanDescription beanDesc = introspectBeanDescription(type);
+        BeanDescription.Supplier beanDescRef = lazyIntrospectBeanDescription(type);
         ValueSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, type, beanDesc, null);
+            ser = _serializerFactory.createSerializer(this, type, beanDescRef, null);
         } catch (IllegalArgumentException iae) {
             throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
@@ -1030,12 +1030,12 @@ public abstract class SerializationContext
         if (prop == null) {
             return ser;
         }
-        return _checkShapeShifting(type, beanDesc, prop, ser);
+        return _checkShapeShifting(type, beanDescRef, prop, ser);
     }
 
     @SuppressWarnings("unchecked")
-    private ValueSerializer<Object> _checkShapeShifting(JavaType type, BeanDescription beanDesc,
-            BeanProperty prop, ValueSerializer<?> ser)
+    private ValueSerializer<Object> _checkShapeShifting(JavaType type,
+            BeanDescription.Supplier beanDescRef, BeanProperty prop, ValueSerializer<?> ser)
     {
         JsonFormat.Value overrides = prop.findFormatOverrides(_config);
         if (overrides != null) {
@@ -1045,7 +1045,7 @@ public abstract class SerializationContext
                 ser = ser2;
             } else {
                 // But if not, we need to re-create it via factory
-                ser = _serializerFactory.createSerializer(this, type, beanDesc, overrides);
+                ser = _serializerFactory.createSerializer(this, type, beanDescRef, overrides);
             }
         }
         return (ValueSerializer<Object>) ser;

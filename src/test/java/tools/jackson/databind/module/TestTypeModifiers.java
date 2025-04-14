@@ -34,7 +34,7 @@ public class TestTypeModifiers extends DatabindTestUtil
             context.addSerializers(new Serializers.Base() {
                 @Override
                 public ValueSerializer<?> findMapLikeSerializer(SerializationConfig config,
-                        MapLikeType type, BeanDescription beanDesc, JsonFormat.Value format,
+                        MapLikeType type, BeanDescription.Supplier beanDesc, JsonFormat.Value format,
                         ValueSerializer<Object> keySerializer,
                         TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
                 {
@@ -46,7 +46,7 @@ public class TestTypeModifiers extends DatabindTestUtil
 
                 @Override
                 public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
-                        CollectionLikeType type, BeanDescription beanDesc, JsonFormat.Value format,
+                        CollectionLikeType type, BeanDescription.Supplier beanDesc, JsonFormat.Value format,
                         TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
                 {
                     if (CollectionMarker.class.isAssignableFrom(type.getRawClass())) {

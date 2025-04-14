@@ -12,7 +12,7 @@ public class JavaTimeSerializerModifier extends ValueSerializerModifier {
 
     @Override
     public ValueSerializer<?> modifyEnumSerializer(SerializationConfig config, JavaType valueType,
-            BeanDescription beanDesc, ValueSerializer<?> serializer) {
+            BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
         if (valueType.hasRawClass(Month.class)) {
             return new OneBasedMonthSerializer(serializer);
         }

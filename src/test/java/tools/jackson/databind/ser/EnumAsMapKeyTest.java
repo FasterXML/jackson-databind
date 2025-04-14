@@ -66,7 +66,7 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
         }
     }
 
-    enum Foo661 {
+    public enum Foo661 {
         FOO;
         public static class Serializer extends ValueSerializer<Foo661> {
             @Override

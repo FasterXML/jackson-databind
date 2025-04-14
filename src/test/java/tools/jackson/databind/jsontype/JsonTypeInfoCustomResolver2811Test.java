@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonTypeInfoCustomResolver2811Test extends DatabindTestUtil
 {
-    interface Vehicle { }
+    public interface Vehicle { }
 
     static class Car implements Vehicle {
         public int wheels;

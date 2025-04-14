@@ -320,7 +320,7 @@ public abstract class DatabindContext
              }
          };
     }
-    
+
     public AnnotatedClass introspectClassAnnotations(JavaType type) {
         return classIntrospector().introspectClassAnnotations(type);
     }
@@ -438,6 +438,12 @@ public abstract class DatabindContext
     public abstract <T> T reportBadTypeDefinition(BeanDescription bean,
             String msg, Object... msgArgs)
         throws DatabindException;
+
+    public <T> T reportBadTypeDefinition(BeanDescription.Supplier beanDescRef,
+            String msg, Object... msgArgs)
+        throws DatabindException {
+        return reportBadTypeDefinition(beanDescRef.get(), msg, msgArgs);
+    }
 
     /*
     /**********************************************************************

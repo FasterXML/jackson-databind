@@ -148,7 +148,7 @@ public class BeanSerializerFactory
             try {
                 type = intr.refineSerializationType(config, beanDescRef.getClassInfo(), origType);
             } catch (JacksonException e) {
-                return ctxt.reportBadTypeDefinition(beanDescRef.get(), e.getMessage());
+                return ctxt.reportBadTypeDefinition(beanDescRef, e.getMessage());
             }
         }
         if (type == origType) { // no changes, won't force static typing
@@ -409,7 +409,7 @@ public class BeanSerializerFactory
         try {
             ser = builder.build();
         } catch (RuntimeException e) {
-            ctxt.reportBadTypeDefinition(beanDescRef.get(), "Failed to construct BeanSerializer for %s: (%s) %s",
+            ctxt.reportBadTypeDefinition(beanDescRef, "Failed to construct BeanSerializer for %s: (%s) %s",
                     beanDescRef.getType(), e.getClass().getName(), e.getMessage());
         }
         if (ser == null) {

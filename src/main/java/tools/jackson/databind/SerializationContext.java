@@ -965,7 +965,7 @@ public abstract class SerializationContext
             ser = _serializerFactory.createSerializer(this, fullType, beanDescRef, null);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
-            reportBadTypeDefinition(beanDescRef.get(), ClassUtil.exceptionMessage(iae));
+            reportBadTypeDefinition(beanDescRef, ClassUtil.exceptionMessage(iae));
             ser = null; // never gets here
         }
         // Always cache -- and in this case both for raw and full type

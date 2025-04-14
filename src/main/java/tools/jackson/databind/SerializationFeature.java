@@ -1,7 +1,6 @@
 package tools.jackson.databind;
 
 import tools.jackson.databind.cfg.ConfigFeature;
-import tools.jackson.databind.cfg.EnumFeature;
 
 /**
  * Enumeration that defines simple on/off features that affect

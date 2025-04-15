@@ -298,4 +298,39 @@ public abstract class BeanDescription
      * global default settings.
      */
     public abstract Class<?>[] findDefaultViews();
+
+ 
+    /**
+     * Base implementation for lazily-constructed suppliers for {@link BeanDescription} instances.
+     */
+    public static abstract class Supplier implements java.util.function.Supplier<BeanDescription>
+    {
+        private final JavaType _type;
+
+        private transient BeanDescription _beanDesc;
+        
+        protected Supplier(JavaType type) {
+            _type = type;
+        }
+
+        public JavaType getType() { return _type; }
+
+        public Class<?> getBeanClass() { return _type.getRawClass(); }
+
+        public boolean isRecordType() { return _type.isRecordType(); }
+
+        public AnnotatedClass getClassInfo() {
+            return get().getClassInfo();
+        }
+
+        @Override
+        public BeanDescription get() {
+            if (_beanDesc == null) {
+                _beanDesc = _construct(_type);
+            }
+            return _beanDesc;
+        }
+
+        protected abstract BeanDescription _construct(JavaType forType);
+    }
 }

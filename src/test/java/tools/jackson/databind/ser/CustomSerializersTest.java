@@ -385,8 +385,8 @@ public class CustomSerializersTest extends DatabindTestUtil
     public void testIssue4575() throws Exception {
         SimpleModule module = new SimpleModule().setSerializerModifier(new ValueSerializerModifier() {
                     @Override
-                    public ValueSerializer<?> modifySerializer(
-                        SerializationConfig config, BeanDescription beanDesc, ValueSerializer<?> serializer
+                    public ValueSerializer<?> modifySerializer(SerializationConfig config,
+                            BeanDescription.Supplier beanDescRef, ValueSerializer<?> serializer
                     ) {
                         return new NullSerializer4575(config.getTypeFactory(), serializer, null);
                     }

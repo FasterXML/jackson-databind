@@ -600,7 +600,7 @@ public abstract class BasicDeserializerFactory
         // Note: contextualization of typeDeser _should_ occur in constructor of CreatorProperty
         // so it is not called directly here
         SettableBeanProperty prop = CreatorProperty.construct(name, type, property.getWrapperName(),
-                typeDeser, beanDescRef.get().getClassAnnotations(), param, index, injectable,
+                typeDeser, beanDescRef.getClassAnnotations(), param, index, injectable,
                 metadata);
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
         if (deser == null) {

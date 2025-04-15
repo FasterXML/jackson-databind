@@ -536,10 +536,29 @@ public abstract class DeserializationContext
         return classIntrospector().introspectForCreation(type);
     }
 
+    public BeanDescription.Supplier lazyIntrospectBeanDescriptionForCreation(JavaType type) {
+        return new BeanDescription.Supplier(type) {
+            @Override
+            public BeanDescription _construct(JavaType forType) {
+                return introspectBeanDescriptionForCreation(forType);
+            }
+        };
+    }
+
     public BeanDescription introspectBeanDescriptionForBuilder(JavaType builderType,
             BeanDescription valueTypeDesc) {
         return classIntrospector().introspectForDeserializationWithBuilder(builderType,
                 valueTypeDesc);
+    }
+
+    public BeanDescription.Supplier lazyIntrospectBeanDescriptionForBuilder(final JavaType builderType,
+            final BeanDescription valueTypeDesc) {
+        return new BeanDescription.Supplier(builderType) {
+            @Override
+            public BeanDescription _construct(JavaType forType) {
+                return introspectBeanDescriptionForBuilder(forType, valueTypeDesc);
+            }
+        };
     }
 
     /*
@@ -1890,8 +1909,15 @@ public abstract class DeserializationContext
      * regarding specific property (of a type), unrelated to actual JSON content to map.
      * Default behavior is to construct and throw a {@link DatabindException}.
      */
+    public <T> T reportBadPropertyDefinition(BeanDescription.Supplier beanDescRef,
+            BeanPropertyDefinition prop, String msg, Object... msgArgs)
+        throws DatabindException
+    {
+        return reportBadPropertyDefinition(beanDescRef.get(), prop, msg, msgArgs);
+    }
+
     public <T> T reportBadPropertyDefinition(BeanDescription bean, BeanPropertyDefinition prop,
-            String msg, Object... msgArgs)
+        String msg, Object... msgArgs)
         throws DatabindException
     {
         msg = _format(msg, msgArgs);

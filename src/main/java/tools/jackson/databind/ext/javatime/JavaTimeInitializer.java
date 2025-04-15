@@ -165,9 +165,9 @@ public final class JavaTimeInitializer
         context.addValueInstantiators(new ValueInstantiators.Base() {
             @Override
             public ValueInstantiator modifyValueInstantiator(DeserializationConfig config,
-                    BeanDescription beanDesc, ValueInstantiator defaultInstantiator)
+                    BeanDescription.Supplier beanDescRef, ValueInstantiator defaultInstantiator)
             {
-                JavaType type = beanDesc.getType();
+                JavaType type = beanDescRef.getType();
                 Class<?> raw = type.getRawClass();
 
                 // 15-May-2015, tatu: In theory not safe, but in practice we do need to do "fuzzy" matching
@@ -181,7 +181,7 @@ public final class JavaTimeInitializer
                         // one further complication: we need ZoneId info, not sub-class
                         AnnotatedClass ac;
                         if (raw == ZoneId.class) {
-                            ac = beanDesc.getClassInfo();
+                            ac = beanDescRef.getClassInfo();
                         } else {
                             // we don't need Annotations, so constructing directly is fine here
                             // even if it's not generally recommended

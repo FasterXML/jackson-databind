@@ -51,7 +51,7 @@ public abstract class DeserializerFactory
      * for the bean type to deserialize.
      */
     public abstract ValueInstantiator findValueInstantiator(DeserializationContext ctxt,
-            BeanDescription beanDesc);
+            BeanDescription.Supplier beanDescRef);
 
     /**
      * Method called to create (or, for completely immutable deserializers,
@@ -66,28 +66,28 @@ public abstract class DeserializerFactory
      * @param type Type to be deserialized
      */
     public abstract ValueDeserializer<Object> createBeanDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc);
+            JavaType type, BeanDescription.Supplier beanDescRef);
 
     /**
      * Method called to create a deserializer that will use specified Builder
      * class for building value instances.
      */
     public abstract ValueDeserializer<Object> createBuilderBasedDeserializer(
-    		DeserializationContext ctxt, JavaType type, BeanDescription beanDesc,
+    		DeserializationContext ctxt, JavaType type, BeanDescription.Supplier beanDescRef,
     		Class<?> builderClass);
 
     public abstract ValueDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc);
+            JavaType type, BeanDescription.Supplier beanDescRef);
 
     public abstract ValueDeserializer<?> createReferenceDeserializer(DeserializationContext ctxt,
-            ReferenceType type, BeanDescription beanDesc);
+            ReferenceType type, BeanDescription.Supplier beanDescRef);
 
     /**
      * Method called to create and return a deserializer that can construct
      * JsonNode(s) from JSON content.
      */
     public abstract ValueDeserializer<?> createTreeDeserializer(DeserializationConfig config,
-            JavaType type, BeanDescription beanDesc);
+            JavaType type, BeanDescription.Supplier beanDescRef);
 
     /**
      * Method called to create (or, for completely immutable deserializers,
@@ -97,19 +97,19 @@ public abstract class DeserializerFactory
      * @param type Type to be deserialized
      */
     public abstract ValueDeserializer<?> createArrayDeserializer(DeserializationContext ctxt,
-            ArrayType type, BeanDescription beanDesc);
+            ArrayType type, BeanDescription.Supplier beanDescRef);
 
     public abstract ValueDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
-            CollectionType type, BeanDescription beanDesc);
+            CollectionType type, BeanDescription.Supplier beanDescRef);
 
     public abstract ValueDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
-            CollectionLikeType type, BeanDescription beanDesc);
+            CollectionLikeType type, BeanDescription.Supplier beanDescRef);
 
     public abstract ValueDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
-            MapType type, BeanDescription beanDesc);
+            MapType type, BeanDescription.Supplier beanDescRef);
 
     public abstract ValueDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
-            MapLikeType type, BeanDescription beanDesc);
+            MapLikeType type, BeanDescription.Supplier beanDescRef);
 
     /**
      * Method called to find if factory knows how to create a key deserializer

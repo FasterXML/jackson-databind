@@ -16,7 +16,7 @@ public class JavaTimeDeserializerModifier extends ValueDeserializerModifier
 
     @Override
     public ValueDeserializer<?> modifyEnumDeserializer(DeserializationConfig config, JavaType type,
-            BeanDescription beanDesc, ValueDeserializer<?> defaultDeserializer) {
+            BeanDescription.Supplier beanDescRef, ValueDeserializer<?> defaultDeserializer) {
         if (type.hasRawClass(Month.class)) {
             return new OneBasedMonthDeserializer(defaultDeserializer);
         }

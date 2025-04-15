@@ -47,12 +47,12 @@ public class BeanDeserializer
     /**
      * Constructor used by {@link BeanDeserializerBuilder}.
      */
-    public BeanDeserializer(BeanDeserializerBuilder builder, BeanDescription beanDesc,
+    public BeanDeserializer(BeanDeserializerBuilder builder, BeanDescription.Supplier beanDescRef,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             HashSet<String> ignorableProps, boolean ignoreAllUnknown, Set<String> includableProps,
             boolean hasViews)
     {
-        super(builder, beanDesc, properties, backRefs,
+        super(builder, beanDescRef, properties, backRefs,
                 ignorableProps, ignoreAllUnknown, includableProps, hasViews);
     }
 

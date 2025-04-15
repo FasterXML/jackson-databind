@@ -283,7 +283,7 @@ public class CustomDeserializersTest
             context.addDeserializerModifier(new ValueDeserializerModifier() {
                 @Override
                 public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
-                        BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
+                        BeanDescription.Supplier beanDescRef, ValueDeserializer<?> deserializer) {
                     if (deserializer.handledType() == String.class) {
                         ValueDeserializer<?> d = new MyStringDeserializer(deserializer);
                         // just for test coverage purposes...
@@ -575,7 +575,7 @@ public class CustomDeserializersTest
                         .setDeserializerModifier(new ValueDeserializerModifier() {
                             @Override
                             public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
-                                    BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
+                                    BeanDescription.Supplier beanDescRef, ValueDeserializer<?> deserializer) {
                                 if (deserializer instanceof DummyDeserializer<?>) {
                                     return new DummyDeserializer<String>("FOOBAR", String.class);
                                 }

@@ -5,11 +5,19 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
-3.0.0-rc3 (not yet released)
+3.0.0-rc4 (not yet released)
+
+#5093: Change the way `BeanDescription` passed during serializer construction
+ to use `Supplier`
+
+3.0.0-rc3 (13-Apr-2025)
 
 #4603: Keep full stacktrace when re-throwing exception with
   `DatabindException` during deserialization
  (fixed by Joo-Hyuk K)
+#5032: Move `jackson-datatype-jsr310` module into `jackson-databind` and
+  rename `JavaTimeFeature` from `jackson-datatype-jsr310` module as `DateTimeFeature`
+ (implemented by @pjfanning)
 #5065: Change default for `DateTimeFeature.ONE_BASED_MONTHS` to `true` in 3.0
 #5066: Move date/time `SerializationFeature`s into `DateTimeFeature` (3.0)
 #5067: Move date/time `DeserializationFeature`s into `DateTimeFeature` (3.0)
@@ -18,17 +26,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (contributed by Joo-Hyuk K)
 #5079: Move Enum-related DeserializationFeatures into EnumFeature (3.0)
  (contributed by Joo-Hyuk K)
-#5093: Change the way `BeanDescription` passed during serializer construction
- to use `Supplier`
-
-3.0.0-rc3 (not yet released)
-
-#2083: Replace Reflection usage with `MethodHandle` (3.0)
- (requested by @re-thc)
- (implemented by Steven S)
-#5032: Move `jackson-datatype-jsr310` module into `jackson-databind` and
-  rename `JavaTimeFeature` from `jackson-datatype-jsr310` module as `DateTimeFeature`
- (implemented by @pjfanning)
 
 3.0.0-rc2 (28-Mar-2025)
 

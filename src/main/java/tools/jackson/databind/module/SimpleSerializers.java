@@ -13,6 +13,7 @@ import tools.jackson.databind.type.CollectionLikeType;
 import tools.jackson.databind.type.CollectionType;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.type.MapType;
+import tools.jackson.databind.type.ReferenceType;
 
 /**
  * Simple implementation {@link Serializers} which allows registration of
@@ -102,7 +103,7 @@ public class SimpleSerializers
 
     @Override
     public ValueSerializer<?> findSerializer(SerializationConfig config,
-            JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides)
+            JavaType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides)
     {
         Class<?> cls = type.getRawClass();
         ClassKey key = new ClassKey(cls);
@@ -163,39 +164,46 @@ public class SimpleSerializers
 
     @Override
     public ValueSerializer<?> findArraySerializer(SerializationConfig config,
-            ArrayType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
+            ArrayType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDesc, formatOverrides);
+        return findSerializer(config, type, beanDescRef, formatOverrides);
     }
 
     @Override
     public ValueSerializer<?> findCollectionSerializer(SerializationConfig config,
-            CollectionType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
+            CollectionType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDesc, formatOverrides);
+        return findSerializer(config, type, beanDescRef, formatOverrides);
     }
 
     @Override
     public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
-            CollectionLikeType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
+            CollectionLikeType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDesc, formatOverrides);
+        return findSerializer(config, type, beanDescRef, formatOverrides);
     }
 
     @Override
     public ValueSerializer<?> findMapSerializer(SerializationConfig config,
-            MapType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
+            MapType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
             ValueSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDesc, formatOverrides);
+        return findSerializer(config, type, beanDescRef, formatOverrides);
     }
 
     @Override
     public ValueSerializer<?> findMapLikeSerializer(SerializationConfig config,
-            MapLikeType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
+            MapLikeType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
             ValueSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDesc, formatOverrides);
+        return findSerializer(config, type, beanDescRef, formatOverrides);
+    }
+
+    @Override
+    public ValueSerializer<?> findReferenceSerializer(SerializationConfig config,
+            ReferenceType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
+            TypeSerializer contentTypeSerializer, ValueSerializer<Object> contentValueSerializer) {
+        return findSerializer(config, type, beanDescRef, formatOverrides);
     }
 
     /*

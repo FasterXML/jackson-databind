@@ -28,7 +28,7 @@ public abstract class SerializerFactory
      * @since 3.0 (last argument added)
      */
     public abstract ValueSerializer<Object> createSerializer(SerializationContext ctxt,
-            JavaType baseType, BeanDescription beanDesc, JsonFormat.Value formatOverride);
+            JavaType baseType, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverride);
 
     /**
      * Method called to create serializer to use for serializing JSON property names (which must
@@ -100,7 +100,7 @@ public abstract class SerializerFactory
     @Deprecated // since 3.0
     public ValueSerializer<Object> createSerializer(SerializationContext ctxt, JavaType baseType)
     {
-        BeanDescription beanDesc = ctxt.introspectBeanDescription(baseType);
-        return createSerializer(ctxt, baseType, beanDesc, null);
+        return createSerializer(ctxt, baseType,
+                ctxt.lazyIntrospectBeanDescription(baseType), null);
     }
 }

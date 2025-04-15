@@ -38,12 +38,12 @@ public class MapConversion4878Test extends DatabindTestUtil
     static class Serializers4878 extends SimpleSerializers {
         @Override
         public ValueSerializer<?> findSerializer(SerializationConfig config,
-                JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides) {
+                JavaType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides) {
             Class<?> rawClass = type.getRawClass();
             if (MapWrapper4878.class.isAssignableFrom(rawClass)) {
                 return new StdDelegatingSerializer(new WrapperConverter4878());
             }
-            return super.findSerializer(config, type, beanDesc, formatOverrides);
+            return super.findSerializer(config, type, beanDescRef, formatOverrides);
         }
     }
 

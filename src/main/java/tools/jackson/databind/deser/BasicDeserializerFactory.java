@@ -139,14 +139,14 @@ public abstract class BasicDeserializerFactory
      */
     @Override
     public ValueInstantiator findValueInstantiator(DeserializationContext ctxt,
-            BeanDescription beanDesc)
+            BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
         final boolean hasCustom = _factoryConfig.hasValueInstantiators();
 
         ValueInstantiator instantiator = null;
         // Check @JsonValueInstantiator before anything else
-        AnnotatedClass ac = beanDesc.getClassInfo();
+        AnnotatedClass ac = beanDescRef.getClassInfo();
         Object instDef = config.getAnnotationIntrospector().findValueInstantiator(ctxt.getConfig(), ac);
         if (instDef != null) {
             instantiator = _valueInstantiatorInstance(config, ac, instDef);
@@ -154,13 +154,13 @@ public abstract class BasicDeserializerFactory
         if (instantiator == null) {
             // Second: see if some of standard Jackson/JDK types might provide value
             // instantiators.
-            instantiator = JDKValueInstantiators.findStdValueInstantiator(config, beanDesc.getBeanClass());
+            instantiator = JDKValueInstantiators.findStdValueInstantiator(config, beanDescRef.getBeanClass());
 
             // Third: custom value instantiators via provider?
             if (instantiator == null) {
                 if (hasCustom) {
                     for (ValueInstantiators insts : _factoryConfig.valueInstantiators()) {
-                        instantiator = insts.findValueInstantiator(config, beanDesc);
+                        instantiator = insts.findValueInstantiator(config, beanDescRef);
                         if (instantiator != null) {
                             break;
                         }
@@ -168,7 +168,7 @@ public abstract class BasicDeserializerFactory
                 }
                 // Fourth: create default one, if no custom
                 if (instantiator == null) {
-                    instantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
+                    instantiator = _constructDefaultValueInstantiator(ctxt, beanDescRef);
                 }
             }
         }
@@ -176,17 +176,17 @@ public abstract class BasicDeserializerFactory
         // finally: anyone want to modify ValueInstantiator?
         if (hasCustom) {
             for (ValueInstantiators insts : _factoryConfig.valueInstantiators()) {
-                instantiator = insts.modifyValueInstantiator(config, beanDesc, instantiator);
+                instantiator = insts.modifyValueInstantiator(config, beanDescRef, instantiator);
                 // let's do sanity check; easier to spot buggy handlers
                 if (instantiator == null) {
-                    ctxt.reportBadTypeDefinition(beanDesc,
+                    ctxt.reportBadTypeDefinition(beanDescRef,
 						"Broken registered ValueInstantiators (of type %s): returned null ValueInstantiator",
 						insts.getClass().getName());
                 }
             }
         }
         if (instantiator != null) {
-            instantiator = instantiator.createContextual(ctxt, beanDesc);
+            instantiator = instantiator.createContextual(ctxt, beanDescRef);
         }
 
         return instantiator;
@@ -197,16 +197,16 @@ public abstract class BasicDeserializerFactory
      * using annotations (like @JsonCreator) and visibility rules
      */
     protected ValueInstantiator _constructDefaultValueInstantiator(DeserializationContext ctxt,
-            BeanDescription beanDesc)
+            BeanDescription.Supplier beanDescRef)
     {
         final MapperConfig<?> config = ctxt.getConfig();
-        final PotentialCreators potentialCreators = beanDesc.getPotentialCreators();
+        final PotentialCreators potentialCreators = beanDescRef.get().getPotentialCreators();
         final ConstructorDetector ctorDetector = config.getConstructorDetector();
         // need to construct suitable visibility checker:
-        final VisibilityChecker vchecker = config.getDefaultVisibilityChecker(beanDesc.getBeanClass(),
-                beanDesc.getClassInfo());
+        final VisibilityChecker vchecker = config.getDefaultVisibilityChecker(beanDescRef.getBeanClass(),
+                beanDescRef.getClassInfo());
 
-        final CreatorCollector creators = new CreatorCollector(beanDesc, config);
+        final CreatorCollector creators = new CreatorCollector(config, beanDescRef.getType());
 
         // 21-May-2024, tatu: [databind#4515] Rewritten to use PotentialCreators
         if (potentialCreators.hasPropertiesBased()) {
@@ -218,7 +218,7 @@ public abstract class BasicDeserializerFactory
                 creators.setDefaultCreator(primaryPropsBased.creator());
             } else {
                 // Start by assigning the primary (and only) properties-based creator
-                _addSelectedPropertiesBasedCreator(ctxt, beanDesc, creators,
+                _addSelectedPropertiesBasedCreator(ctxt, beanDescRef, creators,
                         CreatorCandidate.construct(config,
                                 primaryPropsBased.creator(), primaryPropsBased.propertyDefs()));
             }
@@ -226,15 +226,15 @@ public abstract class BasicDeserializerFactory
 
         // Continue with explicitly annotated delegating Creators
         boolean hasExplicitDelegating = _addExplicitDelegatingCreators(ctxt,
-                beanDesc, creators,
+                beanDescRef, creators,
                 potentialCreators.getExplicitDelegating());
 
         // constructors only usable on concrete types:
-        if (beanDesc.getType().isConcrete()) {
+        if (beanDescRef.getType().isConcrete()) {
             // 25-Jan-2017, tatu: As per [databind#1501], [databind#1502], [databind#1503], best
             //     for now to skip attempts at using anything but no-args constructor (see
             //     `InnerClassProperty` construction for that)
-            final boolean isNonStaticInnerClass = beanDesc.isNonStaticInnerClass();
+            final boolean isNonStaticInnerClass = beanDescRef.get().isNonStaticInnerClass();
             if (isNonStaticInnerClass) {
                 // TODO: look for `@JsonCreator` annotated ones, throw explicit exception?
             } else {
@@ -243,7 +243,7 @@ public abstract class BasicDeserializerFactory
                 // in list of constructors, so needs to be handled separately.
                 // However, we may have added one for 0-args Factory method earlier, so:
                 if (!creators.hasDefaultCreator()) {
-                    AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
+                    AnnotatedConstructor defaultCtor = beanDescRef.get().findDefaultConstructor();
                     if (defaultCtor != null) {
                         creators.setDefaultCreator(defaultCtor);
                     }
@@ -251,9 +251,9 @@ public abstract class BasicDeserializerFactory
 
                 // 18-Sep-2020, tatu: Although by default implicit introspection is allowed, 2.12
                 //   has settings to prevent that either generally, or at least for JDK types
-                final boolean findImplicit = ctorDetector.shouldIntrospectorImplicitConstructors(beanDesc.getBeanClass());
+                final boolean findImplicit = ctorDetector.shouldIntrospectorImplicitConstructors(beanDescRef.getBeanClass());
                 if (findImplicit) {
-                    _addImplicitDelegatingConstructors(ctxt, beanDesc, vchecker,
+                    _addImplicitDelegatingConstructors(ctxt, beanDescRef, vchecker,
                             creators,
                             potentialCreators.getImplicitDelegatingConstructors());
                 }
@@ -311,7 +311,7 @@ public abstract class BasicDeserializerFactory
      */
 
     private boolean _addExplicitDelegatingCreators(DeserializationContext ctxt,
-            BeanDescription beanDesc,
+            BeanDescription.Supplier beanDescRef,
             CreatorCollector creators,
             List<PotentialCreator> potentials)
     {
@@ -319,14 +319,14 @@ public abstract class BasicDeserializerFactory
         boolean added = false;
 
         for (PotentialCreator ctor : potentials) {
-            added |= _addExplicitDelegatingCreator(ctxt, beanDesc, creators,
+            added |= _addExplicitDelegatingCreator(ctxt, beanDescRef, creators,
                     CreatorCandidate.construct(config, ctor.creator(), null));
         }
         return added;
     }
 
     private void _addImplicitDelegatingConstructors(DeserializationContext ctxt,
-            BeanDescription beanDesc, VisibilityChecker vchecker,
+            BeanDescription.Supplier beanDescRef, VisibilityChecker vchecker,
             CreatorCollector creators,
             List<PotentialCreator> potentials)
     {
@@ -360,12 +360,12 @@ public abstract class BasicDeserializerFactory
 
                 if (injectable != null) {
                     ++injectCount;
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, null, i, param, injectable);
+                    properties[i] = constructCreatorProperty(ctxt, beanDescRef, null, i, param, injectable);
                     continue;
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(config, param);
                 if (unwrapper != null) {
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc,
+                    properties[i] = constructCreatorProperty(ctxt, beanDescRef,
                             UnwrappedPropertyHandler.creatorParamName(i), i, param, null);
                 }
             }
@@ -411,7 +411,7 @@ public abstract class BasicDeserializerFactory
      * Helper method called when there is the explicit "is-creator" with mode of "delegating"
      */
     private boolean _addExplicitDelegatingCreator(DeserializationContext ctxt,
-            BeanDescription beanDesc, CreatorCollector creators,
+            BeanDescription.Supplier beanDescRef, CreatorCollector creators,
             CreatorCandidate candidate)
     {
         // Somewhat simple: find injectable values, if any, ensure there is one
@@ -431,7 +431,7 @@ public abstract class BasicDeserializerFactory
             AnnotatedParameter param = candidate.parameter(i);
             JacksonInject.Value injectId = candidate.injection(i);
             if (injectId != null) {
-                properties[i] = constructCreatorProperty(ctxt, beanDesc, null, i, param, injectId);
+                properties[i] = constructCreatorProperty(ctxt, beanDescRef, null, i, param, injectId);
                 continue;
             }
             if (ix < 0) {
@@ -439,13 +439,13 @@ public abstract class BasicDeserializerFactory
                 continue;
             }
             // Illegal to have more than one value to delegate to
-            ctxt.reportBadTypeDefinition(beanDesc,
+            ctxt.reportBadTypeDefinition(beanDescRef,
                     "More than one argument (#%d and #%d) left as delegating for Creator %s: only one allowed",
                     ix, i, candidate);
         }
         // Also, let's require that one Delegating argument does exist
         if (ix < 0) {
-            ctxt.reportBadTypeDefinition(beanDesc,
+            ctxt.reportBadTypeDefinition(beanDescRef,
                     "No argument left as delegating for Creator %s: exactly one required", candidate);
         }
         // 17-Jan-2018, tatu: as per [databind#1853] need to ensure we will distinguish
@@ -461,7 +461,7 @@ public abstract class BasicDeserializerFactory
      * Helper method called to add the single chosen "properties-based" Creator (if any).
      */
     private void _addSelectedPropertiesBasedCreator(DeserializationContext ctxt,
-            BeanDescription beanDesc, CreatorCollector creators,
+            BeanDescription.Supplier beanDescRef, CreatorCollector creators,
             CreatorCandidate candidate)
     {
         final DeserializationConfig config = ctxt.getConfig();
@@ -477,7 +477,7 @@ public abstract class BasicDeserializerFactory
             boolean isAnySetter = Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(config, param));
             if (isAnySetter) {
                 if (anySetterIx >= 0) {
-                    ctxt.reportBadTypeDefinition(beanDesc,
+                    ctxt.reportBadTypeDefinition(beanDescRef,
                             "More than one 'any-setter' specified (parameter #%d vs #%d)",
                             anySetterIx, i);
                 } else {
@@ -488,17 +488,17 @@ public abstract class BasicDeserializerFactory
                 //   as that will not work with Creators well at all
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(config, param);
                 if (unwrapper != null) {
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc,
+                    properties[i] = constructCreatorProperty(ctxt, beanDescRef,
                             UnwrappedPropertyHandler.creatorParamName(i), i, param, null);
                 }
                 // Must be injectable or have name; without either won't work
                 if ((name == null) && (injectId == null)) {
-                    ctxt.reportBadTypeDefinition(beanDesc,
+                    ctxt.reportBadTypeDefinition(beanDescRef,
 "Argument #%d of Creator %s has no property name (and is not Injectable): can not use as property-based Creator",
                         i, candidate);
                 }
             }
-            properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
+            properties[i] = constructCreatorProperty(ctxt, beanDescRef, name, i, param, injectId);
         }
         creators.addPropertyCreator(candidate.creator(), true, properties);
     }
@@ -562,7 +562,7 @@ public abstract class BasicDeserializerFactory
      * factory method)
      */
     protected SettableBeanProperty constructCreatorProperty(DeserializationContext ctxt,
-            BeanDescription beanDesc, PropertyName name, int index,
+            BeanDescription.Supplier beanDescRef, PropertyName name, int index,
             AnnotatedParameter param,
             JacksonInject.Value injectable)
     {
@@ -600,7 +600,7 @@ public abstract class BasicDeserializerFactory
         // Note: contextualization of typeDeser _should_ occur in constructor of CreatorProperty
         // so it is not called directly here
         SettableBeanProperty prop = CreatorProperty.construct(name, type, property.getWrapperName(),
-                typeDeser, beanDesc.getClassAnnotations(), param, index, injectable,
+                typeDeser, beanDescRef.getClassAnnotations(), param, index, injectable,
                 metadata);
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
         if (deser == null) {
@@ -711,7 +711,7 @@ public abstract class BasicDeserializerFactory
 
     @Override
     public ValueDeserializer<?> createArrayDeserializer(DeserializationContext ctxt,
-            ArrayType type, final BeanDescription beanDesc)
+            ArrayType type, BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
         JavaType elemType = type.getContentType();
@@ -727,7 +727,7 @@ public abstract class BasicDeserializerFactory
         }
         // 23-Nov-2010, tatu: Custom array deserializer?
         ValueDeserializer<?>  deser = _findCustomArrayDeserializer(type,
-                config, beanDesc, elemTypeDeser, contentDeser);
+                config, beanDescRef, elemTypeDeser, contentDeser);
         if (deser == null) {
             if (contentDeser == null) {
                 if (elemType.isPrimitive()) {
@@ -743,7 +743,7 @@ public abstract class BasicDeserializerFactory
         // and then new with 2.2: ability to post-process it too (databind#120)
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                deser = mod.modifyArrayDeserializer(config, type, beanDesc, deser);
+                deser = mod.modifyArrayDeserializer(config, type, beanDescRef, deser);
             }
         }
         return deser;
@@ -758,7 +758,7 @@ public abstract class BasicDeserializerFactory
     @SuppressWarnings("unchecked")
     @Override
     public ValueDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
-            CollectionType type, BeanDescription beanDesc)
+            CollectionType type, BeanDescription.Supplier beanDescRef)
     {
         JavaType contentType = type.getContentType();
         // Very first thing: is deserializer hard-coded for elements?
@@ -773,7 +773,7 @@ public abstract class BasicDeserializerFactory
         }
         // 23-Nov-2010, tatu: Custom deserializer?
         ValueDeserializer<?> deser = _findCustomCollectionDeserializer(type,
-                config, beanDesc, contentTypeDeser, contentDeser);
+                config, beanDescRef, contentTypeDeser, contentDeser);
         if (deser == null) {
             Class<?> collectionClass = type.getRawClass();
             if (contentDeser == null) { // not defined by annotation
@@ -804,11 +804,11 @@ public abstract class BasicDeserializerFactory
                 if (implType != null) {
                     type = implType;
                     // But if so, also need to re-check creators...
-                    beanDesc = ctxt.introspectBeanDescriptionForCreation(type);
+                    beanDescRef = ctxt.lazyIntrospectBeanDescriptionForCreation(type);
                 }
             }
             if (deser == null) {
-                ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
+                ValueInstantiator inst = findValueInstantiator(ctxt, beanDescRef);
                 if (!inst.canCreateUsingDefault()) {
                     // [databind#161]: No default constructor for ArrayBlockingQueue...
                     if (type.hasRawClass(ArrayBlockingQueue.class)) {
@@ -832,7 +832,7 @@ public abstract class BasicDeserializerFactory
         // allow post-processing it too
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                deser = mod.modifyCollectionDeserializer(config, type, beanDesc, deser);
+                deser = mod.modifyCollectionDeserializer(config, type, beanDescRef, deser);
             }
         }
         return deser;
@@ -851,7 +851,7 @@ public abstract class BasicDeserializerFactory
     // Copied almost verbatim from "createCollectionDeserializer" -- should try to share more code
     @Override
     public ValueDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
-            CollectionLikeType type, final BeanDescription beanDesc)
+            CollectionLikeType type, BeanDescription.Supplier beanDescRef)
     {
         JavaType contentType = type.getContentType();
         // Very first thing: is deserializer hard-coded for elements?
@@ -865,13 +865,13 @@ public abstract class BasicDeserializerFactory
         if (contentTypeDeser == null) {
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
         }
-        ValueDeserializer<?> deser = _findCustomCollectionLikeDeserializer(type, config, beanDesc,
+        ValueDeserializer<?> deser = _findCustomCollectionLikeDeserializer(type, config, beanDescRef,
                 contentTypeDeser, contentDeser);
         if (deser != null) {
             // ability to post-process it too (databind#120)
             if (_factoryConfig.hasDeserializerModifiers()) {
                 for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                    deser = mod.modifyCollectionLikeDeserializer(config, type, beanDesc, deser);
+                    deser = mod.modifyCollectionLikeDeserializer(config, type, beanDescRef, deser);
                 }
             }
         }
@@ -886,7 +886,7 @@ public abstract class BasicDeserializerFactory
 
     @Override
     public ValueDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
-            MapType type, BeanDescription beanDesc)
+            MapType type, BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
         JavaType keyType = type.getKeyType();
@@ -906,7 +906,7 @@ public abstract class BasicDeserializerFactory
         }
 
         // 23-Nov-2010, tatu: Custom deserializer?
-        ValueDeserializer<?> deser = _findCustomMapDeserializer(type, config, beanDesc,
+        ValueDeserializer<?> deser = _findCustomMapDeserializer(type, config, beanDescRef,
                 keyDes, contentTypeDeser, contentDeser);
 
         if (deser == null) {
@@ -926,7 +926,7 @@ public abstract class BasicDeserializerFactory
                 if (mapClass == EnumMap.class) {
                     inst = null;
                 } else {
-                    inst = findValueInstantiator(ctxt, beanDesc);
+                    inst = findValueInstantiator(ctxt, beanDescRef);
                 }
                 if (!keyType.isEnumImplType()) {
                     throw new IllegalArgumentException("Cannot construct EnumMap; generic (key) type not available");
@@ -953,7 +953,7 @@ public abstract class BasicDeserializerFactory
                         type = (MapType) implType;
                         mapClass = type.getRawClass();
                         // But if so, also need to re-check creators...
-                        beanDesc = ctxt.introspectBeanDescriptionForCreation(type);
+                        beanDescRef = ctxt.lazyIntrospectBeanDescriptionForCreation(type);
                     }
                     // 11-Nov-2024, tatu: Related to [databind#4783] let's not fail on
                     //    abstract Maps so they can work with merge (or factory methods)
@@ -965,19 +965,19 @@ public abstract class BasicDeserializerFactory
                     }
                 }
                 if (deser == null) {
-                    ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
+                    ValueInstantiator inst = findValueInstantiator(ctxt, beanDescRef);
                     // 01-May-2016, tatu: Which base type to use here gets tricky, since
                     //   most often it ought to be `Map` or `EnumMap`, but due to abstract
                     //   mapping it will more likely be concrete type like `HashMap`.
                     //   So, for time being, just pass `Map.class`
                     MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser);
                     JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Map.class,
-                            beanDesc.getClassInfo());
+                            beanDescRef.getClassInfo());
                     Set<String> ignored = (ignorals == null) ? null
                             : ignorals.findIgnoredForDeserialization();
                     md.setIgnorableProperties(ignored);
                     JsonIncludeProperties.Value inclusions = config.getDefaultPropertyInclusions(Map.class,
-                            beanDesc.getClassInfo());
+                            beanDescRef.getClassInfo());
                     Set<String> included = inclusions == null ? null : inclusions.getIncluded();
                     md.setIncludableProperties(included);
                     deser = md;
@@ -986,7 +986,7 @@ public abstract class BasicDeserializerFactory
         }
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                deser = mod.modifyMapDeserializer(config, type, beanDesc, deser);
+                deser = mod.modifyMapDeserializer(config, type, beanDescRef, deser);
             }
         }
         return deser;
@@ -1005,7 +1005,7 @@ public abstract class BasicDeserializerFactory
     // Copied almost verbatim from "createMapDeserializer" -- should try to share more code
     @Override
     public ValueDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
-            MapLikeType type, final BeanDescription beanDesc)
+            MapLikeType type, BeanDescription.Supplier beanDescRef)
     {
         JavaType keyType = type.getKeyType();
         JavaType contentType = type.getContentType();
@@ -1029,12 +1029,12 @@ public abstract class BasicDeserializerFactory
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
         }
         ValueDeserializer<?> deser = _findCustomMapLikeDeserializer(type, config,
-                beanDesc, keyDes, contentTypeDeser, contentDeser);
+                beanDescRef, keyDes, contentTypeDeser, contentDeser);
         if (deser != null) {
             // ability to post-process it too (Issue#120)
             if (_factoryConfig.hasDeserializerModifiers()) {
                 for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                    deser = mod.modifyMapLikeDeserializer(config, type, beanDesc, deser);
+                    deser = mod.modifyMapLikeDeserializer(config, type, beanDescRef, deser);
                 }
             }
         }
@@ -1052,12 +1052,12 @@ public abstract class BasicDeserializerFactory
      */
     @Override
     public ValueDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
+            JavaType type, BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
         final Class<?> enumClass = type.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
-        ValueDeserializer<?> deser = _findCustomEnumDeserializer(enumClass, config, beanDesc);
+        ValueDeserializer<?> deser = _findCustomEnumDeserializer(enumClass, config, beanDescRef);
 
         if (deser == null) {
             // 12-Feb-2020, tatu: while we can't really create real deserializer for `Enum.class`,
@@ -1066,14 +1066,14 @@ public abstract class BasicDeserializerFactory
             //    We could check `type.getTypeHandler()` to look for that case but seems like we
             //    may as well simply create placeholder (AbstractDeserializer) regardless
             if (enumClass == Enum.class) {
-                return AbstractDeserializer.constructForNonPOJO(beanDesc);
+                return AbstractDeserializer.constructForNonPOJO(beanDescRef);
             }
 
-            ValueInstantiator valueInstantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
+            ValueInstantiator valueInstantiator = _constructDefaultValueInstantiator(ctxt, beanDescRef);
             SettableBeanProperty[] creatorProps = (valueInstantiator == null) ? null
                     : valueInstantiator.getFromObjectArguments(config);
             // May have @JsonCreator for static factory method:
-            for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
+            for (AnnotatedMethod factory : beanDescRef.get().getFactoryMethods()) {
                 if (_hasCreatorAnnotation(config, factory)) {
                     if (factory.getParameterCount() == 0) { // [databind#960]
                         deser = EnumDeserializer.deserializerForNoArgsCreator(config, enumClass, factory);
@@ -1088,18 +1088,18 @@ factory.toString()));
                     }
                     deser = EnumDeserializer.deserializerForCreator(
                         config, enumClass, factory, valueInstantiator, creatorProps,
-                        constructEnumResolver(ctxt, enumClass, beanDesc));
+                        constructEnumResolver(ctxt, enumClass, beanDescRef));
                     break;
                 }
             }
 
             // Need to consider @JsonValue if one found
             if (deser == null) {
-                deser = new EnumDeserializer(constructEnumResolver(ctxt, enumClass, beanDesc),
+                deser = new EnumDeserializer(constructEnumResolver(ctxt, enumClass, beanDescRef),
                         config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
-                        constructEnumNamingStrategyResolver(config, beanDesc.getClassInfo()),
+                        constructEnumNamingStrategyResolver(config, beanDescRef.getClassInfo()),
                         // since 2.16
-                        EnumResolver.constructUsingToString(config, beanDesc.getClassInfo())
+                        EnumResolver.constructUsingToString(config, beanDescRef.getClassInfo())
                 );
             }
         }
@@ -1107,7 +1107,7 @@ factory.toString()));
         // and then post-process it too
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                deser = mod.modifyEnumDeserializer(config, type, beanDesc, deser);
+                deser = mod.modifyEnumDeserializer(config, type, beanDescRef, deser);
             }
         }
         return deser;
@@ -1115,13 +1115,13 @@ factory.toString()));
 
     @Override
     public ValueDeserializer<?> createTreeDeserializer(DeserializationConfig config,
-            JavaType nodeType, BeanDescription beanDesc)
+            JavaType nodeType, BeanDescription.Supplier beanDescRef)
     {
         @SuppressWarnings("unchecked")
         Class<? extends JsonNode> nodeClass = (Class<? extends JsonNode>) nodeType.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
         ValueDeserializer<?> custom = _findCustomTreeNodeDeserializer(nodeClass, config,
-                beanDesc);
+                beanDescRef);
         if (custom != null) {
             return custom;
         }
@@ -1130,7 +1130,7 @@ factory.toString()));
 
     @Override
     public ValueDeserializer<?> createReferenceDeserializer(DeserializationContext ctxt,
-            ReferenceType type, BeanDescription beanDesc)
+            ReferenceType type, BeanDescription.Supplier beanDescRef)
     {
         JavaType contentType = type.getContentType();
         // Very first thing: is deserializer hard-coded for elements?
@@ -1142,7 +1142,7 @@ factory.toString()));
         if (contentTypeDeser == null) { // or if not, may be able to find:
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
         }
-        ValueDeserializer<?> deser = _findCustomReferenceDeserializer(type, config, beanDesc,
+        ValueDeserializer<?> deser = _findCustomReferenceDeserializer(type, config, beanDescRef,
                 contentTypeDeser, contentDeser);
 
         if (deser == null) {
@@ -1150,7 +1150,7 @@ factory.toString()));
             if (type.isTypeOrSubTypeOf(Optional.class)) {
                 // Not sure this can really work but let's try:
                 ValueInstantiator inst = type.hasRawClass(Optional.class) ? null
-                        : findValueInstantiator(ctxt, beanDesc);
+                        : findValueInstantiator(ctxt, beanDescRef);
                 return new Jdk8OptionalDeserializer(type, inst, contentTypeDeser, contentDeser);
             }
             if (type.isTypeOrSubTypeOf(AtomicReference.class)) {
@@ -1158,7 +1158,7 @@ factory.toString()));
                 //    without either forcing merging (to avoid having to create instance)
                 //    or something else...
                 ValueInstantiator inst = type.hasRawClass(AtomicReference.class) ? null
-                        : findValueInstantiator(ctxt, beanDesc);
+                        : findValueInstantiator(ctxt, beanDescRef);
                 return new AtomicReferenceDeserializer(type, inst, contentTypeDeser, contentDeser);
             }
             if (type.hasRawClass(OptionalInt.class)) {
@@ -1175,7 +1175,7 @@ factory.toString()));
             // and then post-process
             if (_factoryConfig.hasDeserializerModifiers()) {
                 for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                    deser = mod.modifyReferenceDeserializer(config, type, beanDesc, deser);
+                    deser = mod.modifyReferenceDeserializer(config, type, beanDescRef, deser);
                 }
             }
         }
@@ -1192,7 +1192,7 @@ factory.toString()));
      * Overridable method called after checking all other types.
      */
     protected ValueDeserializer<?> findOptionalStdDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
+            JavaType type, BeanDescription.Supplier beanDescRef)
     {
         return OptionalHandlerFactory.instance.findDeserializer(ctxt.getConfig(), type);
     }
@@ -1247,29 +1247,31 @@ factory.toString()));
         final DeserializationConfig config = ctxt.getConfig();
         Class<?> enumClass = type.getRawClass();
 
-        BeanDescription beanDesc = ctxt.introspectBeanDescription(type);
+        BeanDescription.Supplier beanDescRef = ctxt.lazyIntrospectBeanDescription(type);
+        final AnnotatedClass classInfo = beanDescRef.getClassInfo();
+
         // 24-Sep-2015, bim: a key deserializer is the preferred thing.
-        KeyDeserializer des = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
+        KeyDeserializer des = findKeyDeserializerFromAnnotation(ctxt, beanDescRef.getClassInfo());
         if (des != null) {
             return des;
         } else {
             // 24-Sep-2015, bim: if no key deser, look for enum deserializer first, then a plain deser.
-            ValueDeserializer<?> custom = _findCustomEnumDeserializer(enumClass, config, beanDesc);
+            ValueDeserializer<?> custom = _findCustomEnumDeserializer(enumClass, config, beanDescRef);
             if (custom != null) {
                 return JDKKeyDeserializers.constructDelegatingKeyDeserializer(config, type, custom);
             }
-            ValueDeserializer<?> valueDesForKey = findDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
+            ValueDeserializer<?> valueDesForKey = findDeserializerFromAnnotation(ctxt, classInfo);
             if (valueDesForKey != null) {
                 return JDKKeyDeserializers.constructDelegatingKeyDeserializer(config, type, valueDesForKey);
             }
         }
-        EnumResolver enumRes = constructEnumResolver(ctxt, enumClass, beanDesc);
-        EnumResolver byEnumNamingResolver = constructEnumNamingStrategyResolver(config, beanDesc.getClassInfo());
-        EnumResolver byToStringResolver = EnumResolver.constructUsingToString(config, beanDesc.getClassInfo());
-        EnumResolver byIndexResolver = EnumResolver.constructUsingIndex(config, beanDesc.getClassInfo());
+        EnumResolver enumRes = constructEnumResolver(ctxt, enumClass, beanDescRef);
+        EnumResolver byEnumNamingResolver = constructEnumNamingStrategyResolver(config, classInfo);
+        EnumResolver byToStringResolver = EnumResolver.constructUsingToString(config, classInfo);
+        EnumResolver byIndexResolver = EnumResolver.constructUsingIndex(config, classInfo);
 
         // May have @JsonCreator for static factory method
-        for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
+        for (AnnotatedMethod factory : beanDescRef.get().getFactoryMethods()) {
             if (_hasCreatorAnnotation(config, factory)) {
                 int argCount = factory.getParameterCount();
                 if (argCount == 1) {
@@ -1383,7 +1385,7 @@ factory.toString()));
      * API types.
      */
     public ValueDeserializer<?> findDefaultDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
+            JavaType type, BeanDescription.Supplier beanDescRef)
     {
         Class<?> rawType = type.getRawClass();
         // Object ("untyped"), and as of 2.10 (see [databind#2115]), `java.io.Serializable`
@@ -1411,7 +1413,7 @@ factory.toString()));
             JavaType elemType = (tps == null || tps.length != 1) ? TypeFactory.unknownType() : tps[0];
             CollectionType ct = tf.constructCollectionType(Collection.class, elemType);
             // Should we re-introspect beanDesc? For now let's not...
-            return createCollectionDeserializer(ctxt, ct, beanDesc);
+            return createCollectionDeserializer(ctxt, ct, beanDescRef);
         }
         if (rawType == CLASS_MAP_ENTRY) {
             // 28-Apr-2015, tatu: TypeFactory does it all for us already so
@@ -1441,7 +1443,7 @@ factory.toString()));
         if (rawType == TokenBuffer.class) {
             return new TokenBufferDeserializer();
         }
-        ValueDeserializer<?> deser = findOptionalStdDeserializer(ctxt, type, beanDesc);
+        ValueDeserializer<?> deser = findOptionalStdDeserializer(ctxt, type, beanDescRef);
         if (deser != null) {
             return deser;
         }
@@ -1461,10 +1463,10 @@ factory.toString()));
      */
 
     protected ValueDeserializer<?> _findCustomTreeNodeDeserializer(Class<? extends JsonNode> type,
-            DeserializationConfig config, BeanDescription beanDesc)
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            ValueDeserializer<?> deser = d.findTreeNodeDeserializer(type, config, beanDesc);
+            ValueDeserializer<?> deser = d.findTreeNodeDeserializer(type, config, beanDescRef);
             if (deser != null) {
                 return deser;
             }
@@ -1473,11 +1475,11 @@ factory.toString()));
     }
 
     protected ValueDeserializer<?> _findCustomReferenceDeserializer(ReferenceType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             TypeDeserializer contentTypeDeserializer, ValueDeserializer<?> contentDeserializer)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            ValueDeserializer<?> deser = d.findReferenceDeserializer(type, config, beanDesc,
+            ValueDeserializer<?> deser = d.findReferenceDeserializer(type, config, beanDescRef,
                     contentTypeDeserializer, contentDeserializer);
             if (deser != null) {
                 return deser;
@@ -1488,10 +1490,10 @@ factory.toString()));
 
     @SuppressWarnings("unchecked")
     protected ValueDeserializer<Object> _findCustomBeanDeserializer(JavaType type,
-            DeserializationConfig config, BeanDescription beanDesc)
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            ValueDeserializer<?> deser = d.findBeanDeserializer(type, config, beanDesc);
+            ValueDeserializer<?> deser = d.findBeanDeserializer(type, config, beanDescRef);
             if (deser != null) {
                 return (ValueDeserializer<Object>) deser;
             }
@@ -1500,12 +1502,12 @@ factory.toString()));
     }
 
     protected ValueDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
             ValueDeserializer<?> deser = d.findArrayDeserializer(type, config,
-                    beanDesc, elementTypeDeserializer, elementDeserializer);
+                    beanDescRef, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
             }
@@ -1514,12 +1516,12 @@ factory.toString()));
     }
 
     protected ValueDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            ValueDeserializer<?> deser = d.findCollectionDeserializer(type, config, beanDesc,
-                    elementTypeDeserializer, elementDeserializer);
+            ValueDeserializer<?> deser = d.findCollectionDeserializer(type, config,
+                    beanDescRef, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
             }
@@ -1528,12 +1530,12 @@ factory.toString()));
     }
 
     protected ValueDeserializer<?> _findCustomCollectionLikeDeserializer(CollectionLikeType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            ValueDeserializer<?> deser = d.findCollectionLikeDeserializer(type, config, beanDesc,
-                    elementTypeDeserializer, elementDeserializer);
+            ValueDeserializer<?> deser = d.findCollectionLikeDeserializer(type, config,
+                    beanDescRef, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
             }
@@ -1542,10 +1544,10 @@ factory.toString()));
     }
 
     protected ValueDeserializer<?> _findCustomEnumDeserializer(Class<?> type,
-            DeserializationConfig config, BeanDescription beanDesc)
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            ValueDeserializer<?> deser = d.findEnumDeserializer(type, config, beanDesc);
+            ValueDeserializer<?> deser = d.findEnumDeserializer(type, config, beanDescRef);
             if (deser != null) {
                 return deser;
             }
@@ -1554,12 +1556,12 @@ factory.toString()));
     }
 
     protected ValueDeserializer<?> _findCustomMapDeserializer(MapType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            ValueDeserializer<?> deser = d.findMapDeserializer(type, config, beanDesc,
+            ValueDeserializer<?> deser = d.findMapDeserializer(type, config, beanDescRef,
                     keyDeserializer, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -1569,12 +1571,12 @@ factory.toString()));
     }
 
     protected ValueDeserializer<?> _findCustomMapLikeDeserializer(MapLikeType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            ValueDeserializer<?> deser = d.findMapLikeDeserializer(type, config, beanDesc,
+            ValueDeserializer<?> deser = d.findMapLikeDeserializer(type, config, beanDescRef,
                     keyDeserializer, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -1697,17 +1699,17 @@ factory.toString()));
     }
 
     protected EnumResolver constructEnumResolver(DeserializationContext ctxt,
-            Class<?> enumClass, BeanDescription beanDesc)
+            Class<?> enumClass, BeanDescription.Supplier beanDescRef)
     {
-        AnnotatedMember jvAcc = beanDesc.findJsonValueAccessor();
+        AnnotatedMember jvAcc = beanDescRef.get().findJsonValueAccessor();
         if (jvAcc != null) {
             if (ctxt.canOverrideAccessModifiers()) {
                 ClassUtil.checkAndFixAccess(jvAcc.getMember(),
                         ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            return EnumResolver.constructUsingMethod(ctxt.getConfig(), beanDesc.getClassInfo(), jvAcc);
+            return EnumResolver.constructUsingMethod(ctxt.getConfig(), beanDescRef.getClassInfo(), jvAcc);
         }
-        return EnumResolver.constructFor(ctxt.getConfig(), beanDesc.getClassInfo());
+        return EnumResolver.constructFor(ctxt.getConfig(), beanDescRef.getClassInfo());
     }
 
     /**

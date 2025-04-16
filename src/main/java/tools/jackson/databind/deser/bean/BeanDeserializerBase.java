@@ -206,14 +206,14 @@ public abstract class BeanDeserializerBase
      * contains configuration.
      */
     protected BeanDeserializerBase(BeanDeserializerBuilder builder,
-            BeanDescription beanDesc,
+            BeanDescription.Supplier beanDescRef,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             Set<String> ignorableProps, boolean ignoreAllUnknown,
             Set<String> includableProps,
             boolean hasViews)
     {
-        super(beanDesc.getType());
-        _beanType = beanDesc.getType();
+        super(beanDescRef.getType());
+        _beanType = beanDescRef.getType();
 
         _valueInstantiator = builder.getValueInstantiator();
         _delegateDeserializer = null;
@@ -247,7 +247,7 @@ public abstract class BeanDeserializerBase
             ;
 
         // Any transformation we may need to apply?
-        _serializationShape = beanDesc.findExpectedFormat(_beanType.getRawClass()).getShape();
+        _serializationShape = beanDescRef.get().findExpectedFormat(_beanType.getRawClass()).getShape();
 
         _needViewProcesing = hasViews;
         _vanillaProcessing = !_nonStandardCreation

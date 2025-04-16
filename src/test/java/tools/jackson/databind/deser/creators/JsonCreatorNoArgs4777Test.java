@@ -29,10 +29,10 @@ public class JsonCreatorNoArgs4777Test extends DatabindTestUtil
         @Override
         public ValueInstantiator modifyValueInstantiator(
                 DeserializationConfig config,
-                BeanDescription beanDesc,
+                BeanDescription.Supplier beanDescRef,
                 ValueInstantiator defaultInstantiator
         ) {
-            if (beanDesc.getBeanClass() == Foo4777.class) {
+            if (beanDescRef.getBeanClass() == Foo4777.class) {
                 AnnotatedWithParams dc = defaultInstantiator.getDefaultCreator();
                 if (!(dc instanceof AnnotatedMethod)
                         || !dc.getName().equals("create")) {
@@ -44,7 +44,8 @@ public class JsonCreatorNoArgs4777Test extends DatabindTestUtil
         }
 
         @Override
-        public ValueInstantiator findValueInstantiator(DeserializationConfig config, BeanDescription beanDesc) {
+        public ValueInstantiator findValueInstantiator(DeserializationConfig config,
+                BeanDescription.Supplier beanDescRef) {
             return null;
         }
     }

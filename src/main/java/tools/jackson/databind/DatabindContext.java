@@ -313,7 +313,7 @@ public abstract class DatabindContext
     public abstract BeanDescription introspectBeanDescription(JavaType type);
 
     public BeanDescription.Supplier lazyIntrospectBeanDescription(JavaType type) {
-         return new BeanDescription.Supplier(type) {
+         return new BeanDescription.LazySupplier(type) {
              @Override
              public BeanDescription _construct(JavaType forType) {
                  return introspectBeanDescription(forType);

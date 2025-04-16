@@ -20,13 +20,13 @@ public interface ValueInstantiators
      * to use or modify that.
      *
      * @param config Deserialization configuration in use
-     * @param beanDesc Additional information about POJO type to be instantiated
+     * @param beanDescRef Additional information about POJO type to be instantiated
      *
      * @return Instantiator to use if custom one wanted, or {@code null} to indicate
      *    "use default instantiator".
      */
     public ValueInstantiator findValueInstantiator(DeserializationConfig config,
-            BeanDescription beanDesc);
+            BeanDescription.Supplier beanDescRef);
 
     /**
      * Method called to find the {@link ValueInstantiator} to use for creating
@@ -36,7 +36,7 @@ public interface ValueInstantiators
      * passed instance as is (returning null is an error)
      *
      * @param config Deserialization configuration in use
-     * @param beanDesc Additional information about POJO type to be instantiated
+     * @param beanDescRef Additional information about POJO type to be instantiated
      * @param defaultInstantiator Instantiator that will be used if no changes are made;
      *   passed to allow custom instances to use annotation-provided information
      *   (note, however, that earlier {@link ValueInstantiators} may have changed it to
@@ -46,7 +46,7 @@ public interface ValueInstantiators
      *   or a custom variant; cannot be null.
      */
     default ValueInstantiator modifyValueInstantiator(DeserializationConfig config,
-            BeanDescription beanDesc, ValueInstantiator defaultInstantiator) {
+            BeanDescription.Supplier beanDescRef, ValueInstantiator defaultInstantiator) {
         return defaultInstantiator;
     }
 
@@ -59,7 +59,7 @@ public interface ValueInstantiators
     {
         @Override
         public ValueInstantiator findValueInstantiator(DeserializationConfig config,
-                BeanDescription beanDesc) {
+                BeanDescription.Supplier beanDescRef) {
             return null;
         }
     }

@@ -36,6 +36,10 @@ public abstract class BeanDescription
         _type = type;
     }
 
+    public BeanDescription.Supplier supplier() {
+        return new EagerSupplier(this);
+    }
+
     /*
     /**********************************************************************
     /* Simple accessors
@@ -303,29 +307,44 @@ public abstract class BeanDescription
     /**
      * Base implementation for lazily-constructed suppliers for {@link BeanDescription} instances.
      */
-    public static abstract class Supplier implements java.util.function.Supplier<BeanDescription>
+    public interface Supplier extends java.util.function.Supplier<BeanDescription>
     {
-        private final JavaType _type;
+        JavaType getType();
 
-        private transient BeanDescription _beanDesc;
-        
-        protected Supplier(JavaType type) {
-            _type = type;
-        }
+        default Class<?> getBeanClass() { return getType().getRawClass(); }
 
-        public JavaType getType() { return _type; }
+        default boolean isRecordType() { return getType().isRecordType(); }
 
-        public Class<?> getBeanClass() { return _type.getRawClass(); }
-
-        public boolean isRecordType() { return _type.isRecordType(); }
-
-        public AnnotatedClass getClassInfo() {
+        default AnnotatedClass getClassInfo() {
             return get().getClassInfo();
         }
 
-        public Annotations getClassAnnotations() {
+        default Annotations getClassAnnotations() {
             return get().getClassAnnotations();
         }
+
+        @Override
+        public BeanDescription get();
+    }
+
+    public static abstract class LazySupplier implements Supplier
+    {
+        protected final JavaType _type;
+
+        protected transient BeanDescription _beanDesc;
+        
+        protected LazySupplier(JavaType type) {
+            _type = type;
+        }
+
+        @Override
+        public JavaType getType() { return _type; }
+
+        @Override
+        public Class<?> getBeanClass() { return _type.getRawClass(); }
+
+        @Override
+        public boolean isRecordType() { return _type.isRecordType(); }
 
         @Override
         public BeanDescription get() {
@@ -337,4 +356,19 @@ public abstract class BeanDescription
 
         protected abstract BeanDescription _construct(JavaType forType);
     }
+
+    public static class EagerSupplier implements Supplier
+    {
+        protected final BeanDescription _beanDesc;
+
+        public EagerSupplier(BeanDescription beanDesc) {
+            _beanDesc = Objects.requireNonNull(beanDesc);
+        }
+
+        @Override
+        public JavaType getType() { return _beanDesc.getType(); }
+
+        @Override
+        public BeanDescription get() { return _beanDesc; }
+    }  
 }

@@ -120,9 +120,10 @@ public class EnumCreatorTest extends DatabindTestUtil
     static class DelegatingDeserializers extends Deserializers.Base
     {
         @Override
-        public ValueDeserializer<?> findEnumDeserializer(final Class<?> type, final DeserializationConfig config, final BeanDescription beanDesc)
+        public ValueDeserializer<?> findEnumDeserializer(final Class<?> type, final DeserializationConfig config,
+                final BeanDescription.Supplier beanDescRef)
         {
-            final Collection<AnnotatedMethod> factoryMethods = beanDesc.getFactoryMethods();
+            final Collection<AnnotatedMethod> factoryMethods = beanDescRef.get().getFactoryMethods();
             if (factoryMethods != null) {
                 for (AnnotatedMethod am : factoryMethods) {
                     final JsonCreator creator = am.getAnnotation(JsonCreator.class);

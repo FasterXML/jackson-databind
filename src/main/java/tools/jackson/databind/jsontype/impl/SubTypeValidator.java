@@ -256,7 +256,7 @@ public class SubTypeValidator
     public static SubTypeValidator instance() { return instance; }
 
     public void validateSubType(DeserializationContext ctxt, JavaType type,
-            BeanDescription beanDesc)
+            BeanDescription.Supplier beanDescRef)
     {
         // There are certain nasty classes that could cause problems, mostly
         // via default typing -- catch them here.
@@ -298,7 +298,7 @@ public class SubTypeValidator
             return;
         } while (false);
 
-        ctxt.reportBadTypeDefinition(beanDesc,
+        ctxt.reportBadTypeDefinition(beanDescRef,
                 "Illegal type (%s) to deserialize: prevented for security reasons", full);
     }
 }

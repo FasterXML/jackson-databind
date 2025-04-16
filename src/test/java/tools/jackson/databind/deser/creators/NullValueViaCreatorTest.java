@@ -46,7 +46,7 @@ public class NullValueViaCreatorTest
     protected static class ContainerDeserializerResolver extends Deserializers.Base {
         @Override
         public ValueDeserializer<?> findBeanDeserializer(JavaType type,
-                DeserializationConfig config, BeanDescription beanDesc)
+                DeserializationConfig config, BeanDescription.Supplier beanDescRef)
         {
             if (!Contained.class.isAssignableFrom(type.getRawClass())) {
                 return null;

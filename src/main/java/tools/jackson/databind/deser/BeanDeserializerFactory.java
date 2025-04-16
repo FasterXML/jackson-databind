@@ -93,16 +93,16 @@ public class BeanDeserializerFactory
     @SuppressWarnings("unchecked")
     @Override
     public ValueDeserializer<Object> createBeanDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
+            JavaType type, BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
         // First: we may also have custom overrides:
-        ValueDeserializer<?> deser = _findCustomBeanDeserializer(type, config, beanDesc);
+        ValueDeserializer<?> deser = _findCustomBeanDeserializer(type, config, beanDescRef);
         if (deser != null) {
             // [databind#2392]
             if (_factoryConfig.hasDeserializerModifiers()) {
                 for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                    deser = mod.modifyDeserializer(ctxt.getConfig(), beanDesc, deser);
+                    deser = mod.modifyDeserializer(ctxt.getConfig(), beanDescRef, deser);
                 }
             }
             return (ValueDeserializer<Object>) deser;
@@ -110,7 +110,7 @@ public class BeanDeserializerFactory
         // One more thing to check: do we have an exception type (Throwable or its
         // sub-classes)? If so, need slightly different handling.
         if (type.isThrowable()) {
-            return buildThrowableDeserializer(ctxt, type, beanDesc);
+            return buildThrowableDeserializer(ctxt, type, beanDescRef);
         }
         // Or, for abstract types, may have alternate means for resolution
         // (defaulting, materialization)
@@ -119,16 +119,16 @@ public class BeanDeserializerFactory
         //    not something we could materialize anything for
         if (type.isAbstract() && !type.isPrimitive() && !type.isEnumType()) {
             // Let's make it possible to materialize abstract types.
-            JavaType concreteType = materializeAbstractType(ctxt, type, beanDesc);
+            JavaType concreteType = materializeAbstractType(ctxt, type, beanDescRef);
             if (concreteType != null) {
                 // important: introspect actual implementation (abstract class or
                 // interface doesn't have constructors, for one)
-                beanDesc = ctxt.introspectBeanDescription(concreteType);
-                return buildBeanDeserializer(ctxt, concreteType, beanDesc);
+                beanDescRef = ctxt.lazyIntrospectBeanDescription(concreteType);
+                return buildBeanDeserializer(ctxt, concreteType, beanDescRef);
             }
         }
         // Otherwise, may want to check handlers for standard types, from superclass:
-        deser = findStdDeserializer(ctxt, type, beanDesc);
+        deser = findStdDeserializer(ctxt, type, beanDescRef);
         if (deser != null) {
             return (ValueDeserializer<Object>)deser;
         }
@@ -138,22 +138,23 @@ public class BeanDeserializerFactory
             return null;
         }
         // For checks like [databind#1599]
-        _validateSubType(ctxt, type, beanDesc);
+        _validateSubType(ctxt, type, beanDescRef);
 
         // 05-May-2020, tatu: [databind#2683] Let's actually pre-emptively catch
         //   certain types (for now, java.time.*) to give better error messages
-        deser = _findUnsupportedTypeDeserializer(ctxt, type, beanDesc);
+        deser = _findUnsupportedTypeDeserializer(ctxt, type, beanDescRef);
         if (deser != null) {
             return (ValueDeserializer<Object>)deser;
         }
 
         // Use generic bean introspection to build deserializer
-        return buildBeanDeserializer(ctxt, type, beanDesc);
+        return buildBeanDeserializer(ctxt, type, beanDescRef);
     }
 
     @Override
     public ValueDeserializer<Object> createBuilderBasedDeserializer(
-            DeserializationContext ctxt, JavaType valueType, BeanDescription valueBeanDesc,
+            DeserializationContext ctxt, JavaType valueType,
+            BeanDescription.Supplier valueBeanDescRef,
             Class<?> builderClass)
     {
         // First: need a BeanDescription for builder class
@@ -163,10 +164,11 @@ public class BeanDeserializerFactory
         } else {
             builderType = ctxt.constructType(builderClass);
         }
-        BeanDescription builderDesc = ctxt.introspectBeanDescriptionForBuilder(builderType, valueBeanDesc);
-        // 20-Aug-2020, tatu: May want to change at some point (after 2.12) to pass "valueBeanDesc"
+        BeanDescription.Supplier builderDescRef = ctxt.lazyIntrospectBeanDescriptionForBuilder(builderType,
+                valueBeanDescRef.get());
+        // 20-Aug-2020, tatu: May want to change at some point to pass "valueBeanDesc"
         //    too; no urgent need at this point
-        return buildBuilderBasedDeserializer(ctxt, valueType, builderDesc);
+        return buildBuilderBasedDeserializer(ctxt, valueType, builderDescRef);
     }
 
     /**
@@ -174,16 +176,16 @@ public class BeanDeserializerFactory
      * deserializer registered for given type.
      */
     protected ValueDeserializer<?> findStdDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
+            JavaType type, BeanDescription.Supplier beanDescRef)
     {
         // note: we do NOT check for custom deserializers here, caller has already
         // done that
-        ValueDeserializer<?> deser = findDefaultDeserializer(ctxt, type, beanDesc);
+        ValueDeserializer<?> deser = findDefaultDeserializer(ctxt, type, beanDescRef);
         // Also: better ensure these are post-processable?
         if (deser != null) {
             if (_factoryConfig.hasDeserializerModifiers()) {
                 for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                    deser = mod.modifyDeserializer(ctxt.getConfig(), beanDesc, deser);
+                    deser = mod.modifyDeserializer(ctxt.getConfig(), beanDescRef, deser);
                 }
             }
         }
@@ -198,7 +200,7 @@ public class BeanDeserializerFactory
      * support module not registered.
      */
     protected ValueDeserializer<Object> _findUnsupportedTypeDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
+            JavaType type, BeanDescription.Supplier beanDescRef)
     {
         // 05-May-2020, tatu: Should we check for possible Shape override to "POJO"?
         //   (to let users force 'serialize-as-POJO'? Or not?
@@ -214,12 +216,12 @@ public class BeanDeserializerFactory
     }
 
     protected JavaType materializeAbstractType(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
+            JavaType type, BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
         // May have multiple resolvers, call in precedence order until one returns non-null
         for (AbstractTypeResolver r : config.abstractTypeResolvers()) {
-            JavaType concrete = r.resolveAbstractType(config, beanDesc);
+            JavaType concrete = r.resolveAbstractType(config, beanDescRef);
             if (concrete != null) {
                 return concrete;
             }
@@ -243,7 +245,7 @@ public class BeanDeserializerFactory
      */
     @SuppressWarnings("unchecked")
     public ValueDeserializer<Object> buildBeanDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
+            JavaType type, BeanDescription.Supplier beanDescRef)
     {
         // First: check what creators we can use, if any
         ValueInstantiator valueInstantiator;
@@ -253,7 +255,7 @@ public class BeanDeserializerFactory
          *   probably won't work and needs to be added elsewhere.
          */
         try {
-            valueInstantiator = findValueInstantiator(ctxt, beanDesc);
+            valueInstantiator = findValueInstantiator(ctxt, beanDescRef);
         } catch (NoClassDefFoundError error) {
             return new ErrorThrowingDeserializer(error);
         } catch (IllegalArgumentException e0) {
@@ -262,23 +264,23 @@ public class BeanDeserializerFactory
             //   instance so...
             throw InvalidDefinitionException.from(ctxt.getParser(),
                     ClassUtil.exceptionMessage(e0),
-                   beanDesc, null)
+                    beanDescRef, null)
                 .withCause(e0);
         }
-        BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDesc);
+        BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDescRef);
         builder.setValueInstantiator(valueInstantiator);
          // And then setters for deserializing from JSON Object
-        addBeanProps(ctxt, beanDesc, builder);
-        addObjectIdReader(ctxt, beanDesc, builder);
+        addBeanProps(ctxt, beanDescRef, builder);
+        addObjectIdReader(ctxt, beanDescRef, builder);
 
         // managed/back reference fields/setters need special handling... first part
-        addBackReferenceProperties(ctxt, beanDesc, builder);
-        addInjectables(ctxt, beanDesc, builder);
+        addBackReferenceProperties(ctxt, beanDescRef, builder);
+        addInjectables(ctxt, beanDescRef, builder);
 
         final DeserializationConfig config = ctxt.getConfig();
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                builder = mod.updateBuilder(config, beanDesc, builder);
+                builder = mod.updateBuilder(config, beanDescRef, builder);
             }
         }
         ValueDeserializer<?> deserializer;
@@ -292,7 +294,7 @@ public class BeanDeserializerFactory
         // (note that `resolve()` and `createContextual()` called later on)
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                deserializer = mod.modifyDeserializer(config, beanDesc, deserializer);
+                deserializer = mod.modifyDeserializer(config, beanDescRef, deserializer);
             }
         }
         return (ValueDeserializer<Object>) deserializer;
@@ -307,12 +309,13 @@ public class BeanDeserializerFactory
      */
     @SuppressWarnings("unchecked")
     protected ValueDeserializer<Object> buildBuilderBasedDeserializer(
-    		DeserializationContext ctxt, JavaType valueType, BeanDescription builderDesc)
+    		DeserializationContext ctxt, JavaType valueType,
+    		BeanDescription.Supplier builderDescRef)
     {
         // Creators, anyone? (to create builder itself)
         ValueInstantiator valueInstantiator;
         try {
-            valueInstantiator = findValueInstantiator(ctxt, builderDesc);
+            valueInstantiator = findValueInstantiator(ctxt, builderDescRef);
         } catch (NoClassDefFoundError error) {
             return new ErrorThrowingDeserializer(error);
         } catch (IllegalArgumentException e) {
@@ -321,25 +324,25 @@ public class BeanDeserializerFactory
             //   instance so...
             throw InvalidDefinitionException.from(ctxt.getParser(),
                     ClassUtil.exceptionMessage(e),
-                    builderDesc, null);
+                    builderDescRef, null);
         }
         final DeserializationConfig config = ctxt.getConfig();
-        BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, builderDesc);
+        BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, builderDescRef);
         builder.setValueInstantiator(valueInstantiator);
          // And then "with methods" for deserializing from JSON Object
-        addBeanProps(ctxt, builderDesc, builder);
-        addObjectIdReader(ctxt, builderDesc, builder);
+        addBeanProps(ctxt, builderDescRef, builder);
+        addObjectIdReader(ctxt, builderDescRef, builder);
 
         // managed/back reference fields/setters need special handling... first part
-        addBackReferenceProperties(ctxt, builderDesc, builder);
-        addInjectables(ctxt, builderDesc, builder);
+        addBackReferenceProperties(ctxt, builderDescRef, builder);
+        addInjectables(ctxt, builderDescRef, builder);
 
-        JsonPOJOBuilder.Value builderConfig = builderDesc.findPOJOBuilderConfig();
+        JsonPOJOBuilder.Value builderConfig = builderDescRef.get().findPOJOBuilderConfig();
         final String buildMethodName = (builderConfig == null) ?
                 JsonPOJOBuilder.DEFAULT_BUILD_METHOD : builderConfig.buildMethodName;
 
         // and lastly, find build method to use:
-        AnnotatedMethod buildMethod = builderDesc.findMethod(buildMethodName, null);
+        AnnotatedMethod buildMethod = builderDescRef.get().findMethod(buildMethodName, null);
         if (buildMethod != null) { // note: can't yet throw error; may be given build method
             if (config.canOverrideAccessModifiers()) {
             	ClassUtil.checkAndFixAccess(buildMethod.getMember(), config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -349,7 +352,7 @@ public class BeanDeserializerFactory
         // this may give us more information...
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                builder = mod.updateBuilder(config, builderDesc, builder);
+                builder = mod.updateBuilder(config, builderDescRef, builder);
             }
         }
         ValueDeserializer<?> deserializer = builder.buildBuilderBased(
@@ -358,16 +361,16 @@ public class BeanDeserializerFactory
         // [JACKSON-440]: may have modifier(s) that wants to modify or replace serializer we just built:
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                deserializer = mod.modifyDeserializer(config, builderDesc, deserializer);
+                deserializer = mod.modifyDeserializer(config, builderDescRef, deserializer);
             }
         }
         return (ValueDeserializer<Object>) deserializer;
     }
 
     protected void addObjectIdReader(DeserializationContext ctxt,
-            BeanDescription beanDesc, BeanDeserializerBuilder builder)
+            BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder builder)
     {
-        ObjectIdInfo objectIdInfo = beanDesc.getObjectIdInfo();
+        ObjectIdInfo objectIdInfo = beanDescRef.get().getObjectIdInfo();
         if (objectIdInfo == null) {
             return;
         }
@@ -376,7 +379,7 @@ public class BeanDeserializerFactory
         SettableBeanProperty idProp;
         ObjectIdGenerator<?> gen;
 
-        ObjectIdResolver resolver = ctxt.objectIdResolverInstance(beanDesc.getClassInfo(), objectIdInfo);
+        ObjectIdResolver resolver = ctxt.objectIdResolverInstance(beanDescRef.getClassInfo(), objectIdInfo);
 
         // Just one special case: Property-based generator is trickier
         if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
@@ -385,7 +388,7 @@ public class BeanDeserializerFactory
             if (idProp == null) {
                 throw new IllegalArgumentException(String.format(
 "Invalid Object Id definition for %s: cannot find property with name %s",
-ClassUtil.getTypeDescription(beanDesc.getType()),
+ClassUtil.getTypeDescription(beanDescRef.getType()),
 ClassUtil.name(propName)));
             }
             idType = idProp.getType();
@@ -394,7 +397,7 @@ ClassUtil.name(propName)));
             JavaType type = ctxt.constructType(implClass);
             idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
             idProp = null;
-            gen = ctxt.objectIdGeneratorInstance(beanDesc.getClassInfo(), objectIdInfo);
+            gen = ctxt.objectIdGeneratorInstance(beanDescRef.getClassInfo(), objectIdInfo);
         }
         // also: unlike with value deserializers, let's just resolve one we need here
         ValueDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
@@ -404,14 +407,14 @@ ClassUtil.name(propName)));
 
     @SuppressWarnings("unchecked")
     public ValueDeserializer<Object> buildThrowableDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
+            JavaType type, BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
         // first: construct like a regular bean deserializer...
-        BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDesc);
-        builder.setValueInstantiator(findValueInstantiator(ctxt, beanDesc));
+        BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDescRef);
+        builder.setValueInstantiator(findValueInstantiator(ctxt, beanDescRef));
 
-        addBeanProps(ctxt, beanDesc, builder);
+        addBeanProps(ctxt, beanDescRef, builder);
         // (and assume there won't be any back references)
 
         // But then let's decorate things a bit
@@ -427,7 +430,7 @@ ClassUtil.name(propName)));
                 break;
             }
         }
-        AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
+        AnnotatedMethod am = beanDescRef.get().findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
             SettableBeanProperty causeCreatorProp = builder.findProperty(PropertyName.construct("cause"));
             // [databind#4827] : Consider case where sub-classed `Exception` has `JsonCreator` with `cause` parameter
@@ -443,7 +446,7 @@ ClassUtil.name(propName)));
                 }
                 SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(ctxt.getConfig(), am,
                         new PropertyName(name));
-                SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
+                SettableBeanProperty prop = constructSettableProperty(ctxt, beanDescRef, propDef,
                         am.getParameterType(0));
                 if (prop != null) {
                     // 21-Aug-2011, tatus: We may actually have found 'cause' property
@@ -455,7 +458,7 @@ ClassUtil.name(propName)));
         // update builder now that all information is in?
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                builder = mod.updateBuilder(config, beanDesc, builder);
+                builder = mod.updateBuilder(config, beanDescRef, builder);
             }
         }
         ValueDeserializer<?> deserializer = builder.build();
@@ -469,7 +472,7 @@ ClassUtil.name(propName)));
         // may have modifier(s) that wants to modify or replace serializer we just built:
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                deserializer = mod.modifyDeserializer(config, beanDesc, deserializer);
+                deserializer = mod.modifyDeserializer(config, beanDescRef, deserializer);
             }
         }
         return (ValueDeserializer<Object>) deserializer;
@@ -487,8 +490,8 @@ ClassUtil.name(propName)));
      * instance.
      */
     protected BeanDeserializerBuilder constructBeanDeserializerBuilder(DeserializationContext ctxt,
-            BeanDescription beanDesc) {
-        return new BeanDeserializerBuilder(beanDesc, ctxt);
+            BeanDescription.Supplier beanDescRef) {
+        return new BeanDeserializerBuilder(beanDescRef, ctxt);
     }
 
     /**
@@ -499,8 +502,9 @@ ClassUtil.name(propName)));
      * similar between versions.
      */
     protected void addBeanProps(DeserializationContext ctxt,
-            BeanDescription beanDesc, BeanDeserializerBuilder builder)
+            BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder builder)
     {
+        final BeanDescription beanDesc = beanDescRef.get();
         final ValueInstantiator valueInstantiator = builder.getValueInstantiator();
         final SettableBeanProperty[] creatorProps = (valueInstantiator != null)
                 ? valueInstantiator.getFromObjectArguments(ctxt.getConfig())
@@ -540,7 +544,7 @@ ClassUtil.name(propName)));
         }
 
         // Also, do we have a fallback "any" setter?
-        SettableAnyProperty anySetter = _resolveAnySetter(ctxt, beanDesc, creatorProps);
+        SettableAnyProperty anySetter = _resolveAnySetter(ctxt, beanDescRef, creatorProps);
         if (anySetter != null) {
             builder.setAnySetter(anySetter);
         } else {
@@ -562,11 +566,11 @@ ClassUtil.name(propName)));
 
         // Ok: let's then filter out property definitions
         List<BeanPropertyDefinition> propDefs = filterBeanProps(ctxt,
-                beanDesc, builder, beanDesc.findProperties(), ignored, included);
+                beanDescRef, builder, beanDesc.findProperties(), ignored, included);
         // After which we can let custom code change the set
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                propDefs = mod.updateProperties(ctxt.getConfig(), beanDesc, propDefs);
+                propDefs = mod.updateProperties(ctxt.getConfig(), beanDescRef, propDefs);
             }
         }
 
@@ -580,11 +584,11 @@ ClassUtil.name(propName)));
             if (propDef.hasSetter()) {
                 AnnotatedMethod setter = propDef.getSetter();
                 JavaType propertyType = setter.getParameterType(0);
-                prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
+                prop = constructSettableProperty(ctxt, beanDescRef, propDef, propertyType);
             } else if (propDef.hasField()) {
                 AnnotatedField field = propDef.getField();
                 JavaType propertyType = field.getType();
-                prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
+                prop = constructSettableProperty(ctxt, beanDescRef, propDef, propertyType);
             } else {
                 // NOTE: specifically getter, since field was already checked above
                 AnnotatedMethod getter = propDef.getGetter();
@@ -662,21 +666,21 @@ ClassUtil.name(propName)));
 
     // since 2.18
     private SettableAnyProperty _resolveAnySetter(DeserializationContext ctxt,
-            BeanDescription beanDesc, SettableBeanProperty[] creatorProps)
+            BeanDescription.Supplier beanDescRef, SettableBeanProperty[] creatorProps)
     {
         // Look for any-setter via @JsonCreator
         if (creatorProps != null) {
             for (SettableBeanProperty prop : creatorProps) {
                 AnnotatedMember member = prop.getMember();
                 if (member != null && Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(ctxt.getConfig(), member))) {
-                    return constructAnySetter(ctxt, beanDesc, member);
+                    return constructAnySetter(ctxt, beanDescRef, member);
                 }
             }
         }
         // else find the regular method/field level any-setter
-        AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
+        AnnotatedMember anySetter = beanDescRef.get().findAnySetterAccessor();
         if (anySetter != null) {
-            return constructAnySetter(ctxt, beanDesc, anySetter);
+            return constructAnySetter(ctxt, beanDescRef, anySetter);
         }
         // not found, that's fine, too
         return null;
@@ -696,7 +700,7 @@ ClassUtil.name(propName)));
      * Note that this will not remove properties that have no setters.
      */
     protected List<BeanPropertyDefinition> filterBeanProps(DeserializationContext ctxt,
-            BeanDescription beanDesc, BeanDeserializerBuilder builder,
+            BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder builder,
             List<BeanPropertyDefinition> propDefsIn,
             Set<String> ignored,
             Set<String> included)
@@ -731,10 +735,10 @@ ClassUtil.name(propName)));
      * and if so add them to bean, to be linked during resolution phase.
      */
     protected void addBackReferenceProperties(DeserializationContext ctxt,
-            BeanDescription beanDesc, BeanDeserializerBuilder builder)
+            BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder builder)
     {
         // and then back references, not necessarily found as regular properties
-        List<BeanPropertyDefinition> refProps = beanDesc.findBackReferences();
+        List<BeanPropertyDefinition> refProps = beanDescRef.get().findBackReferences();
         if (refProps != null) {
             for (BeanPropertyDefinition refProp : refProps) {
                 /*
@@ -755,7 +759,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 */
                 String refName = refProp.findReferenceName();
                 builder.addBackReferenceProperty(refName, constructSettableProperty(ctxt,
-                        beanDesc, refProp, refProp.getPrimaryType()));
+                        beanDescRef, refProp, refProp.getPrimaryType()));
             }
         }
     }
@@ -765,15 +769,15 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
      * constructor {@link tools.jackson.databind.deser.impl.ValueInjector} instances, and add them to builder.
      */
     protected void addInjectables(DeserializationContext ctxt,
-            BeanDescription beanDesc, BeanDeserializerBuilder builder)
+            BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder builder)
     {
-        Map<Object, AnnotatedMember> raw = beanDesc.findInjectables();
+        Map<Object, AnnotatedMember> raw = beanDescRef.get().findInjectables();
         if (raw != null) {
             for (Map.Entry<Object, AnnotatedMember> entry : raw.entrySet()) {
                 AnnotatedMember m = entry.getValue();
                 builder.addInjectable(PropertyName.construct(m.getName()),
                         m.getType(),
-                        beanDesc.getClassAnnotations(), m, entry.getKey());
+                        beanDescRef.getClassAnnotations(), m, entry.getKey());
             }
         }
     }
@@ -789,7 +793,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
      */
     @SuppressWarnings("unchecked")
     protected SettableAnyProperty constructAnySetter(DeserializationContext ctxt,
-            BeanDescription beanDesc, AnnotatedMember mutator)
+            BeanDescription.Supplier beanDescRef, AnnotatedMember mutator)
     {
         // find the java type based on the annotated setter method or setter field
         BeanProperty prop;
@@ -836,7 +840,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                         prop, mutator, valueType,
                         ctxt.findRootValueDeserializer(valueType));
             } else {
-                return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                return ctxt.reportBadDefinition(beanDescRef.getType(), String.format(
                         "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
                         ClassUtil.getTypeDescription(fieldType)));
             }
@@ -863,12 +867,12 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 return SettableAnyProperty.constructForJsonNodeParameter(ctxt, prop, mutator, valueType,
                         ctxt.findRootValueDeserializer(valueType), parameterIndex);
             } else {
-                return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                return ctxt.reportBadDefinition(beanDescRef.getType(), String.format(
                     "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
                     ClassUtil.getTypeDescription(paramType)));
             }
         } else {
-            return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+            return ctxt.reportBadDefinition(beanDescRef.getType(), String.format(
                     "Unrecognized mutator type for any-setter: %s",
                     ClassUtil.nameOf(mutator.getClass())));
         }
@@ -920,7 +924,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
      *   there should be no property based on given definitions.
      */
     protected SettableBeanProperty constructSettableProperty(DeserializationContext ctxt,
-            BeanDescription beanDesc, BeanPropertyDefinition propDef,
+            BeanDescription.Supplier beanDescRef, BeanPropertyDefinition propDef,
             JavaType propType0)
     {
         // need to ensure method is callable (for non-public)
@@ -929,7 +933,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         //   going on; add sanity checks to try to pin down actual problem...
         //   Possibly passing creator parameter?
         if (mutator == null) {
-            ctxt.reportBadPropertyDefinition(beanDesc, propDef, "No non-constructor mutator available");
+            ctxt.reportBadPropertyDefinition(beanDescRef, propDef, "No non-constructor mutator available");
         }
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, mutator, propType0);
         // Does the Method specify the deserializer to use? If so, let's use it.
@@ -937,11 +941,11 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         SettableBeanProperty prop;
         if (mutator instanceof AnnotatedMethod) {
             prop = new MethodProperty(propDef, type, typeDeser,
-                    beanDesc.getClassAnnotations(), (AnnotatedMethod) mutator);
+                    beanDescRef.getClassAnnotations(), (AnnotatedMethod) mutator);
         } else {
             // 08-Sep-2016, tatu: wonder if we should verify it is `AnnotatedField` to be safe?
             prop = new FieldProperty(propDef, type, typeDeser,
-                    beanDesc.getClassAnnotations(), (AnnotatedField) mutator);
+                    beanDescRef.getClassAnnotations(), (AnnotatedField) mutator);
         }
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, mutator);
         if (deser == null) {
@@ -1051,8 +1055,8 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
 
     // @since 2.8.11
     protected void _validateSubType(DeserializationContext ctxt, JavaType type,
-            BeanDescription beanDesc)
+            BeanDescription.Supplier beanDescRef)
     {
-        SubTypeValidator.instance().validateSubType(ctxt, type, beanDesc);
+        SubTypeValidator.instance().validateSubType(ctxt, type, beanDescRef);
     }
 }

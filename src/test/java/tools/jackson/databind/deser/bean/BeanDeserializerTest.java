@@ -71,7 +71,7 @@ public class BeanDeserializerTest
 
         @Override
         public BeanDeserializerBuilder updateBuilder(DeserializationConfig config,
-                BeanDescription beanDesc, BeanDeserializerBuilder builder) {
+                BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder builder) {
             builder.addIgnorable(_removedProperty);
             return builder;
         }
@@ -85,7 +85,7 @@ public class BeanDeserializerTest
 
         @Override
         public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
-                BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
+                BeanDescription.Supplier beanDescRef, ValueDeserializer<?> deserializer) {
             return _deserializer;
         }
     }
@@ -132,11 +132,11 @@ public class BeanDeserializerTest
     public class Issue476DeserializerModifier extends ValueDeserializerModifier {
         @Override
         public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
-                BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
-            if (Issue476Type.class == beanDesc.getBeanClass()) {
+                BeanDescription.Supplier beanDescRef, ValueDeserializer<?> deserializer) {
+            if (Issue476Type.class == beanDescRef.getBeanClass()) {
                 return new Issue476Deserializer((BeanDeserializer)deserializer);
             }
-            return super.modifyDeserializer(config, beanDesc, deserializer);
+            return super.modifyDeserializer(config, beanDescRef, deserializer);
         }
     }
     public class Issue476Module extends SimpleModule
@@ -218,16 +218,18 @@ public class BeanDeserializerTest
     public static class Issue1912UseAddOrReplacePropertyDeserializerModifier extends ValueDeserializerModifier
     {
         @Override
-        public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config, BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
-            if (beanDesc.getBeanClass() == Issue1912Bean.class) {
+        public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
+                BeanDescription.Supplier beanDescRef, ValueDeserializer<?> deserializer) {
+            if (beanDescRef.getBeanClass() == Issue1912Bean.class) {
                 return new Issue1912CustomBeanDeserializer((BeanDeserializer) deserializer);
             }
-            return super.modifyDeserializer(config, beanDesc, deserializer);
+            return super.modifyDeserializer(config, beanDescRef, deserializer);
         }
 
         @Override
-        public BeanDeserializerBuilder updateBuilder(DeserializationConfig config, BeanDescription beanDesc, BeanDeserializerBuilder builder) {
-            if (beanDesc.getBeanClass() == Issue1912Bean.class) {
+        public BeanDeserializerBuilder updateBuilder(DeserializationConfig config,
+                BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder builder) {
+            if (beanDescRef.getBeanClass() == Issue1912Bean.class) {
                 Iterator<SettableBeanProperty> props = builder.getProperties();
                 while (props.hasNext()) {
                     SettableBeanProperty prop = props.next();
@@ -257,8 +259,9 @@ public class BeanDeserializerTest
 
     static class ArrayDeserializerModifier extends ValueDeserializerModifier {
         @Override
-        public ValueDeserializer<?> modifyArrayDeserializer(DeserializationConfig config, ArrayType valueType,
-                BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
+        public ValueDeserializer<?> modifyArrayDeserializer(DeserializationConfig config,
+                ArrayType valueType,
+                BeanDescription.Supplier beanDescRef, ValueDeserializer<?> deserializer) {
             return (ValueDeserializer<?>) new StdDeserializer<Object>(Object.class) {
                 @Override public Object deserialize(JsonParser p,
                         DeserializationContext ctxt) {
@@ -271,8 +274,9 @@ public class BeanDeserializerTest
 
     static class CollectionDeserializerModifier extends ValueDeserializerModifier {
         @Override
-        public ValueDeserializer<?> modifyCollectionDeserializer(DeserializationConfig config, CollectionType valueType,
-                BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
+        public ValueDeserializer<?> modifyCollectionDeserializer(DeserializationConfig config,
+                CollectionType valueType,
+                BeanDescription.Supplier beanDescRef, ValueDeserializer<?> deserializer) {
             return (ValueDeserializer<?>) new StdDeserializer<Object>(Object.class) {
                 @Override public Object deserialize(JsonParser p,
                         DeserializationContext ctxt) {
@@ -287,8 +291,9 @@ public class BeanDeserializerTest
 
     static class MapDeserializerModifier extends ValueDeserializerModifier {
         @Override
-        public ValueDeserializer<?> modifyMapDeserializer(DeserializationConfig config, MapType valueType,
-                BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
+        public ValueDeserializer<?> modifyMapDeserializer(DeserializationConfig config,
+                MapType valueType,
+                BeanDescription.Supplier beanDescRef, ValueDeserializer<?> deserializer) {
             return (ValueDeserializer<?>) new StdDeserializer<Object>(Object.class) {
                 @Override public Object deserialize(JsonParser p,
                         DeserializationContext ctxt) {
@@ -303,8 +308,9 @@ public class BeanDeserializerTest
 
     static class EnumDeserializerModifier extends ValueDeserializerModifier {
         @Override
-        public ValueDeserializer<?> modifyEnumDeserializer(DeserializationConfig config, JavaType valueType,
-                BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
+        public ValueDeserializer<?> modifyEnumDeserializer(DeserializationConfig config,
+                JavaType valueType,
+                BeanDescription.Supplier beanDescRef, ValueDeserializer<?> deserializer) {
             return (ValueDeserializer<?>) new StdDeserializer<Object>(Object.class) {
                 @Override public Object deserialize(JsonParser jp,
                         DeserializationContext ctxt) {
@@ -477,8 +483,8 @@ public class BeanDeserializerTest
                         .setDeserializerModifier(new ValueDeserializerModifier() {
                         @Override
                         public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
-                                BeanDescription beanDesc, ValueDeserializer<?> deser) {
-                            if (beanDesc.getBeanClass() == String.class) {
+                                BeanDescription.Supplier beanDescRef, ValueDeserializer<?> deser) {
+                            if (beanDescRef.getBeanClass() == String.class) {
                                 return new UCStringDeserializer(deser);
                             }
                             return deser;

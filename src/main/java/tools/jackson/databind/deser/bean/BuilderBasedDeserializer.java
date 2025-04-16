@@ -60,31 +60,32 @@ public class BuilderBasedDeserializer
      * Constructor used by {@link BeanDeserializerBuilder}.
      */
     public BuilderBasedDeserializer(BeanDeserializerBuilder builder,
-            BeanDescription beanDesc, JavaType targetType,
+            BeanDescription.Supplier beanDescRef, JavaType targetType,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             Set<String> ignorableProps, boolean ignoreAllUnknown,
             boolean hasViews)
     {
-        this(builder, beanDesc, targetType, properties, backRefs, ignorableProps, ignoreAllUnknown, null, hasViews);
+        this(builder, beanDescRef, targetType, properties, backRefs, ignorableProps, ignoreAllUnknown,
+                null, hasViews);
     }
 
     /**
      * @since 2.12
      */
     public BuilderBasedDeserializer(BeanDeserializerBuilder builder,
-            BeanDescription beanDesc, JavaType targetType,
+            BeanDescription.Supplier beanDescRef, JavaType targetType,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             Set<String> ignorableProps, boolean ignoreAllUnknown, Set<String> includableProps,
             boolean hasViews)
     {
-        super(builder, beanDesc, properties, backRefs,
+        super(builder, beanDescRef, properties, backRefs,
                 ignorableProps, ignoreAllUnknown, includableProps, hasViews);
         _targetType = targetType;
         _buildMethod = builder.getBuildMethod();
         // 05-Mar-2012, tatu: Cannot really make Object Ids work with builders, not yet anyway
         if (_objectIdReader != null) {
             throw new IllegalArgumentException("Cannot use Object Id with Builder-based deserialization (type "
-                    +beanDesc.getType()+")");
+                    +beanDescRef.getType()+")");
         }
     }
 

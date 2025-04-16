@@ -323,6 +323,10 @@ public abstract class BeanDescription
             return get().getClassInfo();
         }
 
+        public Annotations getClassAnnotations() {
+            return get().getClassAnnotations();
+        }
+
         @Override
         public BeanDescription get() {
             if (_beanDesc == null) {

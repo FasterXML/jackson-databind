@@ -111,7 +111,7 @@ public class StdValueInstantiator
 
     @Override
     public ValueInstantiator createContextual(DeserializationContext ctxt,
-            BeanDescription beanDesc)
+            BeanDescription.Supplier beanDescRef)
     {
         return this;
     }

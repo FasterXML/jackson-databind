@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for verifying serialization of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
-public class TestSimpleTypes
+public class SimpleTypeSerializationTest
     extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = new ObjectMapper();

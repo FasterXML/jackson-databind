@@ -61,6 +61,11 @@ public class InvalidDefinitionException
     }
 
     public static InvalidDefinitionException from(JsonParser p, String msg,
+            BeanDescription.Supplier beanDescRef, BeanPropertyDefinition prop) {
+        return new InvalidDefinitionException(p, msg, beanDescRef.get(), prop);
+    }
+
+    public static InvalidDefinitionException from(JsonParser p, String msg,
             JavaType type) {
         return new InvalidDefinitionException(p, msg, type);
     }

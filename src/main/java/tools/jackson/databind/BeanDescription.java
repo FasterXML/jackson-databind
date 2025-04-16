@@ -305,7 +305,8 @@ public abstract class BeanDescription
 
  
     /**
-     * Base implementation for lazily-constructed suppliers for {@link BeanDescription} instances.
+     * Interface for lazily-constructed suppliers for {@link BeanDescription} instances;
+     * extends plain {@link java.util.function.Supplier} with convenience accessors.
      */
     public interface Supplier extends java.util.function.Supplier<BeanDescription>
     {
@@ -327,6 +328,9 @@ public abstract class BeanDescription
         public BeanDescription get();
     }
 
+    /**
+     * Partial implementation for lazily-constructed suppliers for {@link BeanDescription} instances.
+     */
     public static abstract class LazySupplier implements Supplier
     {
         protected final JavaType _type;
@@ -357,6 +361,10 @@ public abstract class BeanDescription
         protected abstract BeanDescription _construct(JavaType forType);
     }
 
+    /**
+     * Simple {@link Supplier} implementation that just returns pre-constructed
+     * {@link BeanDescription} instance.
+     */
     public static class EagerSupplier implements Supplier
     {
         protected final BeanDescription _beanDesc;

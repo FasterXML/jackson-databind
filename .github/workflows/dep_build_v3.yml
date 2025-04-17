@@ -11,7 +11,7 @@ permissions:
 jobs:
   build:
     # Do we want wide matrix build? For now, limited
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-latest'
     strategy:
       fail-fast: false
       matrix:

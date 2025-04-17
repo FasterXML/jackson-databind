@@ -21,10 +21,10 @@ jobs:
       fail-fast: false
       matrix:
         java_version: ['17', '21', '23']
-        os: ['ubuntu-22.04']
+        os: ['ubuntu-24.04']
         include:
           - java_version: '17'
-            os: 'ubuntu-22.04'
+            os: 'ubuntu-24.04'
             release_build: 'R'
           - java_version: '17'
             os: 'windows-latest'

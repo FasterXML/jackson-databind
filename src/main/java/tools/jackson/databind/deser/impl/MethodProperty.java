@@ -1,7 +1,9 @@
 package tools.jackson.databind.deser.impl;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -12,33 +14,39 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.Annotations;
+import tools.jackson.databind.util.internal.UnreflectHandleSupplier;
+
+import static java.lang.invoke.MethodType.methodType;
 
 /**
  * This concrete sub-class implements property that is set
- * using regular "setter" method.
+ * using a {@link MethodHandle} to the setter, which is either
+ * a setter method or a field setter.
  */
 public final class MethodProperty
     extends SettableBeanProperty
 {
     private static final long serialVersionUID = 1;
 
-    protected final AnnotatedMethod _annotated;
+    protected final AnnotatedMember _annotated;
 
     /**
-     * Setter method for modifying property value; used for
-     * "regular" method-accessible properties.
+     * Setter MethodHandle holder for modifying property value.
      */
-    protected final transient Method _setter;
+    protected final SetterHolder _setter = new SetterHolder(methodType(void.class, Object.class, Object.class));
+    /**
+     * Setter MethodHandle holder for modifying property value and returning the modified bean.
+     */
+    protected final SetterHolder _setterReturn = new SetterHolder(methodType(Object.class, Object.class, Object.class));
 
     protected final boolean _skipNulls;
 
     public MethodProperty(BeanPropertyDefinition propDef,
             JavaType type, TypeDeserializer typeDeser,
-            Annotations contextAnnotations, AnnotatedMethod method)
+            Annotations contextAnnotations, AnnotatedMember annotated)
     {
         super(propDef, type, typeDeser, contextAnnotations);
-        _annotated = method;
-        _setter = method.getAnnotated();
+        _annotated = annotated;
         _skipNulls = NullsConstantProvider.isSkipper(_nullProvider);
     }
 
@@ -46,24 +54,12 @@ public final class MethodProperty
             NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
-        _setter = src._setter;
         _skipNulls = NullsConstantProvider.isSkipper(nva);
     }
 
     protected MethodProperty(MethodProperty src, PropertyName newName) {
         super(src, newName);
         _annotated = src._annotated;
-        _setter = src._setter;
-        _skipNulls = src._skipNulls;
-    }
-
-    /**
-     * Constructor used for JDK Serialization when reading persisted object
-     */
-    protected MethodProperty(MethodProperty src, Method m) {
-        super(src);
-        _annotated = src._annotated;
-        _setter = m;
         _skipNulls = src._skipNulls;
     }
 
@@ -135,8 +131,8 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         try {
-            _setter.invoke(instance, value);
-        } catch (Exception e) {
+            _setter.get().invokeExact(instance, value);
+        } catch (Throwable e) {
             _throwAsJacksonE(p, e, value);
         }
     }
@@ -164,9 +160,9 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         try {
-            Object result = _setter.invoke(instance, value);
+            Object result = _setterReturn.get().invokeExact(instance, value);
             return (result == null) ? instance : result;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             _throwAsJacksonE(p, e, value);
             return null;
         }
@@ -182,8 +178,8 @@ public final class MethodProperty
             }
         }
         try {
-            _setter.invoke(instance, value);
-        } catch (Exception e) {
+            _setter.get().invokeExact(instance, value);
+        } catch (Throwable e) {
             _throwAsJacksonE(ctxt.getParser(), e, value);
         }
     }
@@ -198,21 +194,30 @@ public final class MethodProperty
             }
         }
         try {
-            Object result = _setter.invoke(instance, value);
+            Object result = _setterReturn.get().invokeExact(instance, value);
             return (result == null) ? instance : result;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             _throwAsJacksonE(ctxt.getParser(), e, value);
             return null;
         }
     }
 
-    /*
-    /**********************************************************
-    /* JDK serialization handling
-    /**********************************************************
-     */
+    class SetterHolder extends UnreflectHandleSupplier {
+        private static final long serialVersionUID = 1L;
 
-    Object readResolve() {
-        return new MethodProperty(this, _annotated.getAnnotated());
+        SetterHolder(MethodType asType) {
+            super(asType);
+        }
+
+        @Override
+        protected MethodHandle unreflect() throws IllegalAccessException {
+            if (_annotated instanceof AnnotatedMethod) {
+                AnnotatedMethod am = (AnnotatedMethod) _annotated;
+                return MethodHandles.lookup().unreflect(am.getAnnotated());
+            } else {
+                AnnotatedField af = (AnnotatedField) _annotated;
+                return MethodHandles.lookup().unreflectSetter(af.getAnnotated());
+            }
+        }
     }
 }

@@ -66,7 +66,7 @@ public class ObjectReader
     protected final DefaultDeserializationContext _context;
 
     /**
-     * Factory used for constructing {@link JsonGenerator}s
+     * Factory used for constructing {@link JsonParser}s
      */
     protected final JsonFactory _parserFactory;
 

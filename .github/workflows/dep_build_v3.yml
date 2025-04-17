@@ -11,12 +11,11 @@ permissions:
 jobs:
   build:
     # Do we want wide matrix build? For now, limited
-    runs-on: ${{ matrix.os }}
+    runs-on: 'ubuntu-latest'
     strategy:
       fail-fast: false
       matrix:
         java_version: ['17', '21']
-        os: ['ubuntu-22.04']
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:

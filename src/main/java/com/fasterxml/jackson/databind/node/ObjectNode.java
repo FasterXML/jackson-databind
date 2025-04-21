@@ -87,7 +87,8 @@ public class ObjectNode
                 .getClass().getName() + "`)");
         }
         ObjectNode result = objectNode();
-        return _put(exprOrProperty, result);
+        _put(exprOrProperty, result);
+        return result;
     }
 
     @Override

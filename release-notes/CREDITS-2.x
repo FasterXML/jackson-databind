@@ -1930,3 +1930,7 @@ Joren Inghelbrecht (@jin-harmoney)
 Will Paul (@dropofwill)
  * Contributed #4979: Allow default enums with `@JsonCreator`
   (2.19.0)
+
+Ryan Schmitt (@rschmitt)
+ * Contributed #5099: Fix regression in `ObjectNode.with()`
+  (2.19.0)

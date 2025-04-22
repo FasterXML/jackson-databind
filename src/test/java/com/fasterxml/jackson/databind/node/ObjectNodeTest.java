@@ -334,12 +334,14 @@ public class ObjectNodeTest
         assertEquals("{\"prop\":{}}", MAPPER.writeValueAsString(root));
     }
 
+    // for [databind#5099]
     @Test
     public void testValidWith() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         assertEquals("{}", MAPPER.writeValueAsString(root));
 
+        @SuppressWarnings("deprecation")
         ObjectNode withResult = root.with( "with" );
         withResult.put( "key", "value" );
 

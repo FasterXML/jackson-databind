@@ -22,6 +22,10 @@ Project: jackson-databind
  (requested by @alzimmermsft)
 #4388: Allow using `@JsonPropertyOrder` with "any" (`@JsonAnyGetter`)  properties
  (fix by Joo-Hyuk K)
+#4533: Add `MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_TIMES` to disable the
+  "Java 8 date/time XYZ not supported by default" error
+ (requested by Jeff S)
+ (fix by Joo-Hyuk K)
 #4650: `PrimitiveArrayDeserializers` should deal with single String value if
   `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY` enabled
  (reported, fix suggested by @eeren-bm)

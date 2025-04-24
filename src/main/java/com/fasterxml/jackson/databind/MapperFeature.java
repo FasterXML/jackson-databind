@@ -661,7 +661,21 @@ public enum MapperFeature implements ConfigFeature
      *
      * @since 2.19
      */
-    REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS(true)
+    REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS(true),
+
+    /**
+     * Feature that determines what happens if Java 8 {@link java.time} (and
+     * other related Java 8 date/time types) are to be serialized or deserialized, but there
+     * are no registered handlers for them.
+     * If enabled, an exception is thrown (to indicate problem, a solution for which is
+     * to register {@code jackson-datatype-jsr310} module); if disabled, the value is
+     * serialized and/or deserialized using regular POJO ("Bean") (de)serialization.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.19
+     */
+    REQUIRE_HANDLERS_FOR_JAVA8_TIMES(true),
     ;
 
     private final boolean _defaultState;

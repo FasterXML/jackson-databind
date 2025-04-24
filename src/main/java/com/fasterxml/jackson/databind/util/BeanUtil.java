@@ -295,6 +295,8 @@ public class BeanUtil
      * "well-known" types for which there would be a datatype module; and if so,
      * return appropriate failure message to give to caller.
      *
+     * @return error message to use, or null if failure is not needed.
+     *
      * @since 2.19
      */
     public static String checkUnsupportedType(MapperConfig<?> config, JavaType type) {
@@ -310,6 +312,11 @@ public class BeanUtil
             }
             // [databind#4718]: Also don't worry about Exception type(s)
             if (type.isTypeOrSubTypeOf(Throwable.class)) {
+                return null;
+            }
+            failFeature = MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_TIMES;
+            final boolean fail = (config == null) || config.isEnabled(failFeature);
+            if (!fail) {
                 return null;
             }
             typeName =  "Java 8 date/time";
@@ -332,7 +339,7 @@ public class BeanUtil
                 typeName, ClassUtil.getTypeDescription(type), moduleName);
         if (failFeature != null) {
              str = String.format("%s (or disable `MapperFeature.%s`)",
-                     str, MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS.name());
+                     str, failFeature.name());
         }
         return str;
     }

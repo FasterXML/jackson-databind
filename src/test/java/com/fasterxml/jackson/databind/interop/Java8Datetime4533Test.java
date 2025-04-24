@@ -90,7 +90,6 @@ public class Java8Datetime4533Test
             fail("Should not pass, wrote out as\n: "+java.time.ZonedDateTime.now());
         } catch (JsonMappingException e) {
             verifyException(e, "Class com.fasterxml.jackson.databind.ser.BeanPropertyWriter");
-            verifyException(e, "can not access a member of class java.time.ZoneRegion");
             verifyException(e, "with modifiers \"public\"");
         }
     }

@@ -44,3 +44,5 @@ Andy Boothe (@sigpwned)
 Sébastien Deleuze (@sdeleuze)
  * Requested #5110: Add missing `ObjectMapper#createNonBlockingByteBufferParser()` method
   [3.0.0]
+ * Requested #5112: Add a `MapperBuilder#findAndAddModules(ClassLoader)` variant
+  [3.0.0]

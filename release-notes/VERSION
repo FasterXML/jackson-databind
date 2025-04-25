@@ -13,6 +13,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
  to use `Supplier`
 #5110: Add missing `ObjectMapper#createNonBlockingByteBufferParser()` method
  (requested by Sébastien D)
+#5112: Add a `MapperBuilder#findAndAddModules(ClassLoader)` variant
+ (requested by Sébastien D)
 
 3.0.0-rc3 (13-Apr-2025)
 

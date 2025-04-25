@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.deser.Deserializers;
 import tools.jackson.databind.deser.jdk.EnumDeserializer;
 import tools.jackson.databind.exc.ValueInstantiationException;
@@ -119,9 +120,10 @@ public class EnumCreatorTest extends DatabindTestUtil
     static class DelegatingDeserializers extends Deserializers.Base
     {
         @Override
-        public ValueDeserializer<?> findEnumDeserializer(final Class<?> type, final DeserializationConfig config, final BeanDescription beanDesc)
+        public ValueDeserializer<?> findEnumDeserializer(final Class<?> type, final DeserializationConfig config,
+                final BeanDescription.Supplier beanDescRef)
         {
-            final Collection<AnnotatedMethod> factoryMethods = beanDesc.getFactoryMethods();
+            final Collection<AnnotatedMethod> factoryMethods = beanDescRef.get().getFactoryMethods();
             if (factoryMethods != null) {
                 for (AnnotatedMethod am : factoryMethods) {
                     final JsonCreator creator = am.getAnnotation(JsonCreator.class);
@@ -375,8 +377,8 @@ public class EnumCreatorTest extends DatabindTestUtil
     public void testEnumCreators1291() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
+                .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .build();
         String json = mapper.writeValueAsString(Enum1291.V2);
         Enum1291 result = mapper.readValue(json, Enum1291.class);

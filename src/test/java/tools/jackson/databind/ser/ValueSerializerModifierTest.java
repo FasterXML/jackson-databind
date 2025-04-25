@@ -59,7 +59,8 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
         public RemovingModifier(String remove) { _removedProperty = remove; }
 
         @Override
-        public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc,
+        public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
+                BeanDescription.Supplier beanDesc,
                 List<BeanPropertyWriter> beanProperties)
         {
             Iterator<BeanPropertyWriter> it = beanProperties.iterator();
@@ -76,7 +77,8 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
     static class ReorderingModifier extends ValueSerializerModifier
     {
         @Override
-        public List<BeanPropertyWriter> orderProperties(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties)
+        public List<BeanPropertyWriter> orderProperties(SerializationConfig config,
+                BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties)
         {
             TreeMap<String,BeanPropertyWriter> props = new TreeMap<String,BeanPropertyWriter>();
             for (BeanPropertyWriter bpw : beanProperties) {
@@ -93,8 +95,8 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
         public ReplacingModifier(ValueSerializer<?> s) { _serializer = s; }
 
         @Override
-        public ValueSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
-                ValueSerializer<?> serializer) {
+        public ValueSerializer<?> modifySerializer(SerializationConfig config,
+                BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
             return _serializer;
         }
     }
@@ -109,7 +111,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
 
         @Override
         public BeanSerializerBuilder updateBuilder(SerializationConfig config,
-                BeanDescription beanDesc, BeanSerializerBuilder builder) {
+                BeanDescription.Supplier beanDesc, BeanSerializerBuilder builder) {
             return new BogusSerializerBuilder(builder, _serializer);
         }
     }
@@ -155,7 +157,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
     {
         @Override
         public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
-                BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties)
+                BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties)
         {
             JavaType strType = config.constructType(String.class);
             // we need a valid BeanPropertyDefinition; this will do (just need name to match)
@@ -179,14 +181,14 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
     {
         @Override
         public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
-                BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties)
+                BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties)
         {
             return beanProperties;
         }
 
         @Override
         public ValueSerializer<?> modifySerializer(SerializationConfig config,
-                BeanDescription beanDesc, ValueSerializer<?> serializer) {
+                BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
             return new BogusBeanSerializer(42);
         }
     }
@@ -195,7 +197,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
     static class ArraySerializerModifier extends ValueSerializerModifier {
         @Override
         public ValueSerializer<?> modifyArraySerializer(SerializationConfig config,
-                ArrayType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
+                ArrayType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
                 @Override public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
                     g.writeNumber(123);
@@ -207,7 +209,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
     static class CollectionSerializerModifier extends ValueSerializerModifier {
         @Override
         public ValueSerializer<?> modifyCollectionSerializer(SerializationConfig config,
-                CollectionType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
+                CollectionType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
                 @Override public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
                     g.writeNumber(123);
@@ -219,7 +221,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
     static class MapSerializerModifier extends ValueSerializerModifier {
         @Override
         public ValueSerializer<?> modifyMapSerializer(SerializationConfig config,
-                MapType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
+                MapType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
                 @Override public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
                     g.writeNumber(123);
@@ -231,7 +233,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
     static class EnumSerializerModifier extends ValueSerializerModifier {
         @Override
         public ValueSerializer<?> modifyEnumSerializer(SerializationConfig config,
-                JavaType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
+                JavaType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
                 @Override public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
                     g.writeNumber(123);
@@ -243,7 +245,7 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
     static class KeySerializerModifier extends ValueSerializerModifier {
         @Override
         public ValueSerializer<?> modifyKeySerializer(SerializationConfig config,
-                JavaType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
+                JavaType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
                 @Override public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
                     g.writeName("foo");

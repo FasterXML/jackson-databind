@@ -34,7 +34,7 @@ public class TestTypeModifiers extends DatabindTestUtil
             context.addSerializers(new Serializers.Base() {
                 @Override
                 public ValueSerializer<?> findMapLikeSerializer(SerializationConfig config,
-                        MapLikeType type, BeanDescription beanDesc, JsonFormat.Value format,
+                        MapLikeType type, BeanDescription.Supplier beanDesc, JsonFormat.Value format,
                         ValueSerializer<Object> keySerializer,
                         TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
                 {
@@ -46,7 +46,7 @@ public class TestTypeModifiers extends DatabindTestUtil
 
                 @Override
                 public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
-                        CollectionLikeType type, BeanDescription beanDesc, JsonFormat.Value format,
+                        CollectionLikeType type, BeanDescription.Supplier beanDesc, JsonFormat.Value format,
                         TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
                 {
                     if (CollectionMarker.class.isAssignableFrom(type.getRawClass())) {
@@ -57,8 +57,10 @@ public class TestTypeModifiers extends DatabindTestUtil
             });
             context.addDeserializers(new SimpleDeserializers() {
                 @Override
-                public ValueDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type, DeserializationConfig config,
-                        BeanDescription beanDesc, TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
+                public ValueDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
+                        DeserializationConfig config,
+                        BeanDescription.Supplier beanDescRef, TypeDeserializer elementTypeDeserializer,
+                        ValueDeserializer<?> elementDeserializer)
                 {
                     if (CollectionMarker.class.isAssignableFrom(type.getRawClass())) {
                         return new MyCollectionDeserializer();
@@ -66,8 +68,9 @@ public class TestTypeModifiers extends DatabindTestUtil
                     return null;
                 }
                 @Override
-                public ValueDeserializer<?> findMapLikeDeserializer(MapLikeType type, DeserializationConfig config,
-                        BeanDescription beanDesc, KeyDeserializer keyDeserializer,
+                public ValueDeserializer<?> findMapLikeDeserializer(MapLikeType type,
+                        DeserializationConfig config,
+                        BeanDescription.Supplier beanDescRef, KeyDeserializer keyDeserializer,
                         TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
                 {
                     if (MapMarker.class.isAssignableFrom(type.getRawClass())) {

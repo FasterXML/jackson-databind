@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 
@@ -85,7 +85,7 @@ public class WriteZoneIdTest extends DateTimeTestBase
         final HashMap<ZonedDateTime, String> map = new HashMap<>();
         map.put(datetime, "");
         String json = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
+                .with(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID)
                 .writeValueAsString(map);
         assertEquals("{\"2007-12-03T10:15:30+01:00[Europe/Warsaw]\":\"\"}", json);
     }

@@ -397,7 +397,8 @@ public abstract class PrimitiveArrayDeserializers<T>
                     chunk[ix++] = value;
                 }
             } catch (Exception e) {
-                throw DatabindException.wrapWithPath(e, chunk, builder.bufferedSize() + ix);
+                throw DatabindException.wrapWithPath(ctxt, e,
+                        new JacksonException.Reference(chunk, builder.bufferedSize() + ix));
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }
@@ -511,7 +512,8 @@ public abstract class PrimitiveArrayDeserializers<T>
                     chunk[ix++] = value;
                 }
             } catch (Exception e) {
-                throw DatabindException.wrapWithPath(e, chunk, builder.bufferedSize() + ix);
+                throw DatabindException.wrapWithPath(ctxt, e,
+                        new JacksonException.Reference(chunk, builder.bufferedSize() + ix));
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }
@@ -601,7 +603,8 @@ public abstract class PrimitiveArrayDeserializers<T>
                     chunk[ix++] = value;
                 }
             } catch (Exception e) {
-                throw DatabindException.wrapWithPath(e, chunk, builder.bufferedSize() + ix);
+                throw DatabindException.wrapWithPath(ctxt, e,
+                        new JacksonException.Reference(chunk, builder.bufferedSize() + ix));
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }
@@ -677,7 +680,8 @@ public abstract class PrimitiveArrayDeserializers<T>
                     chunk[ix++] = value;
                 }
             } catch (Exception e) {
-                throw DatabindException.wrapWithPath(e, chunk, builder.bufferedSize() + ix);
+                throw DatabindException.wrapWithPath(ctxt, e,
+                        new JacksonException.Reference(chunk, builder.bufferedSize() + ix));
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }
@@ -753,7 +757,8 @@ public abstract class PrimitiveArrayDeserializers<T>
                     chunk[ix++] = value;
                 }
             } catch (Exception e) {
-                throw DatabindException.wrapWithPath(e, chunk, builder.bufferedSize() + ix);
+                throw DatabindException.wrapWithPath(ctxt, e,
+                        new JacksonException.Reference(chunk, builder.bufferedSize() + ix));
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }
@@ -822,7 +827,8 @@ public abstract class PrimitiveArrayDeserializers<T>
                     chunk[ix++] = value;
                 }
             } catch (Exception e) {
-                throw DatabindException.wrapWithPath(e, chunk, builder.bufferedSize() + ix);
+                throw DatabindException.wrapWithPath(ctxt, e,
+                        new JacksonException.Reference(chunk, builder.bufferedSize() + ix));
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }
@@ -890,7 +896,8 @@ public abstract class PrimitiveArrayDeserializers<T>
                     chunk[ix++] = value;
                 }
             } catch (Exception e) {
-                throw DatabindException.wrapWithPath(e, chunk, builder.bufferedSize() + ix);
+                throw DatabindException.wrapWithPath(ctxt, e,
+                        new JacksonException.Reference(chunk, builder.bufferedSize() + ix));
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }

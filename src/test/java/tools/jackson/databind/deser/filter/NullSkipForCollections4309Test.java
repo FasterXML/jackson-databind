@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,7 +43,7 @@ public class NullSkipForCollections4309Test
         // When
         Data1 data = JsonMapper.builder()
             .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.SKIP))
-            .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+            .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
             .build()
             .readValue(json, Data1.class); // will be [TWO, null]
 

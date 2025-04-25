@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -147,7 +148,7 @@ public class EnumAltIdTest
     @Test
     public void testFailWhenCaseSensitiveAndToStringIsUpperCase() throws IOException {
         ObjectReader r = READER_DEFAULT.forType(LowerCaseEnum.class)
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+                .with(EnumFeature.READ_ENUMS_USING_TO_STRING);
         try {
             r.readValue("\"A\"");
             fail("InvalidFormatException expected");
@@ -166,7 +167,7 @@ public class EnumAltIdTest
     @Test
     public void testEnumDesIgnoringCaseWithUpperCaseToString() throws IOException {
         ObjectReader r = MAPPER_IGNORE_CASE.readerFor(LowerCaseEnum.class)
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+                .with(EnumFeature.READ_ENUMS_USING_TO_STRING);
         assertEquals(LowerCaseEnum.A, r.readValue("\"A\""));
     }
 
@@ -245,7 +246,7 @@ public class EnumAltIdTest
     @Test
     public void testEnumWithAliasAndToStringSupported() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_2.class)
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+                .with(EnumFeature.READ_ENUMS_USING_TO_STRING);
         MyEnum2352_2 nonAliased = reader.readValue(q("a"));
         assertEquals(MyEnum2352_2.A, nonAliased);
         MyEnum2352_2 singleAlias = reader.readValue(q("singleAlias"));
@@ -260,7 +261,7 @@ public class EnumAltIdTest
     @Test
     public void testEnumWithAliasAndDefaultForUnknownValueEnabled() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_3.class)
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         MyEnum2352_3 nonAliased = reader.readValue(q("A"));
         assertEquals(MyEnum2352_3.A, nonAliased);
         MyEnum2352_3 singleAlias = reader.readValue(q("singleAlias"));
@@ -342,7 +343,7 @@ public class EnumAltIdTest
         // So the test should fail
         try {
             JsonMapper.builder()
-                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .build()
                 .readValue(UNKNOWN_JSON, SpeedWithoutDefaultOverride.class);
             fail();
@@ -354,7 +355,7 @@ public class EnumAltIdTest
         // Second, global configuration is DISABLED and JsonFeature configuration is ENABLED
         // So the test should pass
         SpeedWithDefaultOverride pojo = JsonMapper.builder()
-            .disable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+            .disable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
             .build()
             .readValue(UNKNOWN_JSON, SpeedWithDefaultOverride.class);
 
@@ -373,7 +374,7 @@ public class EnumAltIdTest
     {
         try {
             Book4481 book = MAPPER.readerFor(Book4481.class)
-                    .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                    .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                     .readValue("{\"color\":\"WHITE\"}");
             fail("Should have failed; got: "+book.color);
         } catch (InvalidFormatException e) {

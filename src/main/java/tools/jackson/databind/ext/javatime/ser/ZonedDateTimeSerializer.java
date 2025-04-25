@@ -8,8 +8,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
+
 import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 
 public class ZonedDateTimeSerializer extends InstantSerializerBase<ZonedDateTime> {
     public static final ZonedDateTimeSerializer INSTANCE = new ZonedDateTimeSerializer();
@@ -93,8 +94,9 @@ public class ZonedDateTimeSerializer extends InstantSerializerBase<ZonedDateTime
         return formatted;
     }    
     public boolean shouldWriteWithZoneId(SerializationContext ctxt) {
-        return (_writeZoneId != null) ? _writeZoneId :
-            ctxt.isEnabled(SerializationFeature.WRITE_DATES_WITH_ZONE_ID);
+        return (_writeZoneId != null)
+                ? _writeZoneId
+                : ctxt.isEnabled(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID);
     }
 
     @Override

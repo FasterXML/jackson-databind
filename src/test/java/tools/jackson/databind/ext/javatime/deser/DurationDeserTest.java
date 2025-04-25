@@ -18,6 +18,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
@@ -58,11 +59,10 @@ public class DurationDeserTest extends DateTimeTestBase
         public WrapperWithReadTimestampsAsNanosEnabled(Duration v) { value = v; }
     }
 
-
     @Test
     public void testDeserializationAsFloat01() throws Exception
     {
-        Duration value = READER.with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("60.0");
         assertEquals(Duration.ofSeconds(60L, 0), value, "The value is not correct.");
     }
@@ -70,7 +70,7 @@ public class DurationDeserTest extends DateTimeTestBase
     @Test
     public void testDeserializationAsFloat02() throws Exception
     {
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("60.0");
         assertEquals(Duration.ofSeconds(60L, 0), value, "The value is not correct.");
     }
@@ -78,7 +78,7 @@ public class DurationDeserTest extends DateTimeTestBase
     @Test
     public void testDeserializationAsFloat03() throws Exception
     {
-        Duration value = READER.with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("13498.000008374");
         assertEquals(Duration.ofSeconds(13498L, 8374), value, "The value is not correct.");
     }
@@ -86,7 +86,7 @@ public class DurationDeserTest extends DateTimeTestBase
     @Test
     public void testDeserializationAsFloat04() throws Exception
     {
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("13498.000008374");
         assertEquals(Duration.ofSeconds(13498L, 8374), value, "The value is not correct.");
     }
@@ -98,7 +98,7 @@ public class DurationDeserTest extends DateTimeTestBase
     public void testDeserializationAsFloatEdgeCase01() throws Exception
     {
         String input = Long.MAX_VALUE + ".999999999";
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                                  .readValue(input);
         assertEquals(Long.MAX_VALUE, value.getSeconds());
         assertEquals(999999999, value.getNano());
@@ -111,7 +111,7 @@ public class DurationDeserTest extends DateTimeTestBase
     public void testDeserializationAsFloatEdgeCase02() throws Exception
     {
         String input = Long.MIN_VALUE + ".0";
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                                  .readValue(input);
         assertEquals(Long.MIN_VALUE, value.getSeconds());
         assertEquals(0, value.getNano());
@@ -122,7 +122,7 @@ public class DurationDeserTest extends DateTimeTestBase
     {
         // Duration can't go this low
         assertThrows(ArithmeticException.class, () -> {
-            READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+            READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                     .readValue(Long.MIN_VALUE + ".1");
         });
     }
@@ -138,7 +138,7 @@ public class DurationDeserTest extends DateTimeTestBase
     {
         // Just beyond the upper-bound of Duration.
         String input = new BigInteger(Long.toString(Long.MAX_VALUE)).add(BigInteger.ONE) + ".0";
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                                  .readValue(input);
         assertEquals(Long.MIN_VALUE, value.getSeconds());  // We've turned a positive number into negative duration!
     }
@@ -148,7 +148,7 @@ public class DurationDeserTest extends DateTimeTestBase
     {
         // Just beyond the lower-bound of Duration.
         String input = new BigInteger(Long.toString(Long.MIN_VALUE)).subtract(BigInteger.ONE) + ".0";
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                                  .readValue(input);
         assertEquals(Long.MAX_VALUE, value.getSeconds());  // We've turned a negative number into positive duration!
     }
@@ -158,7 +158,7 @@ public class DurationDeserTest extends DateTimeTestBase
     {
         // Into the positive zone where everything becomes zero.
         String input = "1e64";
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(input);
         assertEquals(0, value.getSeconds());
     }
@@ -168,7 +168,7 @@ public class DurationDeserTest extends DateTimeTestBase
     {
         // Into the negative zone where everything becomes zero.
         String input = "-1e64";
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(input);
         assertEquals(0, value.getSeconds());
     }
@@ -182,7 +182,7 @@ public class DurationDeserTest extends DateTimeTestBase
     public void testDeserializationAsFloatEdgeCase08() throws Exception
     {
         String input = "1e10000000";
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                                  .readValue(input);
         assertEquals(0, value.getSeconds());
     }
@@ -192,7 +192,7 @@ public class DurationDeserTest extends DateTimeTestBase
     public void testDeserializationAsFloatEdgeCase09() throws Exception
     {
         String input = "-1e10000000";
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(input);
         assertEquals(0, value.getSeconds());
     }
@@ -205,7 +205,7 @@ public class DurationDeserTest extends DateTimeTestBase
     public void testDeserializationAsFloatEdgeCase10() throws Exception
     {
         String input = "1e-10000000";
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(input);
         assertEquals(0, value.getSeconds());
     }
@@ -215,7 +215,7 @@ public class DurationDeserTest extends DateTimeTestBase
     public void testDeserializationAsFloatEdgeCase11() throws Exception
     {
         String input = "-1e-10000000";
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(input);
         assertEquals(0, value.getSeconds());
     }
@@ -223,7 +223,7 @@ public class DurationDeserTest extends DateTimeTestBase
     @Test
     public void testDeserializationAsInt01() throws Exception
     {
-        Duration value = READER.with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("60");
         assertEquals(Duration.ofSeconds(60L, 0), value, "The value is not correct.");
     }
@@ -231,7 +231,7 @@ public class DurationDeserTest extends DateTimeTestBase
     @Test
     public void testDeserializationAsInt02() throws Exception
     {
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("60000");
         assertEquals(Duration.ofSeconds(60L, 0), value, "The value is not correct.");
     }
@@ -239,7 +239,7 @@ public class DurationDeserTest extends DateTimeTestBase
     @Test
     public void testDeserializationAsInt03() throws Exception
     {
-        Duration value = READER.with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("13498");
         assertEquals(Duration.ofSeconds(13498L, 0), value, "The value is not correct.");
     }
@@ -247,7 +247,7 @@ public class DurationDeserTest extends DateTimeTestBase
     @Test
     public void testDeserializationAsInt04() throws Exception
     {
-        Duration value = READER.without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("13498000");
         assertEquals(Duration.ofSeconds(13498L, 0), value, "The value is not correct.");
     }
@@ -307,7 +307,7 @@ public class DurationDeserTest extends DateTimeTestBase
                 .addMixIn(TemporalAmount.class, MockObjectConfiguration.class)
                 .build();
         TemporalAmount value = mapper.readerFor(TemporalAmount.class)
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(prefix + "13498.000008374]");
 
         assertTrue(value instanceof Duration, "The value should be a Duration.");
@@ -322,7 +322,7 @@ public class DurationDeserTest extends DateTimeTestBase
                 .addMixIn(TemporalAmount.class, MockObjectConfiguration.class)
                 .build();
         TemporalAmount value = mapper.readerFor(TemporalAmount.class)
-                .with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(prefix + "13498]");
         assertTrue(value instanceof Duration, "The value should be a Duration.");
         assertEquals(Duration.ofSeconds(13498L), value, "The value is not correct.");
@@ -337,7 +337,7 @@ public class DurationDeserTest extends DateTimeTestBase
                 .build();
         TemporalAmount value = mapper
                 .readerFor(TemporalAmount.class)
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(prefix + "13498837]");
         assertTrue(value instanceof Duration, "The value should be a Duration.");
         assertEquals(Duration.ofSeconds(13498L, 837000000), value, "The value is not correct.");

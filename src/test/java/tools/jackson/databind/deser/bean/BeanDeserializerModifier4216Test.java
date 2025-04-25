@@ -52,7 +52,8 @@ public class BeanDeserializerModifier4216Test extends DatabindTestUtil
 
                 @Override
                 public ValueDeserializer<?> modifyArrayDeserializer(DeserializationConfig config,
-                        ArrayType valueType, BeanDescription beanDesc, ValueDeserializer<?> deserializer)
+                        ArrayType valueType, BeanDescription.Supplier beanDescRef,
+                        ValueDeserializer<?> deserializer)
                 {
                     // Count invocations
                     counter.incrementAndGet();

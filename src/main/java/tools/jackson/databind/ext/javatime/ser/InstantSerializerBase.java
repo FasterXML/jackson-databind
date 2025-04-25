@@ -29,6 +29,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.JsonParser.NumberType;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
@@ -135,7 +136,7 @@ public abstract class InstantSerializerBase<T extends Temporal>
                 // If the user specified to use the context TimeZone explicitly, and the formatter provided doesn't contain a TZ
                 // Then we use the TZ specified in the objectMapper
                 if (ctxt.getConfig().hasExplicitTimeZone()
-                        && ctxt.isEnabled(SerializationFeature.WRITE_DATES_WITH_CONTEXT_TIME_ZONE)) {
+                        && ctxt.isEnabled(DateTimeFeature.WRITE_DATES_WITH_CONTEXT_TIME_ZONE)) {
                     formatter = formatter.withZone(ctxt.getTimeZone().toZoneId());
                 }
             }

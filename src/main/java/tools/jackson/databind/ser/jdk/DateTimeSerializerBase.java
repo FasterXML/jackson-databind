@@ -13,6 +13,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.jsonFormatVisitors.*;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.util.StdDateFormat;
@@ -173,7 +174,7 @@ df0.getClass().getName()));
         }
         if (_customFormat == null) {
             if (serializers != null) {
-                return serializers.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                return serializers.isEnabled(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
             }
             // 12-Jun-2014, tatu: Is it legal not to have provider? Was NPE:ing earlier so leave a check
             throw new IllegalArgumentException("Null SerializationContext passed for "+handledType().getName());

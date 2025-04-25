@@ -23,13 +23,14 @@ jobs:
           - 'FasterXML/jackson-dataformat-xml'
           - 'FasterXML/jackson-datatypes-collections'
           - 'FasterXML/jackson-datatypes-misc'
+          - 'FasterXML/jackson-datatype-hibernate'
           - 'FasterXML/jackson-datatype-joda'
           - 'FasterXML/jackson-module-kotlin'
           - 'FasterXML/jackson-module-scala'
-          - 'FasterXML/jackson-jaxrs-providers'
           - 'FasterXML/jackson-jakarta-rs-providers'
-          - 'FasterXML/jackson-integration-tests'
+          - 'FasterXML/jackson-jaxrs-providers'
           - 'FasterXML/jackson-benchmarks'
+          - 'FasterXML/jackson-integration-tests'
 
     steps:
       - name: Repository dispatch
@@ -41,5 +42,5 @@ jobs:
           # Could push information on what was built but not yet
           client-payload: '{"version": "N/A" }'
       - name: Delay between dispatches
-        run: sleep 10s
+        run: sleep 8s
         shell: bash

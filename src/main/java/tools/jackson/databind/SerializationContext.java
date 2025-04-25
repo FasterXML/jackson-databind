@@ -17,6 +17,7 @@ import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.cfg.ContextAttributes;
 import tools.jackson.databind.cfg.DatatypeFeature;
 import tools.jackson.databind.cfg.DatatypeFeatures;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.cfg.GeneratorSettings;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
@@ -958,13 +959,13 @@ public abstract class SerializationContext
             JavaType fullType)
     {
         // Important: must introspect all annotations, not just class
-        BeanDescription beanDesc = introspectBeanDescription(fullType);
+        BeanDescription.Supplier beanDescRef = lazyIntrospectBeanDescription(fullType);
         ValueSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
+            ser = _serializerFactory.createSerializer(this, fullType, beanDescRef, null);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
-            reportBadTypeDefinition(beanDesc, ClassUtil.exceptionMessage(iae));
+            reportBadTypeDefinition(beanDescRef, ClassUtil.exceptionMessage(iae));
             ser = null; // never gets here
         }
         // Always cache -- and in this case both for raw and full type
@@ -975,10 +976,10 @@ public abstract class SerializationContext
     protected ValueSerializer<Object> _createAndCacheUntypedSerializer(JavaType type)
     {
         // Important: must introspect all annotations, not just class
-        BeanDescription beanDesc = introspectBeanDescription(type);
+        BeanDescription.Supplier beanDescRef = lazyIntrospectBeanDescription(type);
         ValueSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, type, beanDesc, null);
+            ser = _serializerFactory.createSerializer(this, type, beanDescRef, null);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
             throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
@@ -995,10 +996,10 @@ public abstract class SerializationContext
     protected ValueSerializer<Object> _createAndCachePropertySerializer(Class<?> rawType,
             JavaType fullType, BeanProperty prop)
     {
-        BeanDescription beanDesc = introspectBeanDescription(fullType);
+        BeanDescription.Supplier beanDescRef = lazyIntrospectBeanDescription(fullType);
         ValueSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
+            ser = _serializerFactory.createSerializer(this, fullType, beanDescRef, null);
         } catch (IllegalArgumentException iae) {
             throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
@@ -1007,7 +1008,7 @@ public abstract class SerializationContext
         if (prop == null) {
             return ser;
         }
-        return _checkShapeShifting(fullType, beanDesc, prop, ser);
+        return _checkShapeShifting(fullType, beanDescRef, prop, ser);
     }
 
     /**
@@ -1017,10 +1018,10 @@ public abstract class SerializationContext
     protected ValueSerializer<Object> _createAndCachePropertySerializer(JavaType type,
             BeanProperty prop)
     {
-        BeanDescription beanDesc = introspectBeanDescription(type);
+        BeanDescription.Supplier beanDescRef = lazyIntrospectBeanDescription(type);
         ValueSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, type, beanDesc, null);
+            ser = _serializerFactory.createSerializer(this, type, beanDescRef, null);
         } catch (IllegalArgumentException iae) {
             throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
@@ -1029,12 +1030,12 @@ public abstract class SerializationContext
         if (prop == null) {
             return ser;
         }
-        return _checkShapeShifting(type, beanDesc, prop, ser);
+        return _checkShapeShifting(type, beanDescRef, prop, ser);
     }
 
     @SuppressWarnings("unchecked")
-    private ValueSerializer<Object> _checkShapeShifting(JavaType type, BeanDescription beanDesc,
-            BeanProperty prop, ValueSerializer<?> ser)
+    private ValueSerializer<Object> _checkShapeShifting(JavaType type,
+            BeanDescription.Supplier beanDescRef, BeanProperty prop, ValueSerializer<?> ser)
     {
         JsonFormat.Value overrides = prop.findFormatOverrides(_config);
         if (overrides != null) {
@@ -1044,7 +1045,7 @@ public abstract class SerializationContext
                 ser = ser2;
             } else {
                 // But if not, we need to re-create it via factory
-                ser = _serializerFactory.createSerializer(this, type, beanDesc, overrides);
+                ser = _serializerFactory.createSerializer(this, type, beanDescRef, overrides);
             }
         }
         return (ValueSerializer<Object>) ser;
@@ -1180,7 +1181,7 @@ public abstract class SerializationContext
     public final void defaultSerializeDateValue(long timestamp, JsonGenerator g)
         throws JacksonException
     {
-        if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
+        if (isEnabled(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)) {
             g.writeNumber(timestamp);
         } else {
             g.writeString(_dateFormat().format(new Date(timestamp)));
@@ -1197,7 +1198,7 @@ public abstract class SerializationContext
     public final void defaultSerializeDateValue(Date date, JsonGenerator g)
         throws JacksonException
     {
-        if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
+        if (isEnabled(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)) {
             g.writeNumber(date.getTime());
         } else {
             g.writeString(_dateFormat().format(date));
@@ -1206,13 +1207,13 @@ public abstract class SerializationContext
 
     /**
      * Method that will handle serialization of Dates used as {@link java.util.Map} keys,
-     * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
+     * based on {@link DateTimeFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
     public void defaultSerializeDateKey(long timestamp, JsonGenerator g)
         throws JacksonException
     {
-        if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
+        if (isEnabled(DateTimeFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             g.writeName(String.valueOf(timestamp));
         } else {
             g.writeName(_dateFormat().format(new Date(timestamp)));
@@ -1221,12 +1222,12 @@ public abstract class SerializationContext
 
     /**
      * Method that will handle serialization of Dates used as {@link java.util.Map} keys,
-     * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
+     * based on {@link DateTimeFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
     public void defaultSerializeDateKey(Date date, JsonGenerator g) throws JacksonException
     {
-        if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
+        if (isEnabled(DateTimeFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             g.writeName(String.valueOf(date.getTime()));
         } else {
             g.writeName(_dateFormat().format(date));

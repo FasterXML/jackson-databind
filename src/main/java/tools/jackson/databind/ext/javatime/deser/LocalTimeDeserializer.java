@@ -29,6 +29,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 
 /**
  * Deserializer for Java 8 temporal {@link LocalTime}s.
@@ -167,7 +168,7 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
 
     protected boolean shouldReadTimestampsAsNanoseconds(DeserializationContext context) {
         return (_readTimestampsAsNanosOverride != null) ? _readTimestampsAsNanosOverride :
-            context.isEnabled(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+            context.isEnabled(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
     }
 
     protected LocalTime _fromString(JsonParser p, DeserializationContext ctxt,

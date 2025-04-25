@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +27,9 @@ public class ZonedDateTimeSerWithJsonFormat333Test
         public ZonedDateTime value;
     }
 
-    private final ObjectMapper MAPPER = mapperBuilder().enable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID).build();
+    private final ObjectMapper MAPPER = mapperBuilder()
+            .enable(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID)
+            .build();
 
     @Test
     public void testJsonFormatOverridesSerialization() throws Exception

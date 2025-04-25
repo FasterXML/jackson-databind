@@ -136,7 +136,7 @@ public class LocalDateTimeDeserTest
     public void testDeserializationAsTimestamp03Nanoseconds()
     {
         ObjectReader r = READER
-                .with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+                .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
         LocalDateTime value = r.readValue("[2013,8,21,9,22,0,57]");
         LocalDateTime time = LocalDateTime.of(2013, Month.AUGUST, 21, 9, 22, 0, 57);
         assertEquals(time, value, "The value is not correct.");
@@ -146,7 +146,7 @@ public class LocalDateTimeDeserTest
     public void testDeserializationAsTimestamp03Milliseconds()
     {
         ObjectReader r = READER
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
         LocalDateTime value = r.readValue("[2013,8,21,9,22,0,57]");
         LocalDateTime time = LocalDateTime.of(2013, Month.AUGUST, 21, 9, 22, 0, 57000000);
         assertEquals(time, value, "The value is not correct.");
@@ -156,7 +156,7 @@ public class LocalDateTimeDeserTest
     public void testDeserializationAsTimestamp04Nanoseconds()
     {
         ObjectReader r = MAPPER.readerFor(LocalDateTime.class)
-                .with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+                .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
         LocalDateTime value = r.readValue("[2005,11,5,22,31,5,829837]");
         LocalDateTime time = LocalDateTime.of(2005, Month.NOVEMBER, 5, 22, 31, 5, 829837);
         assertEquals(time, value, "The value is not correct.");
@@ -166,7 +166,7 @@ public class LocalDateTimeDeserTest
     public void testDeserializationAsTimestamp04Milliseconds01()
     {
         ObjectReader r = READER
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
         LocalDateTime value = r.readValue("[2005,11,5,22,31,5,829837]");
 
         LocalDateTime time = LocalDateTime.of(2005, Month.NOVEMBER, 5, 22, 31, 5, 829837);
@@ -177,7 +177,7 @@ public class LocalDateTimeDeserTest
     public void testDeserializationAsTimestamp04Milliseconds02()
     {
         ObjectReader r = READER
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
         LocalDateTime value = r.readValue("[2005,11,5,22,31,5,829]");
         LocalDateTime time = LocalDateTime.of(2005, Month.NOVEMBER, 5, 22, 31, 5, 829000000);
         assertEquals(time, value, "The value is not correct.");
@@ -425,7 +425,7 @@ public class LocalDateTimeDeserTest
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         Temporal value = m.readerFor(Temporal.class)
-                .with(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(
                 "[\"" + LocalDateTime.class.getName() + "\",[2005,11,5,22,31,5,829837]]");
         assertTrue(value instanceof LocalDateTime, "The value should be a LocalDateTime.");
@@ -441,7 +441,7 @@ public class LocalDateTimeDeserTest
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         Temporal value = m.readerFor(Temporal.class)
-                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(
                 "[\"" + LocalDateTime.class.getName() + "\",[2005,11,5,22,31,5,422]]");
         assertTrue(value instanceof LocalDateTime, "The value should be a LocalDateTime.");
@@ -519,7 +519,7 @@ public class LocalDateTimeDeserTest
     public void testDeserializeToDate() throws Exception
     {
         ObjectMapper m = newMapperBuilder()
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .build();
         String localDateTimeJson = m.writeValueAsString(LocalDateTime.of(1999,10,12,13,45,5));
         assertEquals("\"1999-10-12T13:45:05\"", localDateTimeJson);
@@ -711,12 +711,12 @@ public class LocalDateTimeDeserTest
     public void testDeserializationOfLocalDateTimeMax() throws Exception
     {
         ObjectMapper enabledMapper = mapperBuilder()
-                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build();
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS).build();
         _testLocalDateTimeRoundTrip(enabledMapper, LocalDateTime.MAX);
         _testLocalDateTimeRoundTrip(enabledMapper, LocalDateTime.MIN);
 
         ObjectMapper disabledMapper = mapperBuilder()
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build();
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS).build();
         _testLocalDateTimeRoundTrip(disabledMapper, LocalDateTime.MAX);
         _testLocalDateTimeRoundTrip(disabledMapper, LocalDateTime.MIN);
     }

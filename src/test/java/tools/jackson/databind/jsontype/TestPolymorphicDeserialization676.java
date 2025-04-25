@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -86,7 +87,7 @@ public class TestPolymorphicDeserialization676 extends DatabindTestUtil
     public void testDeSerFail() throws IOException {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .polymorphicTypeValidator(new NoCheckSubTypeValidator())
-                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build();
 
         MapContainer deserMapBad = createDeSerMapContainer(originMap, mapper);
@@ -100,7 +101,7 @@ public class TestPolymorphicDeserialization676 extends DatabindTestUtil
         final ObjectMapper mapper = jsonMapperBuilder()
                 .polymorphicTypeValidator(new NoCheckSubTypeValidator())
                 .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
-                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build();
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("1", 1);

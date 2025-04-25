@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 
@@ -44,7 +44,7 @@ public class LocalDateTimeSerTest
     // 05-Feb-2025, tatu: Use Jackson 2.x defaults wrt as-timestamps
     //   serialization
     private final static ObjectMapper MAPPER = mapperBuilder()
-            .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .build();
 
     @Test
@@ -70,8 +70,8 @@ public class LocalDateTimeSerTest
         LocalDateTime time = LocalDateTime.of(2013, Month.AUGUST, 21, 9, 22, 0, 57);
 
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .with(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(time);
         assertEquals("[2013,8,21,9,22,0,57]", value);
     }
@@ -81,7 +81,7 @@ public class LocalDateTimeSerTest
     {
         LocalDateTime time = LocalDateTime.of(2013, Month.AUGUST, 21, 9, 22, 0, 57);
         String value = MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(time);
         assertEquals("[2013,8,21,9,22,0,0]", value);
     }
@@ -92,7 +92,7 @@ public class LocalDateTimeSerTest
         LocalDateTime time = LocalDateTime.of(2005, Month.NOVEMBER, 5, 22, 31, 5, 829837);
 
         String value = MAPPER.writer()
-                .with(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(time);
         assertEquals("[2005,11,5,22,31,5,829837]", value);
     }
@@ -102,7 +102,7 @@ public class LocalDateTimeSerTest
     {
         LocalDateTime time = LocalDateTime.of(2005, Month.NOVEMBER, 5, 22, 31, 5, 422829837);
         String value = MAPPER.writer()
-                .without(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .without(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .writeValueAsString(time);
         assertEquals("[2005,11,5,22,31,5,422]", value);
     }
@@ -112,7 +112,7 @@ public class LocalDateTimeSerTest
     {
         LocalDateTime time = LocalDateTime.of(1986, Month.JANUARY, 17, 15, 43, 05);
         final ObjectMapper m = newMapperBuilder()
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .build();
         assertEquals("\"1986-01-17T15:43:05\"", m.writeValueAsString(time));
     }
@@ -123,7 +123,7 @@ public class LocalDateTimeSerTest
         LocalDateTime time = LocalDateTime.of(2013, Month.AUGUST, 21, 9, 22, 57);
 
         final ObjectMapper m = newMapperBuilder()
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build();
         String value = m.writeValueAsString(time);
         assertEquals('"' + time.toString() + '"', value);
@@ -134,7 +134,7 @@ public class LocalDateTimeSerTest
     {
         LocalDateTime time = LocalDateTime.of(2005, Month.NOVEMBER, 5, 22, 31, 5, 829837);
         final ObjectMapper m = newMapperBuilder()
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build();
         String value = m.writeValueAsString(time);
         assertEquals('"' + time.toString() + '"', value);
@@ -159,8 +159,8 @@ public class LocalDateTimeSerTest
         LocalDateTime time = LocalDateTime.of(2005, Month.NOVEMBER, 5, 22, 31, 5, 829837);
 
         final ObjectMapper m = newMapperBuilder()
-            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true)
-            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, true)
+            .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
+            .configure(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, true)
             .addMixIn(Temporal.class, MockObjectConfiguration.class)
             .build();
         String value = m.writeValueAsString(time);
@@ -171,8 +171,8 @@ public class LocalDateTimeSerTest
     public void testSerializationWithTypeInfo02() throws Exception
     {
         final ObjectMapper m = newMapperBuilder()
-                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true)
-                .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+                .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
+                .configure(DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         LocalDateTime time = LocalDateTime.of(2005, Month.NOVEMBER, 5, 22, 31, 5, 422829837);
@@ -184,7 +184,7 @@ public class LocalDateTimeSerTest
     public void testSerializationWithTypeInfo03() throws Exception
     {
         final ObjectMapper m = newMapperBuilder()
-                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         LocalDateTime time = LocalDateTime.of(2005, Month.NOVEMBER, 5, 22, 31, 5, 829837);

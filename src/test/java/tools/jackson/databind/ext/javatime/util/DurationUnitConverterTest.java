@@ -5,7 +5,6 @@ import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
-import tools.jackson.databind.ext.javatime.util.DurationUnitConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
 

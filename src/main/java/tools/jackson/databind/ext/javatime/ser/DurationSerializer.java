@@ -27,6 +27,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 import tools.jackson.databind.ext.javatime.util.DurationUnitConverter;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -36,10 +37,10 @@ import tools.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 /**
  * Serializer for Java 8 temporal {@link Duration}s.
  *<p>
- * NOTE: since 2.10, {@link SerializationFeature#WRITE_DURATIONS_AS_TIMESTAMPS}
+ * NOTE: since 2.10, {@link DateTimeFeature#WRITE_DURATIONS_AS_TIMESTAMPS}
  * determines global default used for determining if serialization should use
  * numeric (timestamps) or textual representation. Before this,
- * {@link SerializationFeature#WRITE_DATES_AS_TIMESTAMPS} was used.
+ * {@link DateTimeFeature#WRITE_DATES_AS_TIMESTAMPS} was used.
  *
  * @author Nick Williams
  */
@@ -88,8 +89,8 @@ public class DurationSerializer extends JSR310FormattedSerializerBase<Duration>
 
     // @since 2.10
     @Override
-    protected SerializationFeature getTimestampsFeature() {
-        return SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
+    protected DateTimeFeature getTimestampsFeature() {
+        return DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
     }
 
     @Override

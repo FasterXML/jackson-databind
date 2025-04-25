@@ -43,7 +43,6 @@ public class RecordJsonSerDeser188Test
         }
     }
 
-    @SuppressWarnings("serial")
     static class PrefixStringDeserializer extends StdScalarDeserializer<String>
     {
         protected PrefixStringDeserializer() {

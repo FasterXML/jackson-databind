@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -141,8 +142,8 @@ public class TestObjectIdWithPolymorphic extends DatabindTestUtil
         ObjectMapper om = jsonMapperBuilder()
                 .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL, "@class")
-                .enable(SerializationFeature.WRITE_ENUMS_USING_INDEX,
-                        SerializationFeature.INDENT_OUTPUT)
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .enable(EnumFeature.WRITE_ENUMS_USING_INDEX)
                 .build();
 
         Process p = new Process();

@@ -5,6 +5,7 @@ import java.util.Date;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
@@ -154,12 +155,12 @@ public abstract class JDKKeySerializers
                 {
                     String key;
 
-                    if (provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+                    if (provider.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
                         key = value.toString();
                     } else {
                         Enum<?> e = (Enum<?>) value;
                         // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
-                        if (provider.isEnabled(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
+                        if (provider.isEnabled(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
                             key = String.valueOf(e.ordinal());
                         } else {
                             key = e.name();
@@ -299,7 +300,7 @@ public abstract class JDKKeySerializers
         public void serialize(Object value, JsonGenerator g, SerializationContext serializers)
             throws JacksonException
         {
-            if (serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+            if (serializers.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
                 g.writeName(value.toString());
                 return;
             }
@@ -309,7 +310,7 @@ public abstract class JDKKeySerializers
                 return;
             }
             // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
-            if (serializers.isEnabled(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
+            if (serializers.isEnabled(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
                 g.writeName(String.valueOf(en.ordinal()));
                 return;
             }

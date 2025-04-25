@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ext.javatime.deser.LocalTimeDeserializer;
-import tools.jackson.databind.ext.javatime.ser.LocalTimeSerializer;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 

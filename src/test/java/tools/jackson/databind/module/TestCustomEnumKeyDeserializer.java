@@ -240,7 +240,7 @@ public class TestCustomEnumKeyDeserializer extends DatabindTestUtil
         module.setDeserializerModifier(new ValueDeserializerModifier() {
             @Override
             public ValueDeserializer<Enum> modifyEnumDeserializer(DeserializationConfig config,
-                    final JavaType type, BeanDescription beanDesc,
+                    final JavaType type, BeanDescription.Supplier beanDescRef,
                     final ValueDeserializer<?> deserializer) {
                 return new ValueDeserializer<Enum>() {
                     @Override

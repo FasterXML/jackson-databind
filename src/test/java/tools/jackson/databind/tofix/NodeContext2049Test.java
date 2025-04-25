@@ -55,7 +55,8 @@ public class NodeContext2049Test extends DatabindTestUtil
         }
 
         @Override
-        public ValueInstantiator createContextual(DeserializationContext ctxt, BeanDescription beanDesc) {
+        public ValueInstantiator createContextual(DeserializationContext ctxt,
+                BeanDescription.Supplier beanDescRef) {
             return this;
         }
 
@@ -69,8 +70,8 @@ public class NodeContext2049Test extends DatabindTestUtil
         private static final long serialVersionUID = 1L;
 
         @Override
-        public BeanDeserializerBuilder updateBuilder(DeserializationConfig config, BeanDescription beanDesc,
-                  BeanDeserializerBuilder builder) {
+        public BeanDeserializerBuilder updateBuilder(DeserializationConfig config,
+                BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder builder) {
              for (Iterator<SettableBeanProperty> propertyIt = builder.getProperties(); propertyIt.hasNext(); ) {
                   SettableBeanProperty property = propertyIt.next();
                   builder.addOrReplaceProperty(property.withValueDeserializer(new ParentSettingDeserializerContextual()), false);

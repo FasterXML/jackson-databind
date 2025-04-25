@@ -6,6 +6,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.deser.std.DelegatingDeserializer;
 import tools.jackson.databind.exc.InvalidFormatException;
 
@@ -16,19 +17,23 @@ public class OneBasedMonthDeserializer extends DelegatingDeserializer {
 
     @Override
     public Object deserialize(JsonParser parser, DeserializationContext context) {
-        JsonToken token = parser.currentToken();
-        switch (token) {
-            case VALUE_NUMBER_INT:
-                return _decodeMonth(parser.getIntValue(), parser);
-            case VALUE_STRING:
-                String monthSpec = parser.getString();
-                int oneBasedMonthNumber = _decodeNumber(monthSpec);
-                if (oneBasedMonthNumber >= 0) {
-                    return _decodeMonth(oneBasedMonthNumber, parser);
-                }
-            default:
-                // Otherwise fall through to default handling
-                break;
+        final boolean oneBased = context.isEnabled(DateTimeFeature.ONE_BASED_MONTHS);
+        if (oneBased) {
+            JsonToken token = parser.currentToken();
+            switch (token) {
+                case VALUE_NUMBER_INT:
+                    return _decodeMonth(parser.getIntValue(), parser);
+                case VALUE_STRING:
+                    String monthSpec = parser.getString();
+                    int oneBasedMonthNumber = _decodeNumber(monthSpec);
+                    if (oneBasedMonthNumber >= 0) {
+                        return _decodeMonth(oneBasedMonthNumber, parser);
+                    }
+                default:
+                    // Otherwise fall through to default handling
+                    break;
+            }
+            // fall-through
         }
         return getDelegatee().deserialize(parser, context);
     }

@@ -547,6 +547,15 @@ public class ObjectMapper
         return _serializationConfig.isEnabled(f);
     }
 
+    /**
+     * Method for checking whether given datatype-specific
+     * feature is enabled.
+     */
+    public boolean isEnabled(DatatypeFeature f) {
+        // could call either config object:
+        return _serializationConfig.isEnabled(f);
+    }
+
     /*
     /**********************************************************************
     /* Configuration, accessing module information
@@ -1971,6 +1980,15 @@ public class ObjectMapper
     }
 
     /**
+     * Factory method for constructing {@link ObjectWriter} with
+     * specified features enabled (compared to settings that this
+     * mapper instance has).
+     */
+    public ObjectWriter writer(DatatypeFeature f) {
+        return _newWriter(serializationConfig().with(f));
+    }
+
+    /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified {@link DateFormat}; or, if
      * null passed, using timestamp (64-bit number.
@@ -2121,6 +2139,17 @@ public class ObjectMapper
     public ObjectReader reader(DeserializationFeature first,
             DeserializationFeature... other) {
         return _newReader(deserializationConfig().with(first, other));
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} with
+     * specified feature enabled (compared to settings that this
+     * mapper instance has).
+     * Note that the resulting instance is NOT usable as is,
+     * without defining expected value type.
+     */
+    public ObjectReader reader(DatatypeFeature feature) {
+        return _newReader(deserializationConfig().with(feature));
     }
 
     /**

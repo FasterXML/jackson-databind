@@ -120,7 +120,7 @@ public class BeanAsArrayBuilderDeserializer
         try {
             return _buildMethod.getMember().invoke(builder, (Object[]) null);
         } catch (Exception e) {
-            return wrapInstantiationProblem(e, ctxt);
+            return wrapInstantiationProblem(ctxt, e);
         }
     }
 
@@ -330,7 +330,7 @@ public class BeanAsArrayBuilderDeserializer
             try {
                 builder = creator.build(ctxt, buffer);
             } catch (Exception e) {
-                return wrapInstantiationProblem(e, ctxt);
+                return wrapInstantiationProblem(ctxt, e);
             }
         }
         return builder;

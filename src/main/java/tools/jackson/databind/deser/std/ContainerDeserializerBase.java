@@ -155,7 +155,7 @@ public abstract class ContainerDeserializerBase<T>
             ClassUtil.throwIfRTE(t);
         }
         // for [databind#1141]
-        throw DatabindException.wrapWithPath(t, ref,
-                ClassUtil.nonNull(key, "N/A"));
+        throw DatabindException.wrapWithPath(ctxt, t,
+                    new JacksonException.Reference(ref, ClassUtil.nonNull(key, "N/A")));
     }
 }

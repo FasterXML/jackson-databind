@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -168,7 +169,7 @@ public class EnumMapDeserializationTest
     {
         // can't reuse global one due to reconfig
         ObjectReader r = MAPPER.reader()
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+                .with(EnumFeature.READ_ENUMS_USING_TO_STRING);
         EnumMap<LowerCaseEnum,String> value = r.forType(
             new TypeReference<EnumMap<LowerCaseEnum,String>>() { })
                 .readValue("{\"a\":\"value\"}");
@@ -270,14 +271,14 @@ public class EnumMapDeserializationTest
         // first, via EnumMap
         EnumMap<TestEnumWithDefault,String> value = MAPPER
                 .readerFor(new TypeReference<EnumMap<TestEnumWithDefault,String>>() { })
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .readValue("{\"unknown\":\"value\"}");
         assertEquals(1, value.size());
         assertEquals("value", value.get(TestEnumWithDefault.OK));
 
         Map<TestEnumWithDefault,String> value2 = MAPPER
                 .readerFor(new TypeReference<Map<TestEnumWithDefault,String>>() { })
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .readValue("{\"unknown\":\"value\"}");
         assertEquals(1, value2.size());
         assertEquals("value", value2.get(TestEnumWithDefault.OK));
@@ -290,14 +291,14 @@ public class EnumMapDeserializationTest
         // first, via EnumMap
         EnumMap<TestEnumWithDefault,String> value = MAPPER
                 .readerFor(new TypeReference<EnumMap<TestEnumWithDefault,String>>() { })
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .readValue("{\"unknown\":\"value\"}");
         assertEquals(0, value.size());
 
         // then regular Map
         Map<TestEnumWithDefault,String> value2 = MAPPER
                 .readerFor(new TypeReference<Map<TestEnumWithDefault,String>>() { })
-                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .readValue("{\"unknown\":\"value\"}");
         // 25-Jan-2018, tatu: as per [databind#1883], we upgrade it to `EnumMap`, which won't accept nulls...
         assertEquals(0, value2.size());
@@ -313,13 +314,13 @@ public class EnumMapDeserializationTest
         map.put(MyEnum2457.B, "2");
         assertEquals(a2q("{'A':'1','B':'2'}"),
                 MAPPER.writer()
-                        .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                        .without(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                         .writeValueAsString(map));
 
         // But should be able to override
         assertEquals(a2q("{'"+MyEnum2457.A.toString()+"':'1','"+MyEnum2457.B.toString()+"':'2'}"),
                 MAPPER.writer()
-                    .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                    .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                     .writeValueAsString(map));
     }
 
@@ -338,13 +339,13 @@ public class EnumMapDeserializationTest
         map.put(MyEnum2457Base.B, "2");
         assertEquals(a2q("{'a_mixin':'1','b_mixin':'2'}"),
                 mixinMapper.writer()
-                        .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                        .without(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                         .writeValueAsString(map));
 
         // But should be able to override
         assertEquals(a2q("{'"+MyEnum2457Base.A.toString()+"':'1','"+MyEnum2457Base.B.toString()+"':'2'}"),
                 mixinMapper.writer()
-                        .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                        .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                         .writeValueAsString(map));
     }
 

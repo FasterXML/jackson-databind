@@ -76,7 +76,7 @@ public class SimpleDeserializers
 
     @Override
     public ValueDeserializer<?> findArrayDeserializer(ArrayType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         return _find(type);
@@ -84,14 +84,14 @@ public class SimpleDeserializers
 
     @Override
     public ValueDeserializer<?> findBeanDeserializer(JavaType type,
-            DeserializationConfig config, BeanDescription beanDesc)
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef)
     {
         return _find(type);
     }
 
     @Override
     public ValueDeserializer<?> findCollectionDeserializer(CollectionType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             TypeDeserializer elementTypeDeserializer,
             ValueDeserializer<?> elementDeserializer)
     {
@@ -100,7 +100,7 @@ public class SimpleDeserializers
 
     @Override
     public ValueDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             TypeDeserializer elementTypeDeserializer,
             ValueDeserializer<?> elementDeserializer)
     {
@@ -109,7 +109,7 @@ public class SimpleDeserializers
 
     @Override
     public ValueDeserializer<?> findEnumDeserializer(Class<?> type,
-            DeserializationConfig config, BeanDescription beanDesc)
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef)
     {
         if (_classMappings == null) {
             return null;
@@ -129,7 +129,7 @@ public class SimpleDeserializers
 
     @Override
     public ValueDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
-            DeserializationConfig config, BeanDescription beanDesc)
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef)
     {
         if (_classMappings == null) {
             return null;
@@ -139,7 +139,7 @@ public class SimpleDeserializers
 
     @Override
     public ValueDeserializer<?> findReferenceDeserializer(ReferenceType refType,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             TypeDeserializer contentTypeDeserializer, ValueDeserializer<?> contentDeserializer)
     {
         // 21-Oct-2015, tatu: Unlikely this will really get used (reference types need more
@@ -149,7 +149,7 @@ public class SimpleDeserializers
 
     @Override
     public ValueDeserializer<?> findMapDeserializer(MapType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
             ValueDeserializer<?> elementDeserializer)
@@ -159,7 +159,7 @@ public class SimpleDeserializers
 
     @Override
     public ValueDeserializer<?> findMapLikeDeserializer(MapLikeType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
             ValueDeserializer<?> elementDeserializer)

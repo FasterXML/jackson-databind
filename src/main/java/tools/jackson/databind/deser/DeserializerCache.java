@@ -322,46 +322,46 @@ public final class DeserializerCache
         if (type.isAbstract() || type.isMapLikeType() || type.isCollectionLikeType()) {
             type = config.mapAbstractType(type);
         }
-        BeanDescription beanDesc = ctxt.introspectBeanDescription(type);
+        BeanDescription.Supplier beanDescRef = ctxt.lazyIntrospectBeanDescription(type);
         // Then: does type define explicit deserializer to use, with annotation(s)?
         ValueDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt,
-                beanDesc.getClassInfo());
+                beanDescRef.getClassInfo());
         if (deser != null) {
             return deser;
         }
 
         // If not, may have further type-modification annotations to check:
-        JavaType newType = modifyTypeByAnnotation(ctxt, beanDesc.getClassInfo(), type);
+        JavaType newType = modifyTypeByAnnotation(ctxt, beanDescRef.getClassInfo(), type);
         if (newType != type) {
             type = newType;
-            beanDesc = ctxt.introspectBeanDescription(newType);
+            beanDescRef = ctxt.lazyIntrospectBeanDescription(newType);
         }
 
         // We may also have a Builder type to consider...
-        Class<?> builder = beanDesc.findPOJOBuilder();
+        Class<?> builder = beanDescRef.get().findPOJOBuilder();
         if (builder != null) {
             return (ValueDeserializer<Object>) factory.createBuilderBasedDeserializer(
-            		ctxt, type, beanDesc, builder);
+            		ctxt, type, beanDescRef, builder);
         }
 
         // Or perhaps a Converter?
-        Converter<Object,Object> conv = beanDesc.findDeserializationConverter();
+        Converter<Object,Object> conv = beanDescRef.get().findDeserializationConverter();
         if (conv != null) {
             // otherwise need to do bit of introspection
             JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
             // One more twist, as per [databind#288]; probably need to get new BeanDesc
             if (!delegateType.hasRawClass(type.getRawClass())) {
-                beanDesc = ctxt.introspectBeanDescription(delegateType);
+                beanDescRef = ctxt.lazyIntrospectBeanDescription(delegateType);
             }
             return new StdConvertingDeserializer<Object>(conv, delegateType,
-                    _createDeserializer2(ctxt, factory, delegateType, beanDesc));
+                    _createDeserializer2(ctxt, factory, delegateType, beanDescRef));
         }
         // Nope, regular deserializer
-        return (ValueDeserializer<Object>) _createDeserializer2(ctxt, factory, type, beanDesc);
+        return (ValueDeserializer<Object>) _createDeserializer2(ctxt, factory, type, beanDescRef);
     }
 
     protected ValueDeserializer<?> _createDeserializer2(DeserializationContext ctxt,
-            DeserializerFactory factory, JavaType type, BeanDescription beanDesc)
+            DeserializerFactory factory, JavaType type, BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
         // If not, let's see which factory method to use
@@ -369,11 +369,11 @@ public final class DeserializerCache
         // 12-Feb-20202, tatu: Need to ensure that not only all Enum implementations get
         //    there, but also `Enum` -- latter wrt [databind#2605], polymorphic usage
         if (type.isEnumType()) {
-            return factory.createEnumDeserializer(ctxt, type, beanDesc);
+            return factory.createEnumDeserializer(ctxt, type, beanDescRef);
         }
         if (type.isContainerType()) {
             if (type.isArrayType()) {
-                return factory.createArrayDeserializer(ctxt, (ArrayType) type, beanDesc);
+                return factory.createArrayDeserializer(ctxt, (ArrayType) type, beanDescRef);
             }
             if (type.isMapLikeType()) {
                 // 11-Mar-2017, tatu: As per [databind#1554], also need to block
@@ -381,13 +381,13 @@ public final class DeserializerCache
                 // Ideally we'd determine it bit later on (to allow custom handler checks)
                 // but that won't work for other reasons. So do it here.
                 // (read: rewrite for 3.0)
-                JsonFormat.Value format = beanDesc.findExpectedFormat(type.getRawClass());
+                JsonFormat.Value format = beanDescRef.get().findExpectedFormat(type.getRawClass());
                 if (format.getShape() != JsonFormat.Shape.POJO) {
                     MapLikeType mlt = (MapLikeType) type;
                     if (mlt instanceof MapType) {
-                        return factory.createMapDeserializer(ctxt,(MapType) mlt, beanDesc);
+                        return factory.createMapDeserializer(ctxt,(MapType) mlt, beanDescRef);
                     }
-                    return factory.createMapLikeDeserializer(ctxt, mlt, beanDesc);
+                    return factory.createMapLikeDeserializer(ctxt, mlt, beanDescRef);
                 }
             }
             if (type.isCollectionLikeType()) {
@@ -395,23 +395,23 @@ public final class DeserializerCache
                  * Ideally we'd determine it bit later on (to allow custom handler checks),
                  * but that won't work for other reasons. So do it here.
                  */
-                JsonFormat.Value format = beanDesc.findExpectedFormat(type.getRawClass());
+                JsonFormat.Value format = beanDescRef.get().findExpectedFormat(type.getRawClass());
                 if (format.getShape() != JsonFormat.Shape.POJO) {
                     CollectionLikeType clt = (CollectionLikeType) type;
                     if (clt instanceof CollectionType) {
-                        return factory.createCollectionDeserializer(ctxt, (CollectionType) clt, beanDesc);
+                        return factory.createCollectionDeserializer(ctxt, (CollectionType) clt, beanDescRef);
                     }
-                    return factory.createCollectionLikeDeserializer(ctxt, clt, beanDesc);
+                    return factory.createCollectionLikeDeserializer(ctxt, clt, beanDescRef);
                 }
             }
         }
         if (type.isReferenceType()) {
-            return factory.createReferenceDeserializer(ctxt, (ReferenceType) type, beanDesc);
+            return factory.createReferenceDeserializer(ctxt, (ReferenceType) type, beanDescRef);
         }
         if (JsonNode.class.isAssignableFrom(type.getRawClass())) {
-            return factory.createTreeDeserializer(config, type, beanDesc);
+            return factory.createTreeDeserializer(config, type, beanDescRef);
         }
-        return factory.createBeanDeserializer(ctxt, type, beanDesc);
+        return factory.createBeanDeserializer(ctxt, type, beanDescRef);
     }
 
     /**

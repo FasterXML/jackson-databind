@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ext.javatime.deser.LocalDateTimeDeserializer;
-import tools.jackson.databind.ext.javatime.ser.LocalDateTimeSerializer;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 

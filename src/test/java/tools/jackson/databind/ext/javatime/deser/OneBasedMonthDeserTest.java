@@ -93,7 +93,8 @@ public class OneBasedMonthDeserTest extends DateTimeTestBase
         }
     }
 
-
+    private final ObjectMapper MAPPER = newJsonMapper();
+    
     @Test
     public void testDeserialization01_zeroBased() throws Exception
     {
@@ -161,9 +162,9 @@ public class OneBasedMonthDeserTest extends DateTimeTestBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Tests for empty string handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -192,16 +193,14 @@ public class OneBasedMonthDeserTest extends DateTimeTestBase
     }
 
     private ObjectReader readerForZeroBased() {
-        return JsonMapper.builder()
-                .disable(DateTimeFeature.ONE_BASED_MONTHS)
-                .build()
-                .readerFor(Month.class);
+        return MAPPER
+                .readerFor(Month.class)
+                .without(DateTimeFeature.ONE_BASED_MONTHS);
     }
 
     private ObjectReader readerForOneBased() {
-        return JsonMapper.builder()
-                .enable(DateTimeFeature.ONE_BASED_MONTHS)
-                .build()
-                .readerFor(Month.class);
+        return MAPPER
+            .readerFor(Month.class)
+            .with(DateTimeFeature.ONE_BASED_MONTHS);
     }
 }

@@ -737,13 +737,26 @@ public class ObjectMapper
      * Factory method for constructing non-blocking {@link JsonParser} that is properly
      * wired to allow configuration access (and, if relevant for parser, callbacks):
      * essentially constructs a {@link ObjectReadContext} and then calls
-     * {@link TokenStreamFactory#createParser(ObjectReadContext,DataInput)}.
+     * {@link TokenStreamFactory#createNonBlockingByteArrayParser(ObjectReadContext)}.
      *
      * @since 3.0
      */
     public JsonParser createNonBlockingByteArrayParser() throws JacksonException {
         DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createNonBlockingByteArrayParser(ctxt));
+    }
+
+    /**
+     * Factory method for constructing non-blocking {@link JsonParser} that is properly
+     * wired to allow configuration access (and, if relevant for parser, callbacks):
+     * essentially constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createNonBlockingByteBufferParser(ObjectReadContext)}.
+     *
+     * @since 3.0
+     */
+    public JsonParser createNonBlockingByteBufferParser() throws JacksonException {
+        DeserializationContextExt ctxt = _deserializationContext();
+        return ctxt.assignAndReturnParser(_streamFactory.createNonBlockingByteBufferParser(ctxt));
     }
 
     /*

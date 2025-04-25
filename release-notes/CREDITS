@@ -40,3 +40,7 @@ Andy Boothe (@sigpwned)
  * Contributed #5025: Add support for automatic detection of subtypes (like `@JsonSubTypes`)
    from Java 17 sealed types
   [3.0.0]
+
+Sébastien Deleuze (@sdeleuze)
+ * Requested #5110: Add missing `ObjectMapper#createNonBlockingByteBufferParser()` method
+  [3.0.0]

@@ -50,7 +50,7 @@ public class SimpleKeyDeserializers
 
     @Override
     public KeyDeserializer findKeyDeserializer(JavaType type,
-            DeserializationConfig config, BeanDescription beanDesc)
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef)
     {
         if (_classMappings == null) {
             return null;

@@ -180,7 +180,7 @@ public class JDKKeyDeserializers
 
     @Override
     public KeyDeserializer findKeyDeserializer(JavaType type,
-            DeserializationConfig config, BeanDescription beanDesc)
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef)
     {
         Class<?> raw = type.getRawClass();
         // 23-Apr-2013, tatu: Map primitive types, just in case one was given

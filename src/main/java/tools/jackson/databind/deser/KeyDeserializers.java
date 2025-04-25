@@ -14,5 +14,5 @@ import tools.jackson.databind.*;
 public interface KeyDeserializers
 {
     public KeyDeserializer findKeyDeserializer(JavaType type, DeserializationConfig config,
-        BeanDescription beanDesc);
+            BeanDescription.Supplier beanDescRef);
 }

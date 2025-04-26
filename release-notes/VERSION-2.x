@@ -6,7 +6,8 @@ Project: jackson-databind
 
 2.20.0 (not yet released)
 
--
+#4136: Drop deprecated (in 2.12) `PropertyNamingStrategy` implementations
+  from 2.20
 
 2.19.0 (24-Apr-2025)
 

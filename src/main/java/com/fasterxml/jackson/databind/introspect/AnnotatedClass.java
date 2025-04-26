@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -168,6 +169,24 @@ public final class AnnotatedClass
         _mixInResolver = null;
         _typeFactory = null;
         _collectAnnotations = false;
+    }
+
+    /**
+     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
+     */
+    @Deprecated
+    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config) {
+        return construct(type, config, (MixInResolver) config);
+    }
+
+    /**
+     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
+     */
+    @Deprecated
+    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config,
+            MixInResolver mir)
+    {
+        return AnnotatedClassResolver.resolve(config, type, mir);
     }
 
     /*

@@ -179,7 +179,7 @@ public class OneBasedMonthDeserTest extends DateTimeTestBase
         // TODO : Figure out how to make this pass.
 //        try {
 //            Month result = mapper.readerFor(Month.class).readValue("\"\"");
-//            fail("Should not pass");
+//            fail("Should not pass, but got: " + result);
 //        } catch (MismatchedInputException e) {
 //            verifyException(e, "Cannot coerce empty String");
 //        }

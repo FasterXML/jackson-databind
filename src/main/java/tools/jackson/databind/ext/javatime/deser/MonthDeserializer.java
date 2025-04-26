@@ -2,10 +2,14 @@ package tools.jackson.databind.ext.javatime.deser;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -15,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
 {
     public static final MonthDeserializer INSTANCE = new MonthDeserializer();
+
+    private final Set<String> possibleMonthStringValues = Arrays.stream(Month.values()).map(Month::name).collect(Collectors.toSet());
 
     /**
      * NOTE: only {@code public} so that use via annotations (see [modules-java8#202])
@@ -56,6 +62,20 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
         if (parser.hasToken(JsonToken.VALUE_STRING)) {
             return _fromString(parser, context, parser.getString());
         }
+        // Support numeric scalar input
+        if (parser.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            final int raw = parser.getIntValue();
+            if (context.isEnabled(DateTimeFeature.ONE_BASED_MONTHS)) {
+                return _decodeMonth(raw, context);
+            }
+            // default: 0‑based index (0 == JANUARY)
+            if (raw < 0 || raw >= 12) {
+                context.handleWeirdNumberValue(handledType(),
+                        raw, "Month index (%s) outside 0-11 range", raw);
+                return null; // never gets here, but compiler doesn't know
+            }
+            return Month.values()[raw];
+        }
         // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
         if (parser.isExpectedStartObjectToken()) {
             return _fromString(parser, context,
@@ -75,7 +95,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
                 return parsed;
             }
             if (t != JsonToken.VALUE_NUMBER_INT) {
-                _reportWrongToken(context, JsonToken.VALUE_NUMBER_INT, "month");
+                _reportWrongToken(context, JsonToken.VALUE_NUMBER_INT, Integer.class.getName());
             }
             int month = parser.getIntValue();
             if (parser.nextToken() != JsonToken.END_ARRAY) {
@@ -104,7 +124,26 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
         }
         try {
             if (_formatter == null) {
-                return Month.values()[Integer.parseInt(string)];
+                // First: try purely numeric input
+                try {
+                    int oneBasedMonthNumber = Integer.parseInt(string);
+                    if (ctxt.isEnabled(DateTimeFeature.ONE_BASED_MONTHS)) {
+                        return _decodeMonth(oneBasedMonthNumber, ctxt);
+                    }
+                    if (oneBasedMonthNumber < 0 || oneBasedMonthNumber >= 12) { // invalid for 0‑based
+                        throw new InvalidFormatException(p, "Month number " + oneBasedMonthNumber + " not allowed for 1-based Month.", oneBasedMonthNumber, Integer.class);
+                    }
+                    return Month.values()[oneBasedMonthNumber]; // 0‑based mapping
+                } catch (NumberFormatException nfe) {
+                    // fall through – treat as textual month name
+                }
+                // Second: try textual input
+                // Handle English month names such as "JANUARY" from the actual Month Enum names
+                if (possibleMonthStringValues.contains(string)) {
+                    return Month.valueOf(string);
+                } else {
+                    throw new InvalidFormatException(p, String.format("Cannot deserialize value of type `java.time.Month` from String \"%s\": not one of the values accepted for Enum class: %s", string, Arrays.toString(Month.values())), string, Month.class);
+                }
             }
             return Month.from(_formatter.parse(string));
         } catch (DateTimeException e) {
@@ -113,5 +152,20 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             throw ctxt.weirdStringException(string, handledType(),
                     "not a valid month value");
         }
+    }
+
+    /**
+     * Validate and convert a 1‑based month number to {@link Month}.
+     */
+    private Month _decodeMonth(int oneBasedMonthNumber, DeserializationContext ctxt)
+            throws JacksonException
+    {
+        if (Month.JANUARY.getValue() <= oneBasedMonthNumber && oneBasedMonthNumber <= Month.DECEMBER.getValue()) {
+            return Month.of(oneBasedMonthNumber);
+        }
+        // If out of range, throw an exception
+        ctxt.handleWeirdNumberValue(handledType(),
+                oneBasedMonthNumber, "Month number %s not allowed for 1-based Month.", oneBasedMonthNumber);
+        return null; // never gets here, but compiler doesn't know
     }
 }

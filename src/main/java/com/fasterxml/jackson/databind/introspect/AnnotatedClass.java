@@ -326,8 +326,10 @@ public final class AnnotatedClass
         if (f == null) {
             // 09-Jun-2017, tatu: _type only null for primordial, placeholder array types.
             if (_type == null) {
+System.out.println("SKIP Collecting _fields() for ???");
                 f = Collections.emptyList();
             } else {
+System.out.println("Collecting _fields() for "+_type);
                 f = AnnotatedFieldCollector.collectFields(_annotationIntrospector,
                         this, _mixInResolver, _typeFactory, _type, _collectAnnotations);
             }
@@ -342,8 +344,10 @@ public final class AnnotatedClass
             // 09-Jun-2017, tatu: _type only null for primordial, placeholder array types.
             //    NOTE: would be great to have light-weight shareable maps; no such impl exists for now
             if (_type == null) {
+System.out.println("SKIP Collecting _methods() for ???");
                 m = new AnnotatedMethodMap();
             } else {
+System.out.println("Collecting _methods() for "+_type);
                 m = AnnotatedMethodCollector.collectMethods(_annotationIntrospector,
                         this,
                         _mixInResolver, _typeFactory,
@@ -358,8 +362,10 @@ public final class AnnotatedClass
         Creators c = _creators;
         if (c == null) {
             if (_type == null) {
+System.out.println("SKIP Collecting _creators()");
                 c = NO_CREATORS;
             } else {
+System.out.println("Collecting _creators() for "+_type);
                 c = AnnotatedCreatorCollector.collectCreators(_annotationIntrospector,
                         _typeFactory,
                         this, _type, _primaryMixIn, _collectAnnotations);

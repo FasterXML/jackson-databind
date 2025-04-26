@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #4136: Drop deprecated (in 2.12) `PropertyNamingStrategy` implementations
   from 2.20
+#5103: Use `writeStartObject(Object forValue, int size)` for `ObjectNode`
+  serialization
 
 2.19.0 (24-Apr-2025)
 

@@ -233,7 +233,6 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return putObject(propName)._withArrayAddTailProperty(tail, preferIndex);
     }
 
-
     /*
     /**********************************************************
     /* Overrides for JsonSerializable.Base
@@ -489,24 +488,25 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      */
     @SuppressWarnings("deprecation")
     @Override
-    public void serialize(JsonGenerator g, SerializerProvider provider)
+    public void serialize(JsonGenerator g, SerializerProvider ctxt)
         throws IOException
     {
-        if (provider != null) {
-            boolean trimEmptyArray = !provider.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
-            boolean skipNulls = !provider.isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES);
+        if (ctxt != null) {
+            boolean trimEmptyArray = !ctxt.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
+            boolean skipNulls = !ctxt.isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES);
             if (trimEmptyArray || skipNulls) {
                 g.writeStartObject(this);
-                serializeFilteredContents(g, provider, trimEmptyArray, skipNulls);
+                serializeFilteredContents(g, ctxt, trimEmptyArray, skipNulls);
                 g.writeEndObject();
                 return;
             }
         }
-        g.writeStartObject(this);
-        for (Map.Entry<String, JsonNode> en : _contentsToSerialize(provider).entrySet()) {
-            JsonNode value = en.getValue();
+        Map<String, JsonNode> contents = _contentsToSerialize(ctxt);
+        // 25-Apr-2025, tatu: [databind#5103] Pass size (some formats can optimize)
+        g.writeStartObject(this, contents.size());
+        for (Map.Entry<String, JsonNode> en : contents.entrySet()) {
             g.writeFieldName(en.getKey());
-            value.serialize(g, provider);
+            en.getValue().serialize(g, ctxt);
         }
         g.writeEndObject();
     }

@@ -1091,6 +1091,20 @@ public class ObjectWriter
     }
 
     /**
+     * Convenience method that can be used to serialize any Java value into newly created
+     * {@link TokenBuffer}. Functionally equivalent to calling
+     * {@link #writeValue(JsonGenerator, Object)} passing buffer as generator.
+     */
+    public TokenBuffer writeValueIntoBuffer(Object value) throws JacksonException
+    {
+        final SerializationContextExt ctxt = _serializationContext();
+        try (TokenBuffer buf = ctxt.bufferForValueConversion()) {
+            _configAndWriteValue(ctxt, buf, value);
+            return buf;
+        }
+    }
+    
+    /**
      * Method called to configure the generator as necessary and then
      * call write functionality
      */

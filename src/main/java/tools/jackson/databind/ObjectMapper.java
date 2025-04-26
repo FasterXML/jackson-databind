@@ -1204,8 +1204,6 @@ public class ObjectMapper
     /**
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in {@link Path}.
-     *
-     * @since 3.0
      */
     public JsonNode readTree(Path path) throws JacksonException
     {
@@ -1228,6 +1226,16 @@ public class ObjectMapper
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, src));
+    }
+
+    /**
+     * Same as {@link #readTree(InputStream)} except content read from
+     * passed-in {@link TokenBuffer}.
+     */
+    public JsonNode readTree(TokenBuffer src) throws JacksonException {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return _readTreeAndClose(ctxt, src.asParser(ctxt));
     }
 
     /*
@@ -1774,6 +1782,33 @@ public class ObjectMapper
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(TokenBuffer src, Class<T> valueType) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt,
+                src.asParser(ctxt), _typeFactory.constructType(valueType));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(TokenBuffer src, JavaType valueType) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt,
+                src.asParser(ctxt), valueType);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(TokenBuffer src, TypeReference<T> valueTypeRef) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt,
+                src.asParser(ctxt), _typeFactory.constructType(valueTypeRef));
+    }
+
     /*
     /**********************************************************************
     /* Public API: serialization (mapping from Java types to external format)
@@ -1888,6 +1923,20 @@ public class ObjectMapper
             return bb.getClearAndRelease();
         } finally {
             br.releaseToPool();
+        }
+    }
+
+    /**
+     * Convenience method that can be used to serialize any Java value into newly created
+     * {@link TokenBuffer}. Functionally equivalent to calling
+     * {@link #writeValue(JsonGenerator, Object)} passing buffer as generator.
+     */
+    public TokenBuffer writeValueIntoBuffer(Object value) throws JacksonException
+    {
+        final SerializationContextExt ctxt = _serializationContext();
+        try (TokenBuffer buf = ctxt.bufferForValueConversion()) {
+            _configAndWriteValue(ctxt, buf, value);
+            return buf;
         }
     }
 

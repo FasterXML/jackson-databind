@@ -44,5 +44,8 @@ Andy Boothe (@sigpwned)
 Sébastien Deleuze (@sdeleuze)
  * Requested #5110: Add missing `ObjectMapper#createNonBlockingByteBufferParser()` method
   [3.0.0]
+ * Requested #5111: Improve support for deserializing from `TokenBuffer` (f.ex for
+   content buffered for non-blocking parsing)
+  [3.0.0]
  * Requested #5112: Add a `MapperBuilder#findAndAddModules(ClassLoader)` variant
   [3.0.0]

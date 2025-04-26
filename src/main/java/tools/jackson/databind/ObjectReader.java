@@ -27,6 +27,7 @@ import tools.jackson.databind.node.TreeTraversingParser;
 import tools.jackson.databind.type.SimpleType;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.TokenBuffer;
 
 /**
  * Builder object that can be used for per-serialization configuration of
@@ -1280,8 +1281,6 @@ public class ObjectReader
      * was specified with {@link #withValueToUpdate(Object)}.
      *
      * @param path Path that contains content to read
-     *
-     * @since 3.0
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(Path path) throws JacksonException
@@ -1339,6 +1338,23 @@ public class ObjectReader
         DeserializationContextExt ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, input), false));
+    }
+
+    /**
+     * Method that binds content read from given {@link TokenBuffer}
+     * using configuration of this reader.
+     * Value return is either newly constructed, or root value that
+     * was specified with {@link #withValueToUpdate(Object)}.
+     *
+     * @param src {@link TokenBuffer} that contains content to read
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(TokenBuffer src) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _bindAndClose(ctxt,
+                _considerFilter(src.asParser(ctxt) , false));
     }
 
     /*
@@ -1430,6 +1446,18 @@ public class ObjectReader
         DeserializationContextExt ctxt = _deserializationContext();
         return _bindAndCloseAsTree(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, content), false));
+    }
+
+    /**
+     * Same as {@link #readTree(InputStream)} except content read using
+     * passed-in {@link TokenBuffer}.
+     */
+    public JsonNode readTree(TokenBuffer src) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return _bindAndCloseAsTree(ctxt,
+                _considerFilter(src.asParser(ctxt), false));
     }
 
     /*
@@ -1584,6 +1612,14 @@ public class ObjectReader
         DeserializationContextExt ctxt = _deserializationContext();
         return _bindAndReadValues(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), true));
+    }
+
+    public <T> MappingIterator<T> readValues(TokenBuffer src) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return _bindAndReadValues(ctxt,
+                _considerFilter(src.asParser(ctxt), true));
     }
 
     /*

@@ -1134,17 +1134,31 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      *   addModules(builder.findModules());
      *</code>
      *<p>
-     * As with {@link #findModules()}, no caching is done for modules, so care
-     * needs to be taken to either create and share a single mapper instance;
-     * or to cache introspected set of modules.
+     * As with {@link #findModules()}, no caching is done for modules, so for
+     * performance reasons it may make sense to cache introspected set of modules
+     * if needed multiple times.
      */
     public B findAndAddModules() {
         return addModules(findModules());
     }
 
     /**
+     * Convenience method that is functionally equivalent to:
+     *<code>
+     *   addModules(builder.findModules(classLoader));
+     *</code>
+     *<p>
+     * As with {@link #findModules(ClassLoader)}, no caching is done for modules, so for
+     * performance reasons it may make sense to cache introspected set of modules
+     * if needed multiple times.
+     */
+    public B findAndAddModules(ClassLoader cl) {
+        return addModules(findModules(cl));
+    }
+
+    /**
      * "Accessor" method that will expose set of registered modules, in addition
-     * order, to given handler.
+     * order, using {@code handler} given.
      */
     public B withModules(Consumer<JacksonModule> handler) {
         if (_modules != null) {

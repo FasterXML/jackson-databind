@@ -158,8 +158,6 @@ public class CoercionConfigs
      * @param inputShape Input shape to coerce from
      *
      * @return CoercionAction configured for specified coercion
-     *
-     * @since 2.12
      */
     public CoercionAction findCoercion(DeserializationConfig config,
             LogicalType targetType,
@@ -221,7 +219,7 @@ public class CoercionConfigs
         final boolean baseScalar = _isScalarType(targetType);
 
         if (baseScalar
-                // Default for setting in 2.x is true
+                // Default for setting in 2.x and 3.x is true
                 && !config.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)
                 // 12-Oct-2022, carterkozak: As per [databind#3624]: Coercion from integer-shaped
                 // data into a floating point type is not banned by the

@@ -290,7 +290,7 @@ public class TokenBuffer
 
     /**
      * @param p0 Parser to use for accessing source information
-     *    like location, configured codec, streamReadConstraints
+     *    like location, streamReadConstraints
      */
     public JsonParser asParser(ObjectReadContext readCtxt, JsonParser p0)
     {

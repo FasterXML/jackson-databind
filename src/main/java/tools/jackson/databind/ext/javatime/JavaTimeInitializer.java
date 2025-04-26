@@ -102,6 +102,7 @@ public final class JavaTimeInitializer
             .addDeserializer(LocalDateTime.class, LocalDateTimeDeserializer.INSTANCE)
             .addDeserializer(LocalDate.class, LocalDateDeserializer.INSTANCE)
             .addDeserializer(LocalTime.class, LocalTimeDeserializer.INSTANCE)
+            .addDeserializer(Month.class, MonthDeserializer.INSTANCE)
             .addDeserializer(MonthDay.class, MonthDayDeserializer.INSTANCE)
             .addDeserializer(OffsetTime.class, OffsetTimeDeserializer.INSTANCE)
             .addDeserializer(Period.class, JSR310StringParsableDeserializer.PERIOD)
@@ -118,6 +119,7 @@ public final class JavaTimeInitializer
             .addSerializer(LocalDateTime.class, LocalDateTimeSerializer.INSTANCE)
             .addSerializer(LocalDate.class, LocalDateSerializer.INSTANCE)
             .addSerializer(LocalTime.class, LocalTimeSerializer.INSTANCE)
+//            .addSerializer(Month.class, MonthSerializer.INSTANCE)
             .addSerializer(MonthDay.class, MonthDaySerializer.INSTANCE)
             .addSerializer(OffsetDateTime.class, OffsetDateTimeSerializer.INSTANCE)
             .addSerializer(OffsetTime.class, OffsetTimeSerializer.INSTANCE)
@@ -159,7 +161,6 @@ public final class JavaTimeInitializer
 
         // [modules-java8#274]: 1-based Month (de)serializer need to be applied via modifiers:
         // [databind#5078]: Should rewrite not to require this
-        context.addDeserializerModifier(new JavaTimeDeserializerModifier());
         context.addSerializerModifier(new JavaTimeSerializerModifier());
 
         context.addValueInstantiators(new ValueInstantiators.Base() {

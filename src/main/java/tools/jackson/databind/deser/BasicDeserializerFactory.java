@@ -1208,14 +1208,14 @@ factory.toString()));
             JavaType type)
     {
         final DeserializationConfig config = ctxt.getConfig();
-        final BeanDescription beanDesc = ctxt.introspectBeanDescription(type);
+        final BeanDescription.Supplier beanDescRef = ctxt.lazyIntrospectBeanDescription(type);
 
         // [databind#2452]: Support `@JsonDeserialize(keyUsing = ...)`
-        KeyDeserializer deser = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
+        KeyDeserializer deser = findKeyDeserializerFromAnnotation(ctxt, beanDescRef.getClassInfo());
 
         if ((deser == null) && _factoryConfig.hasKeyDeserializers()) {
             for (KeyDeserializers d  : _factoryConfig.keyDeserializers()) {
-                deser = d.findKeyDeserializer(type, config, beanDesc);
+                deser = d.findKeyDeserializer(type, config, beanDescRef);
                 if (deser != null) {
                     break;
                 }

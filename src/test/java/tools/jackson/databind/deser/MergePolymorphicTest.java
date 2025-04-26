@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MergePolymorphicTest
 {
-
     static class Root {
         @JsonMerge
         public Child child;

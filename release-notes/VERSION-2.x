@@ -4,7 +4,14 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.19.0-rc2 (07-Apr-2025)
+2.20.0 (not yet released)
+
+#4136: Drop deprecated (in 2.12) `PropertyNamingStrategy` implementations
+  from 2.20
+#5103: Use `writeStartObject(Object forValue, int size)` for `ObjectNode`
+  serialization
+
+2.19.0 (24-Apr-2025)
 
 #1467: Support `@JsonUnwrapped` with `@JsonCreator`
  (implementation by Liam F)
@@ -21,6 +28,10 @@ Project: jackson-databind
 #3343: Allow BeanPropertyWriter Sub-classes to Override `get()` (remove `final`)
  (requested by @alzimmermsft)
 #4388: Allow using `@JsonPropertyOrder` with "any" (`@JsonAnyGetter`)  properties
+ (fix by Joo-Hyuk K)
+#4533: Add `MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_TIMES` to disable the
+  "Java 8 date/time XYZ not supported by default" error
+ (requested by Jeff S)
  (fix by Joo-Hyuk K)
 #4650: `PrimitiveArrayDeserializers` should deal with single String value if
   `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY` enabled

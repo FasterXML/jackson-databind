@@ -321,6 +321,9 @@ Michal Letynski (mletynski@github)
 Jeff Schnitzer (stickfigure@github)
   * Suggested #504: Add `DeserializationFeature.USE_LONG_FOR_INTS`
    (2.6.0)
+  * Requested #4533: Add `MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_TIMES` to disable
+    the "Java 8 date/time XYZ not supported by default" error
+   (2.19.0)
 
 Jerry Yang (islanderman@github)
   * Contributed #820: Add new method for `ObjectReader`, to bind from JSON Pointer position
@@ -1929,4 +1932,8 @@ Joren Inghelbrecht (@jin-harmoney)
 
 Will Paul (@dropofwill)
  * Contributed #4979: Allow default enums with `@JsonCreator`
+  (2.19.0)
+
+Ryan Schmitt (@rschmitt)
+ * Contributed #5099: Fix regression in `ObjectNode.with()`
   (2.19.0)

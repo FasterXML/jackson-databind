@@ -9,6 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.cfg.CoercionAction;
@@ -93,8 +94,8 @@ public class OneBasedMonthDeserTest extends DateTimeTestBase
         }
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
-    
+    private final ObjectMapper MAPPER = newMapper();
+
     @Test
     public void testDeserialization01_zeroBased() throws Exception
     {
@@ -170,16 +171,20 @@ public class OneBasedMonthDeserTest extends DateTimeTestBase
     @Test
     public void testDeserializeFromEmptyString() throws Exception
     {
-        final ObjectMapper mapper = newMapper();
-
         // Nulls are handled in general way, not by deserializer so they are ok
-        Month m = mapper.readerFor(Month.class).readValue(" null ");
+        Month m = MAPPER.readerFor(Month.class).readValue(" null ");
         assertNull(m);
 
-        // But coercion from empty String not enabled for Enums by default:
+        // Although coercion from empty String not enabled for Enums by default,
+        // it IS for Scalars (when `MapperFeature.ALLOW_COERCION_OF_SCALARS` enabled
+        // which it is by default). So need to disable it here:
+        // (we no longer consider `Month` as LogicalType.Enum but LogicalType.DateTime)
         try {
-            mapper.readerFor(Month.class).readValue("\"\"");
-            fail("Should not pass");
+            ObjectMapper strictMapper = mapperBuilder()
+                    .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+                    .build();
+            Month result = strictMapper.readerFor(Month.class).readValue("\"\"");
+            fail("Should not pass, but got: " + result);
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot coerce empty String");
         }

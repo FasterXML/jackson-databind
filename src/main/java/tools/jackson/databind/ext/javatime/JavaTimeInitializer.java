@@ -161,7 +161,6 @@ public final class JavaTimeInitializer
 
         // [modules-java8#274]: 1-based Month (de)serializer need to be applied via modifiers:
         // [databind#5078]: Should rewrite not to require this
-        context.addDeserializerModifier(new JavaTimeDeserializerModifier());
         context.addSerializerModifier(new JavaTimeSerializerModifier());
 
         context.addValueInstantiators(new ValueInstantiators.Base() {

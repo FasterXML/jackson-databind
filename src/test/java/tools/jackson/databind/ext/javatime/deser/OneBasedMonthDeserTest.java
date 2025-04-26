@@ -15,7 +15,6 @@ import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
-import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.json.JsonMapper;

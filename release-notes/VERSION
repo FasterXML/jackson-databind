@@ -18,6 +18,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (requested by Sébastien D)
 #5112: Add a `MapperBuilder#findAndAddModules(ClassLoader)` variant
  (requested by Sébastien D)
+#5078: Create proper `MonthDeserializer` and `MonthSerializer` (don't rely
+  on `EnumDeserializer`/`EnumSerializer`)
+ (fixed by Joo-Hyuk K)
 
 3.0.0-rc3 (13-Apr-2025)
 

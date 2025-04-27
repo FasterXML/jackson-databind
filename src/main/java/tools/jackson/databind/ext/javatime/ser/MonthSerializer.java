@@ -42,7 +42,7 @@ public class MonthSerializer
     {
         if (_useTimestampExplicitOnly(ctxt)) {
             g.writeStartArray();
-            _serializeAsArrayContents(value, g, ctxt);
+            _serialize(g, value, ctxt);
             g.writeEndArray();
         } else {
             _serialize(g, value, ctxt);
@@ -58,18 +58,11 @@ public class MonthSerializer
                 typeSer.typeId(value, serializationShape(ctxt)));
         if ((typeIdDef != null)
                 && typeIdDef.valueShape == JsonToken.START_ARRAY) {
-            _serializeAsArrayContents(value, g, ctxt);
+            _serialize(g, value, ctxt);
         } else {
             _serialize(g, value, ctxt);
         }
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
-    }
-
-    protected void _serializeAsArrayContents(Month value, JsonGenerator g,
-                                             SerializationContext ctxt)
-            throws JacksonException
-    {
-        _serialize(g, value, ctxt);
     }
 
     @Override
@@ -99,4 +92,5 @@ public class MonthSerializer
         // Fallback to default serialization
         g.writeNumber(value.getValue());
     }
+
 }

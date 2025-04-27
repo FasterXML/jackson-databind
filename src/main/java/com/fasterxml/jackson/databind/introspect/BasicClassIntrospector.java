@@ -83,6 +83,7 @@ public class BasicClassIntrospector
             // structured types as well
             desc = _findStdJdkCollectionDesc(config, type);
             if (desc == null) {
+System.out.println("BasicBeanDescription.forSerialization() for "+type);
                 desc = BasicBeanDescription.forSerialization(collectProperties(config,
                         type, r, true));
             }
@@ -101,6 +102,7 @@ public class BasicClassIntrospector
             // structured types as well
             desc = _findStdJdkCollectionDesc(config, type);
             if (desc == null) {
+System.out.println("BasicBeanDescription.forDeserialization() for "+type);
                 desc = BasicBeanDescription.forDeserialization(collectProperties(config,
                         type, r, false));
             }
@@ -127,6 +129,7 @@ public class BasicClassIntrospector
             // structured types as well
             desc = _findStdJdkCollectionDesc(config, type);
             if (desc == null) {
+System.out.println("BasicBeanDescription.forCreation() for "+type);
                 desc = BasicBeanDescription.forDeserialization(
                         collectProperties(config, type, r, false));
             }
@@ -170,6 +173,7 @@ public class BasicClassIntrospector
     protected POJOPropertiesCollector collectProperties(MapperConfig<?> config,
             JavaType type, MixInResolver r, boolean forSerialization)
     {
+System.out.println("  collectProperties() for "+type);
         final AnnotatedClass classDef = _resolveAnnotatedClass(config, type, r);
         final AccessorNamingStrategy accNaming = type.isRecordType()
                 ? config.getAccessorNaming().forRecord(config, classDef)

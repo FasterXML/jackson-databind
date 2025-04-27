@@ -150,6 +150,7 @@ public final class AnnotatedClass
         _mixInResolver = mir;
         _typeFactory = tf;
         _collectAnnotations = collectAnnotations;
+System.out.println(" AnnotatedClass("+_type+"), coll anno? "+collectAnnotations);
     }
 
     /**

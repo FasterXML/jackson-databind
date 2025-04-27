@@ -39,16 +39,20 @@ public class Reflection4907Test extends DatabindTestUtil
     // [databind#4907]
     @Test
     public void test4907Read() throws Exception {
+System.err.println("<testRead>");
         SqlDatePojo pojo = MAPPER.readValue(a2q("{'date':'2000-01-01', 'name':'foo'}"),
                 SqlDatePojo.class);
+System.err.println("</testRead>");
         assertNotNull(pojo);
     }
 
     // [databind#4907]
     @Test
     public void test4907Write() throws Exception {
+System.err.println("<testWrite>");
          String json = MAPPER.writeValueAsString(new SqlDatePojo("foobar",
                  java.sql.Date.valueOf("2000-01-01")));
+ System.err.println("</testWrite>");
          assertNotNull(json);
     }
 }

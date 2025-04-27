@@ -12,7 +12,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class OneBasedMonthSerTest extends DateTimeTestBase
+public class MonthSerializerTest extends DateTimeTestBase
 {
     static class Wrapper {
         public Month month;

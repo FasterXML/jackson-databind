@@ -27,8 +27,10 @@ public abstract class NumericNode
     public abstract JsonParser.NumberType numberType();
 
     @Override public abstract Number numberValue();
+    @Override public abstract short shortValue();
     @Override public abstract int intValue();
     @Override public abstract long longValue();
+    @Override public abstract float floatValue();
     @Override public abstract double doubleValue();
     @Override public abstract BigDecimal decimalValue();
     @Override public abstract BigInteger bigIntegerValue();
@@ -44,6 +46,16 @@ public abstract class NumericNode
 
     @Override
     public abstract String asText();
+
+    @Override
+    public final short asShort() {
+        return shortValue();
+    }
+
+    @Override
+    public final short asShort(short defaultValue) {
+        return shortValue();
+    }
 
     @Override
     public final int asInt() {
@@ -63,6 +75,16 @@ public abstract class NumericNode
     @Override
     public final long asLong(long defaultValue) {
         return longValue();
+    }
+
+    @Override
+    public final float asFloat() {
+        return floatValue();
+    }
+
+    @Override
+    public final float asFloat(float defaultValue) {
+        return floatValue();
     }
 
     @Override

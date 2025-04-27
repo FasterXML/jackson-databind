@@ -695,6 +695,34 @@ public abstract class JsonNode
     }
 
     /**
+     * Method that will try to convert value of this node to a Java <b>short</b>.
+     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
+     * and 1 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
+     *<p>
+     * If representation cannot be converted to a short (including structured types
+     * like Objects and Arrays),
+     * default value of <b>0</b> will be returned; no exceptions are thrown.
+     */
+    public short asShort() {
+        return asShort((short) 0);
+    }
+
+    /**
+     * Method that will try to convert value of this node to a Java <b>short</b>.
+     * Numbers are coerced using default Java rules; booleans convert to 0 (false)
+     * and 1 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
+     *<p>
+     * If representation cannot be converted to a short (including structured types
+     * like Objects and Arrays),
+     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     */
+    public short asShort(short defaultValue) {
+        return defaultValue;
+    }
+
+    /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
      * and 1 (true), and Strings are parsed using default Java language integer
@@ -750,13 +778,42 @@ public abstract class JsonNode
         return defaultValue;
     }
 
+
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
+     * and 1.0 (true), and Strings are parsed using default Java language float
      * parsing rules.
      *<p>
-     * If representation cannot be converted to an int (including structured types
+     * If representation cannot be converted to a float (including structured types
+     * like Objects and Arrays),
+     * default value of <b>0.0</b> will be returned; no exceptions are thrown.
+     */
+    public float asFloat() {
+        return asFloat(0.0f);
+    }
+
+    /**
+     * Method that will try to convert value of this node to a Java <b>float</b>.
+     * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
+     * and 1.0 (true), and Strings are parsed using default Java language float
+     * parsing rules.
+     *<p>
+     * If representation cannot be converted to a float (including structured types
+     * like Objects and Arrays),
+     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     */
+    public float asFloat(float defaultValue) {
+        return defaultValue;
+    }
+
+    /**
+     * Method that will try to convert value of this node to a Java <b>double</b>.
+     * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
+     * and 1.0 (true), and Strings are parsed using default Java language float
+     * parsing rules.
+     *<p>
+     * If representation cannot be converted to a double (including structured types
      * like Objects and Arrays),
      * default value of <b>0.0</b> will be returned; no exceptions are thrown.
      */
@@ -767,10 +824,10 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
+     * and 1.0 (true), and Strings are parsed using default Java language float
      * parsing rules.
      *<p>
-     * If representation cannot be converted to an int (including structured types
+     * If representation cannot be converted to a double (including structured types
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */

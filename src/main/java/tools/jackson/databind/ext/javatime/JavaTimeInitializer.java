@@ -159,10 +159,6 @@ public final class JavaTimeInitializer
             .addDeserializer(ZoneOffset.class, ZoneOffsetKeyDeserializer.INSTANCE)
         );
 
-        // [modules-java8#274]: 1-based Month (de)serializer need to be applied via modifiers:
-        // [databind#5078]: Should rewrite not to require this
-        // context.addSerializerModifier(new JavaTimeSerializerModifier());
-
         context.addValueInstantiators(new ValueInstantiators.Base() {
             @Override
             public ValueInstantiator modifyValueInstantiator(DeserializationConfig config,

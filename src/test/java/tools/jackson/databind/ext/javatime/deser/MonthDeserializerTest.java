@@ -23,7 +23,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OneBasedMonthDeserTest extends DateTimeTestBase
+public class MonthDeserializerTest extends DateTimeTestBase
 {
     static class Wrapper {
         public Month value;

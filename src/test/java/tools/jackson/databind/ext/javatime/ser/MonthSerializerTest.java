@@ -1,6 +1,7 @@
 package tools.jackson.databind.ext.javatime.ser;
 
 import java.time.Month;
+import java.time.MonthDay;
 import java.time.temporal.TemporalAccessor;
 import java.util.stream.Stream;
 
@@ -8,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.cfg.DateTimeFeature;
@@ -17,9 +17,12 @@ import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.json.JsonMapper;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class MonthSerializerTest extends DateTimeTestBase
+public class MonthSerializerTest
+    extends DateTimeTestBase
 {
     private final ObjectMapper MAPPER = newMapper();
 
@@ -28,6 +31,33 @@ public class MonthSerializerTest extends DateTimeTestBase
 
         public Wrapper(Month m) { month = m; }
         public Wrapper() { }
+    }
+
+    static class ShapeIntWrapper {
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
+        public Month value;
+        public ShapeIntWrapper() { }
+        public ShapeIntWrapper(Month v) { value = v; }
+    }
+
+    static class NoShapeIntWrapper {
+        public Month value;
+        public NoShapeIntWrapper() { }
+        public NoShapeIntWrapper(Month v) { value = v; }
+    }
+
+    static class FrBean {
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MMM", locale = "fr")
+        public Month value;
+        public FrBean() { }
+        public FrBean(Month v) { value = v; }
+    }
+
+    static class ShapeArrayBean {
+        @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+        public Month value;
+        public ShapeArrayBean() { }
+        public ShapeArrayBean(Month v) { value = v; }
     }
 
     @Test
@@ -94,6 +124,33 @@ public class MonthSerializerTest extends DateTimeTestBase
                 .build();
 
         assertEquals("{\"month\":1}", enabled.writeValueAsString(new Wrapper(Month.JANUARY)));
+    }
+
+    // ShapeInt Test
+    @Test
+    public void testSerializationWithShapeInt() throws Exception
+    {
+        // One with shape
+        String json = MAPPER.writeValueAsString(new ShapeIntWrapper(Month.MARCH));
+        assertEquals("{\"value\":[3]}", json);
+
+        // One without shape
+        json = MAPPER.writeValueAsString(new NoShapeIntWrapper(Month.MARCH));
+        assertEquals("{\"value\":\"3\"}", json);
+    }
+
+    @Test
+    public void testSerializationWithFrLocale() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new FrBean(Month.MARCH));
+        assertEquals("{\"value\":\"mars\"}", json);
+    }
+
+    @Test
+    public void testSerializationWithShapeArray() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new ShapeArrayBean(Month.DECEMBER));
+        assertEquals("{\"value\":[12]}", json);
     }
 
     private static Stream<Arguments> oneBasedVsIndex() {

@@ -77,12 +77,23 @@ public final class AnnotatedClass
     final protected Class<?> _primaryMixIn;
 
     /**
-     * Flag that indicates whether (fulll) annotation resolution should
-     * occur: starting with 2.11 is disabled for JDK container types.
+     * Flag that indicates whether (full) annotation resolution should
+     * occur: starting with 2.11 is disabled for JDK container types
+     * {@link ClassUtil#isJDKClass(Class)} and {@code type.isContainerType()}.
+     * Later in 2.19 all JDK types have this disabled.
      *
      * @since 2.11
      */
     final protected boolean _collectAnnotations;
+
+    /**
+     * Flag that indicates whether member (Field, Method, Constructor}
+     * detection should occur: starting with 2.19 is disabled for <b>core</b> JDK
+     * types {@link ClassUtil#isJDKCoreClass(Class)}).
+     *
+     * @since 2.19
+     */
+    final protected boolean _collectMembers;
 
     /*
     /**********************************************************
@@ -150,7 +161,19 @@ public final class AnnotatedClass
         _mixInResolver = mir;
         _typeFactory = tf;
         _collectAnnotations = collectAnnotations;
-System.out.println(" AnnotatedClass("+_type+"), coll anno? "+collectAnnotations);
+        // But need to collect for some JDK types:
+        //
+        // - Throwables
+        _collectMembers = (type != null)
+                && (!ClassUtil.isJDKCoreClass(rawType)
+                || type.hasRawClass(Optional.class)
+                || type.hasRawClass(StackTraceElement.class)
+                || Throwable.class.isAssignableFrom(rawType)
+                || type.hasRawClass(Thread.class)
+                || type.hasRawClass(ThreadGroup.class)
+                );
+
+System.out.println(" AnnotatedClass("+_type+"), coll anno? "+collectAnnotations+" coll mem? "+_collectMembers);
     }
 
     /**
@@ -170,6 +193,7 @@ System.out.println(" AnnotatedClass("+_type+"), coll anno? "+collectAnnotations)
         _mixInResolver = null;
         _typeFactory = null;
         _collectAnnotations = false;
+        _collectMembers = false;
     }
 
     /**
@@ -326,8 +350,9 @@ System.out.println(" AnnotatedClass("+_type+"), coll anno? "+collectAnnotations)
         List<AnnotatedField> f = _fields;
         if (f == null) {
             // 09-Jun-2017, tatu: _type only null for primordial, placeholder array types.
-            if (_type == null) {
-System.out.println("SKIP Collecting _fields() for ???");
+            // 26-Apr-2025, tatu: [databind#4907] Less introspection, skip for core JDK types
+            if (_type == null || !_collectMembers) {
+System.out.println("SKIP Collecting _fields() for "+_type);
                 f = Collections.emptyList();
             } else {
 System.out.println("Collecting _fields() for "+_type);
@@ -344,8 +369,9 @@ System.out.println("Collecting _fields() for "+_type);
         if (m == null) {
             // 09-Jun-2017, tatu: _type only null for primordial, placeholder array types.
             //    NOTE: would be great to have light-weight shareable maps; no such impl exists for now
-            if (_type == null) {
-System.out.println("SKIP Collecting _methods() for ???");
+            // 26-Apr-2025, tatu: [databind#4907] Less introspection, skip for core JDK types
+            if (_type == null || !_collectMembers) {
+System.out.println("SKIP Collecting _methods() for: "+_type);
                 m = new AnnotatedMethodMap();
             } else {
 System.out.println("Collecting _methods() for "+_type);
@@ -362,8 +388,9 @@ System.out.println("Collecting _methods() for "+_type);
     private final Creators _creators() {
         Creators c = _creators;
         if (c == null) {
-            if (_type == null) {
-System.out.println("SKIP Collecting _creators()");
+            // 26-Apr-2025, tatu: [databind#4907] Less introspection, skip for core JDK types
+            if (_type == null || !_collectMembers) {
+System.out.println("SKIP Collecting _creators() for: "+_type);
                 c = NO_CREATORS;
             } else {
 System.out.println("Collecting _creators() for "+_type);

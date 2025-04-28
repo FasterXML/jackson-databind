@@ -241,8 +241,8 @@ public class JDKTypeSerializationTest
     public void testThreadSerialization() throws Exception
     {
         final Thread input = Thread.currentThread();
-//        String json = MAPPER.writerWithDefaultPrettyPrinter()
-//                .writeValueAsString(input);
+//      System.err.println("Thread -> "+MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(input));
+      
         Map<?,?> asMap = MAPPER.convertValue(input, Map.class);
 //        System.err.println("PROPS -> "+asMap.keySet());
 

@@ -79,12 +79,21 @@ public class MonthSerializerTest extends DateTimeTestBase
     @Test
     public void testOneBasedSerialization() throws Exception
     {
-        ObjectMapper mapper = mapperBuilder()
+        ObjectMapper disabled = mapperBuilder()
                 .disable(EnumFeature.WRITE_ENUMS_USING_INDEX)
                 .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                .disable(DateTimeFeature.ONE_BASED_MONTHS)
                 .build();
 
-        assertEquals("{\"month\":0}", mapper.writeValueAsString(new Wrapper(Month.JANUARY)));
+        assertEquals("{\"month\":0}", disabled.writeValueAsString(new Wrapper(Month.JANUARY)));
+
+        ObjectMapper enabled = mapperBuilder()
+                .disable(EnumFeature.WRITE_ENUMS_USING_INDEX)
+                .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                .enable(DateTimeFeature.ONE_BASED_MONTHS)
+                .build();
+
+        assertEquals("{\"month\":1}", enabled.writeValueAsString(new Wrapper(Month.JANUARY)));
     }
 
     private static Stream<Arguments> oneBasedVsIndex() {

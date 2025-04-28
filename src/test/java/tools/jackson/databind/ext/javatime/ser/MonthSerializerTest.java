@@ -1,7 +1,6 @@
 package tools.jackson.databind.ext.javatime.ser;
 
 import java.time.Month;
-import java.time.MonthDay;
 import java.time.temporal.TemporalAccessor;
 import java.util.stream.Stream;
 

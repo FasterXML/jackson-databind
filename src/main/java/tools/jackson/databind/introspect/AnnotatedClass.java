@@ -63,7 +63,7 @@ public final class AnnotatedClass
     final protected Class<?> _primaryMixIn;
 
     /**
-     * Flag that indicates whether (fulll) annotation resolution should
+     * Flag that indicates whether (full) annotation resolution should
      * occur: starting with 2.11 is disabled for JDK container types.
      */
     final protected boolean _collectAnnotations;

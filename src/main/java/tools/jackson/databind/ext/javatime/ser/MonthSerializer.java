@@ -78,11 +78,7 @@ public class MonthSerializer
             return;
         }
         if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_INDEX)) {
-            if (ctxt.isEnabled(DateTimeFeature.ONE_BASED_MONTHS)) {
-                g.writeNumber(value.getValue());
-            } else {
-                g.writeNumber(value.getValue() - 1);
-            }
+            _serializeOneBased(g, value, ctxt);
             return;
         }
         if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
@@ -90,7 +86,17 @@ public class MonthSerializer
             return;
         }
         // Fallback to default serialization
-        g.writeNumber(value.getValue());
+        _serializeOneBased(g, value, ctxt);
+    }
+
+    private void _serializeOneBased(JsonGenerator g, Month value, SerializationContext ctxt)
+            throws JacksonException
+    {
+        if (ctxt.isEnabled(DateTimeFeature.ONE_BASED_MONTHS)) {
+            g.writeNumber(value.getValue());
+        } else {
+            g.writeNumber(value.getValue() - 1);
+        }
     }
 
 }

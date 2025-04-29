@@ -28,13 +28,13 @@ public enum MapperFeature
 
     /**
      * Feature that determines whether otherwise regular "getter"
-     * methods (but only ones that handle Collections and Maps,
-     * not getters of other type)
-     * can be used for purpose of getting a reference to a Collection
-     * and Map to modify the property, without requiring a setter
-     * method.
-     * This is similar to how JAXB framework sets Collections and
-     * Maps: no setter is involved, just getter.
+     * methods (but only ones that handle {@link java.util.Collection}s
+     * and {@link java.util.Map}s, not getters of other types)
+     * can be used for purpose of getting a reference to
+     * {@code Collection} / {@code Map} valued properties,
+     * without requiring a setter method.
+     * This is similar to how JAXB framework sets {@code Collection}s
+     * and {@code Map}s: no setter is involved, just getter.
      *<p>
      * Note that such getters-as-setters methods have lower
      * precedence than setters, so they are only used if no

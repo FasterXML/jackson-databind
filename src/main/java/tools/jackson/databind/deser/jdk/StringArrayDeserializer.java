@@ -164,7 +164,8 @@ public final class StringArrayDeserializer
                 chunk[ix++] = value;
             }
         } catch (Exception e) {
-            throw DatabindException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(chunk, buffer.bufferedSize() + ix));
         }
         String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
         ctxt.returnObjectBuffer(buffer);
@@ -224,7 +225,8 @@ public final class StringArrayDeserializer
             }
         } catch (Exception e) {
             // note: pass String.class, not String[].class, as we need element type for error info
-            throw DatabindException.wrapWithPath(e, String.class, ix);
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(String.class, ix));
         }
         String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
         ctxt.returnObjectBuffer(buffer);
@@ -284,7 +286,8 @@ public final class StringArrayDeserializer
                 chunk[ix++] = value;
             }
         } catch (Exception e) {
-            throw DatabindException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(chunk, buffer.bufferedSize() + ix));
         }
         String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
         ctxt.returnObjectBuffer(buffer);

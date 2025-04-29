@@ -547,6 +547,15 @@ public class ObjectMapper
         return _serializationConfig.isEnabled(f);
     }
 
+    /**
+     * Method for checking whether given datatype-specific
+     * feature is enabled.
+     */
+    public boolean isEnabled(DatatypeFeature f) {
+        // could call either config object:
+        return _serializationConfig.isEnabled(f);
+    }
+
     /*
     /**********************************************************************
     /* Configuration, accessing module information
@@ -728,13 +737,26 @@ public class ObjectMapper
      * Factory method for constructing non-blocking {@link JsonParser} that is properly
      * wired to allow configuration access (and, if relevant for parser, callbacks):
      * essentially constructs a {@link ObjectReadContext} and then calls
-     * {@link TokenStreamFactory#createParser(ObjectReadContext,DataInput)}.
+     * {@link TokenStreamFactory#createNonBlockingByteArrayParser(ObjectReadContext)}.
      *
      * @since 3.0
      */
     public JsonParser createNonBlockingByteArrayParser() throws JacksonException {
         DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createNonBlockingByteArrayParser(ctxt));
+    }
+
+    /**
+     * Factory method for constructing non-blocking {@link JsonParser} that is properly
+     * wired to allow configuration access (and, if relevant for parser, callbacks):
+     * essentially constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createNonBlockingByteBufferParser(ObjectReadContext)}.
+     *
+     * @since 3.0
+     */
+    public JsonParser createNonBlockingByteBufferParser() throws JacksonException {
+        DeserializationContextExt ctxt = _deserializationContext();
+        return ctxt.assignAndReturnParser(_streamFactory.createNonBlockingByteBufferParser(ctxt));
     }
 
     /*
@@ -1182,8 +1204,6 @@ public class ObjectMapper
     /**
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in {@link Path}.
-     *
-     * @since 3.0
      */
     public JsonNode readTree(Path path) throws JacksonException
     {
@@ -1206,6 +1226,16 @@ public class ObjectMapper
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, src));
+    }
+
+    /**
+     * Same as {@link #readTree(InputStream)} except content read from
+     * passed-in {@link TokenBuffer}.
+     */
+    public JsonNode readTree(TokenBuffer src) throws JacksonException {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return _readTreeAndClose(ctxt, src.asParser(ctxt));
     }
 
     /*
@@ -1752,6 +1782,33 @@ public class ObjectMapper
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(TokenBuffer src, Class<T> valueType) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt,
+                src.asParser(ctxt), _typeFactory.constructType(valueType));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(TokenBuffer src, JavaType valueType) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt,
+                src.asParser(ctxt), valueType);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(TokenBuffer src, TypeReference<T> valueTypeRef) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt,
+                src.asParser(ctxt), _typeFactory.constructType(valueTypeRef));
+    }
+
     /*
     /**********************************************************************
     /* Public API: serialization (mapping from Java types to external format)
@@ -1870,6 +1927,20 @@ public class ObjectMapper
     }
 
     /**
+     * Convenience method that can be used to serialize any Java value into newly created
+     * {@link TokenBuffer}. Functionally equivalent to calling
+     * {@link #writeValue(JsonGenerator, Object)} passing buffer as generator.
+     */
+    public TokenBuffer writeValueIntoBuffer(Object value) throws JacksonException
+    {
+        final SerializationContextExt ctxt = _serializationContext();
+        try (TokenBuffer buf = ctxt.bufferForValueConversion()) {
+            _configAndWriteValue(ctxt, buf, value);
+            return buf;
+        }
+    }
+
+    /**
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
@@ -1968,6 +2039,15 @@ public class ObjectMapper
     public ObjectWriter writer(SerializationFeature first,
             SerializationFeature... other) {
         return _newWriter(serializationConfig().with(first, other));
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectWriter} with
+     * specified features enabled (compared to settings that this
+     * mapper instance has).
+     */
+    public ObjectWriter writer(DatatypeFeature f) {
+        return _newWriter(serializationConfig().with(f));
     }
 
     /**
@@ -2121,6 +2201,17 @@ public class ObjectMapper
     public ObjectReader reader(DeserializationFeature first,
             DeserializationFeature... other) {
         return _newReader(deserializationConfig().with(first, other));
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} with
+     * specified feature enabled (compared to settings that this
+     * mapper instance has).
+     * Note that the resulting instance is NOT usable as is,
+     * without defining expected value type.
+     */
+    public ObjectReader reader(DatatypeFeature feature) {
+        return _newReader(deserializationConfig().with(feature));
     }
 
     /**

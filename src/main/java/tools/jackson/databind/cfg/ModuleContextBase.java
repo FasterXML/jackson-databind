@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.function.UnaryOperator;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.JacksonModule.SetupContext;
 import tools.jackson.databind.deser.*;
@@ -125,6 +126,16 @@ public class ModuleContextBase
         return _builder.isEnabled(f);
     }
 
+    @Override
+    public boolean isEnabled(DatatypeFeature f) {
+        return _builder.isEnabled(f);
+    }
+
+    @Override
+    public DatatypeFeatures datatypeFeatures() {
+        return _builder.datatypeFeatures();
+    }
+    
     /*
     /**********************************************************************
     /* Mutators for adding deserializers, related

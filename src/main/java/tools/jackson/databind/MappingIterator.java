@@ -166,6 +166,16 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     }
 
     /**
+     * Copy-constructor that sub-classes can use when creating new instances
+     * by fluent-style construction.
+     *
+     * @since 2.19
+     */
+    protected MappingIterator(MappingIterator<T> src) {
+        this(src._type, src._parser, src._context, src._deserializer, src._closeParser, src._updatedValue);
+    }
+
+    /**
      * Method for getting an "empty" iterator instance: one that never
      * has more values; may be freely shared.
      */

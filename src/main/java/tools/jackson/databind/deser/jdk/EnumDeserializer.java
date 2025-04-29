@@ -8,9 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
-import tools.jackson.databind.cfg.CoercionAction;
-import tools.jackson.databind.cfg.CoercionInputShape;
-import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.cfg.*;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
@@ -222,7 +220,7 @@ public class EnumDeserializer
         if (_lookupByEnumNaming != null) {
             return _lookupByEnumNaming;
         }
-        return ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+        return ctxt.isEnabled(EnumFeature.READ_ENUMS_USING_TO_STRING)
             ? _lookupByToString
             : _lookupByName;
     }
@@ -236,9 +234,9 @@ public class EnumDeserializer
 
         // First, check legacy setting for slightly different message
         if (act == CoercionAction.Fail) {
-            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
+            if (ctxt.isEnabled(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
                 return ctxt.handleWeirdNumberValue(_enumClass(), index,
-                        "not allowed to deserialize Enum value out of number: disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
+                        "not allowed to deserialize Enum value out of number: disable DeserializationConfig.EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
                         );
             }
             // otherwise this will force failure with new setting
@@ -318,7 +316,7 @@ public class EnumDeserializer
                     return match;
                 }
             }
-            if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
+            if (!ctxt.isEnabled(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
                     && !_isFromIntValue) {
                 // [databind#149]: Allow use of 'String' indexes as well -- unless prohibited (as per above)
                 char c = name.charAt(0);
@@ -375,7 +373,7 @@ public class EnumDeserializer
         if (_useNullForUnknownEnum != null) {
             return _useNullForUnknownEnum;
         }
-        return ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        return ctxt.isEnabled(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
     }
 
     // @since 2.15
@@ -387,7 +385,7 @@ public class EnumDeserializer
                 return _useDefaultValueForUnknownEnum;
             }
             // Otherwise, check the global setting
-            return ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+            return ctxt.isEnabled(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         }
         // No default value? then false
         return false;

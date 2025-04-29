@@ -39,14 +39,14 @@ public abstract class AbstractTypeResolver
      * including defaulting.
      *
      * @param config Configuration in use
-     * @param typeDesc Description of the POJO type to resolve
+     * @param typeDescRef Description of the POJO type to resolve
      *
      * @return Resolved concrete type (which should retain generic
      *    type parameters of input type, if any), if resolution succeeds;
      *    null if resolver does not know how to resolve given type
      */
     public JavaType resolveAbstractType(DeserializationConfig config,
-            BeanDescription typeDesc) {
+            BeanDescription.Supplier typeDescRef) {
         return null;
     }
 }

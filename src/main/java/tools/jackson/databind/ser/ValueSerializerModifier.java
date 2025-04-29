@@ -56,7 +56,7 @@ public abstract class ValueSerializerModifier
      * modifiers.
      */
     public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
-            BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
+            BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties) {
         return beanProperties;
     }
 
@@ -71,7 +71,7 @@ public abstract class ValueSerializerModifier
      * modifiers.
      */
     public List<BeanPropertyWriter> orderProperties(SerializationConfig config,
-            BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
+            BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties) {
         return beanProperties;
     }
 
@@ -85,7 +85,7 @@ public abstract class ValueSerializerModifier
      * some modifications.
      */
     public BeanSerializerBuilder updateBuilder(SerializationConfig config,
-            BeanDescription beanDesc, BeanSerializerBuilder builder) {
+            BeanDescription.Supplier beanDesc, BeanSerializerBuilder builder) {
         return builder;
     }
 
@@ -102,7 +102,7 @@ public abstract class ValueSerializerModifier
      * methods; mostly for JDK types like {@link java.util.Iterator} and such.
      */
     public ValueSerializer<?> modifySerializer(SerializationConfig config,
-            BeanDescription beanDesc, ValueSerializer<?> serializer) {
+            BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
@@ -128,32 +128,32 @@ public abstract class ValueSerializerModifier
      *   in, or an instance method constructed.
      */
     public ValueSerializer<?> modifyArraySerializer(SerializationConfig config,
-            ArrayType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
+            ArrayType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
     public ValueSerializer<?> modifyCollectionSerializer(SerializationConfig config,
-            CollectionType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
+            CollectionType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
     public ValueSerializer<?> modifyCollectionLikeSerializer(SerializationConfig config,
-            CollectionLikeType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
+            CollectionLikeType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
     public ValueSerializer<?> modifyMapSerializer(SerializationConfig config,
-            MapType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
+            MapType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
     public ValueSerializer<?> modifyMapLikeSerializer(SerializationConfig config,
-            MapLikeType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
+            MapLikeType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
     public ValueSerializer<?> modifyEnumSerializer(SerializationConfig config,
-            JavaType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
+            JavaType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
@@ -173,7 +173,7 @@ public abstract class ValueSerializerModifier
      *   in, or an instance method constructed.
      */
     public ValueSerializer<?> modifyKeySerializer(SerializationConfig config,
-            JavaType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
+            JavaType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 }

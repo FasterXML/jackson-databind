@@ -16,6 +16,7 @@ import tools.jackson.core.util.DefaultPrettyPrinter;
 import tools.jackson.core.util.Snapshottable;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.*;
+import tools.jackson.databind.ext.javatime.JavaTimeInitializer;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.*;
 import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
@@ -419,8 +420,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     {
         if (_savedState == null) {
             _savedState = _saveState();
+            ModuleContextBase ctxt = _constructModuleContext();
+            JavaTimeInitializer.getInstance().setupModule(ctxt);
             if (_modules != null) {
-                ModuleContextBase ctxt = _constructModuleContext();
                 _modules.values().forEach(m -> m.setupModule(ctxt));
                 // and since context may buffer some changes, ensure those are flushed:
                 ctxt.applyChanges(this);
@@ -485,7 +487,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     public boolean isEnabled(DatatypeFeature f) {
         return _datatypeFeatures.isEnabled(f);
     }
-
     public boolean isEnabled(StreamReadFeature f) {
         return f.enabledIn(_streamReadFeatures);
     }
@@ -810,14 +811,16 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
                 .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
-                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,
+                        DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .enable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS,
+                        DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+                .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                .disable(DateTimeFeature.ONE_BASED_MONTHS)
+                ;
     }
 
     /*
@@ -1131,17 +1134,31 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      *   addModules(builder.findModules());
      *</code>
      *<p>
-     * As with {@link #findModules()}, no caching is done for modules, so care
-     * needs to be taken to either create and share a single mapper instance;
-     * or to cache introspected set of modules.
+     * As with {@link #findModules()}, no caching is done for modules, so for
+     * performance reasons it may make sense to cache introspected set of modules
+     * if needed multiple times.
      */
     public B findAndAddModules() {
         return addModules(findModules());
     }
 
     /**
+     * Convenience method that is functionally equivalent to:
+     *<code>
+     *   addModules(builder.findModules(classLoader));
+     *</code>
+     *<p>
+     * As with {@link #findModules(ClassLoader)}, no caching is done for modules, so for
+     * performance reasons it may make sense to cache introspected set of modules
+     * if needed multiple times.
+     */
+    public B findAndAddModules(ClassLoader cl) {
+        return addModules(findModules(cl));
+    }
+
+    /**
      * "Accessor" method that will expose set of registered modules, in addition
-     * order, to given handler.
+     * order, using {@code handler} given.
      */
     public B withModules(Consumer<JacksonModule> handler) {
         if (_modules != null) {
@@ -1413,7 +1430,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B defaultDateFormat(DateFormat f) {
         _baseSettings = _baseSettings.with(f);
-        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, (f == null));
+        configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, (f == null));
         return _this();
     }
 

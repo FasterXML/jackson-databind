@@ -161,7 +161,7 @@ public class EnumSerializationTest
      */
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING).build();
+            .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING).build();
 
     @Test
     public void testSimple() throws Exception
@@ -232,13 +232,13 @@ public class EnumSerializationTest
     public void testToStringEnum() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
-                .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
+                .configure(EnumFeature.WRITE_ENUMS_USING_TO_STRING, true)
                 .build();
         assertEquals("\"b\"", m.writeValueAsString(LowerCaseEnum.B));
 
         // [databind#749] but should also be able to dynamically disable
         assertEquals("\"B\"",
-                m.writer().without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                m.writer().without(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                     .writeValueAsString(LowerCaseEnum.B));
     }
 
@@ -246,7 +246,7 @@ public class EnumSerializationTest
     public void testToStringEnumWithEnumMap() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
-                .enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .enable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .build();
         EnumMap<LowerCaseEnum,String> enums = new EnumMap<LowerCaseEnum,String>(LowerCaseEnum.class);
         enums.put(LowerCaseEnum.C, "value");
@@ -258,14 +258,14 @@ public class EnumSerializationTest
     {
         // By default, serialize using name
         ObjectMapper m = jsonMapperBuilder()
-                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .build();
-        assertFalse(m.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX));
+        assertFalse(m.isEnabled(EnumFeature.WRITE_ENUMS_USING_INDEX));
         assertEquals(q("B"), m.writeValueAsString(TestEnum.B));
 
         // but we can change (dynamically, too!) it to be number-based
         m = jsonMapperBuilder()
-                .enable(SerializationFeature.WRITE_ENUMS_USING_INDEX)
+                .enable(EnumFeature.WRITE_ENUMS_USING_INDEX)
                 .build();
         assertEquals("1", m.writeValueAsString(TestEnum.B));
     }
@@ -296,7 +296,7 @@ public class EnumSerializationTest
     @Test
     public void testEnumMapSerDefault() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .build();
         EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
         m.put(LC749Enum.A, "value");
@@ -306,7 +306,7 @@ public class EnumSerializationTest
     @Test
     public void testEnumMapSerDisableToString() throws Exception {
         final ObjectMapper mapper = newJsonMapper();
-        ObjectWriter w = mapper.writer().without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+        ObjectWriter w = mapper.writer().without(EnumFeature.WRITE_ENUMS_USING_TO_STRING);
         EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
         m.put(LC749Enum.A, "value");
         assertEquals("{\"A\":\"value\"}", w.writeValueAsString(m));
@@ -315,7 +315,7 @@ public class EnumSerializationTest
     @Test
     public void testEnumMapSerEnableToString() throws Exception {
         final ObjectMapper mapper = newJsonMapper();
-        ObjectWriter w = mapper.writer().with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+        ObjectWriter w = mapper.writer().with(EnumFeature.WRITE_ENUMS_USING_TO_STRING);
         EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
         m.put(LC749Enum.A, "value");
         assertEquals("{\"a\":\"value\"}", w.writeValueAsString(m));
@@ -330,7 +330,7 @@ public class EnumSerializationTest
     @Test
     public void testEnumsWithJsonPropertyEnableToString() throws Exception {
         String result = MAPPER.writerFor(EnumWithJsonProperty.class)
-                .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .writeValueAsString(EnumWithJsonProperty.A);
         assertEquals(q("aleph"), result);
     }

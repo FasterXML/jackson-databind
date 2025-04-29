@@ -213,7 +213,8 @@ public class EnumSetDeserializer
                 }
             }
         } catch (Exception e) {
-            throw DatabindException.wrapWithPath(e, result, result.size());
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(result, result.size()));
         }
         return result;
     }
@@ -254,7 +255,8 @@ public class EnumSetDeserializer
                 result.add(value);
             }
         } catch (Exception e) {
-            throw DatabindException.wrapWithPath(e, result, result.size());
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(result, result.size()));
         }
         return result;
     }

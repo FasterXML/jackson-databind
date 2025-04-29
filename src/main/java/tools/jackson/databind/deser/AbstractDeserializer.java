@@ -52,10 +52,10 @@ public class AbstractDeserializer
      *    to bind)
      */
     public AbstractDeserializer(BeanDeserializerBuilder builder,
-            BeanDescription beanDesc, Map<String, SettableBeanProperty> backRefProps,
+            Map<String, SettableBeanProperty> backRefProps,
             Map<String, SettableBeanProperty> props)
     {
-        _baseType = beanDesc.getType();
+        _baseType = builder.getType();
         _objectIdReader = builder.getObjectIdReader();
         _backRefProperties = backRefProps;
         _properties = props;
@@ -66,9 +66,9 @@ public class AbstractDeserializer
         _acceptDouble = (cls == Double.TYPE) || cls.isAssignableFrom(Double.class);
     }
 
-    protected AbstractDeserializer(BeanDescription beanDesc)
+    protected AbstractDeserializer(JavaType baseType)
     {
-        _baseType = beanDesc.getType();
+        _baseType = baseType;
         _objectIdReader = null;
         _backRefProperties = null;
         Class<?> cls = _baseType.getRawClass();
@@ -96,8 +96,8 @@ public class AbstractDeserializer
      * Factory method used when constructing instances for non-POJO types, like
      * {@link java.util.Map}s.
      */
-    public static AbstractDeserializer constructForNonPOJO(BeanDescription beanDesc) {
-        return new AbstractDeserializer(beanDesc);
+    public static AbstractDeserializer constructForNonPOJO(BeanDescription.Supplier beanDescRef) {
+        return new AbstractDeserializer(beanDescRef.getType());
     }
 
     @Override

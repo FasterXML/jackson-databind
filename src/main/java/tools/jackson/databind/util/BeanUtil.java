@@ -117,19 +117,7 @@ public class BeanUtil
         final String className = type.getRawClass().getName();
         String typeName, moduleName;
 
-        if (isJava8TimeClass(className)) {
-            // [modules-java8#207]: do NOT check/block helper types in sub-packages,
-            // but only main-level types (to avoid issues with module)
-            if (className.indexOf('.', 10) >= 0) {
-                return null;
-            }
-            // [databind#4718]: Also don't worry about Exception type(s)
-            if (type.isTypeOrSubTypeOf(Throwable.class)) {
-                return null;
-            }
-            typeName =  "Java 8 date/time";
-            moduleName = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310";
-        } else if (isJodaTimeClass(className)) {
+        if (isJodaTimeClass(className)) {
             typeName =  "Joda date/time";
             moduleName = "com.fasterxml.jackson.datatype:jackson-datatype-joda";
         } else {
@@ -138,15 +126,7 @@ public class BeanUtil
         return String.format("%s type %s not supported by default: add Module \"%s\" to enable handling",
                 typeName, ClassUtil.getTypeDescription(type), moduleName);
     }
-
-    public static boolean isJava8TimeClass(Class<?> rawType) {
-        return isJava8TimeClass(rawType.getName());
-    }
-
-    private static boolean isJava8TimeClass(String className) {
-        return className.startsWith("java.time.");
-    }
-
+    
     public static boolean isJodaTimeClass(Class<?> rawType) {
         return isJodaTimeClass(rawType.getName());
     }

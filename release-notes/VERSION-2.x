@@ -4,7 +4,15 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.19.0 (not yet released)
+2.20.0 (not yet released)
+
+#4136: Drop deprecated (in 2.12) `PropertyNamingStrategy` implementations
+  from 2.20
+#5103: Use `writeStartObject(Object forValue, int size)` for `ObjectNode`
+  serialization
+- Generate SBOMs [JSTEP-14]
+
+2.19.0 (24-Apr-2025)
 
 #1467: Support `@JsonUnwrapped` with `@JsonCreator`
  (implementation by Liam F)
@@ -18,7 +26,13 @@ Project: jackson-databind
    server and client side
  (requested by @qianlong)
  (contributed by Geoffrey G)
+#3343: Allow BeanPropertyWriter Sub-classes to Override `get()` (remove `final`)
+ (requested by @alzimmermsft)
 #4388: Allow using `@JsonPropertyOrder` with "any" (`@JsonAnyGetter`)  properties
+ (fix by Joo-Hyuk K)
+#4533: Add `MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_TIMES` to disable the
+  "Java 8 date/time XYZ not supported by default" error
+ (requested by Jeff S)
  (fix by Joo-Hyuk K)
 #4650: `PrimitiveArrayDeserializers` should deal with single String value if
   `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY` enabled
@@ -83,6 +97,20 @@ Project: jackson-databind
  (contributed by @pjfanning)
 #5052: Minor bug in `FirstCharBasedValidator.forFirstNameRule()`: returns `null`
   in non-default case
+#5063: `SimpleModule` not registered due to `getTypeId()` returning an empty string
+ (reported by @seadbrane)
+#5069: Add copy-constructor for `MappingIterator`
+ (contributed by @wrongwrong)
+
+2.18.4 (not yet released)
+
+#4628: `@JsonIgnore` and `@JsonProperty.access=READ_ONLY` on Record property
+  ignored for deserialization
+ (reported by Sim Y-T)
+ (fix contributed by Fawzi E)
+#5049: Duplicate creator property "b" (index 0 vs 1) on simple java record
+ (reported by @richard-melvin)
+ (fix contributed by Fawzi E)
 
 2.18.3 (28-Feb-2025)
 

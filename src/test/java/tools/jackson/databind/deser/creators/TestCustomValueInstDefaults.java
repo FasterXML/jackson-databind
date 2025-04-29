@@ -244,15 +244,15 @@ public class TestCustomValueInstDefaults
         @Override
         public ValueInstantiator modifyValueInstantiator(
                 DeserializationConfig config,
-                BeanDescription beanDesc,
+                BeanDescription.Supplier beanDescRef,
                 ValueInstantiator defaultInstantiator)
         {
             if (defaultInstantiator instanceof StdValueInstantiator) {
-                if (beanDesc.getBeanClass() == Bucket.class) {
+                if (beanDescRef.getBeanClass() == Bucket.class) {
                     return new BucketInstantiator(
                             (StdValueInstantiator) defaultInstantiator);
                 }
-                if (beanDesc.getBeanClass() == BigBucket.class) {
+                if (beanDescRef.getBeanClass() == BigBucket.class) {
                     return new BigBucketInstantiator(
                             (StdValueInstantiator) defaultInstantiator);
                 }
@@ -360,8 +360,8 @@ public class TestCustomValueInstDefaults
             context.addValueInstantiators(new ValueInstantiators.Base() {
                 @Override
                 public ValueInstantiator modifyValueInstantiator(DeserializationConfig config,
-                        BeanDescription beanDesc, ValueInstantiator defaultInstantiator) {
-                    if (beanDesc.getBeanClass() == ClassWith32Props.class) {
+                        BeanDescription.Supplier beanDescRef, ValueInstantiator defaultInstantiator) {
+                    if (beanDescRef.getBeanClass() == ClassWith32Props.class) {
                         return new VerifyingValueInstantiator((StdValueInstantiator)
                                 defaultInstantiator);
                     }

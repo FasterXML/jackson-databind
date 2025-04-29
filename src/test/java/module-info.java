@@ -35,6 +35,14 @@ module tools.jackson.databind
     opens tools.jackson.databind.deser.jdk;
     opens tools.jackson.databind.deser.std;
     opens tools.jackson.databind.exc;
+    opens tools.jackson.databind.ext.javatime;
+    opens tools.jackson.databind.ext.javatime.deser;
+    opens tools.jackson.databind.ext.javatime.deser.key;
+    opens tools.jackson.databind.ext.javatime.key;
+    opens tools.jackson.databind.ext.javatime.misc;
+    opens tools.jackson.databind.ext.javatime.ser;
+    opens tools.jackson.databind.ext.javatime.tofix;
+    opens tools.jackson.databind.ext.javatime.util;
     opens tools.jackson.databind.introspect;
     opens tools.jackson.databind.json;
     opens tools.jackson.databind.jsonFormatVisitors;

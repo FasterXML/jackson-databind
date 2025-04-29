@@ -82,7 +82,7 @@ public class SimpleAbstractTypeResolver
 
     @Override
     public JavaType resolveAbstractType(DeserializationConfig config,
-            BeanDescription typeDesc) {
+            BeanDescription.Supplier beanDescRef) {
         // never materialize anything, so:
         return null;
     }

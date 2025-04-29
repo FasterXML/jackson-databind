@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
@@ -494,7 +495,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     public void testWithAsValue() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build();
         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy(12345L));
         String json = mapper.writeValueAsString(input);
@@ -513,7 +514,9 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     @Test
     public void testExternalTypeWithProp222() throws Exception
     {
-        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        JsonMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .build();
         Issue222Bean input = new Issue222Bean(13);
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"type\":\"foo\",\"value\":{\"x\":13}}", json);

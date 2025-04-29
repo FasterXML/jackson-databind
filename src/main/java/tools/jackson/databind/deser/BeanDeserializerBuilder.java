@@ -43,7 +43,7 @@ public class BeanDeserializerBuilder
     /**
      * Introspected information about POJO for deserializer to handle
      */
-    protected final BeanDescription _beanDesc;
+    protected final BeanDescription.Supplier _beanDescRef;
 
     /*
     /**********************************************************************
@@ -127,10 +127,10 @@ public class BeanDeserializerBuilder
     /**********************************************************************
      */
 
-    public BeanDeserializerBuilder(BeanDescription beanDesc,
+    public BeanDeserializerBuilder(BeanDescription.Supplier beanDescRef,
             DeserializationContext ctxt)
     {
-        _beanDesc = beanDesc;
+        _beanDescRef = beanDescRef;
         _context = ctxt;
         _config = ctxt.getConfig();
     }
@@ -141,7 +141,7 @@ public class BeanDeserializerBuilder
      */
     protected BeanDeserializerBuilder(BeanDeserializerBuilder src)
     {
-        _beanDesc = src._beanDesc;
+        _beanDescRef = src._beanDescRef;
         _context = src._context;
         _config = src._config;
 
@@ -201,7 +201,8 @@ public class BeanDeserializerBuilder
     {
         SettableBeanProperty old =  _properties.put(prop.getName(), prop);
         if (old != null && old != prop) { // should never occur...
-            throw new IllegalArgumentException("Duplicate property '"+prop.getName()+"' for "+_beanDesc.getType());
+            throw new IllegalArgumentException("Duplicate property '"+prop.getName()
+            +"' for "+_beanDescRef.getType());
         }
     }
 
@@ -326,6 +327,10 @@ public class BeanDeserializerBuilder
     /**********************************************************************
      */
 
+    public JavaType getType() {
+        return _beanDescRef.getType();
+    }
+
     /**
      * Method that allows accessing all properties that this
      * builder currently contains.
@@ -400,7 +405,7 @@ public class BeanDeserializerBuilder
                     new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED));
         }
         return new BeanDeserializer(this,
-                _beanDesc, _constructPropMap(props), _backRefProperties, _ignorableProps, _ignoreAllUnknown, _includableProps,
+                _beanDescRef, _constructPropMap(props), _backRefProperties, _ignorableProps, _ignoreAllUnknown, _includableProps,
                 _anyViews(props));
     }
 
@@ -410,7 +415,7 @@ public class BeanDeserializerBuilder
      * ("polymorphic deserialization")
      */
     public AbstractDeserializer buildAbstract() {
-        return new AbstractDeserializer(this, _beanDesc, _backRefProperties, _properties);
+        return new AbstractDeserializer(this, _backRefProperties, _properties);
     }
 
     /**
@@ -423,9 +428,9 @@ public class BeanDeserializerBuilder
         if (_buildMethod == null) {
             // as per [databind#777], allow empty name
             if (!expBuildMethodName.isEmpty()) {
-                _context.reportBadDefinition(_beanDesc.getType(),
+                _context.reportBadDefinition(_beanDescRef.getType(),
                         String.format("Builder class %s does not have build method (name: '%s')",
-                        ClassUtil.getTypeDescription(_beanDesc.getType()),
+                        ClassUtil.getTypeDescription(_beanDescRef.getType()),
                         expBuildMethodName));
             }
         } else {
@@ -435,7 +440,7 @@ public class BeanDeserializerBuilder
             if ((rawBuildType != rawValueType)
                     && !rawBuildType.isAssignableFrom(rawValueType)
                     && !rawValueType.isAssignableFrom(rawBuildType)) {
-                _context.reportBadDefinition(_beanDesc.getType(),
+                _context.reportBadDefinition(_beanDescRef.getType(),
                         String.format("Build method `%s` has wrong return type (%s), not compatible with POJO type (%s)",
                         _buildMethod.getFullName(),
                         ClassUtil.getClassDescription(rawBuildType),
@@ -463,7 +468,7 @@ public class BeanDeserializerBuilder
     protected ValueDeserializer<?> createBuilderBasedDeserializer(JavaType valueType,
             BeanPropertyMap propertyMap, boolean anyViews) {
         return new BuilderBasedDeserializer(this,
-                _beanDesc, valueType, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
+                _beanDescRef, valueType, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
                 _includableProps, anyViews);
     }
 
@@ -581,7 +586,7 @@ public class BeanDeserializerBuilder
     {
         // 07-May-2020, tatu: First find combination of per-type config overrides (higher
         //   precedence) and per-type annotations (lower):
-        JsonFormat.Value format = _beanDesc.findExpectedFormat(null);
+        JsonFormat.Value format = _beanDescRef.get().findExpectedFormat(null);
         // and see if any of those has explicit definition; if not, use global baseline default
         Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
         boolean caseInsensitive = (B == null)
@@ -621,7 +626,7 @@ public class BeanDeserializerBuilder
     protected void _handleBadAccess(IllegalArgumentException e0)
     {
         try {
-            _context.reportBadTypeDefinition(_beanDesc, e0.getMessage());
+            _context.reportBadTypeDefinition(_beanDescRef.get(), e0.getMessage());
         } catch (DatabindException e) {
             if (e.getCause() == null) {
                 e.initCause(e0);

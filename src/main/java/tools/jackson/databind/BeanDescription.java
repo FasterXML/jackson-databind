@@ -36,6 +36,10 @@ public abstract class BeanDescription
         _type = type;
     }
 
+    public BeanDescription.Supplier supplier() {
+        return new EagerSupplier(this);
+    }
+
     /*
     /**********************************************************************
     /* Simple accessors
@@ -298,4 +302,81 @@ public abstract class BeanDescription
      * global default settings.
      */
     public abstract Class<?>[] findDefaultViews();
+
+ 
+    /**
+     * Interface for lazily-constructed suppliers for {@link BeanDescription} instances;
+     * extends plain {@link java.util.function.Supplier} with convenience accessors.
+     */
+    public interface Supplier extends java.util.function.Supplier<BeanDescription>
+    {
+        JavaType getType();
+
+        default Class<?> getBeanClass() { return getType().getRawClass(); }
+
+        default boolean isRecordType() { return getType().isRecordType(); }
+
+        default AnnotatedClass getClassInfo() {
+            return get().getClassInfo();
+        }
+
+        default Annotations getClassAnnotations() {
+            return get().getClassAnnotations();
+        }
+
+        @Override
+        public BeanDescription get();
+    }
+
+    /**
+     * Partial implementation for lazily-constructed suppliers for {@link BeanDescription} instances.
+     */
+    public static abstract class LazySupplier implements Supplier
+    {
+        protected final JavaType _type;
+
+        protected transient BeanDescription _beanDesc;
+        
+        protected LazySupplier(JavaType type) {
+            _type = type;
+        }
+
+        @Override
+        public JavaType getType() { return _type; }
+
+        @Override
+        public Class<?> getBeanClass() { return _type.getRawClass(); }
+
+        @Override
+        public boolean isRecordType() { return _type.isRecordType(); }
+
+        @Override
+        public BeanDescription get() {
+            if (_beanDesc == null) {
+                _beanDesc = _construct(_type);
+            }
+            return _beanDesc;
+        }
+
+        protected abstract BeanDescription _construct(JavaType forType);
+    }
+
+    /**
+     * Simple {@link Supplier} implementation that just returns pre-constructed
+     * {@link BeanDescription} instance.
+     */
+    public static class EagerSupplier implements Supplier
+    {
+        protected final BeanDescription _beanDesc;
+
+        public EagerSupplier(BeanDescription beanDesc) {
+            _beanDesc = Objects.requireNonNull(beanDesc);
+        }
+
+        @Override
+        public JavaType getType() { return _beanDesc.getType(); }
+
+        @Override
+        public BeanDescription get() { return _beanDesc; }
+    }  
 }

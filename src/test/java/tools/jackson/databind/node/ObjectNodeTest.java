@@ -293,11 +293,11 @@ public class ObjectNodeTest
 
         assertThrows(NullPointerException.class, () -> src.set(null, BooleanNode.TRUE));
         assertThrows(NullPointerException.class, () -> src.replace(null, BooleanNode.TRUE));
-        
+
         assertThrows(NullPointerException.class, () -> src.setAll(Collections.singletonMap(null,
                 MAPPER.createArrayNode())));
     }
-    
+
     @Test
     public void testRemove()
     {

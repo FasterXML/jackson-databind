@@ -37,7 +37,7 @@ public class CreatorCollector
     /**
      * Type of bean being created
      */
-    protected final BeanDescription _beanDesc;
+    protected final JavaType _beanType;
 
     protected final boolean _canFixAccess;
 
@@ -70,8 +70,8 @@ public class CreatorCollector
     /**********************************************************
      */
 
-    public CreatorCollector(BeanDescription beanDesc, MapperConfig<?> config) {
-        _beanDesc = beanDesc;
+    public CreatorCollector(MapperConfig<?> config, JavaType beanType) {
+        _beanType = beanType;
         _canFixAccess = config.canOverrideAccessModifiers();
         _forceAccess = config
                 .isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
@@ -84,9 +84,8 @@ public class CreatorCollector
                 _creators[C_DELEGATE], _delegateArgs);
         final JavaType arrayDelegateType = _computeDelegateType(ctxt,
                 _creators[C_ARRAY_DELEGATE], _arrayDelegateArgs);
-        final JavaType type = _beanDesc.getType();
 
-        StdValueInstantiator inst = new StdValueInstantiator(config, type);
+        StdValueInstantiator inst = new StdValueInstantiator(config, _beanType);
         inst.configureFromObjectSettings(_creators[C_DEFAULT], _creators[C_DELEGATE],
                 delegateType, _delegateArgs, _creators[C_PROPS],
                 _propertyBasedArgs);
@@ -182,7 +181,7 @@ public class CreatorCollector
                     if (old != null) {
                         throw new IllegalArgumentException(String.format(
                                 "Duplicate creator property \"%s\" (index %s vs %d) for type %s ",
-                                name, old, i, ClassUtil.nameOf(_beanDesc.getBeanClass())));
+                                name, old, i, ClassUtil.nameOf(_beanType.getRawClass())));
                     }
                 }
             }
@@ -196,23 +195,14 @@ public class CreatorCollector
     /**********************************************************
      */
 
-    /**
-     * @since 2.1
-     */
     public boolean hasDefaultCreator() {
         return _creators[C_DEFAULT] != null;
     }
 
-    /**
-     * @since 2.6
-     */
     public boolean hasDelegatingCreator() {
         return _creators[C_DELEGATE] != null;
     }
 
-    /**
-     * @since 2.6
-     */
     public boolean hasPropertyBasedCreator() {
         return _creators[C_PROPS] != null;
     }

@@ -49,7 +49,8 @@ class BeanDeserializerModifier4356Test
     static SimpleModule getSimpleModuleWithDeserializerModifier() {
         return new SimpleModule().setDeserializerModifier(new ValueDeserializerModifier() {
             @Override
-            public BeanDeserializerBuilder updateBuilder(DeserializationConfig config, BeanDescription beanDesc, BeanDeserializerBuilder builder) {
+            public BeanDeserializerBuilder updateBuilder(DeserializationConfig config,
+                    BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder builder) {
                 for (Iterator<SettableBeanProperty> properties = builder.getProperties(); properties.hasNext();) {
                     SettableBeanProperty property = properties.next();
                     if (property.getName().equals("a")) {

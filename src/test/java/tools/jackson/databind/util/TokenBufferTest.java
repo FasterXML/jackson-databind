@@ -51,7 +51,7 @@ public class TokenBufferTest extends DatabindTestUtil
 
     /*
     /**********************************************************************
-    /* Basic TokenBuffer tests
+    /* Basic TokenBuffer tests, direct access
     /**********************************************************************
      */
 
@@ -524,6 +524,57 @@ public class TokenBufferTest extends DatabindTestUtil
         }
     }
 
+    /*
+    /**********************************************************************
+    /* TokenBuffer as source for ObjectMapper/ObjectReader tests
+    /**********************************************************************
+     */
+
+    @Test
+    public void readFromBufferViaObjectMapper() throws Exception {
+        final Point TEST_OB = new Point(123, -456);
+
+        assertEquals(TEST_OB, MAPPER.readValue(_tokenBufferFor(TEST_OB),
+                Point.class));
+        assertEquals(TEST_OB, MAPPER.readValue(_tokenBufferFor(TEST_OB),
+                MAPPER.constructType(Point.class)));
+        assertEquals(TEST_OB, MAPPER.readValue(_tokenBufferFor(TEST_OB),
+                new TypeReference<Point>() {}));
+
+        assertEquals(MAPPER.valueToTree(TEST_OB),
+                MAPPER.readTree(_tokenBufferFor(TEST_OB)));
+
+        // Try alternate that fills TokenBuffer using mapper itself
+        assertEquals(TEST_OB, MAPPER.readValue(MAPPER.writeValueIntoBuffer(TEST_OB),
+                Point.class));
+    }
+
+    @Test
+    public void readFromBufferViaObjectReader() throws Exception {
+        final Point TEST_OB = new Point(234, 5678);
+        final ObjectReader R = MAPPER.readerFor(Point.class);
+
+        assertEquals(TEST_OB, R.readValue(_tokenBufferFor(TEST_OB)));
+
+        assertEquals(MAPPER.valueToTree(TEST_OB),
+                R.readTree(_tokenBufferFor(TEST_OB)));
+
+        // Try alternate that fills TokenBuffer using ObjectWriter
+        assertEquals(TEST_OB,
+                R.readValue(MAPPER.writer().writeValueIntoBuffer(TEST_OB)));
+    }
+
+    private TokenBuffer _tokenBufferFor(Object value) {
+        final String json = MAPPER.writeValueAsString(value);
+        TokenBuffer buf = TokenBuffer.forGeneration();
+        try (JsonParser p = MAPPER.createParser(json)) {
+            while (p.nextToken() != null) {
+                buf.copyCurrentEvent(p);
+            }
+        }
+        return buf;
+    }
+    
     /*
     /**********************************************************
     /* Tests for read/output contexts

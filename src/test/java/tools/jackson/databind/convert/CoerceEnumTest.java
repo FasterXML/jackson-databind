@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.cfg.CoercionAction;
-import tools.jackson.databind.cfg.CoercionInputShape;
+import tools.jackson.databind.cfg.*;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.type.LogicalType;
 
@@ -43,7 +42,7 @@ public class CoerceEnumTest
     public void testLegacyDefaults() throws Exception
     {
         // first, verify default settings which do not accept empty String:
-        assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
+        assertFalse(MAPPER.isEnabled(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
     }
 
     @Test
@@ -98,7 +97,7 @@ public class CoerceEnumTest
         assertEquals(EnumCoerce.values()[1], result);
 
         try {
-            r.with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
+            r.with(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
                 .readValue("1");
             fail("Should not pass");
         } catch (Exception e) {

@@ -797,12 +797,8 @@ public class BeanPropertyWriter
     /**
      * Method that can be used to access value of the property this Object
      * describes, from given bean instance.
-     * <p>
-     * Note: method is final as it should not need to be overridden -- rather,
-     * calling method(s) ({@link #serializeAsProperty}) should be overridden to
-     * change the behavior
      */
-    public final Object get(Object bean) throws Exception {
+    public Object get(Object bean) throws Exception {
         return (_accessorMethod == null) ? _field.get(bean) : _accessorMethod
                 .invoke(bean, (Object[]) null);
     }

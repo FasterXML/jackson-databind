@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.json.JsonWriteFeature;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
@@ -71,7 +72,8 @@ public class MiscJavaXMLTypesReadWriteTest
     @Test
     public void testXMLGregorianCalendarSerAndDeser() throws Exception
     {
-        ObjectMapper withMapper = jsonMapperBuilder().enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build();
+        ObjectMapper withMapper = jsonMapperBuilder()
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS).build();
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         XMLGregorianCalendar cal = dtf.newXMLGregorianCalendar
             (1974, 10, 10, 18, 15, 17, 123, 0);
@@ -90,7 +92,7 @@ public class MiscJavaXMLTypesReadWriteTest
         // this is ALMOST same as default for XMLGregorianCalendar... just need to unify Z/+0000
         String exp = cal.toXMLFormat();
         String act = mapper.writer()
-                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(cal);
         act = act.substring(1, act.length() - 1); // remove quotes
         exp = removeZ(exp);

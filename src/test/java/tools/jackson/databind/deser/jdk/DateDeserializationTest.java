@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.OptBoolean;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 
@@ -642,7 +643,7 @@ public class DateDeserializationTest
         final String tzId = "PST";
 
         // this is enabled by default:
-        assertTrue(MAPPER.isEnabled(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE));
+        assertTrue(MAPPER.isEnabled(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE));
         final ObjectReader r = MAPPER
                 .readerFor(Calendar.class)
                 .with(TimeZone.getTimeZone(tzId));
@@ -662,7 +663,7 @@ public class DateDeserializationTest
         assertEquals(11, cal.get(Calendar.HOUR_OF_DAY));
 
         // but if disabled, should use what's been sent in:
-        cal = r.without(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
+        cal = r.without(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
                 .readValue(q(inputStr));
 
         // 23-Jun-2017, tatu: Actually turns out to be hard if not impossible to do ...

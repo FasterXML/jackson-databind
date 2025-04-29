@@ -64,7 +64,7 @@ public abstract class ValueInstantiator
      * @since 3.0
      */
     public abstract ValueInstantiator createContextual(DeserializationContext ctxt,
-            BeanDescription beanDesc);
+            BeanDescription.Supplier beanDescRef);
 
     /*
     /**********************************************************************
@@ -414,7 +414,7 @@ public abstract class ValueInstantiator
 
         @Override
         public ValueInstantiator createContextual(DeserializationContext ctxt,
-                BeanDescription beanDesc)
+                BeanDescription.Supplier beanDescRef)
         {
             return this;
         }
@@ -448,9 +448,10 @@ public abstract class ValueInstantiator
         }
 
         @Override
-        public ValueInstantiator createContextual(DeserializationContext ctxt,  BeanDescription beanDesc)
+        public ValueInstantiator createContextual(DeserializationContext ctxt,
+                BeanDescription.Supplier beanDescRef)
         {
-            ValueInstantiator d = _delegate.createContextual(ctxt, beanDesc);
+            ValueInstantiator d = _delegate.createContextual(ctxt, beanDescRef);
             return (d == _delegate) ? this : new Delegating(d);
         }
 

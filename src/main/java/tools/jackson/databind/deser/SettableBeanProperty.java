@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.InternCache;
@@ -609,7 +610,7 @@ public abstract class SettableBeanProperty
     /**********************************************************************
      */
 
-    protected void _throwAsJacksonE(JsonParser p, Exception e, Object value)
+    protected void _throwAsJacksonE(JsonParser p, Throwable e, Object value)
         throws JacksonException
     {
         if (e instanceof IllegalArgumentException) {
@@ -632,19 +633,22 @@ public abstract class SettableBeanProperty
         _throwAsJacksonE(p, e);
     }
 
-    protected void _throwAsJacksonE(JsonParser p, Exception e) throws JacksonException
+    protected void _throwAsJacksonE(JsonParser p, Throwable e) throws JacksonException
     {
         ClassUtil.throwIfRTE(e);
         ClassUtil.throwIfJacksonE(e);
-        // let's wrap the innermost problem
-        Throwable th = ClassUtil.getRootCause(e);
-        throw DatabindException.from(p, ClassUtil.exceptionMessage(th), th);
-    }
 
-    // 10-Oct-2015, tatu: _Should_ be deprecated, too, but its remaining
-    //   callers cannot actually provide a JsonParser
-    protected void _throwAsJacksonE(Exception e, Object value) throws JacksonException {
-        _throwAsJacksonE((JsonParser) null, e, value);
+        // 10-Apr-2025: [databind#4603] no more unwrapping, retain exception
+        // Throwable th = ClassUtil.getRootCause(e);
+        // ... except for InvocationTargetException which we still unwrap as it
+        // adds no value
+        if (e instanceof InvocationTargetException ite) {
+            Throwable t = ite.getTargetException();
+            ClassUtil.throwIfRTE(t);
+            ClassUtil.throwIfJacksonE(t);
+            throw DatabindException.from(p, ClassUtil.exceptionMessage(t), t);
+        }
+        throw DatabindException.from(p, ClassUtil.exceptionMessage(e), e);
     }
 
     @Override public String toString() { return "[property '"+getName()+"']"; }

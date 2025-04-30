@@ -259,13 +259,12 @@ public enum MapperFeature
      * changes between "opt-in" (feature disabled) and
      * "opt-out" (feature enabled) modes.
      *<p>
-     * Default value is enabled, meaning that non-annotated
-     * properties are included in all views if there is no
+     * Feature is disabled by default as of Jackson 3.0 (in 2.x it was enabled),
+     * meaning that non-annotated
+     * properties are not included views if there is no
      * {@link com.fasterxml.jackson.annotation.JsonView} annotation.
-     *<p>
-     * Feature is enabled by default in 2.x: will be disabled in 3.0.
      */
-    DEFAULT_VIEW_INCLUSION(true),
+    DEFAULT_VIEW_INCLUSION(false),
 
     /*
     /**********************************************************************

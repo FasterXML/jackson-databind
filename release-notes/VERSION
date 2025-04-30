@@ -7,6 +7,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.0-rc4 (not yet released)
 
+#1484: Changed default of `MapperFeature.DEFAULT_VIEW_INCLUSION` to `false` in 3.0
 #5093: Change the way `BeanDescription` passed during serializer construction
  to use `Supplier`
 #5094: Change the way `BeanDescription` passed during deserializer construction

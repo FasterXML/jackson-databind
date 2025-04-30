@@ -77,13 +77,6 @@ public class MonthSerializer
             g.writeString(_formatter.format(value));
             return;
         }
-        // Fallback to default serialization
-        _serializeOneBased(g, value, ctxt);
-    }
-
-    private void _serializeOneBased(JsonGenerator g, Month value, SerializationContext ctxt)
-            throws JacksonException
-    {
         if (ctxt.isEnabled(DateTimeFeature.ONE_BASED_MONTHS)) {
             g.writeNumber(value.getValue());
         } else {

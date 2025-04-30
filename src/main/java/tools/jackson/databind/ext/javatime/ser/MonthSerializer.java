@@ -77,14 +77,6 @@ public class MonthSerializer
             g.writeString(_formatter.format(value));
             return;
         }
-        if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_INDEX)) {
-            _serializeOneBased(g, value, ctxt);
-            return;
-        }
-        if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
-            g.writeString(value.toString());
-            return;
-        }
         // Fallback to default serialization
         _serializeOneBased(g, value, ctxt);
     }

@@ -10,6 +10,7 @@ Project: jackson-databind
   from 2.20
 #5103: Use `writeStartObject(Object forValue, int size)` for `ObjectNode`
   serialization
+- Generate SBOMs [JSTEP-14]
 
 2.19.0 (24-Apr-2025)
 

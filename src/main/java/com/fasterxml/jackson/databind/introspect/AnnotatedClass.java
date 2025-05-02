@@ -30,59 +30,61 @@ public final class AnnotatedClass
     /**
      * @since 2.7
      */
-    final protected JavaType _type;
+    protected final JavaType _type;
 
     /**
      * Class for which annotations apply, and that owns other
      * components (constructors, methods)
      */
-    final protected Class<?> _class;
+    protected final Class<?> _class;
 
     /**
      * Type bindings to use for members of {@link #_class}.
      *
      * @since 2.7
      */
-    final protected TypeBindings _bindings;
+    protected final TypeBindings _bindings;
 
     /**
      * Ordered set of super classes and interfaces of the
      * class itself: included in order of precedence
      */
-    final protected List<JavaType> _superTypes;
+    protected final List<JavaType> _superTypes;
 
     /**
      * Filter used to determine which annotations to gather; used
      * to optimize things so that unnecessary annotations are
      * ignored.
      */
-    final protected AnnotationIntrospector _annotationIntrospector;
+    protected final AnnotationIntrospector _annotationIntrospector;
 
     /**
      * @since 2.7
      */
-    final protected TypeFactory _typeFactory;
+    protected final TypeFactory _typeFactory;
 
     /**
      * Object that knows mapping of mix-in classes (ones that contain
      * annotations to add) with their target classes (ones that
      * get these additional annotations "mixed in").
      */
-    final protected MixInResolver _mixInResolver;
+    protected final MixInResolver _mixInResolver;
 
     /**
      * Primary mix-in class; one to use for the annotated class
      * itself. Can be null.
      */
-    final protected Class<?> _primaryMixIn;
+    protected final Class<?> _primaryMixIn;
 
     /**
      * Flag that indicates whether (full) annotation resolution should
-     * occur: starting with 2.11 is disabled for JDK container types.
+     * occur: starting with 2.11 is disabled for JDK container types
+     * ({@link ClassUtil#isJDKClass(Class)} and {@code type.isContainerType()}).
+     * Later in 2.19 all JDK types have this disabled.
      *
      * @since 2.11
      */
-    final protected boolean _collectAnnotations;
+    protected final boolean _collectAnnotations;
 
     /*
     /**********************************************************
@@ -94,7 +96,7 @@ public final class AnnotatedClass
      * Combined list of Jackson annotations that the class has,
      * including inheritable ones from super classes and interfaces
      */
-    final protected Annotations _classAnnotations;
+    protected final Annotations _classAnnotations;
 
     /**
      * @since 2.9

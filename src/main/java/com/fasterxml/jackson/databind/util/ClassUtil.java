@@ -1188,6 +1188,17 @@ se.getClass().getName(), se.getMessage()),
     }
 
     /**
+     * Similar to {@link #isJDKClass(Class)}, but for JDK core classes: those in
+     * packages under {@code java.*} but NOT under {@code javax.*} (or {@code sun.*}).
+     *
+     * @since 2.20
+     */
+    public static boolean isJDKCoreClass(Class<?> rawType) {
+        final String clsName = rawType.getName();
+        return clsName.startsWith("java.");
+    }
+
+    /**
      * Convenience method for:
      *<pre>
      *   return getJDKMajorVersion() &gt;= 17

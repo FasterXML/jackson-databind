@@ -753,10 +753,10 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
+     * and 1.0 (true), and Strings are parsed using default Java language {@code double}
      * parsing rules.
      *<p>
-     * If representation cannot be converted to an int (including structured types
+     * If representation cannot be converted to a {@code double} (including structured types
      * like Objects and Arrays),
      * default value of <b>0.0</b> will be returned; no exceptions are thrown.
      */
@@ -767,10 +767,10 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
+     * and 1.0 (true), and Strings are parsed using default Java language {@code double}
      * parsing rules.
      *<p>
-     * If representation cannot be converted to an int (including structured types
+     * If representation cannot be converted to a {@code double} (including structured types
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */

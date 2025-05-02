@@ -79,7 +79,7 @@ public final class AnnotatedClass
     /**
      * Flag that indicates whether (full) annotation resolution should
      * occur: starting with 2.11 is disabled for JDK container types
-     * {@link ClassUtil#isJDKClass(Class)} and {@code type.isContainerType()}.
+     * ({@link ClassUtil#isJDKClass(Class)} and {@code type.isContainerType()}).
      * Later in 2.19 all JDK types have this disabled.
      *
      * @since 2.11

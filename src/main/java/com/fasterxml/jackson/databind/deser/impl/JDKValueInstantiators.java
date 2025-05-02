@@ -40,6 +40,10 @@ public abstract class JDKValueInstantiators
             if (raw == TreeSet.class) {
                 return new TreeSetInstantiator();
             }
+            // 01-May-2025, tatu: was missing
+            if (raw == LinkedHashSet.class) { // default impl, pre-constructed instance
+                return new LinkedHashSetInstantiator();
+            }
             if (raw == Collections.emptySet().getClass()) {
                 return new ConstantValueInstantiator(Collections.emptySet());
             }
@@ -152,6 +156,22 @@ public abstract class JDKValueInstantiators
         @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
             return new TreeSet<>();
+        }
+    }
+
+    // @since 2.19: was missing
+    private static class LinkedHashSetInstantiator
+        extends JDKValueInstantiator
+    {
+        private static final long serialVersionUID = 2L;
+    
+        public LinkedHashSetInstantiator() {
+            super(LinkedHashSet.class);
+        }
+    
+        @Override
+        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+            return new LinkedHashSet<>();
         }
     }
 

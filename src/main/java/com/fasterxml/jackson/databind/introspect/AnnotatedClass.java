@@ -91,9 +91,9 @@ public final class AnnotatedClass
      * detection should occur: starting with 2.19 is disabled for <b>core</b> JDK
      * types {@link ClassUtil#isJDKCoreClass(Class)}).
      *
-     * @since 2.19
+     * @since 2.20
      */
-    final protected boolean _collectMembers;
+    protected final boolean _collectMembers;
 
     /*
     /**********************************************************
@@ -369,8 +369,7 @@ System.out.println("Collecting _fields() for "+_type);
         if (m == null) {
             // 09-Jun-2017, tatu: _type only null for primordial, placeholder array types.
             //    NOTE: would be great to have light-weight shareable maps; no such impl exists for now
-            // 26-Apr-2025, tatu: [databind#4907] Less introspection, skip for core JDK types
-            if (_type == null || !_collectMembers) {
+            if (_type == null) { // || !_collectMembers) {
 System.out.println("SKIP Collecting _methods() for: "+_type);
                 m = new AnnotatedMethodMap();
             } else {

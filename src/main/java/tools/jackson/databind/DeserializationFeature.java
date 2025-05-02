@@ -288,17 +288,18 @@ public enum DeserializationFeature implements ConfigFeature
      * during deserialization.
      *<p>
      * When enabled, if a property is encountered during deserialization that is not part of the
-     * active view (as defined by {@link com.fasterxml.jackson.annotation.JsonView}).
+     * active view (as defined by {@link com.fasterxml.jackson.annotation.JsonView}),
+     * an exception is thrown. If disabled, the property is simply ignored.
      *<p>
      * This feature is particularly useful in scenarios where strict adherence to the specified
      * view is required and any deviation, such as the presence of properties not belonging to
-     * the view, should be reported as an error. It enhances the robustness of data binding
+     * the view, should be reported as an error. It can enhance the robustness of data binding
      * by ensuring that only the properties relevant to the active view are considered during
      * deserialization, thereby preventing unintended data from being processed.
      *<p>
-     * Feature is enabled by default in Jackson 3.x (in 2.x it was disabled by default).
+     * Feature is disabled by default.
      */
-    FAIL_ON_UNEXPECTED_VIEW_PROPERTIES(true),
+    FAIL_ON_UNEXPECTED_VIEW_PROPERTIES(false),
 
     /*
     /**********************************************************************

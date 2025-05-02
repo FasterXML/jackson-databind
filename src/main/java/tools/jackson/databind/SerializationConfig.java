@@ -228,7 +228,7 @@ public final class SerializationConfig
 
     /**
      * In addition to constructing instance with specified date format,
-     * will enable or disable <code>SerializationFeature.WRITE_DATES_AS_TIMESTAMPS</code>
+     * will enable or disable <code>DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS</code>
      * (enable if format set as null; disable if non-null)
      */
     @Override

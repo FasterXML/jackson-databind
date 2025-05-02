@@ -3,14 +3,13 @@ package tools.jackson.databind.ext.javatime.ser;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.cfg.DateTimeFeature;
-import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.jsontype.TypeSerializer;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * Serializer for Java 8 temporal {@link java.time.Month}s.
@@ -77,21 +76,6 @@ public class MonthSerializer
             g.writeString(_formatter.format(value));
             return;
         }
-        if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_INDEX)) {
-            _serializeOneBased(g, value, ctxt);
-            return;
-        }
-        if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
-            g.writeString(value.toString());
-            return;
-        }
-        // Fallback to default serialization
-        _serializeOneBased(g, value, ctxt);
-    }
-
-    private void _serializeOneBased(JsonGenerator g, Month value, SerializationContext ctxt)
-            throws JacksonException
-    {
         if (ctxt.isEnabled(DateTimeFeature.ONE_BASED_MONTHS)) {
             g.writeNumber(value.getValue());
         } else {

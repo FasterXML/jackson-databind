@@ -283,7 +283,7 @@ mapper.enable(SerializationFeature.INDENT_OUTPUT);
 // (without this setting, an exception is thrown in those cases)
 mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 // to write java.util.Date, Calendar as number (timestamp):
-mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+mapper.disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
 
 // DeserializationFeature for changing how JSON is read as POJOs:
 
@@ -296,7 +296,7 @@ mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
 In addition, you may need to change some of low-level JSON parsing, generation details:
 
 ```java
-// JsonParser.Feature for configuring parsing settings:
+// StreamReadFeatures for configuring parsing settings:
 
 // to allow C/C++ style comments in JSON (non-standard, disabled by default)
 // (note: with Jackson 2.5, there is also `mapper.enable(feature)` / `mapper.disable(feature)`)

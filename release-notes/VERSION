@@ -133,9 +133,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #4820: Change JDK baseline for Jackson 3.0 from Java 8 to Java 17
 #4835: Remove dynamic work-arounds wrt accessing `Record` definition
 #4840: Increase minimum Android SDK required to 34 for Jackson 3.0
-#4845: Change default of `SerializationFeature.WRITE_DATES_AS_TIMESTAMPS`
+#4845: Change default of `DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPSATES_AS_TIMESTAMPS`
   to `false` in 3.0
-#4846: Change default of `SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS`
+#4846: Change default of `DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS`
   to `false` in 3.0
 #4858: Change default of `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES`
   to `true` for 3.0

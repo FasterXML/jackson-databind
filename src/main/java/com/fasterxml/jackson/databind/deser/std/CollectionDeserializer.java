@@ -360,13 +360,14 @@ _containerType,
 
                 if (value == null) {
                     value = _nullProvider.getNullValue(ctxt);
+
+                    // _skipNullValues is checked by _tryToAddNull.
+                    if (value == null) {
+                        _tryToAddNull(p, ctxt, result);
+                        continue;
+                    }
                 }
 
-                // _skipNullValues is checked by _tryToAddNull.
-                if (value == null) {
-                    _tryToAddNull(p, ctxt, result);
-                    continue;
-                }
                 result.add(value);
 
                 /* 17-Dec-2017, tatu: should not occur at this level...
@@ -418,12 +419,12 @@ _containerType,
 
             if (value == null) {
                 value = _nullProvider.getNullValue(ctxt);
-            }
 
-            // _skipNullValues is checked by _tryToAddNull.
-            if (value == null) {
-                _tryToAddNull(p, ctxt, result);
-                return result;
+                // _skipNullValues is checked by _tryToAddNull.
+                if (value == null) {
+                    _tryToAddNull(p, ctxt, result);
+                    return result;
+                }
             }
         } catch (Exception e) {
             boolean wrap = ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
@@ -467,10 +468,10 @@ _containerType,
 
                 if (value == null) {
                     value = _nullProvider.getNullValue(ctxt);
-                }
 
-                if (value == null && _skipNullValues) {
-                    continue;
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
                 }
                 referringAccumulator.add(value);
             } catch (UnresolvedForwardReference reference) {

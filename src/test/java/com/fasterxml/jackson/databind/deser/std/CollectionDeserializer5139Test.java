@@ -42,7 +42,7 @@ public class CollectionDeserializer5139Test {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configOverride(List.class).setSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
 
-        Dst dst = mapper.readValue("{\"list\":[\"\"]}", new TypeReference<>() {});
+        Dst dst = mapper.readValue("{\"list\":[\"\"]}", new TypeReference<Dst>() {});
 
         assertTrue(dst.getList().isEmpty());
     }

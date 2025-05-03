@@ -360,7 +360,7 @@ public abstract class BeanDescription
         @Override
         public AnnotatedClass getClassInfo() {
             if (_classDesc == null) {
-                
+                _classDesc = _introspect(_type);
             }
             return _classDesc;
         }

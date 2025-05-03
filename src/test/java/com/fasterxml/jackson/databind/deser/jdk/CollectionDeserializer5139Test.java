@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -28,8 +29,9 @@ public class CollectionDeserializer5139Test {
 
     @Test
     public void nullsFailTest() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(List.class).setSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL));
+        ObjectMapper mapper = JsonMapper.builder()
+                .defaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL))
+                .build();
 
         assertThrows(
                 InvalidNullException.class,
@@ -39,8 +41,9 @@ public class CollectionDeserializer5139Test {
 
     @Test
     public void nullsSkipTest() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(List.class).setSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
+        ObjectMapper mapper = JsonMapper.builder()
+                .defaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL))
+                .build();
 
         Dst dst = mapper.readValue("{\"list\":[\"\"]}", new TypeReference<Dst>() {});
 

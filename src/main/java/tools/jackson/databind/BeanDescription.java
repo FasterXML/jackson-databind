@@ -310,22 +310,18 @@ public abstract class BeanDescription
      */
     public interface Supplier extends java.util.function.Supplier<BeanDescription>
     {
-        JavaType getType();
-
-        default Class<?> getBeanClass() { return getType().getRawClass(); }
-
-        default boolean isRecordType() { return getType().isRecordType(); }
-
-        default AnnotatedClass getClassInfo() {
-            return get().getClassInfo();
-        }
-
-        default Annotations getClassAnnotations() {
-            return get().getClassAnnotations();
-        }
-
         @Override
         public BeanDescription get();
+
+        Annotations getClassAnnotations();
+
+        Class<?> getBeanClass();
+
+        AnnotatedClass getClassInfo();
+
+        JavaType getType();
+
+        boolean isRecordType();
     }
 
     /**
@@ -341,6 +337,8 @@ public abstract class BeanDescription
             _type = type;
         }
 
+        // // Simple accessors:
+
         @Override
         public JavaType getType() { return _type; }
 
@@ -349,6 +347,18 @@ public abstract class BeanDescription
 
         @Override
         public boolean isRecordType() { return _type.isRecordType(); }
+
+        // // Entity accessors:
+
+        @Override
+        public Annotations getClassAnnotations() {
+            return get().getClassAnnotations();
+        }
+
+        @Override
+        public AnnotatedClass getClassInfo() {
+            return get().getClassInfo();
+        }
 
         @Override
         public BeanDescription get() {
@@ -374,9 +384,25 @@ public abstract class BeanDescription
         }
 
         @Override
+        public Class<?> getBeanClass() { return _beanDesc.getBeanClass(); }
+
+        @Override
+        public boolean isRecordType() { return getType().isRecordType(); }
+
+        @Override
         public JavaType getType() { return _beanDesc.getType(); }
 
         @Override
         public BeanDescription get() { return _beanDesc; }
+
+        @Override
+        public AnnotatedClass getClassInfo() {
+            return _beanDesc.getClassInfo();
+        }
+
+        @Override
+        public Annotations getClassAnnotations() {
+            return _beanDesc.getClassAnnotations();
+        }
     }  
 }

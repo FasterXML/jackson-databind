@@ -76,7 +76,7 @@ public abstract class InjectableValues
             String key = (String) valueId;
             Object ob = _values.get(key);
             if (ob == null && !_values.containsKey(key)) {
-                throw new IllegalArgumentException("No injectable id with value '"+key+"' found (for property '"+forProperty.getName()+"')");
+                throw new IllegalArgumentException("No injectable value with id '"+key+"' found (for property '"+forProperty.getName()+"')");
             }
             return ob;
         }

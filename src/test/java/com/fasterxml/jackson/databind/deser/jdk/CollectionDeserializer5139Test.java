@@ -41,7 +41,7 @@ public class CollectionDeserializer5139Test {
     @Test
     public void nullsSkipTest() throws Exception {
         ObjectMapper mapper = JsonMapper.builder()
-                .defaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL))
+                .defaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP))
                 .build();
 
         Dst dst = mapper.readValue("{\"list\":[\"\"]}", new TypeReference<Dst>() {});

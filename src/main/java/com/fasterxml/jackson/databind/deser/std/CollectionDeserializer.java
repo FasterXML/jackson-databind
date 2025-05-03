@@ -341,12 +341,10 @@ _containerType,
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(result);
 
-        JsonDeserializer<Object> valueDes = _valueDeserializer;
         // Let's offline handling of values with Object Ids (simplifies code here)
-        if (valueDes.getObjectIdReader() != null) {
+        if (_valueDeserializer.getObjectIdReader() != null) {
             return _deserializeWithObjectId(p, ctxt, result);
         }
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
         JsonToken t;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             try {
@@ -355,12 +353,16 @@ _containerType,
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
+                    value = null;
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeRawContentValue(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+                }
+
+                // _skipNullValues is checked by _tryToAddNull.
                 if (value == null) {
                     _tryToAddNull(p, ctxt, result);
                     continue;
@@ -400,8 +402,6 @@ _containerType,
         if (!canWrap) {
             return (Collection<Object>) ctxt.handleUnexpectedToken(_containerType, p);
         }
-        JsonDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
         Object value;
 
@@ -411,12 +411,16 @@ _containerType,
                 if (_skipNullValues) {
                     return result;
                 }
-                value = _nullProvider.getNullValue(ctxt);
-            } else if (typeDeser == null) {
-                value = valueDes.deserialize(p, ctxt);
+                value = null;
             } else {
-                value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                value = _deserializeRawContentValue(p, ctxt);
             }
+
+            if (value == null) {
+                value = _nullProvider.getNullValue(ctxt);
+            }
+
+            // _skipNullValues is checked by _tryToAddNull.
             if (value == null) {
                 _tryToAddNull(p, ctxt, result);
                 return result;
@@ -444,8 +448,6 @@ _containerType,
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(result);
 
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
         CollectionReferringAccumulator referringAccumulator =
                 new CollectionReferringAccumulator(_containerType.getContentType().getRawClass(), result);
 
@@ -453,16 +455,20 @@ _containerType,
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             try {
                 Object value;
+
                 if (t == JsonToken.VALUE_NULL) {
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
+                    value = null;
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeRawContentValue(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+                }
+
                 if (value == null && _skipNullValues) {
                     continue;
                 }
@@ -479,6 +485,22 @@ _containerType,
             }
         }
         return result;
+    }
+
+    /**
+     * Deserialize the content of the collection.
+     * If _valueTypeDeserializer is null, use _valueDeserializer.deserialize; if non-null,
+     * use _valueDeserializer.deserializeWithType to deserialize value.
+     * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
+     * @since 2.19.1
+     */
+    protected Object _deserializeRawContentValue(
+            JsonParser p,
+            DeserializationContext ctxt
+    ) throws IOException {
+        return _valueTypeDeserializer == null
+                ? _valueDeserializer.deserialize(p, ctxt)
+                : _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
     }
 
     /**

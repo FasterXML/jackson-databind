@@ -99,9 +99,7 @@ public class BasicBeanDescription extends BeanDescription
         super(type);
         _propCollector = coll;
         _config = Objects.requireNonNull(coll.getConfig());
-        // NOTE: null config only for some pre-constructed types
-        _intr = (_config == null) ? NopAnnotationIntrospector.nopInstance()
-                : _config.getAnnotationIntrospector();
+        _intr = _config.getAnnotationIntrospector();
         _classInfo = classDef;
     }
 

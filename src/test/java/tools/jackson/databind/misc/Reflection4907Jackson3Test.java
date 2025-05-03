@@ -36,9 +36,9 @@ public class Reflection4907Jackson3Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // [databind#4907]
+    /*
     @Test
-    public void test4907Read() throws Exception {
+    public void test4907ReadPojo() throws Exception {
 System.err.println("<testRead>");
         SqlDatePojo pojo = MAPPER.readValue(a2q("{'date':'2000-01-01', 'name':'foo'}"),
                 SqlDatePojo.class);
@@ -46,13 +46,30 @@ System.err.println("</testRead>");
         assertNotNull(pojo);
     }
 
-    // [databind#4907]
     @Test
-    public void test4907Write() throws Exception {
+    public void test4907WritePojo() throws Exception {
 System.err.println("<testWrite>");
          String json = MAPPER.writeValueAsString(new SqlDatePojo("foobar",
                  java.sql.Date.valueOf("2000-01-01")));
  System.err.println("</testWrite>");
+         assertNotNull(json);
+    }
+    */
+
+    @Test
+    public void test4907ReadDate() throws Exception {
+System.err.println("<testReadDate>");
+        java.sql.Date date = MAPPER.readValue(a2q("'2000-01-01'"),
+                java.sql.Date.class);
+System.err.println("</testReadDate>");
+        assertNotNull(date);
+    }
+
+    @Test
+    public void test4907WriteDate() throws Exception {
+System.err.println("<testWriteDate>");
+         String json = MAPPER.writeValueAsString(java.sql.Date.valueOf("2000-01-01"));
+ System.err.println("</testWriteDate>");
          assertNotNull(json);
     }
 }

@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser.jdk;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
@@ -40,7 +39,7 @@ public class CollectionDeserializer5139Test {
     }
 
     @Test
-    public void nullsSkipTest() throws JsonProcessingException {
+    public void nullsSkipTest() throws Exception {
         ObjectMapper mapper = JsonMapper.builder()
                 .defaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL))
                 .build();

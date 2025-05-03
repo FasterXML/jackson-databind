@@ -164,13 +164,29 @@ public class StringNode
      */
 
     @Override
+    public short asShort() {
+        Short S = _tryParseAsShort();
+        if (S == null) {
+            return _reportCoercionFail("asShort()", Short.TYPE,
+                    "value not a valid String representation of `short`");
+        }
+        return S;
+    }
+
+    @Override
+    public short asShort(short defaultValue) {
+        Short S = _tryParseAsShort();
+        return (S == null) ? defaultValue : S;
+    }
+
+    @Override
     public int asInt() {
         Integer I = _tryParseAsInteger();
         if (I == null) {
             return _reportCoercionFail("asInt()", Integer.TYPE,
                     "value not a valid String representation of `int`");
         }
-        return I.intValue();
+        return I;
     }
 
     @Override
@@ -192,7 +208,7 @@ public class StringNode
             return _reportCoercionFail("asLong()", Long.TYPE,
                     "value not a valid String representation of `long`");
         }
-        return L.longValue();
+        return L;
     }
 
     @Override
@@ -231,6 +247,26 @@ public class StringNode
         return (big == null) ? Optional.empty() : Optional.of(big);
     }
 
+    // `floatValue()` (etc) fine as defaults (fail); but need to override `asFloat()`
+
+    @Override
+    public float asFloat()
+    {
+        Float F = _tryParseAsFloat();
+        if (F == null) {
+            return _reportCoercionFail("asFloat()", Float.TYPE,
+                    "value not a valid String representation of `float`");
+        }
+        return F;
+    }
+
+    @Override
+    public float asFloat(float defaultValue)
+    {
+        Float F = _tryParseAsFloat();
+        return (F == null) ? defaultValue : F;
+    }
+
     // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`
 
     @Override
@@ -241,7 +277,7 @@ public class StringNode
             return _reportCoercionFail("asDouble()", Double.TYPE,
                     "value not a valid String representation of `double`");
         }
-        return (d == null) ? super.asDouble() : d;
+        return d;
     }
 
     @Override
@@ -281,6 +317,14 @@ public class StringNode
         return (dec == null) ? Optional.empty() : Optional.of(dec);
     }
 
+    protected Short _tryParseAsShort() {
+        Integer I = _tryParseAsInteger();
+        if (I != null && I >= Short.MIN_VALUE && I <= Short.MAX_VALUE) {
+            return I.shortValue();
+        }
+        return null;
+    }
+
     protected Integer _tryParseAsInteger() {
         if (NumberInput.looksLikeValidNumber(_value)) {
             try {
@@ -308,6 +352,17 @@ public class StringNode
         if (NumberInput.looksLikeValidNumber(_value)) {
             try {
                 return NumberInput.parseBigInteger(_value, true);
+            } catch (NumberFormatException e) {
+                ;
+            }
+        }
+        return null;
+    }
+
+    protected Float _tryParseAsFloat() {
+        if (NumberInput.looksLikeValidNumber(_value)) {
+            try {
+                return NumberInput.parseFloat(_value, true);
             } catch (NumberFormatException e) {
                 ;
             }

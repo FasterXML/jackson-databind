@@ -74,4 +74,5 @@ public class POJONodeTest extends NodeTestBase
         String msg = result.path("test").asString();
         assertEquals(dt, LocalDateTime.parse(msg));
     }
+
 }

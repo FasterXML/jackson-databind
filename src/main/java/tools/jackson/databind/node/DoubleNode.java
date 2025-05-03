@@ -78,6 +78,33 @@ public class DoubleNode
     }
 
     @Override
+    public float floatValue(float defaultValue) {
+        float f = (float) _value;
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public float asFloat() {
+        float f = (float) _value;
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return _reportFloatCoercionRangeFail("asFloat()");
+    }
+
+    @Override
+    public float asFloat(float defaultValue) {
+        float f = (float) _value;
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return defaultValue;
+    }
+
+    @Override
     public double doubleValue() {
         return _value;
     }

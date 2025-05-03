@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser.std;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;

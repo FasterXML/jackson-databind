@@ -147,7 +147,8 @@ public class BasicClassIntrospector
      */
 
     @Override
-    public BasicBeanDescription introspectForSerialization(JavaType type)
+    public BasicBeanDescription introspectForSerialization(JavaType type,
+            AnnotatedClass classDef)
     {
         // minor optimization: for some JDK types do minimal introspection
         BasicBeanDescription desc = _findStdTypeDesc(type);
@@ -165,8 +166,7 @@ public class BasicClassIntrospector
                     }
                 }
                 desc = BasicBeanDescription.forSerialization(collectProperties(type,
-                        introspectClassAnnotations(type),
-                        true, "set"));
+                        classDef, true, "set"));
                 _resolvedSerBeanDescs.put(type, desc);
             }
         }
@@ -174,7 +174,8 @@ public class BasicClassIntrospector
     }
 
     @Override
-    public BasicBeanDescription introspectForDeserialization(JavaType type)
+    public BasicBeanDescription introspectForDeserialization(JavaType type,
+            AnnotatedClass classDef)
     {
         // minor optimization: for some JDK types do minimal introspection
         BasicBeanDescription desc = _findStdTypeDesc(type);
@@ -192,8 +193,7 @@ public class BasicClassIntrospector
                     }
                 }
                 desc = BasicBeanDescription.forDeserialization(collectProperties(type,
-                        introspectClassAnnotations(type),
-                        false, "set"));
+                        classDef, false, "set"));
                 _resolvedDeserBeanDescs.put(type, desc);
             }
         }
@@ -211,7 +211,8 @@ public class BasicClassIntrospector
     }
 
     @Override
-    public BasicBeanDescription introspectForCreation(JavaType type)
+    public BasicBeanDescription introspectForCreation(JavaType type,
+            AnnotatedClass classDef)
     {
         BasicBeanDescription desc = _findStdTypeDesc(type);
         if (desc == null) {
@@ -220,8 +221,7 @@ public class BasicClassIntrospector
             desc = _findStdJdkCollectionDesc(type);
             if (desc == null) {
                 desc = BasicBeanDescription.forDeserialization(collectProperties(type,
-                        introspectClassAnnotations(type),
-                        false, "set"));
+                        classDef, false, "set"));
             }
         }
         return desc;

@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.19.1 (not yet released)
+
+#5139: In `CollectionDeserializer`, `JsonSetter.contentNulls` is sometimes ignored
+ (contributed by @wrongwrong)
+
 2.19.0 (24-Apr-2025)
 
 #1467: Support `@JsonUnwrapped` with `@JsonCreator`

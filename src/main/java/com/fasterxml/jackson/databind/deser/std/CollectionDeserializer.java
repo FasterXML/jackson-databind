@@ -355,7 +355,7 @@ _containerType,
                     }
                     value = null;
                 } else {
-                    value = _deserializeRawContentValue(p, ctxt);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
 
                 if (value == null) {
@@ -414,7 +414,7 @@ _containerType,
                 }
                 value = null;
             } else {
-                value = _deserializeRawContentValue(p, ctxt);
+                value = _deserializeNoNullChecks(p, ctxt);
             }
 
             if (value == null) {
@@ -463,12 +463,11 @@ _containerType,
                     }
                     value = null;
                 } else {
-                    value = _deserializeRawContentValue(p, ctxt);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
 
                 if (value == null) {
                     value = _nullProvider.getNullValue(ctxt);
-
                     if (value == null && _skipNullValues) {
                         continue;
                     }
@@ -495,13 +494,13 @@ _containerType,
      * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
      * @since 2.19.1
      */
-    protected Object _deserializeRawContentValue(
-            JsonParser p,
-            DeserializationContext ctxt
-    ) throws IOException {
-        return _valueTypeDeserializer == null
-                ? _valueDeserializer.deserialize(p, ctxt)
-                : _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+    protected Object _deserializeNoNullChecks(JsonParser p,DeserializationContext ctxt)
+        throws IOException
+    {
+        if (_valueTypeDeserializer == null) {
+            return _valueDeserializer.deserialize(p, ctxt);
+        }
+        return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
     }
 
     /**

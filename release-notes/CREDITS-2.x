@@ -1860,6 +1860,9 @@ wrongwrong (@k163377)
    `@JsonDeserialize(keyUsing = ...)` is overwritten by the `KeyDeserializer`
     specified in the `ObjectMapper`.
   (2.18.3)
+ * Contributed fix for #5139: In `CollectionDeserializer`, `JsonSetter.contentNulls`
+   is sometimes ignored
+  (2.19.1)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing

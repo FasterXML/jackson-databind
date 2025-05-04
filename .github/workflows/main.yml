@@ -1,12 +1,10 @@
 name: Build and Deploy Snapshot
 on:
-  push: 
-    branches: [2.*]
+  push:
     paths-ignore:
     - "README.md"
     - "release-notes/*"
-  pull_request: 
-    branches: [2.*]
+  pull_request:
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -75,7 +73,7 @@ jobs:
   trigger-dep-build-v2:
     name: Trigger v2 dep builds
     needs: [build]
-    # Only for pushes to default branch
+    # Only for pushes to 2.x (next 2.x being developed) branch
     if: ${{ github.event_name == 'push' && github.ref_name == '2.x' }}
     uses: ./.github/workflows/trigger_dep_builds_v2.yml
     secrets:

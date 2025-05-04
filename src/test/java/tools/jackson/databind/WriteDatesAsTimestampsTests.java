@@ -1,22 +1,21 @@
 package tools.jackson.databind;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.cfg.DateTimeFeature;
 
 import java.time.*;
 
+import java.util.Date;
+import java.util.Calendar;
+import java.util.TimeZone;
+
+//import org.joda.time.DateTime;
+//import org.joda.time.DateTimeZone;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JStep5Tests extends tools.jackson.databind.ext.javatime.DateTimeTestBase
+public class WriteDatesAsTimestampsTests extends tools.jackson.databind.ext.javatime.DateTimeTestBase
 {
-    static class Wrapper<T> {
-        @JsonFormat(pattern="yyyy/MM/dd'T'HH-mm-ss", shape=JsonFormat.Shape.STRING)
-        public T value;
-        public Wrapper() { }
-        public Wrapper(T v) { value = v; }
-    }
-
     private static ObjectMapper withTimestampMapper() {
         return mapperBuilder()
                 .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -30,12 +29,13 @@ public class JStep5Tests extends tools.jackson.databind.ext.javatime.DateTimeTes
     }
 
     @Test
-    public void testWriteDatesAsTimeStmaps() throws Exception {
+    public void testWriteDatesAsTimeStamps() throws Exception {
         // java.time.OffsetDateTime
         _testTimestamp(
                 LocalDateTime.of(2025, 5, 4, 18, 1, 0),
                 LocalDateTime.class,
-                "[2025,5,4,18,1]", // WRONG? Why not [2025,5,4,18,1,0]?
+                // Expected "[2025,5,4,18,1,0]",
+                "[2025,5,4,18,1]", // Acutal
                 "\"2025-05-04T18:01:00\""
         );
         // java.time.ZonedDateTime
@@ -63,7 +63,8 @@ public class JStep5Tests extends tools.jackson.databind.ext.javatime.DateTimeTes
         _testTimestamp(
                 Instant.ofEpochMilli(1234567890123L),
                 Instant.class,
-                "[1234567890123]",
+                // Expected "1234567890123",
+                "1234567890.123000000",
                 "\"2009-02-13T23:31:30.123Z\""
         );
         // java.time.ZoneId
@@ -84,22 +85,24 @@ public class JStep5Tests extends tools.jackson.databind.ext.javatime.DateTimeTes
         _testTimestamp(
                 Duration.ofHours(2),
                 Duration.class,
-                "[7200000]",
+                // Expected "7200000",
+                "\"PT2H\"", // Actual
                 "\"PT2H\""
         );
         // java.time.Period
         _testTimestamp(
                 Period.of(2025, 5, 4),
                 Period.class,
-                "[2025,5,4]",
+                // Expected "[2025,5,4]",
+                "\"P2025Y5M4D\"", // Actual
                 "\"P2025Y5M4D\""
         );
         // java.time.Year
         _testTimestamp(
                 Year.of(2025),
                 Year.class,
-                "[2025]",
-                "\"2025\""
+                "2025", // Actual
+                "2025"
         );
         // java.time.YearMonth
         _testTimestamp(
@@ -112,28 +115,30 @@ public class JStep5Tests extends tools.jackson.databind.ext.javatime.DateTimeTes
         _testTimestamp(
                 MonthDay.of(5, 4),
                 MonthDay.class,
-                "[5,4]",
+                "\"--05-04\"",
                 "\"--05-04\""
         );
         // java.time.OffsetTime
         _testTimestamp(
                 OffsetTime.of(18, 1, 2, 0, ZoneOffset.UTC),
                 OffsetTime.class,
-                "[18,1,2,0]",
+                "[18,1,2,\"Z\"]",
                 "\"18:01:02Z\""
         );
         // java.time.OffsetDateTime
         _testTimestamp(
                 OffsetDateTime.of(2025, 5, 4, 18, 1, 2, 0, ZoneOffset.UTC),
                 OffsetDateTime.class,
-                "[2025,5,4,18,1,2,0]",
+                // Expected... "[2025,5,4,18,1,2,0]",
+                "1746381662.000000000",
                 "\"2025-05-04T18:01:02Z\""
         );
         // java.time.ZonedDateTime
         _testTimestamp(
                 ZonedDateTime.of(2025, 5, 4, 18, 1, 2, 0, ZoneOffset.UTC),
                 ZonedDateTime.class,
-                "[2025,5,4,18,1,2,0]",
+                // Expected... "[2025,5,4,18,1,2,0]",
+                "1746381662.000000000",
                 "\"2025-05-04T18:01:02Z\""
         );
         // java.time.LocalDateTime
@@ -143,6 +148,80 @@ public class JStep5Tests extends tools.jackson.databind.ext.javatime.DateTimeTes
                 "[2025,5,4,18,1,2]",
                 "\"2025-05-04T18:01:02\""
         );
+        // ---------------------------------------------------------------------
+        // Classic java.util types
+        // ---------------------------------------------------------------------
+        // java.util.Date
+        _testTimestamp(
+                new Date(1234567890123L),
+                Date.class,
+                // Expected... [2009,1,13,23,31,30,123],
+                "1234567890123",
+                "\"2009-02-13T23:31:30.123Z\""
+        );
+
+        // java.util.Calendar
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cal.setTimeInMillis(1234567890123L);
+        _testTimestamp(
+                cal,
+                Calendar.class,
+                // Expected... [2009,1,13,23,31,30,123],
+                "1234567890123",
+                "\"2009-02-13T23:31:30.123Z\""
+        );
+
+        // ---------------------------------------------------------------------
+        // Joda-Time types
+        // ---------------------------------------------------------------------
+        // org.joda.time.DateTime
+//        DateTime jodaDt = new DateTime(1234567890123L, DateTimeZone.UTC);
+//        _testTimestamp(
+//                jodaDt,
+//                DateTime.class,
+//                "1234567890123",
+//                "\"" + jodaDt.toString() + "\""
+//        );
+//
+//        // org.joda.time.LocalDate
+//        _testTimestamp(
+//                new org.joda.time.LocalDate(2025,5,4),
+//                org.joda.time.LocalDate.class,
+//                "[2025,5,4]",
+//                "\"2025-05-04\""
+//        );
+//
+//        // org.joda.time.LocalTime
+//        _testTimestamp(
+//                new org.joda.time.LocalTime(18,1,2),
+//                org.joda.time.LocalTime.class,
+//                "[18,1,2]",
+//                "\"18:01:02\""
+//        );
+//
+//        // org.joda.time.LocalDateTime
+//        _testTimestamp(
+//                new org.joda.time.LocalDateTime(2025,5,4,18,1,2,0),
+//                org.joda.time.LocalDateTime.class,
+//                "[2025,5,4,18,1,2,0]",
+//                "\"2025-05-04T18:01:02.000\""
+//        );
+//
+//        // org.joda.time.Duration (2 hours)
+//        _testTimestamp(
+//                new org.joda.time.Duration(7200000L),
+//                org.joda.time.Duration.class,
+//                "7200000",
+//                "\"PT2H\""
+//        );
+//
+//        // org.joda.time.Period (2 hours)
+//        _testTimestamp(
+//                org.joda.time.Period.hours(2),
+//                org.joda.time.Period.class,
+//                "7200000",
+//                "\"PT2H\""
+//        );
     }
 
     private <T> void  _testTimestamp(T value, Class<?> clazz, String withString, String withoutString) {

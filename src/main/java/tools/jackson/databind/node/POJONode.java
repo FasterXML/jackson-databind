@@ -262,30 +262,25 @@ public class POJONode
         }
         // Next, coercions from integral Numbers
         if (_value instanceof Number N) {
-            switch (N) {
-                case BigInteger big -> {
-                    if (big.compareTo(BigIntegerNode.MIN_LONG) >= 0 && big.compareTo(BigIntegerNode.MAX_LONG) <= 0) {
-                        return big.longValue();
-                    }
+            // Add rang check
+            if (N instanceof BigInteger big) {
+                if (big.compareTo(BigIntegerNode.MIN_LONG) >= 0 && big.compareTo(BigIntegerNode.MAX_LONG) <= 0) {
+                    return big.longValue();
                 }
-                case BigDecimal dec -> {
-                    if (dec.compareTo(DecimalNode.MIN_LONG) >= 0 && dec.compareTo(DecimalNode.MAX_LONG) <= 0) {
-                        return dec.longValue();
-                    }
+            } else if (N instanceof BigDecimal dec) {
+                if (dec.compareTo(DecimalNode.MIN_LONG) >= 0 && dec.compareTo(DecimalNode.MAX_LONG) <= 0) {
+                    return dec.longValue();
                 }
-                case Double D -> {
-                    if (D >= Long.MIN_VALUE && D <= Long.MAX_VALUE) {
-                        return D.longValue();
-                    }
+            } else if (N instanceof Double D) {
+                if (D >= Long.MIN_VALUE && D <= Long.MAX_VALUE) {
+                    return D.longValue();
                 }
-                case Float F -> {
-                    if (F >= Long.MIN_VALUE && F <= Long.MAX_VALUE) {
-                        return F.longValue();
-                    }
+            } else if (N instanceof Float F) {
+                if (F >= Long.MIN_VALUE && F <= Long.MAX_VALUE) {
+                    return F.longValue();
                 }
-                default -> {
-                    return N.longValue();
-                }
+            } else {
+                return N.longValue();
             }
         }
         return null;

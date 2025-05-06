@@ -1,7 +1,9 @@
-package tools.jackson.databind;
+package tools.jackson.databind.ext.javatime.ser;
 
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 
 import java.time.*;
 
@@ -9,12 +11,10 @@ import java.util.Date;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-//import org.joda.time.DateTime;
-//import org.joda.time.DateTimeZone;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class WriteDatesAsTimestampsTests extends tools.jackson.databind.ext.javatime.DateTimeTestBase
+public class WriteDatesAsTimestamps5142JavaTimeTests
+    extends DateTimeTestBase
 {
     private static ObjectMapper withTimestampMapper() {
         return mapperBuilder()
@@ -171,57 +171,6 @@ public class WriteDatesAsTimestampsTests extends tools.jackson.databind.ext.java
                 "\"2009-02-13T23:31:30.123Z\""
         );
 
-        // ---------------------------------------------------------------------
-        // Joda-Time types
-        // ---------------------------------------------------------------------
-        // org.joda.time.DateTime
-//        DateTime jodaDt = new DateTime(1234567890123L, DateTimeZone.UTC);
-//        _testTimestamp(
-//                jodaDt,
-//                DateTime.class,
-//                "1234567890123",
-//                "\"" + jodaDt.toString() + "\""
-//        );
-//
-//        // org.joda.time.LocalDate
-//        _testTimestamp(
-//                new org.joda.time.LocalDate(2025,5,4),
-//                org.joda.time.LocalDate.class,
-//                "[2025,5,4]",
-//                "\"2025-05-04\""
-//        );
-//
-//        // org.joda.time.LocalTime
-//        _testTimestamp(
-//                new org.joda.time.LocalTime(18,1,2),
-//                org.joda.time.LocalTime.class,
-//                "[18,1,2]",
-//                "\"18:01:02\""
-//        );
-//
-//        // org.joda.time.LocalDateTime
-//        _testTimestamp(
-//                new org.joda.time.LocalDateTime(2025,5,4,18,1,2,0),
-//                org.joda.time.LocalDateTime.class,
-//                "[2025,5,4,18,1,2,0]",
-//                "\"2025-05-04T18:01:02.000\""
-//        );
-//
-//        // org.joda.time.Duration (2 hours)
-//        _testTimestamp(
-//                new org.joda.time.Duration(7200000L),
-//                org.joda.time.Duration.class,
-//                "7200000",
-//                "\"PT2H\""
-//        );
-//
-//        // org.joda.time.Period (2 hours)
-//        _testTimestamp(
-//                org.joda.time.Period.hours(2),
-//                org.joda.time.Period.class,
-//                "7200000",
-//                "\"PT2H\""
-//        );
     }
 
     private <T> void  _testTimestamp(T value, Class<?> clazz, String withString, String withoutString) {

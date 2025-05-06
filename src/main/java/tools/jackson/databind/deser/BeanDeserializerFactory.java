@@ -939,15 +939,16 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, mutator, propType0);
         // Does the Method specify the deserializer to use? If so, let's use it.
         TypeDeserializer typeDeser = (TypeDeserializer) type.getTypeHandler();
-        SettableBeanProperty prop;
+        // 05-May-2025, tatu: [databind#5090]/[databind#2083] Need to skip these for some reason
         if (isFinalField(mutator)) {
             return null;
         }
-        prop = new MethodProperty(propDef, type, typeDeser, beanDescRef.getClassAnnotations(), mutator);
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, mutator);
         if (deser == null) {
             deser = (ValueDeserializer<?>) type.getValueHandler();
         }
+        SettableBeanProperty prop = new MethodProperty(propDef, type, typeDeser,
+                beanDescRef.getClassAnnotations(), mutator);
         if (deser != null) {
             deser = ctxt.handlePrimaryContextualization(deser, prop, type);
             prop = prop.withValueDeserializer(deser);

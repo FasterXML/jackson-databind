@@ -47,7 +47,7 @@ public class WriteDatesAsTimestamps5142JdkTests
 
     }
 
-    public static <T> void _testTimestamp(T value, Class<?> clazz, String withString, String withoutString) {
+    private static <T> void _testTimestamp(T value, Class<?> clazz, String withString, String withoutString) {
         assertEquals(
                 withString,
                 WITH_TIMESTAMP_MAPPER.writerFor(clazz).writeValueAsString(value),

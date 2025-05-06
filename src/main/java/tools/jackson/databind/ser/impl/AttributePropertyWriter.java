@@ -15,14 +15,10 @@ import tools.jackson.databind.util.Annotations;
  * {@link tools.jackson.databind.annotation.JsonAppend},
  * to serialize properties backed-by dynamically assignable attribute
  * values.
- *
- * @since 2.5
  */
 public class AttributePropertyWriter
     extends VirtualBeanPropertyWriter
 {
-    private static final long serialVersionUID = 1;
-
     protected final String _attrName;
 
     /*

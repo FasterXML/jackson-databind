@@ -37,8 +37,6 @@ import tools.jackson.databind.util.NameTransformer;
 public class BeanPropertyWriter
     extends PropertyWriter // which extends `ConcreteBeanPropertyBase`
 {
-    private static final long serialVersionUID = 3L;
-
     /**
      * Marker object used to indicate "do not serialize if empty"
      */

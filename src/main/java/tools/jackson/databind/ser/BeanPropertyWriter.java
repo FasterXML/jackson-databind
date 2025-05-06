@@ -408,31 +408,6 @@ public class BeanPropertyWriter
 
     /*
     /**********************************************************************
-    /* JDK Serializability
-    /**********************************************************************
-     */
-
-    /*
-     * Ideally would not require mutable state, and instead would re-create with
-     * final settings. However, as things are, with sub-types and all, simplest
-     * to just change Field/Method value directly.
-     */
-    Object readResolve() {
-        if (_member instanceof AnnotatedField) {
-            _accessorMethod = null;
-            _field = (Field) _member.getMember();
-        } else if (_member instanceof AnnotatedMethod) {
-            _accessorMethod = (Method) _member.getMember();
-            _field = null;
-        }
-        if (_serializer == null) {
-            _dynamicSerializers = PropertySerializerMap.emptyForProperties();
-        }
-        return this;
-    }
-
-    /*
-    /**********************************************************************
     /* BeanProperty impl
     /**********************************************************************
      */

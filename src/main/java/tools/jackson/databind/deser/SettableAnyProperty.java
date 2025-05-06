@@ -22,9 +22,6 @@ import tools.jackson.databind.util.ClassUtil;
  * Class that represents a "wildcard" set method which can be used
  * to generically set values of otherwise unmapped (aka "unknown")
  * properties read from JSON content.
- *<p>
- * Note: starting with 2.14, is {@code abstract} class with multiple
- * concrete implementations
  */
 public abstract class SettableAnyProperty
 {
@@ -313,10 +310,7 @@ public abstract class SettableAnyProperty
      */
 
     protected static class MethodAnyProperty extends SettableAnyProperty
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
-
         public MethodAnyProperty(BeanProperty property,
                 AnnotatedMember field, JavaType valueType,
                 KeyDeserializer keyDeser,
@@ -344,10 +338,7 @@ public abstract class SettableAnyProperty
      * @since 2.14
      */
     protected static class MapFieldAnyProperty extends SettableAnyProperty
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
-
         protected final ValueInstantiator _valueInstantiator;
 
         public MapFieldAnyProperty(BeanProperty property,
@@ -399,14 +390,8 @@ public abstract class SettableAnyProperty
         }
     }
 
-    /**
-     * @since 2.14
-     */
     protected static class JsonNodeFieldAnyProperty extends SettableAnyProperty
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
-
         protected final JsonNodeFactory _nodeFactory;
 
         public JsonNodeFieldAnyProperty(BeanProperty property,
@@ -470,14 +455,9 @@ public abstract class SettableAnyProperty
 
     /**
      * [databind#562] Allow @JsonAnySetter on Creator constructor
-     *
-     * @since 2.18
      */
     protected static class MapParameterAnyProperty extends SettableAnyProperty
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
-
         protected final ValueInstantiator _valueInstantiator;
 
         protected final int _parameterIndex;
@@ -515,14 +495,9 @@ public abstract class SettableAnyProperty
 
     /**
      * [databind#562] Allow @JsonAnySetter on Creator constructor
-     *
-     * @since 2.18
      */
     protected static class JsonNodeParameterAnyProperty extends SettableAnyProperty
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
-
         protected final JsonNodeFactory _nodeFactory;
 
         protected final int _parameterIndex;
@@ -561,7 +536,5 @@ public abstract class SettableAnyProperty
 
         @Override
         public Object createParameterObject() { return _nodeFactory.objectNode(); }
-
     }
-
 }

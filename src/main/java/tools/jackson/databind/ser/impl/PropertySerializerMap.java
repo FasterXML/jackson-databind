@@ -241,10 +241,6 @@ public abstract class PropertySerializerMap
             _serializer = serializer;
         }
 
-        Object writeReplace() { // for JDK serialization (since 3.0)
-            return Empty.emptyFor(this);
-        }
-
         @Override
         public ValueSerializer<Object> serializerFor(Class<?> type)
         {

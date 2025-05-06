@@ -27,10 +27,7 @@ import tools.jackson.databind.util.ClassUtil;
  * concrete implementations
  */
 public abstract class SettableAnyProperty
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Method used for setting "any" properties, along with annotation
      * information. Retained to allow contextualization of any properties.
@@ -137,23 +134,6 @@ public abstract class SettableAnyProperty
     public void fixAccess(DeserializationConfig config) {
         _setter.fixAccess(
                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-    }
-
-    /*
-    /**********************************************************************
-    /* JDK serialization handling
-    /**********************************************************************
-     */
-
-    /**
-     * Need to define this to verify that we retain actual Method reference
-     */
-    Object readResolve() {
-        // sanity check...
-        if (_setter == null || _setter.getAnnotated() == null) {
-            throw new IllegalArgumentException("Missing method/field (broken JDK (de)serialization?)");
-        }
-        return this;
     }
 
     /*

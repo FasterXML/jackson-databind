@@ -26,8 +26,6 @@ import static java.lang.invoke.MethodType.methodType;
 public final class MethodProperty
     extends SettableBeanProperty
 {
-    private static final long serialVersionUID = 1;
-
     protected final AnnotatedMember _annotated;
 
     /**

@@ -22,8 +22,6 @@ import tools.jackson.databind.util.Annotations;
 public final class SetterlessProperty
     extends SettableBeanProperty
 {
-    private static final long serialVersionUID = 1L;
-
     protected final AnnotatedMethod _annotated;
 
     /**

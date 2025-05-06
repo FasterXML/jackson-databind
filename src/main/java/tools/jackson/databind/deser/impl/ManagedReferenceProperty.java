@@ -17,8 +17,6 @@ public final class ManagedReferenceProperty
     // Changed to extends delegating base class in 2.9
     extends SettableBeanProperty.Delegating
 {
-    private static final long serialVersionUID = 1L;
-
     protected final String _referenceName;
 
     /**
@@ -78,9 +76,8 @@ public final class ManagedReferenceProperty
     @Override
     public Object setAndReturn(DeserializationContext ctxt, Object instance, Object value)
     {
-        /* 04-Feb-2014, tatu: As per [#390], it may be necessary to switch the
-         *   ordering of forward/backward references, and start with back ref.
-         */
+        // 04-Feb-2014, tatu: As per [#390], it may be necessary to switch the
+        //   ordering of forward/backward references, and start with back ref.
         if (value != null) {
             if (_isContainer) { // ok, this gets ugly... but has to do for now
                 if (value instanceof Object[]) {

@@ -61,13 +61,15 @@ public abstract class ClassIntrospector
      * Factory method that constructs an introspector that has all
      * information needed for serialization purposes.
      */
-    public abstract BeanDescription introspectForSerialization(JavaType type);
+    public abstract BeanDescription introspectForSerialization(JavaType type,
+            AnnotatedClass classDef);
 
     /**
      * Factory method that constructs an introspector that has all
      * information needed for deserialization purposes.
      */
-    public abstract BeanDescription introspectForDeserialization(JavaType type);
+    public abstract BeanDescription introspectForDeserialization(JavaType type,
+            AnnotatedClass classDef);
 
     /**
      * Factory method that constructs an introspector that has all
@@ -83,5 +85,6 @@ public abstract class ClassIntrospector
      * class ("creator"), as well as class annotations, but
      * no information on member methods
      */
-    public abstract BeanDescription introspectForCreation(JavaType type);
+    public abstract BeanDescription introspectForCreation(JavaType type,
+            AnnotatedClass classDef);
 }

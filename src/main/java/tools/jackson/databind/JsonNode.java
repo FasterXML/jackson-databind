@@ -470,8 +470,8 @@ public abstract class JsonNode
     /**
      * Method that can be used to check whether this node is a numeric
      * node ({@link #isNumber} would return true)
-     * AND can be converted without loss to it (that is, its value fits
-     * within Java's 32-bit signed integer type, <code>int</code> and
+     * AND can be converted without loss to {@code int} (that is, its value fits
+     * in Java's 32-bit signed integer type, {@code int} and
      * if it is a floating-point number, it does not have fractional part).
      *<p>
      * NOTE: this method does not consider possible value type conversion
@@ -485,8 +485,8 @@ public abstract class JsonNode
     /**
      * Method that can be used to check whether this node is a numeric
      * node ({@link #isNumber} would return true)
-     * AND can be converted without loss to it (that is, its value fits
-     * within Java's 64-bit signed integer type, <code>long</code> and
+     * AND can be converted without loss to {@code long} (that is, its value fits
+     * in Java's 64-bit signed integer type, {@code long} and
      * if it is a floating-point number, it does not have fractional part).
      *<p>
      * NOTE: this method does not consider possible value type conversion
@@ -498,7 +498,7 @@ public abstract class JsonNode
     /**
      * Method that can be used to check whether contained value
      * is numeric (returns true for {@link #isNumber()}) and
-     * can be losslessly converted to integral number (specifically,
+     * can be converted without loss to integral number (specifically,
      * {@link BigInteger} but potentially others, see
      * {@link #canConvertToInt} and {@link #canConvertToInt}).
      * Latter part allows floating-point numbers
@@ -511,8 +511,6 @@ public abstract class JsonNode
      * @return True if the value is an actual number with no fractional
      *    part; false for non-numeric types, NaN representations of floating-point
      *    numbers, and floating-point numbers with fractional part.
-     *
-     * @since 2.12
      */
     public boolean canConvertToExactIntegral() {
         return isIntegralNumber();

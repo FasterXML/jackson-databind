@@ -19,13 +19,6 @@ public class BigIntegerNode
 {
     private static final long serialVersionUID = 3L;
 
-    final static BigInteger MIN_SHORT = BigInteger.valueOf(Short.MIN_VALUE);
-    final static BigInteger MAX_SHORT = BigInteger.valueOf(Short.MAX_VALUE);
-    final static BigInteger MIN_INTEGER = BigInteger.valueOf(Integer.MIN_VALUE);
-    final static BigInteger MAX_INTEGER = BigInteger.valueOf(Integer.MAX_VALUE);
-    final static BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
-    final static BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
-
     final protected BigInteger _value;
 
     /*
@@ -301,20 +294,20 @@ public class BigIntegerNode
 
     @Override
     protected boolean _inShortRange() {
-        return (_value.compareTo(MIN_SHORT) >= 0)
-                && (_value.compareTo(MAX_SHORT) <= 0);
+        return (_value.compareTo(BI_MIN_SHORT) >= 0)
+                && (_value.compareTo(BI_MAX_SHORT) <= 0);
     }
 
     @Override
     public boolean _inIntRange() {
-        return (_value.compareTo(MIN_INTEGER) >= 0)
-                && (_value.compareTo(MAX_INTEGER) <= 0);
+        return (_value.compareTo(BI_MIN_INTEGER) >= 0)
+                && (_value.compareTo(BI_MAX_INTEGER) <= 0);
     }
 
     @Override
     protected boolean _inLongRange() {
-        return (_value.compareTo(MIN_LONG) >= 0)
-                && (_value.compareTo(MAX_LONG) <= 0);
+        return (_value.compareTo(BI_MIN_LONG) >= 0)
+                && (_value.compareTo(BI_MAX_LONG) <= 0);
     }
 
     /*

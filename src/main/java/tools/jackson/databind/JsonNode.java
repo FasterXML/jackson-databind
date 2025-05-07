@@ -477,8 +477,6 @@ public abstract class JsonNode
      * NOTE: this method does not consider possible value type conversion
      * from non-number types like JSON String into Number; so even if this method returns false,
      * it is possible that {@link #asShort} could still succeed.
-     *
-     * @since 2.0
      */
     public boolean canConvertToShort() { return false; }
 

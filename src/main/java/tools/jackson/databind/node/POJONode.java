@@ -262,13 +262,13 @@ public class POJONode
         }
         // Next, coercions from integral Numbers
         if (_value instanceof Number N) {
-            // Add rang check
+            // Add range check
             if (N instanceof BigInteger big) {
-                if (big.compareTo(BigIntegerNode.MIN_LONG) >= 0 && big.compareTo(BigIntegerNode.MAX_LONG) <= 0) {
+                if (big.compareTo(BI_MIN_LONG) >= 0 && big.compareTo(BI_MAX_LONG) <= 0) {
                     return big.longValue();
                 }
             } else if (N instanceof BigDecimal dec) {
-                if (dec.compareTo(DecimalNode.MIN_LONG) >= 0 && dec.compareTo(DecimalNode.MAX_LONG) <= 0) {
+                if (dec.compareTo(BD_MIN_LONG) >= 0 && dec.compareTo(BD_MAX_LONG) <= 0) {
                     return dec.longValue();
                 }
             } else if (N instanceof Double D) {

@@ -20,8 +20,6 @@ import tools.jackson.databind.util.Annotations;
 public final class MethodProperty
     extends SettableBeanProperty
 {
-    private static final long serialVersionUID = 1;
-
     protected final AnnotatedMethod _annotated;
 
     /**
@@ -204,15 +202,5 @@ public final class MethodProperty
             _throwAsJacksonE(ctxt.getParser(), e, value);
             return null;
         }
-    }
-
-    /*
-    /**********************************************************
-    /* JDK serialization handling
-    /**********************************************************
-     */
-
-    Object readResolve() {
-        return new MethodProperty(this, _annotated.getAnnotated());
     }
 }

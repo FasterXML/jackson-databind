@@ -16,10 +16,7 @@ import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
  */
 public abstract class PropertyWriter
     extends ConcreteBeanPropertyBase
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
-
     protected PropertyWriter(PropertyMetadata md) {
         super(md);
     }

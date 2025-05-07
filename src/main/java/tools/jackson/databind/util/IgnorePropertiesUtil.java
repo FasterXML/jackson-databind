@@ -82,10 +82,7 @@ public class IgnorePropertiesUtil
      * of util class.
      */
     public final static class Checker
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
-
         private final Set<String> _toIgnore;
         private final Set<String> _toInclude;
 

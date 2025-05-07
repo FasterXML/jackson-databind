@@ -307,17 +307,29 @@ public abstract class DatabindContext
      */
 
     /**
-     * Convenience method for doing full "for serialization" introspection of specified
-     * type; results may be cached during lifespan of this context as well.
+     * Convenience method for doing full "for serialization or deserialization"
+     * introspection of specified type; results may be cached for duration  (lifespan)
+     * of this context as well.
      */
-    public abstract BeanDescription introspectBeanDescription(JavaType type);
+    public final BeanDescription introspectBeanDescription(JavaType type) {
+        return introspectBeanDescription(type, introspectClassAnnotations(type));
+    }
+
+    public abstract BeanDescription introspectBeanDescription(JavaType type,
+           AnnotatedClass classDef);
 
     public BeanDescription.Supplier lazyIntrospectBeanDescription(JavaType type) {
          return new BeanDescription.LazySupplier(type) {
              @Override
-             public BeanDescription _construct(JavaType forType) {
-// System.out.println("lazyIntrospectBeanDescription("+forType+")");
+             protected BeanDescription _construct(JavaType forType, AnnotatedClass ac) {
+// System.out.println("lazyIntrospectBeanDescription.beanDesc("+forType+")");
                  return introspectBeanDescription(forType);
+             }
+
+             @Override
+             protected AnnotatedClass _introspect(JavaType forType) {
+// System.out.println("lazyIntrospectBeanDescription.annotatedClass("+forType+")");
+                 return introspectClassAnnotations(forType);
              }
          };
     }

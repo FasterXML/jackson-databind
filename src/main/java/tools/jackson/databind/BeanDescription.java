@@ -331,6 +331,8 @@ public abstract class BeanDescription
     {
         protected final JavaType _type;
 
+        protected transient AnnotatedClass _classDesc;
+
         protected transient BeanDescription _beanDesc;
         
         protected LazySupplier(JavaType type) {
@@ -352,23 +354,31 @@ public abstract class BeanDescription
 
         @Override
         public Annotations getClassAnnotations() {
-            return get().getClassAnnotations();
+            return getClassInfo().getAnnotations();
         }
 
         @Override
         public AnnotatedClass getClassInfo() {
-            return get().getClassInfo();
+            if (_classDesc == null) {
+                _classDesc = _introspect(_type);
+            }
+            return _classDesc;
         }
 
         @Override
         public BeanDescription get() {
             if (_beanDesc == null) {
-                _beanDesc = _construct(_type);
+                // To test without caching, uncomment:
+                //return _construct(_type, getClassInfo());
+
+                _beanDesc = _construct(_type, getClassInfo());
             }
             return _beanDesc;
         }
 
-        protected abstract BeanDescription _construct(JavaType forType);
+        protected abstract AnnotatedClass _introspect(JavaType forType);
+
+        protected abstract BeanDescription _construct(JavaType forType, AnnotatedClass ac);
     }
 
     /**

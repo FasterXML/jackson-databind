@@ -379,10 +379,11 @@ public class POJOPropertiesCollector
      */
     protected void collectAll()
     {
+//System.out.println(" PojoPropsCollector.collectAll() for  "+_classDef.getRawType().getName()); 
         _potentialCreators = new PotentialCreators();
 
         // First: gather basic accessors
-        LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<String, POJOPropertyBuilder>();
+        LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<>();
 
         // 14-Nov-2024, tatu: Previously skipped checking fields for Records; with 2.18+ won't
         //    (see [databind#3628], [databind#3895], [databind#3992], [databind#4626])

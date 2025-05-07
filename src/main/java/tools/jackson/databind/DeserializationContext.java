@@ -528,19 +528,29 @@ public abstract class DeserializationContext
     }
 
     @Override
-    public BeanDescription introspectBeanDescription(JavaType type) {
-        return classIntrospector().introspectForDeserialization(type);
+    public BeanDescription introspectBeanDescription(JavaType type, AnnotatedClass ac) {
+        return classIntrospector().introspectForDeserialization(type, ac);
     }
 
     public BeanDescription introspectBeanDescriptionForCreation(JavaType type) {
-        return classIntrospector().introspectForCreation(type);
+        return introspectBeanDescriptionForCreation(type,
+                classIntrospector().introspectClassAnnotations(type));
+    }
+
+    public BeanDescription introspectBeanDescriptionForCreation(JavaType type, AnnotatedClass ac) {
+        return classIntrospector().introspectForCreation(type, ac);
     }
 
     public BeanDescription.Supplier lazyIntrospectBeanDescriptionForCreation(JavaType type) {
         return new BeanDescription.LazySupplier(type) {
             @Override
-            public BeanDescription _construct(JavaType forType) {
-                return introspectBeanDescriptionForCreation(forType);
+            protected BeanDescription _construct(JavaType forType, AnnotatedClass ac) {
+                return introspectBeanDescriptionForCreation(forType, ac);
+            }
+
+            @Override
+            protected AnnotatedClass _introspect(JavaType forType) {
+                return introspectClassAnnotations(forType);
             }
         };
     }
@@ -555,8 +565,13 @@ public abstract class DeserializationContext
             final BeanDescription valueTypeDesc) {
         return new BeanDescription.LazySupplier(builderType) {
             @Override
-            public BeanDescription _construct(JavaType forType) {
+            protected BeanDescription _construct(JavaType forType, AnnotatedClass ac) {
                 return introspectBeanDescriptionForBuilder(forType, valueTypeDesc);
+            }
+
+            @Override
+            protected AnnotatedClass _introspect(JavaType forType) {
+                return introspectClassAnnotations(forType);
             }
         };
     }

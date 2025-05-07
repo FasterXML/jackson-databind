@@ -421,8 +421,8 @@ public abstract class SerializationContext
     }
 
     @Override
-    public BeanDescription introspectBeanDescription(JavaType type) {
-        return classIntrospector().introspectForSerialization(type);
+    public BeanDescription introspectBeanDescription(JavaType type, AnnotatedClass ac) {
+        return classIntrospector().introspectForSerialization(type, ac);
     }
 
     /*

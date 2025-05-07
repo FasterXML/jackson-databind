@@ -368,8 +368,10 @@ public abstract class BeanDescription
         @Override
         public BeanDescription get() {
             if (_beanDesc == null) {
-//                _beanDesc = _construct(_type, getClassInfo());
+                // To test without caching, uncomment:
                 return _construct(_type, getClassInfo());
+
+                //_beanDesc = _construct(_type, getClassInfo());
             }
             return _beanDesc;
         }

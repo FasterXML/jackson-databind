@@ -15,14 +15,10 @@ import tools.jackson.databind.introspect.AnnotatedMember;
  * Note that there are many similarities to {@link SetterlessProperty}, which predates
  * this variant; and that one is even used in cases where there is no mutator
  * available.
- *
- * @since 2.9
  */
 public class MergingSettableBeanProperty
     extends SettableBeanProperty.Delegating
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Member (field, method) used for accessing existing value.
      */

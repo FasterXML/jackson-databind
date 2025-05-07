@@ -23,8 +23,6 @@ import tools.jackson.databind.util.ClassUtil;
 public final class FieldProperty
     extends SettableBeanProperty
 {
-    private static final long serialVersionUID = 1L;
-
     final protected AnnotatedField _annotated;
 
     /**
@@ -211,15 +209,5 @@ public final class FieldProperty
             _throwAsJacksonE(ctxt.getParser(), e, value);
         }
         return instance;
-    }
-
-    /*
-    /**********************************************************
-    /* JDK serialization handling
-    /**********************************************************
-     */
-
-    Object readResolve() {
-        return new FieldProperty(this);
     }
 }

@@ -30,10 +30,7 @@ public abstract class FilteredBeanPropertyWriter
 
     private final static class SingleView
         extends BeanPropertyWriter
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
-
         protected final BeanPropertyWriter _delegate;
 
         protected final Class<?> _view;
@@ -97,10 +94,7 @@ public abstract class FilteredBeanPropertyWriter
 
     private final static class MultiView
         extends BeanPropertyWriter
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
-
         protected final BeanPropertyWriter _delegate;
 
         protected final Class<?>[] _views;

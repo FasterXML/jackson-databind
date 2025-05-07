@@ -17,10 +17,8 @@ import tools.jackson.databind.cfg.MapperConfig;
  * writable property implementations for sharing common functionality.
  */
 public abstract class ConcreteBeanPropertyBase
-    implements BeanProperty, java.io.Serializable
+    implements BeanProperty
 {
-    private static final long serialVersionUID = 1;
-
     /**
      * Additional information about property
      */

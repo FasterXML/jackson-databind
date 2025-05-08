@@ -71,6 +71,23 @@ public abstract class BaseJsonNode
     }
 
     @Override
+    public short shortValue(short defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public short asShort() {
+        return _reportCoercionFail("asShort()", Short.TYPE, "value type not numeric");
+    }
+
+    @Override
+    public short asShort(short defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
     public int intValue() {
         return _reportCoercionFail("intValue()", Integer.TYPE, "value type not numeric");
     }
@@ -175,6 +192,23 @@ public abstract class BaseJsonNode
     @Override
     public float floatValue() {
         return _reportCoercionFail("floatValue()", Float.TYPE, "value type not numeric");
+    }
+
+    @Override
+    public float floatValue(float defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
+    }
+
+    @Override
+    public float asFloat() {
+        return _reportCoercionFail("asFloat()", Float.TYPE, "value type not numeric");
+    }
+
+    @Override
+    public float asFloat(float defaultValue) {
+        // Overridden by NumericNode, for other types return default
+        return defaultValue;
     }
 
     @Override

@@ -68,6 +68,21 @@ public class FloatNode
     }
 
     @Override
+    public float floatValue(float defaultValue) {
+        return _value;
+    }
+
+    @Override
+    public float asFloat() {
+        return _value;
+    }
+
+    @Override
+    public float asFloat(float defaultValue) {
+        return _value;
+    }
+
+    @Override
     public double doubleValue() {
         return _value;
     }

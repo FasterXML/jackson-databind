@@ -143,6 +143,7 @@ public class JsonNodeIntValueTest
         _assertIntValueFailForNonNumber(NODES.stringNode("123"));
         _assertIntValueFailForNonNumber(NODES.rawValueNode(new RawValue("abc")));
         _assertIntValueFailForNonNumber(NODES.pojoNode(Boolean.TRUE));
+        _assertIntValueFailForNonNumber(NODES.pojoNode(456));
     }
 
     @Test
@@ -279,14 +280,14 @@ public class JsonNodeIntValueTest
         _assertAsIntFailForNonNumber(NODES.binaryNode(new byte[3]));
         _assertAsIntFailForNonNumber(NODES.rawValueNode(new RawValue("abc")));
         _assertAsIntFailForNonNumber(NODES.pojoNode(Boolean.TRUE));
-
         _assertAsIntFailForNonNumber(NODES.stringNode("abc"),
                 "value not a valid String representation of `int`");
+        _assertAsIntFailForNonNumber(NODES.pojoNode(123_456_789_000L));
 
         // Some pass:
-
-        _assertAsInt(456, NODES.pojoNode(456));
         _assertAsInt(123, NODES.stringNode("123"));
+        _assertAsInt(456, NODES.pojoNode(456L));
+        _assertAsInt(789, NODES.pojoNode(BigInteger.valueOf(789)));
     }
 
     @Test

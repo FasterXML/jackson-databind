@@ -222,8 +222,6 @@ public abstract class JsonNode
      * @return Optional containing the node that represents the value of the specified element,
      *   if this node is an array and has the specified element and otherwise, an
      *   empty Optional, never null.
-     *
-     * @since 2.19
      */
     public Optional<JsonNode> optional(int index) { return Optional.empty(); }
 
@@ -242,8 +240,6 @@ public abstract class JsonNode
      * @return Optional that may contain value of the specified field,
      *  if this node is an object and has value for the specified
      *  field. Empty Optional otherwise never null.
-     *
-     * @since 2.19
      */
     public Optional<JsonNode> optional(String propertyName) { return Optional.empty(); }
 
@@ -283,8 +279,6 @@ public abstract class JsonNode
      *
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link #isMissingNode()} returns true.
-     *
-     * @since 2.3
      */
     @Override
     public final JsonNode at(JsonPointer ptr)
@@ -490,8 +484,6 @@ public abstract class JsonNode
      * NOTE: this method does not consider possible value type conversion
      * from non-number types like JSON String into Number; so even if this method returns false,
      * it is possible that {@link #asInt} could still succeed.
-     *
-     * @since 2.0
      */
     public boolean canConvertToInt() { return false; }
 
@@ -1541,8 +1533,6 @@ public abstract class JsonNode
      * this node is an {@code ArrayNode} or {@code ObjectNode}.
      * In case of {@code Object} node, property names (keys) are not included, only values.
      * For other types of nodes, returns empty stream.
-     *
-     * @since 2.19
      */
     public Stream<JsonNode> valueStream() {
         return ClassUtil.emptyStream();
@@ -1552,8 +1542,6 @@ public abstract class JsonNode
      * Returns a stream of all properties (key, value pairs) of this Node,
      * iff this node is an an {@code ObjectNode}.
      * For other types of nodes, returns empty stream.
-     *
-     * @since 2.19
      */
     public Stream<Map.Entry<String, JsonNode>> propertyStream() {
         return ClassUtil.emptyStream();
@@ -1829,8 +1817,6 @@ public abstract class JsonNode
      * @param propName Name of property that has or will have {@link ObjectNode} as value
      *
      * @return {@link ObjectNode} value of given property (existing or created)
-     *
-     * @since 2.16
      */
     public ObjectNode withObjectProperty(String propName) {
         // To avoid abstract method, base implementation just fails

@@ -111,11 +111,6 @@ public class BooleanNode
         return _value ? "true" : "false";
     }
 
-    @Override
-    public long asLong(long defaultValue) {
-        return _value ? 1L : 0L;
-    }
-
     /*
     /**********************************************************************
     /* Overridden JsonNode methods, other

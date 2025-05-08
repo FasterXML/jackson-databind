@@ -1,5 +1,7 @@
 package tools.jackson.databind.node;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 
 import tools.jackson.core.*;
@@ -17,6 +19,21 @@ public abstract class ValueNode
     extends BaseJsonNode
 {
     private static final long serialVersionUID = 3L;
+
+    // For numeric range checks
+    protected final static BigInteger BI_MIN_SHORT = BigInteger.valueOf(Short.MIN_VALUE);
+    protected final static BigInteger BI_MAX_SHORT = BigInteger.valueOf(Short.MAX_VALUE);
+    protected final static BigInteger BI_MIN_INTEGER = BigInteger.valueOf(Integer.MIN_VALUE);
+    protected final static BigInteger BI_MAX_INTEGER = BigInteger.valueOf(Integer.MAX_VALUE);
+    protected final static BigInteger BI_MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
+    protected final static BigInteger BI_MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
+
+    protected final static BigDecimal BD_MIN_SHORT = BigDecimal.valueOf(Short.MIN_VALUE);
+    protected final static BigDecimal BD_MAX_SHORT = BigDecimal.valueOf(Short.MAX_VALUE);
+    protected final static BigDecimal BD_MIN_INTEGER = BigDecimal.valueOf(Integer.MIN_VALUE);
+    protected final static BigDecimal BD_MAX_INTEGER = BigDecimal.valueOf(Integer.MAX_VALUE);
+    protected final static BigDecimal BD_MIN_LONG = BigDecimal.valueOf(Long.MIN_VALUE);
+    protected final static BigDecimal BD_MAX_LONG = BigDecimal.valueOf(Long.MAX_VALUE);
 
     protected final static JsonNode MISSING = MissingNode.getInstance();
 

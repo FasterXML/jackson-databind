@@ -70,6 +70,19 @@ public class ShortNode
     public short shortValue() { return _value; }
 
     @Override
+    public short shortValue(short defaultValue) { return _value; }
+
+    @Override
+    public short asShort() {
+        return _value;
+    }
+
+    @Override
+    public short asShort(short defaultValue) {
+        return _value;
+    }
+
+    @Override
     public int intValue() { return _value; }
 
     @Override

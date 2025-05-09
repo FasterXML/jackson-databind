@@ -252,8 +252,6 @@ public final class AnnotatedMethod
     }
 
     class MethodHolder extends UnreflectHandleSupplier {
-        private static final long serialVersionUID = 1L;
-
         MethodHolder(MethodType asType) {
             super(asType);
         }

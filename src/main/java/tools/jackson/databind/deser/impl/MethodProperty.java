@@ -201,8 +201,6 @@ public final class MethodProperty
     }
 
     class SetterHolder extends UnreflectHandleSupplier {
-        private static final long serialVersionUID = 1L;
-
         SetterHolder(MethodType asType) {
             super(asType);
         }

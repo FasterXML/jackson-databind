@@ -13,12 +13,10 @@ import tools.jackson.databind.util.ClassUtil;
  * (which happens in a virtual method call after construction) and avoids serialization of
  * MethodHandle.
  */
-public abstract class UnreflectHandleSupplier implements Supplier<MethodHandle>, Serializable {
-    private static final long serialVersionUID = 1L;
-
+public abstract class UnreflectHandleSupplier implements Supplier<MethodHandle> {
     private final MethodType asType;
-    private transient boolean initialized;
-    private transient Supplier<MethodHandle> delegate = this::initialize;
+    private boolean initialized;
+    private Supplier<MethodHandle> delegate = this::initialize;
 
     public UnreflectHandleSupplier(MethodType asType) {
         this.asType = asType;

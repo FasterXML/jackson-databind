@@ -1,15 +1,30 @@
 package tools.jackson.databind.introspect;
 
-import java.lang.reflect.*;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.Objects;
 
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.internal.UnreflectHandleSupplier;
+
+import static java.lang.invoke.MethodType.methodType;
+
+import static tools.jackson.databind.util.ClassUtil.sneakyThrow;
 
 public final class AnnotatedMethod
     extends AnnotatedWithParams
 {
     final protected transient Method _method;
+    final protected MethodHolder _invokerFixedArity = new MethodHolder(null);
+    final protected MethodHolder _invokerNullary = new MethodHolder(methodType(Object.class));
+    final protected MethodHolder _invokerUnary = new MethodHolder(methodType(Object.class, Object.class));
 
     // // Simple lazy-caching:
 
@@ -73,27 +88,50 @@ public final class AnnotatedMethod
 
     @Override
     public final Object call() throws Exception {
-        // 31-Mar-2021, tatu: Note! This is faster than calling without arguments
-        //   because JDK in its wisdom would otherwise allocate `new Object[0]` to pass
-        return _method.invoke(null);
+        try {
+            return _invokerNullary.get().invokeExact();
+        } catch (final Throwable e) {
+            throw sneakyThrow(e);
+        }
     }
 
     @Override
     public final Object call(Object[] args) throws Exception {
-        return _method.invoke(null, args);
+        try {
+            return _invokerFixedArity.get().invokeWithArguments(args);
+        } catch (final Throwable e) {
+            throw sneakyThrow(e);
+        }
     }
 
     @Override
     public final Object call1(Object arg) throws Exception {
-        return _method.invoke(null, arg);
+        try {
+            Object ret = _invokerUnary.get().invokeExact(arg);
+            return ret == null ? arg : ret;
+        } catch (final Throwable e) {
+            throw sneakyThrow(e);
+        }
     }
 
     public final Object callOn(Object pojo) throws Exception {
-        return _method.invoke(pojo, (Object[]) null);
+        try {
+            return _invokerUnary.get().invokeExact(pojo);
+        } catch (Throwable e) {
+            throw sneakyThrow(e);
+        }
     }
 
     public final Object callOnWith(Object pojo, Object... args) throws Exception {
-        return _method.invoke(pojo, args);
+        try {
+            MethodHandle invoker = _invokerFixedArity.get();
+            if (!Modifier.isStatic(_method.getModifiers())) {
+                invoker = invoker.bindTo(pojo);
+            }
+            return invoker.invokeWithArguments(args);
+        } catch (Throwable e) {
+            throw sneakyThrow(e);
+        }
     }
 
     /*
@@ -211,5 +249,16 @@ public final class AnnotatedMethod
         }
         AnnotatedMethod other = (AnnotatedMethod) o;
         return Objects.equals(_method, other._method);
+    }
+
+    class MethodHolder extends UnreflectHandleSupplier {
+        MethodHolder(MethodType asType) {
+            super(asType);
+        }
+
+        @Override
+        protected MethodHandle unreflect() throws IllegalAccessException {
+            return MethodHandles.lookup().unreflect(_method);
+        }
     }
 }

@@ -30,6 +30,11 @@ public abstract class NumericFPNode extends NumericNode
     public final boolean isFloatingPointNumber() { return true; }
 
     @Override
+    public final boolean canConvertToShort() {
+        return canConvertToExactIntegral() && _inShortRange();
+    }
+
+    @Override
     public final boolean canConvertToInt() {
         return canConvertToExactIntegral() && _inIntRange();
     }
@@ -55,10 +60,40 @@ public abstract class NumericFPNode extends NumericNode
     @Override
     public final short shortValue() {
         if (!_inShortRange()) {
+            if (isNaN()) {
+                _reportIntCoercionNaNFail("shortValue()");
+            }
             return _reportShortCoercionRangeFail("shortValue()");
         }
         if (_hasFractionalPart()) {
             _reportShortCoercionFractionFail("shortValue()");
+        }
+        return _asShortValueUnchecked();
+    }
+
+    @Override
+    public final short shortValue(short defaultValue) {
+        if (!_inShortRange() || _hasFractionalPart()) {
+            return defaultValue;
+        }
+        return _asShortValueUnchecked();
+    }
+
+    @Override
+    public short asShort() {
+        if (!_inShortRange()) {
+            if (isNaN()) {
+                _reportIntCoercionNaNFail("asShort()");
+            }
+            return _reportShortCoercionRangeFail("asShort()");
+        }
+        return _asShortValueUnchecked();
+    }
+
+    @Override
+    public short asShort(short defaultValue) {
+        if (!_inShortRange()) {
+            return defaultValue;
         }
         return _asShortValueUnchecked();
     }

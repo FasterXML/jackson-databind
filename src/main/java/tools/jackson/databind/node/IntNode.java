@@ -83,6 +83,32 @@ public class IntNode
     }
 
     @Override
+    public short shortValue() {
+        if (_inShortRange()) {
+            return (short) _value;
+        }
+        return _reportShortCoercionRangeFail("shortValue()");
+    }
+
+    @Override
+    public short shortValue(short defaultValue) {
+        return _inShortRange() ? (short) _value : defaultValue;
+    }
+
+    @Override
+    public short asShort() {
+        if (_inShortRange()) {
+            return (short) _value;
+        }
+        return _reportShortCoercionRangeFail("asShort()");
+    }
+
+    @Override
+    public short asShort(short defaultValue) {
+        return _inShortRange() ? (short) _value : defaultValue;
+    }
+
+    @Override
     public int intValue() { return _value; }
 
     @Override

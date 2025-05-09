@@ -20,13 +20,6 @@ public class DecimalNode
 
     public static final DecimalNode ZERO = new DecimalNode(BigDecimal.ZERO);
 
-    private final static BigDecimal MIN_SHORT = BigDecimal.valueOf(Short.MIN_VALUE);
-    private final static BigDecimal MAX_SHORT = BigDecimal.valueOf(Short.MAX_VALUE);
-    private final static BigDecimal MIN_INTEGER = BigDecimal.valueOf(Integer.MIN_VALUE);
-    private final static BigDecimal MAX_INTEGER = BigDecimal.valueOf(Integer.MAX_VALUE);
-    private final static BigDecimal MIN_LONG = BigDecimal.valueOf(Long.MIN_VALUE);
-    private final static BigDecimal MAX_LONG = BigDecimal.valueOf(Long.MAX_VALUE);
-
     final protected BigDecimal _value;
 
     /*
@@ -85,6 +78,33 @@ public class DecimalNode
             return f;
         }
         return _reportFloatCoercionRangeFail("floatValue()");
+    }
+
+    @Override
+    public float floatValue(float defaultValue) {
+        float f = _value.floatValue();
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public float asFloat() {
+        float f = _value.floatValue();
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return _reportFloatCoercionRangeFail("asFloat()");
+    }
+
+    @Override
+    public float asFloat(float defaultValue) {
+        float f = _value.floatValue();
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return defaultValue;
     }
 
     @Override
@@ -201,17 +221,17 @@ public class DecimalNode
     
     @Override
     protected boolean _inShortRange() {
-        return (_value.compareTo(MIN_SHORT) >= 0) && (_value.compareTo(MAX_SHORT) <= 0);
+        return (_value.compareTo(BD_MIN_SHORT) >= 0) && (_value.compareTo(BD_MAX_SHORT) <= 0);
     }
 
     @Override
     protected boolean _inIntRange() {
-        return (_value.compareTo(MIN_INTEGER) >= 0) && (_value.compareTo(MAX_INTEGER) <= 0);
+        return _inLongRange() && (_value.compareTo(BD_MIN_INTEGER) >= 0) && (_value.compareTo(BD_MAX_INTEGER) <= 0);
     }
 
     @Override
     protected boolean _inLongRange() {
-        return (_value.compareTo(MIN_LONG) >= 0) && (_value.compareTo(MAX_LONG) <= 0);
+        return (_value.compareTo(BD_MIN_LONG) >= 0) && (_value.compareTo(BD_MAX_LONG) <= 0);
     }
 
     /*

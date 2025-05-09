@@ -140,6 +140,7 @@ public class JsonNodeLongValueTest
         _assertLongValueFailForNonNumber(NODES.stringNode("123"));
         _assertLongValueFailForNonNumber(NODES.rawValueNode(new RawValue("abc")));
         _assertLongValueFailForNonNumber(NODES.pojoNode(Boolean.TRUE));
+        _assertLongValueFailForNonNumber(NODES.pojoNode(456L));
     }
 
     @Test
@@ -276,10 +277,12 @@ public class JsonNodeLongValueTest
         _assertAsLongFailForNonNumber(NODES.rawValueNode(new RawValue("abc")));
         _assertAsLongFailForNonNumber(NODES.pojoNode(Boolean.TRUE));
         _assertAsLongFailForNonNumber(NODES.stringNode("abcdef"), "not a valid String representation of `long`");
+        _assertAsLongFailForNonNumber(NODES.pojoNode(1e40));
 
         // Some pass
-        _assertAsLong(123456L, NODES.pojoNode(123456L));
         _assertAsLong(1234L, NODES.stringNode("1234"));
+        _assertAsLong(123456L, NODES.pojoNode(123456L));
+        _assertAsLong(789L, NODES.pojoNode(BigInteger.valueOf(789)));
     }
 
     @Test

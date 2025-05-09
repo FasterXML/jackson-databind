@@ -97,7 +97,21 @@ public class POJONode
     /* Overridden JsonNode methods, scalar access, numeric
     /**********************************************************************
      */
-    
+
+    // `shortValue()` (etc) fine as defaults (fail); but need to override `asShort()`
+
+    @Override
+    public short asShort() {
+        Short S = _extractAsShort();
+        return (S == null) ? super.asShort() : S;
+    }
+
+    @Override
+    public short asShort(short defaultValue) {
+        Short S = _extractAsShort();
+        return (S == null) ? defaultValue : S;
+    }
+
     // `intValue()` (etc) fine as defaults (fail); but need to override `asInt()`
 
     @Override
@@ -158,6 +172,22 @@ public class POJONode
         return (big == null) ? Optional.empty() : Optional.of(big);
     }
 
+    // `floatValue()` (etc) fine as defaults (fail); but need to override `asFloat()`
+
+    @Override
+    public float asFloat()
+    {
+        Float f = _extractAsFloat();
+        return (f == null) ? super.asFloat() : f;
+    }
+
+    @Override
+    public float asFloat(float defaultValue)
+    {
+        Float f = _extractAsFloat();
+        return (f == null) ? defaultValue : f;
+    }
+
     // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`
 
     @Override
@@ -207,18 +237,19 @@ public class POJONode
     }
 
     // Consider only Integral numbers
-    protected Integer _extractAsInteger() {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return 0;
+    protected Short _extractAsShort() {
+        Long v = _extractAsLong();
+        if (v != null && v >= Short.MIN_VALUE && v <= Short.MAX_VALUE) {
+            return v.shortValue();
         }
-        // Next, coercions from integral Numbers
-        if (_value instanceof Number N) {
-            // !!! TODO: range checks
-            if (N instanceof Long || N instanceof Integer || N instanceof Short || N instanceof Byte
-                    || N instanceof BigInteger) {
-                return N.intValue();
-            }
+        return null;
+    }
+
+    // Consider only Integral numbers
+    protected Integer _extractAsInteger() {
+        Long v = _extractAsLong();
+        if (v != null && v >= Integer.MIN_VALUE && v <= Integer.MAX_VALUE) {
+            return v.intValue();
         }
         return null;
     }
@@ -231,9 +262,24 @@ public class POJONode
         }
         // Next, coercions from integral Numbers
         if (_value instanceof Number N) {
-            // !!! TODO: range checks
-            if (N instanceof Long || N instanceof Integer || N instanceof Short || N instanceof Byte
-                    || N instanceof BigInteger) {
+            // Add range check
+            if (N instanceof BigInteger big) {
+                if (big.compareTo(BI_MIN_LONG) >= 0 && big.compareTo(BI_MAX_LONG) <= 0) {
+                    return big.longValue();
+                }
+            } else if (N instanceof BigDecimal dec) {
+                if (dec.compareTo(BD_MIN_LONG) >= 0 && dec.compareTo(BD_MAX_LONG) <= 0) {
+                    return dec.longValue();
+                }
+            } else if (N instanceof Double D) {
+                if (D >= Long.MIN_VALUE && D <= Long.MAX_VALUE) {
+                    return D.longValue();
+                }
+            } else if (N instanceof Float F) {
+                if (F >= Long.MIN_VALUE && F <= Long.MAX_VALUE) {
+                    return F.longValue();
+                }
+            } else {
                 return N.longValue();
             }
         }
@@ -247,12 +293,26 @@ public class POJONode
             return BigInteger.ZERO;
         }
         // Next, coercions from Numbers
-        if (_value instanceof BigInteger big) {
-            return big;
-        }
         if (_value instanceof Number N) {
-            if (N instanceof Long || N instanceof Integer || N instanceof Short || N instanceof Byte) {
+            if (_value instanceof BigInteger big) {
+                return big;
+            } else if (_value instanceof BigDecimal dec) {
+                return dec.toBigInteger();
+            } else {
                 return BigInteger.valueOf(N.longValue());
+            }
+        }
+        return null;
+    }
+
+    protected Float _extractAsFloat() {
+        if (_value instanceof Number N) {
+            if (_value instanceof Float F) {
+                return F;
+            }
+            float f = N.floatValue();
+            if (Float.isFinite(f)) {
+                return f;
             }
         }
         return null;
@@ -263,9 +323,10 @@ public class POJONode
             if (_value instanceof Double D) {
                 return D;
             }
-            // 24-Mar-2025, tatu: Should probably check for NaN from overflow
-            //    from "too big" `BigDecimal` or `BigInteger`. But will do for now
-            return N.doubleValue();
+            double d = N.doubleValue();
+            if (Double.isFinite(d)) {
+                return d;
+            }
         }
         return null;
     }
@@ -276,14 +337,12 @@ public class POJONode
             return BigDecimal.ZERO;
         }
         // Next, coercions from Numbers
-        if (_value instanceof BigDecimal dec) {
-            return dec;
-        }
-        if (_value instanceof BigInteger I) {
-            return new BigDecimal(I);
-        }
         if (_value instanceof Number N) {
-            if (N instanceof Long || N instanceof Integer || N instanceof Short || N instanceof Byte) {
+            if (_value instanceof BigDecimal dec) {
+                return dec;
+            } else if (_value instanceof BigInteger I) {
+                return new BigDecimal(I);
+            } else if (N instanceof Long || N instanceof Integer || N instanceof Short || N instanceof Byte) {
                 return BigDecimal.valueOf(N.longValue());
             }
             // Use doubleValue() as a last resort for Float & Double

@@ -633,6 +633,7 @@ public abstract class SettableBeanProperty
 
     protected void _throwAsJacksonE(JsonParser p, Throwable e) throws JacksonException
     {
+        ClassUtil.throwIfError(e);
         ClassUtil.throwIfRTE(e);
         ClassUtil.throwIfJacksonE(e);
 

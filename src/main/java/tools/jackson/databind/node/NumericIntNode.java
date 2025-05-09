@@ -32,6 +32,11 @@ public abstract class NumericIntNode extends NumericNode
     public final boolean isNaN() { return false; }
 
     @Override final
+    public boolean canConvertToShort() {
+        return _inShortRange();
+    }
+
+    @Override final
     public boolean canConvertToInt() {
         return _inIntRange();
     }
@@ -47,13 +52,6 @@ public abstract class NumericIntNode extends NumericNode
     /**********************************************************************
      */
 
-    @Override
-    public short shortValue() {
-        if (_inShortRange()) {
-            return (short) _asIntValueUnchecked();
-        }
-        return _reportShortCoercionRangeFail("shortValue()");
-    }
 
     // Sub-classes need to define this; but with that can implement other 5 methods
 
@@ -85,15 +83,28 @@ public abstract class NumericIntNode extends NumericNode
         return bigIntegerValueOpt();
     }
 
-    // Float is simple
+    // Float and Double handling straight-forward for all Integral types except BigInteger
+    // (which needs range checks and overrides these implementations)
 
     @Override
     public float floatValue() {
         return _asFloatValueUnchecked();
     }
 
-    // Double handling straight-forward for all Integral types except BigInteger
-    // (which needs range checks and overrides these implementations)
+    @Override
+    public float floatValue(float defaultValue) {
+        return _asFloatValueUnchecked();
+    }
+
+    @Override
+    public float asFloat() {
+        return _asFloatValueUnchecked();
+    }
+
+    @Override
+    public float asFloat(float defaultValue) {
+        return _asFloatValueUnchecked();
+    }
 
     @Override
     public double doubleValue() {

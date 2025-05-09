@@ -173,24 +173,6 @@ public final class AnnotatedClass
         _collectAnnotations = false;
     }
 
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config) {
-        return construct(type, config, (MixInResolver) config);
-    }
-
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config,
-            MixInResolver mir)
-    {
-        return AnnotatedClassResolver.resolve(config, type, mir);
-    }
-
     /*
     /**********************************************************
     /* TypeResolutionContext implementation

@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -938,19 +939,12 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, mutator, propType0);
         // Does the Method specify the deserializer to use? If so, let's use it.
         TypeDeserializer typeDeser = (TypeDeserializer) type.getTypeHandler();
-        SettableBeanProperty prop;
-        if (mutator instanceof AnnotatedMethod) {
-            prop = new MethodProperty(propDef, type, typeDeser,
-                    beanDescRef.getClassAnnotations(), (AnnotatedMethod) mutator);
-        } else {
-            // 08-Sep-2016, tatu: wonder if we should verify it is `AnnotatedField` to be safe?
-            prop = new FieldProperty(propDef, type, typeDeser,
-                    beanDescRef.getClassAnnotations(), (AnnotatedField) mutator);
-        }
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, mutator);
         if (deser == null) {
             deser = (ValueDeserializer<?>) type.getValueHandler();
         }
+        SettableBeanProperty prop = new MethodProperty(propDef, type, typeDeser,
+                beanDescRef.getClassAnnotations(), mutator);
         if (deser != null) {
             deser = ctxt.handlePrimaryContextualization(deser, prop, type);
             prop = prop.withValueDeserializer(deser);

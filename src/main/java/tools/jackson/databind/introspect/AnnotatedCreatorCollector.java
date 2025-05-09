@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import tools.jackson.databind.JavaType;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass.Creators;
 import tools.jackson.databind.util.ClassUtil;
@@ -65,25 +66,18 @@ final class AnnotatedCreatorCollector
         /* And then... let's remove all constructors that are deemed
          * ignorable after all annotations have been properly collapsed.
          */
+
         // AnnotationIntrospector is null if annotations not enabled; if so, can skip:
         if (_collectAnnotations) {
-            if (_defaultConstructor != null) {
-                if (_intr.hasIgnoreMarker(_config, _defaultConstructor)) {
-                    _defaultConstructor = null;
-                }
+            if (_defaultConstructor != null && _intr.hasIgnoreMarker(_config, _defaultConstructor)) {
+                _defaultConstructor = null;
             }
-            // count down to allow safe removal
-            for (int i = constructors.size(); --i >= 0; ) {
-                if (_intr.hasIgnoreMarker(_config, constructors.get(i))) {
-                    constructors.remove(i);
-                }
-            }
-            for (int i = factories.size(); --i >= 0; ) {
-                if (_intr.hasIgnoreMarker(_config, factories.get(i))) {
-                    factories.remove(i);
-                }
-            }
+            constructors.removeIf(constructor ->
+                    _intr.hasIgnoreMarker(_config, constructor));
+            factories.removeIf(factory ->
+                    _intr.hasIgnoreMarker(_config, factory));
         }
+
         return new AnnotatedClass.Creators(_defaultConstructor, constructors, factories);
     }
 

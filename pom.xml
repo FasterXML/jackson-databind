@@ -169,7 +169,6 @@
       <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find

@@ -207,14 +207,14 @@ public class JsonNodeDoubleValueTest
     public void asDoubleFromNonNumberScalar()
     {
         // First, failing cases:
-
         _assertAsDoubleFailForNonNumber(NODES.booleanNode(true));
         _assertAsDoubleFailForNonNumber(NODES.binaryNode(new byte[3]));
         _assertAsDoubleFailForNonNumber(NODES.rawValueNode(new RawValue("abc")));
         _assertAsDoubleFailForNonNumber(NODES.pojoNode(Boolean.TRUE));
         _assertAsDoubleFailForNonNumber(NODES.stringNode("abc"),
                 "not a valid String representation of `double`");
-        _assertAsDoubleFailForNonNumber(NODES.pojoNode(new BigDecimal(BigInteger.TEN.pow(310))));
+        _assertAsDoubleFailForNonNumber(NODES.pojoNode(new String[0]));
+        _assertAsDoubleFailForValueRange(NODES.pojoNode(new BigDecimal(BigInteger.TEN.pow(310))));
 
         // Then passing ones:
         _assertAsDouble(0.5d, NODES.stringNode("0.5"));

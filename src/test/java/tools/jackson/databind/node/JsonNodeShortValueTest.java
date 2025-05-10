@@ -262,7 +262,7 @@ public class JsonNodeShortValueTest
         _assertAsShortFailForNonNumber(NODES.pojoNode(Boolean.TRUE));
         _assertAsShortFailForNonNumber(NODES.stringNode("abc"),
                 "value not a valid String representation of `short`");
-        _assertAsShortFailForNonNumber(NODES.pojoNode(123_456));
+        _assertAsShortFailForNonNumber(NODES.pojoNode("123456"));
 
         // Some pass:
         _assertAsShort((short) 123, NODES.stringNode("123"));

@@ -102,167 +102,387 @@ public class POJONode
 
     @Override
     public short asShort() {
-        Short S = _extractAsShort();
-        return (S == null) ? super.asShort() : S;
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return 0;
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            // report coercion fail
+            super.asShort();
+        }
+
+        // Then, extract from Number
+        Long L = _extractAsLong();
+        if (L == null || L < Short.MIN_VALUE || L > Short.MAX_VALUE) {
+            // report range fail
+            _reportShortCoercionRangeFail("asShort()");
+        }
+        return L.shortValue();
     }
 
     @Override
     public short asShort(short defaultValue) {
-        Short S = _extractAsShort();
-        return (S == null) ? defaultValue : S;
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return 0;
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return defaultValue;
+        }
+
+        // Then, extract from Number
+        Long L = _extractAsLong();
+        if (L == null || L < Short.MIN_VALUE || L > Short.MAX_VALUE) {
+            return defaultValue;
+        }
+        return L.shortValue();
     }
 
     // `intValue()` (etc) fine as defaults (fail); but need to override `asInt()`
 
     @Override
     public int asInt() {
-        Integer I = _extractAsInteger();
-        return (I == null) ? super.asInt() : I;
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return 0;
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            // report coercion fail
+            super.asInt();
+        }
+
+        // Then, extract from Number
+        Long L = _extractAsLong();
+        if (L == null || L < Integer.MIN_VALUE || L > Integer.MAX_VALUE) {
+            // report range fail
+            _reportIntCoercionRangeFail("asInt()");
+        }
+        return L.intValue();
     }
 
     @Override
     public int asInt(int defaultValue) {
-        Integer I = _extractAsInteger();
-        return (I == null) ? defaultValue : I;
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return 0;
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return defaultValue;
+        }
+
+        // Then, extract from Number
+        Long L = _extractAsLong();
+        if (L == null || L < Integer.MIN_VALUE || L > Integer.MAX_VALUE) {
+            return defaultValue;
+        }
+        return L.intValue();
     }
 
     @Override
     public OptionalInt asIntOpt() {
-        Integer I = _extractAsInteger();
-        return (I == null) ? OptionalInt.empty() : OptionalInt.of(I);
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return OptionalInt.of(0);
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return OptionalInt.empty();
+        }
+
+        // Then, extract from Number
+        Long L = _extractAsLong();
+        if (L == null || L < Integer.MIN_VALUE || L > Integer.MAX_VALUE) {
+            return OptionalInt.empty();
+        }
+        return OptionalInt.of(L.intValue());
     }
 
     // `longValue()` (etc) fine as defaults (fail); but need to override `asLong()`
 
     @Override
     public long asLong() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return 0L;
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            // report coercion fail
+            super.asLong();
+        }
+
+        // Then, extract from Number
         Long L = _extractAsLong();
-        return (L == null) ? super.asLong() : L;
+        if (L == null) {
+            // report range fail
+            _reportLongCoercionRangeFail("asLong()");
+        }
+        return L;
     }
 
     @Override
     public long asLong(long defaultValue) {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return 0L;
+        }
+
+        // Next, report coercion fail if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return defaultValue;
+        }
+
+        // Then, extract from Number
         Long L = _extractAsLong();
-        return (L == null) ? defaultValue : L;
+        if (L == null) {
+            return defaultValue;
+        }
+        return L;
     }
 
     @Override
     public OptionalLong asLongOpt() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return OptionalLong.of(0L);
+        }
+
+        // Next, report coercion fail if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return OptionalLong.empty();
+        }
+
+        // Then, extract from Number
         Long L = _extractAsLong();
-        return (L == null) ? OptionalLong.empty() : OptionalLong.of(L);
+        if (L == null) {
+            return OptionalLong.empty();
+        }
+        return OptionalLong.of(L);
     }
 
     // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`
 
     @Override
     public BigInteger asBigInteger() {
-        BigInteger big = _extractAsBigInteger();
-        return (big == null) ? super.asBigInteger() : big;
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return BigInteger.ZERO;
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            // report coercion fail
+            super.asBigInteger();
+        }
+
+        // Then, extract from Number
+        return _extractAsBigInteger();
     }
 
     @Override
     public BigInteger asBigInteger(BigInteger defaultValue) {
-        BigInteger big = _extractAsBigInteger();
-        return (big == null) ? defaultValue : big;
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return BigInteger.ZERO;
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return defaultValue;
+        }
+
+        // Then, extract from Number
+        return _extractAsBigInteger();
     }
 
     @Override
     public Optional<BigInteger> asBigIntegerOpt() {
-        BigInteger big = _extractAsBigInteger();
-        return (big == null) ? Optional.empty() : Optional.of(big);
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return Optional.of(BigInteger.ZERO);
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return Optional.empty();
+        }
+
+        // Then, extract from Number
+        return Optional.of(_extractAsBigInteger());
     }
 
     // `floatValue()` (etc) fine as defaults (fail); but need to override `asFloat()`
 
     @Override
-    public float asFloat()
-    {
-        Float f = _extractAsFloat();
-        return (f == null) ? super.asFloat() : f;
+    public float asFloat() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return 0.0f;
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            // report coercion fail
+            super.asFloat();
+        }
+
+        // Then, extract from Number
+        Float F = _extractAsFloat();
+        if (F == null) {
+            // report range fail
+            _reportFloatCoercionRangeFail("asFloat()");
+        }
+        return F;
     }
 
     @Override
-    public float asFloat(float defaultValue)
-    {
-        Float f = _extractAsFloat();
-        return (f == null) ? defaultValue : f;
+    public float asFloat(float defaultValue) {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return 0.0f;
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return defaultValue;
+        }
+
+        // Then, extract from Number
+        Float F = _extractAsFloat();
+        if (F == null) {
+            return defaultValue;
+        }
+        return F;
     }
 
     // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`
 
     @Override
-    public double asDouble()
-    {
-        Double d = _extractAsDouble();
-        return (d == null) ? super.asDouble() : d;
+    public double asDouble() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return 0.0d;
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            // report coercion fail
+            super.asDouble();
+        }
+
+        // Then, extract from Number
+        Double D = _extractAsDouble();
+        if (D == null) {
+            // report range fail
+            _reportDoubleCoercionRangeFail("asDouble()");
+        }
+        return D;
     }
 
     @Override
-    public double asDouble(double defaultValue)
-    {
-        Double d = _extractAsDouble();
-        return (d == null) ? defaultValue : d;
+    public double asDouble(double defaultValue) {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return 0.0d;
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return defaultValue;
+        }
+
+        // Then, extract from Number
+        Double D = _extractAsDouble();
+        if (D == null) {
+            return defaultValue;
+        }
+        return D;
     }
 
     @Override
     public OptionalDouble asDoubleOpt() {
-        Double d = _extractAsDouble();
-        return (d == null) ? OptionalDouble.empty() : OptionalDouble.of(d);
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return OptionalDouble.of(0.0d);
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return OptionalDouble.empty();
+        }
+
+        // Then, extract from Number
+        Double D = _extractAsDouble();
+        if (D == null) {
+            return OptionalDouble.empty();
+        }
+        return OptionalDouble.of(D);
     }
 
     // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
 
     @Override
     public BigDecimal asDecimal() {
-        BigDecimal dec = _extractAsBigDecimal();
-        if (dec == null) {
-            return super.asDecimal();
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return BigDecimal.ZERO;
         }
-        return dec;
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            // report coercion fail
+            super.asDecimal();
+        }
+
+        // Then, extract from Number
+        return _extractAsBigDecimal();
     }
 
     @Override
     public BigDecimal asDecimal(BigDecimal defaultValue) {
-        BigDecimal dec = _extractAsBigDecimal();
-        if (dec == null) {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return BigDecimal.ZERO;
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
             return defaultValue;
         }
-        return dec;
+
+        // Then, extract from Number
+        return _extractAsBigDecimal();
     }
 
     @Override
     public Optional<BigDecimal> asDecimalOpt() {
-        BigDecimal dec = _extractAsBigDecimal();
-        return (dec == null) ? Optional.empty() : Optional.of(dec);
-    }
-
-    // Consider only Integral numbers
-    protected Short _extractAsShort() {
-        Long v = _extractAsLong();
-        if (v != null && v >= Short.MIN_VALUE && v <= Short.MAX_VALUE) {
-            return v.shortValue();
-        }
-        return null;
-    }
-
-    // Consider only Integral numbers
-    protected Integer _extractAsInteger() {
-        Long v = _extractAsLong();
-        if (v != null && v >= Integer.MIN_VALUE && v <= Integer.MAX_VALUE) {
-            return v.intValue();
-        }
-        return null;
-    }
-
-    // Consider only Integral numbers
-    protected Long _extractAsLong() {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return 0L;
+            return Optional.of(BigDecimal.ZERO);
         }
-        // Next, coercions from integral Numbers
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return Optional.empty();
+        }
+
+        // Then, extract from Number
+        return Optional.of(_extractAsBigDecimal());
+    }
+
+    // extract Long from Number, or return null if range check fails
+    protected Long _extractAsLong() {
         if (_value instanceof Number N) {
-            // Add range check
             if (N instanceof BigInteger big) {
                 if (big.compareTo(BI_MIN_LONG) >= 0 && big.compareTo(BI_MAX_LONG) <= 0) {
                     return big.longValue();
@@ -286,17 +506,12 @@ public class POJONode
         return null;
     }
 
-    // Consider only Integral numbers
+    // extract BigInteger from Number, or return null if range check fails
     protected BigInteger _extractAsBigInteger() {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return BigInteger.ZERO;
-        }
-        // Next, coercions from Numbers
         if (_value instanceof Number N) {
-            if (_value instanceof BigInteger big) {
+            if (N instanceof BigInteger big) {
                 return big;
-            } else if (_value instanceof BigDecimal dec) {
+            } else if (N instanceof BigDecimal dec) {
                 return dec.toBigInteger();
             } else {
                 return BigInteger.valueOf(N.longValue());
@@ -305,9 +520,10 @@ public class POJONode
         return null;
     }
 
+    // extract Float from Number, or return null if range check fails
     protected Float _extractAsFloat() {
         if (_value instanceof Number N) {
-            if (_value instanceof Float F) {
+            if (N instanceof Float F) {
                 return F;
             }
             float f = N.floatValue();
@@ -318,9 +534,10 @@ public class POJONode
         return null;
     }
 
+    // extract Double from Number, or return null if range check fails
     protected Double _extractAsDouble() {
         if (_value instanceof Number N) {
-            if (_value instanceof Double D) {
+            if (N instanceof Double D) {
                 return D;
             }
             double d = N.doubleValue();
@@ -330,18 +547,14 @@ public class POJONode
         }
         return null;
     }
-    
+
+    // extract BigDecimal from Number, or return null if range check fails
     protected BigDecimal _extractAsBigDecimal() {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return BigDecimal.ZERO;
-        }
-        // Next, coercions from Numbers
         if (_value instanceof Number N) {
-            if (_value instanceof BigDecimal dec) {
+            if (N instanceof BigDecimal dec) {
                 return dec;
-            } else if (_value instanceof BigInteger I) {
-                return new BigDecimal(I);
+            } else if (N instanceof BigInteger big) {
+                return new BigDecimal(big);
             } else if (N instanceof Long || N instanceof Integer || N instanceof Short || N instanceof Byte) {
                 return BigDecimal.valueOf(N.longValue());
             }

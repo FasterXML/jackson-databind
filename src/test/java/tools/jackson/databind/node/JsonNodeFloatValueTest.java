@@ -211,14 +211,13 @@ public class JsonNodeFloatValueTest
     public void asFloatFromNonNumberScalar()
     {
         // First, failing cases:
-
         _assertAsFloatFailForNonNumber(NODES.booleanNode(true));
         _assertAsFloatFailForNonNumber(NODES.binaryNode(new byte[3]));
         _assertAsFloatFailForNonNumber(NODES.rawValueNode(new RawValue("abc")));
         _assertAsFloatFailForNonNumber(NODES.pojoNode(Boolean.TRUE));
         _assertAsFloatFailForNonNumber(NODES.stringNode("abc"),
                 "not a valid String representation of `float`");
-        _assertAsFloatFailForNonNumber(NODES.pojoNode(1e40));
+        _assertAsFloatFailForValueRange(NODES.pojoNode(1e40));
 
         // Then passing ones:
         _assertAsFloat(2.5f, NODES.pojoNode(2.5f));

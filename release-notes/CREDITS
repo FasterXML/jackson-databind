@@ -49,3 +49,7 @@ Sébastien Deleuze (@sdeleuze)
   [3.0.0]
  * Requested #5112: Add a `MapperBuilder#findAndAddModules(ClassLoader)` variant
   [3.0.0]
+
+Yu Han (@hannyu)
+ * Contributed #5138: add `asShort()`, `asFloat()` conversion methods
+  [3.0.0]

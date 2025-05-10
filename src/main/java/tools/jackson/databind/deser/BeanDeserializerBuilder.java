@@ -240,10 +240,10 @@ public class BeanDeserializerBuilder
 
     public void addInjectable(PropertyName propName, JavaType propType,
             Annotations contextAnnotations, AnnotatedMember member,
-            Object valueId)
+            Object valueId, Boolean optional)
     {
         if (_injectables == null) {
-            _injectables = new ArrayList<ValueInjector>();
+            _injectables = new ArrayList<>();
         }
         if ( _config.canOverrideAccessModifiers()) {
             try {
@@ -252,7 +252,7 @@ public class BeanDeserializerBuilder
                 _handleBadAccess(e);
             }
         }
-        _injectables.add(new ValueInjector(propName, propType, member, valueId));
+        _injectables.add(new ValueInjector(propName, propType, member, valueId, optional));
     }
 
     /**
@@ -262,15 +262,13 @@ public class BeanDeserializerBuilder
     public void addIgnorable(String propName)
     {
         if (_ignorableProps == null) {
-            _ignorableProps = new HashSet<String>();
+            _ignorableProps = new HashSet<>();
         }
         _ignorableProps.add(propName);
     }
 
     /**
      * Method that will add property name as one of the properties that will be included.
-     *
-     * @since 2.12
      */
     public void addIncludable(String propName)
     {

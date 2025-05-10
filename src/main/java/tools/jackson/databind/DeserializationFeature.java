@@ -1,5 +1,7 @@
 package tools.jackson.databind;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+
 import tools.jackson.databind.cfg.ConfigFeature;
 import tools.jackson.databind.cfg.MapperBuilder;
 
@@ -234,12 +236,19 @@ public enum DeserializationFeature implements ConfigFeature
      * for binding the full value, and nothing more (except for possible ignorable
      * white space or comments, if supported by data format).
      *<p>
+<<<<<<< HEAD:src/main/java/tools/jackson/databind/DeserializationFeature.java
      * NOTE: this feature should usually be disabled when reading from
      * {@link java.io.DataInput}, since it cannot detect end-of-input efficiently
      * (but by throwing an {@link java.io.IOException}). Disabling is NOT done
      * automatically by Jackson: users are recommended to disable it.
      *<p>
      * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
+=======
+     * Feature is disabled by default (so that no check is made for possible trailing
+     * token(s)) for backwards-compatibility reasons.
+     *
+     * @since 2.9
+>>>>>>> 2.x:src/main/java/com/fasterxml/jackson/databind/DeserializationFeature.java
      */
     FAIL_ON_TRAILING_TOKENS(true),
 
@@ -300,6 +309,21 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is disabled by default to maintain backward compatibility.
      */
     FAIL_ON_UNEXPECTED_VIEW_PROPERTIES(false),
+
+    /**
+     * Feature that determines the handling of injected properties during deserialization.
+     *<p>
+     * When enabled, if an injected property without matching value is encountered
+     * during deserialization,  an exception is thrown.
+     * When disabled, no exception is thrown.
+     * See {@link JacksonInject#optional()} for per-property override
+     * of this setting.
+     *<p>
+     * This feature is enabled by default to maintain backwards-compatibility.
+     *
+     * @see JacksonInject#optional()
+     */
+    FAIL_ON_UNKNOWN_INJECT_VALUE(true),
 
     /*
     /**********************************************************************

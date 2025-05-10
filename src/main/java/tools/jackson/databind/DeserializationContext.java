@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
@@ -14,25 +15,12 @@ import tools.jackson.core.tree.ObjectTreeNode;
 import tools.jackson.core.type.ResolvedType;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.JacksonFeatureSet;
-import tools.jackson.databind.cfg.CoercionAction;
-import tools.jackson.databind.cfg.CoercionInputShape;
-import tools.jackson.databind.cfg.ContextAttributes;
-import tools.jackson.databind.cfg.DatatypeFeature;
-import tools.jackson.databind.cfg.DatatypeFeatures;
+import tools.jackson.databind.cfg.*;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.deser.impl.TypeWrappedDeserializer;
-import tools.jackson.databind.exc.InvalidDefinitionException;
-import tools.jackson.databind.exc.InvalidFormatException;
-import tools.jackson.databind.exc.InvalidTypeIdException;
-import tools.jackson.databind.exc.MismatchedInputException;
-import tools.jackson.databind.exc.UnrecognizedPropertyException;
-import tools.jackson.databind.exc.ValueInstantiationException;
-import tools.jackson.databind.introspect.Annotated;
-import tools.jackson.databind.introspect.AnnotatedClass;
-import tools.jackson.databind.introspect.AnnotatedMember;
-import tools.jackson.databind.introspect.BeanPropertyDefinition;
-import tools.jackson.databind.introspect.ClassIntrospector;
+import tools.jackson.databind.exc.*;
+import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -482,13 +470,19 @@ public abstract class DeserializationContext
     public final JsonParser getParser() { return _parser; }
 
     public final Object findInjectableValue(Object valueId,
-            BeanProperty forProperty, Object beanInstance)
+            BeanProperty forProperty, Object beanInstance, Boolean optional)
     {
         if (_injectableValues == null) {
+            // `optional` comes from property annotation (if any); has precedence
+            // over global setting.
+            if (Boolean.TRUE.equals(optional)
+                    || (optional == null && !isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE))) {
+                return JacksonInject.Value.empty();
+            }
             return reportBadDefinition(ClassUtil.classOf(valueId), String.format(
-"No 'injectableValues' configured, cannot inject value with id [%s]", valueId));
+"No 'injectableValues' configured, cannot inject value with id '%s'", valueId));
         }
-        return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance);
+        return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance, optional);
     }
 
     /**

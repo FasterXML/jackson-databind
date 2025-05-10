@@ -38,14 +38,14 @@ public abstract class ClassIntrospector
      */
 
     /**
-     * Factory method that constructs an introspector that only has
+     * Factory method that introspects a {@link AnnotatedClass} that only has
      * information regarding annotations class itself (or its supertypes) has,
      * but nothing on methods or constructors.
      */
     public abstract AnnotatedClass introspectClassAnnotations(JavaType type);
 
     /**
-     * Factory method that constructs an introspector that only has
+     * Factory method that introspects a {@link AnnotatedClass} that only has
      * information regarding annotations class itself has (but NOT including
      * its supertypes), but nothing on methods or constructors.
      */
@@ -58,21 +58,21 @@ public abstract class ClassIntrospector
      */
 
     /**
-     * Factory method that constructs an introspector that has all
+     * Factory method that introspects a {@code BeanDescription} that has all
      * information needed for serialization purposes.
      */
     public abstract BeanDescription introspectForSerialization(JavaType type,
             AnnotatedClass classDef);
 
     /**
-     * Factory method that constructs an introspector that has all
+     * Factory method that introspects a {@code BeanDescription} that has all
      * information needed for deserialization purposes.
      */
     public abstract BeanDescription introspectForDeserialization(JavaType type,
             AnnotatedClass classDef);
 
     /**
-     * Factory method that constructs an introspector that has all
+     * Factory method that introspects a {@code BeanDescription} that has all
      * information needed for constructing deserializers that use
      * intermediate Builder objects.
      */
@@ -80,7 +80,7 @@ public abstract class ClassIntrospector
             BeanDescription valueTypeDesc);
 
     /**
-     * Factory method that constructs an introspector that has
+     * Factory method that introspects a {@code BeanDescription} that has
      * information necessary for creating instances of given
      * class ("creator"), as well as class annotations, but
      * no information on member methods

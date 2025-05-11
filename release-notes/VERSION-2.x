@@ -14,6 +14,8 @@ Project: jackson-databind
   from 2.20
 #5103: Use `writeStartObject(Object forValue, int size)` for `ObjectNode`
   serialization
+#5151: Add new exception type, `MissingInjectValueException`, to be used
+  for failed `@JacksonInject`
 - Generate SBOMs [JSTEP-14]
 
 2.19.1 (not yet released)

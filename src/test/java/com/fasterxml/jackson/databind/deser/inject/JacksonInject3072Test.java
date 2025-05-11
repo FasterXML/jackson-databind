@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.OptBoolean;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.MissingInjectableValueExcepion;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -66,8 +67,8 @@ class JacksonInject3072Test extends DatabindTestUtil
 
     @Test
     void testMandatoryFieldNotFound() {
-        InvalidDefinitionException exception = assertThrows(
-                InvalidDefinitionException.class, () -> READER.readValue("{}"));
+        MissingInjectableValueExcepion exception = assertThrows(
+                MissingInjectableValueExcepion.class, () -> READER.readValue("{}"));
 
         assertThat(exception.getMessage())
             .startsWith("No 'injectableValues' configured, cannot inject value with id 'id'");
@@ -80,8 +81,8 @@ class JacksonInject3072Test extends DatabindTestUtil
         ObjectReader reader = READER.forType(DtoWithRequired.class)
             .without(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE);
 
-        InvalidDefinitionException exception = assertThrows(
-                InvalidDefinitionException.class, () -> reader.readValue("{}"));
+        MissingInjectableValueExcepion exception = assertThrows(
+                MissingInjectableValueExcepion.class, () -> reader.readValue("{}"));
 
         assertThat(exception.getMessage())
             .startsWith("No 'injectableValues' configured, cannot inject value with id 'requiredValue'");
@@ -91,7 +92,7 @@ class JacksonInject3072Test extends DatabindTestUtil
                 .addValue("id", "idValue"));
 
         exception = assertThrows(
-                    InvalidDefinitionException.class, () -> reader2.readValue("{}"));
+                MissingInjectableValueExcepion.class, () -> reader2.readValue("{}"));
 
         assertThat(exception.getMessage())
              .startsWith("No injectable value with id 'requiredValue' found (for property 'requiredField')");
@@ -108,8 +109,8 @@ class JacksonInject3072Test extends DatabindTestUtil
         ObjectReader reader = READER
                 .with(new InjectableValues.Std());
 
-        InvalidDefinitionException exception = assertThrows(
-                InvalidDefinitionException.class, () -> reader.readValue("{}"));
+        MissingInjectableValueExcepion exception = assertThrows(
+                MissingInjectableValueExcepion.class, () -> reader.readValue("{}"));
 
         assertThat(exception.getMessage())
             .startsWith("No injectable value with id 'id' found (for property 'id')");

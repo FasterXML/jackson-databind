@@ -474,8 +474,9 @@ public abstract class DeserializationContext
                     || (optional == null && !isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE))) {
                 return JacksonInject.Value.empty();
             }
-            return reportBadDefinition(ClassUtil.classOf(valueId), String.format(
-"No 'injectableValues' configured, cannot inject value with id '%s'", valueId));
+            throw missingInjectValueException(String.format(
+"No 'injectableValues' configured, cannot inject value with id '%s'", valueId),
+                    valueId, forProperty, beanInstance);
         }
         return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance, optional);
     }
@@ -2093,6 +2094,16 @@ trailingToken, ClassUtil.nameOf(targetType)
         String msg = String.format("Could not resolve subtype of %s",
                 baseType);
         return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, null);
+    }
+
+    /**
+     * @since 2.20
+     */
+    public JsonMappingException missingInjectValueException(String msg,
+            Object valueId,
+            BeanProperty forProperty, Object beanInstance) {
+        return InvalidDefinitionException.from(_parser, msg,
+                constructType(ClassUtil.classOf(beanInstance)));
     }
 
     /*

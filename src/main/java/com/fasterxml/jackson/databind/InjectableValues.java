@@ -96,9 +96,10 @@ public abstract class InjectableValues
                 if (Boolean.FALSE.equals(optional)
                         || ((optional == null)
                                 && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE))) {
-                    return ctxt.reportBadDefinition(ClassUtil.classOf(valueId), String.format(
-                            "No injectable value with id '" + key + "' " +
-                            "found (for property '" + forProperty.getName() + "')"));
+                    throw ctxt.missingInjectValueException(
+                            String.format("No injectable value with id '%s' found (for property '%s')",
+                            key, forProperty.getName()),
+                            valueId, forProperty, beanInstance);
                 }
             }
             return ob;

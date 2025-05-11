@@ -478,7 +478,7 @@ public abstract class DeserializationContext
 "No 'injectableValues' configured, cannot inject value with id '%s'", valueId),
                     valueId, forProperty, beanInstance);
         }
-        return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance, optional);
+        return _injectableValues.findInjectableValue(this, valueId, forProperty, beanInstance, optional);
     }
 
     /**

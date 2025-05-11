@@ -17,17 +17,19 @@ public abstract class InjectableValues
      * (will be available when injected via field or setter; not available
      * when injected via constructor or factory method argument).
      *
+     * @param ctxt Deserialization context
      * @param valueId Object that identifies value to inject; may be a simple
      *   name or more complex identifier object, whatever provider needs
-     * @param ctxt Deserialization context
      * @param forProperty Bean property in which value is to be injected
      * @param beanInstance Bean instance that contains property to inject,
      *    if available; null if bean has not yet been constructed.
      * @param optional Flag used for configuring the behavior when the value
      *    to inject is not found
      */
-    public Object findInjectableValue(Object valueId, DeserializationContext ctxt,
-            BeanProperty forProperty, Object beanInstance, Boolean optional) throws JsonMappingException
+    public Object findInjectableValue(DeserializationContext ctxt,
+            Object valueId, BeanProperty forProperty, Object beanInstance,
+            Boolean optional)
+        throws JsonMappingException
     {
         // For backwards-compatibility, must delegate to old method
         return findInjectableValue(valueId, ctxt, forProperty, beanInstance);
@@ -80,7 +82,7 @@ public abstract class InjectableValues
          * @since 2.20
          */
         @Override
-        public Object findInjectableValue(Object valueId, DeserializationContext ctxt,
+        public Object findInjectableValue(DeserializationContext ctxt, Object valueId,
                 BeanProperty forProperty, Object beanInstance, Boolean optional)
             throws JsonMappingException
         {
@@ -113,7 +115,7 @@ public abstract class InjectableValues
         public Object findInjectableValue(Object valueId, DeserializationContext ctxt,
                 BeanProperty forProperty, Object beanInstance) throws JsonMappingException
         {
-            return this.findInjectableValue(valueId, ctxt, forProperty, beanInstance, null);
+            return this.findInjectableValue(ctxt, valueId, forProperty, beanInstance, null);
         }
     }
 }

@@ -697,7 +697,8 @@ public class IntrospectorPairTest extends DatabindTestUtil
 
     static class TestInjector extends InjectableValues {
         @Override
-        public Object findInjectableValue(Object valueId, DeserializationContext ctxt,
+        public Object findInjectableValue(DeserializationContext ctxt,
+                Object valueId, 
                 BeanProperty forProperty, Object beanInstance, Boolean optional) {
             if (valueId == "jjj") {
                 UnreadableBean bean = new UnreadableBean();

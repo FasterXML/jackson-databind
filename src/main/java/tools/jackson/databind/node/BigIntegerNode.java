@@ -70,27 +70,37 @@ public class BigIntegerNode
     @Override
     public short shortValue() {
         if (_inShortRange()) {
-            return (short) _value.intValue();
+            return _value.shortValue();
         }
         return _reportShortCoercionRangeFail("shortValue()");
     }
 
     @Override
     public short shortValue(short defaultValue) {
-        return _inShortRange() ? (short) _value.intValue() : defaultValue;
+        return _inShortRange() ? _value.shortValue() : defaultValue;
+    }
+
+    @Override
+    public Optional<Short> shortValueOpt() {
+        return _inShortRange() ? Optional.of(_value.shortValue()) : Optional.empty();
     }
 
     @Override
     public short asShort() {
         if (_inShortRange()) {
-            return (short) _value.intValue();
+            return _value.shortValue();
         }
         return _reportShortCoercionRangeFail("asShort()");
     }
 
     @Override
     public short asShort(short defaultValue) {
-        return _inShortRange() ? (short) _value.intValue() : defaultValue;
+        return _inShortRange() ? _value.shortValue() : defaultValue;
+    }
+
+    @Override
+    public Optional<Short> asShortOpt() {
+        return _inShortRange() ? Optional.of(_value.shortValue()) : Optional.empty();
     }
 
     @Override
@@ -194,6 +204,15 @@ public class BigIntegerNode
     }
 
     @Override
+    public Optional<Float> floatValueOpt() {
+        float f = _asFloatValueUnchecked();
+        if (Float.isFinite(f)) {
+            return Optional.of(f);
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public float asFloat() {
         float f = _asFloatValueUnchecked();
         if (Float.isFinite(f)) {
@@ -206,6 +225,15 @@ public class BigIntegerNode
     public float asFloat(float defaultValue) {
         float f = _asFloatValueUnchecked();
         return (Float.isFinite(f)) ? f : defaultValue;
+    }
+
+    @Override
+    public Optional<Float> asFloatOpt() {
+        float f = _asFloatValueUnchecked();
+        if (Float.isFinite(f)) {
+            return Optional.of(f);
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -227,7 +255,7 @@ public class BigIntegerNode
     public OptionalDouble doubleValueOpt() {
         double d = _asDoubleValueUnchecked();
         if (Double.isFinite(d)) {
-            return OptionalDouble.of(_value.doubleValue());
+            return OptionalDouble.of(d);
         }
         return OptionalDouble.empty();
     }
@@ -251,7 +279,7 @@ public class BigIntegerNode
     public OptionalDouble asDoubleOpt() {
         double d = _asDoubleValueUnchecked();
         if (Double.isFinite(d)) {
-            return OptionalDouble.of(_value.doubleValue());
+            return OptionalDouble.of(d);
         }
         return OptionalDouble.empty();
     }

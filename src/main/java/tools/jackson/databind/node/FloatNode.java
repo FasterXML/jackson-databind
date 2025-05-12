@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
 import java.util.OptionalDouble;
 
 import tools.jackson.core.*;
@@ -73,6 +74,11 @@ public class FloatNode
     }
 
     @Override
+    public Optional<Float> floatValueOpt() {
+        return Optional.of(_value);
+    }
+
+    @Override
     public float asFloat() {
         return _value;
     }
@@ -80,6 +86,11 @@ public class FloatNode
     @Override
     public float asFloat(float defaultValue) {
         return _value;
+    }
+
+    @Override
+    public Optional<Float> asFloatOpt() {
+        return Optional.of(_value);
     }
 
     @Override

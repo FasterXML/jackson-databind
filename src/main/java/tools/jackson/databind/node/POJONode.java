@@ -142,6 +142,26 @@ public class POJONode
         return L.shortValue();
     }
 
+    @Override
+    public Optional<Short> asShortOpt() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return Optional.of((short) 0);
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return Optional.empty();
+        }
+
+        // Then, extract from Number
+        Long L = _extractAsLong();
+        if (L == null || L < Short.MIN_VALUE || L > Short.MAX_VALUE) {
+            return Optional.empty();
+        }
+        return Optional.of(L.shortValue());
+    }
+
     // `intValue()` (etc) fine as defaults (fail); but need to override `asInt()`
 
     @Override
@@ -363,6 +383,26 @@ public class POJONode
             return defaultValue;
         }
         return F;
+    }
+
+    @Override
+    public Optional<Float> asFloatOpt() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return Optional.of(0.0f);
+        }
+
+        // Next, check if the value is NOT a Number
+        if (!(_value instanceof Number)) {
+            return Optional.empty();
+        }
+
+        // Then, extract from Number
+        Float F = _extractAsFloat();
+        if (F == null) {
+            return Optional.empty();
+        }
+        return Optional.of(F);
     }
 
     // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`

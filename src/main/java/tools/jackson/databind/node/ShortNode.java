@@ -73,6 +73,11 @@ public class ShortNode
     public short shortValue(short defaultValue) { return _value; }
 
     @Override
+    public Optional<Short> shortValueOpt() {
+        return Optional.of(_value);
+    }
+
+    @Override
     public short asShort() {
         return _value;
     }
@@ -80,6 +85,11 @@ public class ShortNode
     @Override
     public short asShort(short defaultValue) {
         return _value;
+    }
+
+    @Override
+    public Optional<Short> asShortOpt() {
+        return Optional.of(_value);
     }
 
     @Override
@@ -106,7 +116,6 @@ public class ShortNode
     @Override
     public OptionalInt asIntOpt() {
         return OptionalInt.of(_value);
-
     }
 
     @Override

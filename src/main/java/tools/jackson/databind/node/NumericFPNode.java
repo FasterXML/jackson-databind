@@ -80,6 +80,14 @@ public abstract class NumericFPNode extends NumericNode
     }
 
     @Override
+    public final Optional<Short> shortValueOpt() {
+        if (!_inShortRange() || _hasFractionalPart()) {
+            return Optional.empty();
+        }
+        return Optional.of(_asShortValueUnchecked());
+    }
+
+    @Override
     public short asShort() {
         if (!_inShortRange()) {
             if (isNaN()) {
@@ -96,6 +104,14 @@ public abstract class NumericFPNode extends NumericNode
             return defaultValue;
         }
         return _asShortValueUnchecked();
+    }
+
+    @Override
+    public Optional<Short> asShortOpt() {
+        if (!_inShortRange()) {
+            return Optional.empty();
+        }
+        return Optional.of(_asShortValueUnchecked());
     }
 
     @Override

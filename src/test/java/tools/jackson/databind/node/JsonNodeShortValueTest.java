@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -294,6 +295,7 @@ public class JsonNodeShortValueTest
 
         // and defaulting
         assertEquals(expected, node.shortValue((short) 99));
+        assertEquals(expected, node.shortValueOpt().get());
     }
 
     // // // Shared helper methods
@@ -308,6 +310,7 @@ public class JsonNodeShortValueTest
 
         // assert defaulting
         assertEquals(99, node.shortValue((short) 99));
+        assertEquals(Optional.empty(), node.shortValueOpt());
     }
 
     private void _assertFailShortValueForFraction(JsonNode node) {
@@ -320,6 +323,7 @@ public class JsonNodeShortValueTest
 
         // assert defaulting
         assertEquals(99, node.shortValue((short) 99));
+        assertEquals(Optional.empty(), node.shortValueOpt());
     }
 
     private void _assertFailShortForNonNumber(JsonNode node) {
@@ -332,6 +336,7 @@ public class JsonNodeShortValueTest
 
         // assert defaulting
         assertEquals(99, node.shortValue((short) 99));
+        assertEquals(Optional.empty(), node.shortValueOpt());
     }
 
     // // // Shared helper methods: asShort()
@@ -341,6 +346,7 @@ public class JsonNodeShortValueTest
 
         // and defaulting
         assertEquals(expected, node.asShort((short) 99));
+        assertEquals(expected, node.asShortOpt().get());
     }
 
     private void _assertAsShortFailForValueRange(JsonNode node) {
@@ -354,6 +360,7 @@ public class JsonNodeShortValueTest
 
         // assert defaulting
         assertEquals(99, node.asShort((short) 99));
+        assertFalse(node.asShortOpt().isPresent());
     }
 
     private void _assertAsShortFailForNonNumber(JsonNode node) {
@@ -371,6 +378,7 @@ public class JsonNodeShortValueTest
 
         // assert defaulting
         assertEquals(99, node.asShort((short) 99));
+        assertFalse(node.asShortOpt().isPresent());
     }
 
     private void _assertAsShortFailForNaN(JsonNode node) {
@@ -384,6 +392,7 @@ public class JsonNodeShortValueTest
 
         // Verify default value handling
         assertEquals(99, node.asShort((short) 99));
+        assertFalse(node.asShortOpt().isPresent());
     }
 
 

@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -246,6 +247,7 @@ public class JsonNodeFloatValueTest
 
         // and defaults
         assertEquals(expected, node.floatValue(-9999.5f));
+        assertEquals(expected, node.floatValueOpt().get());
     }
 
     private void _assertFailFloatForValueRange(JsonNode node) {
@@ -257,6 +259,7 @@ public class JsonNodeFloatValueTest
             .contains("value not in 32-bit `float` range");
 
         assertEquals(-2.25f, node.floatValue(-2.25f));
+        assertEquals(Optional.empty(), node.floatValueOpt());
     }
 
     private void _assertFailFloatForNonNumber(JsonNode node) {
@@ -268,6 +271,7 @@ public class JsonNodeFloatValueTest
             .contains("value type not numeric");
 
         assertEquals(-2.25f, node.floatValue(-2.25f));
+        assertEquals(Optional.empty(), node.floatValueOpt());
     }
 
     private void _assertAsFloat(float expected, JsonNode node) {
@@ -275,6 +279,7 @@ public class JsonNodeFloatValueTest
 
         // and defaults
         assertEquals(expected, node.asFloat(-9999.5f));
+        assertEquals(expected, node.asFloatOpt().get());
     }
 
     private void _assertAsFloatFailForValueRange(JsonNode node) {
@@ -287,6 +292,7 @@ public class JsonNodeFloatValueTest
                 .contains("value not in 32-bit `float` range");
 
         assertEquals(-2.25f, node.asFloat(-2.25f));
+        assertEquals(Optional.empty(), node.asFloatOpt());
     }
 
     private void _assertAsFloatFailForNonNumber(JsonNode node) {
@@ -303,6 +309,7 @@ public class JsonNodeFloatValueTest
                 .contains(extraMatch);
 
         assertEquals(1.5f, node.asFloat(1.5f));
+        assertEquals(Optional.empty(), node.asFloatOpt());
     }
 
 }

@@ -55,3 +55,6 @@ Yu Han (@hannyu)
   [3.0.0]
  * Contributed #5153: Improve error handling for numeric values in `POJONode`
   [3.0.0]
+ * Contributed #5158: Add "optional" variants -- shortValueOpt(), floatValueOpt(),
+   asShortOpt(), asFloatOpt()
+  [3.0.0]

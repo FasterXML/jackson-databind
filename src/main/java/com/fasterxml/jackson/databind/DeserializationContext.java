@@ -6,17 +6,14 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
-import com.fasterxml.jackson.databind.cfg.CoercionAction;
-import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
-import com.fasterxml.jackson.databind.cfg.ContextAttributes;
-import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
-import com.fasterxml.jackson.databind.cfg.DatatypeFeatures;
+import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
@@ -25,6 +22,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.exc.MissingInjectableValueExcepion;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -463,15 +461,36 @@ public abstract class DeserializationContext
      */
     public final JsonParser getParser() { return _parser; }
 
+    /**
+     * @since 2.20
+     */
+    public final Object findInjectableValue(Object valueId,
+            BeanProperty forProperty, Object beanInstance, Boolean optional)
+        throws JsonMappingException
+    {
+        if (_injectableValues == null) {
+            // `optional` comes from property annotation (if any); has precedence
+            // over global setting.
+            if (Boolean.TRUE.equals(optional)
+                    || (optional == null && !isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE))) {
+                return JacksonInject.Value.empty();
+            }
+            throw missingInjectableValueException(String.format(
+"No 'injectableValues' configured, cannot inject value with id '%s'", valueId),
+                    valueId, forProperty, beanInstance);
+        }
+        return _injectableValues.findInjectableValue(this, valueId, forProperty, beanInstance, optional);
+    }
+
+    /**
+     * @deprecated in 2.20
+     */
+    @Deprecated // since 2.20
     public final Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance)
         throws JsonMappingException
     {
-        if (_injectableValues == null) {
-            return reportBadDefinition(ClassUtil.classOf(valueId), String.format(
-"No 'injectableValues' configured, cannot inject value with id [%s]", valueId));
-        }
-        return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance);
+        return findInjectableValue(valueId, forProperty, beanInstance, null);
     }
 
     /**
@@ -2076,6 +2095,16 @@ trailingToken, ClassUtil.nameOf(targetType)
         String msg = String.format("Could not resolve subtype of %s",
                 baseType);
         return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, null);
+    }
+
+    /**
+     * @since 2.20
+     */
+    public JsonMappingException missingInjectableValueException(String msg,
+            Object valueId,
+            BeanProperty forProperty, Object beanInstance) {
+        return MissingInjectableValueExcepion.from(_parser, msg,
+                valueId, forProperty, beanInstance);
     }
 
     /*

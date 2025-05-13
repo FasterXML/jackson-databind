@@ -103,7 +103,7 @@ public class CreatorProperty
     {
         this(name, type, wrapperName, typeDeser, contextAnnotations, param, index,
                 (injectableValueId == null) ? null
-                        : JacksonInject.Value.construct(injectableValueId, null),
+                        : JacksonInject.Value.construct(injectableValueId, null, null),
                 metadata);
     }
 

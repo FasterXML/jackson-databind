@@ -6,10 +6,16 @@ Project: jackson-databind
 
 2.20.0 (not yet released)
 
+#3072: Allow specifying `@JacksonInject` does not fail when there's no
+  corresponding value
+ (requested by Lavender S)
+ (contributed by Giulio L)
 #4136: Drop deprecated (in 2.12) `PropertyNamingStrategy` implementations
   from 2.20
 #5103: Use `writeStartObject(Object forValue, int size)` for `ObjectNode`
   serialization
+#5151: Add new exception type, `MissingInjectValueException`, to be used
+  for failed `@JacksonInject`
 - Generate SBOMs [JSTEP-14]
 
 2.19.1 (not yet released)

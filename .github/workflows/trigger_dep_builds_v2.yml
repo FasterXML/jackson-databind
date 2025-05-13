@@ -4,6 +4,8 @@ on:
     secrets:
       token:
         required: true
+permissions:
+  contents: read
 
 jobs:
   trigger-dep-build-v2:
@@ -34,7 +36,7 @@ jobs:
 
     steps:
       - name: Repository dispatch
-        uses: peter-evans/repository-dispatch@v3
+        uses: peter-evans/repository-dispatch@7dae662b47efccf275f551a5df539bd020d3eb5b # v3.0.0
         with:
           token: ${{ secrets.token }}
           repository: ${{ matrix.repo }}

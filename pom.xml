@@ -174,6 +174,16 @@
   <!-- Alas, need to include snapshot reference since otherwise can not find
        snapshot of parent... -->
   <repositories>
+    <!-- 13-May-2025, tatu: and now moving to Central Portal -->
+    <repository>
+      <id>central-snapshots</id>
+      <name>Sonatype Central Portal (snapshots)</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
+      <releases><enabled>false</enabled></releases>
+      <snapshots><enabled>true</enabled></snapshots>
+    </repository>
+
+    <!-- "Old new" for 3.x version pre-2025/05
     <repository>
       <id>sonatype-nexus-snapshots-new</id>
       <name>Sonatype Nexus Snapshots (new)</name>
@@ -181,6 +191,8 @@
       <releases><enabled>false</enabled></releases>
       <snapshots><enabled>true</enabled></snapshots>
     </repository>
+    -->
+
     <!-- and old repo for jackson-annotations -->
     <repository>
       <id>sonatype-nexus-snapshots-old</id>

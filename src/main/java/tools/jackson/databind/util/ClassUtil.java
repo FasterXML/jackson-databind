@@ -3,7 +3,6 @@ package tools.jackson.databind.util;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Stream;

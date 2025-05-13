@@ -755,6 +755,16 @@ public abstract class JsonNode
     public abstract short shortValue(short defaultValue);
 
     /**
+     * Method similar to {@link #shortValue()}, but that will return empty
+     * {@link Optional<Short>} ({@code Optional.empty()}) if this node cannot
+     * be converted to Java {@code short}.
+     *
+     * @return Java {@code short} value this node represents, as {@link Optional<Short>},
+     * if possible to accurately represent; {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<Short> shortValueOpt();
+
+    /**
      * Method similar to {@link #shortValue()} but in addition to coercing Number
      * values (same as {@link #shortValue()}), will also try to coerce a
      * couple of additional types (or cases):
@@ -787,6 +797,16 @@ public abstract class JsonNode
      *   {@code defaultValue} otherwise
      */
     public abstract short asShort(short defaultValue);
+
+    /**
+     * Method similar to {@link #asShort()}, but that will return
+     * ({@code Optional.empty()}) if this node cannot
+     * be coerced to {@code short}.
+     *
+     * @return {@link Optional<Short>} value this node represents,
+     * if possible to accurately represent; {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<Short> asShortOpt();
 
     // // Scalar access: Numbers, Java int
 
@@ -1083,6 +1103,16 @@ public abstract class JsonNode
     public abstract float floatValue(float defaultValue);
 
     /**
+     * Method similar to {@link #floatValue()}, but that will return empty
+     * {@link Optional<Float>} ({@code Optional.empty()}) if this node cannot
+     * be converted to Java {@code float}.
+     *
+     * @return Java {@code float} value this node represents, as {@link Optional<Float>},
+     * if possible to accurately represent; {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<Float> floatValueOpt();
+
+    /**
      * Method similar to {@link #floatValue()} but in addition to coercing Number
      * values will also try coerce couple of additional types:
      * <ul>
@@ -1109,6 +1139,16 @@ public abstract class JsonNode
      * if possible to accurately represent; {@code defaultValue} otherwise
      */
     public abstract float asFloat(float defaultValue);
+
+    /**
+     * Method similar to {@link #asFloat()}, but that will return
+     * ({@code Optional.empty()}) if this node cannot
+     * be coerced to {@code float}.
+     *
+     * @return {@link Optional<Float>} value this node represents,
+     * if possible to accurately represent; {@code Optional.empty()} otherwise
+     */
+    public abstract Optional<Float> asFloatOpt();
 
     // // Scalar access: Numbers, Java double
 

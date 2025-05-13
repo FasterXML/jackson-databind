@@ -97,6 +97,11 @@ public abstract class NumericIntNode extends NumericNode
     }
 
     @Override
+    public Optional<Float> floatValueOpt() {
+        return Optional.of(_asFloatValueUnchecked());
+    }
+
+    @Override
     public float asFloat() {
         return _asFloatValueUnchecked();
     }
@@ -104,6 +109,11 @@ public abstract class NumericIntNode extends NumericNode
     @Override
     public float asFloat(float defaultValue) {
         return _asFloatValueUnchecked();
+    }
+
+    @Override
+    public Optional<Float> asFloatOpt() {
+        return Optional.of(_asFloatValueUnchecked());
     }
 
     @Override

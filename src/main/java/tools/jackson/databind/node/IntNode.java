@@ -96,6 +96,11 @@ public class IntNode
     }
 
     @Override
+    public Optional<Short> shortValueOpt() {
+        return _inShortRange() ? Optional.of((short) _value) : Optional.empty();
+    }
+
+    @Override
     public short asShort() {
         if (_inShortRange()) {
             return (short) _value;
@@ -106,6 +111,11 @@ public class IntNode
     @Override
     public short asShort(short defaultValue) {
         return _inShortRange() ? (short) _value : defaultValue;
+    }
+
+    @Override
+    public Optional<Short> asShortOpt() {
+        return _inShortRange() ? Optional.of((short) _value) : Optional.empty();
     }
 
     @Override
@@ -132,7 +142,6 @@ public class IntNode
     @Override
     public OptionalInt asIntOpt() {
         return OptionalInt.of(_value);
-
     }
 
     @Override

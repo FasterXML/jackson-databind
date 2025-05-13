@@ -282,7 +282,7 @@ public class JsonNodeIntValueTest
         _assertAsIntFailForNonNumber(NODES.pojoNode(Boolean.TRUE));
         _assertAsIntFailForNonNumber(NODES.stringNode("abc"),
                 "value not a valid String representation of `int`");
-        _assertAsIntFailForNonNumber(NODES.pojoNode(123_456_789_000L));
+        _assertAsIntFailForValueRange(NODES.pojoNode(123_456_789_000L));
 
         // Some pass:
         _assertAsInt(123, NODES.stringNode("123"));

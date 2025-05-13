@@ -180,6 +180,12 @@ public class StringNode
     }
 
     @Override
+    public Optional<Short> asShortOpt() {
+        Short S = _tryParseAsShort();
+        return (S == null) ? Optional.empty() : Optional.of(S);
+    }
+
+    @Override
     public int asInt() {
         Integer I = _tryParseAsInteger();
         if (I == null) {
@@ -265,6 +271,12 @@ public class StringNode
     {
         Float F = _tryParseAsFloat();
         return (F == null) ? defaultValue : F;
+    }
+
+    @Override
+    public Optional<Float> asFloatOpt() {
+        Float F = _tryParseAsFloat();
+        return (F == null) ? Optional.empty() : Optional.of(F);
     }
 
     // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`

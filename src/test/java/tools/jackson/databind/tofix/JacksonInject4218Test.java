@@ -36,14 +36,16 @@ class JacksonInject4218Test extends DatabindTestUtil
 
         @Override
         public Object findInjectableValue(
-                Object valueId,
                 DeserializationContext ctxt,
+                Object valueId,
                 BeanProperty forProperty,
-                Object beanInstance) {
+                Object beanInstance,
+                Boolean optional
+        ) {
             if (valueId.equals("id")) {
                 return "id" + nextId++;
             } else {
-                return super.findInjectableValue(valueId, ctxt, forProperty, beanInstance);
+                return super.findInjectableValue(ctxt, valueId, forProperty, beanInstance, optional);
             }
         }
     }

@@ -77,6 +77,11 @@ public class NullNode
         return 0;
     }
 
+    @Override
+    public Optional<Short> asShortOpt() {
+        return Optional.of((short) 0);
+    }
+
     // `intValue()` (etc) fine as defaults (fail); but need to override `asInt()`
 
     @Override
@@ -134,6 +139,11 @@ public class NullNode
     @Override
     public float asFloat(float defaultValue) {
         return asFloat();
+    }
+
+    @Override
+    public Optional<Float> asFloatOpt() {
+        return Optional.of(asFloat());
     }
 
     // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`

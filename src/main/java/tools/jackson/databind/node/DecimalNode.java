@@ -90,6 +90,15 @@ public class DecimalNode
     }
 
     @Override
+    public Optional<Float> floatValueOpt() {
+        float f = _value.floatValue();
+        if (Float.isFinite(f)) {
+            return Optional.of(f);
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public float asFloat() {
         float f = _value.floatValue();
         if (Float.isFinite(f)) {
@@ -105,6 +114,15 @@ public class DecimalNode
             return f;
         }
         return defaultValue;
+    }
+
+    @Override
+    public Optional<Float> asFloatOpt() {
+        float f = _value.floatValue();
+        if (Float.isFinite(f)) {
+            return Optional.of(f);
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -129,7 +147,7 @@ public class DecimalNode
     public OptionalDouble doubleValueOpt() {
         double d = _value.doubleValue();
         if (Double.isFinite(d)) {
-            return OptionalDouble.of(_value.doubleValue());
+            return OptionalDouble.of(d);
         }
         return OptionalDouble.empty();
     }
@@ -156,7 +174,7 @@ public class DecimalNode
     public OptionalDouble asDoubleOpt() {
         double d = _value.doubleValue();
         if (Double.isFinite(d)) {
-            return OptionalDouble.of(_value.doubleValue());
+            return OptionalDouble.of(d);
         }
         return OptionalDouble.empty();
     }
@@ -226,7 +244,7 @@ public class DecimalNode
 
     @Override
     protected boolean _inIntRange() {
-        return _inLongRange() && (_value.compareTo(BD_MIN_INTEGER) >= 0) && (_value.compareTo(BD_MAX_INTEGER) <= 0);
+        return (_value.compareTo(BD_MIN_INTEGER) >= 0) && (_value.compareTo(BD_MAX_INTEGER) <= 0);
     }
 
     @Override

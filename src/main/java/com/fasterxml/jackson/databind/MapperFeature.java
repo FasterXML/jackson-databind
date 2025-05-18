@@ -530,6 +530,38 @@ public enum MapperFeature implements ConfigFeature
     USE_STD_BEAN_NAMING(false),
 
     /**
+     * Feature that determines how to handle property names with mixed capitalization patterns.
+     * This feature specifically addresses cases where getter/setter methods have names that
+     * start with uppercase letters followed by more uppercase letters.
+     * <p>
+     * When enabled, the following rules apply:
+     * <ul>
+     *   <li>For single-letter uppercase prefixes followed by uppercase (like "getIPhone"):
+     *       the first letter is lowercased ("iPhone")</li>
+     *   <li>For multiple uppercase letters at start (like "getKBSBroadCasting" or "getURL"):
+     *       the original case is preserved ("KBSBroadCasting", "URL")</li>
+     * </ul>
+     * <p>
+     * When enabled, overwrites {@link #USE_STD_BEAN_NAMING}.
+     * When disabled, Jackson's standard property naming rules apply using {@link #USE_STD_BEAN_NAMING}.
+     * <p>
+     * Examples with this feature enabled:
+     * <ul>
+     *   <li>"getIPhone" → "iPhone" (single uppercase + uppercase)</li>
+     *   <li>"getDLogHeader" → "dLogHeader" (single uppercase + uppercase)</li>
+     *   <li>"getKBSBroadCasting" → "KBSBroadCasting" (multiple uppercase)</li>
+     *   <li>"getURL" → "URL" (multiple uppercase)</li>
+     *   <li>"getValue" → "value" (standard case, no special handling)</li>
+     * </ul>
+     * <p>
+     * This feature is disabled by default for backward compatibility in Jackson 2.x version and
+     *  will be enabled by default in Jackson 3.0 version.
+     *
+     * @since 2.20
+     */
+    MIXED_CAPS_PROPERTY_NAMING(false),
+
+    /**
      * Feature that when enabled will allow explicitly named properties (i.e., fields or methods
      * annotated with {@link com.fasterxml.jackson.annotation.JsonProperty}("explicitName")) to
      * be re-named by a {@link PropertyNamingStrategy}, if one is configured.

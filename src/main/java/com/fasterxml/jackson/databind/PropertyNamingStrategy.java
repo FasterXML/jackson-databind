@@ -28,11 +28,14 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
  * from methods (as well as lower-cases initial sequence of capitalized
  * characters).
  *<p>
- * NOTE! Since 2.12 sub-classes defined here (as well as static singleton instances thereof)
- * are deprecated due to
+ * NOTE! Since 2.12 up until 2.19, sub-classes defined here (as well as static singleton
+ * instances thereof)
+ * were deprecated due to
  * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>.
+ * They were removed in 2.20.
  * Please use constants and classes in {@link PropertyNamingStrategies} instead.
- *
+ * In particular, {@link PropertyNamingStrategies.NamingBase} is the base class
+ * to use.
  */
 public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     implements java.io.Serializable
@@ -150,6 +153,8 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      */
 
     /*
+     * Replaced by {@link PropertyNamingStrategies.NamingBase}.
+     *
      * @deprecated Since 2.12 deprecated. See
      * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
      * for reasons for deprecation.

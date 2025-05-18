@@ -968,8 +968,13 @@ public abstract class DeserializationContext
      * Method to call in case incoming shape is Object Value (and parser thereby
      * points to {@link com.fasterxml.jackson.core.JsonToken#START_OBJECT} token),
      * but a Scalar value (potentially coercible from String value) is expected.
-     * This would typically be used to deserializer a Number, Boolean value or some other
+     * This would typically be used to deserialize a Number, Boolean value or some other
      * "simple" unstructured value type.
+     *<p>
+     * Note that expected behavior in case of extraction not succeeding changed in
+     * Jackson 2.20: now {@code null} is expected to be returned in that case (in 2.19
+     * and before, exception was to be thrown, but this prevented fallback handling
+     * via {@link DeserializationProblemHandler#handleUnexpectedToken}.
      *
      * @param p Actual parser to read content from
      * @param deser Deserializer that needs extracted String value
@@ -977,8 +982,8 @@ public abstract class DeserializationContext
      *    handles but not always (for example, deserializer for {@code int[]} would pass
      *    scalar type of {@code int})
      *
-     * @return String value found; not {@code null} (exception should be thrown if no suitable
-     *     value found)
+     * @return String value found, if any; {@code null} if none (note: changed in 2.20;
+     *   before that in 2.19 and before exception throwing was expected)
      *
      * @throws IOException If there are problems either reading content (underlying parser
      *    problem) or finding expected scalar value
@@ -987,7 +992,10 @@ public abstract class DeserializationContext
             Class<?> scalarType)
         throws IOException
     {
-        return (String) handleUnexpectedToken(scalarType, p);
+        // 17-May-2025, tatu: [databind#4656] must NOT call `handleUnexpectedToken`
+        //    since that can return value other than {@code String}
+        //return (String) handleUnexpectedToken(scalarType, p);
+        return null;
     }
 
     /*

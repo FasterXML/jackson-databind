@@ -45,7 +45,7 @@ public class DeserializationProblemHandler4656Test extends DatabindTestUtil
     }
 
     // For [databind#4656]
-    @JacksonTestFailureExpected
+//    @JacksonTestFailureExpected
     @Test
     public void testIssue4656() throws Exception {
         ObjectMapper mapper = JsonMapper.builder()

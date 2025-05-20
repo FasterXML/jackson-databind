@@ -12,6 +12,8 @@ Project: jackson-databind
  (contributed by Giulio L)
 #4136: Drop deprecated (in 2.12) `PropertyNamingStrategy` implementations
   from 2.20
+#4656: `DeserializationProblemHandler.handleUnexpectedToken()` cast Object to String
+ (reported by @yacine-pc)
 #5103: Use `writeStartObject(Object forValue, int size)` for `ObjectNode`
   serialization
 #5151: Add new exception type, `MissingInjectValueException`, to be used

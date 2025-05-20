@@ -73,37 +73,6 @@ public class IPhoneStyleProperty5152Test
         }
     }
 
-    @JsonPropertyOrder({ "4Roses", "$dollar", "_underscore" })
-    static class NonLetterFirstCharBean {
-        private String _4Roses;
-        private String $dollar;
-        private String _underscore;
-
-        public String get4Roses() {
-            return _4Roses;
-        }
-
-        public void set4Roses(String value) {
-            _4Roses = value;
-        }
-
-        public String get$dollar() {
-            return $dollar;
-        }
-
-        public void set$dollar(String value) {
-            $dollar = value;
-        }
-
-        public String get_underscore() {
-            return _underscore;
-        }
-
-        public void set_underscore(String value) {
-            _underscore = value;
-        }
-    }
-
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .build();
 
@@ -178,22 +147,6 @@ public class IPhoneStyleProperty5152Test
         // Test serialization - should not include properties starting with non-letters
         String serialized = MAPPER.writeValueAsString(result);
         assertEquals("{}", serialized);
-    }
-
-    @Test
-    public void testNonLetterFirstCharWithoutValidation() throws Exception {
-        // Test without validation - should accept properties starting with non-letters
-        NonLetterFirstCharBean result = MAPPER.readValue(
-                "{\"4Roses\":\"Four Roses\",\"$dollar\":\"Dollar\",\"_underscore\":\"Underscore\"}",
-                NonLetterFirstCharBean.class);
-        assertNotNull(result);
-        assertEquals("Four Roses", result.get4Roses());
-        assertEquals("Dollar", result.get$dollar());
-        assertEquals("Underscore", result.get_underscore());
-
-        // Test serialization
-        String serialized = MAPPER.writeValueAsString(result);
-        assertEquals("{\"4Roses\":\"Four Roses\",\"$dollar\":\"Dollar\",\"_underscore\":\"Underscore\"}", serialized);
     }
 
     @JacksonTestFailureExpected

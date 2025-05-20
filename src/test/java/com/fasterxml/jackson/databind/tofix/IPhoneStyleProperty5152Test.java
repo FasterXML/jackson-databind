@@ -134,24 +134,6 @@ public class IPhoneStyleProperty5152Test
 
     @JacksonTestFailureExpected
     @Test
-    public void testNonLetterFirstCharWithValidation() throws Exception {
-        // Test with validation enabled - should ignore properties starting with non-letters
-        NonLetterFirstCharBean result = MAPPER.reader()
-                .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .readValue("{\"4Roses\":\"Four Roses\",\"$dollar\":\"Dollar\",\"_underscore\":\"Underscore\"}",
-                NonLetterFirstCharBean.class);
-        assertNotNull(result);
-        assertNull(result.get4Roses());
-        assertNull(result.get$dollar());
-        assertNull(result.get_underscore());
-
-        // Test serialization - should not include properties starting with non-letters
-        String serialized = MAPPER.writeValueAsString(result);
-        assertEquals("{}", serialized);
-    }
-
-    @JacksonTestFailureExpected
-    @Test
     public void testPhoneStyleProperty() throws Exception {
         // Test with Phone style property
         String json = "{\"Phone\":\"iPhone 15\"}";

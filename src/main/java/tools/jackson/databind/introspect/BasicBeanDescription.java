@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.cfg.HandlerInstantiator;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.util.Annotations;
@@ -655,26 +654,10 @@ anyField.getName()));
      */
 
     @Override
-    public Class<?> findPOJOBuilder() {
-        return _intr.findPOJOBuilder(_config, _classInfo);
-    }
-
-    @Override
-    public JsonPOJOBuilder.Value findPOJOBuilderConfig()
-    {
-        return _intr.findPOJOBuilderConfig(_config, _classInfo);
-    }
-
-    @Override
     public Converter<Object,Object> findDeserializationConverter()
     {
         return _createConverter(_intr
                         .findDeserializationConverter(_config, _classInfo));
-    }
-
-    @Override
-    public String findClassDescription() {
-        return _intr.findClassDescription(_config, _classInfo);
     }
 
     /*

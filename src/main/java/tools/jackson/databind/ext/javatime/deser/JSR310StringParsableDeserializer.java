@@ -115,15 +115,17 @@ public class JSR310StringParsableDeserializer
         }
         // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
         if (p.isExpectedStartObjectToken()) {
-            return _fromString(p, ctxt,
-                    ctxt.extractScalarFromObject(p, this, handledType()));
-        }
-        if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
+            final String str = ctxt.extractScalarFromObject(p, this, handledType());
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (str != null) {
+                return _fromString(p, ctxt, str);
+            }
+            // fall through
+        } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
             // 20-Apr-2016, tatu: Related to [databind#1208], can try supporting embedded
             //    values quite easily
             return p.getEmbeddedObject();
-        }
-        if (p.isExpectedStartArrayToken()) {
+        } else if (p.isExpectedStartArrayToken()) {
             return _deserializeFromArray(p, ctxt);
         }
         

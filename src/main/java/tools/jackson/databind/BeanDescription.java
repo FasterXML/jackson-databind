@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.util.Annotations;
 import tools.jackson.databind.util.Converter;
@@ -255,12 +254,6 @@ public abstract class BeanDescription
      */
     public abstract Converter<Object,Object> findDeserializationConverter();
 
-    /**
-     * Accessor for possible description for the bean type, used for constructing
-     * documentation.
-     */
-    public String findClassDescription() { return null; }
-
     /*
     /**********************************************************************
     /* Basic API, other
@@ -268,19 +261,6 @@ public abstract class BeanDescription
      */
 
     public abstract Map<Object, AnnotatedMember> findInjectables();
-
-    /**
-     * Method for checking if the POJO type has annotations to
-     * indicate that a builder is to be used for instantiating
-     * instances and handling data binding, instead of standard
-     * bean deserializer.
-     */
-    public abstract Class<?> findPOJOBuilder();
-
-    /**
-     * Method for finding configuration for POJO Builder class.
-     */
-    public abstract JsonPOJOBuilder.Value findPOJOBuilderConfig();
 
     /**
      * Method called to create a "default instance" of the bean, currently

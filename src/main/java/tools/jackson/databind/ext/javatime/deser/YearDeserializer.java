@@ -77,27 +77,30 @@ public class YearDeserializer extends JSR310DateTimeDeserializerBase<Year>
     }
 
     @Override
-    public Year deserialize(JsonParser parser, DeserializationContext context) throws JacksonException
+    public Year deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
-        JsonToken t = parser.currentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_STRING) {
-            return _fromString(parser, context, parser.getString());
+            return _fromString(p, ctxt, p.getString());
+        }
+        if (t == JsonToken.VALUE_NUMBER_INT) {
+            return _fromNumber(ctxt, p.getIntValue());
+        }
+        if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
+            return (Year) p.getEmbeddedObject();
         }
         // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
         if (t == JsonToken.START_OBJECT) {
-            return _fromString(parser, context,
-                    context.extractScalarFromObject(parser, this, handledType()));
+            final String str = ctxt.extractScalarFromObject(p, this, handledType());
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (str != null) {
+                return _fromString(p, ctxt, str);
+            }
+            // fall through
+        } else if (p.hasToken(JsonToken.START_ARRAY)){
+            return _deserializeFromArray(p, ctxt);
         }
-        if (t == JsonToken.VALUE_NUMBER_INT) {
-            return _fromNumber(context, parser.getIntValue());
-        }
-        if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
-            return (Year) parser.getEmbeddedObject();
-        }
-        if (parser.hasToken(JsonToken.START_ARRAY)){
-            return _deserializeFromArray(parser, context);
-        }
-        return _handleUnexpectedToken(context, parser, JsonToken.VALUE_STRING, JsonToken.VALUE_NUMBER_INT);
+        return _handleUnexpectedToken(ctxt, p, JsonToken.VALUE_STRING, JsonToken.VALUE_NUMBER_INT);
     }
 
     protected Year _fromString(JsonParser p, DeserializationContext ctxt,

@@ -311,9 +311,9 @@ ObjcetMapper mapper = JsonMapper.builder()
     // StreamReadFeatures for configuring parsing settings:
 
     // to allow C/C++ style comments in JSON (non-standard, disabled by default)
-    .configure(JsonReadFeature.ALLOW_COMMENTS, true)
+    .configure(JsonReadFeature.ALLOW_JAVA_COMMENTS, true)
     // to allow (non-standard) unquoted field names in JSON:
-    .configure(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES, true)
+    .configure(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES, true)
     // to allow use of apostrophes (single quotes), non standard
     .configure(JsonReadFeature.ALLOW_SINGLE_QUOTES, true)
 

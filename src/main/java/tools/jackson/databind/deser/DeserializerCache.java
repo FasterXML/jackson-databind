@@ -338,7 +338,8 @@ public final class DeserializerCache
         }
 
         // We may also have a Builder type to consider...
-        Class<?> builder = beanDescRef.get().findPOJOBuilder();
+        Class<?> builder = ctxt.getAnnotationIntrospector().findPOJOBuilder(config,
+                beanDescRef.getClassInfo());
         if (builder != null) {
             return (ValueDeserializer<Object>) factory.createBuilderBasedDeserializer(
             		ctxt, type, beanDescRef, builder);

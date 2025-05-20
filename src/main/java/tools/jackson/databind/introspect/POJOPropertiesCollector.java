@@ -610,9 +610,6 @@ System.out.println(" PojoPropsCollector.collectAll() for  "+_classDef.getRawType
         if (_isRecordType) {
             primaryCreator = RecordUtil.findCanonicalRecordConstructor(_config, _classDef, constructors);
         } else {
-            // 02-Nov-2024, tatu: Alas, naming here is confusing: method properly
-            //    should have been "findPrimaryCreator()" so as not to confused with
-            //    0-args default Creators...
             primaryCreator = _annotationIntrospector.findPreferredCreator(_config, _classDef,
                     constructors, factories);
         }

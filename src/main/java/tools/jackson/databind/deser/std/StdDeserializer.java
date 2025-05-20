@@ -354,6 +354,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Boolean.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Boolean) ctxt.handleUnexpectedToken(Boolean.TYPE, p)).booleanValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY:
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
@@ -461,12 +465,16 @@ public abstract class StdDeserializer<T>
             return false;
         case JsonTokenId.ID_NULL: // null fine for non-primitive
             return null;
+        case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
+            return (Boolean) _deserializeFromArray(p, ctxt);
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, targetType);
-            break;
-        case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
-            return (Boolean) _deserializeFromArray(p, ctxt);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text != null) {
+                break;
+            }
+            // fall through
         default:
             return (Boolean) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
         }
@@ -525,6 +533,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Byte.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Byte) ctxt.handleUnexpectedToken(ctxt.constructType(Byte.TYPE), p)).byteValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
@@ -598,6 +610,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Short.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Short) ctxt.handleUnexpectedToken(ctxt.constructType(Short.TYPE), p)).shortValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY:
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
@@ -669,6 +685,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Integer.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Number) ctxt.handleUnexpectedToken(Integer.TYPE, p)).intValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -750,12 +770,16 @@ public abstract class StdDeserializer<T>
             return p.getIntValue();
         case JsonTokenId.ID_NULL: // null fine for non-primitive
             return (Integer) getNullValue(ctxt);
+        case JsonTokenId.ID_START_ARRAY:
+            return (Integer) _deserializeFromArray(p, ctxt);
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, targetType);
-            break;
-        case JsonTokenId.ID_START_ARRAY:
-            return (Integer) _deserializeFromArray(p, ctxt);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text != null) {
+                break;
+            }
+            // fall through
         default:
             return (Integer) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
@@ -820,6 +844,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Long.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Number) ctxt.handleUnexpectedToken(Long.TYPE, p)).longValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -892,12 +920,16 @@ public abstract class StdDeserializer<T>
             return (Long) getNullValue(ctxt);
         case JsonTokenId.ID_NUMBER_INT:
             return p.getLongValue();
+        case JsonTokenId.ID_START_ARRAY:
+            return (Long) _deserializeFromArray(p, ctxt);
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, targetType);
-            break;
-        case JsonTokenId.ID_START_ARRAY:
-            return (Long) _deserializeFromArray(p, ctxt);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text != null) {
+                break;
+            }
+            // fall through
         default:
             return (Long) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
@@ -952,6 +984,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Float.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Number) ctxt.handleUnexpectedToken(Float.TYPE, p)).floatValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -1068,6 +1104,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Double.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Number) ctxt.handleUnexpectedToken(Double.TYPE, p)).doubleValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -1188,12 +1228,16 @@ public abstract class StdDeserializer<T>
             }
         case JsonTokenId.ID_NULL:
             return (java.util.Date) getNullValue(ctxt);
+        case JsonTokenId.ID_START_ARRAY:
+            return _parseDateFromArray(p, ctxt);
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, _valueClass);
-            break;
-        case JsonTokenId.ID_START_ARRAY:
-            return _parseDateFromArray(p, ctxt);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text != null) {
+                break;
+            }
+            // fall through
         default:
             return (java.util.Date) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
@@ -1299,7 +1343,14 @@ public abstract class StdDeserializer<T>
             return ob.toString();
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
-            return ctxt.extractScalarFromObject(p, this, rawTargetType);
+            {
+                String str = ctxt.extractScalarFromObject(p, this, rawTargetType);
+                // 17-May-2025, tatu: [databind#4656] need to check for `null`
+                if (str != null) {
+                    return str;
+                }
+                return (String) ctxt.handleUnexpectedToken(rawTargetType, p);
+            }
         case JsonTokenId.ID_NUMBER_INT:
             act = _checkIntToStringCoercion(p, ctxt, rawTargetType);
             break;

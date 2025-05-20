@@ -164,6 +164,10 @@ class FactoryBasedEnumDeserializer
             //   https://github.com/FasterXML/jackson-databind/issues/4807
             if (t == JsonToken.START_OBJECT) {
                 value = ctxt.extractScalarFromObject(p, this, _valueClass);
+                // 17-May-2025, tatu: [databind#4656] need to check for `null`
+                if (value == null) {
+                    return ctxt.handleUnexpectedToken(_valueClass, p);
+                }
             } else if ((t == null) || !t.isScalarValue()) {
                 // Could argue we should throw an exception but...
                 // 01-Jun-2023, tatu: And now we will finally do it!

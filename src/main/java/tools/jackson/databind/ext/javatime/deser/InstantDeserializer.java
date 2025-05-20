@@ -256,32 +256,36 @@ public class InstantDeserializer<T extends Temporal>
 
     @SuppressWarnings("unchecked")
     @Override
-    public T deserialize(JsonParser parser, DeserializationContext context)
+    public T deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
         //NOTE: Timestamps contain no timezone info, and are always in configured TZ. Only
         //string values have to be adjusted to the configured TZ.
-        switch (parser.currentTokenId())
+        switch (p.currentTokenId())
         {
             case JsonTokenId.ID_NUMBER_FLOAT:
-                return _fromDecimal(context, parser.getDecimalValue());
+                return _fromDecimal(ctxt, p.getDecimalValue());
             case JsonTokenId.ID_NUMBER_INT:
-                return _fromLong(context, parser.getLongValue());
+                return _fromLong(ctxt, p.getLongValue());
             case JsonTokenId.ID_STRING:
-                return _fromString(parser, context, parser.getString());
-            // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
-            case JsonTokenId.ID_START_OBJECT:
-                return _fromString(parser, context,
-                        context.extractScalarFromObject(parser, this, handledType()));
+                return _fromString(p, ctxt, p.getString());
             case JsonTokenId.ID_EMBEDDED_OBJECT:
                 // 20-Apr-2016, tatu: Related to [databind#1208], can try supporting embedded
                 //    values quite easily
-                return (T) parser.getEmbeddedObject();
+                return (T) p.getEmbeddedObject();
 
             case JsonTokenId.ID_START_ARRAY:
-                return _deserializeFromArray(parser, context);
+                return _deserializeFromArray(p, ctxt);
+            // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
+            case JsonTokenId.ID_START_OBJECT:
+                final String str = ctxt.extractScalarFromObject(p, this, handledType());
+                // 17-May-2025, tatu: [databind#4656] need to check for `null`
+                if (str != null) {
+                    return _fromString(p, ctxt, str);
+                }
+                // fall through
         }
-        return _handleUnexpectedToken(context, parser, JsonToken.VALUE_STRING,
+        return _handleUnexpectedToken(ctxt, p, JsonToken.VALUE_STRING,
                 JsonToken.VALUE_NUMBER_INT, JsonToken.VALUE_NUMBER_FLOAT);
     }
 

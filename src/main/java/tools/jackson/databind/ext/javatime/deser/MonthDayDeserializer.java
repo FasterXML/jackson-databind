@@ -58,51 +58,53 @@ public class MonthDayDeserializer extends JSR310DateTimeDeserializerBase<MonthDa
     }
 
     @Override
-    public MonthDay deserialize(JsonParser parser, DeserializationContext context)
+    public MonthDay deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        if (parser.hasToken(JsonToken.VALUE_STRING)) {
-            return _fromString(parser, context, parser.getString());
+        if (p.hasToken(JsonToken.VALUE_STRING)) {
+            return _fromString(p, ctxt, p.getString());
         }
         // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
-        if (parser.isExpectedStartObjectToken()) {
-            return _fromString(parser, context,
-                    context.extractScalarFromObject(parser, this, handledType()));
-        }
-        if (parser.isExpectedStartArrayToken()) {
-            JsonToken t = parser.nextToken();
+        if (p.isExpectedStartObjectToken()) {
+            final String str = ctxt.extractScalarFromObject(p, this, handledType());
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (str != null) {
+                return _fromString(p, ctxt, str);
+            }
+            // fall through
+        } else if (p.isExpectedStartArrayToken()) {
+            JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {
                 return null;
             }
             if ((t == JsonToken.VALUE_STRING || t == JsonToken.VALUE_EMBEDDED_OBJECT)
-                    && context.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                final MonthDay parsed = deserialize(parser, context);
-                if (parser.nextToken() != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(parser, context);
+                    && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                final MonthDay parsed = deserialize(p, ctxt);
+                if (p.nextToken() != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
                 }
                 return parsed;
             }
             if (t != JsonToken.VALUE_NUMBER_INT) {
-                _reportWrongToken(context, JsonToken.VALUE_NUMBER_INT, "month");
+                _reportWrongToken(ctxt, JsonToken.VALUE_NUMBER_INT, "month");
             }
-            int month = parser.getIntValue();
-            int day = parser.nextIntValue(-1);
+            int month = p.getIntValue();
+            int day = p.nextIntValue(-1);
             if (day == -1) {
-                if (!parser.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-                    _reportWrongToken(context, JsonToken.VALUE_NUMBER_INT, "day");
+                if (!p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+                    _reportWrongToken(ctxt, JsonToken.VALUE_NUMBER_INT, "day");
                 }
-                day = parser.getIntValue();
+                day = p.getIntValue();
             }
-            if (parser.nextToken() != JsonToken.END_ARRAY) {
-                throw context.wrongTokenException(parser, handledType(), JsonToken.END_ARRAY,
+            if (p.nextToken() != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
                         "Expected array to end");
             }
             return MonthDay.of(month, day);
+        } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
+            return (MonthDay) p.getEmbeddedObject();
         }
-        if (parser.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
-            return (MonthDay) parser.getEmbeddedObject();
-        }
-        return _handleUnexpectedToken(context, parser,
+        return _handleUnexpectedToken(ctxt, p,
                 JsonToken.VALUE_STRING, JsonToken.START_ARRAY);
     }
 

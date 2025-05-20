@@ -195,8 +195,12 @@ public class EnumDeserializer
         }
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         if (p.isExpectedStartObjectToken()) {
-            return _fromString(p, ctxt,
-                    ctxt.extractScalarFromObject(p, this, _valueClass));
+            String str = ctxt.extractScalarFromObject(p, this, _valueClass);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (str == null) {
+                return ctxt.handleUnexpectedToken(_enumClass(), p);
+            }
+            return _fromString(p, ctxt, str);
         }
         return _deserializeOther(p, ctxt);
     }

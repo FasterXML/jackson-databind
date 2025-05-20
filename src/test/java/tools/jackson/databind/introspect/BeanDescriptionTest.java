@@ -24,6 +24,7 @@ public class BeanDescriptionTest extends DatabindTestUtil
     public void testClassDesc() throws Exception
     {
         BeanDescription beanDesc = ObjectMapperTestAccess.beanDescriptionForDeser(MAPPER, DocumentedBean.class);
-        assertEquals(CLASS_DESC, beanDesc.findClassDescription());
+        assertEquals(CLASS_DESC, MAPPER.deserializationConfig().getAnnotationIntrospector()
+                .findClassDescription(MAPPER.deserializationConfig(), beanDesc.getClassInfo()));
     }
 }

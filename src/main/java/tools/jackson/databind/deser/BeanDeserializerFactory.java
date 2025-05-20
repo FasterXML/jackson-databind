@@ -337,7 +337,8 @@ public class BeanDeserializerFactory
         addBackReferenceProperties(ctxt, builderDescRef, builder);
         addInjectables(ctxt, builderDescRef, builder);
 
-        JsonPOJOBuilder.Value builderConfig = builderDescRef.get().findPOJOBuilderConfig();
+        JsonPOJOBuilder.Value builderConfig = ctxt.getAnnotationIntrospector()
+                .findPOJOBuilderConfig(config, builderDescRef.getClassInfo());
         final String buildMethodName = (builderConfig == null) ?
                 JsonPOJOBuilder.DEFAULT_BUILD_METHOD : builderConfig.buildMethodName;
 

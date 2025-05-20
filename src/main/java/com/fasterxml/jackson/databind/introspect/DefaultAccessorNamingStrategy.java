@@ -73,29 +73,15 @@ public class DefaultAccessorNamingStrategy
         _baseNameValidator = baseNameValidator;
     }
 
-    /**
-     * Common method to handle property name mangling for all accessor types.
-     * First checks for mixed caps handling if enabled, then falls back to standard or legacy handling.
-     */
-    private String handlePropertyName(String name, int prefixLength) {
-        if (_config.isEnabled(MapperFeature.MIXED_CAPS_PROPERTY_NAMING)) {
-            String result = mixedCapsManglePropertyName(name, prefixLength);
-            if (result != null) {
-                return result;
-            }
-        }
-        return _stdBeanNaming
-                ? stdManglePropertyName(name, prefixLength)
-                : legacyManglePropertyName(name, prefixLength);
-    }
-
     @Override
     public String findNameForIsGetter(AnnotatedMethod am, String name)
     {
         if (_isGetterPrefix != null) {
             if (_isGettersNonBoolean || _booleanType(am.getType())) {
                 if (name.startsWith(_isGetterPrefix)) {
-                    return handlePropertyName(name, _isGetterPrefix.length());
+                    return _stdBeanNaming
+                            ? stdManglePropertyName(name, _isGetterPrefix.length())
+                            : legacyManglePropertyName(name, _isGetterPrefix.length());
                 }
             }
         }
@@ -135,7 +121,9 @@ public class DefaultAccessorNamingStrategy
                     return null;
                 }
             }
-            return handlePropertyName(name, _getterPrefix.length());
+            return _stdBeanNaming
+                    ? stdManglePropertyName(name, _getterPrefix.length())
+                    : legacyManglePropertyName(name, _getterPrefix.length());
         }
         return null;
     }
@@ -144,7 +132,9 @@ public class DefaultAccessorNamingStrategy
     public String findNameForMutator(AnnotatedMethod am, String name)
     {
         if ((_mutatorPrefix != null) && name.startsWith(_mutatorPrefix)) {
-            return handlePropertyName(name, _mutatorPrefix.length());
+            return _stdBeanNaming
+                    ? stdManglePropertyName(name, _mutatorPrefix.length())
+                    : legacyManglePropertyName(name, _mutatorPrefix.length());
         }
         return null;
     }
@@ -189,7 +179,6 @@ public class DefaultAccessorNamingStrategy
         if (c == d) {
             return basename.substring(offset);
         }
-
         // otherwise, lower case initial chars. Common case first, just one char
         StringBuilder sb = new StringBuilder(end - offset);
         sb.append(d);
@@ -226,7 +215,6 @@ public class DefaultAccessorNamingStrategy
         if (c0 == c1) {
             return basename.substring(offset);
         }
-
         // 17-Dec-2014, tatu: As per [databind#653], need to follow more
         //   closely Java Beans spec; specifically, if two first are upper-case,
         //   then no lower-casing should be done.
@@ -239,58 +227,6 @@ public class DefaultAccessorNamingStrategy
         sb.append(c1);
         sb.append(basename, offset+1, end);
         return sb.toString();
-    }
-
-    /**
-     * Method that handles mixed caps property naming according to the rules defined in
-     * {@link MapperFeature#MIXED_CAPS_PROPERTY_NAMING}.
-     *
-     * @since 2.20
-     */
-    protected String mixedCapsManglePropertyName(final String basename, final int offset)
-    {
-        final int end = basename.length();
-        if (end == offset) { // empty name, nope
-            return null;
-        }
-        char c = basename.charAt(offset);
-        // 12-Oct-2020, tatu: Additional configurability; allow checking that
-        //    base name is acceptable (currently just by checking first character)
-        if (_baseNameValidator != null) {
-            if (!_baseNameValidator.accept(c, basename, offset)) {
-                return null;
-            }
-        }
-
-        // next check: is the first character upper case? If not, return as is
-        char d = Character.toLowerCase(c);
-
-        if (c == d) {
-            return basename.substring(offset);
-        }
-
-        if (offset + 1 < end) {
-            char nextChar = basename.charAt(offset + 1);
-            if (Character.isUpperCase(nextChar)) {
-                // Count how many uppercase letters we have in a row
-                int upperCount = 2; // We already know first two are uppercase
-                while (offset + upperCount < end && Character.isUpperCase(basename.charAt(offset + upperCount))) {
-                    upperCount++;
-                }
-                
-                // If we have more than 2 uppercase letters in a row, preserve the original case
-                if (upperCount > 2) {
-                    return basename.substring(offset);
-                }
-                
-                // This is a case like IPhone - lowercase first character
-                StringBuilder sb = new StringBuilder(end - offset);
-                sb.append(d);
-                sb.append(basename.substring(offset + 1)); // Keep the rest as is
-                return sb.toString();
-            }
-        }
-        return null;
     }
 
     /*

@@ -1,10 +1,11 @@
-package com.fasterxml.jackson.databind.introspect;
+package com.fasterxml.jackson.databind.tofix;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -103,26 +104,20 @@ public class IPhoneStyleProperty5152Test
         }
     }
 
-    private final ObjectMapper ENABLED = jsonMapperBuilder()
-            .enable(MapperFeature.MIXED_CAPS_PROPERTY_NAMING)
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
             .build();
 
-    private final ObjectMapper ENABLED_WITH_VALIDATION = jsonMapperBuilder()
-            .enable(MapperFeature.MIXED_CAPS_PROPERTY_NAMING)
-            .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
-                    .withFirstCharAcceptance(false, false)) // Don't allow lowercase or non-letter first chars
-            .build();
-
+    @JacksonTestFailureExpected
     @Test
     public void testIPhoneStyleProperty() throws Exception {
         // Test with iPhone style property
         String json = "{\"iPhone\":\"iPhone 15\"}";
-        IPhoneBean result = ENABLED.readValue(json, IPhoneBean.class);
+        IPhoneBean result = MAPPER.readValue(json, IPhoneBean.class);
         assertNotNull(result);
         assertEquals("iPhone 15", result.getIPhone());
 
         // Test serialization
-        String serialized = ENABLED.writeValueAsString(result);
+        String serialized = MAPPER.writeValueAsString(result);
         assertEquals("{\"iPhone\":\"iPhone 15\"}", serialized);
     }
 
@@ -130,46 +125,48 @@ public class IPhoneStyleProperty5152Test
     public void testRegularPojoProperty() throws Exception {
         // Test with regular POJO property
         String json = "{\"phoneNumber\":\"123-456-7890\"}";
-        RegularBean result = ENABLED.readValue(json, RegularBean.class);
+        RegularBean result = MAPPER.readValue(json, RegularBean.class);
         assertNotNull(result);
         assertEquals("123-456-7890", result.getPhoneNumber());
 
         // Test serialization
-        String serialized = ENABLED.writeValueAsString(result);
+        String serialized = MAPPER.writeValueAsString(result);
         assertEquals("{\"phoneNumber\":\"123-456-7890\"}", serialized);
     }
 
-
+    @JacksonTestFailureExpected
     @Test
     public void testDLogHeaderStyleProperty() throws Exception {
         // Test with DLogHeader style property
         String json = "{\"dLogHeader\":\"Debug Log Header\"}";
-        DLogHeaderBean result = ENABLED.readValue(json, DLogHeaderBean.class);
+        DLogHeaderBean result = MAPPER.readValue(json, DLogHeaderBean.class);
         assertNotNull(result);
         assertEquals("Debug Log Header", result.getDLogHeader());
 
         // Test serialization
-        String serialized = ENABLED.writeValueAsString(result);
+        String serialized = MAPPER.writeValueAsString(result);
         assertEquals("{\"dLogHeader\":\"Debug Log Header\"}", serialized);
     }
 
+    @JacksonTestFailureExpected
     @Test
     public void testKBSBroadCastingStyleProperty() throws Exception {
         // Test with KBSBroadCasting style property
         String json = "{\"KBSBroadCasting\":\"Korean Broadcasting System\"}";
-        KBSBroadCastingBean result = ENABLED.readValue(json, KBSBroadCastingBean.class);
+        KBSBroadCastingBean result = MAPPER.readValue(json, KBSBroadCastingBean.class);
         assertNotNull(result);
         assertEquals("Korean Broadcasting System", result.getKBSBroadCasting());
 
         // Test serialization
-        String serialized = ENABLED.writeValueAsString(result);
+        String serialized = MAPPER.writeValueAsString(result);
         assertEquals("{\"KBSBroadCasting\":\"Korean Broadcasting System\"}", serialized);
     }
 
+    @JacksonTestFailureExpected
     @Test
     public void testNonLetterFirstCharWithValidation() throws Exception {
         // Test with validation enabled - should ignore properties starting with non-letters
-        NonLetterFirstCharBean result = ENABLED_WITH_VALIDATION.reader()
+        NonLetterFirstCharBean result = MAPPER.reader()
                 .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .readValue("{\"4Roses\":\"Four Roses\",\"$dollar\":\"Dollar\",\"_underscore\":\"Underscore\"}",
                 NonLetterFirstCharBean.class);
@@ -179,14 +176,14 @@ public class IPhoneStyleProperty5152Test
         assertNull(result.get_underscore());
 
         // Test serialization - should not include properties starting with non-letters
-        String serialized = ENABLED_WITH_VALIDATION.writeValueAsString(result);
+        String serialized = MAPPER.writeValueAsString(result);
         assertEquals("{}", serialized);
     }
 
     @Test
     public void testNonLetterFirstCharWithoutValidation() throws Exception {
         // Test without validation - should accept properties starting with non-letters
-        NonLetterFirstCharBean result = ENABLED.readValue(
+        NonLetterFirstCharBean result = MAPPER.readValue(
                 "{\"4Roses\":\"Four Roses\",\"$dollar\":\"Dollar\",\"_underscore\":\"Underscore\"}",
                 NonLetterFirstCharBean.class);
         assertNotNull(result);
@@ -195,20 +192,21 @@ public class IPhoneStyleProperty5152Test
         assertEquals("Underscore", result.get_underscore());
 
         // Test serialization
-        String serialized = ENABLED.writeValueAsString(result);
+        String serialized = MAPPER.writeValueAsString(result);
         assertEquals("{\"4Roses\":\"Four Roses\",\"$dollar\":\"Dollar\",\"_underscore\":\"Underscore\"}", serialized);
     }
 
+    @JacksonTestFailureExpected
     @Test
     public void testPhoneStyleProperty() throws Exception {
         // Test with Phone style property
         String json = "{\"Phone\":\"iPhone 15\"}";
-        PhoneBean result = ENABLED.readValue(json, PhoneBean.class);
+        PhoneBean result = MAPPER.readValue(json, PhoneBean.class);
         assertNotNull(result);
         assertEquals("iPhone 15", result.getPhone());
 
         // Test serialization
-        String serialized = ENABLED.writeValueAsString(result);
+        String serialized = MAPPER.writeValueAsString(result);
         assertEquals("{\"Phone\":\"iPhone 15\"}", serialized);
     }
 

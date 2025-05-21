@@ -17,14 +17,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.cfg.SerializerFactoryConfig;
 import tools.jackson.databind.ext.OptionalHandlerFactory;
-import tools.jackson.databind.ext.jdk8.DoubleStreamSerializer;
-import tools.jackson.databind.ext.jdk8.IntStreamSerializer;
-import tools.jackson.databind.ext.jdk8.Jdk8OptionalSerializer;
-import tools.jackson.databind.ext.jdk8.Jdk8StreamSerializer;
-import tools.jackson.databind.ext.jdk8.LongStreamSerializer;
-import tools.jackson.databind.ext.jdk8.OptionalDoubleSerializer;
-import tools.jackson.databind.ext.jdk8.OptionalIntSerializer;
-import tools.jackson.databind.ext.jdk8.OptionalLongSerializer;
+import tools.jackson.databind.ext.jdk8.*;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.jackson.JacksonSerializableSerializer;
@@ -319,7 +312,8 @@ public abstract class BasicSerializerFactory
         }
 
         if (type.isTypeOrSubTypeOf(Number.class)) {
-            JsonFormat.Value format = _calculateEffectiveFormat(beanDescRef, Number.class, formatOverrides);
+            JsonFormat.Value format = _calculateEffectiveFormat(ctxt,
+                    beanDescRef, Number.class, formatOverrides);
 
             // 21-May-2014, tatu: Couple of alternatives actually
             switch (format.getShape()) {
@@ -338,7 +332,7 @@ public abstract class BasicSerializerFactory
             JavaType kt = mapEntryType.containedTypeOrUnknown(0);
             JavaType vt = mapEntryType.containedTypeOrUnknown(1);
             return buildMapEntrySerializer(ctxt, type, beanDescRef,
-                    _calculateEffectiveFormat(beanDescRef, Map.Entry.class, formatOverrides),
+                    _calculateEffectiveFormat(ctxt, beanDescRef, Map.Entry.class, formatOverrides),
                     staticTyping, kt, vt);
         }
         if (ByteBuffer.class.isAssignableFrom(raw)) {
@@ -580,7 +574,8 @@ public abstract class BasicSerializerFactory
             }
         }
 
-        JsonFormat.Value format = _calculateEffectiveFormat(beanDescRef, Collection.class, formatOverrides);
+        JsonFormat.Value format = _calculateEffectiveFormat(ctxt,
+                beanDescRef, Collection.class, formatOverrides);
         if (ser == null) {
             ser = findSerializerByAnnotations(ctxt, type, beanDescRef); // (2) Annotations
             if (ser == null) {
@@ -672,7 +667,8 @@ public abstract class BasicSerializerFactory
             boolean staticTyping, ValueSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
     {
-        JsonFormat.Value format = _calculateEffectiveFormat(beanDescRef, Map.class, formatOverrides);
+        JsonFormat.Value format = _calculateEffectiveFormat(ctxt,
+                beanDescRef, Map.class, formatOverrides);
 
         // [databind#467]: This is where we could allow serialization "as POJO": But! It's
         // nasty to undo, and does not apply on per-property basis. So, hardly optimal
@@ -1135,10 +1131,11 @@ public abstract class BasicSerializerFactory
      *
      * @since 3.0
      */
-    protected JsonFormat.Value _calculateEffectiveFormat(BeanDescription.Supplier beanDescRef,
+    protected JsonFormat.Value _calculateEffectiveFormat(SerializationContext ctxt,
+            BeanDescription.Supplier beanDescRef,
             Class<?> baseType, JsonFormat.Value formatOverrides)
     {
-        JsonFormat.Value fromType = beanDescRef.get().findExpectedFormat(baseType);
+        JsonFormat.Value fromType = beanDescRef.findExpectedFormat(baseType);
         if (formatOverrides == null) {
             return fromType;
         }

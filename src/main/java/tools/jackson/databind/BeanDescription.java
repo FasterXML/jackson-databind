@@ -35,8 +35,8 @@ public abstract class BeanDescription
         _type = type;
     }
 
-    public BeanDescription.Supplier supplier() {
-        return new EagerSupplier(this);
+    public BeanDescription.Supplier supplier(MapperConfig<?> config) {
+        return new EagerSupplier(config, this);
     }
 
     /*
@@ -227,12 +227,6 @@ public abstract class BeanDescription
      */
     public abstract JsonInclude.Value findPropertyInclusion(JsonInclude.Value defValue);
 
-    /**
-     * Method for checking what is the expected format for POJO, as
-     * defined by possible annotations and possible per-type config overrides.
-     */
-    public abstract JsonFormat.Value findExpectedFormat(Class<?> baseType);
-
     /*
     /**********************************************************************
     /* Basic API, other
@@ -282,11 +276,12 @@ public abstract class BeanDescription
 
         boolean isRecordType();
 
-        JsonFormat.Value findExpectedFormat(MapperConfig<?> config, Class<?> baseType);
+        JsonFormat.Value findExpectedFormat(Class<?> baseType);
     }
 
     protected static abstract class SupplierBase implements Supplier
     {
+        protected final MapperConfig<?> _config;
         protected final JavaType _type;
 
         /**
@@ -294,7 +289,8 @@ public abstract class BeanDescription
          */
         protected transient JsonFormat.Value _classFormat;
 
-        protected SupplierBase(JavaType type) {
+        protected SupplierBase(MapperConfig<?> config, JavaType type) {
+             _config = config;
              _type = type;
         }
 
@@ -312,18 +308,18 @@ public abstract class BeanDescription
         // // // Introspection
 
         @Override
-        public JsonFormat.Value findExpectedFormat(MapperConfig<?> config, Class<?> baseType)
+        public JsonFormat.Value findExpectedFormat(Class<?> baseType)
         {
             JsonFormat.Value v0 = _classFormat;
             if (v0 == null) { // copied from above
-                v0 = config.getAnnotationIntrospector().findFormat(config,
+                v0 = _config.getAnnotationIntrospector().findFormat(_config,
                         getClassInfo());
                 if (v0 == null) {
                     v0 = JsonFormat.Value.empty();
                 }
                 _classFormat = v0;
             }
-            JsonFormat.Value v1 = config.getDefaultPropertyFormat(baseType);
+            JsonFormat.Value v1 = _config.getDefaultPropertyFormat(baseType);
             if (v1 == null) {
                 return v0;
             }
@@ -340,8 +336,8 @@ public abstract class BeanDescription
 
         protected transient BeanDescription _beanDesc;
 
-        protected LazySupplier(JavaType type) {
-            super(type);
+        protected LazySupplier(MapperConfig<?> config, JavaType type) {
+            super(config, type);
         }
 
         // // Entity accessors:
@@ -385,8 +381,8 @@ public abstract class BeanDescription
     {
         protected final BeanDescription _beanDesc;
 
-        public EagerSupplier(BeanDescription beanDesc) {
-            super(beanDesc.getType());
+        public EagerSupplier(MapperConfig<?> config, BeanDescription beanDesc) {
+            super(config, beanDesc.getType());
             _beanDesc = beanDesc;
         }
 

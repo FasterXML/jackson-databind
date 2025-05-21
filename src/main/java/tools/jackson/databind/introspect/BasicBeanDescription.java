@@ -372,28 +372,6 @@ anyField.getName()));
      */
 
     @Override
-    public JsonFormat.Value findExpectedFormat(Class<?> baseType)
-    {
-        JsonFormat.Value v0 = _classFormat;
-        if (v0 == null) { // copied from above
-            // 18-Apr-2018, tatu: Bit unclean but apparently `_config` is `null` for
-            //   a small set of pre-discovered simple types that `BasicClassIntrospector`
-            //   may expose. If so, nothing we can do
-            v0 = (_config == null) ? null
-                    : _intr.findFormat(_config, _classInfo);
-            if (v0 == null) {
-                v0 = JsonFormat.Value.empty();
-            }
-            _classFormat = v0;
-        }
-        JsonFormat.Value v1 = _config.getDefaultPropertyFormat(baseType);
-        if (v1 == null) {
-            return v0;
-        }
-        return JsonFormat.Value.merge(v0, v1);
-    }
-
-    @Override
     public Class<?>[] findDefaultViews()
     {
         if (!_defaultViewsResolved) {

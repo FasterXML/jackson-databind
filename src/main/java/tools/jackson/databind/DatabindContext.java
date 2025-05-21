@@ -319,7 +319,7 @@ public abstract class DatabindContext
            AnnotatedClass classDef);
 
     public BeanDescription.Supplier lazyIntrospectBeanDescription(JavaType type) {
-         return new BeanDescription.LazySupplier(type) {
+         return new BeanDescription.LazySupplier(getConfig(), type) {
              @Override
              protected BeanDescription _construct(JavaType forType, AnnotatedClass ac) {
 // System.out.println("lazyIntrospectBeanDescription.beanDesc("+forType+")");

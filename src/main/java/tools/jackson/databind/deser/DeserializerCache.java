@@ -382,7 +382,7 @@ public final class DeserializerCache
                 // Ideally we'd determine it bit later on (to allow custom handler checks)
                 // but that won't work for other reasons. So do it here.
                 // (read: rewrite for 3.0)
-                JsonFormat.Value format = beanDescRef.get().findExpectedFormat(type.getRawClass());
+                JsonFormat.Value format = beanDescRef.findExpectedFormat(type.getRawClass());
                 if (format.getShape() != JsonFormat.Shape.POJO) {
                     MapLikeType mlt = (MapLikeType) type;
                     if (mlt instanceof MapType) {
@@ -392,11 +392,10 @@ public final class DeserializerCache
                 }
             }
             if (type.isCollectionLikeType()) {
-                /* One exception is if shape is to be Shape.POJO (or, as alias, OBJECT).
-                 * Ideally we'd determine it bit later on (to allow custom handler checks),
-                 * but that won't work for other reasons. So do it here.
-                 */
-                JsonFormat.Value format = beanDescRef.get().findExpectedFormat(type.getRawClass());
+                // One exception is if shape is to be Shape.POJO (or, as alias, OBJECT).
+                // Ideally we'd determine it bit later on (to allow custom handler checks),
+                // but that won't work for other reasons. So do it here.
+                JsonFormat.Value format = beanDescRef.findExpectedFormat(type.getRawClass());
                 if (format.getShape() != JsonFormat.Shape.POJO) {
                     CollectionLikeType clt = (CollectionLikeType) type;
                     if (clt instanceof CollectionType) {

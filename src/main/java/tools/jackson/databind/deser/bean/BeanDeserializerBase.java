@@ -247,7 +247,7 @@ public abstract class BeanDeserializerBase
             ;
 
         // Any transformation we may need to apply?
-        _serializationShape = beanDescRef.get().findExpectedFormat(_beanType.getRawClass()).getShape();
+        _serializationShape = beanDescRef.findExpectedFormat(_beanType.getRawClass()).getShape();
 
         _needViewProcesing = hasViews;
         _vanillaProcessing = !_nonStandardCreation

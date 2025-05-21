@@ -20,9 +20,10 @@ public class Reflection4907Jackson3Test extends DatabindTestUtil
         public SqlDatePojo() {
         }
 
-        public SqlDatePojo(String name, java.sql.Date date) {
+        public SqlDatePojo(String name, java.sql.Date date, String... tags) {
             this.name = name;
             this.date = date;
+            this.tags = Arrays.asList(tags);
         }
         
         public SqlDatePojo(java.sql.Date date) {
@@ -44,7 +45,6 @@ public class Reflection4907Jackson3Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    /*
     @Test
     public void test4907ReadPojo() throws Exception {
 System.err.println("<testReadPojo>");
@@ -58,11 +58,11 @@ System.err.println("</testReadPojo>");
     public void test4907WritePojo() throws Exception {
 System.err.println("<testWritePojo>");
          String json = MAPPER.writeValueAsString(new SqlDatePojo("foobar",
-                 java.sql.Date.valueOf("2000-01-01")));
+                 java.sql.Date.valueOf("2000-01-01"), "abc", "def"));
  System.err.println("</testWritePojo>");
          assertNotNull(json);
     }
-    */
+    /*
 
     @Test
     public void test4907ReadTags() throws Exception {
@@ -80,6 +80,7 @@ System.err.println("<testWriteTags>");
  System.err.println("</testWriteTags>");
          assertNotNull(json);
     }
+    */
 
     /*
     @Test

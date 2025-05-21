@@ -1,7 +1,5 @@
 package tools.jackson.databind.ser;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -50,51 +48,6 @@ public abstract class BasicSerializerFactory
     extends SerializerFactory
     implements java.io.Serializable
 {
-    /*
-    /**********************************************************************
-    /* Configuration, lookup tables/maps
-    /**********************************************************************
-     */
-
-    /**
-     * Since these are all JDK classes, we shouldn't have to worry
-     * about ClassLoader used to load them. Rather, we can just
-     * use the class name, and keep things simple and efficient.
-     */
-    protected final static HashMap<String, ValueSerializer<?>> _concrete;
-
-    static {
-        HashMap<String, ValueSerializer<?>> concrete
-            = new HashMap<String, ValueSerializer<?>>();
-
-
-        /* String and string-like types (note: date types explicitly
-         * not included -- can use either textual or numeric serialization)
-         */
-        concrete.put(String.class.getName(), StringSerializer.instance);
-        final ToStringSerializer sls = ToStringSerializer.instance;
-        concrete.put(StringBuffer.class.getName(), sls);
-        concrete.put(StringBuilder.class.getName(), sls);
-        concrete.put(Character.class.getName(), sls);
-        concrete.put(Character.TYPE.getName(), sls);
-
-        // Primitives/wrappers for primitives (primitives needed for Beans)
-        NumberSerializers.addAll(concrete);
-        concrete.put(Boolean.TYPE.getName(), new BooleanSerializer(true));
-        concrete.put(Boolean.class.getName(), new BooleanSerializer(false));
-
-        // Other numbers, more complicated
-        concrete.put(BigInteger.class.getName(), new NumberSerializer(BigInteger.class));
-        concrete.put(BigDecimal.class.getName(), new NumberSerializer(BigDecimal.class));
-
-        // Other discrete non-container types:
-        // First, Date/Time zoo:
-        concrete.put(Calendar.class.getName(), JavaUtilCalendarSerializer.instance);
-        concrete.put(java.util.Date.class.getName(), JavaUtilDateSerializer.instance);
-
-        _concrete = concrete;
-    }
-
     /*
     /**********************************************************************
     /* Configuration
@@ -277,26 +230,9 @@ public abstract class BasicSerializerFactory
 
     /*
     /**********************************************************************
-    /* Overridable secondary serializer accessor methods
+    /* Secondary serializer accessor methods
     /**********************************************************************
      */
-
-    /**
-     * Method that will use fast lookup (and identity comparison) methods to
-     * see if we know serializer to use for given type.
-     */
-    protected final ValueSerializer<?> findSerializerByLookup(JavaType type,
-            SerializationConfig config, BeanDescription.Supplier beanDescRef,
-            JsonFormat.Value format, boolean staticTyping)
-    {
-        final Class<?> raw = type.getRawClass();
-        ValueSerializer<?> ser = JDKMiscSerializers.find(raw);
-        if (ser == null) {
-            final String clsName = raw.getName();
-            ser = _concrete.get(clsName);
-        }
-        return ser;
-    }
 
     /**
      * Method called to see if one of primary per-class annotations
@@ -347,6 +283,20 @@ public abstract class BasicSerializerFactory
             JavaType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
             boolean staticTyping)
     {
+        // First: simple lookups for concrete types
+        final Class<?> raw = type.getRawClass();
+        ValueSerializer<?> ser;
+        
+        if ((ser = JDKCoreSerializers.find(raw)) != null) {
+             return ser;
+        }
+        if ((ser = JDKStringLikeSerializer.find(raw)) != null) {
+             return ser;
+        }
+        if ((ser = JDKMiscSerializers.find(raw)) != null) {
+             return ser;
+        }
+
         if (type.isTypeOrSubTypeOf(Calendar.class)) {
             return JavaUtilCalendarSerializer.instance;
         }
@@ -354,8 +304,7 @@ public abstract class BasicSerializerFactory
             // 06-Nov-2020, tatu: Strange precedence challenge; need to consider
             //   "java.sql.Date" unfortunately
             if (!type.hasRawClass(Date.class)) {
-                ValueSerializer<?> ser = OptionalHandlerFactory.instance.findSerializer(ctxt.getConfig(), type);
-                if (ser != null) {
+                if ((ser = OptionalHandlerFactory.instance.findSerializer(ctxt.getConfig(), type) ) != null) {
                     return ser;
                 }
             }
@@ -382,12 +331,7 @@ public abstract class BasicSerializerFactory
             }
             return NumberSerializer.instance;
         }
-        if (type.isEnumType()) {
-            return buildEnumSerializer(ctxt, type, beanDescRef,
-                    _calculateEffectiveFormat(beanDescRef, Enum.class, formatOverrides));
-        }
-        Class<?> raw = type.getRawClass();
-        if (Map.Entry.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(Map.Entry.class)) {
             // 18-Oct-2015, tatu: With 2.7, need to dig type info:
             JavaType mapEntryType = type.findSuperType(Map.Entry.class);
             // 28-Apr-2015, tatu: TypeFactory does it all for us already so

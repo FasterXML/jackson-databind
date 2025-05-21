@@ -10,7 +10,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.std.StdConvertingDeserializer;
 import tools.jackson.databind.introspect.Annotated;
-import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.type.*;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.Converter;
@@ -325,29 +324,29 @@ public final class DeserializerCache
         }
         BeanDescription.Supplier beanDescRef = ctxt.lazyIntrospectBeanDescription(type);
         // Then: does type define explicit deserializer to use, with annotation(s)?
-        AnnotatedClass ac = beanDescRef.getClassInfo();
-        ValueDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt, ac);
+        ValueDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt,
+                beanDescRef.getClassInfo());
         if (deser != null) {
             return deser;
         }
 
         // If not, may have further type-modification annotations to check:
-        JavaType newType = modifyTypeByAnnotation(ctxt, ac, type);
+        JavaType newType = modifyTypeByAnnotation(ctxt, beanDescRef.getClassInfo(), type);
         if (newType != type) {
             type = newType;
             beanDescRef = ctxt.lazyIntrospectBeanDescription(newType);
-            ac = beanDescRef.getClassInfo();
         }
 
         // We may also have a Builder type to consider...
-        Class<?> builder = ctxt.getAnnotationIntrospector().findPOJOBuilder(config, ac);
+        Class<?> builder = ctxt.getAnnotationIntrospector().findPOJOBuilder(config,
+                beanDescRef.getClassInfo());
         if (builder != null) {
             return (ValueDeserializer<Object>) factory.createBuilderBasedDeserializer(
             		ctxt, type, beanDescRef, builder);
         }
 
         // Or perhaps a Converter?
-        Converter<Object,Object> conv = config.findDeserializationConverter(ac);
+        Converter<Object,Object> conv = config.findDeserializationConverter(beanDescRef.getClassInfo());
         if (conv != null) {
             // otherwise need to do bit of introspection
             JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());

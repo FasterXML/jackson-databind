@@ -1,7 +1,5 @@
 package tools.jackson.databind.ser;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -50,51 +48,6 @@ public abstract class BasicSerializerFactory
     extends SerializerFactory
     implements java.io.Serializable
 {
-    /*
-    /**********************************************************************
-    /* Configuration, lookup tables/maps
-    /**********************************************************************
-     */
-
-    /**
-     * Since these are all JDK classes, we shouldn't have to worry
-     * about ClassLoader used to load them. Rather, we can just
-     * use the class name, and keep things simple and efficient.
-     */
-    protected final static HashMap<String, ValueSerializer<?>> _concrete;
-
-    static {
-        HashMap<String, ValueSerializer<?>> concrete
-            = new HashMap<String, ValueSerializer<?>>();
-
-
-        /* String and string-like types (note: date types explicitly
-         * not included -- can use either textual or numeric serialization)
-         */
-        concrete.put(String.class.getName(), StringSerializer.instance);
-        final ToStringSerializer sls = ToStringSerializer.instance;
-        concrete.put(StringBuffer.class.getName(), sls);
-        concrete.put(StringBuilder.class.getName(), sls);
-        concrete.put(Character.class.getName(), sls);
-        concrete.put(Character.TYPE.getName(), sls);
-
-        // Primitives/wrappers for primitives (primitives needed for Beans)
-        NumberSerializers.addAll(concrete);
-        concrete.put(Boolean.TYPE.getName(), new BooleanSerializer(true));
-        concrete.put(Boolean.class.getName(), new BooleanSerializer(false));
-
-        // Other numbers, more complicated
-        concrete.put(BigInteger.class.getName(), new NumberSerializer(BigInteger.class));
-        concrete.put(BigDecimal.class.getName(), new NumberSerializer(BigDecimal.class));
-
-        // Other discrete non-container types:
-        // First, Date/Time zoo:
-        concrete.put(Calendar.class.getName(), JavaUtilCalendarSerializer.instance);
-        concrete.put(java.util.Date.class.getName(), JavaUtilDateSerializer.instance);
-
-        _concrete = concrete;
-    }
-
     /*
     /**********************************************************************
     /* Configuration
@@ -277,7 +230,7 @@ public abstract class BasicSerializerFactory
 
     /*
     /**********************************************************************
-    /* Overridable secondary serializer accessor methods
+    /* Secondary serializer accessor methods
     /**********************************************************************
      */
 
@@ -290,10 +243,12 @@ public abstract class BasicSerializerFactory
             JsonFormat.Value format, boolean staticTyping)
     {
         final Class<?> raw = type.getRawClass();
-        ValueSerializer<?> ser = JDKMiscSerializers.find(raw);
+        ValueSerializer<?> ser = JDKCoreSerializers.find(raw);
         if (ser == null) {
-            final String clsName = raw.getName();
-            ser = _concrete.get(clsName);
+            ser = JDKStringLikeSerializer.find(raw);
+            if (ser == null) {
+                ser = JDKMiscSerializers.find(raw);
+            }
         }
         return ser;
     }
@@ -381,10 +336,6 @@ public abstract class BasicSerializerFactory
             default:
             }
             return NumberSerializer.instance;
-        }
-        if (type.isEnumType()) {
-            return buildEnumSerializer(ctxt, type, beanDescRef,
-                    _calculateEffectiveFormat(beanDescRef, Enum.class, formatOverrides));
         }
         Class<?> raw = type.getRawClass();
         if (Map.Entry.class.isAssignableFrom(raw)) {

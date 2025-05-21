@@ -26,10 +26,6 @@ public class JDKMiscSerializers
      */
     public static final ValueSerializer<?> find(Class<?> raw)
     {
-        ValueSerializer<?> ser = JDKStringLikeSerializer.find(raw);
-        if (ser != null) {
-            return ser;
-        }
         if (raw == UUID.class) {
             return new UUIDSerializer();
         }

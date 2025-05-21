@@ -228,27 +228,34 @@ public class BeanSerializerFactory
                     }
                 }
             }
-            // 25-Jun-2015, tatu: Then JacksonSerializable, @JsonValue etc. NOTE! Prior to 2.6,
-            //    this call was BEFORE custom serializer lookup, which was wrong.
-            if (ser == null) {
-                ser = findSerializerByAnnotations(ctxt, type, beanDescRef);
-            }
         }
 
         if (ser == null) {
             // Otherwise, we will check "primary types"; main types that have
-            // precedence over POJO handling
+            // precedence over POJO handling: first simple lookups
             ser = findSerializerByLookup(type, config, beanDescRef, formatOverrides, staticTyping);
             if (ser == null) {
+                // Then sub-type aware (but still strong matches)
                 ser = findSerializerByPrimaryType(ctxt, type, beanDescRef, formatOverrides, staticTyping);
                 if (ser == null) {
-                    // And this is where this class comes in: if type is not a
-                    // known "primary JDK type", perhaps it's a bean? We can still
-                    // get a null, if we can't find a single suitable bean property.
-                    ser = constructBeanOrAddOnSerializer(ctxt, type, beanDescRef, formatOverrides, staticTyping);
-                    // Finally: maybe we can still deal with it as an implementation of some basic JDK interface?
+                    // Then JacksonSerializable, @JsonValue etc.
+                    ser = findSerializerByAnnotations(ctxt, type, beanDescRef);
                     if (ser == null) {
-                        ser = ctxt.getUnknownTypeSerializer(beanDescRef.getBeanClass());
+                        // ... but annotations lookup must predate Enum lookup
+                        if (type.isEnumType()) {
+                            // NOTE: may still return `null` (with Shape override)
+                            ser = buildEnumSerializer(ctxt, type, beanDescRef,
+                                    _calculateEffectiveFormat(beanDescRef, Enum.class, formatOverrides));
+                        }
+                        if (ser == null) {
+                            // And this is where this class comes in: if type is not a
+                            // known "primary JDK type", perhaps it's a POJO (aka Bean)?
+                            //  We can still get a null, for various reasons
+                            ser = constructBeanOrAddOnSerializer(ctxt, type, beanDescRef, formatOverrides, staticTyping);
+                            if (ser == null) {
+                                ser = ctxt.getUnknownTypeSerializer(beanDescRef.getBeanClass());
+                            }
+                        }
                     }
                 }
             }

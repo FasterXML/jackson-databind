@@ -132,7 +132,8 @@ public class BeanSerializerFactory
             BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides)
     {
         // Very first thing, let's check if there is explicit serializer annotation:
-        ValueSerializer<?> ser = findSerializerFromAnnotation(ctxt, beanDescRef.getClassInfo());
+        AnnotatedClass ac = beanDescRef.getClassInfo();
+        ValueSerializer<?> ser = findSerializerFromAnnotation(ctxt, ac);
         if (ser != null) {
             return (ValueSerializer<Object>) ser;
         }
@@ -146,7 +147,7 @@ public class BeanSerializerFactory
             type = origType;
         } else {
             try {
-                type = intr.refineSerializationType(config, beanDescRef.getClassInfo(), origType);
+                type = intr.refineSerializationType(config, ac, origType);
             } catch (JacksonException e) {
                 return ctxt.reportBadTypeDefinition(beanDescRef, e.getMessage());
             }
@@ -157,10 +158,11 @@ public class BeanSerializerFactory
             staticTyping = true;
             if (!type.hasRawClass(origType.getRawClass())) {
                 beanDescRef = ctxt.lazyIntrospectBeanDescription(type);
+                ac = beanDescRef.getClassInfo();
             }
         }
         // Slight detour: do we have a Converter to consider?
-        Converter<Object,Object> conv = beanDescRef.get().findSerializationConverter();
+        Converter<Object,Object> conv = config.findSerializationConverter(ac);
         if (conv != null) { // yup, need converter
             JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
 
@@ -168,7 +170,8 @@ public class BeanSerializerFactory
             if (!delegateType.hasRawClass(type.getRawClass())) {
                 beanDescRef = ctxt.lazyIntrospectBeanDescription(delegateType);
                 // [#359]: explicitly check (again) for @JsonSerialize...
-                ser = findSerializerFromAnnotation(ctxt, beanDescRef.getClassInfo());
+                ac = beanDescRef.getClassInfo();
+                ser = findSerializerFromAnnotation(ctxt, ac);
             }
             // [databind#731]: Should skip if nominally java.lang.Object
             if ((ser == null) && !delegateType.isJavaLangObject()) {

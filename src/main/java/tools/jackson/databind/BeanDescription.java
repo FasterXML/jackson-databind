@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.util.Annotations;
-import tools.jackson.databind.util.Converter;
 
 /**
  * Basic container for information gathered by {@link ClassIntrospector} to
@@ -229,30 +228,9 @@ public abstract class BeanDescription
 
     /**
      * Method for checking what is the expected format for POJO, as
-     * defined by possible annotations (but NOT config overrides)
-     *
-     * @deprecated Since 3.0
-     */
-    @Deprecated // since 3.0
-    public abstract JsonFormat.Value findExpectedFormat();
-
-    /**
-     * Method for checking what is the expected format for POJO, as
      * defined by possible annotations and possible per-type config overrides.
      */
     public abstract JsonFormat.Value findExpectedFormat(Class<?> baseType);
-
-    /**
-     * Method for finding {@link Converter} used for serializing instances
-     * of this class.
-     */
-    public abstract Converter<Object,Object> findSerializationConverter();
-
-    /**
-     * Method for finding {@link Converter} used for serializing instances
-     * of this class.
-     */
-    public abstract Converter<Object,Object> findDeserializationConverter();
 
     /*
     /**********************************************************************

@@ -326,6 +326,7 @@ public abstract class BeanDescription
         @Override
         public BeanDescription get() {
             if (_beanDesc == null) {
+//if (true) throw new Error("Gotcha!");
                 // To test without caching, uncomment:
                 return _construct(_type, getClassInfo());
 

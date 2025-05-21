@@ -2,7 +2,6 @@ package tools.jackson.databind.ser.jdk;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Calendar;
 import java.util.HashMap;
 
 import tools.jackson.databind.ValueSerializer;
@@ -24,9 +23,7 @@ public class JDKCoreSerializers
     protected final static HashMap<String, ValueSerializer<?>> _concrete;
 
     static {
-        HashMap<String, ValueSerializer<?>> concrete
-            = new HashMap<String, ValueSerializer<?>>();
-
+        HashMap<String, ValueSerializer<?>> concrete = new HashMap<>();
 
         // String and string-like types (note: date types explicitly
         // not included -- can use either textual or numeric serialization)
@@ -45,11 +42,6 @@ public class JDKCoreSerializers
         // Other numbers, more complicated
         concrete.put(BigInteger.class.getName(), new NumberSerializer(BigInteger.class));
         concrete.put(BigDecimal.class.getName(), new NumberSerializer(BigDecimal.class));
-
-        // Other discrete non-container types:
-        // First, Date/Time zoo:
-        concrete.put(Calendar.class.getName(), JavaUtilCalendarSerializer.instance);
-        concrete.put(java.util.Date.class.getName(), JavaUtilDateSerializer.instance);
 
         _concrete = concrete;
     }

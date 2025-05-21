@@ -315,9 +315,8 @@ public abstract class BasicSerializerFactory
     protected final ValueSerializer<?> findSerializerByAnnotations(SerializationContext ctxt,
             JavaType type, BeanDescription.Supplier beanDescRef)
     {
-        Class<?> raw = type.getRawClass();
         // First: serializable by Jackson-specific interface?
-        if (JacksonSerializable.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(JacksonSerializable.class)) {
             return JacksonSerializableSerializer.instance;
         }
         // Second: @JsonValue for any type

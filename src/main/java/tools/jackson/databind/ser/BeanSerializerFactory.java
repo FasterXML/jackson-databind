@@ -13,6 +13,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.TokenStreamFactory;
+import tools.jackson.core.TreeNode;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.SerializerFactoryConfig;
 import tools.jackson.databind.introspect.*;
@@ -204,6 +205,20 @@ public class BeanSerializerFactory
             if (type.isReferenceType()) {
                 ser = findReferenceSerializer(ctxt, (ReferenceType) type, beanDescRef,
                         formatOverrides, staticTyping);
+            } else if (type.isEnumType()) {
+                for (Serializers serializers : customSerializers()) {
+                    ser = serializers.findEnumSerializer(config, type, beanDescRef, formatOverrides);
+                    if (ser != null) {
+                        break;
+                    }
+                }
+            } else if (type.isTypeOrSubTypeOf(TreeNode.class)) {
+                for (Serializers serializers : customSerializers()) {
+                    ser = serializers.findTreeNodeSerializer(config, type, beanDescRef, formatOverrides);
+                    if (ser != null) {
+                        break;
+                    }
+                }
             } else {
                 // Modules may provide serializers of POJO types:
                 for (Serializers serializers : customSerializers()) {
@@ -221,9 +236,8 @@ public class BeanSerializerFactory
         }
 
         if (ser == null) {
-            // Otherwise, we will check "primary types"; both marker types that
-            // indicate specific handling (JacksonSerializable), or main types that have
-            // precedence over container types
+            // Otherwise, we will check "primary types"; main types that have
+            // precedence over POJO handling
             ser = findSerializerByLookup(type, config, beanDescRef, formatOverrides, staticTyping);
             if (ser == null) {
                 ser = findSerializerByPrimaryType(ctxt, type, beanDescRef, formatOverrides, staticTyping);

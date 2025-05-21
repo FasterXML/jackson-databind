@@ -10,6 +10,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5158: Add "optional" variants -- shortValueOpt(), floatValueOpt(), asShortOpt(),
   asFloatOpt()
  (contributed by Yu Han)
+#5169: Add missing methods in `Serializers` for Enum and TreeNode types (3.0)
 
 3.0.0-rc4 (10-May-2025)
 

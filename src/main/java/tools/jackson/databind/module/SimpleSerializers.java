@@ -105,6 +105,76 @@ public class SimpleSerializers
     public ValueSerializer<?> findSerializer(SerializationConfig config,
             JavaType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides)
     {
+        return _findSerializer(config, type);
+    }
+
+
+    @Override
+    public ValueSerializer<?> findEnumSerializer(SerializationConfig config,
+            JavaType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides)
+    {
+        return _findSerializer(config, type);
+    }
+
+    @Override
+    public ValueSerializer<?> findTreeNodeSerializer(SerializationConfig config,
+            JavaType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides)
+    {
+        return _findSerializer(config, type);
+    }
+    
+    @Override
+    public ValueSerializer<?> findArraySerializer(SerializationConfig config,
+            ArrayType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
+        return _findSerializer(config, type);
+    }
+
+    @Override
+    public ValueSerializer<?> findCollectionSerializer(SerializationConfig config,
+            CollectionType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
+        return _findSerializer(config, type);
+    }
+
+    @Override
+    public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
+            CollectionLikeType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
+        return _findSerializer(config, type);
+    }
+
+    @Override
+    public ValueSerializer<?> findMapSerializer(SerializationConfig config,
+            MapType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
+            ValueSerializer<Object> keySerializer,
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
+        return _findSerializer(config, type);
+    }
+
+    @Override
+    public ValueSerializer<?> findMapLikeSerializer(SerializationConfig config,
+            MapLikeType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
+            ValueSerializer<Object> keySerializer,
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
+        return _findSerializer(config, type);
+    }
+
+    @Override
+    public ValueSerializer<?> findReferenceSerializer(SerializationConfig config,
+            ReferenceType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
+            TypeSerializer contentTypeSerializer, ValueSerializer<Object> contentValueSerializer) {
+        return _findSerializer(config, type);
+    }
+
+    /*
+    /**********************************************************************
+    /* Internal methods
+    /**********************************************************************
+     */
+
+    protected ValueSerializer<?> _findSerializer(SerializationConfig config, JavaType type)
+    {
         Class<?> cls = type.getRawClass();
         ClassKey key = new ClassKey(cls);
         ValueSerializer<?> ser = null;
@@ -123,8 +193,7 @@ public class SimpleSerializers
                 if (ser != null) {
                     return ser;
                 }
-
-                // [Issue#227]: Handle registration of plain `Enum` serializer
+                // Handle registration of plain `Enum` serializer
                 if (_hasEnumSerializer && type.isEnumType()) {
                     key.reset(Enum.class);
                     ser = _classMappings.get(key);
@@ -161,57 +230,7 @@ public class SimpleSerializers
         }
         return null;
     }
-
-    @Override
-    public ValueSerializer<?> findArraySerializer(SerializationConfig config,
-            ArrayType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
-            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDescRef, formatOverrides);
-    }
-
-    @Override
-    public ValueSerializer<?> findCollectionSerializer(SerializationConfig config,
-            CollectionType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
-            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDescRef, formatOverrides);
-    }
-
-    @Override
-    public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
-            CollectionLikeType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
-            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDescRef, formatOverrides);
-    }
-
-    @Override
-    public ValueSerializer<?> findMapSerializer(SerializationConfig config,
-            MapType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
-            ValueSerializer<Object> keySerializer,
-            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDescRef, formatOverrides);
-    }
-
-    @Override
-    public ValueSerializer<?> findMapLikeSerializer(SerializationConfig config,
-            MapLikeType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
-            ValueSerializer<Object> keySerializer,
-            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDescRef, formatOverrides);
-    }
-
-    @Override
-    public ValueSerializer<?> findReferenceSerializer(SerializationConfig config,
-            ReferenceType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
-            TypeSerializer contentTypeSerializer, ValueSerializer<Object> contentValueSerializer) {
-        return findSerializer(config, type, beanDescRef, formatOverrides);
-    }
-
-    /*
-    /**********************************************************************
-    /* Internal methods
-    /**********************************************************************
-     */
-
+    
     protected ValueSerializer<?> _findInterfaceMapping(Class<?> cls, ClassKey key)
     {
         for (Class<?> iface : cls.getInterfaces()) {
@@ -234,12 +253,12 @@ public class SimpleSerializers
         // Interface or class type?
         if (cls.isInterface()) {
             if (_interfaceMappings == null) {
-                _interfaceMappings = new HashMap<ClassKey,ValueSerializer<?>>();
+                _interfaceMappings = new HashMap<>();
             }
             _interfaceMappings.put(key, ser);
         } else { // nope, class:
             if (_classMappings == null) {
-                _classMappings = new HashMap<ClassKey,ValueSerializer<?>>();
+                _classMappings = new HashMap<>();
             }
             _classMappings.put(key, ser);
             if (cls == Enum.class) {

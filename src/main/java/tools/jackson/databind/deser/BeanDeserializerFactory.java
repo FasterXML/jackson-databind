@@ -492,7 +492,7 @@ ClassUtil.name(propName)));
      */
     protected BeanDeserializerBuilder constructBeanDeserializerBuilder(DeserializationContext ctxt,
             BeanDescription.Supplier beanDescRef) {
-        return new BeanDeserializerBuilder(beanDescRef, ctxt);
+        return new BeanDeserializerBuilder(ctxt, beanDescRef);
     }
 
     /**

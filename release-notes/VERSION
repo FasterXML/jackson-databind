@@ -7,6 +7,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.0-rc5 (not yet released)
 
+#4907: Reduce/eliminate introspection on `java.*` classes
+ (requested by Guillaume S)
 #5158: Add "optional" variants -- shortValueOpt(), floatValueOpt(), asShortOpt(),
   asFloatOpt()
  (contributed by Yu Han)

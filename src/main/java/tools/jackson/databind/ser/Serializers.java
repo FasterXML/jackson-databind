@@ -212,7 +212,7 @@ public interface Serializers
         protected JsonFormat.Value calculateEffectiveFormat(BeanDescription.Supplier beanDescRef,
                 Class<?> baseType, JsonFormat.Value formatOverrides)
         {
-            JsonFormat.Value fromType = beanDescRef.get().findExpectedFormat(baseType);
+            JsonFormat.Value fromType = beanDescRef.findExpectedFormat(baseType);
             if (formatOverrides == null) {
                 return fromType;
             }

@@ -58,3 +58,8 @@ Yu Han (@hannyu)
  * Contributed #5158: Add "optional" variants -- shortValueOpt(), floatValueOpt(),
    asShortOpt(), asFloatOpt()
   [3.0.0]
+
+Guillaume Smet (@gsmet)
+ * Requested #4907: Reduce/eliminate introspection on `java.*` classes
+  [3.0.0]
+

@@ -537,7 +537,7 @@ public abstract class DeserializationContext
     }
 
     public BeanDescription.Supplier lazyIntrospectBeanDescriptionForCreation(JavaType type) {
-        return new BeanDescription.LazySupplier(type) {
+        return new BeanDescription.LazySupplier(getConfig(), type) {
             @Override
             protected BeanDescription _construct(JavaType forType, AnnotatedClass ac) {
                 return introspectBeanDescriptionForCreation(forType, ac);
@@ -558,7 +558,7 @@ public abstract class DeserializationContext
 
     public BeanDescription.Supplier lazyIntrospectBeanDescriptionForBuilder(final JavaType builderType,
             final BeanDescription valueTypeDesc) {
-        return new BeanDescription.LazySupplier(builderType) {
+        return new BeanDescription.LazySupplier(getConfig(), builderType) {
             @Override
             protected BeanDescription _construct(JavaType forType, AnnotatedClass ac) {
                 return introspectBeanDescriptionForBuilder(forType, valueTypeDesc);

@@ -19,19 +19,19 @@ public class BeanSerializerBuilder
     private final static BeanPropertyWriter[] NO_PROPERTIES = new BeanPropertyWriter[0];
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Basic configuration we start with
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected final BeanDescription _beanDesc;
+    protected final BeanDescription.Supplier _beanDescRef;
 
     protected final SerializationConfig _config;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accumulated information about properties
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -68,22 +68,22 @@ public class BeanSerializerBuilder
     protected ObjectIdWriter _objectIdWriter;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction and setter methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public BeanSerializerBuilder(SerializationConfig config,
-            BeanDescription beanDesc) {
+            BeanDescription.Supplier beanDescRef) {
         _config = config;
-        _beanDesc = beanDesc;
+        _beanDescRef = beanDescRef;
     }
 
     /**
      * Copy-constructor that may be used for sub-classing
      */
     protected BeanSerializerBuilder(BeanSerializerBuilder src) {
-        _beanDesc = src._beanDesc;
+        _beanDescRef = src._beanDescRef;
         _config = src._config;
         _properties = src._properties;
         _filteredProperties = src._filteredProperties;
@@ -134,16 +134,18 @@ public class BeanSerializerBuilder
     }
 
     /*
-    /**********************************************************
-    /* Accessors for things BeanSerializer cares about:
-    /* note -- likely to change between minor revisions
-    /* by new methods getting added.
-    /**********************************************************
+    /**********************************************************************
+    /* Accessors for things BeanSerializer cares about -- note -- likely to
+    /* change between minor revisions by new methods getting added.
+    /**********************************************************************
      */
 
-    public AnnotatedClass getClassInfo() { return _beanDesc.getClassInfo(); }
+    public AnnotatedClass getClassInfo() { return _beanDescRef.getClassInfo(); }
 
-    public BeanDescription getBeanDescription() { return _beanDesc; }
+    // 21-May-2025, tatu: Hopefully not needed and can be removed?
+//    public BeanDescription getBeanDescription() { return _beanDescRef.get(); }
+
+    public BeanDescription.Supplier getBeanDescriptionRef() { return _beanDescRef; }
 
     public List<BeanPropertyWriter> getProperties() { return _properties; }
     public boolean hasProperties() {
@@ -161,9 +163,9 @@ public class BeanSerializerBuilder
     public ObjectIdWriter getObjectIdWriter() { return _objectIdWriter; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Build methods for actually creating serializer instance
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -210,12 +212,12 @@ _properties.size(), _filteredProperties.length));
             }
         }
         ValueSerializer<?> ser = UnrolledBeanSerializer.tryConstruct(
-                    _beanDesc.getType(), this,
+                _beanDescRef.getType(), this,
                     properties, _filteredProperties);
         if (ser != null) {
             return ser;
         }
-        return new BeanSerializer(_beanDesc.getType(), this,
+        return new BeanSerializer(_beanDescRef.getType(), this,
                 properties, _filteredProperties);
     }
 
@@ -226,6 +228,6 @@ _properties.size(), _filteredProperties.length));
      */
     public BeanSerializer createDummy() {
         // 20-Sep-2019, tatu: Can not skimp on passing builder  (see [databind#2077])
-        return BeanSerializer.createDummy(_beanDesc.getType(), this);
+        return BeanSerializer.createDummy(_beanDescRef.getType(), this);
     }
 }

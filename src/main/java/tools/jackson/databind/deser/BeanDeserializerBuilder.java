@@ -127,8 +127,8 @@ public class BeanDeserializerBuilder
     /**********************************************************************
      */
 
-    public BeanDeserializerBuilder(BeanDescription.Supplier beanDescRef,
-            DeserializationContext ctxt)
+    public BeanDeserializerBuilder(DeserializationContext ctxt,
+            BeanDescription.Supplier beanDescRef)
     {
         _beanDescRef = beanDescRef;
         _context = ctxt;
@@ -584,7 +584,7 @@ public class BeanDeserializerBuilder
     {
         // 07-May-2020, tatu: First find combination of per-type config overrides (higher
         //   precedence) and per-type annotations (lower):
-        JsonFormat.Value format = _beanDescRef.get().findExpectedFormat(null);
+        JsonFormat.Value format = _beanDescRef.findExpectedFormat(null);
         // and see if any of those has explicit definition; if not, use global baseline default
         Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
         boolean caseInsensitive = (B == null)

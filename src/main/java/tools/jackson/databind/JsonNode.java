@@ -756,10 +756,10 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #shortValue()}, but that will return empty
-     * {@link Optional<Short>} ({@code Optional.empty()}) if this node cannot
+     * {@code Optional<Short>} ({@code Optional.empty()}) if this node cannot
      * be converted to Java {@code short}.
      *
-     * @return Java {@code short} value this node represents, as {@link Optional<Short>},
+     * @return Java {@code short} value this node represents, as {@code Optional<Short>},
      * if possible to accurately represent; {@code Optional.empty()} otherwise
      */
     public abstract Optional<Short> shortValueOpt();
@@ -803,7 +803,7 @@ public abstract class JsonNode
      * ({@code Optional.empty()}) if this node cannot
      * be coerced to {@code short}.
      *
-     * @return {@link Optional<Short>} value this node represents,
+     * @return {@code Optional<Short>} value this node represents,
      * if possible to accurately represent; {@code Optional.empty()} otherwise
      */
     public abstract Optional<Short> asShortOpt();
@@ -1104,10 +1104,10 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #floatValue()}, but that will return empty
-     * {@link Optional<Float>} ({@code Optional.empty()}) if this node cannot
+     * {@code Optional<Float>} ({@code Optional.empty()}) if this node cannot
      * be converted to Java {@code float}.
      *
-     * @return Java {@code float} value this node represents, as {@link Optional<Float>},
+     * @return Java {@code float} value this node represents, as {@code Optional<Float>},
      * if possible to accurately represent; {@code Optional.empty()} otherwise
      */
     public abstract Optional<Float> floatValueOpt();
@@ -1145,7 +1145,7 @@ public abstract class JsonNode
      * ({@code Optional.empty()}) if this node cannot
      * be coerced to {@code float}.
      *
-     * @return {@link Optional<Float>} value this node represents,
+     * @return {@code Optional<Float>} value this node represents,
      * if possible to accurately represent; {@code Optional.empty()} otherwise
      */
     public abstract Optional<Float> asFloatOpt();

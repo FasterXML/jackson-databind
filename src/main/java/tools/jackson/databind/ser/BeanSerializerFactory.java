@@ -239,7 +239,8 @@ public class BeanSerializerFactory
                     if (type.isEnumType()) {
                         // NOTE: may still return `null` (with Shape override)
                         ser = buildEnumSerializer(ctxt, type, beanDescRef,
-                                _calculateEffectiveFormat(beanDescRef, Enum.class, formatOverrides));
+                                _calculateEffectiveFormat(ctxt,
+                                        beanDescRef, Enum.class, formatOverrides));
                     }
                     if (ser == null) {
                         // And this is where this class comes in: if type is not a
@@ -516,7 +517,7 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
 
     protected BeanSerializerBuilder constructBeanSerializerBuilder(SerializationConfig config,
             BeanDescription.Supplier beanDescRef) {
-        return new BeanSerializerBuilder(config, beanDescRef.get());
+        return new BeanSerializerBuilder(config, beanDescRef);
     }
 
     /*

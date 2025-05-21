@@ -378,7 +378,7 @@ public final class DeserializerCache
             }
             if (type.isMapLikeType()) {
                 // 11-Mar-2017, tatu: As per [databind#1554], also need to block
-                //    handling as Map if overriden with "as POJO" option.
+                //    handling as Map if overridden with "as POJO" option.
                 // Ideally we'd determine it bit later on (to allow custom handler checks)
                 // but that won't work for other reasons. So do it here.
                 // (read: rewrite for 3.0)

@@ -235,25 +235,6 @@ public abstract class BasicSerializerFactory
      */
 
     /**
-     * Method that will use fast lookup (and identity comparison) methods to
-     * see if we know serializer to use for given type.
-     */
-    protected final ValueSerializer<?> findSerializerByLookup(JavaType type,
-            SerializationConfig config, BeanDescription.Supplier beanDescRef,
-            JsonFormat.Value format, boolean staticTyping)
-    {
-        final Class<?> raw = type.getRawClass();
-        ValueSerializer<?> ser = JDKCoreSerializers.find(raw);
-        if (ser == null) {
-            ser = JDKStringLikeSerializer.find(raw);
-            if (ser == null) {
-                ser = JDKMiscSerializers.find(raw);
-            }
-        }
-        return ser;
-    }
-
-    /**
      * Method called to see if one of primary per-class annotations
      * (or related, like implementing of {@link JacksonSerializable})
      * determines the serializer to use.
@@ -302,6 +283,20 @@ public abstract class BasicSerializerFactory
             JavaType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
             boolean staticTyping)
     {
+        // First: simple lookups for concrete types
+        final Class<?> raw = type.getRawClass();
+        ValueSerializer<?> ser;
+        
+        if ((ser = JDKCoreSerializers.find(raw)) != null) {
+             return ser;
+        }
+        if ((ser = JDKStringLikeSerializer.find(raw)) != null) {
+             return ser;
+        }
+        if ((ser = JDKMiscSerializers.find(raw)) != null) {
+             return ser;
+        }
+
         if (type.isTypeOrSubTypeOf(Calendar.class)) {
             return JavaUtilCalendarSerializer.instance;
         }
@@ -309,8 +304,7 @@ public abstract class BasicSerializerFactory
             // 06-Nov-2020, tatu: Strange precedence challenge; need to consider
             //   "java.sql.Date" unfortunately
             if (!type.hasRawClass(Date.class)) {
-                ValueSerializer<?> ser = OptionalHandlerFactory.instance.findSerializer(ctxt.getConfig(), type);
-                if (ser != null) {
+                if ((ser = OptionalHandlerFactory.instance.findSerializer(ctxt.getConfig(), type) ) != null) {
                     return ser;
                 }
             }
@@ -337,8 +331,7 @@ public abstract class BasicSerializerFactory
             }
             return NumberSerializer.instance;
         }
-        Class<?> raw = type.getRawClass();
-        if (Map.Entry.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(Map.Entry.class)) {
             // 18-Oct-2015, tatu: With 2.7, need to dig type info:
             JavaType mapEntryType = type.findSuperType(Map.Entry.class);
             // 28-Apr-2015, tatu: TypeFactory does it all for us already so

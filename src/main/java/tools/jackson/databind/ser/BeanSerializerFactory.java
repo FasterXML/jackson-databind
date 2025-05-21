@@ -207,23 +207,20 @@ public class BeanSerializerFactory
                         formatOverrides, staticTyping);
             } else if (type.isEnumType()) {
                 for (Serializers serializers : customSerializers()) {
-                    ser = serializers.findEnumSerializer(config, type, beanDescRef, formatOverrides);
-                    if (ser != null) {
+                    if ((ser = serializers.findEnumSerializer(config, type, beanDescRef, formatOverrides)) != null) {
                         break;
                     }
                 }
             } else if (type.isTypeOrSubTypeOf(TreeNode.class)) {
                 for (Serializers serializers : customSerializers()) {
-                    ser = serializers.findTreeNodeSerializer(config, type, beanDescRef, formatOverrides);
-                    if (ser != null) {
+                    if ((ser = serializers.findTreeNodeSerializer(config, type, beanDescRef, formatOverrides)) != null) {
                         break;
                     }
                 }
             } else {
                 // Modules may provide serializers of POJO types:
                 for (Serializers serializers : customSerializers()) {
-                    ser = serializers.findSerializer(config, type, beanDescRef, formatOverrides);
-                    if (ser != null) {
+                    if ((ser = serializers.findSerializer(config, type, beanDescRef, formatOverrides)) != null) {
                         break;
                     }
                 }
@@ -232,29 +229,25 @@ public class BeanSerializerFactory
 
         if (ser == null) {
             // Otherwise, we will check "primary types"; main types that have
-            // precedence over POJO handling: first simple lookups
-            ser = findSerializerByLookup(type, config, beanDescRef, formatOverrides, staticTyping);
+            // precedence over POJO handling
+            ser = findSerializerByPrimaryType(ctxt, type, beanDescRef, formatOverrides, staticTyping);
             if (ser == null) {
-                // Then sub-type aware (but still strong matches)
-                ser = findSerializerByPrimaryType(ctxt, type, beanDescRef, formatOverrides, staticTyping);
+                // Then JacksonSerializable, @JsonValue etc.
+                ser = findSerializerByAnnotations(ctxt, type, beanDescRef);
                 if (ser == null) {
-                    // Then JacksonSerializable, @JsonValue etc.
-                    ser = findSerializerByAnnotations(ctxt, type, beanDescRef);
+                    // ... but annotations lookup must predate Enum lookup
+                    if (type.isEnumType()) {
+                        // NOTE: may still return `null` (with Shape override)
+                        ser = buildEnumSerializer(ctxt, type, beanDescRef,
+                                _calculateEffectiveFormat(beanDescRef, Enum.class, formatOverrides));
+                    }
                     if (ser == null) {
-                        // ... but annotations lookup must predate Enum lookup
-                        if (type.isEnumType()) {
-                            // NOTE: may still return `null` (with Shape override)
-                            ser = buildEnumSerializer(ctxt, type, beanDescRef,
-                                    _calculateEffectiveFormat(beanDescRef, Enum.class, formatOverrides));
-                        }
+                        // And this is where this class comes in: if type is not a
+                        // known "primary JDK type", perhaps it's a POJO (aka Bean)?
+                        //  We can still get a null, for various reasons
+                        ser = constructBeanOrAddOnSerializer(ctxt, type, beanDescRef, formatOverrides, staticTyping);
                         if (ser == null) {
-                            // And this is where this class comes in: if type is not a
-                            // known "primary JDK type", perhaps it's a POJO (aka Bean)?
-                            //  We can still get a null, for various reasons
-                            ser = constructBeanOrAddOnSerializer(ctxt, type, beanDescRef, formatOverrides, staticTyping);
-                            if (ser == null) {
-                                ser = ctxt.getUnknownTypeSerializer(beanDescRef.getBeanClass());
-                            }
+                            ser = ctxt.getUnknownTypeSerializer(beanDescRef.getBeanClass());
                         }
                     }
                 }

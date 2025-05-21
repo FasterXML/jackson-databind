@@ -15,6 +15,7 @@ import tools.jackson.databind.jsontype.TypeResolverProvider;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.Converter;
 import tools.jackson.databind.util.RootNameLookup;
 
 @SuppressWarnings("serial")
@@ -715,5 +716,43 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     public final int mixInCount() {
         return _mixIns.localSize();
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for implementations
+    /**********************************************************************
+     */
+
+    @SuppressWarnings("unchecked")
+    protected Converter<Object,Object> _createConverter(Annotated annotated,
+            Object converterDef)
+    {
+        if (converterDef == null) {
+            return null;
+        }
+        if (converterDef instanceof Converter<?,?>) {
+            return (Converter<Object,Object>) converterDef;
+        }
+        if (!(converterDef instanceof Class)) {
+            throw new IllegalStateException("`AnnotationIntrospector` returned `Converter` definition of type "
+                    +ClassUtil.classNameOf(converterDef)+"; expected type `Converter` or `Class<Converter>` instead");
+        }
+        Class<?> converterClass = (Class<?>)converterDef;
+        // there are some known "no class" markers to consider too:
+        if (converterClass == Converter.None.class || ClassUtil.isBogusClass(converterClass)) {
+            return null;
+        }
+        if (!Converter.class.isAssignableFrom(converterClass)) {
+            throw new IllegalStateException("AnnotationIntrospector returned `Class<"
+                    +ClassUtil.classNameOf(converterClass)+"`>; expected `Class<Converter>`");
+        }
+        HandlerInstantiator hi = getHandlerInstantiator();
+        Converter<?,?> conv = (hi == null) ? null : hi.converterInstance(this, annotated, converterClass);
+        if (conv == null) {
+            conv = (Converter<?,?>) ClassUtil.createInstance(converterClass,
+                    canOverrideAccessModifiers());
+        }
+        return (Converter<Object,Object>) conv;
     }
 }

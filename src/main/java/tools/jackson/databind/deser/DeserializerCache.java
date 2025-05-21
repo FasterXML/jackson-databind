@@ -346,7 +346,7 @@ public final class DeserializerCache
         }
 
         // Or perhaps a Converter?
-        Converter<Object,Object> conv = beanDescRef.get().findDeserializationConverter();
+        Converter<Object,Object> conv = config.findDeserializationConverter(beanDescRef.getClassInfo());
         if (conv != null) {
             // otherwise need to do bit of introspection
             JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());

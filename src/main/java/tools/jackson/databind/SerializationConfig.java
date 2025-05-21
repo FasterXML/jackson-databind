@@ -5,12 +5,14 @@ import java.text.DateFormat;
 import tools.jackson.core.*;
 import tools.jackson.core.util.Instantiatable;
 import tools.jackson.databind.cfg.*;
+import tools.jackson.databind.introspect.Annotated;
 import tools.jackson.databind.introspect.ClassIntrospector;
 import tools.jackson.databind.introspect.MixInHandler;
 import tools.jackson.databind.jsontype.SubtypeResolver;
 import tools.jackson.databind.ser.FilterProvider;
 import tools.jackson.databind.ser.SerializerFactory;
 import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.util.Converter;
 import tools.jackson.databind.util.RootNameLookup;
 
 /**
@@ -570,5 +572,18 @@ public final class SerializationConfig
      */
     public PrettyPrinter getDefaultPrettyPrinter() {
         return _defaultPrettyPrinter;
+    }
+
+    /*
+    /**********************************************************************
+    /* Introspection support
+    /**********************************************************************
+     */
+
+    // @since 3.0
+    public Converter<Object,Object> findSerializationConverter(Annotated ann)
+    {
+        return _createConverter(ann,
+                getAnnotationIntrospector().findSerializationConverter(this, ann));
     }
 }

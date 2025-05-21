@@ -7,11 +7,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.cfg.HandlerInstantiator;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.util.Annotations;
 import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.util.Converter;
 
 /**
  * Default {@link BeanDescription} implementation used by Jackson.
@@ -373,30 +371,14 @@ anyField.getName()));
     /**********************************************************************
      */
 
-    @Deprecated // since 3.0
-    @Override
-    public JsonFormat.Value findExpectedFormat()
-    {
-        JsonFormat.Value v = _classFormat;
-        if (v == null) {
-            // 18-Apr-2018, tatu: Bit unclean but apparently `_config` is `null` for
-            //   a small set of pre-discovered simple types that `BasicClassIntrospector`
-            //   may expose. If so, nothing we can do
-            v = (_config == null) ? null
-                    : _intr.findFormat(_config, _classInfo);
-            if (v == null) {
-                v = JsonFormat.Value.empty();
-            }
-            _classFormat = v;
-        }
-        return v;
-    }
-
     @Override
     public JsonFormat.Value findExpectedFormat(Class<?> baseType)
     {
         JsonFormat.Value v0 = _classFormat;
         if (v0 == null) { // copied from above
+            // 18-Apr-2018, tatu: Bit unclean but apparently `_config` is `null` for
+            //   a small set of pre-discovered simple types that `BasicClassIntrospector`
+            //   may expose. If so, nothing we can do
             v0 = (_config == null) ? null
                     : _intr.findFormat(_config, _classInfo);
             if (v0 == null) {
@@ -433,12 +415,6 @@ anyField.getName()));
     /* Introspection for serialization
     /**********************************************************************
      */
-
-    @Override
-    public Converter<Object,Object> findSerializationConverter()
-    {
-        return _createConverter(_intr.findSerializationConverter(_config, _classInfo));
-    }
 
     /**
      * Method for determining whether null properties should be written
@@ -645,55 +621,5 @@ anyField.getName()));
             }
         }
         return null;
-    }
-
-    /*
-    /**********************************************************************
-    /* Introspection for deserialization, other
-    /**********************************************************************
-     */
-
-    @Override
-    public Converter<Object,Object> findDeserializationConverter()
-    {
-        return _createConverter(_intr
-                        .findDeserializationConverter(_config, _classInfo));
-    }
-
-    /*
-    /**********************************************************************
-    /* Helper methods, other
-    /**********************************************************************
-     */
-
-    @SuppressWarnings("unchecked")
-    protected Converter<Object,Object> _createConverter(Object converterDef)
-    {
-        if (converterDef == null) {
-            return null;
-        }
-        if (converterDef instanceof Converter<?,?>) {
-            return (Converter<Object,Object>) converterDef;
-        }
-        if (!(converterDef instanceof Class)) {
-            throw new IllegalStateException("AnnotationIntrospector returned Converter definition of type "
-                    +converterDef.getClass().getName()+"; expected type Converter or Class<Converter> instead");
-        }
-        Class<?> converterClass = (Class<?>)converterDef;
-        // there are some known "no class" markers to consider too:
-        if (converterClass == Converter.None.class || ClassUtil.isBogusClass(converterClass)) {
-            return null;
-        }
-        if (!Converter.class.isAssignableFrom(converterClass)) {
-            throw new IllegalStateException("AnnotationIntrospector returned Class "
-                    +converterClass.getName()+"; expected Class<Converter>");
-        }
-        HandlerInstantiator hi = _config.getHandlerInstantiator();
-        Converter<?,?> conv = (hi == null) ? null : hi.converterInstance(_config, _classInfo, converterClass);
-        if (conv == null) {
-            conv = (Converter<?,?>) ClassUtil.createInstance(converterClass,
-                    _config.canOverrideAccessModifiers());
-        }
-        return (Converter<Object,Object>) conv;
     }
 }

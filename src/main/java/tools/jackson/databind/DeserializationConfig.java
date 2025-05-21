@@ -8,6 +8,7 @@ import tools.jackson.databind.jsontype.*;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.ArrayIterator;
+import tools.jackson.databind.util.Converter;
 import tools.jackson.databind.util.LinkedNode;
 import tools.jackson.databind.util.RootNameLookup;
 
@@ -675,5 +676,18 @@ public final class DeserializationConfig
     {
         return _coercionConfigs.findCoercionFromBlankString(this,
                 targetType, targetClass, actionIfBlankNotAllowed);
+    }
+
+    /*
+    /**********************************************************************
+    /* Introspection support
+    /**********************************************************************
+     */
+
+    // @since 3.0
+    public Converter<Object,Object> findDeserializationConverter(Annotated ann)
+    {
+        return _createConverter(ann,
+                getAnnotationIntrospector().findDeserializationConverter(this, ann));
     }
 }

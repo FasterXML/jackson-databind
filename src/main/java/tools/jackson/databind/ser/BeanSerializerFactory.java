@@ -132,7 +132,8 @@ public class BeanSerializerFactory
             BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides)
     {
         // Very first thing, let's check if there is explicit serializer annotation:
-        ValueSerializer<?> ser = findSerializerFromAnnotation(ctxt, beanDescRef.getClassInfo());
+        ValueSerializer<?> ser = findSerializerFromAnnotation(ctxt,
+                beanDescRef.getClassInfo());
         if (ser != null) {
             return (ValueSerializer<Object>) ser;
         }
@@ -160,7 +161,7 @@ public class BeanSerializerFactory
             }
         }
         // Slight detour: do we have a Converter to consider?
-        Converter<Object,Object> conv = beanDescRef.get().findSerializationConverter();
+        Converter<Object,Object> conv = config.findSerializationConverter(beanDescRef.getClassInfo());
         if (conv != null) { // yup, need converter
             JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
 

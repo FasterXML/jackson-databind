@@ -35,9 +35,11 @@ public abstract class BeanDescription
         _type = type;
     }
 
-    public BeanDescription.Supplier supplier(MapperConfig<?> config) {
-        return new EagerSupplier(config, this);
-    }
+    /**
+     * Method for constructing a supplier for this bean description instance:
+     * sometimes needed when code expects supplier, not description instance.
+     */
+    public abstract BeanDescription.Supplier supplier();
 
     /*
     /**********************************************************************

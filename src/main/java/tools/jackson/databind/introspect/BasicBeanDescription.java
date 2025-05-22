@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.BeanDescription.EagerSupplier;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.util.Annotations;
 import tools.jackson.databind.util.ClassUtil;
@@ -152,6 +153,11 @@ public class BasicBeanDescription extends BeanDescription
             _properties = _propCollector.getProperties();
         }
         return _properties;
+    }
+
+    @Override
+    public BeanDescription.Supplier supplier() {
+        return new EagerSupplier(_config, this);
     }
 
     /*

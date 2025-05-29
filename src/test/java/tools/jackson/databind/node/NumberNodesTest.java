@@ -227,7 +227,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(value, result.doubleValue());
         assertEquals(value, result.numberValue().doubleValue());
 
-        // Can NOT convert to int due to fractional part
+        // CANNOT convert to int due to fractional part
         //assertEquals((int) value, result.intValue());
         //assertEquals((long) value, result.longValue());
 

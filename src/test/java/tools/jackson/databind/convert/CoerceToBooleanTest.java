@@ -297,7 +297,7 @@ public class CoerceToBooleanTest
         assertNull(MAPPER_INT_TO_NULL.readValue("0", Boolean.class));
         assertNull(MAPPER_INT_TO_NULL.readValue("1", Boolean.class));
 
-        // but due to coercion to `boolean`, can not return null here -- however,
+        // but due to coercion to `boolean`, cannot return null here -- however,
         // goes "1 -> false (no null for primitive) -> Boolean.FALSE
         assertEquals(Boolean.FALSE, MAPPER_INT_TO_NULL.readValue("0", Boolean.TYPE));
         assertEquals(Boolean.FALSE, MAPPER_INT_TO_NULL.readValue("1", Boolean.TYPE));

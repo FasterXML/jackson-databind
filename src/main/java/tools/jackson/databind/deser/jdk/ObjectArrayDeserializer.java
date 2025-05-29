@@ -169,7 +169,7 @@ public class ObjectArrayDeserializer
     // need to override as we can't expose ValueInstantiator
     @Override
     public Object getEmptyValue(DeserializationContext ctxt) {
-        // 03-Jul-2020, tatu: Must be assignment-compatible; can not just return `new Object[0]`
+        // 03-Jul-2020, tatu: Must be assignment-compatible; cannot just return `new Object[0]`
         //   if element type is different
         return _emptyValue;
     }

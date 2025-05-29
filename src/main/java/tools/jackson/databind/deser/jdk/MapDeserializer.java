@@ -377,7 +377,7 @@ public class MapDeserializer
      * Turns out that these are expensive enough to create so that caching
      * does make sense.
      *<p>
-     * IMPORTANT: but, note, that instances CAN NOT BE CACHED if there is
+     * IMPORTANT: but, note, that instances CANNOT BE CACHED if there is
      * a value type deserializer; this caused an issue with 2.4.4 of
      * JAXB Annotations (failing a test).
      * It is also possible that some other settings could make deserializers

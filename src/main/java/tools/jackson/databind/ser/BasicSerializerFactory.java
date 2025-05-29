@@ -360,7 +360,7 @@ public abstract class BasicSerializerFactory
         if (DoubleStream.class.isAssignableFrom(raw)) {
             return DoubleStreamSerializer.INSTANCE;
         }
-        // NOTE: not concrete, can not just add directly via StdJdkSerializers. Also, requires
+        // NOTE: not concrete, cannot just add directly via StdJdkSerializers. Also, requires
         // bit of trickery wrt class name for polymorphic...
         if (Path.class.isAssignableFrom(raw)) {
             return JDKStringLikeSerializer.find(Path.class);

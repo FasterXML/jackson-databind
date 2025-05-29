@@ -263,7 +263,7 @@ public abstract class JavaUtilCollectionsDeserializers
         private void _checkSingleton(int size) {
             if (size != 1) {
                 // not the best error ever but... has to do
-                throw new IllegalArgumentException("Can not deserialize Singleton container from "+size+" entries");
+                throw new IllegalArgumentException("Cannot deserialize Singleton container from "+size+" entries");
             }
         }
     }

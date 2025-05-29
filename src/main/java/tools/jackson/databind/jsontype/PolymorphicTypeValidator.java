@@ -64,10 +64,10 @@ public abstract class PolymorphicTypeValidator
         DENIED,
 
         /**
-         * Value that indicates that Class name or Class validity can not be confirmed by validator
+         * Value that indicates that Class name or Class validity cannot be confirmed by validator
          * and further checks are needed.
          *<p>
-         * Typically if validator can not establish validity from Type Id or Class (name), eventual
+         * Typically if validator cannot establish validity from Type Id or Class (name), eventual
          * determination will be {@code DENIED}, for safety reasons.
          */
         INDETERMINATE

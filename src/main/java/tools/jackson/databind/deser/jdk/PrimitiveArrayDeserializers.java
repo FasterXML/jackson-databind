@@ -266,7 +266,7 @@ public abstract class PrimitiveArrayDeserializers<T>
              */
             JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_STRING) {
-                // note: can NOT return shared internal buffer, must copy:
+                // note: CANNOT return shared internal buffer, must copy:
                 char[] buffer = p.getStringCharacters();
                 int offset = p.getStringOffset();
                 int len = p.getStringLength();

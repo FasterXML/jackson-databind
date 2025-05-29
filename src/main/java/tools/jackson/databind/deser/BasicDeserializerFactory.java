@@ -74,7 +74,7 @@ public abstract class BasicDeserializerFactory
     /**
      * Method for getting current {@link DeserializerFactoryConfig}.
       *<p>
-     * Note that since instances are immutable, you can NOT change settings
+     * Note that since instances are immutable, you CANNOT change settings
      * by accessing an instance and calling methods: this will simply create
      * new instance of config object.
      */
@@ -494,7 +494,7 @@ public abstract class BasicDeserializerFactory
                 // Must be injectable or have name; without either won't work
                 if ((name == null) && (injectId == null)) {
                     ctxt.reportBadTypeDefinition(beanDescRef,
-"Argument #%d of Creator %s has no property name (and is not Injectable): can not use as property-based Creator",
+"Argument #%d of Creator %s has no property name (and is not Injectable): cannot use as property-based Creator",
                         i, candidate);
                 }
             }
@@ -1325,7 +1325,7 @@ factory.toString()));
         // First things first: unpeel Array types as the element type is
         // what we are interested in -- this because we will always support array
         // types via composition, and since array types are JDK provided (and hence
-        // can not be custom or customized).
+        // cannot be custom or customized).
         if (valueType.isArray()) {
             do {
                 valueType = valueType.getComponentType();

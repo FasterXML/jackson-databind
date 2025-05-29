@@ -45,7 +45,7 @@ public class AnnotatedClassResolver
      */
 
     AnnotatedClassResolver(MapperConfig<?> config, JavaType type, MixInResolver r) {
-        _config = Objects.requireNonNull(config, "Can not pass null `config`");
+        _config = Objects.requireNonNull(config, "Cannot pass null `config`");
         _type = type;
         _class = type.getRawClass();
         _mixInResolver = r;
@@ -61,7 +61,7 @@ public class AnnotatedClassResolver
     }
 
     AnnotatedClassResolver(MapperConfig<?> config, Class<?> cls, MixInResolver r) {
-        _config = Objects.requireNonNull(config, "Can not pass null `config`");
+        _config = Objects.requireNonNull(config, "Cannot pass null `config`");
         _type = null;
         _class = cls;
         _mixInResolver = r;

@@ -2040,7 +2040,7 @@ public abstract class DeserializationContext
      * Helper method for constructing exception to indicate that input JSON
      * token of type "native value" (see {@link JsonToken#VALUE_EMBEDDED_OBJECT})
      * is of incompatible type (and there is no delegating creator or such to use)
-     * and can not be used to construct value of specified type (usually POJO).
+     * and cannot be used to construct value of specified type (usually POJO).
      * Note that most of the time this method should NOT be called; instead,
      * {@link #handleWeirdNativeValue} should be called which will call this method
      */

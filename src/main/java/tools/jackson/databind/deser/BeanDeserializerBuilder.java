@@ -525,7 +525,7 @@ public class BeanDeserializerBuilder
         */
 
         // 17-Jun-2020, tatu: Despite [databind#2760], it seems that methods that
-        //    are explicitly defined (any setter via annotation, builder too) can not
+        //    are explicitly defined (any setter via annotation, builder too) cannot
         //    be left as-is? May reconsider based on feedback
 
         if (_anySetter != null) {

@@ -110,7 +110,7 @@ public class JsonMapper extends ObjectMapper
                 super(src);
             }
 
-            // We also need actual instance of state as base class can not implement logic
+            // We also need actual instance of state as base class cannot implement logic
              // for reinstating mapper (via mapper builder) from state.
             @Override
             protected Object readResolve() {

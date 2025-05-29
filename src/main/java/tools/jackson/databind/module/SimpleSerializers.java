@@ -62,7 +62,7 @@ public class SimpleSerializers
 
     /**
      * Method for adding given serializer for type that {@link ValueSerializer#handledType}
-     * specifies (which MUST return a non-null class; and can NOT be {@link Object}, as a
+     * specifies (which MUST return a non-null class; and CANNOT be {@link Object}, as a
      * sanity check).
      * For serializers that do not declare handled type, use the variant that takes
      * two arguments.

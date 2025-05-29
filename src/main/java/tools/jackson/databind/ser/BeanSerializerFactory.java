@@ -254,7 +254,7 @@ public class BeanSerializerFactory
                 }
             }
         }
-        // can not be null any more (always get at least "unknown" serializer)
+        // cannot be null any more (always get at least "unknown" serializer)
         if (_factoryConfig.hasSerializerModifiers()) {
             for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 ser = mod.modifySerializer(config, beanDescRef, ser);

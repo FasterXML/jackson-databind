@@ -990,7 +990,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      * Write method that can be used for custom numeric types that can
      * not be (easily?) converted to "standard" Java number types.
      * Because numbers are not surrounded by double quotes, regular
-     * {@link #writeString} method can not be used; nor
+     * {@link #writeString} method cannot be used; nor
      * {@link #writeRaw} because that does not properly handle
      * value separators needed in Array or Object contexts.
      *
@@ -1679,7 +1679,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public int nextNameMatch(PropertyNameMatcher matcher) {
             String str = nextName();
             if (str != null) {
-                // 15-Nov-2017, tatu: Can not assume name given is intern()ed
+                // 15-Nov-2017, tatu: Cannot assume name given is intern()ed
                 return matcher.matchName(str);
             }
             if (hasToken(JsonToken.END_OBJECT)) {

@@ -35,7 +35,7 @@ public class AsDeductionTypeSerializer extends TypeSerializerBase
     public WritableTypeId writeTypePrefix(JsonGenerator g, SerializationContext ctxt,
             WritableTypeId idMetadata) throws JacksonException
     {
-        // NOTE: We can NOT simply skip writing since we may have to
+        // NOTE: We CANNOT simply skip writing since we may have to
         // write surrounding Object or Array start/end markers. But
         // we are not to generate type id to write (compared to base class)
 

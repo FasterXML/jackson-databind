@@ -511,7 +511,7 @@ public abstract class BaseJsonNode
         // 2) If not at the end, if we can follow next segment, call recursively
         //    handle non-null (existing Object node, return)
         //    vs `null` (must replace; may not be allowed to)
-        // 3) Can not follow the segment? Try constructing, adding path
+        // 3) Cannot follow the segment? Try constructing, adding path
         //
         // But the default implementation assumes non-container behavior so
         // it'll simply return `null`

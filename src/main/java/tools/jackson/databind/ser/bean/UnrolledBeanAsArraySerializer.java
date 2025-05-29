@@ -77,7 +77,7 @@ public class UnrolledBeanAsArraySerializer
 
     /**
      * Factory method that will construct optimized instance if all the constraints
-     * are obeyed; or, if not, return `null` to indicate that instance can not be
+     * are obeyed; or, if not, return `null` to indicate that instance cannot be
      * created.
      */
     public static UnrolledBeanAsArraySerializer tryConstruct(BeanSerializerBase src)

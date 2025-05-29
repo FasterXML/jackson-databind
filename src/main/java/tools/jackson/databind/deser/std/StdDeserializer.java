@@ -1550,7 +1550,7 @@ value, _coercedTypeDesc());
         }
         // 13-Oct-2016, tatu: As per [databind#1324], need to be careful wrt
         //    degenerate case of huge integers, legal in JSON.
-        //    Also note that number tokens can not have WS to trim:
+        //    Also note that number tokens cannot have WS to trim:
         if (p.getNumberType() == NumberType.INT) {
             // but minor optimization for common case is possible:
             return p.getIntValue() != 0;

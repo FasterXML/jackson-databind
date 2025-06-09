@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -14,7 +13,8 @@ public class RecordJsonUnwrappedNamingIssue5115Test
     extends DatabindTestUtil
 {
     record FooRecord5115(int a, int b) { }
-    record BarRecord5115(@JsonUnwrapped FooRecord5115 a, int c) { }
+    record BarRecordFail5115(@JsonUnwrapped FooRecord5115 a, int c) { }
+    record BarRecordPass5115(@JsonUnwrapped FooRecord5115 foo, int c) { }
 
     static class FooPojo5115 {
         public int a;
@@ -48,17 +48,31 @@ public class RecordJsonUnwrappedNamingIssue5115Test
         assertEquals(2, output.a.b);
     }
 
-    @JacksonTestFailureExpected
     @Test
-    void unwrappedRecordShouldRoundTrip() throws Exception
+    void unwrappedRecordShouldRoundTripPass() throws Exception
     {
-        BarRecord5115 input = new BarRecord5115(new FooRecord5115(1, 2), 3);
+        BarRecordPass5115 input = new BarRecordPass5115(new FooRecord5115(1, 2), 3);
 
         // Serialize
         String json = MAPPER.writeValueAsString(input);
 
         // Deserialize (currently fails)
-        BarRecord5115 output = MAPPER.readValue(json, BarRecord5115.class);
+        BarRecordPass5115 output = MAPPER.readValue(json, BarRecordPass5115.class);
+
+        // Should match after bug is fixed
+        assertEquals(input, output);
+    }
+
+    @Test
+    void unwrappedRecordShouldRoundTrip() throws Exception
+    {
+        BarRecordFail5115 input = new BarRecordFail5115(new FooRecord5115(1, 2), 3);
+
+        // Serialize
+        String json = MAPPER.writeValueAsString(input);
+
+        // Deserialize (currently fails)
+        BarRecordFail5115 output = MAPPER.readValue(json, BarRecordFail5115.class);
 
         // Should match after bug is fixed
         assertEquals(input, output);

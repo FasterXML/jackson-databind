@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -63,6 +64,7 @@ public class RecordJsonUnwrappedNamingIssue5115Test
         assertEquals(input, output);
     }
 
+    @JacksonTestFailureExpected
     @Test
     void unwrappedRecordShouldRoundTrip() throws Exception
     {

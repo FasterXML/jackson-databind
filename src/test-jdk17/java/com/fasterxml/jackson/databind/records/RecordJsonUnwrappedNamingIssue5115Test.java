@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.records;
+package com.fasterxml.jackson.databind.tofix;
 
 import org.junit.jupiter.api.Test;
 

@@ -10,11 +10,37 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class JsonIgnoreOnRecordMethod5184Test
+public class RecordWithJsonIgnoredMethod5184Test
     extends DatabindTestUtil
 {
+    record TestData5184(@JsonProperty("test_property") String value) {
+        @JsonIgnore
+        public Optional<String> getValue() {
+            return Optional.ofNullable(value);
+        }
+    }
+
+    record TestData5184Alternate(@JsonProperty("test_property") String value) {
+        @JsonIgnore
+        public Optional<String> optionalValue() {
+            return Optional.ofNullable(value);
+        }
+    }
+
+    static final class TestData5184Class {
+        private final String value;
+
+        public TestData5184Class(@JsonProperty("test_property") String value) {
+            this.value = value;
+        }
+
+        @JsonIgnore
+        public Optional<String> getValue() {
+            return Optional.ofNullable(value);
+        }
+    }
 
     private static final ObjectMapper MAPPER = newJsonMapper();
 
@@ -25,7 +51,7 @@ public class JsonIgnoreOnRecordMethod5184Test
                 {"test_property":"test value"}
                 """;
 
-        var testData = MAPPER.readValue(json, TestData.class);
+        var testData = MAPPER.readValue(json, TestData5184.class);
 
         assertThat(testData.value()).isEqualTo("test value");
     }
@@ -36,7 +62,7 @@ public class JsonIgnoreOnRecordMethod5184Test
                 {"test_property":"test value"}
                 """;
 
-        var testData = MAPPER.readValue(json, TestDataClass.class);
+        var testData = MAPPER.readValue(json, TestData5184Class.class);
 
         assertThat(testData.getValue()).contains("test value");
     }
@@ -47,7 +73,7 @@ public class JsonIgnoreOnRecordMethod5184Test
                 {"test_property":"test value"}
                 """;
 
-        var testData = MAPPER.readValue(json, TestDataAlternate.class);
+        var testData = MAPPER.readValue(json, TestData5184Alternate.class);
 
         assertThat(testData.value()).isEqualTo("test value");
     }
@@ -58,45 +84,8 @@ public class JsonIgnoreOnRecordMethod5184Test
                 {"value":"test value"}
                 """;
 
-        TestData testData = MAPPER.readValue(json, TestData.class);
+        TestData5184 testData = MAPPER.readValue(json, TestData5184.class);
 
         assertThat(testData.value()).isNull();
     }
-
-    public record TestData(
-            @JsonProperty("test_property")
-            String value) {
-
-        @JsonIgnore
-        public Optional<String> getValue() {
-            return Optional.ofNullable(value);
-        }
-    }
-
-    public record TestDataAlternate(
-            @JsonProperty("test_property")
-            String value) {
-
-        @JsonIgnore
-        public Optional<String> optionalValue() {
-            return Optional.ofNullable(value);
-        }
-    }
-
-    public static final class TestDataClass {
-        private final String value;
-
-        public TestDataClass(
-                @JsonProperty("test_property")
-                String value) {
-            this.value = value;
-        }
-
-        @JsonIgnore
-        public Optional<String> getValue() {
-            return Optional.ofNullable(value);
-        }
-
-    }
-
 }

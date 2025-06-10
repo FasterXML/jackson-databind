@@ -41,7 +41,9 @@ public class AccessFixTest extends DatabindTestUtil
             _testCauseOfThrowableIgnoral(mapper);
         } catch (UnsupportedOperationException e) {
             // JDK 21+ fail?
-            verifyException(e, "Security Manager is deprecated");
+            verifyException(e,
+                    "Security Manager is deprecated",
+                    "Setting a Security Manager is not supported");
         } finally {
             if (setSucceeded) {
                 System.setSecurityManager(origSecMan);

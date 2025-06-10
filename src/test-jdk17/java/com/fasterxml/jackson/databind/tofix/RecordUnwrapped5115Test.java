@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpecte
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#5115] @JsonUnwrapped can't handle name collision #5115
-public class RecordJsonUnwrappedNamingIssue5115Test
+public class RecordUnwrapped5115Test
     extends DatabindTestUtil
 {
     record FooRecord5115(int a, int b) { }
@@ -42,8 +42,6 @@ public class RecordJsonUnwrappedNamingIssue5115Test
         String      json   = MAPPER.writeValueAsString(input);
         BarPojo5115 output = MAPPER.readValue(json, BarPojo5115.class);
 
-        // Once the bug is fixed, this assertion will pass and the
-        // @JacksonTestFailureExpected annotation can be removed.
         assertEquals(4, output.c);
         assertEquals(1, output.a.a);
         assertEquals(2, output.a.b);
@@ -73,7 +71,8 @@ public class RecordJsonUnwrappedNamingIssue5115Test
         // Serialize
         String json = MAPPER.writeValueAsString(input);
 
-        // Deserialize (currently fails)
+        // Once the bug is fixed, this assertion will pass and the
+        // @JacksonTestFailureExpected annotation can be removed.
         BarRecordFail5115 output = MAPPER.readValue(json, BarRecordFail5115.class);
 
         // Should match after bug is fixed

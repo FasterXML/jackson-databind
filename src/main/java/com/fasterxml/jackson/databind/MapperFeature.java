@@ -552,13 +552,20 @@ public enum MapperFeature implements ConfigFeature
     ALLOW_EXPLICIT_PROPERTY_RENAMING(false),
 
     /**
-     * TODO: describe!
-     *
-     * Fixes "iPhone" / "IPhone" properties
+     * Feature that can be enabled to solve problem where an upper-case letter in
+     * the first 2 characters of Java field name (like {@code "IPhone"} or {@code "iPhone"})
+     * prevents match with property name derived from accessors (setter like
+     * {@code getIPhone()} becomes {@code "iphone"}).
+     * If enabled, additional checking is done with case-insensitive comparison (for
+     * cases of the first or second letter of Field name being upper-case) to merge
+     * accessors. If disabled, no special processing is done.
+     * <p>
+     * Feature is disabled by default in 2.x for backwards-compatibility.
+     * It will be enabled by default in 3.0.
      *
      * @since 2.20
      */
-    FIX_MISMATCHING_LEADING_FIELD_CASE(true),
+    FIX_FIELD_NAME_CASE_MISMATCH(false),
 
     /*
     /******************************************************

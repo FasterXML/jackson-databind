@@ -18,7 +18,8 @@ Project: jackson-databind
   serialization
 #5151: Add new exception type, `MissingInjectValueException`, to be used
   for failed `@JacksonInject`
-#5152: Support "iPhone" style capitalized properties
+#5152: Support "iPhone" style capitalized properties (add
+  `MapperFeature.FIX_FIELD_NAME_CASE_MISMATCH`)
 #5179: Add "current token" info into `MismatchedInputException`
 - Generate SBOMs [JSTEP-14]
 

@@ -1293,7 +1293,8 @@ ctor.creator()));
      */
 
     // @since 2.20
-    protected void _fixLeadingFieldNameCase(Map<String, POJOPropertyBuilder> props) {
+    protected void _fixLeadingFieldNameCase(Map<String, POJOPropertyBuilder> props)
+    {
         // 11-Jun-2025, tatu: [databind#5152] May need to "fix" mis-matching leading case
         //    wrt Fields vs Accessors
 
@@ -1304,7 +1305,6 @@ ctor.creator()));
         // 3. Implicit name has upper-case for first and/or second character
 
         Map<String, POJOPropertyBuilder> fieldsToCheck = null;
-
         for (Map.Entry<String, POJOPropertyBuilder> entry : props.entrySet()) {
             POJOPropertyBuilder  prop = entry.getValue();
 
@@ -1334,7 +1334,26 @@ ctor.creator()));
             return;
         }
 
-        // !!! TODO: actual check for renaming
+        for (Map.Entry<String, POJOPropertyBuilder> fieldEntry : fieldsToCheck.entrySet()) {
+            Iterator<Map.Entry<String, POJOPropertyBuilder>> it = props.entrySet().iterator();
+            final POJOPropertyBuilder fieldProp = fieldEntry.getValue();
+            final String fieldName = fieldEntry.getKey();
+
+            while (it.hasNext()) {
+                Map.Entry<String, POJOPropertyBuilder> propEntry = it.next();
+                final POJOPropertyBuilder prop = propEntry.getValue();
+
+                // Skip anything that has Field (can't merge)
+                if (prop == fieldProp || prop.hasField()) {
+                    continue;
+                }
+                if (fieldName.equalsIgnoreCase(propEntry.getKey())) {
+                    // !!! TODO: actual fix
+
+                    break;
+                }
+            }
+        }
     }
 
     // @since 2.20

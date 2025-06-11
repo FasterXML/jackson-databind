@@ -90,6 +90,7 @@ public class IPhoneStyleProperty5152Test
     }
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.FIX_MISMATCHING_LEADING_FIELD_CASE)
             .build();
 
     //@JacksonTestFailureExpected

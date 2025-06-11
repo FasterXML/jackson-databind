@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.tofix;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
@@ -73,10 +72,27 @@ public class IPhoneStyleProperty5152Test
         }
     }
 
+    // [databind#2696]
+    static class OAuthToken {
+        protected String oAuthToken;
+
+        public OAuthToken(String t) {
+            oAuthToken = t;
+        }
+
+        public String getOAuthToken() {
+            return this.oAuthToken;
+        }
+
+        public void setOAuthToken(String oAuthToken) {
+            this.oAuthToken = oAuthToken;
+        }
+    }
+
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .build();
 
-    @JacksonTestFailureExpected
+    //@JacksonTestFailureExpected
     @Test
     public void testIPhoneStyleProperty() throws Exception {
         // Test with iPhone style property
@@ -104,7 +120,7 @@ public class IPhoneStyleProperty5152Test
     }
 
     // [databind#2835]: "dLogHeader" property
-    @JacksonTestFailureExpected
+    //@JacksonTestFailureExpected
     @Test
     public void testDLogHeaderStyleProperty() throws Exception {
         // Test with DLogHeader style property
@@ -118,7 +134,7 @@ public class IPhoneStyleProperty5152Test
         assertEquals("{\"dLogHeader\":\"Debug Log Header\"}", serialized);
     }
 
-    @JacksonTestFailureExpected
+    //@JacksonTestFailureExpected
     @Test
     public void testKBSBroadCastingStyleProperty() throws Exception {
         // Test with KBSBroadCasting style property
@@ -132,7 +148,7 @@ public class IPhoneStyleProperty5152Test
         assertEquals("{\"KBSBroadCasting\":\"Korean Broadcasting System\"}", serialized);
     }
 
-    @JacksonTestFailureExpected
+    //@JacksonTestFailureExpected
     @Test
     public void testPhoneStyleProperty() throws Exception {
         // Test with Phone style property
@@ -146,4 +162,11 @@ public class IPhoneStyleProperty5152Test
         assertEquals("{\"Phone\":\"iPhone 15\"}", serialized);
     }
 
+    // [databind#2696]
+    //@JacksonTestFailureExpected
+    @Test
+    public void testOAuthProperty() throws Exception {
+        assertEquals(a2q("{'oAuthToken':'123'}"),
+                MAPPER.writeValueAsString(new OAuthToken("123")));
+    }
 }

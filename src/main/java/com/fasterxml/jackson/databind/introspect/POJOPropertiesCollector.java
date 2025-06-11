@@ -433,7 +433,7 @@ public class POJOPropertiesCollector
         _potentialCreators = new PotentialCreators();
 
         // First: gather basic accessors
-        LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<String, POJOPropertyBuilder>();
+        LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<>();
 
         // 14-Nov-2024, tatu: Previously skipped checking fields for Records; with 2.18+ won't
         //    (see [databind#3628], [databind#3895], [databind#3992], [databind#4626])
@@ -1386,6 +1386,8 @@ ctor.creator()));
         // With renaming need to do in phases: first, find properties to rename
         Iterator<Map.Entry<String,POJOPropertyBuilder>> it = props.entrySet().iterator();
         LinkedList<POJOPropertyBuilder> renamed = null;
+        // 10-Jun-2025, tatu: [databind#5152] Let's see if 
+
         while (it.hasNext()) {
             Map.Entry<String, POJOPropertyBuilder> entry = it.next();
             POJOPropertyBuilder prop = entry.getValue();

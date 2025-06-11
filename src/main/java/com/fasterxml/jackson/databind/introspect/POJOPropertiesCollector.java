@@ -1348,8 +1348,11 @@ ctor.creator()));
                     continue;
                 }
                 if (fieldName.equalsIgnoreCase(propEntry.getKey())) {
-                    // !!! TODO: actual fix
-
+                    // Remove non-Field property; add its accessors to Field one
+                    it.remove();
+                    fieldProp.addAll(prop);
+                    // Should we continue with possible other accessors?
+                    // For now assume only one merge needed/desired
                     break;
                 }
             }

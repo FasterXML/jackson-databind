@@ -40,7 +40,7 @@ public final class StringArrayDeserializer
     /**
      * Value serializer to use, if not the standard one (which is inlined)
      */
-    protected JsonDeserializer<String> _elementDeserializer;
+    protected final JsonDeserializer<String> _elementDeserializer;
 
     /**
      * Handler we need for dealing with null values as elements

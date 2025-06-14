@@ -10,9 +10,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import org.opentest4j.AssertionFailedError;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // For [databind#5165]
@@ -37,12 +36,8 @@ public class MapDeserializer5165Test
                 .build();
 
         assertThrows(
-                AssertionFailedError.class,
-                () -> assertThrows(
-                        InvalidNullException.class,
-                        () -> mapper.readValue("{\"map\":{\"key\":\"\"}}", new TypeReference<Dst>(){})
-                ),
-                "databind#5165 for MapDeserializer is fixed"
+                InvalidNullException.class,
+                () -> mapper.readValue("{\"map\":{\"key\":\"\"}}", new TypeReference<Dst>(){})
         );
     }
 
@@ -54,6 +49,6 @@ public class MapDeserializer5165Test
 
         Dst dst = mapper.readValue("{\"map\":{\"key\":\"\"}}", new TypeReference<Dst>() {});
 
-        assertFalse(dst.getMap().isEmpty(), "databind#5165 for MapDeserializer is fixed");
+        assertTrue(dst.getMap().isEmpty());
     }
 }

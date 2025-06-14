@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.opentest4j.AssertionFailedError;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // For [databind#5165]
@@ -41,12 +42,8 @@ public class EnumMapDeserializer5165Test
                 .build();
 
         assertThrows(
-                AssertionFailedError.class,
-                () -> assertThrows(
-                        InvalidNullException.class,
-                        () -> mapper.readValue("{\"map\":{\"FOO\":\"\"}}", new TypeReference<Dst>(){})
-                ),
-                "databind#5165 for EnumMapDeserializer is fixed"
+                InvalidNullException.class,
+                () -> mapper.readValue("{\"map\":{\"FOO\":\"\"}}", new TypeReference<Dst>(){})
         );
     }
 
@@ -58,6 +55,6 @@ public class EnumMapDeserializer5165Test
 
         Dst dst = mapper.readValue("{\"map\":{\"FOO\":\"\"}}", new TypeReference<Dst>() {});
 
-        assertFalse(dst.getMap().isEmpty(), "databind#5165 for EnumMapDeserializer is fixed");
+        assertTrue(dst.getMap().isEmpty());
     }
 }

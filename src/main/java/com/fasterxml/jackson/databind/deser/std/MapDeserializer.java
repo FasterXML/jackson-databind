@@ -343,9 +343,11 @@ public class MapDeserializer
                 if (ignorals != null) {
                     Set<String> ignoresToAdd = ignorals.findIgnoredForDeserialization();
                     if (!ignoresToAdd.isEmpty()) {
-                        ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
-                        for (String str : ignoresToAdd) {
-                            ignored.add(str);
+                        if (ignored == null) {
+                            ignored = new HashSet<>(ignoresToAdd);
+                        } else {
+                            ignored = new HashSet<String>(ignored);
+                            ignored.addAll(ignoresToAdd);
                         }
                     }
                 }
@@ -500,8 +502,6 @@ public class MapDeserializer
     @SuppressWarnings("unchecked")
     public final Class<?> getMapClass() { return (Class<Map<Object,Object>>) _containerType.getRawClass(); }
 
-    @Override public JavaType getValueType() { return _containerType; }
-
     /*
     /**********************************************************
     /* Internal methods, non-merging deserialization
@@ -511,12 +511,8 @@ public class MapDeserializer
     protected final Map<Object,Object> _readAndBind(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
-        final KeyDeserializer keyDes = _keyDeserializer;
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
-
         MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = valueDes.getObjectIdReader() != null;
+        boolean useObjectId = _valueDeserializer.getObjectIdReader() != null;
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(),
                     result);
@@ -537,7 +533,7 @@ public class MapDeserializer
         }
 
         for (; keyStr != null; keyStr = p.nextFieldName()) {
-            Object key = keyDes.deserializeKey(keyStr, ctxt);
+            Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
@@ -552,10 +548,8 @@ public class MapDeserializer
                         continue;
                     }
                     value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
@@ -582,10 +576,8 @@ public class MapDeserializer
     protected final Map<Object,Object> _readAndBindStringKeyMap(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
         MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = (valueDes.getObjectIdReader() != null);
+        boolean useObjectId = (_valueDeserializer.getObjectIdReader() != null);
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
         }
@@ -618,10 +610,8 @@ public class MapDeserializer
                         continue;
                     }
                     value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
@@ -648,9 +638,6 @@ public class MapDeserializer
         final PropertyBasedCreator creator = _propertyBasedCreator;
         // null -> no ObjectIdReader for Maps (yet?)
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
-
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
         String key;
         if (p.isExpectedStartObjectToken()) {
@@ -693,10 +680,8 @@ public class MapDeserializer
                         continue;
                     }
                     value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
             } catch (Exception e) {
                 wrapAndThrow(ctxt, e, _containerType.getRawClass(), key);
@@ -726,7 +711,6 @@ public class MapDeserializer
     protected final void _readAndUpdate(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
-        final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
@@ -748,7 +732,7 @@ public class MapDeserializer
         }
 
         for (; keyStr != null; keyStr = p.nextFieldName()) {
-            Object key = keyDes.deserializeKey(keyStr, ctxt);
+            Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
@@ -772,10 +756,8 @@ public class MapDeserializer
                     } else {
                         value = valueDes.deserializeWithType(p, ctxt, typeDeser, old);
                     }
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
                 if (value != old) {
                     result.put(key, value);
@@ -839,10 +821,8 @@ public class MapDeserializer
                     } else {
                         value = valueDes.deserializeWithType(p, ctxt, typeDeser, old);
                     }
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
                 if (value != old) {
                     result.put(key, value);
@@ -851,6 +831,22 @@ public class MapDeserializer
                 wrapAndThrow(ctxt, e, result, key);
             }
         }
+    }
+
+    /**
+     * Deserialize the content of the map.
+     * If _valueTypeDeserializer is null, use _valueDeserializer.deserialize; if non-null,
+     * use _valueDeserializer.deserializeWithType to deserialize value.
+     * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
+     * @since 2.19.2
+     */
+    protected Object _deserializeNoNullChecks(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+    {
+        if (_valueTypeDeserializer == null) {
+            return _valueDeserializer.deserialize(p, ctxt);
+        }
+        return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
     }
 
     /**
@@ -895,11 +891,11 @@ public class MapDeserializer
 
     private final static class MapReferringAccumulator {
         private final Class<?> _valueType;
-        private Map<Object,Object> _result;
+        private final Map<Object,Object> _result;
         /**
          * A list of {@link MapReferring} to maintain ordering.
          */
-        private List<MapReferring> _accumulator = new ArrayList<MapReferring>();
+        private final List<MapReferring> _accumulator = new ArrayList<MapReferring>();
 
         public MapReferringAccumulator(Class<?> valueType, Map<Object, Object> result) {
             _valueType = valueType;

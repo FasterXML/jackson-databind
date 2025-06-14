@@ -511,7 +511,6 @@ public class MapDeserializer
     protected final Map<Object,Object> _readAndBind(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
-        final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
@@ -537,7 +536,7 @@ public class MapDeserializer
         }
 
         for (; keyStr != null; keyStr = p.nextFieldName()) {
-            Object key = keyDes.deserializeKey(keyStr, ctxt);
+            Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
@@ -726,7 +725,6 @@ public class MapDeserializer
     protected final void _readAndUpdate(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
-        final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
@@ -748,7 +746,7 @@ public class MapDeserializer
         }
 
         for (; keyStr != null; keyStr = p.nextFieldName()) {
-            Object key = keyDes.deserializeKey(keyStr, ctxt);
+            Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {

@@ -320,7 +320,7 @@ public class ObjectArrayDeserializer
         // But then need to convert to wrappers
         Byte[] result = new Byte[b.length];
         for (int i = 0, len = b.length; i < len; ++i) {
-            result[i] = Byte.valueOf(b[i]);
+            result[i] = b[i];
         }
         return result;
     }

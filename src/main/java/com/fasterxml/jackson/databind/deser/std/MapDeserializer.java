@@ -893,11 +893,11 @@ public class MapDeserializer
 
     private final static class MapReferringAccumulator {
         private final Class<?> _valueType;
-        private Map<Object,Object> _result;
+        private final Map<Object,Object> _result;
         /**
          * A list of {@link MapReferring} to maintain ordering.
          */
-        private List<MapReferring> _accumulator = new ArrayList<MapReferring>();
+        private final List<MapReferring> _accumulator = new ArrayList<MapReferring>();
 
         public MapReferringAccumulator(Class<?> valueType, Map<Object, Object> result) {
             _valueType = valueType;

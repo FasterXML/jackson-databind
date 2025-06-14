@@ -509,11 +509,8 @@ public class MapDeserializer
     protected final Map<Object,Object> _readAndBind(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
-
         MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = valueDes.getObjectIdReader() != null;
+        boolean useObjectId = _valueDeserializer.getObjectIdReader() != null;
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(),
                     result);
@@ -549,10 +546,8 @@ public class MapDeserializer
                         continue;
                     }
                     value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
@@ -579,10 +574,8 @@ public class MapDeserializer
     protected final Map<Object,Object> _readAndBindStringKeyMap(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
         MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = (valueDes.getObjectIdReader() != null);
+        boolean useObjectId = (_valueDeserializer.getObjectIdReader() != null);
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
         }
@@ -615,10 +608,8 @@ public class MapDeserializer
                         continue;
                     }
                     value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
@@ -645,9 +636,6 @@ public class MapDeserializer
         final PropertyBasedCreator creator = _propertyBasedCreator;
         // null -> no ObjectIdReader for Maps (yet?)
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
-
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
         String key;
         if (p.isExpectedStartObjectToken()) {
@@ -690,10 +678,8 @@ public class MapDeserializer
                         continue;
                     }
                     value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
             } catch (Exception e) {
                 wrapAndThrow(ctxt, e, _containerType.getRawClass(), key);
@@ -768,10 +754,8 @@ public class MapDeserializer
                     } else {
                         value = valueDes.deserializeWithType(p, ctxt, typeDeser, old);
                     }
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
                 if (value != old) {
                     result.put(key, value);
@@ -835,10 +819,8 @@ public class MapDeserializer
                     } else {
                         value = valueDes.deserializeWithType(p, ctxt, typeDeser, old);
                     }
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
                 if (value != old) {
                     result.put(key, value);
@@ -847,6 +829,22 @@ public class MapDeserializer
                 wrapAndThrow(ctxt, e, result, key);
             }
         }
+    }
+
+    /**
+     * Deserialize the content of the map.
+     * If _valueTypeDeserializer is null, use _valueDeserializer.deserialize; if non-null,
+     * use _valueDeserializer.deserializeWithType to deserialize value.
+     * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
+     * @since 2.19.2
+     */
+    protected Object _deserializeNoNullChecks(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+    {
+        if (_valueTypeDeserializer == null) {
+            return _valueDeserializer.deserialize(p, ctxt);
+        }
+        return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
     }
 
     /**

@@ -23,7 +23,7 @@ Project: jackson-databind
 #5179: Add "current token" info into `MismatchedInputException`
 - Generate SBOMs [JSTEP-14]
 
-2.19.1 (not yet released)
+2.19.1 (13-Jun-2025)
 
 #5139: In `CollectionDeserializer`, `JsonSetter.contentNulls` is sometimes ignored
  (contributed by @wrongwrong)

@@ -343,9 +343,11 @@ public class MapDeserializer
                 if (ignorals != null) {
                     Set<String> ignoresToAdd = ignorals.findIgnoredForDeserialization();
                     if (!ignoresToAdd.isEmpty()) {
-                        ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
-                        for (String str : ignoresToAdd) {
-                            ignored.add(str);
+                        if (ignored == null) {
+                            ignored = new HashSet<>(ignoresToAdd);
+                        } else {
+                            ignored = new HashSet<String>(ignored);
+                            ignored.addAll(ignoresToAdd);
                         }
                     }
                 }

@@ -500,8 +500,6 @@ public class MapDeserializer
     @SuppressWarnings("unchecked")
     public final Class<?> getMapClass() { return (Class<Map<Object,Object>>) _containerType.getRawClass(); }
 
-    @Override public JavaType getValueType() { return _containerType; }
-
     /*
     /**********************************************************
     /* Internal methods, non-merging deserialization

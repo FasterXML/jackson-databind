@@ -68,9 +68,9 @@ public final class StringCollectionDeserializer
 
     @SuppressWarnings("unchecked")
     private StringCollectionDeserializer(JavaType collectionType,
-                                         ValueInstantiator valueInstantiator, JsonDeserializer<?> delegateDeser,
-                                         JsonDeserializer<?> valueDeser,
-                                         NullValueProvider nuller, Boolean unwrapSingle)
+            ValueInstantiator valueInstantiator, JsonDeserializer<?> delegateDeser,
+            JsonDeserializer<?> valueDeser,
+            NullValueProvider nuller, Boolean unwrapSingle)
     {
         super(collectionType, nuller, unwrapSingle);
         _valueDeserializer = (JsonDeserializer<String>) valueDeser;
@@ -79,8 +79,8 @@ public final class StringCollectionDeserializer
     }
 
     private StringCollectionDeserializer withResolved(JsonDeserializer<?> delegateDeser,
-                                                      JsonDeserializer<?> valueDeser,
-                                                      NullValueProvider nuller, Boolean unwrapSingle)
+            JsonDeserializer<?> valueDeser,
+            NullValueProvider nuller, Boolean unwrapSingle)
     {
         if ((Objects.equals(_unwrapSingle, unwrapSingle)) && (_nullProvider == nuller)
                 && (_valueDeserializer == valueDeser) && (_delegateDeserializer == delegateDeser)) {
@@ -107,6 +107,7 @@ public final class StringCollectionDeserializer
     /* Validation, post-processing
     /**********************************************************
      */
+
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException

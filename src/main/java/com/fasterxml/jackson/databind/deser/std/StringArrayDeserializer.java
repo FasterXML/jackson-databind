@@ -72,7 +72,7 @@ public final class StringArrayDeserializer
 
     @SuppressWarnings("unchecked")
     private StringArrayDeserializer(JsonDeserializer<?> deser,
-                                    NullValueProvider nuller, Boolean unwrapSingle) {
+            NullValueProvider nuller, Boolean unwrapSingle) {
         super(String[].class);
         _elementDeserializer = (JsonDeserializer<String>) deser;
         _nullProvider = nuller;
@@ -185,7 +185,7 @@ public final class StringArrayDeserializer
      * Offlined version used when we do not use the default deserialization method.
      */
     private String[] _deserializeCustom(JsonParser p, DeserializationContext ctxt,
-                                        String[] old) throws IOException
+            String[] old) throws IOException
     {
         final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
         int ix;

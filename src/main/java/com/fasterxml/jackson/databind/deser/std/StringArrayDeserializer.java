@@ -40,14 +40,14 @@ public final class StringArrayDeserializer
     /**
      * Value serializer to use, if not the standard one (which is inlined)
      */
-    protected JsonDeserializer<String> _elementDeserializer;
+    private final JsonDeserializer<String> _elementDeserializer;
 
     /**
      * Handler we need for dealing with null values as elements
      *
      * @since 2.9
      */
-    protected final NullValueProvider _nullProvider;
+    private final NullValueProvider _nullProvider;
 
     /**
      * Specific override for this instance (from proper, or global per-type overrides)
@@ -56,7 +56,7 @@ public final class StringArrayDeserializer
      *
      * @since 2.7
      */
-    protected final Boolean _unwrapSingle;
+    private final Boolean _unwrapSingle;
 
     /**
      * Marker flag set if the <code>_nullProvider</code> indicates that all null
@@ -64,14 +64,14 @@ public final class StringArrayDeserializer
      *
      * @since 2.9
      */
-    protected final boolean _skipNullValues;
+    private final boolean _skipNullValues;
 
     public StringArrayDeserializer() {
         this(null, null, null);
     }
 
     @SuppressWarnings("unchecked")
-    protected StringArrayDeserializer(JsonDeserializer<?> deser,
+    private StringArrayDeserializer(JsonDeserializer<?> deser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         super(String[].class);
         _elementDeserializer = (JsonDeserializer<String>) deser;
@@ -184,7 +184,7 @@ public final class StringArrayDeserializer
     /**
      * Offlined version used when we do not use the default deserialization method.
      */
-    protected final String[] _deserializeCustom(JsonParser p, DeserializationContext ctxt,
+    private String[] _deserializeCustom(JsonParser p, DeserializationContext ctxt,
             String[] old) throws IOException
     {
         final ObjectBuffer buffer = ctxt.leaseObjectBuffer();

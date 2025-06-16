@@ -139,12 +139,9 @@ public class EnumSetDeserializer
     @Override
     public boolean isCachable() {
         // One caveat: content deserializer should prevent caching
-        if (_enumType.getValueHandler() != null) {
-            return false;
-        }
-        return true;
+        return _enumType.getValueHandler() == null;
     }
-    
+
     @Override // since 2.12
     public LogicalType logicalType() {
         return LogicalType.Collection;

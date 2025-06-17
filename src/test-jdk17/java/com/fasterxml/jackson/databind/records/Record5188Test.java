@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+// [databind#5188] Should JsonManagedReference/JsonBackReference for records #5188
 public class Record5188Test
     extends DatabindTestUtil
 {

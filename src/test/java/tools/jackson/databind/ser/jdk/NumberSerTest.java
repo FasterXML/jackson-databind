@@ -233,9 +233,18 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     @Test
+    public void testConfigOverrideJdkNumber() throws Exception {
+        JsonMapper mapper = jsonMapperBuilder().withConfigOverride(BigDecimal.class,
+                c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+                .build();
+        String value = mapper.writeValueAsString(new BigDecimal("123.456"));
+        assertEquals(a2q("'123.456'"), value);
+    }
+
+    @Test
     public void testConfigOverrideNonJdkNumber() throws Exception {
         JsonMapper mapper = jsonMapperBuilder().withConfigOverride(MyBigDecimal.class,
-                c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+                        c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
                 .build();
         String value = mapper.writeValueAsString(new MyBigDecimal("123.456"));
         assertEquals(a2q("'123.456'"), value);

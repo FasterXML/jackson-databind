@@ -161,6 +161,9 @@ public class BeanSerializerFactory
                 beanDescRef = ctxt.lazyIntrospectBeanDescription(type);
             }
         }
+        if (formatOverrides == null) {
+            formatOverrides = _calculateEffectiveFormat(ctxt, beanDescRef, type.getRawClass(), JsonFormat.Value.empty());
+        }
         // Slight detour: do we have a Converter to consider?
         Converter<Object,Object> conv = config.findSerializationConverter(beanDescRef.getClassInfo());
         if (conv != null) { // yup, need converter

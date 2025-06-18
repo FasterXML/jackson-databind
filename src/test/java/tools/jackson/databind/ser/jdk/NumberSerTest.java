@@ -17,6 +17,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -114,6 +115,12 @@ public class NumberSerTest extends DatabindTestUtil
         @Override
         public void serialize(BigDecimal value, JsonGenerator gen, SerializationContext serializers) {
             gen.writeNumber(df.format(value));
+        }
+    }
+
+    static class MyBigDecimal extends BigDecimal {
+        public MyBigDecimal(String value) {
+            super(value);
         }
     }
 
@@ -223,6 +230,15 @@ public class NumberSerTest extends DatabindTestUtil
         module.addSerializer(BigDecimal.class, new BigDecimalAsNumberSerializer());
         ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
         assertEquals(a2q("{'value':2.0}"), mapper.writeValueAsString(new BigDecimalHolder("2")));
+    }
+
+    @Test
+    public void testConfigOverrideNonJdkNumber() throws Exception {
+        JsonMapper mapper = jsonMapperBuilder().withConfigOverride(MyBigDecimal.class,
+                c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+                .build();
+        String value = mapper.writeValueAsString(new MyBigDecimal("123.456"));
+        assertEquals(a2q("'123.456'"), value);
     }
 
     // default locale is en_US

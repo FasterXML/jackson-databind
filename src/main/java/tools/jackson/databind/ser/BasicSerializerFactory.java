@@ -313,7 +313,7 @@ public abstract class BasicSerializerFactory
 
         if (type.isTypeOrSubTypeOf(Number.class)) {
             JsonFormat.Value format = _calculateEffectiveFormat(ctxt,
-                    beanDescRef, Number.class, formatOverrides);
+                    beanDescRef, type.getRawClass(), formatOverrides);
 
             // 21-May-2014, tatu: Couple of alternatives actually
             switch (format.getShape()) {

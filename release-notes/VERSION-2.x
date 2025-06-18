@@ -19,6 +19,8 @@ Project: jackson-databind
 #5151: Add new exception type, `MissingInjectValueException`, to be used
   for failed `@JacksonInject`
 #5179: Add "current token" info into `MismatchedInputException`
+#5197: Add more informative exception for back-references with `record` type
+ (fix by Joo-Hyuk K)
 - Generate SBOMs [JSTEP-14]
 
 2.19.1 (13-Jun-2025)

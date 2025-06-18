@@ -27,8 +27,8 @@ public class RecordBackReference5188Test
             MAPPER.readValue(json, Parent.class);
             fail("Should not pass");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "Cannot add back-reference to `java.lang.Record` type ");
-            verifyException(e, "Invalid type definition for");
+            verifyException(e, "Cannot add back-reference to a `java.lang.Record` type");
+            verifyException(e, "Invalid type definition for ");
             verifyException(e, "(property 'parent')");
         }
     }

@@ -19,6 +19,9 @@ Project: jackson-databind
 #5151: Add new exception type, `MissingInjectValueException`, to be used
   for failed `@JacksonInject`
 #5179: Add "current token" info into `MismatchedInputException`
+#5192: Record types are broken on Android when using R8
+ (reported by @HelloOO7)
+ (fix by @pjfanning)
 #5197: Add more informative exception for back-references with `record` type
  (fix by Joo-Hyuk K)
 - Generate SBOMs [JSTEP-14]

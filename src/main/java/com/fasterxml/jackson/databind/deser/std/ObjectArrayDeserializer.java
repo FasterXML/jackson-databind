@@ -211,10 +211,19 @@ public class ObjectArrayDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
+                    value = null;
                 } else {
                     value = _deserializeNoNullChecks(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);
                     ix = 0;
@@ -275,10 +284,19 @@ public class ObjectArrayDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
+                    value = null;
                 } else {
                     value = _deserializeNoNullChecks(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);
                     ix = 0;
@@ -346,7 +364,7 @@ public class ObjectArrayDeserializer
             if (_skipNullValues) {
                 return _emptyValue;
             }
-            value = _nullProvider.getNullValue(ctxt);
+            value = null;
         } else {
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 String textValue = p.getText();
@@ -371,6 +389,15 @@ public class ObjectArrayDeserializer
 
             value = _deserializeNoNullChecks(p, ctxt);
         }
+
+        if (value == null) {
+            value = _nullProvider.getNullValue(ctxt);
+
+            if (value == null && _skipNullValues) {
+                return _emptyValue;
+            }
+        }
+
         // Ok: bit tricky, since we may want T[], not just Object[]
         Object[] result;
 
@@ -399,4 +426,3 @@ public class ObjectArrayDeserializer
         return _elementDeserializer.deserializeWithType(p, ctxt, _elementTypeDeserializer);
     }
 }
-

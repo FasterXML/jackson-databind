@@ -14,9 +14,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.opentest4j.AssertionFailedError;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // For [databind#5165]
@@ -67,12 +66,8 @@ public class StringArrayDeserializer5165Test
         ObjectMapper mapper = createMapperWithCustomDeserializer();
 
         assertThrows(
-                AssertionFailedError.class,
-                () -> assertThrows(
-                        InvalidNullException.class,
-                        () -> mapper.readValue("{\"array\":[\"\"]}", new TypeReference<Dst>(){})
-                ),
-                "databind#5165 for StringArrayDeserializer is fixed"
+                InvalidNullException.class,
+                () -> mapper.readValue("{\"array\":[\"\"]}", new TypeReference<Dst>(){})
         );
     }
 
@@ -88,6 +83,6 @@ public class StringArrayDeserializer5165Test
 
         Dst dst = mapper.readValue("{\"array\":[\"\"]}", new TypeReference<Dst>() {});
 
-        assertNotEquals(0, dst.getArray().length, "databind#5165 for StringArrayDeserializer is fixed");
+        assertEquals(0, dst.getArray().length, "Null values should be skipped");
     }
 }

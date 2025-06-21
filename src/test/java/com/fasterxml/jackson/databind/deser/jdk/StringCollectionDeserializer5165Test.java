@@ -15,10 +15,9 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.opentest4j.AssertionFailedError;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // For [databind#5165]
 public class StringCollectionDeserializer5165Test
@@ -68,12 +67,8 @@ public class StringCollectionDeserializer5165Test
         ObjectMapper mapper = createMapperWithCustomDeserializer();
 
         assertThrows(
-                AssertionFailedError.class,
-                () -> assertThrows(
-                        InvalidNullException.class,
-                        () -> mapper.readValue("{\"list\":[\"\"]}", new TypeReference<Dst>(){})
-                ),
-                "databind#5165 for StringCollectionDeserializer is fixed"
+                InvalidNullException.class,
+                () -> mapper.readValue("{\"list\":[\"\"]}", new TypeReference<Dst>(){})
         );
     }
 
@@ -89,6 +84,6 @@ public class StringCollectionDeserializer5165Test
 
         Dst dst = mapper.readValue("{\"list\":[\"\"]}", new TypeReference<Dst>() {});
 
-        assertFalse(dst.getList().isEmpty(), "databind#5165 for StringCollectionDeserializer is fixed");
+        assertTrue(dst.getList().isEmpty(), "Null values should be skipped");
     }
 }

@@ -501,8 +501,8 @@ public class POJOPropertiesCollector
         _collected = true;
     }
 
-    /*
-     Put anyGetter in the end
+    /**
+     * Put anyGetter in the end, before actual sorting further down {@link POJOPropertiesCollector#_sortProperties(Map)}
      */
     private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(Map<String, POJOPropertyBuilder> all, Map<String, POJOPropertyBuilder> props) {
         for (POJOPropertyBuilder prop : props.values()) {

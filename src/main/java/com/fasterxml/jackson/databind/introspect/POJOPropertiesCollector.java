@@ -502,6 +502,7 @@ public class POJOPropertiesCollector
     }
 
     /**
+     * [databind#5215] JsonAnyGetter Serializer behavior change from 2.18.4 to 2.19.0
      * Put anyGetter in the end, before actual sorting further down {@link POJOPropertiesCollector#_sortProperties(Map)}
      */
     private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(Map<String, POJOPropertyBuilder> all, Map<String, POJOPropertyBuilder> props) {

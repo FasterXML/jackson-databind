@@ -502,6 +502,28 @@ public class POJOPropertiesCollector
     }
 
     /*
+     Put anyGetter in the end
+     */
+    private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(Map<String, POJOPropertyBuilder> all, Map<String, POJOPropertyBuilder> props) {
+        for (POJOPropertyBuilder prop : props.values()) {
+            all.put(prop.getName(), prop);
+        }
+        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<String,POJOPropertyBuilder>(props.size()+props.size());
+        POJOPropertyBuilder anyGetterProp = null;
+        for (POJOPropertyBuilder prop : all.values()) {
+            if (prop.getAccessor() != null && Boolean.TRUE.equals(this._config.getAnnotationIntrospector().hasAnyGetter(prop.getAccessor()))) {
+                anyGetterProp = prop;
+            } else {
+                newAll.put(prop.getName(), prop);
+            }
+        }
+        if (anyGetterProp != null) {
+            newAll.put(anyGetterProp.getName(), anyGetterProp);
+        }
+        return newAll;
+    }
+
+    /*
     /**********************************************************************
     /* Property introspection: Fields
     /**********************************************************************
@@ -1593,9 +1615,8 @@ ctor.creator()));
             all = new LinkedHashMap<String,POJOPropertyBuilder>(size+size);
         }
 
-        for (POJOPropertyBuilder prop : props.values()) {
-            all.put(prop.getName(), prop);
-        }
+        all = _putAnyGettersInTheEnd(all, props);
+
         Map<String,POJOPropertyBuilder> ordered = new LinkedHashMap<>(size+size);
         // Ok: primarily by explicit order
         if (propertyOrder != null) {

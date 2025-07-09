@@ -547,10 +547,19 @@ public class MapDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
+                    value = null;
                 } else {
                     value = _deserializeNoNullChecks(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
                 } else {
@@ -609,10 +618,19 @@ public class MapDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
+                    value = null;
                 } else {
                     value = _deserializeNoNullChecks(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
                 } else {
@@ -679,9 +697,17 @@ public class MapDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
+                    value = null;
                 } else {
                     value = _deserializeNoNullChecks(p, ctxt);
+                }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
                 }
             } catch (Exception e) {
                 wrapAndThrow(ctxt, e, _containerType.getRawClass(), key);
@@ -759,6 +785,15 @@ public class MapDeserializer
                 } else {
                     value = _deserializeNoNullChecks(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 if (value != old) {
                     result.put(key, value);
                 }
@@ -824,6 +859,15 @@ public class MapDeserializer
                 } else {
                     value = _deserializeNoNullChecks(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 if (value != old) {
                     result.put(key, value);
                 }

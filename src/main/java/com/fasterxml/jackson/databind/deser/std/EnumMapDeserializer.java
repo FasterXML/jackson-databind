@@ -308,9 +308,17 @@ public class EnumMapDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
+                    value = null;
                 } else {
                     value = _deserializeNoNullChecks(p, ctxt);
+                }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
                 }
             } catch (Exception e) {
                 return wrapAndThrow(ctxt, e, result, keyStr);
@@ -400,9 +408,17 @@ public class EnumMapDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
+                    value = null;
                 } else {
                     value = _deserializeNoNullChecks(p, ctxt);
+                }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
                 }
             } catch (Exception e) {
                 wrapAndThrow(ctxt, e, _containerType.getRawClass(), keyName);

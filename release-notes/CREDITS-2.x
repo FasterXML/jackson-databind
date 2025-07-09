@@ -1866,6 +1866,9 @@ wrongwrong (@k163377)
  * Contributed fix for #5139: In `CollectionDeserializer`, `JsonSetter.contentNulls`
    is sometimes ignored
   (2.19.1)
+ * Contributed fix for #5202: #5202: `JsonSetter.contentNulls` ignored for `Object[]`,
+  `String[]` and `Collection<String>`
+  (2.19.2)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing
@@ -1943,6 +1946,10 @@ Will Paul (@dropofwill)
 Ryan Schmitt (@rschmitt)
  * Contributed #5099: Fix regression in `ObjectNode.with()`
   (2.19.0)
+
+Eddú Meléndez Gonzales (@eddumelendez)
+ * Reported #5215: `@JsonAnyGetter` serialization order change from 2.18.4 to 2.19.0
+  (2.19.2)
 
 Giulio Longfils (@giulong)
  * Contributed #3072: Allow specifying `@JacksonInject` does not fail when there's no

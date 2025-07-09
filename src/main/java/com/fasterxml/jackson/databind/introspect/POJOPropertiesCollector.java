@@ -506,21 +506,24 @@ public class POJOPropertiesCollector
      * Put anyGetter in the end, before actual sorting further down {@link POJOPropertiesCollector#_sortProperties(Map)}
      */
     private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(
-            Map<String, POJOPropertyBuilder> allProps,
             Map<String, POJOPropertyBuilder> sortedProps)
     {
-        // First, handle sorting caller expects:
-        for (POJOPropertyBuilder prop : allProps.values()) {
-            sortedProps.put(prop.getName(), prop);
-        }
-        // Then re-order if needed
-        if (_anyGetters == null && _anyGetterField == null) {
+        AnnotatedMember anyAccessor;
+
+        if (_anyGetters != null) {
+            anyAccessor = _anyGetters.getFirst();
+        } else if (_anyGetterField != null) {
+            anyAccessor = _anyGetterField.getFirst();
+        } else {
             return sortedProps;
         }
-        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(allProps.size() * 2);
+
+        // Here we'll use insertion-order preserving map, since possible alphabetic
+        // sorting already done earlier
+        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(sortedProps.size() * 2);
         POJOPropertyBuilder anyGetterProp = null;
         for (POJOPropertyBuilder prop : sortedProps.values()) {
-            if (prop.getAccessor() != null && Boolean.TRUE.equals(_config.getAnnotationIntrospector().hasAnyGetter(prop.getAccessor()))) {
+            if (prop.hasFieldOrGetter(anyAccessor)) {
                 anyGetterProp = prop;
             } else {
                 newAll.put(prop.getName(), prop);
@@ -1619,12 +1622,15 @@ ctor.creator()));
         Map<String, POJOPropertyBuilder> all;
         // Need to (re)sort alphabetically?
         if (sortAlpha) {
-            all = new TreeMap<String,POJOPropertyBuilder>();
+            all = new TreeMap<>();
         } else {
-            all = new LinkedHashMap<String,POJOPropertyBuilder>(size+size);
+            all = new LinkedHashMap<>(size+size);
         }
-
-        all = _putAnyGettersInTheEnd(props, all);
+        // First, handle sorting caller expects:
+        for (POJOPropertyBuilder prop : props.values()) {
+            all.put(prop.getName(), prop);
+        }
+        all = _putAnyGettersInTheEnd(all);
 
         Map<String,POJOPropertyBuilder> ordered = new LinkedHashMap<>(size+size);
         // Ok: primarily by explicit order

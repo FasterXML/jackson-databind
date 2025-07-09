@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.records;
+package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -15,8 +15,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// For [databind#5215]
-public class AnyGetterSerializationOrderChangeTest
+// For [databind#5215]: Any-getter should be sorted last, by default
+public class AnyGetterOrdering5215Test
     extends DatabindTestUtil
 {
     static class DynaBean {
@@ -38,9 +38,9 @@ public class AnyGetterSerializationOrderChangeTest
     }
 
     /*
-    /**********************************************************
-    /* Test cases
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = JsonMapper.builder()

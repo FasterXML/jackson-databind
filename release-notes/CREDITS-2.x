@@ -1940,3 +1940,7 @@ Will Paul (@dropofwill)
 Ryan Schmitt (@rschmitt)
  * Contributed #5099: Fix regression in `ObjectNode.with()`
   (2.19.0)
+
+Eddú Meléndez Gonzales (@eddumelendez)
+ * Reported #5215: `@JsonAnyGetter` serialization order change from 2.18.4 to 2.19.0
+  (2.19.2)

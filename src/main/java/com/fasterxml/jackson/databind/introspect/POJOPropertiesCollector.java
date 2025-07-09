@@ -509,13 +509,13 @@ public class POJOPropertiesCollector
             Map<String, POJOPropertyBuilder> allProps,
             Map<String, POJOPropertyBuilder> sortedProps)
     {
-        // First: see if we have any any-getters
-        if (_anyGetters == null && _anyGetterField == null) {
-            return allProps;
-        }
-
+        // First, handle sorting caller expects:
         for (POJOPropertyBuilder prop : allProps.values()) {
             sortedProps.put(prop.getName(), prop);
+        }
+        // Then re-order if needed
+        if (_anyGetters == null && _anyGetterField == null) {
+            return sortedProps;
         }
         Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(allProps.size() * 2);
         POJOPropertyBuilder anyGetterProp = null;

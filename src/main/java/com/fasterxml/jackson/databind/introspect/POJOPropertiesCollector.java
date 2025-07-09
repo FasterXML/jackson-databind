@@ -505,14 +505,16 @@ public class POJOPropertiesCollector
      * [databind#5215] JsonAnyGetter Serializer behavior change from 2.18.4 to 2.19.0
      * Put anyGetter in the end, before actual sorting further down {@link POJOPropertiesCollector#_sortProperties(Map)}
      */
-    private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(Map<String, POJOPropertyBuilder> all, Map<String, POJOPropertyBuilder> props) {
+    private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(Map<String, POJOPropertyBuilder> all,
+            Map<String, POJOPropertyBuilder> props)
+    {
         for (POJOPropertyBuilder prop : props.values()) {
             all.put(prop.getName(), prop);
         }
-        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<String,POJOPropertyBuilder>(props.size()+props.size());
+        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(props.size() * 2);
         POJOPropertyBuilder anyGetterProp = null;
         for (POJOPropertyBuilder prop : all.values()) {
-            if (prop.getAccessor() != null && Boolean.TRUE.equals(this._config.getAnnotationIntrospector().hasAnyGetter(prop.getAccessor()))) {
+            if (prop.getAccessor() != null && Boolean.TRUE.equals(_config.getAnnotationIntrospector().hasAnyGetter(prop.getAccessor()))) {
                 anyGetterProp = prop;
             } else {
                 newAll.put(prop.getName(), prop);

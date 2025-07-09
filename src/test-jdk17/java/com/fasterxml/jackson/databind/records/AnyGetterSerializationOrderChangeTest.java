@@ -15,10 +15,10 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+// For [databind#5215]
 public class AnyGetterSerializationOrderChangeTest
     extends DatabindTestUtil
 {
-
     static class DynaBean {
         public String l;
         public String j;

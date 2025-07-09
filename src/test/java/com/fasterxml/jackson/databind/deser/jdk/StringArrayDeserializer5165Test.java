@@ -45,8 +45,8 @@ public class StringArrayDeserializer5165Test
     }
 
     private ObjectMapper createMapperWithCustomDeserializer() {
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(String.class, new EmptyStringToNullDeserializer());
+        SimpleModule module = new SimpleModule()
+            .addDeserializer(String.class, new EmptyStringToNullDeserializer());
 
         return JsonMapper.builder()
                 .addModule(module)
@@ -66,8 +66,8 @@ public class StringArrayDeserializer5165Test
 
     @Test
     public void nullsSkipTest() throws Exception {
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(String.class, new EmptyStringToNullDeserializer());
+        SimpleModule module = new SimpleModule()
+                .addDeserializer(String.class, new EmptyStringToNullDeserializer());
 
         ObjectMapper mapper = JsonMapper.builder()
                 .addModule(module)

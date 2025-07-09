@@ -25,6 +25,7 @@ public class ObjectArrayDeserializer5165Test
                 .defaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL))
                 .build();
 
+        // NOTE! Relies on default coercion of "" into `null` for `Integer`s...
         assertThrows(
                 InvalidNullException.class,
                 () -> mapper.readValue("{\"array\":[\"\"]}", Dst.class)
@@ -38,7 +39,7 @@ public class ObjectArrayDeserializer5165Test
                 .build();
 
         Dst dst = mapper.readValue("{\"array\":[\"\"]}", Dst.class);
-
+        // NOTE! Relies on default coercion of "" into `null` for `Integer`s...
         assertEquals(0, dst.array.length, "Null values should be skipped");
     }
 }

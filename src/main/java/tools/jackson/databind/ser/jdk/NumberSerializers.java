@@ -17,7 +17,7 @@ import tools.jackson.databind.ser.std.ToStringSerializer;
 
 /**
  * Container class for serializers used for handling standard JDK-provided
- * types.
+ * primitive number types and their wrapper counterparts (like {@link java.lang.Integer}).
  */
 public class NumberSerializers {
     protected NumberSerializers() { }

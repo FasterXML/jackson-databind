@@ -202,7 +202,7 @@ public class StdTypeResolverBuilder
         // use base type as default should always be used as the last choice.
         if (ctxt.isEnabled(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
                && !baseType.isAbstract()) {
-            // still can not resolve by default impl, fall back to use base type as default impl
+            // still cannot resolve by default impl, fall back to use base type as default impl
             return baseType;
         }
         return null;
@@ -363,7 +363,7 @@ public class StdTypeResolverBuilder
      * Overridable helper method that is called to determine whether type serializers
      * and type deserializers may be created even if base type is Java {@code primitive}
      * type.
-     * Default implementation simply returns {@code false} (since primitive types can not
+     * Default implementation simply returns {@code false} (since primitive types cannot
      * be sub-classed, are never polymorphic) but custom implementations
      * may change the logic for some special cases.
      *

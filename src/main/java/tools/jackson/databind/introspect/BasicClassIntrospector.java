@@ -82,7 +82,7 @@ public class BasicClassIntrospector
     }
 
     protected BasicClassIntrospector(MapperConfig<?> config) {
-        _config = Objects.requireNonNull(config, "Can not pass null `config`");
+        _config = Objects.requireNonNull(config, "Cannot pass null `config`");
         _mixInResolver = config;
     }
 

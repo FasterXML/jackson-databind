@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.BeanDescription.EagerSupplier;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.util.Annotations;
 import tools.jackson.databind.util.ClassUtil;
@@ -35,11 +34,11 @@ public class BasicBeanDescription extends BeanDescription
      * information is lazily accessed and constructed; properties
      * are only accessed when they are actually needed.
      */
-    final protected POJOPropertiesCollector _propCollector;
+    protected final POJOPropertiesCollector _propCollector;
 
-    final protected MapperConfig<?> _config;
+    protected final MapperConfig<?> _config;
 
-    final protected AnnotationIntrospector _intr;
+    protected final AnnotationIntrospector _intr;
 
     /*
     /**********************************************************************
@@ -50,7 +49,7 @@ public class BasicBeanDescription extends BeanDescription
     /**
      * Information collected about the class introspected.
      */
-    final protected AnnotatedClass _classInfo;
+    protected final AnnotatedClass _classInfo;
 
     protected Class<?>[] _defaultViews;
 

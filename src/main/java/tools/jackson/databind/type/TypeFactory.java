@@ -587,7 +587,7 @@ public class TypeFactory
                         continue;
                     }
                 }
-                return String.format("Type parameter #%d/%d differs; can not specialize %s with %s",
+                return String.format("Type parameter #%d/%d differs; cannot specialize %s with %s",
                         (i+1), expCount, exp.toCanonical(), act.toCanonical());
             }
         }
@@ -601,7 +601,7 @@ public class TypeFactory
             ((PlaceholderForType) act).actualType(exp);
             return true;
         }
-        // if not, try to verify compatibility. But note that we can not
+        // if not, try to verify compatibility. But note that we cannot
         // use simple equality as we need to resolve recursively
         if (exp.getRawClass() != act.getRawClass()) {
             return false;
@@ -1138,7 +1138,7 @@ public class TypeFactory
                 break;
             default:
                 throw new IllegalArgumentException(String.format(
-"Strange Map type %s with %d type parameter%s (%s), can not resolve",
+"Strange Map type %s with %d type parameter%s (%s), cannot resolve",
 ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             }
         }

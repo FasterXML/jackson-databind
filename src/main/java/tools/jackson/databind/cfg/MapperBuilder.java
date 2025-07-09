@@ -914,7 +914,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         VisibilityChecker oldV = _configOverrides.getDefaultVisibility();
         VisibilityChecker newV = handler.apply(oldV);
         if (newV != oldV) {
-            Objects.requireNonNull(newV, "Can not assign null default VisibilityChecker");
+            Objects.requireNonNull(newV, "Cannot assign null default VisibilityChecker");
             _configOverrides.setDefaultVisibility(newV);
         }
         return _this();
@@ -929,7 +929,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         JsonInclude.Value oldIncl = _configOverrides.getDefaultInclusion();
         JsonInclude.Value newIncl = handler.apply(oldIncl);
         if (newIncl != oldIncl) {
-            Objects.requireNonNull(newIncl, "Can not assign null default Property Inclusion");
+            Objects.requireNonNull(newIncl, "Cannot assign null default Property Inclusion");
             _configOverrides.setDefaultInclusion(newIncl);
         }
         //public ObjectMapper setDefaultPropertyInclusion() {
@@ -945,7 +945,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         JsonSetter.Value oldIncl = _configOverrides.getDefaultNullHandling();
         JsonSetter.Value newIncl = handler.apply(oldIncl);
         if (newIncl != oldIncl) {
-            Objects.requireNonNull(newIncl, "Can not assign null default Null Handling");
+            Objects.requireNonNull(newIncl, "Cannot assign null default Null Handling");
             _configOverrides.setDefaultNullHandling(newIncl);
         }
         return _this();

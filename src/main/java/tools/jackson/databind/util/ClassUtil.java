@@ -1114,7 +1114,7 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
      * @since 2.7
      */
     public static Ctor[] getConstructors(Class<?> cls) {
-        // Note: can NOT skip abstract classes as they may be used with mix-ins
+        // Note: CANNOT skip abstract classes as they may be used with mix-ins
         // and for regular use shouldn't really matter.
         if (cls.isInterface() || isObjectOrPrimitive(cls)) {
             return NO_CTORS;

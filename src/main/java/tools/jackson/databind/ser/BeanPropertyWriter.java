@@ -638,7 +638,7 @@ public class BeanPropertyWriter
         if (value == null) { // nulls need specialized handling
             if (_nullSerializer != null) {
                 _nullSerializer.serialize(null, g, ctxt);
-            } else { // can NOT suppress entries in tabular output
+            } else { // CANNOT suppress entries in tabular output
                 g.writeNull();
             }
             return;
@@ -656,13 +656,12 @@ public class BeanPropertyWriter
         // and then see if we must suppress certain values (default, empty)
         if (_suppressableValue != null) {
             if (MARKER_FOR_EMPTY == _suppressableValue) {
-                if (ser.isEmpty(ctxt, value)) { // can NOT suppress entries in
-                                                // tabular output
+                if (ser.isEmpty(ctxt, value)) { // CANNOT suppress entries in tabular output
                     serializeAsOmittedElement(bean, g, ctxt);
                     return;
                 }
             } else if (_suppressableValue.equals(value)) {
-                // can NOT suppress entries in tabular output
+                // CANNOT suppress entries in tabular output
                 serializeAsOmittedElement(bean, g, ctxt);
                 return;
             }
@@ -783,7 +782,7 @@ public class BeanPropertyWriter
                 if (_nullSerializer != null) {
                     // 23-Oct-2019, tatu: Tricky part -- caller does not specify if it's
                     //   "as property" (in JSON Object) or "as element" (JSON array, via
-                    //   'POJO-as-array'). And since Afterburner calls method can not easily
+                    //   'POJO-as-array'). And since Afterburner calls method cannot easily
                     //   start passing info either. So check generator to see...
                     //   (note: not considering ROOT context as possibility, does not seem legal)
                     if (!g.streamWriteContext().inArray()) {

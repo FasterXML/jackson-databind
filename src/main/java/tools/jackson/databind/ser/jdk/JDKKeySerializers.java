@@ -94,7 +94,7 @@ public abstract class JDKKeySerializers
             if (rawKeyType == Enum.class) {
                 return new Dynamic();
             }
-            // 29-Sep-2019, tatu: [databind#2457] can not use 'rawKeyType.isEnum()`, won't work
+            // 29-Sep-2019, tatu: [databind#2457] cannot use 'rawKeyType.isEnum()`, won't work
             //    for subtypes.
             if (ClassUtil.isEnumType(rawKeyType)) {
                 return EnumKeySerializer.construct(rawKeyType,

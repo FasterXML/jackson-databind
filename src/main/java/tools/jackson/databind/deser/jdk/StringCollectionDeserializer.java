@@ -32,20 +32,20 @@ public final class StringCollectionDeserializer
      * Value deserializer to use, if NOT the standard one
      * (if it is, will be null).
      */
-    protected final ValueDeserializer<String> _valueDeserializer;
+    private final ValueDeserializer<String> _valueDeserializer;
 
     // // Instance construction settings:
 
     /**
      * Instantiator used in case custom handling is needed for creation.
      */
-    protected final ValueInstantiator _valueInstantiator;
+    private final ValueInstantiator _valueInstantiator;
 
     /**
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
      */
-    protected final ValueDeserializer<Object> _delegateDeserializer;
+    private final ValueDeserializer<Object> _delegateDeserializer;
 
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 

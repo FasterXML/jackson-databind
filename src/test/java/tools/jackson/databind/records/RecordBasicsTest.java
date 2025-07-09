@@ -195,6 +195,7 @@ public class RecordBasicsTest extends DatabindTestUtil
             fail("should not pass");
         } catch (IllegalArgumentException e) {
             verifyException(e, "RecordWithHeaderInject#name");
+            // 29-May-2025, tatu: Comes from JDK, not our code?
             verifyException(e, "Can not set final java.lang.String field");
         }
     }

@@ -203,7 +203,6 @@ public class JavaTypeTest extends DatabindTestUtil
         assertFalse(enumSubT.getRawClass().isEnum());
     }
 
-    @SuppressWarnings("SelfComparison")
     @Test
     public void testClassKey()
     {

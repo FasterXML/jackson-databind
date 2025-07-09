@@ -62,7 +62,7 @@ public class AnnotatedMethodCollector
 
         // Any unmatched mix-ins? Most likely error cases (not matching any method);
         // but there is one possible real use case: exposing Object#hashCode
-        // (alas, Object#getClass can NOT be exposed)
+        // (alas, Object#getClass CANNOT be exposed)
         // Since we only know of that ONE case, optimize for it
         if (checkJavaLangObject && (_intr != null) && !methods.isEmpty()) {
             // Could use lookup but probably as fast or faster to traverse

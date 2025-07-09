@@ -487,7 +487,7 @@ public abstract class BeanDeserializerBase
             creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
 
             // 22-Jan-2018, tatu: May need to propagate "ignorable" status (from `Access.READ_ONLY`
-            //     or perhaps class-ignorables) into Creator properties too. Can not just delete,
+            //     or perhaps class-ignorables) into Creator properties too. Cannot just delete,
             //     at this point, but is needed for further processing down the line
             if (_ignorableProps != null || _includableProps != null) {
                 for (int i = 0, end = creatorProps.length; i < end; ++i) {
@@ -891,7 +891,7 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
         // 30-Mar-2020, tatu: As per [databind#2627], need to also allow
         //    per-property override to "ignore all unknown".
         //  NOTE: there is no way to override with `false` because annotation
-        //  defaults to `false` (i.e. can not know if `false` is explicit value)
+        //  defaults to `false` (i.e. cannot know if `false` is explicit value)
         if (ignorals.getIgnoreUnknown() && !_ignoreAllUnknown) {
             contextual = contextual.withIgnoreAllUnknown(true);
         }

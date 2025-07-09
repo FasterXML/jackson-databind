@@ -136,7 +136,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
     {
         // [databind#237]: Report an error if asked to do so:
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)) {
-            // 11-Sep-2019, tatu: Can not pass "property name" because we may be
+            // 11-Sep-2019, tatu: Cannot pass "property name" because we may be
             //    missing enclosing JSON content context...
 // ctxt.reportPropertyInputMismatch(JsonNode.class, propName,
             ctxt.reportInputMismatch(JsonNode.class,

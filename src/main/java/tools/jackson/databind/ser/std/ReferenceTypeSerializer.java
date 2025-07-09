@@ -88,7 +88,7 @@ public abstract class ReferenceTypeSerializer<T>
     public ValueSerializer<T> unwrappingSerializer(NameTransformer transformer) {
         ValueSerializer<Object> valueSer = _valueSerializer;
         if (valueSer != null) {
-            // 09-Dec-2019, tatu: [databind#2565] Can not assume that serializer in
+            // 09-Dec-2019, tatu: [databind#2565] Cannot assume that serializer in
             //    question actually can unwrap
             valueSer = valueSer.unwrappingSerializer(transformer);
             if (valueSer == _valueSerializer) {

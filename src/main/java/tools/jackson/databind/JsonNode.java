@@ -510,7 +510,7 @@ public abstract class JsonNode
      * (for which {@link #isFloatingPointNumber()} returns {@code true})
      * that do not have fractional part.
      * Note that "not-a-number" values of {@code double} and {@code float}
-     * will return {@code false} as they can not be converted to matching
+     * will return {@code false} as they cannot be converted to matching
      * integral representations.
      *
      * @return True if the value is an actual number with no fractional

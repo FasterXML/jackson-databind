@@ -227,7 +227,7 @@ _properties.size(), _filteredProperties.length));
      * type information)
      */
     public BeanSerializer createDummy() {
-        // 20-Sep-2019, tatu: Can not skimp on passing builder  (see [databind#2077])
+        // 20-Sep-2019, tatu: Cannot skimp on passing builder  (see [databind#2077])
         return BeanSerializer.createDummy(_beanDescRef.getType(), this);
     }
 }

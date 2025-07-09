@@ -49,7 +49,7 @@ public class BuilderWithTypeParametersTest
       //   type variable here MUST match that of enclosing class. This has
       //   no semantic meaning to JDK or javac, but internally
       //   `MapperFeature.INFER_BUILDER_TYPE_BINDINGS` relies on this -- but
-      //   can not really validate it. So user just has to rely on bit of
+      //   cannot really validate it. So user just has to rely on bit of
       //    black magic to use generic types with builders.
       public static class Builder<T> {
         private List<T> data;
@@ -128,7 +128,7 @@ public class BuilderWithTypeParametersTest
       assertEquals(LinkedHashMap.class, ob.getClass());
     }
 
-    // 05-Sep-2020, tatu: see above for reason why this can not work
+    // 05-Sep-2020, tatu: see above for reason why this cannot work
 /*
     @Test
     public void testWithCreator() throws Exception {

@@ -117,7 +117,7 @@ public final class BooleanSerializer
                 TypeSerializer typeSer)
             throws JacksonException
         {
-            // 27-Mar-2017, tatu: Actually here we CAN NOT serialize as number without type,
+            // 27-Mar-2017, tatu: Actually here we CANNOT serialize as number without type,
             //    since with natural types that would map to number, not boolean. So choice
             //    comes to between either add type id, or serialize as boolean. Choose
             //    latter at this point

@@ -6,8 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -22,15 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class StringArrayDeserializer5165Test
 {
     static class Dst {
-        private String[] array;
-
-        public String[] getArray() {
-            return array;
-        }
-
-        public void setArray(String[] array) {
-            this.array = array;
-        }
+        public String[] array;
     }
 
     // Custom deserializer that converts empty strings to null
@@ -67,7 +60,7 @@ public class StringArrayDeserializer5165Test
 
         assertThrows(
                 InvalidNullException.class,
-                () -> mapper.readValue("{\"array\":[\"\"]}", new TypeReference<Dst>(){})
+                () -> mapper.readValue("{\"array\":[\"\"]}", Dst.class)
         );
     }
 
@@ -81,8 +74,8 @@ public class StringArrayDeserializer5165Test
                 .defaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP))
                 .build();
 
-        Dst dst = mapper.readValue("{\"array\":[\"\"]}", new TypeReference<Dst>() {});
+        Dst dst = mapper.readValue("{\"array\":[\"\"]}", Dst.class);
 
-        assertEquals(0, dst.getArray().length, "Null values should be skipped");
+        assertEquals(0, dst.array.length, "Null values should be skipped");
     }
 }

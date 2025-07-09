@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -16,15 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class ObjectArrayDeserializer5165Test
 {
     static class Dst {
-        private Integer[] array;
-
-        public Integer[] getArray() {
-            return array;
-        }
-
-        public void setArray(Integer[] array) {
-            this.array = array;
-        }
+        public Integer[] array;
     }
 
     @Test
@@ -35,7 +27,7 @@ public class ObjectArrayDeserializer5165Test
 
         assertThrows(
                 InvalidNullException.class,
-                () -> mapper.readValue("{\"array\":[\"\"]}", new TypeReference<Dst>(){})
+                () -> mapper.readValue("{\"array\":[\"\"]}", Dst.class)
         );
     }
 
@@ -45,8 +37,8 @@ public class ObjectArrayDeserializer5165Test
                 .defaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP))
                 .build();
 
-        Dst dst = mapper.readValue("{\"array\":[\"\"]}", new TypeReference<Dst>() {});
+        Dst dst = mapper.readValue("{\"array\":[\"\"]}", Dst.class);
 
-        assertEquals(0, dst.getArray().length, "Null values should be skipped");
+        assertEquals(0, dst.array.length, "Null values should be skipped");
     }
 }

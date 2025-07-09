@@ -505,15 +505,21 @@ public class POJOPropertiesCollector
      * [databind#5215] JsonAnyGetter Serializer behavior change from 2.18.4 to 2.19.0
      * Put anyGetter in the end, before actual sorting further down {@link POJOPropertiesCollector#_sortProperties(Map)}
      */
-    private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(Map<String, POJOPropertyBuilder> all,
-            Map<String, POJOPropertyBuilder> props)
+    private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(
+            Map<String, POJOPropertyBuilder> allProps,
+            Map<String, POJOPropertyBuilder> sortedProps)
     {
-        for (POJOPropertyBuilder prop : props.values()) {
-            all.put(prop.getName(), prop);
+        // First: see if we have any any-getters
+        if (_anyGetters == null && _anyGetterField == null) {
+            return allProps;
         }
-        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(props.size() * 2);
+
+        for (POJOPropertyBuilder prop : allProps.values()) {
+            sortedProps.put(prop.getName(), prop);
+        }
+        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(allProps.size() * 2);
         POJOPropertyBuilder anyGetterProp = null;
-        for (POJOPropertyBuilder prop : all.values()) {
+        for (POJOPropertyBuilder prop : sortedProps.values()) {
             if (prop.getAccessor() != null && Boolean.TRUE.equals(_config.getAnnotationIntrospector().hasAnyGetter(prop.getAccessor()))) {
                 anyGetterProp = prop;
             } else {
@@ -1618,7 +1624,7 @@ ctor.creator()));
             all = new LinkedHashMap<String,POJOPropertyBuilder>(size+size);
         }
 
-        all = _putAnyGettersInTheEnd(all, props);
+        all = _putAnyGettersInTheEnd(props, all);
 
         Map<String,POJOPropertyBuilder> ordered = new LinkedHashMap<>(size+size);
         // Ok: primarily by explicit order

@@ -502,7 +502,7 @@ public class POJOPropertiesCollectorTest
         assertTrue(prop.getGetter().hasAnnotation(B.class));
     }
 
-//    @Test
+    @Test
     public void testDuplicateGettersCreator() throws Exception
     {
         POJOPropertiesCollector coll = collector(MAPPER, DuplicateGetterCreatorBean.class, true);

@@ -9,12 +9,13 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
-
-public class CreatorPropertiesTest
+public class CreatorPropertiesTest extends DatabindTestUtil
 {
     static class Issue905Bean {
         // 08-Nov-2015, tatu: Note that in real code we would most likely use same
@@ -83,6 +84,24 @@ public class CreatorPropertiesTest
         }
     }
 
+    // [databind#4310]
+    static final class Test4310
+    {
+        private final String value;
+
+        @ConstructorProperties("value")
+        public Test4310(@ImplicitName("somethingElse") String v) {
+          if (v == null) {
+              throw new IllegalArgumentException("Constructor called with null value");
+          }
+          value = v;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -147,6 +166,20 @@ public class CreatorPropertiesTest
 
 //System.err.println("JsON: "+MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(testData));
         assertEquals(3, testData.size());
+    }
+
+    // [databind#4310]: use of ConstructorProperties with ParameterNames module
+    @Test
+    public void issue4310() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new AnnotationIntrospectorPair(
+                        new ImplicitNameIntrospector(), new JacksonAnnotationIntrospector()))
+                .build();
+        String json = mapper.writeValueAsString(new Test4310("foo"));
+        //System.err.println("JSON: "+json);
+        Test4310 result = mapper.readValue(json, Test4310.class);
+        assertEquals("foo", result.getValue());
     }
 
     static class Something4908 {

@@ -426,6 +426,7 @@ public class BeanDeserializer
             String propName = p.currentName();
             p.nextToken(); // to point to value
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+//System.err.println("propName: "+propName+", prop: "+creatorProp+" (from "+creator.properties()+")");
             // Object Id property?
             if (buffer.readIdProperty(propName) && creatorProp == null) {
                 continue;

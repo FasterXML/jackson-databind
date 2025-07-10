@@ -22,6 +22,9 @@ Project: jackson-databind
 #5192: Record types are broken on Android when using R8
  (reported by @HelloOO7)
  (fix by @pjfanning)
+#5194: Custom `Throwable` not serializable if using `JsonAutoDetect` settings
+ that only detect Fields
+ (reported by @riskop)
 #5197: Add more informative exception for back-references with `record` type
  (fix by Joo-Hyuk K)
 - Generate SBOMs [JSTEP-14]

@@ -41,7 +41,9 @@ public class CustomExceptionSer5194Test
                 .visibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
                 .build();
 
-        String json = mapper.writeValueAsString(new MyIllegalArgumentException());
+        String json = mapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(new MyIllegalArgumentException());
+        //System.err.println("JSON: " + json);
         assertNotNull(json);
     }
 }

@@ -41,7 +41,9 @@
     <!-- 27-Feb-2025, tatu: [databind#4995] define common argline to avoid
            issues with Eclipse/Idea/surefire-plugin
       -->
-    <argLine>--add-opens=java.base/java.util=tools.jackson.databind</argLine>
+    <argLine>--add-opens=java.base/java.lang=tools.jackson.databind
+             --add-opens=java.base/java.util=tools.jackson.databind
+    </argLine>
 
     <!-- 12-Nov-2022, tatu: [databind#3659] Verify Android SDK compatibility.
 

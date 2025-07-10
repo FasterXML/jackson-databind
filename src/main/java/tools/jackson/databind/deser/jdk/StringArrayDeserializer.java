@@ -152,9 +152,16 @@ public final class StringArrayDeserializer
                         if (_skipNullValues) {
                             continue;
                         }
-                        value = (String) _nullProvider.getNullValue(ctxt);
                     } else {
                         value = _parseString(p, ctxt, _nullProvider);
+                    }
+
+                    if (value == null) {
+                        value = (String) _nullProvider.getNullValue(ctxt);
+
+                        if (value == null && _skipNullValues) {
+                            continue;
+                        }
                     }
                 }
                 if (ix >= chunk.length) {
@@ -210,13 +217,22 @@ public final class StringArrayDeserializer
                         if (_skipNullValues) {
                             continue;
                         }
-                        value = (String) _nullProvider.getNullValue(ctxt);
+                        value = null;
                     } else {
                         value = deser.deserialize(p, ctxt);
                     }
                 } else {
                     value = deser.deserialize(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = (String) _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);
                     ix = 0;
@@ -274,9 +290,16 @@ public final class StringArrayDeserializer
                         if (_skipNullValues) {
                             return NO_STRINGS;
                         }
-                        value = (String) _nullProvider.getNullValue(ctxt);
                     } else {
                         value = _parseString(p, ctxt, _nullProvider);
+                    }
+
+                    if (value == null) {
+                        value = (String) _nullProvider.getNullValue(ctxt);
+
+                        if (value == null && _skipNullValues) {
+                            continue;
+                        }
                     }
                 }
                 if (ix >= chunk.length) {

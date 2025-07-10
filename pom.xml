@@ -391,7 +391,9 @@
         <jdk>17</jdk>
       </activation>
       <properties>
-        <argLine>--add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+        <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED
+	         --add-opens=java.base/java.util=ALL-UNNAMED
+	</argLine>
       </properties>
       <build>
         <plugins>
@@ -454,7 +456,9 @@
         <jdk>[21,)</jdk>
       </activation>
       <properties>
-        <argLine>--add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+        <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED
+	         --add-opens=java.base/java.util=ALL-UNNAMED
+	</argLine>
       </properties>
       <build>
         <plugins>

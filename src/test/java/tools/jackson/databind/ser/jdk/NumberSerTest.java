@@ -17,7 +17,6 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.annotation.JsonSerialize;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -118,6 +117,7 @@ public class NumberSerTest extends DatabindTestUtil
         }
     }
 
+    @SuppressWarnings("serial")
     static class MyBigDecimal extends BigDecimal {
         public MyBigDecimal(String value) {
             super(value);
@@ -234,8 +234,8 @@ public class NumberSerTest extends DatabindTestUtil
 
     @Test
     public void testConfigOverrideJdkNumber() throws Exception {
-        JsonMapper mapper = jsonMapperBuilder().withConfigOverride(BigDecimal.class,
-                c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+        ObjectMapper mapper = jsonMapperBuilder().withConfigOverride(BigDecimal.class,
+                        c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
                 .build();
         String value = mapper.writeValueAsString(new BigDecimal("123.456"));
         assertEquals(a2q("'123.456'"), value);
@@ -243,8 +243,8 @@ public class NumberSerTest extends DatabindTestUtil
 
     @Test
     public void testConfigOverrideNonJdkNumber() throws Exception {
-        JsonMapper mapper = jsonMapperBuilder().withConfigOverride(MyBigDecimal.class,
-                        c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+        ObjectMapper mapper = jsonMapperBuilder().withConfigOverride(MyBigDecimal.class,
+                c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
                 .build();
         String value = mapper.writeValueAsString(new MyBigDecimal("123.456"));
         assertEquals(a2q("'123.456'"), value);

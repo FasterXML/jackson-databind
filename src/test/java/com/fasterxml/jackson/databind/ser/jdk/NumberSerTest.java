@@ -117,6 +117,12 @@ public class NumberSerTest extends DatabindTestUtil
         }
     }
 
+    static class MyBigDecimal extends BigDecimal {
+        public MyBigDecimal(String value) {
+            super(value);
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -220,6 +226,24 @@ public class NumberSerTest extends DatabindTestUtil
         module.addSerializer(BigDecimal.class, new BigDecimalAsNumberSerializer());
         ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
         assertEquals(a2q("{'value':2.0}"), mapper.writeValueAsString(new BigDecimalHolder("2")));
+    }
+
+    @Test
+    public void testConfigOverrideJdkNumber() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder().withConfigOverride(BigDecimal.class,
+                        c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+                .build();
+        String value = mapper.writeValueAsString(new BigDecimal("123.456"));
+        assertEquals(a2q("'123.456'"), value);
+    }
+
+    @Test
+    public void testConfigOverrideNonJdkNumber() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder().withConfigOverride(MyBigDecimal.class,
+                c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+                .build();
+        String value = mapper.writeValueAsString(new MyBigDecimal("123.456"));
+        assertEquals(a2q("'123.456'"), value);
     }
 
     // default locale is en_US

@@ -15,6 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UUIDSerializationTest extends DatabindTestUtil
 {
+    private final static String nullUUIDStr = "00000000-0000-0000-0000-000000000000";
+    private final static UUID nullUUID = UUID.fromString(nullUUIDStr);
+    
     static class UUIDWrapperVanilla {
         public UUID uuid;
 
@@ -69,9 +72,6 @@ public class UUIDSerializationTest extends DatabindTestUtil
     @Test
     public void testShapeOverrides() throws Exception
     {
-        final String nullUUIDStr = "00000000-0000-0000-0000-000000000000";
-        final UUID nullUUID = UUID.fromString(nullUUIDStr);
-
         // First, see that Binary per-property override works:
         assertEquals("{\"uuid\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}",
                 MAPPER.writeValueAsString(new UUIDWrapperBinary(nullUUID)));
@@ -88,5 +88,13 @@ public class UUIDSerializationTest extends DatabindTestUtil
                 .build();
         assertEquals("{\"uuid\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}",
                 m.writeValueAsString(new UUIDWrapperVanilla(nullUUID)));
+    }
+
+    // [databind#5225]: problem with tree conversion
+    @Test
+    public void testTreeConversion() throws Exception
+    {
+        JsonNode node = MAPPER.valueToTree(nullUUID);
+        assertEquals(nullUUIDStr, node.asString());
     }
 }

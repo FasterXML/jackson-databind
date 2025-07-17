@@ -94,7 +94,12 @@ public class UUIDSerializationTest extends DatabindTestUtil
     @Test
     public void testTreeConversion() throws Exception
     {
+        // First, reported issue
         JsonNode node = MAPPER.valueToTree(nullUUID);
         assertEquals(nullUUIDStr, node.asString());
+
+        // and then a variations
+        Object ob = MAPPER.convertValue(nullUUID, Object.class);
+        assertEquals(String.class, ob.getClass());
     }
 }

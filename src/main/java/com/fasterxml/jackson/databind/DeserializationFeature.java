@@ -456,7 +456,7 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature that allow accepting a JSON substring using a string
      * instead of throwing an exception.
      *<p>
-     * Feature is enabled by default.
+     * Feature is disabled by default.
      *
      * @since 2.20.0
      */

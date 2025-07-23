@@ -15,13 +15,13 @@ public class StringDeserializerTest
 
     @Test
     public void acceptSubJsonTest() throws Exception {
-        String json = "{\"name\":\"root\"," +
-                "\"child\":{\"name\":\"child\"}," +
-                "\"children\":[{\"name\":\"children\"}]," +
-                "\"childrenList\":[{\"name\":\"childrenList\"}]}";
+        String json = "{'name':'root'," +
+                "'child':{'name':'child'}," +
+                "'children':[{'name':'children'}]," +
+                "'childrenList':[{'name':'childrenList'}]}";
         ObjectMapper mapper = DatabindTestUtil.newJsonMapper()
                 .configure(DeserializationFeature.ACCEPT_SUB_JSON_AS_STRING, true);
-        TestPojo testPojo = mapper.readValue(json, TestPojo.class);
+        TestPojo testPojo = mapper.readValue(DatabindTestUtil.a2q(json), TestPojo.class);
         Assertions.assertEquals(testPojo.getChild(), "{\"name\":\"child\"}");
         Assertions.assertEquals(testPojo.getChildren(), "[{\"name\":\"children\"}]");
         Assertions.assertEquals(testPojo.getChildrenList().get(0), "{\"name\":\"childrenList\"}");

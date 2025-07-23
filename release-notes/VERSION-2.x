@@ -31,7 +31,7 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 - Generate SBOMs [JSTEP-14]
 
-2.19.2 (not yet released)
+2.19.2 (18-Jul-2025)
 
 #5202: `JsonSetter.contentNulls` ignored for `Object[]`, `String[]`
   and `Collection<String>`

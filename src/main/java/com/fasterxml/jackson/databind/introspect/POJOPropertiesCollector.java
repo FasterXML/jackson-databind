@@ -447,7 +447,7 @@ public class POJOPropertiesCollector
         }
         // 11-Jun-2025, tatu: [databind#5152] May need to "fix" mis-matching leading case
         //    wrt Fields vs Accessors
-        if (_config.isEnabled(MapperFeature.FIX_FIELD_NAME_CASE_MISMATCH)) {
+        if (_config.isEnabled(MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX)) {
              _fixLeadingFieldNameCase(props);
         }
         // Remove ignored properties, first; this MUST precede annotation merging

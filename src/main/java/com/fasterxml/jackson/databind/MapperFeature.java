@@ -554,7 +554,7 @@ public enum MapperFeature implements ConfigFeature
     /**
      * Feature that can be enabled to solve problem where an upper-case letter in
      * the first 2 characters of Java field name (like {@code "IPhone"} or {@code "iPhone"})
-     * prevents match with property name derived from accessors (setter like
+     * prevents match with property name derived from accessors (getter like
      * {@code getIPhone()} becomes {@code "iphone"}).
      * If enabled, additional checking is done with case-insensitive comparison (for
      * cases of the first or second letter of Field name being upper-case) to merge
@@ -565,7 +565,7 @@ public enum MapperFeature implements ConfigFeature
      *
      * @since 2.20
      */
-    FIX_FIELD_NAME_CASE_MISMATCH(false),
+    FIX_FIELD_NAME_UPPER_CASE_PREFIX(false),
 
     /*
     /******************************************************

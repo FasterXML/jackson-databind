@@ -21,9 +21,26 @@ Project: jackson-databind
 #5152: Support "iPhone" style capitalized properties (add
   `MapperFeature.FIX_FIELD_NAME_CASE_MISMATCH`)
 #5179: Add "current token" info into `MismatchedInputException`
+#5192: Record types are broken on Android when using R8
+ (reported by @HelloOO7)
+ (fix by @pjfanning)
+#5194: Custom `Throwable` not serializable if using `JsonAutoDetect` settings
+ that only detect Fields
+ (reported by @riskop)
+#5197: Add more informative exception for back-references with `record` type
+ (fix by Joo-Hyuk K)
 - Generate SBOMs [JSTEP-14]
 
-2.19.1 (not yet released)
+2.19.2 (18-Jul-2025)
+
+#5202: `JsonSetter.contentNulls` ignored for `Object[]`, `String[]`
+  and `Collection<String>`
+ (fix by @wrongwrong)
+#5215: `@JsonAnyGetter` serialization order change from 2.18.4 to 2.19.0
+ (reported by Eddú M)
+ (fix by Joo-Hyuk K)
+
+2.19.1 (13-Jun-2025)
 
 #5139: In `CollectionDeserializer`, `JsonSetter.contentNulls` is sometimes ignored
  (contributed by @wrongwrong)

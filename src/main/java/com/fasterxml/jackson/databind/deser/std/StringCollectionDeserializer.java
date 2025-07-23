@@ -37,20 +37,20 @@ public final class StringCollectionDeserializer
      * Value deserializer to use, if NOT the standard one
      * (if it is, will be null).
      */
-    protected final JsonDeserializer<String> _valueDeserializer;
+    private final JsonDeserializer<String> _valueDeserializer;
 
     // // Instance construction settings:
 
     /**
      * Instantiator used in case custom handling is needed for creation.
      */
-    protected final ValueInstantiator _valueInstantiator;
+    private final ValueInstantiator _valueInstantiator;
 
     /**
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
      */
-    protected final JsonDeserializer<Object> _delegateDeserializer;
+    private final JsonDeserializer<Object> _delegateDeserializer;
 
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
@@ -67,7 +67,7 @@ public final class StringCollectionDeserializer
     }
 
     @SuppressWarnings("unchecked")
-    protected StringCollectionDeserializer(JavaType collectionType,
+    private StringCollectionDeserializer(JavaType collectionType,
             ValueInstantiator valueInstantiator, JsonDeserializer<?> delegateDeser,
             JsonDeserializer<?> valueDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
@@ -78,7 +78,7 @@ public final class StringCollectionDeserializer
         _delegateDeserializer = (JsonDeserializer<Object>) delegateDeser;
     }
 
-    protected StringCollectionDeserializer withResolved(JsonDeserializer<?> delegateDeser,
+    private StringCollectionDeserializer withResolved(JsonDeserializer<?> delegateDeser,
             JsonDeserializer<?> valueDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
@@ -107,6 +107,7 @@ public final class StringCollectionDeserializer
     /* Validation, post-processing
     /**********************************************************
      */
+
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
@@ -212,10 +213,18 @@ public final class StringCollectionDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = (String) _nullProvider.getNullValue(ctxt);
                 } else {
                     value = _parseString(p, ctxt, _nullProvider);
                 }
+
+                if (value == null) {
+                    value = (String) _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 result.add(value);
             }
         } catch (Exception e) {
@@ -245,13 +254,22 @@ public final class StringCollectionDeserializer
                         if (_skipNullValues) {
                             continue;
                         }
-                        value = (String) _nullProvider.getNullValue(ctxt);
+                        value = null;
                     } else {
                         value = deser.deserialize(p, ctxt);
                     }
                 } else {
                     value = deser.deserialize(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = (String) _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 result.add(value);
             }
         } catch (Exception e) {
@@ -296,7 +314,7 @@ public final class StringCollectionDeserializer
             if (_skipNullValues) {
                 return result;
             }
-            value = (String) _nullProvider.getNullValue(ctxt);
+            value = null;
         } else {
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 String textValue = p.getText();
@@ -325,6 +343,15 @@ public final class StringCollectionDeserializer
                 throw JsonMappingException.wrapWithPath(e, result, result.size());
             }
         }
+
+        if (value == null) {
+            value = (String) _nullProvider.getNullValue(ctxt);
+
+            if (value == null && _skipNullValues) {
+                return result;
+            }
+        }
+
         result.add(value);
         return result;
     }

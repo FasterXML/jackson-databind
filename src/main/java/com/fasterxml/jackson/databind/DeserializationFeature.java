@@ -453,6 +453,16 @@ public enum DeserializationFeature implements ConfigFeature
     ACCEPT_FLOAT_AS_INT(true),
 
     /**
+     * Feature that allow accepting a JSON substring using a string
+     * instead of throwing an exception.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.20.0
+     */
+    ACCEPT_SUB_JSON_AS_STRING(false),
+
+    /**
      * Feature that determines standard deserialization mechanism used for
      * Enum values: if enabled, Enums are assumed to have been serialized  using
      * return value of <code>Enum.toString()</code>;

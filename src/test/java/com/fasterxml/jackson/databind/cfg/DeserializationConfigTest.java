@@ -1,17 +1,27 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import java.util.Collections;
-
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class DeserializationConfigTest extends DatabindTestUtil
 {
@@ -101,7 +111,7 @@ public class DeserializationConfigTest extends DatabindTestUtil
         for (DeserializationFeature f : DeserializationFeature.values()) {
             max = Math.max(max, f.ordinal());
         }
-        if (max >= 31) { // 31 is actually ok; 32 not
+        if (max >= 32) { // 32 is actually ok; 33 not
             fail("Max number of DeserializationFeature enums reached: "+max);
         }
     }

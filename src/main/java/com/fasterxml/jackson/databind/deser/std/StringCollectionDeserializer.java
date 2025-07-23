@@ -1,14 +1,14 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-import java.util.*;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
@@ -18,6 +18,12 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * Specifically optimized version for {@link java.util.Collection}s
@@ -197,6 +203,14 @@ public final class StringCollectionDeserializer
         if (_valueDeserializer != null) {
             return deserializeUsingCustom(p, ctxt, result, _valueDeserializer);
         }
+
+        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SUB_JSON_AS_STRING)) {
+            JsonToken currentToken = p.currentToken();
+            if (currentToken == JsonToken.START_OBJECT || currentToken == JsonToken.START_ARRAY) {
+                return deserializeUsingCustom(p, ctxt, result, StringDeserializer.instance);
+            }
+        }
+
         try {
             while (true) {
                 // First the common case:

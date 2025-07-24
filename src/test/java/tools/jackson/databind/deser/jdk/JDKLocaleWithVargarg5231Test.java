@@ -1,17 +1,21 @@
 package tools.jackson.databind.deser.jdk;
 
-import java.util.Locale;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+// [databind#5231] Fix #5231 with MethodHandle with varargs in deserialization #5235
 public class JDKLocaleWithVargarg5231Test
+    extends DatabindTestUtil
 {
-
     public static class DateTimeParserConfig {
         public Locale[] locales;
         private Locale locale;
@@ -31,44 +35,46 @@ public class JDKLocaleWithVargarg5231Test
         }
 
         public Locale getLocale() {
-            if (locale != null)
-                return locale;
-
-            locales = new Locale[]{Locale.getDefault()};
-
-            return locales.length == 1 ? locales[0] : null;
+            return locale;
         }
 
     }
 
+    private final ObjectMapper MAPPER = JsonMapper.builder()
+            .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
+            .build();
+
     @Test
-    public void testSerializeAndDeserializeEmptyConfig() throws Exception {
-        ObjectMapper mapper = JsonMapper.builder()
-                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
-                .build();
-
-        _testMultiple(mapper);
-        _testWithSingle(mapper);
-    }
-
-    private void _testMultiple(ObjectMapper mapper) {
+    public void multiple() {
         DateTimeParserConfig cfg = new DateTimeParserConfig();
         cfg.setLocales(new Locale[]{Locale.US, Locale.UK, Locale.ENGLISH});
-        String json = mapper.writeValueAsString(cfg);
+        String json = MAPPER.writeValueAsString(cfg);
 
-        DateTimeParserConfig result = mapper.readValue(json, DateTimeParserConfig.class);
+        DateTimeParserConfig result = MAPPER.readValue(json, DateTimeParserConfig.class);
 
         assertNotNull(result);
-        assertNotNull(result.locales); // Should fallback to Locale.getDefault()
+        assertThat(toList(result.locales))
+                .containsExactlyInAnyOrder(Locale.US, Locale.UK, Locale.ENGLISH);
     }
 
-    private void _testWithSingle(ObjectMapper mapper) {
+    @Test
+    public void withSingle() {
         DateTimeParserConfig cfg = new DateTimeParserConfig();
-        String json = mapper.writeValueAsString(cfg);
+        cfg.setLocales(new Locale[]{Locale.JAPANESE});
+        String json = MAPPER.writeValueAsString(cfg);
 
-        DateTimeParserConfig result = mapper.readValue(json, DateTimeParserConfig.class);
+        DateTimeParserConfig result = MAPPER.readValue(json, DateTimeParserConfig.class);
 
         assertNotNull(result);
-        assertNotNull(result.locales); // Should fallback to Locale.getDefault()
+        assertThat(toList(result.locales))
+                .containsExactlyInAnyOrder(Locale.JAPANESE);
+    }
+
+    private List<Locale> toList(Locale[] locales) {
+        List<Locale> list = new ArrayList<>();
+        for (Locale locale : locales) {
+            list.add(locale);
+        }
+        return list;
     }
 }

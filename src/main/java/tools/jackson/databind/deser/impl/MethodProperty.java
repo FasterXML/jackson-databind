@@ -213,11 +213,10 @@ public final class MethodProperty
                 Method method = am.getAnnotated();
                 MethodHandle raw = MethodHandles.lookup().unreflect(method);
 
-                // If it's varargs, disable varargs handling
+                // [databind#5231] If it's varargs, disable varargs handling, 2025-July-25 (Since 3.0)
                 if (method.isVarArgs()) {
                     raw = raw.asFixedArity(); // disables argument spreading
                 }
-
                 return raw;
             } else {
                 AnnotatedField af = (AnnotatedField) _annotated;

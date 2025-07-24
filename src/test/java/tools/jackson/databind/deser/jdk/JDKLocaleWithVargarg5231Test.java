@@ -47,6 +47,22 @@ public class JDKLocaleWithVargarg5231Test
                 .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
                 .build();
 
+        _testMultiple(mapper);
+        _testWithSingle(mapper);
+    }
+
+    private void _testMultiple(ObjectMapper mapper) {
+        DateTimeParserConfig cfg = new DateTimeParserConfig();
+        cfg.setLocales(new Locale[]{Locale.US, Locale.UK, Locale.ENGLISH});
+        String json = mapper.writeValueAsString(cfg);
+
+        DateTimeParserConfig result = mapper.readValue(json, DateTimeParserConfig.class);
+
+        assertNotNull(result);
+        assertNotNull(result.locales); // Should fallback to Locale.getDefault()
+    }
+
+    private void _testWithSingle(ObjectMapper mapper) {
         DateTimeParserConfig cfg = new DateTimeParserConfig();
         String json = mapper.writeValueAsString(cfg);
 

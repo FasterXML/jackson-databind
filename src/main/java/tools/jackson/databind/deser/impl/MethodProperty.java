@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Method;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -210,14 +209,9 @@ public final class MethodProperty
         protected MethodHandle unreflect() throws IllegalAccessException {
             if (_annotated instanceof AnnotatedMethod) {
                 AnnotatedMethod am = (AnnotatedMethod) _annotated;
-                Method method = am.getAnnotated();
-                MethodHandle raw = MethodHandles.lookup().unreflect(method);
-
-                // [databind#5231] If it's varargs, disable varargs handling, 2025-July-25 (Since 3.0)
-                if (method.isVarArgs()) {
-                    raw = raw.asFixedArity(); // disables argument spreading
-                }
-                return raw;
+                return MethodHandles.lookup().unreflect(am.getAnnotated())
+                        // [databind#5231] If it's varargs, disable varargs handling, 2025-July-25 (Since 3.0)
+                        .asFixedArity();
             } else {
                 AnnotatedField af = (AnnotatedField) _annotated;
                 return MethodHandles.lookup().unreflectSetter(af.getAnnotated());

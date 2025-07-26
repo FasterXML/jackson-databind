@@ -18,6 +18,8 @@ Project: jackson-databind
   serialization
 #5151: Add new exception type, `MissingInjectValueException`, to be used
   for failed `@JacksonInject`
+#5152: Support "iPhone" style capitalized properties (add
+  `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX`)
 #5179: Add "current token" info into `MismatchedInputException`
 #5192: Record types are broken on Android when using R8
  (reported by @HelloOO7)
@@ -29,7 +31,7 @@ Project: jackson-databind
  (fix by Joo-Hyuk K)
 - Generate SBOMs [JSTEP-14]
 
-2.19.2 (not yet released)
+2.19.2 (18-Jul-2025)
 
 #5202: `JsonSetter.contentNulls` ignored for `Object[]`, `String[]`
   and `Collection<String>`

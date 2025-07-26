@@ -385,6 +385,12 @@ public class POJOPropertyBuilder
     @Override
     public boolean hasField() { return _fields != null; }
 
+    // @since 2.20 additional accessor
+    public boolean hasFieldAndNothingElse() {
+        return (_fields != null)
+                && ((_getters == null) && (_setters == null) && (_ctorParameters == null));
+    }
+
     @Override
     public boolean hasConstructorParameter() { return _ctorParameters != null; }
 
@@ -416,9 +422,8 @@ public class POJOPropertyBuilder
         }
         // But if multiple, verify that they do not conflict...
         for (; next != null; next = next.next) {
-            /* [JACKSON-255] Allow masking, i.e. do not report exception if one
-             *   is in super-class from the other
-             */
+            // Allow masking, i.e. do not report exception if one
+            // is in super-class from the other
             Class<?> currClass = curr.value.getDeclaringClass();
             Class<?> nextClass = next.value.getDeclaringClass();
             if (currClass != nextClass) {

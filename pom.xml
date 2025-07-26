@@ -11,6 +11,7 @@
     <artifactId>jackson-base</artifactId>
     <version>2.20.0-SNAPSHOT</version>
   </parent>
+
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
   <version>2.20.0-SNAPSHOT</version>
@@ -180,10 +181,11 @@
   <!-- Alas, need to include snapshot reference since otherwise can not find
        snapshot of parent... -->
   <repositories>
+    <!-- 13-May-2025, tatu: now access snapshots via Central Portal -->
     <repository>
-      <id>sonatype-nexus-snapshots</id>
-      <name>Sonatype Nexus Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>central-snapshots</id>
+      <name>Sonatype Central Portal (snapshots)</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
       <releases><enabled>false</enabled></releases>
       <snapshots><enabled>true</enabled></snapshots>
     </repository>
@@ -390,7 +392,9 @@
         <jdk>17</jdk>
       </activation>
       <properties>
-        <argLine>--add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+        <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED
+	         --add-opens=java.base/java.util=ALL-UNNAMED
+	</argLine>
       </properties>
       <build>
         <plugins>
@@ -453,7 +457,9 @@
         <jdk>[21,)</jdk>
       </activation>
       <properties>
-        <argLine>--add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+        <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED
+	         --add-opens=java.base/java.util=ALL-UNNAMED
+	</argLine>
       </properties>
       <build>
         <plugins>

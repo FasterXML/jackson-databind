@@ -787,6 +787,11 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     }
                 }
                 */
+                if (beanDesc.isRecordType()) {
+                    ctxt.reportBadTypeDefinition(beanDesc,
+                            "Cannot add back-reference to a `java.lang.Record` type (property '%s')",
+                            refProp.getName());
+                }
                 String refName = refProp.findReferenceName();
                 builder.addBackReferenceProperty(refName, constructSettableProperty(ctxt,
                         beanDesc, refProp, refProp.getPrimaryType()));

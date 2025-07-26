@@ -7,12 +7,11 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.BrokenStringReader;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
  * Unit test for verifying that exceptions are properly handled (caught,
@@ -21,6 +20,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
  * (and streaming-level equivalents).
  */
 public class DeserExceptionTypeTest
+    extends DatabindTestUtil
 {
     static class Bean {
         public String propX;
@@ -59,6 +59,8 @@ public class DeserExceptionTypeTest
         assertEquals(Bean.class, exc.getReferringClass());
         // also: should get list of known properties
         verifyException(exc, "propX");
+        // and as per [databind#5179] current token (pointing to start of value?)
+        assertEquals(JsonToken.VALUE_NUMBER_INT, exc.getCurrentToken());
     }
 
     /**
@@ -73,6 +75,7 @@ public class DeserExceptionTypeTest
             fail("Expected an exception, but got result value: "+result);
         } catch (MismatchedInputException e) {
             verifyException(e, "No content");
+            assertNull(e.getCurrentToken());
         }
     }
 
@@ -106,6 +109,7 @@ public class DeserExceptionTypeTest
             fail("Should have gotten an exception");
         } catch (MismatchedInputException e) {
             verifyException(e, "No content");
+            assertNull(e.getCurrentToken());
         }
         // also: should have no current token after end-of-input
         JsonToken t = p.currentToken();

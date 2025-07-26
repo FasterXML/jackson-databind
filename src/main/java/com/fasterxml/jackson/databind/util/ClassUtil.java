@@ -24,6 +24,19 @@ public final class ClassUtil
 
     private final static Iterator<Object> EMPTY_ITERATOR = Collections.emptyIterator();
 
+    // 16-Jun-2025: [databind#5195]: we will dynamically access `Class.isRecord()`
+    //    added in JDK 16, earlier versions do not have it; will eval as `null`.
+    private final static Method IS_RECORD;
+    static {
+        Method m = null;
+        try {
+            m = Class.class.getMethod("isRecord");
+        } catch (NoSuchMethodException e) {
+            // no-op, will be null
+        }
+        IS_RECORD = m;
+    }
+
     /*
     /**********************************************************
     /* Simple factory methods
@@ -299,8 +312,19 @@ public final class ClassUtil
      * @since 2.12
      */
     public static boolean isRecordType(Class<?> cls) {
-        Class<?> parent = cls.getSuperclass();
-        return (parent != null) && "java.lang.Record".equals(parent.getName());
+        // 16-Jun-2025: [databind#5195]: implementation changed from 2.19
+        //   where we checked if `cls.getParent() == "java.lang.Record" which
+        //   caused issues on Android, desugared cases. This is a more reliable
+        //   method for checking.
+        if (IS_RECORD == null) {
+            return false;
+        }
+        try {
+            return (Boolean) IS_RECORD.invoke(cls);
+        } catch (Exception e) {
+            // hopefully, this is not going to happen
+            return false;
+        }
     }
 
     /**

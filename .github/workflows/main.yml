@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['8', '11', '17', '21', '23'] 
+        java_version: ['8', '11', '17', '21', '24'] 
         os: ['ubuntu-24.04']
         include:
           - java_version: '8'

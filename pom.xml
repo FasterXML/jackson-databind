@@ -9,11 +9,12 @@
   <parent>
     <groupId>tools.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>3.0.0-rc6-SNAPSHOT</version>
+    <version>3.0.0-rc7-SNAPSHOT</version>
   </parent>
+
   <groupId>tools.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>3.0.0-rc6-SNAPSHOT</version>
+  <version>3.0.0-rc7-SNAPSHOT</version>
   <name>jackson-databind</name>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
   <url>https://github.com/FasterXML/jackson</url>
@@ -41,7 +42,9 @@
     <!-- 27-Feb-2025, tatu: [databind#4995] define common argline to avoid
            issues with Eclipse/Idea/surefire-plugin
       -->
-    <argLine>--add-opens=java.base/java.util=tools.jackson.databind</argLine>
+    <argLine>--add-opens=java.base/java.lang=tools.jackson.databind
+             --add-opens=java.base/java.util=tools.jackson.databind
+    </argLine>
 
     <!-- 12-Nov-2022, tatu: [databind#3659] Verify Android SDK compatibility.
 
@@ -79,7 +82,7 @@
     <packageVersion.package>tools.jackson.databind.cfg</packageVersion.package>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2025-05-22T16:47:09Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-07-19T01:05:31Z</project.build.outputTimestamp>
   </properties>
 
   <dependencyManagement>
@@ -182,26 +185,6 @@
       <releases><enabled>false</enabled></releases>
       <snapshots><enabled>true</enabled></snapshots>
     </repository>
-
-    <!-- "Old new" for 3.x version pre-2025/05
-    <repository>
-      <id>sonatype-nexus-snapshots-new</id>
-      <name>Sonatype Nexus Snapshots (new)</name>
-      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-      <releases><enabled>false</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
-    </repository>
-    -->
-
-    <!-- and old repo for jackson-annotations -->
-    <repository>
-      <id>sonatype-nexus-snapshots-old</id>
-      <name>Sonatype Nexus Snapshots (old)</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <releases><enabled>false</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
-    </repository>
-
   </repositories>
 
   <build>

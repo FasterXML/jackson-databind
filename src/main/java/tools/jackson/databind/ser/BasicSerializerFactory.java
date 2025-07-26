@@ -312,9 +312,9 @@ public abstract class BasicSerializerFactory
         }
 
         if (type.isTypeOrSubTypeOf(Number.class)) {
+            final Class<?> rawType = type.getRawClass();
             JsonFormat.Value format = _calculateEffectiveFormat(ctxt,
-                    beanDescRef, Number.class, formatOverrides);
-
+                    beanDescRef, rawType, formatOverrides);
             // 21-May-2014, tatu: Couple of alternatives actually
             switch (format.getShape()) {
             case STRING:
@@ -323,7 +323,9 @@ public abstract class BasicSerializerFactory
                 return null;
             default:
             }
-            return NumberSerializer.instance;
+            @SuppressWarnings("unchecked")
+            Class<? extends Number> numberType = (Class<? extends Number>) rawType;
+            return new NumberSerializer(numberType);
         }
         if (type.isTypeOrSubTypeOf(Map.Entry.class)) {
             // 18-Oct-2015, tatu: With 2.7, need to dig type info:

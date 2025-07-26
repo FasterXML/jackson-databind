@@ -1,16 +1,15 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.misc;
 
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#5152] Support "iPhone" style capitalized properties
 public class IPhoneStyleProperty5152Test
-        extends DatabindTestUtil
+    extends DatabindTestUtil
 {
     static class IPhoneBean {
         private String iPhone;
@@ -72,10 +71,28 @@ public class IPhoneStyleProperty5152Test
         }
     }
 
+    // [databind#2696]
+    static class OAuthTokenBean {
+        protected String oAuthToken;
+
+        public OAuthTokenBean(String t) {
+            oAuthToken = t;
+        }
+
+        public String getOAuthToken() {
+            return this.oAuthToken;
+        }
+
+        public void setOAuthToken(String oAuthToken) {
+            this.oAuthToken = oAuthToken;
+        }
+    }
+
     private final ObjectMapper MAPPER = jsonMapperBuilder()
+            // Already enabled by default in 3.x, but let's be explicit
+            .enable(MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX)
             .build();
 
-    @JacksonTestFailureExpected
     @Test
     public void testIPhoneStyleProperty() throws Exception {
         // Test with iPhone style property
@@ -103,22 +120,19 @@ public class IPhoneStyleProperty5152Test
     }
 
     // [databind#2835]: "dLogHeader" property
-    @JacksonTestFailureExpected
     @Test
     public void testDLogHeaderStyleProperty() throws Exception {
         // Test with DLogHeader style property
-        String json = "{\"dLogHeader\":\"Debug Log Header\"}";
+        String json = "{\"DLogHeader\":\"Debug Log Header\"}";
         DLogHeaderBean result = MAPPER.readValue(json, DLogHeaderBean.class);
         assertNotNull(result);
         assertEquals("Debug Log Header", result.getDLogHeader());
 
         // Test serialization
         String serialized = MAPPER.writeValueAsString(result);
-        assertEquals("{\"dLogHeader\":\"Debug Log Header\"}", serialized);
+        assertEquals("{\"DLogHeader\":\"Debug Log Header\"}", serialized);
     }
 
-    // 20-May-2025, tatu: Somehow passes on 3.0, fails on 2.19
-    //@JacksonTestFailureExpected
     @Test
     public void testKBSBroadCastingStyleProperty() throws Exception {
         // Test with KBSBroadCasting style property
@@ -132,7 +146,6 @@ public class IPhoneStyleProperty5152Test
         assertEquals("{\"KBSBroadCasting\":\"Korean Broadcasting System\"}", serialized);
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void testPhoneStyleProperty() throws Exception {
         // Test with Phone style property
@@ -144,5 +157,12 @@ public class IPhoneStyleProperty5152Test
         // Test serialization
         String serialized = MAPPER.writeValueAsString(result);
         assertEquals("{\"Phone\":\"iPhone 15\"}", serialized);
+    }
+
+    // [databind#2696]
+    @Test
+    public void testOAuthProperty() throws Exception {
+        assertEquals(a2q("{'oAuthToken':'123'}"),
+                MAPPER.writeValueAsString(new OAuthTokenBean("123")));
     }
 }

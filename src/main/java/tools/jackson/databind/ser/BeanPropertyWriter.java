@@ -772,13 +772,25 @@ public class BeanPropertyWriter
         throws JacksonException
     {
         if (!ser.usesObjectId()) {
+            boolean writeAsNull = false;
+
             if (ctxt.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)) {
                 // 05-Feb-2013, tatu: Usually a problem, but NOT if we are handling
                 // object id; this may be the case for BeanSerializers at least.
                 if (ser instanceof BeanSerializerBase) {
-                    ctxt.reportBadDefinition(getType(), "Direct self-reference leading to cycle");
+                    // 09-Jul-2025, tatu: [databind#5194] Let's suppress specific case
+                    //   of "cause" for Throwables
+                    if (_isThrowableFieldCause(ctxt, bean)) {
+                        writeAsNull = true;
+                    } else {
+                        ctxt.reportBadDefinition(getType(), "Direct self-reference leading to cycle");
+                    }
                 }
-            } else if (ctxt.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL)) {
+            } else {
+                writeAsNull = ctxt.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL);
+            }
+
+            if (writeAsNull) {
                 if (_nullSerializer != null) {
                     // 23-Oct-2019, tatu: Tricky part -- caller does not specify if it's
                     //   "as property" (in JSON Object) or "as element" (JSON array, via
@@ -796,6 +808,17 @@ public class BeanPropertyWriter
         return false;
     }
 
+    // Helper method to recognize `Throwable.cause` Field, which has "this" as initialized
+    // value to mean "not set" (`Throwable.getCause()` translates this to `null`).
+    //
+    // @since 2.20
+    private boolean _isThrowableFieldCause(SerializationContext ctxt, Object bean) {
+        return bean instanceof Throwable
+                && _member instanceof AnnotatedField
+                && "cause".equals(_name.getValue())
+                ;
+    }
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(40);

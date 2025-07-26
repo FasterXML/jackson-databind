@@ -1866,6 +1866,9 @@ wrongwrong (@k163377)
  * Contributed fix for #5139: In `CollectionDeserializer`, `JsonSetter.contentNulls`
    is sometimes ignored
   (2.19.1)
+ * Contributed fix for #5202: #5202: `JsonSetter.contentNulls` ignored for `Object[]`,
+  `String[]` and `Collection<String>`
+  (2.19.2)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing

@@ -388,7 +388,6 @@ System.out.println(" PojoPropsCollector.collectAll() for  "+_classDef.getRawType
         // 14-Nov-2024, tatu: Previously skipped checking fields for Records; with 2.18+ won't
         //    (see [databind#3628], [databind#3895], [databind#3992], [databind#4626])
         _addFields(props); // note: populates _fieldRenameMappings
-
         _addMethods(props);
         // 25-Jan-2016, tatu: Avoid introspecting (constructor-)creators for non-static
         //    inner classes, see [databind#1502]
@@ -396,7 +395,11 @@ System.out.println(" PojoPropsCollector.collectAll() for  "+_classDef.getRawType
         if (!_classDef.isNonStaticInnerClass()) {
             _addCreators(props);
         }
-
+        // 11-Jun-2025, tatu: [databind#5152] May need to "fix" mis-matching leading case
+        //    wrt Fields vs Accessors
+        if (_config.isEnabled(MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX)) {
+             _fixLeadingFieldNameCase(props);
+        }
         // Remove ignored properties, first; this MUST precede annotation merging
         // since logic relies on knowing exactly which accessor has which annotation
         _removeUnwantedProperties(props);
@@ -496,10 +499,9 @@ System.out.println(" PojoPropsCollector.collectAll() for  "+_classDef.getRawType
     protected void _addFields(Map<String, POJOPropertyBuilder> props)
     {
         final AnnotationIntrospector ai = _annotationIntrospector;
-        /* 28-Mar-2013, tatu: For deserialization we may also want to remove
-         *   final fields, as often they won't make very good mutators...
-         *   (although, maybe surprisingly, JVM _can_ force setting of such fields!)
-         */
+        // 28-Mar-2013, tatu: For deserialization we may also want to remove
+        //   final fields, as often they won't make very good mutators...
+        //  (although, maybe surprisingly, JVM _can_ force setting of such fields!)
         final boolean pruneFinalFields = !_forSerialization && !_config.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
         final boolean transientAsIgnoral = _config.isEnabled(MapperFeature.PROPAGATE_TRANSIENT_MARKER);
 
@@ -1270,6 +1272,96 @@ ctor.creator()));
 
     /*
     /**********************************************************************
+    /* Internal methods; merging/fixing case-differences
+    /**********************************************************************
+     */
+
+    protected void _fixLeadingFieldNameCase(Map<String, POJOPropertyBuilder> props)
+    {
+        // 11-Jun-2025, tatu: [databind#5152] May need to "fix" mis-matching leading case
+        //    wrt Fields vs Accessors
+
+        // First: find possible candidates where:
+        //
+        // 1. Property only has Field
+        // 2. Field does NOT have explicit name (renaming)
+        // 3. Implicit name has upper-case for first and/or second character
+
+        Map<String, POJOPropertyBuilder> fieldsToCheck = null;
+        for (Map.Entry<String, POJOPropertyBuilder> entry : props.entrySet()) {
+            POJOPropertyBuilder  prop = entry.getValue();
+
+            // First: (1) and (2)
+            if (!prop.hasFieldAndNothingElse()
+                    || prop.isExplicitlyNamed()) {
+                continue;
+            }
+            // Second: (3)
+            if (!_firstOrSecondCharUpperCase(entry.getKey())) {
+                continue;
+            }
+            if (fieldsToCheck == null) {
+                fieldsToCheck = new HashMap<>();
+            }
+            fieldsToCheck.put(entry.getKey(), prop);
+        }
+        /*// DEBUGGING
+        if (fieldsToCheck == null) {
+            System.err.println("_fixLeadingCase, candidates -> null; props -> "+props.keySet());
+        } else {
+            System.err.println("_fixLeadingCase, candidates -> "+fieldsToCheck);
+        }
+        */
+
+        if (fieldsToCheck == null) {
+            return;
+        }
+
+        for (Map.Entry<String, POJOPropertyBuilder> fieldEntry : fieldsToCheck.entrySet()) {
+            Iterator<Map.Entry<String, POJOPropertyBuilder>> it = props.entrySet().iterator();
+            final POJOPropertyBuilder fieldProp = fieldEntry.getValue();
+            final String fieldName = fieldEntry.getKey();
+
+            while (it.hasNext()) {
+                Map.Entry<String, POJOPropertyBuilder> propEntry = it.next();
+                final POJOPropertyBuilder prop = propEntry.getValue();
+
+                // Skip anything that has Field (can't merge)
+                if (prop == fieldProp || prop.hasField()) {
+                    continue;
+                }
+                if (fieldName.equalsIgnoreCase(propEntry.getKey())) {
+                    // Remove non-Field property; add its accessors to Field one
+                    it.remove();
+                    fieldProp.addAll(prop);
+                    // Should we continue with possible other accessors?
+                    // For now assume only one merge needed/desired
+                    break;
+                }
+            }
+        }
+    }
+
+    // @since 2.20
+    private boolean _firstOrSecondCharUpperCase(String name) {
+         switch (name.length()) {
+         case 0:
+             return false;
+         default:
+             if (!Character.isLowerCase(name.charAt(1))) {
+                 return true;
+             }
+             // fall through
+         case 1:
+             if (!Character.isLowerCase(name.charAt(0))) {
+                 return true;
+             }
+             return false;
+         }
+    }
+
+    /*
+    /**********************************************************************
     /* Internal methods; removing ignored properties
     /**********************************************************************
      */
@@ -1370,6 +1462,7 @@ ctor.creator()));
         // With renaming need to do in phases: first, find properties to rename
         Iterator<Map.Entry<String,POJOPropertyBuilder>> it = props.entrySet().iterator();
         LinkedList<POJOPropertyBuilder> renamed = null;
+
         while (it.hasNext()) {
             Map.Entry<String, POJOPropertyBuilder> entry = it.next();
             POJOPropertyBuilder prop = entry.getValue();

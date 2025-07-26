@@ -391,6 +391,12 @@ public class POJOPropertyBuilder
     @Override
     public boolean hasField() { return _fields != null; }
 
+    // @since 2.20 additional accessor
+    public boolean hasFieldAndNothingElse() {
+        return (_fields != null)
+                && ((_getters == null) && (_setters == null) && (_ctorParameters == null));
+    }
+
     @Override
     public boolean hasConstructorParameter() { return _ctorParameters != null; }
 

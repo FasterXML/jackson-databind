@@ -208,10 +208,18 @@ public final class StringCollectionDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = (String) _nullProvider.getNullValue(ctxt);
                 } else {
                     value = _parseString(p, ctxt, _nullProvider);
                 }
+
+                if (value == null) {
+                    value = (String) _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 result.add(value);
             }
         } catch (Exception e) {
@@ -242,13 +250,22 @@ public final class StringCollectionDeserializer
                         if (_skipNullValues) {
                             continue;
                         }
-                        value = (String) _nullProvider.getNullValue(ctxt);
+                        value = null;
                     } else {
                         value = deser.deserialize(p, ctxt);
                     }
                 } else {
                     value = deser.deserialize(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = (String) _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 result.add(value);
             }
         } catch (Exception e) {
@@ -294,7 +311,7 @@ public final class StringCollectionDeserializer
             if (_skipNullValues) {
                 return result;
             }
-            value = (String) _nullProvider.getNullValue(ctxt);
+            value = null;
         } else {
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 String textValue = p.getString();
@@ -318,6 +335,15 @@ public final class StringCollectionDeserializer
             }
             value = (valueDes == null) ? _parseString(p, ctxt, _nullProvider) : valueDes.deserialize(p, ctxt);
         }
+
+        if (value == null) {
+            value = (String) _nullProvider.getNullValue(ctxt);
+
+            if (value == null && _skipNullValues) {
+                return result;
+            }
+        }
+
         result.add(value);
         return result;
     }

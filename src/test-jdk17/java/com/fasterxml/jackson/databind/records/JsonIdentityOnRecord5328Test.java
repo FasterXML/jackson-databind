@@ -12,7 +12,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class JsonIdentityOnRecord5328Test {
+// [databind#5328] immutable classes with @JsonIdentityInfo can be deserialized; records cannot
+public class JsonIdentityOnRecord5328Test
+{
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 

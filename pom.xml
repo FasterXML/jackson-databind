@@ -166,13 +166,12 @@
     <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-suite-engine</artifactId>
-      <version>1.10.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.micronaut.test</groupId>
       <artifactId>micronaut-test-type-pollution</artifactId>
-      <version>4.6.2</version>
+      <version>4.8.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

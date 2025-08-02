@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Simple container used for temporarily buffering a set of
@@ -336,7 +337,7 @@ public class PropertyValueBuffer
                 SettableBeanProperty idProp = _objectIdReader.idProperty;
                 if (idProp != null) {
                     // [databind#5328] Records do not have setters, skip...to set id value
-                    if (bean.getClass().isRecord()) {
+                    if (ClassUtil.isRecordType(bean.getClass())) {
                         return bean;
                     } else  {
                         return idProp.setAndReturn(bean, _idValue);

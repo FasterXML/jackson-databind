@@ -25,6 +25,12 @@ public class IteratorSerializer
         super(src, property, vts, valueSerializer, unwrapSingle);
     }
 
+    public IteratorSerializer(IteratorSerializer src,
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        super(src, property, vts, valueSerializer, unwrapSingle, suppressableValue, suppressNulls);
+    }
+
     @Override
     public boolean isEmpty(SerializerProvider prov, Iterator<?> value) {
         return !value.hasNext();
@@ -49,6 +55,13 @@ public class IteratorSerializer
     }
 
     @Override
+    public IteratorSerializer withResolved(BeanProperty property,
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        return new IteratorSerializer(this, property, vts, elementSerializer, unwrapSingle, suppressableValue, suppressNulls);
+    }
+
+    @Override
     public final void serialize(Iterator<?> value, JsonGenerator gen,
             SerializerProvider provider) throws IOException
     {
@@ -58,13 +71,21 @@ public class IteratorSerializer
                 provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                 || (_unwrapSingle == Boolean.TRUE)) {
             if (hasSingleElement(value)) {
-                serializeContents(value, gen, provider);
+                if ((_suppressableValue != null) || _suppressNulls) {
+                    serializeFilteredContents(value, gen, provider);
+                } else {
+                    serializeContents(value, gen, provider);
+                }
                 return;
             }
         }
         */
         gen.writeStartArray(value);
-        serializeContents(value, gen, provider);
+        if ((_suppressableValue != null) || _suppressNulls) {
+            serializeFilteredContents(value, gen, provider);
+        } else {
+            serializeContents(value, gen, provider);
+        }
         gen.writeEndArray();
     }
 
@@ -93,6 +114,46 @@ public class IteratorSerializer
         } while (value.hasNext());
     }
 
+    public void serializeFilteredContents(Iterator<?> value, JsonGenerator g,
+            SerializerProvider provider) throws IOException
+    {
+        if (!value.hasNext()) {
+            return;
+        }
+        JsonSerializer<Object> serializer = _elementSerializer;
+        if (serializer == null) {
+            _serializeFilteredDynamicContents(value, g, provider);
+            return;
+        }
+        final TypeSerializer typeSer = _valueTypeSerializer;
+        do {
+            Object elem = value.next();
+            if (elem == null) {
+                if (_suppressNulls) {
+                    continue;
+                }
+                provider.defaultSerializeNull(g);
+            } else {
+                // Check if this element should be suppressed
+                if (_suppressableValue != null) {
+                    if (_suppressableValue == MARKER_FOR_EMPTY) {
+                        // Check for empty values using serializer
+                        if (serializer.isEmpty(provider, elem)) {
+                            continue; // Skip empty elements
+                        }
+                    } else if (_suppressableValue.equals(elem)) {
+                        continue; // Skip this element
+                    }
+                }
+                if (typeSer == null) {
+                    serializer.serialize(elem, g, provider);
+                } else {
+                    serializer.serializeWithType(elem, g, provider, typeSer);
+                }
+            }
+        } while (value.hasNext());
+    }
+
     protected void _serializeDynamicContents(Iterator<?> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
     {
@@ -114,6 +175,50 @@ public class IteratorSerializer
                     serializer = _findAndAddDynamic(serializers, cc, provider);
                 }
                 serializers = _dynamicSerializers;
+            }
+            if (typeSer == null) {
+                serializer.serialize(elem, g, provider);
+            } else {
+                serializer.serializeWithType(elem, g, provider, typeSer);
+            }
+        } while (value.hasNext());
+    }
+
+    protected void _serializeFilteredDynamicContents(Iterator<?> value, JsonGenerator g,
+            SerializerProvider provider) throws IOException
+    {
+        final TypeSerializer typeSer = _valueTypeSerializer;
+        PropertySerializerMap serializers = _dynamicSerializers;
+        do {
+            Object elem = value.next();
+            if (elem == null) {
+                if (_suppressNulls) {
+                    continue;
+                }
+                provider.defaultSerializeNull(g);
+                continue;
+            }
+            Class<?> cc = elem.getClass();
+            JsonSerializer<Object> serializer = serializers.serializerFor(cc);
+            if (serializer == null) {
+                if (_elementType.hasGenericTypes()) {
+                    serializer = _findAndAddDynamic(serializers,
+                            provider.constructSpecializedType(_elementType, cc), provider);
+                } else {
+                    serializer = _findAndAddDynamic(serializers, cc, provider);
+                }
+                serializers = _dynamicSerializers;
+            }
+            // Check if this element should be suppressed
+            if (_suppressableValue != null) {
+                if (_suppressableValue == MARKER_FOR_EMPTY) {
+                    // Check for empty values using serializer
+                    if (serializer.isEmpty(provider, elem)) {
+                        continue; // Skip empty elements
+                    }
+                } else if (_suppressableValue.equals(elem)) {
+                    continue; // Skip this element
+                }
             }
             if (typeSer == null) {
                 serializer.serialize(elem, g, provider);

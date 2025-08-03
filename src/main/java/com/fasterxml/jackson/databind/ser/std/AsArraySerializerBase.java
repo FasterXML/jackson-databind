@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -16,6 +17,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
+import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.BeanUtil;
 
 /**
  * Base class for serializers that will output contents as JSON
@@ -27,6 +30,7 @@ public abstract class AsArraySerializerBase<T>
     extends ContainerSerializer<T>
     implements ContextualSerializer
 {
+    public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
     protected final JavaType _elementType;
 
     /**
@@ -60,6 +64,20 @@ public abstract class AsArraySerializerBase<T>
      * runtime type to serializer is handled using this object
      */
     protected PropertySerializerMap _dynamicSerializers;
+
+    /**
+     * Value that indicates suppression mechanism to use for
+     * content values (elements of container), if any; null
+     * for no filtering.
+     * @since 2.20
+     */
+    protected final Object _suppressableValue;
+    
+    /**
+     * Flag that indicates whether nulls should be suppressed.
+     * @since 2.20  
+     */
+    protected final boolean _suppressNulls;
 
     /*
     /**********************************************************
@@ -110,6 +128,8 @@ public abstract class AsArraySerializerBase<T>
         _elementSerializer = (JsonSerializer<Object>) elementSerializer;
         _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _unwrapSingle = unwrapSingle;
+        _suppressableValue = null;
+        _suppressNulls = false;
     }
 
     @SuppressWarnings("unchecked")
@@ -126,6 +146,28 @@ public abstract class AsArraySerializerBase<T>
         // [databind#2181]: may not be safe to reuse, start from empty
         _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _unwrapSingle = unwrapSingle;
+        _suppressableValue = src._suppressableValue;
+        _suppressNulls = src._suppressNulls;
+    }
+
+    /**
+     * @since 2.20
+     */
+    @SuppressWarnings("unchecked")
+    protected AsArraySerializerBase(AsArraySerializerBase<?> src,
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls)
+    {
+        super(src);
+        _elementType = src._elementType;
+        _staticTyping = src._staticTyping;
+        _valueTypeSerializer = vts;
+        _property = property;
+        _elementSerializer = (JsonSerializer<Object>) elementSerializer;
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
+        _unwrapSingle = unwrapSingle;
+        _suppressableValue = suppressableValue;
+        _suppressNulls = suppressNulls;
     }
 
     /**
@@ -153,6 +195,13 @@ public abstract class AsArraySerializerBase<T>
     public abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle);
+            
+    /**
+     * @since 2.20
+     */
+    public abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls);
 
     /*
     /**********************************************************
@@ -207,11 +256,61 @@ public abstract class AsArraySerializerBase<T>
                 }
             }
         }
+        
+        // Handle content inclusion (similar to MapSerializer lines 560-609)
+        JsonInclude.Value inclV = findIncludeOverrides(serializers, property, handledType());
+        Object valueToSuppress = _suppressableValue;
+        boolean suppressNulls = _suppressNulls;
+        
+        if (inclV != null) {
+            JsonInclude.Include incl = inclV.getContentInclusion();
+            if (incl != JsonInclude.Include.USE_DEFAULTS) {
+                switch (incl) {
+                case NON_DEFAULT:
+                    valueToSuppress = BeanUtil.getDefaultValue(_elementType);
+                    suppressNulls = true;
+                    if (valueToSuppress != null) {
+                        if (valueToSuppress.getClass().isArray()) {
+                            valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
+                        }
+                    }
+                    break;
+                case NON_ABSENT:
+                    suppressNulls = true;
+                    valueToSuppress = MARKER_FOR_EMPTY;
+                    break;
+                case NON_EMPTY:
+                    suppressNulls = true;
+                    valueToSuppress = MARKER_FOR_EMPTY;
+                    break;
+                case CUSTOM:
+                    valueToSuppress = serializers.includeFilterInstance(null, inclV.getContentFilter());
+                    if (valueToSuppress == null) {
+                        suppressNulls = true;
+                    } else {
+                        suppressNulls = serializers.includeFilterSuppressNulls(valueToSuppress);
+                    }
+                    break;
+                case NON_NULL:
+                    valueToSuppress = null;
+                    suppressNulls = true;
+                    break;
+                case ALWAYS:
+                default:
+                    valueToSuppress = null;
+                    suppressNulls = false;
+                    break;
+                }
+            }
+        }
+        
         if ((ser != _elementSerializer)
                 || (property != _property)
                 || (_valueTypeSerializer != typeSer)
-                || (!Objects.equals(_unwrapSingle, unwrapSingle))) {
-            return withResolved(property, typeSer, ser, unwrapSingle);
+                || (!Objects.equals(_unwrapSingle, unwrapSingle))
+                || (!Objects.equals(valueToSuppress, _suppressableValue))
+                || (suppressNulls != _suppressNulls)) {
+            return withResolved(property, typeSer, ser, unwrapSingle, valueToSuppress, suppressNulls);
         }
         return this;
     }

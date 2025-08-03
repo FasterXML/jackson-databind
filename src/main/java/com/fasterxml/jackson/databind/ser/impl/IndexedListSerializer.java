@@ -32,12 +32,25 @@ public final class IndexedListSerializer
             Boolean unwrapSingle) {
         super(src, property, vts, valueSerializer, unwrapSingle);
     }
+    
+    public IndexedListSerializer(IndexedListSerializer src,
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        super(src, property, vts, valueSerializer, unwrapSingle, suppressableValue, suppressNulls);
+    }
 
     @Override
     public IndexedListSerializer withResolved(BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
         return new IndexedListSerializer(this, property, vts, elementSerializer, unwrapSingle);
+    }
+    
+    @Override
+    public IndexedListSerializer withResolved(BeanProperty property,
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        return new IndexedListSerializer(this, property, vts, elementSerializer, unwrapSingle, suppressableValue, suppressNulls);
     }
 
     /*
@@ -71,12 +84,20 @@ public final class IndexedListSerializer
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, gen, provider);
+                if ((_suppressableValue != null) || _suppressNulls) {
+                    serializeFilteredContents(value, gen, provider);
+                } else {
+                    serializeContents(value, gen, provider);
+                }
                 return;
             }
         }
         gen.writeStartArray(value, len);
-        serializeContents(value, gen, provider);
+        if ((_suppressableValue != null) || _suppressNulls) {
+            serializeFilteredContents(value, gen, provider);
+        } else {
+            serializeContents(value, gen, provider);
+        }
         gen.writeEndArray();
     }
 
@@ -88,8 +109,6 @@ public final class IndexedListSerializer
             serializeContentsUsing(value, g, provider, _elementSerializer);
             return;
         }
-        // TODO: Add support for suppressableValue filtering like MapSerializer.serializeOptionalFields()
-        // Need to check each element against suppressableValue filter and skip matching elements
         if (_valueTypeSerializer != null) {
             serializeTypedContents(value, g, provider);
             return;
@@ -126,6 +145,63 @@ public final class IndexedListSerializer
         }
     }
 
+    public void serializeFilteredContents(List<?> value, JsonGenerator g, SerializerProvider provider)
+        throws IOException
+    {
+        if (_elementSerializer != null) {
+            serializeFilteredContentsUsing(value, g, provider, _elementSerializer);
+            return;
+        }
+        if (_valueTypeSerializer != null) {
+            serializeFilteredTypedContents(value, g, provider);
+            return;
+        }
+        final int len = value.size();
+        if (len == 0) {
+            return;
+        }
+        int i = 0;
+        try {
+            PropertySerializerMap serializers = _dynamicSerializers;
+            for (; i < len; ++i) {
+                Object elem = value.get(i);
+                if (elem == null) {
+                    if (_suppressNulls) {
+                        continue;
+                    }
+                    provider.defaultSerializeNull(g);
+                } else {
+                    Class<?> cc = elem.getClass();
+                    JsonSerializer<Object> serializer = serializers.serializerFor(cc);
+                    if (serializer == null) {
+                        // To fix [JACKSON-508]
+                        if (_elementType.hasGenericTypes()) {
+                            serializer = _findAndAddDynamic(serializers,
+                                    provider.constructSpecializedType(_elementType, cc), provider);
+                        } else {
+                            serializer = _findAndAddDynamic(serializers, cc, provider);
+                        }
+                        serializers = _dynamicSerializers;
+                    }
+                    // Check if this element should be suppressed
+                    if (_suppressableValue != null) {
+                        if (_suppressableValue == MARKER_FOR_EMPTY) {
+                            // Check for empty values using serializer
+                            if (serializer.isEmpty(provider, elem)) {
+                                continue; // Skip empty elements
+                            }
+                        } else if (_suppressableValue.equals(elem)) {
+                            continue; // Skip this element
+                        }
+                    }
+                    serializer.serialize(elem, g, provider);
+                }
+            }
+        } catch (Exception e) {
+            wrapAndThrow(provider, e, value, i);
+        }
+    }
+
     public void serializeContentsUsing(List<?> value, JsonGenerator jgen, SerializerProvider provider,
             JsonSerializer<Object> ser)
         throws IOException
@@ -144,6 +220,48 @@ public final class IndexedListSerializer
                     ser.serialize(elem, jgen, provider);
                 } else {
                     ser.serializeWithType(elem, jgen, provider, typeSer);
+                }
+            } catch (Exception e) {
+                // [JACKSON-55] Need to add reference information
+                wrapAndThrow(provider, e, value, i);
+            }
+        }
+    }
+
+    public void serializeFilteredContentsUsing(List<?> value, JsonGenerator jgen, SerializerProvider provider,
+            JsonSerializer<Object> ser)
+        throws IOException
+    {
+        final int len = value.size();
+        if (len == 0) {
+            return;
+        }
+        final TypeSerializer typeSer = _valueTypeSerializer;
+        for (int i = 0; i < len; ++i) {
+            Object elem = value.get(i);
+            try {
+                if (elem == null) {
+                    if (_suppressNulls) {
+                        continue;
+                    }
+                    provider.defaultSerializeNull(jgen);
+                } else {
+                    // Check if this element should be suppressed
+                    if (_suppressableValue != null) {
+                        if (_suppressableValue == MARKER_FOR_EMPTY) {
+                            // Check for empty values using serializer
+                            if (ser.isEmpty(provider, elem)) {
+                                continue; // Skip empty elements
+                            }
+                        } else if (_suppressableValue.equals(elem)) {
+                            continue; // Skip this element
+                        }
+                    }
+                    if (typeSer == null) {
+                        ser.serialize(elem, jgen, provider);
+                    } else {
+                        ser.serializeWithType(elem, jgen, provider, typeSer);
+                    }
                 }
             } catch (Exception e) {
                 // [JACKSON-55] Need to add reference information
@@ -179,6 +297,56 @@ public final class IndexedListSerializer
                             serializer = _findAndAddDynamic(serializers, cc, provider);
                         }
                         serializers = _dynamicSerializers;
+                    }
+                    serializer.serializeWithType(elem, jgen, provider, typeSer);
+                }
+            }
+        } catch (Exception e) {
+            wrapAndThrow(provider, e, value, i);
+        }
+    }
+
+    public void serializeFilteredTypedContents(List<?> value, JsonGenerator jgen, SerializerProvider provider)
+        throws IOException
+    {
+        final int len = value.size();
+        if (len == 0) {
+            return;
+        }
+        int i = 0;
+        try {
+            final TypeSerializer typeSer = _valueTypeSerializer;
+            PropertySerializerMap serializers = _dynamicSerializers;
+            for (; i < len; ++i) {
+                Object elem = value.get(i);
+                if (elem == null) {
+                    if (_suppressNulls) {
+                        continue;
+                    }
+                    provider.defaultSerializeNull(jgen);
+                } else {
+                    Class<?> cc = elem.getClass();
+                    JsonSerializer<Object> serializer = serializers.serializerFor(cc);
+                    if (serializer == null) {
+                        // To fix [JACKSON-508]
+                        if (_elementType.hasGenericTypes()) {
+                            serializer = _findAndAddDynamic(serializers,
+                                    provider.constructSpecializedType(_elementType, cc), provider);
+                        } else {
+                            serializer = _findAndAddDynamic(serializers, cc, provider);
+                        }
+                        serializers = _dynamicSerializers;
+                    }
+                    // Check if this element should be suppressed
+                    if (_suppressableValue != null) {
+                        if (_suppressableValue == MARKER_FOR_EMPTY) {
+                            // Check for empty values using serializer
+                            if (serializer.isEmpty(provider, elem)) {
+                                continue; // Skip empty elements
+                            }
+                        } else if (_suppressableValue.equals(elem)) {
+                            continue; // Skip this element
+                        }
                     }
                     serializer.serializeWithType(elem, jgen, provider, typeSer);
                 }

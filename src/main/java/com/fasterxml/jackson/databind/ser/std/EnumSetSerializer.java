@@ -24,6 +24,12 @@ public class EnumSetSerializer
         super(src, property, vts, valueSerializer, unwrapSingle);
     }
 
+    public EnumSetSerializer(EnumSetSerializer src,
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        super(src, property, vts, valueSerializer, unwrapSingle, suppressableValue, suppressNulls);
+    }
+
     @Override
     public EnumSetSerializer _withValueTypeSerializer(TypeSerializer vts) {
         // no typing for enum elements (always strongly typed), so don't change
@@ -35,6 +41,13 @@ public class EnumSetSerializer
             TypeSerializer vts, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
         return new EnumSetSerializer(this, property, vts, elementSerializer, unwrapSingle);
+    }
+
+    @Override
+    public EnumSetSerializer withResolved(BeanProperty property,
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        return new EnumSetSerializer(this, property, vts, elementSerializer, unwrapSingle, suppressableValue, suppressNulls);
     }
 
     @Override

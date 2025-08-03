@@ -61,6 +61,13 @@ public class CollectionSerializer
         _maybeEnumSet = src._maybeEnumSet;
     }
 
+    public CollectionSerializer(CollectionSerializer src,
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        super(src, property, vts, valueSerializer, unwrapSingle, suppressableValue, suppressNulls);
+        _maybeEnumSet = src._maybeEnumSet;
+    }
+
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new CollectionSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);
@@ -71,6 +78,13 @@ public class CollectionSerializer
             TypeSerializer vts, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
         return new CollectionSerializer(this, property, vts, elementSerializer, unwrapSingle);
+    }
+
+    @Override
+    public CollectionSerializer withResolved(BeanProperty property,
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        return new CollectionSerializer(this, property, vts, elementSerializer, unwrapSingle, suppressableValue, suppressNulls);
     }
 
     /*
@@ -103,12 +117,20 @@ public class CollectionSerializer
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, provider);
+                if ((_suppressableValue != null) || _suppressNulls) {
+                    serializeFilteredContents(value, g, provider);
+                } else {
+                    serializeContents(value, g, provider);
+                }
                 return;
             }
         }
         g.writeStartArray(value, len);
-        serializeContents(value, g, provider);
+        if ((_suppressableValue != null) || _suppressNulls) {
+            serializeFilteredContents(value, g, provider);
+        } else {
+            serializeContents(value, g, provider);
+        }
         g.writeEndArray();
     }
 
@@ -120,8 +142,6 @@ public class CollectionSerializer
             serializeContentsUsing(value, g, provider, _elementSerializer);
             return;
         }
-        // TODO: Add support for suppressableValue filtering like MapSerializer.serializeOptionalFields()
-        // Need to check each element against suppressableValue filter and skip matching elements
         Iterator<?> it = value.iterator();
         if (!it.hasNext()) {
             return;
@@ -162,6 +182,70 @@ public class CollectionSerializer
         }
     }
 
+    public void serializeFilteredContents(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
+    {
+        g.assignCurrentValue(value);
+        if (_elementSerializer != null) {
+            serializeFilteredContentsUsing(value, g, provider, _elementSerializer);
+            return;
+        }
+        Iterator<?> it = value.iterator();
+        if (!it.hasNext()) {
+            return;
+        }
+        PropertySerializerMap serializers = _dynamicSerializers;
+        // [databind#4849]/[databind#4214]: need to check for EnumSet
+        final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
+                ? null : _valueTypeSerializer;
+
+        int i = 0;
+        try {
+            do {
+                Object elem = it.next();
+                if (elem == null) {
+                    if (_suppressNulls) {
+                        ++i;
+                        continue;
+                    }
+                    provider.defaultSerializeNull(g);
+                } else {
+                    Class<?> cc = elem.getClass();
+                    JsonSerializer<Object> serializer = serializers.serializerFor(cc);
+                    if (serializer == null) {
+                        if (_elementType.hasGenericTypes()) {
+                            serializer = _findAndAddDynamic(serializers,
+                                    provider.constructSpecializedType(_elementType, cc), provider);
+                        } else {
+                            serializer = _findAndAddDynamic(serializers, cc, provider);
+                        }
+                        serializers = _dynamicSerializers;
+                    }
+                    // Check if this element should be suppressed
+                    if (_suppressableValue != null) {
+                        if (_suppressableValue == MARKER_FOR_EMPTY) {
+                            // Check for empty values using serializer
+                            if (serializer.isEmpty(provider, elem)) {
+                                ++i;
+                                continue; // Skip empty elements
+                            }
+                        } else if (_suppressableValue.equals(elem)) {
+                            ++i;
+                            continue; // Skip this element
+                        }
+                    }
+                    if (typeSer == null) {
+                        serializer.serialize(elem, g, provider);
+                    } else {
+                        serializer.serializeWithType(elem, g, provider, typeSer);
+                    }
+                }
+                ++i;
+            } while (it.hasNext());
+        } catch (Exception e) {
+            wrapAndThrow(provider, e, value, i);
+        }
+    }
+
     public void serializeContentsUsing(Collection<?> value, JsonGenerator g, SerializerProvider provider,
             JsonSerializer<Object> ser) throws IOException
     {
@@ -177,6 +261,52 @@ public class CollectionSerializer
                     if (elem == null) {
                         provider.defaultSerializeNull(g);
                     } else {
+                        if (typeSer == null) {
+                            ser.serialize(elem, g, provider);
+                        } else {
+                            ser.serializeWithType(elem, g, provider, typeSer);
+                        }
+                    }
+                    ++i;
+                } catch (Exception e) {
+                    wrapAndThrow(provider, e, value, i);
+                }
+            } while (it.hasNext());
+        }
+    }
+
+    public void serializeFilteredContentsUsing(Collection<?> value, JsonGenerator g, SerializerProvider provider,
+            JsonSerializer<Object> ser) throws IOException
+    {
+        Iterator<?> it = value.iterator();
+        if (it.hasNext()) {
+            // [databind#4849]/[databind#4214]: need to check for EnumSet
+            final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
+                    ? null : _valueTypeSerializer;
+            int i = 0;
+            do {
+                Object elem = it.next();
+                try {
+                    if (elem == null) {
+                        if (_suppressNulls) {
+                            ++i;
+                            continue;
+                        }
+                        provider.defaultSerializeNull(g);
+                    } else {
+                        // Check if this element should be suppressed
+                        if (_suppressableValue != null) {
+                            if (_suppressableValue == MARKER_FOR_EMPTY) {
+                                // Check for empty values using serializer
+                                if (ser.isEmpty(provider, elem)) {
+                                    ++i;
+                                    continue; // Skip empty elements
+                                }
+                            } else if (_suppressableValue.equals(elem)) {
+                                ++i;
+                                continue; // Skip this element
+                            }
+                        }
                         if (typeSer == null) {
                             ser.serialize(elem, g, provider);
                         } else {

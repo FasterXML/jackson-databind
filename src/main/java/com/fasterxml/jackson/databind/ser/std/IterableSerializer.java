@@ -25,6 +25,12 @@ public class IterableSerializer
         super(src, property, vts, valueSerializer, unwrapSingle);
     }
 
+    public IterableSerializer(IterableSerializer src, BeanProperty property,
+            TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        super(src, property, vts, valueSerializer, unwrapSingle, suppressableValue, suppressNulls);
+    }
+
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new IterableSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);
@@ -35,6 +41,13 @@ public class IterableSerializer
             TypeSerializer vts, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
         return new IterableSerializer(this, property, vts, elementSerializer, unwrapSingle);
+    }
+
+    @Override
+    public IterableSerializer withResolved(BeanProperty property,
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        return new IterableSerializer(this, property, vts, elementSerializer, unwrapSingle, suppressableValue, suppressNulls);
     }
 
     @Override

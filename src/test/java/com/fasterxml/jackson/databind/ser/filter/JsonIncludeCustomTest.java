@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.ser.filter;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -58,17 +56,6 @@ public class JsonIncludeCustomTest extends DatabindTestUtil
         }
     }
 
-    static class FooListBean {
-        @JsonInclude(content=JsonInclude.Include.CUSTOM,
-                contentFilter=FooFilter.class)
-        public List<String> items = new ArrayList<String>();
-
-        public FooListBean add(String value) {
-            items.add(value);
-            return this;
-        }
-    }
-
     static class BrokenBean {
         @JsonInclude(value=JsonInclude.Include.CUSTOM,
                 valueFilter=BrokenFilter.class)
@@ -120,17 +107,6 @@ public class JsonIncludeCustomTest extends DatabindTestUtil
                 .add("c", "2");
 
         assertEquals(a2q("{'stuff':{'a':'1','c':'2'}}"), MAPPER.writeValueAsString(input));
-    }
-
-    @Test
-    public void testCustomFilterWithList() throws Exception
-    {
-        FooListBean input = new FooListBean()
-                .add("1")
-                .add("foo")
-                .add("2");
-
-        assertEquals(a2q("{'items':['1','2']}"), MAPPER.writeValueAsString(input));
     }
 
     // [databind#3481]

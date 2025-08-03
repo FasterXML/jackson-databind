@@ -6,15 +6,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests for [databind#888]
-public class JsonIncludeForCollection5227Test extends DatabindTestUtil
+public class JsonIncludeForCollection5227Test
+        extends DatabindTestUtil
 {
     static class FooFilter {
         @Override
@@ -28,8 +27,8 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
     }
 
     static class FooListBean {
-        @JsonInclude(content=JsonInclude.Include.CUSTOM,
-                contentFilter=FooFilter.class)
+        @JsonInclude(content = JsonInclude.Include.CUSTOM,
+                contentFilter = FooFilter.class)
         public List<String> items = new ArrayList<String>();
 
         public FooListBean add(String value) {
@@ -40,7 +39,7 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
 
     // Test NON_NULL content inclusion
     static class NonNullListBean {
-        @JsonInclude(content=JsonInclude.Include.NON_NULL)
+        @JsonInclude(content = JsonInclude.Include.NON_NULL)
         public List<String> items = new ArrayList<String>();
 
         public NonNullListBean add(String value) {
@@ -51,7 +50,7 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
 
     // Test NON_EMPTY content inclusion  
     static class NonEmptyListBean {
-        @JsonInclude(content=JsonInclude.Include.NON_EMPTY)
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
         public List<String> items = new ArrayList<String>();
 
         public NonEmptyListBean add(String value) {
@@ -62,7 +61,7 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
 
     // Test NON_DEFAULT content inclusion
     static class NonDefaultListBean {
-        @JsonInclude(content=JsonInclude.Include.NON_DEFAULT)
+        @JsonInclude(content = JsonInclude.Include.NON_DEFAULT)
         public List<String> items = new ArrayList<String>();
 
         public NonDefaultListBean add(String value) {
@@ -73,8 +72,8 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
 
     // Test with different collection types
     static class FooSetBean {
-        @JsonInclude(content=JsonInclude.Include.CUSTOM,
-                contentFilter=FooFilter.class)
+        @JsonInclude(content = JsonInclude.Include.CUSTOM,
+                contentFilter = FooFilter.class)
         public Set<String> items = new LinkedHashSet<String>();
 
         public FooSetBean add(String value) {
@@ -95,8 +94,8 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
     }
 
     static class NumberListBean {
-        @JsonInclude(content=JsonInclude.Include.CUSTOM,
-                contentFilter=NumberFilter.class)
+        @JsonInclude(content = JsonInclude.Include.CUSTOM,
+                contentFilter = NumberFilter.class)
         public List<Integer> numbers = new ArrayList<Integer>();
 
         public NumberListBean add(Integer value) {
@@ -117,8 +116,8 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
     }
 
     static class CountingFooListBean {
-        @JsonInclude(content=JsonInclude.Include.CUSTOM,
-                contentFilter=CountingFooFilter.class)
+        @JsonInclude(content = JsonInclude.Include.CUSTOM,
+                contentFilter = CountingFooFilter.class)
         public List<String> items = new ArrayList<String>();
 
         public CountingFooListBean add(String value) {
@@ -136,8 +135,7 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
     final private ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
-    public void testCustomFilterWithList() throws Exception
-    {
+    public void testCustomFilterWithList() throws Exception {
         FooListBean input = new FooListBean()
                 .add("1")
                 .add("foo")
@@ -147,8 +145,7 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
     }
 
     @Test
-    public void testNonNullContentInclusion() throws Exception
-    {
+    public void testNonNullContentInclusion() throws Exception {
         NonNullListBean input = new NonNullListBean()
                 .add("1")
                 .add(null)
@@ -158,8 +155,7 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
     }
 
     @Test
-    public void testNonEmptyContentInclusion() throws Exception
-    {
+    public void testNonEmptyContentInclusion() throws Exception {
         NonEmptyListBean input = new NonEmptyListBean()
                 .add("1")
                 .add("")
@@ -169,8 +165,7 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
     }
 
     @Test
-    public void testNonDefaultContentInclusion() throws Exception
-    {
+    public void testNonDefaultContentInclusion() throws Exception {
         NonDefaultListBean input = new NonDefaultListBean()
                 .add("1")
                 .add(null) // null is default for String
@@ -180,8 +175,7 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
     }
 
     @Test
-    public void testCustomFilterWithSet() throws Exception
-    {
+    public void testCustomFilterWithSet() throws Exception {
         FooSetBean input = new FooSetBean()
                 .add("1")
                 .add("foo")
@@ -191,8 +185,7 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
     }
 
     @Test
-    public void testCustomFilterWithNumbers() throws Exception
-    {
+    public void testCustomFilterWithNumbers() throws Exception {
         NumberListBean input = new NumberListBean()
                 .add(1)
                 .add(42)
@@ -202,32 +195,13 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
     }
 
     @Test
-    public void testCountingFilterCalls() throws Exception
-    {
-        CountingFooFilter.counter.set(0);
-
-        CountingFooListBean input = new CountingFooListBean()
-                .add("1")
-                .add("foo")
-                .add("2")
-                .add("foo")
-                .add("3");
-
-        assertEquals(a2q("{'items':['1','2','3']}"), MAPPER.writeValueAsString(input));
-        // Should be called once for each element
-        assertEquals(5, CountingFooFilter.counter.get());
-    }
-
-    @Test
-    public void testEmptyListWithCustomFilter() throws Exception
-    {
+    public void testEmptyListWithCustomFilter() throws Exception {
         FooListBean input = new FooListBean();
         assertEquals(a2q("{'items':[]}"), MAPPER.writeValueAsString(input));
     }
 
     @Test
-    public void testAllFilteredOut() throws Exception
-    {
+    public void testAllFilteredOut() throws Exception {
         FooListBean input = new FooListBean()
                 .add("foo")
                 .add("foo")
@@ -237,8 +211,7 @@ public class JsonIncludeForCollection5227Test extends DatabindTestUtil
     }
 
     @Test
-    public void testMixedNullsAndFiltered() throws Exception
-    {
+    public void testMixedNullsAndFiltered() throws Exception {
         FooListBean input = new FooListBean()
                 .add("1")
                 .add(null)

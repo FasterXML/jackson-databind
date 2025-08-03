@@ -80,12 +80,20 @@ public final class IndexedStringListSerializer
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, provider, 1);
+                if ((_suppressableValue != null) || _suppressNulls) {
+                    serializeFilteredContents(value, g, provider, 1);
+                } else {
+                    serializeContents(value, g, provider, 1);
+                }
                 return;
             }
         }
         g.writeStartArray(value, len);
-        serializeContents(value, g, provider, len);
+        if ((_suppressableValue != null) || _suppressNulls) {
+            serializeFilteredContents(value, g, provider, len);
+        } else {
+            serializeContents(value, g, provider, len);
+        }
         g.writeEndArray();
     }
 
@@ -109,6 +117,24 @@ public final class IndexedStringListSerializer
             for (; i < len; ++i) {
                 String str = value.get(i);
                 if (str == null) {
+                    provider.defaultSerializeNull(g);
+                } else {
+                    g.writeString(str);
+                }
+            }
+        } catch (Exception e) {
+            wrapAndThrow(provider, e, value, i);
+        }
+    }
+
+    private final void serializeFilteredContents(List<String> value, JsonGenerator g,
+            SerializerProvider provider, int len) throws IOException
+    {
+        int i = 0;
+        try {
+            for (; i < len; ++i) {
+                String str = value.get(i);
+                if (str == null) {
                     if (_suppressNulls) {
                         continue;
                     }
@@ -116,7 +142,12 @@ public final class IndexedStringListSerializer
                 } else {
                     // Check if this element should be suppressed
                     if (_suppressableValue != null) {
-                        if (_suppressableValue.equals(str)) {
+                        if (_suppressableValue == MARKER_FOR_EMPTY) {
+                            // Check for empty strings when NON_EMPTY is used
+                            if (str.isEmpty()) {
+                                continue; // Skip empty strings
+                            }
+                        } else if (_suppressableValue.equals(str)) {
                             continue; // Skip this element
                         }
                     }

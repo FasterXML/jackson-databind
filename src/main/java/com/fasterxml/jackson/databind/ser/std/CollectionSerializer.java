@@ -221,17 +221,9 @@ public class CollectionSerializer
                         serializers = _dynamicSerializers;
                     }
                     // Check if this element should be suppressed
-                    if (_suppressableValue != null) {
-                        if (_suppressableValue == MARKER_FOR_EMPTY) {
-                            // Check for empty values using serializer
-                            if (serializer.isEmpty(provider, elem)) {
-                                ++i;
-                                continue; // Skip empty elements
-                            }
-                        } else if (_suppressableValue.equals(elem)) {
-                            ++i;
-                            continue; // Skip this element
-                        }
+                    if (!_shouldSerializeElement(elem, serializer, provider)) {
+                        ++i;
+                        continue;
                     }
                     if (typeSer == null) {
                         serializer.serialize(elem, g, provider);
@@ -295,17 +287,9 @@ public class CollectionSerializer
                         provider.defaultSerializeNull(g);
                     } else {
                         // Check if this element should be suppressed
-                        if (_suppressableValue != null) {
-                            if (_suppressableValue == MARKER_FOR_EMPTY) {
-                                // Check for empty values using serializer
-                                if (ser.isEmpty(provider, elem)) {
-                                    ++i;
-                                    continue; // Skip empty elements
-                                }
-                            } else if (_suppressableValue.equals(elem)) {
-                                ++i;
-                                continue; // Skip this element
-                            }
+                        if (!_shouldSerializeElement(elem, ser, provider)) {
+                            ++i;
+                            continue;
                         }
                         if (typeSer == null) {
                             ser.serialize(elem, g, provider);
@@ -318,6 +302,23 @@ public class CollectionSerializer
                     wrapAndThrow(provider, e, value, i);
                 }
             } while (it.hasNext());
+        }
+    }
+
+    /**
+     * Helper method to determine if an element should be serialized based on content inclusion filters.
+     */
+    private boolean _shouldSerializeElement(Object elem, JsonSerializer<Object> serializer, SerializerProvider provider) throws IOException
+    {
+        if (_suppressableValue == null) {
+            return true;
+        }
+        if (_suppressableValue == MARKER_FOR_EMPTY) {
+            // Check for empty values using serializer
+            return !serializer.isEmpty(provider, elem);
+        } else {
+            // Check for custom filter match
+            return !_suppressableValue.equals(elem);
         }
     }
 }

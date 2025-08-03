@@ -42,9 +42,20 @@ public class StringCollectionSerializer
         super(src, unwrapSingle);
     }
 
+    protected StringCollectionSerializer(StringCollectionSerializer src,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls)
+    {
+        super(src, unwrapSingle, suppressableValue, suppressNulls);
+    }
+
     @Override
     public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
         return new StringCollectionSerializer(this, unwrapSingle);
+    }
+
+    @Override
+    public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        return new StringCollectionSerializer(this, unwrapSingle, suppressableValue, suppressNulls);
     }
 
     @Override protected JsonNode contentSchema() {

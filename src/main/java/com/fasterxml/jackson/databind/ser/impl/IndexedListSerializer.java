@@ -88,6 +88,8 @@ public final class IndexedListSerializer
             serializeContentsUsing(value, g, provider, _elementSerializer);
             return;
         }
+        // TODO: Add support for suppressableValue filtering like MapSerializer.serializeOptionalFields()
+        // Need to check each element against suppressableValue filter and skip matching elements
         if (_valueTypeSerializer != null) {
             serializeTypedContents(value, g, provider);
             return;

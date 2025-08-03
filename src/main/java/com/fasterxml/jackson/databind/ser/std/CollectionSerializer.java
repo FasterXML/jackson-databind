@@ -120,6 +120,8 @@ public class CollectionSerializer
             serializeContentsUsing(value, g, provider, _elementSerializer);
             return;
         }
+        // TODO: Add support for suppressableValue filtering like MapSerializer.serializeOptionalFields()
+        // Need to check each element against suppressableValue filter and skip matching elements
         Iterator<?> it = value.iterator();
         if (!it.hasNext()) {
             return;

@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
@@ -14,6 +15,8 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.BeanUtil;
 
 /**
  * Intermediate base class for Lists, Collections and Arrays
@@ -24,6 +27,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     extends StdSerializer<T>
     implements ContextualSerializer
 {
+    public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
     /**
      * Setting for specific local override for "unwrap single element arrays":
      * true for enable unwrapping, false for preventing it, `null` for using
@@ -32,10 +36,26 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
      * @since 2.6
      */
     protected final Boolean _unwrapSingle;
+    
+    /**
+     * Value that indicates suppression mechanism to use for
+     * content values (elements of container), if any; null
+     * for no filtering.
+     * @since 2.20
+     */
+    protected final Object _suppressableValue;
+    
+    /**
+     * Flag that indicates whether nulls should be suppressed.
+     * @since 2.20  
+     */
+    protected final boolean _suppressNulls;
 
     protected StaticListSerializerBase(Class<?> cls) {
         super(cls, false);
         _unwrapSingle = null;
+        _suppressableValue = null;
+        _suppressNulls = false;
     }
 
     /**
@@ -45,6 +65,19 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
             Boolean unwrapSingle) {
         super(src);
         _unwrapSingle = unwrapSingle;
+        _suppressableValue = src._suppressableValue;
+        _suppressNulls = src._suppressNulls;
+    }
+    
+    /**
+     * @since 2.20
+     */
+    protected StaticListSerializerBase(StaticListSerializerBase<?> src,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        super(src);
+        _unwrapSingle = unwrapSingle;
+        _suppressableValue = suppressableValue;
+        _suppressNulls = suppressNulls;
     }
 
     /**
@@ -52,6 +85,12 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
      */
     public abstract JsonSerializer<?> _withResolved(BeanProperty prop,
             Boolean unwrapSingle);
+            
+    /**
+     * @since 2.20
+     */
+    public abstract JsonSerializer<?> _withResolved(BeanProperty prop,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls);
 
     /*
     /**********************************************************
@@ -87,12 +126,61 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         if (ser == null) {
             ser = serializers.findContentValueSerializer(String.class, property);
         }
+        
+        // Handle content inclusion (similar to MapSerializer lines 560-609)
+        JsonInclude.Value inclV = findIncludeOverrides(serializers, property, List.class);
+        Object valueToSuppress = _suppressableValue;
+        boolean suppressNulls = _suppressNulls;
+        
+        if (inclV != null) {
+            JsonInclude.Include incl = inclV.getContentInclusion();
+            if (incl != JsonInclude.Include.USE_DEFAULTS) {
+                switch (incl) {
+                case NON_DEFAULT:
+                    valueToSuppress = BeanUtil.getDefaultValue(serializers.constructType(String.class));
+                    suppressNulls = true;
+                    if (valueToSuppress != null) {
+                        if (valueToSuppress.getClass().isArray()) {
+                            valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
+                        }
+                    }
+                    break;
+                case NON_ABSENT:
+                    suppressNulls = true;
+                    valueToSuppress = MARKER_FOR_EMPTY;
+                    break;
+                case NON_EMPTY:
+                    suppressNulls = true;
+                    valueToSuppress = MARKER_FOR_EMPTY;
+                    break;
+                case CUSTOM:
+                    valueToSuppress = serializers.includeFilterInstance(null, inclV.getContentFilter());
+                    if (valueToSuppress == null) {
+                        suppressNulls = true;
+                    } else {
+                        suppressNulls = serializers.includeFilterSuppressNulls(valueToSuppress);
+                    }
+                    break;
+                case NON_NULL:
+                    valueToSuppress = null;
+                    suppressNulls = true;
+                    break;
+                case ALWAYS:
+                default:
+                    valueToSuppress = null;
+                    suppressNulls = false;
+                    break;
+                }
+            }
+        }
         // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {
-            if (Objects.equals(unwrapSingle, _unwrapSingle)) {
+            if (Objects.equals(unwrapSingle, _unwrapSingle) 
+                    && Objects.equals(valueToSuppress, _suppressableValue)
+                    && suppressNulls == _suppressNulls) {
                 return this;
             }
-            return _withResolved(property, unwrapSingle);
+            return _withResolved(property, unwrapSingle, valueToSuppress, suppressNulls);
         }
         // otherwise...
         // note: will never have TypeSerializer, because Strings are "natural" type

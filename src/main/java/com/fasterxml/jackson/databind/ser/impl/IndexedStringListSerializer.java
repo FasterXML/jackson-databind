@@ -41,10 +41,21 @@ public final class IndexedStringListSerializer
             Boolean unwrapSingle) {
         super(src, unwrapSingle);
     }
+    
+    public IndexedStringListSerializer(IndexedStringListSerializer src,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        super(src, unwrapSingle, suppressableValue, suppressNulls);
+    }
 
     @Override
     public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
         return new IndexedStringListSerializer(this, unwrapSingle);
+    }
+    
+    @Override
+    public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle,
+            Object suppressableValue, boolean suppressNulls) {
+        return new IndexedStringListSerializer(this, unwrapSingle, suppressableValue, suppressNulls);
     }
 
     @Override protected JsonNode contentSchema() { return createSchemaNode("string", true); }
@@ -98,8 +109,17 @@ public final class IndexedStringListSerializer
             for (; i < len; ++i) {
                 String str = value.get(i);
                 if (str == null) {
+                    if (_suppressNulls) {
+                        continue;
+                    }
                     provider.defaultSerializeNull(g);
                 } else {
+                    // Check if this element should be suppressed
+                    if (_suppressableValue != null) {
+                        if (_suppressableValue.equals(str)) {
+                            continue; // Skip this element
+                        }
+                    }
                     g.writeString(str);
                 }
             }

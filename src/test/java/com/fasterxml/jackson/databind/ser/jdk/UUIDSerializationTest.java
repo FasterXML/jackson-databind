@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.jdk;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,7 @@ public class UUIDSerializationTest extends DatabindTestUtil
 
     // Verify that efficient UUID codec won't mess things up:
     @Test
-    public void testBasicUUIDs() throws IOException
+    public void testBasicUUIDs() throws Exception
     {
         // first, couple of generated UUIDs:
         for (String value : new String[] {
@@ -104,5 +103,4 @@ public class UUIDSerializationTest extends DatabindTestUtil
         Object ob = MAPPER.convertValue(nullUUID, Object.class);
         assertEquals(String.class, ob.getClass());
     }
-
 }

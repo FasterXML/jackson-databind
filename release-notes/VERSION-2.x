@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+Not yet released
+
+#5242: Support "binary vectors": `@JsonFormat(shape = Shape.BINARY)` for
+  `float[]`, `double[]`
+
 2.20.0-rc1 (04-Aug-2025)
 
 #3072: Allow specifying `@JacksonInject` does not fail when there's no

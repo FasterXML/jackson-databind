@@ -62,67 +62,100 @@ public class VectorsAsBinarySerTest extends DatabindTestUtil
         }
     }
 
-    private final ObjectMapper MAPPER = sharedMapper();
+    private final ObjectMapper VANILLA_MAPPER = sharedMapper();
+
+    private final ObjectMapper BINARY_VECTOR_MAPPER = jsonMapperBuilder()
+            .withConfigOverride(float[].class,
+                    c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.BINARY)))
+            .withConfigOverride(double[].class,
+                    c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.BINARY)))
+            .build();
 
     // // // Float Vector tests, as-Array
 
     @Test
     public void defaultFloatVectorSerialization() throws Exception {
-        String json = MAPPER.writeValueAsString(FLOAT_VECTOR);
+        String json = VANILLA_MAPPER.writeValueAsString(FLOAT_VECTOR);
         assertEquals(FLOAT_VECTOR_STR, json);
 
-        float[] result = MAPPER.readValue(json, float[].class);
+        float[] result = VANILLA_MAPPER.readValue(json, float[].class);
         assertArrayEquals(FLOAT_VECTOR, result);
     }
 
     @Test
     public void asArrayFloatVectorSerialization() throws Exception {
-        String json = MAPPER.writeValueAsString(new BeanWithArrayFloatVector(FLOAT_VECTOR));
-        assertEquals(a2q("{'vector':"+FLOAT_VECTOR_STR+"}"), json);
+        final String exp = a2q("{'vector':"+FLOAT_VECTOR_STR+"}");
+        String json = VANILLA_MAPPER.writeValueAsString(new BeanWithArrayFloatVector(FLOAT_VECTOR));
+        assertEquals(exp, json);
+        // And annotation overrides default shape override
+        assertEquals(exp,
+                BINARY_VECTOR_MAPPER.writeValueAsString(new BeanWithArrayFloatVector(FLOAT_VECTOR)));
 
-        BeanWithArrayFloatVector result = MAPPER.readValue(json, BeanWithArrayFloatVector.class);
+        BeanWithArrayFloatVector result = VANILLA_MAPPER.readValue(json, BeanWithArrayFloatVector.class);
         assertArrayEquals(FLOAT_VECTOR, result.vector);
     }
 
     // // // Float Vector tests, as-Binary
 
     @Test
-    public void asBinaryFloatVectorSerialization() throws Exception {
-        String json = MAPPER.writeValueAsString(new BeanWithBinaryFloatVector(FLOAT_VECTOR));
-        assertEquals(a2q("{'vector':'"+base64Encode(asBinary(FLOAT_VECTOR))+"'}"), json);
+    public void asBinaryFloatVectorSerializationRoot() throws Exception {
+        String json = BINARY_VECTOR_MAPPER.writeValueAsString(FLOAT_VECTOR);
+        assertEquals(q(base64Encode(asBinary(FLOAT_VECTOR))), json);
 
-        BeanWithArrayFloatVector result = MAPPER.readValue(json, BeanWithArrayFloatVector.class);
-        assertArrayEquals(FLOAT_VECTOR, result.vector);
+        float[] result = BINARY_VECTOR_MAPPER.readValue(json, float[].class);
+        assertArrayEquals(FLOAT_VECTOR, result);
     }
 
+    @Test
+    public void asBinaryFloatVectorSerializationPOJO() throws Exception {
+        String json = VANILLA_MAPPER.writeValueAsString(new BeanWithBinaryFloatVector(FLOAT_VECTOR));
+        assertEquals(a2q("{'vector':'"+base64Encode(asBinary(FLOAT_VECTOR))+"'}"), json);
+
+        BeanWithArrayFloatVector result = VANILLA_MAPPER.readValue(json, BeanWithArrayFloatVector.class);
+        assertArrayEquals(FLOAT_VECTOR, result.vector);
+    }
+    
     // // // Double Vector tests, as-Array
 
     @Test
     public void defaultDoubleVectorSerialization() throws Exception {
-        String json = MAPPER.writeValueAsString(DOUBLE_VECTOR);
+        String json = VANILLA_MAPPER.writeValueAsString(DOUBLE_VECTOR);
         assertEquals(DOUBLE_VECTOR_STR, json);
 
-        double[] result = MAPPER.readValue(json, double[].class);
+        double[] result = VANILLA_MAPPER.readValue(json, double[].class);
         assertArrayEquals(DOUBLE_VECTOR, result);
     }
 
     @Test
     public void asArrayDoubleVectorSerialization() throws Exception {
-        String json = MAPPER.writeValueAsString(new BeanWithArrayDoubleVector(DOUBLE_VECTOR));
-        assertEquals(a2q("{'vector':"+DOUBLE_VECTOR_STR+"}"), json);
+        String exp = a2q("{'vector':"+DOUBLE_VECTOR_STR+"}");
+        String json = VANILLA_MAPPER.writeValueAsString(new BeanWithArrayDoubleVector(DOUBLE_VECTOR));
+        assertEquals(exp, json);
+        // And annotation overrides default shape override
+        assertEquals(exp,
+                BINARY_VECTOR_MAPPER.writeValueAsString(new BeanWithArrayDoubleVector(DOUBLE_VECTOR)));
 
-        BeanWithArrayDoubleVector result = MAPPER.readValue(json, BeanWithArrayDoubleVector.class);
+        BeanWithArrayDoubleVector result = VANILLA_MAPPER.readValue(json, BeanWithArrayDoubleVector.class);
         assertArrayEquals(DOUBLE_VECTOR, result.vector);
     }
 
     // // // Double Vector tests, as-Binary
 
     @Test
-    public void asBinaryDoubleVectorSerialization() throws Exception {
-        String json = MAPPER.writeValueAsString(new BeanWithBinaryDoubleVector(DOUBLE_VECTOR));
+    public void asBinaryDoubleVectorSerializationRoot() throws Exception {
+        String json = BINARY_VECTOR_MAPPER.writeValueAsString(DOUBLE_VECTOR);
+        assertEquals(q(base64Encode(asBinary(DOUBLE_VECTOR))), json);
+
+        double[] result = BINARY_VECTOR_MAPPER.readValue(json, double[].class);
+        assertArrayEquals(DOUBLE_VECTOR, result);
+    }
+    
+    @Test
+    public void asBinaryDoubleVectorSerializationPOJO() throws Exception {
+        String json = VANILLA_MAPPER.writeValueAsString(new BeanWithBinaryDoubleVector(DOUBLE_VECTOR));
         assertEquals(a2q("{'vector':'"+base64Encode(asBinary(DOUBLE_VECTOR))+"'}"), json);
 
-        BeanWithBinaryDoubleVector result = MAPPER.readValue(json, BeanWithBinaryDoubleVector.class);
+        BeanWithBinaryDoubleVector result = VANILLA_MAPPER.readValue(json, BeanWithBinaryDoubleVector.class);
         assertArrayEquals(DOUBLE_VECTOR, result.vector);
     }
 

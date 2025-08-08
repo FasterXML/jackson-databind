@@ -1503,19 +1503,25 @@ public class ObjectMapper
     }
 
     /**
-     * Accessor for the "blueprint" (or, factory) instance, from which instances
-     * are created by calling {@link DefaultSerializerProvider#createInstance}.
-     * Note that returned instance cannot be directly used as it is not properly
-     * configured: to get a properly configured instance to call, use
-     * {@link #getSerializerProviderInstance()} instead.
+     * Internal {@link SerializerProvider} accessor used by databind package to get the "blueprint"
+     * (or, factory) instance, from which actual instances are created by calling {@link DefaultSerializerProvider#createInstance}.
+     * <b>NOT TO BE USED BY APPLICATION CODE</b> directly: only databind-managed {@code SerializerProvider}
+     * instances should be used.
+     *<p>
+     * Implementation note: returned instance cannot be directly used as it is not properly
+     * configured or initialized.
      */
     public SerializerProvider getSerializerProvider() {
         return _serializerProvider;
     }
 
     /**
-     * Accessor for constructing and returning a {@link SerializerProvider}
-     * instance that may be used for accessing serializers. This is same as
+     * Internal {@link SerializerProvider} accessor used by databind package to get a
+     * properly initialized instance to pass to various handlers.
+     * <b>NOT TO BE USED BY APPLICATION CODE</b> directly: only databind-managed {@code SerializerProvider}
+     * instances should be used.
+     *<p>
+     * Implementation note: this is same as
      * calling {@link #getSerializerProvider}, and calling {@code createInstance()}
      * on it.
      *
@@ -2561,6 +2567,8 @@ public class ObjectMapper
      * NOTE: preferred way to set the defaults is to use {@code Builder} style
      * construction, see {@link com.fasterxml.jackson.databind.json.JsonMapper#builder}
      * (and {@link MapperBuilder#defaultAttributes}).
+     *
+     * @see ContextAttributes for details on setting default attributes.
      *
      * @since 2.13
      */

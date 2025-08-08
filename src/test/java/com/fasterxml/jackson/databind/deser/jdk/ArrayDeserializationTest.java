@@ -551,8 +551,12 @@ public class ArrayDeserializationTest
         assertLengthValue(MAPPER.readValue("\"1\"", short[].class), (short) 1);
         assertLengthValue(MAPPER.readValue("\"1\"", int[].class), 1);
         assertLengthValue(MAPPER.readValue("\"1\"", long[].class), 1L);
-        assertLengthValue(MAPPER.readValue("\"7.038531e-26\"", float[].class), 7.038531e-26f);
-        assertLengthValue(MAPPER.readValue("\"1.5555\"", double[].class), 1.5555d);
+
+        // 06-Aug-2025, tatu: with [databind#5242] will try to access String
+        //   as Base64-encoded bytes. Need to think of whether to try to 
+        //   support Float/Double-as-single-String case or not; for now, not
+        //assertLengthValue(MAPPER.readValue("\"7.038531e-26\"", float[].class), 7.038531e-26f);
+        //assertLengthValue(MAPPER.readValue("\"1.5555\"", double[].class), 1.5555d);
     }
 
     private void assertLengthValue(boolean[] arr, boolean expt) {
@@ -580,12 +584,12 @@ public class ArrayDeserializationTest
         assertEquals(expt, arr[0]);
     }
 
-    private void assertLengthValue(float[] arr, float expt) {
+    void assertLengthValue(float[] arr, float expt) {
         assertEquals(1, arr.length);
         assertEquals(expt, arr[0]);
     }
 
-    private void assertLengthValue(double[] arr, double expt) {
+    void assertLengthValue(double[] arr, double expt) {
         assertEquals(1, arr.length);
         assertEquals(expt, arr[0]);
     }

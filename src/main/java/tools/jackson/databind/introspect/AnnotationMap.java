@@ -13,7 +13,7 @@ import tools.jackson.databind.util.Annotations;
  */
 public final class AnnotationMap implements Annotations
 {
-    protected Map<Class<?>,Annotation> _annotations;
+    protected final Map<Class<?>, Annotation> _annotations;
 
     /*
     /**********************************************************
@@ -21,7 +21,9 @@ public final class AnnotationMap implements Annotations
     /**********************************************************
      */
 
-    public AnnotationMap() { }
+    public AnnotationMap() {
+        _annotations = null;
+    }
 
     public AnnotationMap(Map<Class<?>,Annotation> a) {
         _annotations = a;
@@ -103,7 +105,7 @@ public final class AnnotationMap implements Annotations
         if (secondary == null || secondary._annotations == null || secondary._annotations.isEmpty()) {
             return primary;
         }
-        HashMap<Class<?>,Annotation> annotations = new HashMap<Class<?>,Annotation>();
+        HashMap<Class<?>,Annotation> annotations = new HashMap<>();
         // add secondary ones first
         for (Annotation ann : secondary._annotations.values()) {
             annotations.put(ann.annotationType(), ann);

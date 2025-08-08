@@ -660,7 +660,7 @@ public abstract class StdDeserializer<T>
         return (short) value;
     }
 
-    protected final int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt)
+    protected int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
         String text;
@@ -722,12 +722,12 @@ public abstract class StdDeserializer<T>
         return _parseIntPrimitive(p, ctxt, text);
     }
 
-    protected final int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt,
+    protected int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt,
             String text) throws JacksonException
     {
         try {
             if (text.length() > 9) {
-                ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
+                p.streamReadConstraints().validateIntegerLength(text.length());
                 long l = NumberInput.parseLong(text);
                 if (_intOverflow(l)) {
                     Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
@@ -745,10 +745,7 @@ public abstract class StdDeserializer<T>
         }
     }
 
-    /**
-     * @since 2.12
-     */
-    protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt,
+    protected Integer _parseInteger(JsonParser p, DeserializationContext ctxt,
             Class<?> targetType)
         throws JacksonException
     {
@@ -798,12 +795,12 @@ public abstract class StdDeserializer<T>
         return _parseInteger(p, ctxt, text);
     }
 
-    protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt,
+    protected Integer _parseInteger(JsonParser p, DeserializationContext ctxt,
             String text)
     {
         try {
             if (text.length() > 9) {
-                ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
+                p.streamReadConstraints().validateIntegerLength(text.length());
                 long l = NumberInput.parseLong(text);
                 if (_intOverflow(l)) {
                     return (Integer) ctxt.handleWeirdStringValue(Integer.class, text,
@@ -884,7 +881,7 @@ public abstract class StdDeserializer<T>
     protected final long _parseLongPrimitive(JsonParser p, DeserializationContext ctxt,
             String text) throws JacksonException
     {
-        ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
+        p.streamReadConstraints().validateIntegerLength(text.length());
         try {
             return NumberInput.parseLong(text);
         } catch (IllegalArgumentException iae) { }
@@ -895,9 +892,6 @@ public abstract class StdDeserializer<T>
         }
     }
 
-    /**
-     * @since 2.12
-     */
     protected final Long _parseLong(JsonParser p, DeserializationContext ctxt,
             Class<?> targetType)
         throws JacksonException
@@ -946,12 +940,15 @@ public abstract class StdDeserializer<T>
             return (Long) getNullValue(ctxt);
         }
         // let's allow Strings to be converted too
-        return _parseLong(ctxt, text);
+        return _parseLong(p, ctxt, text);
     }
 
-    protected final Long _parseLong(DeserializationContext ctxt, String text)
+
+    protected Long _parseLong(JsonParser p, DeserializationContext ctxt,
+            String text)
+        throws JacksonException
     {
-        ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
+        p.streamReadConstraints().validateIntegerLength(text.length());
         try {
             return NumberInput.parseLong(text);
         } catch (IllegalArgumentException iae) { }
@@ -1036,7 +1033,7 @@ public abstract class StdDeserializer<T>
     {
         // 09-Dec-2023, tatu: To avoid parser having to validate input, pre-validate:
         if (NumberInput.looksLikeValidNumber(text)) {
-            ctxt.getParser().streamReadConstraints().validateFPLength(text.length());
+            p.streamReadConstraints().validateFPLength(text.length());
             try {
                 return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             } catch (IllegalArgumentException iae) { }

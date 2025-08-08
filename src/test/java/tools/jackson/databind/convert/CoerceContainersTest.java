@@ -153,7 +153,9 @@ public class CoerceContainersTest
     @Test
     public void testFloatArray() throws Exception
     {
-        _verifyNoCoercion(float[].class);
+        // 06-Aug-2025, tatu: with [databind#5242] will coerce empty String
+        //    as empty Base64 array, so no exception here
+        //_verifyNoCoercion(float[].class);
         float[] result = _readWithCoercion(float[].class);
         assertNotNull(result);
         assertEquals(0, result.length);
@@ -162,7 +164,9 @@ public class CoerceContainersTest
     @Test
     public void testDoubleArray() throws Exception
     {
-        _verifyNoCoercion(double[].class);
+        // 06-Aug-2025, tatu: with [databind#5242] will coerce empty String
+        //    as empty Base64 array, so no exception here
+        //_verifyNoCoercion(double[].class);
         double[] result = _readWithCoercion(double[].class);
         assertNotNull(result);
         assertEquals(0, result.length);

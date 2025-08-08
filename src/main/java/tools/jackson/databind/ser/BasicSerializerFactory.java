@@ -913,7 +913,7 @@ public abstract class BasicSerializerFactory
                      ser = StringArraySerializer.instance;
                  } else {
                      // other standard types?
-                     ser = JDKArraySerializers.findStandardImpl(raw);
+                     ser = JDKArraySerializers.findStandardImpl(ctxt, raw, formatOverrides);
                  }
              }
              if (ser == null) {

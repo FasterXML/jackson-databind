@@ -187,10 +187,11 @@ public class RecordBasicsTest extends DatabindTestUtil
      */
     @Test
     public void testDeserializeHeaderInjectRecord_WillFail() throws Exception {
-        MAPPER.setInjectableValues(new InjectableValues.Std().addValue(String.class, "Bob"));
+        ObjectReader reader = MAPPER.readerFor(RecordWithHeaderInject.class)
+                .with(new InjectableValues.Std().addValue(String.class, "Bob"));
 
         try {
-            MAPPER.readValue("{\"id\":123}", RecordWithHeaderInject.class);
+            reader.readValue("{\"id\":123}");
 
             fail("should not pass");
         } catch (IllegalArgumentException e) {
@@ -201,9 +202,9 @@ public class RecordBasicsTest extends DatabindTestUtil
 
     @Test
     public void testDeserializeConstructorInjectRecord() throws Exception {
-        MAPPER.setInjectableValues(new InjectableValues.Std().addValue(String.class, "Bob"));
-
-        RecordWithConstructorInject value = MAPPER.readValue("{\"id\":123}", RecordWithConstructorInject.class);
+        ObjectReader reader = MAPPER.readerFor(RecordWithConstructorInject.class)
+                .with(new InjectableValues.Std().addValue(String.class, "Bob"));
+        RecordWithConstructorInject value = reader.readValue("{\"id\":123}");
         assertEquals(new RecordWithConstructorInject(123, "Bob"), value);
     }
 

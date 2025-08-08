@@ -110,7 +110,7 @@ public class EmptyContentAsTreeTest extends DatabindTestUtil
         _assertMissing(MAPPER.readTree(new ByteArrayInputStream(EMPTY1_BYTES)));
 
         // Assume File, URL, etc are fine. Note: `DataInput` probably can't be made to
-        // work since it can not easily/gracefully handle unexpected end-of-input
+        // work since it cannot easily/gracefully handle unexpected end-of-input
     }
 
     public void testMissingNodeViaObjectReader() throws Exception

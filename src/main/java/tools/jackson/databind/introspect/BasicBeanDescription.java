@@ -7,12 +7,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.annotation.JsonPOJOBuilder;
-import tools.jackson.databind.cfg.HandlerInstantiator;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.util.Annotations;
 import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.util.Converter;
 
 /**
  * Default {@link BeanDescription} implementation used by Jackson.
@@ -37,11 +34,11 @@ public class BasicBeanDescription extends BeanDescription
      * information is lazily accessed and constructed; properties
      * are only accessed when they are actually needed.
      */
-    final protected POJOPropertiesCollector _propCollector;
+    protected final POJOPropertiesCollector _propCollector;
 
-    final protected MapperConfig<?> _config;
+    protected final MapperConfig<?> _config;
 
-    final protected AnnotationIntrospector _intr;
+    protected final AnnotationIntrospector _intr;
 
     /*
     /**********************************************************************
@@ -52,7 +49,7 @@ public class BasicBeanDescription extends BeanDescription
     /**
      * Information collected about the class introspected.
      */
-    final protected AnnotatedClass _classInfo;
+    protected final AnnotatedClass _classInfo;
 
     protected Class<?>[] _defaultViews;
 
@@ -99,9 +96,7 @@ public class BasicBeanDescription extends BeanDescription
         super(type);
         _propCollector = coll;
         _config = Objects.requireNonNull(coll.getConfig());
-        // NOTE: null config only for some pre-constructed types
-        _intr = (_config == null) ? NopAnnotationIntrospector.nopInstance()
-                : _config.getAnnotationIntrospector();
+        _intr = _config.getAnnotationIntrospector();
         _classInfo = classDef;
     }
 
@@ -157,6 +152,11 @@ public class BasicBeanDescription extends BeanDescription
             _properties = _propCollector.getProperties();
         }
         return _properties;
+    }
+
+    @Override
+    public BeanDescription.Supplier supplier() {
+        return new EagerSupplier(_config, this);
     }
 
     /*
@@ -376,44 +376,6 @@ anyField.getName()));
     /**********************************************************************
      */
 
-    @Deprecated // since 3.0
-    @Override
-    public JsonFormat.Value findExpectedFormat()
-    {
-        JsonFormat.Value v = _classFormat;
-        if (v == null) {
-            // 18-Apr-2018, tatu: Bit unclean but apparently `_config` is `null` for
-            //   a small set of pre-discovered simple types that `BasicClassIntrospector`
-            //   may expose. If so, nothing we can do
-            v = (_config == null) ? null
-                    : _intr.findFormat(_config, _classInfo);
-            if (v == null) {
-                v = JsonFormat.Value.empty();
-            }
-            _classFormat = v;
-        }
-        return v;
-    }
-
-    @Override
-    public JsonFormat.Value findExpectedFormat(Class<?> baseType)
-    {
-        JsonFormat.Value v0 = _classFormat;
-        if (v0 == null) { // copied from above
-            v0 = (_config == null) ? null
-                    : _intr.findFormat(_config, _classInfo);
-            if (v0 == null) {
-                v0 = JsonFormat.Value.empty();
-            }
-            _classFormat = v0;
-        }
-        JsonFormat.Value v1 = _config.getDefaultPropertyFormat(baseType);
-        if (v1 == null) {
-            return v0;
-        }
-        return JsonFormat.Value.merge(v0, v1);
-    }
-
     @Override
     public Class<?>[] findDefaultViews()
     {
@@ -436,12 +398,6 @@ anyField.getName()));
     /* Introspection for serialization
     /**********************************************************************
      */
-
-    @Override
-    public Converter<Object,Object> findSerializationConverter()
-    {
-        return _createConverter(_intr.findSerializationConverter(_config, _classInfo));
-    }
 
     /**
      * Method for determining whether null properties should be written
@@ -648,71 +604,5 @@ anyField.getName()));
             }
         }
         return null;
-    }
-
-    /*
-    /**********************************************************************
-    /* Introspection for deserialization, other
-    /**********************************************************************
-     */
-
-    @Override
-    public Class<?> findPOJOBuilder() {
-        return _intr.findPOJOBuilder(_config, _classInfo);
-    }
-
-    @Override
-    public JsonPOJOBuilder.Value findPOJOBuilderConfig()
-    {
-        return _intr.findPOJOBuilderConfig(_config, _classInfo);
-    }
-
-    @Override
-    public Converter<Object,Object> findDeserializationConverter()
-    {
-        return _createConverter(_intr
-                        .findDeserializationConverter(_config, _classInfo));
-    }
-
-    @Override
-    public String findClassDescription() {
-        return _intr.findClassDescription(_config, _classInfo);
-    }
-
-    /*
-    /**********************************************************************
-    /* Helper methods, other
-    /**********************************************************************
-     */
-
-    @SuppressWarnings("unchecked")
-    protected Converter<Object,Object> _createConverter(Object converterDef)
-    {
-        if (converterDef == null) {
-            return null;
-        }
-        if (converterDef instanceof Converter<?,?>) {
-            return (Converter<Object,Object>) converterDef;
-        }
-        if (!(converterDef instanceof Class)) {
-            throw new IllegalStateException("AnnotationIntrospector returned Converter definition of type "
-                    +converterDef.getClass().getName()+"; expected type Converter or Class<Converter> instead");
-        }
-        Class<?> converterClass = (Class<?>)converterDef;
-        // there are some known "no class" markers to consider too:
-        if (converterClass == Converter.None.class || ClassUtil.isBogusClass(converterClass)) {
-            return null;
-        }
-        if (!Converter.class.isAssignableFrom(converterClass)) {
-            throw new IllegalStateException("AnnotationIntrospector returned Class "
-                    +converterClass.getName()+"; expected Class<Converter>");
-        }
-        HandlerInstantiator hi = _config.getHandlerInstantiator();
-        Converter<?,?> conv = (hi == null) ? null : hi.converterInstance(_config, _classInfo, converterClass);
-        if (conv == null) {
-            conv = (Converter<?,?>) ClassUtil.createInstance(converterClass,
-                    _config.canOverrideAccessModifiers());
-        }
-        return (Converter<Object,Object>) conv;
     }
 }

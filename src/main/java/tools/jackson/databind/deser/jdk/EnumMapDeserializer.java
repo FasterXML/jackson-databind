@@ -246,9 +246,6 @@ public class EnumMapDeserializer
         // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.assignCurrentValue(result);
 
-        final ValueDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
-
         String keyStr;
         if (p.isExpectedStartObjectToken()) {
             keyStr = p.nextName();
@@ -288,11 +285,17 @@ public class EnumMapDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value =  valueDes.deserialize(p, ctxt);
+                    value = null;
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
+                }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
                 }
             } catch (Exception e) {
                 return wrapAndThrow(ctxt, e, result, keyStr);
@@ -379,11 +382,17 @@ public class EnumMapDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (_valueTypeDeserializer == null) {
-                    value = _valueDeserializer.deserialize(p, ctxt);
+                    value = null;
                 } else {
-                    value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+                    value = _deserializeNoNullChecks(p, ctxt);
+                }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
                 }
             } catch (Exception e) {
                 wrapAndThrow(ctxt, e, _containerType.getRawClass(), keyName);
@@ -399,5 +408,21 @@ public class EnumMapDeserializer
             wrapAndThrow(ctxt, e, _containerType.getRawClass(), keyName);
             return null;
         }
+    }
+
+    /**
+     * Deserialize the content of the map.
+     * If _valueTypeDeserializer is null, use _valueDeserializer.deserialize; if non-null,
+     * use _valueDeserializer.deserializeWithType to deserialize value.
+     * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
+     * @since 2.19.2
+     */
+    protected Object _deserializeNoNullChecks(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        if (_valueTypeDeserializer == null) {
+            return _valueDeserializer.deserialize(p, ctxt);
+        }
+        return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
     }
 }

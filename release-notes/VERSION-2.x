@@ -4,9 +4,51 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.20.0 (not yet released)
+Not yet released
 
--
+#5242: Support "binary vectors": `@JsonFormat(shape = Shape.BINARY)` for
+  `float[]`, `double[]`
+
+2.20.0-rc1 (04-Aug-2025)
+
+#3072: Allow specifying `@JacksonInject` does not fail when there's no
+  corresponding value
+ (requested by Lavender S)
+ (contributed by Giulio L)
+#4136: Drop deprecated (in 2.12) `PropertyNamingStrategy` implementations
+  from 2.20
+#4656: `DeserializationProblemHandler.handleUnexpectedToken()` cast Object to String
+ (reported by @yacine-pc)
+#5103: Use `writeStartObject(Object forValue, int size)` for `ObjectNode`
+  serialization
+#5151: Add new exception type, `MissingInjectValueException`, to be used
+  for failed `@JacksonInject`
+#5152: Support "iPhone" style capitalized properties (add
+  `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX`)
+#5179: Add "current token" info into `MismatchedInputException`
+#5192: Record types are broken on Android when using R8
+ (reported by @HelloOO7)
+ (fix by @pjfanning)
+#5194: Custom `Throwable` not serializable if using `JsonAutoDetect` settings
+ that only detect Fields
+ (reported by @riskop)
+#5197: Add more informative exception for back-references with `record` type
+ (fix by Joo-Hyuk K)
+- Generate SBOMs [JSTEP-14]
+
+2.19.2 (18-Jul-2025)
+
+#5202: `JsonSetter.contentNulls` ignored for `Object[]`, `String[]`
+  and `Collection<String>`
+ (fix by @wrongwrong)
+#5215: `@JsonAnyGetter` serialization order change from 2.18.4 to 2.19.0
+ (reported by Eddú M)
+ (fix by Joo-Hyuk K)
+
+2.19.1 (13-Jun-2025)
+
+#5139: In `CollectionDeserializer`, `JsonSetter.contentNulls` is sometimes ignored
+ (contributed by @wrongwrong)
 
 2.19.0 (24-Apr-2025)
 
@@ -98,7 +140,7 @@ Project: jackson-databind
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
-2.18.4 (not yet released)
+2.18.4 (06-May-2025)
 
 #4628: `@JsonIgnore` and `@JsonProperty.access=READ_ONLY` on Record property
   ignored for deserialization

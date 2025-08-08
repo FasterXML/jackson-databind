@@ -24,10 +24,8 @@ import tools.jackson.databind.util.ViewMatcher;
  * setter-backed properties, as well as a few more esoteric variations,
  * can be handled.
  */
-@SuppressWarnings("serial")
 public abstract class SettableBeanProperty
     extends ConcreteBeanPropertyBase
-    implements java.io.Serializable
 {
     /**
      * To avoid nasty NPEs, let's use a placeholder for _valueDeserializer,
@@ -635,6 +633,7 @@ public abstract class SettableBeanProperty
 
     protected void _throwAsJacksonE(JsonParser p, Throwable e) throws JacksonException
     {
+        ClassUtil.throwIfError(e);
         ClassUtil.throwIfRTE(e);
         ClassUtil.throwIfJacksonE(e);
 

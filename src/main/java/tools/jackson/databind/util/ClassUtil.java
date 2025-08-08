@@ -24,6 +24,13 @@ public final class ClassUtil
 
     private final static Iterator<Object> EMPTY_ITERATOR = Collections.emptyIterator();
 
+    private final static List<String> JDK_PREFIXES = Arrays.asList(
+            "java.",
+            "javax.",
+            "jdk.",
+            "sun.",
+            "com.sun.");
+
     /*
     /**********************************************************************
     /* Simple factory methods
@@ -359,6 +366,14 @@ public final class ClassUtil
     public static void unwrapAndThrowAsIAE(Throwable t, String msg)
     {
         throwAsIAE(getRootCause(t), msg);
+    }
+
+    /**
+     * Throw an exception even if it's checked and not declared.
+     */
+    @SuppressWarnings("unchecked")
+    public static <E extends Throwable> RuntimeException sneakyThrow(Throwable throwable) throws E {
+        throw (E) throwable;
     }
 
     /**
@@ -830,38 +845,28 @@ public final class ClassUtil
         // We know all members are also accessible objects...
         AccessibleObject ao = (AccessibleObject) member;
 
-        // 14-Jan-2009, tatu: It seems safe and potentially beneficial to
-        //   always to make it accessible (latter because it will force
-        //   skipping checks we have no use for...), so let's always call it.
         try {
             // 15-Apr-2021, tatu: With JDK 14+ we will be hitting access limitations
             //    esp. wrt JDK types so let's change a bit
             final Class<?> declaringClass = member.getDeclaringClass();
             boolean isPublic = Modifier.isPublic(member.getModifiers())
                     && Modifier.isPublic(declaringClass.getModifiers());
-            if (!isPublic || (evenIfAlreadyPublic && !isJDKClass(declaringClass))) {
+            if (!isJDKClass(declaringClass) && (!isPublic || evenIfAlreadyPublic)) {
                 ao.setAccessible(true);
             }
-        } catch (SecurityException se) {
-            // 17-Apr-2009, tatu: This can fail on platforms like
-            // Google App Engine); so let's only fail if we really needed it...
-            if (!ao.isAccessible()) {
-                Class<?> declClass = member.getDeclaringClass();
-                throw new IllegalArgumentException("Cannot access "+member+" (from class "+declClass.getName()
-                    +"; failed to set access: "+exceptionMessage(se));
+        } catch (SecurityException ignore) {
+        } catch (RuntimeException e) {
+            // 2025-03-24, scs: Since Java module system, it is common to be unable to see
+            // members of other modules. We can't assume we can crack open arbitrary types anymore.
+            // We'd love to catch this more explicitly, but Android... >:(
+            if ("InaccessibleObjectException".equals(e.getClass().getSimpleName())) {
+                return;
             }
-            // 14-Apr-2021, tatu: [databind#3118] Java 9/JPMS causes new fails...
-            //    But while our baseline is Java 8, must check name
-        } catch (RuntimeException se) {
-            if ("InaccessibleObjectException".equals(se.getClass().getSimpleName())) {
-                throw new IllegalArgumentException(String.format(
-"Failed to call `setAccess()` on %s '%s' (of class %s) due to `%s`, problem: %s",
-member.getClass().getSimpleName(), member.getName(),
-nameOf(member.getDeclaringClass()),
-se.getClass().getName(), se.getMessage()),
-                        se);
-            }
-            throw se;
+            throw new IllegalArgumentException(String.format(
+                    "Failed to call `setAccess()` on %s '%s' (of class %s) due to `%s`, problem: %s",
+                    member.getClass().getSimpleName(), member.getName(),
+                    nameOf(member.getDeclaringClass()),
+                    e.getClass().getName(), e.getMessage()), e);
         }
     }
 
@@ -972,10 +977,23 @@ se.getClass().getName(), se.getMessage()),
      */
     public static boolean isJDKClass(Class<?> rawType) {
         final String clsName = rawType.getName();
-        return clsName.startsWith("java.")
-                || clsName.startsWith("javax.")
-                || clsName.startsWith("sun.")
-                ;
+        for (String prefix : JDK_PREFIXES) {
+            if (clsName.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Similar to {@link #isJDKClass(Class)}, but for JDK core classes: those in
+     * packages under {@code java.*} but NOT under {@code javax.*} (or {@code sun.*}).
+     *
+     * @since 2.20
+     */
+    public static boolean isJDKCoreClass(Class<?> rawType) {
+        final String clsName = rawType.getName();
+        return clsName.startsWith("java.");
     }
 
     /**
@@ -1096,7 +1114,7 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
      * @since 2.7
      */
     public static Ctor[] getConstructors(Class<?> cls) {
-        // Note: can NOT skip abstract classes as they may be used with mix-ins
+        // Note: CANNOT skip abstract classes as they may be used with mix-ins
         // and for regular use shouldn't really matter.
         if (cls.isInterface() || isObjectOrPrimitive(cls)) {
             return NO_CTORS;

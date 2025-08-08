@@ -1,12 +1,11 @@
 name: Build and Deploy Snapshot
 on:
   push:
-    branches: [3.*]
+    branches: ['3.*']
     paths-ignore:
     - "README.md"
     - "release-notes/*"
   pull_request:
-    branches: [3.*]
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -20,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['17', '21', '23']
+        java_version: ['17', '21', '24']
         os: ['ubuntu-24.04']
         include:
           - java_version: '17'
@@ -39,7 +38,7 @@ jobs:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
-        server-id: sonatype-nexus-snapshots-new
+        server-id: central-snapshots
         server-username: CI_DEPLOY_USERNAME
         server-password: CI_DEPLOY_PASSWORD
         # See https://github.com/actions/setup-java/blob/v2/docs/advanced-usage.md#Publishing-using-Apache-Maven
@@ -57,8 +56,8 @@ jobs:
     - name: Deploy snapshot
       if: ${{ matrix.release_build && github.event_name != 'pull_request' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
       env:
-        CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME3 }}
-        CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD3 }}
+        CI_DEPLOY_USERNAME: ${{ secrets.CENTRAL_DEPLOY_USERNAME }}
+        CI_DEPLOY_PASSWORD: ${{ secrets.CENTRAL_DEPLOY_PASSWORD }}
         # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       run: ./mvnw -B -q -ff -DskipTests -ntp source:jar deploy
     - name: Generate code coverage 
@@ -66,7 +65,7 @@ jobs:
       run: ./mvnw -B -q -ff -ntp test
     - name: Publish code coverage
       if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
-      uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+      uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./target/site/jacoco/jacoco.xml
@@ -75,7 +74,7 @@ jobs:
   trigger-dep-build-v2:
     name: Trigger v2 dep builds
     needs: [build]
-    # Only for pushes to default branch
+    # Only for pushes to 2.x (next 2.x being developed) branch
     if: ${{ github.event_name == 'push' && github.ref_name == '2.x' }}
     uses: ./.github/workflows/trigger_dep_builds_v2.yml
     secrets:

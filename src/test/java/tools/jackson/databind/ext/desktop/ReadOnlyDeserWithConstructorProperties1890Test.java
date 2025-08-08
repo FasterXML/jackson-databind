@@ -75,7 +75,7 @@ public class ReadOnlyDeserWithConstructorProperties1890Test
    public void testDeserializeAnnotationsOneField() throws Exception {
        PersonAnnotations person = MAPPER.readerFor(PersonAnnotations.class)
                .readValue("{\"testEnum\":\"abc\"}");
-       // can not remain as is, so becomes `null`
+       // cannot remain as is, so becomes `null`
        assertEquals(null, person.getTestEnum());
        assertNull(person.name);
    }
@@ -84,7 +84,7 @@ public class ReadOnlyDeserWithConstructorProperties1890Test
    public void testDeserializeAnnotationsTwoFields() throws Exception {
        PersonAnnotations person = MAPPER.readerFor(PersonAnnotations.class)
                .readValue("{\"testEnum\":\"xyz\",\"name\":\"changyong\"}");
-       // can not remain as is, so becomes `null`
+       // cannot remain as is, so becomes `null`
        assertEquals(null, person.getTestEnum());
        assertEquals("changyong", person.name);
    }

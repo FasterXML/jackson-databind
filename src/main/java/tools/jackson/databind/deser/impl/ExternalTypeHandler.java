@@ -109,7 +109,7 @@ public class ExternalTypeHandler
         if (!prop.hasTypePropertyName(propName)) { // when could/should this ever happen?
             return false;
         }
-        // note: can NOT skip child values (should always be String anyway)
+        // note: CANNOT skip child values (should always be String anyway)
         boolean canDeserialize = (bean != null) && (_tokens[index] != null);
         // Minor optimization: deserialize properties as soon as we have all we need:
         if (canDeserialize) {

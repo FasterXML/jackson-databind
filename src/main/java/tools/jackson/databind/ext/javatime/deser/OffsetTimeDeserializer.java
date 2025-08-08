@@ -98,76 +98,80 @@ public class OffsetTimeDeserializer extends JSR310DateTimeDeserializerBase<Offse
     }
 
     @Override
-    public OffsetTime deserialize(JsonParser parser, DeserializationContext context)
+    public OffsetTime deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
    {
-        if (parser.hasToken(JsonToken.VALUE_STRING)) {
-            return _fromString(parser, context, parser.getString());
+        if (p.hasToken(JsonToken.VALUE_STRING)) {
+            return _fromString(p, ctxt, p.getString());
         }
         // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
-        if (parser.isExpectedStartObjectToken()) {
-            return _fromString(parser, context,
-                    context.extractScalarFromObject(parser, this, handledType()));
-        }
-        if (!parser.isExpectedStartArrayToken()) {
-            if (parser.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
-                return (OffsetTime) parser.getEmbeddedObject();
+        if (p.isExpectedStartObjectToken()) {
+            final String str = ctxt.extractScalarFromObject(p, this, handledType());
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (str != null) {
+                return _fromString(p, ctxt, str);
             }
-            if (parser.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-                _throwNoNumericTimestampNeedTimeZone(parser, context);
-            }
-            throw context.wrongTokenException(parser, handledType(), JsonToken.START_ARRAY,
-                    "Expected array or string.");
+            // fall through
         }
-        JsonToken t = parser.nextToken();
+        if (!p.isExpectedStartArrayToken()) {
+            if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
+                return (OffsetTime) p.getEmbeddedObject();
+            }
+            if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+                _throwNoNumericTimestampNeedTimeZone(p, ctxt);
+            }
+            throw ctxt.wrongTokenException(p, handledType(), JsonToken.START_ARRAY,
+                    "Expected array or string");
+        }
+        JsonToken t = p.nextToken();
         if (t != JsonToken.VALUE_NUMBER_INT) {
             if (t == JsonToken.END_ARRAY) {
                 return null;
             }
             if ((t == JsonToken.VALUE_STRING || t == JsonToken.VALUE_EMBEDDED_OBJECT)
-                    && context.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                final OffsetTime parsed = deserialize(parser, context);
-                if (parser.nextToken() != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(parser, context);
+                    && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                final OffsetTime parsed = deserialize(p, ctxt);
+                if (p.nextToken() != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
                 }
                 return parsed;            
             }
-            context.reportInputMismatch(handledType(),
+            ctxt.reportInputMismatch(handledType(),
                     "Unexpected token (%s) within Array, expected VALUE_NUMBER_INT",
                     t);
         }
-        int hour = parser.getIntValue();
-        int minute = parser.nextIntValue(-1);
+        int hour = p.getIntValue();
+        int minute = p.nextIntValue(-1);
         if (minute == -1) {
-            t = parser.currentToken();
+            t = p.currentToken();
             if (t == JsonToken.END_ARRAY) {
                 return null;
             }
             if (t != JsonToken.VALUE_NUMBER_INT) {
-                _reportWrongToken(context, JsonToken.VALUE_NUMBER_INT, "minutes");
+                _reportWrongToken(ctxt, JsonToken.VALUE_NUMBER_INT, "minutes");
             }
-            minute = parser.getIntValue();
+            minute = p.getIntValue();
         }
         int partialSecond = 0;
         int second = 0;
-        if (parser.nextToken() == JsonToken.VALUE_NUMBER_INT) {
-            second = parser.getIntValue();
-            if (parser.nextToken() == JsonToken.VALUE_NUMBER_INT) {
-                partialSecond = parser.getIntValue();
-                if (partialSecond < 1_000 && !shouldReadTimestampsAsNanoseconds(context)) {
+        if (p.nextToken() == JsonToken.VALUE_NUMBER_INT) {
+            second = p.getIntValue();
+            if (p.nextToken() == JsonToken.VALUE_NUMBER_INT) {
+                partialSecond = p.getIntValue();
+                if (partialSecond < 1_000 && !shouldReadTimestampsAsNanoseconds(ctxt)) {
                     partialSecond *= 1_000_000; // value is milliseconds, convert it to nanoseconds
                 }
-                parser.nextToken();
+                p.nextToken();
             }
         }
-        if (parser.currentToken() == JsonToken.VALUE_STRING) {
-            OffsetTime result = OffsetTime.of(hour, minute, second, partialSecond, ZoneOffset.of(parser.getString()));
-            if (parser.nextToken() != JsonToken.END_ARRAY) {
-                _reportWrongToken(context, JsonToken.END_ARRAY, "timezone");
+        if (p.currentToken() == JsonToken.VALUE_STRING) {
+            OffsetTime result = OffsetTime.of(hour, minute, second, partialSecond, ZoneOffset.of(p.getString()));
+            if (p.nextToken() != JsonToken.END_ARRAY) {
+                _reportWrongToken(ctxt, JsonToken.END_ARRAY, "timezone");
             }
             return result;
         }
-        throw context.wrongTokenException(parser, handledType(), JsonToken.VALUE_STRING,
+        throw ctxt.wrongTokenException(p, handledType(), JsonToken.VALUE_STRING,
                 "Expected string for TimeZone after numeric values");
     }
 

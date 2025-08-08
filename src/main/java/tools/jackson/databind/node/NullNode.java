@@ -65,6 +65,23 @@ public class NullNode
     /**********************************************************************
      */
 
+    // `shortValue()` (etc) fine as defaults (fail); but need to override `asShort()`
+
+    @Override
+    public short asShort() {
+        return 0;
+    }
+
+    @Override
+    public short asShort(short defaultValue) {
+        return 0;
+    }
+
+    @Override
+    public Optional<Short> asShortOpt() {
+        return Optional.of((short) 0);
+    }
+
     // `intValue()` (etc) fine as defaults (fail); but need to override `asInt()`
 
     @Override
@@ -110,6 +127,23 @@ public class NullNode
     @Override
     public Optional<BigInteger> asBigIntegerOpt() {
         return Optional.of(asBigInteger());
+    }
+
+    // `floatValue()` (etc) fine as defaults (fail); but need to override `asFloat()`
+
+    @Override
+    public float asFloat() {
+        return 0.0f;
+    }
+
+    @Override
+    public float asFloat(float defaultValue) {
+        return asFloat();
+    }
+
+    @Override
+    public Optional<Float> asFloatOpt() {
+        return Optional.of(asFloat());
     }
 
     // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`

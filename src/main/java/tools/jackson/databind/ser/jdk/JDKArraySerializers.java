@@ -2,8 +2,11 @@ package tools.jackson.databind.ser.jdk;
 
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
@@ -40,7 +43,19 @@ public class JDKArraySerializers
      * Accessor for checking to see if there is a standard serializer for
      * given primitive value type.
      */
-    public static ValueSerializer<?> findStandardImpl(Class<?> cls) {
+    public static ValueSerializer<?> findStandardImpl(SerializationContext ctxt,
+            Class<?> cls, JsonFormat.Value formatOverrides) {
+        if (formatOverrides != null) {
+            if (formatOverrides.getShape() == JsonFormat.Shape.BINARY) {
+                // Special handling for binary formats
+                if (cls == float[].class) {
+                    return BinaryFloatArraySerializer.instance;
+                }
+                if (cls == double[].class) {
+                    return BinaryDoubleArraySerializer.instance;
+                }
+            }
+        }
         return _arraySerializers.get(cls.getName());
     }
 
@@ -444,16 +459,20 @@ public class JDKArraySerializers
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = simpleElementType(Float.TYPE);
 
+        // @since 2.20
+        final static FloatArraySerializer instance = new FloatArraySerializer();
+
         public FloatArraySerializer() {
             super(float[].class);
         }
+
         public FloatArraySerializer(FloatArraySerializer src, BeanProperty prop,
                 Boolean unwrapSingle) {
             super(src, prop, unwrapSingle);
         }
 
         @Override
-        public ValueSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
+        public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
             return new FloatArraySerializer(this, prop, unwrapSingle);
         }
 
@@ -479,15 +498,28 @@ public class JDKArraySerializers
         }
 
         @Override
-        public final void serialize(float[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
+        public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
+        {
+            JsonFormat.Value format = findFormatOverrides(ctxt, property,
+                    handledType());
+            if (format != null) {
+                if (format.getShape() == JsonFormat.Shape.BINARY) {
+                    return BinaryFloatArraySerializer.instance;
+                }
+            }
+            return super.createContextual(ctxt, property);
+        }
+
+        @Override
+        public final void serialize(float[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(provider)) {
-                serializeContents(value, g, provider);
+            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+                serializeContents(value, g, ctxt);
                 return;
             }
             g.writeStartArray(value, len);
-            serializeContents(value, g, provider);
+            serializeContents(value, g, ctxt);
             g.writeEndArray();
         }
 
@@ -513,6 +545,9 @@ public class JDKArraySerializers
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = simpleElementType(Double.TYPE);
 
+        // @since 2.20
+        final static DoubleArraySerializer instance = new DoubleArraySerializer();
+        
         public DoubleArraySerializer() { super(double[].class); }
 
         /**
@@ -559,11 +594,25 @@ public class JDKArraySerializers
         }
 
         @Override
-        public final void serialize(double[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
+        public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
+        {
+            JsonFormat.Value format = findFormatOverrides(ctxt, property,
+                    handledType());
+            if (format != null) {
+                if (format.getShape() == JsonFormat.Shape.BINARY) {
+                    return BinaryDoubleArraySerializer.instance;
+                }
+            }
+            return super.createContextual(ctxt, property);
+        }
+        
+        @Override
+        public void serialize(double[] value, JsonGenerator g, SerializationContext ctxt)
+            throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(provider)) {
-                serializeContents(value, g, provider);
+            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+                serializeContents(value, g, ctxt);
                 return;
             }
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
@@ -571,7 +620,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public void serializeContents(double[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
+        public void serializeContents(double[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeNumber(value[i]);
@@ -581,6 +630,174 @@ public class JDKArraySerializers
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
+            visitArrayFormat(visitor, typeHint, JsonFormatTypes.NUMBER);
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Concrete serializers, alternative "binary Vector" representations
+    /**********************************************************************
+     */
+
+    /**
+     * Alternative serializer for arrays of primitive floats, using "packed binary"
+     * representation ("binary vector") instead of JSON array.
+     *
+     * @since 2.20
+     */
+    @JacksonStdImpl
+    public static class BinaryFloatArraySerializer extends StdSerializer<float[]>
+    {
+        final static BinaryFloatArraySerializer instance = new BinaryFloatArraySerializer();
+        
+        public BinaryFloatArraySerializer() {
+            super(float[].class);
+        }
+
+        @Override
+        public boolean isEmpty(SerializationContext ctxt, float[] value) {
+            return value.length == 0;
+        }
+
+        @Override
+        public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
+        {
+            JsonFormat.Value format = findFormatOverrides(ctxt, property,
+                    handledType());
+            if (format != null) {
+                switch (format.getShape()) {
+                case ARRAY:
+                case NATURAL:
+                    return FloatArraySerializer.instance;
+                default:
+                }
+            }
+            return this;
+        }
+
+        @Override
+        public void serialize(float[] value, JsonGenerator g, SerializationContext ctxt)
+            throws JacksonException
+        {
+            // First: "pack" the floats into bytes
+            final int vectorLen = value.length;
+            final byte[] b = new byte[vectorLen << 2];
+            for (int i = 0, out = 0; i < vectorLen; i++) {
+                final int floatBits = Float.floatToIntBits(value[i]);
+                b[out++] = (byte) (floatBits >> 24);
+                b[out++] = (byte) (floatBits >> 16);
+                b[out++] = (byte) (floatBits >> 8);
+                b[out++] = (byte) (floatBits);
+            }
+            // Second: write packed bytes (for JSON, Base64 encoded)
+            g.writeBinary(ctxt.getConfig().getBase64Variant(),
+                    b, 0, b.length);
+        }
+
+        @Override
+        public void serializeWithType(float[] value, JsonGenerator g, SerializationContext ctxt,
+                TypeSerializer typeSer)
+            throws JacksonException
+        {
+            // most likely scalar
+            WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
+                    typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
+            serialize(value, g, ctxt);
+            typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
+        }
+
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+            // 06-Aug-2025, tatu: while logically (and within JVM) binary, gets encoded as Base64 String,
+            // let's try to indicate it is array of Float... difficult, thanks to JSON Schema's
+            // lackluster listing of types
+            visitArrayFormat(visitor, typeHint, JsonFormatTypes.NUMBER);
+        }
+    }
+
+    /**
+     * Alternative serializer for arrays of primitive doubles, using "packed binary"
+     * representation ("binary vector") instead of JSON array.
+     *
+     * @since 2.20
+     */
+    @JacksonStdImpl
+    public static class BinaryDoubleArraySerializer extends StdSerializer<double[]>
+    {
+        final static BinaryDoubleArraySerializer instance = new BinaryDoubleArraySerializer();
+        
+        public BinaryDoubleArraySerializer() {
+            super(double[].class);
+        }
+
+        @Override
+        public boolean isEmpty(SerializationContext ctxt, double[] value) {
+            return value.length == 0;
+        }
+
+        @Override
+        public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
+        {
+            JsonFormat.Value format = findFormatOverrides(ctxt, property,
+                    handledType());
+            if (format != null) {
+                switch (format.getShape()) {
+                case ARRAY:
+                case NATURAL:
+                    return DoubleArraySerializer.instance;
+                default:
+                }
+            }
+            return this;
+        }
+
+        @Override
+        public void serialize(double[] value, JsonGenerator g, SerializationContext ctxt)
+            throws JacksonException
+        {
+            // First: "pack" the floats into bytes
+            final int vectorLen = value.length;
+            final byte[] b = new byte[vectorLen << 3];
+            for (int i = 0, out = 0; i < vectorLen; i++) {
+                long bits = Double.doubleToLongBits(value[i]);
+                final int hi = (int) (bits >> 32);
+                b[out] = (byte) (hi >> 24);
+                b[out+1] = (byte) (hi >> 16);
+                b[out+2] = (byte) (hi >> 8);
+                b[out+3] = (byte) (hi);
+                final int lo = (int) bits;
+                b[out+4] = (byte) (lo >> 24);
+                b[out+5] = (byte) (lo >> 16);
+                b[out+6] = (byte) (lo >> 8);
+                b[out+7] = (byte) (lo);
+                out += 8;
+            }
+            // Second: write packed bytes (for JSON, Base64 encoded)
+            g.writeBinary(ctxt.getConfig().getBase64Variant(),
+                    b, 0, b.length);
+        }
+
+        @Override
+        public void serializeWithType(double[] value, JsonGenerator g, SerializationContext ctxt,
+                TypeSerializer typeSer)
+            throws JacksonException
+        {
+            // most likely scalar
+            WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
+                    typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
+            serialize(value, g, ctxt);
+            typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
+        }
+
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+            throws JacksonException
+        {
+            // 14-Mar-2016, tatu: while logically (and within JVM) binary, gets encoded as Base64 String,
+            // let's try to indicate it is array of Float... difficult, thanks to JSON Schema's
+            // lackluster listing of types
             visitArrayFormat(visitor, typeHint, JsonFormatTypes.NUMBER);
         }
     }

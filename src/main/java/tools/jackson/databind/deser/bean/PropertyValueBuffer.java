@@ -258,7 +258,7 @@ public class PropertyValueBuffer
         Object injectableValueId = prop.getInjectableValueId();
         if (injectableValueId != null) {
             return _context.findInjectableValue(prop.getInjectableValueId(),
-                    prop, null);
+                    prop, null, null);
         }
         // Second: required?
         if (prop.isRequired()) {

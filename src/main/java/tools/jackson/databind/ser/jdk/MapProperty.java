@@ -17,8 +17,6 @@ import tools.jackson.databind.ser.PropertyWriter;
  */
 public class MapProperty extends PropertyWriter
 {
-    private static final long serialVersionUID = 1L;
-
     private final static BeanProperty BOGUS_PROP = new BeanProperty.Bogus();
 
     protected final TypeSerializer _typeSerializer;

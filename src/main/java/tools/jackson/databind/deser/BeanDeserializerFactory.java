@@ -337,7 +337,8 @@ public class BeanDeserializerFactory
         addBackReferenceProperties(ctxt, builderDescRef, builder);
         addInjectables(ctxt, builderDescRef, builder);
 
-        JsonPOJOBuilder.Value builderConfig = builderDescRef.get().findPOJOBuilderConfig();
+        JsonPOJOBuilder.Value builderConfig = ctxt.getAnnotationIntrospector()
+                .findPOJOBuilderConfig(config, builderDescRef.getClassInfo());
         final String buildMethodName = (builderConfig == null) ?
                 JsonPOJOBuilder.DEFAULT_BUILD_METHOD : builderConfig.buildMethodName;
 
@@ -491,7 +492,7 @@ ClassUtil.name(propName)));
      */
     protected BeanDeserializerBuilder constructBeanDeserializerBuilder(DeserializationContext ctxt,
             BeanDescription.Supplier beanDescRef) {
-        return new BeanDeserializerBuilder(beanDescRef, ctxt);
+        return new BeanDeserializerBuilder(ctxt, beanDescRef);
     }
 
     /**
@@ -757,6 +758,11 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     }
                 }
                 */
+                if (beanDescRef.isRecordType()) {
+                    ctxt.reportBadTypeDefinition(beanDescRef,
+                            "Cannot add back-reference to a `java.lang.Record` type (property '%s')",
+                            refProp.getName());
+                }
                 String refName = refProp.findReferenceName();
                 builder.addBackReferenceProperty(refName, constructSettableProperty(ctxt,
                         beanDescRef, refProp, refProp.getPrimaryType()));
@@ -773,11 +779,16 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
     {
         Map<Object, AnnotatedMember> raw = beanDescRef.get().findInjectables();
         if (raw != null) {
+            final AnnotationIntrospector introspector = ctxt.getAnnotationIntrospector();
+
             for (Map.Entry<Object, AnnotatedMember> entry : raw.entrySet()) {
                 AnnotatedMember m = entry.getValue();
+                final JacksonInject.Value injectableValue = introspector.findInjectableValue(ctxt.getConfig(), m);
+                final Boolean optional = injectableValue == null ? null : injectableValue.getOptional();
+
                 builder.addInjectable(PropertyName.construct(m.getName()),
                         m.getType(),
-                        beanDescRef.getClassAnnotations(), m, entry.getKey());
+                        beanDescRef.getClassAnnotations(), m, entry.getKey(), optional);
             }
         }
     }
@@ -938,19 +949,12 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, mutator, propType0);
         // Does the Method specify the deserializer to use? If so, let's use it.
         TypeDeserializer typeDeser = (TypeDeserializer) type.getTypeHandler();
-        SettableBeanProperty prop;
-        if (mutator instanceof AnnotatedMethod) {
-            prop = new MethodProperty(propDef, type, typeDeser,
-                    beanDescRef.getClassAnnotations(), (AnnotatedMethod) mutator);
-        } else {
-            // 08-Sep-2016, tatu: wonder if we should verify it is `AnnotatedField` to be safe?
-            prop = new FieldProperty(propDef, type, typeDeser,
-                    beanDescRef.getClassAnnotations(), (AnnotatedField) mutator);
-        }
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, mutator);
         if (deser == null) {
             deser = (ValueDeserializer<?>) type.getValueHandler();
         }
+        SettableBeanProperty prop = new MethodProperty(propDef, type, typeDeser,
+                beanDescRef.getClassAnnotations(), mutator);
         if (deser != null) {
             deser = ctxt.handlePrimaryContextualization(deser, prop, type);
             prop = prop.withValueDeserializer(deser);

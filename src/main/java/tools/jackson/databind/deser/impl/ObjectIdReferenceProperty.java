@@ -14,8 +14,6 @@ import tools.jackson.databind.introspect.ObjectIdInfo;
 
 public class ObjectIdReferenceProperty extends SettableBeanProperty
 {
-    private static final long serialVersionUID = 1L;
-
     private final SettableBeanProperty _forward;
 
     public ObjectIdReferenceProperty(SettableBeanProperty forward, ObjectIdInfo objectIdInfo)

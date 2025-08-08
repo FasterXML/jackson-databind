@@ -127,7 +127,7 @@ public class ObjectMapper
             super(state);
         }
 
-     // We also need actual instance of state as base class can not implement logic
+     // We also need actual instance of state as base class cannot implement logic
      // for reinstating mapper (via mapper builder) from state.
         static class StateImpl extends MapperBuilderState {
             private static final long serialVersionUID = 3L;
@@ -737,13 +737,26 @@ public class ObjectMapper
      * Factory method for constructing non-blocking {@link JsonParser} that is properly
      * wired to allow configuration access (and, if relevant for parser, callbacks):
      * essentially constructs a {@link ObjectReadContext} and then calls
-     * {@link TokenStreamFactory#createParser(ObjectReadContext,DataInput)}.
+     * {@link TokenStreamFactory#createNonBlockingByteArrayParser(ObjectReadContext)}.
      *
      * @since 3.0
      */
     public JsonParser createNonBlockingByteArrayParser() throws JacksonException {
         DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createNonBlockingByteArrayParser(ctxt));
+    }
+
+    /**
+     * Factory method for constructing non-blocking {@link JsonParser} that is properly
+     * wired to allow configuration access (and, if relevant for parser, callbacks):
+     * essentially constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createNonBlockingByteBufferParser(ObjectReadContext)}.
+     *
+     * @since 3.0
+     */
+    public JsonParser createNonBlockingByteBufferParser() throws JacksonException {
+        DeserializationContextExt ctxt = _deserializationContext();
+        return ctxt.assignAndReturnParser(_streamFactory.createNonBlockingByteBufferParser(ctxt));
     }
 
     /*
@@ -1191,8 +1204,6 @@ public class ObjectMapper
     /**
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in {@link Path}.
-     *
-     * @since 3.0
      */
     public JsonNode readTree(Path path) throws JacksonException
     {
@@ -1215,6 +1226,16 @@ public class ObjectMapper
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, src));
+    }
+
+    /**
+     * Same as {@link #readTree(InputStream)} except content read from
+     * passed-in {@link TokenBuffer}.
+     */
+    public JsonNode readTree(TokenBuffer src) throws JacksonException {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return _readTreeAndClose(ctxt, src.asParser(ctxt));
     }
 
     /*
@@ -1761,6 +1782,33 @@ public class ObjectMapper
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(TokenBuffer src, Class<T> valueType) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt,
+                src.asParser(ctxt), _typeFactory.constructType(valueType));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(TokenBuffer src, JavaType valueType) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt,
+                src.asParser(ctxt), valueType);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(TokenBuffer src, TypeReference<T> valueTypeRef) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt,
+                src.asParser(ctxt), _typeFactory.constructType(valueTypeRef));
+    }
+
     /*
     /**********************************************************************
     /* Public API: serialization (mapping from Java types to external format)
@@ -1875,6 +1923,20 @@ public class ObjectMapper
             return bb.getClearAndRelease();
         } finally {
             br.releaseToPool();
+        }
+    }
+
+    /**
+     * Convenience method that can be used to serialize any Java value into newly created
+     * {@link TokenBuffer}. Functionally equivalent to calling
+     * {@link #writeValue(JsonGenerator, Object)} passing buffer as generator.
+     */
+    public TokenBuffer writeValueIntoBuffer(Object value) throws JacksonException
+    {
+        final SerializationContextExt ctxt = _serializationContext();
+        try (TokenBuffer buf = ctxt.bufferForValueConversion()) {
+            _configAndWriteValue(ctxt, buf, value);
+            return buf;
         }
     }
 

@@ -5,12 +5,49 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
-3.0.0-rc4 (not yet released)
+3.0.0-rc7 (not yet released)
 
+#5231: Deserialization through setter with `vararg` parameter fails `ClassCastException`
+ (reported by @tsegall)
+ (contributed by Joo-Hyuk K)
+
+3.0.0-rc6 (18-Jul-2025)
+
+#5225: `NullPointerException` in `ObjectMapper.valueToTree(UUID)`
+ (reported by @ kiryong-lee)
+
+3.0.0-rc5 (22-May-2025)
+
+#4907: Reduce/eliminate introspection on `java.*` classes
+ (requested by Guillaume S)
+#5158: Add "optional" variants -- shortValueOpt(), floatValueOpt(), asShortOpt(),
+  asFloatOpt()
+ (contributed by Yu Han)
+#5169: Add missing methods in `Serializers` for Enum and TreeNode types (3.0)
+
+3.0.0-rc4 (10-May-2025)
+
+#1484: Changed default of `MapperFeature.DEFAULT_VIEW_INCLUSION` to `false` in 3.0
+#2083: Replace Reflection usage with `MethodHandle` (3.0)
+ (contributed by Steven S)
+#5078: Create proper `MonthDeserializer` and `MonthSerializer` (don't rely
+  on `EnumDeserializer`/`EnumSerializer`)
+ (fixed by Joo-Hyuk K)
 #5093: Change the way `BeanDescription` passed during serializer construction
  to use `Supplier`
 #5094: Change the way `BeanDescription` passed during deserializer construction
  to use `Supplier`
+#5110: Add missing `ObjectMapper#createNonBlockingByteBufferParser()` method
+ (requested by Sébastien D)
+#5111: Improve support for deserializing from `TokenBuffer` (f.ex for
+  content buffered for non-blocking parsing)
+ (requested by Sébastien D)
+#5112: Add a `MapperBuilder#findAndAddModules(ClassLoader)` variant
+ (requested by Sébastien D)
+#5138: add `asShort()`, `asFloat()` conversion methods
+ (contributed by Yu Han)
+#5153: Improve error handling for numeric values in `POJONode`
+ (contributed by Yu Han)
 
 3.0.0-rc3 (13-Apr-2025)
 
@@ -122,9 +159,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #4820: Change JDK baseline for Jackson 3.0 from Java 8 to Java 17
 #4835: Remove dynamic work-arounds wrt accessing `Record` definition
 #4840: Increase minimum Android SDK required to 34 for Jackson 3.0
-#4845: Change default of `SerializationFeature.WRITE_DATES_AS_TIMESTAMPS`
+#4845: Change default of `DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPSATES_AS_TIMESTAMPS`
   to `false` in 3.0
-#4846: Change default of `SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS`
+#4846: Change default of `DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS`
   to `false` in 3.0
 #4858: Change default of `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES`
   to `true` for 3.0

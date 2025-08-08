@@ -19,11 +19,6 @@ public class BigIntegerNode
 {
     private static final long serialVersionUID = 3L;
 
-    private final static BigInteger MIN_INTEGER = BigInteger.valueOf(Integer.MIN_VALUE);
-    private final static BigInteger MAX_INTEGER = BigInteger.valueOf(Integer.MAX_VALUE);
-    private final static BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
-    private final static BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
-
     final protected BigInteger _value;
 
     /*
@@ -70,6 +65,42 @@ public class BigIntegerNode
     @Override
     public Number numberValue() {
         return _value;
+    }
+
+    @Override
+    public short shortValue() {
+        if (_inShortRange()) {
+            return _value.shortValue();
+        }
+        return _reportShortCoercionRangeFail("shortValue()");
+    }
+
+    @Override
+    public short shortValue(short defaultValue) {
+        return _inShortRange() ? _value.shortValue() : defaultValue;
+    }
+
+    @Override
+    public Optional<Short> shortValueOpt() {
+        return _inShortRange() ? Optional.of(_value.shortValue()) : Optional.empty();
+    }
+
+    @Override
+    public short asShort() {
+        if (_inShortRange()) {
+            return _value.shortValue();
+        }
+        return _reportShortCoercionRangeFail("asShort()");
+    }
+
+    @Override
+    public short asShort(short defaultValue) {
+        return _inShortRange() ? _value.shortValue() : defaultValue;
+    }
+
+    @Override
+    public Optional<Short> asShortOpt() {
+        return _inShortRange() ? Optional.of(_value.shortValue()) : Optional.empty();
     }
 
     @Override
@@ -167,6 +198,45 @@ public class BigIntegerNode
     }
 
     @Override
+    public float floatValue(float defaultValue) {
+        float f = _asFloatValueUnchecked();
+        return (Float.isFinite(f)) ? f : defaultValue;
+    }
+
+    @Override
+    public Optional<Float> floatValueOpt() {
+        float f = _asFloatValueUnchecked();
+        if (Float.isFinite(f)) {
+            return Optional.of(f);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public float asFloat() {
+        float f = _asFloatValueUnchecked();
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return _reportFloatCoercionRangeFail("asFloat()");
+    }
+
+    @Override
+    public float asFloat(float defaultValue) {
+        float f = _asFloatValueUnchecked();
+        return (Float.isFinite(f)) ? f : defaultValue;
+    }
+
+    @Override
+    public Optional<Float> asFloatOpt() {
+        float f = _asFloatValueUnchecked();
+        if (Float.isFinite(f)) {
+            return Optional.of(f);
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public double doubleValue() {
         double d = _asDoubleValueUnchecked();
         if (Double.isFinite(d)) {
@@ -185,7 +255,7 @@ public class BigIntegerNode
     public OptionalDouble doubleValueOpt() {
         double d = _asDoubleValueUnchecked();
         if (Double.isFinite(d)) {
-            return OptionalDouble.of(_value.doubleValue());
+            return OptionalDouble.of(d);
         }
         return OptionalDouble.empty();
     }
@@ -209,7 +279,7 @@ public class BigIntegerNode
     public OptionalDouble asDoubleOpt() {
         double d = _asDoubleValueUnchecked();
         if (Double.isFinite(d)) {
-            return OptionalDouble.of(_value.doubleValue());
+            return OptionalDouble.of(d);
         }
         return OptionalDouble.empty();
     }
@@ -252,23 +322,20 @@ public class BigIntegerNode
 
     @Override
     protected boolean _inShortRange() {
-        if (_inIntRange()) {
-            int v = _value.intValue();
-            return (v >= Short.MIN_VALUE && v <= Short.MAX_VALUE);
-        }
-        return false;
+        return (_value.compareTo(BI_MIN_SHORT) >= 0)
+                && (_value.compareTo(BI_MAX_SHORT) <= 0);
     }
 
     @Override
     public boolean _inIntRange() {
-        return (_value.compareTo(MIN_INTEGER) >= 0)
-                && (_value.compareTo(MAX_INTEGER) <= 0);
+        return (_value.compareTo(BI_MIN_INTEGER) >= 0)
+                && (_value.compareTo(BI_MAX_INTEGER) <= 0);
     }
 
     @Override
     protected boolean _inLongRange() {
-        return (_value.compareTo(MIN_LONG) >= 0)
-                && (_value.compareTo(MAX_LONG) <= 0);
+        return (_value.compareTo(BI_MIN_LONG) >= 0)
+                && (_value.compareTo(BI_MAX_LONG) <= 0);
     }
 
     /*

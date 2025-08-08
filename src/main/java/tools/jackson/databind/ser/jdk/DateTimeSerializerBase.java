@@ -205,7 +205,7 @@ df0.getClass().getName()));
         //    reusing formatter instance. This is our second attempt, after initially trying simple
         //    synchronization (which turned out to be bottleneck for some users in production...).
         //    While `ThreadLocal` could alternatively be used, it is likely that it would lead to
-        //    higher memory footprint, but without much upside -- if we can not reuse, we'll just
+        //    higher memory footprint, but without much upside -- if we cannot reuse, we'll just
         //    clone(), which has some overhead but not drastic one.
 
         DateFormat f = _reusedCustomFormat.getAndSet(null);

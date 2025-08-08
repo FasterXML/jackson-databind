@@ -12,7 +12,7 @@ import tools.jackson.databind.deser.std.StdDeserializer;
  * {@link tools.jackson.databind.exc.MismatchedInputException}
  * if an attempt is made to deserialize a value.
  * This is used for "known unknown" types: types that we can recognize
- * but can not support easily (or support known to be added via extension
+ * but cannot support easily (or support known to be added via extension
  * module).
  *<p>
  * NOTE:does allow deserialization from

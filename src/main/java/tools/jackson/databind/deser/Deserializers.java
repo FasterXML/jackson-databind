@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser;
 
+import tools.jackson.core.TreeNode;
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.*;
@@ -29,20 +30,24 @@ public interface Deserializers
      *
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public ValueDeserializer<?> findEnumDeserializer(Class<?> type,
-            DeserializationConfig config, BeanDescription.Supplier beanDescRef);
+    default ValueDeserializer<?> findEnumDeserializer(JavaType type,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef) {
+        return null;
+    }
 
     /**
      * Method called to locate deserializer for specified JSON tree node type.
      *
      * @param nodeType Specific type of JSON tree nodes to deserialize
-     *  (subtype of {@link tools.jackson.databind.JsonNode})
+     *  (subtype of {@link TreeNode})
      * @param config Configuration in effect
      *
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public ValueDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
-            DeserializationConfig config, BeanDescription.Supplier beanDescRef);
+    default ValueDeserializer<?> findTreeNodeDeserializer(JavaType nodeType,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef) {
+        return null;
+    }
 
     /**
      * Method called to locate deserializer for specified value type which does not belong to any other
@@ -55,8 +60,10 @@ public interface Deserializers
      *
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public ValueDeserializer<?> findBeanDeserializer(JavaType type,
-            DeserializationConfig config, BeanDescription.Supplier beanDescRef);
+    default ValueDeserializer<?> findBeanDeserializer(JavaType type,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef) {
+        return null;
+    }
 
     // // // Then container types
 
@@ -74,9 +81,11 @@ public interface Deserializers
      *
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public ValueDeserializer<?> findReferenceDeserializer(ReferenceType refType,
+    default ValueDeserializer<?> findReferenceDeserializer(ReferenceType refType,
             DeserializationConfig config, BeanDescription.Supplier beanDescRef,
-            TypeDeserializer contentTypeDeserializer, ValueDeserializer<?> contentDeserializer);
+            TypeDeserializer contentTypeDeserializer, ValueDeserializer<?> contentDeserializer) {
+        return null;
+    }
 
     /**
      * Method called to locate deserializer for specified array type.
@@ -99,9 +108,11 @@ public interface Deserializers
      *
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public ValueDeserializer<?> findArrayDeserializer(ArrayType type,
+    default ValueDeserializer<?> findArrayDeserializer(ArrayType type,
             DeserializationConfig config, BeanDescription.Supplier beanDescRef,
-            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer);
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) {
+        return null;
+    }
 
     /**
      * Method called to locate deserializer for specified {@link java.util.Collection} (List, Set etc) type.
@@ -124,9 +135,11 @@ public interface Deserializers
      *
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public ValueDeserializer<?> findCollectionDeserializer(CollectionType type,
+    default ValueDeserializer<?> findCollectionDeserializer(CollectionType type,
             DeserializationConfig config, BeanDescription.Supplier beanDescRef,
-            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer);
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) {
+        return null;
+    }
 
     /**
      * Method called to locate deserializer for specified
@@ -151,9 +164,11 @@ public interface Deserializers
      *
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public ValueDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
+    default ValueDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
             DeserializationConfig config, BeanDescription.Supplier beanDescRef,
-            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer);
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) {
+        return null;
+    }
 
     /**
      * Method called to locate deserializer for specified {@link java.util.Map} type.
@@ -183,10 +198,12 @@ public interface Deserializers
      *
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public ValueDeserializer<?> findMapDeserializer(MapType type,
+    default ValueDeserializer<?> findMapDeserializer(MapType type,
             DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer);
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) {
+        return null;
+    }
 
     /**
      * Method called to locate deserializer for specified
@@ -218,10 +235,12 @@ public interface Deserializers
      *
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public ValueDeserializer<?> findMapLikeDeserializer(MapLikeType type,
+    default ValueDeserializer<?> findMapLikeDeserializer(MapLikeType type,
             DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer);
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) {
+        return null;
+    }
 
     /**
      * Method that may be called to check whether this deserializer provider would provide
@@ -234,7 +253,7 @@ public interface Deserializers
      *
      * @since 3.0
      */
-    public boolean hasDeserializerFor(DeserializationConfig config,
+    boolean hasDeserializerFor(DeserializationConfig config,
             Class<?> valueType);
 
     /*
@@ -253,75 +272,10 @@ public interface Deserializers
     public abstract static class Base
         implements Deserializers
     {
-        @Override
-        public ValueDeserializer<?> findEnumDeserializer(Class<?> type,
-                DeserializationConfig config, BeanDescription.Supplier beanDescRef)
-        {
-            return null;
-        }
+        // For other methods default implementation is fine (returns null)
 
         @Override
-        public ValueDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
-                DeserializationConfig config, BeanDescription.Supplier beanDescRef)
-        {
-            return null;
-        }
-
-        @Override
-        public ValueDeserializer<?> findReferenceDeserializer(ReferenceType refType,
-                DeserializationConfig config, BeanDescription.Supplier beanDescRef,
-                TypeDeserializer contentTypeDeserializer, ValueDeserializer<?> contentDeserializer)
-        {
-            return null;
-        }
-
-        @Override
-        public ValueDeserializer<?> findBeanDeserializer(JavaType type,
-                DeserializationConfig config, BeanDescription.Supplier beanDescRef)
-        {
-            return null;
-        }
-
-        @Override
-        public ValueDeserializer<?> findArrayDeserializer(ArrayType type,
-                DeserializationConfig config, BeanDescription.Supplier beanDescRef,
-                TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
-        {
-            return null;
-        }
-
-        @Override
-        public ValueDeserializer<?> findCollectionDeserializer(CollectionType type,
-                DeserializationConfig config, BeanDescription.Supplier beanDescRef,
-                TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
-        {
-            return null;
-        }
-
-        @Override
-        public ValueDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
-                DeserializationConfig config, BeanDescription.Supplier beanDescRef,
-                TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
-        {
-            return null;
-        }
-
-        @Override
-        public ValueDeserializer<?> findMapDeserializer(MapType type,
-                DeserializationConfig config, BeanDescription.Supplier beanDescRef,
-                KeyDeserializer keyDeserializer,
-                TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
-        {
-            return null;
-        }
-
-        @Override
-        public ValueDeserializer<?> findMapLikeDeserializer(MapLikeType type,
-                DeserializationConfig config, BeanDescription.Supplier beanDescRef,
-                KeyDeserializer keyDeserializer,
-                TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
-        {
-            return null;
-        }
+        public abstract boolean hasDeserializerFor(DeserializationConfig config,
+                Class<?> valueType);
     }
 }

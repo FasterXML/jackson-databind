@@ -58,6 +58,10 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             }
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
             text = ctxt.extractScalarFromObject(p, this, _valueClass);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return  (T) ctxt.handleUnexpectedToken(_valueClass, p);
+            }
         }
         if (text.isEmpty()) {
             // 09-Jun-2020, tatu: Commonly `null` but may coerce to "empty" as well

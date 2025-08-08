@@ -37,25 +37,25 @@ public final class StringArrayDeserializer
     /**
      * Value serializer to use, if not the standard one (which is inlined)
      */
-    protected ValueDeserializer<String> _elementDeserializer;
+    private final ValueDeserializer<String> _elementDeserializer;
 
     /**
      * Handler we need for dealing with null values as elements
      */
-    protected final NullValueProvider _nullProvider;
+    private final NullValueProvider _nullProvider;
 
     /**
      * Specific override for this instance (from proper, or global per-type overrides)
      * to indicate whether single value may be taken to mean an unwrapped one-element array
      * or not. If null, left to global defaults.
      */
-    protected final Boolean _unwrapSingle;
+    private final Boolean _unwrapSingle;
 
     /**
      * Marker flag set if the <code>_nullProvider</code> indicates that all null
      * content values should be skipped (instead of being possibly converted).
      */
-    protected final boolean _skipNullValues;
+    private final boolean _skipNullValues;
 
     public StringArrayDeserializer() {
         this(null, null, null);
@@ -152,9 +152,16 @@ public final class StringArrayDeserializer
                         if (_skipNullValues) {
                             continue;
                         }
-                        value = (String) _nullProvider.getNullValue(ctxt);
                     } else {
                         value = _parseString(p, ctxt, _nullProvider);
+                    }
+
+                    if (value == null) {
+                        value = (String) _nullProvider.getNullValue(ctxt);
+
+                        if (value == null && _skipNullValues) {
+                            continue;
+                        }
                     }
                 }
                 if (ix >= chunk.length) {
@@ -210,13 +217,22 @@ public final class StringArrayDeserializer
                         if (_skipNullValues) {
                             continue;
                         }
-                        value = (String) _nullProvider.getNullValue(ctxt);
+                        value = null;
                     } else {
                         value = deser.deserialize(p, ctxt);
                     }
                 } else {
                     value = deser.deserialize(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = (String) _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);
                     ix = 0;
@@ -274,9 +290,16 @@ public final class StringArrayDeserializer
                         if (_skipNullValues) {
                             return NO_STRINGS;
                         }
-                        value = (String) _nullProvider.getNullValue(ctxt);
                     } else {
                         value = _parseString(p, ctxt, _nullProvider);
+                    }
+
+                    if (value == null) {
+                        value = (String) _nullProvider.getNullValue(ctxt);
+
+                        if (value == null && _skipNullValues) {
+                            continue;
+                        }
                     }
                 }
                 if (ix >= chunk.length) {

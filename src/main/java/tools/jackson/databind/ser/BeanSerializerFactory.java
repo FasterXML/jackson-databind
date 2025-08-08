@@ -13,6 +13,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.TokenStreamFactory;
+import tools.jackson.core.TreeNode;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.SerializerFactoryConfig;
 import tools.jackson.databind.introspect.*;
@@ -132,7 +133,8 @@ public class BeanSerializerFactory
             BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides)
     {
         // Very first thing, let's check if there is explicit serializer annotation:
-        ValueSerializer<?> ser = findSerializerFromAnnotation(ctxt, beanDescRef.getClassInfo());
+        ValueSerializer<?> ser = findSerializerFromAnnotation(ctxt,
+                beanDescRef.getClassInfo());
         if (ser != null) {
             return (ValueSerializer<Object>) ser;
         }
@@ -160,7 +162,7 @@ public class BeanSerializerFactory
             }
         }
         // Slight detour: do we have a Converter to consider?
-        Converter<Object,Object> conv = beanDescRef.get().findSerializationConverter();
+        Converter<Object,Object> conv = config.findSerializationConverter(beanDescRef.getClassInfo());
         if (conv != null) { // yup, need converter
             JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
 
@@ -203,42 +205,56 @@ public class BeanSerializerFactory
             if (type.isReferenceType()) {
                 ser = findReferenceSerializer(ctxt, (ReferenceType) type, beanDescRef,
                         formatOverrides, staticTyping);
+            } else if (type.isEnumType()) {
+                for (Serializers serializers : customSerializers()) {
+                    if ((ser = serializers.findEnumSerializer(config, type, beanDescRef, formatOverrides)) != null) {
+                        break;
+                    }
+                }
+            } else if (type.isTypeOrSubTypeOf(TreeNode.class)) {
+                for (Serializers serializers : customSerializers()) {
+                    if ((ser = serializers.findTreeNodeSerializer(config, type, beanDescRef, formatOverrides)) != null) {
+                        break;
+                    }
+                }
             } else {
                 // Modules may provide serializers of POJO types:
                 for (Serializers serializers : customSerializers()) {
-                    ser = serializers.findSerializer(config, type, beanDescRef, formatOverrides);
-                    if (ser != null) {
+                    if ((ser = serializers.findSerializer(config, type, beanDescRef, formatOverrides)) != null) {
                         break;
                     }
                 }
             }
-            // 25-Jun-2015, tatu: Then JacksonSerializable, @JsonValue etc. NOTE! Prior to 2.6,
-            //    this call was BEFORE custom serializer lookup, which was wrong.
-            if (ser == null) {
-                ser = findSerializerByAnnotations(ctxt, type, beanDescRef);
-            }
         }
 
         if (ser == null) {
-            // Otherwise, we will check "primary types"; both marker types that
-            // indicate specific handling (JacksonSerializable), or main types that have
-            // precedence over container types
-            ser = findSerializerByLookup(type, config, beanDescRef, formatOverrides, staticTyping);
+            // Otherwise, we will check "primary types"; main types that have
+            // precedence over POJO handling
+            ser = findSerializerByPrimaryType(ctxt, type, beanDescRef, formatOverrides, staticTyping);
             if (ser == null) {
-                ser = findSerializerByPrimaryType(ctxt, type, beanDescRef, formatOverrides, staticTyping);
+                // Then JacksonSerializable, @JsonValue etc.
+                ser = findSerializerByAnnotations(ctxt, type, beanDescRef);
                 if (ser == null) {
-                    // And this is where this class comes in: if type is not a
-                    // known "primary JDK type", perhaps it's a bean? We can still
-                    // get a null, if we can't find a single suitable bean property.
-                    ser = constructBeanOrAddOnSerializer(ctxt, type, beanDescRef, formatOverrides, staticTyping);
-                    // Finally: maybe we can still deal with it as an implementation of some basic JDK interface?
+                    // ... but annotations lookup must predate Enum lookup
+                    if (type.isEnumType()) {
+                        // NOTE: may still return `null` (with Shape override)
+                        ser = buildEnumSerializer(ctxt, type, beanDescRef,
+                                _calculateEffectiveFormat(ctxt,
+                                        beanDescRef, Enum.class, formatOverrides));
+                    }
                     if (ser == null) {
-                        ser = ctxt.getUnknownTypeSerializer(beanDescRef.getBeanClass());
+                        // And this is where this class comes in: if type is not a
+                        // known "primary JDK type", perhaps it's a POJO (aka Bean)?
+                        //  We can still get a null, for various reasons
+                        ser = constructBeanOrAddOnSerializer(ctxt, type, beanDescRef, formatOverrides, staticTyping);
+                        if (ser == null) {
+                            ser = ctxt.getUnknownTypeSerializer(beanDescRef.getBeanClass());
+                        }
                     }
                 }
             }
         }
-        // can not be null any more (always get at least "unknown" serializer)
+        // cannot be null any more (always get at least "unknown" serializer)
         if (_factoryConfig.hasSerializerModifiers()) {
             for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 ser = mod.modifySerializer(config, beanDescRef, ser);
@@ -501,7 +517,7 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
 
     protected BeanSerializerBuilder constructBeanSerializerBuilder(SerializationConfig config,
             BeanDescription.Supplier beanDescRef) {
-        return new BeanSerializerBuilder(config, beanDescRef.get());
+        return new BeanSerializerBuilder(config, beanDescRef);
     }
 
     /*

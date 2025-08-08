@@ -354,6 +354,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Boolean.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Boolean) ctxt.handleUnexpectedToken(Boolean.TYPE, p)).booleanValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY:
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
@@ -461,12 +465,16 @@ public abstract class StdDeserializer<T>
             return false;
         case JsonTokenId.ID_NULL: // null fine for non-primitive
             return null;
+        case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
+            return (Boolean) _deserializeFromArray(p, ctxt);
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, targetType);
-            break;
-        case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
-            return (Boolean) _deserializeFromArray(p, ctxt);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text != null) {
+                break;
+            }
+            // fall through
         default:
             return (Boolean) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
         }
@@ -525,6 +533,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Byte.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Byte) ctxt.handleUnexpectedToken(ctxt.constructType(Byte.TYPE), p)).byteValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
@@ -598,6 +610,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Short.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Short) ctxt.handleUnexpectedToken(ctxt.constructType(Short.TYPE), p)).shortValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY:
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
@@ -644,7 +660,7 @@ public abstract class StdDeserializer<T>
         return (short) value;
     }
 
-    protected final int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt)
+    protected int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
         String text;
@@ -669,6 +685,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Integer.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Number) ctxt.handleUnexpectedToken(Integer.TYPE, p)).intValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -702,12 +722,12 @@ public abstract class StdDeserializer<T>
         return _parseIntPrimitive(p, ctxt, text);
     }
 
-    protected final int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt,
+    protected int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt,
             String text) throws JacksonException
     {
         try {
             if (text.length() > 9) {
-                ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
+                p.streamReadConstraints().validateIntegerLength(text.length());
                 long l = NumberInput.parseLong(text);
                 if (_intOverflow(l)) {
                     Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
@@ -725,10 +745,7 @@ public abstract class StdDeserializer<T>
         }
     }
 
-    /**
-     * @since 2.12
-     */
-    protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt,
+    protected Integer _parseInteger(JsonParser p, DeserializationContext ctxt,
             Class<?> targetType)
         throws JacksonException
     {
@@ -750,12 +767,16 @@ public abstract class StdDeserializer<T>
             return p.getIntValue();
         case JsonTokenId.ID_NULL: // null fine for non-primitive
             return (Integer) getNullValue(ctxt);
+        case JsonTokenId.ID_START_ARRAY:
+            return (Integer) _deserializeFromArray(p, ctxt);
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, targetType);
-            break;
-        case JsonTokenId.ID_START_ARRAY:
-            return (Integer) _deserializeFromArray(p, ctxt);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text != null) {
+                break;
+            }
+            // fall through
         default:
             return (Integer) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
@@ -774,12 +795,12 @@ public abstract class StdDeserializer<T>
         return _parseInteger(p, ctxt, text);
     }
 
-    protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt,
+    protected Integer _parseInteger(JsonParser p, DeserializationContext ctxt,
             String text)
     {
         try {
             if (text.length() > 9) {
-                ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
+                p.streamReadConstraints().validateIntegerLength(text.length());
                 long l = NumberInput.parseLong(text);
                 if (_intOverflow(l)) {
                     return (Integer) ctxt.handleWeirdStringValue(Integer.class, text,
@@ -820,6 +841,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Long.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Number) ctxt.handleUnexpectedToken(Long.TYPE, p)).longValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -856,7 +881,7 @@ public abstract class StdDeserializer<T>
     protected final long _parseLongPrimitive(JsonParser p, DeserializationContext ctxt,
             String text) throws JacksonException
     {
-        ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
+        p.streamReadConstraints().validateIntegerLength(text.length());
         try {
             return NumberInput.parseLong(text);
         } catch (IllegalArgumentException iae) { }
@@ -867,9 +892,6 @@ public abstract class StdDeserializer<T>
         }
     }
 
-    /**
-     * @since 2.12
-     */
     protected final Long _parseLong(JsonParser p, DeserializationContext ctxt,
             Class<?> targetType)
         throws JacksonException
@@ -892,12 +914,16 @@ public abstract class StdDeserializer<T>
             return (Long) getNullValue(ctxt);
         case JsonTokenId.ID_NUMBER_INT:
             return p.getLongValue();
+        case JsonTokenId.ID_START_ARRAY:
+            return (Long) _deserializeFromArray(p, ctxt);
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, targetType);
-            break;
-        case JsonTokenId.ID_START_ARRAY:
-            return (Long) _deserializeFromArray(p, ctxt);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text != null) {
+                break;
+            }
+            // fall through
         default:
             return (Long) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
@@ -914,12 +940,15 @@ public abstract class StdDeserializer<T>
             return (Long) getNullValue(ctxt);
         }
         // let's allow Strings to be converted too
-        return _parseLong(ctxt, text);
+        return _parseLong(p, ctxt, text);
     }
 
-    protected final Long _parseLong(DeserializationContext ctxt, String text)
+
+    protected Long _parseLong(JsonParser p, DeserializationContext ctxt,
+            String text)
+        throws JacksonException
     {
-        ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
+        p.streamReadConstraints().validateIntegerLength(text.length());
         try {
             return NumberInput.parseLong(text);
         } catch (IllegalArgumentException iae) { }
@@ -952,6 +981,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Float.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Number) ctxt.handleUnexpectedToken(Float.TYPE, p)).floatValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -1000,7 +1033,7 @@ public abstract class StdDeserializer<T>
     {
         // 09-Dec-2023, tatu: To avoid parser having to validate input, pre-validate:
         if (NumberInput.looksLikeValidNumber(text)) {
-            ctxt.getParser().streamReadConstraints().validateFPLength(text.length());
+            p.streamReadConstraints().validateFPLength(text.length());
             try {
                 return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             } catch (IllegalArgumentException iae) { }
@@ -1068,6 +1101,10 @@ public abstract class StdDeserializer<T>
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Double.TYPE);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text == null) {
+                return ((Number) ctxt.handleUnexpectedToken(Double.TYPE, p)).doubleValue();
+            }
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -1188,12 +1225,16 @@ public abstract class StdDeserializer<T>
             }
         case JsonTokenId.ID_NULL:
             return (java.util.Date) getNullValue(ctxt);
+        case JsonTokenId.ID_START_ARRAY:
+            return _parseDateFromArray(p, ctxt);
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, _valueClass);
-            break;
-        case JsonTokenId.ID_START_ARRAY:
-            return _parseDateFromArray(p, ctxt);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (text != null) {
+                break;
+            }
+            // fall through
         default:
             return (java.util.Date) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
@@ -1299,7 +1340,14 @@ public abstract class StdDeserializer<T>
             return ob.toString();
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
-            return ctxt.extractScalarFromObject(p, this, rawTargetType);
+            {
+                String str = ctxt.extractScalarFromObject(p, this, rawTargetType);
+                // 17-May-2025, tatu: [databind#4656] need to check for `null`
+                if (str != null) {
+                    return str;
+                }
+                return (String) ctxt.handleUnexpectedToken(rawTargetType, p);
+            }
         case JsonTokenId.ID_NUMBER_INT:
             act = _checkIntToStringCoercion(p, ctxt, rawTargetType);
             break;
@@ -1499,7 +1547,7 @@ value, _coercedTypeDesc());
         }
         // 13-Oct-2016, tatu: As per [databind#1324], need to be careful wrt
         //    degenerate case of huge integers, legal in JSON.
-        //    Also note that number tokens can not have WS to trim:
+        //    Also note that number tokens cannot have WS to trim:
         if (p.getNumberType() == NumberType.INT) {
             // but minor optimization for common case is possible:
             return p.getIntValue() != 0;

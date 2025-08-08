@@ -464,14 +464,16 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
             boolean trimEmptyArray = !ctxt.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
             boolean skipNulls = !ctxt.isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES);
             if (trimEmptyArray || skipNulls) {
-                g.writeStartObject(this, _children.size());
+                // NOTE! Must NOT pass size since some entries may be filtered
+                g.writeStartObject(this);
                 serializeFilteredContents(g, ctxt, trimEmptyArray, skipNulls);
                 g.writeEndObject();
                 return;
             }
         }
-        g.writeStartObject(this, _children.size());
-        for (Map.Entry<String, JsonNode> en : _contentsToSerialize(ctxt).entrySet()) {
+        final var contents = _contentsToSerialize(ctxt);
+        g.writeStartObject(this, contents.size());
+        for (Map.Entry<String, JsonNode> en : contents.entrySet()) {
             g.writeName(en.getKey());
             en.getValue().serialize(g, ctxt);
         }

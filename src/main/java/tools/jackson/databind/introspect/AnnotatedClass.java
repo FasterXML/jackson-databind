@@ -24,49 +24,49 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
-    final protected MapperConfig<?> _config;
+    protected final MapperConfig<?> _config;
 
     /**
      * Resolved Java type for which information is collected: also works as
      * context for resolving possible generic type of accessors declared in this
      * type.
      */
-    final protected JavaType _type;
+    protected final JavaType _type;
 
     /**
      * Type erased {@link Class} matching {@code _type}.
      */
-    final protected Class<?> _class;
+    protected final Class<?> _class;
 
     /**
      * Type bindings to use for members of {@link #_class}.
      */
-    final protected TypeBindings _bindings;
+    protected final TypeBindings _bindings;
 
     /**
      * Ordered set of super classes and interfaces of the
      * class itself: included in order of precedence
      */
-    final protected List<JavaType> _superTypes;
+    protected final List<JavaType> _superTypes;
 
     /**
      * Object that knows mapping of mix-in classes (ones that contain
      * annotations to add) with their target classes (ones that
      * get these additional annotations "mixed in").
      */
-    final protected MixInResolver _mixInResolver;
+    protected final MixInResolver _mixInResolver;
 
     /**
      * Primary mix-in class; one to use for the annotated class
      * itself. Can be null.
      */
-    final protected Class<?> _primaryMixIn;
+    protected final Class<?> _primaryMixIn;
 
     /**
-     * Flag that indicates whether (fulll) annotation resolution should
-     * occur: starting with 2.11 is disabled for JDK container types.
+     * Flag that indicates whether (full) annotation resolution should
+     * occur: is disabled for all JDK types.
      */
-    final protected boolean _collectAnnotations;
+    protected final boolean _collectAnnotations;
 
     /*
     /**********************************************************************
@@ -78,7 +78,7 @@ public final class AnnotatedClass
      * Combined list of Jackson annotations that the class has,
      * including inheritable ones from super classes and interfaces
      */
-    final protected Annotations _classAnnotations;
+    protected final Annotations _classAnnotations;
 
     protected Creators _creators;
 
@@ -119,6 +119,7 @@ public final class AnnotatedClass
             MixInResolver mir, boolean collectAnnotations)
     {
         _config = config;
+        // 27-May-2025, tatu: May be `null`, alas (for "resolveWithoutSuperTypes()" mostly)
         _type = type;
         _class = rawType;
         _superTypes = superTypes;
@@ -143,6 +144,11 @@ public final class AnnotatedClass
         _bindings = TypeBindings.emptyBindings();
         _mixInResolver = null;
         _collectAnnotations = false;
+
+        // And pre-set accessors:
+        _creators = NO_CREATORS;
+        _fields = Collections.emptyList();
+        _memberMethods = new AnnotatedMethodMap();
     }
 
     /*
@@ -260,7 +266,8 @@ public final class AnnotatedClass
     private final List<AnnotatedField> _fields() {
         List<AnnotatedField> f = _fields;
         if (f == null) {
-            // 09-Jun-2017, tatu: _type only null for primordial, placeholder array types.
+            // 09-Jun-2017, tatu: _type null for cases where we do not want
+            //   introspection (and primordial types)
             if (_type == null) {
                 f = Collections.emptyList();
             } else {
@@ -268,7 +275,6 @@ public final class AnnotatedClass
                         this, _mixInResolver,
                         _type, _primaryMixIn, _collectAnnotations);
             }
-            _fields = f;
         }
         return f;
     }
@@ -276,8 +282,9 @@ public final class AnnotatedClass
     private final AnnotatedMethodMap _methods() {
         AnnotatedMethodMap m = _memberMethods;
         if (m == null) {
-            // 09-Jun-2017, tatu: _type only null for primordial, placeholder array types.
-            //    NOTE: would be great to have light-weight shareable maps; no such impl exists for now
+            // 09-Jun-2017, tatu: _type null for cases where we do not want
+            //   introspection (and primordial types)
+            //   NOTE: would be great to have light-weight shareable maps; no such impl exists for now
             if (_type == null) {
                 m = new AnnotatedMethodMap();
             } else {
@@ -293,12 +300,8 @@ public final class AnnotatedClass
     private final Creators _creators() {
         Creators c = _creators;
         if (c == null) {
-            if (_type == null) {
-                c = NO_CREATORS;
-            } else {
-                c = AnnotatedCreatorCollector.collectCreators(_config,
-                        this, _type, _primaryMixIn, _collectAnnotations);
-            }
+            c = AnnotatedCreatorCollector.collectCreators(_config,
+                    this, _type, _primaryMixIn, _collectAnnotations);
             _creators = c;
         }
         return c;

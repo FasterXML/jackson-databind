@@ -30,7 +30,7 @@ import tools.jackson.databind.util.*;
 /**
  * Abstract factory base class that can provide deserializers for standard
  * JDK classes, including collection classes and simple heuristics for
- * "upcasting" common collection interface types
+ * "up-casting" common collection interface types
  * (such as {@link java.util.Collection}).
  *<p>
  * Since all simple deserializers are eagerly instantiated, and there is
@@ -74,7 +74,7 @@ public abstract class BasicDeserializerFactory
     /**
      * Method for getting current {@link DeserializerFactoryConfig}.
       *<p>
-     * Note that since instances are immutable, you can NOT change settings
+     * Note that since instances are immutable, you CANNOT change settings
      * by accessing an instance and calling methods: this will simply create
      * new instance of config object.
      */
@@ -494,7 +494,7 @@ public abstract class BasicDeserializerFactory
                 // Must be injectable or have name; without either won't work
                 if ((name == null) && (injectId == null)) {
                     ctxt.reportBadTypeDefinition(beanDescRef,
-"Argument #%d of Creator %s has no property name (and is not Injectable): can not use as property-based Creator",
+"Argument #%d of Creator %s has no property name (and is not Injectable): cannot use as property-based Creator",
                         i, candidate);
                 }
             }
@@ -1055,9 +1055,8 @@ public abstract class BasicDeserializerFactory
             JavaType type, BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
-        final Class<?> enumClass = type.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
-        ValueDeserializer<?> deser = _findCustomEnumDeserializer(enumClass, config, beanDescRef);
+        ValueDeserializer<?> deser = _findCustomEnumDeserializer(type, config, beanDescRef);
 
         if (deser == null) {
             // 12-Feb-2020, tatu: while we can't really create real deserializer for `Enum.class`,
@@ -1065,10 +1064,11 @@ public abstract class BasicDeserializerFactory
             //    but basically it can be used as polymorphic base.
             //    We could check `type.getTypeHandler()` to look for that case but seems like we
             //    may as well simply create placeholder (AbstractDeserializer) regardless
-            if (enumClass == Enum.class) {
+            if (type.hasRawClass(Enum.class)) {
                 return AbstractDeserializer.constructForNonPOJO(beanDescRef);
             }
 
+            final Class<?> enumClass = type.getRawClass();
             ValueInstantiator valueInstantiator = _constructDefaultValueInstantiator(ctxt, beanDescRef);
             SettableBeanProperty[] creatorProps = (valueInstantiator == null) ? null
                     : valueInstantiator.getFromObjectArguments(config);
@@ -1117,15 +1117,17 @@ factory.toString()));
     public ValueDeserializer<?> createTreeDeserializer(DeserializationConfig config,
             JavaType nodeType, BeanDescription.Supplier beanDescRef)
     {
-        @SuppressWarnings("unchecked")
-        Class<? extends JsonNode> nodeClass = (Class<? extends JsonNode>) nodeType.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
-        ValueDeserializer<?> custom = _findCustomTreeNodeDeserializer(nodeClass, config,
+        ValueDeserializer<?> custom = _findCustomTreeNodeDeserializer(nodeType, config,
                 beanDescRef);
         if (custom != null) {
             return custom;
         }
-        return JsonNodeDeserializer.getDeserializer(nodeClass);
+        if (nodeType.isTypeOrSubTypeOf(JsonNode.class)) {
+            return JsonNodeDeserializer.getDeserializer(nodeType.getRawClass());
+        }
+        // 20-May-2025, tatu: Is this ok... ?
+        return null;
     }
 
     @Override
@@ -1256,7 +1258,7 @@ factory.toString()));
             return des;
         } else {
             // 24-Sep-2015, bim: if no key deser, look for enum deserializer first, then a plain deser.
-            ValueDeserializer<?> custom = _findCustomEnumDeserializer(enumClass, config, beanDescRef);
+            ValueDeserializer<?> custom = _findCustomEnumDeserializer(type, config, beanDescRef);
             if (custom != null) {
                 return JDKKeyDeserializers.constructDelegatingKeyDeserializer(config, type, custom);
             }
@@ -1323,7 +1325,7 @@ factory.toString()));
         // First things first: unpeel Array types as the element type is
         // what we are interested in -- this because we will always support array
         // types via composition, and since array types are JDK provided (and hence
-        // can not be custom or customized).
+        // cannot be custom or customized).
         if (valueType.isArray()) {
             do {
                 valueType = valueType.getComponentType();
@@ -1462,7 +1464,7 @@ factory.toString()));
     /**********************************************************************
      */
 
-    protected ValueDeserializer<?> _findCustomTreeNodeDeserializer(Class<? extends JsonNode> type,
+    protected ValueDeserializer<?> _findCustomTreeNodeDeserializer(JavaType type,
             DeserializationConfig config, BeanDescription.Supplier beanDescRef)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
@@ -1543,7 +1545,7 @@ factory.toString()));
         return null;
     }
 
-    protected ValueDeserializer<?> _findCustomEnumDeserializer(Class<?> type,
+    protected ValueDeserializer<?> _findCustomEnumDeserializer(JavaType type,
             DeserializationConfig config, BeanDescription.Supplier beanDescRef)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {

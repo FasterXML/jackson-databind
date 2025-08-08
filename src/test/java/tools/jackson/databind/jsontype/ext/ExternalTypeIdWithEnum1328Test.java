@@ -62,7 +62,7 @@ public class ExternalTypeIdWithEnum1328Test extends DatabindTestUtil
 
         @Override
         public String idFromBaseType(DatabindContext ctxt) {
-            throw new UnsupportedOperationException("Missing action type information - Can not construct");
+            throw new UnsupportedOperationException("Missing action type information - Cannot construct");
         }
 
         @Override

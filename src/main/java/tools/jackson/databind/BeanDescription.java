@@ -6,10 +6,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import tools.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.util.Annotations;
-import tools.jackson.databind.util.Converter;
 
 /**
  * Basic container for information gathered by {@link ClassIntrospector} to
@@ -36,9 +35,11 @@ public abstract class BeanDescription
         _type = type;
     }
 
-    public BeanDescription.Supplier supplier() {
-        return new EagerSupplier(this);
-    }
+    /**
+     * Method for constructing a supplier for this bean description instance:
+     * sometimes needed when code expects supplier, not description instance.
+     */
+    public abstract BeanDescription.Supplier supplier();
 
     /*
     /**********************************************************************
@@ -228,39 +229,6 @@ public abstract class BeanDescription
      */
     public abstract JsonInclude.Value findPropertyInclusion(JsonInclude.Value defValue);
 
-    /**
-     * Method for checking what is the expected format for POJO, as
-     * defined by possible annotations (but NOT config overrides)
-     *
-     * @deprecated Since 3.0
-     */
-    @Deprecated // since 3.0
-    public abstract JsonFormat.Value findExpectedFormat();
-
-    /**
-     * Method for checking what is the expected format for POJO, as
-     * defined by possible annotations and possible per-type config overrides.
-     */
-    public abstract JsonFormat.Value findExpectedFormat(Class<?> baseType);
-
-    /**
-     * Method for finding {@link Converter} used for serializing instances
-     * of this class.
-     */
-    public abstract Converter<Object,Object> findSerializationConverter();
-
-    /**
-     * Method for finding {@link Converter} used for serializing instances
-     * of this class.
-     */
-    public abstract Converter<Object,Object> findDeserializationConverter();
-
-    /**
-     * Accessor for possible description for the bean type, used for constructing
-     * documentation.
-     */
-    public String findClassDescription() { return null; }
-
     /*
     /**********************************************************************
     /* Basic API, other
@@ -268,19 +236,6 @@ public abstract class BeanDescription
      */
 
     public abstract Map<Object, AnnotatedMember> findInjectables();
-
-    /**
-     * Method for checking if the POJO type has annotations to
-     * indicate that a builder is to be used for instantiating
-     * instances and handling data binding, instead of standard
-     * bean deserializer.
-     */
-    public abstract Class<?> findPOJOBuilder();
-
-    /**
-     * Method for finding configuration for POJO Builder class.
-     */
-    public abstract JsonPOJOBuilder.Value findPOJOBuilderConfig();
 
     /**
      * Method called to create a "default instance" of the bean, currently
@@ -310,36 +265,38 @@ public abstract class BeanDescription
      */
     public interface Supplier extends java.util.function.Supplier<BeanDescription>
     {
-        JavaType getType();
-
-        default Class<?> getBeanClass() { return getType().getRawClass(); }
-
-        default boolean isRecordType() { return getType().isRecordType(); }
-
-        default AnnotatedClass getClassInfo() {
-            return get().getClassInfo();
-        }
-
-        default Annotations getClassAnnotations() {
-            return get().getClassAnnotations();
-        }
-
         @Override
         public BeanDescription get();
+
+        Annotations getClassAnnotations();
+
+        Class<?> getBeanClass();
+
+        AnnotatedClass getClassInfo();
+
+        JavaType getType();
+
+        boolean isRecordType();
+
+        JsonFormat.Value findExpectedFormat(Class<?> baseType);
     }
 
-    /**
-     * Partial implementation for lazily-constructed suppliers for {@link BeanDescription} instances.
-     */
-    public static abstract class LazySupplier implements Supplier
+    protected static abstract class SupplierBase implements Supplier
     {
+        protected final MapperConfig<?> _config;
         protected final JavaType _type;
 
-        protected transient BeanDescription _beanDesc;
-        
-        protected LazySupplier(JavaType type) {
-            _type = type;
+        /**
+         * Format definitions lazily introspected from class annotations
+         */
+        protected transient JsonFormat.Value _classFormat;
+
+        protected SupplierBase(MapperConfig<?> config, JavaType type) {
+             _config = config;
+             _type = type;
         }
+
+        // // Simple accessors:
 
         @Override
         public JavaType getType() { return _type; }
@@ -350,33 +307,98 @@ public abstract class BeanDescription
         @Override
         public boolean isRecordType() { return _type.isRecordType(); }
 
+        // // // Introspection
+
+        @Override
+        public JsonFormat.Value findExpectedFormat(Class<?> baseType)
+        {
+            JsonFormat.Value v0 = _classFormat;
+            if (v0 == null) { // copied from above
+                v0 = _config.getAnnotationIntrospector().findFormat(_config,
+                        getClassInfo());
+                if (v0 == null) {
+                    v0 = JsonFormat.Value.empty();
+                }
+                _classFormat = v0;
+            }
+            JsonFormat.Value v1 = _config.getDefaultPropertyFormat(baseType);
+            if (v1 == null) {
+                return v0;
+            }
+            return JsonFormat.Value.merge(v0, v1);
+        }
+    }
+
+    /**
+     * Partial implementation for lazily-constructed suppliers for {@link BeanDescription} instances.
+     */
+    public static abstract class LazySupplier extends SupplierBase
+    {
+        protected transient AnnotatedClass _classDesc;
+
+        protected transient BeanDescription _beanDesc;
+
+        protected LazySupplier(MapperConfig<?> config, JavaType type) {
+            super(config, type);
+        }
+
+        // // Entity accessors:
+
+        @Override
+        public Annotations getClassAnnotations() {
+            return getClassInfo().getAnnotations();
+        }
+
+        @Override
+        public AnnotatedClass getClassInfo() {
+            if (_classDesc == null) {
+                _classDesc = _introspect(_type);
+            }
+            return _classDesc;
+        }
+
         @Override
         public BeanDescription get() {
             if (_beanDesc == null) {
-                _beanDesc = _construct(_type);
+                // To test without caching, uncomment:
+                //return _construct(_type, getClassInfo());
+
+                _beanDesc = _construct(_type, getClassInfo());
             }
             return _beanDesc;
         }
 
-        protected abstract BeanDescription _construct(JavaType forType);
+        // // // Internal factory methods
+
+        protected abstract AnnotatedClass _introspect(JavaType forType);
+
+        protected abstract BeanDescription _construct(JavaType forType, AnnotatedClass ac);
     }
 
     /**
      * Simple {@link Supplier} implementation that just returns pre-constructed
      * {@link BeanDescription} instance.
      */
-    public static class EagerSupplier implements Supplier
+    public static class EagerSupplier extends SupplierBase
     {
         protected final BeanDescription _beanDesc;
 
-        public EagerSupplier(BeanDescription beanDesc) {
-            _beanDesc = Objects.requireNonNull(beanDesc);
+        public EagerSupplier(MapperConfig<?> config, BeanDescription beanDesc) {
+            super(config, beanDesc.getType());
+            _beanDesc = beanDesc;
         }
 
         @Override
-        public JavaType getType() { return _beanDesc.getType(); }
+        public BeanDescription get() { return _beanDesc; }
 
         @Override
-        public BeanDescription get() { return _beanDesc; }
+        public AnnotatedClass getClassInfo() {
+            return _beanDesc.getClassInfo();
+        }
+
+        @Override
+        public Annotations getClassAnnotations() {
+            return _beanDesc.getClassAnnotations();
+        }
     }  
 }

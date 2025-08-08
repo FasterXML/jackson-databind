@@ -40,3 +40,26 @@ Andy Boothe (@sigpwned)
  * Contributed #5025: Add support for automatic detection of subtypes (like `@JsonSubTypes`)
    from Java 17 sealed types
   [3.0.0]
+
+Sébastien Deleuze (@sdeleuze)
+ * Requested #5110: Add missing `ObjectMapper#createNonBlockingByteBufferParser()` method
+  [3.0.0]
+ * Requested #5111: Improve support for deserializing from `TokenBuffer` (f.ex for
+   content buffered for non-blocking parsing)
+  [3.0.0]
+ * Requested #5112: Add a `MapperBuilder#findAndAddModules(ClassLoader)` variant
+  [3.0.0]
+
+Yu Han (@hannyu)
+ * Contributed #5138: add `asShort()`, `asFloat()` conversion methods
+  [3.0.0]
+ * Contributed #5153: Improve error handling for numeric values in `POJONode`
+  [3.0.0]
+ * Contributed #5158: Add "optional" variants -- shortValueOpt(), floatValueOpt(),
+   asShortOpt(), asFloatOpt()
+  [3.0.0]
+
+Guillaume Smet (@gsmet)
+ * Requested #4907: Reduce/eliminate introspection on `java.*` classes
+  [3.0.0]
+

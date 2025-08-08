@@ -29,8 +29,6 @@ import tools.jackson.databind.util.ClassUtil;
 public class CreatorProperty
     extends SettableBeanProperty
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Placeholder that represents constructor parameter, when it is created
      * from actual constructor.

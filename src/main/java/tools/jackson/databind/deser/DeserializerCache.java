@@ -338,14 +338,15 @@ public final class DeserializerCache
         }
 
         // We may also have a Builder type to consider...
-        Class<?> builder = beanDescRef.get().findPOJOBuilder();
+        Class<?> builder = ctxt.getAnnotationIntrospector().findPOJOBuilder(config,
+                beanDescRef.getClassInfo());
         if (builder != null) {
             return (ValueDeserializer<Object>) factory.createBuilderBasedDeserializer(
             		ctxt, type, beanDescRef, builder);
         }
 
         // Or perhaps a Converter?
-        Converter<Object,Object> conv = beanDescRef.get().findDeserializationConverter();
+        Converter<Object,Object> conv = config.findDeserializationConverter(beanDescRef.getClassInfo());
         if (conv != null) {
             // otherwise need to do bit of introspection
             JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
@@ -377,11 +378,11 @@ public final class DeserializerCache
             }
             if (type.isMapLikeType()) {
                 // 11-Mar-2017, tatu: As per [databind#1554], also need to block
-                //    handling as Map if overriden with "as POJO" option.
+                //    handling as Map if overridden with "as POJO" option.
                 // Ideally we'd determine it bit later on (to allow custom handler checks)
                 // but that won't work for other reasons. So do it here.
                 // (read: rewrite for 3.0)
-                JsonFormat.Value format = beanDescRef.get().findExpectedFormat(type.getRawClass());
+                JsonFormat.Value format = beanDescRef.findExpectedFormat(type.getRawClass());
                 if (format.getShape() != JsonFormat.Shape.POJO) {
                     MapLikeType mlt = (MapLikeType) type;
                     if (mlt instanceof MapType) {
@@ -391,11 +392,10 @@ public final class DeserializerCache
                 }
             }
             if (type.isCollectionLikeType()) {
-                /* One exception is if shape is to be Shape.POJO (or, as alias, OBJECT).
-                 * Ideally we'd determine it bit later on (to allow custom handler checks),
-                 * but that won't work for other reasons. So do it here.
-                 */
-                JsonFormat.Value format = beanDescRef.get().findExpectedFormat(type.getRawClass());
+                // One exception is if shape is to be Shape.POJO (or, as alias, OBJECT).
+                // Ideally we'd determine it bit later on (to allow custom handler checks),
+                // but that won't work for other reasons. So do it here.
+                JsonFormat.Value format = beanDescRef.findExpectedFormat(type.getRawClass());
                 if (format.getShape() != JsonFormat.Shape.POJO) {
                     CollectionLikeType clt = (CollectionLikeType) type;
                     if (clt instanceof CollectionType) {

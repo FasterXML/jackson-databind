@@ -17,8 +17,6 @@ import tools.jackson.databind.util.ClassUtil;
 public final class InnerClassProperty
     extends SettableBeanProperty.Delegating
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Constructor used when deserializing this property.
      * Transient since there is no need to persist; only needed during
@@ -100,23 +98,4 @@ _creator.getDeclaringClass().getName(), e.getMessage()));
 // these are fine with defaults
 //    public final void set(DeserializationContext ctxt, Object instance, Object value) { }
 //    public Object setAndReturn(DeserializationContext ctxt, Object instance, Object value) { }
-
-    /*
-    /**********************************************************
-    /* JDK serialization handling
-    /**********************************************************
-     */
-
-    // When reading things back,
-    Object readResolve() {
-        return new InnerClassProperty(this, _annotated);
-    }
-
-    Object writeReplace() {
-        // need to construct a fake instance to support serialization
-        if (_annotated == null) {
-            return new InnerClassProperty(this, new AnnotatedConstructor(null, _creator, null, null));
-        }
-        return this;
-    }
 }

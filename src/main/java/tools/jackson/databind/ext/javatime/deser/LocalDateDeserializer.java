@@ -79,62 +79,64 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
     }
 
     @Override
-    public LocalDate deserialize(JsonParser parser, DeserializationContext context)
+    public LocalDate deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        if (parser.hasToken(JsonToken.VALUE_STRING)) {
-            return _fromString(parser, context, parser.getString());
+        if (p.hasToken(JsonToken.VALUE_STRING)) {
+            return _fromString(p, ctxt, p.getString());
         }
         // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
-        if (parser.isExpectedStartObjectToken()) {
-            return _fromString(parser, context,
-                    context.extractScalarFromObject(parser, this, handledType()));
-        }
-        if (parser.isExpectedStartArrayToken()) {
-            JsonToken t = parser.nextToken();
+        if (p.isExpectedStartObjectToken()) {
+            final String str = ctxt.extractScalarFromObject(p, this, handledType());
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (str != null) {
+                return _fromString(p, ctxt, str);
+            }
+            // fall through
+        } else if (p.isExpectedStartArrayToken()) {
+            JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {
                 return null;
             }
-            if (context.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                     && (t == JsonToken.VALUE_STRING || t==JsonToken.VALUE_EMBEDDED_OBJECT)) {
-                final LocalDate parsed = deserialize(parser, context);
-                if (parser.nextToken() != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(parser, context);
+                final LocalDate parsed = deserialize(p, ctxt);
+                if (p.nextToken() != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
                 }
                 return parsed;            
             }
             if (t == JsonToken.VALUE_NUMBER_INT) {
-                int year = parser.getIntValue();
-                int month = parser.nextIntValue(-1);
-                int day = parser.nextIntValue(-1);
+                int year = p.getIntValue();
+                int month = p.nextIntValue(-1);
+                int day = p.nextIntValue(-1);
                 
-                if (parser.nextToken() != JsonToken.END_ARRAY) {
-                    throw context.wrongTokenException(parser, handledType(), JsonToken.END_ARRAY,
+                if (p.nextToken() != JsonToken.END_ARRAY) {
+                    throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
                             "Expected array to end");
                 }
                 return LocalDate.of(year, month, day);
             }
-            context.reportInputMismatch(handledType(),
+            ctxt.reportInputMismatch(handledType(),
                     "Unexpected token (%s) within Array, expected VALUE_NUMBER_INT",
                     t);
-        }
-        if (parser.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
-            return (LocalDate) parser.getEmbeddedObject();
+        } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
+            return (LocalDate) p.getEmbeddedObject();
         }
         // 06-Jan-2018, tatu: Is this actually safe? Do users expect such coercion?
-        if (parser.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-            CoercionAction act = context.findCoercionAction(logicalType(), _valueClass,
+        else if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            CoercionAction act = ctxt.findCoercionAction(logicalType(), _valueClass,
                     CoercionInputShape.Integer);
-            _checkCoercionFail(context, act, handledType(), parser.getLongValue(),
-                    "Integer value (" + parser.getLongValue() + ")");
+            _checkCoercionFail(ctxt, act, handledType(), p.getLongValue(),
+                    "Integer value (" + p.getLongValue() + ")");
 
             // issue 58 - also check for NUMBER_INT, which needs to be specified when serializing.
             if (_shape == JsonFormat.Shape.NUMBER_INT || isLenient()) {
-                return LocalDate.ofEpochDay(parser.getLongValue());
+                return LocalDate.ofEpochDay(p.getLongValue());
             }
-            return _failForNotLenient(parser, context, JsonToken.VALUE_STRING);
+            return _failForNotLenient(p, ctxt, JsonToken.VALUE_STRING);
         }
-        return _handleUnexpectedToken(context, parser, "Expected array or string.");
+        return _handleUnexpectedToken(ctxt, p, "Expected array or string.");
     }
 
     protected LocalDate _fromString(JsonParser p, DeserializationContext ctxt,

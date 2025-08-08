@@ -1,7 +1,6 @@
 package tools.jackson.databind.exc;
 
-import tools.jackson.core.TokenStreamLocation;
-import tools.jackson.core.JsonParser;
+import tools.jackson.core.*;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.util.ClassUtil;
@@ -30,22 +29,34 @@ public class MismatchedInputException
      */
     protected Class<?> _targetType;
 
+    /**
+     * Current token at the point when exception was thrown (if available).
+     */
+    protected JsonToken _currentToken;
+
     protected MismatchedInputException(JsonParser p, String msg) {
         this(p, msg, (JavaType) null);
     }
 
     protected MismatchedInputException(JsonParser p, String msg, TokenStreamLocation loc) {
         super(p, msg, loc);
+        _currentToken = _currentToken(p);
     }
 
     protected MismatchedInputException(JsonParser p, String msg, Class<?> targetType) {
         super(p, msg);
         _targetType = targetType;
+        _currentToken = _currentToken(p);
     }
 
     protected MismatchedInputException(JsonParser p, String msg, JavaType targetType) {
         super(p, msg);
         _targetType = ClassUtil.rawClass(targetType);
+        _currentToken = _currentToken(p);
+    }
+
+    protected static JsonToken _currentToken(JsonParser p) {
+         return (p == null) ? null : p.currentToken();
     }
 
     public static MismatchedInputException from(JsonParser p, JavaType targetType, String msg) {
@@ -61,11 +72,24 @@ public class MismatchedInputException
         return this;
     }
 
+    public MismatchedInputException setCurrentToken(JsonToken t) {
+        _currentToken = t;
+        return this;
+    }
+
     /**
      * Accessor for getting intended target type, with which input did not match,
      * if known; `null` if not known for some reason.
      */
     public Class<?> getTargetType() {
         return _targetType;
+    }
+
+    /**
+     * @return Current token at the point when exception was thrown, if available
+     *   ({@code null} if not)
+     */
+    public JsonToken getCurrentToken() {
+        return _currentToken;
     }
 }

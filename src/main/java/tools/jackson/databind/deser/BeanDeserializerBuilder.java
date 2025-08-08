@@ -127,8 +127,8 @@ public class BeanDeserializerBuilder
     /**********************************************************************
      */
 
-    public BeanDeserializerBuilder(BeanDescription.Supplier beanDescRef,
-            DeserializationContext ctxt)
+    public BeanDeserializerBuilder(DeserializationContext ctxt,
+            BeanDescription.Supplier beanDescRef)
     {
         _beanDescRef = beanDescRef;
         _context = ctxt;
@@ -240,10 +240,10 @@ public class BeanDeserializerBuilder
 
     public void addInjectable(PropertyName propName, JavaType propType,
             Annotations contextAnnotations, AnnotatedMember member,
-            Object valueId)
+            Object valueId, Boolean optional)
     {
         if (_injectables == null) {
-            _injectables = new ArrayList<ValueInjector>();
+            _injectables = new ArrayList<>();
         }
         if ( _config.canOverrideAccessModifiers()) {
             try {
@@ -252,7 +252,7 @@ public class BeanDeserializerBuilder
                 _handleBadAccess(e);
             }
         }
-        _injectables.add(new ValueInjector(propName, propType, member, valueId));
+        _injectables.add(new ValueInjector(propName, propType, member, valueId, optional));
     }
 
     /**
@@ -262,15 +262,13 @@ public class BeanDeserializerBuilder
     public void addIgnorable(String propName)
     {
         if (_ignorableProps == null) {
-            _ignorableProps = new HashSet<String>();
+            _ignorableProps = new HashSet<>();
         }
         _ignorableProps.add(propName);
     }
 
     /**
      * Method that will add property name as one of the properties that will be included.
-     *
-     * @since 2.12
      */
     public void addIncludable(String propName)
     {
@@ -527,7 +525,7 @@ public class BeanDeserializerBuilder
         */
 
         // 17-Jun-2020, tatu: Despite [databind#2760], it seems that methods that
-        //    are explicitly defined (any setter via annotation, builder too) can not
+        //    are explicitly defined (any setter via annotation, builder too) cannot
         //    be left as-is? May reconsider based on feedback
 
         if (_anySetter != null) {
@@ -586,7 +584,7 @@ public class BeanDeserializerBuilder
     {
         // 07-May-2020, tatu: First find combination of per-type config overrides (higher
         //   precedence) and per-type annotations (lower):
-        JsonFormat.Value format = _beanDescRef.get().findExpectedFormat(null);
+        JsonFormat.Value format = _beanDescRef.findExpectedFormat(null);
         // and see if any of those has explicit definition; if not, use global baseline default
         Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
         boolean caseInsensitive = (B == null)

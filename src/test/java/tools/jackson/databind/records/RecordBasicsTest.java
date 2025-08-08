@@ -187,24 +187,25 @@ public class RecordBasicsTest extends DatabindTestUtil
      */
     @Test
     public void testDeserializeHeaderInjectRecord_WillFail() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .injectableValues(new InjectableValues.Std().addValue(String.class, "Bob"))
-                .build();
+        ObjectReader reader = MAPPER.readerFor(RecordWithHeaderInject.class)
+                .with(new InjectableValues.Std().addValue(String.class, "Bob"));
+
         try {
-            mapper.readValue("{\"id\":123}", RecordWithHeaderInject.class);
+            reader.readValue("{\"id\":123}");
+
             fail("should not pass");
         } catch (IllegalArgumentException e) {
             verifyException(e, "RecordWithHeaderInject#name");
+            // 29-May-2025, tatu: Comes from JDK, not our code?
             verifyException(e, "Can not set final java.lang.String field");
         }
     }
 
     @Test
     public void testDeserializeConstructorInjectRecord() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .injectableValues(new InjectableValues.Std().addValue(String.class, "Bob"))
-                .build();
-        RecordWithConstructorInject value = mapper.readValue("{\"id\":123}", RecordWithConstructorInject.class);
+        ObjectReader reader = MAPPER.readerFor(RecordWithConstructorInject.class)
+                .with(new InjectableValues.Std().addValue(String.class, "Bob"));
+        RecordWithConstructorInject value = reader.readValue("{\"id\":123}");
         assertEquals(new RecordWithConstructorInject(123, "Bob"), value);
     }
 

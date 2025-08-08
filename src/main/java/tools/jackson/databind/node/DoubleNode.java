@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
 import java.util.OptionalDouble;
 
 import tools.jackson.core.*;
@@ -75,6 +76,51 @@ public class DoubleNode
             return f;
         }
         return _reportFloatCoercionRangeFail("floatValue()");
+    }
+
+    @Override
+    public float floatValue(float defaultValue) {
+        float f = (float) _value;
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<Float> floatValueOpt() {
+        float f = (float) _value;
+        if (Float.isFinite(f)) {
+            return Optional.of(f);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public float asFloat() {
+        float f = (float) _value;
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return _reportFloatCoercionRangeFail("asFloat()");
+    }
+
+    @Override
+    public float asFloat(float defaultValue) {
+        float f = (float) _value;
+        if (Float.isFinite(f)) {
+            return f;
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<Float> asFloatOpt() {
+        float f = (float) _value;
+        if (Float.isFinite(f)) {
+            return Optional.of(f);
+        }
+        return Optional.empty();
     }
 
     @Override

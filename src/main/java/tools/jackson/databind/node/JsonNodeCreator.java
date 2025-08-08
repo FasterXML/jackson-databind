@@ -25,7 +25,7 @@ public interface JsonNodeCreator
 
     // Numeric types.
     //
-    // note! Can not return `NumericNode` when passed wrapper since `null` will
+    // note! Cannot return `NumericNode` when passed wrapper since `null` will
     // return `NullNode` which is NOT a `NumericNode`!
 
     public ValueNode numberNode(byte v);

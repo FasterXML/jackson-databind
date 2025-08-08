@@ -63,6 +63,42 @@ public class LongNode
     }
 
     @Override
+    public short shortValue() {
+        if (_inShortRange()) {
+            return (short) _value;
+        }
+        return _reportShortCoercionRangeFail("shortValue()");
+    }
+
+    @Override
+    public short shortValue(short defaultValue) {
+        return _inShortRange() ? (short) _value : defaultValue;
+    }
+
+    @Override
+    public Optional<Short> shortValueOpt() {
+        return _inShortRange() ? Optional.of((short) _value) : Optional.empty();
+    }
+
+    @Override
+    public short asShort() {
+        if (_inShortRange()) {
+            return (short) _value;
+        }
+        return _reportShortCoercionRangeFail("asShort()");
+    }
+
+    @Override
+    public short asShort(short defaultValue) {
+        return _inShortRange() ? (short) _value : defaultValue;
+    }
+
+    @Override
+    public Optional<Short> asShortOpt() {
+        return _inShortRange() ? Optional.of((short) _value) : Optional.empty();
+    }
+
+    @Override
     public int intValue() {
         if (_inIntRange()) {
             return (int) _value;

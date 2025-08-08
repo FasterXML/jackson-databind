@@ -84,7 +84,7 @@ public final class DecimalUtils
         if (nanoseconds == 0L) {
             // 14-Mar-2015, tatu: Let's retain one zero to avoid interpretation
             //    as integral number
-            if (seconds == 0L) { // except for "0.0" where it can not be done without scientific notation
+            if (seconds == 0L) { // except for "0.0" where it cannot be done without scientific notation
                 return BigDecimal.ZERO.setScale(1);
             }
             return BigDecimal.valueOf(seconds).setScale(9);

@@ -1215,10 +1215,13 @@ Oleg Chtchoukine (oshatrk@github)
     to incorrect output
   (2.11.1)
 
-Joshua Shannon (retrodaredevil@github)
+Lavender Shannon (retrodaredevil@github)
   * Reported, contributed fix for #2785: Polymorphic subtypes not registering on copied
     ObjectMapper (2.11.1)
   (2.11.2)
+  * Requested #3072: Allow specifying `@JacksonInject` does not fail when there's no
+    corresponding value
+  (2.20.0)
 
 Daniel Hrabovcak (TheSpiritXIII@github)
   * Reported #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
@@ -1860,6 +1863,12 @@ wrongwrong (@k163377)
    `@JsonDeserialize(keyUsing = ...)` is overwritten by the `KeyDeserializer`
     specified in the `ObjectMapper`.
   (2.18.3)
+ * Contributed fix for #5139: In `CollectionDeserializer`, `JsonSetter.contentNulls`
+   is sometimes ignored
+  (2.19.1)
+ * Contributed fix for #5202: #5202: `JsonSetter.contentNulls` ignored for `Object[]`,
+  `String[]` and `Collection<String>`
+  (2.19.2)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing
@@ -1937,3 +1946,12 @@ Will Paul (@dropofwill)
 Ryan Schmitt (@rschmitt)
  * Contributed #5099: Fix regression in `ObjectNode.with()`
   (2.19.0)
+
+Eddú Meléndez Gonzales (@eddumelendez)
+ * Reported #5215: `@JsonAnyGetter` serialization order change from 2.18.4 to 2.19.0
+  (2.19.2)
+
+Giulio Longfils (@giulong)
+ * Contributed #3072: Allow specifying `@JacksonInject` does not fail when there's no
+   corresponding value
+  (2.20.0)

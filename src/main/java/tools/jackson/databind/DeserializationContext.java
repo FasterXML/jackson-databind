@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
@@ -14,25 +15,12 @@ import tools.jackson.core.tree.ObjectTreeNode;
 import tools.jackson.core.type.ResolvedType;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.JacksonFeatureSet;
-import tools.jackson.databind.cfg.CoercionAction;
-import tools.jackson.databind.cfg.CoercionInputShape;
-import tools.jackson.databind.cfg.ContextAttributes;
-import tools.jackson.databind.cfg.DatatypeFeature;
-import tools.jackson.databind.cfg.DatatypeFeatures;
+import tools.jackson.databind.cfg.*;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.deser.impl.TypeWrappedDeserializer;
-import tools.jackson.databind.exc.InvalidDefinitionException;
-import tools.jackson.databind.exc.InvalidFormatException;
-import tools.jackson.databind.exc.InvalidTypeIdException;
-import tools.jackson.databind.exc.MismatchedInputException;
-import tools.jackson.databind.exc.UnrecognizedPropertyException;
-import tools.jackson.databind.exc.ValueInstantiationException;
-import tools.jackson.databind.introspect.Annotated;
-import tools.jackson.databind.introspect.AnnotatedClass;
-import tools.jackson.databind.introspect.AnnotatedMember;
-import tools.jackson.databind.introspect.BeanPropertyDefinition;
-import tools.jackson.databind.introspect.ClassIntrospector;
+import tools.jackson.databind.exc.*;
+import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -482,13 +470,20 @@ public abstract class DeserializationContext
     public final JsonParser getParser() { return _parser; }
 
     public final Object findInjectableValue(Object valueId,
-            BeanProperty forProperty, Object beanInstance)
+            BeanProperty forProperty, Object beanInstance, Boolean optional)
     {
         if (_injectableValues == null) {
-            return reportBadDefinition(ClassUtil.classOf(valueId), String.format(
-"No 'injectableValues' configured, cannot inject value with id [%s]", valueId));
+            // `optional` comes from property annotation (if any); has precedence
+            // over global setting.
+            if (Boolean.TRUE.equals(optional)
+                    || (optional == null && !isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE))) {
+                return JacksonInject.Value.empty();
+            }
+            throw missingInjectableValueException(String.format(
+"No 'injectableValues' configured, cannot inject value with id '%s'", valueId),
+                    valueId, forProperty, beanInstance);
         }
-        return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance);
+        return _injectableValues.findInjectableValue(this, valueId, forProperty, beanInstance, optional);
     }
 
     /**
@@ -528,19 +523,29 @@ public abstract class DeserializationContext
     }
 
     @Override
-    public BeanDescription introspectBeanDescription(JavaType type) {
-        return classIntrospector().introspectForDeserialization(type);
+    public BeanDescription introspectBeanDescription(JavaType type, AnnotatedClass ac) {
+        return classIntrospector().introspectForDeserialization(type, ac);
     }
 
     public BeanDescription introspectBeanDescriptionForCreation(JavaType type) {
-        return classIntrospector().introspectForCreation(type);
+        return introspectBeanDescriptionForCreation(type,
+                classIntrospector().introspectClassAnnotations(type));
+    }
+
+    public BeanDescription introspectBeanDescriptionForCreation(JavaType type, AnnotatedClass ac) {
+        return classIntrospector().introspectForCreation(type, ac);
     }
 
     public BeanDescription.Supplier lazyIntrospectBeanDescriptionForCreation(JavaType type) {
-        return new BeanDescription.LazySupplier(type) {
+        return new BeanDescription.LazySupplier(getConfig(), type) {
             @Override
-            public BeanDescription _construct(JavaType forType) {
-                return introspectBeanDescriptionForCreation(forType);
+            protected BeanDescription _construct(JavaType forType, AnnotatedClass ac) {
+                return introspectBeanDescriptionForCreation(forType, ac);
+            }
+
+            @Override
+            protected AnnotatedClass _introspect(JavaType forType) {
+                return introspectClassAnnotations(forType);
             }
         };
     }
@@ -553,10 +558,15 @@ public abstract class DeserializationContext
 
     public BeanDescription.Supplier lazyIntrospectBeanDescriptionForBuilder(final JavaType builderType,
             final BeanDescription valueTypeDesc) {
-        return new BeanDescription.LazySupplier(builderType) {
+        return new BeanDescription.LazySupplier(getConfig(), builderType) {
             @Override
-            public BeanDescription _construct(JavaType forType) {
+            protected BeanDescription _construct(JavaType forType, AnnotatedClass ac) {
                 return introspectBeanDescriptionForBuilder(forType, valueTypeDesc);
+            }
+
+            @Override
+            protected AnnotatedClass _introspect(JavaType forType) {
+                return introspectClassAnnotations(forType);
             }
         };
     }
@@ -1091,8 +1101,13 @@ public abstract class DeserializationContext
      * Method to call in case incoming shape is Object Value (and parser thereby
      * points to {@link tools.jackson.core.JsonToken#START_OBJECT} token),
      * but a Scalar value (potentially coercible from String value) is expected.
-     * This would typically be used to deserializer a Number, Boolean value or some other
+     * This would typically be used to deserialize a Number, Boolean value or some other
      * "simple" unstructured value type.
+     *<p>
+     * Note that expected behavior in case of extraction not succeeding changed in
+     * Jackson 2.20: now {@code null} is expected to be returned in that case (in 2.19
+     * and before, exception was to be thrown, but this prevented fallback handling
+     * via {@link DeserializationProblemHandler#handleUnexpectedToken}.
      *
      * @param p Actual parser to read content from
      * @param deser Deserializer that needs extracted String value
@@ -1100,8 +1115,8 @@ public abstract class DeserializationContext
      *    handles but not always (for example, deserializer for {@code int[]} would pass
      *    scalar type of {@code int})
      *
-     * @return String value found; not {@code null} (exception should be thrown if no suitable
-     *     value found)
+     * @return String value found, if any; {@code null} if none (note: changed in 2.20;
+     *   before that in 2.19 and before exception throwing was expected)
      *
      * @throws JacksonException If there are problems either reading content (underlying parser
      *    problem) or finding expected scalar value
@@ -1110,7 +1125,10 @@ public abstract class DeserializationContext
             Class<?> scalarType)
         throws JacksonException
     {
-        return (String) handleUnexpectedToken(constructType(scalarType), p);
+        // 17-May-2025, tatu: [databind#4656] must NOT call `handleUnexpectedToken`
+        //    since that can return value other than {@code String}
+        // return (String) handleUnexpectedToken(constructType(scalarType), p);
+        return null;
     }
 
     /*
@@ -2022,7 +2040,7 @@ public abstract class DeserializationContext
      * Helper method for constructing exception to indicate that input JSON
      * token of type "native value" (see {@link JsonToken#VALUE_EMBEDDED_OBJECT})
      * is of incompatible type (and there is no delegating creator or such to use)
-     * and can not be used to construct value of specified type (usually POJO).
+     * and cannot be used to construct value of specified type (usually POJO).
      * Note that most of the time this method should NOT be called; instead,
      * {@link #handleWeirdNativeValue} should be called which will call this method
      */
@@ -2088,6 +2106,13 @@ public abstract class DeserializationContext
         String msg = String.format("Could not resolve subtype of %s",
                 baseType);
         return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, null);
+    }
+
+    public DatabindException missingInjectableValueException(String msg,
+            Object valueId,
+            BeanProperty forProperty, Object beanInstance) {
+        return MissingInjectableValueExcepion.from(_parser, msg,
+                valueId, forProperty, beanInstance);
     }
 
     /*

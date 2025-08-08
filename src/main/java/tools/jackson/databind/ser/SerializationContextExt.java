@@ -179,6 +179,8 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
             return (T) nodeF.nullNode();
         }
         try (TreeBuildingGenerator gen = TreeBuildingGenerator.forSerialization(this, nodeF)) {
+            // 16-Jul-2025, tatu: [databind#5225] Must assign generator
+            _assignGenerator(gen);
             final Class<?> rawType = fromValue.getClass();
             final ValueSerializer<Object> ser = findTypedValueSerializer(rawType, true);
 

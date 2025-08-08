@@ -10,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SuppressWarnings("serial")
 public class CustomMapMerge5237Test
     extends DatabindTestUtil
@@ -26,7 +24,7 @@ public class CustomMapMerge5237Test
         String s;
 
         @JsonMerge
-        MyMap<Integer, String> map = new MapImpl<>();
+        public MyMap<Integer, String> map = new MapImpl<>();
 
         @JsonCreator
         MergeMap(@JsonProperty("inter") int inter, @JsonProperty("s") String s) {
@@ -37,11 +35,6 @@ public class CustomMapMerge5237Test
 
         public int getInter() {
              return inter;
-        }
-
-        public MyMap<Integer, String> getMap() {
-             System.out.println("getMap");
-             return map;
         }
 
         @Override
@@ -58,7 +51,7 @@ public class CustomMapMerge5237Test
     void customMapMerging5237() throws Exception
     {
         MergeMap merge = new MergeMap(5, "f");
-        merge.getMap().put(3, "ADS");
+        merge.map.put(3, "ADS");
         System.out.println(merge);
 
         System.out.println(" == serializing --");

@@ -40,7 +40,7 @@ public class JsonIdentityOnRecord5238Test
         public final String name;
 
         @JsonCreator
-        public ThingPojo(@JsonProperty("id") int id, @JsonProperty("name") String name) {
+        public ThingPojo(@JsonProperty("prefixId") int id, @JsonProperty("name") String name) {
             this.id = id;
             this.name = name;
         }

@@ -225,4 +225,34 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     @Override
     public abstract void serializeWithType(T value, JsonGenerator g,
             SerializerProvider provider, TypeSerializer typeSer) throws IOException;
+
+    /**
+     * Common utility method for checking if an element should be filtered/suppressed
+     * based on @JsonInclude settings. Returns {@code true} if element should be serialized,
+     * {@code false} if it should be skipped.
+     * 
+     * @param elem Element to check for suppression
+     * @param serializer Serializer for the element (may be null for strings)
+     * @param provider Serializer provider
+     * @return true if element should be serialized, false if suppressed
+     * 
+     * @since 2.21
+     */
+    protected final boolean _shouldSerializeElement(Object elem, JsonSerializer<Object> serializer, 
+            SerializerProvider provider) throws IOException
+    {
+        if (_suppressableValue == null) {
+            return true;
+        }
+        if (_suppressableValue == MARKER_FOR_EMPTY) {
+            if (serializer != null) {
+                return !serializer.isEmpty(provider, elem);
+            } else {
+                // For strings and primitives, check emptiness directly
+                return elem instanceof String ? !((String) elem).isEmpty() : true;
+            }
+        } else {
+            return !_suppressableValue.equals(elem);
+        }
+    }
 }

@@ -184,15 +184,8 @@ public final class IndexedListSerializer
                         serializers = _dynamicSerializers;
                     }
                     // Check if this element should be suppressed
-                    if (_suppressableValue != null) {
-                        if (_suppressableValue == MARKER_FOR_EMPTY) {
-                            // Check for empty values using serializer
-                            if (serializer.isEmpty(provider, elem)) {
-                                continue; // Skip empty elements
-                            }
-                        } else if (_suppressableValue.equals(elem)) {
-                            continue; // Skip this element
-                        }
+                    if (!_shouldSerializeElement(elem, serializer, provider)) {
+                        continue;
                     }
                     serializer.serialize(elem, g, provider);
                 }
@@ -247,15 +240,8 @@ public final class IndexedListSerializer
                     provider.defaultSerializeNull(jgen);
                 } else {
                     // Check if this element should be suppressed
-                    if (_suppressableValue != null) {
-                        if (_suppressableValue == MARKER_FOR_EMPTY) {
-                            // Check for empty values using serializer
-                            if (ser.isEmpty(provider, elem)) {
-                                continue; // Skip empty elements
-                            }
-                        } else if (_suppressableValue.equals(elem)) {
-                            continue; // Skip this element
-                        }
+                    if (!_shouldSerializeElement(elem, ser, provider)) {
+                        continue;
                     }
                     if (typeSer == null) {
                         ser.serialize(elem, jgen, provider);
@@ -338,15 +324,8 @@ public final class IndexedListSerializer
                         serializers = _dynamicSerializers;
                     }
                     // Check if this element should be suppressed
-                    if (_suppressableValue != null) {
-                        if (_suppressableValue == MARKER_FOR_EMPTY) {
-                            // Check for empty values using serializer
-                            if (serializer.isEmpty(provider, elem)) {
-                                continue; // Skip empty elements
-                            }
-                        } else if (_suppressableValue.equals(elem)) {
-                            continue; // Skip this element
-                        }
+                    if (!_shouldSerializeElement(elem, serializer, provider)) {
+                        continue;
                     }
                     serializer.serializeWithType(elem, jgen, provider, typeSer);
                 }

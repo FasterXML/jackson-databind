@@ -148,17 +148,9 @@ public class StringCollectionSerializer
                     provider.defaultSerializeNull(g);
                 } else {
                     // Check if this element should be suppressed
-                    if (_suppressableValue != null) {
-                        if (_suppressableValue == MARKER_FOR_EMPTY) {
-                            // Check for empty strings when NON_EMPTY is used
-                            if (str.isEmpty()) {
-                                ++i;
-                                continue; // Skip empty strings
-                            }
-                        } else if (_suppressableValue.equals(str)) {
-                            ++i;
-                            continue; // Skip this element
-                        }
+                    if (!_shouldSerializeElement(str, null, provider)) {
+                        ++i;
+                        continue;
                     }
                     g.writeString(str);
                 }

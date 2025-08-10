@@ -305,20 +305,4 @@ public class CollectionSerializer
         }
     }
 
-    /**
-     * Helper method to determine if an element should be serialized based on content inclusion filters.
-     */
-    private boolean _shouldSerializeElement(Object elem, JsonSerializer<Object> serializer, SerializerProvider provider) throws IOException
-    {
-        if (_suppressableValue == null) {
-            return true;
-        }
-        if (_suppressableValue == MARKER_FOR_EMPTY) {
-            // Check for empty values using serializer
-            return !serializer.isEmpty(provider, elem);
-        } else {
-            // Check for custom filter match
-            return !_suppressableValue.equals(elem);
-        }
-    }
 }

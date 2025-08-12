@@ -151,7 +151,7 @@ public class TestCreators3
     // [databind#5253]
     static class Value5253 {
         int a, b;
-        final int c;
+        public final int c;
 
         public Value5253(int a, int b, final int c) {
             this.a = a;

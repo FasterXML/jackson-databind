@@ -148,6 +148,18 @@ public class TestCreators3
         }
     }
 
+    // [databind#5253]
+    static class Value5253 {
+        int a, b;
+        final int c;
+
+        public Value5253(int a, int b, final int c) {
+            this.a = a;
+            this.b = b;
+            this.c = c + 5;
+        }
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -238,6 +250,18 @@ public class TestCreators3
         SimpleValue5008 value = MAPPER.readValue(
                 a2q("{'value':'abc123'}"), SimpleValue5008.class);
         assertEquals("abc123", value.value);
+    }
+
+    // [databind#5253]: passing test (cannot reproduce reported problem)
+    @Test
+    public void finalValue5253() throws Exception {
+        Value5253 value = MAPPER.readerFor(Value5253.class)
+                .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValue(a2q("{'a':1,'b':2,'c':3}"));
+        assertEquals(1, value.a);
+        assertEquals(2, value.b);
+        // Constructor adds 5 to "c":
+        assertEquals(3 + 5, value.c);
     }
 }
 

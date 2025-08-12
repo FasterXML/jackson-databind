@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser.creators;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 import static tools.jackson.databind.testutil.JacksonTestUtilBase.a2q;
@@ -151,12 +153,15 @@ public class TestCreators3
     // [databind#5253]
     static class Value5253 {
         int a, b;
-        public final int c;
+        public final Map<String, Integer> c;
 
-        public Value5253(int a, int b, final int c) {
+        boolean ctorCalled = false;
+
+        public Value5253(int a, int b, final Map<String, Integer> c) {
             this.a = a;
             this.b = b;
-            this.c = c + 5;
+            this.c = new LinkedHashMap<>(c);
+            ctorCalled = true;
         }
     }
 
@@ -257,11 +262,11 @@ public class TestCreators3
     public void finalValue5253() throws Exception {
         Value5253 value = MAPPER.readerFor(Value5253.class)
                 .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .readValue(a2q("{'a':1,'b':2,'c':3}"));
+                .readValue(a2q("{'a':1,'b':2,'c':{'value': 42} }"));
         assertEquals(1, value.a);
         assertEquals(2, value.b);
-        // Constructor adds 5 to "c":
-        assertEquals(3 + 5, value.c);
+        assertEquals(Map.of("value", 42), value.c);
+        assertTrue(value.ctorCalled);
     }
 }
 

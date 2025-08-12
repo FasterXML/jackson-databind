@@ -7,8 +7,12 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("serial")
 public class CustomMapMerge5237Test
@@ -28,7 +32,6 @@ public class CustomMapMerge5237Test
 
         @JsonCreator
         MergeMap(@JsonProperty("inter") int inter, @JsonProperty("s") String s) {
-             System.out.println("creator for " + map.getClass().getSimpleName());
              this.inter = inter;
              this.s = s;
         }
@@ -36,12 +39,6 @@ public class CustomMapMerge5237Test
         public int getInter() {
              return inter;
         }
-
-        @Override
-        public String toString() {
-             return map.toString() + " " + inter + " " + s;
-        }
-
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -50,21 +47,16 @@ public class CustomMapMerge5237Test
     @Test
     void customMapMerging5237() throws Exception
     {
-        MergeMap merge = new MergeMap(5, "f");
-        merge.map.put(3, "ADS");
-        System.out.println(merge);
-
-        System.out.println(" == serializing --");
-
-        String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(merge);
-        System.out.println(json);
-
-        System.out.println(" == deserializing --");
-
+        String json = "{\n"
+                + "  \"inter\" : 5,\n"
+                // Uncomment the next line to work around the issue:
+                //+ "  \"s\" : \"abc\",\n"
+                + "  \"map\" : {\n"
+                + "    \"3\" : \"ADS\"\n"
+                + "  }\n"
+                + "}";
         MergeMap merge2 = MAPPER.readValue(json, MergeMap.class);
-
-        System.out.println(" == checking --");
-
-        System.out.println(merge2);
+        assertNotNull(merge2);
+        assertEquals(Collections.singletonMap(3, "ADS"), merge2.map);
     }
 }

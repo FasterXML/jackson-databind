@@ -40,7 +40,7 @@ public abstract class PropertyValue
     public void setValue(Object parameterObject)
         throws IOException
     {
-        throw new UnsupportedOperationException("Should not be called by this type " + getClass().getName());
+        throw new UnsupportedOperationException("Should not be called on type: " + getClass().getName());
     }
 
     /*

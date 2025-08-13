@@ -476,6 +476,16 @@ public class BeanDeserializer
             if ((prop != null) &&
                 // [databind#3938]: except if it's MethodProperty
                 (!_beanType.isRecordType() || (prop instanceof MethodProperty))) {
+
+                // 12-Aug-2025, tatu: [databind#5237] Mergeable properties need
+                //    special handling: must defer deserialization until POJO
+                //    is constructed.
+                if (prop instanceof MergingSettableBeanProperty) {
+                    TokenBuffer buffered = ctxt.bufferForInputBuffering(p);
+                    buffered.copyCurrentStructure(p);
+                    buffer.bufferMergingProperty(prop, buffered);
+                    continue;
+                }
                 try {
                     buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 } catch (UnresolvedForwardReference reference) {
@@ -485,7 +495,7 @@ public class BeanDeserializer
                     BeanReferring referring = handleUnresolvedReference(ctxt,
                             prop, buffer, reference);
                     if (referrings == null) {
-                        referrings = new ArrayList<BeanReferring>();
+                        referrings = new ArrayList<>();
                     }
                     referrings.add(referring);
                 }

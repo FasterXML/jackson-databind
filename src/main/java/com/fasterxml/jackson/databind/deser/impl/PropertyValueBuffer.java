@@ -402,6 +402,6 @@ public class PropertyValueBuffer
 
     // @since 2.20
     public void bufferMergingProperty(SettableBeanProperty prop, TokenBuffer buffered) {
-        // bufferMergingProperty
+        _buffered = new PropertyValue.Merging(_buffered, buffered, prop);
     }
 }

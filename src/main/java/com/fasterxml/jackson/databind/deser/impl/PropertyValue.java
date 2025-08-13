@@ -2,8 +2,12 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Base class for property values that need to be buffered during
@@ -161,6 +165,38 @@ public abstract class PropertyValue
         {
             // AnyParameter
             _property.set(parameterObject, _propertyName, value);
+        }
+    }
+
+    /**
+     * Property value type used when merging values.
+     *
+     * @since 2.20
+     */
+    final static class Merging
+        extends PropertyValue
+    {
+        final SettableBeanProperty _property;
+
+        public Merging(PropertyValue next, TokenBuffer buffered,
+                       SettableBeanProperty prop)
+        {
+            super(next, buffered);
+            _property = prop;
+        }
+
+        @Override
+        public void assign(Object bean)
+            throws IOException
+        {
+            TokenBuffer buffered = (TokenBuffer) value;
+            try (JsonParser p = buffered.asParser()) {
+                p.nextToken();
+                // !!! 12-Aug-2025, tatu: We need DeserializationContext...
+                //   but for testing  just pass null for now.
+                DeserializationContext ctxt = null;
+                _property.deserializeAndSet(p, ctxt, bean);
+            }
         }
     }
 }

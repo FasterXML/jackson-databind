@@ -49,14 +49,15 @@ public class CustomMapMerge5237Test
     {
         String json = "{\n"
                 + "  \"inter\" : 5,\n"
-                // Uncomment the next line to work around the issue:
-                //+ "  \"s\" : \"abc\",\n"
                 + "  \"map\" : {\n"
                 + "    \"3\" : \"ADS\"\n"
-                + "  }\n"
+                + "  },\n"
+                + "  \"s\" : \"abc\"\n"
                 + "}";
         MergeMap merge2 = MAPPER.readValue(json, MergeMap.class);
         assertNotNull(merge2);
         assertEquals(Collections.singletonMap(3, "ADS"), merge2.map);
+        assertEquals(5, merge2.getInter());
+        assertEquals("abc", merge2.s);
     }
 }

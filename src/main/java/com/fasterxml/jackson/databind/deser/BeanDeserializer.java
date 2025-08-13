@@ -481,9 +481,9 @@ public class BeanDeserializer
                 //    special handling: must defer deserialization until POJO
                 //    is constructed.
                 if (prop instanceof MergingSettableBeanProperty) {
-                    TokenBuffer buffered = ctxt.bufferForInputBuffering(p);
-                    buffered.copyCurrentStructure(p);
-                    buffer.bufferMergingProperty(prop, buffered);
+                    TokenBuffer tb = ctxt.bufferForInputBuffering(p);
+                    tb.copyCurrentStructure(p);
+                    buffer.bufferMergingProperty(prop, tb);
                     continue;
                 }
                 try {

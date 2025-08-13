@@ -6,6 +6,8 @@ Project: jackson-databind
 
 Not yet released
 
+#2692: Should never call `set()` on setterless property during deserialization
+ (reported by @lbonco)
 #5237: Failing `@JsonMerge` with a custom Map with a `@JsonCreator` constructor
  (reported by @nlisker)
 #5242: Support "binary vectors": `@JsonFormat(shape = Shape.BINARY)` for

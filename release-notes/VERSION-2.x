@@ -6,6 +6,8 @@ Project: jackson-databind
 
 Not yet released
 
+#5237: Failing `@JsonMerge` with a custom Map with a `@JsonCreator` constructor
+ (reported by @nlisker)
 #5242: Support "binary vectors": `@JsonFormat(shape = Shape.BINARY)` for
   `float[]`, `double[]`
 

@@ -12,6 +12,7 @@ Not yet released
  (reported by @nlisker)
 #5242: Support "binary vectors": `@JsonFormat(shape = Shape.BINARY)` for
   `float[]`, `double[]`
+#5257: Deprecate `URL`-taking `readValue()` methods in `ObjectMapper`, `ObjectReader`
 
 2.20.0-rc1 (04-Aug-2025)
 

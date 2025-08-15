@@ -122,4 +122,10 @@ public class IterableSerializer
             } while (it.hasNext());
         }
     }
+
+    @Override
+    protected void serializeFilteredContents(Iterable<?> value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        // TODO: Implement, later?
+        serializeContents(value, g, provider);
+    }
 }

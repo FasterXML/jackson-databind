@@ -108,8 +108,8 @@ public final class IndexedListSerializer
         serializeContentsImpl(value, g, provider, false);
     }
 
-    public void serializeFilteredContents(List<?> value, JsonGenerator g, SerializerProvider provider)
-        throws IOException
+    @Override
+    protected void serializeFilteredContents(List<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
         serializeContentsImpl(value, g, provider, true);
     }

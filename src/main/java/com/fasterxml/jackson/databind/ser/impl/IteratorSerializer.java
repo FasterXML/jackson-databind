@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -96,8 +97,8 @@ public class IteratorSerializer
         serializeContentsImpl(value, g, provider, false);
     }
 
-    public void serializeFilteredContents(Iterator<?> value, JsonGenerator g,
-            SerializerProvider provider) throws IOException
+    @Override
+    protected void serializeFilteredContents(Iterator<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
         serializeContentsImpl(value, g, provider, true);
     }

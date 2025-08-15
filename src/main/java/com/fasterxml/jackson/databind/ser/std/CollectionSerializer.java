@@ -141,7 +141,7 @@ public class CollectionSerializer
     }
 
     @Override
-    public void serializeFilteredContents(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
+    protected void serializeFilteredContents(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
         serializeContentsImpl(value, g, provider, true);
     }

@@ -95,4 +95,11 @@ public class EnumSetSerializer
             enumSer.serialize(en, gen, provider);
         }
     }
+
+    @Override
+    protected void serializeFilteredContents(EnumSet<? extends Enum<?>> value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        // TODO: Implement, later?
+        serializeContents(value, g, provider);
+    }
+
 }

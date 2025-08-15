@@ -369,7 +369,7 @@ public abstract class AsArraySerializerBase<T>
     protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider)
         throws IOException;
 
-    protected abstract void serializeFilteredContents(Collection<?> value, JsonGenerator g, SerializerProvider provider)
+    protected abstract void serializeFilteredContents(T value, JsonGenerator g, SerializerProvider provider)
             throws IOException;
 
     /**

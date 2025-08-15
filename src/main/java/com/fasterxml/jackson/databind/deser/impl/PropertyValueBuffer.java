@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Simple container used for temporarily buffering a set of
@@ -397,5 +398,10 @@ public class PropertyValueBuffer
     // @since 2.18
     public void bufferAnyParameterProperty(SettableAnyProperty prop, String propName, Object value) {
         _anyParamBuffered = new PropertyValue.AnyParameter(_anyParamBuffered, value, prop, propName);
+    }
+
+    // @since 2.20
+    public void bufferMergingProperty(SettableBeanProperty prop, TokenBuffer buffered) {
+        _buffered = new PropertyValue.Merging(_buffered, buffered, prop);
     }
 }

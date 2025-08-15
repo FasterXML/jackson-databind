@@ -1103,7 +1103,10 @@ public class ObjectReader
      * for properly closing it once content reading is complete.
      *
      * @since 2.11
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
      */
+    @Deprecated // @since 2.20
     public JsonParser createParser(URL src) throws IOException {
         _assertNotNull("src", src);
         return _config.initialize(_parserFactory.createParser(src), _schema);
@@ -1699,7 +1702,10 @@ public class ObjectReader
      * calls {@link java.net.URL#openStream()}, meaning no special handling
      * is done. If different HTTP connection options are needed you will need
      * to create {@link java.io.InputStream} separately.
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
      */
+    @Deprecated // @since 2.20
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src) throws IOException
     {
@@ -1717,7 +1723,10 @@ public class ObjectReader
      * @param valueType Target type to bind content to
      *
      * @since 2.11
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
      */
+    @Deprecated // @since 2.20
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src, Class<T> valueType) throws IOException
     {
@@ -2008,7 +2017,10 @@ public class ObjectReader
      * to create {@link java.io.InputStream} separately.
      *
      * @param src URL to read to access JSON content to parse.
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
      */
+    @Deprecated // @since 2.20
     public <T> MappingIterator<T> readValues(URL src) throws IOException
     {
         if (_dataFormatReaders != null) {

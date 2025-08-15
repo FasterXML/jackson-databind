@@ -2,8 +2,11 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Base class for property values that need to be buffered during
@@ -25,11 +28,24 @@ public abstract class PropertyValue
     }
 
     /**
+     * @deprecated Since 2.20 use {@link #assign(DeserializationContext, Object)}
+     */
+    @Deprecated // since 2.20
+    public final void assign(Object bean) throws IOException {
+        assign(null, bean);
+    }
+
+    /**
      * Method called to assign stored value of this property to specified
      * bean instance
+     *
+     * @since 2.20
      */
-    public abstract void assign(Object bean)
-        throws IOException;
+    public void assign(DeserializationContext ctxt, Object bean)
+        throws IOException
+    {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Method called to assign stored value of this property to specified
@@ -40,7 +56,7 @@ public abstract class PropertyValue
     public void setValue(Object parameterObject)
         throws IOException
     {
-        throw new UnsupportedOperationException("Should not be called by this type " + getClass().getName());
+        throw new UnsupportedOperationException("Should not be called on type: " + getClass().getName());
     }
 
     /*
@@ -66,7 +82,7 @@ public abstract class PropertyValue
         }
 
         @Override
-        public void assign(Object bean)
+        public void assign(DeserializationContext ctxt, Object bean)
             throws IOException
         {
             _property.set(bean, value);
@@ -95,7 +111,7 @@ public abstract class PropertyValue
         }
 
         @Override
-        public void assign(Object bean)
+        public void assign(DeserializationContext ctxt, Object bean)
             throws IOException
         {
             _property.set(bean, _propertyName, value);
@@ -119,7 +135,7 @@ public abstract class PropertyValue
 
         @SuppressWarnings("unchecked")
         @Override
-        public void assign(Object bean)
+        public void assign(DeserializationContext ctxt, Object bean)
             throws IOException
         {
             ((java.util.Map<Object,Object>) bean).put(_key, value);
@@ -148,7 +164,7 @@ public abstract class PropertyValue
         }
 
         @Override
-        public void assign(Object bean)
+        public void assign(DeserializationContext ctxt, Object bean)
             throws IOException
         {
             // do nothing, as we are not assigning to a bean
@@ -161,6 +177,37 @@ public abstract class PropertyValue
         {
             // AnyParameter
             _property.set(parameterObject, _propertyName, value);
+        }
+    }
+
+    /**
+     * Property value type used when merging values.
+     *
+     * @since 2.20
+     */
+    final static class Merging
+        extends PropertyValue
+    {
+        final SettableBeanProperty _property;
+
+        public Merging(PropertyValue next, TokenBuffer buffered,
+                       SettableBeanProperty prop)
+        {
+            super(next, buffered);
+            _property = prop;
+        }
+
+        @Override
+        public void assign(DeserializationContext ctxt, Object bean)
+            throws IOException
+        {
+            TokenBuffer buffered = (TokenBuffer) value;
+            try (JsonParser p = buffered.asParser()) {
+                p.nextToken();
+                // !!! 12-Aug-2025, tatu: We need DeserializationContext...
+                //   but for testing  just pass null for now.
+                _property.deserializeAndSet(p, ctxt, bean);
+            }
         }
     }
 }

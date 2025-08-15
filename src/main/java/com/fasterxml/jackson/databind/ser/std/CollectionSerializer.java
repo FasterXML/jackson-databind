@@ -212,7 +212,7 @@ public class CollectionSerializer
         serializeContentsUsingImpl(value, g, provider, ser, false);
     }
 
-    public void serializeFilteredContentsUsing(Collection<?> value, JsonGenerator g, SerializerProvider provider,
+    private void serializeFilteredContentsUsing(Collection<?> value, JsonGenerator g, SerializerProvider provider,
             JsonSerializer<Object> ser) throws IOException
     {
         serializeContentsUsingImpl(value, g, provider, ser, true);

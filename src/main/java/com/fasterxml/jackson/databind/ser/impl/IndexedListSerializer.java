@@ -172,14 +172,14 @@ public final class IndexedListSerializer
         }
     }
 
-    public void serializeContentsUsing(List<?> value, JsonGenerator jgen, SerializerProvider provider,
+    private void serializeContentsUsing(List<?> value, JsonGenerator jgen, SerializerProvider provider,
             JsonSerializer<Object> ser)
         throws IOException
     {
         serializeContentsUsingImpl(value, jgen, provider, ser, false);
     }
 
-    public void serializeFilteredContentsUsing(List<?> value, JsonGenerator jgen, SerializerProvider provider,
+    private void serializeFilteredContentsUsing(List<?> value, JsonGenerator jgen, SerializerProvider provider,
             JsonSerializer<Object> ser)
         throws IOException
     {
@@ -221,13 +221,13 @@ public final class IndexedListSerializer
         }
     }
 
-    public void serializeTypedContents(List<?> value, JsonGenerator jgen, SerializerProvider provider)
+    private void serializeTypedContents(List<?> value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException
     {
         serializeTypedContentsImpl(value, jgen, provider, false);
     }
 
-    public void serializeFilteredTypedContents(List<?> value, JsonGenerator jgen, SerializerProvider provider)
+    private void serializeFilteredTypedContents(List<?> value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException
     {
         serializeTypedContentsImpl(value, jgen, provider, true);

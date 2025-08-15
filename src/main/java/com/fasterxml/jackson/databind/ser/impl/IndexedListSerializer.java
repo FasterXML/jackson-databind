@@ -176,30 +176,18 @@ public final class IndexedListSerializer
             JsonSerializer<Object> ser)
         throws IOException
     {
-        final int len = value.size();
-        if (len == 0) {
-            return;
-        }
-        final TypeSerializer typeSer = _valueTypeSerializer;
-        for (int i = 0; i < len; ++i) {
-            Object elem = value.get(i);
-            try {
-                if (elem == null) {
-                    provider.defaultSerializeNull(jgen);
-                } else if (typeSer == null) {
-                    ser.serialize(elem, jgen, provider);
-                } else {
-                    ser.serializeWithType(elem, jgen, provider, typeSer);
-                }
-            } catch (Exception e) {
-                // [JACKSON-55] Need to add reference information
-                wrapAndThrow(provider, e, value, i);
-            }
-        }
+        serializeContentsUsingImpl(value, jgen, provider, ser, false);
     }
 
     public void serializeFilteredContentsUsing(List<?> value, JsonGenerator jgen, SerializerProvider provider,
             JsonSerializer<Object> ser)
+        throws IOException
+    {
+        serializeContentsUsingImpl(value, jgen, provider, ser, true);
+    }
+
+    private void serializeContentsUsingImpl(List<?> value, JsonGenerator jgen, SerializerProvider provider,
+            JsonSerializer<Object> ser, boolean filtered)
         throws IOException
     {
         final int len = value.size();
@@ -211,13 +199,13 @@ public final class IndexedListSerializer
             Object elem = value.get(i);
             try {
                 if (elem == null) {
-                    if (_suppressNulls) {
+                    if (filtered && _suppressNulls) {
                         continue;
                     }
                     provider.defaultSerializeNull(jgen);
                 } else {
-                    // Check if this element should be suppressed
-                    if (!_shouldSerializeElement(elem, ser, provider)) {
+                    // Check if this element should be suppressed (only in filtered mode)
+                    if (filtered && !_shouldSerializeElement(elem, ser, provider)) {
                         continue;
                     }
                     if (typeSer == null) {
@@ -236,40 +224,16 @@ public final class IndexedListSerializer
     public void serializeTypedContents(List<?> value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException
     {
-        final int len = value.size();
-        if (len == 0) {
-            return;
-        }
-        int i = 0;
-        try {
-            final TypeSerializer typeSer = _valueTypeSerializer;
-            PropertySerializerMap serializers = _dynamicSerializers;
-            for (; i < len; ++i) {
-                Object elem = value.get(i);
-                if (elem == null) {
-                    provider.defaultSerializeNull(jgen);
-                } else {
-                    Class<?> cc = elem.getClass();
-                    JsonSerializer<Object> serializer = serializers.serializerFor(cc);
-                    if (serializer == null) {
-                        // To fix [JACKSON-508]
-                        if (_elementType.hasGenericTypes()) {
-                            serializer = _findAndAddDynamic(serializers,
-                                    provider.constructSpecializedType(_elementType, cc), provider);
-                        } else {
-                            serializer = _findAndAddDynamic(serializers, cc, provider);
-                        }
-                        serializers = _dynamicSerializers;
-                    }
-                    serializer.serializeWithType(elem, jgen, provider, typeSer);
-                }
-            }
-        } catch (Exception e) {
-            wrapAndThrow(provider, e, value, i);
-        }
+        serializeTypedContentsImpl(value, jgen, provider, false);
     }
 
     public void serializeFilteredTypedContents(List<?> value, JsonGenerator jgen, SerializerProvider provider)
+        throws IOException
+    {
+        serializeTypedContentsImpl(value, jgen, provider, true);
+    }
+
+    private void serializeTypedContentsImpl(List<?> value, JsonGenerator jgen, SerializerProvider provider, boolean filtered)
         throws IOException
     {
         final int len = value.size();
@@ -283,7 +247,7 @@ public final class IndexedListSerializer
             for (; i < len; ++i) {
                 Object elem = value.get(i);
                 if (elem == null) {
-                    if (_suppressNulls) {
+                    if (filtered && _suppressNulls) {
                         continue;
                     }
                     provider.defaultSerializeNull(jgen);
@@ -300,8 +264,8 @@ public final class IndexedListSerializer
                         }
                         serializers = _dynamicSerializers;
                     }
-                    // Check if this element should be suppressed
-                    if (!_shouldSerializeElement(elem, serializer, provider)) {
+                    // Check if this element should be suppressed (only in filtered mode)
+                    if (filtered && !_shouldSerializeElement(elem, serializer, provider)) {
                         continue;
                     }
                     serializer.serializeWithType(elem, jgen, provider, typeSer);

@@ -209,34 +209,17 @@ public class CollectionSerializer
     public void serializeContentsUsing(Collection<?> value, JsonGenerator g, SerializerProvider provider,
             JsonSerializer<Object> ser) throws IOException
     {
-        Iterator<?> it = value.iterator();
-        if (it.hasNext()) {
-            // [databind#4849]/[databind#4214]: need to check for EnumSet
-            final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
-                    ? null : _valueTypeSerializer;
-            int i = 0;
-            do {
-                Object elem = it.next();
-                try {
-                    if (elem == null) {
-                        provider.defaultSerializeNull(g);
-                    } else {
-                        if (typeSer == null) {
-                            ser.serialize(elem, g, provider);
-                        } else {
-                            ser.serializeWithType(elem, g, provider, typeSer);
-                        }
-                    }
-                    ++i;
-                } catch (Exception e) {
-                    wrapAndThrow(provider, e, value, i);
-                }
-            } while (it.hasNext());
-        }
+        serializeContentsUsingImpl(value, g, provider, ser, false);
     }
 
     public void serializeFilteredContentsUsing(Collection<?> value, JsonGenerator g, SerializerProvider provider,
             JsonSerializer<Object> ser) throws IOException
+    {
+        serializeContentsUsingImpl(value, g, provider, ser, true);
+    }
+
+    private void serializeContentsUsingImpl(Collection<?> value, JsonGenerator g, SerializerProvider provider,
+            JsonSerializer<Object> ser, boolean filtered) throws IOException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
@@ -248,14 +231,14 @@ public class CollectionSerializer
                 Object elem = it.next();
                 try {
                     if (elem == null) {
-                        if (_suppressNulls) {
+                        if (filtered && _suppressNulls) {
                             ++i;
                             continue;
                         }
                         provider.defaultSerializeNull(g);
                     } else {
-                        // Check if this element should be suppressed
-                        if (!_shouldSerializeElement(elem, ser, provider)) {
+                        // Check if this element should be suppressed (only in filtered mode)
+                        if (filtered && !_shouldSerializeElement(elem, ser, provider)) {
                             ++i;
                             continue;
                         }

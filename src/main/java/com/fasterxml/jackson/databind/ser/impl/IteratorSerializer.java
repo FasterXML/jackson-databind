@@ -93,49 +93,41 @@ public class IteratorSerializer
     public void serializeContents(Iterator<?> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
     {
-        if (!value.hasNext()) {
-            return;
-        }
-        JsonSerializer<Object> serializer = _elementSerializer;
-        if (serializer == null) {
-            _serializeDynamicContents(value, g, provider);
-            return;
-        }
-        final TypeSerializer typeSer = _valueTypeSerializer;
-        do {
-            Object elem = value.next();
-            if (elem == null) {
-                provider.defaultSerializeNull(g);
-            } else if (typeSer == null) {
-                serializer.serialize(elem, g, provider);
-            } else {
-                serializer.serializeWithType(elem, g, provider, typeSer);
-            }
-        } while (value.hasNext());
+        serializeContentsImpl(value, g, provider, false);
     }
 
     public void serializeFilteredContents(Iterator<?> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
+    {
+        serializeContentsImpl(value, g, provider, true);
+    }
+
+    private void serializeContentsImpl(Iterator<?> value, JsonGenerator g,
+            SerializerProvider provider, boolean filtered) throws IOException
     {
         if (!value.hasNext()) {
             return;
         }
         JsonSerializer<Object> serializer = _elementSerializer;
         if (serializer == null) {
-            _serializeFilteredDynamicContents(value, g, provider);
+            if (filtered) {
+                _serializeFilteredDynamicContents(value, g, provider);
+            } else {
+                _serializeDynamicContents(value, g, provider);
+            }
             return;
         }
         final TypeSerializer typeSer = _valueTypeSerializer;
         do {
             Object elem = value.next();
             if (elem == null) {
-                if (_suppressNulls) {
+                if (filtered && _suppressNulls) {
                     continue;
                 }
                 provider.defaultSerializeNull(g);
             } else {
-                // Check if this element should be suppressed
-                if (!_shouldSerializeElement(elem, serializer, provider)) {
+                // Check if this element should be suppressed (only in filtered mode)
+                if (filtered && !_shouldSerializeElement(elem, serializer, provider)) {
                     continue;
                 }
                 if (typeSer == null) {
@@ -150,42 +142,24 @@ public class IteratorSerializer
     protected void _serializeDynamicContents(Iterator<?> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
     {
-        final TypeSerializer typeSer = _valueTypeSerializer;
-        PropertySerializerMap serializers = _dynamicSerializers;
-        do {
-            Object elem = value.next();
-            if (elem == null) {
-                provider.defaultSerializeNull(g);
-                continue;
-            }
-            Class<?> cc = elem.getClass();
-            JsonSerializer<Object> serializer = serializers.serializerFor(cc);
-            if (serializer == null) {
-                if (_elementType.hasGenericTypes()) {
-                    serializer = _findAndAddDynamic(serializers,
-                            provider.constructSpecializedType(_elementType, cc), provider);
-                } else {
-                    serializer = _findAndAddDynamic(serializers, cc, provider);
-                }
-                serializers = _dynamicSerializers;
-            }
-            if (typeSer == null) {
-                serializer.serialize(elem, g, provider);
-            } else {
-                serializer.serializeWithType(elem, g, provider, typeSer);
-            }
-        } while (value.hasNext());
+        _serializeDynamicContentsImpl(value, g, provider, false);
     }
 
     protected void _serializeFilteredDynamicContents(Iterator<?> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
+    {
+        _serializeDynamicContentsImpl(value, g, provider, true);
+    }
+
+    private void _serializeDynamicContentsImpl(Iterator<?> value, JsonGenerator g,
+            SerializerProvider provider, boolean filtered) throws IOException
     {
         final TypeSerializer typeSer = _valueTypeSerializer;
         PropertySerializerMap serializers = _dynamicSerializers;
         do {
             Object elem = value.next();
             if (elem == null) {
-                if (_suppressNulls) {
+                if (filtered && _suppressNulls) {
                     continue;
                 }
                 provider.defaultSerializeNull(g);
@@ -202,8 +176,8 @@ public class IteratorSerializer
                 }
                 serializers = _dynamicSerializers;
             }
-            // Check if this element should be suppressed
-            if (!_shouldSerializeElement(elem, serializer, provider)) {
+            // Check if this element should be suppressed (only in filtered mode)
+            if (filtered && !_shouldSerializeElement(elem, serializer, provider)) {
                 continue;
             }
             if (typeSer == null) {

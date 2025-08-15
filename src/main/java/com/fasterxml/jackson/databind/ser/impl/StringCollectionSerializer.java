@@ -116,24 +116,18 @@ public class StringCollectionSerializer
             SerializerProvider provider)
         throws IOException
     {
-        int i = 0;
-
-        try {
-            for (String str : value) {
-                if (str == null) {
-                    provider.defaultSerializeNull(g);
-                } else {
-                    g.writeString(str);
-                }
-                ++i;
-            }
-        } catch (Exception e) {
-            wrapAndThrow(provider, e, value, i);
-        }
+        serializeContentsImpl(value, g, provider, false);
     }
 
     private final void serializeFilteredContents(Collection<String> value, JsonGenerator g,
             SerializerProvider provider)
+        throws IOException
+    {
+        serializeContentsImpl(value, g, provider, true);
+    }
+
+    private final void serializeContentsImpl(Collection<String> value, JsonGenerator g,
+            SerializerProvider provider, boolean filtered)
         throws IOException
     {
         int i = 0;
@@ -141,14 +135,14 @@ public class StringCollectionSerializer
         try {
             for (String str : value) {
                 if (str == null) {
-                    if (_suppressNulls) {
+                    if (filtered && _suppressNulls) {
                         ++i;
                         continue;
                     }
                     provider.defaultSerializeNull(g);
                 } else {
-                    // Check if this element should be suppressed
-                    if (!_shouldSerializeElement(str, null, provider)) {
+                    // Check if this element should be suppressed (only in filtered mode)
+                    if (filtered && !_shouldSerializeElement(str, null, provider)) {
                         ++i;
                         continue;
                     }

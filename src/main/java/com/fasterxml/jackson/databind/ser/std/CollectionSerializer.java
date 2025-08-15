@@ -137,56 +137,24 @@ public class CollectionSerializer
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
-        g.assignCurrentValue(value);
-        if (_elementSerializer != null) {
-            serializeContentsUsing(value, g, provider, _elementSerializer);
-            return;
-        }
-        Iterator<?> it = value.iterator();
-        if (!it.hasNext()) {
-            return;
-        }
-        PropertySerializerMap serializers = _dynamicSerializers;
-        // [databind#4849]/[databind#4214]: need to check for EnumSet
-        final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
-                ? null : _valueTypeSerializer;
-
-        int i = 0;
-        try {
-            do {
-                Object elem = it.next();
-                if (elem == null) {
-                    provider.defaultSerializeNull(g);
-                } else {
-                    Class<?> cc = elem.getClass();
-                    JsonSerializer<Object> serializer = serializers.serializerFor(cc);
-                    if (serializer == null) {
-                        if (_elementType.hasGenericTypes()) {
-                            serializer = _findAndAddDynamic(serializers,
-                                    provider.constructSpecializedType(_elementType, cc), provider);
-                        } else {
-                            serializer = _findAndAddDynamic(serializers, cc, provider);
-                        }
-                        serializers = _dynamicSerializers;
-                    }
-                    if (typeSer == null) {
-                        serializer.serialize(elem, g, provider);
-                    } else {
-                        serializer.serializeWithType(elem, g, provider, typeSer);
-                    }
-                }
-                ++i;
-            } while (it.hasNext());
-        } catch (Exception e) {
-            wrapAndThrow(provider, e, value, i);
-        }
+        serializeContentsImpl(value, g, provider, false);
     }
 
+    @Override
     public void serializeFilteredContents(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
+    {
+        serializeContentsImpl(value, g, provider, true);
+    }
+
+    private void serializeContentsImpl(Collection<?> value, JsonGenerator g, SerializerProvider provider, boolean filtered) throws IOException
     {
         g.assignCurrentValue(value);
         if (_elementSerializer != null) {
-            serializeFilteredContentsUsing(value, g, provider, _elementSerializer);
+            if (filtered) {
+                serializeFilteredContentsUsing(value, g, provider, _elementSerializer);
+            } else {
+                serializeContentsUsing(value, g, provider, _elementSerializer);
+            }
             return;
         }
         Iterator<?> it = value.iterator();
@@ -203,7 +171,7 @@ public class CollectionSerializer
             do {
                 Object elem = it.next();
                 if (elem == null) {
-                    if (_suppressNulls) {
+                    if (filtered && _suppressNulls) {
                         ++i;
                         continue;
                     }
@@ -220,8 +188,8 @@ public class CollectionSerializer
                         }
                         serializers = _dynamicSerializers;
                     }
-                    // Check if this element should be suppressed
-                    if (!_shouldSerializeElement(elem, serializer, provider)) {
+                    // Check if this element should be suppressed (only in filtered mode)
+                    if (filtered && !_shouldSerializeElement(elem, serializer, provider)) {
                         ++i;
                         continue;
                     }

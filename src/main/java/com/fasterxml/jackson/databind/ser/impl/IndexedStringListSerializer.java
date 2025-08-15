@@ -112,36 +112,30 @@ public final class IndexedStringListSerializer
     private final void serializeContents(List<String> value, JsonGenerator g,
             SerializerProvider provider, int len) throws IOException
     {
-        int i = 0;
-        try {
-            for (; i < len; ++i) {
-                String str = value.get(i);
-                if (str == null) {
-                    provider.defaultSerializeNull(g);
-                } else {
-                    g.writeString(str);
-                }
-            }
-        } catch (Exception e) {
-            wrapAndThrow(provider, e, value, i);
-        }
+        serializeContentsImpl(value, g, provider, len, false);
     }
 
     private final void serializeFilteredContents(List<String> value, JsonGenerator g,
             SerializerProvider provider, int len) throws IOException
+    {
+        serializeContentsImpl(value, g, provider, len, true);
+    }
+
+    private final void serializeContentsImpl(List<String> value, JsonGenerator g,
+            SerializerProvider provider, int len, boolean filtered) throws IOException
     {
         int i = 0;
         try {
             for (; i < len; ++i) {
                 String str = value.get(i);
                 if (str == null) {
-                    if (_suppressNulls) {
+                    if (filtered && _suppressNulls) {
                         continue;
                     }
                     provider.defaultSerializeNull(g);
                 } else {
-                    // Check if this element should be suppressed
-                    if (!_shouldSerializeElement(str, null, provider)) {
+                    // Check if this element should be suppressed (only in filtered mode)
+                    if (filtered && !_shouldSerializeElement(str, null, provider)) {
                         continue;
                     }
                     g.writeString(str);

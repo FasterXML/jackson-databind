@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -367,6 +368,9 @@ public abstract class AsArraySerializerBase<T>
 
     protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider)
         throws IOException;
+
+    protected abstract void serializeFilteredContents(Collection<?> value, JsonGenerator g, SerializerProvider provider)
+            throws IOException;
 
     /**
      * @deprecated Since 2.15

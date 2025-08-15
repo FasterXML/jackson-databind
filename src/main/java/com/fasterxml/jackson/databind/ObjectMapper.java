@@ -1304,6 +1304,7 @@ public class ObjectMapper
      * @since 2.11
      *
      * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
     @Deprecated // @since 2.20
     public JsonParser createParser(URL src) throws IOException {
@@ -3355,6 +3356,7 @@ public class ObjectMapper
      * to create {@link java.io.InputStream} separately.
      *
      * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
     @Deprecated // @since 2.20
     public JsonNode readTree(URL source) throws IOException
@@ -3825,6 +3827,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      *
      * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
     @Deprecated // @since 2.20
     @SuppressWarnings("unchecked")
@@ -3840,6 +3843,7 @@ public class ObjectMapper
      * Same as {@link #readValue(java.net.URL, Class)} except that target specified by {@link TypeReference}.
      *
      * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
     @Deprecated // @since 2.20
     @SuppressWarnings({ "unchecked" })
@@ -3855,6 +3859,7 @@ public class ObjectMapper
      * Same as {@link #readValue(java.net.URL, Class)} except that target specified by {@link JavaType}.
      *
      * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
     @Deprecated // @since 2.20
     @SuppressWarnings("unchecked")

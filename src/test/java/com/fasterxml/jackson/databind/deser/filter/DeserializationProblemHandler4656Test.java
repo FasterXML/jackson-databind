@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.deser.filter;
 
 import java.io.IOException;
 
@@ -10,14 +10,13 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+// For [databind#4656]
 public class DeserializationProblemHandler4656Test extends DatabindTestUtil
 {
-    // For [databind#4656]
     static class Person4656 {
         public String id;
         public String name;
@@ -44,8 +43,6 @@ public class DeserializationProblemHandler4656Test extends DatabindTestUtil
         }
     }
 
-    // For [databind#4656]
-    @JacksonTestFailureExpected
     @Test
     public void testIssue4656() throws Exception {
         ObjectMapper mapper = JsonMapper.builder()

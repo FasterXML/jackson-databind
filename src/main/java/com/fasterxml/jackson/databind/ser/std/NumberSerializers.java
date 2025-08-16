@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Container class for serializers used for handling standard JDK-provided
- * primitve number types and their wrapper counterparts (like {@link java.lang.Integer}).
+ * primitive number types and their wrapper counterparts (like {@link java.lang.Integer}).
  */
 @SuppressWarnings("serial")
 public class NumberSerializers {

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.interop;
 
-import java.time.LocalDate;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -77,7 +75,7 @@ public class Java8Datetime4533Test
     }
 
     @Test
-    public void testLenientSerailization() throws Exception
+    public void testLenientSerialization() throws Exception
     {
         _testLenientSerialization(java.time.LocalDateTime.now());
         _testLenientSerialization(java.time.LocalDate.now());
@@ -115,5 +113,4 @@ public class Java8Datetime4533Test
                 LENIENT_MAPPER.readValue("{}", target));
         Assertions.assertThat(e).hasMessageContaining("Cannot construct instance of `"+target.getName()+"`");
     }
-
 }

@@ -18,7 +18,7 @@ Naming of classes uses word 'JSON' in many places even though there is no actual
 | Artifact | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind) |
 | OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-databind)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind?utm_source=maven-com-fasterxml-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=readme) |
 | Javadocs | [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-databind.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind) |
-| Code coverage (2.18) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=2.18)](https://codecov.io/github/FasterXML/jackson-databind?branch=2.18) |
+| Code coverage (2.19) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=2.19)](https://codecov.io/github/FasterXML/jackson-databind?branch=2.19) |
 | OpenSSF Score | [![OpenSSF  Scorecard](https://api.securityscorecards.dev/projects/github.com/FasterXML/jackson-databind/badge)](https://securityscorecards.dev/viewer/?uri=github.com/FasterXML/jackson-databind) |
 
 # Get it!
@@ -31,7 +31,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>2.18.2</jackson.version>
+  <jackson.version>2.19.0</jackson.version>
   ...
 </properties>
 
@@ -576,7 +576,7 @@ Overall, Jackson library is very powerful in deserializing objects using builder
 
 We would love to get your contribution, whether it's in form of bug reports, Requests for Enhancement (RFE), documentation, or code patches.
 
-See [CONTRIBUTING](https://github.com/FasterXML/jackson/blob/master/CONTRIBUTING.md) for details on things like:
+See [CONTRIBUTING](https://github.com/FasterXML/jackson/blob/2.x/CONTRIBUTING.md) for details on things like:
 
 * Community, ways to interact (mailing lists, gitter)
 * Issue tracking ([GitHub Issues](https://github.com/FasterXML/jackson-databind/issues))
@@ -596,12 +596,12 @@ usually a Jackson module.
 
 ## Branches
 
-`master` branch is for developing the next major Jackson version -- 3.0 -- but there
+`3.x` branch is for developing the next major Jackson version -- 3.0 -- but there
 are active maintenance branches in which much of development happens:
 
-* `2.19` is the branch for "next" minor version to release (as of February 2025)
-* `2.18` is the current stable minor 2.x version
-* `2.17` is for selected backported fixes
+* `2.x` is the branch for "next" minor version to release (2.20 as of May 2025)
+* `2.19` is the current stable minor 2.x version
+* `2.18` is for selected backported fixes
 
 Older branches are usually not maintained after being declared as closed
 on [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases) page,

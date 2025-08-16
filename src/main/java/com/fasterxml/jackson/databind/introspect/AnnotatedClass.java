@@ -6,7 +6,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -30,59 +29,61 @@ public final class AnnotatedClass
     /**
      * @since 2.7
      */
-    final protected JavaType _type;
+    protected final JavaType _type;
 
     /**
      * Class for which annotations apply, and that owns other
      * components (constructors, methods)
      */
-    final protected Class<?> _class;
+    protected final Class<?> _class;
 
     /**
      * Type bindings to use for members of {@link #_class}.
      *
      * @since 2.7
      */
-    final protected TypeBindings _bindings;
+    protected final TypeBindings _bindings;
 
     /**
      * Ordered set of super classes and interfaces of the
      * class itself: included in order of precedence
      */
-    final protected List<JavaType> _superTypes;
+    protected final List<JavaType> _superTypes;
 
     /**
      * Filter used to determine which annotations to gather; used
      * to optimize things so that unnecessary annotations are
      * ignored.
      */
-    final protected AnnotationIntrospector _annotationIntrospector;
+    protected final AnnotationIntrospector _annotationIntrospector;
 
     /**
      * @since 2.7
      */
-    final protected TypeFactory _typeFactory;
+    protected final TypeFactory _typeFactory;
 
     /**
      * Object that knows mapping of mix-in classes (ones that contain
      * annotations to add) with their target classes (ones that
      * get these additional annotations "mixed in").
      */
-    final protected MixInResolver _mixInResolver;
+    protected final MixInResolver _mixInResolver;
 
     /**
      * Primary mix-in class; one to use for the annotated class
      * itself. Can be null.
      */
-    final protected Class<?> _primaryMixIn;
+    protected final Class<?> _primaryMixIn;
 
     /**
      * Flag that indicates whether (full) annotation resolution should
-     * occur: starting with 2.11 is disabled for JDK container types.
+     * occur: starting with 2.11 is disabled for JDK container types
+     * ({@link ClassUtil#isJDKClass(Class)} and {@code type.isContainerType()}).
+     * Later in 2.19 all JDK types have this disabled.
      *
      * @since 2.11
      */
-    final protected boolean _collectAnnotations;
+    protected final boolean _collectAnnotations;
 
     /*
     /**********************************************************
@@ -94,7 +95,7 @@ public final class AnnotatedClass
      * Combined list of Jackson annotations that the class has,
      * including inheritable ones from super classes and interfaces
      */
-    final protected Annotations _classAnnotations;
+    protected final Annotations _classAnnotations;
 
     /**
      * @since 2.9
@@ -152,15 +153,6 @@ public final class AnnotatedClass
         _collectAnnotations = collectAnnotations;
     }
 
-    @Deprecated // since 2.10
-    AnnotatedClass(JavaType type, Class<?> rawType, List<JavaType> superTypes,
-            Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings,
-            AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf)
-    {
-        this(type, rawType, superTypes, primaryMixIn, classAnnotations, bindings,
-                aintr, mir, tf, true);
-    }
-
     /**
      * Constructor (only) used for creating primordial simple types (during bootstrapping)
      * and array type placeholders where no fields or methods are needed.
@@ -178,46 +170,6 @@ public final class AnnotatedClass
         _mixInResolver = null;
         _typeFactory = null;
         _collectAnnotations = false;
-    }
-
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config) {
-        return construct(type, config, (MixInResolver) config);
-    }
-
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config,
-            MixInResolver mir)
-    {
-        return AnnotatedClassResolver.resolve(config, type, mir);
-    }
-
-    /**
-     * Method similar to {@link #construct}, but that will NOT include
-     * information from supertypes; only class itself and any direct
-     * mix-ins it may have.
-     * 
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass constructWithoutSuperTypes(Class<?> raw, MapperConfig<?> config) {
-        return constructWithoutSuperTypes(raw, config, config);
-    }
-
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass constructWithoutSuperTypes(Class<?> raw, MapperConfig<?> config,
-            MixInResolver mir)
-    {
-        return AnnotatedClassResolver.resolveWithoutSuperTypes(config, raw, mir);
     }
 
     /*
@@ -312,14 +264,6 @@ public final class AnnotatedClass
      */
     public List<AnnotatedMethod> getFactoryMethods() {
         return _creators().creatorMethods;
-    }
-
-    /**
-     * @deprecated Since 2.9; use {@link #getFactoryMethods} instead.
-     */
-    @Deprecated
-    public List<AnnotatedMethod> getStaticMethods() {
-        return getFactoryMethods();
     }
 
     public Iterable<AnnotatedMethod> memberMethods() {

@@ -1215,10 +1215,13 @@ Oleg Chtchoukine (oshatrk@github)
     to incorrect output
   (2.11.1)
 
-Joshua Shannon (retrodaredevil@github)
+Lavender Shannon (retrodaredevil@github)
   * Reported, contributed fix for #2785: Polymorphic subtypes not registering on copied
     ObjectMapper (2.11.1)
   (2.11.2)
+  * Requested #3072: Allow specifying `@JacksonInject` does not fail when there's no
+    corresponding value
+  (2.20.0)
 
 Daniel Hrabovcak (TheSpiritXIII@github)
   * Reported #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
@@ -1947,3 +1950,8 @@ Ryan Schmitt (@rschmitt)
 Eddú Meléndez Gonzales (@eddumelendez)
  * Reported #5215: `@JsonAnyGetter` serialization order change from 2.18.4 to 2.19.0
   (2.19.2)
+
+Giulio Longfils (@giulong)
+ * Contributed #3072: Allow specifying `@JacksonInject` does not fail when there's no
+   corresponding value
+  (2.20.0)

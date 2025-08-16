@@ -103,7 +103,7 @@ public class CreatorProperty
     {
         this(name, type, wrapperName, typeDeser, contextAnnotations, param, index,
                 (injectableValueId == null) ? null
-                        : JacksonInject.Value.construct(injectableValueId, null),
+                        : JacksonInject.Value.construct(injectableValueId, null, null),
                 metadata);
     }
 
@@ -202,39 +202,6 @@ public class CreatorProperty
     @Override
     public boolean isIgnorable() {
         return _ignorable;
-    }
-
-    /*
-    /**********************************************************
-    /* Injection support
-    /**********************************************************
-     */
-
-    // 14-Apr-2020, tatu: Does not appear to be used so deprecated in 2.11.0,
-    //    to be removed from 2.12.0
-
-    // Method that can be called to locate value to be injected for this
-    // property, if it is configured for this.
-    @Deprecated // remove from 2.12
-    public Object findInjectableValue(DeserializationContext context, Object beanInstance)
-        throws JsonMappingException
-    {
-        if (_injectableValue == null) {
-            context.reportBadDefinition(ClassUtil.classOf(beanInstance),
-                    String.format("Property %s (type %s) has no injectable value id configured",
-                    ClassUtil.name(getName()), ClassUtil.classNameOf(this)));
-        }
-        return context.findInjectableValue(_injectableValue.getId(), this, beanInstance); // lgtm [java/dereferenced-value-may-be-null]
-    }
-
-    // 14-Apr-2020, tatu: Does not appear to be used so deprecated in 2.11.0,
-    //    to be removed from 2.12.0
-
-    // Method to find value to inject, and inject it to this property.
-    @Deprecated // remove from 2.12
-    public void inject(DeserializationContext context, Object beanInstance) throws IOException
-    {
-        set(beanInstance, findInjectableValue(context, beanInstance));
     }
 
     /*

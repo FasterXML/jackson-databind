@@ -697,13 +697,22 @@ public class IntrospectorPairTest extends DatabindTestUtil
 
     static class TestInjector extends InjectableValues {
         @Override
-        public Object findInjectableValue(Object valueId, DeserializationContext ctxt, BeanProperty forProperty, Object beanInstance) {
+        public Object findInjectableValue(DeserializationContext ctxt,
+                Object valueId, 
+                BeanProperty forProperty, Object beanInstance, Boolean optional) {
             if (valueId == "jjj") {
                 UnreadableBean bean = new UnreadableBean();
                 bean.setValue(1);
                 return bean;
             }
             return null;
+        }
+
+        @Override
+        public Object findInjectableValue(Object valueId, DeserializationContext ctxt,
+                BeanProperty forProperty, Object beanInstance) {
+            throw new IllegalStateException("Deprecated: should not get called");
+            //return this.findInjectableValue(valueId, ctxt, forProperty, beanInstance, null);
         }
     }
 

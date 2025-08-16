@@ -132,7 +132,7 @@ public class AnnotatedClassResolver
     }
 
     AnnotatedClass resolveFully() {
-        List<JavaType> superTypes = new ArrayList<JavaType>(8);
+        List<JavaType> superTypes = new ArrayList<>(8);
         if (!_type.hasRawClass(Object.class)) {
             if (_type.isInterface()) {
                 _addSuperInterfaces(_type, superTypes, false);

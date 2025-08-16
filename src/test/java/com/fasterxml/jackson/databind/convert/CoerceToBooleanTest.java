@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
@@ -56,6 +57,8 @@ public class CoerceToBooleanTest
 
     private final ObjectMapper LEGACY_NONCOERCING_MAPPER = jsonMapperBuilder()
             .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+            // 30-May-2025, tatu: Needed after [core#1438] (clear current token on close)
+            .disable(StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE)
             .build();
 
     private final ObjectMapper MAPPER_INT_TO_EMPTY = jsonMapperBuilder()
@@ -413,11 +416,10 @@ public class CoerceToBooleanTest
             JsonToken tokenType, String tokenValue) throws IOException
     {
         verifyException(e, "Cannot coerce ", "Cannot deserialize value of type ");
+        // 30-May-2025, tatu: [databind#5179] got access via exception now
+        assertToken(tokenType, e.getCurrentToken());
 
         JsonParser p = (JsonParser) e.getProcessor();
-
-        assertToken(tokenType, p.currentToken());
-
         final String text = p.getText();
         if (!tokenValue.equals(text)) {
             String textDesc = (text == null) ? "NULL" : q(text);

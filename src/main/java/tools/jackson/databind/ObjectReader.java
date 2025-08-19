@@ -1,7 +1,6 @@
 package tools.jackson.databind;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -836,22 +835,6 @@ public class ObjectReader
      * Factory method for constructing {@link JsonParser} that is properly
      * wired to allow callbacks for deserialization: basically
      * constructs a {@link ObjectReadContext} and then calls
-     * {@link TokenStreamFactory#createParser(ObjectReadContext,java.net.URL)}.
-     *
-     * @since 3.0
-     * @deprecated since 2.20 deprecated as it calls {@link TokenStreamFactory#createParser(URL)}.
-     */
-    @Deprecated // @since 2.20
-    public JsonParser createParser(URL src) throws JacksonException {
-        _assertNotNull("src", src);
-        DeserializationContextExt ctxt = _deserializationContext();
-        return ctxt.assignAndReturnParser(_parserFactory.createParser(ctxt, src));
-    }
-
-    /**
-     * Factory method for constructing {@link JsonParser} that is properly
-     * wired to allow callbacks for deserialization: basically
-     * constructs a {@link ObjectReadContext} and then calls
      * {@link TokenStreamFactory#createParser(ObjectReadContext,InputStream)}.
      *
      * @since 3.0
@@ -1294,31 +1277,6 @@ public class ObjectReader
     }
 
     /**
-     * Method that binds content read from given input source,
-     * using configuration of this reader.
-     * Value return is either newly constructed, or root value that
-     * was specified with {@link #withValueToUpdate(Object)}.
-     *<p>
-     *<p>
-     * NOTE: handling of {@link java.net.URL} is delegated to
-     * {@link TokenStreamFactory#createParser(ObjectReadContext, java.net.URL)} and usually simply
-     * calls {@link java.net.URL#openStream()}, meaning no special handling
-     * is done. If different HTTP connection options are needed you will need
-     * to create {@link java.io.InputStream} separately.
-     *
-     * @deprecated since 2.20 deprecated as it calls {@link TokenStreamFactory#createParser(URL)}.
-     */
-    @Deprecated // @since 2.20
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(URL url) throws JacksonException
-    {
-        _assertNotNull("src", url);
-        DeserializationContextExt ctxt = _deserializationContext();
-        return (T) _bindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, url), false));
-    }
-
-    /**
      * Convenience method for converting results from given JSON tree into given
      * value type. Basically short-cut for:
      *<pre>
@@ -1592,28 +1550,6 @@ public class ObjectReader
                 _considerFilter(_parserFactory.createParser(ctxt, src), true));
     }
 
-    /**
-     * Overloaded version of {@link #readValue(InputStream)}.
-     *<p>
-     * NOTE: handling of {@link java.net.URL} is delegated to
-     * {@link TokenStreamFactory#createParser(ObjectReadContext, java.net.URL)} and usually simply
-     * calls {@link java.net.URL#openStream()}, meaning no special handling
-     * is done. If different HTTP connection options are needed you will need
-     * to create {@link java.io.InputStream} separately.
-     *
-     * @param src URL to read to access JSON content to parse.
-     *
-     * @deprecated since 2.20 deprecated as it calls {@link TokenStreamFactory#createParser(URL)}.
-     */
-    @Deprecated // @since 2.20
-    public <T> MappingIterator<T> readValues(URL src) throws JacksonException
-    {
-        _assertNotNull("src", src);
-        DeserializationContextExt ctxt = _deserializationContext();
-        return _bindAndReadValues(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, src), true));
-    }
-
     public <T> MappingIterator<T> readValues(DataInput src) throws JacksonException
     {
         _assertNotNull("src", src);
@@ -1856,14 +1792,6 @@ public class ObjectReader
     protected DeserializationContextExt _deserializationContext(JsonParser p) {
         return _contexts.createContext(_config, _schema, _injectableValues)
                 .assignParser(p);
-    }
-
-    protected InputStream _inputStream(URL src) throws JacksonException {
-        try {
-            return src.openStream();
-        } catch (IOException e) {
-            throw JacksonIOException.construct(e);
-        }
     }
 
     protected InputStream _inputStream(File f) throws JacksonException {

@@ -2,7 +2,6 @@ package tools.jackson.databind;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.nio.file.Path;
 import java.text.DateFormat;
 import java.util.Collection;
@@ -611,21 +610,6 @@ public class ObjectMapper
      * Factory method for constructing {@link JsonParser} that is properly
      * wired to allow callbacks for deserialization: basically
      * constructs a {@link ObjectReadContext} and then calls
-     * {@link TokenStreamFactory#createParser(ObjectReadContext,java.net.URL)}.
-     *
-     * @deprecated since 2.20 deprecated as it calls {@link TokenStreamFactory#createParser(URL)}.
-     */
-    @Deprecated // @since 2.20
-    public JsonParser createParser(URL src) throws JacksonException {
-        _assertNotNull("src", src);
-        DeserializationContextExt ctxt = _deserializationContext();
-        return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, src));
-    }
-
-    /**
-     * Factory method for constructing {@link JsonParser} that is properly
-     * wired to allow callbacks for deserialization: basically
-     * constructs a {@link ObjectReadContext} and then calls
      * {@link TokenStreamFactory#createParser(ObjectReadContext,InputStream)}.
      *
      * @since 3.0
@@ -1215,25 +1199,6 @@ public class ObjectMapper
 
     /**
      * Same as {@link #readTree(InputStream)} except content read from
-     * passed-in {@link URL}.
-     *<p>
-     * NOTE: handling of {@link java.net.URL} is delegated to
-     * {@link TokenStreamFactory#createParser(ObjectReadContext, java.net.URL)}s and usually simply
-     * calls {@link java.net.URL#openStream()}, meaning no special handling
-     * is done. If different HTTP connection options are needed you will need
-     * to create {@link java.io.InputStream} separately.
-     *
-     * @deprecated since 2.20 deprecated as it calls {@link TokenStreamFactory#createParser(URL)}.
-     */
-    @Deprecated // @since 2.20
-    public JsonNode readTree(URL src) throws JacksonException {
-        _assertNotNull("src", src);
-        DeserializationContextExt ctxt = _deserializationContext();
-        return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, src));
-    }
-
-    /**
-     * Same as {@link #readTree(InputStream)} except content read from
      * passed-in {@link TokenBuffer}.
      */
     public JsonNode readTree(TokenBuffer src) throws JacksonException {
@@ -1530,64 +1495,6 @@ public class ObjectMapper
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src), valueType);
-    }
-
-    /**
-     * Method to deserialize JSON content from given resource into given Java type.
-     *<p>
-     * NOTE: handling of {@link java.net.URL} is delegated to
-     * {@link TokenStreamFactory#createParser(ObjectReadContext, java.net.URL)} and usually simply
-     * calls {@link java.net.URL#openStream()}, meaning no special handling
-     * is done. If different HTTP connection options are needed you will need
-     * to create {@link java.io.InputStream} separately.
-     *
-     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
-     *   network error) occurs (passed through as-is without additional wrapping -- note
-     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
-     *   does NOT result in wrapping of exception even if enabled)
-     * @throws StreamReadException if underlying input contains invalid content
-     *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws DatabindException if the input JSON structure does not match structure
-     *   expected for result type (or has other mismatch issues)
-     *
-     * @deprecated since 2.20 deprecated as it calls {@link TokenStreamFactory#createParser(URL)}.
-     */
-    @Deprecated // @since 2.20
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(URL src, Class<T> valueType) throws JacksonException
-    {
-        _assertNotNull("src", src);
-        DeserializationContextExt ctxt = _deserializationContext();
-        return (T) _readMapAndClose(ctxt,
-                _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
-    }
-
-    /**
-     * Same as {@link #readValue(java.net.URL, Class)} except that target specified by {@link TypeReference}.
-     * @deprecated since 2.20 deprecated as it calls {@link TokenStreamFactory#createParser(URL)}.
-     */
-    @Deprecated // @since 2.20
-    @SuppressWarnings({ "unchecked" })
-    public <T> T readValue(URL src, TypeReference<T> valueTypeRef) throws JacksonException
-    {
-        _assertNotNull("src", src);
-        DeserializationContextExt ctxt = _deserializationContext();
-        return (T) _readMapAndClose(ctxt,
-                _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
-    }
-
-    /**
-     * Same as {@link #readValue(java.net.URL, Class)} except that target specified by {@link JavaType}.
-     * @deprecated since 2.20 deprecated as it calls {@link TokenStreamFactory#createParser(URL)}.
-     */
-    @Deprecated // @since 2.20
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(URL src, JavaType valueType) throws JacksonException
-    {
-        _assertNotNull("src", src);
-        DeserializationContextExt ctxt = _deserializationContext();
-        return (T) _readMapAndClose(ctxt,
-                _streamFactory.createParser(ctxt, src), valueType);
     }
 
     /**

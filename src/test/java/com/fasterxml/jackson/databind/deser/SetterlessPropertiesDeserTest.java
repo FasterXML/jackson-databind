@@ -8,19 +8,17 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
-
 /**
- * Unit tests for verifying that feature requested
- * via [JACKSON-88] ("setterless collections") work as
+ * Unit tests for verifying that "setterless collections" work as
  * expected, similar to how Collections and Maps work
  * with JAXB.
  */
 public class SetterlessPropertiesDeserTest
+    extends DatabindTestUtil
 {
     static class CollectionBean
     {
@@ -48,17 +46,43 @@ public class SetterlessPropertiesDeserTest
         }
     }
 
+    static class DataBean2692
+    {
+        final String val;
+
+        @JsonCreator
+        public DataBean2692(@JsonProperty(value = "val") String val) {
+            super();
+            this.val = val;
+        }
+
+        public String getVal() {
+            return val;
+        }
+
+        public List<String> getList() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public String toString() {
+            return "DataBean [val=" + val + "]";
+        }
+    }
+    
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     @Test
     public void testSimpleSetterlessCollectionOk()
         throws Exception
     {
-        CollectionBean result = new ObjectMapper().readValue
+        CollectionBean result = MAPPER.readValue
             ("{\"values\":[ \"abc\", \"def\" ]}", CollectionBean.class);
         List<String> l = result._values;
         assertEquals(2, l.size());
@@ -74,10 +98,9 @@ public class SetterlessPropertiesDeserTest
     public void testSimpleSetterlessCollectionFailure()
         throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         // by default, it should be enabled
-        assertTrue(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
-        m = jsonMapperBuilder()
+        assertTrue(MAPPER.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_GETTERS_AS_SETTERS, false)
                 .build();
         assertFalse(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
@@ -98,7 +121,7 @@ public class SetterlessPropertiesDeserTest
     public void testSimpleSetterlessMapOk()
         throws Exception
     {
-        MapBean result = new ObjectMapper().readValue
+        MapBean result = MAPPER.readValue
             ("{\"values\":{ \"a\": 15, \"b\" : -3 }}", MapBean.class);
         Map<String,Integer> m = result._values;
         assertEquals(2, m.size());
@@ -135,5 +158,15 @@ public class SetterlessPropertiesDeserTest
         Dual value = m.readValue("{\"list\":[1,2,3]}", Dual.class);
         assertNotNull(value);
         assertEquals(3, value.values.size());
+    }
+
+    // [databind#2692]
+    @Test
+    void issue2692() throws Exception {
+        ObjectMapper om = newJsonMapper();
+        String json = "{\"list\":[\"11\"],\"val\":\"VAL2\"}";
+        DataBean2692 out = om.readerFor(DataBean2692.class).readValue(json);
+        // System.out.println("this is ko" + out);
+        assertNotNull(out);
     }
 }

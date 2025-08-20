@@ -60,6 +60,11 @@ public class MergingSettableBeanProperty
         return new MergingSettableBeanProperty(d, _accessor);
     }
 
+    @Override // since 2.20
+    public boolean isMerging() {
+        return true;
+    }
+
     /*
     /**********************************************************
     /* Deserialization methods

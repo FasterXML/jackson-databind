@@ -1,9 +1,12 @@
 package tools.jackson.databind.deser.bean;
 
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.deser.SettableAnyProperty;
 import tools.jackson.databind.deser.SettableBeanProperty;
+import tools.jackson.databind.util.TokenBuffer;
 
 /**
  * Base class for property values that need to be buffered during
@@ -33,13 +36,11 @@ public abstract class PropertyValue
     /**
      * Method called to assign stored value of this property to specified
      * parameter object.
-     *
-     * @since 2.18
      */
     public void setValue(DeserializationContext ctxt, Object parameterObject)
         throws JacksonException
     {
-        throw new UnsupportedOperationException("Should not be called by this type " + getClass().getName());
+        throw new UnsupportedOperationException("Should not be called on type: " + getClass().getName());
     }
 
     /*
@@ -155,6 +156,36 @@ public abstract class PropertyValue
         {
             // AnyParameter
             _property.set(ctxt, parameterObject, _propertyName, value);
+        }
+    }
+
+    /**
+     * Property value type used when merging values.
+     *
+     * @since 2.20
+     */
+    final static class Merging
+        extends PropertyValue
+    {
+        final SettableBeanProperty _property;
+
+        public Merging(PropertyValue next, TokenBuffer buffered,
+                       SettableBeanProperty prop)
+        {
+            super(next, buffered);
+            _property = prop;
+        }
+
+        @Override
+        public void assign(DeserializationContext ctxt, Object bean)
+        {
+            TokenBuffer buffered = (TokenBuffer) value;
+            try (JsonParser p = buffered.asParser()) {
+                p.nextToken();
+                // !!! 12-Aug-2025, tatu: We need DeserializationContext...
+                //   but for testing  just pass null for now.
+                _property.deserializeAndSet(p, ctxt, bean);
+            }
         }
     }
 }

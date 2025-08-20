@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import tools.jackson.databind.util.Annotations;
 
@@ -187,7 +188,7 @@ public abstract class AnnotationCollector
         }
 
         @Override
-        public boolean has(Class<?> cls) {
+        public boolean has(Class<? extends Annotation> cls) {
             return false;
         }
 
@@ -199,6 +200,11 @@ public abstract class AnnotationCollector
         @Override
         public int size() {
             return 0;
+        }
+
+        @Override
+        public Stream<Annotation> values() {
+            return Stream.empty();
         }
     }
 
@@ -225,7 +231,7 @@ public abstract class AnnotationCollector
         }
 
         @Override
-        public boolean has(Class<?> cls) {
+        public boolean has(Class<? extends Annotation> cls) {
             return (_type == cls);
         }
 
@@ -239,6 +245,11 @@ public abstract class AnnotationCollector
             return false;
         }
 
+        @Override
+        public Stream<Annotation> values() {
+            return Stream.of(_value);
+        }
+        
         @Override
         public int size() {
             return 1;
@@ -274,7 +285,7 @@ public abstract class AnnotationCollector
         }
 
         @Override
-        public boolean has(Class<?> cls) {
+        public boolean has(Class<? extends Annotation> cls) {
             return (_type1 == cls) || (_type2 == cls);
         }
 
@@ -286,6 +297,11 @@ public abstract class AnnotationCollector
                 }
             }
             return false;
+        }
+
+        @Override
+        public Stream<Annotation> values() {
+            return Stream.of(_value1, _value2);
         }
 
         @Override

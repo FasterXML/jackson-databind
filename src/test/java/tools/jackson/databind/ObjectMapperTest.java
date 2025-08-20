@@ -368,16 +368,6 @@ public class ObjectMapperTest extends DatabindTestUtil
     }
 
     @Test
-    public void test_createParser_Url() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser = MAPPER.createParser(path.toUri().toURL());
-
-        assertEquals(jsonParser.nextStringValue(), "value");
-    }
-
-    @Test
     public void test_createParser_Reader() throws Exception
     {
         Reader reader = new StringReader("\"value\"");
@@ -428,7 +418,6 @@ public class ObjectMapperTest extends DatabindTestUtil
         ObjectMapper objectMapper = MAPPER;
         test_method_failsIfArgumentIsNull(() -> objectMapper.createParser((InputStream) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.createParser((DataInput) null));
-        test_method_failsIfArgumentIsNull(() -> objectMapper.createParser((URL) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.createParser((Path) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.createParser((File) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.createParser((Reader) null));
@@ -551,16 +540,6 @@ public class ObjectMapperTest extends DatabindTestUtil
     }
 
     @Test
-    public void test_readTree_Url() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonNode jsonNode = MAPPER.readTree(path.toUri().toURL());
-
-        assertEquals(jsonNode.stringValue(), "value");
-    }
-
-    @Test
     public void test_readTree_Reader() throws Exception
     {
         Reader reader = new StringReader("\"value\"");
@@ -598,7 +577,6 @@ public class ObjectMapperTest extends DatabindTestUtil
     {
         ObjectMapper objectMapper = MAPPER;
         test_method_failsIfArgumentIsNull(() -> objectMapper.readTree((InputStream) null));
-        test_method_failsIfArgumentIsNull(() -> objectMapper.readTree((URL) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.readTree((Path) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.readTree((File) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.readTree((Reader) null));
@@ -646,19 +624,6 @@ public class ObjectMapperTest extends DatabindTestUtil
         String result2 = MAPPER.readValue(path, SimpleType.constructUnsafe(String.class));
         assertEquals(result2, "value");
         String result3 = MAPPER.readValue(path, new TypeReference<String>() {});
-        assertEquals(result3, "value");
-    }
-
-    @Test
-    public void test_readValue_Url() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        String result1 = MAPPER.readValue(path.toUri().toURL(), String.class);
-        assertEquals(result1, "value");
-        String result2 = MAPPER.readValue(path.toUri().toURL(), SimpleType.constructUnsafe(String.class));
-        assertEquals(result2, "value");
-        String result3 = MAPPER.readValue(path.toUri().toURL(), new TypeReference<String>() {});
         assertEquals(result3, "value");
     }
 
@@ -754,9 +719,6 @@ public class ObjectMapperTest extends DatabindTestUtil
         test_method_failsIfArgumentIsNull(() -> objectMapper.readValue((DataInput) null, Map.class));
         test_method_failsIfArgumentIsNull(() -> objectMapper.readValue((DataInput) null, SimpleType.constructUnsafe(Map.class)));
         test_method_failsIfArgumentIsNull(() -> objectMapper.readValue((DataInput) null, new TypeReference<Map>() {}));
-        test_method_failsIfArgumentIsNull(() -> objectMapper.readValue((URL) null, Map.class));
-        test_method_failsIfArgumentIsNull(() -> objectMapper.readValue((URL) null, SimpleType.constructUnsafe(Map.class)));
-        test_method_failsIfArgumentIsNull(() -> objectMapper.readValue((URL) null, new TypeReference<Map>() {}));
         test_method_failsIfArgumentIsNull(() -> objectMapper.readValue((Path) null, Map.class));
         test_method_failsIfArgumentIsNull(() -> objectMapper.readValue((Path) null, SimpleType.constructUnsafe(Map.class)));
         test_method_failsIfArgumentIsNull(() -> objectMapper.readValue((Path) null, new TypeReference<Map>() {}));

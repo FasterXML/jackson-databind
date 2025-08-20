@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,11 +16,12 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder
 import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
- * Unit tests for verifying that ("setterless collections") work as
+ * Unit tests for verifying that "setterless collections" work as
  * expected, similar to how Collections and Maps work
  * with JAXB.
  */
 public class SetterlessPropertiesDeserTest
+    extends DatabindTestUtil
 {
     static class CollectionBean
     {
@@ -47,11 +49,37 @@ public class SetterlessPropertiesDeserTest
         }
     }
 
+    static class DataBean2692
+    {
+        final String val;
+
+        @JsonCreator
+        public DataBean2692(@JsonProperty(value = "val") String val) {
+            super();
+            this.val = val;
+        }
+
+        public String getVal() {
+            return val;
+        }
+
+        public List<String> getList() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public String toString() {
+            return "DataBean [val=" + val + "]";
+        }
+    }
+    
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSimpleSetterlessCollectionOk() throws Exception
@@ -132,5 +160,14 @@ public class SetterlessPropertiesDeserTest
         Dual value = m.readValue("{\"list\":[1,2,3]}", Dual.class);
         assertNotNull(value);
         assertEquals(3, value.values.size());
+    }
+
+    // [databind#2692]
+    @Test
+    void issue2692() throws Exception {
+        String json = "{\"list\":[\"11\"],\"val\":\"VAL2\"}";
+        DataBean2692 out = MAPPER.readerFor(DataBean2692.class).readValue(json);
+        // System.out.println("this is ko" + out);
+        assertNotNull(out);
     }
 }

@@ -144,10 +144,6 @@ abstract class JSR310FormattedSerializerBase<T>
         return this;
     }
 
-    /**
-     * @deprecated Since 2.15
-     */
-    @Deprecated
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {

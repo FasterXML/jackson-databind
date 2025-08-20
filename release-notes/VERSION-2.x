@@ -6,8 +6,15 @@ Project: jackson-databind
 
 Not yet released
 
+#2692: Should never call `set()` on setterless property during deserialization
+ (reported by @lbonco)
+#5237: Failing `@JsonMerge` with a custom Map with a `@JsonCreator` constructor
+ (reported by @nlisker)
+#5238: Immutable classes with `@JsonIdentityInfo` can be deserialized; records cannot
+ (fix by Joo-Hyuk K)
 #5242: Support "binary vectors": `@JsonFormat(shape = Shape.BINARY)` for
   `float[]`, `double[]`
+#5257: Deprecate `URL`-taking `readValue()` methods in `ObjectMapper`, `ObjectReader`
 
 2.20.0-rc1 (04-Aug-2025)
 

@@ -77,6 +77,11 @@ public final class SetterlessProperty
                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
     }
 
+    @Override // since 2.20
+    public boolean isMerging() {
+        return true;
+    }
+
     /*
     /**********************************************************
     /* BeanProperty impl

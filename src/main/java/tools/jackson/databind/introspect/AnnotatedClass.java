@@ -3,6 +3,7 @@ package tools.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.stream.Stream;
 
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.cfg.MapperConfig;
@@ -183,13 +184,18 @@ public final class AnnotatedClass
     }
 
     @Override
-    public boolean hasAnnotation(Class<?> acls) {
+    public boolean hasAnnotation(Class<? extends Annotation> acls) {
         return _classAnnotations.has(acls);
     }
 
     @Override
     public boolean hasOneOf(Class<? extends Annotation>[] annoClasses) {
         return _classAnnotations.hasOneOf(annoClasses);
+    }
+
+    @Override
+    public Stream<Annotation> annotations() {
+        return _classAnnotations.values();
     }
 
     @Override

@@ -1094,15 +1094,13 @@ public class POJOPropertyBuilder
      * does "deep merge" if an as necessary, across alternate accessors of same type:
      * most importantly, "is-getter vs regular getter"
      */
+    @SuppressWarnings("deprecation") // only marked to prevent external use
     private AnnotationMap _getAllAnnotations(Linked<? extends AnnotatedMember> node) {
         if (node == null) {
             return null;
         }
-        AnnotationMap ann = node.value.getAllAnnotations();
-        if (node.next != null) {
-            ann = AnnotationMap.merge(ann, _getAllAnnotations(node.next));
-        }
-        return ann;
+        AnnotationMap ann = node.value._annotationMap();
+        return AnnotationMap.merge(ann, _getAllAnnotations(node.next));
     }
 
     /**

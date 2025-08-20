@@ -1,6 +1,7 @@
 package tools.jackson.databind.util;
 
 import java.lang.annotation.Annotation;
+import java.util.stream.Stream;
 
 /**
  * Interface that defines interface for accessing contents of a
@@ -18,13 +19,14 @@ public interface Annotations
     public <A extends Annotation> A get(Class<A> cls);
 
     /**
-     * @since 2.9
+     * Access method that returns a stream of all annotations contained.
+     *
+     * @since 3.0
      */
-    public boolean has(Class<?> cls);
+    public abstract Stream<Annotation> values();
+    
+    public boolean has(Class<? extends Annotation> cls);
 
-    /**
-     * @since 2.9
-     */
     public boolean hasOneOf(Class<? extends Annotation>[] annoClasses);
 
     /**

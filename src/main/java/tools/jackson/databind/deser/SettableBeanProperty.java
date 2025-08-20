@@ -349,6 +349,16 @@ public abstract class SettableBeanProperty
 
     public boolean isIgnorable() { return false; }
 
+    /**
+     * Whether this property requires merging of values (read-then-write)
+     *
+     * @since 2.20
+     */
+    public boolean isMerging() {
+        // Most are not merging so default to this implementation
+        return false;
+    }
+
     /*
     /**********************************************************************
     /* BeanProperty impl

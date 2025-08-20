@@ -10,6 +10,8 @@ Not yet released
  (reported by @lbonco)
 #5237: Failing `@JsonMerge` with a custom Map with a `@JsonCreator` constructor
  (reported by @nlisker)
+#5238: Immutable classes with `@JsonIdentityInfo` can be deserialized; records cannot
+ (fix by Joo-Hyuk K)
 #5242: Support "binary vectors": `@JsonFormat(shape = Shape.BINARY)` for
   `float[]`, `double[]`
 #5257: Deprecate `URL`-taking `readValue()` methods in `ObjectMapper`, `ObjectReader`

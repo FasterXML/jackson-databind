@@ -63,3 +63,8 @@ Guillaume Smet (@gsmet)
  * Requested #4907: Reduce/eliminate introspection on `java.*` classes
   [3.0.0]
 
+David Nault (@dnault)
+ * Requested #5244: Support accessing annotations via `AnnotatedMember.annotations()`
+  [3.0.0]
+
+

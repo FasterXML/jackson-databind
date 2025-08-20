@@ -2,6 +2,7 @@ package tools.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
+import java.util.stream.Stream;
 
 import tools.jackson.databind.util.Annotations;
 
@@ -60,7 +61,7 @@ public final class AnnotationMap implements Annotations
     }
 
     @Override
-    public boolean has(Class<?> cls)
+    public boolean has(Class<? extends Annotation> cls)
     {
         if (_annotations == null) {
             return false;
@@ -84,18 +85,19 @@ public final class AnnotationMap implements Annotations
         return false;
     }
 
+    @Override
+    public Stream<Annotation> values() {
+        if (_annotations == null || _annotations.size() == 0) {
+            return Stream.empty();
+        }
+        return _annotations.values().stream();
+    }
+    
     /*
     /**********************************************************
     /* Other API
     /**********************************************************
      */
-
-    public Iterable<Annotation> annotations() {
-        if (_annotations == null || _annotations.size() == 0) {
-            return Collections.emptyList();
-        }
-        return _annotations.values();
-    }
 
     public static AnnotationMap merge(AnnotationMap primary, AnnotationMap secondary)
     {

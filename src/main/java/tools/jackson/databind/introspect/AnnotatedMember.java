@@ -2,6 +2,7 @@ package tools.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
+import java.util.stream.Stream;
 
 import tools.jackson.databind.util.ClassUtil;
 
@@ -62,7 +63,7 @@ public abstract class AnnotatedMember
     }
 
     @Override
-    public final boolean hasAnnotation(Class<?> acls) {
+    public final boolean hasAnnotation(Class<? extends Annotation> acls) {
         if (_annotations == null) {
             return false;
         }
@@ -77,12 +78,9 @@ public abstract class AnnotatedMember
         return _annotations.hasOneOf(annoClasses);
     }
 
-    /**
-     * @deprecated Since 3.0
-     */
-    @Deprecated
-    public AnnotationMap getAllAnnotations() { // alas, used by at least one module, hence public
-        return _annotations;
+    @Override
+    public Stream<Annotation> annotations() {
+        return _annotations.values();
     }
 
     /**
@@ -125,4 +123,19 @@ public abstract class AnnotatedMember
      */
     public abstract Object getValue(Object pojo)
         throws UnsupportedOperationException, IllegalArgumentException;
+
+    /**
+     * Internal method used by {@code POJOProperiesCollector} to
+     * merge annotations from this member with those from another
+     * member.
+     *<p>
+     * NOTE: NOT to be used by code outside jackson-databind (but has to be
+     * public to be accessible from POJOPropertiesCollector).
+     * 
+     * @deprecated Not to be used by code outside jackson-databind.
+     */
+    @Deprecated
+    public AnnotationMap _annotationMap() {
+        return _annotations;
+    }
 }

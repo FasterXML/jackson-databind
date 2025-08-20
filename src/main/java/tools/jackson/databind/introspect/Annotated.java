@@ -3,11 +3,12 @@ package tools.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Modifier;
+import java.util.stream.Stream;
 
 import tools.jackson.databind.JavaType;
 
 /**
- * Shared base class used for anything on which annotations (included
+ * Shared base class used for anything that has associated annotations (included
  * within a {@link AnnotationMap}).
  */
 public abstract class Annotated
@@ -16,7 +17,12 @@ public abstract class Annotated
 
     public abstract <A extends Annotation> A getAnnotation(Class<A> acls);
 
-    public abstract boolean hasAnnotation(Class<?> acls);
+    /**
+     * @since 3.0
+     */
+    public abstract Stream<Annotation> annotations();
+    
+    public abstract boolean hasAnnotation(Class<? extends Annotation> acls);
 
     public abstract boolean hasOneOf(Class<? extends Annotation>[] annoClasses);
 

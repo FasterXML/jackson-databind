@@ -86,6 +86,38 @@ public class ConstructorPropertiesAnnotationTest
         }
     }
 
+    // [databind#4310]
+    static class Test4310
+    {
+        private final String value;
+
+        @ConstructorProperties("value")
+        public Test4310(@ImplicitName("somethingElse") String v) {
+          if (v == null) {
+              throw new IllegalArgumentException("Constructor called with null value");
+          }
+          value = v;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }    
+    static class Something4908 {
+        @JsonProperty("value")
+        private final String _value;
+
+        String getValue() {
+            return _value;
+        }
+
+        @JsonCreator
+        @ConstructorProperties({"value"})
+        Something4908(String pValue) {
+            _value = pValue;
+        }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -152,21 +184,17 @@ public class ConstructorPropertiesAnnotationTest
         assertEquals(3, testData.size());
     }
 
-    static class Something4908 {
-        @JsonProperty("value")
-        private final String _value;
-
-        String getValue() {
-            return _value;
-        }
-
-        @JsonCreator
-        @ConstructorProperties({"value"})
-        Something4908(String pValue) {
-            _value = pValue;
-        }
+    // [databind#4310]: use of ConstructorProperties with ParameterNames module
+    // Works on 3.x due to different precedence of @ConstructorProperties vs
+    // implicit parameter names.
+    @Test
+    public void issue4310() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new Test4310("foo"));
+        Test4310 result = MAPPER.readValue(json, Test4310.class);
+        assertEquals("foo", result.getValue());
     }
-
+    
     // [databind#4908] @ConstructorProperties and @JsonCreator
     @Test
     public void testConstructorPropertyAndJsonCreator() throws Exception {

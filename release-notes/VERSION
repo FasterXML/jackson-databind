@@ -7,6 +7,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.0-rc9 (not yet released)
 
+#4210: `ParameterNamesModule` causes `@ConstructorProperties` to be ignored,
+  constructor called with null value
+ (reported by Lars B)
 #5244: Support accessing annotations via `AnnotatedMember.annotations()`
  (requested by David N)
 #5263: Remove deprecated `URL`-taking `readValue()` methods in `ObjectMapper`,

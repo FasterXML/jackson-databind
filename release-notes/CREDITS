@@ -36,6 +36,11 @@ Michael Dillon (@michaelcdillon)
  * Requested #2593: StackTraceElement w/ >= Java 9 doesn't deserialize properly
   [3.0.0]
 
+Lars Benedetto (@lbenedetto)
+ * #4210: `ParameterNamesModule` causes `@ConstructorProperties` to be ignored,
+  constructor called with null value
+  [3.0.0]
+
 Andy Boothe (@sigpwned)
  * Contributed #5025: Add support for automatic detection of subtypes (like `@JsonSubTypes`)
    from Java 17 sealed types

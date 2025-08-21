@@ -15,7 +15,8 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CreatorPropertiesTest extends DatabindTestUtil
+public class ConstructorPropertiesAnnotationTest
+    extends DatabindTestUtil
 {
     static class Issue905Bean {
         // 08-Nov-2015, tatu: Note that in real code we would most likely use same
@@ -112,7 +113,7 @@ public class CreatorPropertiesTest extends DatabindTestUtil
 
     // [databind#905]
     @Test
-    public void testCreatorPropertiesAnnotation() throws Exception
+    public void testConstructorPropertiesAnnotation() throws Exception
     {
         Issue905Bean b = MAPPER.readValue(a2q("{'y':3,'x':2}"),
                 Issue905Bean.class);

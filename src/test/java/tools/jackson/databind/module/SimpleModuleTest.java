@@ -403,7 +403,7 @@ public class SimpleModuleTest extends DatabindTestUtil
                 .addModule(mod2)
                 .build();
 
-        List<JacksonModule> mods = new ArrayList<>(mapper.getRegisteredModules());
+        List<JacksonModule> mods = _registeredModules(mapper);
         assertEquals(2, mods.size());
         // Should retain ordering even if not mandated
         assertEquals("test1", mods.get(0).getModuleName());
@@ -411,14 +411,14 @@ public class SimpleModuleTest extends DatabindTestUtil
 
         // 01-Jul-2019, [databind#2374]: verify empty list is fine
         mapper = newJsonMapper();
-        assertEquals(0, mapper.getRegisteredModules().size());
+        assertEquals(0, _registeredModules(mapper).size());
 
         // 07-Jun-2021, tatu [databind#3110] Casual SimpleModules ARE returned
         //    too!
         mapper = JsonMapper.builder()
                 .addModule(new SimpleModule())
                 .build();
-        assertEquals(1, mapper.getRegisteredModules().size());
+        assertEquals(1, _registeredModules(mapper).size());
         Object id = mapper.getRegisteredModules().iterator().next().getRegistrationId();
         // Id type won't be String but...
         if (!id.toString().startsWith("SimpleModule-")) {
@@ -431,7 +431,7 @@ public class SimpleModuleTest extends DatabindTestUtil
         mapper = JsonMapper.builder()
                 .addModule(vsm)
                 .build();
-        Collection<JacksonModule> reg = mapper.getRegisteredModules();
+        Collection<JacksonModule> reg = _registeredModules(mapper);
         assertEquals(1, reg.size());
         assertSame(vsm, reg.iterator().next());
     }
@@ -446,14 +446,14 @@ public class SimpleModuleTest extends DatabindTestUtil
                 .addModule(mod1)
                 .addModule(mod2)
                 .build();
-        assertEquals(2, mapper.getRegisteredModules().size());
+        assertEquals(2, _registeredModules(mapper).size());
 
         // Still avoid actual duplicates
         mapper = JsonMapper.builder()
                 .addModule(mod1)
                 .addModule(mod1)
                 .build();
-        assertEquals(1, mapper.getRegisteredModules().size());
+        assertEquals(1, _registeredModules(mapper).size());
 
         // Same for (anonymous) sub-classes
         final SimpleModule subMod1 = new SimpleModule() { };
@@ -462,13 +462,13 @@ public class SimpleModuleTest extends DatabindTestUtil
                 .addModule(subMod1)
                 .addModule(subMod2)
                 .build();
-        assertEquals(2, mapper.getRegisteredModules().size());
+        assertEquals(2, _registeredModules(mapper).size());
 
         mapper = JsonMapper.builder()
                 .addModule(subMod1)
                 .addModule(subMod1)
                 .build();
-        assertEquals(1, mapper.getRegisteredModules().size());
+        assertEquals(1, _registeredModules(mapper).size());
     }
 
     /*
@@ -624,7 +624,10 @@ public class SimpleModuleTest extends DatabindTestUtil
                 .addModule(new Module5063A())
                 .addModule(new Module5063B())
                 .build();
-        Collection<?> modules = mapper.getRegisteredModules();
-        assertEquals(2, modules.size());
+        assertEquals(2, _registeredModules(mapper).size());
+    }
+
+    private List<JacksonModule> _registeredModules(ObjectMapper mapper) {
+        return mapper.getRegisteredModules().toList();
     }
 }

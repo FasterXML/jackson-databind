@@ -15,6 +15,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5263: Remove deprecated `URL`-taking `readValue()` methods in `ObjectMapper`,
   `ObjectReader` from 3.0
 #5270: Remove `ObjectMapper.setSerializationInclusion()` from 3.0 (deprecate in 2.20)
+#5272: Replace `ObjectMapper.getRegisteredModuleIds()` (2.x) with
+  `ObjectMapper.getRegisteredModules()` (3.0)
 
 3.0.0-rc8 (13-Aug-2025)
 

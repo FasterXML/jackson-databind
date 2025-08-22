@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
@@ -567,7 +568,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public Collection<JacksonModule> getRegisteredModules() {
+    public Stream<JacksonModule> getRegisteredModules() {
         return _savedBuilderState.modules();
     }
 

@@ -127,7 +127,8 @@ public final class AnnotatedConstructor
 
     @Override
     public boolean isAllArgConstructor(Map<String, POJOPropertyBuilder> properties) {
-        return (getParameterCount() == properties.size())
+        return properties.size() > 1
+                && (getParameterCount() == properties.size())
                 // TODO:&& TODO// Add type validation also
                 //
                 && Arrays.stream(this.getNativeParameters()).map(Parameter::getName).allMatch(properties::containsKey);

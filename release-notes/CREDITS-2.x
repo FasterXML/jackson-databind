@@ -1869,6 +1869,9 @@ wrongwrong (@k163377)
  * Contributed fix for #5202: #5202: `JsonSetter.contentNulls` ignored for `Object[]`,
   `String[]` and `Collection<String>`
   (2.19.2)
+ * Reported #4218: If `@JacksonInject` is specified for field and deserialized by
+   the Creator, the inject process will be executed twice
+  (2.20.0)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing
@@ -1952,6 +1955,17 @@ Eddú Meléndez Gonzales (@eddumelendez)
   (2.19.2)
 
 Giulio Longfils (@giulong)
+ * Contributed #2678: `@JacksonInject` added to property overrides value from the JSON
+   even if `useInput` is `OptBoolean.TRUE`
+  (2.20.0)
  * Contributed #3072: Allow specifying `@JacksonInject` does not fail when there's no
    corresponding value
+  (2.20.0)
+ * Contributed #4218: If `@JacksonInject` is specified for field and deserialized by
+   the Creator, the inject process will be executed twice
+  (2.20.0)
+
+Plamen Tanov (@ptanov)
+ * Reported #2678: `@JacksonInject` added to property overrides value from the JSON
+   even if `useInput` is `OptBoolean.TRUE`
   (2.20.0)

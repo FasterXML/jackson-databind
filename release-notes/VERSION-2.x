@@ -6,10 +6,20 @@ Project: jackson-databind
 
 Not yet released
 
+#2678: `@JacksonInject` added to property overrides value from the JSON
+  even if `useInput` is `OptBoolean.TRUE`
+ (reported by Plamen T)
+ (fix by Giulio L)
 #2692: Should never call `set()` on setterless property during deserialization
  (reported by @lbonco)
+#4218: If `@JacksonInject` is specified for field and deserialized by the Creator,
+  the inject process will be executed twice
+ (reported by  @wrongwrong)
+ (fix by Giulio L)
 #5237: Failing `@JsonMerge` with a custom Map with a `@JsonCreator` constructor
  (reported by @nlisker)
+#5238: Immutable classes with `@JsonIdentityInfo` can be deserialized; records cannot
+ (fix by Joo-Hyuk K)
 #5242: Support "binary vectors": `@JsonFormat(shape = Shape.BINARY)` for
   `float[]`, `double[]`
 #5257: Deprecate `URL`-taking `readValue()` methods in `ObjectMapper`, `ObjectReader`

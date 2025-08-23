@@ -179,29 +179,16 @@ public class RecordBasicsTest extends DatabindTestUtil
         assertEquals(new RecordWithRename(123, "Bob"), value);
     }
 
-    /**
-     * This test-case is just for documentation purpose:
-     * GOTCHA: Annotations on header will be propagated to the field, leading to this failure.
-     *
-     * @see #testDeserializeConstructorInjectRecord()
-     */
+    // Confirmation of fix of [databind#4218]
     @Test
-    public void testDeserializeHeaderInjectRecord_WillFail() throws Exception {
+    public void testDeserializeHeaderInjectRecord4218() throws Exception {
         ObjectReader reader = MAPPER.readerFor(RecordWithHeaderInject.class)
                 .with(new InjectableValues.Std().addValue(String.class, "Bob"));
-
-        try {
-            reader.readValue("{\"id\":123}");
-
-            fail("should not pass");
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "RecordWithHeaderInject#name");
-            verifyException(e, "Can not set final java.lang.String field");
-        }
+        assertNotNull(reader.readValue("{\"id\":123}"));
     }
 
     @Test
-    public void testDeserializeConstructorInjectRecord() throws Exception {
+    public void testDeserializeConstructorInjectRecord4218() throws Exception {
         ObjectReader reader = MAPPER.readerFor(RecordWithConstructorInject.class)
                 .with(new InjectableValues.Std().addValue(String.class, "Bob"));
         RecordWithConstructorInject value = reader.readValue("{\"id\":123}");

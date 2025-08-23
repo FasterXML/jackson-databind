@@ -1282,6 +1282,20 @@ ctor.creator()));
             }
             _doAddInjectable(_annotationIntrospector.findInjectableValue(m), m);
         }
+
+        // 21-Aug-2025, tatu: [databind#4218] avoid duplicate injectables
+        if (_injectables != null) {
+            for (POJOPropertyBuilder creatorProperty : _creatorProperties) {
+                if (creatorProperty == null) {
+                    continue;
+                }
+                final AnnotatedParameter parameter = creatorProperty.getConstructorParameter();
+                JacksonInject.Value injectable = _annotationIntrospector.findInjectableValue(parameter);
+                if (injectable != null) {
+                    _injectables.remove(injectable.getId());
+                }
+            }
+        }
     }
 
     protected void _doAddInjectable(JacksonInject.Value injectable, AnnotatedMember m)
@@ -1291,7 +1305,7 @@ ctor.creator()));
         }
         Object id = injectable.getId();
         if (_injectables == null) {
-            _injectables = new LinkedHashMap<Object, AnnotatedMember>();
+            _injectables = new LinkedHashMap<>();
         }
         AnnotatedMember prev = _injectables.put(id, m);
         if (prev != null) {

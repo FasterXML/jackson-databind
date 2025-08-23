@@ -483,7 +483,7 @@ public abstract class DeserializationContext
     }
 
     /**
-     * @deprecated in 2.20
+     * @deprecated in 2.20 Use non-deprecated variant instead.
      */
     @Deprecated // since 2.20
     public final Object findInjectableValue(Object valueId,

@@ -1105,6 +1105,7 @@ public class ObjectReader
      * @since 2.11
      *
      * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
     @Deprecated // @since 2.20
     public JsonParser createParser(URL src) throws IOException {
@@ -1704,6 +1705,7 @@ public class ObjectReader
      * to create {@link java.io.InputStream} separately.
      *
      * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
     @Deprecated // @since 2.20
     @SuppressWarnings("unchecked")
@@ -1725,6 +1727,7 @@ public class ObjectReader
      * @since 2.11
      *
      * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
     @Deprecated // @since 2.20
     @SuppressWarnings("unchecked")
@@ -2019,6 +2022,7 @@ public class ObjectReader
      * @param src URL to read to access JSON content to parse.
      *
      * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
     @Deprecated // @since 2.20
     public <T> MappingIterator<T> readValues(URL src) throws IOException

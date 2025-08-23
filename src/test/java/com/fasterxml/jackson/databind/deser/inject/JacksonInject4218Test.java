@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.deser.inject;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -51,9 +50,8 @@ class JacksonInject4218Test extends DatabindTestUtil
     }
 
     // [databind#4218]
-    @JacksonTestFailureExpected
     @Test
-    void injectFail4218() throws Exception
+    void injectNoDups4218() throws Exception
     {
         ObjectReader reader = newJsonMapper()
                 .readerFor(Dto.class)

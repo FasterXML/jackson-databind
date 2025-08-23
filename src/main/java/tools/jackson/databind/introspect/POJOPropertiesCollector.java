@@ -703,7 +703,9 @@ public class POJOPropertiesCollector
             // to prefer properties-based Creators
             if ((_classDef.getDefaultConstructor() == null)
                     || ctorDetector.singleArgCreatorDefaultsToProperties()
-                    || (_classDef.getConstructors().stream().anyMatch((creator) ->
+                    || (
+                            _classDef.getDefaultConstructor().isPublic() &&
+                            _classDef.getConstructors().stream().anyMatch((creator) ->
                                     creator.isAllArgConstructor(props)))
             ) {
                 _addImplicitConstructor(creators, constructors, props);

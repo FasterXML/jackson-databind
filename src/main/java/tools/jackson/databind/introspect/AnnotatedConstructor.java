@@ -7,7 +7,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.Objects;
+import java.util.*;
 
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.util.ClassUtil;
@@ -123,6 +123,16 @@ public final class AnnotatedConstructor
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }
+    }
+
+    @Override
+    public boolean isAllArgConstructor(Map<String, POJOPropertyBuilder> properties) {
+        return (getParameterCount() == properties.size())
+                // TODO:&& TODO// Add type validation also
+                //
+                && Arrays.stream(this.getNativeParameters()).map(Parameter::getName).allMatch(properties::containsKey);
+
+
     }
 
     /*

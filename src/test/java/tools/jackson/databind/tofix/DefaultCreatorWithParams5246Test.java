@@ -11,7 +11,7 @@ import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 public class DefaultCreatorWithParams5246Test
     extends DatabindTestUtil
 {
-    @JacksonTestFailureExpected
+//    @JacksonTestFailureExpected
     @Test
     public void deserWithParams() throws Exception {
         String json = "{\"productId\":5, \"name\":\"test\", \"weight\":42}";
@@ -28,9 +28,7 @@ public class DefaultCreatorWithParams5246Test
 
         // Option 1 : Either remove this... or
         public Pojo() {
-            this.productId = 0;
-            this.name = null;
-            this.weight = 0;
+            throw new RuntimeException("Default constructor should not be used");
         }
 
         // Option 2 : Add @JsonCreator here

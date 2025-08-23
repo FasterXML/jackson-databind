@@ -1,6 +1,7 @@
 package tools.jackson.databind.introspect;
 
 import java.lang.reflect.Parameter;
+import java.util.Map;
 
 import tools.jackson.databind.JavaType;
 
@@ -123,4 +124,8 @@ public abstract class AnnotatedWithParams
      * Note: only works for constructors and static methods.
      */
     public abstract Object call1(Object arg) throws Exception;
+
+    public boolean isAllArgConstructor(Map<String, POJOPropertyBuilder> properties) {
+        return false;
+    }
 }

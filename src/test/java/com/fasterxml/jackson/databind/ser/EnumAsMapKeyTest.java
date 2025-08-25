@@ -130,6 +130,8 @@ public class EnumAsMapKeyTest extends BaseMapTest
     public void testJsonValueForEnumMapKey() throws Exception {
         assertEquals(a2q("{'stuff':{'longValue':'foo'}}"),
                 MAPPER.writeValueAsString(new MyStuff594("foo")));
+        MyStuff594 ff = MAPPER.readValue(a2q("{'stuff':{'longValue':'foo'}}"), MyStuff594.class);
+        System.out.println();
     }
 
     // [databind#2129]

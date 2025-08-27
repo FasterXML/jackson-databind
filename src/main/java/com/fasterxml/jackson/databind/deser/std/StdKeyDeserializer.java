@@ -450,10 +450,11 @@ public class StdKeyDeserializer extends KeyDeserializer
             if (_byEnumNamingResolver != null) {
                 return _byEnumNamingResolver;
             }
-            if (ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)) {
-                return  _getToStringResolver(ctxt);
+            if (_byNameResolver.hasAsValueAnnotation()
+                    || !ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)) {
+                return _byNameResolver;
             }
-            return _byNameResolver;
+            return  _getToStringResolver(ctxt);
         }
         
         /**

@@ -142,8 +142,12 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
 
     @Test
     public void testJsonValueForEnumMapKeyDeser() throws Exception {
-        MyStuff594 result = MAPPER.readValue(a2q("{'stuff':{'longValue':'foo'}}"),
-                MyStuff594.class);
+        final String json = a2q("{'stuff':{'longValue':'foo'}}");
+        ObjectReader r = MAPPER.readerFor(MyStuff594.class);
+        MyStuff594 result = r.with(DeserializationFeature.READ_ENUMS_USING_TO_STRING).readValue(json);
+        assertEquals("foo", result.stuff.get(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE));
+
+        result = r.without(DeserializationFeature.READ_ENUMS_USING_TO_STRING).readValue(json);
         assertEquals("foo", result.stuff.get(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE));
     }
 

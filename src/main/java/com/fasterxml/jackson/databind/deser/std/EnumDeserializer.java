@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -478,9 +479,10 @@ public class EnumDeserializer
             synchronized (this) {
                 lookup = _lookupByToString;
                 if (lookup == null) {
-                    lookup = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
-                        .constructLookup();
-                    _lookupByToString = lookup;
+                    DeserializationConfig config = ctxt.getConfig();
+                    AnnotatedClass ac = config.introspectClassAnnotations(_enumClass()).getClassInfo();
+                    _lookupByToString = EnumResolver.constructUsingToString(config, ac)
+                            .constructLookup();
                 }
             }
         }

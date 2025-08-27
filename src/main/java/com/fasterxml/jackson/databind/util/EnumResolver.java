@@ -167,44 +167,6 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
-     * Factory method for constructing resolver that maps from Enum.toString() into
-     * Enum value
-     *
-     * @since 2.12
-     * @deprecated Since 2.16 use {@link #constructUsingToString(DeserializationConfig, AnnotatedClass)} instead
-     */
-    @Deprecated
-    public static EnumResolver constructUsingToString(DeserializationConfig config,
-            Class<?> enumCls0)
-    {
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
-        final String[][] allAliases = new String[enumConstants.length][];
-        if (ai != null) {
-            ai.findEnumAliases(enumCls, enumConstants, allAliases);
-        }
-
-        // from last to first, so that in case of duplicate values, first wins
-        for (int i = enumConstants.length; --i >= 0; ) {
-            Enum<?> enumValue = enumConstants[i];
-            map.put(enumValue.toString(), enumValue);
-            String[] aliases = allAliases[i];
-            if (aliases != null) {
-                for (String alias : aliases) {
-                    // Avoid overriding any primary names
-                    map.putIfAbsent(alias, enumValue);
-                }
-            }
-        }
-        return new EnumResolver(enumCls, enumConstants, map,
-                _enumDefault(ai, enumCls),
-                isIgnoreCase, false);
-    }
-
-    /**
      * Factory method for constructing resolver that maps from index of Enum.values() into
      * Enum value.
      *
@@ -231,34 +193,6 @@ public class EnumResolver implements java.io.Serializable
                 _enumDefault(ai, annotatedClass, enumConstants),
                 isIgnoreCase, false);
     }
-
-    /**
-     * Factory method for constructing resolver that maps from index of Enum.values() into
-     * Enum value
-     *
-     * @since 2.15
-     * @deprecated Since 2.16. Use {@link #constructUsingIndex(DeserializationConfig, AnnotatedClass)} instead.
-     */
-    @Deprecated
-    public static EnumResolver constructUsingIndex(DeserializationConfig config,
-            Class<Enum<?>> enumCls0)
-    {
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        HashMap<String, Enum<?>> map = new HashMap<>();
-
-        // from last to first, so that in case of duplicate values, first wins
-        for (int i = enumConstants.length; --i >= 0; ) {
-            Enum<?> enumValue = enumConstants[i];
-            map.put(String.valueOf(i), enumValue);
-        }
-        return new EnumResolver(enumCls, enumConstants, map,
-            _enumDefault(ai, enumCls),
-            isIgnoreCase, false);
-    }
-
 
     /**
      * Factory method for constructing an {@link EnumResolver} with {@link EnumNamingStrategy} applied.
@@ -370,14 +304,6 @@ public class EnumResolver implements java.io.Serializable
      */
     protected static Enum<?> _enumDefault(AnnotationIntrospector intr, AnnotatedClass annotatedClass, Enum<?>[] enums) {
         return (intr != null) ? intr.findDefaultEnumValue(annotatedClass, enums) : null;
-    }
-
-    /**
-     * @deprecated Since 2.16. Use {@link #_enumDefault(AnnotationIntrospector, AnnotatedClass, Enum[])} instead.
-     */
-    @Deprecated
-    protected static Enum<?> _enumDefault(AnnotationIntrospector intr, Class<?> enumCls) {
-        return (intr != null) ? intr.findDefaultEnumValue(_enumClass(enumCls)) : null;
     }
 
     protected static boolean _isIntType(Class<?> erasedType) {

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.EnumFeature;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
@@ -449,14 +450,16 @@ public class StdKeyDeserializer extends KeyDeserializer
             if (_byEnumNamingResolver != null) {
                 return _byEnumNamingResolver;
             }
-            return ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                ? _getToStringResolver(ctxt)
-                : _byNameResolver;
+            if (ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)) {
+                return  _getToStringResolver(ctxt);
+            }
+            return _byNameResolver;
         }
         
         /**
-         * Since 2.16, {@link #_byToStringResolver} it is passed via 
-         * {@link #EnumKD(EnumResolver, AnnotatedMethod, EnumResolver, EnumResolver, EnumResolver)}, so there is no need for lazy
+         * Since 2.16, {@link #_byToStringResolver} is passed via 
+         * {@link #EnumKD(EnumResolver, AnnotatedMethod, EnumResolver, EnumResolver, EnumResolver)},
+         * so there is no need for lazy
          * initialization. But kept for backward-compatilibility reasons.
          * 
          * @deprecated Since 2.16
@@ -469,9 +472,9 @@ public class StdKeyDeserializer extends KeyDeserializer
                 synchronized (this) {
                     res = _byToStringResolver;
                     if (res == null) {
-                        res = EnumResolver.constructUsingToString(ctxt.getConfig(),
-                            _byNameResolver.getEnumClass());
-                        _byToStringResolver = res;
+                        final DeserializationConfig config = ctxt.getConfig();
+                        AnnotatedClass ac = config.introspectClassAnnotations(_byNameResolver.getEnumClass()).getClassInfo();
+                        _byToStringResolver = EnumResolver.constructUsingToString(config, ac);
                     }
                 }
             }
@@ -492,9 +495,9 @@ public class StdKeyDeserializer extends KeyDeserializer
                 synchronized (this) {
                     res = _byIndexResolver;
                     if (res == null) {
-                        res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
-                            _byNameResolver.getEnumClass());
-                        _byIndexResolver = res;
+                        final DeserializationConfig config = ctxt.getConfig();
+                        AnnotatedClass ac = config.introspectClassAnnotations(_byNameResolver.getEnumClass()).getClassInfo();
+                        _byIndexResolver = EnumResolver.constructUsingIndex(config, ac);;
                     }
                 }
             }

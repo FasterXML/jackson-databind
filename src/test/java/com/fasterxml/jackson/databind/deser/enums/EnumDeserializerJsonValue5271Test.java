@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser.enums;
+package com.fasterxml.jackson.databind.deser.enums;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,7 +29,6 @@ public class EnumDeserializerJsonValue5271Test extends DatabindTestUtil
     private final ObjectReader ENUM_READER = newJsonMapper().readerFor(Enum5271.class);
 
     // [databind#5271]
-    @JacksonTestFailureExpected
     @Test
     void convertStringToEnum() throws Exception {
         _testConvert(ENUM_READER.without(DeserializationFeature.READ_ENUMS_USING_TO_STRING));

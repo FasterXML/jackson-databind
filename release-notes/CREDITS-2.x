@@ -1969,3 +1969,8 @@ Plamen Tanov (@ptanov)
  * Reported #2678: `@JacksonInject` added to property overrides value from the JSON
    even if `useInput` is `OptBoolean.TRUE`
   (2.20.0)
+
+Michael Reiche (@mikereiche)
+ * Reported #5271: `EnumDeserializer` fails to deserialize Enums with @JsonValue - uses table
+   with name() key instead of @JsonValue key
+  (2.20.0)

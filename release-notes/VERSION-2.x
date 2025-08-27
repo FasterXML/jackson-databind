@@ -23,6 +23,9 @@ Not yet released
 #5242: Support "binary vectors": `@JsonFormat(shape = Shape.BINARY)` for
   `float[]`, `double[]`
 #5257: Deprecate `URL`-taking `readValue()` methods in `ObjectMapper`, `ObjectReader`
+#5271: `EnumDeserializer` fails to deserialize Enums with @JsonValue - uses table
+  with name() key instead of @JsonValue key
+ (reported by Michael R)
 
 2.20.0-rc1 (04-Aug-2025)
 

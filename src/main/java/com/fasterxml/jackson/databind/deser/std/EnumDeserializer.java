@@ -68,6 +68,11 @@ public class EnumDeserializer
     protected final boolean _isFromIntValue;
 
     /**
+     * @since 2.20
+     */
+    protected final boolean _hasAsValueAnnotation;
+
+    /**
      * Look up map with <b>key</b> as <code>Enum.name()</code> converted by
      * {@link EnumNamingStrategy#convertEnumToExternalName(String)}
      * and <b>value</b> as Enums.
@@ -96,6 +101,7 @@ public class EnumDeserializer
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
+        _hasAsValueAnnotation = byNameResolver.hasAsValueAnnotation();
         _enumsByIndex = byNameResolver.getRawEnums();
         _enumDefaultValue = byNameResolver.getDefaultValue();
         _caseInsensitive = caseInsensitive;
@@ -112,6 +118,7 @@ public class EnumDeserializer
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
+        _hasAsValueAnnotation = byNameResolver.hasAsValueAnnotation();
         _enumsByIndex = byNameResolver.getRawEnums();
         _enumDefaultValue = byNameResolver.getDefaultValue();
         _caseInsensitive = caseInsensitive;
@@ -128,6 +135,7 @@ public class EnumDeserializer
     {
         super(base);
         _lookupByName = base._lookupByName;
+        _hasAsValueAnnotation = base._hasAsValueAnnotation;
         _enumsByIndex = base._enumsByIndex;
         _enumDefaultValue = base._enumDefaultValue;
         _caseInsensitive = Boolean.TRUE.equals(caseInsensitive);
@@ -136,15 +144,6 @@ public class EnumDeserializer
         _useNullForUnknownEnum = useNullForUnknownEnum;
         _lookupByEnumNaming = base._lookupByEnumNaming;
         _lookupByToString = base._lookupByToString;
-    }
-
-    /**
-     * @since 2.9
-     * @deprecated Since 2.15
-     */
-    @Deprecated
-    protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive) {
-        this(base, caseInsensitive, null, null);
     }
 
     /**
@@ -318,9 +317,10 @@ public class EnumDeserializer
         if (_lookupByEnumNaming != null) {
             return _lookupByEnumNaming;
         }
-        return ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-            ? _getToStringLookup(ctxt)
-            : _lookupByName;
+        if (_hasAsValueAnnotation || !ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)) {
+            return _lookupByName;
+        }
+        return _getToStringLookup(ctxt);
     }
 
     protected Object _fromInteger(JsonParser p, DeserializationContext ctxt,

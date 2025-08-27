@@ -27,18 +27,25 @@ public class ValueInjector
      */
     protected final Boolean _optional;
 
+    /**
+     * Flag used for configuring the behavior when the input value should be preferred
+     * over the value to inject.
+     */
+    protected final Boolean _useInput;
+
     public ValueInjector(PropertyName propName, JavaType type,
-            AnnotatedMember mutator, Object valueId, Boolean optional)
+            AnnotatedMember mutator, Object valueId, Boolean optional, Boolean useInput)
     {
         super(propName, type, null, mutator, PropertyMetadata.STD_OPTIONAL);
         _valueId = valueId;
         _optional = optional;
+        _useInput = useInput;
     }
 
     public Object findValue(DeserializationContext context, Object beanInstance)
         throws JacksonException
     {
-        return context.findInjectableValue(_valueId, this, beanInstance, _optional);
+        return context.findInjectableValue(_valueId, this, beanInstance, _optional, _useInput);
     }
 
     public void inject(DeserializationContext context, Object beanInstance)

@@ -240,7 +240,7 @@ public class BeanDeserializerBuilder
 
     public void addInjectable(PropertyName propName, JavaType propType,
             Annotations contextAnnotations, AnnotatedMember member,
-            Object valueId, Boolean optional)
+            Object valueId, Boolean optional, Boolean useInput)
     {
         if (_injectables == null) {
             _injectables = new ArrayList<>();
@@ -252,7 +252,7 @@ public class BeanDeserializerBuilder
                 _handleBadAccess(e);
             }
         }
-        _injectables.add(new ValueInjector(propName, propType, member, valueId, optional));
+        _injectables.add(new ValueInjector(propName, propType, member, valueId, optional, useInput));
     }
 
     /**

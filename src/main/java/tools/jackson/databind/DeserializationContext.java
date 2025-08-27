@@ -470,7 +470,7 @@ public abstract class DeserializationContext
     public final JsonParser getParser() { return _parser; }
 
     public final Object findInjectableValue(Object valueId,
-            BeanProperty forProperty, Object beanInstance, Boolean optional)
+            BeanProperty forProperty, Object beanInstance, Boolean optional, Boolean useInput)
     {
         if (_injectableValues == null) {
             // `optional` comes from property annotation (if any); has precedence
@@ -483,7 +483,8 @@ public abstract class DeserializationContext
 "No 'injectableValues' configured, cannot inject value with id '%s'", valueId),
                     valueId, forProperty, beanInstance);
         }
-        return _injectableValues.findInjectableValue(this, valueId, forProperty, beanInstance, optional);
+        return _injectableValues.findInjectableValue(this, valueId, forProperty, beanInstance,
+                optional, useInput);
     }
 
     /**

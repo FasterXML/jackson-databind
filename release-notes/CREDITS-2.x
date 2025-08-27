@@ -1866,7 +1866,7 @@ wrongwrong (@k163377)
  * Contributed fix for #5139: In `CollectionDeserializer`, `JsonSetter.contentNulls`
    is sometimes ignored
   (2.19.1)
- * Contributed fix for #5202: #5202: `JsonSetter.contentNulls` ignored for `Object[]`,
+ * Contributed fix for #5202: `JsonSetter.contentNulls` ignored for `Object[]`,
   `String[]` and `Collection<String>`
   (2.19.2)
  * Reported #4218: If `@JacksonInject` is specified for field and deserialized by
@@ -1955,8 +1955,8 @@ Eddú Meléndez Gonzales (@eddumelendez)
   (2.19.2)
 
 Giulio Longfils (@giulong)
- * Contributed #2678: `@JacksonInject` added to property overrides value from the JSON
-   even if `useInput` is `OptBoolean.TRUE`
+ * Contributed fix for #2678: `@JacksonInject` added to property overrides value
+   from the JSON even if `useInput` is `OptBoolean.TRUE`
   (2.20.0)
  * Contributed #3072: Allow specifying `@JacksonInject` does not fail when there's no
    corresponding value

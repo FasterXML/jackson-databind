@@ -674,7 +674,8 @@ public class IntrospectorPairTest extends DatabindTestUtil
         @Override
         public Object findInjectableValue(DeserializationContext ctxt,
                 Object valueId, 
-                BeanProperty forProperty, Object beanInstance, Boolean optional) {
+                BeanProperty forProperty, Object beanInstance,
+                Boolean optional, Boolean useInput) {
             if (valueId == "jjj") {
                 UnreadableBean bean = new UnreadableBean();
                 bean.setValue(1);
@@ -683,6 +684,7 @@ public class IntrospectorPairTest extends DatabindTestUtil
             return null;
         }
 
+        @Deprecated // since 2.20
         @Override
         public InjectableValues snapshot() {
             return this;

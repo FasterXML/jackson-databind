@@ -28,10 +28,11 @@ public abstract class InjectableValues
      *    if available; null if bean has not yet been constructed.
      * @param optional Flag used for configuring the behavior when the value
      *    to inject is not found
+     * @param useInput
      */
     public abstract Object findInjectableValue(DeserializationContext ctxt,
             Object valueId, BeanProperty forProperty, Object beanInstance,
-            Boolean optional)
+            Boolean optional, Boolean useInput)
         throws JacksonException;
 
     /*
@@ -81,7 +82,8 @@ public abstract class InjectableValues
         @Override
         public Object findInjectableValue(DeserializationContext ctxt,
                 Object valueId,
-                BeanProperty forProperty, Object beanInstance, Boolean optional)
+                BeanProperty forProperty, Object beanInstance,
+                Boolean optional, Boolean useInput)
         {
             if (!(valueId instanceof String)) {
                 throw ctxt.missingInjectableValueException(

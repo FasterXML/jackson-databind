@@ -12,6 +12,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,6 +47,7 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
     static class MyStuff594 {
         public Map<MyEnum594,String> stuff = new EnumMap<MyEnum594,String>(MyEnum594.class);
 
+        protected MyStuff594() { }
         public MyStuff594(String value) {
             stuff.put(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE, value);
         }
@@ -135,9 +137,17 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
 
     // [databind#594]
     @Test
-    public void testJsonValueForEnumMapKey() throws Exception {
+    public void testJsonValueForEnumMapKeySer() throws Exception {
         assertEquals(a2q("{'stuff':{'longValue':'foo'}}"),
                 MAPPER.writeValueAsString(new MyStuff594("foo")));
+    }
+
+    @JacksonTestFailureExpected // until [databind#5246] is fixed
+    @Test
+    public void testJsonValueForEnumMapKeyDeser() throws Exception {
+        MyStuff594 result = MAPPER.readValue(a2q("{'stuff':{'longValue':'foo'}}"),
+                MyStuff594.class);
+        assertEquals("foo", result.stuff.get(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE));
     }
 
     // [databind#2129]

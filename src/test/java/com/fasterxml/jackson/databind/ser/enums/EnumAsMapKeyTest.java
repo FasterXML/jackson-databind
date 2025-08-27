@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.ser.enums;
 
 import java.io.IOException;
 import java.util.*;

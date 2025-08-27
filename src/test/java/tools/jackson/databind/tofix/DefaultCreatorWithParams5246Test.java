@@ -1,5 +1,6 @@
 package tools.jackson.databind.tofix;
 
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -16,7 +17,7 @@ public class DefaultCreatorWithParams5246Test
     public void deserWithParams() throws Exception {
         String json = "{\"productId\":5, \"name\":\"test\", \"weight\":42}";
 
-        JsonMapper mapper = JsonMapper.builder().build();
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS).build();
 
         Assertions.assertEquals(5, mapper.readValue(json, Pojo.class).getProductId());
     }

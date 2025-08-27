@@ -68,6 +68,9 @@ public class EnumDeserializer
     protected final boolean _isFromIntValue;
 
     /**
+     * Marker flag that indicates whether the Enum class has {@code @JsonValue}
+     * annotated accessor (or equivalent), used to populate {@link #_lookupByName}.
+     *
      * @since 2.20
      */
     protected final boolean _hasAsValueAnnotation;

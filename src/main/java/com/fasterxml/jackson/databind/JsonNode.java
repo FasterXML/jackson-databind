@@ -491,7 +491,9 @@ public abstract class JsonNode
      * Does <b>NOT</b> do any conversions for non-String value nodes;
      * for non-String values (ones for which {@link #isTextual} returns
      * false) null will be returned.
-     * For String values, null is never returned (but empty Strings may be)
+     * For String values, null is never returned (but empty Strings may be).
+     *
+     * IMPORTANT : Starting Jackson 3.0, this method will be named as {@code stringValue()}.
      *
      * @return Textual value this node contains, iff it is a textual
      *   JSON node (comes from JSON String value entry)

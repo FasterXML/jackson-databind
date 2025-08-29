@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -17,7 +18,8 @@ public class ReaderForUpdating5281Test
     extends DatabindTestUtil
 {
     public static class ArrayListHolder {
-
+        // Works when annotated with...
+        // @JsonMerge
         Collection<String> values;
 
         public ArrayListHolder(String... values) {
@@ -30,10 +32,11 @@ public class ReaderForUpdating5281Test
         }
     }
 
+    @JacksonTestFailureExpected
     @Test
     public void readsIntoCreator() throws Exception {
         ObjectMapper mapper = JsonMapper.builder().build();
-        
+
         ArrayListHolder holder = mapper.readerForUpdating(new ArrayListHolder("A"))
                 .readValue("{ \"values\" : [ \"A\", \"B\" ]}");
 

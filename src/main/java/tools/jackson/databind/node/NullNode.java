@@ -59,6 +59,9 @@ public class NullNode
         return "";
     }
 
+    @Override
+    public String stringValue() { return null; }
+
     /*
     /**********************************************************************
     /* Overridden JsonNode methods, scalar access, numeric

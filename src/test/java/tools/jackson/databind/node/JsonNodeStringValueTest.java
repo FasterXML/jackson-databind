@@ -65,8 +65,18 @@ public class JsonNodeStringValueTest
     @Test
     public void stringValueFromNonNumberMisc()
     {
-        _assertStringValueFailForNonString(NODES.nullNode());
         _assertStringValueFailForNonString(NODES.missingNode());
+    }
+
+    @Test
+    public void stringValueFromNullNodeNull()
+    {
+        JsonNode node = NODES.nullNode();
+        assertEquals(null, node.stringValue());
+
+        // But also check defaulting
+        assertEquals("foo", node.stringValue("foo"));
+        assertFalse(node.stringValueOpt().isPresent());
     }
 
     // // // asString() tests

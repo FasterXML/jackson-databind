@@ -979,6 +979,13 @@ No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
   via `AsNull`
 - Add `mvnw` wrapper
 
+2.12.7.2 (02-May-2024)
+
+#3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
+  `PropertyNamingStrategy.UPPER_CAMEL_CASE`
+ (reported by Jason H)
+ (fix suggested by gsinghlulu@github)
+
 2.12.7.1 (12-Oct-2022)
 
 #3582: Add check in `BeanDeserializer._deserializeFromArray()` to prevent
@@ -998,7 +1005,7 @@ No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
 #3305: ObjectMapper serializes `CharSequence` subtypes as POJO instead of
   as String (JDK 15+)
  (reported by stevenupton@github; fix suggested by Sergey C)
-#3328: Possible DoS if using JDK serialization to serialize JsonNode
+#3328: Possible DoS if using JDK serialization to serialize JsonNode [CVE-2021-46877]
 
 2.12.5 (27-Aug-2021)
 

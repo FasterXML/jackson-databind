@@ -545,36 +545,39 @@ public abstract class JsonNode
 
     /**
      * Method that will try to access value of this node as a Java {@code String}
-     * which works if (and only if) node contains JSON String value:
+     * which works if (and only if) node contains JSON String or Null value:
      * if not, a {@link JsonNodeException} will be thrown.
+     * In case of JSON null, Java {@code null} is returned.
      *<p>
-     * NOTE: for more lenient conversions, use {@link #asString()}
+     * NOTE: for more conversions, use {@link #asString()} instead.
      *<p>
-     * NOTE: in Jackson 2.x, was {@code textValue()}.
+     * NOTE: in Jackson 2.x, this method was named {@code textValue()}.
      *
-     * @return {@code String} value this node represents (if JSON String)
+     * @return {@code String} value this node represents (if JSON String),
+     *   null for JSON null
      *
-     * @throws JsonNodeException if node value is not a JSON String value
+     * @throws JsonNodeException if node value is not a JSON String or Null value
      */
     public abstract String stringValue();
 
     /**
      * Method similar to {@link #stringValue()}, but that will return specified
-     * {@code defaultValue} if this node does not contain a JSON String.
+     * {@code defaultValue} if this node does not contain a JSON String or Null.
      *
-     * @param defaultValue Value to return if this node does not contain a JSON String.
+     * @param defaultValue Value to return if this node does not contain a JSON String or Null.
      *
-     * @return Java {@code String} value this node represents (if JSON String);
+     * @return Java {@code String} value this node represents (if JSON String or Null);
      *   {@code defaultValue} otherwise
      */
     public abstract String stringValue(String defaultValue);
 
     /**
      * Method similar to {@link #stringValue()}, but that will return
-     * {@code Optional.empty()} if this node does not contain a JSON String.
+     * {@code Optional.empty()} if this node does not contain a JSON String
+     * (NOTE: JSON null is not considered a String here)
      *
      * @return {@code Optional<String>} value (if node represents JSON String);
-     *   {@code Optional.empty()} otherwise
+     *   {@code Optional.empty()} otherwise (including for JSON null)
      */
     public abstract Optional<String> stringValueOpt();
 

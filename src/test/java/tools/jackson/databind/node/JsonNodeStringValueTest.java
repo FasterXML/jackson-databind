@@ -75,7 +75,7 @@ public class JsonNodeStringValueTest
         assertEquals(null, node.stringValue());
 
         // But also check defaulting
-        assertEquals(null, node.stringValue("foo"));
+        assertEquals("foo", node.stringValue("foo"));
         assertFalse(node.stringValueOpt().isPresent());
     }
 

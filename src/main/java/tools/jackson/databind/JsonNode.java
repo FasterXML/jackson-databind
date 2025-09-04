@@ -545,16 +545,16 @@ public abstract class JsonNode
 
     /**
      * Method that will try to access value of this node as a Java {@code String}
-     * which works if (and only if) node contains JSON String or Null value:
+     * which works if (and only if) node contains JSON String or {@code null} value:
      * if not, a {@link JsonNodeException} will be thrown.
-     * In case of JSON null, Java {@code null} is returned.
+     * In case of JSON {@code null}, Java {@code null} is returned.
      *<p>
      * NOTE: for more conversions, use {@link #asString()} instead.
      *<p>
      * NOTE: in Jackson 2.x, this method was named {@code textValue()}.
      *
      * @return {@code String} value this node represents (if JSON String),
-     *   null for JSON null
+     *   {@code null} for JSON {@code null}
      *
      * @throws JsonNodeException if node value is not a JSON String or Null value
      */
@@ -562,12 +562,14 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #stringValue()}, but that will return specified
-     * {@code defaultValue} if this node does not contain a JSON String or Null.
+     * {@code defaultValue} if this node does not contain a JSON String. This
+     * default value case includes JSON {@code null}.
      *
-     * @param defaultValue Value to return if this node does not contain a JSON String or Null.
+     * @param defaultValue Value to return if this node does not contain a JSON String.
      *
-     * @return Java {@code String} value this node represents (if JSON String or Null);
-     *   {@code defaultValue} otherwise
+     * @return Java {@code String} value this node represents (if JSON String);
+     *   {@code defaultValue} otherwise -- only returns {@code null} if {@code defaultValue}
+     *   is {@code null}
      */
     public abstract String stringValue(String defaultValue);
 

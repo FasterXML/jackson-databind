@@ -91,7 +91,7 @@ public abstract class PropertyBindingException
                     }
                 }
             }
-            sb.append("])");
+            sb.append(")");
             _propertiesAsString = suffix = sb.toString();
         }
         return suffix;

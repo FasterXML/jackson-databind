@@ -1974,3 +1974,7 @@ Michael Reiche (@mikereiche)
  * Reported #5271: `EnumDeserializer` fails to deserialize Enums with @JsonValue - uses table
    with name() key instead of @JsonValue key
   (2.20.0)
+
+Johnny Lim (@izeye)
+ * Reported #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
+  (2.21.0)

@@ -6,7 +6,8 @@ Project: jackson-databind
 
 2.21.0 (not yet released)
 
-No change since 2.20
+#5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
+ (reported by Johny L)
 
 2.20.0 (28-Aug-2025)
 

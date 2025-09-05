@@ -40,9 +40,6 @@ public class MapInclusion2573Test extends DatabindTestUtil
         CAR.properties = CAR_PROPERTIES;
     }
 
-    private final JsonInclude.Value BOTH_NON_NULL = JsonInclude.Value.construct(JsonInclude.Include.NON_NULL,
-            JsonInclude.Include.NON_NULL);
-
 //    final private ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2572]
@@ -51,7 +48,7 @@ public class MapInclusion2573Test extends DatabindTestUtil
     {
 
         ObjectMapper mapper = JsonMapper.builder()
-                .defaultPropertyInclusion(BOTH_NON_NULL)
+                .defaultPropertyInclusion(JsonInclude.Value.ALL_NON_NULL)
                 .build();
         assertEquals(a2q("{'Speed':100}"),
                 mapper.writeValueAsString(CAR_PROPERTIES));
@@ -64,7 +61,7 @@ public class MapInclusion2573Test extends DatabindTestUtil
     public void test2572MapOverrideUseDefaults() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
-                .defaultPropertyInclusion(BOTH_NON_NULL)
+                .defaultPropertyInclusion(JsonInclude.Value.ALL_NON_NULL)
                 .build();
         mapper.configOverride(Map.class)
             .setInclude(JsonInclude.Value.construct(JsonInclude.Include.USE_DEFAULTS,
@@ -80,7 +77,7 @@ public class MapInclusion2573Test extends DatabindTestUtil
     public void test2572MapOverrideInclAlways() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
-                .defaultPropertyInclusion(BOTH_NON_NULL)
+                .defaultPropertyInclusion(JsonInclude.Value.ALL_NON_NULL)
                 .build();
         mapper.configOverride(Map.class)
             .setInclude(JsonInclude.Value.construct(JsonInclude.Include.ALWAYS,

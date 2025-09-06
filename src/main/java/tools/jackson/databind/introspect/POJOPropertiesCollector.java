@@ -1500,7 +1500,7 @@ ctor.creator()));
             // simple renaming? Just do it
             if (l.size() == 1) {
                 PropertyName n = l.iterator().next();
-                if (getObjectIdInfo() != null && prop.getName().equals(getObjectIdInfo().getPropertyName().getName()) ) {
+                if (getObjectIdInfo() != null) {
                     renamed.add(prop);
                 } else  {
                     renamed.add(prop.withName(n));

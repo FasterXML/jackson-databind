@@ -51,7 +51,6 @@ public class JsonIdentityOnRecord5238Test
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#5262]: Regression in 3.0?
-    @JacksonTestFailureExpected
     @Test
     void testIdentityWithPojo() throws Exception {
         ThingPojo t1 = new ThingPojo(1, "a");

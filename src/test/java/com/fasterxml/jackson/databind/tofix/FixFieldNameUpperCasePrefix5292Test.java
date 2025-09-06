@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -61,8 +62,9 @@ public class FixFieldNameUpperCasePrefix5292Test
         .enable(MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX)
         .build();
 
+    @JacksonTestFailureExpected
     @Test
-    public void testDeserDOuble()
+    public void testDeserDouble()
             throws Exception {
 
         AppleDouble apple = new AppleDouble("iPhone 15", "Jay");
@@ -75,6 +77,7 @@ public class FixFieldNameUpperCasePrefix5292Test
         assertEquals("iPhone 15", result.getName());
     }
 
+    @JacksonTestFailureExpected
     @Test
     public void testSingleArgCase()
             throws Exception {

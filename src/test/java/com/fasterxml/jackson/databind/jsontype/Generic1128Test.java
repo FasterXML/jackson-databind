@@ -55,7 +55,7 @@ public class Generic1128Test extends DatabindTestUtil
     public void testIssue1128() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
 
         final DevMContainer devMContainer1 = new DevMContainer();
         final DevM entity = new DevM();

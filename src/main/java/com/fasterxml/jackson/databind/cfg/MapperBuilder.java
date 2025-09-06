@@ -724,7 +724,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * @param incl Default property inclusion to set
      *
      * @return This builder instance to allow call chaining
+     *
+     * @deprecated Since 2.20 use {@link #defaultPropertyInclusion(JsonInclude.Value)}
      */
+    @Deprecated
     public B serializationInclusion(JsonInclude.Include incl) {
         _mapper.setSerializationInclusion(incl);
         return _this();

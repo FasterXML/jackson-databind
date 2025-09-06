@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.ser.enums;
 
 import java.io.IOException;
 import java.util.*;
@@ -46,6 +46,7 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
     static class MyStuff594 {
         public Map<MyEnum594,String> stuff = new EnumMap<MyEnum594,String>(MyEnum594.class);
 
+        protected MyStuff594() { }
         public MyStuff594(String value) {
             stuff.put(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE, value);
         }
@@ -134,9 +135,20 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
 
     // [databind#594]
     @Test
-    public void testJsonValueForEnumMapKey() throws Exception {
+    public void testJsonValueForEnumMapKeySer() throws Exception {
         assertEquals(a2q("{'stuff':{'longValue':'foo'}}"),
                 MAPPER.writeValueAsString(new MyStuff594("foo")));
+    }
+
+    @Test
+    public void testJsonValueForEnumMapKeyDeser() throws Exception {
+        final String json = a2q("{'stuff':{'longValue':'foo'}}");
+        ObjectReader r = MAPPER.readerFor(MyStuff594.class);
+        MyStuff594 result = r.with(DeserializationFeature.READ_ENUMS_USING_TO_STRING).readValue(json);
+        assertEquals("foo", result.stuff.get(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE));
+
+        result = r.without(DeserializationFeature.READ_ENUMS_USING_TO_STRING).readValue(json);
+        assertEquals("foo", result.stuff.get(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE));
     }
 
     // [databind#2129]

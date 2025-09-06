@@ -19,7 +19,7 @@ public class TestForwardReference extends DatabindTestUtil {
 	private final ObjectMapper MAPPER = newJsonMapper()
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.enable(SerializationFeature.INDENT_OUTPUT)
-			.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+			.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
 
 	/** Tests that we can read a hierarchical structure with forward references*/
 	@Test

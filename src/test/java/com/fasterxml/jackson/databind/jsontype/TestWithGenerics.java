@@ -179,7 +179,7 @@ public class TestWithGenerics extends DatabindTestUtil
         ObjectMapper om = new ObjectMapper();
         om.activateDefaultTyping(NoCheckSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY );
-        om.setSerializationInclusion(JsonInclude.Include.NON_NULL );
+        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL );
         om.enable( SerializationFeature.INDENT_OUTPUT);
 
         MyClass mc = new MyClass();

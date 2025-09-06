@@ -1832,23 +1832,6 @@ factory.toString()));
     }
 
     /**
-     * Factory method used to resolve an instance of {@link CompactStringObjectMap}
-     * with {@link EnumNamingStrategy} applied for the target class.
-     *
-     * @since 2.15
-     * @deprecated Since 2.16: use {@link #constructEnumNamingStrategyResolver(DeserializationConfig, AnnotatedClass)} instead.
-     */
-    @Deprecated
-    protected EnumResolver constructEnumNamingStrategyResolver(DeserializationConfig config, Class<?> enumClass,
-            AnnotatedClass annotatedClass) {
-        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
-        EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
-            namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
-        return enumNamingStrategy == null ? null
-            : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);
-    }
-
-    /**
      * @since 2.18
      */
     protected boolean _hasCreatorAnnotation(MapperConfig<?> config,

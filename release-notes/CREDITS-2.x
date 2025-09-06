@@ -1866,7 +1866,7 @@ wrongwrong (@k163377)
  * Contributed fix for #5139: In `CollectionDeserializer`, `JsonSetter.contentNulls`
    is sometimes ignored
   (2.19.1)
- * Contributed fix for #5202: #5202: `JsonSetter.contentNulls` ignored for `Object[]`,
+ * Contributed fix for #5202: `JsonSetter.contentNulls` ignored for `Object[]`,
   `String[]` and `Collection<String>`
   (2.19.2)
  * Reported #4218: If `@JacksonInject` is specified for field and deserialized by
@@ -1955,8 +1955,8 @@ Eddú Meléndez Gonzales (@eddumelendez)
   (2.19.2)
 
 Giulio Longfils (@giulong)
- * Contributed #2678: `@JacksonInject` added to property overrides value from the JSON
-   even if `useInput` is `OptBoolean.TRUE`
+ * Contributed fix for #2678: `@JacksonInject` added to property overrides value
+   from the JSON even if `useInput` is `OptBoolean.TRUE`
   (2.20.0)
  * Contributed #3072: Allow specifying `@JacksonInject` does not fail when there's no
    corresponding value
@@ -1969,3 +1969,12 @@ Plamen Tanov (@ptanov)
  * Reported #2678: `@JacksonInject` added to property overrides value from the JSON
    even if `useInput` is `OptBoolean.TRUE`
   (2.20.0)
+
+Michael Reiche (@mikereiche)
+ * Reported #5271: `EnumDeserializer` fails to deserialize Enums with @JsonValue - uses table
+   with name() key instead of @JsonValue key
+  (2.20.0)
+
+Johnny Lim (@izeye)
+ * Reported #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
+  (2.21.0)

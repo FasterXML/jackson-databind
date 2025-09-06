@@ -244,7 +244,7 @@ public class BeanDeserializerBuilder
      */
     public void addInjectable(PropertyName propName, JavaType propType,
             Annotations contextAnnotations, AnnotatedMember member,
-            Object valueId, Boolean optional)
+            Object valueId, Boolean optional, Boolean useInput)
         throws JsonMappingException
     {
         if (_injectables == null) {
@@ -257,7 +257,7 @@ public class BeanDeserializerBuilder
                 _handleBadAccess(e);
             }
         }
-        _injectables.add(new ValueInjector(propName, propType, member, valueId, optional));
+        _injectables.add(new ValueInjector(propName, propType, member, valueId, optional, useInput));
     }
 
     /**
@@ -269,7 +269,7 @@ public class BeanDeserializerBuilder
             Object valueId)
         throws JsonMappingException
     {
-        this.addInjectable(propName, propType, contextAnnotations, member, valueId, null);
+        this.addInjectable(propName, propType, contextAnnotations, member, valueId, null, null);
     }
 
     /**

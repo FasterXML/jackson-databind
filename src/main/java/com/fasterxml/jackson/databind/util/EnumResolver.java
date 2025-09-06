@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.EnumNamingStrategy;
 import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
@@ -45,6 +44,14 @@ public class EnumResolver implements java.io.Serializable
      */
     protected final boolean _isFromIntValue;
 
+    /**
+     * Marker for case where enum values to match are from {@code @JsonValue}-annotated
+     * method.
+     *
+     * @since 2.20
+     */
+    protected final boolean _hasAsValueAnnotation;
+
     /*
     /**********************************************************************
     /* Constructors
@@ -52,11 +59,12 @@ public class EnumResolver implements java.io.Serializable
      */
 
     /**
-     * @since 2.12
+     * @since 2.20
      */
     protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
             HashMap<String, Enum<?>> map, Enum<?> defaultValue,
-            boolean isIgnoreCase, boolean isFromIntValue)
+            boolean isIgnoreCase, boolean isFromIntValue,
+            boolean hasAsValueAnnotation)
     {
         _enumClass = enumClass;
         _enums = enums;
@@ -64,6 +72,19 @@ public class EnumResolver implements java.io.Serializable
         _defaultValue = defaultValue;
         _isIgnoreCase = isIgnoreCase;
         _isFromIntValue = isFromIntValue;
+        _hasAsValueAnnotation = hasAsValueAnnotation;
+    }
+
+    /**
+     * @since 2.12
+     * @deprecated Since 2.20; use variant that also takes {@code hasAsValueAnnotation} argument
+     */
+    @Deprecated
+    protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
+            HashMap<String, Enum<?>> map, Enum<?> defaultValue,
+            boolean isIgnoreCase, boolean isFromIntValue)
+    {
+        this(enumClass, enums, map, defaultValue, isIgnoreCase, isFromIntValue, false);
     }
 
     /*
@@ -99,7 +120,7 @@ public class EnumResolver implements java.io.Serializable
         ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
 
         // finally, build
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        HashMap<String, Enum<?>> map = new HashMap<>();
         for (int i = 0, len = enumConstants.length; i < len; ++i) {
             final Enum<?> enumValue = enumConstants[i];
             String name = names[i];
@@ -117,46 +138,7 @@ public class EnumResolver implements java.io.Serializable
         }
         return new EnumResolver(enumCls, enumConstants, map,
                 _enumDefault(ai, annotatedClass, enumConstants),
-                isIgnoreCase, false);
-    }
-
-    /**
-     * Factory method for constructing resolver that maps from Enum.name() into
-     * Enum value.
-     *
-     * @since 2.12
-     * @deprecated Since 2.16 use {@link #constructFor(DeserializationConfig, AnnotatedClass)} instead
-     */
-    @Deprecated
-    public static EnumResolver constructFor(DeserializationConfig config,
-            Class<?> enumCls0)
-    {
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        String[] names = ai.findEnumValues(enumCls, enumConstants, new String[enumConstants.length]);
-        final String[][] allAliases = new String[names.length][];
-        ai.findEnumAliases(enumCls, enumConstants, allAliases);
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
-        for (int i = 0, len = enumConstants.length; i < len; ++i) {
-            final Enum<?> enumValue = enumConstants[i];
-            String name = names[i];
-            if (name == null) {
-                name = enumValue.name();
-            }
-            map.put(name, enumValue);
-            String[] aliases = allAliases[i];
-            if (aliases != null) {
-                for (String alias : aliases) {
-                    // Avoid overriding any primary names
-                    map.putIfAbsent(alias, enumValue);
-                }
-            }
-        }
-        return new EnumResolver(enumCls, enumConstants, map,
-                _enumDefault(ai, enumCls),
-                isIgnoreCase, false);
+                isIgnoreCase, false, false);
     }
 
     /**
@@ -203,45 +185,7 @@ public class EnumResolver implements java.io.Serializable
         }
         return new EnumResolver(enumCls, enumConstants, map,
                 _enumDefault(ai, annotatedClass, enumConstants),
-                isIgnoreCase, false);
-    }
-
-    /**
-     * Factory method for constructing resolver that maps from Enum.toString() into
-     * Enum value
-     *
-     * @since 2.12
-     * @deprecated Since 2.16 use {@link #constructUsingToString(DeserializationConfig, AnnotatedClass)} instead
-     */
-    @Deprecated
-    public static EnumResolver constructUsingToString(DeserializationConfig config,
-            Class<?> enumCls0)
-    {
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
-        final String[][] allAliases = new String[enumConstants.length][];
-        if (ai != null) {
-            ai.findEnumAliases(enumCls, enumConstants, allAliases);
-        }
-
-        // from last to first, so that in case of duplicate values, first wins
-        for (int i = enumConstants.length; --i >= 0; ) {
-            Enum<?> enumValue = enumConstants[i];
-            map.put(enumValue.toString(), enumValue);
-            String[] aliases = allAliases[i];
-            if (aliases != null) {
-                for (String alias : aliases) {
-                    // Avoid overriding any primary names
-                    map.putIfAbsent(alias, enumValue);
-                }
-            }
-        }
-        return new EnumResolver(enumCls, enumConstants, map,
-                _enumDefault(ai, enumCls),
-                isIgnoreCase, false);
+                isIgnoreCase, false, false);
     }
 
     /**
@@ -269,84 +213,7 @@ public class EnumResolver implements java.io.Serializable
         }
         return new EnumResolver(enumCls, enumConstants, map,
                 _enumDefault(ai, annotatedClass, enumConstants),
-                isIgnoreCase, false);
-    }
-
-    /**
-     * Factory method for constructing resolver that maps from index of Enum.values() into
-     * Enum value
-     *
-     * @since 2.15
-     * @deprecated Since 2.16. Use {@link #constructUsingIndex(DeserializationConfig, AnnotatedClass)} instead.
-     */
-    @Deprecated
-    public static EnumResolver constructUsingIndex(DeserializationConfig config,
-            Class<Enum<?>> enumCls0)
-    {
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        HashMap<String, Enum<?>> map = new HashMap<>();
-
-        // from last to first, so that in case of duplicate values, first wins
-        for (int i = enumConstants.length; --i >= 0; ) {
-            Enum<?> enumValue = enumConstants[i];
-            map.put(String.valueOf(i), enumValue);
-        }
-        return new EnumResolver(enumCls, enumConstants, map,
-            _enumDefault(ai, enumCls),
-            isIgnoreCase, false);
-    }
-
-    /**
-     * Factory method for constructing resolver that maps the name of enums converted to external property
-     * names into Enum value using an implementation of {@link EnumNamingStrategy}.
-     *
-     * The output {@link EnumResolver} should contain values that are symmetric to
-     * {@link EnumValues#constructUsingEnumNamingStrategy(MapperConfig, Class, EnumNamingStrategy)}.
-     * @since 2.15
-     * @deprecated Since 2.16. Use 
-     * {@link #constructUsingEnumNamingStrategy(DeserializationConfig, AnnotatedClass, EnumNamingStrategy)}.
-     */
-    @Deprecated
-    public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,
-            Class<?> enumCls0, EnumNamingStrategy enumNamingStrategy)
-    {
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        HashMap<String, Enum<?>> map = new HashMap<>();
-
-        // introspect
-        final String[] names = new String[enumConstants.length];
-        final String[][] allAliases = new String[enumConstants.length][];
-        if (ai != null) {
-            ai.findEnumValues(enumCls, enumConstants, names);
-            ai.findEnumAliases(enumCls, enumConstants, allAliases);
-        }
-
-        // from last to first, so that in case of duplicate values, first wins
-        for (int i = enumConstants.length; --i >= 0; ) {
-            Enum<?> anEnum = enumConstants[i];
-            String name = names[i];
-            if (name == null) {
-                name = enumNamingStrategy.convertEnumToExternalName(anEnum.name());
-            }
-            map.put(name, anEnum);
-            String[] aliases = allAliases[i];
-            if (aliases != null) {
-                for (String alias : aliases) {
-                    // avoid replacing any primary names
-                    map.putIfAbsent(alias, anEnum);
-                }
-            }
-        }
-
-        return new EnumResolver(enumCls, enumConstants, map,
-            _enumDefault(ai, enumCls),
-            isIgnoreCase, false);
+                isIgnoreCase, false, false);
     }
 
     /**
@@ -393,44 +260,7 @@ public class EnumResolver implements java.io.Serializable
 
         return new EnumResolver(enumCls, enumConstants, map,
                 _enumDefault(ai, annotatedClass, enumConstants),
-                isIgnoreCase, false);
-    }
-
-    /**
-     * Method used when actual String serialization is indicated using @JsonValue
-     * on a method in Enum class.
-     *
-     * @since 2.12
-     * @deprecated Since 2.16. 
-     * Use {@link #constructUsingMethod(DeserializationConfig, AnnotatedClass, AnnotatedMember)} instead.
-     */
-    @Deprecated
-    public static EnumResolver constructUsingMethod(DeserializationConfig config,
-            Class<?> enumCls0, AnnotatedMember accessor)
-    {
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
-        // from last to first, so that in case of duplicate values, first wins
-        for (int i = enumConstants.length; --i >= 0; ) {
-            Enum<?> en = enumConstants[i];
-            try {
-                Object o = accessor.getValue(en);
-                if (o != null) {
-                    map.put(o.toString(), en);
-                }
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
-            }
-        }
-        return new EnumResolver(enumCls, enumConstants, map,
-                _enumDefault(ai, enumCls),
-                isIgnoreCase,
-                // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
-                _isIntType(accessor.getRawType())
-        );
+                isIgnoreCase, false, false);
     }
 
     /**
@@ -450,7 +280,7 @@ public class EnumResolver implements java.io.Serializable
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         
         // build
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        HashMap<String, Enum<?>> map = new HashMap<>();
         // from last to first, so that in case of duplicate values, first wins
         for (int i = enumConstants.length; --i >= 0; ) {
             Enum<?> en = enumConstants[i];
@@ -467,7 +297,8 @@ public class EnumResolver implements java.io.Serializable
                 _enumDefault(ai, annotatedClass, enumConstants),
                 isIgnoreCase,
                 // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
-                _isIntType(accessor.getRawType())
+                _isIntType(accessor.getRawType()),
+                true
         );
     }
 
@@ -496,14 +327,6 @@ public class EnumResolver implements java.io.Serializable
      */
     protected static Enum<?> _enumDefault(AnnotationIntrospector intr, AnnotatedClass annotatedClass, Enum<?>[] enums) {
         return (intr != null) ? intr.findDefaultEnumValue(annotatedClass, enums) : null;
-    }
-
-    /**
-     * @deprecated Since 2.16. Use {@link #_enumDefault(AnnotationIntrospector, AnnotatedClass, Enum[])} instead.
-     */
-    @Deprecated
-    protected static Enum<?> _enumDefault(AnnotationIntrospector intr, Class<?> enumCls) {
-        return (intr != null) ? intr.findDefaultEnumValue(_enumClass(enumCls)) : null;
     }
 
     protected static boolean _isIntType(Class<?> erasedType) {
@@ -587,6 +410,16 @@ public class EnumResolver implements java.io.Serializable
      */
     public boolean isFromIntValue() {
         return _isFromIntValue;
+    }
+
+    /**
+     * Accessor for checking whether {@code @JsonValue} annotated accessor is used
+     * to get enum values to use for deserialization.
+     *
+     * @since 2.20
+     */
+    public boolean hasAsValueAnnotation() {
+        return _hasAsValueAnnotation;
     }
 }
 

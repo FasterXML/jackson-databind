@@ -1,11 +1,15 @@
 package com.fasterxml.jackson.databind.tofix;
 
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -28,6 +32,7 @@ public class FixFieldNameUpperCasePrefix5292Test
     static class AppleSingleIsTarget {
         private final String iPhone;
 
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
         public AppleSingleIsTarget(@ImplicitName("iPhone") String iPhone) {
             this.iPhone = iPhone;
         }
@@ -37,6 +42,8 @@ public class FixFieldNameUpperCasePrefix5292Test
         }
     }
 
+    // Creator order should be used but just in case, define explicit order
+    @JsonPropertyOrder({ "iPhone", "name" })
     static class AppleDouble {
         private final String iPhone;
         private final String name;

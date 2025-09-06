@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+// [databind#5292] Need support for creators `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX`
 public class FixFieldNameUpperCasePrefix5292Test
         extends DatabindTestUtil
 {
@@ -75,20 +76,7 @@ public class FixFieldNameUpperCasePrefix5292Test
     }
 
     @Test
-    public void testDeserSingle()
-            throws Exception
-    {
-
-        AppleSingleNonTarget apple = new AppleSingleNonTarget("Jay");
-        String json = MAPPER.writeValueAsString(apple);
-        assertEquals("{\"name\":\"Jay\"}", json);
-
-        AppleSingleNonTarget result = MAPPER.readValue(json, AppleSingleNonTarget.class); // Error thrown
-        assertEquals("Jay", result.getName());
-    }
-
-    @Test
-    public void testDeserSingleTarget()
+    public void testSingleArgCase()
             throws Exception {
 
         AppleSingleIsTarget apple = new AppleSingleIsTarget("iPhone 15");
@@ -97,6 +85,19 @@ public class FixFieldNameUpperCasePrefix5292Test
 
         AppleSingleIsTarget result = MAPPER.readValue(json, AppleSingleIsTarget.class); // Error thrown
         assertEquals("iPhone 15", result.getIPhone());
+    }
+
+    // Just for comparison
+    @Test
+    public void testHappyCaseSingleArgString()
+            throws Exception
+    {
+        AppleSingleNonTarget apple = new AppleSingleNonTarget("Jay");
+        String json = MAPPER.writeValueAsString(apple);
+        assertEquals("{\"name\":\"Jay\"}", json);
+
+        AppleSingleNonTarget result = MAPPER.readValue(json, AppleSingleNonTarget.class); // Error thrown
+        assertEquals("Jay", result.getName());
     }
 
 }

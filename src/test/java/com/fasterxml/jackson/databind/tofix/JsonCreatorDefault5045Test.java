@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.PotentialCreator;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -36,9 +37,9 @@ public class JsonCreatorDefault5045Test extends DatabindTestUtil
     static class AI5045 extends ImplicitNameIntrospector {
         @Override
         public PotentialCreator findDefaultCreator(MapperConfig<?> config,
-                                                   AnnotatedClass valueClass,
-                                                   List<PotentialCreator> declaredConstructors,
-                                                   List<PotentialCreator> declaredFactories)
+                AnnotatedClass valueClass,
+                List<PotentialCreator> declaredConstructors,
+                List<PotentialCreator> declaredFactories)
         {
             return declaredConstructors.stream()
                     .filter(it -> it.paramCount() != 0)
@@ -47,6 +48,7 @@ public class JsonCreatorDefault5045Test extends DatabindTestUtil
         }
     }
 
+    @JacksonTestFailureExpected
     @Test
     public void defaultCreator5045() throws Exception {
         ObjectMapper mapper = JsonMapper.builder().annotationIntrospector(new AI5045()).build();

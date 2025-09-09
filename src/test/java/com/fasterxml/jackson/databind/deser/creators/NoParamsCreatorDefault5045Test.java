@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.deser.creators;
 
 import java.util.List;
 
@@ -11,15 +11,14 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.PotentialCreator;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class JsonCreatorDefault5045Test extends DatabindTestUtil
+public class NoParamsCreatorDefault5045Test extends DatabindTestUtil
 {
     static class User5045 {
-        private final int age;
+        public int age;
 
         public User5045(@ImplicitName("age") int age) {
             throw new IllegalStateException("Should not be called");
@@ -27,7 +26,7 @@ public class JsonCreatorDefault5045Test extends DatabindTestUtil
 
         @JsonCreator
         public User5045() { 
-            this.age = 0;
+            this.age = -1;
         }
 
         public int getAge() { return age; }
@@ -41,24 +40,22 @@ public class JsonCreatorDefault5045Test extends DatabindTestUtil
                 List<PotentialCreator> declaredConstructors,
                 List<PotentialCreator> declaredFactories)
         {
-            return declaredConstructors.stream()
-                    .filter(it -> it.paramCount() != 0)
-                    .findFirst()
-                    .orElse(null);
+            for (PotentialCreator pc : declaredConstructors) {
+                if (pc.paramCount() != 0) {
+                    return pc;
+                }
+            }
+            return null;
         }
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void defaultCreator5045() throws Exception {
         ObjectMapper mapper = JsonMapper.builder().annotationIntrospector(new AI5045()).build();
-        String json =
-                "{\n" +
-                "  \"age\": 25\n" +
-                "}";
+        String json = "{ }";
 
         User5045 user = mapper.readValue(json, User5045.class);
         assertNotNull(user);
-        assertEquals(0, user.getAge());
+        assertEquals(-1, user.getAge());
     }    
 }

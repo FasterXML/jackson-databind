@@ -690,6 +690,13 @@ public class POJOPropertiesCollector
         List<PotentialCreator> constructors = _collectCreators(_classDef.getConstructors());
         List<PotentialCreator> factories = _collectCreators(_classDef.getFactoryMethods());
 
+        // Note! 0-param ("default") constructor is NOT included in 'constructors':
+        PotentialCreator zeroParamsConstructor;
+        {
+            AnnotatedConstructor ac = _classDef.getDefaultConstructor();
+            zeroParamsConstructor = (ac == null) ? null : _potentialCreator(ac);
+        }
+
         // Then find what is the Primary Constructor (if one exists for type):
         // for Java Records and potentially other types too ("data classes"):
         // Needs to be done early to get implicit names populated
@@ -699,20 +706,30 @@ public class POJOPropertiesCollector
         } else {
             // 02-Nov-2024, tatu: Alas, naming here is confusing: method properly
             //    should have been "findPrimaryCreator()" so as not to confused with
-            //    0-args default Creators...
+            //    0-param default Creators...
             primaryCreator = _annotationIntrospector.findDefaultCreator(_config, _classDef,
                     constructors, factories);
         }
         // Next: remove creators marked as explicitly disabled
         _removeDisabledCreators(constructors);
         _removeDisabledCreators(factories);
-        
+        if (zeroParamsConstructor != null && _isDisabledCreator(zeroParamsConstructor)) {
+            zeroParamsConstructor = null;
+        }
+
         // And then remove non-annotated static methods that do not look like factories
         _removeNonFactoryStaticMethods(factories, primaryCreator);
 
         // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
-            // Start with Constructors as they have higher precedence:
+            // Start with Constructors as they have higher precedence
+
+            // 08-Sep-2025, tatu: [databind#5045] Need to ensure 0-param ("default")
+            //   constructor considered if annotated (disabled case handled above).
+            if (zeroParamsConstructor != null && zeroParamsConstructor.isAnnotated()) {
+                creators.setPropertiesBased(_config, zeroParamsConstructor, "explicit");
+            }
+
             _addExplicitlyAnnotatedCreators(creators, constructors, props, false);
             // followed by Factory methods (lower precedence)
             _addExplicitlyAnnotatedCreators(creators, factories, props,
@@ -753,7 +770,7 @@ public class POJOPropertiesCollector
         final ConstructorDetector ctorDetector = _config.getConstructorDetector();
         if (!creators.hasPropertiesBasedOrDelegating()
                 && !ctorDetector.requireCtorAnnotation()) {
-            // But only if no Default (0-args) constructor available OR if we are configured
+            // But only if no Default (0-params) constructor available OR if we are configured
             // to prefer properties-based Creators
             if ((_classDef.getDefaultConstructor() == null)
                     || ctorDetector.singleArgCreatorDefaultsToProperties()) {

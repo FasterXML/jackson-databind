@@ -1038,6 +1038,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B addModule(JacksonModule module)
     {
+        Objects.requireNonNull(module, "Cannot add null `JacksonModule`");
         _verifyModuleMetadata(module);
         final Object moduleId = module.getRegistrationId();
         if (_modules == null) {

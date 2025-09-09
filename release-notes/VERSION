@@ -7,6 +7,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.0-rc10 (not yet released)
 
+#5272: Replace `ObjectMapper.getRegisteredModuleIds()` (2.x) with
+  `ObjectMapper.registeredModules()` (3.0)
 #5302: Add one more parameter for `AnnotationIntrospector.findPreferredCreator()` method
 
 3.0.0-rc9 (05-Sep-2025)
@@ -19,8 +21,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5263: Remove deprecated `URL`-taking `readValue()` methods in `ObjectMapper`,
   `ObjectReader` from 3.0
 #5270: Remove `ObjectMapper.setSerializationInclusion()` from 3.0 (deprecate in 2.20)
-#5272: Replace `ObjectMapper.getRegisteredModuleIds()` (2.x) with
-  `ObjectMapper.getRegisteredModules()` (3.0)
 #5287: Change JsonNode.stringValue() of NullNode to return null, not fail (3.0)
 
 3.0.0-rc8 (13-Aug-2025)

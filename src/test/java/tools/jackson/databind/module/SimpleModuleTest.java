@@ -419,7 +419,7 @@ public class SimpleModuleTest extends DatabindTestUtil
                 .addModule(new SimpleModule())
                 .build();
         assertEquals(1, _registeredModules(mapper).size());
-        Object id = mapper.getRegisteredModules().iterator().next().getRegistrationId();
+        Object id = mapper.registeredModules().iterator().next().getRegistrationId();
         // Id type won't be String but...
         if (!id.toString().startsWith("SimpleModule-")) {
             fail("SimpleModule registration id should start with 'SimpleModule-', does not: ["
@@ -628,6 +628,6 @@ public class SimpleModuleTest extends DatabindTestUtil
     }
 
     private List<JacksonModule> _registeredModules(ObjectMapper mapper) {
-        return mapper.getRegisteredModules().toList();
+        return new ArrayList<>(mapper.registeredModules());
     }
 }

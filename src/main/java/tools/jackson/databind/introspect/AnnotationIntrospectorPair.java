@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -668,12 +669,13 @@ public class AnnotationIntrospectorPair
     public PotentialCreator findPreferredCreator(MapperConfig<?> config,
             AnnotatedClass valueClass,
             List<PotentialCreator> declaredConstructors,
-            List<PotentialCreator> declaredFactories) {
+            List<PotentialCreator> declaredFactories,
+            Optional<PotentialCreator> zeroParamsConstructor) {
         PotentialCreator primaryCtor = _primary.findPreferredCreator(config,
-                valueClass, declaredConstructors, declaredFactories);
+                valueClass, declaredConstructors, declaredFactories, zeroParamsConstructor);
         if (primaryCtor == null) {
             primaryCtor = _secondary.findPreferredCreator(config,
-                    valueClass, declaredConstructors, declaredFactories);
+                    valueClass, declaredConstructors, declaredFactories, zeroParamsConstructor);
         }
         return primaryCtor;
     }

@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser.creators;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +39,8 @@ public class NoParamsCreatorDefault5045Test extends DatabindTestUtil
         public PotentialCreator findPreferredCreator(MapperConfig<?> config,
                 AnnotatedClass valueClass,
                 List<PotentialCreator> declaredConstructors,
-                List<PotentialCreator> declaredFactories)
+                List<PotentialCreator> declaredFactories,
+                Optional<PotentialCreator> zeroParamsConstructor)
         {
             for (PotentialCreator pc : declaredConstructors) {
                 if (pc.paramCount() != 0) {

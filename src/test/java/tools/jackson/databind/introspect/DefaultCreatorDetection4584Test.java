@@ -3,6 +3,7 @@ package tools.jackson.databind.introspect;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -117,7 +118,8 @@ public class DefaultCreatorDetection4584Test extends DatabindTestUtil
         public PotentialCreator findPreferredCreator(MapperConfig<?> config,
                 AnnotatedClass valueClass,
                 List<PotentialCreator> declaredConstructors,
-                List<PotentialCreator> declaredFactories)
+                List<PotentialCreator> declaredFactories,
+                Optional<PotentialCreator> zeroParamsConstructor)
         {
             // Apply to all test POJOs here but nothing else
             if (!valueClass.getRawType().toString().contains("4584")) {

@@ -1176,18 +1176,19 @@ public abstract class AnnotationIntrospector
      *
      * @param config Configuration settings in effect (for deserialization)
      * @param valueClass Class being instantiated; defines Creators passed
-     * @param declaredConstructors Constructors value class declares
+     * @param declaredConstructors Constructors value class declares (EXCEPT possible
+     *    0-parameter ("default") constructor which is passed separately)
      * @param declaredFactories Factory methods value class declares
+     * @param zeroParamsConstructor 0-parameter ("default") constructor, if class has one.
      *
      * @return Default Creator to possibly use for {@code valueClass}, if one can be
      *    determined; {@code null} if not.
-     *
-     * @since 2.18
      */
     public PotentialCreator findPreferredCreator(MapperConfig<?> config,
             AnnotatedClass valueClass,
             List<PotentialCreator> declaredConstructors,
-            List<PotentialCreator> declaredFactories) {
+            List<PotentialCreator> declaredFactories,
+            Optional<PotentialCreator> zeroParamsConstructor) {
         return null;
     }
 

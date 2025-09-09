@@ -654,7 +654,8 @@ public class POJOPropertiesCollector
             primaryCreator = RecordUtil.findCanonicalRecordConstructor(_config, _classDef, constructors);
         } else {
             primaryCreator = _annotationIntrospector.findPreferredCreator(_config, _classDef,
-                    constructors, factories);
+                    constructors, factories,
+                    Optional.ofNullable(zeroParamsConstructor));
         }
         // Next: remove creators marked as explicitly disabled
         _removeDisabledCreators(constructors);

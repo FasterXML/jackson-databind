@@ -54,6 +54,8 @@ Project: jackson-databind
 #5271: `EnumDeserializer` fails to deserialize Enums with @JsonValue - uses table
   with name() key instead of @JsonValue key
  (reported by Michael R)
+#5297: Deprecate `MapperBuilder.serializationInclusion()` (to align
+  with `ObjectMapper`, prepare for 3.0)
 - Generate SBOMs [JSTEP-14]
 
 2.19.2 (18-Jul-2025)

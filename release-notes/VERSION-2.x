@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.21.0 (not yet released)
 
+#5045: If there is a no-parameter constructor marked as `JsonCreator` and
+  a constructor reported as `DefaultCreator`, latter is incorrectly used
+ (reported by  @wrongwrong)
 #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
  (reported by Johny L)
 

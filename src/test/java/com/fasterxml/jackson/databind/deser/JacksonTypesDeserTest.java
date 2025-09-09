@@ -94,7 +94,7 @@ public class JacksonTypesDeserTest
         assertToken(JsonToken.START_ARRAY, p.nextToken());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        TokenBuffer buf = mapper.readValue(p);
+        TokenBuffer buf = mapper.readObject(p);
 
         // check manually...
         JsonParser bufParser = buf.asParser();
@@ -103,7 +103,7 @@ public class JacksonTypesDeserTest
         assertNull(bufParser.nextToken());
 
         // then bind to another
-        buf = mapper.readValue(p);
+        buf = mapper.readObject(p);
         bufParser = buf.asParser();
         assertToken(JsonToken.START_ARRAY, bufParser.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, bufParser.nextToken());
@@ -112,13 +112,13 @@ public class JacksonTypesDeserTest
         assertNull(bufParser.nextToken());
 
         // third one, with automatic binding
-        buf = mapper.readValue(p);
-        String str = mapper.readValue(buf.asParser());
+        buf = mapper.readObject(p);
+        String str = mapper.readObject(buf.asParser());
         assertEquals("abc", str);
 
         // and ditto for last one
         buf = mapper.readValue(p, TokenBuffer.class);
-        Map<?,?> map = mapper.readValue(buf.asParser());
+        Map<?,?> map = mapper.readObject(buf.asParser());
         assertEquals(1, map.size());
         assertEquals(Boolean.TRUE, map.get("a"));
 

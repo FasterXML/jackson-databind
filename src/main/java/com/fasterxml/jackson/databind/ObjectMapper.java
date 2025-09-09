@@ -3072,7 +3072,7 @@ public class ObjectMapper
      * @return the deserialized object
      * @throws JsonProcessingException if there is a problem processing the JSON
      */
-    public <T> T readValue(JsonParser p, T... reified) throws IOException {
+    public <T> T readObject(JsonParser p, T... reified) throws IOException {
         if (reified.length > 0) {
             throw new IllegalArgumentException("Please don't pass any values here. Java will detect class automatically.");
         }
@@ -3900,7 +3900,7 @@ public class ObjectMapper
      * @return the deserialized object
      * @throws JsonProcessingException if there is a problem processing the JSON
      */
-    public <T> T readValue(String content, T... reified) throws JsonProcessingException {
+    public <T> T readObject(String content, T... reified) throws JsonProcessingException {
         if (reified.length > 0) {
             throw new IllegalArgumentException("Please don't pass any values here. Java will detect class automatically.");
         }
@@ -4008,15 +4008,6 @@ public class ObjectMapper
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueType));
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(byte[] src, int offset, int len, T... reified) throws IOException {
-        if (reified.length > 0) {
-            throw new IllegalArgumentException("Please don't pass any values here. Java will detect class automatically.");
-        }
-
-        return readValue(src, offset, len, _typeFactory.constructType(getClassOf(reified)));
     }
 
     @SuppressWarnings({ "unchecked" })

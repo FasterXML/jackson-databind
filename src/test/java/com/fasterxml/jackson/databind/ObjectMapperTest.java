@@ -391,7 +391,7 @@ public class ObjectMapperTest
         ObjectMapper m = new ObjectMapper();
         final String JSON = "{ \"x\" : 3 }";
 
-        Bean bean = m.readValue(JSON);
+        Bean bean = m.readObject(JSON);
         assertNotNull(bean);
     }
 

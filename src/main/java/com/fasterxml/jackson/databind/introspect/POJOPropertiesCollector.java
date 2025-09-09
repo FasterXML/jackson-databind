@@ -809,12 +809,16 @@ public class POJOPropertiesCollector
         }
         List<PotentialCreator> result = new ArrayList<>();
         for (AnnotatedWithParams ctor : ctors) {
-            JsonCreator.Mode creatorMode = _useAnnotations
-                    ? _annotationIntrospector.findCreatorAnnotation(_config, ctor) : null;
             // 06-Jul-2024, tatu: Can't yet drop DISABLED ones; add all (for now)
-            result.add(new PotentialCreator(ctor, creatorMode));
+            result.add(_potentialCreator(ctor));
         }
         return (result == null) ? Collections.emptyList() : result;
+    }
+
+    private PotentialCreator _potentialCreator(AnnotatedWithParams ctor) {
+        final JsonCreator.Mode creatorMode = _useAnnotations
+                ? _annotationIntrospector.findCreatorAnnotation(_config, ctor) : null;
+        return new PotentialCreator(ctor, creatorMode);
     }
 
     private void _removeDisabledCreators(List<PotentialCreator> ctors)

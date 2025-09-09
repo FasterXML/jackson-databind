@@ -83,6 +83,50 @@ public class JacksonTypesDeserTest
         }
     }
 
+    @Test
+    public void testTokenBufferWithSequenceWithAutoDetectClass() throws Exception
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
+
+        // and then sequence of other things
+        JsonParser p = mapper.createParser("[ 32, [ 1 ], \"abc\", { \"a\" : true } ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        TokenBuffer buf = mapper.readObject(p);
+
+        // check manually...
+        JsonParser bufParser = buf.asParser();
+        assertToken(JsonToken.VALUE_NUMBER_INT, bufParser.nextToken());
+        assertEquals(32, bufParser.getIntValue());
+        assertNull(bufParser.nextToken());
+
+        // then bind to another
+        buf = mapper.readObject(p);
+        bufParser = buf.asParser();
+        assertToken(JsonToken.START_ARRAY, bufParser.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, bufParser.nextToken());
+        assertEquals(1, bufParser.getIntValue());
+        assertToken(JsonToken.END_ARRAY, bufParser.nextToken());
+        assertNull(bufParser.nextToken());
+
+        // third one, with automatic binding
+        buf = mapper.readObject(p);
+        String str = mapper.readObject(buf.asParser());
+        assertEquals("abc", str);
+
+        // and ditto for last one
+        buf = mapper.readValue(p, TokenBuffer.class);
+        Map<?,?> map = mapper.readObject(buf.asParser());
+        assertEquals(1, map.size());
+        assertEquals(Boolean.TRUE, map.get("a"));
+
+        assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        assertNull(p.nextToken());
+    }
+
     @SuppressWarnings("resource")
     @Test
     public void testTokenBufferWithSequence() throws Exception

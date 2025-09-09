@@ -187,6 +187,8 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      */
 
     /**
+     * Replaced by {@link PropertyNamingStrategies.NamingBase}.
+     *
      * @deprecated Since 2.12 deprecated. See
      * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
      * for reasons for deprecation.

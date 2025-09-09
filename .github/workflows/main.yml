@@ -1,18 +1,11 @@
 name: Build and Deploy Snapshot
 on:
   push:
-    branches:
-    - master
-    - "3.0"
-    - "2.19"
+    branches: ['2.*']
     paths-ignore:
     - "README.md"
     - "release-notes/*"
   pull_request:
-    branches:
-    - master
-    - "3.0"
-    - "2.19"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -26,11 +19,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['8', '11', '17', '21', '23']
-        os: ['ubuntu-22.04']
+        java_version: ['8', '11', '17', '21', '24']
+        os: ['ubuntu-24.04']
         include:
           - java_version: '8'
-            os: 'ubuntu-22.04'
+            os: 'ubuntu-24.04'
             release_build: 'R'
           - java_version: '8'
             os: 'windows-latest'
@@ -45,7 +38,7 @@ jobs:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
-        server-id: sonatype-nexus-snapshots
+        server-id: central-snapshots
         server-username: CI_DEPLOY_USERNAME
         server-password: CI_DEPLOY_PASSWORD
         # See https://github.com/actions/setup-java/blob/v2/docs/advanced-usage.md#Publishing-using-Apache-Maven
@@ -63,8 +56,8 @@ jobs:
     - name: Deploy snapshot
       if: ${{ matrix.release_build && github.event_name != 'pull_request' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
       env:
-        CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
-        CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
+        CI_DEPLOY_USERNAME: ${{ secrets.CENTRAL_DEPLOY_USERNAME }}
+        CI_DEPLOY_PASSWORD: ${{ secrets.CENTRAL_DEPLOY_PASSWORD }}
         # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       run: ./mvnw -B -q -ff -DskipTests -ntp source:jar deploy
     - name: Generate code coverage 
@@ -75,14 +68,14 @@ jobs:
       uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./target/site/jacoco/jacoco.xml
+        files: ./target/site/jacoco/jacoco.xml
         flags: unittests
 
   trigger-dep-build-v2:
     name: Trigger v2 dep builds
     needs: [build]
-    # Only for pushes to default branch
-    if: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
+    # Only for pushes to 2.x (next 2.x being developed) branch
+    if: ${{ github.event_name == 'push' && github.ref_name == '2.x' }}
     uses: ./.github/workflows/trigger_dep_builds_v2.yml
     secrets:
       token: ${{ secrets.REPO_DISPATCH }}
@@ -90,8 +83,8 @@ jobs:
   trigger-dep-build-v3:
     name: Trigger v3 dep builds
     needs: [build]
-    # Only for pushes to default branch
-    if: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
+    # Only for pushes to 3.x branch
+    if: ${{ github.event_name == 'push' && github.ref_name == '3.x' }}
     uses: ./.github/workflows/trigger_dep_builds_v3.yml
     secrets:
       token: ${{ secrets.REPO_DISPATCH }}

@@ -9,12 +9,11 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.19.0-SNAPSHOT</version>
+    <version>2.19.3-SNAPSHOT</version>
   </parent>
-
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.19.0-SNAPSHOT</version>
+  <version>2.19.3-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>jar</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -32,7 +31,7 @@
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
     <url>https://github.com/FasterXML/jackson-databind</url>
-    <tag>HEAD</tag>
+    <tag>jackson-databind-2.19.0-rc2</tag>
   </scm>
 
   <properties>
@@ -55,7 +54,11 @@
 
     <version.bytebuddy>1.15.10</version.bytebuddy>
     <version.mockito>4.11.0</version.mockito>
-    <jacocoStrict>true</jacocoStrict>
+
+    <!-- 07-Apr-2025, tatu: For some reason, release fails due to missing
+           jacoco... so disable for now
+      -->
+    <jacocoStrict>false</jacocoStrict>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
@@ -70,7 +73,7 @@
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2024-09-27T01:57:15Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-07-18T17:49:25Z</project.build.outputTimestamp>
   </properties>
 
   <dependencyManagement>
@@ -125,7 +128,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava-testlib</artifactId>
-      <version>31.1-jre</version>
+      <version>32.0.1-jre</version>
       <scope>test</scope>
     </dependency>
     <!-- For testing TestNoClassDefFoundDeserializer -->
@@ -163,13 +166,12 @@
     <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-suite-engine</artifactId>
-      <version>1.10.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.micronaut.test</groupId>
       <artifactId>micronaut-test-type-pollution</artifactId>
-      <version>4.6.2</version>
+      <version>4.8.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -177,10 +179,11 @@
   <!-- Alas, need to include snapshot reference since otherwise can not find
        snapshot of parent... -->
   <repositories>
+    <!-- 13-May-2025, tatu: now access snapshots via Central Portal -->
     <repository>
-      <id>sonatype-nexus-snapshots</id>
-      <name>Sonatype Nexus Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>central-snapshots</id>
+      <name>Sonatype Central Portal (snapshots)</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
       <releases><enabled>false</enabled></releases>
       <snapshots><enabled>true</enabled></snapshots>
     </repository>
@@ -264,8 +267,8 @@
         <configuration>
           <links combine.children="append">
 	    <!-- 13-Feb-2025, tatu: Should change link when 2.19.0 released -->
-            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/2.18.2</link>>
-            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/2.18.2</link>>
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/2.18.4</link>
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/2.18.4</link>
           </links>
         </configuration>
       </plugin>

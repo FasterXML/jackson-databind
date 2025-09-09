@@ -321,6 +321,9 @@ Michal Letynski (mletynski@github)
 Jeff Schnitzer (stickfigure@github)
   * Suggested #504: Add `DeserializationFeature.USE_LONG_FOR_INTS`
    (2.6.0)
+  * Requested #4533: Add `MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_TIMES` to disable
+    the "Java 8 date/time XYZ not supported by default" error
+   (2.19.0)
 
 Jerry Yang (islanderman@github)
   * Contributed #820: Add new method for `ObjectReader`, to bind from JSON Pointer position
@@ -1857,6 +1860,12 @@ wrongwrong (@k163377)
    `@JsonDeserialize(keyUsing = ...)` is overwritten by the `KeyDeserializer`
     specified in the `ObjectMapper`.
   (2.18.3)
+ * Contributed fix for #5139: In `CollectionDeserializer`, `JsonSetter.contentNulls`
+   is sometimes ignored
+  (2.19.1)
+ * Contributed fix for #5202: #5202: `JsonSetter.contentNulls` ignored for `Object[]`,
+  `String[]` and `Collection<String>`
+  (2.19.2)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing
@@ -1888,6 +1897,14 @@ Zhen Lin Low (@zhenlin-pay2)
  * Reported, fixed #4920: Creator properties are ignored on abstract types
    when collecting bean properties, breaking AsExternalTypeDeserializer
   (2.18.3)
+
+Fawzi Essam (@iifawzi)
+ * Contributed fix or #4628: `@JsonIgnore` and `@JsonProperty.access=READ_ONLY`
+   on Record property
+  (2.18.4)
+ * Contributed fix for #5049: Duplicate creator property "b" (index 0 vs 1)
+   on simple java record
+  (2.18.4)
 
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
@@ -1922,3 +1939,11 @@ Joren Inghelbrecht (@jin-harmoney)
 Will Paul (@dropofwill)
  * Contributed #4979: Allow default enums with `@JsonCreator`
   (2.19.0)
+
+Ryan Schmitt (@rschmitt)
+ * Contributed #5099: Fix regression in `ObjectNode.with()`
+  (2.19.0)
+
+Eddú Meléndez Gonzales (@eddumelendez)
+ * Reported #5215: `@JsonAnyGetter` serialization order change from 2.18.4 to 2.19.0
+  (2.19.2)

@@ -201,7 +201,6 @@ public class ObjectArrayDeserializer
         Object[] chunk = buffer.resetAndStart();
         int ix = 0;
         JsonToken t;
-        final TypeDeserializer typeDeser = _elementTypeDeserializer;
 
         try {
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
@@ -212,12 +211,19 @@ public class ObjectArrayDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = _elementDeserializer.deserialize(p, ctxt);
+                    value = null;
                 } else {
-                    value = _elementDeserializer.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);
                     ix = 0;
@@ -269,7 +275,6 @@ public class ObjectArrayDeserializer
         int ix = intoValue.length;
         Object[] chunk = buffer.resetAndStart(intoValue, ix);
         JsonToken t;
-        final TypeDeserializer typeDeser = _elementTypeDeserializer;
 
         try {
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
@@ -279,12 +284,19 @@ public class ObjectArrayDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = _elementDeserializer.deserialize(p, ctxt);
+                    value = null;
                 } else {
-                    value = _elementDeserializer.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);
                     ix = 0;
@@ -320,7 +332,7 @@ public class ObjectArrayDeserializer
         // But then need to convert to wrappers
         Byte[] result = new Byte[b.length];
         for (int i = 0, len = b.length; i < len; ++i) {
-            result[i] = Byte.valueOf(b[i]);
+            result[i] = b[i];
         }
         return result;
     }
@@ -352,7 +364,7 @@ public class ObjectArrayDeserializer
             if (_skipNullValues) {
                 return _emptyValue;
             }
-            value = _nullProvider.getNullValue(ctxt);
+            value = null;
         } else {
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 String textValue = p.getText();
@@ -375,12 +387,17 @@ public class ObjectArrayDeserializer
                 // if coercion failed, we can still add it to a list
             }
 
-            if (_elementTypeDeserializer == null) {
-                value = _elementDeserializer.deserialize(p, ctxt);
-            } else {
-                value = _elementDeserializer.deserializeWithType(p, ctxt, _elementTypeDeserializer);
+            value = _deserializeNoNullChecks(p, ctxt);
+        }
+
+        if (value == null) {
+            value = _nullProvider.getNullValue(ctxt);
+
+            if (value == null && _skipNullValues) {
+                return _emptyValue;
             }
         }
+
         // Ok: bit tricky, since we may want T[], not just Object[]
         Object[] result;
 
@@ -392,5 +409,20 @@ public class ObjectArrayDeserializer
         result[0] = value;
         return result;
     }
-}
 
+    /**
+     * Deserialize the content of the map.
+     * If _elementTypeDeserializer is null, use _elementDeserializer.deserialize; if non-null,
+     * use _elementDeserializer.deserializeWithType to deserialize value.
+     * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
+     * @since 2.19.2
+     */
+    protected Object _deserializeNoNullChecks(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+    {
+        if (_elementTypeDeserializer == null) {
+            return _elementDeserializer.deserialize(p, ctxt);
+        }
+        return _elementDeserializer.deserializeWithType(p, ctxt, _elementTypeDeserializer);
+    }
+}

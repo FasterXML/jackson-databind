@@ -291,11 +291,11 @@ public class ObjectNodeTest
 
         assertThrows(NullPointerException.class, () -> src.set(null, BooleanNode.TRUE));
         assertThrows(NullPointerException.class, () -> src.replace(null, BooleanNode.TRUE));
-        
+
         assertThrows(NullPointerException.class, () -> src.setAll(Collections.singletonMap(null,
                 MAPPER.createArrayNode())));
     }
-    
+
     @Test
     public void testRemove()
     {
@@ -332,6 +332,25 @@ public class ObjectNodeTest
         JsonNode child = root.withObject("/prop");
         assertTrue(child instanceof ObjectNode);
         assertEquals("{\"prop\":{}}", MAPPER.writeValueAsString(root));
+    }
+
+    // for [databind#5099]
+    @Test
+    public void testValidWith() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+        assertEquals("{}", MAPPER.writeValueAsString(root));
+
+        @SuppressWarnings("deprecation")
+        ObjectNode withResult = root.with( "with" );
+        withResult.put( "key", "value" );
+
+        ObjectNode withObjectResult = root.withObject( "withObject" );
+        withObjectResult.put( "key", "value" );
+
+        assertEquals("{\"key\":\"value\"}", MAPPER.writeValueAsString(withObjectResult));
+        assertEquals("{\"key\":\"value\"}", MAPPER.writeValueAsString(withResult));
+        assertEquals(withResult, withObjectResult);
     }
 
     @Test

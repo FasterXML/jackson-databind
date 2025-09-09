@@ -825,11 +825,15 @@ public class POJOPropertiesCollector
     {
         Iterator<PotentialCreator> it = ctors.iterator();
         while (it.hasNext()) {
-            // explicitly prevented? Remove
-            if (it.next().creatorMode() == JsonCreator.Mode.DISABLED) {
+            // explicitly disabled? Remove
+            if (_isDisabledCreator(it.next())) {
                 it.remove();
             }
         }
+    }
+
+    private boolean _isDisabledCreator(PotentialCreator ctor) {
+         return ctor.creatorMode() == JsonCreator.Mode.DISABLED;
     }
 
     private void _removeNonVisibleCreators(List<PotentialCreator> ctors)

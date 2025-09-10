@@ -54,7 +54,7 @@ public class TestConstructFromMap
     // Also: let's test BigDecimal-from-JSON-String factory
     static class FactoryFromDecimalString
     {
-	int _value;
+        int _value;
 
         private FactoryFromDecimalString(BigDecimal d) {
 	    _value = d.intValue();

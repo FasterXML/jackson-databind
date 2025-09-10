@@ -10,6 +10,7 @@ import tools.jackson.core.base.ParserMinimalBase;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Facade over {@link JsonNode} that implements {@link JsonParser} to allow
@@ -298,6 +299,13 @@ public class TreeTraversingParser
     public int getIntValue() throws InputCoercionException {
         final NumericNode node = (NumericNode) currentNumericNode(NR_INT);
         if (!node.canConvertToInt()) {
+            // [databind#5309] Misleading exception message for DoubleNode to Int value coversion.
+            if (node.isFloatingPointNumber()) {
+                _reportInvalidNumber(String.format(
+                        "Failed to parse Int value from '%s' of type %s", node.toString(),
+                        node.getClass().getSimpleName()));
+            }
+            // .... otherwise fallback to existing behavior
             _reportOverflowInt();
         }
         return node.intValue();

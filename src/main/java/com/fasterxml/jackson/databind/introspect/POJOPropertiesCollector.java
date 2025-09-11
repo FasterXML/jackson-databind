@@ -1348,9 +1348,9 @@ ctor.creator()));
 
         // First: find possible candidates where:
         //
-        // 1. Field does NOT have explicit name (renaming)
-        // 2. Property has Field and/or Constructor Parameter
-        // 3. Property has no other accessors (no getters/setters)
+        // 1. Property has Field and/or Constructor Parameter
+        // 2. Property has no other accessors (no getters/setters)
+        // 3. Field/Constructor param does NOT have explicit name (renaming)
         // 4. Implicit name has upper-case for first and/or second character
 
         Map<String, POJOPropertyBuilder> fieldsToCheck = null;
@@ -1358,9 +1358,9 @@ ctor.creator()));
             POJOPropertyBuilder  prop = entry.getValue();
 
             // First: (1), (2) and 3
-            if (prop.isExplicitlyNamed() // (1)
-                    || !(prop.hasField() || prop.hasConstructorParameter()) // (2)
-                    || (prop.hasGetter() || prop.hasSetter())) { // 3
+            if (prop.isExplicitlyNamed() // (3)
+                    || !(prop.hasField() || prop.hasConstructorParameter()) // (1)
+                    || (prop.hasGetter() || prop.hasSetter())) { // 2
                 continue;
             }
             // Second: (4)

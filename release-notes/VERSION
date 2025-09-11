@@ -10,6 +10,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5272: Replace `ObjectMapper.getRegisteredModuleIds()` (2.x) with
   `ObjectMapper.registeredModules()` (3.0)
 #5302: Add one more parameter for `AnnotationIntrospector.findPreferredCreator()` method
+#5309: Confusing exception for `DoubleNode` to `Integer` conversion in Jackson 3
+ (reported by @caalador)
+ (fixed by Joo-Hyuk K)
 
 3.0.0-rc9 (05-Sep-2025)
 

@@ -12,6 +12,12 @@ Project: jackson-databind
 #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
  (reported by Johny L)
 
+2.20.1 (not yet released)
+
+#5292: `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX` does not work with
+  Constructor parameters
+ (reported by @bananayong)
+
 2.20.0 (28-Aug-2025)
 
 #2678: `@JacksonInject` added to property overrides value from the JSON

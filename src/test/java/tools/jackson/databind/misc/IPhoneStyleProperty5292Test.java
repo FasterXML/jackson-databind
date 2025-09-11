@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.misc;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,13 +9,12 @@ import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#5292] Need support for creators `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX`
-public class FixFieldNameUpperCasePrefix5292Test
-        extends DatabindTestUtil
+public class IPhoneStyleProperty5292Test
+    extends DatabindTestUtil
 {
     static class AppleSingleNonTarget {
         private final String name;
@@ -45,17 +44,17 @@ public class FixFieldNameUpperCasePrefix5292Test
     // Creator order should be used but just in case, define explicit order
     @JsonPropertyOrder({ "iPhone", "name" })
     static class AppleDouble {
-        private final String iPhone;
+        private final String _iphone;
         private final String name;
 
         public AppleDouble(@ImplicitName("iPhone") String iPhone,
                 @ImplicitName("name") String name) {
-            this.iPhone = iPhone;
+            this._iphone = iPhone;
             this.name = name;
         }
 
         public String getIPhone() {
-            return iPhone;
+            return _iphone;
         }
 
         public String getName() {
@@ -68,7 +67,6 @@ public class FixFieldNameUpperCasePrefix5292Test
         .enable(MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX)
         .build();
 
-    @JacksonTestFailureExpected
     @Test
     public void testDeserDouble() throws Exception
     {
@@ -79,10 +77,10 @@ public class FixFieldNameUpperCasePrefix5292Test
         AppleDouble result = MAPPER.readValue(json, AppleDouble.class); // Error thrown
 
         assertEquals("Jay", result.getName());
-        assertEquals("iPhone 15", result.getName());
+        assertEquals("iPhone 15", result.getIPhone());
     }
 
-    @JacksonTestFailureExpected
+
     @Test
     public void testSingleArgCase() throws Exception
     {
@@ -90,7 +88,7 @@ public class FixFieldNameUpperCasePrefix5292Test
         String json = MAPPER.writeValueAsString(apple);
         assertEquals("{\"iPhone\":\"iPhone 15\"}", json);
 
-        AppleSingleIsTarget result = MAPPER.readValue(json, AppleSingleIsTarget.class); // Error thrown
+        AppleSingleIsTarget result = MAPPER.readValue(json, AppleSingleIsTarget.class);
         assertEquals("iPhone 15", result.getIPhone());
     }
 
@@ -102,7 +100,7 @@ public class FixFieldNameUpperCasePrefix5292Test
         String json = MAPPER.writeValueAsString(apple);
         assertEquals("{\"name\":\"Jay\"}", json);
 
-        AppleSingleNonTarget result = MAPPER.readValue(json, AppleSingleNonTarget.class); // Error thrown
+        AppleSingleNonTarget result = MAPPER.readValue(json, AppleSingleNonTarget.class);
         assertEquals("Jay", result.getName());
     }
 }

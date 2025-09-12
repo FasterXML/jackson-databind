@@ -54,18 +54,6 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSimpleViaParserForAutomaticType() throws Exception
-    {
-        final String JSON = "[1]";
-        JsonParser p = MAPPER.createParser(JSON);
-        List<Integer> ob = MAPPER.forAutomaticType()
-                .readValue(p);
-        p.close();
-        assertTrue(ob != null);
-        assertEquals(1, ob.get(0));
-    }
-
-    @Test
     public void testSimpleAltSources() throws Exception
     {
         final String JSON = "[1]";
@@ -102,7 +90,7 @@ public class ObjectReaderTest extends DatabindTestUtil
         assertEquals(ABC.C, abcs[1]);
     }
 
-    // [databind#2693]: convenience read methods:
+    // [databind#2693]: convenience read methods
     @Test
     public void testReaderForListOf() throws Exception
     {
@@ -112,7 +100,7 @@ public class ObjectReaderTest extends DatabindTestUtil
         assertEquals(Arrays.asList(ABC.B, ABC.C), value);
     }
 
-    // [databind#2693]: convenience read methods:
+    // [databind#2693]: convenience read methods
     @Test
     public void testReaderForMapOf() throws Exception
     {
@@ -120,6 +108,16 @@ public class ObjectReaderTest extends DatabindTestUtil
                 .readValue("{\"key\" : \"B\" }");
         assertEquals(LinkedHashMap.class, value.getClass());
         assertEquals(Collections.singletonMap("key", ABC.B), value);
+    }
+
+    // [databind#5064]: auto-detection of type
+    @Test
+    public void testReaderForDetectedType() throws Exception
+    {
+        List<Integer> ob = MAPPER.readerForDetectedType()
+                .readValue("[1]");
+        assertNotNull(ob);
+        assertEquals(1, ob.get(0));
     }
 
     /*

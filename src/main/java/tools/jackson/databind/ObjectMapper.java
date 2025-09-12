@@ -2251,6 +2251,7 @@ public class ObjectMapper
 "argument \reified\" should be empty; has %d elements", reified.length));
         }
         Type type = _getClassOf(reified);
+System.err.println("DEBUG: reified type: "+type);
         _assertNotNull("type", type);
         return _newReader(deserializationConfig(), _typeFactory.constructType(type), null,
                 null, _injectableValues);

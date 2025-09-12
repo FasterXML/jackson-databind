@@ -114,10 +114,23 @@ public class ObjectReaderTest extends DatabindTestUtil
     @Test
     public void testReaderForDetectedType() throws Exception
     {
+        // First, regular "untyped" (java.lang.Object)
         List<Integer> ob = MAPPER.readerForDetectedType()
                 .readValue("[1]");
         assertNotNull(ob);
         assertEquals(1, ob.get(0));
+
+        // then simple pojo
+        Point point = MAPPER.readerForDetectedType().readValue("{\"x\":1,\"y\":2}");
+        assertNotNull(point);
+        assertEquals(1, point.x);
+        assertEquals(2, point.y);
+
+        // and more complex
+        POJO pojo = MAPPER.readerForDetectedType().readValue("{\"name\":{\"value\":123}}");
+        assertNotNull(pojo);
+        assertNotNull(pojo.name);
+        assertEquals(Map.of("value", 123), pojo.name);
     }
 
     /*

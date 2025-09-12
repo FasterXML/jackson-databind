@@ -985,7 +985,7 @@ public class ObjectMapper
 
     /**
      * Factory method for constructing {@link ObjectReader} that will
-     * read or update instances of specified type
+     * read or update instances automatically
      */
     public <T> ObjectReader forAutomaticType(T... reified) {
         Type type = getClassOf(reified);

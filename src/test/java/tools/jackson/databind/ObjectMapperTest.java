@@ -147,16 +147,6 @@ public class ObjectMapperTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAutoDetectClasses() throws Exception
-    {
-        ObjectMapper m = newJsonMapper();
-        final String JSON = "{ \"x\" : 3 }";
-
-        Bean bean = m.readObject(JSON);
-        assertNotNull(bean);
-    }
-
-    @Test
     public void testDeserializationContextCache() throws Exception
     {
         ObjectMapper m = newJsonMapper();

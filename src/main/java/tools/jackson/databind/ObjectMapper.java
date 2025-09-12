@@ -981,20 +981,14 @@ public class ObjectMapper
     }
 
     /**
-     * Reads the value from the given JSON content and automatically detects the class type.
-     *
-     * @param <T> the type of the object to read
-     * @param p the JsonParser
-     * @param reified don't pass any values here. It's a trick to detect the class type.
-     * @return the deserialized object
-     * @throws JacksonException if there is a problem processing the JSON
+     * Factory method for constructing {@link ObjectReader} that will
+     * read or update instances of specified type
      */
-    public <T> T readObject(JsonParser p, T... reified) throws JacksonException {
-        if (reified.length > 0) {
-            throw new IllegalArgumentException("Please don't pass any values here. Java will detect class automatically.");
-        }
-
-        return readValue(p, _typeFactory.constructType(getClassOf(reified)));
+    public <T> ObjectReader forAutomaticType(T... reified) {
+        Type type = getClassOf(reified);
+        _assertNotNull("type", type);
+        return _newReader(deserializationConfig(), _typeFactory.constructType(type), null,
+                null, _injectableValues);
     }
 
     /**
@@ -1006,23 +1000,6 @@ public class ObjectMapper
      */
     private static <T> Class<T> getClassOf(T[] array) {
         return (Class<T>) array.getClass().getComponentType();
-    }
-
-    /**
-     * Reads the value from the given JSON content and automatically detects the class type.
-     *
-     * @param <T> the type of the object to read
-     * @param content the JSON string
-     * @param reified don't pass any values here. It's a trick to detect the class type.
-     * @return the deserialized object
-     * @throws JacksonException if there is a problem processing the JSON
-     */
-    public <T> T readObject(String content, T... reified) throws JacksonException {
-        if (reified.length > 0) {
-            throw new IllegalArgumentException("Please don't pass any values here. Java will detect class automatically.");
-        }
-
-        return readValue(content, _typeFactory.constructType(getClassOf(reified)));
     }
 
     /**

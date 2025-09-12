@@ -54,6 +54,18 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     @Test
+    public void testSimpleViaParser1() throws Exception
+    {
+        final String JSON = "[1]";
+        JsonParser p = MAPPER.createParser(JSON);
+        List<Integer> ob = MAPPER.forAutomaticType()
+                .readValue(p);
+        p.close();
+        assertTrue(ob != null);
+        assertEquals(1, ob.get(0));
+    }
+
+    @Test
     public void testSimpleAltSources() throws Exception
     {
         final String JSON = "[1]";

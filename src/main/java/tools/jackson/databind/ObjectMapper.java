@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
@@ -565,10 +564,14 @@ public class ObjectMapper
     /**
      * Method that may be used to find out {@link JacksonModule}s that were registered
      * when creating this mapper (if any).
+     *<p>
+     * NOTE: in 2.x this method was called <code>getRegisteredModuleIds()</code> and
+     * returned Module identifiers (typically {@code String}s); but since 3.0 it returns actual
+     * {@link JacksonModule} instances.
      *
      * @since 3.0
      */
-    public Stream<JacksonModule> getRegisteredModules() {
+    public Collection<JacksonModule> registeredModules() {
         return _savedBuilderState.modules();
     }
 

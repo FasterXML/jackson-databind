@@ -298,6 +298,16 @@ public class TreeTraversingParser
     public int getIntValue() throws InputCoercionException {
         final NumericNode node = (NumericNode) currentNumericNode(NR_INT);
         if (!node.canConvertToInt()) {
+            // [databind#5309] Misleading exception message for DoubleNode to `int` value conversion
+            if (!node.canConvertToExactIntegral()) {
+                throw _constructInputCoercion(String.format(
+"Numeric value (%s) of `%s` has fractional part; cannot convert to `int`",
+                            _longIntegerDesc(node.asString()),
+                            node.getClass().getSimpleName()
+                        ),
+                        node.asToken(), Integer.TYPE);
+            }
+            // otherwise assume range overflow
             _reportOverflowInt();
         }
         return node.intValue();
@@ -307,6 +317,16 @@ public class TreeTraversingParser
     public long getLongValue() throws InputCoercionException {
         final NumericNode node = (NumericNode) currentNumericNode(NR_LONG);
         if (!node.canConvertToLong()) {
+            // [databind#5309] Misleading exception message for DoubleNode to `long` value conversion
+            if (!node.canConvertToExactIntegral()) {
+                throw _constructInputCoercion(String.format(
+"Numeric value (%s) of `%s` has fractional part; cannot convert to `long`",
+                            _longIntegerDesc(node.asString()),
+                            node.getClass().getSimpleName()
+                        ),
+                        node.asToken(), Long.TYPE);
+            }
+            // otherwise assume range overflow
             _reportOverflowLong();
         }
         return node.longValue();

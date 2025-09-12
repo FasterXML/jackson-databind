@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
 import org.junit.jupiter.api.Test;
@@ -284,9 +283,9 @@ public class ObjectMapperTest extends DatabindTestUtil
                 .addModule(mainModule)
                 .build();
 
-        Stream<JacksonModule> mods = objectMapper.getRegisteredModules();
-        List<Object> ids = mods.map(mod -> mod.getRegistrationId())
-                .collect(Collectors.toList());
+        Collection<JacksonModule> mods = objectMapper.registeredModules();
+        List<Object> ids = mods.stream().map(mod -> mod.getRegistrationId())
+                .toList();
         assertEquals(Arrays.asList("dep1", "dep2", "main"), ids);
     }
 

@@ -1,7 +1,8 @@
 package tools.jackson.databind.cfg;
 
 import java.util.Collection;
-import java.util.stream.Stream;
+import java.util.Collections;
+import java.util.List;
 
 import tools.jackson.core.PrettyPrinter;
 import tools.jackson.core.TokenStreamFactory;
@@ -64,6 +65,7 @@ public abstract class MapperBuilderState
 
     /**
      * Modules registered in registration order, if any; `null` if none.
+     * Does not contain {@code null} values.
      */
     protected final JacksonModule[] _modules;
 
@@ -190,11 +192,11 @@ public abstract class MapperBuilderState
     /**********************************************************************
      */
 
-    public Stream<JacksonModule> modules() {
+    public Collection<JacksonModule> modules() {
         if (_modules == null) {
-            return Stream.empty();
+            return Collections.emptyList();
         }
-        return Stream.of(_modules);
+        return List.of(_modules);
     }
 
     /*

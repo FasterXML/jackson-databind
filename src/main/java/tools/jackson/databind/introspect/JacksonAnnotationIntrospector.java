@@ -347,6 +347,9 @@ public class JacksonAnnotationIntrospector
     @Override
     public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember m)
     {
+        if (!config.isEnabled(MapperFeature.USE_IMPLICIT_PROPERTY_NAME)) {
+            return null;
+        }
         // Always get name for fields so why not
         if (m instanceof AnnotatedField) {
             return m.getName();

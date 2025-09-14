@@ -401,6 +401,15 @@ public enum MapperFeature
      */
     FIX_FIELD_NAME_UPPER_CASE_PREFIX(true),
 
+    /**
+     * Feature that can be enabled to use implicit parameter names functionality
+     * which  in the past used to be provided by `parameter-names` module in
+     * Jackson 2 version.
+     * <p>
+     * Feature is enabled by default.
+     */
+    USE_IMPLICIT_PROPERTY_NAME(true),
+
     /*
     /**********************************************************************
     /* Coercion features

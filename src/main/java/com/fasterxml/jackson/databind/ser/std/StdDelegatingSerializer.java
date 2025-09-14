@@ -136,7 +136,14 @@ public class StdDelegatingSerializer
     /**********************************************************
      */
 
-    protected Converter<Object, ?> getConverter() {
+    /**
+     * Accessor to the {@link Converter} used for conversion.
+     *
+     * @return {@link Converter} used for conversion
+     *
+     * @since 2.21
+     */
+    public Converter<Object, ?> getConverter() {
         return _converter;
     }
 

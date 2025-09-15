@@ -821,7 +821,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
                 .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .disable(DateTimeFeature.ONE_BASED_MONTHS)
                 // [databind#5314] New MapperFeature to disable parameter-names functionality
-                .disable(MapperFeature.USE_IMPLICIT_PROPERTY_NAME)
+                .disable(MapperFeature.DETECT_PARAMETER_NAMES)
                 ;
     }
 

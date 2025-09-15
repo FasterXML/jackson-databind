@@ -35,10 +35,10 @@ public class WithoutParamNamesModule5314Test
                 .build());
         // Passes... when enabled
         _runTestSuccess(JsonMapper.builder()
-                .enable(MapperFeature.USE_IMPLICIT_PROPERTY_NAME).build());
+                .enable(MapperFeature.DETECT_PARAMETER_NAMES).build());
         // Fails when...disabled
         _runTestFailure(JsonMapper.builder()
-                .disable(MapperFeature.USE_IMPLICIT_PROPERTY_NAME).build());
+                .disable(MapperFeature.DETECT_PARAMETER_NAMES).build());
         // Fails when...used with Jackson2Defaults
         _runTestFailure(JsonMapper
                 .builderWithJackson2Defaults().build());

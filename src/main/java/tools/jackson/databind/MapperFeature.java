@@ -402,13 +402,25 @@ public enum MapperFeature
     FIX_FIELD_NAME_UPPER_CASE_PREFIX(true),
 
     /**
-     * Feature that can be enabled to use implicit parameter names functionality
-     * which  in the past used to be provided by `parameter-names` module in
-     * Jackson 2 version.
+     * Feature that controls whether Jackson should use constructor/method
+     * parameter names automatically, without requiring explicit annotations
+     * (such as {@code @JsonProperty}).
      * <p>
-     * Feature is enabled by default.
+     * In Jackson 2.x this functionality was provided by the separate
+     * {@code parameter-names} module; starting with Jackson 3.x it has been
+     * merged into {@code jackson-databind} and is enabled by default.
+     * <p>
+     * Disabling this feature restores the older Jackson 2.x behavior where
+     * parameter names were not implicitly available unless annotations
+     * were used, or unless the external module was explicitly registered.
+     * <p>
+     * Note that for constructor and factory method parameter names to be
+     * available at runtime, classes must be compiled with the Java compiler
+     * {@code -parameters} option (introduced in Java 8).
+     *
+     * @since 3.0
      */
-    USE_IMPLICIT_PROPERTY_NAME(true),
+    DETECT_PARAMETER_NAMES(true),
 
     /*
     /**********************************************************************

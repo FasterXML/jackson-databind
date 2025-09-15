@@ -12,7 +12,7 @@ Project: jackson-databind
 #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
  (reported by Johny L)
 #5313: Expose `getConverter()` in `StdDelegatingSerializer` for improved
-  customizabilit
+  customizability
  (contributed by @wrongwrong)
 
 2.20.1 (not yet released)

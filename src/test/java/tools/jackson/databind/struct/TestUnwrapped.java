@@ -23,7 +23,7 @@ public class TestUnwrapped extends DatabindTestUtil
         public Location location;
 
         public Unwrapping() { }
-        public Unwrapping(String str, int x, int y) {
+        protected Unwrapping(String str, int x, int y) {
             name = str;
             location = new Location(x, y);
         }
@@ -46,7 +46,7 @@ public class TestUnwrapped extends DatabindTestUtil
         public Unwrapping unwrapped;
 
         public DeepUnwrapping() { }
-        public DeepUnwrapping(String str, int x, int y) {
+        protected DeepUnwrapping(String str, int x, int y) {
             unwrapped = new Unwrapping(str, x, y);
         }
     }

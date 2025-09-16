@@ -178,7 +178,7 @@ public class TestBackRefsWithPolymorphic extends DatabindTestUtil
     {
         private String m_value;
 
-        public StringPropertyImpl(String name, String value) {
+        protected StringPropertyImpl(String name, String value) {
             super(name);
             m_value = value;
         }

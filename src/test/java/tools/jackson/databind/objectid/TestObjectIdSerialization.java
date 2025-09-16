@@ -88,7 +88,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         public ValueNodeCustom node;
 
         public IdWrapperCustom() { }
-        public IdWrapperCustom(int id, int value) {
+        protected IdWrapperCustom(int id, int value) {
             node = new ValueNodeCustom(id, value);
         }
     }
@@ -101,7 +101,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         public int getId() { return id; }
 
         public ValueNodeCustom() { this(0, 0); }
-        public ValueNodeCustom(int id, int value) {
+        protected ValueNodeCustom(int id, int value) {
             this.id = id;
             this.value = value;
         }

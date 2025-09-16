@@ -64,7 +64,7 @@ public class ConstructorPropertiesAnnotationTest
         protected Lombok1371Bean() { }
 
         @ConstructorProperties({ "x", "y" })
-        public Lombok1371Bean(int _x, int _y) {
+        protected Lombok1371Bean(int _x, int _y) {
             x = _x + 1;
             y = _y + 1;
         }

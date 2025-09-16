@@ -50,7 +50,7 @@ public class TestSubtypes extends DatabindTestUtil
         public SuperType value;
 
         public PropertyBean() { this(null); }
-        public PropertyBean(SuperType v) { value = v; }
+        protected PropertyBean(SuperType v) { value = v; }
     }
 
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY, property="type")
@@ -65,7 +65,7 @@ public class TestSubtypes extends DatabindTestUtil
         public int x;
 
         public ImplX() { }
-        public ImplX(int x) { this.x = x; }
+        protected ImplX(int x) { this.x = x; }
     }
 
     @JsonTypeName("y")
@@ -83,7 +83,7 @@ public class TestSubtypes extends DatabindTestUtil
         public BaseX value;
 
         public AtomicWrapper() { }
-        public AtomicWrapper(int x) { value = new ImplX(x); }
+        protected AtomicWrapper(int x) { value = new ImplX(x); }
     }
 
     // Verifying limits on sub-class ids
@@ -124,7 +124,7 @@ public class TestSubtypes extends DatabindTestUtil
         public int c;
 
         public Impl1125() { }
-        public Impl1125(int a0, int b0, int c0) {
+        protected Impl1125(int a0, int b0, int c0) {
             a = a0;
             b = b0;
             c = c0;
@@ -135,7 +135,7 @@ public class TestSubtypes extends DatabindTestUtil
         public int def;
 
         Default1125() { }
-        public Default1125(int a0, int b0, int def0) {
+        protected Default1125(int a0, int b0, int def0) {
             a = a0;
             b = b0;
             def = def0;

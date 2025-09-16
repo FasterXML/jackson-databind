@@ -27,7 +27,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
         public Box() {
         }
 
-        public Box(String type, Fruit fruit) {
+        protected Box(String type, Fruit fruit) {
             this.type = type;
             this.fruit = fruit;
         }
@@ -45,7 +45,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
         public ReqBox() {
         }
 
-        public ReqBox(String type, Fruit fruit) {
+        protected ReqBox(String type, Fruit fruit) {
             this.type = type;
             this.fruit = fruit;
         }
@@ -72,7 +72,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
         public Apple() {
         }
 
-        public Apple(String name, int b) {
+        protected Apple(String name, int b) {
             super(name);
             seedCount = b;
         }
@@ -84,7 +84,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
         public Orange() {
         }
 
-        public Orange(String name, String c) {
+        protected Orange(String name, String c) {
             super(name);
             color = c;
         }

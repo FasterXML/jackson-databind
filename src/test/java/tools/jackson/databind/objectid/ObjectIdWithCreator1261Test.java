@@ -35,7 +35,7 @@ public class ObjectIdWithCreator1261Test
 
        protected Parent() { }
 
-       public Parent(String name, boolean ignored) {
+       protected Parent(String name, boolean ignored) {
            children = new TreeMap<String, Child>();
            this.name = name;
        }

@@ -40,7 +40,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
         public String type;
 
         private Apple() { super(null); }
-        public Apple(String name, int b) {
+        protected Apple(String name, int b) {
             super(name);
             seedCount = b;
             type = "apple";
@@ -55,7 +55,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
         public String type;
 
         private Orange() { super(null); }
-        public Orange(String name, String c) {
+        protected Orange(String name, String c) {
             super(name);
             color = c;
             type = "orange";
@@ -90,7 +90,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
         public int boneCount;
 
         private Dog() { super(null); }
-        public Dog(String name, int b) {
+        protected Dog(String name, int b) {
             super(name);
             boneCount = b;
         }
@@ -107,7 +107,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
         public String furColor;
 
         private Cat() { super(null); }
-        public Cat(String name, String c) {
+        protected Cat(String name, String c) {
             super(name);
             furColor = c;
         }
@@ -143,7 +143,7 @@ public class ExistingPropertyTest extends DatabindTestUtil
         public int speakerCount;
 
         private Accord() { super(null); }
-        public Accord(String name, int b) {
+        protected Accord(String name, int b) {
             super(name);
             speakerCount = b;
         }
@@ -159,12 +159,12 @@ public class ExistingPropertyTest extends DatabindTestUtil
         public String exteriorColor;
 
         private Camry() { super(null); }
-        public Camry(String name, String c) {
+        protected Camry(String name, String c) {
             super(name);
             exteriorColor = c;
         }
 
-		public String getType() {
+        public String getType() {
         	return "camry";
         }
     }

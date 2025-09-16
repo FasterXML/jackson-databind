@@ -32,7 +32,7 @@ public class SerializeUsingJDKTest
         protected int y;
 
         public MyPojo() { }
-        public MyPojo(int x0, int y0) {
+        protected MyPojo(int x0, int y0) {
             x = x0;
             y = y0;
         }
@@ -53,7 +53,7 @@ public class SerializeUsingJDKTest
         HashMap<String,Object> _map;
 
         public AnyBean() {
-            _map = new HashMap<String,Object>();
+            _map = new HashMap<>();
         }
 
         @JsonAnySetter

@@ -4,6 +4,7 @@ import java.io.*;
 import java.lang.annotation.*;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.core.*;
@@ -275,6 +276,8 @@ public class DatabindTestUtil
         public int x, y;
 
         protected Point() { } // for deser
+
+        @JsonIgnore
         public Point(int x, int y) {
             this.x = x;
             this.y = y;

@@ -147,7 +147,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         public TreeNode child;
 
         public TreeNode() { }
-        public TreeNode(TreeNode p, int id, String name) {
+        protected TreeNode(TreeNode p, int id, String name) {
             parent = p;
             this.id = id;
             this.name = name;

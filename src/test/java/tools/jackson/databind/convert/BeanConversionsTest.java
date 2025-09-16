@@ -31,7 +31,7 @@ public class BeanConversionsTest
         public int z = -13;
 
         public PointZ() { }
-        public PointZ(int a, int b, int c)
+        protected PointZ(int a, int b, int c)
         {
             x = a;
             y = b;

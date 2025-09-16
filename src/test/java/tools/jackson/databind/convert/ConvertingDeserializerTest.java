@@ -67,7 +67,7 @@ public class ConvertingDeserializerTest
         public Point value;
 
         protected PointWrapper() { }
-        public PointWrapper(int x, int y) {
+        protected PointWrapper(int x, int y) {
             value = new Point(x, y);
         }
     }

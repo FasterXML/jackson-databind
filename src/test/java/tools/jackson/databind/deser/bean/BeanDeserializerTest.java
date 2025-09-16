@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.BeanDeserializerBuilder;
 import tools.jackson.databind.deser.SettableBeanProperty;
@@ -37,7 +38,7 @@ public class BeanDeserializerTest
         public String a = "a";
 
         public Bean() { }
-        public Bean(String a, String b) {
+        protected Bean(String a, String b) {
             this.a = a;
             this.b = b;
         }

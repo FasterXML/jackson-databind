@@ -93,7 +93,7 @@ public class TestJsonSerialize
         private Bar294 bar;
 
         public Foo294() { }
-        public Foo294(String id, String id2) {
+        protected Foo294(String id, String id2) {
             this.id = id;
             bar = new Bar294(id2);
         }

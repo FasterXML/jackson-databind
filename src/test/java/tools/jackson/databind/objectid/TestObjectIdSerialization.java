@@ -53,7 +53,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         public IdentifiableWithProp next;
 
         public IdentifiableWithProp() { this(0, 0); }
-        public IdentifiableWithProp(int id, int value) {
+        protected IdentifiableWithProp(int id, int value) {
             this.customId = id;
             this.value = value;
         }

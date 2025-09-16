@@ -137,6 +137,34 @@ public enum MapperFeature
      */
     ALLOW_VOID_VALUED_PROPERTIES(true),
 
+    /**
+     * Feature that controls whether Jackson should detect Constructor and
+     * (factory) method parameter names (as "Implicit Names") -- similar to how
+     * {@code java.lang.reflect.Field} names are detected.
+     * This can avoid need to add explicit annotations
+     * like {@code @JsonProperty} for parameter names and allow for Creator
+     * (constructor / factory method) auto-detection (without explicit
+     * {@code @JsonCreator} annotation) as well.
+     * <p>
+     * In Jackson 2.x this functionality was provided by the separate
+     * {@code jackson-parameter-names} module; starting with Jackson 3.x functionality
+     * has been merged into core databind and is enabled by default.
+     * <p>
+     * Disabling this feature restores the older Jackson 2.x behavior where
+     * parameter names were not available as Implicit Names unless the external module
+     * was explicitly registered (NOTE: there is no 3.x version of
+     * {@code jackson-parameter-names} module).
+     * <p>
+     * Note that for constructor and factory method parameter names to be
+     * available at runtime, classes must be compiled with the Java compiler
+     * {@code -parameters} option.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 3.0
+     */
+    DETECT_PARAMETER_NAMES(true),
+
     /*
     /**********************************************************************
     /* Access modifier handling
@@ -400,27 +428,6 @@ public enum MapperFeature
      * Feature is enabled by default since 3.0 (in 2.x was disabled)
      */
     FIX_FIELD_NAME_UPPER_CASE_PREFIX(true),
-
-    /**
-     * Feature that controls whether Jackson should use constructor/method
-     * parameter names automatically, without requiring explicit annotations
-     * (such as {@code @JsonProperty}).
-     * <p>
-     * In Jackson 2.x this functionality was provided by the separate
-     * {@code parameter-names} module; starting with Jackson 3.x it has been
-     * merged into {@code jackson-databind} and is enabled by default.
-     * <p>
-     * Disabling this feature restores the older Jackson 2.x behavior where
-     * parameter names were not implicitly available unless annotations
-     * were used, or unless the external module was explicitly registered.
-     * <p>
-     * Note that for constructor and factory method parameter names to be
-     * available at runtime, classes must be compiled with the Java compiler
-     * {@code -parameters} option (introduced in Java 8).
-     *
-     * @since 3.0
-     */
-    DETECT_PARAMETER_NAMES(true),
 
     /*
     /**********************************************************************

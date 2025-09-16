@@ -13,11 +13,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class WithoutParamNamesModule5314Test
     extends DatabindTestUtil
 {
+    // Constructor can (and will) be auto-detected if (and only if!)
+    // Implicit Parameter Names are detected (see
+    // {@link MapperFeature#DETECT_PARAMETER_NAMES})
     static class Bean178
     {
-        private final String hiddenName;
-        private final int hiddenAge;
-
+        final String hiddenName;
+        final int hiddenAge;
 
         public Bean178(String openName, int openAge) {
             hiddenName = openName;

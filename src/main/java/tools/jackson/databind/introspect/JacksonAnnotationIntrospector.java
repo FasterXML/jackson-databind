@@ -347,14 +347,17 @@ public class JacksonAnnotationIntrospector
     @Override
     public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember m)
     {
-        // Always get name for fields so why not
-        if (m instanceof AnnotatedField) {
-            return m.getName();
+        // 15-Sep-2025: As per [databind#5314] possible to disable introspection
+        if (!config.isEnabled(MapperFeature.DETECT_PARAMETER_NAMES)) {
+            return null;
         }
         if (m instanceof AnnotatedParameter) {
             AnnotatedParameter p = (AnnotatedParameter) m;
             AnnotatedWithParams owner = p.getOwner();
             if (owner instanceof AnnotatedConstructor) {
+                // 15-Sep-2025, tatu: May seem odd but we'll keep access dynamic due
+                //   to support for optional {@code @ConstructorProperties} annotation
+                //   (not part of minimal JDK core module)
                 if (_javaBeansHelper != null) {
                     PropertyName name = _javaBeansHelper.findConstructorName(p);
                     if (name != null) {
@@ -371,6 +374,10 @@ public class JacksonAnnotationIntrospector
                     return _findImplicitName(owner, p.getIndex());
                 }
             }
+        }
+        // Always get name for fields so why not
+        if (m instanceof AnnotatedField) {
+            return m.getName();
         }
         return null;
     }

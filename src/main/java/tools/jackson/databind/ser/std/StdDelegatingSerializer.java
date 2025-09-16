@@ -144,7 +144,7 @@ public class StdDelegatingSerializer
     /**********************************************************************
      */
 
-    protected Converter<Object, ?> getConverter() {
+    public Converter<Object, ?> getConverter() {
         return _converter;
     }
 

@@ -12,9 +12,6 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
-import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
-
 /**
  * Unit tests for verifying that "setterless collections" work as
  * expected, similar to how Collections and Maps work

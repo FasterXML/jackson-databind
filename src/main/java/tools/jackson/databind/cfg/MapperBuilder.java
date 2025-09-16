@@ -801,25 +801,34 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /**
      * The builder returned uses default settings more closely
-     * matching the default configs used in Jackson 2.x versions.
+     * matching the default configuration used in Jackson 2.x versions.
+     * It affects:
+     * <ul>
+     * <li>{@link DateTimeFeature}s</li>
+     * <li>{@link DeserializationFeature}s</li>
+     * <li>{@link EnumFeature}s</li>
+     * <li>{@link MapperFeature}s</li>
+     * <li>{@link SerializationFeature}s</li>
+     *  </ul>
      * <p>
-     *     This method is still a work in progress and may not yet fully replicate the
-     *     default settings of Jackson 2.x.
+     * This method is still a work in progress and may not yet fully replicate the
+     * default settings of Jackson 2.x.
      * </p>
      */
     public B configureForJackson2() {
-        return enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
-                .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
-                .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
-                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,
-                        DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+        return disable(DateTimeFeature.ONE_BASED_MONTHS)
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .enable(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
-                .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS,
-                        DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
                 .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
-                .disable(DateTimeFeature.ONE_BASED_MONTHS)
+                .enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
+                .disable(MapperFeature.DETECT_PARAMETER_NAMES) // [databind#5314]
+                .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 ;
     }
 

@@ -25,7 +25,7 @@ public class TestObjectIdWithPolymorphic extends DatabindTestUtil
         public Base next;
 
         public Base() { this(0); }
-        public Base(int v) {
+        protected Base(int v) {
             value = v;
         }
     }
@@ -35,7 +35,7 @@ public class TestObjectIdWithPolymorphic extends DatabindTestUtil
         public int extra;
 
         public Impl() { this(0, 0); }
-        public Impl(int v, int e) {
+        protected Impl(int v, int e) {
             super(v);
             extra = e;
         }
@@ -49,7 +49,7 @@ public class TestObjectIdWithPolymorphic extends DatabindTestUtil
         public Base811 owner;
 
         protected Base811() {}
-        public Base811(Process owner) {
+        protected Base811(Process owner) {
             this.owner = owner;
             if (owner == null) {
                 id = 0;

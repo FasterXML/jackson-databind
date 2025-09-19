@@ -16,6 +16,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5314: Add `MapperFeature.DETECT_PARAMETER_NAMES` to allow disabling `parameter-names`
   functionality
  (fixed by Joo-Hyuk K)
+#5318: Allow auto-detection of Properties-based Constructor even if class has
+  no-parameters (default) Constructor
 
 3.0.0-rc9 (05-Sep-2025)
 

@@ -184,7 +184,7 @@ public final class ConstructorDetector
      *
      * @since 3.0
      */
-    public ConstructorDetector allowImplicitWithDefaultConstructor(boolean state) {
+    public ConstructorDetector withAllowImplicitWithDefaultConstructor(boolean state) {
         return new ConstructorDetector(_singleArgMode,
                 _requireCtorAnnotation, _allowJDKTypeCtors,
                 state);

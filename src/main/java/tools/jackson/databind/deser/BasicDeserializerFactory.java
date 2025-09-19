@@ -251,7 +251,7 @@ public abstract class BasicDeserializerFactory
 
                 // 18-Sep-2020, tatu: Although by default implicit introspection is allowed, 2.12
                 //   has settings to prevent that either generally, or at least for JDK types
-                final boolean findImplicit = ctorDetector.shouldIntrospectorImplicitConstructors(beanDescRef.getBeanClass());
+                final boolean findImplicit = ctorDetector.shouldIntrospectImplicitConstructors(beanDescRef.getBeanClass());
                 if (findImplicit) {
                     _addImplicitDelegatingConstructors(ctxt, beanDescRef, vchecker,
                             creators,

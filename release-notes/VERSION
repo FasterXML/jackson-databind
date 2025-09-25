@@ -9,6 +9,8 @@ Not yet released
 
 #5319: `TreeTraversingParser` does not respect `DeserializationFeature.ACCEPT_FLOAT_AS_INT`
  (reported by @Artur)
+#5323: `UUID` serialization is broken in v3.0.0-rc9
+ (reported by Dónal M)
 
 3.0.0-rc10 (19-Sep-2025)
 

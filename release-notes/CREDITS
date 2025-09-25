@@ -72,4 +72,6 @@ David Nault (@dnault)
  * Requested #5244: Support accessing annotations via `AnnotatedMember.annotations()`
   [3.0.0]
 
-
+Dónal Murtagh (@donalmurtagh)
+ * Reported #5323: `UUID` serialization is broken in v3.0.0-rc9
+  [3.0.0]

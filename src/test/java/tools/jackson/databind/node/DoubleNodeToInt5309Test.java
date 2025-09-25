@@ -10,7 +10,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-// [databind#5309] Confusing exception for DoubleNode to Integer conversion in Jackson 3 #5309
+// [databind#5309] Confusing exception for DoubleNode to Integer conversion in Jackson 3
 public class DoubleNodeToInt5309Test
     extends DatabindTestUtil
 {

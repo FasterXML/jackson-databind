@@ -3,6 +3,7 @@ package tools.jackson.databind;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -294,7 +295,7 @@ public abstract class SerializationContext
     {
         // Let's keep track of active generator; useful mostly for error reporting...
         JsonGenerator prevGen = _generator;
-        _generator = gen;
+        _assignGenerator(gen);
         try {
             if (value == null) {
                 if (_stdNullValueSerializer) { // minor perf optimization
@@ -307,7 +308,7 @@ public abstract class SerializationContext
             Class<?> cls = value.getClass();
             findTypedValueSerializer(cls, true).serialize(value, gen, this);
         } finally {
-            _generator = prevGen;
+            _assignGenerator(prevGen);
         }
     }
 
@@ -492,6 +493,8 @@ public abstract class SerializationContext
      * @return True if input format has specified capability; false if not
      */
     public final boolean isEnabled(StreamWriteCapability cap) {
+        Objects.requireNonNull(_writeCapabilities,
+                "_writeCapabilities not set for `SerializationContext`");
         return _writeCapabilities.isEnabled(cap);
     }
 
@@ -1407,6 +1410,17 @@ public abstract class SerializationContext
     /* Internal methods, other
     /**********************************************************************
      */
+
+    /**
+     * Method called to assign the generator to use for writing output; also
+     * updates configuration settings that depend on generator.
+     *
+     * @param g Generator to use for writing output
+     */
+    protected void _assignGenerator(JsonGenerator g) {
+        _generator = g;
+        _writeCapabilities = (g == null) ? null : g.streamWriteCapabilities();
+    }
 
     protected final DateFormat _dateFormat()
     {

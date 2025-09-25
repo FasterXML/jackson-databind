@@ -1,11 +1,16 @@
 package tools.jackson.databind.ser.jdk;
 
+import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import tools.jackson.core.JsonEncoding;
+import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -32,6 +37,7 @@ public class UUIDSerializationTest extends DatabindTestUtil
     }
 
     private final ObjectMapper MAPPER = sharedMapper();
+    private final ObjectWriter WRITER = MAPPER.writer();
 
     // Verify that efficient UUID codec won't mess things up:
     @Test
@@ -100,5 +106,65 @@ public class UUIDSerializationTest extends DatabindTestUtil
         // and then a variations
         Object ob = MAPPER.convertValue(nullUUID, Object.class);
         assertEquals(String.class, ob.getClass());
+    }
+
+    // [databind#5323]: problem via JsonGenerator
+    @Test
+    public void testSerialization5323Mapper1() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        _write5323(MAPPER.createGenerator(sw));
+        _assert5323(sw.toString());
+    }
+
+    @Test
+    public void testSerialization5323Mapper2() throws Exception
+    {
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        _write5323(MAPPER.createGenerator(b));
+        _assert5323(b.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void testSerialization5323Mapper2b() throws Exception
+    {
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        _write5323(MAPPER.createGenerator(b, JsonEncoding.UTF8));
+        _assert5323(b.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void testSerialization5323ObjectWriter1() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        _write5323(WRITER.createGenerator(sw));
+        _assert5323(sw.toString());
+    }
+
+    @Test
+    public void testSerialization5323ObjectWriter2() throws Exception
+    {
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        _write5323(WRITER.createGenerator(b));
+        _assert5323(b.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void testSerialization5323ObjectWriter2b() throws Exception
+    {
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        _write5323(WRITER.createGenerator(b, JsonEncoding.UTF8));
+        _assert5323(b.toString(StandardCharsets.UTF_8));
+    }
+
+    private void _write5323(JsonGenerator g) {
+        g.writeStartObject();
+        g.writePOJOProperty("id", nullUUID);
+        g.writeEndObject();
+        g.close();
+    }
+
+    private void _assert5323(String json) {
+        assertEquals("{\"id\":\""+nullUUIDStr+"\"}", json);
     }
 }

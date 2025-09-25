@@ -489,17 +489,6 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
 
     /*
     /**********************************************************************
-    /* Other helper methods
-    /**********************************************************************
-     */
-
-    private void _assignGenerator(JsonGenerator g) {
-        _generator = g;
-        _writeCapabilities = g.streamWriteCapabilities();
-    }
-
-    /*
-    /**********************************************************************
     /* Helper classes
     /**********************************************************************
      */

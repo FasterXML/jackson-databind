@@ -144,7 +144,7 @@ public abstract class NumericNode
 
     /*
     /**********************************************************************
-    /* Extended API, unsafe methods
+    /* Extended API, unsafe access methods
     /**********************************************************************
      */
 

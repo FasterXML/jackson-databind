@@ -2,8 +2,9 @@ package tools.jackson.databind.node;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.exc.InputCoercionException;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,7 +14,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class DoubleNodeToInt5309Test
     extends DatabindTestUtil
 {
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(DeserializationFeature.ACCEPT_FLOAT_AS_INT)
+            .build();
+
+    private final ObjectMapper STRICT_MAPPER = jsonMapperBuilder()
+            .disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT)
+            .build();
 
     @Test
     public void fpConversionsToIntOk()
@@ -30,19 +37,19 @@ public class DoubleNodeToInt5309Test
     public void fpConversionsToIntFail()
     {
         try {
-            MAPPER.treeToValue(MAPPER.valueToTree(2.75), Integer.class);
+            STRICT_MAPPER.treeToValue(STRICT_MAPPER.valueToTree(2.75), Integer.class);
             fail("Should have thrown an exception");
-        } catch (InputCoercionException e) {
+        } catch (InvalidFormatException e) {
             verifyException(e,
-                    "Numeric value (2.75) of `DoubleNode` has fractional part; cannot convert to `int`");
+                    "Cannot coerce Floating-point value (2.75) to `java.lang.Integer`");
         }
 
         try {
-            MAPPER.treeToValue(MAPPER.valueToTree(-4.75f), Integer.class);
+            STRICT_MAPPER.treeToValue(STRICT_MAPPER.valueToTree(-4.75f), Integer.class);
             fail("Should have thrown an exception");
-        } catch (InputCoercionException e) {
+        } catch (InvalidFormatException e) {
             verifyException(e,
-                    "Numeric value (-4.75) of `FloatNode` has fractional part; cannot convert to `int`");
+                    "Cannot coerce Floating-point value (-4.75) to `java.lang.Integer`");
         }
     }
 
@@ -61,19 +68,19 @@ public class DoubleNodeToInt5309Test
     public void fpConversionsToLongFail()
     {
         try {
-            MAPPER.treeToValue(MAPPER.valueToTree(1.5), Long.class);
+            STRICT_MAPPER.treeToValue(STRICT_MAPPER.valueToTree(1.5), Long.class);
             fail("Should have thrown an exception");
-        } catch (InputCoercionException e) {
+        } catch (InvalidFormatException e) {
             verifyException(e,
-                    "Numeric value (1.5) of `DoubleNode` has fractional part; cannot convert to `long`");
+                    "Cannot coerce Floating-point value (1.5) to `java.lang.Long`");
         }
 
         try {
-            MAPPER.treeToValue(MAPPER.valueToTree(-6.25f), Long.class);
+            STRICT_MAPPER.treeToValue(STRICT_MAPPER.valueToTree(-6.25f), Long.class);
             fail("Should have thrown an exception");
-        } catch (InputCoercionException e) {
+        } catch (InvalidFormatException e) {
             verifyException(e,
-                    "Numeric value (-6.25) of `FloatNode` has fractional part; cannot convert to `long`");
+                    "Cannot coerce Floating-point value (-6.25) to `java.lang.Long`");
         }
     }
 

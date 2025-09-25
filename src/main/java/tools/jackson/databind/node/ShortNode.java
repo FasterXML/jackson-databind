@@ -169,7 +169,17 @@ public class ShortNode
      */
 
     @Override
-    protected int _asIntValueUnchecked() {
+    public short _asShortValueUnchecked() {
+        return _value;
+    }
+
+    @Override
+    public int _asIntValueUnchecked() {
+        return _value;
+    }
+
+    @Override
+    public long _asLongValueUnchecked() {
         return _value;
     }
 

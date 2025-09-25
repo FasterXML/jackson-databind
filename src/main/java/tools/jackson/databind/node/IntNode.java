@@ -195,7 +195,17 @@ public class IntNode
      */
 
     @Override
-    protected int _asIntValueUnchecked() {
+    public short _asShortValueUnchecked() {
+        return (short) _value;
+    }
+
+    @Override
+    public long _asLongValueUnchecked() {
+        return _value;
+    }
+
+    @Override
+    public int _asIntValueUnchecked() {
         return _value;
     }
 

@@ -206,17 +206,17 @@ public class DecimalNode
      */
 
     @Override
-    protected short _asShortValueUnchecked() {
+    public short _asShortValueUnchecked() {
         return _value.shortValue();
     }
 
     @Override
-    protected int _asIntValueUnchecked() {
+    public int _asIntValueUnchecked() {
         return _value.intValue();
     }
     
     @Override
-    protected long _asLongValueUnchecked() {
+    public long _asLongValueUnchecked() {
         return _value.longValue();
     }
 

@@ -317,8 +317,8 @@ public class TreeTraversingParser
     public int getValueAsInt()
     {
         final NumericNode node = (NumericNode) currentNumericNode(NR_INT);
-        if (node.canConvertToInt()) {
-            return node.intValue();
+        if (node.inIntRange()) {
+            return node._asIntValueUnchecked();
         }
         // !!! TODO: better defaulting/coercion?
         return getIntValue();
@@ -328,13 +328,13 @@ public class TreeTraversingParser
     public int getValueAsInt(int defaultValue)
     {
         final NumericNode node = (NumericNode) currentNumericNode(NR_INT);
-        if (node.canConvertToInt()) {
-            return node.intValue();
+        if (node.inIntRange()) {
+            return node._asIntValueUnchecked();
         }
         // !!! TODO: better defaulting/coercion?
         return defaultValue;
     }
-    
+
     @Override
     public long getLongValue() throws InputCoercionException {
         final NumericNode node = (NumericNode) currentNumericNode(NR_LONG);
@@ -354,6 +354,28 @@ public class TreeTraversingParser
         return node.longValue();
     }
 
+    @Override
+    public long getValueAsLong()
+    {
+        final NumericNode node = (NumericNode) currentNumericNode(NR_INT);
+        if (node.inLongRange()) {
+            return node._asLongValueUnchecked();
+        }
+        // !!! TODO: better defaulting/coercion?
+        return getLongValue();
+    }
+
+    @Override
+    public long getValueAsLong(long defaultValue)
+    {
+        final NumericNode node = (NumericNode) currentNumericNode(NR_INT);
+        if (node.inLongRange()) {
+            return node._asLongValueUnchecked();
+        }
+        // !!! TODO: better defaulting/coercion?
+        return defaultValue;
+    }
+    
     @Override
     public Number getNumberValue() throws InputCoercionException {
         return currentNumericNode(-1).numberValue();

@@ -331,36 +331,9 @@ public abstract class NumericFPNode extends NumericNode
 
     /*
     /**********************************************************************
-    /* NumericNode extensions
-    /**********************************************************************
-     */
-    
-    /*
-    /**********************************************************************
     /* Abstract methods for sub-classes to implement
     /**********************************************************************
      */
-
-    /**
-     * Method for sub-classes to implement; returns the underlying
-     * value as a {@code short} without any checks (wrt NaN or value range),
-     * so caller must ensure validity prior to calling
-     */
-    protected abstract short _asShortValueUnchecked();
-    
-    /**
-     * Method for sub-classes to implement; returns the underlying
-     * value as a {@code int} without any checks (wrt NaN or value range),
-     * so caller must ensure validity prior to calling
-     */
-    protected abstract int _asIntValueUnchecked();
-
-    /**
-     * Method for sub-classes to implement; returns the underlying
-     * value as a {@code long} without any checks (wrt NaN or value range),
-     * so caller must ensure validity prior to calling
-     */
-    protected abstract long _asLongValueUnchecked();
 
     /**
      * Method for sub-classes to implement; returns the underlying

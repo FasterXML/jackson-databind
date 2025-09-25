@@ -185,8 +185,18 @@ public class LongNode
      */
 
     @Override
-    protected int _asIntValueUnchecked() {
+    public short _asShortValueUnchecked() {
+        return (short) _value;
+    }
+
+    @Override
+    public int _asIntValueUnchecked() {
         return (int) _value;
+    }
+    
+    @Override
+    public long _asLongValueUnchecked() {
+        return _value;
     }
 
     @Override

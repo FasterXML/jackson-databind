@@ -180,12 +180,10 @@ public abstract class NumericIntNode extends NumericNode
 
     /*
     /**********************************************************************
-    /* Abstract methods for sub-classes
+    /* API extensions for sub-classes
     /**********************************************************************
      */
 
-    protected abstract int _asIntValueUnchecked();
-    
     protected abstract float _asFloatValueUnchecked();
 
     protected abstract double _asDoubleValueUnchecked();

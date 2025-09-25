@@ -15,7 +15,6 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.node.JsonNodeFactory;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import tools.jackson.databind.type.LogicalType;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -84,7 +83,6 @@ public class CoerceFloatToIntTest
     }
 
     // [databind#5319]
-    @JacksonTestFailureExpected
     @Test
     public void testLegacyDoubleToIntCoercionJsonNodeToInteger() throws Exception
     {
@@ -98,7 +96,6 @@ public class CoerceFloatToIntTest
     }
 
     // [databind#5319]
-    @JacksonTestFailureExpected
     @Test
     public void testLegacyDoubleToIntCoercionJsonNodeToLong() throws Exception
     {
@@ -112,7 +109,6 @@ public class CoerceFloatToIntTest
     }
 
     // [databind#5319]
-    //@JacksonTestFailureExpected
     @Test
     public void testLegacyDoubleToIntCoercionJsonNodeToBigInteger() throws Exception
     {

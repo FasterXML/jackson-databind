@@ -105,7 +105,7 @@ public abstract class NumericNode
 
     /*
     /**********************************************************************
-    /* Extended API
+    /* Extended API, public methods
     /**********************************************************************
      */
 
@@ -141,4 +141,31 @@ public abstract class NumericNode
      * "not-a-number" (NaN) value.
      */
     public abstract boolean isNaN();
+
+    /*
+    /**********************************************************************
+    /* Extended API, unsafe methods
+    /**********************************************************************
+     */
+
+    /**
+     * Method for sub-classes to implement; returns the underlying
+     * value as a {@code short} without any checks (wrt NaN or value range),
+     * so caller must ensure validity prior to calling
+     */
+    public abstract short _asShortValueUnchecked();
+
+    /**
+     * Method for sub-classes to implement; returns the underlying
+     * value as a {@code int} without any checks (wrt NaN or value range),
+     * so caller must ensure validity prior to calling
+     */
+    public abstract int _asIntValueUnchecked();
+
+    /**
+     * Method for sub-classes to implement; returns the underlying
+     * value as a {@code long} without any checks (wrt NaN or value range),
+     * so caller must ensure validity prior to calling
+     */
+    public abstract long _asLongValueUnchecked();
 }

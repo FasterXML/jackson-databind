@@ -5,6 +5,11 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
+Not yet released
+
+#5319: `TreeTraversingParser` does not respect `DeserializationFeature.ACCEPT_FLOAT_AS_INT`
+ (reported by @Artur)
+
 3.0.0-rc10 (19-Sep-2025)
 
 #5272: Replace `ObjectMapper.getRegisteredModuleIds()` (2.x) with

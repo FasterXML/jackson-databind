@@ -130,17 +130,17 @@ public class FloatNode
      */
 
     @Override
-    protected short _asShortValueUnchecked() {
+    public short _asShortValueUnchecked() {
         return (short) _value;
     }
 
     @Override
-    protected int _asIntValueUnchecked() {
+    public int _asIntValueUnchecked() {
         return (int) _value;
     }
     
     @Override
-    protected long _asLongValueUnchecked() {
+    public long _asLongValueUnchecked() {
         return (long) _value;
     }
 

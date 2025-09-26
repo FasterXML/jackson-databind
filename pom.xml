@@ -54,7 +54,7 @@
     <version.android.sdk.signature>0.12.0</version.android.sdk.signature>
 
     <version.bytebuddy>1.15.10</version.bytebuddy>
-    <version.mockito>4.11.0</version.mockito>
+    <version.mockito>5.20.0</version.mockito>
 
     <!-- 07-Apr-2025, tatu: For some reason, release fails due to missing
            jacoco... so disable for now
@@ -79,8 +79,8 @@
 
   <dependencyManagement>
     <dependencies>
-      <!-- We need to specify later Bytebuddy version because Mockito 4.11.0 depends on earlier
-           Bytebuddy which does not support JDK 21, since 2.17-->
+      <!-- 25-Sep-2025, tatu: Not sure if and why this is needed...
+        -->
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
@@ -151,12 +151,6 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>${version.mockito}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-inline</artifactId>
       <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>

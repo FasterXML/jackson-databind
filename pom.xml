@@ -60,7 +60,7 @@
       -->
     <version.android.sdk.signature>0.12.0</version.android.sdk.signature>
 
-    <version.bytebuddy>1.15.10</version.bytebuddy>
+    <version.bytebuddy>1.17.7</version.bytebuddy>
     <version.mockito>5.20.0</version.mockito>
 
     <!-- 07-Mar-2025, tatu: For some reason, release fails due to missing

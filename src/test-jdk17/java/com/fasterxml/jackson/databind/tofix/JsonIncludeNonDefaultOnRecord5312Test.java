@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.tofix;
 
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +31,7 @@ public class JsonIncludeNonDefaultOnRecord5312Test
     record Pojo3(@JsonInclude(JsonInclude.Include.NON_DEFAULT) StringValue value) { }
 
 
+    @JacksonTestFailureExpected
     @Test
     void testSerialization()
         throws Exception

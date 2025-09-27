@@ -11,6 +11,7 @@ Co-Authors (with only partial listings below):
 * Joo Hyuk Kim (@JooHyukKim)
 * PJ Fanning (@pjfanning)
 * Sim Yih Tsern (@yihtsern)
+* wrongwrong (@k163377)
 
 ----------------------------------------------------------------------------
 
@@ -1526,7 +1527,7 @@ PJ Fanning (pjfanning@github)
   * Contributed #3530: Change LRUMap to just evict one entry when maxEntries reached
   (2.14.0)
   * Contributed #3837: Set transformer factory attributes to improve protection against XXE
-  (2.14.3)
+  (2.14.3
   - And NUMEROUS other contributions not listed here! (for 2.15 and above)
 
 Igor Shymko (ancane@github)
@@ -1872,6 +1873,7 @@ wrongwrong (@k163377)
  * Reported #4218: If `@JacksonInject` is specified for field and deserialized by
    the Creator, the inject process will be executed twice
   (2.20.0)
+ - And many other contributions not listed here! (for 2.21 and above)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing

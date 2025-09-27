@@ -1125,7 +1125,7 @@ public class ObjectMapper
      * module is NOT included in returned set.
      *<p>
      * NOTE: this method will be replaced in Jackson 3.0 with
-     * {@code Stream<JacksonModule> getRegisteredModules()} that will return actual Module
+     * {@code Collection<JacksonModule> registeredModules()} that will return actual Module
      * instances, instead of ids. Such method can not be backported in 2.x due to
      * differences in how Module registration works (2.x only has access to Module Ids)
      *

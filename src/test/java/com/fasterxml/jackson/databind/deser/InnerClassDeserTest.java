@@ -16,7 +16,7 @@ public class InnerClassDeserTest
       public Brain brain;
 
       public Dog() { }
-      public Dog(String n, boolean thinking) {
+      protected Dog(String n, boolean thinking) {
           name = n;
           brain = new Brain();
           brain.isThinking = thinking;

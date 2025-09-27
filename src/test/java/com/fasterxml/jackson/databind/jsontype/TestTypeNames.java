@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestTypeNames extends DatabindTestUtil
 {
     @SuppressWarnings("serial")
-    static class AnimalMap extends LinkedHashMap<String,Animal> { }
+    static class AnimalMap extends LinkedHashMap<String, Animal> { }
 
     @JsonTypeInfo(property = "type", include = JsonTypeInfo.As.PROPERTY, use = JsonTypeInfo.Id.NAME)
     @JsonSubTypes({
@@ -134,7 +134,6 @@ class Animal
 {
     public String name;
 
-
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
@@ -154,7 +153,7 @@ class Dog extends Animal
     public int ageInYears;
 
     public Dog() { }
-    public Dog(String n, int y) {
+    protected Dog(String n, int y) {
         name = n;
         ageInYears = y;
     }
@@ -173,7 +172,7 @@ class Dog extends Animal
 abstract class Cat extends Animal {
     public boolean purrs;
     public Cat() { }
-    public Cat(String n, boolean p) {
+    protected Cat(String n, boolean p) {
         name = n;
         purrs = p;
     }
@@ -194,7 +193,7 @@ abstract class Cat extends Animal {
  */
 class MaineCoon extends Cat {
     public MaineCoon() { super(); }
-    public MaineCoon(String n, boolean p) {
+    protected MaineCoon(String n, boolean p) {
         super(n, p);
     }
 }
@@ -202,7 +201,7 @@ class MaineCoon extends Cat {
 @JsonTypeName("persialaisKissa")
 class Persian extends Cat {
     public Persian() { super(); }
-    public Persian(String n, boolean p) {
+    protected Persian(String n, boolean p) {
         super(n, p);
     }
 }

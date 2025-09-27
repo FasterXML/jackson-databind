@@ -40,7 +40,7 @@ public class JsonIdentityOnRecord5238Test
         public final String name;
 
         @JsonCreator
-        public ThingPojo(@JsonProperty("prefixId") int id, @JsonProperty("name") String name) {
+        public ThingPojo(@JsonProperty("id") int id, @JsonProperty("name") String name) {
             this.id = id;
             this.name = name;
         }
@@ -79,5 +79,4 @@ public class JsonIdentityOnRecord5238Test
         assertEquals(input.selected.id, result.selected.id);
         assertEquals(input.selected.name, result.selected.name);
     }
-
 }

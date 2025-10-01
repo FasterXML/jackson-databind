@@ -6,6 +6,7 @@ Project: jackson-databind
 
 2.21.0 (not yet released)
 
+#1547: Un-deprecate `SerializationFeature.WRITE_EMPTY_JSON_ARRAYS`
 #5045: If there is a no-parameter constructor marked as `JsonCreator` and
   a constructor reported as `DefaultCreator`, latter is incorrectly used
  (reported by  @wrongwrong)

@@ -11,6 +11,7 @@ import tools.jackson.core.base.ParserMinimalBase;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.StreamWriteException;
 import tools.jackson.core.exc.UnexpectedEndOfInputException;
+import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.io.NumberOutput;
 import tools.jackson.core.sym.PropertyNameMatcher;
@@ -339,6 +340,24 @@ public class TokenBuffer
     public Version version() {
         return tools.jackson.databind.cfg.PackageVersion.VERSION;
     }
+
+    /*
+    /**********************************************************************
+    /* `JsonGenerator` config access
+    /**********************************************************************
+     */
+    
+    @Override
+    public CharacterEscapes getCharacterEscapes() { return null; }
+
+    @Override
+    public int getHighestNonEscapedChar() { return 0; }
+
+    @Override
+    public PrettyPrinter getPrettyPrinter() { return null; }
+
+    @Override
+    public FormatSchema getSchema() { return null; }
 
     /*
     /**********************************************************************

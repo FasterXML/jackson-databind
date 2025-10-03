@@ -338,9 +338,6 @@ public class EnumDeserializer
         throws IOException
     {
         CompactStringObjectMap lookup = _resolveCurrentLookup(ctxt);
-        if (lookup == null) {
-            return null;
-        }
         Object result = lookup.find(text);
         if (result == null) {
             String trimmed = text.trim();

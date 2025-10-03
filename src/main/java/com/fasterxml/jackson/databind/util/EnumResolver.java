@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.util;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.EnumNamingStrategy;
@@ -281,6 +282,53 @@ public class EnumResolver implements java.io.Serializable
         
         // build
         HashMap<String, Enum<?>> map = new HashMap<>();
+        // from last to first, so that in case of duplicate values, first wins
+        for (int i = enumConstants.length; --i >= 0; ) {
+            Enum<?> en = enumConstants[i];
+            try {
+                Object o = accessor.getValue(en);
+                if (o != null) {
+                    map.put(o.toString(), en);
+                }
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
+            }
+        }
+        return new EnumResolver(enumCls, enumConstants, map,
+                _enumDefault(ai, annotatedClass, enumConstants),
+                isIgnoreCase,
+                // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
+                _isIntType(accessor.getRawType()),
+                true
+        );
+    }
+
+    /**
+     * Method used when ALL of conditions below are met
+     *<p>
+     * 1. actual String serialization is indicated using @JsonValue on a method in Enum class AND
+     * 2. Enum class is annotated with `@JsonFormat`
+     *
+     * @since 2.20
+     */
+    public static EnumResolver constructUsingNumberShape(DeserializationConfig config, AnnotatedClass annotatedClass, AnnotatedMember accessor)
+    {
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        HashMap<String, Enum<?>> map = new HashMap<>();
+
+        JsonFormat.Value format = ai.findFormat(annotatedClass);
+        if (format == null) {
+            return null;
+        }
+        if (format.getShape() != JsonFormat.Shape.NUMBER_INT) {
+            throw new IllegalArgumentException("Failed to access @JsonValue of Enum value ");
+        }
+
         // from last to first, so that in case of duplicate values, first wins
         for (int i = enumConstants.length; --i >= 0; ) {
             Enum<?> en = enumConstants[i];

@@ -54,7 +54,21 @@ public class EnumDeserializer
      */
     protected volatile CompactStringObjectMap _lookupByToString;
 
+    /**
+     * We may also have integer-type of representation for Enum's, along with `@JsonValue`.
+     *
+     * @since 2.20.0
+     */
+    protected final CompactStringObjectMap _lookupByShapeNumberInt;
+
     protected final Boolean _caseInsensitive;
+
+    /**
+     * Flag to check if FormatShape of int number type would be used to deserialize
+     *
+     * @since 2.20.0
+     */
+    protected final Boolean _isShapeNumberInt;
 
     private Boolean _useDefaultValueForUnknownEnum;
     private Boolean _useNullForUnknownEnum;
@@ -109,15 +123,28 @@ public class EnumDeserializer
         _enumDefaultValue = byNameResolver.getDefaultValue();
         _caseInsensitive = caseInsensitive;
         _isFromIntValue = byNameResolver.isFromIntValue();
+        _isShapeNumberInt = null;
         _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
         _lookupByToString = null;
+        _lookupByShapeNumberInt = null;
     }
 
     /**
      * @since 2.16
+     * @deprecated since 2.20
      */
+    @Deprecated
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
             EnumResolver byEnumNamingResolver, EnumResolver toStringResolver)
+    {
+        this(byNameResolver, caseInsensitive, byEnumNamingResolver, toStringResolver, null);
+    }
+
+    /**
+     * @since 2.20
+     */
+    public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
+                            EnumResolver byEnumNamingResolver, EnumResolver toStringResolver, EnumResolver shapeNumberResolver)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
@@ -126,8 +153,10 @@ public class EnumDeserializer
         _enumDefaultValue = byNameResolver.getDefaultValue();
         _caseInsensitive = caseInsensitive;
         _isFromIntValue = byNameResolver.isFromIntValue();
+        _isShapeNumberInt = shapeNumberResolver != null;
         _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
-        _lookupByToString = toStringResolver == null ? null : toStringResolver.constructLookup();
+        _lookupByToString = _isShapeNumberInt ? toStringResolver.constructLookup() : null;
+        _lookupByShapeNumberInt = shapeNumberResolver == null ? null : shapeNumberResolver.constructLookup();
     }
 
     /**
@@ -143,10 +172,12 @@ public class EnumDeserializer
         _enumDefaultValue = base._enumDefaultValue;
         _caseInsensitive = Boolean.TRUE.equals(caseInsensitive);
         _isFromIntValue = base._isFromIntValue;
+        _isShapeNumberInt = base._isShapeNumberInt;
         _useDefaultValueForUnknownEnum = useDefaultValueForUnknownEnum;
         _useNullForUnknownEnum = useNullForUnknownEnum;
         _lookupByEnumNaming = base._lookupByEnumNaming;
         _lookupByToString = base._lookupByToString;
+        _lookupByShapeNumberInt = base._lookupByShapeNumberInt;
     }
 
     /**
@@ -238,7 +269,7 @@ public class EnumDeserializer
           JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)).orElse(_useDefaultValueForUnknownEnum);
         Boolean useNullForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
           JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)).orElse(_useNullForUnknownEnum);
-        
+
         return withResolved(caseInsensitive, useDefaultValueForUnknownEnum, useNullForUnknownEnum);
     }
 
@@ -280,6 +311,10 @@ public class EnumDeserializer
             // 26-Sep-2021, tatu: [databind#1850] Special case where we get "true" integer
             //    enumeration and should avoid use of {@code Enum.index()}
             if (_isFromIntValue) {
+                // [databind#3580] Enum (de)serialization in conjunction with JsonFormat.Shape.NUMBER_INT
+                if (_isShapeNumberInt) {
+                    return _fromInteger(p, ctxt, p.getIntValue());
+                }
                 // ... whether to rely on "getText()" returning String, or get number, convert?
                 // For now assume all format backends can produce String:
                 return _fromString(p, ctxt, p.getText());
@@ -327,7 +362,7 @@ public class EnumDeserializer
     }
 
     protected Object _fromInteger(JsonParser p, DeserializationContext ctxt,
-            int index)
+            int intValue)
         throws IOException
     {
         final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
@@ -336,13 +371,13 @@ public class EnumDeserializer
         // First, check legacy setting for slightly different message
         if (act == CoercionAction.Fail) {
             if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
-                return ctxt.handleWeirdNumberValue(_enumClass(), index,
+                return ctxt.handleWeirdNumberValue(_enumClass(), intValue,
                         "not allowed to deserialize Enum value out of number: disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
                         );
             }
             // otherwise this will force failure with new setting
-            _checkCoercionFail(ctxt, act, handledType(), index,
-                    "Integer value ("+index+")");
+            _checkCoercionFail(ctxt, act, handledType(), intValue,
+                    "Integer value ("+intValue+")");
         }
         switch (act) {
         case AsNull:
@@ -352,14 +387,26 @@ public class EnumDeserializer
         case TryConvert:
         default:
         }
-        if (index >= 0 && index < _enumsByIndex.length) {
-            return _enumsByIndex[index];
+
+        // [databind#3580] Enum (de)serialization in conjunction with JsonFormat.Shape.NUMBER_INT
+        if (_isShapeNumberInt) {
+            Object numberShape = _lookupByShapeNumberInt.find(String.valueOf(intValue));
+            if (numberShape != null) {
+                return numberShape;
+            } else {
+                return ctxt.handleWeirdNumberValue(_enumClass(), intValue,
+                        "Number Int value is not one of expected values",
+                        _lookupByShapeNumberInt.toString());
+            }
+        }
+        if (intValue >= 0 && intValue < _enumsByIndex.length) {
+            return _enumsByIndex[intValue];
         }
         if (useDefaultValueForUnknownEnum(ctxt)) {
             return _enumDefaultValue;
         }
         if (!useNullForUnknownEnum(ctxt)) {
-            return ctxt.handleWeirdNumberValue(_enumClass(), index,
+            return ctxt.handleWeirdNumberValue(_enumClass(), intValue,
                     "index value outside legal index range [0..%s]",
                     _enumsByIndex.length-1);
         }
@@ -470,7 +517,7 @@ public class EnumDeserializer
 
     /**
      * Since 2.16, {@link #_lookupByToString} it is passed via 
-     * {@link #EnumDeserializer(EnumResolver, boolean, EnumResolver, EnumResolver)}, so there is no need for lazy
+     * {@link #EnumDeserializer(EnumResolver, boolean, EnumResolver, EnumResolver, EnumResolver)}, so there is no need for lazy
      * initialization. But kept for backward-compatilibility reasons. In case {@link #_lookupByToString} is null.
      *
      * @deprecated Since 2.16

@@ -1100,7 +1100,8 @@ factory.toString()));
                         config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
                         constructEnumNamingStrategyResolver(config, beanDesc.getClassInfo()),
                         // since 2.16
-                        EnumResolver.constructUsingToString(config, beanDesc.getClassInfo())
+                        EnumResolver.constructUsingToString(config, beanDesc.getClassInfo()),
+                        constructEnumResolverNumberShape(enumClass, config, beanDesc)
                 );
             }
         }
@@ -1813,6 +1814,21 @@ factory.toString()));
             return EnumResolver.constructUsingMethod(config, beanDesc.getClassInfo(), jvAcc);
         }
         return EnumResolver.constructFor(config, beanDesc.getClassInfo());
+    }
+
+
+    protected EnumResolver constructEnumResolverNumberShape(Class<?> enumClass,
+                                                            DeserializationConfig config, BeanDescription beanDesc)
+    {
+        AnnotatedMember jvAcc = beanDesc.findJsonValueAccessor();
+        if (jvAcc != null) {
+            if (config.canOverrideAccessModifiers()) {
+                ClassUtil.checkAndFixAccess(jvAcc.getMember(),
+                        config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            }
+            return EnumResolver.constructUsingNumberShape(config, beanDesc.getClassInfo(), jvAcc);
+        }
+        return null;
     }
 
     /**

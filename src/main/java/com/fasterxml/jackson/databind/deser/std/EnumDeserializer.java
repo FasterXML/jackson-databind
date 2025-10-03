@@ -155,7 +155,7 @@ public class EnumDeserializer
         _isFromIntValue = byNameResolver.isFromIntValue();
         _isShapeNumberInt = shapeNumberResolver != null;
         _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
-        _lookupByToString = _isShapeNumberInt ? toStringResolver.constructLookup() : null;
+        _lookupByToString = toStringResolver == null ? null : toStringResolver.constructLookup();
         _lookupByShapeNumberInt = shapeNumberResolver == null ? null : shapeNumberResolver.constructLookup();
     }
 

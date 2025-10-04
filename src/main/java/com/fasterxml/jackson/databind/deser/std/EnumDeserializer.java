@@ -66,9 +66,9 @@ public class EnumDeserializer
     /**
      * Flag to check if FormatShape of int number type would be used to deserialize
      *
-     * @since 2.20.0
+     * @since 2.21.0
      */
-    protected final Boolean _isShapeNumberInt;
+    protected final boolean _isShapeNumberInt;
 
     private Boolean _useDefaultValueForUnknownEnum;
     private Boolean _useNullForUnknownEnum;
@@ -85,7 +85,7 @@ public class EnumDeserializer
      * Marker flag that indicates whether the Enum class has {@code @JsonValue}
      * annotated accessor (or equivalent), used to populate {@link #_lookupByName}.
      *
-     * @since 2.20
+     * @since 2.21.0
      */
     protected final boolean _hasAsValueAnnotation;
 
@@ -123,7 +123,7 @@ public class EnumDeserializer
         _enumDefaultValue = byNameResolver.getDefaultValue();
         _caseInsensitive = caseInsensitive;
         _isFromIntValue = byNameResolver.isFromIntValue();
-        _isShapeNumberInt = null;
+        _isShapeNumberInt = false;
         _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
         _lookupByToString = null;
         _lookupByShapeNumberInt = null;
@@ -131,7 +131,7 @@ public class EnumDeserializer
 
     /**
      * @since 2.16
-     * @deprecated since 2.20
+     * @deprecated since 2.21.0
      */
     @Deprecated
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
@@ -141,7 +141,7 @@ public class EnumDeserializer
     }
 
     /**
-     * @since 2.20
+     * @since 2.21.0
      */
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
                             EnumResolver byEnumNamingResolver, EnumResolver toStringResolver, EnumResolver shapeNumberResolver)

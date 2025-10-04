@@ -309,7 +309,7 @@ public class EnumResolver implements java.io.Serializable
      * 1. actual String serialization is indicated using @JsonValue on a method in Enum class AND
      * 2. Enum class is annotated with `@JsonFormat`
      *
-     * @since 2.20
+     * @since 2.21.0
      */
     public static EnumResolver constructUsingNumberShape(DeserializationConfig config, AnnotatedClass annotatedClass, AnnotatedMember accessor)
     {

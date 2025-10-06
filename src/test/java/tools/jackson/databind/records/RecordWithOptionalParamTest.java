@@ -1,7 +1,9 @@
 package tools.jackson.databind.records;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import java.util.Optional;
@@ -54,4 +56,19 @@ public class RecordWithOptionalParamTest
         assertNotNull(output.optional());
         assertEquals(Optional.empty(), output.optional());
     }
+
+    @Test
+    void deserializeIssue5335() throws Exception
+    {
+        String json = a2q("{'name':'v1','optional':null}");
+        JsonMapper mapper = JsonMapper.builder()
+            .changeDefaultPropertyInclusion(
+                    v -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS))
+            .build();
+        RecordWithOptionalParam output = mapper.readValue(json, RecordWithOptionalParam.class);
+        assertEquals("v1", output.name());
+        assertNotNull(output.optional());
+        assertEquals(Optional.empty(), output.optional());
+    }
+
 }

@@ -9,7 +9,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// [databind#53355] When deserializing records, java.util.Optional parameters should be not be
+// [databind#5335] When deserializing records, java.util.Optional parameters should be not be
 // deserialized as null (Optional.empty() should be used instead)
 public class RecordWithOptionalParamTest
     extends DatabindTestUtil

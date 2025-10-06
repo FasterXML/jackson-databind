@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import java.util.Optional;
 
@@ -48,7 +49,7 @@ public class RecordWithOptionalParamTest
     }
 
     @Test
-    void deserializeEmpty() throws Exception
+    void deserializeExplicitNull() throws Exception
     {
         String json = a2q("{'name':'v1','optional':null}");
         RecordWithOptionalParam output = MAPPER.readValue(json, RecordWithOptionalParam.class);
@@ -57,10 +58,22 @@ public class RecordWithOptionalParamTest
         assertEquals(Optional.empty(), output.optional());
     }
 
+    @JacksonTestFailureExpected // [databind#5335]
     @Test
-    void deserializeIssue5335() throws Exception
+    void deserializeMissing() throws Exception
     {
-        String json = a2q("{'name':'v1','optional':null}");
+        String json = a2q("{'name':'v1'}");
+        RecordWithOptionalParam output = MAPPER.readValue(json, RecordWithOptionalParam.class);
+        assertEquals("v1", output.name());
+        assertNotNull(output.optional());
+        assertEquals(Optional.empty(), output.optional());
+    }
+
+    @JacksonTestFailureExpected // [databind#5335]
+    @Test
+    void deserializeIssue5335Config() throws Exception
+    {
+        String json = a2q("{'name':'v1'}");
         JsonMapper mapper = JsonMapper.builder()
             .changeDefaultPropertyInclusion(
                     v -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS))

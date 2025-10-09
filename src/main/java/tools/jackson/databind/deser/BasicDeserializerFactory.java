@@ -1099,7 +1099,8 @@ factory.toString()));
                         config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
                         constructEnumNamingStrategyResolver(config, beanDescRef.getClassInfo()),
                         // since 2.16
-                        EnumResolver.constructUsingToString(config, beanDescRef.getClassInfo())
+                        EnumResolver.constructUsingToString(config, beanDescRef.getClassInfo()),
+                        constructEnumResolverNumberShape(enumClass, config, beanDescRef.get())
                 );
             }
         }
@@ -1726,6 +1727,20 @@ factory.toString()));
             namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
         return enumNamingStrategy == null ? null
             : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);
+    }
+
+    protected EnumResolver constructEnumResolverNumberShape(Class<?> enumClass,
+                                                            DeserializationConfig config, BeanDescription beanDesc)
+    {
+        AnnotatedMember jvAcc = beanDesc.findJsonValueAccessor();
+        if (jvAcc != null) {
+            if (config.canOverrideAccessModifiers()) {
+                ClassUtil.checkAndFixAccess(jvAcc.getMember(),
+                        config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            }
+            return EnumResolver.constructUsingNumberShape(config, beanDesc.getClassInfo(), jvAcc);
+        }
+        return null;
     }
 
     protected boolean _hasCreatorAnnotation(MapperConfig<?> config,

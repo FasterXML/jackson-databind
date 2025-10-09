@@ -68,14 +68,12 @@ public class EnumDeserializer
     /**
      * We may also have integer-type of representation for Enum's, along with `@JsonValue`.
      *
-     * @since 2.20.0
      */
     protected final CompactStringObjectMap _lookupByShapeNumberInt;
 
     /**
      * Flag to check if FormatShape of int number type would be used to deserialize
      *
-     * @since 2.21.0
      */
     protected final boolean _isShapeNumberInt;
 
@@ -122,9 +120,6 @@ public class EnumDeserializer
         this(byNameResolver, caseInsensitive, byEnumNamingResolver, toStringResolver, null);
     }
 
-    /**
-     * @since 2.21.0
-     */
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
                             EnumResolver byEnumNamingResolver, EnumResolver toStringResolver, EnumResolver shapeNumberResolver)
     {

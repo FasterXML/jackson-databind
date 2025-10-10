@@ -121,6 +121,32 @@ public class CoerceFloatToIntTest
                 DEFAULT_MAPPER.treeToValue(nodeF.numberNode(BigDecimal.valueOf(3.75)), BigInteger.class));
     }
 
+    // [databind#5340]
+    @Test
+    public void testLegacyFPToIntCoercionJsonNodeToByte() throws Exception
+    {
+        final JsonNodeFactory nodeF = DEFAULT_MAPPER.getNodeFactory();
+        assertEquals((byte) 1,
+                DEFAULT_MAPPER.treeToValue(nodeF.numberNode(1.25), Byte.class));
+        assertEquals((byte) -2,
+                DEFAULT_MAPPER.treeToValue(nodeF.numberNode(-2.5f), Byte.class));
+        assertEquals((byte) 3,
+                DEFAULT_MAPPER.treeToValue(nodeF.numberNode(BigDecimal.valueOf(3.75)), Byte.class));
+    }
+    
+    // [databind#5340]
+    @Test
+    public void testLegacyFPToIntCoercionJsonNodeToShort() throws Exception
+    {
+        final JsonNodeFactory nodeF = DEFAULT_MAPPER.getNodeFactory();
+        assertEquals((short) 1,
+                DEFAULT_MAPPER.treeToValue(nodeF.numberNode(1.25), Short.class));
+        assertEquals((short) -2,
+                DEFAULT_MAPPER.treeToValue(nodeF.numberNode(-2.5f), Short.class));
+        assertEquals((short) 3,
+                DEFAULT_MAPPER.treeToValue(nodeF.numberNode(BigDecimal.valueOf(3.75)), Short.class));
+    }
+
     @Test
     public void testLegacyFailDoubleToInt() throws Exception
     {
@@ -142,13 +168,13 @@ public class CoerceFloatToIntTest
     @Test
     public void testLegacyFailDoubleToOther() throws Exception
     {
-        _verifyCoerceFail(READER_LEGACY_FAIL, Short.class, "0.5");
-        _verifyCoerceFail(READER_LEGACY_FAIL, Short.TYPE, "-2.5");
-        _verifyCoerceFail(READER_LEGACY_FAIL, short[].class, "[ -1.35 ]", "to `short` value");
-
         _verifyCoerceFail(READER_LEGACY_FAIL, Byte.class, "0.5");
         _verifyCoerceFail(READER_LEGACY_FAIL, Byte.TYPE, "-2.5");
         _verifyCoerceFail(READER_LEGACY_FAIL, byte[].class, "[ -1.35 ]", "to `byte` value");
+
+        _verifyCoerceFail(READER_LEGACY_FAIL, Short.class, "0.5");
+        _verifyCoerceFail(READER_LEGACY_FAIL, Short.TYPE, "-2.5");
+        _verifyCoerceFail(READER_LEGACY_FAIL, short[].class, "[ -1.35 ]", "to `short` value");
 
         _verifyCoerceFail(READER_LEGACY_FAIL, BigInteger.class, "25236.256");
 

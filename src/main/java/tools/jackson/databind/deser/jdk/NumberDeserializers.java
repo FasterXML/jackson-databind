@@ -368,8 +368,8 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Short) getEmptyValue(ctxt);
                 }
-                // 11-Oct-2025, tatu: Cumbersome as there is no `getValueAsShort()` that'd avoid
-                //    checks. So need to work around...
+                // 11-Oct-2025, tatu: [databind#5240] Cumbersome as there is no
+                //  `getValueAsShort()` that'd avoid checks. So need to work around.
                 int i = p.getValueAsInt();
                 if (_shortOverflow(i)) {
                     // Let's trigger overflow handling

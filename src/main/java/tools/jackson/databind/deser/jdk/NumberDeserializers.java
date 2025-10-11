@@ -278,7 +278,14 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Byte) getEmptyValue(ctxt);
                 }
-                return p.getByteValue();
+                // 11-Oct-2025, tatu: [databind#5240] Cumbersome as there is no
+                //  `getValueAsByte()` that'd avoid checks. So need to work around.
+                int i = p.getValueAsInt();
+                if (_shortOverflow(i)) {
+                    // Let's trigger overflow handling
+                    return p.getByteValue();
+                }
+                return (byte) i;
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Byte) getNullValue(ctxt);
             case JsonTokenId.ID_NUMBER_INT:

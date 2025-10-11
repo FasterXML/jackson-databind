@@ -368,7 +368,14 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Short) getEmptyValue(ctxt);
                 }
-                return p.getShortValue();
+                // 11-Oct-2025, tatu: Cumbersome as there is no `getValueAsShort()` that'd avoid
+                //    checks. So need to work around...
+                int i = p.getValueAsInt();
+                if (_shortOverflow(i)) {
+                    // Let's trigger overflow handling
+                    return p.getShortValue();
+                }
+                return (short) i;
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Short) getNullValue(ctxt);
             case JsonTokenId.ID_NUMBER_INT:

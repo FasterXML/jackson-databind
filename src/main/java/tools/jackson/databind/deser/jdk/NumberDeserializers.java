@@ -26,7 +26,7 @@ import tools.jackson.databind.util.ClassUtil;
  */
 public class NumberDeserializers
 {
-    private final static HashSet<String> _classNames = new HashSet<String>();
+    private final static HashSet<String> _classNames = new HashSet<>();
     static {
         // note: can skip primitive types; other ways to check them:
         Class<?>[] numberTypes = new Class<?>[] {

@@ -26,7 +26,7 @@ import tools.jackson.databind.util.ClassUtil;
  */
 public class NumberDeserializers
 {
-    private final static HashSet<String> _classNames = new HashSet<String>();
+    private final static HashSet<String> _classNames = new HashSet<>();
     static {
         // note: can skip primitive types; other ways to check them:
         Class<?>[] numberTypes = new Class<?>[] {
@@ -278,7 +278,14 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Byte) getEmptyValue(ctxt);
                 }
-                return p.getByteValue();
+                // 11-Oct-2025, tatu: [databind#5240] Cumbersome as there is no
+                //  `getValueAsByte()` that'd avoid checks. So need to work around.
+                int i = p.getValueAsInt();
+                if (_shortOverflow(i)) {
+                    // Let's trigger overflow handling
+                    return p.getByteValue();
+                }
+                return (byte) i;
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Byte) getNullValue(ctxt);
             case JsonTokenId.ID_NUMBER_INT:
@@ -368,7 +375,14 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Short) getEmptyValue(ctxt);
                 }
-                return p.getShortValue();
+                // 11-Oct-2025, tatu: [databind#5240] Cumbersome as there is no
+                //  `getValueAsShort()` that'd avoid checks. So need to work around.
+                int i = p.getValueAsInt();
+                if (_shortOverflow(i)) {
+                    // Let's trigger overflow handling
+                    return p.getShortValue();
+                }
+                return (short) i;
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Short) getNullValue(ctxt);
             case JsonTokenId.ID_NUMBER_INT:

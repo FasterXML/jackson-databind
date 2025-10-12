@@ -5,6 +5,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
+3.0.1 (not yet released)
+
+#5340: `DeserializationFeature.ACCEPT_FLOAT_AS_INT` not respected for byte/short
+  when deserializing from JsonNode
+ (reported by @Artur)
+
 3.0.0 (03-Oct-2025)
 
 #5319: `TreeTraversingParser` does not respect `DeserializationFeature.ACCEPT_FLOAT_AS_INT`

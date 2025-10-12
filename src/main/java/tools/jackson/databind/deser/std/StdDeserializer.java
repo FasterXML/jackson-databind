@@ -524,7 +524,14 @@ public abstract class StdDeserializer<T>
             if (act == CoercionAction.AsEmpty) {
                 return (byte) 0;
             }
-            return p.getByteValue();
+            // 11-Oct-2025, tatu: [databind#5240] Cumbersome as there is no
+            //  `getValueAsByte()` that'd avoid checks. So need to work around.
+            int i = p.getValueAsInt();
+            if (_shortOverflow(i)) {
+                // Let's trigger overflow handling
+                return p.getByteValue();
+            }
+            return (byte) i;
         case JsonTokenId.ID_NUMBER_INT:
             return p.getByteValue();
         case JsonTokenId.ID_NULL:
@@ -601,7 +608,14 @@ public abstract class StdDeserializer<T>
             if (act == CoercionAction.AsEmpty) {
                 return (short) 0;
             }
-            return p.getShortValue();
+            // 11-Oct-2025, tatu: [databind#5240] Cumbersome as there is no
+            //  `getValueAsShort()` that'd avoid checks. So need to work around.
+            int i = p.getValueAsInt();
+            if (_shortOverflow(i)) {
+                // Let's trigger overflow handling
+                return p.getShortValue();
+            }
+            return (short) i;
         case JsonTokenId.ID_NUMBER_INT:
             return p.getShortValue();
         case JsonTokenId.ID_NULL:
@@ -676,8 +690,10 @@ public abstract class StdDeserializer<T>
             if (act == CoercionAction.AsEmpty) {
                 return 0;
             }
+            // Important! Must use coercing conversion method here:
             return p.getValueAsInt();
         case JsonTokenId.ID_NUMBER_INT:
+            // Here regular (strict) accessor is fine
             return p.getIntValue();
         case JsonTokenId.ID_NULL:
             _verifyNullForPrimitive(ctxt);

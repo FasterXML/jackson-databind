@@ -72,6 +72,14 @@ David Nault (@dnault)
  * Requested #5244: Support accessing annotations via `AnnotatedMember.annotations()`
   [3.0.0]
 
+Artur (@Artur-)
+ * Reported #5319: `TreeTraversingParser` does not respect
+   `DeserializationFeature.ACCEPT_FLOAT_AS_INT`
+  [3.0.0]
+ * Reported #5340: `DeserializationFeature.ACCEPT_FLOAT_AS_INT` not respected for byte/short
+   when deserializing from JsonNode
+  [3.0.1]
+
 Dónal Murtagh (@donalmurtagh)
  * Reported #5323: `UUID` serialization is broken in v3.0.0-rc9
   [3.0.0]

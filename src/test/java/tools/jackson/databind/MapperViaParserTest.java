@@ -1,7 +1,5 @@
 package tools.jackson.databind;
 
-import java.io.StringReader;
-
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
@@ -9,12 +7,11 @@ import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 
 public class MapperViaParserTest
     extends DatabindTestUtil
@@ -83,18 +80,45 @@ public class MapperViaParserTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @SuppressWarnings("resource")
     @Test
-    public void testPojoReadingOk() throws Exception
+    public void testPojoReadingOkClass() throws Exception
     {
-        final String JSON = "{ \"x\" : 9 }";
-        try (JsonParser p = MAPPER.createParser(new StringReader(JSON))) {
-            p.nextToken();
+        try (JsonParser p = MAPPER.createParser(a2q("{ 'x' : 9 }"))) {
             Pojo pojo = p.readValueAs(Pojo.class);
-            assertNotNull(pojo);
+            assertEquals(9, pojo._x);
         }
     }
 
+    @Test
+    public void testPojoReadingOkTypeRef() throws Exception
+    {
+        try (JsonParser p = MAPPER.createParser(a2q("{ 'x' : 7 }"))) {
+            Pojo pojo = p.readValueAs(new TypeReference<Pojo>() { });
+            assertEquals(7, pojo._x);
+        }
+    }
+
+    @Test
+    public void testPojoReadingOkJavaType() throws Exception
+    {
+        try (JsonParser p = MAPPER.createParser(a2q("{ 'x' : 42 }"))) {
+            Pojo pojo = p.readValueAs(MAPPER.constructType(Pojo.class));
+            assertEquals(42, pojo._x);
+        }
+    }
+
+    @Test
+    public void testTreeReadingOk() throws Exception
+    {
+        final String JSON = a2q("{ 'x' : 9 }");
+        try (JsonParser p = MAPPER.createParser(JSON)) {
+            JsonNode tree = p.readValueAsTree();
+            assertEquals(MAPPER.createObjectNode().put("x", 9), tree);
+        }
+    }
+
+    // // // Misc other tests
+    
     @Test
     public void testEscapingUsingMapper() throws Exception
     {

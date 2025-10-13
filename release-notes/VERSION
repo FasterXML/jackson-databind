@@ -10,6 +10,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5340: `DeserializationFeature.ACCEPT_FLOAT_AS_INT` not respected for byte/short
   when deserializing from JsonNode
  (reported by @Artur)
+#5344: "Unexpected end-of-input" for `JsonParser.readValueAs()` (in 3.0)
+ (reported by Phil C)
 
 3.0.0 (03-Oct-2025)
 

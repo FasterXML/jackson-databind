@@ -83,3 +83,7 @@ Artur (@Artur-)
 Dónal Murtagh (@donalmurtagh)
  * Reported #5323: `UUID` serialization is broken in v3.0.0-rc9
   [3.0.0]
+
+Phil Clay (@philsttr)
+ * Reported #5344: "Unexpected end-of-input" for `JsonParser.readValueAs()` (in 3.0)
+  [3.0.1]

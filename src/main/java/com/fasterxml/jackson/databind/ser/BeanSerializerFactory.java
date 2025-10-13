@@ -477,9 +477,9 @@ public class BeanSerializerFactory
                 }
             }
             if (anyGetterIndex != -1) {
-                // A property is already in place; insert AnyGetter writer right after it (do not replace)
+                // There is prop is already in place, just need to replace it
                 AnyGetterWriter anyGetterWriter = new AnyGetterWriter(anyGetterProp, anyProp, anyGetter, anySer);
-                props.add(anyGetterIndex + 1, anyGetterWriter);
+                props.set(anyGetterIndex, anyGetterWriter);
             } else {
                 // Otherwise just add it at the end, but won't be sorted...
                 // This is case where JsonAnyGetter is private/protected,

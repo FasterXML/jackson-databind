@@ -236,19 +236,12 @@ public enum DeserializationFeature implements ConfigFeature
      * for binding the full value, and nothing more (except for possible ignorable
      * white space or comments, if supported by data format).
      *<p>
-<<<<<<< HEAD:src/main/java/tools/jackson/databind/DeserializationFeature.java
      * NOTE: this feature should usually be disabled when reading from
      * {@link java.io.DataInput}, since it cannot detect end-of-input efficiently
      * (but by throwing an {@link java.io.IOException}). Disabling is NOT done
      * automatically by Jackson: users are recommended to disable it.
      *<p>
      * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
-=======
-     * Feature is disabled by default (so that no check is made for possible trailing
-     * token(s)) for backwards-compatibility reasons.
-     *
-     * @since 2.9
->>>>>>> 2.x:src/main/java/com/fasterxml/jackson/databind/DeserializationFeature.java
      */
     FAIL_ON_TRAILING_TOKENS(true),
 
@@ -395,7 +388,7 @@ public enum DeserializationFeature implements ConfigFeature
 
     /**
      * Feature that can be enabled to allow empty JSON Array
-     * value (that is, {@code[ ]} to be bound to POJOs {@code null}.
+     * value (that is, {@code [ ]} to be bound to POJOs {@code null}.
      * If disabled, standard POJOs can only be bound from JSON {@code null} or
      * JSON Object (standard meaning that no custom deserializers or
      * constructors are defined; both of which can add support for other

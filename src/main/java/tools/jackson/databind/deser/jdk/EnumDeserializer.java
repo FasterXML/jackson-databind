@@ -65,41 +65,6 @@ public class EnumDeserializer
      */
     protected final CompactStringObjectMap _lookupByEnumNaming;
 
-    /**
-<<<<<<< HEAD:src/main/java/tools/jackson/databind/deser/jdk/EnumDeserializer.java
-=======
-     * @since 2.9
-     * @deprecated since 2.16
-     */
-    @Deprecated
-    public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
-    {
-        this(byNameResolver, Boolean.TRUE.equals(caseInsensitive), null);
-    }
-
-    /**
-     * @since 2.15
-     * @deprecated since 2.16
-     */
-    @Deprecated
-    public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
-            EnumResolver byEnumNamingResolver)
-    {
-        super(byNameResolver.getEnumClass());
-        _lookupByName = byNameResolver.constructLookup();
-        _hasAsValueAnnotation = byNameResolver.hasAsValueAnnotation();
-        _enumsByIndex = byNameResolver.getRawEnums();
-        _enumDefaultValue = byNameResolver.getDefaultValue();
-        _caseInsensitive = caseInsensitive;
-        _isFromIntValue = byNameResolver.isFromIntValue();
-        _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
-        _lookupByToString = null;
-    }
-
-    /**
->>>>>>> 2.x:src/main/java/com/fasterxml/jackson/databind/deser/std/EnumDeserializer.java
-     * @since 2.16
-     */
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
             EnumResolver byEnumNamingResolver, EnumResolver toStringResolver)
     {

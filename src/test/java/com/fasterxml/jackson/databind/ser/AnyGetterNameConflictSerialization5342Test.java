@@ -20,7 +20,7 @@ public class AnyGetterNameConflictSerialization5342Test
         @JsonIgnore
         private Map<String, Object> additionalProperties;
         @JsonProperty(value = "additionalProperties")
-        private Map<String, Object> additionalPropertiesProperty;
+        private Map<String, Object> hidden;
 
         @JsonAnySetter
         private void additionalProperties(String key, Object value) {
@@ -35,12 +35,12 @@ public class AnyGetterNameConflictSerialization5342Test
             return additionalProperties;
         }
 
-        public Map<String, Object> additionalPropertiesProperty() {
-            return additionalPropertiesProperty;
+        public Map<String, Object> hidden() {
+            return hidden;
         }
 
-        public void additionalPropertiesProperty(Map<String, Object> additionalPropertiesProperty) {
-            this.additionalPropertiesProperty = additionalPropertiesProperty;
+        public void hidden(Map<String, Object> additionalPropertiesProperty) {
+            this.hidden = additionalPropertiesProperty;
         }
     }
 
@@ -50,23 +50,26 @@ public class AnyGetterNameConflictSerialization5342Test
     public void testOverwrite()
         throws Exception
     {
-        Map<String, Object> additionalProperties = new HashMap<>();
-        additionalProperties.put("fizz", "buzz");
         Pojo5342 pojo = new Pojo5342();
         pojo.additionalProperties("foo", "bar");
-        pojo.additionalPropertiesProperty(additionalProperties);
+
+        Map<String, Object> hidden = new HashMap<>();
+        hidden.put("fizz", "buzz");
+        pojo.hidden(hidden);
 
 
         String JSON = MAPPER.writeValueAsString(pojo);
         // was in 2.18 : {"foo":"bar","additionalProperties": {"fizz":"buzz"}}
         // now in 2.19 : {"foo":"bar"}... need FIX!
+        // hidden field
         assertTrue(JSON.contains("\"additionalProperties\":{\"fizz\":\"buzz\"}"));
+        // any-getter
         assertTrue(JSON.contains("\"foo\":\"bar\""));
 
         // Try deserializaing back
         Pojo5342 actual = MAPPER.readValue(JSON, Pojo5342.class);
         assertEquals(1, actual.additionalProperties.size());
-        assertEquals(1, actual.additionalPropertiesProperty().size());
+        assertEquals(1, actual.hidden().size());
     }
 
 }

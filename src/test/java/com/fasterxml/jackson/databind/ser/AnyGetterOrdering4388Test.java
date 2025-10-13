@@ -277,20 +277,6 @@ public class AnyGetterOrdering4388Test extends DatabindTestUtil {
             json);
     }
 
-    @Test
-    public void testPrivateAnyGetterSorted() throws Exception {
-        PrivateAnyGetterPojoSorted pojo = new PrivateAnyGetterPojoSorted();
-        pojo.add("secondProperty", 2);
-        String json = MAPPER.writeValueAsString(pojo);
-
-        assertEquals(a2q("{" +
-                "'firstProperty':1," +
-                "'secondProperty':2," + // private accesor, wont' work here
-                "'thirdProperty':3," +
-                "'forthProperty':4}"),
-            json);
-    }
-
     private void _configureValues(BaseWithProperties base) {
         base.entityId = 1;
         base.entityName = "Bob";

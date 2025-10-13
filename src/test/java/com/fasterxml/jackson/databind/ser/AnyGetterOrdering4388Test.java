@@ -127,6 +127,7 @@ public class AnyGetterOrdering4388Test extends DatabindTestUtil {
         }
     }
 
+    //
     @JsonPropertyOrder({ "firstProperty", "secondProperties", "thirdProperty", "forthProperty" })
     static class PrivateAnyGetterPojoSorted extends PrivateAnyGetterPojo {
         public Map<String, Object> getSecondProperties() {

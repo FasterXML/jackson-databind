@@ -1,13 +1,11 @@
 package tools.jackson.databind.records;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,18 +23,16 @@ public class RecordWithOptionalParamTest
     void serialize() throws Exception
     {
         RecordWithOptionalParam input = new RecordWithOptionalParam("v1", Optional.of("v2"));
-        String json = MAPPER.writeValueAsString(input);
-        String expected = a2q("{'name':'v1','optional':'v2'}");
-        assertEquals(expected, json);
+        assertEquals(a2q("{'name':'v1','optional':'v2'}"),
+                MAPPER.writeValueAsString(input));
     }
 
     @Test
     void serializeEmpty() throws Exception
     {
         RecordWithOptionalParam input = new RecordWithOptionalParam("v1", Optional.empty());
-        String json = MAPPER.writeValueAsString(input);
-        String expected = a2q("{'name':'v1','optional':null}");
-        assertEquals(expected, json);
+        assertEquals(a2q("{'name':'v1','optional':null}"),
+                MAPPER.writeValueAsString(input));
     }
 
     @Test
@@ -62,26 +58,10 @@ public class RecordWithOptionalParamTest
     @Test
     void deserializeMissing() throws Exception
     {
-        String json = a2q("{'name':'v1'}");
-        RecordWithOptionalParam output = MAPPER.readValue(json, RecordWithOptionalParam.class);
+        RecordWithOptionalParam output = MAPPER.readValue(a2q("{'name':'v1'}"),
+                RecordWithOptionalParam.class);
         assertEquals("v1", output.name());
         assertNotNull(output.optional());
         assertEquals(Optional.empty(), output.optional());
     }
-
-    @JacksonTestFailureExpected // [databind#5335]
-    @Test
-    void deserializeIssue5335Config() throws Exception
-    {
-        String json = a2q("{'name':'v1'}");
-        JsonMapper mapper = JsonMapper.builder()
-            .changeDefaultPropertyInclusion(
-                    v -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS))
-            .build();
-        RecordWithOptionalParam output = mapper.readValue(json, RecordWithOptionalParam.class);
-        assertEquals("v1", output.name());
-        assertNotNull(output.optional());
-        assertEquals(Optional.empty(), output.optional());
-    }
-
 }

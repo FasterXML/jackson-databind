@@ -115,10 +115,13 @@ public abstract class ReferenceTypeDeserializer<T>
 
     // 02-Sep-2021, tatu: Related to [databind#3214] we may want to add this... but
     //    with 2.13.0 so close will not yet do that, but wait for 2.14
-//    @Override
-//    public Object getAbsentValue(DeserializationContext ctxt) {
-//        return null;
-//    }
+    // 13-Oct-2025, tatu: Time to do it for 3.0.1 (ought to have done for 3.0.0 but missed it)
+    @Override
+    public Object getAbsentValue(DeserializationContext ctxt) {
+        // 21-Sep-2022, tatu: [databind#3601] Let's make absent become `null`,
+        //   NOT "null value" (Empty)
+        return null;
+    }
 
     public abstract T referenceValue(Object contents);
 

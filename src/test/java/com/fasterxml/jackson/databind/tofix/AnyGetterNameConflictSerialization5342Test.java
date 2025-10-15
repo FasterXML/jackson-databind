@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.tofix;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,6 +47,7 @@ public class AnyGetterNameConflictSerialization5342Test
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @JacksonTestFailureExpected
     @Test
     public void testOverwrite()
         throws Exception

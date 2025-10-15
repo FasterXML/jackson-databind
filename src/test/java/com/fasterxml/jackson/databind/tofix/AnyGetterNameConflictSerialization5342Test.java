@@ -10,8 +10,10 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#5342] JsonAnyGetter method serialization can override JsonProperty serialization on serialized name conflict
 public class AnyGetterNameConflictSerialization5342Test
@@ -49,7 +51,7 @@ public class AnyGetterNameConflictSerialization5342Test
 
     @JacksonTestFailureExpected
     @Test
-    public void testOverwrite()
+    public void anyGetter5342()
         throws Exception
     {
         Pojo5342 pojo = new Pojo5342();
@@ -63,14 +65,16 @@ public class AnyGetterNameConflictSerialization5342Test
         String JSON = MAPPER.writeValueAsString(pojo);
         // was in 2.18 : {"foo":"bar","additionalProperties": {"fizz":"buzz"}}
         // now in 2.19 : {"foo":"bar"}... need FIX!
-        // hidden field
-        assertTrue(JSON.contains("\"additionalProperties\":{\"fizz\":\"buzz\"}"));
         // any-getter
-        assertTrue(JSON.contains("\"foo\":\"bar\""));
+        assertThat(JSON).contains("\"foo\":\"bar\"");
+        // hidden field
+        assertThat(JSON).contains("\"additionalProperties\":{\"fizz\":\"buzz\"}");
 
-        // Try deserializaing back
+        // Try deserializing back
         Pojo5342 actual = MAPPER.readValue(JSON, Pojo5342.class);
+        assertNotNull(actual.additionalProperties());
         assertEquals(1, actual.additionalProperties.size());
+        assertNotNull(actual.hidden());
         assertEquals(1, actual.hidden().size());
     }
 

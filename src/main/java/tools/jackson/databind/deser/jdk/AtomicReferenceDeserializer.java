@@ -35,6 +35,15 @@ public class AtomicReferenceDeserializer
     }
 
     @Override
+    public Object getAbsentValue(DeserializationContext ctxt) {
+        // 15-Oct-2025, tatu: For [databind#5335] (and earlier [databind#3601])
+        //   base impl changed to return "null value" (which here means "empty" ref).
+        //   But for AtomicReference we will instead return actual null to maintain
+        //   2.x compatibility. (3.1 may add configurability for this)
+        return null;
+    }
+
+    @Override
     public AtomicReference<Object> referenceValue(Object contents) {
         return new AtomicReference<>(contents);
     }

@@ -7,6 +7,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.1 (not yet released)
 
+#5335: JsonMapper to deserialize `Optional.empty()` instead of `null`
+  in case of missing property (2.x compatibility)
+ (^^^ REVERT #3601)
+ (reported by @wendigo)
 #5340: `DeserializationFeature.ACCEPT_FLOAT_AS_INT` not respected for byte/short
   when deserializing from JsonNode
  (reported by @Artur)
@@ -185,7 +189,8 @@ No changes since 3.0.0-rc7
 #3536: Create new exception type `JsonNodeException` for use by `JsonNode`-related problems
 #3542: Rename "com.fasterxml.jackson" -> "tools.jackson"
 #3561: Add `DeserializationContext` as an argument for `SettableBeanProperty.set(...)`
-#3601: Change `Optional` deserialization from "absent" value into `null`, from "empty"
+(REVERTED in 3.0.1) #3601: Change `Optional` deserialization from "absent"
+   value into `null`, from "empty"
 #4160: Deprecate `DefaultTyping.EVERYTHING` in `2.x` and remove in `3.0`
 #4381: Prevent construction of `null`-valued `JsonNode`s (like `TextNode`)
 #4552: Change `MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS` default to `false`

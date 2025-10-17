@@ -397,6 +397,10 @@ public abstract class DeserializationContext
      */
     private Object _readValue(JsonParser p, ValueDeserializer<Object> deser) throws JacksonException
     {
+        // 12-Oct-2025, tatu: As per [databind#5344], need to ensure parser points to token
+        if (!p.hasCurrentToken()) {
+            p.nextToken();
+        }
         if (p.hasToken(JsonToken.VALUE_NULL)) {
              return deser.getNullValue(this);
         }

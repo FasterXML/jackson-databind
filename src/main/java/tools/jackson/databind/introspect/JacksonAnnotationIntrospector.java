@@ -678,17 +678,16 @@ public class JacksonAnnotationIntrospector
         //     of names
         if (t.failOnRepeatedNames()) {
             return findSubtypesByJsonSubTypesAnnotationCheckRepeatedNames(a.getName(), types);
-        } else {
-            ArrayList<NamedType> result = new ArrayList<>(types.length);
-            for (JsonSubTypes.Type type : types) {
-                result.add(new NamedType(type.value(), type.name()));
-                // [databind#2761]: alternative set of names to use
-                for (String name : type.names()) {
-                    result.add(new NamedType(type.value(), name));
-                }
-            }
-            return result;
         }
+        ArrayList<NamedType> result = new ArrayList<>(types.length);
+        for (JsonSubTypes.Type type : types) {
+            result.add(new NamedType(type.value(), type.name()));
+            // [databind#2761]: alternative set of names to use
+            for (String name : type.names()) {
+                result.add(new NamedType(type.value(), name));
+            }
+        }
+        return result;
     }
 
     // @since 3.0
@@ -721,10 +720,12 @@ public class JacksonAnnotationIntrospector
     }
     
     // @since 3.0
-    private List<NamedType> findSubtypesByPermittedSubclasses(MapperConfig<?> config, Annotated a, Class<?> clazz)
+    private List<NamedType> findSubtypesByPermittedSubclasses(MapperConfig<?> config,
+            Annotated a, Class<?> clazz)
     {
-        List<NamedType> result = new ArrayList<>(clazz.getPermittedSubclasses().length);
-        for (Class<?> subtype : clazz.getPermittedSubclasses()) {
+        Class<?>[] subtypes = clazz.getPermittedSubclasses();
+        List<NamedType> result = new ArrayList<>(subtypes.length);
+        for (Class<?> subtype : subtypes) {
             result.add(new NamedType(subtype));
         }
         return result;

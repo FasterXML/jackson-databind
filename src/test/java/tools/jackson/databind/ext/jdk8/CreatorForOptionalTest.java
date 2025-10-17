@@ -51,7 +51,9 @@ public class CreatorForOptionalTest
 
         // 21-Sep-2022, tatu: [databind#3601] Changed this to now become proper
         //    `null`. Should probably also check coercion in future.
+        // 15-Oct-2025, tatu: [databind#5335] Revert above change for 3.0.1 to
 
-        assertNull(bean.b);
+        //assertNull(bean.b);
+        assertEquals(Optional.empty(), bean.b);
     }
 }

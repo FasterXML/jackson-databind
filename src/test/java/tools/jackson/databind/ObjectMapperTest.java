@@ -4,7 +4,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
 import org.junit.jupiter.api.Test;
@@ -249,7 +248,6 @@ public class ObjectMapperTest extends DatabindTestUtil
         assertNotNull(n);
     }
 
-    @SuppressWarnings("serial")
     @Test
     public void testRegisterDependentModules() {
 

@@ -5,6 +5,18 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
+3.0.1 (not yet released)
+
+#5335: JsonMapper to deserialize `Optional.empty()` instead of `null`
+  in case of missing property (2.x compatibility)
+ (^^^ REVERT #3601)
+ (reported by @wendigo)
+#5340: `DeserializationFeature.ACCEPT_FLOAT_AS_INT` not respected for byte/short
+  when deserializing from JsonNode
+ (reported by @Artur)
+#5344: "Unexpected end-of-input" for `JsonParser.readValueAs()` (in 3.0)
+ (reported by Phil C)
+
 3.0.0 (03-Oct-2025)
 
 #5319: `TreeTraversingParser` does not respect `DeserializationFeature.ACCEPT_FLOAT_AS_INT`
@@ -28,7 +40,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.0-rc9 (05-Sep-2025)
 
-#4210: `ParameterNamesModule` causes `@ConstructorProperties` to be ignored,
+#4310: `ParameterNamesModule` causes `@ConstructorProperties` to be ignored,
   constructor called with null value
  (reported by Lars B)
 #5244: Support accessing annotations via `AnnotatedMember.annotations()`
@@ -177,7 +189,8 @@ No changes since 3.0.0-rc7
 #3536: Create new exception type `JsonNodeException` for use by `JsonNode`-related problems
 #3542: Rename "com.fasterxml.jackson" -> "tools.jackson"
 #3561: Add `DeserializationContext` as an argument for `SettableBeanProperty.set(...)`
-#3601: Change `Optional` deserialization from "absent" value into `null`, from "empty"
+(REVERTED in 3.0.1) #3601: Change `Optional` deserialization from "absent"
+   value into `null`, from "empty"
 #4160: Deprecate `DefaultTyping.EVERYTHING` in `2.x` and remove in `3.0`
 #4381: Prevent construction of `null`-valued `JsonNode`s (like `TextNode`)
 #4552: Change `MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS` default to `false`
@@ -209,9 +222,6 @@ No changes since 3.0.0-rc7
 #4956: Rename `JsonNode.isContainerNode()` as `isContainerNode()`
 #4958: Extend, improve set of number value accessors for `JsonNode`
   (`JsonNode.intValue()` etc) [JSTEP-3]
-#4968: Add JsonMapper builder support in Jackson 3.0 for optionally creating
-  mappers with Jackson2 config defaults
- (implemented by @pjfanning)
 #4991: Extend, improve set of non-number scalar value accessors for `JsonNode`
   (`JsonNode.booleanValue()` etc) [JSTEP-3]
 #4992: Rename `JsonNodeFactory.textNode()` as `JsonNodeFactory.stringNode()` [JSTEP-3]

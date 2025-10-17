@@ -295,6 +295,23 @@ public class TreeTraversingParser
     }
 
     @Override
+    public short getShortValue() throws InputCoercionException {
+        final NumericNode node = (NumericNode) currentNumericNode(NR_INT);
+        if (!node.canConvertToShort()) {
+            String desc = _longIntegerDesc(node.asString());
+            if (!node.canConvertToExactIntegral()) {
+                throw _constructInputCoercion(String.format(
+"Numeric value (%s) of `%s` has fractional part; cannot convert to `short`",
+                        desc, node.getClass().getSimpleName()),
+                    node.asToken(), Integer.TYPE);
+            }
+            // otherwise assume range overflow
+            _reportOverflowShort(desc, currentToken());
+        }
+        return node.shortValue();
+    }
+
+    @Override
     public int getIntValue() throws InputCoercionException {
         final NumericNode node = (NumericNode) currentNumericNode(NR_INT);
         if (!node.canConvertToInt()) {

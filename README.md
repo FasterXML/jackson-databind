@@ -25,13 +25,13 @@ Naming of classes uses word 'JSON' in many places even though there is no actual
 
 ## Maven
 
-Functionality of this package is contained in Java package `tools.jackson.databind` (for Jackcson 3.x), and can be used using following Maven dependency:
+Functionality of this package is contained in Java package `tools.jackson.databind` (for Jackson 3.x), and can be used using following Maven dependency:
 
 ```xml
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>3.0.0-rc4</jackson.version>
+  <jackson.version>3.0.0</jackson.version>
   ...
 </properties>
 

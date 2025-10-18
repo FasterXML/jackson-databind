@@ -237,19 +237,32 @@ public class PropertyValueBuffer
     private Object _createAndSetAnySetterValue() throws JsonMappingException
     {
         Object anySetterParameterObject = _anyParamSetter.createParameterObject();
-        for (PropertyValue pv = _anyParamBuffered; pv != null; pv = pv.next) {
-            try {
-                pv.setValue(anySetterParameterObject);
 
-            // Since one of callers only exposes JsonMappingException, but pv.setValue()
-            // nominally leaks IOException, need to do this unfortunate conversion
-            } catch (JsonMappingException e) {
-                throw e;
-            } catch (IOException e) {
-                throw JsonMappingException.fromUnexpectedIOE(e);
-            }
-        }
+        // Since setter values are stored in a reverse-order linked list,
+        // this will set them in their original order
+        _setSetterValuesInReverse(_anyParamBuffered, anySetterParameterObject);
         return anySetterParameterObject;
+    }
+
+    private static void _setSetterValuesInReverse(PropertyValue pv, Object anySetterParameterObject)
+            throws JsonMappingException
+    {
+        if (pv == null) {
+            return;
+        }
+
+        _setSetterValuesInReverse(pv.next, anySetterParameterObject);
+
+        try {
+            pv.setValue(anySetterParameterObject);
+
+        // Since one of callers only exposes JsonMappingException, but pv.setValue()
+        // nominally leaks IOException, need to do this unfortunate conversion
+        } catch (JsonMappingException e) {
+            throw e;
+        } catch (IOException e) {
+            throw JsonMappingException.fromUnexpectedIOE(e);
+        }
     }
 
     protected Object _findMissing(SettableBeanProperty prop) throws JsonMappingException

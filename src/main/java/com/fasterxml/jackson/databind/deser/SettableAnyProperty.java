@@ -538,7 +538,7 @@ public abstract class SettableAnyProperty
         public int getParameterIndex() { return _parameterIndex; }
 
         @Override
-        public Object createParameterObject() { return new HashMap<>(); }
+        public Object createParameterObject() { return new LinkedHashMap<>(); }
 
     }
 

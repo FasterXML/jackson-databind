@@ -182,7 +182,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
                 PojoWithNodeAnySetter.class);
 
         assertEquals("value", pojo.a);
-        assertEquals(a2q("{'c':111,'b':42}"), pojo.anySetterNode + "");
+        assertEquals(a2q("{'b':42,'c':111}"), pojo.anySetterNode + "");
 
         // Also ok to get nothing, resulting in empty ObjectNode
         pojo = MAPPER.readValue(a2q("{'a':'ok'}"), PojoWithNodeAnySetter.class);

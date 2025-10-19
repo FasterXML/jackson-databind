@@ -10,6 +10,9 @@ import tools.jackson.databind.ser.impl.PropertySerializerMap;
  * {@link java.util.Collection}s (<code>Lists</code>, <code>Sets</code>
  * etc) and {@link java.util.Map}s and iterable things
  * ({@link java.util.Iterator}s).
+ *<p>
+ * NOTE: in Jackson 2.x, this class was named {@code ContainerSerializer}
+ * (in package {@code com.fasterxml.jackson.databind.ser}).
  */
 public abstract class StdContainerSerializer<T>
     extends StdSerializer<T>

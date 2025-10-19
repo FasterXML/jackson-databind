@@ -15,7 +15,7 @@ Naming of classes uses word 'JSON' in many places even though there is no actual
 | Type | Status |
 | ---- | ------ |
 | Build (CI) | [![Build (github)](https://github.com/FasterXML/jackson-databind/actions/workflows/main.yml/badge.svg)](https://github.com/FasterXML/jackson-databind/actions/workflows/main.yml) |
-| Artifact | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/tools.jackson.core/jackson-databind/badge.svg)](https://maven-badges.herokuapp.com/maven-central/tools.jackson.core/jackson-databind) |
+| Artifact | ![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.core/jackson-databind) |
 | OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/tools.jackson.core:jackson-databind)](https://tidelift.com/subscription/pkg/maven-tools-jackson-core-jackson-databind?utm_source=maven-tools-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=readme) |
 | Javadocs | [![Javadoc](https://javadoc.io/badge/tools.jackson.core/jackson-databind.svg)](http://www.javadoc.io/doc/tools.jackson.core/jackson-databind) |
 | Code coverage (3.0) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=3.x)](https://codecov.io/github/FasterXML/jackson-databind?branch=3.x) |

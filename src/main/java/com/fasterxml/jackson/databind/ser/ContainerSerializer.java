@@ -10,6 +10,9 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * {@link java.util.Collection}s (<code>Lists</code>, <code>Sets</code>
  * etc) and {@link java.util.Map}s and iterable things
  * ({@link java.util.Iterator}s).
+ *<p>
+ * NOTE: in Jackson 3.x, this class is renamed {@code StdContainerSerializer}
+ * (in package {@code tools.jackson.databind.ser.std}).
  */
 @SuppressWarnings("serial")
 public abstract class ContainerSerializer<T>
@@ -35,8 +38,6 @@ public abstract class ContainerSerializer<T>
     /**
      * Alternate constructor that is (alas!) needed to work
      * around kinks of generic type handling
-     *
-     * @param t
      */
     protected ContainerSerializer(Class<?> t, boolean dummy) {
         super(t, dummy);

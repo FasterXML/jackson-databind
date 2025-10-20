@@ -110,14 +110,12 @@ public class DefaultAccessorNamingStrategy
             // coverage without false matches; but for now let's assume there is
             // no reason to use any such getter from CGLib.
 
-            // 05-Oct-2020, tatu: Removed from Jackson 3.0
-            /*
+            // 20-Oct-2025 https://github.com/FasterXML/jackson-databind/issues/5354
             if ("getCallbacks".equals(name)) {
                 if (_isCglibGetCallbacks(am)) {
                     return null;
                 }
-            } else */
-            if ("getMetaClass".equals(name)) {
+            } else if ("getMetaClass".equals(name)) {
                 // 30-Apr-2009, tatu: Need to suppress serialization of a cyclic reference
                 if (_isGroovyMetaClassGetter(am)) {
                     return null;
@@ -198,8 +196,7 @@ public class DefaultAccessorNamingStrategy
     // name "getCallbacks" and we need to determine if it is indeed injected
     // by Cglib. We do this by verifying that the  result type is "net.sf.cglib.proxy.Callback[]"
 
-    // 05-Oct-2020, tatu: Removed from 3.0
-    /*
+    // 20-Oct-2025 https://github.com/FasterXML/jackson-databind/issues/5354
     protected boolean _isCglibGetCallbacks(AnnotatedMethod am)
     {
         Class<?> rt = am.getRawType();
@@ -222,7 +219,6 @@ public class DefaultAccessorNamingStrategy
         }
         return false;
     }
-    */
 
     // 05-Oct-2020, tatu: Left in 3.0 for now
     // Another helper method to deal with Groovy's problematic metadata accessors

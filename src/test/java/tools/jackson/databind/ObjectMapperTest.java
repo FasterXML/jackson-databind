@@ -6,7 +6,10 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.zip.ZipOutputStream;
 
+import net.sf.cglib.MockedNetCglibProxy;
+import org.hibernate.repackage.cglib.MockedHibernateCglibProxy;
 import org.junit.jupiter.api.Test;
+import org.springframework.cglib.proxy.MockedSpringCglibProxy;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonWriteFeature;
@@ -889,5 +892,35 @@ public class ObjectMapperTest extends DatabindTestUtil
         assertEquals(0, m._rootDeserializers.size());
         assertEquals(0, ((SerializationContexts.DefaultImpl) m._serializationContexts)
                 .cacheForTests().size());
+    }
+
+    // https://github.com/FasterXML/jackson-databind/issues/5354
+    @Test
+    public void testWriteWithSpringCglibProxyDoesNotIncludeCallbacksProperty() throws Exception
+    {
+        MockedSpringCglibProxy mockedProxy = new MockedSpringCglibProxy("hello");
+        String json = MAPPER.writeValueAsString(mockedProxy);
+        Map<String, String> properties = MAPPER.readValue(json, Map.class);
+        assertEquals(properties.keySet(), Collections.singleton("propertyName"));
+    }
+
+    // https://github.com/FasterXML/jackson-databind/issues/5354
+    @Test
+    public void testWriteWithHibernateCglibProxyDoesNotIncludeCallbacksProperty() throws Exception
+    {
+        MockedHibernateCglibProxy mockedProxy = new MockedHibernateCglibProxy("hello");
+        String json = MAPPER.writeValueAsString(mockedProxy);
+        Map<String, String> properties = MAPPER.readValue(json, Map.class);
+        assertEquals(properties.keySet(), Collections.singleton("propertyName"));
+    }
+
+    // https://github.com/FasterXML/jackson-databind/issues/5354
+    @Test
+    public void testWriteWithNetCglibProxyDoesNotIncludeCallbacksProperty() throws Exception
+    {
+        MockedNetCglibProxy mockedProxy = new MockedNetCglibProxy("hello");
+        String json = MAPPER.writeValueAsString(mockedProxy);
+        Map<String, String> properties = MAPPER.readValue(json, Map.class);
+        assertEquals(properties.keySet(), Collections.singleton("propertyName"));
     }
 }

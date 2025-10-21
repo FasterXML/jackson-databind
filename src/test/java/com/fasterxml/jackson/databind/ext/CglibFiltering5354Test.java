@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sf.cglib.MockedNetCglibProxy;
 
 // [databind#5354] Test for filtering out CGLIB-generated properties
-public class Cglib5354FilteringTest
+public class CglibFiltering5354Test
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 

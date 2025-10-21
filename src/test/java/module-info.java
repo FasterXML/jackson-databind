@@ -73,6 +73,7 @@ module tools.jackson.databind
     opens tools.jackson.databind.deser.merge;
     opens tools.jackson.databind.deser.validate;
     opens tools.jackson.databind.ext;
+    opens tools.jackson.databind.ext.cglib;
     opens tools.jackson.databind.ext.desktop;
     opens tools.jackson.databind.ext.jdk8;
     opens tools.jackson.databind.ext.jdk9;

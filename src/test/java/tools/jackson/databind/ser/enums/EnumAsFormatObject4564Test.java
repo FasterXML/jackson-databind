@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 // [databind#4564] Fix Enum-asJSON-Object serialization with self as field.
 public class EnumAsFormatObject4564Test
 {
-
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonPropertyOrder({"label", "sublevel"})

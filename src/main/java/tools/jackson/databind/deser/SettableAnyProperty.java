@@ -452,7 +452,6 @@ public abstract class SettableAnyProperty
         }
     }
 
-
     /**
      * [databind#562] Allow @JsonAnySetter on Creator constructor
      */
@@ -490,7 +489,6 @@ public abstract class SettableAnyProperty
 
         @Override
         public Object createParameterObject() { return new HashMap<>(); }
-
     }
 
     /**

@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser.enums;
 
 import java.io.IOException;
+import java.util.EnumSet;
 
 import org.junit.jupiter.api.Test;
 
@@ -82,7 +83,6 @@ public class EnumDefaultReadTest
         B,
         @JsonEnumDefaultValue
         C,
-        @JsonEnumDefaultValue
         Z;
     }
 
@@ -309,7 +309,12 @@ public class EnumDefaultReadTest
                 .addMixIn(BaseOverloaded.class, MixinOverloadedDefault.class)
                 .build();
         
-        assertEquals(BaseOverloaded.A, 
-                mixinMapper.readValue(q("UNKNOWN"), BaseOverloaded.class));
+        BaseOverloaded result = mixinMapper.readValue(q("UNKNOWN"), BaseOverloaded.class);
+        
+        // If the more than one enum value is marked with this annotation
+        // the first to be detected will be used. Which one exactly is undetermined.
+        EnumSet<BaseOverloaded> annotatedDefaults =
+                EnumSet.of(BaseOverloaded.A, BaseOverloaded.B, BaseOverloaded.C);
+        assertTrue(annotatedDefaults.contains(result));
     }
 }

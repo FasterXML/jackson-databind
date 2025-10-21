@@ -355,17 +355,18 @@ public enum SerializationFeature implements ConfigFeature
      * dynamically changed on per-call basis, because its effect is considered during
      * construction of serializers and property handlers.
      *<p>
-     * Feature is enabled by default.
-     *
-     * @deprecated Since 2.8 there are better mechanism for specifying filtering; specifically
+     * NOTE: Since 2.8 there are better mechanism for specifying filtering; specifically
      *   using {@link com.fasterxml.jackson.annotation.JsonInclude} or configuration overrides.
+     *  This feature was deprecated from 2.8 through to 2.20 but no longer deprecated
+     *  since 2.21 / 3.0.
+     *<p>
+     * Feature is enabled by default.
      */
-    @Deprecated // since 2.8
     WRITE_EMPTY_JSON_ARRAYS(true),
 
     /**
-     * Feature added for interoperability, to work with oddities of
-     * so-called "BadgerFish" convention.
+     * Feature added for inter-operability (originally to work with oddities of
+     * so-called "BadgerFish" convention).
      * Feature determines handling of single element {@link java.util.Collection}s
      * and arrays: if enabled, {@link java.util.Collection}s and arrays that contain exactly
      * one element will be serialized as if that element itself was serialized.

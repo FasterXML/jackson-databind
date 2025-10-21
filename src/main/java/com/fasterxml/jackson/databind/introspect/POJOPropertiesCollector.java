@@ -690,6 +690,13 @@ public class POJOPropertiesCollector
         List<PotentialCreator> constructors = _collectCreators(_classDef.getConstructors());
         List<PotentialCreator> factories = _collectCreators(_classDef.getFactoryMethods());
 
+        // Note! 0-param ("default") constructor is NOT included in 'constructors':
+        PotentialCreator zeroParamsConstructor;
+        {
+            AnnotatedConstructor ac = _classDef.getDefaultConstructor();
+            zeroParamsConstructor = (ac == null) ? null : _potentialCreator(ac);
+        }
+
         // Then find what is the Primary Constructor (if one exists for type):
         // for Java Records and potentially other types too ("data classes"):
         // Needs to be done early to get implicit names populated
@@ -699,20 +706,30 @@ public class POJOPropertiesCollector
         } else {
             // 02-Nov-2024, tatu: Alas, naming here is confusing: method properly
             //    should have been "findPrimaryCreator()" so as not to confused with
-            //    0-args default Creators...
+            //    0-param default Creators...
             primaryCreator = _annotationIntrospector.findDefaultCreator(_config, _classDef,
                     constructors, factories);
         }
         // Next: remove creators marked as explicitly disabled
         _removeDisabledCreators(constructors);
         _removeDisabledCreators(factories);
-        
+        if (zeroParamsConstructor != null && _isDisabledCreator(zeroParamsConstructor)) {
+            zeroParamsConstructor = null;
+        }
+
         // And then remove non-annotated static methods that do not look like factories
         _removeNonFactoryStaticMethods(factories, primaryCreator);
 
         // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
-            // Start with Constructors as they have higher precedence:
+            // Start with Constructors as they have higher precedence
+
+            // 08-Sep-2025, tatu: [databind#5045] Need to ensure 0-param ("default")
+            //   constructor considered if annotated (disabled case handled above).
+            if (zeroParamsConstructor != null && zeroParamsConstructor.isAnnotated()) {
+                creators.setPropertiesBased(_config, zeroParamsConstructor, "explicit");
+            }
+
             _addExplicitlyAnnotatedCreators(creators, constructors, props, false);
             // followed by Factory methods (lower precedence)
             _addExplicitlyAnnotatedCreators(creators, factories, props,
@@ -753,7 +770,7 @@ public class POJOPropertiesCollector
         final ConstructorDetector ctorDetector = _config.getConstructorDetector();
         if (!creators.hasPropertiesBasedOrDelegating()
                 && !ctorDetector.requireCtorAnnotation()) {
-            // But only if no Default (0-args) constructor available OR if we are configured
+            // But only if no Default (0-params) constructor available OR if we are configured
             // to prefer properties-based Creators
             if ((_classDef.getDefaultConstructor() == null)
                     || ctorDetector.singleArgCreatorDefaultsToProperties()) {
@@ -809,23 +826,31 @@ public class POJOPropertiesCollector
         }
         List<PotentialCreator> result = new ArrayList<>();
         for (AnnotatedWithParams ctor : ctors) {
-            JsonCreator.Mode creatorMode = _useAnnotations
-                    ? _annotationIntrospector.findCreatorAnnotation(_config, ctor) : null;
             // 06-Jul-2024, tatu: Can't yet drop DISABLED ones; add all (for now)
-            result.add(new PotentialCreator(ctor, creatorMode));
+            result.add(_potentialCreator(ctor));
         }
         return (result == null) ? Collections.emptyList() : result;
+    }
+
+    private PotentialCreator _potentialCreator(AnnotatedWithParams ctor) {
+        final JsonCreator.Mode creatorMode = _useAnnotations
+                ? _annotationIntrospector.findCreatorAnnotation(_config, ctor) : null;
+        return new PotentialCreator(ctor, creatorMode);
     }
 
     private void _removeDisabledCreators(List<PotentialCreator> ctors)
     {
         Iterator<PotentialCreator> it = ctors.iterator();
         while (it.hasNext()) {
-            // explicitly prevented? Remove
-            if (it.next().creatorMode() == JsonCreator.Mode.DISABLED) {
+            // explicitly disabled? Remove
+            if (_isDisabledCreator(it.next())) {
                 it.remove();
             }
         }
+    }
+
+    private boolean _isDisabledCreator(PotentialCreator ctor) {
+         return ctor.creatorMode() == JsonCreator.Mode.DISABLED;
     }
 
     private void _removeNonVisibleCreators(List<PotentialCreator> ctors)
@@ -1348,20 +1373,22 @@ ctor.creator()));
 
         // First: find possible candidates where:
         //
-        // 1. Property only has Field
-        // 2. Field does NOT have explicit name (renaming)
-        // 3. Implicit name has upper-case for first and/or second character
+        // 1. Property has Field and/or Constructor Parameter
+        // 2. Property has no other accessors (no getters/setters)
+        // 3. Field/Constructor param does NOT have explicit name (renaming)
+        // 4. Implicit name has upper-case for first and/or second character
 
         Map<String, POJOPropertyBuilder> fieldsToCheck = null;
         for (Map.Entry<String, POJOPropertyBuilder> entry : props.entrySet()) {
             POJOPropertyBuilder  prop = entry.getValue();
 
-            // First: (1) and (2)
-            if (!prop.hasFieldAndNothingElse()
-                    || prop.isExplicitlyNamed()) {
+            // First: (1), (2) and 3
+            if (prop.isExplicitlyNamed() // (3)
+                    || !(prop.hasField() || prop.hasConstructorParameter()) // (1)
+                    || (prop.hasGetter() || prop.hasSetter())) { // 2
                 continue;
             }
-            // Second: (3)
+            // Second: (4)
             if (!_firstOrSecondCharUpperCase(entry.getKey())) {
                 continue;
             }

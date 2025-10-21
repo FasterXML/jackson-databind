@@ -113,7 +113,7 @@ public class TestNamingStrategyCustom extends DatabindTestUtil
         public int age;
 
         public PersonBean() { this(null, null, 0); }
-        public PersonBean(String f, String l, int a)
+        protected PersonBean(String f, String l, int a)
         {
             firstName = f;
             lastName = l;

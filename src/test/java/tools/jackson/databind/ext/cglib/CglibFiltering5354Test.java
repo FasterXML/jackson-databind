@@ -24,9 +24,6 @@ public class CglibFiltering5354Test
     @Test
     public void testWriteWithSpringCglibProxyDoesNotIncludeCallbacksProperty() throws Exception
     {
-        // 20-Oct-2025, tatu: Temporarily disable until #5357 merged
-        if (true) { return; }
-
         MockedSpringCglibProxy mockedProxy = new MockedSpringCglibProxy("hello");
         String json = MAPPER.writeValueAsString(mockedProxy);
         Map<?, ?> properties = MAPPER.readValue(json, Map.class);
@@ -34,7 +31,7 @@ public class CglibFiltering5354Test
     }
 
     // https://github.com/FasterXML/jackson-databind/issues/5354
-    //@Test
+    @Test
     public void testWriteWithHibernateCglibProxyDoesNotIncludeCallbacksProperty() throws Exception
     {
         MockedHibernateCglibProxy mockedProxy = new MockedHibernateCglibProxy("hello");
@@ -44,7 +41,7 @@ public class CglibFiltering5354Test
     }
 
     // https://github.com/FasterXML/jackson-databind/issues/5354
-    //@Test
+    @Test
     public void testWriteWithNetCglibProxyDoesNotIncludeCallbacksProperty() throws Exception
     {
         MockedNetCglibProxy mockedProxy = new MockedNetCglibProxy("hello");

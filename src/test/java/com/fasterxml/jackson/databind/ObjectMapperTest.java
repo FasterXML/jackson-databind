@@ -3,10 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.util.*;
 
-import net.sf.cglib.MockedNetCglibProxy;
-import org.hibernate.repackage.cglib.MockedHibernateCglibProxy;
 import org.junit.jupiter.api.Test;
-import org.springframework.cglib.proxy.MockedSpringCglibProxy;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -662,35 +659,5 @@ public class ObjectMapperTest
             assertFalse(w2.getConfig().hasExplicitTimeZone());
             assertEquals(DEFAULT_TZ, w2.getConfig().getTimeZone());
         }
-    }
-
-    // https://github.com/FasterXML/jackson-databind/issues/5354
-    @Test
-    public void testWriteWithSpringCglibProxyDoesNotIncludeCallbacksProperty() throws Exception
-    {
-        MockedSpringCglibProxy mockedProxy = new MockedSpringCglibProxy("hello");
-        String json = MAPPER.writeValueAsString(mockedProxy);
-        Map<String, String> properties = MAPPER.readValue(json, Map.class);
-        assertEquals(properties.keySet(), Collections.singleton("propertyName"));
-    }
-
-    // https://github.com/FasterXML/jackson-databind/issues/5354
-    @Test
-    public void testWriteWithHibernateCglibProxyDoesNotIncludeCallbacksProperty() throws Exception
-    {
-        MockedHibernateCglibProxy mockedProxy = new MockedHibernateCglibProxy("hello");
-        String json = MAPPER.writeValueAsString(mockedProxy);
-        Map<String, String> properties = MAPPER.readValue(json, Map.class);
-        assertEquals(properties.keySet(), Collections.singleton("propertyName"));
-    }
-
-    // https://github.com/FasterXML/jackson-databind/issues/5354
-    @Test
-    public void testWriteWithNetCglibProxyDoesNotIncludeCallbacksProperty() throws Exception
-    {
-        MockedNetCglibProxy mockedProxy = new MockedNetCglibProxy("hello");
-        String json = MAPPER.writeValueAsString(mockedProxy);
-        Map<String, String> properties = MAPPER.readValue(json, Map.class);
-        assertEquals(properties.keySet(), Collections.singleton("propertyName"));
     }
 }

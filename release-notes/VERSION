@@ -16,6 +16,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (reported by @Artur)
 #5344: "Unexpected end-of-input" for `JsonParser.readValueAs()` (in 3.0)
  (reported by Phil C)
+#5354: jackson-databind 3.0.0 renders `callbacks` property from Spring CGLIB Proxy
+ (reported, fix contributed by Rob W)
 
 3.0.0 (03-Oct-2025)
 

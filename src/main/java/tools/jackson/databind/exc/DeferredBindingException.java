@@ -8,11 +8,39 @@ import tools.jackson.databind.DatabindException;
 
 /**
  * Exception that aggregates multiple recoverable deserialization problems
- * encountered during error-collecting mode (enabled via
- * {@link tools.jackson.databind.ObjectReader#collectErrors()}).
+ * encountered during error-collecting mode.
  *
- * <p>Each problem is captured as a {@link CollectedProblem} containing
- * the error location, message, and context.
+ * <p><b>Usage</b>: This exception is thrown by
+ * {@link tools.jackson.databind.ObjectReader#readValueCollecting ObjectReader.readValueCollecting(...)}
+ * when one or more recoverable errors were collected during deserialization.
+ * Enable error collection via {@link tools.jackson.databind.ObjectReader#collectErrors()}.
+ *
+ * <p><b>Problem access</b>: Each problem is captured as a {@link CollectedProblem}
+ * containing the JSON Pointer path, error message, location, target type, raw value, and token.
+ * Access problems via {@link #getProblems()}.
+ *
+ * <p><b>Limit handling</b>: When the configured problem limit is reached, collection
+ * stops and {@link #isLimitReached()} returns {@code true}. This indicates additional
+ * errors may exist beyond those collected.
+ *
+ * <p><b>Message formatting</b>: The exception message shows:
+ * <ul>
+ * <li>For 1 problem: the single error message</li>
+ * <li>For multiple: count + first 5 problems + "...and N more" suffix</li>
+ * <li>A "limit reached" note if applicable</li>
+ * </ul>
+ *
+ * <p><b>Example</b>:
+ * <pre>{@code
+ * try {
+ *     MyBean bean = reader.collectErrors()
+ *                         .readValueCollecting(json);
+ * } catch (DeferredBindingException e) {
+ *     for (CollectedProblem p : e.getProblems()) {
+ *         System.err.println("Error at " + p.getPath() + ": " + p.getMessage());
+ *     }
+ * }
+ * }</pre>
  *
  * @since 3.1
  */

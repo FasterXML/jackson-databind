@@ -11,7 +11,28 @@ import tools.jackson.databind.JavaType;
  * Immutable value object capturing details about a single deserialization
  * problem encountered during error-collecting mode.
  *
+ * <p><b>Contents</b>: Each problem records:
+ * <ul>
+ * <li>{@link #getPath() path} - RFC 6901 JSON Pointer to the problematic field
+ *     (e.g., {@code "/items/2/price"})</li>
+ * <li>{@link #getMessage() message} - Human-readable error description</li>
+ * <li>{@link #getTargetType() targetType} - Expected Java type (may be null)</li>
+ * <li>{@link #getLocation() location} - Source location in JSON (line/column)</li>
+ * <li>{@link #getRawValue() rawValue} - Original value from JSON that caused the error
+ *     (truncated if > 200 chars)</li>
+ * <li>{@link #getToken() token} - JSON token type at error location</li>
+ * </ul>
+ *
+ * <p><b>Truncation</b>: String values longer than {@value #MAX_RAW_VALUE_LENGTH}
+ * characters are truncated with "..." suffix to prevent memory issues.
+ *
+ * <p><b>Unknown properties</b>: For unknown property errors, {@code rawValue}
+ * is {@code null} since the property name is already in the path.
+ *
+ * <p><b>Immutability</b>: All instances are immutable and thread-safe.
+ *
  * @since 3.1
+ * @see DeferredBindingException#getProblems()
  */
 public final class CollectedProblem {
     /**

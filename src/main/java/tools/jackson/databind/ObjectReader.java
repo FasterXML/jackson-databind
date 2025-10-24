@@ -1386,16 +1386,30 @@ public class ObjectReader
      * errors if encountered. If any problems were collected, throws
      * {@link tools.jackson.databind.exc.DeferredBindingException} with all problems.
      *
-     * <p>On hard failures (non-recoverable errors), the original exception
-     * is thrown with collected problems attached as suppressed exceptions.
+     * <p><b>Usage</b>: This method should be called on an ObjectReader created via
+     * {@link #collectErrors()} or {@link #collectErrors(int)}. If called on a regular
+     * reader (without error collection enabled), it behaves the same as
+     * {@link #readValue(JsonParser)} since no handler is registered.
+     *
+     * <p><b>Error handling</b>:
+     * <ul>
+     * <li>Recoverable errors are accumulated and thrown as
+     *     {@link tools.jackson.databind.exc.DeferredBindingException} after parsing</li>
+     * <li>Hard (non-recoverable) failures throw immediately, with collected problems
+     *     attached as suppressed exceptions</li>
+     * <li>When the configured limit is reached, collection stops</li>
+     * </ul>
      *
      * <p><b>Thread-safety</b>: Each call allocates a fresh problem bucket,
      * so multiple concurrent calls on the same reader instance are safe.
      *
-     * <p>This method should only be called on an ObjectReader created via
-     * {@link #collectErrors()}. If called on a regular reader, it behaves
-     * the same as {@link #readValue(JsonParser)}.
+     * <p><b>Parser filtering</b>: Unlike convenience overloads ({@link #readValueCollecting(String)},
+     * {@link #readValueCollecting(byte[])}, etc.), this method does <i>not</i> apply
+     * parser filtering. Callers are responsible for filter wrapping if needed.
      *
+     * @param <T> Type to deserialize
+     * @param p JsonParser to read from (will not be closed by this method)
+     * @return Deserialized object
      * @throws tools.jackson.databind.exc.DeferredBindingException if recoverable problems were collected
      * @throws tools.jackson.databind.DatabindException if a non-recoverable error occurred
      * @since 3.1
@@ -1410,12 +1424,8 @@ public class ObjectReader
         ContextAttributes perCallAttrs = _config.getAttributes()
             .withPerCallAttribute(tools.jackson.databind.deser.CollectingProblemHandler.class, bucket);
 
-        // Create a temporary ObjectReader with per-call attributes
-        // This matches the existing API surface (no new internal methods needed)
-        ObjectReader perCallReader = _new(this,
-            _config.with(perCallAttrs),
-            _valueType, _rootDeserializer, _valueToUpdate,
-            _schema, _injectableValues);
+        // Create a temporary ObjectReader with per-call attributes using public API
+        ObjectReader perCallReader = this.with(perCallAttrs);
 
         try {
             // Delegate to the temporary reader's existing readValue method
@@ -1423,8 +1433,8 @@ public class ObjectReader
 
             // Check if any problems were collected
             if (!bucket.isEmpty()) {
-                // Check if limit was reached
-                Integer maxProblems = (Integer) _config.getAttributes()
+                // Check if limit was reached - read from per-call config to honor overrides
+                Integer maxProblems = (Integer) perCallReader.getConfig().getAttributes()
                     .getAttribute(tools.jackson.databind.deser.CollectingProblemHandler.ATTR_MAX_PROBLEMS);
                 boolean limitReached = (maxProblems != null &&
                     bucket.size() >= maxProblems);
@@ -1440,7 +1450,8 @@ public class ObjectReader
         } catch (DatabindException e) {
             // Hard failure occurred; attach collected problems as suppressed
             if (!bucket.isEmpty()) {
-                Integer maxProblems = (Integer) _config.getAttributes()
+                // Read from per-call config to honor overrides
+                Integer maxProblems = (Integer) perCallReader.getConfig().getAttributes()
                     .getAttribute(tools.jackson.databind.deser.CollectingProblemHandler.ATTR_MAX_PROBLEMS);
                 boolean limitReached = (maxProblems != null &&
                     bucket.size() >= maxProblems);

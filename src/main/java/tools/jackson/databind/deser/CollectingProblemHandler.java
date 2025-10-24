@@ -19,9 +19,38 @@ import tools.jackson.databind.exc.CollectedProblem;
  * problems into a per-call bucket stored in {@link DeserializationContext}
  * attributes.
  *
- * <p>Designed for use with {@link tools.jackson.databind.ObjectReader#collectErrors()}.
+ * <p><b>Design</b>: This handler is completely stateless. The problem collection
+ * bucket is allocated per-call by
+ * {@link tools.jackson.databind.ObjectReader#readValueCollecting ObjectReader.readValueCollecting(...)}
+ * and stored in per-call {@link tools.jackson.databind.cfg.ContextAttributes ContextAttributes},
+ * ensuring thread-safety and call isolation.
+ *
+ * <p><b>Usage</b>: This class is internal infrastructure, registered automatically by
+ * {@link tools.jackson.databind.ObjectReader#collectErrors() ObjectReader.collectErrors()}.
+ * Users should not instantiate or register this handler manually.
+ *
+ * <p><b>Recoverable errors handled</b>:
+ * <ul>
+ * <li>Unknown properties ({@link #handleUnknownProperty handleUnknownProperty}) - skips children</li>
+ * <li>Type coercion failures ({@link #handleWeirdStringValue handleWeirdStringValue},
+ *     {@link #handleWeirdNumberValue handleWeirdNumberValue}) - returns defaults</li>
+ * <li>Map key coercion ({@link #handleWeirdKey handleWeirdKey}) - returns {@code NOT_HANDLED}</li>
+ * <li>Instantiation failures ({@link #handleInstantiationProblem handleInstantiationProblem}) -
+ *     returns null when safe</li>
+ * </ul>
+ *
+ * <p><b>Default values</b>: Primitives receive zero/false defaults; reference types
+ * (including boxed primitives) receive {@code null} to avoid masking nullability issues.
+ *
+ * <p><b>DoS protection</b>: Collection stops when the configured limit (default 100)
+ * is reached, preventing memory/CPU exhaustion attacks.
+ *
+ * <p><b>JSON Pointer</b>: Paths are built from parser context following RFC 6901,
+ * with proper escaping of {@code ~} and {@code /} characters.
  *
  * @since 3.1
+ * @see tools.jackson.databind.ObjectReader#collectErrors()
+ * @see tools.jackson.databind.exc.DeferredBindingException
  */
 public class CollectingProblemHandler extends DeserializationProblemHandler {
 

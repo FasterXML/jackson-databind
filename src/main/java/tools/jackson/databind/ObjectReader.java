@@ -692,6 +692,61 @@ public class ObjectReader
         return _with(_config.withHandler(h));
     }
 
+    /**
+     * Enables error collection mode by registering a
+     * {@link tools.jackson.databind.deser.CollectingProblemHandler} with default
+     * error limit (100 problems).
+     *
+     * <p>The returned reader is immutable and thread-safe. Each call to
+     * {@link #readValueCollecting} allocates a fresh problem bucket, so concurrent
+     * calls do not interfere.
+     *
+     * <p>Usage:
+     * <pre>
+     * ObjectReader reader = mapper.reader()
+     *     .forType(MyBean.class)
+     *     .collectErrors();
+     *
+     * MyBean bean = reader.readValueCollecting(json);
+     * </pre>
+     *
+     * @return A new ObjectReader configured for error collection
+     * @since 3.1
+     */
+    public ObjectReader collectErrors() {
+        return collectErrors(100); // Default limit
+    }
+
+    /**
+     * Enables error collection mode with a custom problem limit.
+     *
+     * <p><b>Thread-safety</b>: The returned reader is immutable and thread-safe.
+     * Each call to {@link #readValueCollecting} allocates a fresh problem bucket,
+     * so concurrent calls do not interfere.
+     *
+     * @param maxProblems Maximum number of problems to collect (must be > 0)
+     * @return A new ObjectReader configured for error collection
+     * @since 3.1
+     */
+    public ObjectReader collectErrors(int maxProblems) {
+        if (maxProblems <= 0) {
+            throw new IllegalArgumentException("maxProblems must be positive");
+        }
+
+        // Store ONLY the max limit in config (not the bucket)
+        // Bucket will be allocated fresh per-call in readValueCollecting()
+        ContextAttributes attrs = _config.getAttributes()
+            .withSharedAttribute(tools.jackson.databind.deser.CollectingProblemHandler.ATTR_MAX_PROBLEMS, maxProblems);
+
+        DeserializationConfig newConfig = _config
+            .withHandler(new tools.jackson.databind.deser.CollectingProblemHandler())
+            .with(attrs);
+
+        // Return new immutable reader (no mutable state)
+        return _new(this, newConfig, _valueType, _rootDeserializer, _valueToUpdate,
+                _schema, _injectableValues);
+    }
+
     public ObjectReader with(Base64Variant defaultBase64) {
         return _with(_config.with(defaultBase64));
     }
@@ -1318,6 +1373,176 @@ public class ObjectReader
         DeserializationContextExt ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(src.asParser(ctxt) , false));
+    }
+
+    /*
+    /**********************************************************************
+    /* Deserialization methods with error collection
+    /**********************************************************************
+     */
+
+    /**
+     * Deserializes JSON content into a Java object, collecting multiple
+     * errors if encountered. If any problems were collected, throws
+     * {@link tools.jackson.databind.exc.DeferredBindingException} with all problems.
+     *
+     * <p>On hard failures (non-recoverable errors), the original exception
+     * is thrown with collected problems attached as suppressed exceptions.
+     *
+     * <p><b>Thread-safety</b>: Each call allocates a fresh problem bucket,
+     * so multiple concurrent calls on the same reader instance are safe.
+     *
+     * <p>This method should only be called on an ObjectReader created via
+     * {@link #collectErrors()}. If called on a regular reader, it behaves
+     * the same as {@link #readValue(JsonParser)}.
+     *
+     * @throws tools.jackson.databind.exc.DeferredBindingException if recoverable problems were collected
+     * @throws tools.jackson.databind.DatabindException if a non-recoverable error occurred
+     * @since 3.1
+     */
+    public <T> T readValueCollecting(JsonParser p) throws JacksonException {
+        _assertNotNull("p", p);
+
+        // CRITICAL: Allocate a FRESH bucket for THIS call (thread-safety)
+        List<tools.jackson.databind.exc.CollectedProblem> bucket = new ArrayList<>();
+
+        // Create per-call attributes with the fresh bucket
+        ContextAttributes perCallAttrs = _config.getAttributes()
+            .withPerCallAttribute(tools.jackson.databind.deser.CollectingProblemHandler.class, bucket);
+
+        // Create a temporary ObjectReader with per-call attributes
+        // This matches the existing API surface (no new internal methods needed)
+        ObjectReader perCallReader = _new(this,
+            _config.with(perCallAttrs),
+            _valueType, _rootDeserializer, _valueToUpdate,
+            _schema, _injectableValues);
+
+        try {
+            // Delegate to the temporary reader's existing readValue method
+            T result = perCallReader.readValue(p);
+
+            // Check if any problems were collected
+            if (!bucket.isEmpty()) {
+                // Check if limit was reached
+                Integer maxProblems = (Integer) _config.getAttributes()
+                    .getAttribute(tools.jackson.databind.deser.CollectingProblemHandler.ATTR_MAX_PROBLEMS);
+                boolean limitReached = (maxProblems != null &&
+                    bucket.size() >= maxProblems);
+
+                throw new tools.jackson.databind.exc.DeferredBindingException(p, bucket, limitReached);
+            }
+
+            return result;
+
+        } catch (tools.jackson.databind.exc.DeferredBindingException e) {
+            throw e; // Already properly formatted
+
+        } catch (DatabindException e) {
+            // Hard failure occurred; attach collected problems as suppressed
+            if (!bucket.isEmpty()) {
+                Integer maxProblems = (Integer) _config.getAttributes()
+                    .getAttribute(tools.jackson.databind.deser.CollectingProblemHandler.ATTR_MAX_PROBLEMS);
+                boolean limitReached = (maxProblems != null &&
+                    bucket.size() >= maxProblems);
+
+                e.addSuppressed(new tools.jackson.databind.exc.DeferredBindingException(p, bucket, limitReached));
+            }
+            throw e;
+        }
+    }
+
+    /**
+     * Convenience overload for {@link #readValueCollecting(JsonParser)}.
+     */
+    public <T> T readValueCollecting(String content) throws JacksonException {
+        _assertNotNull("content", content);
+        DeserializationContextExt ctxt = _deserializationContext();
+        JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, content), true);
+        try {
+            return readValueCollecting(p);
+        } finally {
+            try {
+                p.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Convenience overload for {@link #readValueCollecting(JsonParser)}.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readValueCollecting(byte[] content) throws JacksonException {
+        _assertNotNull("content", content);
+        DeserializationContextExt ctxt = _deserializationContext();
+        JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, content), true);
+        try {
+            return readValueCollecting(p);
+        } finally {
+            try {
+                p.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Convenience overload for {@link #readValueCollecting(JsonParser)}.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readValueCollecting(File src) throws JacksonException {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true);
+        try {
+            return readValueCollecting(p);
+        } finally {
+            try {
+                p.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Convenience overload for {@link #readValueCollecting(JsonParser)}.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readValueCollecting(InputStream src) throws JacksonException {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true);
+        try {
+            return readValueCollecting(p);
+        } finally {
+            try {
+                p.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Convenience overload for {@link #readValueCollecting(JsonParser)}.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readValueCollecting(Reader src) throws JacksonException {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true);
+        try {
+            return readValueCollecting(p);
+        } finally {
+            try {
+                p.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
     }
 
     /*

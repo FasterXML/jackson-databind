@@ -1,6 +1,11 @@
 package tools.jackson.databind.deser;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -13,7 +18,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.exc.CollectedProblem;
 import tools.jackson.databind.exc.DeferredBindingException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -65,6 +69,77 @@ public class CollectingErrorsTest extends DatabindTestUtil
         public String fieldWithSlash;
         public String fieldWithTilde;
         public String fieldWithBoth;
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods
+    /**********************************************************************
+     */
+
+    /**
+     * Helper to reduce boilerplate: captures DeferredBindingException and returns it.
+     * Use with AssertJ for cleaner assertions.
+     */
+    private DeferredBindingException expectDeferredBinding(ObjectReader reader, String json) {
+        return catchThrowableOfType(
+            () -> reader.readValueCollecting(json),
+            DeferredBindingException.class
+        );
+    }
+
+    /**
+     * Overload for byte[] input
+     */
+    private DeferredBindingException expectDeferredBinding(ObjectReader reader, byte[] json) {
+        return catchThrowableOfType(
+            () -> reader.readValueCollecting(json),
+            DeferredBindingException.class
+        );
+    }
+
+    /**
+     * Overload for File input
+     */
+    private DeferredBindingException expectDeferredBinding(ObjectReader reader, File json) {
+        return catchThrowableOfType(
+            () -> reader.readValueCollecting(json),
+            DeferredBindingException.class
+        );
+    }
+
+    /**
+     * Overload for InputStream input
+     */
+    private DeferredBindingException expectDeferredBinding(ObjectReader reader, InputStream json) {
+        return catchThrowableOfType(
+            () -> reader.readValueCollecting(json),
+            DeferredBindingException.class
+        );
+    }
+
+    /**
+     * Overload for Reader input
+     */
+    private DeferredBindingException expectDeferredBinding(ObjectReader reader, Reader json) {
+        return catchThrowableOfType(
+            () -> reader.readValueCollecting(json),
+            DeferredBindingException.class
+        );
+    }
+
+    /**
+     * Helper to build JSON with specified number of invalid order items.
+     * Used for testing limit behavior and hard failures.
+     */
+    private String buildInvalidOrderJson(int itemCount) {
+        StringBuilder json = new StringBuilder("{\"items\":[");
+        for (int i = 0; i < itemCount; i++) {
+            if (i > 0) json.append(",");
+            json.append("{\"price\":\"invalid").append(i).append("\"}");
+        }
+        json.append("]}");
+        return json.toString();
     }
 
     /*
@@ -121,20 +196,8 @@ public class CollectingErrorsTest extends DatabindTestUtil
             String json2 = "{\"name\":\"Bob\",\"age\":\"invalid2\"}";
 
             // when
-            DeferredBindingException ex1 = null;
-            DeferredBindingException ex2 = null;
-
-            try {
-                reader.readValueCollecting(json1);
-            } catch (DeferredBindingException e) {
-                ex1 = e;
-            }
-
-            try {
-                reader.readValueCollecting(json2);
-            } catch (DeferredBindingException e) {
-                ex2 = e;
-            }
+            DeferredBindingException ex1 = expectDeferredBinding(reader, json1);
+            DeferredBindingException ex2 = expectDeferredBinding(reader, json2);
 
             // then
             assertThat(ex1).isNotNull();
@@ -154,42 +217,75 @@ public class CollectingErrorsTest extends DatabindTestUtil
             ExecutorService executor = Executors.newFixedThreadPool(threadCount);
             CountDownLatch latch = new CountDownLatch(threadCount);
             AtomicInteger successCount = new AtomicInteger(0);
-            List<DeferredBindingException> exceptions = new ArrayList<>();
+            List<DeferredBindingException> exceptions =
+                Collections.synchronizedList(new ArrayList<>());
+            List<Throwable> unexpectedErrors =
+                Collections.synchronizedList(new ArrayList<>());
 
             // when
-            for (int i = 0; i < threadCount; i++) {
-                final int index = i;
-                executor.submit(() -> {
-                    try {
-                        String json = String.format("{\"name\":\"User%d\",\"age\":\"invalid%d\"}",
-                            index, index);
-                        reader.readValueCollecting(json);
-                    } catch (DeferredBindingException e) {
-                        synchronized (exceptions) {
+            try {
+                for (int i = 0; i < threadCount; i++) {
+                    final int index = i;
+                    executor.submit(() -> {
+                        try {
+                            String json = String.format("{\"name\":\"User%d\",\"age\":\"invalid%d\"}",
+                                index, index);
+                            reader.readValueCollecting(json);
+                            fail("Should have thrown DeferredBindingException");
+                        } catch (DeferredBindingException e) {
                             exceptions.add(e);
+                            successCount.incrementAndGet();
+                        } catch (Throwable t) {
+                            unexpectedErrors.add(t);
+                        } finally {
+                            latch.countDown();
                         }
-                        successCount.incrementAndGet();
-                    } catch (Exception e) {
-                        // Unexpected exception type
-                    } finally {
-                        latch.countDown();
+                    });
+                }
+
+                // Wait for all threads with assertion
+                assertThat(latch.await(5, TimeUnit.SECONDS))
+                    .as("All threads should complete within timeout")
+                    .isTrue();
+
+            } finally {
+                executor.shutdown();
+                try {
+                    if (!executor.awaitTermination(2, TimeUnit.SECONDS)) {
+                        executor.shutdownNow();
+                        fail("Executor failed to terminate within timeout");
                     }
-                });
+                } catch (InterruptedException e) {
+                    executor.shutdownNow();
+                    Thread.currentThread().interrupt();
+                }
             }
 
-            latch.await(5, TimeUnit.SECONDS);
-            executor.shutdown();
-
             // then
+            assertThat(unexpectedErrors)
+                .as("No unexpected exceptions should occur")
+                .isEmpty();
             assertThat(successCount.get()).isEqualTo(threadCount);
-            assertThat(exceptions).hasSize(threadCount);
 
-            // Verify each exception has exactly 1 problem with correct value
-            for (int i = 0; i < threadCount; i++) {
-                DeferredBindingException ex = exceptions.get(i);
-                assertThat(ex.getProblems()).hasSize(1);
-                String rawValue = (String) ex.getProblems().get(0).getRawValue();
-                assertThat(rawValue).startsWith("invalid");
+            // Synchronize iteration per JDK contract for Collections.synchronizedList()
+            synchronized (exceptions) {
+                assertThat(exceptions).hasSize(threadCount);
+
+                // Verify each exception has exactly 1 problem and collect all raw values
+                List<String> rawValues = new ArrayList<>();
+                for (DeferredBindingException ex : exceptions) {
+                    assertThat(ex.getProblems()).hasSize(1);
+                    String rawValue = (String) ex.getProblems().get(0).getRawValue();
+                    rawValues.add(rawValue);
+                }
+
+                // Verify we have exactly the unique values from each thread (no bucket sharing)
+                assertThat(rawValues)
+                    .as("Each thread should have its own isolated error bucket")
+                    .containsExactlyInAnyOrder(
+                        "invalid0", "invalid1", "invalid2", "invalid3", "invalid4",
+                        "invalid5", "invalid6", "invalid7", "invalid8", "invalid9"
+                    );
             }
         }
     }
@@ -213,12 +309,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
                 .collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
@@ -237,12 +328,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
                 .collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
@@ -261,12 +347,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
                 .collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
@@ -287,12 +368,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
             ObjectReader reader = MAPPER.readerFor(Order.class).collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
@@ -318,17 +394,11 @@ public class CollectingErrorsTest extends DatabindTestUtil
         @DisplayName("should stop collecting when default limit reached")
         void defaultLimit() throws Exception {
             // setup - create JSON with 101 errors (default limit is 100)
-            StringBuilder json = new StringBuilder("{\"items\":[");
-            for (int i = 0; i < 101; i++) {
-                if (i > 0) json.append(",");
-                json.append("{\"price\":\"invalid").append(i).append("\"}");
-            }
-            json.append("]}");
-
+            String json = buildInvalidOrderJson(101);
             ObjectReader reader = MAPPER.readerFor(Order.class).collectErrors();
 
             // when
-            Throwable thrown = catchThrowable(() -> reader.readValueCollecting(json.toString()));
+            Throwable thrown = catchThrowable(() -> reader.readValueCollecting(json));
 
             // then - should get hard failure with collected problems in suppressed
             assertThat(thrown).isInstanceOf(DatabindException.class);
@@ -353,17 +423,11 @@ public class CollectingErrorsTest extends DatabindTestUtil
         @DisplayName("should respect custom limit")
         void customLimit() throws Exception {
             // setup
-            StringBuilder json = new StringBuilder("{\"items\":[");
-            for (int i = 0; i < 20; i++) {
-                if (i > 0) json.append(",");
-                json.append("{\"price\":\"invalid").append(i).append("\"}");
-            }
-            json.append("]}");
-
+            String json = buildInvalidOrderJson(20);
             ObjectReader reader = MAPPER.readerFor(Order.class).collectErrors(10);
 
             // when
-            Throwable thrown = catchThrowable(() -> reader.readValueCollecting(json.toString()));
+            Throwable thrown = catchThrowable(() -> reader.readValueCollecting(json));
 
             // then
             assertThat(thrown).isInstanceOf(DatabindException.class);
@@ -391,12 +455,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
             ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors(100);
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
@@ -426,13 +485,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
                 .collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            Person person = null;
-            try {
-                person = reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then - unknown property error is collected
             assertThat(ex).isNotNull();
@@ -451,12 +504,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
                 .collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
@@ -484,12 +532,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
             ObjectReader reader = MAPPER.readerFor(TypedData.class).collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then - error collected with default value used
             assertThat(ex).isNotNull();
@@ -505,12 +548,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
             ObjectReader reader = MAPPER.readerFor(TypedData.class).collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
@@ -525,12 +563,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
             ObjectReader reader = MAPPER.readerFor(TypedData.class).collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
@@ -545,12 +578,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
             ObjectReader reader = MAPPER.readerFor(TypedData.class).collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
@@ -565,12 +593,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
             ObjectReader reader = MAPPER.readerFor(TypedData.class).collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then - error collected for reference type
             assertThat(ex).isNotNull();
@@ -585,16 +608,14 @@ public class CollectingErrorsTest extends DatabindTestUtil
             ObjectReader reader = MAPPER.readerFor(TypedData.class).collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
-            assertThat(ex.getProblems()).hasSizeGreaterThanOrEqualTo(1);
+            assertThat(ex.getProblems()).hasSize(3);
+            assertThat(ex.getProblems())
+                .extracting(p -> p.getPath().toString())
+                .containsExactlyInAnyOrder("/intValue", "/longValue", "/doubleValue");
         }
     }
 
@@ -609,38 +630,38 @@ public class CollectingErrorsTest extends DatabindTestUtil
     class RootLevelTests {
 
         @Test
-        @DisplayName("should use empty pointer for root-level error")
-        void emptyPointerForRoot() throws Exception {
-            // setup - root value is invalid for Person
+        @DisplayName("should not collect root-level type mismatches")
+        void rootLevelTypeMismatch() throws Exception {
+            // setup - root value is invalid for Person (non-recoverable)
             String json = "\"not-an-object\"";
             ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors();
 
-            // when/then - root-level type mismatch typically unrecoverable
-            // This tests that IF a root error were collected, it would have empty path
+            // when/then - root-level type mismatches are non-recoverable
+            // They occur before property deserialization, so handler is never invoked
             assertThatThrownBy(() -> reader.readValueCollecting(json))
-                .isInstanceOf(DatabindException.class);
+                .isInstanceOf(DatabindException.class)
+                .hasMessageContaining("Cannot construct instance")
+                .satisfies(ex -> {
+                    // Verify no problems were collected (root errors are non-recoverable)
+                    assertThat(ex.getSuppressed()).isEmpty();
+                });
         }
 
         @Test
-        @DisplayName("should not use slash for root pointer")
-        void noSlashForRoot() throws Exception {
+        @DisplayName("should format property paths correctly without double slashes")
+        void propertyPathFormatting() throws Exception {
             // setup
             String json = "{\"age\":\"invalid\"}";
             ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
             String pointer = ex.getProblems().get(0).getPath().toString();
             assertThat(pointer).isEqualTo("/age");
-            assertThat(pointer).doesNotMatch("^//$"); // Not "//"
+            assertThat(pointer).doesNotContain("//"); // No double slashes
         }
     }
 
@@ -657,30 +678,29 @@ public class CollectingErrorsTest extends DatabindTestUtil
         @Test
         @DisplayName("should attach collected problems as suppressed on hard failure")
         void suppressedProblems() throws Exception {
-            // setup - create a scenario with both collected and hard errors
-            // First collect some errors, then hit a fatal one
-            String json = "{\"name\":123,\"age\":\"bad\",\"active\":\"reallyBad\"}";
-            ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors();
+            // setup - create JSON with 101 errors to trigger limit and hard failure
+            // (shares scenario with defaultLimit test but focuses on suppressed exception mechanics)
+            String json = buildInvalidOrderJson(101);
+            ObjectReader reader = MAPPER.readerFor(Order.class).collectErrors();
 
             // when
             Throwable thrown = catchThrowable(() -> reader.readValueCollecting(json));
 
-            // then
+            // then - verify suppressed exception attachment mechanism
             assertThat(thrown).isInstanceOf(DatabindException.class);
 
-            // Check if any problems were collected and attached as suppressed
-            Throwable[] suppressed = thrown.getSuppressed();
-            if (suppressed.length > 0) {
-                boolean foundDeferred = false;
-                for (Throwable s : suppressed) {
-                    if (s instanceof DeferredBindingException) {
-                        foundDeferred = true;
-                        DeferredBindingException deferred = (DeferredBindingException) s;
-                        assertThat(deferred.getProblems()).isNotEmpty();
-                    }
+            DeferredBindingException deferred = null;
+            for (Throwable s : thrown.getSuppressed()) {
+                if (s instanceof DeferredBindingException) {
+                    deferred = (DeferredBindingException) s;
+                    break;
                 }
-                assertThat(foundDeferred).isTrue();
             }
+
+            assertThat(deferred)
+                .as("Collected problems should be attached as suppressed DeferredBindingException")
+                .isNotNull();
+            assertThat(deferred.getProblems()).hasSize(100);
         }
     }
 
@@ -702,12 +722,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
             ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json);
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
@@ -718,22 +733,11 @@ public class CollectingErrorsTest extends DatabindTestUtil
         @DisplayName("should format multiple errors with first 5 shown")
         void multipleErrors() throws Exception {
             // setup
-            StringBuilder json = new StringBuilder("{\"items\":[");
-            for (int i = 0; i < 10; i++) {
-                if (i > 0) json.append(",");
-                json.append("{\"price\":\"invalid").append(i).append("\"}");
-            }
-            json.append("]}");
-
+            String json = buildInvalidOrderJson(10);
             ObjectReader reader = MAPPER.readerFor(Order.class).collectErrors();
 
             // when
-            DeferredBindingException ex = null;
-            try {
-                reader.readValueCollecting(json.toString());
-            } catch (DeferredBindingException e) {
-                ex = e;
-            }
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then
             assertThat(ex).isNotNull();
@@ -791,6 +795,85 @@ public class CollectingErrorsTest extends DatabindTestUtil
             // when/then
             assertThatThrownBy(() -> reader.readValueCollecting((String) null))
                 .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @DisplayName("should collect errors via byte[] overload")
+        void collectFromByteArray() throws Exception {
+            // setup
+            String jsonString = "{\"name\":\"Alice\",\"age\":\"invalid\"}";
+            byte[] jsonBytes = jsonString.getBytes(StandardCharsets.UTF_8);
+            ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors();
+
+            // when
+            DeferredBindingException ex = expectDeferredBinding(reader, jsonBytes);
+
+            // then
+            assertThat(ex).isNotNull();
+            assertThat(ex.getProblems()).hasSize(1);
+            assertThat(ex.getProblems().get(0).getPath().toString()).isEqualTo("/age");
+        }
+
+        @Test
+        @DisplayName("should collect errors via File overload")
+        void collectFromFile() throws Exception {
+            // setup
+            File tempFile = File.createTempFile("test", ".json");
+            try {
+                java.nio.file.Files.writeString(tempFile.toPath(),
+                    "{\"name\":\"Bob\",\"age\":\"notANumber\"}");
+                ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors();
+
+                // when
+                DeferredBindingException ex = expectDeferredBinding(reader, tempFile);
+
+                // then
+                assertThat(ex).isNotNull();
+                assertThat(ex.getProblems()).hasSize(1);
+                assertThat(ex.getProblems().get(0).getMessage())
+                    .contains("notANumber");
+            } finally {
+                java.nio.file.Files.deleteIfExists(tempFile.toPath());
+            }
+        }
+
+        @Test
+        @DisplayName("should collect errors via InputStream overload")
+        void collectFromInputStream() throws Exception {
+            // setup
+            String json = "{\"name\":\"Charlie\",\"age\":\"bad\"}";
+            ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors();
+
+            // when
+            DeferredBindingException ex;
+            try (InputStream input = new java.io.ByteArrayInputStream(
+                    json.getBytes(StandardCharsets.UTF_8))) {
+                ex = expectDeferredBinding(reader, input);
+            }
+
+            // then
+            assertThat(ex).isNotNull();
+            assertThat(ex.getProblems()).hasSize(1);
+            assertThat(ex.getProblems().get(0).getPath().toString()).isEqualTo("/age");
+        }
+
+        @Test
+        @DisplayName("should collect errors via Reader overload")
+        void collectFromReader() throws Exception {
+            // setup
+            String json = "{\"name\":\"Diana\",\"age\":\"invalid\"}";
+            ObjectReader objectReader = MAPPER.readerFor(Person.class).collectErrors();
+
+            // when
+            DeferredBindingException ex;
+            try (Reader reader = new java.io.StringReader(json)) {
+                ex = expectDeferredBinding(objectReader, reader);
+            }
+
+            // then
+            assertThat(ex).isNotNull();
+            assertThat(ex.getProblems()).hasSize(1);
+            assertThat(ex.getProblems().get(0).getPath().toString()).isEqualTo("/age");
         }
     }
 }

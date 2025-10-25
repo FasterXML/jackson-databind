@@ -83,8 +83,8 @@ public class CollectingErrorsTest extends DatabindTestUtil
      */
     private DeferredBindingException expectDeferredBinding(ObjectReader reader, String json) {
         return catchThrowableOfType(
-            () -> reader.readValueCollecting(json),
-            DeferredBindingException.class
+            DeferredBindingException.class,
+            () -> reader.readValueCollecting(json)
         );
     }
 
@@ -93,8 +93,8 @@ public class CollectingErrorsTest extends DatabindTestUtil
      */
     private DeferredBindingException expectDeferredBinding(ObjectReader reader, byte[] json) {
         return catchThrowableOfType(
-            () -> reader.readValueCollecting(json),
-            DeferredBindingException.class
+            DeferredBindingException.class,
+            () -> reader.readValueCollecting(json)
         );
     }
 
@@ -103,8 +103,8 @@ public class CollectingErrorsTest extends DatabindTestUtil
      */
     private DeferredBindingException expectDeferredBinding(ObjectReader reader, File json) {
         return catchThrowableOfType(
-            () -> reader.readValueCollecting(json),
-            DeferredBindingException.class
+            DeferredBindingException.class,
+            () -> reader.readValueCollecting(json)
         );
     }
 
@@ -113,8 +113,8 @@ public class CollectingErrorsTest extends DatabindTestUtil
      */
     private DeferredBindingException expectDeferredBinding(ObjectReader reader, InputStream json) {
         return catchThrowableOfType(
-            () -> reader.readValueCollecting(json),
-            DeferredBindingException.class
+            DeferredBindingException.class,
+            () -> reader.readValueCollecting(json)
         );
     }
 
@@ -123,8 +123,8 @@ public class CollectingErrorsTest extends DatabindTestUtil
      */
     private DeferredBindingException expectDeferredBinding(ObjectReader reader, Reader json) {
         return catchThrowableOfType(
-            () -> reader.readValueCollecting(json),
-            DeferredBindingException.class
+            DeferredBindingException.class,
+            () -> reader.readValueCollecting(json)
         );
     }
 
@@ -189,7 +189,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should isolate errors between successive calls")
-        void successiveCalls() throws Exception {
+        void successiveCalls() {
             // setup
             ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors();
             String json1 = "{\"name\":\"Alice\",\"age\":\"invalid1\"}";
@@ -231,7 +231,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
                             String json = String.format("{\"name\":\"User%d\",\"age\":\"invalid%d\"}",
                                 index, index);
                             reader.readValueCollecting(json);
-                            fail("Should have thrown DeferredBindingException");
+                            unexpectedErrors.add(new AssertionError("Should have thrown DeferredBindingException"));
                         } catch (DeferredBindingException e) {
                             exceptions.add(e);
                             successCount.incrementAndGet();
@@ -251,10 +251,9 @@ public class CollectingErrorsTest extends DatabindTestUtil
             } finally {
                 executor.shutdown();
                 try {
-                    if (!executor.awaitTermination(2, TimeUnit.SECONDS)) {
-                        executor.shutdownNow();
-                        fail("Executor failed to terminate within timeout");
-                    }
+                    assertThat(executor.awaitTermination(2, TimeUnit.SECONDS))
+                        .as("Executor should terminate within timeout")
+                        .isTrue();
                 } catch (InterruptedException e) {
                     executor.shutdownNow();
                     Thread.currentThread().interrupt();
@@ -302,7 +301,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should escape tilde in property names")
-        void escapeTilde() throws Exception {
+        void escapeTilde() {
             // setup
             String json = "{\"field~name\":\"invalid\"}";
             ObjectReader reader = MAPPER.readerFor(JsonPointerTestBean.class)
@@ -321,7 +320,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should escape slash in property names")
-        void escapeSlash() throws Exception {
+        void escapeSlash() {
             // setup
             String json = "{\"field/name\":\"invalid\"}";
             ObjectReader reader = MAPPER.readerFor(JsonPointerTestBean.class)
@@ -340,7 +339,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should escape both tilde and slash correctly")
-        void escapeBoth() throws Exception {
+        void escapeBoth() {
             // setup
             String json = "{\"field~/name\":\"invalid\"}";
             ObjectReader reader = MAPPER.readerFor(JsonPointerTestBean.class)
@@ -359,7 +358,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should handle array indices in pointer")
-        void arrayIndices() throws Exception {
+        void arrayIndices() {
             // setup
             String json = "{\"orderId\":123,\"items\":[" +
                 "{\"sku\":\"ABC\",\"price\":\"invalid\",\"quantity\":5}," +
@@ -392,7 +391,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should stop collecting when default limit reached")
-        void defaultLimit() throws Exception {
+        void defaultLimit() {
             // setup - create JSON with 101 errors (default limit is 100)
             String json = buildInvalidOrderJson(101);
             ObjectReader reader = MAPPER.readerFor(Order.class).collectErrors();
@@ -421,7 +420,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should respect custom limit")
-        void customLimit() throws Exception {
+        void customLimit() {
             // setup
             String json = buildInvalidOrderJson(20);
             ObjectReader reader = MAPPER.readerFor(Order.class).collectErrors(10);
@@ -449,7 +448,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should not set limit reached when under limit")
-        void underLimit() throws Exception {
+        void underLimit() {
             // setup
             String json = "{\"name\":\"John\",\"age\":\"invalid\"}";
             ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors(100);
@@ -477,7 +476,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should collect unknown property errors when FAIL_ON_UNKNOWN_PROPERTIES enabled")
-        void unknownProperty() throws Exception {
+        void unknownProperty() {
             // setup
             String json = "{\"name\":\"Alice\",\"unknownField\":\"value\",\"age\":30}";
             ObjectReader reader = MAPPER.readerFor(Person.class)
@@ -496,7 +495,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should skip unknown property children")
-        void skipUnknownChildren() throws Exception {
+        void skipUnknownChildren() {
             // setup
             String json = "{\"name\":\"Bob\",\"unknownObject\":{\"nested\":\"value\"},\"age\":25}";
             ObjectReader reader = MAPPER.readerFor(Person.class)
@@ -526,7 +525,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should collect error for primitive int coercion")
-        void primitiveInt() throws Exception {
+        void primitiveInt() {
             // setup
             String json = "{\"intValue\":\"invalid\"}";
             ObjectReader reader = MAPPER.readerFor(TypedData.class).collectErrors();
@@ -542,7 +541,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should collect error for primitive long coercion")
-        void primitiveLong() throws Exception {
+        void primitiveLong() {
             // setup
             String json = "{\"longValue\":\"invalid\"}";
             ObjectReader reader = MAPPER.readerFor(TypedData.class).collectErrors();
@@ -557,7 +556,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should collect error for primitive double coercion")
-        void primitiveDouble() throws Exception {
+        void primitiveDouble() {
             // setup
             String json = "{\"doubleValue\":\"invalid\"}";
             ObjectReader reader = MAPPER.readerFor(TypedData.class).collectErrors();
@@ -572,7 +571,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should collect error for primitive boolean coercion")
-        void primitiveBoolean() throws Exception {
+        void primitiveBoolean() {
             // setup
             String json = "{\"boolValue\":\"invalid\"}";
             ObjectReader reader = MAPPER.readerFor(TypedData.class).collectErrors();
@@ -587,7 +586,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should collect error for boxed Integer coercion")
-        void boxedInteger() throws Exception {
+        void boxedInteger() {
             // setup
             String json = "{\"boxedInt\":\"invalid\"}";
             ObjectReader reader = MAPPER.readerFor(TypedData.class).collectErrors();
@@ -602,7 +601,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should handle multiple type coercion errors")
-        void multipleTypeErrors() throws Exception {
+        void multipleTypeErrors() {
             // setup
             String json = "{\"intValue\":\"bad1\",\"longValue\":\"bad2\",\"doubleValue\":\"bad3\"}";
             ObjectReader reader = MAPPER.readerFor(TypedData.class).collectErrors();
@@ -631,7 +630,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should not collect root-level type mismatches")
-        void rootLevelTypeMismatch() throws Exception {
+        void rootLevelTypeMismatch() {
             // setup - root value is invalid for Person (non-recoverable)
             String json = "\"not-an-object\"";
             ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors();
@@ -649,7 +648,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should format property paths correctly without double slashes")
-        void propertyPathFormatting() throws Exception {
+        void propertyPathFormatting() {
             // setup
             String json = "{\"age\":\"invalid\"}";
             ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors();
@@ -677,7 +676,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should attach collected problems as suppressed on hard failure")
-        void suppressedProblems() throws Exception {
+        void suppressedProblems() {
             // setup - create JSON with 101 errors to trigger limit and hard failure
             // (shares scenario with defaultLimit test but focuses on suppressed exception mechanics)
             String json = buildInvalidOrderJson(101);
@@ -716,7 +715,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should format single error message")
-        void singleError() throws Exception {
+        void singleError() {
             // setup
             String json = "{\"age\":\"invalid\"}";
             ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors();
@@ -731,7 +730,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should format multiple errors with first 5 shown")
-        void multipleErrors() throws Exception {
+        void multipleErrors() {
             // setup
             String json = buildInvalidOrderJson(10);
             ObjectReader reader = MAPPER.readerFor(Order.class).collectErrors();
@@ -772,7 +771,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should handle empty JSON")
-        void emptyJson() throws Exception {
+        void emptyJson() {
             // setup
             String json = "{}";
             ObjectReader reader = MAPPER.readerFor(Person.class).collectErrors();
@@ -799,7 +798,7 @@ public class CollectingErrorsTest extends DatabindTestUtil
 
         @Test
         @DisplayName("should collect errors via byte[] overload")
-        void collectFromByteArray() throws Exception {
+        void collectFromByteArray() {
             // setup
             String jsonString = "{\"name\":\"Alice\",\"age\":\"invalid\"}";
             byte[] jsonBytes = jsonString.getBytes(StandardCharsets.UTF_8);

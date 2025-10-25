@@ -1,7 +1,5 @@
 package tools.jackson.databind.deser.enums;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -80,7 +78,7 @@ public class EnumDefaultReadTest
         A,
         @JsonEnumDefaultValue
         B,
-        @JsonEnumDefaultValue
+        // Let's leave one un-annotated:
         C,
         @JsonEnumDefaultValue
         Z;
@@ -271,14 +269,14 @@ public class EnumDefaultReadTest
 
     private <T> void _verifyOkDeserialization(ObjectReader reader, String fromValue,
             Class<T> toValueType, T expValue)
-        throws IOException
+        throws Exception
     {
         assertEquals(expValue, reader.forType(toValueType).readValue(q(fromValue)));
     }
 
     private <T> void _verifyFailingDeserialization(final ObjectReader reader,
             final String fromValue, final Class<T> toValueType)
-        throws IOException
+        throws Exception
     {
         try {
             reader.forType(toValueType).readValue(q(fromValue));
@@ -308,7 +306,9 @@ public class EnumDefaultReadTest
                 .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .addMixIn(BaseOverloaded.class, MixinOverloadedDefault.class)
                 .build();
-        
+
+        // While not guaranteed by annotation Javadocs, default implementation does
+        // pick the first annotated enum value (in declaration order))
         assertEquals(BaseOverloaded.A, 
                 mixinMapper.readValue(q("UNKNOWN"), BaseOverloaded.class));
     }

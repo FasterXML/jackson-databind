@@ -87,3 +87,8 @@ Dónal Murtagh (@donalmurtagh)
 Phil Clay (@philsttr)
  * Reported #5344: "Unexpected end-of-input" for `JsonParser.readValueAs()` (in 3.0)
   [3.0.1]
+
+Rob Winch (@rwinch)
+ * Reported, contributed fix for #5354: jackson-databind 3.0.0 renders `callbacks`
+   property from Spring CGLIB Proxy
+  [3.0.1]

@@ -1729,6 +1729,9 @@ factory.toString()));
             : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);
     }
 
+    /**
+     * @since 3.1.0
+     */
     protected EnumResolver constructEnumResolverNumberShape(Class<?> enumClass,
                                                             DeserializationConfig config, BeanDescription beanDesc)
     {

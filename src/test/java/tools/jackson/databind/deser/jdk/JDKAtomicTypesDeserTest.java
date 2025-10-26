@@ -440,7 +440,16 @@ public class JDKAtomicTypesDeserTest
         assertTrue(n.isNull());
 
         // And then absent (missing), via Creator method, should become actual null
+        // 25-Oct-2025, tatu: [databind#5350] Not any longer... (by default)
         bean = MAPPER.readValue("{}", AtomicRefWithNodeBean.class);
+        assertNotNull(bean._atomicNode);
+        n = bean._atomicNode.get();
+        assertTrue(n.isNull());
+
+        // but can reconfigure to get `null` instead
+        bean = MAPPER.readerFor(AtomicRefWithNodeBean.class)
+                .with(DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES)
+                .readValue("{}");
         assertNull(bean._atomicNode);
     }
 }

@@ -119,6 +119,22 @@ public class JsonValueSerializer
         _dynamicSerializers = PropertySerializerMap.emptyForProperties();
     }
 
+    @SuppressWarnings("unchecked")
+    public JsonValueSerializer(AnnotatedMember accessor,
+            TypeSerializer vts, JsonSerializer<?> ser,
+            Set<String> ignoredProperties, boolean forceTypeInformation)
+    {
+        super(accessor.getType());
+        _accessor = accessor;
+        _valueType = accessor.getType();
+        _valueTypeSerializer = vts;
+        _valueSerializer = (JsonSerializer<Object>) ser;
+        _property = null;
+        _forceTypeInformation = forceTypeInformation; // gets reconsidered when we are contextualized
+        _ignoredProperties = ignoredProperties;
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
+    }
+
     @Deprecated // since 2.16
     public JsonValueSerializer(AnnotatedMember accessor,
             TypeSerializer vts, JsonSerializer<?> ser)
@@ -161,7 +177,8 @@ public class JsonValueSerializer
                 .findPropertyIgnoralByName(config, accessor);
         final Set<String> ignoredProperties = ignorals.findIgnoredForSerialization();
         ser = _withIgnoreProperties(ser, ignoredProperties);
-        return new JsonValueSerializer(accessor, vts, ser, ignoredProperties);
+        // TODO Try `_forceTypeInformation` with false as default 
+        return new JsonValueSerializer(accessor, vts, ser, ignoredProperties, false);
     }
 
     @SuppressWarnings("unchecked")
@@ -311,7 +328,10 @@ public class JsonValueSerializer
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) { // no serializer yet? Need to fetch
             ser = _findDynamicSerializer(ctxt, value.getClass());
-        } else {
+        }
+        
+        // TODO `_forceTypeInformation` should be checked even if ser is not null
+//        else {
             // 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
             //    this (note: type is for the wrapper type, not enclosed value!)
             if (_forceTypeInformation) {
@@ -322,13 +342,14 @@ public class JsonValueSerializer
                 typeSer0.writeTypeSuffix(gen, typeIdDef);
 
                 return;
-            }
-        }
+            } else {
+//        }
         // 28-Sep-2016, tatu: As per [databind#1385], we do need to do some juggling
         //    to use different Object for type id (logical type) and actual serialization
         //    (delegate type).
         TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
         ser.serializeWithType(value, gen, ctxt, rr);
+            }
     }
 
     /*

@@ -21,13 +21,38 @@ import tools.jackson.databind.exc.CollectedProblem;
  *
  * <p><b>Design</b>: This handler is completely stateless. The problem collection
  * bucket is allocated per-call by
- * {@link tools.jackson.databind.ObjectReader#readValueCollecting ObjectReader.readValueCollecting(...)}
+ * {@link tools.jackson.databind.ObjectReader#readValueCollectingProblems ObjectReader.readValueCollectingProblems(...)}
  * and stored in per-call {@link tools.jackson.databind.cfg.ContextAttributes ContextAttributes},
  * ensuring thread-safety and call isolation.
  *
  * <p><b>Usage</b>: This class is internal infrastructure, registered automatically by
- * {@link tools.jackson.databind.ObjectReader#collectErrors() ObjectReader.collectErrors()}.
+ * {@link tools.jackson.databind.ObjectReader#problemCollectingReader() ObjectReader.problemCollectingReader()}.
  * Users should not instantiate or register this handler manually.
+ *
+ * <p><b>Design rationale - Context Attributes vs Handler State</b>:
+ *
+ * <p>Problem collection state is stored in {@link DeserializationContext} attributes
+ * rather than within this handler for several reasons:
+ *
+ * <ol>
+ * <li><b>Thread-safety</b>: The handler instance is shared across all calls to the
+ *     same ObjectReader. Storing mutable state in the handler would require
+ *     synchronization and complicate the implementation.</li>
+ *
+ * <li><b>Call isolation</b>: Each call to {@code readValueCollectingProblems()} needs
+ *     its own problem bucket. Context attributes are perfect for this - they're created
+ *     per-call and automatically cleaned up after deserialization.</li>
+ *
+ * <li><b>Immutability</b>: Jackson's config objects (including handlers) are designed
+ *     to be immutable and reusable. Storing per-call state violates this principle.</li>
+ *
+ * <li><b>Configuration vs State</b>: The handler stores configuration (max problems
+ *     limit) while attributes store runtime state (the actual problem list). This
+ *     separation follows Jackson's design patterns.</li>
+ * </ol>
+ *
+ * <p>The handler itself is stateless - it's just a strategy for handling problems.
+ * The actual collection happens in a bucket passed through context attributes.
  *
  * <p><b>Recoverable errors handled</b>:
  * <ul>
@@ -46,10 +71,11 @@ import tools.jackson.databind.exc.CollectedProblem;
  * is reached, preventing memory/CPU exhaustion attacks.
  *
  * <p><b>JSON Pointer</b>: Paths are built from parser context following RFC 6901,
- * with proper escaping of {@code ~} and {@code /} characters.
+ * with proper escaping of {@code ~} and {@code /} characters via jackson-core's
+ * {@link tools.jackson.core.JsonPointer} class.
  *
  * @since 3.1
- * @see tools.jackson.databind.ObjectReader#collectErrors()
+ * @see tools.jackson.databind.ObjectReader#problemCollectingReader()
  * @see tools.jackson.databind.exc.DeferredBindingException
  */
 public class CollectingProblemHandler extends DeserializationProblemHandler {
@@ -150,59 +176,46 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
     /**
      * Builds a JsonPointer from the parser's current context.
      * Handles buffered content scenarios where getCurrentName() may return null.
-     * Returns empty pointer ("") for root-level problems.
+     * Returns empty pointer for root-level problems.
      *
-     * <p>Implements RFC 6901 escaping:
-     * <ul>
-     * <li>'~' becomes '~0'</li>
-     * <li>'/' becomes '~1'</li>
-     * </ul>
+     * <p>Uses {@link JsonPointer#appendProperty(String)} and
+     * {@link JsonPointer#appendIndex(int)} from jackson-core, which handle
+     * RFC 6901 escaping internally ('~' becomes '~0', '/' becomes '~1').
      */
     private JsonPointer buildJsonPointer(JsonParser p) {
         if (p == null) {
-            return JsonPointer.compile("");
+            return JsonPointer.empty();
         }
 
-        // Use parsing context to build robust path
         TokenStreamContext ctx = p.streamReadContext();
-        List<String> segments = new ArrayList<>();
 
+        // Collect segments from current to root
+        List<Object> segments = new ArrayList<>(); // String (property) or Integer (index)
         while (ctx != null) {
             if (ctx.inObject() && ctx.currentName() != null) {
-                // Escape property name per RFC 6901
-                segments.add(0, escapeJsonPointerSegment(ctx.currentName()));
+                segments.add(0, ctx.currentName());
             } else if (ctx.inArray()) {
                 // getCurrentIndex() may be -1 before consuming first element
                 int index = ctx.getCurrentIndex();
                 if (index >= 0) {
-                    segments.add(0, String.valueOf(index));
+                    segments.add(0, index);
                 }
             }
             ctx = ctx.getParent();
         }
 
-        // Return empty pointer for root, not "/"
-        if (segments.isEmpty()) {
-            return JsonPointer.compile("");
+        // Build pointer from root to current using append methods
+        // (these handle escaping internally via JsonPointer._appendEscaped)
+        JsonPointer pointer = JsonPointer.empty();
+        for (Object segment : segments) {
+            if (segment instanceof String) {
+                pointer = pointer.appendProperty((String) segment);
+            } else {
+                pointer = pointer.appendIndex((Integer) segment);
+            }
         }
 
-        return JsonPointer.compile("/" + String.join("/", segments));
-    }
-
-    /**
-     * Escapes a JSON Pointer segment per RFC 6901.
-     * Must escape '~' before '/' to avoid double-escaping.
-     *
-     * @param segment The raw segment (property name or array index)
-     * @return Escaped segment safe for JSON Pointer
-     */
-    private String escapeJsonPointerSegment(String segment) {
-        if (segment == null) {
-            return null;
-        }
-        // Order matters: escape ~ first, then /
-        // Otherwise "~" -> "~0" -> "~01" (wrong!)
-        return segment.replace("~", "~0").replace("/", "~1");
+        return pointer;
     }
 
     @Override

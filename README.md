@@ -604,10 +604,10 @@ Normally you'd get an error about `orderId`, fix it, resubmit, then get error ab
 
 ```java
 ObjectMapper mapper = new JsonMapper();
-ObjectReader reader = mapper.readerFor(Order.class).collectErrors();
+ObjectReader reader = mapper.readerFor(Order.class).problemCollectingReader();
 
 try {
-    Order result = reader.readValueCollecting(json);
+    Order result = reader.readValueCollectingProblems(json);
     // worked fine
 } catch (DeferredBindingException ex) {
     System.out.println("Found " + ex.getProblems().size() + " problems:");
@@ -620,17 +620,17 @@ try {
 
 This will report all 3 problems at once. Much better.
 
-By default, Jackson will collect up to 100 errors before giving up (to prevent DoS-style attacks with huge bad payloads). You can configure this:
+By default, Jackson will collect up to 100 problems before giving up (to prevent DoS-style attacks with huge bad payloads). You can configure this:
 
 ```java
-ObjectReader reader = mapper.readerFor(Order.class).collectErrors(10); // limit to 10
+ObjectReader reader = mapper.readerFor(Order.class).problemCollectingReader(10); // limit to 10
 ```
 
 Few things to keep in mind:
 
-1. This is best-effort: not all errors can be collected. Malformed JSON (like missing closing brace) or other structural problems will still fail immediately. But type conversion errors, unknown properties (if you enable that check), and such will be collected.
+1. This is best-effort: not all problems can be collected. Malformed JSON (like missing closing brace) or other structural problems will still fail immediately. But type conversion errors, unknown properties (if you enable that check), and such will be collected.
 2. Error paths use JSON Pointer notation (RFC 6901): so `"/items/0/price"` means first item in `items` array, `price` field. Special characters get escaped (`~` becomes `~0`, `/` becomes `~1`).
-3. Each call to `readValueCollecting()` gets its own error bucket, so it's thread-safe to reuse the same `ObjectReader`.
+3. Each call to `readValueCollectingProblems()` gets its own problem bucket, so it's thread-safe to reuse the same `ObjectReader`.
 4. Fields that fail to deserialize get default values (0 for primitives, null for objects), so you do get a result object back (thrown in the exception).
 
 This is particularly useful for things like REST API validation (return all validation errors to client), or batch processing (log errors but keep going), or development tooling.

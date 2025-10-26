@@ -400,19 +400,30 @@ public class JDKAtomicTypesDeserTest
     {
         AtomicRefBean bean;
 
+        ObjectReader r = MAPPER.readerFor(AtomicRefBean.class);
+        
         // First: null should become empty, non-null reference
-        bean = MAPPER.readValue(a2q("{'atomic':null}"), AtomicRefBean.class);
+        bean = r.readValue(a2q("{'atomic':null}"));
         assertNotNull(bean._atomic);
         assertNull(bean._atomic.get());
 
         // And then absent (missing), via Creator method, should become actual null
-        bean = MAPPER.readValue("{}", AtomicRefBean.class);
+        // 25-Oct-2025, tatu: [databind#53530] Actually, by default should become
+        //   empty ref
+        bean = r.readValue("{}");
+        assertNotNull(bean._atomic);
+        assertNull(bean._atomic.get());
+
+        // 25-Oct-2025, tatu: but can reconfigure to get `null` instead
+        bean = r.with(DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES)
+                .readValue("{}");
         assertNull(bean._atomic);
 
-        // Except that we can override handling to produce empty
+        // Plus can override handling to produce empty
         AtomicRefBeanWithEmpty bean2 = MAPPER.readValue("{}", AtomicRefBeanWithEmpty.class);
         assertNotNull(bean2._atomic);
         assertNull(bean2._atomic.get());
+
     }
 
     // @since 2.14

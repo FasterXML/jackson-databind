@@ -120,10 +120,14 @@ public abstract class ReferenceTypeDeserializer<T>
     public Object getAbsentValue(DeserializationContext ctxt) {
         // 21-Sep-2022, tatu: [databind#3601] Let's make absent become `null`,
         //   NOT "null value" (Empty)
-        //return null;
+        // return null;
         // 15-Oct-2025, tatu: [databind#5335] Revert above change for 3.0.1 to
         //  keep compatibility with 2.x series; 3.1 will add configurability
-        return getNullValue(ctxt);
+        //return getNullValue(ctxt);
+
+        // 25-Oct-2025, tatu: [databind#5350] Now configurable
+        return ctxt.isEnabled(DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES)
+                ? null : getNullValue(ctxt);
     }
 
     public abstract T referenceValue(Object contents);

@@ -98,6 +98,24 @@ public enum DeserializationFeature implements ConfigFeature
      */
     USE_JAVA_ARRAY_FOR_JSON_ARRAY(false),
 
+    /**
+     * Feature that determines whether deserialization of "Reference Types"
+     * (such as {@link java.util.Optional}, {@link java.util.concurrent.atomic.AtomicReference},
+     * and Kotlin/Scala equivalents) should return Java {@code null} in case
+     * of value missing from incoming JSON. If disabled, reference type's
+     * "absent" value is returned (for example, {@link java.util.Optional#empty()}.
+     *<p>
+     * NOTE: this feature only affects handling of missing values; not explicit
+     * JSON {@code null}s.
+     * Also note that this feature only affects deserialization when reference value
+     * is passed via Creator (constructor or factory method) parameter; when
+     * Setter methods or fields are used, the reference type is left un-assigned
+     * (this is not specifically related to reference types, but general behavior).
+     *
+     * @since 3.1
+     */
+    USE_NULL_FOR_MISSING_REFERENCE_VALUES(false),
+
     /*
     /**********************************************************************
     /* Error handling features
@@ -144,7 +162,7 @@ public enum DeserializationFeature implements ConfigFeature
 
     /**
      * Feature that determines what happens when reading JSON content into tree
-     * ({@link tools.jackson.core.TreeNode}) and a duplicate key
+     * ({@link JsonNode} and a duplicate key
      * is encountered (property name that was already seen for the JSON Object).
      * If enabled, {@link DatabindException} will be thrown; if disabled, no exception
      * is thrown and the new (later) value overwrites the earlier value.

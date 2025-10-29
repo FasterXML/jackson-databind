@@ -18,10 +18,20 @@ public class IterableSerializer
         super(Iterable.class, elemType, staticTyping, vts, null);
     }
 
+    @Deprecated // since 3.1.0
     public IterableSerializer(IterableSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
-        super(src, vts, valueSerializer, unwrapSingle, property);
+        this(src, vts, valueSerializer, unwrapSingle, property, null, false);
+    }
+
+    /**
+     * @since 3.1.0
+     */
+    public IterableSerializer(IterableSerializer src,
+             TypeSerializer vts, ValueSerializer<?> valueSerializer,
+             Boolean unwrapSingle, BeanProperty property, Object suppressableValue, boolean suppressNulls) {
+        super(src, vts, valueSerializer, unwrapSingle, property, suppressableValue, suppressNulls);
     }
 
     @Override
@@ -34,6 +44,13 @@ public class IterableSerializer
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
         return new IterableSerializer(this, vts, elementSerializer, unwrapSingle, property);
+    }
+
+    @Override
+    public IterableSerializer withResolved(BeanProperty property,
+            TypeSerializer vts, ValueSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        return new IterableSerializer(this, vts, elementSerializer, unwrapSingle, property, suppressableValue, suppressNulls);
     }
 
     /*
@@ -112,5 +129,13 @@ public class IterableSerializer
                 }
             } while (it.hasNext());
         }
+    }
+
+    @Override
+    protected void serializeFilteredContents(Iterable<?> value, JsonGenerator g, SerializationContext ctxt)
+        throws JacksonException
+    {
+        // TODO: Implement later?
+        serializeContents(value, g, ctxt);
     }
 }

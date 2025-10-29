@@ -47,10 +47,21 @@ public class CollectionSerializer
         _maybeEnumSet = elemType.isEnumType() || elemType.isJavaLangObject();
     }
 
+    @Deprecated // since 3.1.0
     protected CollectionSerializer(CollectionSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
-        super(src, vts, valueSerializer, unwrapSingle, property);
+        this(src, vts, valueSerializer, unwrapSingle, property, null, false);
+    }
+
+    /**
+     * @since 3.1.0
+     */
+    protected CollectionSerializer(CollectionSerializer src,
+            TypeSerializer vts, ValueSerializer<?> valueSerializer,
+            Boolean unwrapSingle, BeanProperty property,
+            Object suppressableValue, boolean suppressNulls) {
+        super(src, vts, valueSerializer, unwrapSingle, property, suppressableValue, suppressNulls);
         _maybeEnumSet = src._maybeEnumSet;
     }
 
@@ -63,7 +74,15 @@ public class CollectionSerializer
     protected CollectionSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
-        return new CollectionSerializer(this, vts, elementSerializer, unwrapSingle, property);
+        return withResolved(property, vts, elementSerializer, unwrapSingle, null, false);
+    }
+
+    // @since 3.1.0
+    @Override
+    protected CollectionSerializer withResolved(BeanProperty property,
+            TypeSerializer vts, ValueSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        return new CollectionSerializer(this, vts, elementSerializer, unwrapSingle, property, suppressableValue, suppressNulls);
     }
 
     /*
@@ -97,21 +116,43 @@ public class CollectionSerializer
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, provider);
+                if ((_suppressableValue != null) || _suppressNulls) {
+                    serializeFilteredContents(value, g, provider);
+                } else {
+                    serializeContents(value, g, provider);
+                }
                 return;
             }
         }
         g.writeStartArray(value, len);
-        serializeContents(value, g, provider);
+        if ((_suppressableValue != null) || _suppressNulls) {
+            serializeFilteredContents(value, g, provider);
+        } else {
+            serializeContents(value, g, provider);
+        }
         g.writeEndArray();
     }
 
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator g, SerializationContext ctxt)
-        throws JacksonException
+    {
+        serializeContentsImpl(value, g, ctxt, false);
+    }
+
+    @Override
+    protected void serializeFilteredContents(Collection<?> value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
+    {
+        serializeContentsImpl(value, g, ctxt, true);
+    }
+
+    private void serializeContentsImpl(Collection<?> value, JsonGenerator g, SerializationContext ctxt, boolean filtered) throws JacksonException
     {
         if (_elementSerializer != null) {
-            serializeContentsUsing(value, g, ctxt, _elementSerializer);
+            if (filtered) {
+                serializeFilteredContentsUsing(value, g, ctxt, _elementSerializer);
+            } else {
+                serializeContentsUsing(value, g, ctxt, _elementSerializer);
+            }
             return;
         }
         Iterator<?> it = value.iterator();
@@ -128,6 +169,10 @@ public class CollectionSerializer
             do {
                 Object elem = it.next();
                 if (elem == null) {
+                    if (filtered && _suppressNulls) {
+                        ++i;
+                        continue;
+                    }
                     ctxt.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
@@ -139,6 +184,11 @@ public class CollectionSerializer
                             serializer = _findAndAddDynamic(ctxt, cc);
                         }
                         serializers = _dynamicValueSerializers;
+                    }
+                    // Check if this element should be suppressed (only in filtered mode)
+                    if (filtered && !_shouldSerializeElement(elem, serializer, ctxt)) {
+                        ++i;
+                        continue;
                     }
                     if (typeSer == null) {
                         serializer.serialize(elem, g, ctxt);
@@ -153,9 +203,21 @@ public class CollectionSerializer
         }
     }
 
-    public void serializeContentsUsing(Collection<?> value, JsonGenerator g, SerializationContext provider,
+    public void serializeContentsUsing(Collection<?> value, JsonGenerator g, SerializationContext ctxt,
             ValueSerializer<Object> ser)
         throws JacksonException
+    {
+        serializeContentsUsingImpl(value, g, ctxt, ser, false);
+    }
+
+    private void serializeFilteredContentsUsing(Collection<?> value, JsonGenerator g, SerializationContext ctxt,
+            ValueSerializer<Object> ser) throws JacksonException
+    {
+        serializeContentsUsingImpl(value, g, ctxt, ser, true);
+    }
+
+    private void serializeContentsUsingImpl(Collection<?> value, JsonGenerator g, SerializationContext ctxt,
+            ValueSerializer<Object> ser, boolean filtered) throws JacksonException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
@@ -167,17 +229,26 @@ public class CollectionSerializer
                 Object elem = it.next();
                 try {
                     if (elem == null) {
-                        provider.defaultSerializeNullValue(g);
+                        if (filtered && _suppressNulls) {
+                            ++i;
+                            continue;
+                        }
+                        ctxt.defaultSerializeNullValue(g);
                     } else {
+                        // Check if this element should be suppressed (only in filtered mode)
+                        if (filtered && !_shouldSerializeElement(elem, ser, ctxt)) {
+                            ++i;
+                            continue;
+                        }
                         if (typeSer == null) {
-                            ser.serialize(elem, g, provider);
+                            ser.serialize(elem, g, ctxt);
                         } else {
-                            ser.serializeWithType(elem, g, provider, typeSer);
+                            ser.serializeWithType(elem, g, ctxt, typeSer);
                         }
                     }
                     ++i;
                 } catch (Exception e) {
-                    wrapAndThrow(provider, e, value, i);
+                    wrapAndThrow(ctxt, e, value, i);
                 }
             } while (it.hasNext());
         }

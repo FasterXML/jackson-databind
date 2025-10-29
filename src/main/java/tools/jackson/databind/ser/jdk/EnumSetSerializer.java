@@ -14,10 +14,21 @@ public class EnumSetSerializer
         super(EnumSet.class, elemType, true, null, null);
     }
 
+    @Deprecated // since 3.1.0
     public EnumSetSerializer(EnumSetSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
-        super(src, vts, valueSerializer, unwrapSingle, property);
+        this(src, vts, valueSerializer, unwrapSingle, property, null, false);
+    }
+
+    /**
+     * @since 3.1.0
+     */
+    public EnumSetSerializer(EnumSetSerializer src,
+             TypeSerializer vts, ValueSerializer<?> valueSerializer,
+             Boolean unwrapSingle, BeanProperty property,
+             Object suppressableValue, boolean suppressNulls) {
+        super(src, vts, valueSerializer, unwrapSingle, property, suppressableValue, suppressNulls);
     }
 
     @Override
@@ -30,7 +41,14 @@ public class EnumSetSerializer
     protected EnumSetSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
-        return new EnumSetSerializer(this, vts, elementSerializer, unwrapSingle, property);
+        return new EnumSetSerializer(this, vts, elementSerializer, unwrapSingle, property, null, false);
+    }
+
+    @Override
+    public EnumSetSerializer withResolved(BeanProperty property,
+            TypeSerializer vts, ValueSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        return new EnumSetSerializer(this, vts, elementSerializer, unwrapSingle, property, suppressableValue, suppressNulls);
     }
 
     @Override
@@ -80,4 +98,5 @@ public class EnumSetSerializer
             enumSer.serialize(en, gen, ctxt);
         }
     }
+
 }

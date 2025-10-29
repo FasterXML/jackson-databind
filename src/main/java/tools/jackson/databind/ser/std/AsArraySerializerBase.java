@@ -4,12 +4,15 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.util.ArrayBuilders;
+import tools.jackson.databind.util.BeanUtil;
 
 /**
  * Base class for serializers that will output contents as JSON
@@ -22,6 +25,22 @@ public abstract class AsArraySerializerBase<T>
     protected final JavaType _elementType;
 
     protected final boolean _staticTyping;
+
+    public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
+
+    /**
+     * Value that indicates suppression mechanism to use for
+     * content values (elements of container), if any; null
+     * for no filtering.
+     * @since 3.1.0
+     */
+    protected final Object _suppressableValue;
+
+    /**
+     * Flag that indicates whether nulls should be suppressed.
+     * @since 3.1.0
+     */
+    protected final boolean _suppressNulls;
 
     /**
      * Setting for specific local override for "unwrap single element arrays":
@@ -53,7 +72,7 @@ public abstract class AsArraySerializerBase<T>
     protected AsArraySerializerBase(Class<?> cls, JavaType elementType, boolean staticTyping,
             TypeSerializer vts, ValueSerializer<?> elementSerializer)
     {
-        this(cls, elementType, staticTyping, vts, elementSerializer, null);
+        this(cls, elementType, staticTyping, vts, elementSerializer, null, null);
     }
 
     /**
@@ -71,15 +90,29 @@ public abstract class AsArraySerializerBase<T>
         _valueTypeSerializer = vts;
         _elementSerializer = (ValueSerializer<Object>) elementSerializer;
         _unwrapSingle = unwrapSingle;
+        _suppressableValue = null;
+        _suppressNulls = false;
     }
 
-    /**
-     * General purpose constructor. Use contextual constructors, if possible.
-     */
+    @Deprecated // since 3.1.0
     @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(Class<?> cls, JavaType elementType, boolean staticTyping,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle, BeanProperty property)
+    {
+        this(cls, elementType, staticTyping, vts, elementSerializer, unwrapSingle, property, null, false);
+    }
+
+    /**
+     * General purpose constructor. Use contextual constructors, if possible.
+     *
+     * @since 3.1.0
+     */
+    @SuppressWarnings("unchecked")
+    protected AsArraySerializerBase(Class<?> cls, JavaType elementType, boolean staticTyping,
+            TypeSerializer vts, ValueSerializer<?> elementSerializer,
+            Boolean unwrapSingle, BeanProperty property,
+            Object suppressableValue, boolean suppressNulls)
     {
         super(cls, property);
         _elementType = elementType;
@@ -88,8 +121,11 @@ public abstract class AsArraySerializerBase<T>
         _valueTypeSerializer = vts;
         _elementSerializer = (ValueSerializer<Object>) elementSerializer;
         _unwrapSingle = unwrapSingle;
+        _suppressableValue = suppressableValue;
+        _suppressNulls = suppressNulls;
     }
 
+    @Deprecated // since 3.1.0
     @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(AsArraySerializerBase<?> src,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
@@ -101,11 +137,38 @@ public abstract class AsArraySerializerBase<T>
         _valueTypeSerializer = vts;
         _elementSerializer = (ValueSerializer<Object>) elementSerializer;
         _unwrapSingle = unwrapSingle;
+        _suppressableValue = src._suppressableValue;
+        _suppressNulls = src._suppressNulls;
     }
 
+    /**
+     * @since 3.1.0
+     */
+    @SuppressWarnings("unchecked")
+    protected AsArraySerializerBase(AsArraySerializerBase<?> src,
+             TypeSerializer vts, ValueSerializer<?> elementSerializer,
+             Boolean unwrapSingle, BeanProperty property,
+             Object suppressableValue, boolean suppressNulls)
+    {
+        super(src, property);
+        _elementType = src._elementType;
+        _staticTyping = src._staticTyping;
+        _valueTypeSerializer = vts;
+        _elementSerializer = (ValueSerializer<Object>) elementSerializer;
+        _unwrapSingle = unwrapSingle;
+        _suppressableValue = suppressableValue;
+        _suppressNulls = suppressNulls;
+    }
+
+    @Deprecated // since 3.1.0
     protected abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle);
+
+
+    protected abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
+            TypeSerializer vts, ValueSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls);
 
     /*
     /**********************************************************************
@@ -157,11 +220,62 @@ public abstract class AsArraySerializerBase<T>
                 }
             }
         }
+
+
+        // Handle content inclusion (similar to MapSerializer lines 560-609)
+        JsonInclude.Value inclV = findIncludeOverrides(ctxt, property, handledType());
+        Object valueToSuppress = _suppressableValue;
+        boolean suppressNulls = _suppressNulls;
+
+        if (inclV != null) {
+            JsonInclude.Include incl = inclV.getContentInclusion();
+            if (incl != JsonInclude.Include.USE_DEFAULTS) {
+                switch (incl) {
+                    case NON_DEFAULT:
+                        valueToSuppress = BeanUtil.getDefaultValue(_elementType);
+                        suppressNulls = true;
+                        if (valueToSuppress != null) {
+                            if (valueToSuppress.getClass().isArray()) {
+                                valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
+                            }
+                        }
+                        break;
+                    case NON_ABSENT:
+                        suppressNulls = true;
+                        valueToSuppress = MARKER_FOR_EMPTY;
+                        break;
+                    case NON_EMPTY:
+                        suppressNulls = true;
+                        valueToSuppress = MARKER_FOR_EMPTY;
+                        break;
+                    case CUSTOM:
+                        valueToSuppress = ctxt.includeFilterInstance(null, inclV.getContentFilter());
+                        if (valueToSuppress == null) {
+                            suppressNulls = true;
+                        } else {
+                            suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
+                        }
+                        break;
+                    case NON_NULL:
+                        valueToSuppress = null;
+                        suppressNulls = true;
+                        break;
+                    case ALWAYS:
+                    default:
+                        valueToSuppress = null;
+                        suppressNulls = false;
+                        break;
+                }
+            }
+        }
+
         if ((ser != _elementSerializer)
                 || (property != _property)
                 || (_valueTypeSerializer != typeSer)
-                || (!Objects.equals(_unwrapSingle, unwrapSingle))) {
-            return withResolved(property, typeSer, ser, unwrapSingle);
+                || (!Objects.equals(_unwrapSingle, unwrapSingle))
+                || (!Objects.equals(valueToSuppress, _suppressableValue))
+                || (suppressNulls != _suppressNulls)) {
+            return withResolved(property, typeSer, ser, unwrapSingle, valueToSuppress, suppressNulls);
         }
         return this;
     }
@@ -224,6 +338,18 @@ public abstract class AsArraySerializerBase<T>
     protected abstract void serializeContents(T value, JsonGenerator gen, SerializationContext provider)
         throws JacksonException;
 
+    /**
+     * Support `@JsonInclude`
+     * Will fallback to {@link AsArraySerializerBase#serializeContents(Object, JsonGenerator, SerializationContext)} for backward compatibility.
+     *
+     * @since 3.1.0
+     */
+    protected void serializeFilteredContents(T value, JsonGenerator g, SerializationContext provider)
+            throws JacksonException
+    {
+        serializeContents(value, g, provider);
+    }
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JacksonException
@@ -237,5 +363,35 @@ public abstract class AsArraySerializerBase<T>
             }
         }
         visitArrayFormat(visitor, typeHint, valueSer, _elementType);
+    }
+
+    /**
+     * Common utility method for checking if an element should be filtered/suppressed
+     * based on @JsonInclude settings. Returns {@code true} if element should be serialized,
+     * {@code false} if it should be skipped.
+     *
+     * @param elem Element to check for suppression
+     * @param serializer Serializer for the element (may be null for strings)
+     * @param provider Serializer provider
+     * @return true if element should be serialized, false if suppressed
+     *
+     * @since 3.1.0
+     */
+    protected final boolean _shouldSerializeElement(Object elem, ValueSerializer<Object> serializer,
+        SerializationContext provider) throws JacksonException
+    {
+        if (_suppressableValue == null) {
+            return true;
+        }
+        if (_suppressableValue == MARKER_FOR_EMPTY) {
+            if (serializer != null) {
+                return !serializer.isEmpty(provider, elem);
+            } else {
+                // For strings and primitives, check emptiness directly
+                return elem instanceof String ? !((String) elem).isEmpty() : true;
+            }
+        } else {
+            return !_suppressableValue.equals(elem);
+        }
     }
 }

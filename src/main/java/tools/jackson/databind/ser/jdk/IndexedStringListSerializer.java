@@ -33,14 +33,29 @@ public final class IndexedStringListSerializer
         super(List.class);
     }
 
+    @Deprecated // since 3.1.0
     public IndexedStringListSerializer(IndexedStringListSerializer src,
             Boolean unwrapSingle) {
-        super(src, unwrapSingle);
+        this(src, unwrapSingle, src._suppressableValue, src._suppressNulls);
+    }
+
+    /**
+     * @since 3.1.0
+     */
+    public IndexedStringListSerializer(IndexedStringListSerializer src,
+           Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        super(src, unwrapSingle, suppressableValue, suppressNulls);
     }
 
     @Override
     public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
-        return new IndexedStringListSerializer(this, unwrapSingle);
+        return new IndexedStringListSerializer(this, unwrapSingle, null, false);
+    }
+
+    @Override
+    public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle,
+           Object suppressableValue, boolean suppressNulls) {
+        return new IndexedStringListSerializer(this, unwrapSingle, suppressableValue, suppressNulls);
     }
 
     @Override protected JsonNode contentSchema() { return createSchemaNode("string", true); }
@@ -65,12 +80,20 @@ public final class IndexedStringListSerializer
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, provider, 1);
+                if ((_suppressableValue != null) || _suppressNulls) {
+                    serializeFilteredContents(value, g, provider, 1);
+                } else {
+                    serializeContents(value, g, provider, 1);
+                }
                 return;
             }
         }
         g.writeStartArray(value, len);
-        serializeContents(value, g, provider, len);
+        if ((_suppressableValue != null) || _suppressNulls) {
+            serializeFilteredContents(value, g, provider, len);
+        } else {
+            serializeContents(value, g, provider, len);
+        }
         g.writeEndArray();
     }
 
@@ -89,13 +112,32 @@ public final class IndexedStringListSerializer
     private final void serializeContents(List<String> value, JsonGenerator g,
             SerializationContext provider, int len) throws JacksonException
     {
+        serializeContentsImpl(value, g, provider, len, false);
+    }
+
+    private final void serializeFilteredContents(List<String> value, JsonGenerator g,
+            SerializationContext provider, int len) throws JacksonException
+    {
+        serializeContentsImpl(value, g, provider, len, true);
+    }
+
+    private final void serializeContentsImpl(List<String> value, JsonGenerator g,
+             SerializationContext provider, int len, boolean filtered) throws JacksonException
+    {
         int i = 0;
         try {
             for (; i < len; ++i) {
                 String str = value.get(i);
                 if (str == null) {
+                    if (filtered && _suppressNulls) {
+                        continue;
+                    }
                     provider.defaultSerializeNullValue(g);
                 } else {
+                    // Check if this element should be suppressed (only in filtered mode)
+                    if (filtered && !_shouldSerializeElement(str, null, provider)) {
+                        continue;
+                    }
                     g.writeString(str);
                 }
             }

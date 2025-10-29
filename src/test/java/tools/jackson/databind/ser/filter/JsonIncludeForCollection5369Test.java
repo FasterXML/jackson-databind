@@ -134,7 +134,7 @@ public class JsonIncludeForCollection5369Test
     /**********************************************************
      */
 
-    final private ObjectMapper MAPPER = jsonMapperBuilder();
+    final private ObjectMapper MAPPER = jsonMapperBuilder().build();
 
     @Test
     public void testCustomFilterWithList() throws Exception {

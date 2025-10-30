@@ -6,8 +6,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -41,6 +44,13 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 {
     // As of 2.7
     private static final long serialVersionUID = 1L;
+
+    // miro-start BEX-1163
+    private static final String ENVIRONMENT_NAME = System.getProperty("environment", "undefined");
+    private static final boolean ERROR_ON_NO_JSON_PROPERTIES = !ENVIRONMENT_NAME.contains("production");
+
+    private static final Set<String> WARNED_METHODS_CACHE = ConcurrentHashMap.newKeySet();
+    // miro-end BEX-1163
 
     /**
      * Marker object used to indicate "do not serialize if empty"
@@ -683,6 +693,45 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     @Override
     public void serializeAsField(Object bean, JsonGenerator gen,
             SerializerProvider prov) throws Exception {
+        // miro-start BEX-1163
+        // If a property from a Kotlin method, that is named is{Something} and has no JsonProperty annotation, or it is empty
+        // - in non-production environment - throw an exception
+        // - in production environment - log an ERROR
+        if (_accessorMethod != null && _accessorMethod.getName().startsWith("is")) {
+            JsonProperty jsonProperty = _accessorMethod.getAnnotation(JsonProperty.class);
+            if (jsonProperty == null || jsonProperty.value().isEmpty()) {
+                Class<?> beanClass = bean.getClass();
+                try {
+                    Class<? extends Annotation> kotlinMetadataClass = (Class<? extends Annotation>) Class.forName("kotlin.Metadata");
+                    if (beanClass.isAnnotationPresent(kotlinMetadataClass)) {
+                        if (ERROR_ON_NO_JSON_PROPERTIES) {
+                            throw new IllegalStateException(String.format(
+                                "Cannot serialize property '%s' from Kotlin class %s using is-method '%s' without" +
+                                    " explicit @JsonProperty annotation specifying the name. With migration to" +
+                                    " jackson-kotlin-module 2.15 the resulting property name would change to %s. Add" +
+                                    " an @JsonProperty annotation to the method specifying the name explicitly.",
+                                _name.getValue(), beanClass.getName(), _accessorMethod.getName(), _accessorMethod.getName()
+                            ));
+                        } else if (WARNED_METHODS_CACHE.add(_accessorMethod.getName())) {
+                            System.out.printf("[ERROR] Serializing a property '%s' from Kotlin class %s using " +
+                                                  "is-method '%s' without explicit @JsonProperty annotation" +
+                                                  " specifying the name. With migration to jackson-kotlin-module" +
+                                                  " 2.15 the resulting property name would change to %s. Add an" +
+                                                  " @JsonProperty annotation to the method specifying the name" +
+                                                  " explicitly.\n",
+                                              _name.getValue(),
+                                              beanClass.getName(),
+                                              _accessorMethod.getName(),
+                                              _accessorMethod.getName()
+                            );
+                        }
+                    }
+                } catch (ClassNotFoundException | ClassCastException e) {
+                    // Kotlin not in classpath, ignore check
+                }
+            }
+        }
+        // miro-end BEX-1163
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean)
                 : _accessorMethod.invoke(bean, (Object[]) null);

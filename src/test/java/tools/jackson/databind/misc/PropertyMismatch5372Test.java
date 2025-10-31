@@ -11,6 +11,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+// [databind#5372]: Property name mismatch problem,
 // caused by [core#1491]; verify that databind usage fixed as well
 public class PropertyMismatch5372Test extends DatabindTestUtil
 {

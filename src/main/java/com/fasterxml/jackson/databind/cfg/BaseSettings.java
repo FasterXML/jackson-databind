@@ -184,7 +184,7 @@ public final class BaseSettings
         _defaultBase64 = defaultBase64;
         _typeValidator = ptv;
         _accessorNaming = accNaming;
-        _cacheProvider = cacheProvider;;
+        _cacheProvider = cacheProvider;
     }
 
     /**

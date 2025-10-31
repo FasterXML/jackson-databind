@@ -71,7 +71,6 @@ public abstract class ConcreteBeanPropertyBase
     @Override
     public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType)
     {
-        JsonFormat.Value v0 = EMPTY_FORMAT.withPattern(config.getDefaultRadix());//TODO(Davyd Fridman): change to withRadix
         JsonFormat.Value v1 = config.getDefaultPropertyFormat(baseType);
         JsonFormat.Value v2 = null;
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
@@ -81,18 +80,10 @@ public abstract class ConcreteBeanPropertyBase
                 v2 = intr.findFormat(member);
             }
         }
-
-        JsonFormat.Value formatValue = EMPTY_FORMAT;
-        if (v0 != null) {
-            formatValue = formatValue.withOverrides(v0);
+        if (v1 == null) {
+            return (v2 == null) ? EMPTY_FORMAT : v2;
         }
-        if (v1 != null) {
-            formatValue = formatValue.withOverrides(v1);
-        }
-        if (v2 != null) {
-            formatValue = formatValue.withOverrides(v2);
-        }
-        return formatValue;
+        return (v2 == null) ? v1 : v1.withOverrides(v2);
     }
 
     @Override

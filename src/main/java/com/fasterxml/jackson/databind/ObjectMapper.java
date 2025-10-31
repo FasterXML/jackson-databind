@@ -1897,24 +1897,6 @@ public class ObjectMapper
     }
 
     /**
-     * Method for setting default alternative radix that applies to integral types for serialization
-     * and deserialization of such types as strings.
-     * This configuration override is applied for all integral properties for which there are no per-type
-     * or per-property overrides (via annotations or config overrides).
-     *<p>
-     * NOTE: in Jackson 3.x all configuration goes through {@code ObjectMapper} builders,
-     * see {@link com.fasterxml.jackson.databind.cfg.MapperBuilder},
-     * and this method will be removed from 3.0.
-     *
-     * @since 2.21
-     */
-    public ObjectMapper setDefaultFormat(String radix) {
-        _configOverrides.setDefaultRadix(radix);
-        return this;
-    }
-
-
-    /**
      * Short-cut for:
      *<pre>
      *  setDefaultPropertyInclusion(JsonInclude.Value.construct(incl, incl));

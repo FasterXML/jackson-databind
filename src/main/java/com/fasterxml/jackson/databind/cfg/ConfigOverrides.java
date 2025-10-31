@@ -17,7 +17,6 @@ public class ConfigOverrides
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
-    private static final String DEFAULT_RADIX = "10";
 
     /**
      * Per-type override definitions
@@ -56,14 +55,6 @@ public class ConfigOverrides
      */
     protected Boolean _defaultLeniency;
 
-    /**
-     * Global default radix to apply to an integral type outputted as string. This has the lowest precedence out of all
-     * other methods of enforcing an alternative radix.
-     *
-     * @since 2.21
-     */
-    protected String _defaultRadix;//TODO(Davyd Fridman): Change from string to int once JsonFormat has an actual radix field
-
     /*
     /**********************************************************************
     /* Life cycle
@@ -76,32 +67,13 @@ public class ConfigOverrides
                 JsonInclude.Value.empty(),
                 JsonSetter.Value.empty(),
                 VisibilityChecker.Std.defaultInstance(),
-                null, null, DEFAULT_RADIX
+                null, null
         );
     }
 
     /**
-     * @since 2.21
-     */
-    protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
-                              JsonInclude.Value defIncl, JsonSetter.Value defSetter,
-                              VisibilityChecker<?> defVisibility, Boolean defMergeable, Boolean defLeniency,
-                              String defRadix)
-    {
-        _overrides = overrides;
-        _defaultInclusion = defIncl;
-        _defaultSetterInfo = defSetter;
-        _visibilityChecker = defVisibility;
-        _defaultMergeable = defMergeable;
-        _defaultLeniency = defLeniency;
-        _defaultRadix = defRadix;
-    }
-
-    /**
      * @since 2.10
-     * @deprecated since 2.21
      */
-    @Deprecated
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
             JsonInclude.Value defIncl, JsonSetter.Value defSetter,
             VisibilityChecker<?> defVisibility, Boolean defMergeable, Boolean defLeniency)
@@ -226,13 +198,6 @@ public class ConfigOverrides
     }
 
     /**
-     * @since 2.21
-     */
-    public String getDefaultRadix() {
-        return _defaultRadix;
-    }
-
-    /**
      * @since 2.9
      */
     public void setDefaultInclusion(JsonInclude.Value v) {
@@ -265,13 +230,6 @@ public class ConfigOverrides
      */
     public void setDefaultVisibility(VisibilityChecker<?> v) {
         _visibilityChecker = v;
-    }
-
-    /**
-     * @since 2.21
-     */
-    public void setDefaultRadix(String v) {
-        this._defaultRadix = v;
     }
 
     /*

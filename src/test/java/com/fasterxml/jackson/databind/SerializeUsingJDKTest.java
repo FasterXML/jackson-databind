@@ -238,8 +238,6 @@ public class SerializeUsingJDKTest
     public void testObjectReaderSerializationWithPolymorphism()
         throws Exception
     {
-        Properties props = System.getProperties();
-        props.setProperty("sun.io.serialization.extendedDebugInfo", "true");
         Class<?>[] classes = new Class<?>[] {
             FooClass.class,
             FooDeduction.class,

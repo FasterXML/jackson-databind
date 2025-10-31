@@ -7,7 +7,6 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -745,20 +744,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B defaultPropertyInclusion(JsonInclude.Value incl) {
         _mapper.setDefaultPropertyInclusion(incl);
-        return _this();
-    }
-
-    /**
-     * Method for configured default radix to use for serialization/deserialization of integral types as strings.
-     *
-     * @param radix Default radix to use on integral properties
-     *
-     * @return This builder instance to allow call chaining
-     *
-     * @since 2.11
-     */
-    public B defaultFormat(String radix) {
-        _mapper.setDefaultFormat(radix);
         return _this();
     }
 

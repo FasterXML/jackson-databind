@@ -5,16 +5,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashSet;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.ser.std.NumberToStringWithRadixSerializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -29,8 +26,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class NumberDeserializers
 {
     private final static HashSet<String> _classNames = new HashSet<String>();
-    private final static int DEFAULT_RADIX = 10;
-
     static {
         // note: can skip primitive types; other ways to check them:
         Class<?>[] numberTypes = new Class<?>[] {
@@ -255,7 +250,7 @@ public class NumberDeserializers
 
     @JacksonStdImpl
     public static class ByteDeserializer
-        extends PrimitiveOrWrapperDeserializer<Byte> implements ContextualDeserializer
+        extends PrimitiveOrWrapperDeserializer<Byte>
     {
         private static final long serialVersionUID = 1L;
 
@@ -277,12 +272,6 @@ public class NumberDeserializers
                 return _parseBytePrimitive(p, ctxt);
             }
             return _parseByte(p, ctxt);
-        }
-
-        @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-                throws JsonMappingException {
-            return _createRadixStringDeserializer(this, ctxt, property);
         }
 
         protected Byte _parseByte(JsonParser p, DeserializationContext ctxt)
@@ -353,7 +342,7 @@ public class NumberDeserializers
 
     @JacksonStdImpl
     public static class ShortDeserializer
-        extends PrimitiveOrWrapperDeserializer<Short> implements ContextualDeserializer
+        extends PrimitiveOrWrapperDeserializer<Short>
     {
         private static final long serialVersionUID = 1L;
 
@@ -376,12 +365,6 @@ public class NumberDeserializers
                 return _parseShortPrimitive(p, ctxt);
             }
             return _parseShort(p, ctxt);
-        }
-
-        @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-                throws JsonMappingException {
-            return _createRadixStringDeserializer(this, ctxt, property);
         }
 
         protected Short _parseShort(JsonParser p, DeserializationContext ctxt)
@@ -534,7 +517,8 @@ public class NumberDeserializers
 
     @JacksonStdImpl
     public final static class IntegerDeserializer
-        extends PrimitiveOrWrapperDeserializer<Integer> implements ContextualDeserializer {
+        extends PrimitiveOrWrapperDeserializer<Integer>
+    {
         private static final long serialVersionUID = 1L;
 
         final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.TYPE, 0);
@@ -573,17 +557,11 @@ public class NumberDeserializers
             }
             return _parseInteger(p, ctxt, Integer.class);
         }
-
-        @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-                throws JsonMappingException {
-            return _createRadixStringDeserializer(this, ctxt, property);
-        }
     }
 
     @JacksonStdImpl
     public final static class LongDeserializer
-        extends PrimitiveOrWrapperDeserializer<Long> implements ContextualDeserializer
+        extends PrimitiveOrWrapperDeserializer<Long>
     {
         private static final long serialVersionUID = 1L;
 
@@ -607,12 +585,6 @@ public class NumberDeserializers
                 return _parseLongPrimitive(p, ctxt);
             }
             return _parseLong(p, ctxt, Long.class);
-        }
-
-        @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-                throws JsonMappingException {
-            return _createRadixStringDeserializer(this, ctxt, property);
         }
     }
 
@@ -964,7 +936,7 @@ public class NumberDeserializers
     @SuppressWarnings("serial")
     @JacksonStdImpl
     public static class BigIntegerDeserializer
-        extends StdScalarDeserializer<BigInteger> implements ContextualDeserializer
+        extends StdScalarDeserializer<BigInteger>
     {
         public final static BigIntegerDeserializer instance = new BigIntegerDeserializer();
 
@@ -1038,12 +1010,6 @@ public class NumberDeserializers
             }
             return (BigInteger) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid representation");
-        }
-
-        @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-                throws JsonMappingException {
-            return _createRadixStringDeserializer(this, ctxt, property);
         }
     }
 
@@ -1122,43 +1088,5 @@ public class NumberDeserializers
             return (BigDecimal) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid representation");
         }
-    }
-
-    /**
-     * Method used to create a string deserializer for a number.
-     * If configuration is set properly, we create an alternative radix serializer {@link NumberToStringWithRadixSerializer}.
-     *
-     * @since 2.21
-     */
-    private static StdDeserializer<? extends Number> _createRadixStringDeserializer(StdScalarDeserializer<? extends  Number> initialDeser,
-                    DeserializationContext ctxt, BeanProperty property)
-    {
-        JsonFormat.Value format = initialDeser.findFormatOverrides(ctxt, property, initialDeser.handledType());
-
-        if (format == null || format.getShape() != JsonFormat.Shape.STRING) {
-            return initialDeser;
-        }
-
-        if (isSerializeWithRadixOverride(format)) {
-            int radix = Integer.parseInt(format.getPattern());
-            return new FromStringWithRadixToNumberDeserializer(initialDeser, radix);
-        }
-
-        return initialDeser;
-    }
-
-    /**
-     * Check if we have a proper {@link JsonFormat} annotation for serializing a number
-     * using an alternative radix specified in the annotation.
-     */
-    private static boolean isSerializeWithRadixOverride(JsonFormat.Value format) {
-        String pattern = format.getPattern();
-        boolean isInteger = pattern.chars().allMatch(Character::isDigit);
-        if (!isInteger || pattern.isEmpty()) {
-            return false;
-        }
-
-        int radix = Integer.parseInt(pattern);
-        return radix != DEFAULT_RADIX;
     }
 }

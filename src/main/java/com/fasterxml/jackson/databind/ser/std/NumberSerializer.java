@@ -37,8 +37,6 @@ public class NumberSerializer
 
     protected final boolean _isInt;
 
-    protected static final int DEFAULT_RADIX = 10;
-
     /**
      * @since 2.5
      */
@@ -60,8 +58,7 @@ public class NumberSerializer
                 if (((Class<?>) handledType()) == BigDecimal.class) {
                     return bigDecimalAsStringSerializer();
                 }
-                return createStringSerializer(prov, format, _isInt);
-
+                return ToStringSerializer.instance;
             default:
             }
         }
@@ -115,35 +112,6 @@ public class NumberSerializer
                 /*JsonNumberFormatVisitor v2 =*/ visitor.expectNumberFormat(typeHint);
             }
         }
-    }
-
-    /**
-     * Method used to create a string serializer for a number. If the number is integer, and configuration is set properly,
-     * we create an alternative radix serializer {@link NumberToStringWithRadixSerializer}.
-     *
-     * @since 2.21
-     */
-    public static ToStringSerializerBase createStringSerializer(SerializerProvider prov, JsonFormat.Value format, boolean isInt) {
-        if (isInt && isSerializeWithRadixOverride(format)) {
-            int radix = Integer.parseInt(format.getPattern());
-            return new NumberToStringWithRadixSerializer(radix);
-        }
-        return ToStringSerializer.instance;
-    }
-
-    /**
-     * Check if we have a proper {@link JsonFormat} annotation for serializing a number
-     * using an alternative radix specified in the annotation.
-     */
-    private static boolean isSerializeWithRadixOverride(JsonFormat.Value format) {
-        String pattern = format.getPattern();
-        boolean isInteger = pattern.chars().allMatch(Character::isDigit);
-        if (!isInteger || pattern.isEmpty()) {
-            return false;
-        }
-
-        int radix = Integer.parseInt(pattern);
-        return radix != DEFAULT_RADIX;
     }
 
     /**

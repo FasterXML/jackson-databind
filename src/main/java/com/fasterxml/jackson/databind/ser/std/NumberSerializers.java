@@ -106,7 +106,7 @@ public class NumberSerializers {
                     if (((Class<?>) handledType()) == BigDecimal.class) {
                         return NumberSerializer.bigDecimalAsStringSerializer();
                     }
-                    return NumberSerializer.createStringSerializer(prov, format, _isInt);
+                    return ToStringSerializer.instance;
                 default:
                 }
             }

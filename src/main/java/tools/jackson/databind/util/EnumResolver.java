@@ -276,8 +276,11 @@ public class EnumResolver implements java.io.Serializable
      * Method used when ALL of conditions below are met
      *<p>
      * 1. actual String serialization is indicated using @JsonValue on a method in Enum class AND
-     * 2. Enum class is annotated with `@JsonFormat`
+     * 2. Enum class is annotated with either `@JsonFormat(shpae = JsonFormat.Shape.NUMBER_INT)` or
+     *  `@JsonFormat(shpae = JsonFormat.Shape.NUMBER)`
      *
+     * @param accessor Method is annotated with either `@JsonFormat(shpae = JsonFormat.Shape.NUMBER_INT)` or
+     *       `@JsonFormat(shpae = JsonFormat.Shape.NUMBER)`
      */
     public static EnumResolver constructUsingNumberShape(DeserializationConfig config, AnnotatedClass annotatedClass, AnnotatedMember accessor)
     {
@@ -295,8 +298,10 @@ public class EnumResolver implements java.io.Serializable
         if (format == null) {
             return null;
         }
-        if (format.getShape() != JsonFormat.Shape.NUMBER_INT) {
-            throw new IllegalArgumentException("Failed to access @JsonValue of Enum value ");
+        if ((format.getShape() != JsonFormat.Shape.NUMBER_INT)
+                || (format.getShape() != JsonFormat.Shape.NUMBER)
+        ) {
+            return null;
         }
         for (int i = enumConstants.length; --i >= 0; ) { // from last to first, so that in case of duplicate values, first wins
             Enum<?> en = enumConstants[i];

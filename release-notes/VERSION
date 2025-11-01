@@ -10,6 +10,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5350: Add `DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES` for
   selecting `null` vs "empty/absent" value when deserializing missing `Optional` value
 
+3.0.2 (not yet released)
+
+#5372: Wrong setter is used when deserializing from `InputStream` (or `byte[]`)
+   (NOTE: actual fix via jackson-core#1491)
+ (reported by @quaff)
+
 3.0.1 (21-Oct-2025)
 
 #5335: JsonMapper to deserialize `Optional.empty()` instead of `null`

@@ -2,7 +2,6 @@ package tools.jackson.databind.util;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass;
@@ -266,57 +265,6 @@ public class EnumResolver implements java.io.Serializable
         }
         return new EnumResolver(enumCls, enumConstants, map,
                 defaultEnum, isIgnoreCase,
-                // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
-                _isIntType(accessor.getRawType()),
-                true
-        );
-    }
-
-    /**
-     * Method used when ALL of conditions below are met
-     *<p>
-     * 1. actual String serialization is indicated using @JsonValue on a method in Enum class AND
-     * 2. Enum class is annotated with either `@JsonFormat(shpae = JsonFormat.Shape.NUMBER_INT)` or
-     *  `@JsonFormat(shpae = JsonFormat.Shape.NUMBER)`
-     *
-     * @param accessor Method is annotated with either `@JsonFormat(shpae = JsonFormat.Shape.NUMBER_INT)` or
-     *       `@JsonFormat(shpae = JsonFormat.Shape.NUMBER)`
-     */
-    public static EnumResolver constructUsingNumberShape(DeserializationConfig config, AnnotatedClass annotatedClass, AnnotatedMember accessor)
-    {
-        // prepare data
-        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-        final Class<?> enumCls0 = annotatedClass.getRawType();
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls);
-        final Enum<?> defaultEnum = _enumDefault(config, annotatedClass, enumConstants);
-
-        // introspect580
-        HashMap<String, Enum<?>> map = new HashMap<>();
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        JsonFormat.Value format = ai.findFormat(config, annotatedClass);
-        if (format == null) {
-            return null;
-        }
-        if (!(format.getShape() == JsonFormat.Shape.NUMBER_INT)
-                || (format.getShape() == JsonFormat.Shape.NUMBER)
-        ) {
-            return null;
-        }
-        for (int i = enumConstants.length; --i >= 0; ) { // from last to first, so that in case of duplicate values, first wins
-            Enum<?> en = enumConstants[i];
-            try {
-                Object o = accessor.getValue(en);
-                if (o != null) {
-                    map.put(o.toString(), en);
-                }
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
-            }
-        }
-
-        // finally build
-        return new EnumResolver(enumCls, enumConstants, map, defaultEnum, isIgnoreCase,
                 // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
                 _isIntType(accessor.getRawType()),
                 true

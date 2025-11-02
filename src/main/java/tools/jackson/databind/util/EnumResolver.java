@@ -291,15 +291,15 @@ public class EnumResolver implements java.io.Serializable
         final Enum<?>[] enumConstants = _enumConstants(enumCls);
         final Enum<?> defaultEnum = _enumDefault(config, annotatedClass, enumConstants);
 
-        // introspect
+        // introspect580
         HashMap<String, Enum<?>> map = new HashMap<>();
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         JsonFormat.Value format = ai.findFormat(config, annotatedClass);
         if (format == null) {
             return null;
         }
-        if ((format.getShape() != JsonFormat.Shape.NUMBER_INT)
-                || (format.getShape() != JsonFormat.Shape.NUMBER)
+        if (!(format.getShape() == JsonFormat.Shape.NUMBER_INT)
+                || (format.getShape() == JsonFormat.Shape.NUMBER)
         ) {
             return null;
         }

@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// [databind#5369] Support
+// [databind#5369] Support `@JsonInclude` for collection
 public class JsonIncludeForCollection5369Test
     extends DatabindTestUtil
 {

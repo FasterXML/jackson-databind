@@ -30,7 +30,7 @@ public final class IndexedListSerializer
     public IndexedListSerializer(IndexedListSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
-        super(src, vts, valueSerializer, unwrapSingle, property);
+        this(src, vts, valueSerializer, unwrapSingle, property, src._suppressableValue, src._suppressNulls);
     }
 
     /**
@@ -39,7 +39,7 @@ public final class IndexedListSerializer
     public IndexedListSerializer(IndexedListSerializer src,
              TypeSerializer vts, ValueSerializer<?> valueSerializer, Boolean unwrapSingle,
              BeanProperty property, Object suppressableValue, boolean suppressNulls) {
-        super(src, vts, valueSerializer, unwrapSingle, property);
+        super(src, vts, valueSerializer, unwrapSingle, property, suppressableValue, suppressNulls);
     }
 
     @Override

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 // [databind#4564] Fix Enum-asJSON-Object serialization with self as field.
 public class EnumAsFormatObject4564Test
 {
-
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonPropertyOrder({"label", "sublevel"})
     public enum Level {
         LEVEL1("level1"),
         LEVEL2("level2"),

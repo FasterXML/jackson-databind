@@ -126,8 +126,7 @@ public class MapperMixinsCopy1998Test extends DatabindTestUtil
     private ObjectMapper defaultMapper()
     {
         return jsonMapperBuilder()
-                .defaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY,
-                        JsonInclude.Include.NON_EMPTY))
+                .defaultPropertyInclusion(JsonInclude.Value.ALL_NON_EMPTY)
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .configure(MapperFeature.ALLOW_COERCION_OF_SCALARS, false)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)

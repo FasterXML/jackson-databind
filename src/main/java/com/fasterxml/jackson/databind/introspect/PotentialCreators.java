@@ -24,7 +24,7 @@ public class PotentialCreators
     /**********************************************************************
      */
     
-    // desc -> "explicit", "implicit" etc
+    // mode -> "explicit", "implicit" etc
     public void setPropertiesBased(MapperConfig<?> config, PotentialCreator ctor, String mode)
     {
         if (propertiesBased != null) {

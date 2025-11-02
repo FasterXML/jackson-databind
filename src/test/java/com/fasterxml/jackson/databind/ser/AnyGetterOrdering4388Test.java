@@ -47,7 +47,8 @@ public class AnyGetterOrdering4388Test extends DatabindTestUtil {
     @JsonPropertyOrder({"entityId", "totalTests", "childEntities", "entityName", "products"})
     static class PojoUnwrappedVersion2 extends BaseWithProperties {
     }
-
+    
+    @JsonPropertyOrder({"child1", "child2"})
     static class Location {
         public int child1;
         public int child2;
@@ -60,6 +61,7 @@ public class AnyGetterOrdering4388Test extends DatabindTestUtil {
         public Map<String, Object> map = new HashMap<>();
     }
 
+    @JsonPropertyOrder({"a", "b"})
     static class IgnorePropertiesOnAnyGetterPojo {
         public int a = 1, b = 2;
         @JsonIgnoreProperties("b")

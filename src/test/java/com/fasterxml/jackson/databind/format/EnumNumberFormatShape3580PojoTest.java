@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.records;
+package com.fasterxml.jackson.databind.format;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;

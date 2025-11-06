@@ -226,13 +226,9 @@ public class EnumSetDeserializer
                 // passed it to EnumDeserializer, too, but in general nulls should never be passed
                 // to non-container deserializers)
                 Enum<?> value;
-                if (t == JsonToken.VALUE_NULL) {
-                    value = null;
-                } else {
-                    value = _enumDeserializer.deserialize(p, ctxt);
-                }
-                // [databind#5203]: Custom deserializer may return null for non-null token
-                if (value == null) {
+                if ((t == JsonToken.VALUE_NULL)
+                        // [databind#5203]: Custom deserializer may return null for non-null token
+                        || (value = _enumDeserializer.deserialize(p, ctxt)) == null) {
                     value = (Enum<?>) _nullProvider.getNullValue(ctxt);
                     if (value == null) {
                         if (_skipNullValues) {

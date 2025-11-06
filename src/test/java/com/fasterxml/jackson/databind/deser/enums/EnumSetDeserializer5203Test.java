@@ -1,9 +1,8 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.deser.enums;
 
 import java.io.IOException;
 import java.util.EnumSet;
 
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -17,8 +16,8 @@ import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // For [databind#5203]
 public class EnumSetDeserializer5203Test
@@ -67,7 +66,6 @@ public class EnumSetDeserializer5203Test
                 .build();
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void nullsFailTest() {
         ObjectMapper mapper = createMapperWithCustomDeserializer();
@@ -78,7 +76,6 @@ public class EnumSetDeserializer5203Test
         );
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void nullsSkipTest() throws Exception {
         SimpleModule module = new SimpleModule();
@@ -91,6 +88,8 @@ public class EnumSetDeserializer5203Test
 
         Dst dst = mapper.readValue("{\"set\":[\"FOO\",\"\"]}", new TypeReference<Dst>() {});
 
-        assertTrue(dst.getSet().isEmpty(), "Null values should be skipped");
+        // Null value (from empty string) should be skipped, but FOO should be present
+        assertEquals(1, dst.getSet().size());
+        assertEquals(MyEnum.FOO, dst.getSet().iterator().next());
     }
 }

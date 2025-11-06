@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Standard deserializer for {@link EnumSet}s.
@@ -233,6 +234,18 @@ public class EnumSetDeserializer
                     value = (Enum<?>) _nullProvider.getNullValue(ctxt);
                 } else {
                     value = _enumDeserializer.deserialize(p, ctxt);
+                    // [databind#5203]: Custom deserializer may return null for non-null token
+                    if (value == null) {
+                        // First check if we have a null replacement
+                        if (_nullProvider != null) {
+                            value = (Enum<?>) _nullProvider.getNullValue(ctxt);
+                        }
+                        // If still null, handle according to configuration
+                        if (value == null) {
+                            _tryToAddNull(p, ctxt, result);
+                            continue;
+                        }
+                    }
                 }
                 if (value != null) {
                     result.add(value);
@@ -283,5 +296,31 @@ public class EnumSetDeserializer
             throw JsonMappingException.wrapWithPath(e, result, result.size());
         }
         return result;
+    }
+
+    /**
+     * Helper method to handle attempts to add {@code null} value to an {@link EnumSet}.
+     *<p>
+     * Since {@code EnumSet}s do not allow {@code null} values, will either skip
+     * (if {@code _skipNullValues} is {@code true} or no explicit null handling is configured)
+     * or report error via {@link DeserializationContext#handleUnexpectedToken}.
+     *
+     * @since 2.22
+     */
+    protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt,
+            EnumSet<?> result)
+        throws IOException
+    {
+        // Default behavior (when no explicit null handling configured) is to skip nulls.
+        // When _nullProvider is the same as _enumDeserializer, it means no explicit
+        // null handling was configured (findContentNullProvider returns the deserializer
+        // as default), so we skip.
+        if (_skipNullValues || _nullProvider == null || _nullProvider == _enumDeserializer) {
+            return;
+        }
+        // EnumSet does not accept nulls, so we need to report an error
+        ctxt.handleUnexpectedToken(_enumType, JsonToken.VALUE_NULL, p,
+                "`EnumSet` of type %s does not accept `null` values",
+                ClassUtil.getTypeDescription(_enumType));
     }
 }

@@ -11,7 +11,6 @@ Project: jackson-databind
   a constructor reported as `DefaultCreator`, latter is incorrectly used
  (reported by  @wrongwrong)
 #5203: Fix `null` handling of `EnumSetDeserializer`
- (fix by @cowtowncoder, w/ Claude code)
 #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
  (reported by Johny L)
 #5313: Expose `getConverter()` in `StdDelegatingSerializer` for improved

@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Standard deserializer for {@link EnumSet}s.
@@ -240,9 +239,14 @@ public class EnumSetDeserializer
                             continue;
                         }
                         // EnumSet does not accept nulls, so we need to report an error
+                        // 05-Nov-2025, tatu: In case of no explicit Nulls handling; with 2.x,
+                        //   let's just skip for backward compatibility; for 3.x, FAIL
+                        /*
                         ctxt.handleUnexpectedToken(_enumType, JsonToken.VALUE_NULL, p,
                                 "`EnumSet` of type %s does not accept `null` values",
                                 ClassUtil.getTypeDescription(_enumType));
+                                */
+                        continue;
                     }
                 }
                 result.add(value);

@@ -15,14 +15,16 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // For [databind#5203]
 public class EnumSetDeserializer5203Test
+    extends DatabindTestUtil
 {
-    public enum MyEnum {
+    enum MyEnum {
         FOO
     }
 
@@ -56,36 +58,41 @@ public class EnumSetDeserializer5203Test
         }
     }
 
-    private ObjectMapper createMapperWithCustomDeserializer() {
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(MyEnum.class, new EmptyStringToNullDeserializer());
-
-        return JsonMapper.builder()
-                .addModule(module)
-                .defaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL))
-                .build();
+    @Test
+    public void nullsDefaultTest() throws Exception {
+        // In 2.x, default is to skip nulls (for backwards-compatibility)
+        final ObjectMapper mapper = createMapperWithCustomDeserializer(Nulls.DEFAULT);
+        _verifySkipResult(mapper);
     }
 
     @Test
-    public void nullsFailTest() {
-        ObjectMapper mapper = createMapperWithCustomDeserializer();
+    public void nullsFailTest() throws Exception {
+        final ObjectMapper mapper = createMapperWithCustomDeserializer(Nulls.FAIL);
 
         assertThrows(
                 InvalidNullException.class,
                 () -> mapper.readValue("{\"set\":[\"\"]}", new TypeReference<Dst>(){})
         );
     }
-
+    
     @Test
     public void nullsSkipTest() throws Exception {
+        final ObjectMapper mapper = createMapperWithCustomDeserializer(Nulls.SKIP);
+        _verifySkipResult(mapper);
+    }
+
+    private ObjectMapper createMapperWithCustomDeserializer(Nulls nullHandling) {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(MyEnum.class, new EmptyStringToNullDeserializer());
 
-        ObjectMapper mapper = JsonMapper.builder()
+        return JsonMapper.builder()
                 .addModule(module)
-                .defaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP))
+                .defaultSetterInfo(JsonSetter.Value.forContentNulls(nullHandling))
                 .build();
+    }
 
+    private void _verifySkipResult(ObjectMapper mapper) throws Exception
+    {
         Dst dst = mapper.readValue("{\"set\":[\"FOO\",\"\"]}", new TypeReference<Dst>() {});
 
         // Null value (from empty string) should be skipped, but FOO should be present

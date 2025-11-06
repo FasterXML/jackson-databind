@@ -13,11 +13,13 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+import static tools.jackson.databind.testutil.JacksonTestUtilBase.verifyException;
 
 public class EnumAltIdTest
 {
@@ -324,10 +326,13 @@ public class EnumAltIdTest
     public void testEnumWithNullForUnknownValueEnumSet() throws Exception {
         final String JSON = a2q("{'value':['ok','B']}");
 
-        NullEnumSetBean pojo = READER_DEFAULT.forType(NullEnumSetBean.class)
-          .readValue(JSON);
-        assertEquals(1, pojo.value.size());
-        assertTrue(pojo.value.contains(MyEnum2352_3.B));
+        // 05-Nov-2025, tatu: With 2.x, default was to skip nulls; with 3.x, FAIL
+        try {
+            /*NullEnumSetBean pojo =*/ READER_DEFAULT.forType(NullEnumSetBean.class)
+            .readValue(JSON);
+        } catch (InvalidNullException jex) {
+            verifyException(jex, "Invalid `null` value encountered");
+        }
     }
 
     /**

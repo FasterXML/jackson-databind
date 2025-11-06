@@ -26,13 +26,14 @@ jobs:
           - 'FasterXML/jackson-dataformat-xml'
           - 'FasterXML/jackson-datatypes-collections'
           - 'FasterXML/jackson-datatypes-misc'
+          - 'FasterXML/jackson-datatype-hibernate'
           - 'FasterXML/jackson-datatype-joda'
           - 'FasterXML/jackson-module-kotlin'
           - 'FasterXML/jackson-module-scala'
           - 'FasterXML/jackson-jaxrs-providers'
           - 'FasterXML/jackson-jakarta-rs-providers'
-          - 'FasterXML/jackson-integration-tests'
           - 'FasterXML/jackson-benchmarks'
+          - 'FasterXML/jackson-integration-tests'
 
     steps:
       - name: Repository dispatch

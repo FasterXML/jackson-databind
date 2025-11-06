@@ -10,6 +10,7 @@ Project: jackson-databind
 #5045: If there is a no-parameter constructor marked as `JsonCreator` and
   a constructor reported as `DefaultCreator`, latter is incorrectly used
  (reported by  @wrongwrong)
+#5203: Fix `null` handling of `EnumSetDeserializer`
 #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
  (reported by Johny L)
 #5313: Expose `getConverter()` in `StdDelegatingSerializer` for improved

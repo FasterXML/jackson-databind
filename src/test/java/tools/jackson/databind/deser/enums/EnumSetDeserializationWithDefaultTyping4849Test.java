@@ -34,7 +34,6 @@ public class EnumSetDeserializationWithDefaultTyping4849Test
                 .allowIfSubType("java")
                 .build();
 
-        @SuppressWarnings("serial")
         DefaultTypeResolverBuilder resolverBuilder
                 = new DefaultTypeResolverBuilder(validator, DefaultTyping.NON_FINAL,
                         JsonTypeInfo.As.PROPERTY) {

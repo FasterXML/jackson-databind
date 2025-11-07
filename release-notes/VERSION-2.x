@@ -10,13 +10,14 @@ Project: jackson-databind
 #5045: If there is a no-parameter constructor marked as `JsonCreator` and
   a constructor reported as `DefaultCreator`, latter is incorrectly used
  (reported by  @wrongwrong)
+#5203: Fix `null` handling of `EnumSetDeserializer`
 #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
  (reported by Johny L)
 #5313: Expose `getConverter()` in `StdDelegatingSerializer` for improved
   customizability
  (contributed by @wrongwrong)
 
-2.20.1 (not yet released)
+2.20.1 (30-Oct-2025)
 
 #5292: `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX` does not work with
   Constructor parameters
@@ -70,6 +71,11 @@ Project: jackson-databind
 #5297: Deprecate `MapperBuilder.serializationInclusion()` (to align
   with `ObjectMapper`, prepare for 3.0)
 - Generate SBOMs [JSTEP-14]
+
+2.19.4 (29-Oct-2025)
+2.19.3 (29-Oct-2025)
+
+No changes since 2.19.2
 
 2.19.2 (18-Jul-2025)
 
@@ -174,6 +180,10 @@ Project: jackson-databind
  (reported by @seadbrane)
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
+
+2.18.5 (27-Oct-2025)
+
+No changes since 2.18.4
 
 2.18.4 (06-May-2025)
 

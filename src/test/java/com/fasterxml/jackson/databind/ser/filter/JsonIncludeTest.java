@@ -312,7 +312,7 @@ public class JsonIncludeTest
     public void testEmptyInclusionScalars() throws Exception
     {
         ObjectMapper defMapper = MAPPER;
-        ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        ObjectMapper inclMapper = new ObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
 
         // First, Strings
         StringWrapper str = new StringWrapper("");
@@ -341,7 +341,7 @@ public class JsonIncludeTest
     @Test
     public void test1327ClassDefaultsForEmpty() throws Exception {
         ObjectMapper om = new ObjectMapper();
-        om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
 
         final String jsonString = om.writeValueAsString(new Issue1327BeanEmpty());
 
@@ -353,7 +353,7 @@ public class JsonIncludeTest
     @Test
     public void test1327ClassDefaultsForAlways() throws Exception {
         ObjectMapper om = new ObjectMapper();
-        om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
 
         final String jsonString = om.writeValueAsString(new Issue1327BeanAlways());
 
@@ -367,7 +367,7 @@ public class JsonIncludeTest
     public void testIssue1351() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_DEFAULT);
         assertEquals(a2q("{}"),
                 mapper.writeValueAsString(new Issue1351Bean(null, (double) 0)));
         // [databind#1417]

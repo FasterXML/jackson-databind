@@ -20,7 +20,7 @@ public class DefaultWithBaseType1093Test extends DatabindTestUtil
         public int x, y;
 
         protected Point1093() { }
-        public Point1093(int _x, int _y) {
+        protected Point1093(int _x, int _y) {
             x = _x;
             y = _y;
         }

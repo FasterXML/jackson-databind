@@ -54,7 +54,7 @@ public class ReadOnlyDeser1890Test
 
         Person() { }
 
-        public Person(TestEnum testEnum, String name) {
+        protected Person(TestEnum testEnum, String name) {
             this.testEnum = testEnum;
             this.name = name;
         }

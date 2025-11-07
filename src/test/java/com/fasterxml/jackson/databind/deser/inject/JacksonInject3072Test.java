@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.OptBoolean;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.MissingInjectableValueExcepion;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 

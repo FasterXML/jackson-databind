@@ -4,14 +4,43 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.20.0 (not yet released)
+2.21.0 (not yet released)
 
+#1547: Un-deprecate `SerializationFeature.WRITE_EMPTY_JSON_ARRAYS`
+#5045: If there is a no-parameter constructor marked as `JsonCreator` and
+  a constructor reported as `DefaultCreator`, latter is incorrectly used
+ (reported by  @wrongwrong)
+#5203: Fix `null` handling of `EnumSetDeserializer`
+#5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
+ (reported by Johny L)
+#5313: Expose `getConverter()` in `StdDelegatingSerializer` for improved
+  customizability
+ (contributed by @wrongwrong)
+
+2.20.1 (30-Oct-2025)
+
+#5292: `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX` does not work with
+  Constructor parameters
+ (reported by @bananayong)
+
+2.20.0 (28-Aug-2025)
+
+#2678: `@JacksonInject` added to property overrides value from the JSON
+  even if `useInput` is `OptBoolean.TRUE`
+ (reported by Plamen T)
+ (fix by Giulio L)
+#2692: Should never call `set()` on setterless property during deserialization
+ (reported by @lbonco)
 #3072: Allow specifying `@JacksonInject` does not fail when there's no
   corresponding value
  (requested by Lavender S)
  (contributed by Giulio L)
 #4136: Drop deprecated (in 2.12) `PropertyNamingStrategy` implementations
   from 2.20
+#4218: If `@JacksonInject` is specified for field and deserialized by the Creator,
+  the inject process will be executed twice 
+ (reported by @wrongwrong)
+ (fix by Giulio L)
 #4656: `DeserializationProblemHandler.handleUnexpectedToken()` cast Object to String
  (reported by @yacine-pc)
 #5103: Use `writeStartObject(Object forValue, int size)` for `ObjectNode`
@@ -29,7 +58,24 @@ Project: jackson-databind
  (reported by @riskop)
 #5197: Add more informative exception for back-references with `record` type
  (fix by Joo-Hyuk K)
+#5237: Failing `@JsonMerge` with a custom Map with a `@JsonCreator` constructor
+ (reported by @nlisker)
+#5238: Immutable classes with `@JsonIdentityInfo` can be deserialized; records cannot
+ (fix by Joo-Hyuk K)
+#5242: Support "binary vectors": `@JsonFormat(shape = Shape.BINARY)` for
+  `float[]`, `double[]`
+#5257: Deprecate `URL`-taking `readValue()` methods in `ObjectMapper`, `ObjectReader`
+#5271: `EnumDeserializer` fails to deserialize Enums with @JsonValue - uses table
+  with name() key instead of @JsonValue key
+ (reported by Michael R)
+#5297: Deprecate `MapperBuilder.serializationInclusion()` (to align
+  with `ObjectMapper`, prepare for 3.0)
 - Generate SBOMs [JSTEP-14]
+
+2.19.4 (29-Oct-2025)
+2.19.3 (29-Oct-2025)
+
+No changes since 2.19.2
 
 2.19.2 (18-Jul-2025)
 
@@ -134,6 +180,10 @@ Project: jackson-databind
  (reported by @seadbrane)
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
+
+2.18.5 (27-Oct-2025)
+
+No changes since 2.18.4
 
 2.18.4 (06-May-2025)
 
@@ -955,6 +1005,13 @@ No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
   via `AsNull`
 - Add `mvnw` wrapper
 
+2.12.7.2 (02-May-2024)
+
+#3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
+  `PropertyNamingStrategy.UPPER_CAMEL_CASE`
+ (reported by Jason H)
+ (fix suggested by gsinghlulu@github)
+
 2.12.7.1 (12-Oct-2022)
 
 #3582: Add check in `BeanDeserializer._deserializeFromArray()` to prevent
@@ -974,7 +1031,7 @@ No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
 #3305: ObjectMapper serializes `CharSequence` subtypes as POJO instead of
   as String (JDK 15+)
  (reported by stevenupton@github; fix suggested by Sergey C)
-#3328: Possible DoS if using JDK serialization to serialize JsonNode
+#3328: Possible DoS if using JDK serialization to serialize JsonNode [CVE-2021-46877]
 
 2.12.5 (27-Aug-2021)
 

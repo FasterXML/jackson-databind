@@ -25,10 +25,12 @@ public abstract class InjectableValues
      *    if available; null if bean has not yet been constructed.
      * @param optional Flag used for configuring the behavior when the value
      *    to inject is not found
+     *
+     * @since 2.20
      */
     public Object findInjectableValue(DeserializationContext ctxt,
             Object valueId, BeanProperty forProperty, Object beanInstance,
-            Boolean optional)
+            Boolean optional, Boolean useInput)
         throws JsonMappingException
     {
         // For backwards-compatibility, must delegate to old method
@@ -36,11 +38,12 @@ public abstract class InjectableValues
     }
 
     /**
-     * @deprecated in 2.20
+     * @deprecated in 2.20 Use non-deprecated method instead
      */
     @Deprecated // since 2.20
     public abstract Object findInjectableValue(Object valueId, DeserializationContext ctxt,
-            BeanProperty forProperty, Object beanInstance) throws JsonMappingException;
+            BeanProperty forProperty, Object beanInstance)
+        throws JsonMappingException;
 
     /*
     /**********************************************************
@@ -83,7 +86,8 @@ public abstract class InjectableValues
          */
         @Override
         public Object findInjectableValue(DeserializationContext ctxt, Object valueId,
-                BeanProperty forProperty, Object beanInstance, Boolean optional)
+                BeanProperty forProperty, Object beanInstance,
+                Boolean optional, Boolean useInput)
             throws JsonMappingException
         {
             if (!(valueId instanceof String)) {
@@ -114,9 +118,11 @@ public abstract class InjectableValues
         @Override
         @Deprecated // since 2.20
         public Object findInjectableValue(Object valueId, DeserializationContext ctxt,
-                BeanProperty forProperty, Object beanInstance) throws JsonMappingException
+                BeanProperty forProperty, Object beanInstance)
+            throws JsonMappingException
         {
-            return this.findInjectableValue(ctxt, valueId, forProperty, beanInstance, null);
+            return this.findInjectableValue(ctxt, valueId, forProperty, beanInstance,
+                    null, null);
         }
     }
 }

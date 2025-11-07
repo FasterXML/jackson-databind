@@ -307,7 +307,7 @@ public class AnyGetterTest extends DatabindTestUtil
     public void testAnyGetterWithMapperDefaultIncludeNonEmpty() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
         Bean2592NoAnnotations input = new Bean2592NoAnnotations();
         input.add("non-empty", "property");
         input.add("empty", "");
@@ -323,7 +323,7 @@ public class AnyGetterTest extends DatabindTestUtil
         FilterProvider filters = new SimpleFilterProvider()
                 .addFilter("Bean2592", SimpleBeanPropertyFilter.serializeAllExcept("something"));
         ObjectMapper mapper = new ObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
                 .setFilterProvider(filters);
         Bean2592WithFilter input = new Bean2592WithFilter();
         input.add("non-empty", "property");

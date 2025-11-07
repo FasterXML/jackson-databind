@@ -465,7 +465,7 @@ public abstract class DeserializationContext
      * @since 2.20
      */
     public final Object findInjectableValue(Object valueId,
-            BeanProperty forProperty, Object beanInstance, Boolean optional)
+            BeanProperty forProperty, Object beanInstance, Boolean optional, Boolean useInput)
         throws JsonMappingException
     {
         if (_injectableValues == null) {
@@ -479,18 +479,19 @@ public abstract class DeserializationContext
 "No 'injectableValues' configured, cannot inject value with id '%s'", valueId),
                     valueId, forProperty, beanInstance);
         }
-        return _injectableValues.findInjectableValue(this, valueId, forProperty, beanInstance, optional);
+        return _injectableValues.findInjectableValue(this, valueId, forProperty, beanInstance,
+                optional, useInput);
     }
 
     /**
-     * @deprecated in 2.20
+     * @deprecated in 2.20 Use non-deprecated variant instead.
      */
     @Deprecated // since 2.20
     public final Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance)
         throws JsonMappingException
     {
-        return findInjectableValue(valueId, forProperty, beanInstance, null);
+        return findInjectableValue(valueId, forProperty, beanInstance, null, null);
     }
 
     /**

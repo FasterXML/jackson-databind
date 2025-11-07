@@ -822,11 +822,18 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             for (Map.Entry<Object, AnnotatedMember> entry : raw.entrySet()) {
                 AnnotatedMember m = entry.getValue();
                 final JacksonInject.Value injectableValue = introspector.findInjectableValue(m);
-                final Boolean optional = injectableValue == null ? null : injectableValue.getOptional();
+                final Boolean optional, useInput;
 
+                if (injectableValue == null) {
+                    optional = useInput = null;
+                } else {
+                    optional = injectableValue.getOptional();
+                    useInput = injectableValue.getUseInput();
+                }
                 builder.addInjectable(PropertyName.construct(m.getName()),
                         m.getType(),
-                        beanDesc.getClassAnnotations(), m, entry.getKey(), optional);
+                        beanDesc.getClassAnnotations(), m, entry.getKey(),
+                        optional, useInput);
             }
         }
     }

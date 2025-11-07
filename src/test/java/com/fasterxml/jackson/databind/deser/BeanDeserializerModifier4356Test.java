@@ -44,7 +44,6 @@ class BeanDeserializerModifier4356Test
         }
     }
 
-    @SuppressWarnings("serial")
     static SimpleModule getSimpleModuleWithDeserializerModifier() {
         return new SimpleModule().setDeserializerModifier(new BeanDeserializerModifier() {
             @Override

@@ -290,7 +290,7 @@ public abstract class StdDeserializer<T>
             if (inst.canCreateFromLong()) {
                 if (ctxt.findCoercionAction(LogicalType.Integer, Long.class,
                         CoercionInputShape.String) == CoercionAction.TryConvert) {
-                    return (T) inst.createFromLong(ctxt, _parseLongPrimitive(ctxt, value));
+                    return (T) inst.createFromLong(ctxt, _parseLongPrimitive(p, ctxt, value));
                 }
             }
             if (inst.canCreateFromBoolean()) {
@@ -773,17 +773,44 @@ public abstract class StdDeserializer<T>
             _verifyNullForPrimitiveCoercion(ctxt, text);
             return 0;
         }
-        return _parseIntPrimitive(ctxt, text);
+        return _parseIntPrimitive(p, ctxt, text);
+    }
+
+    /**
+     * @since 2.20
+     */
+    protected int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt,
+            String text) throws IOException
+    {
+        try {
+            if (text.length() > 9) {
+                p.streamReadConstraints().validateIntegerLength(text.length());
+                long l = NumberInput.parseLong(text);
+                if (_intOverflow(l)) {
+                    Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
+                        "Overflow: numeric value (%s) out of range of int (%d -%d)",
+                        text, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    return _nonNullNumber(v).intValue();
+                }
+                return (int) l;
+            }
+            return NumberInput.parseInt(text);
+        } catch (IllegalArgumentException iae) {
+            Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
+                    "not a valid `int` value");
+            return _nonNullNumber(v).intValue();
+        }
     }
 
     /**
      * @since 2.9
      */
+    @Deprecated // since 2.20, use method variant that takes JsonParser
     protected final int _parseIntPrimitive(DeserializationContext ctxt, String text) throws IOException
     {
         try {
             if (text.length() > 9) {
-                ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
+                _streamReadConstraints(ctxt).validateIntegerLength(text.length());
                 long l = NumberInput.parseLong(text);
                 if (_intOverflow(l)) {
                     Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
@@ -851,17 +878,42 @@ public abstract class StdDeserializer<T>
         if (_checkTextualNull(ctxt, text)) {
             return (Integer) getNullValue(ctxt);
         }
-        return _parseInteger(ctxt, text);
+        return _parseInteger(p, ctxt, text);
+    }
+
+    /**
+     * @since 2.20
+     */
+    protected Integer _parseInteger(JsonParser p, DeserializationContext ctxt,
+            String text) throws IOException
+    {
+        try {
+            if (text.length() > 9) {
+                p.streamReadConstraints().validateIntegerLength(text.length());
+                long l = NumberInput.parseLong(text);
+                if (_intOverflow(l)) {
+                    return (Integer) ctxt.handleWeirdStringValue(Integer.class, text,
+                        "Overflow: numeric value (%s) out of range of `java.lang.Integer` (%d -%d)",
+                        text, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                }
+                return Integer.valueOf((int) l);
+            }
+            return NumberInput.parseInt(text);
+        } catch (IllegalArgumentException iae) {
+            return(Integer) ctxt.handleWeirdStringValue(Integer.class, text,
+                    "not a valid `java.lang.Integer` value");
+        }
     }
 
     /**
      * @since 2.14
      */
+    @Deprecated // since 2.20, use method variant that takes JsonParser
     protected final Integer _parseInteger(DeserializationContext ctxt, String text) throws IOException
     {
         try {
             if (text.length() > 9) {
-                ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
+                _streamReadConstraints(ctxt).validateIntegerLength(text.length());
                 long l = NumberInput.parseLong(text);
                 if (_intOverflow(l)) {
                     return (Integer) ctxt.handleWeirdStringValue(Integer.class, text,
@@ -936,15 +988,33 @@ public abstract class StdDeserializer<T>
             _verifyNullForPrimitiveCoercion(ctxt, text);
             return 0L;
         }
-        return _parseLongPrimitive(ctxt, text);
+        return _parseLongPrimitive(p, ctxt, text);
+    }
+
+    /**
+     * @since 2.20
+     */
+    protected long _parseLongPrimitive(JsonParser p, DeserializationContext ctxt,
+            String text) throws IOException
+    {
+        p.streamReadConstraints().validateIntegerLength(text.length());
+        try {
+            return NumberInput.parseLong(text);
+        } catch (IllegalArgumentException iae) { }
+        {
+            Number v = (Number) ctxt.handleWeirdStringValue(Long.TYPE, text,
+                    "not a valid `long` value");
+            return _nonNullNumber(v).longValue();
+        }
     }
 
     /**
      * @since 2.9
      */
+    @Deprecated // since 2.20, use method variant that takes JsonParser
     protected final long _parseLongPrimitive(DeserializationContext ctxt, String text) throws IOException
     {
-        ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
+        _streamReadConstraints(ctxt).validateIntegerLength(text.length());
         try {
             return NumberInput.parseLong(text);
         } catch (IllegalArgumentException iae) { }
@@ -1006,15 +1076,30 @@ public abstract class StdDeserializer<T>
             return (Long) getNullValue(ctxt);
         }
         // let's allow Strings to be converted too
-        return _parseLong(ctxt, text);
+        return _parseLong(p, ctxt, text);
+    }
+
+    /**
+     * @since 2.20
+     */
+    protected Long _parseLong(JsonParser p, DeserializationContext ctxt,
+            String text) throws IOException
+    {
+        p.streamReadConstraints().validateIntegerLength(text.length());
+        try {
+            return NumberInput.parseLong(text);
+        } catch (IllegalArgumentException iae) { }
+        return (Long) ctxt.handleWeirdStringValue(Long.class, text,
+                "not a valid `java.lang.Long` value");
     }
 
     /**
      * @since 2.14
      */
+    @Deprecated // since 2.20, use method variant that takes JsonParser
     protected final Long _parseLong(DeserializationContext ctxt, String text) throws IOException
     {
-        ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
+        _streamReadConstraints(ctxt).validateIntegerLength(text.length());
         try {
             return NumberInput.parseLong(text);
         } catch (IllegalArgumentException iae) { }
@@ -1105,7 +1190,7 @@ public abstract class StdDeserializer<T>
     {
         // 09-Dec-2023, tatu: To avoid parser having to validate input, pre-validate:
         if (NumberInput.looksLikeValidNumber(text)) {
-            ctxt.getParser().streamReadConstraints().validateFPLength(text.length());
+            _streamReadConstraints(ctxt).validateFPLength(text.length());
             try {
                 return NumberInput.parseFloat(text, false);
             } catch (IllegalArgumentException iae) { }
@@ -1123,7 +1208,7 @@ public abstract class StdDeserializer<T>
     {
         // 09-Dec-2023, tatu: To avoid parser having to validate input, pre-validate:
         if (NumberInput.looksLikeValidNumber(text)) {
-            ctxt.getParser().streamReadConstraints().validateFPLength(text.length());
+            p.streamReadConstraints().validateFPLength(text.length());
             try {
                 return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             } catch (IllegalArgumentException iae) { }
@@ -2378,5 +2463,12 @@ handledType().getName());
             n = Integer.valueOf(0);
         }
         return n;
+    }
+
+    // @since 2.19.3: NPE check for older code that doesn't get JsonParser
+    protected StreamReadConstraints _streamReadConstraints(DeserializationContext ctxt) {
+        JsonParser p = ctxt.getParser();
+        // 29-Jun-2020, tatu: Should not be null, but let's be defensive
+        return (p == null) ? StreamReadConstraints.defaults() : p.streamReadConstraints();
     }
 }

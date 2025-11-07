@@ -11,6 +11,7 @@ Co-Authors (with only partial listings below):
 * Joo Hyuk Kim (@JooHyukKim)
 * PJ Fanning (@pjfanning)
 * Sim Yih Tsern (@yihtsern)
+* wrongwrong (@k163377)
 
 ----------------------------------------------------------------------------
 
@@ -1526,7 +1527,7 @@ PJ Fanning (pjfanning@github)
   * Contributed #3530: Change LRUMap to just evict one entry when maxEntries reached
   (2.14.0)
   * Contributed #3837: Set transformer factory attributes to improve protection against XXE
-  (2.14.3)
+  (2.14.3
   - And NUMEROUS other contributions not listed here! (for 2.15 and above)
 
 Igor Shymko (ancane@github)
@@ -1866,9 +1867,13 @@ wrongwrong (@k163377)
  * Contributed fix for #5139: In `CollectionDeserializer`, `JsonSetter.contentNulls`
    is sometimes ignored
   (2.19.1)
- * Contributed fix for #5202: #5202: `JsonSetter.contentNulls` ignored for `Object[]`,
+ * Contributed fix for #5202: `JsonSetter.contentNulls` ignored for `Object[]`,
   `String[]` and `Collection<String>`
   (2.19.2)
+ * Reported #4218: If `@JacksonInject` is specified for field and deserialized by
+   the Creator, the inject process will be executed twice
+  (2.20.0)
+ - And many other contributions not listed here! (for 2.21 and above)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing
@@ -1952,6 +1957,26 @@ Eddú Meléndez Gonzales (@eddumelendez)
   (2.19.2)
 
 Giulio Longfils (@giulong)
+ * Contributed fix for #2678: `@JacksonInject` added to property overrides value
+   from the JSON even if `useInput` is `OptBoolean.TRUE`
+  (2.20.0)
  * Contributed #3072: Allow specifying `@JacksonInject` does not fail when there's no
    corresponding value
   (2.20.0)
+ * Contributed #4218: If `@JacksonInject` is specified for field and deserialized by
+   the Creator, the inject process will be executed twice
+  (2.20.0)
+
+Plamen Tanov (@ptanov)
+ * Reported #2678: `@JacksonInject` added to property overrides value from the JSON
+   even if `useInput` is `OptBoolean.TRUE`
+  (2.20.0)
+
+Michael Reiche (@mikereiche)
+ * Reported #5271: `EnumDeserializer` fails to deserialize Enums with @JsonValue - uses table
+   with name() key instead of @JsonValue key
+  (2.20.0)
+
+Johnny Lim (@izeye)
+ * Reported #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
+  (2.21.0)

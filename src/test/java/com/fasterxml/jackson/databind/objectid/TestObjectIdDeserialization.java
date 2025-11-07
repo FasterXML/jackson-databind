@@ -93,7 +93,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         public IdentifiableCustom next;
 
         public IdentifiableCustom() { this(-1, 0); }
-        public IdentifiableCustom(int i, int v) {
+        protected IdentifiableCustom(int i, int v) {
             customId = i;
             value = v;
         }

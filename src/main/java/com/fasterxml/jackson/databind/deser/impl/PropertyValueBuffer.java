@@ -119,14 +119,7 @@ public class PropertyValueBuffer
         }
     }
 
-    @Deprecated // since 2.18
-    public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
-            ObjectIdReader oir)
-    {
-        this(p, ctxt, paramCount, oir, null);
-    }
-
-    /**
+   /**
      * Returns {@code true} if the given property was seen in the JSON source by
      * this buffer.
      *

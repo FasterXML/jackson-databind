@@ -163,15 +163,6 @@ public final class PropertyBasedCreator
                 caseInsensitive, false);
     }
 
-    @Deprecated // since 2.9
-    public static PropertyBasedCreator construct(DeserializationContext ctxt,
-            ValueInstantiator valueInstantiator, SettableBeanProperty[] srcCreatorProps)
-        throws JsonMappingException
-    {
-        return construct(ctxt, valueInstantiator, srcCreatorProps,
-                ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-    }
-
     /**
      * Mutant factory method for constructing a map where the names of all properties
      * are transformed using the given {@link NameTransformer}.
@@ -301,11 +292,6 @@ public final class PropertyBasedCreator
          * @since 2.11
          */
         protected final Locale _locale;
-
-        @Deprecated // since 2.11
-        public CaseInsensitiveMap() {
-            this(Locale.getDefault());
-        }
 
         // @since 2.11
         public CaseInsensitiveMap(Locale l) {

@@ -46,12 +46,12 @@ public final class PropertyBasedCreator
     protected final SettableBeanProperty[] _allProperties;
 
     /**
-     * Marker that indicates whether any of the creator properties has
-     * associated injectable value to be injected.
+     * Indexes of properties with associated Injectable values, if any:
+     * {@code null} if none.
      *
      * @since 2.21
      */
-    protected final boolean _hasInjectables;
+    protected final BitSet _injectablePropIndexes;
 
     /*
     /**********************************************************
@@ -91,7 +91,8 @@ public final class PropertyBasedCreator
         final int len = creatorProps.length;
         _propertyCount = len;
         _allProperties = new SettableBeanProperty[len];
-        boolean injectables = false;
+        BitSet injectablePropIndexes = null;
+
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = creatorProps[i];
             _allProperties[i] = prop;
@@ -99,10 +100,15 @@ public final class PropertyBasedCreator
             if (!prop.isIgnorable()) {
                 _propertyLookup.put(prop.getName(), prop);
             }
-            injectables |= prop.getInjectionDefinition() != null;
+            if (prop.getInjectionDefinition() != null) {
+                if (injectablePropIndexes == null) {
+                    injectablePropIndexes = new BitSet(len);
+                }
+                injectablePropIndexes.set(i);
+            }
         }
 
-        _hasInjectables = injectables;
+        _injectablePropIndexes = injectablePropIndexes;
     }
 
     /**
@@ -114,7 +120,7 @@ public final class PropertyBasedCreator
     {
         _propertyCount = base._propertyCount;
         _valueInstantiator = base._valueInstantiator;
-        _hasInjectables = base._hasInjectables;
+        _injectablePropIndexes = base._injectablePropIndexes;
         _propertyLookup = propertyLookup;
         _allProperties = allProperties;
     }

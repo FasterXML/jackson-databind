@@ -45,6 +45,14 @@ public final class PropertyBasedCreator
      */
     protected final SettableBeanProperty[] _allProperties;
 
+    /**
+     * Marker that indicates whether any of the creator properties has
+     * associated injectable value to be injected.
+     *
+     * @since 2.21
+     */
+    protected final boolean _hasInjectables;
+
     /*
     /**********************************************************
     /* Construction, initialization
@@ -61,11 +69,8 @@ public final class PropertyBasedCreator
         if (caseInsensitive) {
             _propertyLookup = CaseInsensitiveMap.construct(ctxt.getConfig().getLocale());
         } else {
-            _propertyLookup = new HashMap<String, SettableBeanProperty>();
+            _propertyLookup = new HashMap<>();
         }
-        final int len = creatorProps.length;
-        _propertyCount = len;
-        _allProperties = new SettableBeanProperty[len];
 
         // 26-Feb-2017, tatu: Let's start by aliases, so that there is no
         //    possibility of accidental override of primary names
@@ -83,6 +88,10 @@ public final class PropertyBasedCreator
                 }
             }
         }
+        final int len = creatorProps.length;
+        _propertyCount = len;
+        _allProperties = new SettableBeanProperty[len];
+        boolean injectables = false;
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = creatorProps[i];
             _allProperties[i] = prop;
@@ -90,7 +99,10 @@ public final class PropertyBasedCreator
             if (!prop.isIgnorable()) {
                 _propertyLookup.put(prop.getName(), prop);
             }
+            injectables |= prop.getInjectionDefinition() != null;
         }
+
+        _hasInjectables = injectables;
     }
 
     /**
@@ -102,6 +114,7 @@ public final class PropertyBasedCreator
     {
         _propertyCount = base._propertyCount;
         _valueInstantiator = base._valueInstantiator;
+        _hasInjectables = base._hasInjectables;
         _propertyLookup = propertyLookup;
         _allProperties = allProperties;
     }

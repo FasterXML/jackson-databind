@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.FailingDeserializer;
@@ -467,6 +468,14 @@ public abstract class SettableBeanProperty
      * value injection.
      */
     public Object getInjectableValueId() { return null; }
+
+    /**
+     * Accessor for injection definition, if this bean property supports
+     * value injection.
+     *
+     * @since 2.21
+     */
+    public JacksonInject.Value getInjectionDefinition() { return null; }
 
     /**
      * Accessor for checking whether this property is injectable, and if so,

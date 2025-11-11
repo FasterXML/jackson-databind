@@ -280,6 +280,11 @@ public class CreatorProperty
         return (_injectableValue == null) ? null : _injectableValue.getId();
     }
 
+    @Override // since 2.21
+    public JacksonInject.Value getInjectionDefinition() {
+        return _injectableValue;
+    }
+
     @Override
     public boolean isInjectionOnly() {
         return (_injectableValue != null) && !_injectableValue.willUseInput(true);

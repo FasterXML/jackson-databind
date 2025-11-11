@@ -64,7 +64,7 @@ public class PropertyValueBuffer
     /**
      * If we get non-creator parameters before or between
      * creator parameters, those need to be buffered. Buffer
-     * is just a simple linked list
+     * is just a simple linked list.
      */
     protected PropertyValue _buffered;
 
@@ -75,7 +75,7 @@ public class PropertyValueBuffer
     protected Object _idValue;
 
     /**
-     * "Any setter" property bound to a Creator parameter (via {@code @JsonAnySetter})
+     * "Any setter" property bound to a Creator parameter (via {@code @JsonAnySetter}).
      *
      * @since 2.18
      */
@@ -89,6 +89,13 @@ public class PropertyValueBuffer
      */
     protected PropertyValue _anyParamBuffered;
 
+    /**
+     * Indexes properties that are injectable, if any; {@code null} if none.
+     *
+     * @since 2.21
+     */
+    protected final BitSet _injectablePropIndexes;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -96,10 +103,11 @@ public class PropertyValueBuffer
      */
 
     /**
-     * @since 2.18
+     * @since 2.21
      */
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
-            ObjectIdReader oir, SettableAnyProperty anyParamSetter)
+            ObjectIdReader oir, SettableAnyProperty anyParamSetter,
+            BitSet injectablePropIndexes)
     {
         _parser = p;
         _context = ctxt;
@@ -117,9 +125,19 @@ public class PropertyValueBuffer
         } else {
             _anyParamSetter = anyParamSetter;
         }
+        _injectablePropIndexes = (injectablePropIndexes == null)
+                ? null : (BitSet) injectablePropIndexes.clone();
     }
 
-   /**
+    // @since 2.18
+    @Deprecated // since 2.21
+    public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
+            ObjectIdReader oir, SettableAnyProperty anyParamSetter)
+    {
+        this(p, ctxt, paramCount, oir, anyParamSetter, null);
+    }
+
+    /**
      * Returns {@code true} if the given property was seen in the JSON source by
      * this buffer.
      *

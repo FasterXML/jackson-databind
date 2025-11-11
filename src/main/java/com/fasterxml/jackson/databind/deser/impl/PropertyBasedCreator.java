@@ -258,7 +258,8 @@ public final class PropertyBasedCreator
      */
     public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir) {
-        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, null);
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, null,
+                _injectablePropIndexes);
     }
 
     /**
@@ -269,7 +270,8 @@ public final class PropertyBasedCreator
     public PropertyValueBuffer startBuildingWithAnySetter(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir, SettableAnyProperty anySetter
     ) {
-        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter);
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter,
+                _injectablePropIndexes);
     }
 
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException

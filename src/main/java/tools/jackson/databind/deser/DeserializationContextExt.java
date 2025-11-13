@@ -180,8 +180,8 @@ public abstract class DeserializationContextExt
         }
         ValueDeserializer<?> deser;
 
-        if (deserDef instanceof ValueDeserializer) {
-            deser = (ValueDeserializer<?>) deserDef;
+        if (deserDef instanceof ValueDeserializer valueDeserializer) {
+            deser = valueDeserializer;
         } else {
             // Alas, there's no way to force return type of "either class
             // X or Y" -- need to throw an exception after the fact
@@ -219,8 +219,8 @@ public abstract class DeserializationContextExt
 
         KeyDeserializer deser;
 
-        if (deserDef instanceof KeyDeserializer) {
-            deser = (KeyDeserializer) deserDef;
+        if (deserDef instanceof KeyDeserializer keyDeserializer) {
+            deser = keyDeserializer;
         } else {
             if (!(deserDef instanceof Class)) {
                 throw new IllegalStateException("AnnotationIntrospector returned key deserializer definition of type "

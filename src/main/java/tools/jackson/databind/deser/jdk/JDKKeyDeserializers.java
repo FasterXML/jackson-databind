@@ -117,8 +117,8 @@ public class JDKKeyDeserializers
     private static KeyDeserializer _constructCreatorKeyDeserializer(DeserializationContext ctxt,
             AnnotatedMember creator)
     {
-        if (creator instanceof AnnotatedConstructor) {
-            Constructor<?> rawCtor = ((AnnotatedConstructor) creator).getAnnotated();
+        if (creator instanceof AnnotatedConstructor annotatedConstructor) {
+            Constructor<?> rawCtor = annotatedConstructor.getAnnotated();
             if (ctxt.canOverrideAccessModifiers()) {
                 ClassUtil.checkAndFixAccess(rawCtor, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }

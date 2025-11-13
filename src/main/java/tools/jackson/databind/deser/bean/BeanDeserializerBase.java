@@ -997,8 +997,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
          */
         ValueDeserializer<Object> deser = prop.getValueDeserializer();
         // ideally wouldn't rely on it being BeanDeserializerBase; but for now it'll have to do
-        if (deser instanceof BeanDeserializerBase) {
-            BeanDeserializerBase bd = (BeanDeserializerBase) deser;
+        if (deser instanceof BeanDeserializerBase bd) {
             ValueInstantiator vi = bd.getValueInstantiator();
             if (!vi.canCreateUsingDefault()) { // no default constructor
                 Class<?> valueClass = prop.getType().getRawClass();
@@ -1350,12 +1349,12 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             Object rawId, ValueDeserializer<Object> idDeser) throws JacksonException
     {
         TokenBuffer buf = ctxt.bufferForInputBuffering(p);
-        if (rawId instanceof String) {
-            buf.writeString((String) rawId);
-        } else if (rawId instanceof Long) {
-            buf.writeNumber(((Long) rawId).longValue());
-        } else if (rawId instanceof Integer) {
-            buf.writeNumber(((Integer) rawId).intValue());
+        if (rawId instanceof String rString) {
+            buf.writeString(rString);
+        } else if (rawId instanceof Long rLong) {
+            buf.writeNumber(rLong.longValue());
+        } else if (rawId instanceof Integer rInt) {
+            buf.writeNumber(rInt.intValue());
         } else {
             // should we worry about UUIDs? They should be fine, right?
             // 07-Aug-2014, tatu: Maybe, but not necessarily; had issues with

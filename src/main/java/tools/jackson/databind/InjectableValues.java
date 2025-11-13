@@ -85,26 +85,26 @@ public abstract class InjectableValues
                 BeanProperty forProperty, Object beanInstance,
                 Boolean optional, Boolean useInput)
         {
-            if (!(valueId instanceof String)) {
+            if (valueId instanceof String key) {
+                Object ob = _values.get(key);
+                if (ob == null && !_values.containsKey(key)) {
+                    if (Boolean.FALSE.equals(optional)
+                            || ((optional == null)
+                                    && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE))) {
+                        throw ctxt.missingInjectableValueException(
+                                String.format("No injectable value with id '%s' found (for property '%s')",
+                                key, forProperty.getName()),
+                                valueId, forProperty, beanInstance);
+                    }
+                }
+                return ob;
+            } else {
                 throw ctxt.missingInjectableValueException(
                         String.format(
                         "Unsupported injectable value id type (%s), expecting String",
                         ClassUtil.classNameOf(valueId)),
                         valueId, forProperty, beanInstance);
             }
-            String key = (String) valueId;
-            Object ob = _values.get(key);
-            if (ob == null && !_values.containsKey(key)) {
-                if (Boolean.FALSE.equals(optional)
-                        || ((optional == null)
-                                && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE))) {
-                    throw ctxt.missingInjectableValueException(
-                            String.format("No injectable value with id '%s' found (for property '%s')",
-                            key, forProperty.getName()),
-                            valueId, forProperty, beanInstance);
-                }
-            }
-            return ob;
         }
     }
 }

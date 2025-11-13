@@ -435,9 +435,9 @@ ClassUtil.name(propName)));
         if (am != null) { // should never be null
             SettableBeanProperty causeCreatorProp = builder.findProperty(PropertyName.construct("cause"));
             // [databind#4827] : Consider case where sub-classed `Exception` has `JsonCreator` with `cause` parameter
-            if (causeCreatorProp instanceof CreatorProperty) {
+            if (causeCreatorProp instanceof CreatorProperty ccCreatorProperty) {
                 // Set fallback-setter as null, so `fixAccess()` does not happen during build
-                ((CreatorProperty) causeCreatorProp).setFallbackSetter(null);
+                ccCreatorProperty.setFallbackSetter(null);
             } else {
                 // [databind#3497]: must consider possible PropertyNamingStrategy
                 String name = "cause";
@@ -466,8 +466,8 @@ ClassUtil.name(propName)));
 
         // At this point it ought to be a BeanDeserializer; if not, must assume
         // it's some other thing that can handle deserialization ok...
-        if (deserializer instanceof BeanDeserializer) {
-            deserializer = ThrowableDeserializer.construct(ctxt, (BeanDeserializer) deserializer);
+        if (deserializer instanceof BeanDeserializer beanDeserializer) {
+            deserializer = ThrowableDeserializer.construct(ctxt, beanDeserializer);
         }
 
         // may have modifier(s) that wants to modify or replace serializer we just built:
@@ -627,8 +627,8 @@ ClassUtil.name(propName)));
                 CreatorProperty cprop = null;
 
                 for (SettableBeanProperty cp : creatorProps) {
-                    if (name.equals(cp.getName()) && (cp instanceof CreatorProperty)) {
-                        cprop = (CreatorProperty) cp;
+                    if (name.equals(cp.getName()) && (cp instanceof CreatorProperty ccCreatorProperty)) {
+                        cprop = ccCreatorProperty;
                         break;
                     }
                 }

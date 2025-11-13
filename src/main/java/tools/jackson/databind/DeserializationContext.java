@@ -374,11 +374,11 @@ public abstract class DeserializationContext
 
     @Override
     public <T> T readValue(JsonParser p, ResolvedType type) throws JacksonException {
-        if (!(type instanceof JavaType)) {
-            throw new UnsupportedOperationException(
-"Only support `JavaType` implementation of `ResolvedType`, not: "+type.getClass().getName());
+        if (type instanceof JavaType jt) {
+            return readValue(p, jt);
         }
-        return readValue(p, (JavaType) type);
+        throw new UnsupportedOperationException(
+                "Only support `JavaType` implementation of `ResolvedType`, not: "+type.getClass().getName());
     }
 
     @SuppressWarnings("unchecked")
@@ -869,8 +869,8 @@ public abstract class DeserializationContext
             kd = null;
         }
         // Second: contextualize?
-        if (kd instanceof ContextualKeyDeserializer) {
-            kd = ((ContextualKeyDeserializer) kd).createContextual(this, prop);
+        if (kd instanceof ContextualKeyDeserializer ckd) {
+            kd = ckd.createContextual(this, prop);
         }
         return kd;
     }

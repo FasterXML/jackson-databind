@@ -125,8 +125,8 @@ public class MapEntryDeserializer
         if (kd == null) {
             kd = ctxt.findKeyDeserializer(_containerType.containedType(0), property);
         } else {
-            if (kd instanceof ContextualKeyDeserializer) {
-                kd = ((ContextualKeyDeserializer) kd).createContextual(ctxt, property);
+            if (kd instanceof ContextualKeyDeserializer cKeyDeserializer) {
+                kd = cKeyDeserializer.createContextual(ctxt, property);
             }
         }
         ValueDeserializer<?> vd = _valueDeserializer;

@@ -69,10 +69,10 @@ public class NumberSerializer
     public void serialize(Number value, JsonGenerator g, SerializationContext provider) throws JacksonException
     {
         // should mostly come in as one of these two:
-        if (value instanceof BigDecimal) {
-            g.writeNumber((BigDecimal) value);
-        } else if (value instanceof BigInteger) {
-            g.writeNumber((BigInteger) value);
+        if (value instanceof BigDecimal bd) {
+            g.writeNumber(bd);
+        } else if (value instanceof BigInteger bi) {
+            g.writeNumber(bi);
 
         // These should not occur, as more specific methods should have been called; but
         // just in case let's cover all bases:

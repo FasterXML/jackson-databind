@@ -480,8 +480,8 @@ public class TokenBuffer
             case VALUE_STRING:
                 {
                     Object ob = segment.get(ptr);
-                    if (ob instanceof SerializableString) {
-                        gen.writeString((SerializableString) ob);
+                    if (ob instanceof SerializableString str) {
+                        gen.writeString(str);
                     } else {
                         gen.writeString((String) ob);
                     }
@@ -490,14 +490,14 @@ public class TokenBuffer
             case VALUE_NUMBER_INT:
                 {
                     Object n = segment.get(ptr);
-                    if (n instanceof Integer) {
-                        gen.writeNumber((Integer) n);
-                    } else if (n instanceof BigInteger) {
-                        gen.writeNumber((BigInteger) n);
-                    } else if (n instanceof Long) {
-                        gen.writeNumber((Long) n);
-                    } else if (n instanceof Short) {
-                        gen.writeNumber((Short) n);
+                    if (n instanceof Integer i) {
+                        gen.writeNumber(i);
+                    } else if (n instanceof BigInteger bi) {
+                        gen.writeNumber(bi);
+                    } else if (n instanceof Long l) {
+                        gen.writeNumber(l);
+                    } else if (n instanceof Short s) {
+                        gen.writeNumber(s);
                     } else {
                         gen.writeNumber(((Number) n).intValue());
                     }
@@ -506,16 +506,16 @@ public class TokenBuffer
             case VALUE_NUMBER_FLOAT:
                 {
                     Object n = segment.get(ptr);
-                    if (n instanceof Double) {
-                        gen.writeNumber((Double) n);
-                    } else if (n instanceof BigDecimal) {
-                        gen.writeNumber((BigDecimal) n);
-                    } else if (n instanceof Float) {
-                        gen.writeNumber((Float) n);
+                    if (n instanceof Double d) {
+                        gen.writeNumber(d);
+                    } else if (n instanceof BigDecimal bd) {
+                        gen.writeNumber(bd);
+                    } else if (n instanceof Float f) {
+                        gen.writeNumber(f);
                     } else if (n == null) {
                         gen.writeNull();
-                    } else if (n instanceof String) {
-                        gen.writeNumber((String) n);
+                    } else if (n instanceof String s) {
+                        gen.writeNumber(s);
                     } else {
                         throw new StreamWriteException(gen, String.format(
                                 "Unrecognized value type for VALUE_NUMBER_FLOAT: %s, cannot serialize",
@@ -1819,10 +1819,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public BigInteger getBigIntegerValue()
         {
             Number n = _numberValue(NR_BIGINT, true);
-            if (n instanceof BigInteger) {
-                return (BigInteger) n;
-            } else if (n instanceof BigDecimal) {
-                final BigDecimal bd = (BigDecimal) n;
+            if (n instanceof BigInteger bi) {
+                return bi;
+            } else if (n instanceof BigDecimal bd) {
                 streamReadConstraints().validateBigIntegerScale(bd.scale());
                 return bd.toBigInteger();
             }
@@ -1834,14 +1833,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public BigDecimal getDecimalValue()
         {
             Number n = _numberValue(NR_BIGDECIMAL, true);
-            if (n instanceof BigDecimal) {
-                return (BigDecimal) n;
+            if (n instanceof BigDecimal bd) {
+                return bd;
             } else if (n instanceof Integer) {
                 return BigDecimal.valueOf(n.intValue());
             } else if (n instanceof Long) {
                 return BigDecimal.valueOf(n.longValue());
-            } else if (n instanceof BigInteger) {
-                return new BigDecimal((BigInteger) n);
+            } else if (n instanceof BigInteger bi) {
+                return new BigDecimal(bi);
             }
             // float or double
             return BigDecimal.valueOf(n.doubleValue());
@@ -1932,8 +1931,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 throw _constructNotNumericType(_currToken, targetNumType);
             }
             Object value = _currentObject();
-            if (value instanceof Number) {
-                return (Number) value;
+            if (value instanceof Number number) {
+                return number;
             }
             // Difficult to really support numbers-as-Strings; but let's try.
             // NOTE: no access to DeserializationConfig, unfortunately, so cannot
@@ -1995,8 +1994,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 }
                 return result;
             }
-            if (n instanceof BigInteger) {
-                BigInteger big = (BigInteger) n;
+            if (n instanceof BigInteger big) {
                 if (BI_MIN_INT.compareTo(big) > 0
                         || BI_MAX_INT.compareTo(big) < 0) {
                     _reportOverflowInt();
@@ -2008,8 +2006,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     _reportOverflowInt();
                 }
                 return (int) d;
-            } else if (n instanceof BigDecimal) {
-                BigDecimal big = (BigDecimal) n;
+            } else if (n instanceof BigDecimal big) {
                 if (BD_MIN_INT.compareTo(big) > 0
                     || BD_MAX_INT.compareTo(big) < 0) {
                     _reportOverflowInt();
@@ -2022,8 +2019,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         protected long _convertNumberToLong(Number n) throws InputCoercionException
         {
-            if (n instanceof BigInteger) {
-                BigInteger big = (BigInteger) n;
+            if (n instanceof BigInteger big) {
                 if (BI_MIN_LONG.compareTo(big) > 0
                         || BI_MAX_LONG.compareTo(big) < 0) {
                     _reportOverflowLong();
@@ -2035,8 +2031,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     _reportOverflowLong();
                 }
                 return (long) d;
-            } else if (n instanceof BigDecimal) {
-                BigDecimal big = (BigDecimal) n;
+            } else if (n instanceof BigDecimal big) {
                 if (BD_MIN_LONG.compareTo(big) > 0
                     || BD_MAX_LONG.compareTo(big) < 0) {
                     _reportOverflowLong();

@@ -285,11 +285,10 @@ public class DatabindTestUtil
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof Point)) {
-                return false;
+            if (o instanceof Point other) {
+                return (other.x == x) && (other.y == y);
             }
-            Point other = (Point) o;
-            return (other.x == x) && (other.y == y);
+            return false;
         }
 
         @Override

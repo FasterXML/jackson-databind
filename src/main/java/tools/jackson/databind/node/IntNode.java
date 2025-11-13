@@ -250,8 +250,8 @@ public class IntNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof IntNode) {
-            return ((IntNode) o)._value == _value;
+        if (o instanceof IntNode otherNode) {
+            return otherNode._value == _value;
         }
         return false;
     }

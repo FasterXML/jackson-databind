@@ -138,8 +138,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ObjectNode found = baseNode._withObject(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -163,8 +163,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ArrayNode found = ((BaseJsonNode) n)._withArray(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ArrayNode found = baseNode._withArray(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -1030,8 +1030,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof ObjectNode) {
-            return _childrenEqual((ObjectNode) o);
+        if (o instanceof ObjectNode objectNode) {
+            return _childrenEqual(objectNode);
         }
         return false;
     }

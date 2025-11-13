@@ -93,8 +93,8 @@ public class ArrayNode
         }
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ObjectNode found = baseNode._withObject(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -1163,8 +1163,8 @@ public class ArrayNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof ArrayNode) {
-            return _children.equals(((ArrayNode) o)._children);
+        if (o instanceof ArrayNode arrayNode) {
+            return _children.equals(arrayNode._children);
         }
         return false;
     }

@@ -193,8 +193,8 @@ public class TokenBuffer
         _hasNativeTypeIds = p.canReadTypeId();
         _hasNativeObjectIds = p.canReadObjectId();
         _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
-        if (ctxt instanceof DeserializationContext) {
-            _forceBigDecimal = ((DeserializationContext) ctxt).isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        if (ctxt instanceof DeserializationContext deserializationContext) {
+            _forceBigDecimal = deserializationContext.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         } else {
             _forceBigDecimal = false;
         }
@@ -470,8 +470,8 @@ public class TokenBuffer
             {
                 // 13-Dec-2010, tatu: Maybe we should start using different type tokens to reduce casting?
                 Object ob = segment.get(ptr);
-                if (ob instanceof SerializableString) {
-                    gen.writeName((SerializableString) ob);
+                if (ob instanceof SerializableString str) {
+                    gen.writeName(str);
                 } else {
                     gen.writeName((String) ob);
                 }
@@ -538,8 +538,8 @@ public class TokenBuffer
                     // 01-Sep-2016, tatu: as per [databind#1361], should use `writeEmbeddedObject()`;
                     //    however, may need to consider alternatives for some well-known types
                     //    first
-                    if (value instanceof RawValue) {
-                        ((RawValue) value).serialize(gen);
+                    if (value instanceof RawValue rawValue) {
+                        rawValue.serialize(gen);
                     } else if (value instanceof JacksonSerializable) {
                         gen.writePOJO(value);
                     } else {
@@ -1662,7 +1662,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             // Property name? Need to update context
             if (_currToken == JsonToken.PROPERTY_NAME) {
                 Object ob = _currentObject();
-                String name = (ob instanceof String) ? ((String) ob) : ob.toString();
+                String name = (ob instanceof String string) ? string : ob.toString();
                 _parsingContext.setCurrentName(name);
             } else if (_currToken == JsonToken.START_OBJECT) {
                 _parsingContext = _parsingContext.createChildObjectContext();
@@ -1691,7 +1691,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 _segmentPtr = ptr;
                 _updateToken(JsonToken.PROPERTY_NAME);
                 Object ob = _segment.get(ptr); // inlined _currentObject();
-                String name = (ob instanceof String) ? ((String) ob) : ob.toString();
+                String name = (ob instanceof String string) ? string : ob.toString();
                 _parsingContext.setCurrentName(name);
                 return name;
             }
@@ -1756,8 +1756,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_currToken == JsonToken.VALUE_STRING
                     || _currToken == JsonToken.PROPERTY_NAME) {
                 Object ob = _currentObject();
-                if (ob instanceof String) {
-                    return (String) ob;
+                if (ob instanceof String string) {
+                    return string;
                 }
                 return ClassUtil.nullOrToString(ob);
             }
@@ -1805,11 +1805,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             // can only occur for floating-point numbers
             if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
                 Object value = _currentObject();
-                if (value instanceof Double) {
-                    return NumberOutput.notFinite((Double) value);
+                if (value instanceof Double d) {
+                    return NumberOutput.notFinite(d);
                 }
-                if (value instanceof Float) {
-                    return NumberOutput.notFinite((Float) value);
+                if (value instanceof Float f) {
+                    return NumberOutput.notFinite(f);
                 }
             }
             return false;
@@ -1883,8 +1883,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 return null;
             }
             final Object value = _currentObject();
-            if (value instanceof Number) {
-                Number n = (Number) value;
+            if (value instanceof Number n) {
                 if (n instanceof Integer) return NumberType.INT;
                 if (n instanceof Long) return NumberType.LONG;
                 if (n instanceof Double) return NumberType.DOUBLE;
@@ -1939,8 +1938,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             // try to determine Double/BigDecimal preference...
 
             // 12-Jan-2021, tatu: Is this really needed, and for what? CSV, XML?
-            if (value instanceof String) {
-                String str = (String) value;
+            if (value instanceof String str) {
                 final int len = str.length();
                 if (_currToken == JsonToken.VALUE_NUMBER_INT) {
                     // 08-Dec-2023, tatu: Note -- deferred numbers' validity (wrt input token)

@@ -58,8 +58,8 @@ public class MapLikeType extends TypeBase {
         // 19-Oct-2015, tatu: Not sure if and how other types could be used as
         // base;
         // will cross that bridge if and when need be
-        if (baseType instanceof TypeBase) {
-            return new MapLikeType((TypeBase) baseType, keyT, valueT);
+        if (baseType instanceof TypeBase base) {
+            return new MapLikeType(base, keyT, valueT);
         }
         throw new IllegalArgumentException(
                 "Cannot upgrade from an instance of " + baseType.getClass());
@@ -117,11 +117,11 @@ public class MapLikeType extends TypeBase {
         JavaType type = super.withHandlersFrom(src);
         JavaType srcKeyType = src.getKeyType();
         // "withKeyType()" not part of JavaType, hence must verify:
-        if (type instanceof MapLikeType) {
+        if (type instanceof MapLikeType mapLikeType) {
             if (srcKeyType != null) {
                 JavaType ct = _keyType.withHandlersFrom(srcKeyType);
                 if (ct != _keyType) {
-                    type = ((MapLikeType) type).withKeyType(ct);
+                    type = mapLikeType.withKeyType(ct);
                 }
             }
         }

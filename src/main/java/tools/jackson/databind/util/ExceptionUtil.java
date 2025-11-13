@@ -27,11 +27,11 @@ public class ExceptionUtil {
      */
     public static void rethrowIfFatal(Throwable throwable) throws Error, RuntimeException {
         if (isFatal(throwable)) {
-            if (throwable instanceof Error) {
-                throw (Error) throwable;
+            if (throwable instanceof Error error) {
+                throw error;
             }
-            if (throwable instanceof RuntimeException) {
-                throw (RuntimeException) throwable;
+            if (throwable instanceof RuntimeException runtimeException) {
+                throw runtimeException;
             }
             throw new RuntimeException(throwable);
         }

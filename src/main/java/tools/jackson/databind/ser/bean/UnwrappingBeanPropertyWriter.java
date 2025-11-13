@@ -133,8 +133,8 @@ public class UnwrappingBeanPropertyWriter
             if (ser.isUnwrappingSerializer()
                     // as per [databind#2060], need to also check this, in case someone writes
                     // custom implementation that does not extend standard implementation:
-                    && (ser instanceof UnwrappingBeanSerializer)) {
-                t = NameTransformer.chainedTransformer(t, ((UnwrappingBeanSerializer) ser)._nameTransformer);
+                    && ser instanceof UnwrappingBeanSerializer unwrappingBeanSerializer) {
+                t = NameTransformer.chainedTransformer(t, unwrappingBeanSerializer._nameTransformer);
             }
             ser = ser.unwrappingSerializer(t);
         }
@@ -207,8 +207,8 @@ public class UnwrappingBeanPropertyWriter
         if (serializer.isUnwrappingSerializer()
             // as per [databind#2060], need to also check this, in case someone writes
             // custom implementation that does not extend standard implementation:
-            && (serializer instanceof UnwrappingBeanSerializer)) {
-                t = NameTransformer.chainedTransformer(t, ((UnwrappingBeanSerializer) serializer)._nameTransformer);
+            && serializer instanceof UnwrappingBeanSerializer unwrappingBeanSerializer) {
+                t = NameTransformer.chainedTransformer(t, unwrappingBeanSerializer._nameTransformer);
         }
         serializer = serializer.unwrappingSerializer(t);
 

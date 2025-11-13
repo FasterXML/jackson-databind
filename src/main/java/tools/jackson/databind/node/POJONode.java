@@ -650,8 +650,8 @@ public class POJONode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof POJONode) {
-            return _pojoEquals((POJONode) o);
+        if (o instanceof POJONode pojoNode) {
+            return _pojoEquals(pojoNode);
         }
         return false;
     }

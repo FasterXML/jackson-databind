@@ -55,8 +55,8 @@ public class CollectionLikeType extends TypeBase
     public static CollectionLikeType upgradeFrom(JavaType baseType, JavaType elementType) {
         // 19-Oct-2015, tatu: Not sure if and how other types could be used as base;
         //    will cross that bridge if and when need be
-        if (baseType instanceof TypeBase) {
-            return new CollectionLikeType((TypeBase) baseType, elementType);
+        if (baseType instanceof TypeBase base) {
+            return new CollectionLikeType(base, elementType);
         }
         throw new IllegalArgumentException("Cannot upgrade from an instance of "+baseType.getClass());
     }

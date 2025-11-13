@@ -2070,8 +2070,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_currToken == JsonToken.VALUE_EMBEDDED_OBJECT) {
                 // Embedded byte array would work nicely...
                 Object ob = _currentObject();
-                if (ob instanceof byte[]) {
-                    return (byte[]) ob;
+                if (ob instanceof byte[] byteArray) {
+                    return byteArray;
                 }
                 // fall through to error case
             }

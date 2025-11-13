@@ -65,11 +65,10 @@ public class DelegatingCreatorImplicitNamesTest
 
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
-            if (member instanceof AnnotatedParameter) {
-                AnnotatedParameter p = (AnnotatedParameter) member;
-                AnnotatedWithParams owner = p.getOwner();
+            if (member instanceof AnnotatedParameter ap) {
+                AnnotatedWithParams owner = ap.getOwner();
                 if (owner instanceof AnnotatedMethod) {
-                    if (p.getIndex() == 0) {
+                    if (ap.getIndex() == 0) {
                         return "value";
                     }
                 }
@@ -108,10 +107,9 @@ public class DelegatingCreatorImplicitNamesTest
 
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
-            if (member instanceof AnnotatedParameter) {
-                AnnotatedWithParams owner = ((AnnotatedParameter) member).getOwner();
-                if (owner instanceof AnnotatedMethod) {
-                    AnnotatedMethod method = (AnnotatedMethod) owner;
+            if (member instanceof AnnotatedParameter ap) {
+                AnnotatedWithParams owner = ap.getOwner();
+                if (owner instanceof AnnotatedMethod method) {
                     if (Objects.requireNonNull(method.getAnnotation(JsonCreator.class)).mode() == JsonCreator.Mode.DELEGATING)
                         return "fullData";
                 }

@@ -822,9 +822,8 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         final boolean isParameter = mutator instanceof AnnotatedParameter;
         int parameterIndex = -1;
 
-        if (mutator instanceof AnnotatedMethod) {
+        if (mutator instanceof AnnotatedMethod am) {
             // we know it's a 2-arg method, second arg is the value
-            AnnotatedMethod am = (AnnotatedMethod) mutator;
             keyType = am.getParameterType(0);
             valueType = am.getParameterType(1);
             // Need to resolve for possible generic types (like Maps, Collections)
@@ -908,9 +907,8 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         if (keyDeser == null) {
             keyDeser = ctxt.findKeyDeserializer(keyType, prop);
         } else {
-            if (keyDeser instanceof ContextualKeyDeserializer) {
-                keyDeser = ((ContextualKeyDeserializer) keyDeser)
-                        .createContextual(ctxt, prop);
+            if (keyDeser instanceof ContextualKeyDeserializer ckd) {
+                keyDeser = ckd.createContextual(ctxt, prop);
             }
         }
         ValueDeserializer<Object> deser = findContentDeserializerFromAnnotation(ctxt, mutator);

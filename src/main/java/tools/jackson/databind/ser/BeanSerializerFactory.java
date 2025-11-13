@@ -580,8 +580,8 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
             if (refType != null && refType.isBackReference()) {
                 continue;
             }
-            if (accessor instanceof AnnotatedMethod) {
-                result.add(_constructWriter(ctxt, property, pb, staticTyping, (AnnotatedMethod) accessor));
+            if (accessor instanceof AnnotatedMethod method) {
+                result.add(_constructWriter(ctxt, property, pb, staticTyping, method));
             } else {
                 result.add(_constructWriter(ctxt, property, pb, staticTyping, (AnnotatedField) accessor));
             }

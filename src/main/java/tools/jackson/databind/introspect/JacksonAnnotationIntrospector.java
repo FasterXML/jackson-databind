@@ -524,15 +524,14 @@ public class JacksonAnnotationIntrospector
         if (!v.hasId()) {
             Object id;
             // slight complication; for setters, type
-            if (!(m instanceof AnnotatedMethod)) {
-                id = m.getRawType().getName();
-            } else {
-                AnnotatedMethod am = (AnnotatedMethod) m;
+            if (m instanceof AnnotatedMethod am) {
                 if (am.getParameterCount() == 0) { // getter
                     id = m.getRawType().getName();
                 } else { // setter
                     id = am.getRawParameterType(0).getName();
                 }
+            } else {
+                id = m.getRawType().getName();
             }
             v = v.withId(id);
         }

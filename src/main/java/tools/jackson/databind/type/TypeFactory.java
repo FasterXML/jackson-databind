@@ -288,16 +288,16 @@ public class TypeFactory
     public static Class<?> rawClass(Type t) {
         if (t instanceof Class<?>) {
             return (Class<?>) t;
-        } else if (t instanceof JavaType) {
-            return ((JavaType) t).getRawClass();
-        } else if (t instanceof GenericArrayType) {
-            return Array.newInstance(rawClass(((GenericArrayType) t).getGenericComponentType()), 0).getClass();
-        } else if (t instanceof ParameterizedType) {
-            return rawClass(((ParameterizedType) t).getRawType());
-        } else if (t instanceof TypeVariable<?>) {
-            return rawClass(((TypeVariable<?>) t).getBounds()[0]);
-        } else if (t instanceof WildcardType) {
-            return rawClass(((WildcardType) t).getUpperBounds()[0]);
+        } else if (t instanceof JavaType jt) {
+            return jt.getRawClass();
+        } else if (t instanceof GenericArrayType gat) {
+            return Array.newInstance(rawClass(gat.getGenericComponentType()), 0).getClass();
+        } else if (t instanceof ParameterizedType pt) {
+            return rawClass(pt.getRawType());
+        } else if (t instanceof TypeVariable<?> tv) {
+            return rawClass(tv.getBounds()[0]);
+        } else if (t instanceof WildcardType wt) {
+            return rawClass(wt.getUpperBounds()[0]);
         }
         // 11-Oct-2024, tatu: In 2.x used to call `defaultInstance().constructType(t).getRawClass()`
         //   but does not appear necessary.
@@ -1269,17 +1269,17 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         JavaType resultType;
 
         // simple class?
-        if (srcType instanceof Class<?>) {
+        if (srcType instanceof Class<?> class1) {
             // Important: remove possible bindings since this is type-erased thingy
-            resultType = _fromClass(context, (Class<?>) srcType, EMPTY_BINDINGS);
+            resultType = _fromClass(context, class1, EMPTY_BINDINGS);
         }
         // But if not, need to start resolving.
-        else if (srcType instanceof ParameterizedType) {
-            resultType = _fromParamType(context, (ParameterizedType) srcType, bindings);
+        else if (srcType instanceof ParameterizedType pt) {
+            resultType = _fromParamType(context, pt, bindings);
         }
-        else if (srcType instanceof JavaType) { // [databind#116]
+        else if (srcType instanceof JavaType jt) { // [databind#116]
             // no need to modify further if we already had JavaType
-            return (JavaType) srcType;
+            return jt;
         }
         else if (srcType instanceof GenericArrayType) {
             resultType = _fromArrayType(context, (GenericArrayType) srcType, bindings);

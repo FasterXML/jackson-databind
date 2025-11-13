@@ -86,8 +86,8 @@ public class POJONode
     @Override
     public byte[] binaryValue()
     {
-        if (_value instanceof byte[]) {
-            return (byte[]) _value;
+        if (_value instanceof byte[] byteArray) {
+            return byteArray;
         }
         return super.binaryValue();
     }

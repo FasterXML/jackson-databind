@@ -3,11 +3,8 @@ package com.fasterxml.jackson.databind.deser.inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.OptBoolean;
-
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MissingInjectableValueExcepion;
@@ -117,6 +114,7 @@ class JacksonInject1381Test extends DatabindTestUtil
 
     private final ObjectMapper plainMapper = newJsonMapper();
     private final ObjectMapper injectedMapper = jsonMapperBuilder()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE)
             .injectableValues(new InjectableValues.Std().addValue("key", "injected"))
             .build();
 

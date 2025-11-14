@@ -291,12 +291,12 @@ public class PropertyValueBuffer
         }
 
         // First: do we have injectable value?
-        Object injectableValueId = prop.getInjectableValueId();
-        if (injectableValueId != null) {
+        final JacksonInject.Value injection = prop.getInjectionDefinition();
+        if (injection != null) {
             // 10-Nov-2025: [databind#1381] Is this needed?
             _injectablePropIndexes.clear(prop.getCreatorIndex());
             return _context.findInjectableValue(prop.getInjectableValueId(),
-                    prop, null, null, null);
+                    prop, null, injection.getOptional(), injection.getUseInput());
         }
         // Second: required?
         if (prop.isRequired()) {
@@ -345,7 +345,7 @@ public class PropertyValueBuffer
                 final Object value = _context.findInjectableValue(injection.getId(),
                         prop, prop.getMember(), injection.getOptional(), useInput);
 
-                if (value != JacksonInject.Value.empty()) {
+                if (value != null) {
                     int ix = prop.getCreatorIndex();
                     _creatorParameters[ix] = value;
                 }

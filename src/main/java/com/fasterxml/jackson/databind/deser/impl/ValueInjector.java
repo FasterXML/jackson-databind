@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
@@ -70,7 +69,7 @@ public class ValueInjector
     {
         final Object value = findValue(context, beanInstance);
 
-        if (value == JacksonInject.Value.empty()) {
+        if (value == null) {
             if (Boolean.FALSE.equals(_optional)) {
                 throw context.missingInjectableValueException(
                         String.format("No injectable value with id '%s' found (for property '%s')",

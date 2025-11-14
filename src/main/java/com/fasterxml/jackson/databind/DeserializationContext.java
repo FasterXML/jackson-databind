@@ -475,7 +475,7 @@ public abstract class DeserializationContext
                     || Boolean.TRUE.equals(optional)
                     || ((useInput == null || optional == null)
                             && !isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE))) {
-                return JacksonInject.Value.empty();
+                return null;
             }
             throw missingInjectableValueException(String.format(
 "No 'injectableValues' configured, cannot inject value with id '%s'", valueId),

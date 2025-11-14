@@ -1,19 +1,17 @@
 package com.fasterxml.jackson.databind.deser.inject;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.OptBoolean;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.InjectableValues;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.*;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.InjectableValues;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class JacksonInject1381DeserializationFeatureDisabledTest extends DatabindTestUtil {
     static class InputDefault {
@@ -115,23 +113,16 @@ class JacksonInject1381DeserializationFeatureDisabledTest extends DatabindTestUt
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE)
             .build();
 
+    // If we are not to fail on unknown injectable values, no exception either
     @Test
     @DisplayName("FAIL_ON_UNKNOWN_INJECT_VALUE NO, input NO, injectable NO, useInput DEFAULT|TRUE|FALSE => exception")
-    void test1() {
-        assertThrows(ValueInstantiationException.class,
-                () -> plainMapper.readValue(empty, InputDefault.class));
-        assertThrows(ValueInstantiationException.class,
-                () -> plainMapper.readValue(empty, InputDefaultConstructor.class));
-
-        assertThrows(ValueInstantiationException.class,
-                () -> plainMapper.readValue(empty, InputTrue.class));
-        assertThrows(ValueInstantiationException.class,
-                () -> plainMapper.readValue(empty, InputTrueConstructor.class));
-
-        assertThrows(ValueInstantiationException.class,
-                () -> plainMapper.readValue(empty, InputFalse.class));
-        assertThrows(ValueInstantiationException.class,
-                () -> plainMapper.readValue(empty, InputFalseConstructor.class));
+    void test1() throws Exception {
+        assertNull(plainMapper.readValue(empty, InputDefault.class).getField());
+        assertNull(plainMapper.readValue(empty, InputDefaultConstructor.class).getField());
+        assertNull(plainMapper.readValue(empty, InputTrue.class).getField());
+        assertNull(plainMapper.readValue(empty, InputTrueConstructor.class).getField());
+        assertNull(plainMapper.readValue(empty, InputFalse.class).getField());
+        assertNull(plainMapper.readValue(empty, InputFalseConstructor.class).getField());
     }
 
     @Test

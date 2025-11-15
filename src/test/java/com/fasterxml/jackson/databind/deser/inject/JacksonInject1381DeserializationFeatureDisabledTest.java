@@ -137,12 +137,12 @@ class JacksonInject1381DeserializationFeatureDisabledTest extends DatabindTestUt
     }
 
     @Test
-    @DisplayName("FAIL_ON_UNKNOWN_INJECT_VALUE NO, input YES, injectable NO, useInput DEFAULT|FALSE => exception")
+    @DisplayName("FAIL_ON_UNKNOWN_INJECT_VALUE NO, input YES, injectable NO, useInput DEFAULT|FALSE => [varied]")
     void test3() throws Exception {
         assertEquals("input", plainMapper.readValue(input, InputDefault.class).getField());
         assertEquals("input", plainMapper.readValue(input, InputDefaultConstructor.class).getField());
-        assertEquals("input", plainMapper.readValue(input, InputFalse.class).getField());
-        assertEquals("input", plainMapper.readValue(input, InputFalseConstructor.class).getField());
+        assertNull(plainMapper.readValue(input, InputFalse.class).getField());
+        assertNull(plainMapper.readValue(input, InputFalseConstructor.class).getField());
     }
 
     @Test

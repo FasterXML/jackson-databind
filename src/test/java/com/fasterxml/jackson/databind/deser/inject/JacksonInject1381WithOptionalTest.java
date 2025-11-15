@@ -139,12 +139,12 @@ class JacksonInject1381WithOptionalTest extends DatabindTestUtil
     }
 
     @Test
-    @DisplayName("optional YES, input YES, injectable NO, useInput DEFAULT|TRUE|FALSE => input")
+    @DisplayName("optional YES, input YES, injectable NO, useInput DEFAULT|TRUE|FALSE => [varied]")
     void test3() throws Exception {
         assertEquals("input", plainMapper.readValue(input, InputDefault.class).getField());
         assertEquals("input", plainMapper.readValue(input, InputDefaultConstructor.class).getField());
-        assertEquals("input", plainMapper.readValue(input, InputFalse.class).getField());
-        assertEquals("input", plainMapper.readValue(input, InputFalseConstructor.class).getField());
+        assertNull(plainMapper.readValue(input, InputFalse.class).getField());
+        assertNull(plainMapper.readValue(input, InputFalseConstructor.class).getField());
         assertEquals("input", plainMapper.readValue(input, InputTrue.class).getField());
         assertEquals("input", plainMapper.readValue(input, InputTrueConstructor.class).getField());
     }

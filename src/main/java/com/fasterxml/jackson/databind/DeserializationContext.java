@@ -467,20 +467,11 @@ public abstract class DeserializationContext
             BeanProperty forProperty, Object beanInstance, Boolean optional, Boolean useInput)
         throws JsonMappingException
     {
-        if (_injectableValues == null) {
-            // `useInput` and `optional` come from property annotation (if any);
-            // they have precedence over global setting.
-            if (Boolean.TRUE.equals(useInput)
-                    || Boolean.TRUE.equals(optional)
-                    || ((useInput == null || optional == null)
-                            && !isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE))) {
-                return null;
-            }
-            throw missingInjectableValueException(String.format(
-"No 'injectableValues' configured, cannot inject value with id '%s'", valueId),
-                    valueId, forProperty, beanInstance);
+        InjectableValues injectables = _injectableValues;
+        if (injectables == null) {
+            injectables = InjectableValues.empty();
         }
-        return _injectableValues.findInjectableValue(this, valueId, forProperty, beanInstance,
+        return injectables.findInjectableValue(this, valueId, forProperty, beanInstance,
                 optional, useInput);
     }
 

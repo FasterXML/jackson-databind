@@ -62,7 +62,7 @@ class JacksonInject3072Test extends DatabindTestUtil
                 MissingInjectableValueExcepion.class, () -> READER.readValue("{}"));
 
         assertThat(exception.getMessage())
-            .startsWith("No 'injectableValues' configured, cannot inject value with id 'id'");
+            .startsWith("No injectable value with id 'id' found (for property 'id')");
     }
 
     // Test for case of `optional = OptBoolean.FALSE`

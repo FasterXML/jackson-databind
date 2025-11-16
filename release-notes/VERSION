@@ -9,6 +9,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 #5350: Add `DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES` for
   selecting `null` vs "empty/absent" value when deserializing missing `Optional` value
+#5361: Fix Maven SBOM publishing (worked in 3.0.0-rc4 but not in rc5 or later)
 
 3.0.2 (07-Nov-2025)
 

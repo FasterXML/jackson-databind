@@ -207,9 +207,17 @@
       </plugin>
 
       <!-- 28-Apr-2025, tatu: SBOM generation [JSTEP-14] -->
+      <!-- 16-Nov-2025: [databind#5361] - use makeBom goal instead of makeAggregateBom for single-module project -->
       <plugin>
         <groupId>org.cyclonedx</groupId>
         <artifactId>cyclonedx-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>make-bom</id>
+            <phase>package</phase>
+            <goals><goal>makeBom</goal></goals>
+          </execution>
+        </executions>
       </plugin>      
 
       <plugin>

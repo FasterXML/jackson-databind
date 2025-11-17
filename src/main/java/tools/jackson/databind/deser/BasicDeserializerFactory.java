@@ -1418,6 +1418,13 @@ factory.toString()));
             return createCollectionDeserializer(ctxt, ct, beanDescRef);
         }
         if (rawType == CLASS_MAP_ENTRY) {
+            // [databind#1419]: Check if we should deserialize as POJO instead
+            JsonFormat.Value format = beanDescRef.findExpectedFormat(Map.Entry.class);
+            if ((format.getShape() == JsonFormat.Shape.POJO)
+                    || (format.getShape() == JsonFormat.Shape.OBJECT)) {
+                // Let it fall through to be deserialized as a Bean/POJO
+                return null;
+            }
             // 28-Apr-2015, tatu: TypeFactory does it all for us already so
             JavaType kt = type.containedTypeOrUnknown(0);
             JavaType vt = type.containedTypeOrUnknown(1);

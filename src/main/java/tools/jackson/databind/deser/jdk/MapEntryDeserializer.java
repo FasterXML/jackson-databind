@@ -2,6 +2,8 @@ package tools.jackson.databind.deser.jdk;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
@@ -43,6 +45,14 @@ public class MapEntryDeserializer
      */
     protected final TypeDeserializer _valueTypeDeserializer;
 
+    /**
+     * Flag set when we should deserialize as POJO with "key" and "value"
+     * properties, instead of the default Map.Entry format.
+     *
+     * @since 3.1 (for [databind#1419])
+     */
+    protected final boolean _deserializeAsPOJO;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -53,6 +63,13 @@ public class MapEntryDeserializer
             KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
     {
+        this(type, keyDeser, valueDeser, valueTypeDeser, false);
+    }
+
+    protected MapEntryDeserializer(JavaType type,
+            KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
+            TypeDeserializer valueTypeDeser, boolean deserializeAsPOJO)
+    {
         super(type);
         if (type.containedTypeCount() != 2) { // sanity check
             throw new IllegalArgumentException("Missing generic type information for "+type);
@@ -60,6 +77,7 @@ public class MapEntryDeserializer
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
+        _deserializeAsPOJO = deserializeAsPOJO;
     }
 
     /**
@@ -72,6 +90,7 @@ public class MapEntryDeserializer
         _keyDeserializer = src._keyDeserializer;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
+        _deserializeAsPOJO = src._deserializeAsPOJO;
     }
 
     protected MapEntryDeserializer(MapEntryDeserializer src,
@@ -82,6 +101,7 @@ public class MapEntryDeserializer
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
+        _deserializeAsPOJO = src._deserializeAsPOJO;
     }
 
     /**
@@ -121,6 +141,19 @@ public class MapEntryDeserializer
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
+        // [databind#1419]: Check if property has @JsonFormat(shape=OBJECT/POJO)
+        boolean deserializeAsPOJO = _deserializeAsPOJO;
+        if (property != null) {
+            JsonFormat.Value format = ctxt.getAnnotationIntrospector()
+                    .findFormat(ctxt.getConfig(), property.getMember());
+            if (format != null) {
+                if ((format.getShape() == JsonFormat.Shape.POJO)
+                        || (format.getShape() == JsonFormat.Shape.OBJECT)) {
+                    deserializeAsPOJO = true;
+                }
+            }
+        }
+
         KeyDeserializer kd = _keyDeserializer;
         if (kd == null) {
             kd = ctxt.findKeyDeserializer(_containerType.containedType(0), property);
@@ -141,7 +174,13 @@ public class MapEntryDeserializer
         if (vtd != null) {
             vtd = vtd.forProperty(property);
         }
-        return withResolved(kd, vtd, vd);
+
+        MapEntryDeserializer deser = withResolved(kd, vtd, vd);
+        if (deserializeAsPOJO != _deserializeAsPOJO) {
+            return new MapEntryDeserializer(_containerType, kd,
+                    (ValueDeserializer<Object>) vd, vtd, deserializeAsPOJO);
+        }
+        return deser;
     }
 
     /*
@@ -174,6 +213,11 @@ public class MapEntryDeserializer
     public Map.Entry<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
+        // [databind#1419]: If deserializing as POJO with "key" and "value" properties
+        if (_deserializeAsPOJO) {
+            return _deserializeAsPOJO(p, ctxt);
+        }
+
         // Ok: must point to START_OBJECT, PROPERTY_NAME or END_OBJECT
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
@@ -229,6 +273,75 @@ public class MapEntryDeserializer
             }
             return null;
         }
+        return new AbstractMap.SimpleEntry<Object,Object>(key, value);
+    }
+
+    /**
+     * Helper method to deserialize Map.Entry as POJO with "key" and "value" properties.
+     *
+     * @since 3.1 (for [databind#1419])
+     */
+    protected Map.Entry<Object,Object> _deserializeAsPOJO(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        JsonToken t = p.currentToken();
+        if (t == JsonToken.START_OBJECT) {
+            t = p.nextToken();
+        } else if (t != JsonToken.PROPERTY_NAME && t != JsonToken.END_OBJECT) {
+            if (t == JsonToken.START_ARRAY) {
+                return _deserializeFromArray(p, ctxt);
+            }
+            return (Map.Entry<Object,Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        }
+
+        final KeyDeserializer keyDes = _keyDeserializer;
+        final ValueDeserializer<Object> valueDes = _valueDeserializer;
+        final TypeDeserializer typeDeser = _valueTypeDeserializer;
+
+        Object key = null;
+        Object value = null;
+
+        // Read properties "key" and "value"
+        while (t == JsonToken.PROPERTY_NAME) {
+            String propName = p.currentName();
+            t = p.nextToken(); // move to value
+
+            if ("key".equals(propName)) {
+                // Deserialize key
+                if (t == JsonToken.VALUE_NULL) {
+                    key = keyDes.deserializeKey(null, ctxt);
+                } else if (t.isScalarValue()) {
+                    key = keyDes.deserializeKey(p.getText(), ctxt);
+                } else {
+                    ctxt.reportInputMismatch(this,
+                            "Can not deserialize Map.Entry key from non-scalar JSON value");
+                }
+            } else if ("value".equals(propName)) {
+                // Deserialize value
+                try {
+                    if (t == JsonToken.VALUE_NULL) {
+                        value = valueDes.getNullValue(ctxt);
+                    } else if (typeDeser == null) {
+                        value = valueDes.deserialize(p, ctxt);
+                    } else {
+                        value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    }
+                } catch (Exception e) {
+                    wrapAndThrow(ctxt, e, Map.Entry.class, propName);
+                }
+            } else {
+                // Unknown property: check if we should fail or skip
+                handleUnknownProperty(p, ctxt, _containerType.getRawClass(), propName);
+            }
+
+            t = p.nextToken(); // move to next property or END_OBJECT
+        }
+
+        if (t != JsonToken.END_OBJECT) {
+            ctxt.reportInputMismatch(this,
+                    "Problem binding JSON into Map.Entry: unexpected content: "+t);
+        }
+
         return new AbstractMap.SimpleEntry<Object,Object>(key, value);
     }
 

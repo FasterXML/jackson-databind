@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.format;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,12 +9,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [databind#1419]
-class MapEntryFormat1419Test extends DatabindTestUtil {
+public class MapEntryFormat1419Test extends DatabindTestUtil {
     static class BeanWithMapEntryAsObject {
         @JsonFormat(shape = JsonFormat.Shape.OBJECT)
         public Map.Entry<String, String> entry;
@@ -31,7 +30,6 @@ class MapEntryFormat1419Test extends DatabindTestUtil {
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     void wrappedAsObjectRoundtrip() throws Exception {
         BeanWithMapEntryAsObject input = new BeanWithMapEntryAsObject("foo", "bar");

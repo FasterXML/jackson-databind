@@ -5,11 +5,9 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.annotation.*;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
@@ -371,4 +369,56 @@ public class NewSchemaTest extends DatabindTestUtil
         assertEquals("[optProp dec([numberType=BIG_DECIMAL])][optProp bigInt([numberType=BIG_INTEGER])]",
                 sb.toString());
     }
+
+	static class TestJsonIgnoredProperties {
+
+		@JsonIgnore
+		public String ignoredProp;
+
+		public String normalProperty;
+
+		@JsonProperty("renamedProperty")
+		public String someProperty;
+
+		// [databind#5393]
+		@JsonAnyGetter
+		public Map<String, Object> getMyProperties() {
+			return Map.of();
+		}
+	}
+
+	// [databind#5393], regression wrt JsonAnyGetter
+	@Test
+	public void testIgnoredPropertyAreIgnored() throws Exception {
+		final Set<String> properties = new TreeSet<>();
+		MAPPER.acceptJsonFormatVisitor(TestJsonIgnoredProperties.class,
+				new JsonFormatVisitorWrapper.Base() {
+					@Override
+					public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
+						return new JsonObjectFormatVisitor.Base() {
+							@Override
+							public void property(BeanProperty prop) {
+								properties.add(prop.getName());
+							}
+
+							@Override
+							public void property(String name, JsonFormatVisitable handler, JavaType propertyTypeHint) {
+								properties.add(name);
+							}
+
+							@Override
+							public void optionalProperty(BeanProperty prop) {
+								properties.add(prop.getName());
+							}
+
+							@Override
+							public void optionalProperty(String name, JsonFormatVisitable handler, JavaType propertyTypeHint) {
+								properties.add(name);
+							}
+						};
+					}
+				});
+
+		assertEquals(new TreeSet<>(List.of("normalProperty", "renamedProperty")), properties);
+	}
 }

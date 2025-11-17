@@ -80,19 +80,6 @@ public class MapEntryDeserializer
         _deserializeAsPOJO = deserializeAsPOJO;
     }
 
-    /**
-     * Copy-constructor that can be used by sub-classes to allow
-     * copy-on-write styling copying of settings of an existing instance.
-     */
-    protected MapEntryDeserializer(MapEntryDeserializer src)
-    {
-        super(src);
-        _keyDeserializer = src._keyDeserializer;
-        _valueDeserializer = src._valueDeserializer;
-        _valueTypeDeserializer = src._valueTypeDeserializer;
-        _deserializeAsPOJO = src._deserializeAsPOJO;
-    }
-
     protected MapEntryDeserializer(MapEntryDeserializer src,
             KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
@@ -144,13 +131,17 @@ public class MapEntryDeserializer
         // [databind#1419]: Check if property has @JsonFormat(shape=OBJECT/POJO)
         boolean deserializeAsPOJO = _deserializeAsPOJO;
         if (property != null) {
-            JsonFormat.Value format = ctxt.getAnnotationIntrospector()
-                    .findFormat(ctxt.getConfig(), property.getMember());
-            if (format != null) {
-                if ((format.getShape() == JsonFormat.Shape.POJO)
-                        || (format.getShape() == JsonFormat.Shape.OBJECT)) {
-                    deserializeAsPOJO = true;
-                }
+            JsonFormat.Value format = property.findPropertyFormat(ctxt.getConfig(), Map.Entry.class);
+
+            switch (format.getShape()) {
+            case NATURAL:
+                deserializeAsPOJO = false;
+                break;
+            case OBJECT:
+            case POJO:
+                deserializeAsPOJO = true;
+                break;
+            default: // fall through
             }
         }
 
@@ -311,7 +302,7 @@ public class MapEntryDeserializer
                 if (t == JsonToken.VALUE_NULL) {
                     key = keyDes.deserializeKey(null, ctxt);
                 } else if (t.isScalarValue()) {
-                    key = keyDes.deserializeKey(p.getText(), ctxt);
+                    key = keyDes.deserializeKey(p.getString(), ctxt);
                 } else {
                     ctxt.reportInputMismatch(this,
                             "Can not deserialize Map.Entry key from non-scalar JSON value");

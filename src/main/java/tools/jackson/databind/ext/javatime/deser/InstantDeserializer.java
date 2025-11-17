@@ -206,37 +206,27 @@ public class InstantDeserializer<T extends Temporal>
         _readTimestampsAsNanosOverride = readTimestampsAsNanosOverride;
     }
 
-    /*
-    @SuppressWarnings("unchecked")
-    protected InstantDeserializer(InstantDeserializer<T> base,
-            DatatypeFeatures features)
-    {
-        super((Class<T>) base.handledType(), base._formatter);
-        parsedToValue = base.parsedToValue;
-        fromMilliseconds = base.fromMilliseconds;
-        fromNanoseconds = base.fromNanoseconds;
-        adjust = base.adjust;
-        replaceZeroOffsetAsZ = base.replaceZeroOffsetAsZ;
-        _adjustToContextTZOverride = base._adjustToContextTZOverride;
-        _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
-    }
-    */
-
+    /**
+     * NOTE: {@code public} since 2.21 / 3.1
+     */
     @Override
-    protected InstantDeserializer<T> withDateFormat(DateTimeFormatter dtf) {
+    public InstantDeserializer<T> withDateFormat(DateTimeFormatter dtf) {
         if (dtf == _formatter) {
             return this;
         }
         return new InstantDeserializer<>(this, dtf);
     }
 
+    /**
+     * NOTE: {@code public} since 2.21 / 3.1
+     */
     @Override
-    protected InstantDeserializer<T> withLeniency(Boolean leniency) {
+    public InstantDeserializer<T> withLeniency(Boolean leniency) {
         return new InstantDeserializer<>(this, _formatter, leniency);
     }
 
     @SuppressWarnings("unchecked")
-    @Override // @since 2.12.1
+    @Override
     protected JSR310DateTimeDeserializerBase<?> _withFormatOverrides(DeserializationContext ctxt,
             BeanProperty property, JsonFormat.Value formatOverrides)
     {

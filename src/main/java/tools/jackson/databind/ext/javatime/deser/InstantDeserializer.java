@@ -395,8 +395,9 @@ public class InstantDeserializer<T extends Temporal>
     {
         FromDecimalArguments args =
             DecimalUtils.extractSecondsAndNanos(value, (s, ns) -> new FromDecimalArguments(s, ns, getZone(context)),
-                    // [modules-java8#337] since 2.19, only Instant needs negative adjustment
-                    true);
+                    // [modules-java8#359] since 2.21, Instant.ofEpochSecond() correctly handles
+                    // negative nanoseconds, so no adjustment needed
+                    false);
         return fromNanoseconds.apply(args);
     }
 

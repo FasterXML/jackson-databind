@@ -3,11 +3,12 @@ package com.fasterxml.jackson.databind.jsonschema;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#5393] @JsonAnyGetter property gets included in generated schema since 2.19.0

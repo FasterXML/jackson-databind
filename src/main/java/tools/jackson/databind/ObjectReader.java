@@ -1498,91 +1498,52 @@ public class ObjectReader
     public <T> T readValueCollectingProblems(String content) throws JacksonException {
         _assertNotNull("content", content);
         DeserializationContextExt ctxt = _deserializationContext();
-        JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, content), true);
-        try {
+        try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, content), true)) {
             return readValueCollectingProblems(p);
-        } finally {
-            try {
-                p.close();
-            } catch (Exception e) {
-                // ignore
-            }
         }
     }
 
     /**
      * Convenience overload for {@link #readValueCollectingProblems(JsonParser)}.
      */
-    @SuppressWarnings("unchecked")
     public <T> T readValueCollectingProblems(byte[] content) throws JacksonException {
         _assertNotNull("content", content);
         DeserializationContextExt ctxt = _deserializationContext();
-        JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, content), true);
-        try {
+        try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, content), true)) {
             return readValueCollectingProblems(p);
-        } finally {
-            try {
-                p.close();
-            } catch (Exception e) {
-                // ignore
-            }
         }
     }
 
     /**
      * Convenience overload for {@link #readValueCollectingProblems(JsonParser)}.
      */
-    @SuppressWarnings("unchecked")
     public <T> T readValueCollectingProblems(File src) throws JacksonException {
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
-        JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true);
-        try {
+        try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true)) {
             return readValueCollectingProblems(p);
-        } finally {
-            try {
-                p.close();
-            } catch (Exception e) {
-                // ignore
-            }
         }
     }
 
     /**
      * Convenience overload for {@link #readValueCollectingProblems(JsonParser)}.
      */
-    @SuppressWarnings("unchecked")
     public <T> T readValueCollectingProblems(InputStream src) throws JacksonException {
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
-        JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true);
-        try {
+        try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true)) {
             return readValueCollectingProblems(p);
-        } finally {
-            try {
-                p.close();
-            } catch (Exception e) {
-                // ignore
-            }
         }
     }
 
     /**
      * Convenience overload for {@link #readValueCollectingProblems(JsonParser)}.
      */
-    @SuppressWarnings("unchecked")
     public <T> T readValueCollectingProblems(Reader src) throws JacksonException {
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
-        JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true);
-        try {
+        try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true)) {
             return readValueCollectingProblems(p);
-        } finally {
-            try {
-                p.close();
-            } catch (Exception e) {
-                // ignore
-            }
         }
     }
 

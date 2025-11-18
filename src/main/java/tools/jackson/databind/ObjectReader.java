@@ -29,6 +29,7 @@ import tools.jackson.databind.node.TreeTraversingParser;
 import tools.jackson.databind.type.SimpleType;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.LinkedNode;
 import tools.jackson.databind.util.TokenBuffer;
 
 /**
@@ -723,7 +724,7 @@ public class ObjectReader
      * @since 3.1
      */
     public ObjectReader problemCollectingReader() {
-        return problemCollectingReader(100); // Default limit
+        return problemCollectingReader(CollectingProblemHandler.DEFAULT_MAX_PROBLEMS);
     }
 
     /**
@@ -743,14 +744,9 @@ public class ObjectReader
             throw new IllegalArgumentException("maxProblems must be positive");
         }
 
-        // Store ONLY the max limit in config (not the bucket)
-        // Bucket will be allocated fresh per-call in readValueCollectingProblems()
-        ContextAttributes attrs = _config.getAttributes()
-            .withSharedAttribute(CollectingProblemHandler.ATTR_MAX_PROBLEMS, maxProblems);
-
+        // Handler now stores the max limit internally
         DeserializationConfig newConfig = _config
-            .withHandler(new CollectingProblemHandler())
-            .with(attrs);
+            .withHandler(new CollectingProblemHandler(maxProblems));
 
         // Return new immutable reader (no mutable state)
         return _new(this, newConfig, _valueType, _rootDeserializer, _valueToUpdate,
@@ -1447,28 +1443,51 @@ public class ObjectReader
     public <T> T readValueCollectingProblems(JsonParser p) throws JacksonException {
         _assertNotNull("p", p);
 
+        // Create fresh context for this call
+        DeserializationContextExt ctxt = _deserializationContext();
+
+        // Call protected helper with context
+        return readValueCollectingProblems(p, ctxt);
+    }
+
+    /**
+     * Protected helper that performs problem-collecting deserialization using
+     * a provided context. This allows all convenience overloads to share a single
+     * context instance per call.
+     *
+     * @param p Parser to read from (caller's responsibility to close)
+     * @param ctxt Deserialization context to use
+     * @return Deserialized value
+     * @throws DeferredBindingException if problems were collected
+     * @throws DatabindException if an unrecoverable error occurred
+     */
+    protected <T> T readValueCollectingProblems(JsonParser p, DeserializationContextExt ctxt)
+            throws JacksonException {
         // CRITICAL: Allocate a FRESH bucket for THIS call (thread-safety)
         List<CollectedProblem> bucket = new ArrayList<>();
 
-        // Create per-call attributes with the fresh bucket
-        ContextAttributes perCallAttrs = _config.getAttributes()
-            .withPerCallAttribute(CollectingProblemHandler.class, bucket);
+        // Set bucket in context attributes (mutable per-call state)
+        ctxt.setAttribute(CollectingProblemHandler.class, bucket);
 
-        // Create a temporary ObjectReader with per-call attributes using public API
-        ObjectReader perCallReader = this.with(perCallAttrs);
+        // Find the CollectingProblemHandler to get maxProblems limit
+        int maxProblems = CollectingProblemHandler.DEFAULT_MAX_PROBLEMS;
+        LinkedNode<DeserializationProblemHandler> handlers = _config.getProblemHandlers();
+        while (handlers != null) {
+            if (handlers.value() instanceof CollectingProblemHandler cph) {
+                maxProblems = cph.getMaxProblems();
+                break;
+            }
+            handlers = handlers.next();
+        }
 
         try {
-            // Delegate to the temporary reader's existing readValue method
-            T result = perCallReader.readValue(p);
+            // Directly invoke _bind with the prepared context
+            @SuppressWarnings("unchecked")
+            T result = (T) _bind(ctxt, p, _valueToUpdate);
 
             // Check if any problems were collected
             if (!bucket.isEmpty()) {
-                // Check if limit was reached - read from per-call config to honor overrides
-                Integer maxProblems = (Integer) perCallReader.getConfig().getAttributes()
-                    .getAttribute(CollectingProblemHandler.ATTR_MAX_PROBLEMS);
-                boolean limitReached = (maxProblems != null &&
-                    bucket.size() >= maxProblems);
-
+                boolean limitReached = (bucket.size() >= maxProblems);
                 throw new DeferredBindingException(p, bucket, limitReached);
             }
 
@@ -1480,12 +1499,7 @@ public class ObjectReader
         } catch (DatabindException e) {
             // Hard failure occurred; attach collected problems as suppressed
             if (!bucket.isEmpty()) {
-                // Read from per-call config to honor overrides
-                Integer maxProblems = (Integer) perCallReader.getConfig().getAttributes()
-                    .getAttribute(CollectingProblemHandler.ATTR_MAX_PROBLEMS);
-                boolean limitReached = (maxProblems != null &&
-                    bucket.size() >= maxProblems);
-
+                boolean limitReached = (bucket.size() >= maxProblems);
                 e.addSuppressed(new DeferredBindingException(p, bucket, limitReached));
             }
             throw e;
@@ -1499,7 +1513,7 @@ public class ObjectReader
         _assertNotNull("content", content);
         DeserializationContextExt ctxt = _deserializationContext();
         try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, content), true)) {
-            return readValueCollectingProblems(p);
+            return readValueCollectingProblems(p, ctxt);
         }
     }
 
@@ -1510,7 +1524,7 @@ public class ObjectReader
         _assertNotNull("content", content);
         DeserializationContextExt ctxt = _deserializationContext();
         try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, content), true)) {
-            return readValueCollectingProblems(p);
+            return readValueCollectingProblems(p, ctxt);
         }
     }
 
@@ -1521,7 +1535,7 @@ public class ObjectReader
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
         try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true)) {
-            return readValueCollectingProblems(p);
+            return readValueCollectingProblems(p, ctxt);
         }
     }
 
@@ -1532,7 +1546,7 @@ public class ObjectReader
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
         try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true)) {
-            return readValueCollectingProblems(p);
+            return readValueCollectingProblems(p, ctxt);
         }
     }
 
@@ -1543,7 +1557,7 @@ public class ObjectReader
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
         try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true)) {
-            return readValueCollectingProblems(p);
+            return readValueCollectingProblems(p, ctxt);
         }
     }
 

@@ -1,6 +1,5 @@
 package tools.jackson.databind.deser;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import tools.jackson.core.JacksonException;
@@ -13,6 +12,7 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.exc.CollectedProblem;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Stateless {@link DeserializationProblemHandler} that collects recoverable
@@ -20,14 +20,12 @@ import tools.jackson.databind.exc.CollectedProblem;
  * attributes.
  *
  * <p><b>Design</b>: This handler is completely stateless. The problem collection
- * bucket is allocated per-call by
- * {@link tools.jackson.databind.ObjectReader#readValueCollectingProblems ObjectReader.readValueCollectingProblems(...)}
- * and stored in per-call {@link tools.jackson.databind.cfg.ContextAttributes ContextAttributes},
- * ensuring thread-safety and call isolation.
+ * bucket is allocated per-call by {@code ObjectReader.readValueCollectingProblems(...)}
+ * and stored in per-call context attributes, ensuring thread-safety and call isolation.
  *
  * <p><b>Usage</b>: This class is internal infrastructure, registered automatically by
- * {@link tools.jackson.databind.ObjectReader#problemCollectingReader() ObjectReader.problemCollectingReader()}.
- * Users should not instantiate or register this handler manually.
+ * {@code ObjectReader.problemCollectingReader()}. Users should not instantiate or
+ * register this handler manually.
  *
  * <p><b>Design rationale - Context Attributes vs Handler State</b>:
  *
@@ -72,11 +70,9 @@ import tools.jackson.databind.exc.CollectedProblem;
  *
  * <p><b>JSON Pointer</b>: Paths are built from parser context following RFC 6901,
  * with proper escaping of {@code ~} and {@code /} characters via jackson-core's
- * {@link tools.jackson.core.JsonPointer} class.
+ * {@link JsonPointer} class.
  *
  * @since 3.1
- * @see tools.jackson.databind.ObjectReader#problemCollectingReader()
- * @see tools.jackson.databind.exc.DeferredBindingException
  */
 public class CollectingProblemHandler extends DeserializationProblemHandler {
 
@@ -84,22 +80,44 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
      * Default maximum number of problems to collect before stopping.
      * Prevents memory exhaustion attacks.
      */
-    private static final int DEFAULT_MAX_PROBLEMS = 100;
-
-    /**
-     * Unique private key object for the maximum problem limit attribute.
-     * Using a dedicated object prevents collisions with user attributes.
-     */
-    private static final class MaxProblemsKey {
-        private MaxProblemsKey() {} // Prevent instantiation
-    }
-    public static final Object ATTR_MAX_PROBLEMS = new MaxProblemsKey();
+    public static final int DEFAULT_MAX_PROBLEMS = 100;
 
     /**
      * Attribute key for the problem collection bucket.
      * Using class object as key (not a string) for type safety.
      */
     private static final Object ATTR_KEY = CollectingProblemHandler.class;
+
+    /**
+     * Maximum number of problems to collect before stopping.
+     */
+    private final int maxProblems;
+
+    /**
+     * Constructs a handler with the default maximum problem limit.
+     */
+    public CollectingProblemHandler() {
+        this(DEFAULT_MAX_PROBLEMS);
+    }
+
+    /**
+     * Constructs a handler with a specific maximum problem limit.
+     *
+     * @param maxProblems Maximum number of problems to collect (must be positive)
+     */
+    public CollectingProblemHandler(int maxProblems) {
+        if (maxProblems <= 0) {
+            throw new IllegalArgumentException("maxProblems must be positive, was: " + maxProblems);
+        }
+        this.maxProblems = maxProblems;
+    }
+
+    /**
+     * Gets the maximum number of problems this handler will collect.
+     */
+    public int getMaxProblems() {
+        return maxProblems;
+    }
 
     /**
      * Retrieves the problem collection bucket from context attributes.
@@ -109,17 +127,6 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
     public static List<CollectedProblem> getBucket(DeserializationContext ctxt) {
         Object attr = ctxt.getAttribute(ATTR_KEY);
         return (attr instanceof List) ? (List<CollectedProblem>) attr : null;
-    }
-
-    /**
-     * Gets the configured maximum problem limit, or the default if not configured.
-     */
-    private int getMaxProblems(DeserializationContext ctxt) {
-        Object attr = ctxt.getAttribute(ATTR_MAX_PROBLEMS);
-        if (attr instanceof Integer) {
-            return (Integer) attr;
-        }
-        return DEFAULT_MAX_PROBLEMS;
     }
 
     /**
@@ -134,7 +141,6 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
             return false; // Not in collecting mode
         }
 
-        int maxProblems = getMaxProblems(ctxt);
         if (bucket.size() >= maxProblems) {
             return false; // Limit reached
         }
@@ -155,67 +161,27 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
      * Safely retrieves the current token location, handling null parser.
      */
     private TokenStreamLocation safeGetLocation(JsonParser p) {
-        try {
-            return (p != null) ? p.currentTokenLocation() : null;
-        } catch (Exception e) {
-            return null; // Defensively handle any errors
-        }
+        return (p != null) ? p.currentTokenLocation() : null;
     }
 
     /**
      * Safely retrieves the current token, handling null parser.
      */
     private JsonToken safeGetToken(JsonParser p) {
-        try {
-            return (p != null) ? p.currentToken() : null;
-        } catch (Exception e) {
-            return null;
-        }
+        return (p != null) ? p.currentToken() : null;
     }
 
     /**
      * Builds a JsonPointer from the parser's current context.
-     * Handles buffered content scenarios where getCurrentName() may return null.
-     * Returns empty pointer for root-level problems.
-     *
-     * <p>Uses {@link JsonPointer#appendProperty(String)} and
-     * {@link JsonPointer#appendIndex(int)} from jackson-core, which handle
-     * RFC 6901 escaping internally ('~' becomes '~0', '/' becomes '~1').
+     * Uses the built-in {@link TokenStreamContext#pathAsPointer()} method
+     * which handles RFC 6901 escaping ('~' becomes '~0', '/' becomes '~1').
      */
     private JsonPointer buildJsonPointer(JsonParser p) {
         if (p == null) {
             return JsonPointer.empty();
         }
-
         TokenStreamContext ctx = p.streamReadContext();
-
-        // Collect segments from current to root
-        List<Object> segments = new ArrayList<>(); // String (property) or Integer (index)
-        while (ctx != null) {
-            if (ctx.inObject() && ctx.currentName() != null) {
-                segments.add(0, ctx.currentName());
-            } else if (ctx.inArray()) {
-                // getCurrentIndex() may be -1 before consuming first element
-                int index = ctx.getCurrentIndex();
-                if (index >= 0) {
-                    segments.add(0, index);
-                }
-            }
-            ctx = ctx.getParent();
-        }
-
-        // Build pointer from root to current using append methods
-        // (these handle escaping internally via JsonPointer._appendEscaped)
-        JsonPointer pointer = JsonPointer.empty();
-        for (Object segment : segments) {
-            if (segment instanceof String) {
-                pointer = pointer.appendProperty((String) segment);
-            } else {
-                pointer = pointer.appendIndex((Integer) segment);
-            }
-        }
-
-        return pointer;
+        return ctx.pathAsPointer();
     }
 
     @Override
@@ -226,9 +192,7 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
         String message = String.format(
             "Unknown property '%s' for type %s",
             propertyName,
-            beanOrClass instanceof Class ?
-                ((Class<?>) beanOrClass).getName() :
-                beanOrClass.getClass().getName()
+            ClassUtil.getClassDescription(beanOrClass)
         );
 
         // Store null as rawValue for unknown properties
@@ -249,7 +213,7 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
         String message = String.format(
             "Cannot deserialize Map key '%s' to %s: %s",
             keyValue,
-            rawKeyType.getSimpleName(),
+            ClassUtil.getClassDescription(rawKeyType),
             failureMsg
         );
 
@@ -273,7 +237,7 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
         String message = String.format(
             "Cannot deserialize value '%s' to %s: %s",
             valueToConvert,
-            targetType.getSimpleName(),
+            ClassUtil.getClassDescription(targetType),
             failureMsg
         );
 
@@ -294,7 +258,7 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
         String message = String.format(
             "Cannot deserialize number %s to %s: %s",
             valueToConvert,
-            targetType.getSimpleName(),
+            ClassUtil.getClassDescription(targetType),
             failureMsg
         );
 
@@ -313,7 +277,7 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
 
         String message = String.format(
             "Cannot instantiate %s: %s",
-            instClass.getSimpleName(),
+            ClassUtil.getClassDescription(instClass),
             t.getMessage()
         );
 
@@ -338,14 +302,10 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
      */
     private Object getDefaultValue(Class<?> type) {
         // Primitives MUST have non-null defaults (cannot be null)
-        if (type == int.class) return 0;
-        if (type == long.class) return 0L;
-        if (type == double.class) return 0.0;
-        if (type == float.class) return 0.0f;
-        if (type == boolean.class) return false;
-        if (type == byte.class) return (byte) 0;
-        if (type == short.class) return (short) 0;
-        if (type == char.class) return '\0';
+        // Use ClassUtil for consistent primitive default handling
+        if (type.isPrimitive()) {
+            return ClassUtil.defaultValue(type);
+        }
 
         // Reference types (including Integer, Long, etc.) get null
         // This avoids masking nullability issues in the domain model
@@ -357,11 +317,12 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
      * instantiation failure.
      */
     private boolean canReturnNullFor(Class<?> type) {
-        // Cannot return null for primitives or arrays
-        if (type.isPrimitive() || type.isArray()) {
+        // Cannot return null for primitives
+        // Arrays of reference types can be null, only primitive types cannot
+        if (type.isPrimitive()) {
             return false;
         }
-        // Safe for most reference types
+        // Safe for reference types including arrays
         return true;
     }
 }

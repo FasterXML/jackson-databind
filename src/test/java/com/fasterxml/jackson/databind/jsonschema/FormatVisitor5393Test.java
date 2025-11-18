@@ -37,7 +37,11 @@ public class FormatVisitor5393Test
     // [databind#5393], regression wrt JsonAnyGetter
     @Test
     public void testIgnoredPropertyAreIgnored() throws Exception {
-        final Set<String> properties = new TreeSet<>();
+        final TreeSet<String> expected = new TreeSet<> ();
+        expected.add("normalProperty");
+        expected.add("renamedProperty");
+
+        final Set<String> actual = new TreeSet<>();
         MAPPER.acceptJsonFormatVisitor(TestJsonIgnoredProperties.class,
                 new JsonFormatVisitorWrapper.Base() {
                     @Override
@@ -45,27 +49,27 @@ public class FormatVisitor5393Test
                         return new JsonObjectFormatVisitor.Base() {
                             @Override
                             public void property(BeanProperty prop) {
-                                properties.add(prop.getName());
+                                actual.add(prop.getName());
                             }
 
                             @Override
                             public void property(String name, JsonFormatVisitable handler, JavaType propertyTypeHint) {
-                                properties.add(name);
+                                actual.add(name);
                             }
 
                             @Override
                             public void optionalProperty(BeanProperty prop) {
-                                properties.add(prop.getName());
+                                actual.add(prop.getName());
                             }
 
                             @Override
                             public void optionalProperty(String name, JsonFormatVisitable handler, JavaType propertyTypeHint) {
-                                properties.add(name);
+                                actual.add(name);
                             }
                         };
                     }
                 });
 
-        assertEquals(new TreeSet<>(List.of("normalProperty", "renamedProperty")), properties);
+        assertEquals(expected, actual);
     }
 }

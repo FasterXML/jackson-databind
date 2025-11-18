@@ -234,7 +234,7 @@ public class TypeResolverProvider
             //   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
             if (ann instanceof AnnotatedClass) {
                 JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
-                if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
+                if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
                     typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
                 }
             }

@@ -240,8 +240,8 @@ public class LongNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof LongNode) {
-            return ((LongNode) o)._value == _value;
+        if (o instanceof LongNode otherNode) {
+            return otherNode._value == _value;
         }
         return false;
     }

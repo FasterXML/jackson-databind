@@ -76,8 +76,7 @@ public class SingleArgCreatorTest extends DatabindTestUtil
 
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember param) {
-            if (param instanceof AnnotatedParameter) {
-                AnnotatedParameter ap = (AnnotatedParameter) param;
+            if (param instanceof AnnotatedParameter ap) {
                 switch (ap.getIndex()) {
                 case 0: return name;
                 }

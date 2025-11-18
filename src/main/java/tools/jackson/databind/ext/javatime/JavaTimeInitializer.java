@@ -173,8 +173,7 @@ public final class JavaTimeInitializer
                 // So... in practice it really should always work, in the end. :)
                 if (ZoneId.class.isAssignableFrom(raw)) {
                     // let's assume we should be getting "empty" StdValueInstantiator here:
-                    if (defaultInstantiator instanceof StdValueInstantiator) {
-                        StdValueInstantiator inst = (StdValueInstantiator) defaultInstantiator;
+                    if (defaultInstantiator instanceof StdValueInstantiator inst) {
                         // one further complication: we need ZoneId info, not sub-class
                         AnnotatedClass ac;
                         if (raw == ZoneId.class) {

@@ -1,7 +1,10 @@
 package tools.jackson.databind.deser;
 
 import java.lang.annotation.Annotation;
+
 import java.lang.reflect.InvocationTargetException;
+
+import com.fasterxml.jackson.annotation.JacksonInject;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.InternCache;
@@ -468,6 +471,12 @@ public abstract class SettableBeanProperty
      * value injection.
      */
     public Object getInjectableValueId() { return null; }
+
+    /**
+     * Accessor for injection definition, if this bean property supports
+     * value injection.
+     */
+    public JacksonInject.Value getInjectionDefinition() { return null; }
 
     /**
      * Accessor for checking whether this property is injectable, and if so,

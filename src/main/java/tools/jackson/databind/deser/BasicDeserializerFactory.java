@@ -277,8 +277,8 @@ public abstract class BasicDeserializerFactory
 
         ValueInstantiator inst;
 
-        if (instDef instanceof ValueInstantiator) {
-            return (ValueInstantiator) instDef;
+        if (instDef instanceof ValueInstantiator valueInstantiator) {
+            return valueInstantiator;
         }
         if (!(instDef instanceof Class)) {
             throw new IllegalStateException("AnnotationIntrospector returned key deserializer definition of type "

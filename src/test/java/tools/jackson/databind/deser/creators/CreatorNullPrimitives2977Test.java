@@ -19,8 +19,7 @@ class CreatorNullPrimitives2977Test extends DatabindTestUtil {
     static class ABCParamIntrospector extends JacksonAnnotationIntrospector {
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember param) {
-            if (param instanceof AnnotatedParameter) {
-                AnnotatedParameter ap = (AnnotatedParameter) param;
+            if (param instanceof AnnotatedParameter ap) {
                 switch (ap.getIndex()) {
                     case 0:
                         return "a";

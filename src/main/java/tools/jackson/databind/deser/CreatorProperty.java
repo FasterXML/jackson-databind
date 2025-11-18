@@ -37,8 +37,11 @@ public class CreatorProperty
     protected final AnnotatedParameter _annotated;
 
     /**
-     * Id of value to inject, if value injection should be used for this parameter
+     * Injection settings, if value injection should be used for this parameter
      * (in addition to, or instead of, regular deserialization).
+     *<p>
+     * NOTE: badly named, should be more like "_injectionDefinition" but
+     * renaming would be a breaking (internal) change.
      */
     protected final JacksonInject.Value _injectableValue;
 
@@ -259,6 +262,11 @@ public class CreatorProperty
     @Override
     public Object getInjectableValueId() {
         return (_injectableValue == null) ? null : _injectableValue.getId();
+    }
+
+    @Override // since 2.21
+    public JacksonInject.Value getInjectionDefinition() {
+        return _injectableValue;
     }
 
     @Override

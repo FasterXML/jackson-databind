@@ -286,18 +286,18 @@ public class TypeFactory
      * default instance is used for determination.
      */
     public static Class<?> rawClass(Type t) {
-        if (t instanceof Class<?>) {
-            return (Class<?>) t;
-        } else if (t instanceof JavaType) {
-            return ((JavaType) t).getRawClass();
-        } else if (t instanceof GenericArrayType) {
-            return Array.newInstance(rawClass(((GenericArrayType) t).getGenericComponentType()), 0).getClass();
-        } else if (t instanceof ParameterizedType) {
-            return rawClass(((ParameterizedType) t).getRawType());
-        } else if (t instanceof TypeVariable<?>) {
-            return rawClass(((TypeVariable<?>) t).getBounds()[0]);
-        } else if (t instanceof WildcardType) {
-            return rawClass(((WildcardType) t).getUpperBounds()[0]);
+        if (t instanceof Class<?> class1) {
+            return class1;
+        } else if (t instanceof JavaType jt) {
+            return jt.getRawClass();
+        } else if (t instanceof GenericArrayType gat) {
+            return Array.newInstance(rawClass(gat.getGenericComponentType()), 0).getClass();
+        } else if (t instanceof ParameterizedType pt) {
+            return rawClass(pt.getRawType());
+        } else if (t instanceof TypeVariable<?> tv) {
+            return rawClass(tv.getBounds()[0]);
+        } else if (t instanceof WildcardType wt) {
+            return rawClass(wt.getUpperBounds()[0]);
         }
         // 11-Oct-2024, tatu: In 2.x used to call `defaultInstance().constructType(t).getRawClass()`
         //   but does not appear necessary.
@@ -597,8 +597,8 @@ public class TypeFactory
     private boolean _verifyAndResolvePlaceholders(JavaType exp, JavaType act)
     {
         // See if we have an actual type placeholder to resolve; if yes, replace
-        if (act instanceof PlaceholderForType) {
-            ((PlaceholderForType) act).actualType(exp);
+        if (act instanceof PlaceholderForType placeholderForType) {
+            placeholderForType.actualType(exp);
             return true;
         }
         // if not, try to verify compatibility. But note that we cannot
@@ -862,8 +862,8 @@ public class TypeFactory
     public CollectionLikeType constructCollectionLikeType(Class<?> collectionClass, JavaType elementType) {
         JavaType type = _fromClass(null, collectionClass,
                 TypeBindings.createIfNeeded(collectionClass, elementType));
-        if (type instanceof CollectionLikeType) {
-            return (CollectionLikeType) type;
+        if (type instanceof CollectionLikeType collectionLikeType) {
+            return collectionLikeType;
         }
         return CollectionLikeType.upgradeFrom(type, elementType);
     }
@@ -948,8 +948,8 @@ public class TypeFactory
         //    a valid use case here
         JavaType type = _fromClass(null, mapClass,
                 TypeBindings.createIfNeeded(mapClass, new JavaType[] { keyType, valueType }));
-        if (type instanceof MapLikeType) {
-            return (MapLikeType) type;
+        if (type instanceof MapLikeType mapLikeType) {
+            return mapLikeType;
         }
         return MapLikeType.upgradeFrom(type, keyType, valueType);
     }
@@ -1269,26 +1269,26 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         JavaType resultType;
 
         // simple class?
-        if (srcType instanceof Class<?>) {
+        if (srcType instanceof Class<?> class1) {
             // Important: remove possible bindings since this is type-erased thingy
-            resultType = _fromClass(context, (Class<?>) srcType, EMPTY_BINDINGS);
+            resultType = _fromClass(context, class1, EMPTY_BINDINGS);
         }
         // But if not, need to start resolving.
-        else if (srcType instanceof ParameterizedType) {
-            resultType = _fromParamType(context, (ParameterizedType) srcType, bindings);
+        else if (srcType instanceof ParameterizedType pt) {
+            resultType = _fromParamType(context, pt, bindings);
         }
-        else if (srcType instanceof JavaType) { // [databind#116]
+        else if (srcType instanceof JavaType jt) { // [databind#116]
             // no need to modify further if we already had JavaType
-            return (JavaType) srcType;
+            return jt;
         }
-        else if (srcType instanceof GenericArrayType) {
-            resultType = _fromArrayType(context, (GenericArrayType) srcType, bindings);
+        else if (srcType instanceof GenericArrayType genericArrayType) {
+            resultType = _fromArrayType(context, genericArrayType, bindings);
         }
-        else if (srcType instanceof TypeVariable<?>) {
-            resultType = _fromVariable(context, (TypeVariable<?>) srcType, bindings);
+        else if (srcType instanceof TypeVariable<?> typeVariable) {
+            resultType = _fromVariable(context, typeVariable, bindings);
         }
-        else if (srcType instanceof WildcardType) {
-            resultType = _fromWildcard(context, (WildcardType) srcType, bindings);
+        else if (srcType instanceof WildcardType wildcardType) {
+            resultType = _fromWildcard(context, wildcardType, bindings);
         } else {
             // sanity check
             throw new IllegalArgumentException("Unrecognized Type: "+((srcType == null) ? "[null]" : srcType.toString()));

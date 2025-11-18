@@ -28,7 +28,7 @@ public class FormatVisitor5393Test
         // [databind#5393]
         @JsonAnyGetter
         public Map<String, Object> getMyProperties() {
-            return Map.of();
+            return new TreeMap<>();
         }
     }
 

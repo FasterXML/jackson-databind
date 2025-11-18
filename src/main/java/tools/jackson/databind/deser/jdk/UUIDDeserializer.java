@@ -77,8 +77,8 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
     @Override
     protected UUID _deserializeEmbedded(Object ob, DeserializationContext ctxt) throws JacksonException
     {
-        if (ob instanceof byte[]) {
-            return _fromBytes((byte[]) ob, ctxt);
+        if (ob instanceof byte[] byteArray) {
+            return _fromBytes(byteArray, ctxt);
         }
         return super._deserializeEmbedded(ob, ctxt);
     }

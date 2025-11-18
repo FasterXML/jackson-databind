@@ -40,8 +40,8 @@ public class AnyGetterWriter extends BeanPropertyWriter
         _accessor = accessor;
         _property = property;
         _serializer = (ValueSerializer<Object>) serializer;
-        if (serializer instanceof MapSerializer) {
-            _mapSerializer = (MapSerializer) serializer;
+        if (serializer instanceof MapSerializer mapSer) {
+            _mapSerializer = mapSer;
         }
     }
 
@@ -58,8 +58,8 @@ public class AnyGetterWriter extends BeanPropertyWriter
         // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
         ValueSerializer<?> ser = provider.handlePrimaryContextualization(_serializer, _property);
         _serializer = (ValueSerializer<Object>) ser;
-        if (ser instanceof MapSerializer) {
-            _mapSerializer = (MapSerializer) ser;
+        if (ser instanceof MapSerializer mapSer) {
+            _mapSerializer = mapSer;
         }
     }
 

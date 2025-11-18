@@ -13,6 +13,10 @@ import tools.jackson.databind.util.ClassUtil;
 public abstract class InjectableValues
     implements Snapshottable<InjectableValues>
 {
+    public static InjectableValues empty() {
+        return InjectableValues.Empty.INSTANCE;
+    }
+
     /**
      * Method called to find value identified by id <code>valueId</code> to
      * inject as value of specified property during deserialization, passing
@@ -36,17 +40,99 @@ public abstract class InjectableValues
         throws JacksonException;
 
     /*
-    /**********************************************************
-    /* Standard implementation
-    /**********************************************************
+    /**********************************************************************
+    /* Standard implementations
+    /**********************************************************************
      */
+
+    /**
+     * Shared intermediate base class for standard implementations.
+     */
+    public abstract static class Base
+        extends InjectableValues
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        protected String _validateKey(DeserializationContext ctxt, Object valueId,
+                BeanProperty forProperty, Object beanInstance)
+            throws JacksonException
+        {
+            if (!(valueId instanceof String)) {
+                throw ctxt.missingInjectableValueException(
+                        String.format(
+                        "Unsupported injectable value id type (%s), expecting String",
+                        ClassUtil.classNameOf(valueId)),
+                        valueId, forProperty, beanInstance);
+            }
+            return (String) valueId;
+        }
+
+        protected Object _handleMissingValue(DeserializationContext ctxt, String key,
+                BeanProperty forProperty, Object beanInstance,
+                Boolean optionalConfig, Boolean useInputConfig)
+            throws JacksonException
+        {
+            // Different defaulting fo "optional" (default to FALSE) and
+            // "useInput" (default to TRUE)
+
+            final boolean optional = Boolean.TRUE.equals(optionalConfig);
+            final boolean useInput = Boolean.TRUE.equals(useInputConfig);
+
+            // [databind#1381]: 14-Nov-2025, tatu: This is a mess: (1) and (2) make sense
+            //   but (3) is debatable. However, for backward compatibility this is what
+            //   passes tests we have.
+
+            // Missing ok if:
+            //
+            // 1. `optional` is TRUE
+            // 2. FAIL_ON_UNKNOWN_INJECT_VALUE is disabled
+            // 3. `useInput` is TRUE and injection is NOT via constructor (implied
+            //    by beanInstance being non-null)
+            if (optional
+                    || !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE)
+                    || (useInput && beanInstance != null)
+                    ) {
+                return null;
+            }
+            throw ctxt.missingInjectableValueException(
+                    String.format("No injectable value with id '%s' found (for property '%s')",
+                    key, forProperty.getName()),
+                    key, forProperty, beanInstance);
+        }
+    }
+
+    private static final class Empty
+        extends Base
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        final static Empty INSTANCE = new Empty();
+
+        @Override
+        public Empty snapshot() {
+            return this;
+        }
+
+        @Override
+        public Object findInjectableValue(DeserializationContext ctxt, Object valueId,
+                BeanProperty forProperty, Object beanInstance,
+                Boolean optional, Boolean useInput)
+            throws JacksonException
+        {
+            final String key = _validateKey(ctxt, valueId, forProperty, beanInstance);
+            return _handleMissingValue(ctxt, key, forProperty, beanInstance,
+                    optional, useInput);
+        }
+    }
 
     /**
      * Simple standard implementation which uses a simple Map to
      * store values to inject, identified by simple String keys.
      */
     public static class Std
-        extends InjectableValues
+        extends Base
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
@@ -85,24 +171,11 @@ public abstract class InjectableValues
                 BeanProperty forProperty, Object beanInstance,
                 Boolean optional, Boolean useInput)
         {
-            if (!(valueId instanceof String)) {
-                throw ctxt.missingInjectableValueException(
-                        String.format(
-                        "Unsupported injectable value id type (%s), expecting String",
-                        ClassUtil.classNameOf(valueId)),
-                        valueId, forProperty, beanInstance);
-            }
-            String key = (String) valueId;
+            String key = _validateKey(ctxt, valueId, forProperty, beanInstance);
             Object ob = _values.get(key);
             if (ob == null && !_values.containsKey(key)) {
-                if (Boolean.FALSE.equals(optional)
-                        || ((optional == null)
-                                && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE))) {
-                    throw ctxt.missingInjectableValueException(
-                            String.format("No injectable value with id '%s' found (for property '%s')",
-                            key, forProperty.getName()),
-                            valueId, forProperty, beanInstance);
-                }
+                return _handleMissingValue(ctxt, key, forProperty, beanInstance,
+                        optional, useInput);
             }
             return ob;
         }

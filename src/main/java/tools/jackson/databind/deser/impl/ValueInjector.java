@@ -1,7 +1,5 @@
 package tools.jackson.databind.deser.impl;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedMember;
@@ -52,7 +50,15 @@ public class ValueInjector
         throws JacksonException
     {
         final Object value = findValue(context, beanInstance);
-        if (!JacksonInject.Value.empty().equals(value)) {
+
+        if (value == null) {
+            if (Boolean.FALSE.equals(_optional)) {
+                throw context.missingInjectableValueException(
+                        String.format("No injectable value with id '%s' found (for property '%s')",
+                                _valueId, getName()),
+                        _valueId, null, beanInstance);
+            }
+        } else if (!Boolean.TRUE.equals(_useInput)) {
             _member.setValue(beanInstance, value);
         }
     }

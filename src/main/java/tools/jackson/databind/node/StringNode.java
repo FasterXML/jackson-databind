@@ -428,8 +428,8 @@ public class StringNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof StringNode) {
-            return Objects.equals(((StringNode) o)._value, _value);
+        if (o instanceof StringNode other) {
+            return Objects.equals(other._value, _value);
         }
         return false;
     }

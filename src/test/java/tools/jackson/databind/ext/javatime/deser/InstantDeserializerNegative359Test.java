@@ -1,4 +1,4 @@
-package tools.jackson.databind.ext.javatime.tofix;
+package tools.jackson.databind.ext.javatime.deser;
 
 import java.time.Instant;
 
@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,7 +17,6 @@ public class InstantDeserializerNegative359Test
 {
     private final ObjectReader READER = newMapper().readerFor(Instant.class);
 
-    @JacksonTestFailureExpected
     @Test
     public void testDeserializationAsFloat04()
         throws Exception

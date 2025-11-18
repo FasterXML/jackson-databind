@@ -138,8 +138,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ObjectNode found = baseNode._withObject(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -163,8 +163,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ArrayNode found = ((BaseJsonNode) n)._withArray(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ArrayNode found = baseNode._withArray(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -328,25 +328,24 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     @Override
     public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
     {
-        if (!(o instanceof ObjectNode)) {
-            return false;
-        }
-        ObjectNode other = (ObjectNode) o;
-        Map<String, JsonNode> m1 = _children;
-        Map<String, JsonNode> m2 = other._children;
+        if (o instanceof ObjectNode other) {
+            Map<String, JsonNode> m1 = _children;
+            Map<String, JsonNode> m2 = other._children;
 
-        final int len = m1.size();
-        if (m2.size() != len) {
-            return false;
-        }
-
-        for (Map.Entry<String, JsonNode> entry : m1.entrySet()) {
-            JsonNode v2 = m2.get(entry.getKey());
-            if ((v2 == null) || !entry.getValue().equals(comparator, v2)) {
+            final int len = m1.size();
+            if (m2.size() != len) {
                 return false;
             }
+
+            for (Map.Entry<String, JsonNode> entry : m1.entrySet()) {
+                JsonNode v2 = m2.get(entry.getKey());
+                if ((v2 == null) || !entry.getValue().equals(comparator, v2)) {
+                    return false;
+                }
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 
     /*
@@ -1030,8 +1029,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof ObjectNode) {
-            return _childrenEqual((ObjectNode) o);
+        if (o instanceof ObjectNode objectNode) {
+            return _childrenEqual(objectNode);
         }
         return false;
     }

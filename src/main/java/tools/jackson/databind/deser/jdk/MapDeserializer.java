@@ -291,8 +291,8 @@ public class MapDeserializer
         if (keyDeser == null) {
             keyDeser = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
         } else {
-            if (keyDeser instanceof ContextualKeyDeserializer) {
-                keyDeser = ((ContextualKeyDeserializer) keyDeser).createContextual(ctxt, property);
+            if (keyDeser instanceof ContextualKeyDeserializer ckd) {
+                keyDeser = ckd.createContextual(ctxt, property);
             }
         }
 

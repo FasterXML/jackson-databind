@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
@@ -476,18 +475,11 @@ public abstract class DeserializationContext
     public final Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance, Boolean optional, Boolean useInput)
     {
-        if (_injectableValues == null) {
-            // `optional` comes from property annotation (if any); has precedence
-            // over global setting.
-            if (Boolean.TRUE.equals(optional)
-                    || (optional == null && !isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_INJECT_VALUE))) {
-                return JacksonInject.Value.empty();
-            }
-            throw missingInjectableValueException(String.format(
-"No 'injectableValues' configured, cannot inject value with id '%s'", valueId),
-                    valueId, forProperty, beanInstance);
+        InjectableValues injectables = _injectableValues;
+        if (injectables == null) {
+            injectables = InjectableValues.empty();
         }
-        return _injectableValues.findInjectableValue(this, valueId, forProperty, beanInstance,
+        return injectables.findInjectableValue(this, valueId, forProperty, beanInstance,
                 optional, useInput);
     }
 

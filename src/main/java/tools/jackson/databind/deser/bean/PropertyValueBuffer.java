@@ -2,6 +2,8 @@ package tools.jackson.databind.deser.bean;
 
 import java.util.BitSet;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 
@@ -69,7 +71,7 @@ public class PropertyValueBuffer
     /**
      * If we get non-creator parameters before or between
      * creator parameters, those need to be buffered. Buffer
-     * is just a simple linked list
+     * is just a simple linked list.
      */
     protected PropertyValue _buffered;
 
@@ -80,7 +82,7 @@ public class PropertyValueBuffer
     protected Object _idValue;
 
     /**
-     * "Any setter" property bound to a Creator parameter (via {@code @JsonAnySetter})
+     * "Any setter" property bound to a Creator parameter (via {@code @JsonAnySetter}).
      *
      * @since 2.18
      */
@@ -94,14 +96,26 @@ public class PropertyValueBuffer
      */
     protected PropertyValue _anyParamBuffered;
 
+    /**
+     * Indexes properties that are injectable, if any; {@code null} if none,
+     * cleared as they are injected.
+     *
+     * @since 2.21
+     */
+    protected final BitSet _injectablePropIndexes;
+
     /*
     /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
 
+    /**
+     * @since 3.1
+     */
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
-            ObjectIdReader oir, SettableAnyProperty anyParamSetter)
+            ObjectIdReader oir, SettableAnyProperty anyParamSetter,
+            BitSet injectablePropIndexes)
     {
         _parser = p;
         _context = ctxt;
@@ -119,6 +133,8 @@ public class PropertyValueBuffer
         } else {
             _anyParamSetter = anyParamSetter;
         }
+        _injectablePropIndexes = (injectablePropIndexes == null)
+                ? null : (BitSet) injectablePropIndexes.clone();
     }
 
     /**
@@ -156,7 +172,7 @@ public class PropertyValueBuffer
      * other customized behavior for missing properties.
      */
     public Object getParameter(DeserializationContext ctxt, SettableBeanProperty prop)
-        throws DatabindException
+        throws JacksonException
     {
         Object value;
         if (hasParameter(prop)) {
@@ -185,7 +201,7 @@ public class PropertyValueBuffer
      * the whole JSON Object has been processed,
      */
     public Object[] getParameters(DeserializationContext ctxt, SettableBeanProperty[] props)
-        throws DatabindException
+        throws JacksonException
     {
         // quick check to see if anything else is needed
         if (_paramsNeeded > 0) {
@@ -209,8 +225,19 @@ public class PropertyValueBuffer
         if (_anyParamSetter != null) {
             _creatorParameters[_anyParamSetter.getParameterIndex()] = _createAndSetAnySetterValue(ctxt);
         }
+
+        // [databind#1381] handle inject-only (useInput = false) properties
+        if (_injectablePropIndexes != null) {
+            int ix = _injectablePropIndexes.nextSetBit(0);
+            while (ix >= 0) {
+                _inject(props[ix]);
+                ix = _injectablePropIndexes.nextSetBit(ix + 1);
+            }
+        }
+
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
-            for (int ix = 0; ix < props.length; ++ix) {
+            final int len = _creatorParameters.length;
+            for (int ix = 0; ix < len; ++ix) {
                 if (_creatorParameters[ix] == null) {
                     SettableBeanProperty prop = props[ix];
                     _context.reportInputMismatch(prop,
@@ -219,13 +246,14 @@ public class PropertyValueBuffer
                 }
             }
         }
+
         return _creatorParameters;
     }
 
     /**
      * Helper method called to create and set any values buffered for "any setter"
      */
-    private Object _createAndSetAnySetterValue(DeserializationContext ctxt) throws DatabindException
+    private Object _createAndSetAnySetterValue(DeserializationContext ctxt) throws JacksonException
     {
         Object anySetterParameterObject = _anyParamSetter.createParameterObject();
         for (PropertyValue pv = _anyParamBuffered; pv != null; pv = pv.next) {
@@ -234,7 +262,7 @@ public class PropertyValueBuffer
         return anySetterParameterObject;
     }
 
-    protected Object _findMissing(SettableBeanProperty prop) throws DatabindException
+    protected Object _findMissing(SettableBeanProperty prop) throws JacksonException
     {
         // 08-Jun-2024: [databind#562] AnySetters are bit special
         if (_anyParamSetter != null) {
@@ -248,10 +276,12 @@ public class PropertyValueBuffer
         }
 
         // First: do we have injectable value?
-        Object injectableValueId = prop.getInjectableValueId();
-        if (injectableValueId != null) {
+        final JacksonInject.Value injection = prop.getInjectionDefinition();
+        if (injection != null) {
+            // 10-Nov-2025: [databind#1381] Is this needed?
+            _injectablePropIndexes.clear(prop.getCreatorIndex());
             return _context.findInjectableValue(prop.getInjectableValueId(),
-                    prop, null, null, null);
+                    prop, null, injection.getOptional(), injection.getUseInput());
         }
         // Second: required?
         if (prop.isRequired()) {
@@ -274,13 +304,37 @@ public class PropertyValueBuffer
             // Fourth: default value
             ValueDeserializer<Object> deser = prop.getValueDeserializer();
             return deser.getAbsentValue(_context);
-        } catch (DatabindException e) {
+        } catch (JacksonException e) {
             // [databind#2101]: Include property name, if we have it
             AnnotatedMember member = prop.getMember();
             if (member != null) {
                 e.prependPath(member.getDeclaringClass(), prop.getName());
             }
             throw e;
+        }
+    }
+
+    /**
+     * Method called to inject value for given property, possibly overriding
+     * assigned (from input) value.
+     *
+     * @since 2.21
+     */
+    private void _inject(final SettableBeanProperty prop) throws JacksonException {
+        final JacksonInject.Value injection = prop.getInjectionDefinition();
+
+        if (injection != null) {
+            final Boolean useInput = injection.getUseInput();
+
+            if (!Boolean.TRUE.equals(useInput)) {
+                final Object value = _context.findInjectableValue(injection.getId(),
+                        prop, prop.getMember(), injection.getOptional(), useInput);
+
+                if (value != null) {
+                    int ix = prop.getCreatorIndex();
+                    _creatorParameters[ix] = value;
+                }
+            }
         }
     }
 
@@ -358,6 +412,7 @@ public class PropertyValueBuffer
                 _paramsSeenBig.set(ix);
                 if (--_paramsNeeded <= 0) {
                     // 29-Nov-2016, tatu: But! May still require Object Id value
+                    return (_objectIdReader == null) || (_idValue != null);
                 }
             }
         }

@@ -41,7 +41,6 @@ module tools.jackson.databind
     opens tools.jackson.databind.ext.javatime.key;
     opens tools.jackson.databind.ext.javatime.misc;
     opens tools.jackson.databind.ext.javatime.ser;
-    opens tools.jackson.databind.ext.javatime.tofix;
     opens tools.jackson.databind.ext.javatime.util;
     opens tools.jackson.databind.introspect;
     opens tools.jackson.databind.json;

@@ -89,7 +89,7 @@ public class OffsetTimeSerializer extends JSR310FormattedSerializerBase<OffsetTi
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
-    private final void _serializeAsArrayContents(OffsetTime value, JsonGenerator g,
+    protected void _serializeAsArrayContents(OffsetTime value, JsonGenerator g,
             SerializationContext ctxt)
         throws JacksonException
     {
@@ -109,7 +109,7 @@ public class OffsetTimeSerializer extends JSR310FormattedSerializerBase<OffsetTi
         }
         g.writeString(value.getOffset().toString());
     }
-    
+
     @Override
     protected JsonToken serializationShape(SerializationContext ctxt) {
         return useTimestamp(ctxt) ? JsonToken.START_ARRAY : JsonToken.VALUE_STRING;

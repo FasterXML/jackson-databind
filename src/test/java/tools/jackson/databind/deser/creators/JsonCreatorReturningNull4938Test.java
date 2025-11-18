@@ -16,6 +16,26 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JsonCreatorReturningNull4938Test
     extends DatabindTestUtil
 {
+    static class NonEmpty {
+        public NonEmptyString nonEmpty;
+    }
+
+    static class NonEmptyString {
+        public final String value;
+
+        @JsonCreator
+        public static NonEmptyString of(String value) {
+            if (value == null || value.isEmpty()) {
+                return null;
+            }
+            return new NonEmptyString(value);
+        }
+
+        private NonEmptyString(String value) {
+            this.value = value;
+        }
+    }
+
     static class Localized3 {
         public final String en;
         public final String de;
@@ -91,6 +111,18 @@ public class JsonCreatorReturningNull4938Test
 
 
     private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
+    void testDeserializeFieldToNullIfCreatorReturnsNull()
+            throws Exception
+    {
+        NonEmpty result = MAPPER.readValue(
+                "{ \"nonEmpty\": \"\" }",
+                NonEmpty.class);
+
+        assertNotNull(result);
+        assertNull(result.nonEmpty);
+    }
 
     @Test
     void testDeserializeToNullWhenAllPropertiesAreNull()

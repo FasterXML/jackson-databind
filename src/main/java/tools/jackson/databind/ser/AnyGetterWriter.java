@@ -5,6 +5,7 @@ import java.util.Map;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.ser.jdk.MapSerializer;
 
 /**
@@ -13,11 +14,7 @@ import tools.jackson.databind.ser.jdk.MapSerializer;
  * (Map) properties
  */
 public class AnyGetterWriter extends BeanPropertyWriter
-    implements java.io.Serializable // since 2.19
 {
-    // As of 2.19
-    private static final long serialVersionUID = 1L;
-
     protected final BeanProperty _property;
 
     /**
@@ -109,5 +106,11 @@ public class AnyGetterWriter extends BeanPropertyWriter
         }
         // ... not sure how custom handler would do it
         _serializer.serialize(value, gen, provider);
+    }
+
+    @Override
+    public void depositSchemaProperty(JsonObjectFormatVisitor v, SerializationContext ctxt)
+    {
+        // no-op
     }
 }

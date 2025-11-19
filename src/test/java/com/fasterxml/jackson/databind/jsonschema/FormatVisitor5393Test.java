@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FormatVisitor5393Test
     extends DatabindTestUtil
 {
-    static class TestJsonIgnoredProperties {
-
+    static class TestJsonIgnoredProperties
+    {
         @JsonIgnore
         public String ignoredProp;
 
@@ -27,17 +27,17 @@ public class FormatVisitor5393Test
 
         // [databind#5393]
         @JsonAnyGetter
-        public Map<String, Object> getMyProperties() {
+        public Map<String, Object> anyProperties() {
             return new TreeMap<>();
         }
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // [databind#5393], regression wrt JsonAnyGetter
+    // [databind#5393]: regression wrt `@JsonAnyGetter`
     @Test
-    public void testIgnoredPropertyAreIgnored() throws Exception {
-        final TreeSet<String> expected = new TreeSet<> ();
+    public void ignoreExplicitlyIgnoredAndAnyGetter() throws Exception {
+        final TreeSet<String> expected = new TreeSet<>();
         expected.add("normalProperty");
         expected.add("renamedProperty");
 

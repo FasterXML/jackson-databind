@@ -90,9 +90,10 @@ public class AnyGetterWriter extends BeanPropertyWriter
         getAndSerialize(bean, gen, prov);
     }
 
-    @Override
+    @Override // @since 2.20
     public void depositSchemaProperty(JsonObjectFormatVisitor v, SerializerProvider provider) throws JsonMappingException {
-        // since 2.19.4 [databind#5393] @JsonAnyGetter property gets included in generated schema since 2.19.0 #5393
+        // 18-Nov-2025: [databind#5393] @JsonAnyGetter was getting included in generated schema
+
         // no-op
     }
 

@@ -15,48 +15,48 @@ import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("serial")
-public class MapFormatShape1419Test extends DatabindTestUtil
+public class MapFormatShape5405Test extends DatabindTestUtil
 {
     @JsonPropertyOrder({ "extra" })
-    static class Map476Base extends LinkedHashMap<String,Integer> {
+    static class Map5405Base extends LinkedHashMap<String,Integer> {
         public int extra = 13;
     }
 
     @JsonFormat(shape=JsonFormat.Shape.POJO)
-    static class Map476AsPOJO extends Map476Base { }
+    static class Map5405AsPOJO extends Map5405Base { }
 
     @JsonPropertyOrder({ "a", "b", "c" })
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    static class Bean476Container
+    static class Bean5405Container
     {
-        public Map476AsPOJO a;
-        public Map476Base b;
+        public Map5405AsPOJO a;
+        public Map5405Base b;
         @JsonFormat(shape=JsonFormat.Shape.POJO)
-        public Map476Base c;
+        public Map5405Base c;
 
-        public Bean476Container(int forA, int forB, int forC) {
+        public Bean5405Container(int forA, int forB, int forC) {
             if (forA != 0) {
-                a = new Map476AsPOJO();
+                a = new Map5405AsPOJO();
                 a.put("value", forA);
             }
             if (forB != 0) {
-                b = new Map476Base();
+                b = new Map5405Base();
                 b.put("value", forB);
             }
             if (forC != 0) {
-                c = new Map476Base();
+                c = new Map5405Base();
                 c.put("value", forC);
             }
         }
     }
 
-    static class Bean476Override
+    static class Bean5405Override
     {
         @JsonFormat(shape=JsonFormat.Shape.NATURAL)
-        public Map476AsPOJO stuff;
+        public Map5405AsPOJO stuff;
 
-        public Bean476Override(int value) {
-            stuff = new Map476AsPOJO();
+        public Bean5405Override(int value) {
+            stuff = new Map5405AsPOJO();
             stuff.put("value", value);
         }
     }
@@ -69,12 +69,12 @@ public class MapFormatShape1419Test extends DatabindTestUtil
 
     final private ObjectMapper MAPPER = newJsonMapper();
 
-    // Can't yet use per-property overrides at all, see [databind#1419]
+    // Can't yet use per-property overrides at all, see [databind#5405]
     @JacksonTestFailureExpected
     @Test
     public void testSerializeAsPOJOViaProperty() throws Exception
     {
-        String result = MAPPER.writeValueAsString(new Bean476Container(1,0,3));
+        String result = MAPPER.writeValueAsString(new Bean5405Container(1,0,3));
         assertEquals(a2q("{'a':{'extra':13,'empty':false},'c':{'empty':false,'value':3}}"),
                 result);
     }
@@ -82,7 +82,7 @@ public class MapFormatShape1419Test extends DatabindTestUtil
     @Test
     public void testSerializeNaturalViaOverride() throws Exception
     {
-        String result = MAPPER.writeValueAsString(new Bean476Override(123));
+        String result = MAPPER.writeValueAsString(new Bean5405Override(123));
         assertEquals(a2q("{'stuff':{'value':123}}"),
                 result);
     }

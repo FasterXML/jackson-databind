@@ -175,8 +175,6 @@ public interface BeanProperty extends FullyNamed
      */
     public static class Std implements BeanProperty
     {
-        private static final long serialVersionUID = 3L;
-
         protected final PropertyName _name;
         protected final JavaType _type;
         protected final PropertyName _wrapperName;

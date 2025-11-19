@@ -124,6 +124,7 @@ public class MapEntryDeserializer
      * Method called to finalize setup of this deserializer,
      * when it is known for which property deserializer is needed for.
      */
+    @SuppressWarnings("unchecked")
     @Override
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
@@ -271,6 +272,7 @@ public class MapEntryDeserializer
      *
      * @since 3.1 (for [databind#1419])
      */
+    @SuppressWarnings("unchecked")
     protected Map.Entry<Object,Object> _deserializeAsPOJO(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {

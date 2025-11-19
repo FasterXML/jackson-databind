@@ -1420,10 +1420,7 @@ factory.toString()));
         if (rawType == CLASS_MAP_ENTRY) {
             // [databind#1419]: Check if we should deserialize as POJO instead
             JsonFormat.Value format = beanDescRef.findExpectedFormat(Map.Entry.class);
-            if (format.getShape() == JsonFormat.Shape.POJO) {
-                // Let it fall through to be deserialized as a Bean/POJO
-                return null;
-            }
+            boolean asPOJO = (format.getShape() == JsonFormat.Shape.POJO);
             // 28-Apr-2015, tatu: TypeFactory does it all for us already so
             JavaType kt = type.containedTypeOrUnknown(0);
             JavaType vt = type.containedTypeOrUnknown(1);
@@ -1434,7 +1431,12 @@ factory.toString()));
             @SuppressWarnings("unchecked")
             ValueDeserializer<Object> valueDeser = (ValueDeserializer<Object>) vt.getValueHandler();
             KeyDeserializer keyDes = (KeyDeserializer) kt.getValueHandler();
-            return new MapEntryDeserializer(type, keyDes, valueDeser, vts);
+            MapEntryDeserializer meDeser = new MapEntryDeserializer(type, keyDes, valueDeser, vts);
+            if (asPOJO) {
+                // !!! 18-Nov-2025, tatu: [databind#1419] TODO -- implement!
+                ;
+            }
+            return meDeser;
         }
         String clsName = rawType.getName();
         if (rawType.isPrimitive() || clsName.startsWith("java.")) {

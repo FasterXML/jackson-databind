@@ -784,9 +784,7 @@ public abstract class BasicSerializerFactory
     {
         // [databind#865]: Allow serialization "as POJO" -- note: to undo, declare
         //   serialization as `Shape.NATURAL` instead; that's JSON Object too.
-        // [databind#1419]: Also allow `Shape.OBJECT` to work the same way
-        if ((effectiveFormat.getShape() == JsonFormat.Shape.POJO)
-                || (effectiveFormat.getShape() == JsonFormat.Shape.OBJECT)) {
+        if (effectiveFormat.getShape() == JsonFormat.Shape.POJO) {
             return null;
         }
         MapEntrySerializer ser = new MapEntrySerializer(valueType, keyType,

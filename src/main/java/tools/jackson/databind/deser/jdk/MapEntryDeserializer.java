@@ -128,7 +128,7 @@ public class MapEntryDeserializer
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
-        // [databind#1419]: Check if property has @JsonFormat(shape=OBJECT/POJO)
+        // [databind#1419]: Check if property has @JsonFormat(shape=POJO)
         boolean deserializeAsPOJO = _deserializeAsPOJO;
         if (property != null) {
             JsonFormat.Value format = property.findPropertyFormat(ctxt.getConfig(), Map.Entry.class);
@@ -137,7 +137,6 @@ public class MapEntryDeserializer
             case NATURAL:
                 deserializeAsPOJO = false;
                 break;
-            case OBJECT:
             case POJO:
                 deserializeAsPOJO = true;
                 break;

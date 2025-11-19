@@ -283,9 +283,8 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
 
         if (recordProblem(ctxt, message,
                 ctxt.constructType(instClass), argument)) {
-            // Only return null if we can safely continue
-            // For some types, instantiation failure is fatal
-            if (canReturnNullFor(instClass)) {
+            // Cannot return null for primitives; safe for all reference types
+            if (!instClass.isPrimitive()) {
                 return null;
             }
         }
@@ -312,17 +311,4 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
         return null;
     }
 
-    /**
-     * Checks if it's safe to return null for a given type after
-     * instantiation failure.
-     */
-    private boolean canReturnNullFor(Class<?> type) {
-        // Cannot return null for primitives
-        // Arrays of reference types can be null, only primitive types cannot
-        if (type.isPrimitive()) {
-            return false;
-        }
-        // Safe for reference types including arrays
-        return true;
-    }
 }

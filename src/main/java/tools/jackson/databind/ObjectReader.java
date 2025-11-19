@@ -1500,7 +1500,15 @@ public class ObjectReader
             // Hard failure occurred; attach collected problems as suppressed
             if (!bucket.isEmpty()) {
                 boolean limitReached = (bucket.size() >= maxProblems);
-                e.addSuppressed(new DeferredBindingException(p, bucket, limitReached));
+                if (limitReached) {
+                    // Limit was hit - throw DeferredBindingException as primary exception
+                    DeferredBindingException dbe = new DeferredBindingException(p, bucket, true);
+                    dbe.addSuppressed(e); // Original error as suppressed for debugging
+                    throw dbe;
+                } else {
+                    // Hard failure unrelated to limit - keep original as primary
+                    e.addSuppressed(new DeferredBindingException(p, bucket, false));
+                }
             }
             throw e;
         }

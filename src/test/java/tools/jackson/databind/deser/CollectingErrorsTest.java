@@ -397,25 +397,18 @@ public class CollectingErrorsTest extends DatabindTestUtil
             ObjectReader reader = MAPPER.readerFor(Order.class).problemCollectingReader();
 
             // when
-            Throwable thrown = catchThrowable(() -> reader.readValueCollectingProblems(json));
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
-            // then - should get hard failure with collected problems in suppressed
-            assertThat(thrown).isInstanceOf(DatabindException.class);
-            Throwable[] suppressed = thrown.getSuppressed();
+            // then - should get DeferredBindingException as primary when limit reached
+            assertThat(ex).isNotNull();
+            assertThat(ex.getProblems()).hasSize(100); // Stopped at limit
+            assertThat(ex.isLimitReached()).isTrue();
+            assertThat(ex.getMessage()).contains("limit reached");
+
+            // Original DatabindException should be in suppressed for debugging
+            Throwable[] suppressed = ex.getSuppressed();
             assertThat(suppressed).hasSizeGreaterThanOrEqualTo(1);
-
-            DeferredBindingException deferred = null;
-            for (Throwable s : suppressed) {
-                if (s instanceof DeferredBindingException) {
-                    deferred = (DeferredBindingException) s;
-                    break;
-                }
-            }
-
-            assertThat(deferred).isNotNull();
-            assertThat(deferred.getProblems()).hasSize(100); // Stopped at limit
-            assertThat(deferred.isLimitReached()).isTrue();
-            assertThat(deferred.getMessage()).contains("limit reached");
+            assertThat(suppressed[0]).isInstanceOf(DatabindException.class);
         }
 
         @Test
@@ -426,24 +419,17 @@ public class CollectingErrorsTest extends DatabindTestUtil
             ObjectReader reader = MAPPER.readerFor(Order.class).problemCollectingReader(10);
 
             // when
-            Throwable thrown = catchThrowable(() -> reader.readValueCollectingProblems(json));
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
-            // then
-            assertThat(thrown).isInstanceOf(DatabindException.class);
-            Throwable[] suppressed = thrown.getSuppressed();
+            // then - should get DeferredBindingException as primary when limit reached
+            assertThat(ex).isNotNull();
+            assertThat(ex.getProblems()).hasSize(10); // Custom limit
+            assertThat(ex.isLimitReached()).isTrue();
+
+            // Original DatabindException should be in suppressed for debugging
+            Throwable[] suppressed = ex.getSuppressed();
             assertThat(suppressed).hasSizeGreaterThanOrEqualTo(1);
-
-            DeferredBindingException deferred = null;
-            for (Throwable s : suppressed) {
-                if (s instanceof DeferredBindingException) {
-                    deferred = (DeferredBindingException) s;
-                    break;
-                }
-            }
-
-            assertThat(deferred).isNotNull();
-            assertThat(deferred.getProblems()).hasSize(10); // Custom limit
-            assertThat(deferred.isLimitReached()).isTrue();
+            assertThat(suppressed[0]).isInstanceOf(DatabindException.class);
         }
 
         @Test
@@ -677,29 +663,25 @@ public class CollectingErrorsTest extends DatabindTestUtil
         @Test
         @DisplayName("should attach collected problems as suppressed on hard failure")
         void suppressedProblems() {
-            // setup - create JSON with 101 errors to trigger limit and hard failure
-            // (shares scenario with defaultLimit test but focuses on suppressed exception mechanics)
+            // setup - create JSON with 101 errors to trigger limit
+            // When limit is reached, DeferredBindingException is thrown as primary,
+            // with original DatabindException as suppressed
             String json = buildInvalidOrderJson(101);
             ObjectReader reader = MAPPER.readerFor(Order.class).problemCollectingReader();
 
             // when
-            Throwable thrown = catchThrowable(() -> reader.readValueCollectingProblems(json));
+            DeferredBindingException ex = expectDeferredBinding(reader, json);
 
             // then - verify suppressed exception attachment mechanism
-            assertThat(thrown).isInstanceOf(DatabindException.class);
+            assertThat(ex).isNotNull();
+            assertThat(ex.getProblems()).hasSize(100);
+            assertThat(ex.isLimitReached()).isTrue();
 
-            DeferredBindingException deferred = null;
-            for (Throwable s : thrown.getSuppressed()) {
-                if (s instanceof DeferredBindingException) {
-                    deferred = (DeferredBindingException) s;
-                    break;
-                }
-            }
-
-            assertThat(deferred)
-                .as("Collected problems should be attached as suppressed DeferredBindingException")
-                .isNotNull();
-            assertThat(deferred.getProblems()).hasSize(100);
+            // Original DatabindException should be in suppressed for debugging
+            assertThat(ex.getSuppressed())
+                .as("Original DatabindException should be attached as suppressed")
+                .hasSizeGreaterThanOrEqualTo(1);
+            assertThat(ex.getSuppressed()[0]).isInstanceOf(DatabindException.class);
         }
     }
 

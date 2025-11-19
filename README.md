@@ -631,7 +631,7 @@ Few things to keep in mind:
 1. This is best-effort: not all problems can be collected. Malformed JSON (like missing closing brace) or other structural problems will still fail immediately. But type conversion errors, unknown properties (if you enable that check), and such will be collected.
 2. Error paths use JSON Pointer notation (RFC 6901): so `"/items/0/price"` means first item in `items` array, `price` field. Special characters get escaped (`~` becomes `~0`, `/` becomes `~1`).
 3. Each call to `readValueCollectingProblems()` gets its own problem bucket, so it's thread-safe to reuse the same `ObjectReader`.
-4. Fields that fail to deserialize get default values (0 for primitives, null for objects), so you do get a result object back (thrown in the exception).
+4. Fields that fail to deserialize get default values (0 for primitives, null for objects) during the attempt, but if any problems are collected, only the problems are reported in the `DeferredBindingException` - the partial result is not returned.
 
 This is particularly useful for things like REST API validation (return all validation errors to client), or batch processing (log errors but keep going), or development tooling.
 

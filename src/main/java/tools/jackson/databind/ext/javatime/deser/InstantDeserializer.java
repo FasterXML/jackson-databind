@@ -206,37 +206,27 @@ public class InstantDeserializer<T extends Temporal>
         _readTimestampsAsNanosOverride = readTimestampsAsNanosOverride;
     }
 
-    /*
-    @SuppressWarnings("unchecked")
-    protected InstantDeserializer(InstantDeserializer<T> base,
-            DatatypeFeatures features)
-    {
-        super((Class<T>) base.handledType(), base._formatter);
-        parsedToValue = base.parsedToValue;
-        fromMilliseconds = base.fromMilliseconds;
-        fromNanoseconds = base.fromNanoseconds;
-        adjust = base.adjust;
-        replaceZeroOffsetAsZ = base.replaceZeroOffsetAsZ;
-        _adjustToContextTZOverride = base._adjustToContextTZOverride;
-        _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
-    }
-    */
-
+    /**
+     * NOTE: {@code public} since 2.21 / 3.1
+     */
     @Override
-    protected InstantDeserializer<T> withDateFormat(DateTimeFormatter dtf) {
+    public InstantDeserializer<T> withDateFormat(DateTimeFormatter dtf) {
         if (dtf == _formatter) {
             return this;
         }
         return new InstantDeserializer<>(this, dtf);
     }
 
+    /**
+     * NOTE: {@code public} since 2.21 / 3.1
+     */
     @Override
-    protected InstantDeserializer<T> withLeniency(Boolean leniency) {
+    public InstantDeserializer<T> withLeniency(Boolean leniency) {
         return new InstantDeserializer<>(this, _formatter, leniency);
     }
 
     @SuppressWarnings("unchecked")
-    @Override // @since 2.12.1
+    @Override
     protected JSR310DateTimeDeserializerBase<?> _withFormatOverrides(DeserializationContext ctxt,
             BeanProperty property, JsonFormat.Value formatOverrides)
     {
@@ -395,8 +385,9 @@ public class InstantDeserializer<T extends Temporal>
     {
         FromDecimalArguments args =
             DecimalUtils.extractSecondsAndNanos(value, (s, ns) -> new FromDecimalArguments(s, ns, getZone(context)),
-                    // [modules-java8#337] since 2.19, only Instant needs negative adjustment
-                    true);
+                    // [modules-java8#359] since 2.21, Instant.ofEpochSecond() correctly handles
+                    // negative nanoseconds, so no adjustment needed
+                    false);
         return fromNanoseconds.apply(args);
     }
 

@@ -451,8 +451,8 @@ public class TreeBuildingGenerator
         if (node == null) {
             return writeNull();
         }
-        if (node instanceof JsonNode) {
-            _tokenWriteContext.writeNode((JsonNode) node);
+        if (node instanceof JsonNode jsonNode) {
+            _tokenWriteContext.writeNode(jsonNode);
         } else {
             _tokenWriteContext.writePOJO(node);
         }

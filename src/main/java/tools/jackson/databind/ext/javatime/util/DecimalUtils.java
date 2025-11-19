@@ -81,6 +81,14 @@ public final class DecimalUtils
      */
     public static BigDecimal toBigDecimal(long seconds, int nanoseconds)
     {
+        // [modules-java8#359] For negative seconds with positive nanos (times before epoch),
+        // we need to compute the proper decimal value: seconds + (nanos / 1_000_000_000)
+        // Example: Instant{epochSecond=-1, nano=999000000} represents -0.001 seconds
+        if (seconds < 0 && nanoseconds > 0) {
+            return BigDecimal.valueOf(seconds)
+                .add(BigDecimal.valueOf(nanoseconds).scaleByPowerOfTen(-9));
+        }
+
         if (nanoseconds == 0L) {
             // 14-Mar-2015, tatu: Let's retain one zero to avoid interpretation
             //    as integral number

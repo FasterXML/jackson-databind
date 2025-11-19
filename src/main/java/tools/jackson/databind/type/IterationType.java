@@ -47,8 +47,8 @@ public class IterationType extends SimpleType
         Objects.requireNonNull(iteratedType);
         // 19-Oct-2015, tatu: Not sure if and how other types could be used as base;
         //    will cross that bridge if and when need be
-        if (baseType instanceof TypeBase) {
-            return new IterationType((TypeBase) baseType, iteratedType);
+        if (baseType instanceof TypeBase base) {
+            return new IterationType(base, iteratedType);
         }
         throw new IllegalArgumentException("Cannot upgrade from an instance of "+baseType.getClass());
     }

@@ -1442,76 +1442,8 @@ public class ObjectReader
      */
     public <T> T readValueCollectingProblems(JsonParser p) throws JacksonException {
         _assertNotNull("p", p);
-
-        // Create fresh context for this call
         DeserializationContextExt ctxt = _deserializationContext();
-
-        // Call protected helper with context
-        return readValueCollectingProblems(p, ctxt);
-    }
-
-    /**
-     * Protected helper that performs problem-collecting deserialization using
-     * a provided context. This allows all convenience overloads to share a single
-     * context instance per call.
-     *
-     * @param p Parser to read from (caller's responsibility to close)
-     * @param ctxt Deserialization context to use
-     * @return Deserialized value
-     * @throws DeferredBindingException if problems were collected
-     * @throws DatabindException if an unrecoverable error occurred
-     */
-    protected <T> T readValueCollectingProblems(JsonParser p, DeserializationContextExt ctxt)
-            throws JacksonException {
-        // CRITICAL: Allocate a FRESH bucket for THIS call (thread-safety)
-        List<CollectedProblem> bucket = new ArrayList<>();
-
-        // Set bucket in context attributes (mutable per-call state)
-        ctxt.setAttribute(CollectingProblemHandler.class, bucket);
-
-        // Find the CollectingProblemHandler to get maxProblems limit
-        int maxProblems = CollectingProblemHandler.DEFAULT_MAX_PROBLEMS;
-        LinkedNode<DeserializationProblemHandler> handlers = _config.getProblemHandlers();
-        while (handlers != null) {
-            if (handlers.value() instanceof CollectingProblemHandler cph) {
-                maxProblems = cph.getMaxProblems();
-                break;
-            }
-            handlers = handlers.next();
-        }
-
-        try {
-            // Directly invoke _bind with the prepared context
-            @SuppressWarnings("unchecked")
-            T result = (T) _bind(ctxt, p, _valueToUpdate);
-
-            // Check if any problems were collected
-            if (!bucket.isEmpty()) {
-                boolean limitReached = (bucket.size() >= maxProblems);
-                throw new DeferredBindingException(p, bucket, limitReached);
-            }
-
-            return result;
-
-        } catch (DeferredBindingException e) {
-            throw e; // Already properly formatted
-
-        } catch (DatabindException e) {
-            // Hard failure occurred; attach collected problems as suppressed
-            if (!bucket.isEmpty()) {
-                boolean limitReached = (bucket.size() >= maxProblems);
-                if (limitReached) {
-                    // Limit was hit - throw DeferredBindingException as primary exception
-                    DeferredBindingException dbe = new DeferredBindingException(p, bucket, true);
-                    dbe.addSuppressed(e); // Original error as suppressed for debugging
-                    throw dbe;
-                } else {
-                    // Hard failure unrelated to limit - keep original as primary
-                    e.addSuppressed(new DeferredBindingException(p, bucket, false));
-                }
-            }
-            throw e;
-        }
+        return _collectingBind(ctxt, p);
     }
 
     /**
@@ -1520,9 +1452,8 @@ public class ObjectReader
     public <T> T readValueCollectingProblems(String content) throws JacksonException {
         _assertNotNull("content", content);
         DeserializationContextExt ctxt = _deserializationContext();
-        try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, content), true)) {
-            return readValueCollectingProblems(p, ctxt);
-        }
+        return _collectingBindAndClose(ctxt,
+                _considerFilter(_parserFactory.createParser(ctxt, content), true));
     }
 
     /**
@@ -1531,9 +1462,8 @@ public class ObjectReader
     public <T> T readValueCollectingProblems(byte[] content) throws JacksonException {
         _assertNotNull("content", content);
         DeserializationContextExt ctxt = _deserializationContext();
-        try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, content), true)) {
-            return readValueCollectingProblems(p, ctxt);
-        }
+        return _collectingBindAndClose(ctxt,
+                _considerFilter(_parserFactory.createParser(ctxt, content), true));
     }
 
     /**
@@ -1542,9 +1472,8 @@ public class ObjectReader
     public <T> T readValueCollectingProblems(File src) throws JacksonException {
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
-        try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true)) {
-            return readValueCollectingProblems(p, ctxt);
-        }
+        return _collectingBindAndClose(ctxt,
+                _considerFilter(_parserFactory.createParser(ctxt, src), true));
     }
 
     /**
@@ -1553,9 +1482,8 @@ public class ObjectReader
     public <T> T readValueCollectingProblems(InputStream src) throws JacksonException {
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
-        try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true)) {
-            return readValueCollectingProblems(p, ctxt);
-        }
+        return _collectingBindAndClose(ctxt,
+                _considerFilter(_parserFactory.createParser(ctxt, src), true));
     }
 
     /**
@@ -1564,9 +1492,8 @@ public class ObjectReader
     public <T> T readValueCollectingProblems(Reader src) throws JacksonException {
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
-        try (JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true)) {
-            return readValueCollectingProblems(p, ctxt);
-        }
+        return _collectingBindAndClose(ctxt,
+                _considerFilter(_parserFactory.createParser(ctxt, src), true));
     }
 
     /*
@@ -1899,6 +1826,78 @@ public class ObjectReader
                 _verifyNoTrailingTokens(p, ctxt, _valueType);
             }
             return result;
+        }
+    }
+
+    /**
+     * Internal helper for problem-collecting deserialization that does NOT close the parser.
+     * Caller is responsible for parser lifecycle management.
+     *
+     * @since 3.1
+     */
+    protected <T> T _collectingBind(DeserializationContextExt ctxt, JsonParser p)
+            throws JacksonException {
+        // CRITICAL: Allocate a FRESH bucket for THIS call (thread-safety)
+        List<CollectedProblem> bucket = new ArrayList<>();
+
+        // Set bucket in context attributes (mutable per-call state)
+        ctxt.setAttribute(CollectingProblemHandler.class, bucket);
+
+        // Find the CollectingProblemHandler to get maxProblems limit
+        int maxProblems = CollectingProblemHandler.DEFAULT_MAX_PROBLEMS;
+        LinkedNode<DeserializationProblemHandler> handlers = _config.getProblemHandlers();
+        while (handlers != null) {
+            if (handlers.value() instanceof CollectingProblemHandler cph) {
+                maxProblems = cph.getMaxProblems();
+                break;
+            }
+            handlers = handlers.next();
+        }
+
+        try {
+            // Directly invoke _bind with the prepared context
+            @SuppressWarnings("unchecked")
+            T result = (T) _bind(ctxt, p, _valueToUpdate);
+
+            // Check if any problems were collected
+            if (!bucket.isEmpty()) {
+                boolean limitReached = (bucket.size() >= maxProblems);
+                throw new DeferredBindingException(p, bucket, limitReached);
+            }
+
+            return result;
+
+        } catch (DeferredBindingException e) {
+            throw e; // Already properly formatted
+
+        } catch (DatabindException e) {
+            // Hard failure occurred; attach collected problems as suppressed
+            if (!bucket.isEmpty()) {
+                boolean limitReached = (bucket.size() >= maxProblems);
+                if (limitReached) {
+                    // Limit was hit - throw DeferredBindingException as primary exception
+                    DeferredBindingException dbe = new DeferredBindingException(p, bucket, true);
+                    dbe.addSuppressed(e); // Original error as suppressed for debugging
+                    throw dbe;
+                } else {
+                    // Hard failure unrelated to limit - keep original as primary
+                    e.addSuppressed(new DeferredBindingException(p, bucket, false));
+                }
+            }
+            throw e;
+        }
+    }
+
+    /**
+     * Internal helper for problem-collecting deserialization that DOES close the parser.
+     * Mirrors {@link #_bindAndClose} but with problem collection enabled.
+     *
+     * @since 3.1
+     */
+    protected <T> T _collectingBindAndClose(DeserializationContextExt ctxt, JsonParser p0)
+            throws JacksonException {
+        try (JsonParser p = p0) {
+            return _collectingBind(ctxt, p);
         }
     }
 

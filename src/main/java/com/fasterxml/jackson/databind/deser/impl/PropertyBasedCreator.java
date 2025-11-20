@@ -45,6 +45,14 @@ public final class PropertyBasedCreator
      */
     protected final SettableBeanProperty[] _allProperties;
 
+    /**
+     * Indexes of properties with associated Injectable values, if any:
+     * {@code null} if none.
+     *
+     * @since 2.21
+     */
+    protected final BitSet _injectablePropIndexes;
+
     /*
     /**********************************************************
     /* Construction, initialization
@@ -61,11 +69,8 @@ public final class PropertyBasedCreator
         if (caseInsensitive) {
             _propertyLookup = CaseInsensitiveMap.construct(ctxt.getConfig().getLocale());
         } else {
-            _propertyLookup = new HashMap<String, SettableBeanProperty>();
+            _propertyLookup = new HashMap<>();
         }
-        final int len = creatorProps.length;
-        _propertyCount = len;
-        _allProperties = new SettableBeanProperty[len];
 
         // 26-Feb-2017, tatu: Let's start by aliases, so that there is no
         //    possibility of accidental override of primary names
@@ -83,6 +88,11 @@ public final class PropertyBasedCreator
                 }
             }
         }
+        final int len = creatorProps.length;
+        _propertyCount = len;
+        _allProperties = new SettableBeanProperty[len];
+        BitSet injectablePropIndexes = null;
+
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = creatorProps[i];
             _allProperties[i] = prop;
@@ -90,7 +100,15 @@ public final class PropertyBasedCreator
             if (!prop.isIgnorable()) {
                 _propertyLookup.put(prop.getName(), prop);
             }
+            if (prop.getInjectionDefinition() != null) {
+                if (injectablePropIndexes == null) {
+                    injectablePropIndexes = new BitSet(len);
+                }
+                injectablePropIndexes.set(i);
+            }
         }
+
+        _injectablePropIndexes = injectablePropIndexes;
     }
 
     /**
@@ -102,6 +120,7 @@ public final class PropertyBasedCreator
     {
         _propertyCount = base._propertyCount;
         _valueInstantiator = base._valueInstantiator;
+        _injectablePropIndexes = base._injectablePropIndexes;
         _propertyLookup = propertyLookup;
         _allProperties = allProperties;
     }
@@ -161,15 +180,6 @@ public final class PropertyBasedCreator
         }
         return new PropertyBasedCreator(ctxt, valueInstantiator, creatorProps,
                 caseInsensitive, false);
-    }
-
-    @Deprecated // since 2.9
-    public static PropertyBasedCreator construct(DeserializationContext ctxt,
-            ValueInstantiator valueInstantiator, SettableBeanProperty[] srcCreatorProps)
-        throws JsonMappingException
-    {
-        return construct(ctxt, valueInstantiator, srcCreatorProps,
-                ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
     }
 
     /**
@@ -248,7 +258,8 @@ public final class PropertyBasedCreator
      */
     public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir) {
-        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, null);
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, null,
+                _injectablePropIndexes);
     }
 
     /**
@@ -259,7 +270,8 @@ public final class PropertyBasedCreator
     public PropertyValueBuffer startBuildingWithAnySetter(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir, SettableAnyProperty anySetter
     ) {
-        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter);
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter,
+                _injectablePropIndexes);
     }
 
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
@@ -301,11 +313,6 @@ public final class PropertyBasedCreator
          * @since 2.11
          */
         protected final Locale _locale;
-
-        @Deprecated // since 2.11
-        public CaseInsensitiveMap() {
-            this(Locale.getDefault());
-        }
 
         // @since 2.11
         public CaseInsensitiveMap(Locale l) {

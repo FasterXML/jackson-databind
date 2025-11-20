@@ -55,8 +55,6 @@ class JacksonInject2678Test extends DatabindTestUtil {
         final Some actualValuePresent = mapper.readValue(
                 "{\"field1\": \"field1value\", \"field2\": \"field2value\"}", Some.class);
         assertEquals("field1value", actualValuePresent.getField1());
-
-        // if I comment @JacksonInject that is next to the property the valid assert is the correct one:
         assertEquals("field2value", actualValuePresent.getField2());
     }
 }

@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.21.0 (not yet released)
 
+#1381: Add a way to specify "inject-only" with `@JacksonInject`
+ (fix by Giulio L)
 #1547: Un-deprecate `SerializationFeature.WRITE_EMPTY_JSON_ARRAYS`
 #5045: If there is a no-parameter constructor marked as `JsonCreator` and
   a constructor reported as `DefaultCreator`, latter is incorrectly used
@@ -16,6 +18,17 @@ Project: jackson-databind
 #5313: Expose `getConverter()` in `StdDelegatingSerializer` for improved
   customizability
  (contributed by @wrongwrong)
+#5361: Fix Maven SBOM publishing
+#5398: `@JsonProperty.value` + `@JsonIgnore` on setter does not work
+  anymore since 2.18.4
+ (reported by @victor-noel-pfx)
+ (fix by @cowtowncoder, w/ Claude code)
+
+2.20.2 (not yet released)
+
+#5393: `@JsonAnyGetter` property gets included in generated schema since 2.19.0
+ (reported by @victor-noel-pfx)
+ (fix by Joo-Hyuk K)
 
 2.20.1 (30-Oct-2025)
 

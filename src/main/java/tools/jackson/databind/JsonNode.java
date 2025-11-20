@@ -1363,13 +1363,13 @@ public abstract class JsonNode
      * JSON Object value) and has value for specified property with key {@code propertyName}
      * (but note that value may be explicit JSON null value).
      * If this node is Object Node and has value for specified property, matching value
-     * is returned; otherwise {@link IllegalArgumentException} is thrown.
+     * is returned; otherwise {@link JsonNodeException} is thrown.
      *
      * @param propertyName Name of property to access
      *
      * @return Value of the specified property of this Object node
      *
-     * @throws IllegalArgumentException if this node is not an Object node or if it does not
+     * @throws JsonNodeException if this node is not an Object node or if it does not
      *   have value for specified property
      */
     public abstract JsonNode required(String propertyName);
@@ -1383,13 +1383,13 @@ public abstract class JsonNode
      * JSON Array value) and has value for specified {@code index}
      * (but note that value may be explicit JSON null value).
      * If this node is Array Node and has value for specified index, value at index
-     * is returned; otherwise {@link IllegalArgumentException} is thrown.
+     * is returned; otherwise {@link JsonNodeException} is thrown.
      *
      * @param index Index of the value of this Array node to access
      *
      * @return Value at specified index of this Array node
      *
-     * @throws IllegalArgumentException if this node is not an Array node or if it does not
+     * @throws JsonNodeException if this node is not an Array node or if it does not
      *   have value for specified index
      */
     public abstract JsonNode required(int index);
@@ -1403,13 +1403,13 @@ public abstract class JsonNode
      * starting from {@code this} node
      * (but note that value may be explicit JSON null value).
      * If such value node exists it is returned;
-     * otherwise {@link IllegalArgumentException} is thrown.
+     * otherwise {@link JsonNodeException} is thrown.
      *
      * @param pathExpr {@link JsonPointer} expression (as String) to use for finding value node
      *
      * @return Matching value node for given expression
      *
-     * @throws IllegalArgumentException if no value node exists at given {@code JSON Pointer} path
+     * @throws JsonNodeException if no value node exists at given {@code JSON Pointer} path
      */
     public JsonNode requiredAt(String pathExpr) {
         return requiredAt(JsonPointer.compile(pathExpr));
@@ -1424,13 +1424,13 @@ public abstract class JsonNode
      * starting from {@code this} node
      * (but note that value may be explicit JSON null value).
      * If such value node exists it is returned;
-     * otherwise {@link IllegalArgumentException} is thrown.
+     * otherwise {@link JsonNodeException} is thrown.
      *
      * @param path {@link JsonPointer} expression to use for finding value node
      *
      * @return Matching value node for given expression
      *
-     * @throws IllegalArgumentException if no value node exists at given {@code JSON Pointer} path
+     * @throws JsonNodeException if no value node exists at given {@code JSON Pointer} path
      */
     public final JsonNode requiredAt(final JsonPointer path) {
         JsonPointer currentExpr = path;

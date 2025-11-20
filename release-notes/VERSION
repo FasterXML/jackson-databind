@@ -15,6 +15,22 @@ Versions: 3.x (for earlier see VERSION-2.x)
 (date-time)#359: `InstantDeserializer` deserializes the nanosecond portion of
   fractional negative timestamps incorrectly
 
+3.0.3 (not yet released)
+
+#5393: `@JsonAnyGetter` property gets included in generated schema
+ (reported by @victor-noel-pfx)
+ (fix by Joo-Hyuk K)
+#5398: `@JsonProperty.value` + `@JsonIgnore` on setter does not work
+  anymore since 2.18.4
+ (reported by @victor-noel-pfx)
+ (fix by @cowtowncoder, w/ Claude code)
+#5401: Regression with `@JsonCreator` that returns `null` for empty strings
+ (fix contributed by Joost K)
+#5408: Jackson 3 `JsonNode#required(java.lang.String)` throws `JsonNodeException`
+  different from JavDoc
+ (reported by @jochenberger)
+ (fix by Joo-Hyuk K)
+
 3.0.2 (07-Nov-2025)
 
 #5203: Fix `null` handling of `EnumSetDeserializer`

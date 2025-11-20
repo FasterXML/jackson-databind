@@ -1514,13 +1514,19 @@ ctor.creator()));
             POJOPropertyBuilder prop = entry.getValue();
 
             // 10-Apr-2025: [databind#4628] skip properties that are marked to be ignored
-            // TODO: we are using implicit name, is that ok?
+            // 19-Nov-2025: [databind#5398] BUT do not skip if property has explicit names
+            //   on accessors that are NOT ignored (e.g., @JsonProperty on getter but @JsonIgnore on setter).
+            //   NOTE: For Records we need to be more conservative as constructor parameters may have
+            //   both annotations but generated accessors don't always inherit @JsonIgnore
             if (_ignoredPropertyNames != null && _ignoredPropertyNames.contains(prop.getName())) {
-                continue;
+                // For Records: always skip (safer due to annotation inheritance issues)
+                // For regular classes: only skip if NO explicit names on non-ignored accessors
+                if (isRecordType() || !prop.anyExplicitsWithoutIgnoral()) {
+                    continue;
+                }
             }
 
             Collection<PropertyName> l = prop.findExplicitNames();
-
             // no explicit names? Implicit one is fine as is
             if (l.isEmpty()) {
                 continue;

@@ -13,7 +13,8 @@ import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-// [databind#5281] Reading into existing instance uses creator property setup instead of accessor #5281
+// [databind#5281] Reading into existing instance uses creator property setup instead
+// of accessor #5281
 public class ReaderForUpdating5281Test
     extends DatabindTestUtil
 {

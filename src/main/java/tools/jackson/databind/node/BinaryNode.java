@@ -130,8 +130,8 @@ public class BinaryNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof BinaryNode) {
-            byte[] otherData = ((BinaryNode) o)._data;
+        if (o instanceof BinaryNode binaryNode) {
+            byte[] otherData = binaryNode._data;
             return Arrays.equals(_data, otherData);
         }
         return false;

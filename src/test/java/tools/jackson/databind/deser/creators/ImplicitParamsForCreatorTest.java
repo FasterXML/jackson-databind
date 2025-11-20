@@ -23,8 +23,7 @@ public class ImplicitParamsForCreatorTest extends DatabindTestUtil
     {
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember param) {
-            if (param instanceof AnnotatedParameter) {
-                AnnotatedParameter ap = (AnnotatedParameter) param;
+            if (param instanceof AnnotatedParameter ap) {
                 return "paramName"+ap.getIndex();
             }
             return super.findImplicitPropertyName(config, param);

@@ -6,10 +6,12 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.impl.NullsConstantProvider;
 import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
@@ -197,17 +199,23 @@ public class EnumSetDeserializer
                 // passed it to EnumDeserializer, too, but in general nulls should never be passed
                 // to non-container deserializers)
                 Enum<?> value;
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
-                        continue;
-                    }
+                if ((t == JsonToken.VALUE_NULL)
+                        // [databind#5203]: Custom deserializer may return null for non-null token
+                        || (value = _enumDeserializer.deserialize(p, ctxt)) == null) {
                     value = (Enum<?>) _nullProvider.getNullValue(ctxt);
-                } else {
-                    value = _enumDeserializer.deserialize(p, ctxt);
+                    if (value == null) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
+                        // EnumSet does not accept nulls, so we need to report an error
+                        // 05-Nov-2025, tatu: In case of no explicit Nulls handling; with 2.x,
+                        //   let's just skip for backward compatibility; with 3.x, FAIL
+
+                        // !!! TODO: retain PropertyName info
+                        throw InvalidNullException.from(ctxt, null, _enumType);
+                    }
                 }
-                if (value != null) {
-                    result.add(value);
-                }
+                result.add(value);
             }
         } catch (Exception e) {
             throw DatabindException.wrapWithPath(ctxt, e,

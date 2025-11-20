@@ -1,9 +1,11 @@
 package tools.jackson.databind.node;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonPointer;
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.JsonNodeException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,19 +100,65 @@ public class RequiredAccessorTest
     }
 
     @Test
+    public void testSimpleRequireAtFailure() throws Exception {
+        try {
+            TEST_OBJECT.requiredAt("/some-random-path");
+            fail("Should not pass");
+        } catch (JsonNodeException e) {
+            verifyException(e, "No node at");
+        }
+        try {
+            TEST_ARRAY.requiredAt("/some-random-path");
+            fail("Should not pass");
+        } catch (JsonNodeException e) {
+            verifyException(e, "No node at");
+        }
+        try {
+            TEST_OBJECT.requiredAt(JsonPointer.compile("/some-random-path"));
+            fail("Should not pass");
+        } catch (JsonNodeException e) {
+            verifyException(e, "No node at");
+        }
+        try {
+            TEST_ARRAY.requiredAt(JsonPointer.compile("/some-random-path"));
+            fail("Should not pass");
+        } catch (JsonNodeException e) {
+            verifyException(e, "No node at");
+        }
+    }
+
+    @Test
     public void testSimpleRequireFail() throws Exception {
+        // required(String)
         try {
             TEST_OBJECT.required("bogus");
             fail("Should not pass");
-        } catch (DatabindException e) {
+        } catch (JsonNodeException e) {
             verifyException(e, "No value for property 'bogus'");
         }
 
+        // required(String)
         try {
             TEST_ARRAY.required("bogus");
             fail("Should not pass");
-        } catch (DatabindException e) {
+        } catch (JsonNodeException e) {
             verifyException(e, "Node of type `tools.jackson.databind.node.ArrayNode` has no fields");
+        }
+
+        // required(int)
+        try {
+            TEST_OBJECT.required(-1);
+            fail("Should not pass");
+        } catch (JsonNodeException e) {
+            verifyException(e, "has no indexed values");
+        }
+
+        // required(int)
+        try {
+            TEST_ARRAY.required(-1);
+            fail("Should not pass");
+        } catch (JsonNodeException e) {
+            verifyException(e, "No value at index #");
         }
     }
 

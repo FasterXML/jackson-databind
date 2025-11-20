@@ -93,8 +93,8 @@ public class ArrayNode
         }
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ObjectNode found = baseNode._withObject(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -116,8 +116,8 @@ public class ArrayNode
         }
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ArrayNode found = ((BaseJsonNode) n)._withArray(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ArrayNode found = baseNode._withArray(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -296,22 +296,21 @@ public class ArrayNode
     @Override
     public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
     {
-        if (!(o instanceof ArrayNode)) {
-            return false;
-        }
-        ArrayNode other = (ArrayNode) o;
-        final int len = _children.size();
-        if (other.size() != len) {
-            return false;
-        }
-        List<JsonNode> l1 = _children;
-        List<JsonNode> l2 = other._children;
-        for (int i = 0; i < len; ++i) {
-            if (!l1.get(i).equals(comparator, l2.get(i))) {
+        if (o instanceof ArrayNode other) {
+            final int len = _children.size();
+            if (other.size() != len) {
                 return false;
             }
+            List<JsonNode> l1 = _children;
+            List<JsonNode> l2 = other._children;
+            for (int i = 0; i < len; ++i) {
+                if (!l1.get(i).equals(comparator, l2.get(i))) {
+                    return false;
+                }
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 
     /*
@@ -1163,8 +1162,8 @@ public class ArrayNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof ArrayNode) {
-            return _children.equals(((ArrayNode) o)._children);
+        if (o instanceof ArrayNode arrayNode) {
+            return _children.equals(arrayNode._children);
         }
         return false;
     }

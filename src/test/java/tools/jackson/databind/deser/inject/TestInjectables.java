@@ -5,14 +5,11 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
-import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-
-public class TestInjectables
+public class TestInjectables extends DatabindTestUtil
 {
     static class InjectedBean
     {
@@ -106,11 +103,12 @@ public class TestInjectables
     public void testSimple() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .injectableValues(new InjectableValues.Std()
+            .injectableValues(new InjectableValues.Std()
             .addValue(String.class, "stuffValue")
             .addValue("myId", "xyz")
             .addValue(Long.TYPE, Long.valueOf(37))
-            ).build();
+            )
+            .build();
         InjectedBean bean = mapper.readValue("{\"value\":3}", InjectedBean.class);
         assertEquals(3, bean.value);
         assertEquals("stuffValue", bean.stuff);

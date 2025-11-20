@@ -9,6 +9,27 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 #5350: Add `DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES` for
   selecting `null` vs "empty/absent" value when deserializing missing `Optional` value
+#5361: Fix Maven SBOM publishing (worked in 3.0.0-rc4 but not in rc5 or later)
+(date-time)#359: `InstantDeserializer` deserializes the nanosecond portion of
+  fractional negative timestamps incorrectly
+
+3.0.3 (not yet released)
+
+#5393: `@JsonAnyGetter` property gets included in generated schema
+ (reported by @victor-noel-pfx)
+ (fix by Joo-Hyuk K)
+#5401: Regression with `@JsonCreator` that returns `null` for empty strings
+ (fix contributed by Joost K)
+#5408: Jackson 3 `JsonNode#required(java.lang.String)` throws `JsonNodeException`
+  different from JavDoc
+ (reported by @jochenberger)
+
+3.0.2 (07-Nov-2025)
+
+#5203: Fix `null` handling of `EnumSetDeserializer`
+#5372: Wrong setter is used when deserializing from `InputStream` (or `byte[]`)
+   (NOTE: actual fix via jackson-core#1491)
+ (reported by @quaff)
 
 3.0.1 (21-Oct-2025)
 

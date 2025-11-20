@@ -49,8 +49,8 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public String getName() {
-        if (_key instanceof String) {
-            return (String) _key;
+        if (_key instanceof String string) {
+            return string;
         }
         return String.valueOf(_key);
     }

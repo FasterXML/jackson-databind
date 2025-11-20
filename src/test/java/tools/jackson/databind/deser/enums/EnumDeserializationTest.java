@@ -15,6 +15,7 @@ import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.deser.std.FromStringDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.module.SimpleModule;
@@ -460,10 +461,15 @@ public class EnumDeserializationTest
     @Test
     public void testAllowUnknownEnumValuesForEnumSets() throws Exception
     {
-        EnumSet<TestEnum> result = MAPPER.reader(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+        // 05-Nov-2025, tatu: As per [databind#5203], no longer quietly skippped
+        try {
+            MAPPER.reader(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .forType(new TypeReference<EnumSet<TestEnum>>() { })
                 .readValue("[\"NO-SUCH-VALUE\"]");
-        assertEquals(0, result.size());
+            fail("Expected an exception for bogus enum value-turned null");
+        } catch (InvalidNullException jex) {
+            verifyException(jex, "Invalid `null` value encountered");
+        }
     }
 
     @Test

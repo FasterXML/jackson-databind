@@ -474,8 +474,8 @@ public final class SerializationConfig
 
     public PrettyPrinter constructDefaultPrettyPrinter() {
         PrettyPrinter pp = _defaultPrettyPrinter;
-        if (pp instanceof Instantiatable<?>) {
-            pp = (PrettyPrinter) ((Instantiatable<?>) pp).createInstance();
+        if (pp instanceof Instantiatable<?> pInstantiatable) {
+            pp = (PrettyPrinter) pInstantiatable.createInstance();
         }
         return pp;
     }

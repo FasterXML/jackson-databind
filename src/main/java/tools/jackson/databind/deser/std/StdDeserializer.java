@@ -1346,8 +1346,8 @@ public abstract class StdDeserializer<T>
         // 07-Nov-2019, tatu: [databind#2535] Need to support byte[]->Base64 same as `StringDeserializer`
         case JsonTokenId.ID_EMBEDDED_OBJECT:
             Object ob = p.getEmbeddedObject();
-            if (ob instanceof byte[]) {
-                return ctxt.getBase64Variant().encode((byte[]) ob, false);
+            if (ob instanceof byte[] byteArray) {
+                return ctxt.getBase64Variant().encode(byteArray, false);
             }
             if (ob == null) {
                 return null;

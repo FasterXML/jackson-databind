@@ -351,8 +351,7 @@ public class JacksonAnnotationIntrospector
         if (!config.isEnabled(MapperFeature.DETECT_PARAMETER_NAMES)) {
             return null;
         }
-        if (m instanceof AnnotatedParameter) {
-            AnnotatedParameter p = (AnnotatedParameter) m;
+        if (m instanceof AnnotatedParameter p) {
             AnnotatedWithParams owner = p.getOwner();
             if (owner instanceof AnnotatedConstructor) {
                 // 15-Sep-2025, tatu: May seem odd but we'll keep access dynamic due
@@ -525,15 +524,14 @@ public class JacksonAnnotationIntrospector
         if (!v.hasId()) {
             Object id;
             // slight complication; for setters, type
-            if (!(m instanceof AnnotatedMethod)) {
-                id = m.getRawType().getName();
-            } else {
-                AnnotatedMethod am = (AnnotatedMethod) m;
+            if (m instanceof AnnotatedMethod am) {
                 if (am.getParameterCount() == 0) { // getter
                     id = m.getRawType().getName();
                 } else { // setter
                     id = am.getRawParameterType(0).getName();
                 }
+            } else {
+                id = m.getRawType().getName();
             }
             v = v.withId(id);
         }

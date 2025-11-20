@@ -107,8 +107,7 @@ public final class AnnotatedMethod
     @Override
     public final Object call1(Object arg) throws Exception {
         try {
-            Object ret = _invokerUnary.get().invokeExact(arg);
-            return ret == null ? arg : ret;
+            return _invokerUnary.get().invokeExact(arg);
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }

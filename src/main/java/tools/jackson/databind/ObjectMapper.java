@@ -1278,8 +1278,8 @@ public class ObjectMapper
         // 20-Apr-2016, tatu: Another thing: for VALUE_EMBEDDED_OBJECT, assume similar
         //    short-cut coercion
         if (tt == JsonToken.VALUE_EMBEDDED_OBJECT) {
-            if (n instanceof POJONode) {
-                Object ob = ((POJONode) n).getPojo();
+            if (n instanceof POJONode pNode) {
+                Object ob = pNode.getPojo();
                 if ((ob == null) || valueType.isInstance(ob)) {
                     return (T) ob;
                 }
@@ -1312,8 +1312,8 @@ public class ObjectMapper
         }
         final JsonToken tt = n.asToken();
         if (tt == JsonToken.VALUE_EMBEDDED_OBJECT) {
-            if (n instanceof POJONode) {
-                Object ob = ((POJONode) n).getPojo();
+            if (n instanceof POJONode pNode) {
+                Object ob = pNode.getPojo();
                 if ((ob == null) || valueType.isTypeOrSuperTypeOf(ob.getClass())) {
                     return (T) ob;
                 }

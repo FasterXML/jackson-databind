@@ -92,3 +92,8 @@ Rob Winch (@rwinch)
  * Reported, contributed fix for #5354: jackson-databind 3.0.0 renders `callbacks`
    property from Spring CGLIB Proxy
   [3.0.1]
+
+Joost Koehoorn (@JoostK)
+ * Reported, contributed fix for #5401: Regression with `@JsonCreator` that returns
+   `null` for empty strings
+  [3.0.3]

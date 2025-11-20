@@ -1034,12 +1034,11 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
 
         @Override
         public boolean contains(Object obj) {
-            if (!(obj instanceof Entry<?, ?>)) {
-                return false;
+            if (obj instanceof Entry<?, ?> entry) {
+                Node<K, V> node = map.data.get(entry.getKey());
+                return (node != null) && (node.getValue().equals(entry.getValue()));
             }
-            Entry<?, ?> entry = (Entry<?, ?>) obj;
-            Node<K, V> node = map.data.get(entry.getKey());
-            return (node != null) && (node.getValue().equals(entry.getValue()));
+            return false;
         }
 
         @Override
@@ -1049,11 +1048,10 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
 
         @Override
         public boolean remove(Object obj) {
-            if (!(obj instanceof Entry<?, ?>)) {
-                return false;
+            if (obj instanceof Entry<?, ?> entry) {
+                return map.remove(entry.getKey(), entry.getValue());
             }
-            Entry<?, ?> entry = (Entry<?, ?>) obj;
-            return map.remove(entry.getKey(), entry.getValue());
+            return false;
         }
     }
 

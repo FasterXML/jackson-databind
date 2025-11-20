@@ -1,7 +1,5 @@
 package tools.jackson.databind.misc;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
@@ -72,7 +70,7 @@ public class ParsingContext2525Test extends DatabindTestUtil
         }
     }
 
-    private TokenBuffer _readAsTokenBuffer(String doc) throws IOException
+    private TokenBuffer _readAsTokenBuffer(String doc)
     {
         try (JsonParser p = MAPPER.createParser(doc)) {
             p.nextToken();

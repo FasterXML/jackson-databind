@@ -1476,8 +1476,7 @@ public class POJOPropertyBuilder
     protected Class<?> _rawTypeOf(AnnotatedMember m) {
         // AnnotatedMethod always returns return type, but for setters we
         // actually need argument type
-        if (m instanceof AnnotatedMethod) {
-            AnnotatedMethod meh = (AnnotatedMethod) m;
+        if (m instanceof AnnotatedMethod meh) {
             if (meh.getParameterCount() > 0) {
                 // note: get raw type FROM full type since only that resolves
                 // generic types

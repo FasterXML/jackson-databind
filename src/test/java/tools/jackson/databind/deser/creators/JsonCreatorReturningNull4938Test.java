@@ -13,29 +13,11 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#4938] Allow JsonCreator factory method to return `null`
+// [databind#5401] Do not replace null from JsonCreator factory method
 public class JsonCreatorReturningNull4938Test
     extends DatabindTestUtil
 {
-    static class NonEmpty {
-        public NonEmptyString nonEmpty;
-    }
-
-    static class NonEmptyString {
-        public final String value;
-
-        @JsonCreator
-        public static NonEmptyString of(String value) {
-            if (value == null || value.isEmpty()) {
-                return null;
-            }
-            return new NonEmptyString(value);
-        }
-
-        private NonEmptyString(String value) {
-            this.value = value;
-        }
-    }
-
+    // [databind#4938]
     static class Localized3 {
         public final String en;
         public final String de;
@@ -109,24 +91,32 @@ public class JsonCreatorReturningNull4938Test
         }
     }
 
+    // [databind#5401]
+    static class NonEmpty5401 {
+        public NonEmptyString5401 nonEmpty;
+    }
+
+    static class NonEmptyString5401 {
+        public final String value;
+
+        @JsonCreator
+        public static NonEmptyString5401 of(String value) {
+            if (value == null || value.isEmpty()) {
+                return null;
+            }
+            return new NonEmptyString5401(value);
+        }
+
+        private NonEmptyString5401(String value) {
+            this.value = value;
+        }
+    }
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @Test
-    void testDeserializeFieldToNullIfCreatorReturnsNull()
-            throws Exception
-    {
-        NonEmpty result = MAPPER.readValue(
-                "{ \"nonEmpty\": \"\" }",
-                NonEmpty.class);
-
-        assertNotNull(result);
-        assertNull(result.nonEmpty);
-    }
-
+    // [databind#4938]
     @Test
     void testDeserializeToNullWhenAllPropertiesAreNull()
-            throws Exception
     {
         Localized3 result = MAPPER.readValue(
                 "{ \"en\": null, \"de\": null, \"fr\": null }",
@@ -137,7 +127,6 @@ public class JsonCreatorReturningNull4938Test
 
     @Test
     void testDeserializeToNonNullWhenAnyPropertyIsNonNull()
-            throws Exception
     {
         Localized3 result = MAPPER.readValue(
                 "{ \"en\": \"Hello\", \"de\": null, \"fr\": null }",
@@ -149,7 +138,6 @@ public class JsonCreatorReturningNull4938Test
 
     @Test
     void testDeserializeReadingAfterCreatorProps()
-            throws Exception
     {
         // Should all fail...
         ObjectReader enabled = MAPPER.readerFor(Localized4.class)
@@ -167,7 +155,6 @@ public class JsonCreatorReturningNull4938Test
     // Test to verify we are reading till the end of the OBJECT
     @Test
     void testDeserializeReadingUntilEndObject()
-            throws Exception
     {
         // Should all fail...
         ObjectReader enabled = MAPPER.readerFor(Localized4.class)
@@ -188,7 +175,6 @@ public class JsonCreatorReturningNull4938Test
 
     @Test
     void testJsonCreatorNullWithAnySetter()
-            throws Exception
     {
         String JSON = "{ \"en\": null, \"de\": null, \"fr\": null, " +
                 // These two properties are unknown
@@ -197,5 +183,17 @@ public class JsonCreatorReturningNull4938Test
         MAPPER.readerFor(Localized5.class)
                 .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .readValue(JSON);
+    }
+
+    // [databind#5401]
+    @Test
+    void deserializeFieldToNullIfDelegatingCreatorReturnsNull()
+    {
+        NonEmpty5401 result = MAPPER.readValue(
+                "{ \"nonEmpty\": \"\" }",
+                NonEmpty5401.class);
+
+        assertNotNull(result);
+        assertNull(result.nonEmpty);
     }
 }

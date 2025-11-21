@@ -570,5 +570,17 @@ public class DefaultAccessorNamingStrategy
             // but also allow auto-detecting additional getters, if any?
             return super.findNameForRegularGetter(am, name);
         }
+
+        /**
+         * Helper method to check if given method name is an actual Record component accessor.
+         *
+         * @param methodName Method name to check
+         * @return True if method name matches a Record component name (actual accessor)
+         *
+         * @since 2.21
+         */
+        public boolean isRecordFieldAccessor(String methodName) {
+            return _fieldNames.contains(methodName);
+        }
     }
 }

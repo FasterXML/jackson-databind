@@ -1250,6 +1250,30 @@ ctor.creator()));
         // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
         implName = _checkRenameByField(implName);
         boolean ignore = ai.hasIgnoreMarker(m);
+
+        // [databind#5184]: For Records during deserialization, skip non-accessor getters with
+        // @JsonIgnore that would conflict with record component properties.
+        // For example, a record with component "value" should not have its property ignored
+        // just because there's a non-accessor method "getValue()" marked with @JsonIgnore.
+        if (ignore && isRecordType() && !_forSerialization && !nameExplicit) {
+            // Only skip if this is NOT the actual record accessor method
+            if (_accessorNaming instanceof DefaultAccessorNamingStrategy.RecordNaming) {
+                DefaultAccessorNamingStrategy.RecordNaming recordNaming =
+                    (DefaultAccessorNamingStrategy.RecordNaming) _accessorNaming;
+                // Check if the method name itself is a record accessor (e.g., "value()")
+                if (!recordNaming.isRecordFieldAccessor(m.getName())) {
+                    // Check if the implied property name matches a record field
+                    // If so, skip this non-accessor method to prevent pollution
+                    if (recordNaming.isRecordFieldAccessor(implName)) {
+                        // This is a non-accessor method (e.g., getValue()) with @JsonIgnore,
+                        // and it maps to a record component (e.g., "value"). Skip it to prevent
+                        // the @JsonIgnore from polluting the record component property.
+                        return;
+                    }
+                }
+            }
+        }
+
         _property(props, implName).addGetter(m, pn, nameExplicit, visible, ignore);
     }
 

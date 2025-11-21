@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.records;
 
 import java.util.Optional;
 
@@ -6,12 +6,18 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+/**
+ * Tests for issue #5184: {@code @JsonIgnore} on non-accessor methods should not
+ * affect deserialization of record components.
+ */
 public class RecordWithJsonIgnoredMethod5184Test
     extends DatabindTestUtil
 {
@@ -44,9 +50,10 @@ public class RecordWithJsonIgnoredMethod5184Test
 
     private static final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
+    // [databind#5184]: Record component should deserialize correctly even when
+    // there's a non-accessor method with @JsonIgnore
     @Test
-    void should_deserialize_json_to_test_data() throws Exception {
+    void testRecordWithIgnoredNonAccessorMethod() throws Exception {
         String json = """
                 {"test_property":"test value"}
                 """;
@@ -56,8 +63,9 @@ public class RecordWithJsonIgnoredMethod5184Test
         assertThat(testData.value()).isEqualTo("test value");
     }
 
+    // Regular class behavior should be unchanged: @JsonIgnore on getter only affects serialization
     @Test
-    void should_deserialize_json_to_test_data_class() throws Exception {
+    void testRegularClassWithIgnoredGetter() throws Exception {
         String json = """
                 {"test_property":"test value"}
                 """;
@@ -67,8 +75,9 @@ public class RecordWithJsonIgnoredMethod5184Test
         assertThat(testData.getValue()).contains("test value");
     }
 
+    // Alternative naming (optionalValue vs getValue) should work without issues
     @Test
-    void should_deserialize_json_to_test_data_alternate() throws Exception {
+    void testRecordWithDifferentMethodName() throws Exception {
         String json = """
                 {"test_property":"test value"}
                 """;
@@ -78,14 +87,17 @@ public class RecordWithJsonIgnoredMethod5184Test
         assertThat(testData.value()).isEqualTo("test value");
     }
 
+    // When JSON property name doesn't match record component, should fail (not silently ignore)
     @Test
-    void should_not_deserialize_wrong_json_model_to_test_data() throws Exception {
+    void testUnrecognizedPropertyStillFails() throws Exception {
         String json = """
                 {"value":"test value"}
                 """;
 
-        TestData5184 testData = MAPPER.readValue(json, TestData5184.class);
-
-        assertThat(testData.value()).isNull();
+        // With the fix, "value" is not recognized as a property (because getValue() is not
+        // polluting the record component), so this should throw UnrecognizedPropertyException
+        assertThrows(UnrecognizedPropertyException.class, () -> {
+            MAPPER.readValue(json, TestData5184.class);
+        });
     }
 }

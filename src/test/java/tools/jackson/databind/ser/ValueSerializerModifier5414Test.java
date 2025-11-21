@@ -53,11 +53,13 @@ public class ValueSerializerModifier5414Test extends DatabindTestUtil
 
     // [databind#5414]
     @Test
-    public void main()
+    public void annotationsAccessIssue5414()
     {
-        var mapper = JsonMapper.builder().addModule(new HiddenFieldModule()).build();
+        var mapper = JsonMapper.builder()
+                .addModule(new HiddenFieldModule())
+                .build();
         User user = new User("John", "123456");
         String userJson = mapper.writeValueAsString(user);
-        assertEquals("{}", userJson);
+        assertEquals("{\"name\":\"John\"}", userJson);
     }
 }

@@ -28,6 +28,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   different from JavDoc
  (reported by @jochenberger)
  (fix by Joo-Hyuk K)
+#5414: `NullPointerException` in `AnnotatedMember.annotations()` when
+  no annotations are present
+ (reported by Benjamin H)
 
 3.0.2 (07-Nov-2025)
 

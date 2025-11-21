@@ -724,8 +724,8 @@ public class AnnotationIntrospectorPair
         if ((maybeCls == null) || (maybeCls == implicit)) {
             return false;
         }
-        if (maybeCls instanceof Class<?>) {
-            return !ClassUtil.isBogusClass((Class<?>) maybeCls);
+        if (maybeCls instanceof Class<?> class1) {
+            return !ClassUtil.isBogusClass(class1);
         }
         return true;
     }
@@ -734,7 +734,7 @@ public class AnnotationIntrospectorPair
         if ((maybeCls == null) || (maybeCls == implicit)) {
             return null;
         }
-        if ((maybeCls instanceof Class<?>) && ClassUtil.isBogusClass((Class<?>) maybeCls)) {
+        if (maybeCls instanceof Class<?> class1 && ClassUtil.isBogusClass(class1)) {
             return null;
         }
         return maybeCls;

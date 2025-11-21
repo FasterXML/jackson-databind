@@ -341,8 +341,8 @@ public abstract class BeanSerializerBase
         // also, any-getter may need to be resolved
         for (int i = 0; i < _props.length; i++) {
             BeanPropertyWriter prop = _props[i];
-            if (prop instanceof AnyGetterWriter) {
-                ((AnyGetterWriter) prop).resolve(provider);
+            if (prop instanceof AnyGetterWriter anyGetterWriter) {
+                anyGetterWriter.resolve(provider);
             }
         }
     }

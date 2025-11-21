@@ -413,8 +413,8 @@ public final class BaseSettings
 
     private DateFormat _force(DateFormat df, TimeZone tz)
     {
-        if (df instanceof StdDateFormat) {
-            return ((StdDateFormat) df).withTimeZone(tz);
+        if (df instanceof StdDateFormat sdf) {
+            return sdf.withTimeZone(tz);
         }
         // we don't know if original format might be shared; better create a clone:
         df = (DateFormat) df.clone();

@@ -366,8 +366,7 @@ public class BigIntegerNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof BigIntegerNode) {
-            BigIntegerNode otherNode = (BigIntegerNode) o;
+        if (o instanceof BigIntegerNode otherNode) {
             return Objects.equals(otherNode._value, _value);
         }
         return false;

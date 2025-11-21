@@ -300,15 +300,15 @@ public abstract class PrimitiveArrayDeserializers<T>
             if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
                 Object ob = p.getEmbeddedObject();
                 if (ob == null) return null;
-                if (ob instanceof char[]) {
-                    return (char[]) ob;
+                if (ob instanceof char[] charArray) {
+                    return charArray;
                 }
-                if (ob instanceof String) {
-                    return ((String) ob).toCharArray();
+                if (ob instanceof String string) {
+                    return string.toCharArray();
                 }
                 // 04-Feb-2011, tatu: byte[] can be converted; assuming base64 is wanted
-                if (ob instanceof byte[]) {
-                    return Base64Variants.getDefaultVariant().encode((byte[]) ob, false).toCharArray();
+                if (ob instanceof byte[] byteArray) {
+                    return Base64Variants.getDefaultVariant().encode(byteArray, false).toCharArray();
                 }
                 // not recognized, just fall through
             }
@@ -473,8 +473,8 @@ public abstract class PrimitiveArrayDeserializers<T>
             if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
                 Object ob = p.getEmbeddedObject();
                 if (ob == null) return null;
-                if (ob instanceof byte[]) {
-                    return (byte[]) ob;
+                if (ob instanceof byte[] byteArray) {
+                    return byteArray;
                 }
             }
             if (!p.isExpectedStartArrayToken()) {
@@ -875,8 +875,8 @@ public abstract class PrimitiveArrayDeserializers<T>
             } else if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
                 // Typical for binary formats
                 Object ob = p.getEmbeddedObject();
-                if (ob instanceof byte[]) {
-                    packed = (byte[]) ob;
+                if (ob instanceof byte[] byteArray) {
+                    packed = byteArray;
                 } else if (ob == null || (ob instanceof float[])) {
                     return (float[]) ob;
                 }
@@ -1005,8 +1005,8 @@ public abstract class PrimitiveArrayDeserializers<T>
             } else if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
                 // Typical for binary formats
                 Object ob = p.getEmbeddedObject();
-                if (ob instanceof byte[]) {
-                    packed = (byte[]) ob;
+                if (ob instanceof byte[] byteArray) {
+                    packed = byteArray;
                 } else if (ob == null || (ob instanceof double[])) {
                     return (double[]) ob;
                 }

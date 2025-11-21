@@ -43,8 +43,10 @@ public class CreatorForOptionalTest
     @Test
     public void testCreatorWithOptional() throws Exception
     {
-        CreatorWithOptionalStrings bean = MAPPER.readValue(
-                a2q("{'a':'foo'}"), CreatorWithOptionalStrings.class);
+        final String JSON = a2q("{'a':'foo'}");
+        ObjectReader r = MAPPER.readerFor(CreatorWithOptionalStrings.class);
+
+        CreatorWithOptionalStrings bean = r.readValue(JSON);
         assertNotNull(bean);
         assertNotNull(bean.a);
         assertTrue(bean.a.isPresent());
@@ -55,5 +57,15 @@ public class CreatorForOptionalTest
 
         //assertNull(bean.b);
         assertEquals(Optional.empty(), bean.b);
+
+        // But can be reconfigured
+
+        bean = r.with(DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES)
+                .readValue(JSON);
+        assertNotNull(bean);
+        assertNotNull(bean.a);
+        assertTrue(bean.a.isPresent());
+
+        assertNull(bean.b);
     }
 }

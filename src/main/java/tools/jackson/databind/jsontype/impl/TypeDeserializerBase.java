@@ -246,7 +246,7 @@ public abstract class TypeDeserializerBase
                         "No (native) type id found when one was expected for polymorphic type handling");
             }
         } else {
-            String typeIdStr = (typeId instanceof String) ? (String) typeId : String.valueOf(typeId);
+            String typeIdStr = (typeId instanceof String string) ? string : String.valueOf(typeId);
             deser = _findDeserializer(ctxt, typeIdStr);
         }
         return deser.deserialize(p, ctxt);

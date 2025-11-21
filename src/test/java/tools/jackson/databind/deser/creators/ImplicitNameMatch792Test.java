@@ -27,8 +27,8 @@ public class ImplicitNameMatch792Test
 
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
-            if (member instanceof AnnotatedParameter) {
-                return String.format("ctor%d", ((AnnotatedParameter) member).getIndex());
+            if (member instanceof AnnotatedParameter ap) {
+                return String.format("ctor%d", ap.getIndex());
             }
             return super.findImplicitPropertyName(config, member);
         }

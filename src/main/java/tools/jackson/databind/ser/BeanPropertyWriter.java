@@ -850,8 +850,8 @@ public class BeanPropertyWriter
         protected MethodHandle unreflect() throws IllegalAccessException {
             if (_member instanceof AnnotatedField) {
                 return MethodHandles.lookup().unreflectGetter((Field) _member.getMember());
-            } else if (_member instanceof AnnotatedMethod) {
-                return MethodHandles.lookup().unreflect((Method) _member.getMember());
+            } else if (_member instanceof AnnotatedMethod method) {
+                return MethodHandles.lookup().unreflect(method.getMember());
             } else {
                 // 01-Dec-2014, tatu: Used to be illegal, but now explicitly allowed
                 // for virtual props

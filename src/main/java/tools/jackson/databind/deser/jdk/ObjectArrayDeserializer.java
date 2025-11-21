@@ -1,17 +1,27 @@
 package tools.jackson.databind.deser.jdk;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import tools.jackson.core.*;
-import tools.jackson.databind.*;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.deser.NullValueProvider;
+import tools.jackson.databind.deser.ReadableObjectId.Referring;
+import tools.jackson.databind.deser.UnresolvedForwardReference;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.ArrayType;
@@ -192,50 +202,7 @@ public class ObjectArrayDeserializer
         final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
         Object[] chunk = buffer.resetAndStart();
         int ix = 0;
-        JsonToken t;
-
-        try {
-            while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
-                // Note: must handle null explicitly here; value deserializers won't
-                Object value;
-
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
-                        continue;
-                    }
-                    value = null;
-                } else {
-                    value = _deserializeNoNullChecks(p, ctxt);
-                }
-
-                if (value == null) {
-                    value = _nullProvider.getNullValue(ctxt);
-
-                    if (value == null && _skipNullValues) {
-                        continue;
-                    }
-                }
-
-                if (ix >= chunk.length) {
-                    chunk = buffer.appendCompletedChunk(chunk);
-                    ix = 0;
-                }
-                chunk[ix++] = value;
-            }
-        } catch (Exception e) {
-            throw DatabindException.wrapWithPath(ctxt, e,
-                    new JacksonException.Reference(chunk, buffer.bufferedSize() + ix));
-        }
-
-        Object[] result;
-
-        if (_untyped) {
-            result = buffer.completeAndClearBuffer(chunk, ix);
-        } else {
-            result = buffer.completeAndClearBuffer(chunk, ix, _elementClass);
-        }
-        ctxt.returnObjectBuffer(buffer);
-        return result;
+        return _deserialize(p, ctxt, buffer, ix, chunk);
     }
 
     @Override
@@ -268,34 +235,52 @@ public class ObjectArrayDeserializer
         final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
         int ix = intoValue.length;
         Object[] chunk = buffer.resetAndStart(intoValue, ix);
+        return _deserialize(p, ctxt, buffer, ix, chunk);
+    }
+
+    protected Object[] _deserialize(JsonParser p, DeserializationContext ctxt, final ObjectBuffer buffer, int ix, Object[] chunk) {
+        ObjectArrayReferringAccumulator acc = _elementDeserializer.getObjectIdReader(ctxt) != null
+                ? new ObjectArrayReferringAccumulator(_untyped, _elementClass)
+                : null;
         JsonToken t;
 
         try {
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
-                Object value;
+                try {
+                    Object value;
 
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
-                        continue;
+                    if (t == JsonToken.VALUE_NULL) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
+                        value = null;
+                    } else {
+                        value = _deserializeNoNullChecks(p, ctxt);
                     }
-                    value = null;
-                } else {
-                    value = _deserializeNoNullChecks(p, ctxt);
-                }
 
-                if (value == null) {
-                    value = _nullProvider.getNullValue(ctxt);
+                    if (value == null) {
+                        value = _nullProvider.getNullValue(ctxt);
 
-                    if (value == null && _skipNullValues) {
-                        continue;
+                        if (value == null && _skipNullValues) {
+                            continue;
+                        }
                     }
-                }
 
-                if (ix >= chunk.length) {
-                    chunk = buffer.appendCompletedChunk(chunk);
-                    ix = 0;
+                    if (ix >= chunk.length) {
+                        chunk = buffer.appendCompletedChunk(chunk);
+                        ix = 0;
+                    }
+                    chunk[ix++] = value;
+                    if (acc != null) {
+                        acc.add(value);
+                    }
+                } catch (UnresolvedForwardReference reference) {
+                    if (acc == null) {
+                        throw reference;
+                    }
+                    ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
+                    reference.getRoid().appendReferring(referring);
                 }
-                chunk[ix++] = value;
             }
         } catch (Exception e) {
             throw DatabindException.wrapWithPath(ctxt, e,
@@ -303,6 +288,9 @@ public class ObjectArrayDeserializer
         }
 
         Object[] result;
+        if (acc != null) {
+            return acc.buildArray();
+        }
 
         if (_untyped) {
             result = buffer.completeAndClearBuffer(chunk, ix);
@@ -419,5 +407,56 @@ public class ObjectArrayDeserializer
             return _elementDeserializer.deserialize(p, ctxt);
         }
         return _elementDeserializer.deserializeWithType(p, ctxt, _elementTypeDeserializer);
+    }
+
+    private static class ObjectArrayReferringAccumulator {
+        private final boolean _untyped;
+        private final Class<?> _elementType;
+        private final List<Object> _accumulator = new ArrayList<>();
+
+        private Object[] _array;
+
+        ObjectArrayReferringAccumulator(boolean untyped, Class<?> elementType) {
+            this._untyped = untyped;
+            this._elementType = elementType;
+        }
+
+        void add(Object value) {
+            _accumulator.add(value);
+        }
+
+        Object[] buildArray() {
+            _array = (Object[]) Array.newInstance(_untyped ? Object.class : _elementType, _accumulator.size());
+            for (int i = 0; i < _accumulator.size(); i++) {
+                if (!(_accumulator.get(i) instanceof ArrayReferring)) {
+                    _array[i] = _accumulator.get(i);
+                }
+            }
+            return _array;
+        }
+    }
+
+    private static class ArrayReferring extends Referring {
+        private final ObjectArrayReferringAccumulator _parent;
+
+        ArrayReferring(UnresolvedForwardReference ref,
+                Class<?> type,
+                ObjectArrayReferringAccumulator acc) {
+            super(ref, type);
+            this._parent = acc;
+            this._parent._accumulator.add(this);
+        }
+
+        @Override
+        public void handleResolvedForwardReference(DeserializationContext ctxt,
+                Object id, Object value) throws JacksonException {
+            for (int i = 0; i < _parent._accumulator.size(); i++) {
+                if (_parent._accumulator.get(i) == this) {
+                    _parent._array[i] = value;
+                    return;
+                }
+            }
+            throw new IllegalArgumentException("Trying to resolve unknown reference: " + id);
+        }
     }
 }

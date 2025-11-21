@@ -192,7 +192,7 @@ No changes since 3.0.0-rc7
 #1994: Limit size of `SerializerCache`, auto-flush on exceeding
 #1995: Limit size of `DeserializerCache`, auto-flush on exceeding
 #2013: Allow use of `java.nio.file.Path` for `readValue()`, `writeValue()`
- (requested by XakepSDK@github; contributed by Sven D)
+ (requested by @XakepSDK; contributed by Sven D)
 #2040: Remove `JsonSerializer.isEmpty()` from 3.0
 #2176: Add `JsonMapper.shared()` static method
 #2177: Change parent type of `JsonProcessingException` to be `RuntimeException`
@@ -200,7 +200,7 @@ No changes since 3.0.0-rc7
  (requested by @Logic-32)
 #2405: Make `java.sql.Date` serializer default to same output as `java.util.Date`
 #2411: Allow `valueToTree()` via `SerializationContext`, add to `ObjectWriter`
- (requested by XakepSDK@github)
+ (requested by @XakepSDK)
 #2465: `@JacksonInject` will try to fetch deserializer for injected creator property
   if there is visible field
  (reported by @XakepSDK)

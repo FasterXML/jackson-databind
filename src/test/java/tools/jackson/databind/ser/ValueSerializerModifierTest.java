@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.AnnotatedField;
 import tools.jackson.databind.introspect.POJOPropertyBuilder;
 import tools.jackson.databind.module.SimpleModule;
@@ -254,10 +255,44 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
         }
     }
 
+    // [databind#1612]
+    @JsonPropertyOrder({ "a", "b", "c" })
+    static class Bean1612 {
+        public Integer a;
+        public Integer b;
+        public Double c;
+
+        public Bean1612(Integer a, Integer b, Double c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+    }
+
+    static class Modifier1612 extends ValueSerializerModifier {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public BeanSerializerBuilder updateBuilder(SerializationConfig config,
+                BeanDescription.Supplier beanDescRef,
+                BeanSerializerBuilder builder) {
+            List<BeanPropertyWriter> filtered = new ArrayList<BeanPropertyWriter>(2);
+            List<BeanPropertyWriter> properties = builder.getProperties();
+            //Make the filtered properties list bigger
+            builder.setFilteredProperties(new BeanPropertyWriter[] {properties.get(0), properties.get(1), properties.get(2)});
+
+            //The props will be shorter
+            filtered.add(properties.get(1));
+            filtered.add(properties.get(2));
+            builder.setProperties(filtered);
+            return builder;
+        }
+    }
+
     /*
-    /********************************************************
-    /* Unit tests: success
-    /********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
     @Test
@@ -387,4 +422,23 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
         map.put("x", 3);
         assertEquals("{\"foo\":3}", mapper.writeValueAsString(map));
     }
+
+    // [databind#1612]
+    @Test
+    public void modifierIssue1612Test() throws Exception
+    {
+        SimpleModule mod = new SimpleModule();
+        mod.setSerializerModifier(new Modifier1612());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
+        try {
+            mapper.writeValueAsString(new Bean1612(0, 1, 2d));
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Failed to construct BeanSerializer");
+            verifyException(e, Bean1612.class.getName());
+        }
+    }
+
 }

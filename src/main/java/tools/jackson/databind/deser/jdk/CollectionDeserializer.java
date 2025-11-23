@@ -527,7 +527,7 @@ _containerType,
         /**
          * A list of {@link CollectionReferring} to maintain ordering.
          */
-        private List<CollectionReferring> _accumulator = new ArrayList<CollectionReferring>();
+        private List<CollectionReferring> _accumulator = new ArrayList<>();
 
         public CollectionReferringAccumulator(Class<?> elementType, Collection<Object> result) {
             _elementType = elementType;

@@ -239,12 +239,58 @@ public class ObjectArrayDeserializer
     }
 
     protected Object[] _deserialize(JsonParser p, DeserializationContext ctxt, final ObjectBuffer buffer, int ix, Object[] chunk) {
-        ObjectArrayReferringAccumulator acc = _elementDeserializer.getObjectIdReader(ctxt) != null
-                ? new ObjectArrayReferringAccumulator(_untyped, _elementClass)
-                : null;
+        if (_elementDeserializer.getObjectIdReader(ctxt) != null) {
+            return _deserializeWithObjectId(p, ctxt, buffer, ix, chunk);
+        }
+
+    
         JsonToken t;
+        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+            Object value;
+            try {
+                if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
+                    value = null;
+                } else {
+                    value = _deserializeNoNullChecks(p, ctxt);
+                }
+    
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+    
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+            } catch (Exception e) {
+                throw DatabindException.wrapWithPath(ctxt, e,
+                        new JacksonException.Reference(chunk, buffer.bufferedSize() + ix));
+            }
+
+            if (ix >= chunk.length) {
+                chunk = buffer.appendCompletedChunk(chunk);
+                ix = 0;
+            }
+            chunk[ix++] = value;
+        }
+
+        final Object[] result;
+        if (_untyped) {
+            result = buffer.completeAndClearBuffer(chunk, ix);
+        } else {
+            result = buffer.completeAndClearBuffer(chunk, ix, _elementClass);
+        }
+        ctxt.returnObjectBuffer(buffer);
+        return result;
+    }
+    
+    protected Object[] _deserializeWithObjectId(JsonParser p, DeserializationContext ctxt, final ObjectBuffer buffer, int ix, Object[] chunk) {
+        final ObjectArrayReferringAccumulator acc = new ObjectArrayReferringAccumulator(_untyped, _elementClass);
 
         try {
+            JsonToken t;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 try {
                     Object value;
@@ -287,18 +333,7 @@ public class ObjectArrayDeserializer
                     new JacksonException.Reference(chunk, buffer.bufferedSize() + ix));
         }
 
-        Object[] result;
-        if (acc != null) {
-            return acc.buildArray();
-        }
-
-        if (_untyped) {
-            result = buffer.completeAndClearBuffer(chunk, ix);
-        } else {
-            result = buffer.completeAndClearBuffer(chunk, ix, _elementClass);
-        }
-        ctxt.returnObjectBuffer(buffer);
-        return result;
+        return acc.buildArray();
     }
 
     /*
@@ -409,6 +444,7 @@ public class ObjectArrayDeserializer
         return _elementDeserializer.deserializeWithType(p, ctxt, _elementTypeDeserializer);
     }
 
+    // @since 3.1
     private static class ObjectArrayReferringAccumulator {
         private final boolean _untyped;
         private final Class<?> _elementType;
@@ -417,8 +453,8 @@ public class ObjectArrayDeserializer
         private Object[] _array;
 
         ObjectArrayReferringAccumulator(boolean untyped, Class<?> elementType) {
-            this._untyped = untyped;
-            this._elementType = elementType;
+            _untyped = untyped;
+            _elementType = elementType;
         }
 
         void add(Object value) {
@@ -443,8 +479,8 @@ public class ObjectArrayDeserializer
                 Class<?> type,
                 ObjectArrayReferringAccumulator acc) {
             super(ref, type);
-            this._parent = acc;
-            this._parent._accumulator.add(this);
+            _parent = acc;
+            _parent._accumulator.add(this);
         }
 
         @Override

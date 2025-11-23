@@ -102,3 +102,13 @@ Benjamin Heimann (@b-heimann-senacor)
  * Reported #5414: `NullPointerException` in `AnnotatedMember.annotations()` when
    no annotations are present
   [3.0.3]
+
+Andy Wilkinson (@wilkinsona)
+ * Reported #5416: Annotations on an interface that's part of a JDK proxy are not honored
+   with Jackson 3
+  [3.0.3]
+
+Fouad Almalki (@Eng-Fouad)
+ * Contributed fix for #5416: Annotations on an interface that's part of a JDK proxy are not honored
+   with Jackson 3
+  [3.0.3]

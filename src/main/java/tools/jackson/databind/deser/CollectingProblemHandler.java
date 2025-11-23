@@ -74,8 +74,8 @@ import tools.jackson.databind.util.ClassUtil;
  *
  * @since 3.1
  */
-public class CollectingProblemHandler extends DeserializationProblemHandler {
-
+public class CollectingProblemHandler extends DeserializationProblemHandler
+{
     /**
      * Default maximum number of problems to collect before stopping.
      * Prevents memory exhaustion attacks.
@@ -91,7 +91,7 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
     /**
      * Maximum number of problems to collect before stopping.
      */
-    private final int maxProblems;
+    private final int _maxProblems;
 
     /**
      * Constructs a handler with the default maximum problem limit.
@@ -109,14 +109,14 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
         if (maxProblems <= 0) {
             throw new IllegalArgumentException("maxProblems must be positive, was: " + maxProblems);
         }
-        this.maxProblems = maxProblems;
+        _maxProblems = maxProblems;
     }
 
     /**
      * Gets the maximum number of problems this handler will collect.
      */
     public int getMaxProblems() {
-        return maxProblems;
+        return _maxProblems;
     }
 
     /**
@@ -124,6 +124,7 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
      *
      * @return Problem bucket, or null if not in collecting mode
      */
+    @SuppressWarnings("unchecked")
     public static List<CollectedProblem> getBucket(DeserializationContext ctxt) {
         Object attr = ctxt.getAttribute(ATTR_KEY);
         return (attr instanceof List) ? (List<CollectedProblem>) attr : null;
@@ -135,13 +136,14 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
      * @return true if problem was recorded, false if limit reached
      */
     private boolean recordProblem(DeserializationContext ctxt,
-            String message, JavaType targetType, Object rawValue) {
+            String message, JavaType targetType, Object rawValue)
+    {
         List<CollectedProblem> bucket = getBucket(ctxt);
         if (bucket == null) {
             return false; // Not in collecting mode
         }
 
-        if (bucket.size() >= maxProblems) {
+        if (bucket.size() >= _maxProblems) {
             return false; // Limit reached
         }
 
@@ -180,15 +182,15 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
         if (p == null) {
             return JsonPointer.empty();
         }
-        TokenStreamContext ctx = p.streamReadContext();
-        return ctx.pathAsPointer();
+        return p.streamReadContext().pathAsPointer();
     }
 
     @Override
     public boolean handleUnknownProperty(DeserializationContext ctxt,
             JsonParser p, ValueDeserializer<?> deserializer,
-            Object beanOrClass, String propertyName) throws JacksonException {
-
+            Object beanOrClass, String propertyName)
+        throws JacksonException
+    {
         String message = String.format(
             "Unknown property '%s' for type %s",
             propertyName,
@@ -202,14 +204,14 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
             return true; // Problem handled
         }
 
-        return false; // Limit reached, let default handling throw
+        return false; // Limit reached or not collecting, let default handling throw
     }
 
     @Override
     public Object handleWeirdKey(DeserializationContext ctxt,
             Class<?> rawKeyType, String keyValue, String failureMsg)
-            throws JacksonException {
-
+        throws JacksonException
+    {
         String message = String.format(
             "Cannot deserialize Map key '%s' to %s: %s",
             keyValue,
@@ -226,14 +228,14 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
             return NOT_HANDLED;
         }
 
-        return NOT_HANDLED; // Limit reached
+        return NOT_HANDLED; // Limit reached or not collecting
     }
 
     @Override
     public Object handleWeirdStringValue(DeserializationContext ctxt,
             Class<?> targetType, String valueToConvert, String failureMsg)
-            throws JacksonException {
-
+        throws JacksonException
+    {
         String message = String.format(
             "Cannot deserialize value '%s' to %s: %s",
             valueToConvert,
@@ -247,14 +249,14 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
             return getDefaultValue(targetType);
         }
 
-        return NOT_HANDLED; // Limit reached
+        return NOT_HANDLED; // Limit reached or not collecting
     }
 
     @Override
     public Object handleWeirdNumberValue(DeserializationContext ctxt,
             Class<?> targetType, Number valueToConvert, String failureMsg)
-            throws JacksonException {
-
+        throws JacksonException
+    {
         String message = String.format(
             "Cannot deserialize number %s to %s: %s",
             valueToConvert,
@@ -267,14 +269,14 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
             return getDefaultValue(targetType);
         }
 
-        return NOT_HANDLED;
+        return NOT_HANDLED; // Limit reached or not collecting
     }
 
     @Override
     public Object handleInstantiationProblem(DeserializationContext ctxt,
             Class<?> instClass, Object argument, Throwable t)
-            throws JacksonException {
-
+        throws JacksonException
+    {
         String message = String.format(
             "Cannot instantiate %s: %s",
             ClassUtil.getClassDescription(instClass),
@@ -287,6 +289,7 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
             if (!instClass.isPrimitive()) {
                 return null;
             }
+            // fall through
         }
 
         return NOT_HANDLED; // Cannot recover
@@ -310,5 +313,4 @@ public class CollectingProblemHandler extends DeserializationProblemHandler {
         // This avoids masking nullability issues in the domain model
         return null;
     }
-
 }

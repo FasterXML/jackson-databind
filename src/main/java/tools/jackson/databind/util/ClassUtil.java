@@ -274,8 +274,8 @@ public final class ClassUtil
      * and if so, (re)throw it; otherwise just return
      */
     public static Throwable throwIfError(Throwable t) {
-        if (t instanceof Error) {
-            throw (Error) t;
+        if (t instanceof Error error) {
+            throw error;
         }
         return t;
     }
@@ -285,8 +285,8 @@ public final class ClassUtil
      * and if so, (re)throw it; otherwise just return
      */
     public static Throwable throwIfRTE(Throwable t) {
-        if (t instanceof RuntimeException) {
-            throw (RuntimeException) t;
+        if (t instanceof RuntimeException rte) {
+            throw rte;
         }
         return t;
     }
@@ -296,8 +296,8 @@ public final class ClassUtil
      * and if so, (re)throw it; otherwise just return
      */
     public static Throwable throwIfJacksonE(Throwable t) throws JacksonException {
-        if (t instanceof JacksonException) {
-            throw (JacksonException) t;
+        if (t instanceof JacksonException jacksonException) {
+            throw jacksonException;
         }
         return t;
     }
@@ -402,8 +402,8 @@ public final class ClassUtil
         }
         throwIfJacksonE(fail);
         throwIfRTE(fail);
-        if (fail instanceof IOException) {
-            throw JacksonIOException.construct((IOException) fail, g);
+        if (fail instanceof IOException ioException) {
+            throw JacksonIOException.construct(ioException, g);
         }
         throw new RuntimeException(fail);
     }
@@ -436,8 +436,8 @@ public final class ClassUtil
         }
         throwIfJacksonE(fail);
         throwIfRTE(fail);
-        if (fail instanceof IOException) {
-            throw JacksonIOException.construct((IOException) fail, g);
+        if (fail instanceof IOException ioException) {
+            throw JacksonIOException.construct(ioException, g);
         }
         throw new RuntimeException(fail);
     }
@@ -561,8 +561,8 @@ public final class ClassUtil
         if (classOrInstance == null) {
             return "unknown";
         }
-        Class<?> cls = (classOrInstance instanceof Class<?>) ?
-            (Class<?>) classOrInstance : classOrInstance.getClass();
+        Class<?> cls = (classOrInstance instanceof Class<?> clsInstance) ?
+            clsInstance : classOrInstance.getClass();
         return nameOf(cls);
     }
 
@@ -605,7 +605,7 @@ public final class ClassUtil
         if (inst == null) {
             return "[null]";
         }
-        Class<?> raw = (inst instanceof Class<?>) ? (Class<?>) inst : inst.getClass();
+        Class<?> raw = (inst instanceof Class<?> clsInstance) ? clsInstance : inst.getClass();
         return nameOf(raw);
     }
 
@@ -702,8 +702,8 @@ public final class ClassUtil
      * in message when wrapping exceptions.
      */
     public static String exceptionMessage(Throwable t) {
-        if (t instanceof JacksonException) {
-            return ((JacksonException) t).getOriginalMessage();
+        if (t instanceof JacksonException jacksonException) {
+            return jacksonException.getOriginalMessage();
         }
         if (t instanceof InvocationTargetException && t.getCause() != null) {
             return t.getCause().getMessage();
@@ -969,7 +969,8 @@ public final class ClassUtil
 
     /**
      * Accessor for checking whether given {@code Class} is under Java package
-     * of {@code java.*}, {@code javax.*} or {@code sun.*} (including all sub-packages).
+     * of {@code java.*}, {@code javax.*} or {@code sun.*} (including all sub-packages),
+     * excluding JDK proxy classes (usually the package name starts with jdk.proxy)
      *<p>
      * Added since some aspects of handling need to be changed for JDK types (and
      * possibly some extensions under {@code javax. and sun.}: for example, forcing of access
@@ -978,7 +979,9 @@ public final class ClassUtil
     public static boolean isJDKClass(Class<?> rawType) {
         final String clsName = rawType.getName();
         for (String prefix : JDK_PREFIXES) {
-            if (clsName.startsWith(prefix)) {
+            if (clsName.startsWith(prefix) &&
+                    // As per [databind#5416], should NOT consider JDK proxy class as a JDK class:
+                    !Proxy.isProxyClass(rawType)) {
                 return true;
             }
         }

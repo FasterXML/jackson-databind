@@ -97,3 +97,8 @@ Joost Koehoorn (@JoostK)
  * Reported, contributed fix for #5401: Regression with `@JsonCreator` that returns
    `null` for empty strings
   [3.0.3]
+
+Benjamin Heimann (@b-heimann-senacor)
+ * Reported #5414: `NullPointerException` in `AnnotatedMember.annotations()` when
+   no annotations are present
+  [3.0.3]

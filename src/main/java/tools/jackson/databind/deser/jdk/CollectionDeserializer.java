@@ -581,7 +581,7 @@ _containerType,
      */
     private final static class CollectionReferring extends Referring {
         private final CollectionReferringAccumulator _parent;
-        public final List<Object> next = new ArrayList<Object>();
+        public final List<Object> next = new ArrayList<>();
 
         CollectionReferring(CollectionReferringAccumulator parent,
                 UnresolvedForwardReference reference, Class<?> contentType)

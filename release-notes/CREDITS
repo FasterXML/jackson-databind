@@ -112,3 +112,7 @@ Fouad Almalki (@Eng-Fouad)
  * Contributed fix for #5416: Annotations on an interface that's part of a JDK proxy are not honored
    with Jackson 3
   [3.0.3]
+
+Hélios Gilles (@RoiSoleil)
+ * Contributed #5413: Add/support forward reference resolution for array values
+  [3.1.0]

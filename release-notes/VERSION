@@ -12,6 +12,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5361: Fix Maven SBOM publishing (worked in 3.0.0-rc4 but not in rc5 or later)
 (date-time)#359: `InstantDeserializer` deserializes the nanosecond portion of
   fractional negative timestamps incorrectly
+#5413: Add/support forward reference resolution for array values
+ (contributed by Hélios G)
 
 3.0.3 (not yet released)
 

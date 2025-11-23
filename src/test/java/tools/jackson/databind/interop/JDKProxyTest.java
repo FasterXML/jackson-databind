@@ -35,7 +35,7 @@ public class JDKProxyTest extends DatabindTestUtil
     }
 
     // [databind#5416]
-    // IMPORTANTT! Must be "public" for problem to occur
+    // IMPORTANT! Must be "public" for problem to occur
     public interface Example5416 {
         String getValue();
 

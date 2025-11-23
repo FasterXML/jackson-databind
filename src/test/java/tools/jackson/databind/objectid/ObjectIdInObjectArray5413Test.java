@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser.jdk;
+package tools.jackson.databind.objectid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,11 +11,13 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 /**
- * This unit test verifies that the "Native" java type mapper can properly deals with "forward reference resolution".
+ * This unit test verifies that the "Native" java type mapper can properly deal with
+ * "forward reference resolution" for values in Object arrays (not just
+ * {@link java.util.Collection}s).
  */
-public class ObjectArrayDeserializerTest extends DatabindTestUtil {
-
-    public static final class Draw {
+public class ObjectIdInObjectArray5413Test extends DatabindTestUtil
+{
+    static final class Draw {
         private Shape[] ashapes;
         private Point[] points;
 
@@ -36,7 +38,7 @@ public class ObjectArrayDeserializerTest extends DatabindTestUtil {
         }
     }
 
-    public static final class Shape {
+    static final class Shape {
         @JsonIdentityReference(alwaysAsId = true)
         private Point[] points;
 
@@ -55,8 +57,10 @@ public class ObjectArrayDeserializerTest extends DatabindTestUtil {
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    // [databind#5413]
     @Test
-    public void testForwardReferenceResolution() throws Exception {
+    public void testForwardReferenceResolution()
+    {
         Draw draw = new Draw();
         Point point_0_0 = new Point(1, 0, 0);
         Point point_0_2 = new Point(2, 0, 2);

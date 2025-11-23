@@ -969,7 +969,8 @@ public final class ClassUtil
 
     /**
      * Accessor for checking whether given {@code Class} is under Java package
-     * of {@code java.*}, {@code javax.*} or {@code sun.*} (including all sub-packages).
+     * of {@code java.*}, {@code javax.*} or {@code sun.*} (including all sub-packages),
+     * excluding JDK proxy classes (usually the package name starts with jdk.proxy)
      *<p>
      * Added since some aspects of handling need to be changed for JDK types (and
      * possibly some extensions under {@code javax. and sun.}: for example, forcing of access
@@ -978,7 +979,9 @@ public final class ClassUtil
     public static boolean isJDKClass(Class<?> rawType) {
         final String clsName = rawType.getName();
         for (String prefix : JDK_PREFIXES) {
-            if (clsName.startsWith(prefix)) {
+            if (clsName.startsWith(prefix) &&
+                    // As per [databind#5416], should NOT consider JDK proxy class as a JDK class:
+                    !Proxy.isProxyClass(rawType)) {
                 return true;
             }
         }

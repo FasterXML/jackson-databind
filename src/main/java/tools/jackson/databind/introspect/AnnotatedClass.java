@@ -125,7 +125,8 @@ public final class AnnotatedClass
         _class = rawType;
         _superTypes = superTypes;
         _primaryMixIn = primaryMixIn;
-        _classAnnotations = classAnnotations;
+        _classAnnotations = (classAnnotations == null)
+                ? AnnotationCollector.emptyAnnotations() : classAnnotations;
         _bindings = bindings;
         _mixInResolver = mir;
         _collectAnnotations = collectAnnotations;

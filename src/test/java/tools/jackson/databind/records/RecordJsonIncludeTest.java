@@ -26,6 +26,7 @@ public class RecordJsonIncludeTest extends DatabindTestUtil
         String standardField
     ) {
         @JsonInclude(JsonInclude.Include.NON_NULL)
+        @Override
         public String omitFieldIfNull() {
             return omitFieldIfNull;
         }

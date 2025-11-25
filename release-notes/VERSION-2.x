@@ -23,6 +23,8 @@ Project: jackson-databind
   anymore since 2.18.4
  (reported by @victor-noel-pfx)
  (fix by @cowtowncoder, w/ Claude code)
+#5413: Add/support forward reference resolution for array values
+ (contributed by Hélios G)
 
 2.20.2 (not yet released)
 

@@ -527,7 +527,7 @@ _containerType,
         /**
          * A list of {@link CollectionReferring} to maintain ordering.
          */
-        private List<CollectionReferring> _accumulator = new ArrayList<CollectionReferring>();
+        private List<CollectionReferring> _accumulator = new ArrayList<>();
 
         public CollectionReferringAccumulator(Class<?> elementType, Collection<Object> result) {
             _elementType = elementType;
@@ -581,7 +581,7 @@ _containerType,
      */
     private final static class CollectionReferring extends Referring {
         private final CollectionReferringAccumulator _parent;
-        public final List<Object> next = new ArrayList<Object>();
+        public final List<Object> next = new ArrayList<>();
 
         CollectionReferring(CollectionReferringAccumulator parent,
                 UnresolvedForwardReference reference, Class<?> contentType)

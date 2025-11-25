@@ -1461,7 +1461,7 @@ public class ObjectReader
         _assertNotNull("content", content);
         DeserializationContextExt ctxt = _deserializationContext();
         return _collectingBindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, content), true));
+                _considerFilter(_parserFactory.createParser(ctxt, content), false));
     }
 
     /**
@@ -1471,7 +1471,7 @@ public class ObjectReader
         _assertNotNull("content", content);
         DeserializationContextExt ctxt = _deserializationContext();
         return _collectingBindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, content), true));
+                _considerFilter(_parserFactory.createParser(ctxt, content), false));
     }
 
     /**
@@ -1481,7 +1481,19 @@ public class ObjectReader
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
         return _collectingBindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, src), true));
+                _considerFilter(_parserFactory.createParser(ctxt, src), false));
+    }
+
+    /**
+     * Convenience overload for {@link #readValueCollectingProblems(JsonParser)}.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readValueCollectingProblems(Path path) throws JacksonException
+    {
+        _assertNotNull("path", path);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _collectingBindAndClose(ctxt,
+                _considerFilter(_parserFactory.createParser(ctxt, path), false));
     }
 
     /**
@@ -1491,7 +1503,7 @@ public class ObjectReader
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
         return _collectingBindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, src), true));
+                _considerFilter(_parserFactory.createParser(ctxt, src), false));
     }
 
     /**
@@ -1501,7 +1513,7 @@ public class ObjectReader
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
         return _collectingBindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, src), true));
+                _considerFilter(_parserFactory.createParser(ctxt, src), false));
     }
 
     /*
@@ -1999,7 +2011,7 @@ public class ObjectReader
      */
     protected JsonParser _considerFilter(final JsonParser p, boolean multiValue) {
         // 26-Mar-2016, tatu: Need to allow multiple-matches at least if we have
-        //    have a multiple-value read (that is, "readValues()").
+        //    a multiple-value read (that is, "readValues()").
         return ((_filter == null) || FilteringParserDelegate.class.isInstance(p))
                 ? p : new FilteringParserDelegate(p, _filter, Inclusion.ONLY_INCLUDE_ALL, multiValue);
     }

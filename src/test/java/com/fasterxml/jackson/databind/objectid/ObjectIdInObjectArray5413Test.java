@@ -1,15 +1,14 @@
 package com.fasterxml.jackson.databind.objectid;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test verifies that the "Native" java type mapper can properly deal with
@@ -96,7 +95,7 @@ public class ObjectIdInObjectArray5413Test extends DatabindTestUtil
 
     // [databind#5413]
     @Test
-    public void testForwardReferenceResolution() throws JsonProcessingException
+    public void testForwardReferenceResolution() throws Exception
     {
         Draw draw = new Draw();
         Point point_0_0 = new Point(1, 0, 0);
@@ -125,5 +124,4 @@ public class ObjectIdInObjectArray5413Test extends DatabindTestUtil
         assertSame(draw.points[4], draw.ashapes[1].points[1]);
         assertSame(draw.points[2], draw.ashapes[1].points[2]);
     }
-
 }

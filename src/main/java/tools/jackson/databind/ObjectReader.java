@@ -700,10 +700,12 @@ public class ObjectReader
      * Returns a new {@link ObjectReader} configured to collect deserialization problems
      * instead of failing on the first error. Uses default problem limit (100 problems).
      *
-     * <p><b>IMPORTANT</b>: This method registers a {@link CollectingProblemHandler} which
-     * <b>replaces any previously configured {@link DeserializationProblemHandler}</b>.
-     * If you need custom problem handling in addition to collection, you must implement
-     * your own handler that delegates to {@code CollectingProblemHandler} or chain handlers.
+     * <p><b>IMPORTANT</b>: This method registers a {@link CollectingProblemHandler},
+     * inserting it before possible other handlers.
+     * If you need custom problem handling in addition to collection, you need to create
+     * your own handler that delegates to {@code CollectingProblemHandler} (or sub-classes it)
+     * and use {@link #problemCollectingReader(CollectingProblemHandler)} overload
+     * instead of this method.
      *
      * <p>Future versions may support handler chaining; for now, only one handler is active.
      *

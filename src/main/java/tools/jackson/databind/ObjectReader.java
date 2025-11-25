@@ -728,27 +728,35 @@ public class ObjectReader
     }
 
     /**
-     * Enables problem collection mode with a custom problem limit.
+     * Variant of {@link #problemCollectingReader()} that allows overriding maximum
+     * number of problems to collect.
      *
-     * <p><b>Thread-safety</b>: The returned reader is immutable and thread-safe.
-     * Each call to {@link #readValueCollectingProblems} allocates a fresh problem bucket,
-     * so concurrent calls do not interfere.
-     *
-     * @param maxProblems Maximum number of problems to collect (must be > 0)
+     * @param maxProblems Maximum number of problems to collect (must be {@code >} 0)
      * @return A new ObjectReader configured for problem collection
-     * @throws IllegalArgumentException if maxProblems is <= 0
+     * @throws IllegalArgumentException if maxProblems is {@code <= 0}
+     *
      * @since 3.1
      */
     public ObjectReader problemCollectingReader(int maxProblems) {
         if (maxProblems <= 0) {
             throw new IllegalArgumentException("maxProblems must be positive");
         }
+        return problemCollectingReader(new CollectingProblemHandler(maxProblems));
+    }
 
-        // Handler now stores the max limit internally
-        DeserializationConfig newConfig = _config
-            .withHandler(new CollectingProblemHandler(maxProblems));
-
-        // Return new immutable reader (no mutable state)
+    /**
+     * Variant of {@link #problemCollectingReader()} that allows passing custom
+     * {@link CollectingProblemHandler} (usually sub-class).
+     *
+     * @param problemHandler Custom handler instance to use
+     *
+     * @return A new ObjectReader configured for problem collection
+     *
+     * @since 3.1
+     */
+    public ObjectReader problemCollectingReader(CollectingProblemHandler problemHandler)
+    {
+        DeserializationConfig newConfig = _config.withHandler(problemHandler);
         return _new(this, newConfig, _valueType, _rootDeserializer, _valueToUpdate,
                 _schema, _injectableValues);
     }

@@ -204,7 +204,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
 
     /*
     /**********************************************************************
-    /* JsonPointer-based removal
+    /* JsonPointer-based removal (3.1)
     /**********************************************************************
      */
 
@@ -237,7 +237,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
      *
      * @param ptr Pointer to the node to remove
      *
-     * @return The removed node, if it existed; {@code null} if no node was found
+     * @return The removed node, if it existed; {@link MissingNode} if no node was found
      *   at the specified path
      *
      * @since 3.1
@@ -246,11 +246,11 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
         // Empty pointer would mean remove this node, but that doesn't make sense
         // as we can't remove ourselves from parent context
         if (ptr.matches()) {
-            return null;
+            return missingNode();
         }
 
         // Navigate to the parent of the target node
-        JsonNode parent = this;
+        ContainerNode<?> parent = this;
         JsonPointer currentPtr = ptr;
 
         // Keep navigating until we're at the parent of the target
@@ -259,22 +259,17 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
 
             // If tail is empty, we're at the parent - remove from here
             if (tail.matches()) {
-                if (parent instanceof ContainerNode) {
-                    return ((ContainerNode<?>) parent)._removeAt(currentPtr);
-                }
-                return null;
+                return parent._removeAt(currentPtr);
             }
 
             // Otherwise, navigate one level deeper
-            JsonNode next = parent instanceof ContainerNode
-                    ? ((ContainerNode<?>) parent)._at(currentPtr)
-                    : null;
-
-            if (next == null || next.isMissingNode()) {
-                return null;
+            JsonNode next = parent._at(currentPtr);
+            if (next instanceof ContainerNode<?> cn) {
+                parent = cn;
+            } else {
+                return missingNode();
             }
 
-            parent = next;
             currentPtr = tail;
         }
     }
@@ -285,7 +280,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
      *
      * @param ptr Pointer with single segment to remove
      *
-     * @return The removed node, if it existed; {@code null} if not found
+     * @return The removed node, if it existed; {@link #missingNode()} if not found
      */
     protected abstract JsonNode _removeAt(JsonPointer ptr);
 }

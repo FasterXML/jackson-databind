@@ -9,9 +9,9 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for JsonPointer-based removal functionality (issue #1981).
+ * Tests for JsonPointer-based removal functionality ([databind#1981]).
  */
-public class JsonPointerRemovalTest extends DatabindTestUtil
+public class JsonPointerRemoval1981Test extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -28,11 +28,12 @@ public class JsonPointerRemovalTest extends DatabindTestUtil
         assertNotNull(removed);
         assertEquals(2, removed.asInt());
 
-        // Verify structure after removal
-        assertEquals(2, root.size());
-        assertTrue(root.has("a"));
-        assertFalse(root.has("b"));
-        assertTrue(root.has("c"));
+        assertEquals(MAPPER.readTree(a2q("""
+                {
+                   "a": 1,
+                   "c": 3
+                }
+                """)), root);
     }
 
     @Test
@@ -46,12 +47,9 @@ public class JsonPointerRemovalTest extends DatabindTestUtil
         assertNotNull(removed);
         assertEquals(13, removed.asInt());
 
-        // Verify structure
-        assertTrue(root.has("a"));
-        assertTrue(root.path("a").has("b"));
-        assertFalse(root.path("a").path("b").has("c"));
-        assertTrue(root.path("a").path("b").has("d"));
-        assertTrue(root.path("a").has("e"));
+        assertEquals(MAPPER.readTree(
+                a2q("{'a':{'b':{'d':14},'e':15},'f':16}")),
+                root);
     }
 
     @Test
@@ -68,11 +66,7 @@ public class JsonPointerRemovalTest extends DatabindTestUtil
         assertNotNull(removed);
         assertEquals(20, removed.asInt());
 
-        // Verify array after removal
-        assertEquals(3, array.size());
-        assertEquals(10, array.get(0).asInt());
-        assertEquals(30, array.get(1).asInt());
-        assertEquals(40, array.get(2).asInt());
+        assertEquals(MAPPER.readTree("[10,30,40]"), array);
     }
 
     @Test
@@ -86,13 +80,7 @@ public class JsonPointerRemovalTest extends DatabindTestUtil
         assertNotNull(removed);
         assertEquals(3, removed.asInt());
 
-        // Verify structure
-        ArrayNode array = (ArrayNode) root.get("array");
-        assertEquals(4, array.size());
-        assertEquals(1, array.get(0).asInt());
-        assertEquals(2, array.get(1).asInt());
-        assertEquals(4, array.get(2).asInt());
-        assertEquals(5, array.get(3).asInt());
+        assertEquals(MAPPER.readTree(a2q("{'array':[1,2,4,5]}")), root);
     }
 
     @Test
@@ -106,12 +94,8 @@ public class JsonPointerRemovalTest extends DatabindTestUtil
         assertNotNull(removed);
         assertEquals(234, removed.asInt());
 
-        // Verify structure
-        ArrayNode ids = (ArrayNode) root.path("Image").path("IDs");
-        assertEquals(3, ids.size());
-        assertEquals(116, ids.get(0).asInt());
-        assertEquals(943, ids.get(1).asInt());
-        assertEquals(38793, ids.get(2).asInt());
+        assertEquals(MAPPER.readTree(a2q(
+                "{'Image':{'Width':800,'Height':600,'IDs':[116,943,38793]}}")), root);
     }
 
     @Test
@@ -126,9 +110,7 @@ public class JsonPointerRemovalTest extends DatabindTestUtil
         assertNotNull(removed);
         assertEquals(100, removed.asInt());
 
-        assertEquals(1, root.size());
-        assertFalse(root.has("x"));
-        assertTrue(root.has("y"));
+        assertEquals(MAPPER.readTree(a2q("{'y':200}")), root);
     }
 
     @Test
@@ -141,9 +123,12 @@ public class JsonPointerRemovalTest extends DatabindTestUtil
         JsonNode removed = root.remove(JsonPointer.compile("/nonexistent"));
         assertNull(removed);
 
+        // and non-existing array element too
+        removed = root.remove(JsonPointer.compile("/0"));
+        assertNull(removed);
+
         // Structure should be unchanged
-        assertEquals(1, root.size());
-        assertTrue(root.has("a"));
+        assertEquals(MAPPER.readTree(a2q("{'a':1}")), root);
     }
 
     @Test
@@ -157,8 +142,12 @@ public class JsonPointerRemovalTest extends DatabindTestUtil
         JsonNode removed = array.remove(JsonPointer.compile("/10"));
         assertNull(removed);
 
+        // and property (that arrays can't have)
+        removed = array.remove(JsonPointer.compile("/a"));
+        assertNull(removed);
+        
         // Array should be unchanged
-        assertEquals(2, array.size());
+        assertEquals(MAPPER.readTree("[1, 2]"), array);
     }
 
     @Test
@@ -172,9 +161,7 @@ public class JsonPointerRemovalTest extends DatabindTestUtil
         assertNull(removed);
 
         // Structure should be unchanged
-        assertEquals(1, root.size());
-        assertTrue(root.has("a"));
-        assertTrue(root.path("a").has("b"));
+        assertEquals(MAPPER.readTree(json), root);
     }
 
     @Test
@@ -267,18 +254,14 @@ public class JsonPointerRemovalTest extends DatabindTestUtil
     public void testRemoveFromEmptyObject() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
-
-        JsonNode removed = root.remove(JsonPointer.compile("/anything"));
-        assertNull(removed);
+        assertNull(root.remove(JsonPointer.compile("/anything")));
     }
 
     @Test
     public void testRemoveFromEmptyArray() throws Exception
     {
         ArrayNode array = MAPPER.createArrayNode();
-
-        JsonNode removed = array.remove(JsonPointer.compile("/0"));
-        assertNull(removed);
+        assertNull(array.remove(JsonPointer.compile("/0")));
     }
 
     @Test

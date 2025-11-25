@@ -61,6 +61,11 @@ public class ArrayNode
     }
 
     @Override
+    protected JsonNode _removeAt(JsonPointer ptr) {
+        return remove(ptr.getMatchingIndex());
+    }
+
+    @Override
     protected String _valueDesc() {
         return "[...(" + _children.size() + " elements)]";
     }

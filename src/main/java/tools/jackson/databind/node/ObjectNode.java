@@ -57,6 +57,11 @@ public class ObjectNode
     }
 
     @Override
+    protected JsonNode _removeAt(JsonPointer ptr) {
+        return remove(ptr.getMatchingProperty());
+    }
+
+    @Override
     protected String _valueDesc() {
         return "{...(" + _children.size() + " properties}]";
     }

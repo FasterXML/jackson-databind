@@ -30,37 +30,14 @@ public class ConvertFromTokenBufferTest extends DatabindTestUtil
             this.x = x;
             this.name = name;
         }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            SimpleBean that = (SimpleBean) o;
-            return x == that.x && Objects.equals(name, that.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, name);
-        }
     }
 
     // [databind#5368]: Should reuse TokenBuffer directly without re-serializing
     @Test
     public void testConvertTokenBufferToBean() throws Exception
     {
-        // First, create a TokenBuffer with some content
-        TokenBuffer buf = new TokenBuffer(MAPPER, false);
-        buf.writeStartObject();
-        buf.writeNumberField("x", 42);
-        buf.writeStringField("name", "test");
-        buf.writeEndObject();
-        buf.close();
-
-        // Convert TokenBuffer to Bean - should reuse the buffer directly
+        TokenBuffer buf = _beanToBuffer(42, "test");
         SimpleBean result = MAPPER.convertValue(buf, SimpleBean.class);
-
-        assertNotNull(result);
         assertEquals(42, result.x);
         assertEquals("test", result.name);
     }
@@ -69,17 +46,9 @@ public class ConvertFromTokenBufferTest extends DatabindTestUtil
     @Test
     public void testConvertTokenBufferToJavaType() throws Exception
     {
-        TokenBuffer buf = new TokenBuffer(MAPPER, false);
-        buf.writeStartObject();
-        buf.writeNumberField("x", 123);
-        buf.writeStringField("name", "javatype");
-        buf.writeEndObject();
-        buf.close();
-
+        TokenBuffer buf = _beanToBuffer(123, "javatype");
         JavaType type = MAPPER.getTypeFactory().constructType(SimpleBean.class);
         SimpleBean result = MAPPER.convertValue(buf, type);
-
-        assertNotNull(result);
         assertEquals(123, result.x);
         assertEquals("javatype", result.name);
     }
@@ -88,21 +57,23 @@ public class ConvertFromTokenBufferTest extends DatabindTestUtil
     @Test
     public void testConvertTokenBufferToTypeReference() throws Exception
     {
-        TokenBuffer buf = new TokenBuffer(MAPPER, false);
-        buf.writeStartArray();
-        buf.writeNumber(1);
-        buf.writeNumber(2);
-        buf.writeNumber(3);
-        buf.writeEndArray();
-        buf.close();
-
-        List<Integer> result = MAPPER.convertValue(buf,
-                new TypeReference<List<Integer>>() {});
-
-        assertNotNull(result);
-        assertEquals(Arrays.asList(1, 2, 3), result);
+        TokenBuffer buf = _beanToBuffer(456, "foobar");
+        SimpleBean result = MAPPER.convertValue(buf,
+                new TypeReference<SimpleBean>() {});
+        assertEquals(456, result.x);
+        assertEquals("foobar", result.name);
     }
 
+    private TokenBuffer _beanToBuffer(int x, String name) throws Exception {
+        TokenBuffer buf = new TokenBuffer(MAPPER, false);
+        buf.writeStartObject();
+        buf.writeNumberField("x", x);
+        buf.writeStringField("name", name);
+        buf.writeEndObject();
+        buf.close();
+        return buf;
+    }
+    
     // [databind#5368]: Test with Map
     @Test
     public void testConvertTokenBufferToMap() throws Exception

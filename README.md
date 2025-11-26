@@ -581,7 +581,60 @@ This will deserialize JSON fields with `known_as`, as well as `identifer` and `f
 Note: to use the `@JsonAlias` annotation, a `@JsonProperty` annotation must also be used.
 
 Overall, Jackson library is very powerful in deserializing objects using builder pattern.
- 
+
+## Tutorial: Collecting multiple errors (3.1+)
+
+One recently introduced feature is the ability to collect multiple deserialization errors instead of failing fast on the first one. This can be really handy for validation use cases.
+
+By default, if Jackson encounters a problem during deserialization -- say, string `"xyz"` for an `int` property -- it will immediately throw an exception and stop. But sometimes you want to see ALL the problems in one go.
+
+Consider a case where you have a couple of fields with bad data:
+
+```java
+class Order {
+  public int orderId;
+  public Date orderDate;
+  public double amount;
+}
+
+String json = "{\"orderId\":\"not-a-number\",\"orderDate\":\"bad-date\",\"amount\":\"xyz\"}";
+```
+
+Normally you'd get an error about `orderId`, fix it, resubmit, then get error about `orderDate`, and so on. Not fun. So let's collect them all:
+
+```java
+ObjectMapper mapper = new JsonMapper();
+ObjectReader reader = mapper.readerFor(Order.class).problemCollectingReader();
+
+try {
+    Order result = reader.readValueCollectingProblems(json);
+    // worked fine
+} catch (DeferredBindingException ex) {
+    System.out.println("Found " + ex.getProblems().size() + " problems:");
+    for (CollectedProblem problem : ex.getProblems()) {
+        System.out.println(problem.getPath() + ": " + problem.getMessage());
+        // Can also access problem.getRawValue() to see what the bad input was
+    }
+}
+```
+
+This will report all 3 problems at once. Much better.
+
+By default, Jackson will collect up to 100 problems before giving up (to prevent DoS-style attacks with huge bad payloads). You can configure this:
+
+```java
+ObjectReader reader = mapper.readerFor(Order.class).problemCollectingReader(10); // limit to 10
+```
+
+Few things to keep in mind:
+
+1. This is best-effort: not all problems can be collected. Malformed JSON (like missing closing brace) or other structural problems will still fail immediately. But type conversion errors, unknown properties (if you enable that check), and such will be collected.
+2. Error paths use JSON Pointer notation (RFC 6901): so `"/items/0/price"` means first item in `items` array, `price` field. Special characters get escaped (`~` becomes `~0`, `/` becomes `~1`).
+3. Each call to `readValueCollectingProblems()` gets its own problem bucket, so it's thread-safe to reuse the same `ObjectReader`.
+4. Fields that fail to deserialize get default values (0 for primitives, null for objects) during the attempt, but if any problems are collected, only the problems are reported in the `DeferredBindingException` - the partial result is not returned.
+
+This is particularly useful for things like REST API validation (return all validation errors to client), or batch processing (log errors but keep going), or development tooling.
+
 # Contribute!
 
 We would love to get your contribution, whether it's in form of bug reports, Requests for Enhancement (RFE), documentation, or code patches.

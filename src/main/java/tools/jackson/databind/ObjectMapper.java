@@ -2370,19 +2370,24 @@ public class ObjectMapper
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws JacksonException
     {
-        // 25-Jan-2019, tatu: [databind#2220] Let's NOT try to short-circuit anything
-
-        // inlined 'writeValue' with minor changes:
-        // first: disable wrapping when writing
-        final SerializationConfig config = serializationConfig()
-                .without(SerializationFeature.WRAP_ROOT_VALUE);
-        final SerializationContextExt ctxt = _serializationContext(config);
-        TokenBuffer buf = ctxt.bufferForValueConversion();
-        // Would like to let buffer decide, but it won't have deser config to check so...
-        if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-            buf = buf.forceUseOfBigDecimal(true);
+        // [databind#5368]: Optimize case where fromValue is already a TokenBuffer
+        // TokenBuffer has no read state, so safe to reuse directly via asParser()
+        TokenBuffer buf;
+        if (fromValue instanceof TokenBuffer tb) {
+            buf = tb;
+        } else {
+            // inlined 'writeValue' with minor changes:
+            // first: disable wrapping when writing
+            final SerializationConfig config = serializationConfig()
+                    .without(SerializationFeature.WRAP_ROOT_VALUE);
+            final SerializationContextExt ctxt = _serializationContext(config);
+            buf = ctxt.bufferForValueConversion();
+            // Would like to let buffer decide, but it won't have deser config to check so...
+            if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                buf = buf.forceUseOfBigDecimal(true);
+            }
+            ctxt.serializeValue(buf, fromValue);
         }
-        ctxt.serializeValue(buf, fromValue);
 
         // then matching read, inlined 'readValue' with minor mods:
         DeserializationContextExt readCtxt = _deserializationContext();

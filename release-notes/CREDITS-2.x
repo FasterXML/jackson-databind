@@ -1982,3 +1982,7 @@ Michael Reiche (@mikereiche)
 Johnny Lim (@izeye)
  * Reported #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
   (2.21.0)
+
+Hélios Gilles (@RoiSoleil)
+ * Contributed #5413: Add/support forward reference resolution for array values
+  [2.21.0]

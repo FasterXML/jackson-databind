@@ -2,22 +2,25 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
+import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
 /**
@@ -196,10 +199,17 @@ public class ObjectArrayDeserializer
         if (!p.isExpectedStartArrayToken()) {
             return handleNonArray(p, ctxt);
         }
-
+        if (_elementDeserializer.getObjectIdReader() != null) {
+            return _deserializeWithObjectId(p, ctxt);
+        }
         final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
         Object[] chunk = buffer.resetAndStart();
         int ix = 0;
+        return _deserialize(p, ctxt, buffer, ix, chunk);
+    }
+
+    protected Object[] _deserialize(JsonParser p, DeserializationContext ctxt,
+            final ObjectBuffer buffer, int ix, Object[] chunk) throws JsonMappingException {
         JsonToken t;
 
         try {
@@ -243,6 +253,54 @@ public class ObjectArrayDeserializer
         }
         ctxt.returnObjectBuffer(buffer);
         return result;
+    }
+
+    protected Object[] _deserializeWithObjectId(JsonParser p, DeserializationContext ctxt) throws JsonMappingException {
+        final ObjectArrayReferringAccumulator acc = new ObjectArrayReferringAccumulator(_untyped, _elementClass);
+
+        JsonToken t;
+
+        int ix = 0;
+        try {
+            while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+                try {
+                    Object value;
+
+                    if (t == JsonToken.VALUE_NULL) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
+                        value = null;
+                    } else {
+                        value = _deserializeNoNullChecks(p, ctxt);
+                    }
+
+                    if (value == null) {
+                        value = _nullProvider.getNullValue(ctxt);
+
+                        if (value == null && _skipNullValues) {
+                            continue;
+                        }
+                    }
+                    acc.add(value);
+                } catch (UnresolvedForwardReference reference) {
+                    if (acc == null) {
+                        throw reference;
+                    }
+                    ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
+                    reference.getRoid().appendReferring(referring);
+                }
+                ++ix;
+            }
+        } catch (Exception e) {
+            boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+            if (!wrap) {
+                ClassUtil.throwIfRTE(e);
+            }
+            throw JsonMappingException.wrapWithPath(e, acc.buildArray(), ix);
+        }
+
+        return acc.buildArray();
     }
 
     @Override
@@ -424,5 +482,60 @@ public class ObjectArrayDeserializer
             return _elementDeserializer.deserialize(p, ctxt);
         }
         return _elementDeserializer.deserializeWithType(p, ctxt, _elementTypeDeserializer);
+    }
+
+    // @since 2.21
+    private static class ObjectArrayReferringAccumulator {
+        private final boolean _untyped;
+        private final Class<?> _elementType;
+        private final List<Object> _accumulator = new ArrayList<>();
+
+        private Object[] _array;
+
+        ObjectArrayReferringAccumulator(boolean untyped, Class<?> elementType) {
+            _untyped = untyped;
+            _elementType = elementType;
+        }
+
+        void add(Object value) {
+            _accumulator.add(value);
+        }
+
+        Object[] buildArray() {
+            if (_untyped) {
+                _array = new Object[_accumulator.size()];
+            } else {
+                _array = (Object[]) Array.newInstance(_elementType, _accumulator.size());
+            }
+            for (int i = 0; i < _accumulator.size(); i++) {
+                if (!(_accumulator.get(i) instanceof ArrayReferring)) {
+                    _array[i] = _accumulator.get(i);
+                }
+            }
+            return _array;
+        }
+    }
+
+    private static class ArrayReferring extends Referring {
+        private final ObjectArrayReferringAccumulator _parent;
+
+        ArrayReferring(UnresolvedForwardReference ref,
+                Class<?> type,
+                ObjectArrayReferringAccumulator acc) {
+            super(ref, type);
+            _parent = acc;
+            _parent._accumulator.add(this);
+        }
+
+        @Override
+        public void handleResolvedForwardReference(Object id, Object value) throws JacksonException {
+            for (int i = 0; i < _parent._accumulator.size(); i++) {
+                if (_parent._accumulator.get(i) == this) {
+                    _parent._array[i] = value;
+                    return;
+                }
+            }
+            throw new IllegalArgumentException("Trying to resolve unknown reference: " + id);
+        }
     }
 }

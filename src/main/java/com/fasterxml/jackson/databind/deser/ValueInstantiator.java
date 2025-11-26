@@ -5,11 +5,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.CoercionAction;
-import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
-import com.fasterxml.jackson.databind.type.LogicalType;
 
 /**
  * Class that defines simple API implemented by objects that create value
@@ -421,50 +418,6 @@ public abstract class ValueInstantiator
      * this method may return null .
      */
     public AnnotatedWithParams getWithArgsCreator() { return null; }
-
-    /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
-     */
-
-    /**
-     * @since 2.4 (demoted from <code>StdValueInstantiator</code>)
-     * @deprecated Since 2.12 should not handle coercions here
-     */
-    @Deprecated // since 2.12
-    @SuppressWarnings("resource")
-    protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
-            throws IOException
-    {
-        // also, empty Strings might be accepted as null Object...
-        if (value.isEmpty()) {
-            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                return null;
-            }
-        }
-
-        /* 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
-         *   systems that expect conversions in some cases, let's just add a minimal
-         *   patch (note: same could conceivably be used for numbers too).
-         */
-        if (canCreateFromBoolean()) {
-            // 29-May-2020, tatu: With 2.12 can and should use CoercionConfig so:
-            if (ctxt.findCoercionAction(LogicalType.Boolean, Boolean.class,
-                    CoercionInputShape.String) == CoercionAction.TryConvert) {
-                String str = value.trim();
-                if ("true".equals(str)) {
-                    return createFromBoolean(ctxt, true);
-                }
-                if ("false".equals(str)) {
-                    return createFromBoolean(ctxt, false);
-                }
-            }
-        }
-        return ctxt.handleMissingInstantiator(getValueClass(), this, ctxt.getParser(),
-                "no String-argument constructor/factory method to deserialize from String value ('%s')",
-                value);
-    }
 
     /*
     /**********************************************************

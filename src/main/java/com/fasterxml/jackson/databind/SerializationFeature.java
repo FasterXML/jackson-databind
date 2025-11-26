@@ -141,15 +141,26 @@ public enum SerializationFeature implements ConfigFeature
       * writeValue() (or equivalent) method is called)
       * that implement {@link java.io.Closeable}
       * is called after serialization or not. If enabled, <b>close()</b> will
-      * be called after serialization completes (whether succesfully, or
+      * be called after serialization completes (whether successfully, or
       * due to an error manifested by an exception being thrown). You can
       * think of this as sort of "finally" processing.
       *<p>
       * NOTE: only affects behavior with <b>root</b> objects, and not other
       * objects reachable from the root object. Put another way, only one
       * call will be made for each 'writeValue' call.
-     *<p>
-     * Feature is disabled by default.
+      *<p>
+      * <b>This feature does not control closing of the underlying
+      * {@link java.io.OutputStream} or {@link java.io.Writer}.</b>
+      * Stream closing is handled by the streaming layer and can be configured
+      * via {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET},
+      * for example:
+      * <pre>
+      * ObjectMapper mapper = JsonMapper.builder()
+      *     .disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET)
+      *     .build();
+      * </pre>
+      * <p>
+      * Feature is disabled by default.
       */
     CLOSE_CLOSEABLE(false),
 

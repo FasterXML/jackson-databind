@@ -437,6 +437,12 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
+                // [databind#1381]: if useInput=FALSE, skip deserialization from input
+                if (creatorProp.isInjectionOnly()) {
+                    // Skip the input value, will be injected later in PropertyValueBuffer
+                    p.skipChildren();
+                    continue;
+                }
                 value = _deserializeWithErrorWrapping(p, ctxt, creatorProp);
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, value)) {
@@ -886,6 +892,13 @@ public class BeanDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#1381]: if useInput=FALSE, skip deserialization from input
+                if (creatorProp.isInjectionOnly()) {
+                    // Skip the input value, will be injected later in PropertyValueBuffer
+                    p.skipChildren();
+                    continue;
+                }
+
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp,
                         _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
@@ -1094,6 +1107,13 @@ public class BeanDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#1381]: if useInput=FALSE, skip deserialization from input
+                if (creatorProp.isInjectionOnly()) {
+                    // Skip the input value, will be injected later in PropertyValueBuffer
+                    p.skipChildren();
+                    continue;
+                }
+
                 // first: let's check to see if this might be part of value with external type id:
                 // 11-Sep-2015, tatu: Important; do NOT pass buffer as last arg, but null,
                 //   since it is not the bean

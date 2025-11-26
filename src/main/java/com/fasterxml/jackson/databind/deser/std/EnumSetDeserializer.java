@@ -226,17 +226,26 @@ public class EnumSetDeserializer
                 // passed it to EnumDeserializer, too, but in general nulls should never be passed
                 // to non-container deserializers)
                 Enum<?> value;
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
+                if ((t == JsonToken.VALUE_NULL)
+                        // [databind#5203]: Custom deserializer may return null for non-null token
+                        || (value = _enumDeserializer.deserialize(p, ctxt)) == null) {
+                    value = (Enum<?>) _nullProvider.getNullValue(ctxt);
+                    if (value == null) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
+                        // EnumSet does not accept nulls, so we need to report an error
+                        // 05-Nov-2025, tatu: In case of no explicit Nulls handling; with 2.x,
+                        //   let's just skip for backward compatibility; for 3.x, FAIL
+                        /*
+                        ctxt.handleUnexpectedToken(_enumType, JsonToken.VALUE_NULL, p,
+                                "`EnumSet` of type %s does not accept `null` values",
+                                ClassUtil.getTypeDescription(_enumType));
+                                */
                         continue;
                     }
-                    value = (Enum<?>) _nullProvider.getNullValue(ctxt);
-                } else {
-                    value = _enumDeserializer.deserialize(p, ctxt);
                 }
-                if (value != null) {
-                    result.add(value);
-                }
+                result.add(value);
             }
         } catch (Exception e) {
             throw JsonMappingException.wrapWithPath(e, result, result.size());

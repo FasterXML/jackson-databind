@@ -1966,6 +1966,8 @@ Giulio Longfils (@giulong)
  * Contributed #4218: If `@JacksonInject` is specified for field and deserialized by
    the Creator, the inject process will be executed twice
   (2.20.0)
+ * Contributed #1381: Add a way to specify "inject-only" with `@JacksonInject`
+  (2.21.0)
 
 Plamen Tanov (@ptanov)
  * Reported #2678: `@JacksonInject` added to property overrides value from the JSON
@@ -1980,3 +1982,7 @@ Michael Reiche (@mikereiche)
 Johnny Lim (@izeye)
  * Reported #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
   (2.21.0)
+
+Hélios Gilles (@RoiSoleil)
+ * Contributed #5413: Add/support forward reference resolution for array values
+  [2.21.0]

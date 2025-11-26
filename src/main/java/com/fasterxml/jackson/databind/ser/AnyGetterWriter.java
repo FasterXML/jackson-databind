@@ -5,6 +5,7 @@ import java.util.Map;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 
 /**
@@ -87,6 +88,13 @@ public class AnyGetterWriter extends BeanPropertyWriter
     @Override
     public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception {
         getAndSerialize(bean, gen, prov);
+    }
+
+    @Override // @since 2.20
+    public void depositSchemaProperty(JsonObjectFormatVisitor v, SerializerProvider provider) throws JsonMappingException {
+        // 18-Nov-2025: [databind#5393] @JsonAnyGetter was getting included in generated schema
+
+        // no-op
     }
 
     /**

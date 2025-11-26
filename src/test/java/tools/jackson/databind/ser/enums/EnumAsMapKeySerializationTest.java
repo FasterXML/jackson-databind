@@ -2,9 +2,12 @@ package tools.jackson.databind.ser.enums;
 
 import java.util.*;
 
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.core.JsonGenerator;
@@ -15,7 +18,8 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EnumAsMapKeyTest extends DatabindTestUtil
+@TestMethodOrder(MethodOrderer.MethodName.class)
+public class EnumAsMapKeySerializationTest extends DatabindTestUtil
 {
     static class MapBean {
         public Map<ABCEnum,Integer> map = new HashMap<>();
@@ -92,6 +96,12 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
         }
     }
 
+    // [databind#5432]
+    enum Color5432 {
+        @JsonProperty("red")
+        RED
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -99,7 +109,8 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
      */
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING).build();
+            .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+            .build();
 
     @Test
     public void testMapWithEnumKeys() throws Exception
@@ -196,5 +207,29 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
                 MAPPER.writer()
                     .with(EnumFeature.WRITE_ENUMS_USING_INDEX)
                     .writeValueAsString(input));
+    }
+
+    // [databind#5432]
+    @Test
+    void enumKeyShouldSerializeUsingJsonPropertyAndToString() throws Exception
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                .build();
+        Map<Color5432, String> map = Collections.singletonMap(Color5432.RED, "#ff0000");
+        String json = mapper.writeValueAsString(map);
+        assertEquals("{\"red\":\"#ff0000\"}", json);
+    }
+
+    // [databind#5432]
+    @Test
+    void enumKeyShouldSerializeUsingJsonPropertyAndName() throws Exception
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                .build();
+        Map<Color5432, String> map = Collections.singletonMap(Color5432.RED, "#ff0000");
+        String json = mapper.writeValueAsString(map);
+        assertEquals("{\"red\":\"#ff0000\"}", json);
     }
 }

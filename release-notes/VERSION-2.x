@@ -19,6 +19,9 @@ Project: jackson-databind
   customizability
  (contributed by @wrongwrong)
 #5361: Fix Maven SBOM publishing
+#5368: Optimize performance of `ObjectMapper.convertValue()` when `TokenBuffer`
+  passed as `fromValue`
+ (requested by @qsLI)
 #5398: `@JsonProperty.value` + `@JsonIgnore` on setter does not work
   anymore since 2.18.4
  (reported by @victor-noel-pfx)

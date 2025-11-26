@@ -4693,21 +4693,33 @@ public class ObjectMapper
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
     {
-        // inlined 'writeValue' with minor changes:
-        // first: disable wrapping when writing
-        final SerializationConfig config = getSerializationConfig().without(SerializationFeature.WRAP_ROOT_VALUE);
-        final DefaultSerializerProvider context = _serializerProvider(config);
+        // [databind#5368]: Optimize case where fromValue is already a TokenBuffer
+        // TokenBuffer has no read state, so safe to reuse directly via asParser()
+        TokenBuffer buf;
+        if (fromValue != null && fromValue.getClass() == TokenBuffer.class) {
+            // Already a TokenBuffer, reuse it directly
+            buf = (TokenBuffer) fromValue;
+        } else {
+            // inlined 'writeValue' with minor changes:
+            // first: disable wrapping when writing
+            final SerializationConfig config = getSerializationConfig().without(SerializationFeature.WRAP_ROOT_VALUE);
+            final DefaultSerializerProvider context = _serializerProvider(config);
 
-        // Then create TokenBuffer to use as JsonGenerator
-        TokenBuffer buf = context.bufferForValueConversion(this);
-        if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-            buf = buf.forceUseOfBigDecimal(true);
+            // Then create TokenBuffer to use as JsonGenerator
+            buf = context.bufferForValueConversion(this);
+            if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                buf = buf.forceUseOfBigDecimal(true);
+            }
+            try {
+                // no need to check for closing of TokenBuffer
+                context.serializeValue(buf, fromValue);
+            } catch (IOException e) { // should not occur, no real i/o...
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
         }
-        try {
-            // no need to check for closing of TokenBuffer
-            context.serializeValue(buf, fromValue);
 
-            // then matching read, inlined 'readValue' with minor mods:
+        // then matching read, inlined 'readValue' with minor mods:
+        try {
             final JsonParser p = buf.asParser();
             Object result;
             // ok to pass in existing feature flags; unwrapping handled by mapper

@@ -31,7 +31,6 @@ public class RecordsWithJsonIncludeAndIgnorals4629Test
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     void testJsonInclude4629()
         throws Exception
@@ -44,7 +43,6 @@ public class RecordsWithJsonIncludeAndIgnorals4629Test
         assertEquals(expected, actual);
     }
 
-    @JacksonTestFailureExpected
     @Test
     void testJsonIgnore4629()
         throws Exception

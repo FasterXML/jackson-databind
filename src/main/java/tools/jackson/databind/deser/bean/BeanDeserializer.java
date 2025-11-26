@@ -584,13 +584,6 @@ public class BeanDeserializer
                 continue;
             }
 
-            // [databind#1891]: possible fix
-            /*
-            if (_ignorableProps != null && _ignorableProps.contains(propName)){
-                continue;
-            }
-            */
-
             // Creator property?
             if (creatorProp != null) {
                 Object value;
@@ -670,14 +663,6 @@ public class BeanDeserializer
                 }
             }
 
-            // Things marked as ignorable should not be passed to any setter
-            // [databind#4629]: record issue fix
-            /*
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, handledType(), propName);
-                continue;
-            }
-             */
             // "any property"?
             if (_anySetter != null) {
                 try {

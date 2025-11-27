@@ -585,8 +585,7 @@ public class BeanDeserializer
             // Records (and other creator-based types) will have a valid 'creatorProp', so if we don't
             // check for ignore first, the ignore configuration will be bypassed.
             // Determine if the property name should be ignored
-            boolean shouldIgnore = IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps);
-            if (shouldIgnore) {
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 if (regularProp instanceof MethodProperty) {
                     // FIX for creatorProp + ignore conflict
                     creatorProp = null;

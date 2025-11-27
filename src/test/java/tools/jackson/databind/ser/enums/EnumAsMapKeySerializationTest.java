@@ -216,6 +216,11 @@ public class EnumAsMapKeySerializationTest extends DatabindTestUtil
         final ObjectMapper mapper = jsonMapperBuilder()
                 .enable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .build();
+
+        // Sanity check first
+        assertEquals(q("red"), mapper.writeValueAsString(Color5432.RED));
+
+        // Then actual test
         Map<Color5432, String> map = Collections.singletonMap(Color5432.RED, "#ff0000");
         String json = mapper.writeValueAsString(map);
         assertEquals("{\"red\":\"#ff0000\"}", json);
@@ -228,6 +233,11 @@ public class EnumAsMapKeySerializationTest extends DatabindTestUtil
         final ObjectMapper mapper = jsonMapperBuilder()
                 .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .build();
+
+        // Sanity check first
+        assertEquals(q("red"), mapper.writeValueAsString(Color5432.RED));
+
+        // Then actual test
         Map<Color5432, String> map = Collections.singletonMap(Color5432.RED, "#ff0000");
         String json = mapper.writeValueAsString(map);
         assertEquals("{\"red\":\"#ff0000\"}", json);

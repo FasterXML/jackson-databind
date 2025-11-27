@@ -273,21 +273,12 @@ public abstract class JDKKeySerializers
          */
         protected final EnumValues _valuesByEnumNaming;
 
-        @Deprecated
-        protected EnumKeySerializer(Class<?> enumType, EnumValues values) {
-            this(enumType, values, null);
-        }
-
-        protected EnumKeySerializer(Class<?> enumType, EnumValues values, EnumValues valuesByEnumNaming) {
+        protected EnumKeySerializer(Class<?> enumType, EnumValues values,
+                EnumValues valuesByEnumNaming)
+        {
             super(enumType);
             _values = values;
             _valuesByEnumNaming = valuesByEnumNaming;
-        }
-
-        public static EnumKeySerializer construct(Class<?> enumType,
-                EnumValues enumValues)
-        {
-            return new EnumKeySerializer(enumType, enumValues);
         }
 
         public static EnumKeySerializer construct(Class<?> enumType,

@@ -47,6 +47,12 @@ public class EnumValuesToWrite
                 enumNamingStrategy, enumConstants, explicitNames);
     }
 
+    @SuppressWarnings("unchecked")
+    public Class<Enum<?>> enumClass() {
+        Class<?> cls = _annotatedClass.getRawType();
+        return (Class<Enum<?>>) cls;
+    }
+
     public SerializableString fromName(MapperConfig<?> config, Enum<?> en) {
         SerializableString[] strs;
         if (config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)) {

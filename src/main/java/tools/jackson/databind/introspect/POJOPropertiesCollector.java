@@ -1062,21 +1062,28 @@ ctor.creator()));
             final boolean hasExplicit = (explName != null);
             final POJOPropertyBuilder prop;
 
-            //  neither implicit nor explicit name?
-            if (!hasExplicit && (implName == null)) {
-                boolean isUnwrapping = _annotationIntrospector.findUnwrappingNameTransformer(_config, param) != null;
+            // [databind#5115] Resolve @JsonUnwrapped by checking the parameter first, then falling back to its field.
+            final String implNameStr = (implName != null) ? implName.getSimpleName() : null;
+            final POJOPropertyBuilder existingProp = (implNameStr != null) ? props.get(implNameStr) : null;
+            final AnnotatedField field = (existingProp != null) ? existingProp.getField() : null;
 
-                if (isUnwrapping) {
-                    // If unwrapping, can use regardless of name; we will use a placeholder name
-                    // anyway to try to avoid name conflicts.
+            // [databind#5115] Determine whether the creator parameter should be treated as unwrapped.
+            final boolean isUnwrapping =
+                _annotationIntrospector.findUnwrappingNameTransformer(_config, param) != null ||
+                    (field != null && _annotationIntrospector.findUnwrappingNameTransformer(_config, field) != null);
+
+            if (isUnwrapping) {
+                // [databind#5115] Serialization: Reuse the existing property, Deserialization: Use a placeholder creator property
+                if (_forSerialization && existingProp != null) {
+                    existingProp.addCtor(param, implName, hasExplicit, true, false);
+                    prop = existingProp;
+                } else {
                     PropertyName name = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
                     prop = _property(props, name);
-                    prop.addCtor(param, name, false, true, false);
-                } else {
-                    // Without name, cannot make use of this creator parameter -- may or may not
-                    // be a problem, verified at a later point.
-                    prop = null;
+                    prop.addCtor(param, name, hasExplicit, true, false);
                 }
+            } else if (!hasExplicit && (implName == null)) {
+                prop = null;
             } else {
                 // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
                 if (implName != null) {

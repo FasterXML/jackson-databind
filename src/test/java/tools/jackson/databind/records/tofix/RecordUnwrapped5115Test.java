@@ -62,7 +62,6 @@ public class RecordUnwrapped5115Test
         assertEquals(input, output);
     }
 
-    @JacksonTestFailureExpected
     @Test
     void unwrappedRecordShouldRoundTrip() throws Exception
     {

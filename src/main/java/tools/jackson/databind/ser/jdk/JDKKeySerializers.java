@@ -290,7 +290,7 @@ public abstract class JDKKeySerializers
                 // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
                 g.writeName(String.valueOf(en.ordinal()));
             } else if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
-                    g.writeName(_valuesToWrite.fromToString(ctxt.getConfig(), en)); 
+                g.writeName(_valuesToWrite.fromToString(ctxt.getConfig(), en));
             } else {
                 g.writeName(_valuesToWrite.fromName(ctxt.getConfig(), en)); 
             }

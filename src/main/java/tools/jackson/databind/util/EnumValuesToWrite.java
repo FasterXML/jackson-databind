@@ -75,11 +75,15 @@ public class EnumValuesToWrite
         SerializableString[] strs;
         if (config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)) {
             if ((strs = _enumToStringsLC) == null) {
-                _enumToStringsLC = strs = _fetch(config, Enum::toString, true);
+                _enumToStringsLC = strs = _fetch(config,
+                        e -> _toStringWithStrategy(config, e),
+                        true);
             }
         } else {
             if ((strs = _enumToStrings) == null) {
-                _enumToStrings = strs = _fetch(config, Enum::toString, false);
+                _enumToStrings = strs = _fetch(config,
+                        e -> _toStringWithStrategy(config, e),
+                        false);
             }
         }
         return strs[en.ordinal()];
@@ -87,6 +91,14 @@ public class EnumValuesToWrite
 
     private String _nameWithStrategy(MapperConfig<?> config, Enum<?> en) {
         String str = en.name();
+        if (_enumNamingStrategy != null) {
+            str = _enumNamingStrategy.convertEnumToExternalName(config, _annotatedClass, str);
+        }
+        return str;
+    }
+
+    private String _toStringWithStrategy(MapperConfig<?> config, Enum<?> en) {
+        String str = en.toString();
         if (_enumNamingStrategy != null) {
             str = _enumNamingStrategy.convertEnumToExternalName(config, _annotatedClass, str);
         }

@@ -23,7 +23,7 @@ public class EnumNamingSerializationTest extends DatabindTestUtil
             .build();
 
     @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
-    static enum EnumFlavorA {
+    enum EnumFlavorA {
         CHOCOLATE_CHIPS,
         HOT_CHEETOS;
 
@@ -34,26 +34,26 @@ public class EnumNamingSerializationTest extends DatabindTestUtil
     }
 
     @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
-    static enum EnumSauceB {
+    enum EnumSauceB {
         KETCH_UP,
         MAYO_NEZZ;
     }
 
     @EnumNaming(EnumNamingStrategy.class)
-    static enum EnumSauceC {
+    enum EnumSauceC {
         BARBEQ_UE,
         SRIRACHA_MAYO;
     }
 
     @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
-    static enum EnumFlavorD {
+    enum EnumFlavorD {
         _PEANUT_BUTTER,
         PEANUT__BUTTER,
         PEANUT_BUTTER
     }
 
     @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
-    static enum EnumFlavorE {
+    enum EnumFlavorE {
         PEANUT_BUTTER,
         @JsonProperty("almond")
         ALMOND_BUTTER
@@ -75,7 +75,7 @@ public class EnumNamingSerializationTest extends DatabindTestUtil
     */
 
     @Test
-    public void testEnumNamingShouldOverrideToStringFeatue() throws Exception {
+    public void testEnumNamingShouldOverrideToStringFeature() throws Exception {
         String resultStr = MAPPER.writer()
             .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
             .writeValueAsString(EnumFlavorA.CHOCOLATE_CHIPS);

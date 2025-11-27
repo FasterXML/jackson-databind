@@ -1,4 +1,4 @@
-package tools.jackson.databind.ser.jdk;
+package tools.jackson.databind.ser.enums;
 
 import java.util.*;
 

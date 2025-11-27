@@ -268,8 +268,9 @@ public abstract class JDKKeySerializers
         protected final EnumValues _values;
 
         /**
-         * Map with key as converted property class defined implementation of {@link EnumNamingStrategy}
-         * and with value as Enum names collected using <code>Enum.name()</code>.
+         * Map with key as converted property class defined implementation of
+         * {@link EnumNamingStrategy} and with value as Enum names collected using
+         * <code>Enum.name()</code>.
          */
         protected final EnumValues _valuesByEnumNaming;
 

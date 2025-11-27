@@ -34,7 +34,10 @@ public final class EnumValues
     /**
      * NOTE: do NOT call this if configuration may change, and choice between toString()
      *   and name() might change dynamically.
+     *
+     * @deprecated Since 2.21
      */
+    @Deprecated // since 2.21
     public static EnumValues construct(SerializationConfig config, AnnotatedClass enumClass) {
         if (config.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
             return constructFromToString(config, enumClass);
@@ -45,7 +48,8 @@ public final class EnumValues
     /**
      * @since 2.16
      */
-    public static EnumValues constructFromName(MapperConfig<?> config, AnnotatedClass annotatedClass) 
+    public static EnumValues constructFromName(MapperConfig<?> config,
+            AnnotatedClass annotatedClass) 
     {
         // prepare data
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
@@ -71,7 +75,8 @@ public final class EnumValues
     /**
      * @since 2.16
      */
-    public static EnumValues constructFromToString(MapperConfig<?> config, AnnotatedClass annotatedClass)
+    public static EnumValues constructFromToString(MapperConfig<?> config,
+            AnnotatedClass annotatedClass)
     {
         // prepare data
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();

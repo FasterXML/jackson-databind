@@ -29,14 +29,14 @@ public class EnumValuesTest extends DatabindTestUtil
         public String toString() { return desc; }
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testConstructFromName() {
         SerializationConfig cfg = MAPPER.serializationConfig()
                 .without(EnumFeature.WRITE_ENUMS_USING_TO_STRING);
         AnnotatedClass enumClass = resolve(MAPPER, ABC.class);
-        EnumValues values = EnumValues.construct(cfg, enumClass);
+        EnumValues values = EnumValues.constructFromName(cfg, enumClass);
         assertEquals("A", values.serializedValueFor(ABC.A).toString());
         assertEquals("B", values.serializedValueFor(ABC.B).toString());
         assertEquals("C", values.serializedValueFor(ABC.C).toString());
@@ -49,7 +49,8 @@ public class EnumValuesTest extends DatabindTestUtil
         SerializationConfig cfg = MAPPER.serializationConfig()
                 .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING);
         AnnotatedClass enumClass = resolve(MAPPER, ABC.class);
-        EnumValues values = EnumValues.construct(cfg, enumClass);
+
+        EnumValues values = EnumValues.constructFromToString(cfg, enumClass);
         assertEquals("A", values.serializedValueFor(ABC.A).toString());
         assertEquals("b", values.serializedValueFor(ABC.B).toString());
         assertEquals("C", values.serializedValueFor(ABC.C).toString());
@@ -80,7 +81,8 @@ public class EnumValuesTest extends DatabindTestUtil
         SerializationConfig cfg = MAPPER.serializationConfig()
             .with(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
         AnnotatedClass enumClass = resolve(MAPPER, ABC.class);
-        EnumValues values = EnumValues.construct(cfg, enumClass);
+
+        EnumValues values = EnumValues.constructFromName(cfg, enumClass);
         assertEquals("a", values.serializedValueFor(ABC.A).toString());
         assertEquals("b", values.serializedValueFor(ABC.B).toString());
         assertEquals("c", values.serializedValueFor(ABC.C).toString());

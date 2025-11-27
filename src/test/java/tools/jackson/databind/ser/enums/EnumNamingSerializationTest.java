@@ -1,4 +1,4 @@
-package tools.jackson.databind.ser.jdk;
+package tools.jackson.databind.ser.enums;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -111,8 +111,8 @@ public class EnumNamingSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testDesrEnumWithEnumMap() throws Exception {
-        EnumMap<EnumSauceB, String> enums = new EnumMap<EnumSauceB, String>(EnumSauceB.class);
+    public void testEnumWithEnumMap() throws Exception {
+        EnumMap<EnumSauceB, String> enums = new EnumMap<>(EnumSauceB.class);
         enums.put(EnumSauceB.MAYO_NEZZ, "value");
 
         String str = MAPPER.writer()

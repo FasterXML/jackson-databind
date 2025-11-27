@@ -117,7 +117,6 @@ public enum EnumFeature implements DatatypeFeature
      */
     WRITE_ENUMS_TO_LOWERCASE(false),
 
-
     /**
      * Feature that determines standard serialization mechanism used for
      * Enum values: if enabled, return value of <code>Enum.toString()</code>

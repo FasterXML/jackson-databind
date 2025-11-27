@@ -11,7 +11,8 @@ import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.util.EnumValues;
+import tools.jackson.databind.util.EnumDefinition;
+import tools.jackson.databind.util.EnumValuesToWrite;
 
 public abstract class JDKKeySerializers
 {
@@ -78,9 +79,8 @@ public abstract class JDKKeySerializers
 
     /**
      * Method called if no specified key serializer was located; will return a
-     * "default" key serializer initialized by {@link EnumKeySerializer#construct(Class, EnumValues, EnumValues)}
+     * "default" key serializer except with special handling for {@code Enum}s
      */
-    @SuppressWarnings("unchecked")
     public static ValueSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
             Class<?> rawKeyType, AnnotatedClass annotatedClass)
     {
@@ -98,8 +98,7 @@ public abstract class JDKKeySerializers
             //    for subtypes.
             if (ClassUtil.isEnumType(rawKeyType)) {
                 return EnumKeySerializer.construct(rawKeyType,
-                    EnumValues.constructFromName(config, annotatedClass),
-                    EnumSerializer.constructEnumNamingStrategyValues(config, (Class<Enum<?>>) rawKeyType, annotatedClass));
+                        EnumDefinition.construct(config, annotatedClass).valuesToWrite(config));
             }
         }
         // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
@@ -265,56 +264,36 @@ public abstract class JDKKeySerializers
      */
     public static class EnumKeySerializer extends StdSerializer<Object>
     {
-        protected final EnumValues _values;
+        protected final EnumValuesToWrite _valuesToWrite;
 
-        /**
-         * Map with key as converted property class defined implementation of {@link EnumNamingStrategy}
-         * and with value as Enum names collected using <code>Enum.name()</code>.
-         */
-        protected final EnumValues _valuesByEnumNaming;
-
-        @Deprecated
-        protected EnumKeySerializer(Class<?> enumType, EnumValues values) {
-            this(enumType, values, null);
-        }
-
-        protected EnumKeySerializer(Class<?> enumType, EnumValues values, EnumValues valuesByEnumNaming) {
+        protected EnumKeySerializer(Class<?> enumType, EnumValuesToWrite valuesToWrite)
+        {
             super(enumType);
-            _values = values;
-            _valuesByEnumNaming = valuesByEnumNaming;
+            _valuesToWrite = valuesToWrite;
         }
 
         public static EnumKeySerializer construct(Class<?> enumType,
-                EnumValues enumValues)
+                EnumValuesToWrite valuesToWrite)
         {
-            return new EnumKeySerializer(enumType, enumValues);
-        }
-
-        public static EnumKeySerializer construct(Class<?> enumType,
-                EnumValues enumValues, EnumValues valuesByEnumNaming)
-        {
-            return new EnumKeySerializer(enumType, enumValues, valuesByEnumNaming);
+            return new EnumKeySerializer(enumType, valuesToWrite);
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializationContext serializers)
+        public void serialize(Object value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
-            if (serializers.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
-                g.writeName(value.toString());
-                return;
-            }
-            Enum<?> en = (Enum<?>) value;
-            if (_valuesByEnumNaming != null) {
-                g.writeName(_valuesByEnumNaming.serializedValueFor(en));
-                return;
-            }
-            // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
-            if (serializers.isEnabled(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
+            final Enum<?> en = (Enum<?>) value;
+
+            // 26-Nov-2025, tatu: In 3.0 order was opposite (TO_STRING first,
+            //    then INDEX); changed in 3.1
+            if (ctxt.isEnabled(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
+                // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
                 g.writeName(String.valueOf(en.ordinal()));
-                return;
+            } else if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
+                    g.writeName(_valuesToWrite.fromToString(ctxt.getConfig(), en)); 
+            } else {
+                g.writeName(_valuesToWrite.fromName(ctxt.getConfig(), en)); 
             }
-            g.writeName(_values.serializedValueFor(en));
         }
     }
 }

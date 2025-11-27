@@ -1,7 +1,6 @@
 package tools.jackson.databind.deser.enums;
 
 import java.util.EnumMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -94,58 +93,6 @@ public class EnumMapDeserializationTest
     static class Holder1988 {
         public Map<Enum1988, Number> mapHolder;
         public Enum1988 enumHolder;
-    }
-
-    // [databind#2457]
-    enum MyEnum2457 {
-        A,
-        B() {
-            // just to ensure subclass construction
-            @Override
-            public void foo() { }
-        };
-
-        // needed to force subclassing
-        public void foo() { }
-
-        @Override
-        public String toString() { return name() + " as string"; }
-    }
-
-    // [databind#2457]
-    enum MyEnum2457Base {
-        @JsonProperty("a_base")
-        A,
-        @JsonProperty("b_base")
-        B() {
-            // just to ensure subclass construction
-            @Override
-            public void foo() { }
-        };
-        
-        // needed to force subclassing
-        public void foo() { }
-        
-        @Override
-        public String toString() { return name() + " as string"; }
-    }
-
-    // [databind#2457]
-    enum MyEnum2457Mixin {
-        @JsonProperty("a_mixin")
-        A,
-        @JsonProperty("b_mixin")
-        B() {
-            // just to ensure subclass construction
-            @Override
-            public void foo() { }
-        };
-
-        // needed to force subclassing
-        public void foo() { }
-
-        @Override
-        public String toString() { return name() + " as string"; }
     }
 
     /*
@@ -303,50 +250,6 @@ public class EnumMapDeserializationTest
         // 25-Jan-2018, tatu: as per [databind#1883], we upgrade it to `EnumMap`, which won't accept nulls...
         assertEquals(0, value2.size());
         assertEquals(EnumMap.class, value2.getClass());
-    }
-
-    // [databind#2457]
-    @Test
-    public void testCustomEnumAsRootMapKey() throws Exception
-    {
-        final Map<MyEnum2457, String> map = new LinkedHashMap<>();
-        map.put(MyEnum2457.A, "1");
-        map.put(MyEnum2457.B, "2");
-        assertEquals(a2q("{'A':'1','B':'2'}"),
-                MAPPER.writer()
-                        .without(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
-                        .writeValueAsString(map));
-
-        // But should be able to override
-        assertEquals(a2q("{'"+MyEnum2457.A.toString()+"':'1','"+MyEnum2457.B.toString()+"':'2'}"),
-                MAPPER.writer()
-                    .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
-                    .writeValueAsString(map));
-    }
-
-    /**
-     * @see #testCustomEnumAsRootMapKey
-     */
-    // [databind#2457]
-    @Test
-    public void testCustomEnumAsRootMapKeyMixin() throws Exception
-    {
-        ObjectMapper mixinMapper = JsonMapper.builder()
-                .addMixIn(MyEnum2457Base.class, MyEnum2457Mixin.class)
-                .build();
-        final Map<MyEnum2457Base, String> map = new LinkedHashMap<>();
-        map.put(MyEnum2457Base.A, "1");
-        map.put(MyEnum2457Base.B, "2");
-        assertEquals(a2q("{'a_mixin':'1','b_mixin':'2'}"),
-                mixinMapper.writer()
-                        .without(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
-                        .writeValueAsString(map));
-
-        // But should be able to override
-        assertEquals(a2q("{'"+MyEnum2457Base.A.toString()+"':'1','"+MyEnum2457Base.B.toString()+"':'2'}"),
-                mixinMapper.writer()
-                        .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
-                        .writeValueAsString(map));
     }
 
     /*

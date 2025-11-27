@@ -209,19 +209,4 @@ public class EnumSerializer
                 "Unsupported serialization shape (%s) for Enum %s, not supported as %s annotation",
                     shape, enumClass.getName(), (fromClass? "class" : "property")));
     }
-
-    /**
-     * Factory method used to resolve an instance of {@link EnumValues}
-     * with {@link EnumNamingStrategy} applied for the target class.
-     */
-    /*
-    protected static EnumValues constructEnumNamingStrategyValues(SerializationConfig config, Class<Enum<?>> enumClass,
-            AnnotatedClass annotatedClass) {
-        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
-        EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
-            namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
-        return enumNamingStrategy == null ? null : EnumValues.constructUsingEnumNamingStrategy(
-            config, annotatedClass, enumNamingStrategy);
-    }
-    */
 }

@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import tools.jackson.databind.AnnotationIntrospector;
+import tools.jackson.databind.EnumNamingStrategy;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass;
+import tools.jackson.databind.introspect.EnumNamingStrategyFactory;
 
 /**
  * Encapsulation of a {@link java.lang.Enum} type definition with its elements
@@ -15,17 +17,18 @@ import tools.jackson.databind.introspect.AnnotatedClass;
  */
 public class EnumDefinition
 {
-    private final MapperConfig<?> _config;
     private final Class<Enum<?>> _enumClass;
+    private final EnumNamingStrategy _enumNamingStrategy;
     private final Enum<?>[] _enumConstants;
     private final String[] _explicitNames;
 
-    private EnumDefinition(MapperConfig<?> config, Class<Enum<?>> enumClass,
+    private EnumDefinition(Class<Enum<?>> enumClass,
+            EnumNamingStrategy enumNamingStrategy,
             Enum<?>[] enumConstants,
             String[] explicitNames)
     {
-        _config = config;
         _enumClass = enumClass;
+        _enumNamingStrategy = enumNamingStrategy;
         _enumConstants = enumConstants;
         _explicitNames = explicitNames;
     }
@@ -34,6 +37,9 @@ public class EnumDefinition
             AnnotatedClass annotatedClass)
     {
         final Class<?> enumCls0 = annotatedClass.getRawType();
+        @SuppressWarnings("unchecked")
+        final Class<Enum<?>> enumCls = (Class<Enum<?>>) enumCls0;
+
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         String[] explicitNames = new String[enumConstants.length];
 
@@ -42,11 +48,19 @@ public class EnumDefinition
             explicitNames = ai.findEnumValues(config, annotatedClass, 
                     enumConstants, explicitNames);
         }
-        return new EnumDefinition(config, _enumClass(enumCls0), enumConstants,
-                explicitNames);
+        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
+        EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
+            namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
         
+        return new EnumDefinition(enumCls, enumNamingStrategy,
+                enumConstants, explicitNames);
     }
 
+    public EnumValuesToWrite valuesToWrite(MapperConfig<?> config) {
+        return EnumValuesToWrite.construct(config, _enumNamingStrategy,
+                _enumConstants, _explicitNames);
+    }
+    
     public int size() {
         return _enumConstants.length;
     }
@@ -61,11 +75,6 @@ public class EnumDefinition
 
     public List<String> explicitNames() {
         return Arrays.asList(_explicitNames);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Class<Enum<?>> _enumClass(Class<?> enumCls0) {
-        return (Class<Enum<?>>) enumCls0;
     }
 
     private static Enum<?>[] _enumConstants(Class<?> enumCls) {

@@ -35,9 +35,10 @@ public final class EnumValues
      * NOTE: do NOT call this if configuration may change, and choice between toString()
      *   and name() might change dynamically.
      *
-     * @deprecated Since 2.21
+     * @deprecated Since 3.1 call {@link #constructFromName} or {@link #constructFromToString}
+     *   instead.
      */
-    @Deprecated // since 2.21
+    @Deprecated // since 3.1
     public static EnumValues construct(SerializationConfig config, AnnotatedClass enumClass) {
         if (config.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
             return constructFromToString(config, enumClass);
@@ -45,9 +46,6 @@ public final class EnumValues
         return constructFromName(config, enumClass);
     }
 
-    /**
-     * @since 2.16
-     */
     public static EnumValues constructFromName(MapperConfig<?> config,
             AnnotatedClass annotatedClass) 
     {
@@ -72,9 +70,6 @@ public final class EnumValues
         return construct(enumCls, textual);
     }
 
-    /**
-     * @since 2.16
-     */
     public static EnumValues constructFromToString(MapperConfig<?> config,
             AnnotatedClass annotatedClass)
     {
@@ -109,8 +104,6 @@ public final class EnumValues
      * <p>
      * The output {@link EnumValues} should contain values that are symmetric to
      * {@link EnumResolver#constructUsingEnumNamingStrategy(DeserializationConfig, AnnotatedClass, EnumNamingStrategy)}.
-     *
-     * @since 2.16
      */
     public static EnumValues constructUsingEnumNamingStrategy(MapperConfig<?> config,
             AnnotatedClass annotatedClass,

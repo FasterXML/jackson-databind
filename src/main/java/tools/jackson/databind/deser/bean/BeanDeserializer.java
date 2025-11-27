@@ -570,7 +570,12 @@ public class BeanDeserializer
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
-            final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+
+            SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+
+            int ix = _propNameMatcher.matchName(propName);
+            SettableBeanProperty regularProp = (ix >= 0) ? _propsByIndex[ix] : null;
+
             // Object Id property?
             if (buffer.readIdProperty(propName) && creatorProp == null) {
                 continue;
@@ -579,9 +584,18 @@ public class BeanDeserializer
             // [databind#4629] Need to check for ignored properties BEFORE checking for Creator properties.
             // Records (and other creator-based types) will have a valid 'creatorProp', so if we don't
             // check for ignore first, the ignore configuration will be bypassed.
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, handledType(), propName);
-                continue;
+            // Determine if the property name should be ignored
+            boolean shouldIgnore = IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps);
+            if (shouldIgnore) {
+                if (regularProp instanceof MethodProperty) {
+                    // FIX for creatorProp + ignore conflict
+                    creatorProp = null;
+                } else {
+                    // Normal ignore case: no suitable MethodProperty exists,
+                    // so the property should be fully ignored.
+                    handleIgnoredProperty(p, ctxt, handledType(), propName);
+                    continue;
+                }
             }
 
             // Creator property?
@@ -627,9 +641,9 @@ public class BeanDeserializer
                 }
                 continue;
             }
+
             // regular property? needs buffering
-            int ix = _propNameMatcher.matchName(propName);
-            if (ix >= 0) {
+            if (regularProp != null) {
                 SettableBeanProperty prop = _propsByIndex[ix];
                 // [databind#3724]: Special handling because Records' ignored creator props
                 // weren't removed (to help in creating constructor-backed PropertyCreator)

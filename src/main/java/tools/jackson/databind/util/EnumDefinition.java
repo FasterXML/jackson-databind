@@ -17,17 +17,17 @@ import tools.jackson.databind.introspect.EnumNamingStrategyFactory;
  */
 public class EnumDefinition
 {
-    private final Class<Enum<?>> _enumClass;
+    private final AnnotatedClass _annotatedClass;
     private final EnumNamingStrategy _enumNamingStrategy;
     private final Enum<?>[] _enumConstants;
     private final String[] _explicitNames;
 
-    private EnumDefinition(Class<Enum<?>> enumClass,
+    private EnumDefinition(AnnotatedClass annotatedClass,
             EnumNamingStrategy enumNamingStrategy,
             Enum<?>[] enumConstants,
             String[] explicitNames)
     {
-        _enumClass = enumClass;
+        _annotatedClass = annotatedClass;
         _enumNamingStrategy = enumNamingStrategy;
         _enumConstants = enumConstants;
         _explicitNames = explicitNames;
@@ -37,9 +37,6 @@ public class EnumDefinition
             AnnotatedClass annotatedClass)
     {
         final Class<?> enumCls0 = annotatedClass.getRawType();
-        @SuppressWarnings("unchecked")
-        final Class<Enum<?>> enumCls = (Class<Enum<?>>) enumCls0;
-
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         String[] explicitNames = new String[enumConstants.length];
 
@@ -52,12 +49,13 @@ public class EnumDefinition
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
             namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
         
-        return new EnumDefinition(enumCls, enumNamingStrategy,
+        return new EnumDefinition(annotatedClass, enumNamingStrategy,
                 enumConstants, explicitNames);
     }
 
     public EnumValuesToWrite valuesToWrite(MapperConfig<?> config) {
-        return EnumValuesToWrite.construct(config, _enumNamingStrategy,
+        return EnumValuesToWrite.construct(config, _annotatedClass,
+                _enumNamingStrategy,
                 _enumConstants, _explicitNames);
     }
     
@@ -65,8 +63,10 @@ public class EnumDefinition
         return _enumConstants.length;
     }
 
+    @SuppressWarnings("unchecked")
     public Class<Enum<?>> enumClass() {
-        return _enumClass;
+        Class<?> cls = _annotatedClass.getRawType();
+        return (Class<Enum<?>>) cls;
     }
 
     public Enum<?>[] enumConstants() {

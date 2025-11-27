@@ -283,11 +283,13 @@ public abstract class JDKKeySerializers
             throws JacksonException
         {
             final Enum<?> en = (Enum<?>) value;
+
+            // 26-Nov-2025, tatu: Should probably start with "using index" setting
+            //    (may change in 3.1?)
             if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
                 g.writeName(_valuesToWrite.fromToString(ctxt.getConfig(), en)); 
-            }
-            // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
-            else if (ctxt.isEnabled(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
+            } else if (ctxt.isEnabled(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
+                // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
                 g.writeName(String.valueOf(en.ordinal()));
             } else {
                 g.writeName(_valuesToWrite.fromName(ctxt.getConfig(), en)); 

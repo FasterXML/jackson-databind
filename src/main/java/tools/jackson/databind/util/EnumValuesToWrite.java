@@ -6,12 +6,14 @@ import tools.jackson.core.SerializableString;
 import tools.jackson.databind.EnumNamingStrategy;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedClass;
 
 /**
  * @since 3.0.3
  */
 public class EnumValuesToWrite
 {
+    private final AnnotatedClass _annotatedClass;
     private final EnumNamingStrategy _enumNamingStrategy;
     private final Enum<?>[] _enumConstants;
     private final SerializableString[] _explicitNames;
@@ -21,15 +23,18 @@ public class EnumValuesToWrite
     private volatile SerializableString[] _enumToStrings;
     private volatile SerializableString[] _enumToStringsLC;
 
-    private EnumValuesToWrite(EnumNamingStrategy enumNamingStrategy,
+    private EnumValuesToWrite(AnnotatedClass annotatedClass,
+            EnumNamingStrategy enumNamingStrategy,
             Enum<?>[] enumConstants, SerializableString[] explicitNames)
     {
+        _annotatedClass = annotatedClass;
         _enumNamingStrategy = enumNamingStrategy;
         _enumConstants = enumConstants;
         _explicitNames = explicitNames;
     }
 
     public static EnumValuesToWrite construct(MapperConfig<?> config,
+            AnnotatedClass annotatedClass,
             EnumNamingStrategy enumNamingStrategy,
             Enum<?>[] enumConstants, String[] explicitNames0)
     {
@@ -38,7 +43,8 @@ public class EnumValuesToWrite
         for (int i = 0; i < len; ++i) {
             explicitNames[i] = config.compileString(explicitNames0[i]);
         }
-        return new EnumValuesToWrite(enumNamingStrategy, enumConstants, explicitNames);
+        return new EnumValuesToWrite(annotatedClass,
+                enumNamingStrategy, enumConstants, explicitNames);
     }
 
     public SerializableString fromName(MapperConfig<?> config, Enum<?> en) {
@@ -76,7 +82,7 @@ public class EnumValuesToWrite
     private String _nameWithStrategy(MapperConfig<?> config, Enum<?> en) {
         String str = en.name();
         if (_enumNamingStrategy != null) {
-            str = _enumNamingStrategy.convertEnumToExternalName(config, null, str);
+            str = _enumNamingStrategy.convertEnumToExternalName(config, _annotatedClass, str);
         }
         return str;
     }

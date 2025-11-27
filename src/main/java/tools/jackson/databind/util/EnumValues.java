@@ -49,22 +49,16 @@ public final class EnumValues
     public static EnumValues constructFromName(MapperConfig<?> config,
             AnnotatedClass annotatedClass) 
     {
-        // prepare data
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
-        final Class<?> enumCls0 = annotatedClass.getRawType();
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        final EnumDefinition def = EnumDefinition.construct(config, annotatedClass);
+        final Class<Enum<?>> enumCls = def.enumClass();
+        final Enum<?>[] enumConstants = def.enumConstants();
 
-        // introspect
-        String[] names = ai.findEnumValues(config, annotatedClass, 
-                enumConstants, new String[enumConstants.length]);
-
-        // build
+        List<String> explicitNames = def.explicitNames();
         SerializableString[] textual = new SerializableString[enumConstants.length];
+        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
         for (int i = 0, len = enumConstants.length; i < len; ++i) {
             Enum<?> enumValue = enumConstants[i];
-            String name = _findNameToUse(names[i], enumValue.name(), useLowerCase);
+            String name = _findNameToUse(explicitNames.get(i), enumValue.name(), useLowerCase);
             textual[enumValue.ordinal()] = config.compileString(name);
         }
         return construct(enumCls, textual);
@@ -73,27 +67,19 @@ public final class EnumValues
     public static EnumValues constructFromToString(MapperConfig<?> config,
             AnnotatedClass annotatedClass)
     {
-        // prepare data
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
-        final Class<?> enumCls0 = annotatedClass.getRawType();
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        final EnumDefinition def = EnumDefinition.construct(config, annotatedClass);
+        final Class<Enum<?>> enumCls = def.enumClass();
+        final Enum<?>[] enumConstants = def.enumConstants();
 
-        // introspect
-        String[] names = new String[enumConstants.length];
-        if (ai != null) {
-            ai.findEnumValues(config, annotatedClass, enumConstants, names);
-        }
-
-        // build
+        List<String> explicitNames = def.explicitNames();
         SerializableString[] textual = new SerializableString[enumConstants.length];
+        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
         for (int i = 0; i < enumConstants.length; i++) {
             String enumToString = enumConstants[i].toString();
             // 01-Feb-2024, tatu: [databind#4355] Nulls not great but... let's
             //   coerce into "" for backwards compatibility
             enumToString = (enumToString == null) ? "" : enumToString;
-            String name = _findNameToUse(names[i], enumToString, useLowerCase);
+            String name = _findNameToUse(explicitNames.get(i), enumToString, useLowerCase);
             textual[i] = config.compileString(name);
         }
         return construct(enumCls, textual);
@@ -109,24 +95,16 @@ public final class EnumValues
             AnnotatedClass annotatedClass,
             EnumNamingStrategy namingStrategy)
     {
-        // prepare data
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
-        final Class<?> enumCls0 = annotatedClass.getRawType();
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        final EnumDefinition def = EnumDefinition.construct(config, annotatedClass);
+        final Class<Enum<?>> enumCls = def.enumClass();
+        final Enum<?>[] enumConstants = def.enumConstants();
 
-        // introspect
-        String[] names = new String[enumConstants.length];
-        if (ai != null) {
-            ai.findEnumValues(config, annotatedClass, enumConstants, names);
-        }
-
-        // build
+        List<String> explicitNames = def.explicitNames();
         SerializableString[] textual = new SerializableString[enumConstants.length];
+        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
         for (int i = 0, len = enumConstants.length; i < len; i++) {
             Enum<?> enumValue = enumConstants[i];
-            String name = _findNameToUse(names[i], namingStrategy.convertEnumToExternalName(config,
+            String name = _findNameToUse(explicitNames.get(i), namingStrategy.convertEnumToExternalName(config,
                     annotatedClass, enumValue.name()), useLowerCase);
             textual[i] = config.compileString(name);
         }
@@ -213,7 +191,7 @@ public final class EnumValues
         EnumMap<?,SerializableString> result = _asMap;
         if (result == null) {
             // Alas, need to create it in a round-about way, due to typing constraints...
-            Map<Enum<?>,SerializableString> map = new LinkedHashMap<Enum<?>,SerializableString>();
+            Map<Enum<?>,SerializableString> map = new LinkedHashMap<>();
             for (Enum<?> en : _values) {
                 map.put(en, _textual[en.ordinal()]);
             }

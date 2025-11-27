@@ -1,6 +1,7 @@
 package tools.jackson.databind.ser.jdk;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -123,10 +124,10 @@ public class EnumSerializer
         }
         final MapperConfig<?> config = ctxt.getConfig();
         if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
-            g.writeString(_enumValuesToWrite.fromToString(config, en)); 
+            g.writeString(_enumValuesToWrite.enumValueFromToString(config, en));
             return;
         } 
-        g.writeString(_enumValuesToWrite.fromName(config, en)); 
+        g.writeString(_enumValuesToWrite.enumValueFromName(config, en));
     }
 
     /*
@@ -145,23 +146,23 @@ public class EnumSerializer
         }
         JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
         if (stringVisitor != null) {
-            Set<String> enums = new LinkedHashSet<>();
+            Set<String> enumStrings = new LinkedHashSet<>();
 
-            // Use toString()?
-            /*
-            if ((ctxt != null) &&
-                    ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
-                for (SerializableString value : _valuesByToString.values()) {
-                    enums.add(value.getValue());
+            List<Enum<?>> enums = _enumValuesToWrite.enums();
+            if (_serializeAsIndex(ctxt)) {
+                for (Enum<?> en : enums) {
+                    enumStrings.add(String.valueOf(en.ordinal()));
                 }
             } else {
-                // No, serialize using name() or explicit overrides
-                for (SerializableString value : _values.values()) {
-                    enums.add(value.getValue());
+                final MapperConfig<?> config = ctxt.getConfig();
+                SerializableString[] values = ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                        ? _enumValuesToWrite.allEnumValuesFromToString(config)
+                        : _enumValuesToWrite.allEnumValuesFromName(config);
+                for (SerializableString sstr : values) {
+                    enumStrings.add(sstr.getValue());
                 }
             }
-            */
-            stringVisitor.enumTypes(enums);
+            stringVisitor.enumTypes(enumStrings);
         }
     }
 

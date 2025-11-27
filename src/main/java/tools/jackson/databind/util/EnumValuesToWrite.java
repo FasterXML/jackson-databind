@@ -1,5 +1,7 @@
 package tools.jackson.databind.util;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 
 import tools.jackson.core.SerializableString;
@@ -53,7 +55,15 @@ public class EnumValuesToWrite
         return (Class<Enum<?>>) cls;
     }
 
-    public SerializableString fromName(MapperConfig<?> config, Enum<?> en) {
+    public List<Enum<?>> enums() {
+        return Arrays.asList(_enumConstants);
+    }
+
+    public SerializableString enumValueFromName(MapperConfig<?> config, Enum<?> en) {
+        return allEnumValuesFromName(config)[en.ordinal()];
+    }
+
+    public SerializableString[] allEnumValuesFromName(MapperConfig<?> config) {
         SerializableString[] strs;
         if (config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)) {
             if ((strs = _enumNamesLC) == null) {
@@ -68,10 +78,14 @@ public class EnumValuesToWrite
                         false);
             }
         }
-        return strs[en.ordinal()];
+        return strs;
     }
 
-    public SerializableString fromToString(MapperConfig<?> config, Enum<?> en) {
+    public SerializableString enumValueFromToString(MapperConfig<?> config, Enum<?> en) {
+        return allEnumValuesFromToString(config)[en.ordinal()];
+    }
+
+    public SerializableString[] allEnumValuesFromToString(MapperConfig<?> config) {
         SerializableString[] strs;
         if (config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)) {
             if ((strs = _enumToStringsLC) == null) {
@@ -86,7 +100,7 @@ public class EnumValuesToWrite
                         false);
             }
         }
-        return strs[en.ordinal()];
+        return strs;
     }
 
     private String _nameWithStrategy(MapperConfig<?> config, Enum<?> en) {

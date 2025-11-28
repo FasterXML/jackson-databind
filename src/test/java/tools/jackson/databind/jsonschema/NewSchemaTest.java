@@ -228,7 +228,7 @@ public class NewSchemaTest extends DatabindTestUtil
     @Test
     public void testSimpleEnum() throws Exception
     {
-        final Set<String> values = new TreeSet<String>();
+        final Set<String> values = new TreeSet<>();
         ObjectWriter w = MAPPER.writer(EnumFeature.WRITE_ENUMS_USING_TO_STRING);
 
         w.acceptJsonFormatVisitor(TestEnum.class, new JsonFormatVisitorWrapper.Base() {
@@ -247,7 +247,7 @@ public class NewSchemaTest extends DatabindTestUtil
         });
 
         assertEquals(3, values.size());
-        TreeSet<String> exp = new TreeSet<String>(Arrays.asList(
+        TreeSet<String> exp = new TreeSet<>(Arrays.asList(
                         "ToString:A",
                         "ToString:B",
                         "ToString:C"

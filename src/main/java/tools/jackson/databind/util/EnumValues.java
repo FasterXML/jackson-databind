@@ -10,8 +10,11 @@ import tools.jackson.databind.introspect.AnnotatedClass;
 
 /**
  * Helper class used for storing String serializations of {@code Enum}s,
- * to match to/from external representations.
+ * to match to external representations.
+ *
+ * @deprecated Since 3.1 should no longer be used (replaced by {@link EnumValuesToWrite}).
  */
+@Deprecated
 public final class EnumValues
     implements java.io.Serializable
 {
@@ -31,14 +34,6 @@ public final class EnumValues
         _textual = textual;
     }
 
-    /**
-     * NOTE: do NOT call this if configuration may change, and choice between toString()
-     *   and name() might change dynamically.
-     *
-     * @deprecated Since 3.1 call {@link #constructFromName} or {@link #constructFromToString}
-     *   instead.
-     */
-    @Deprecated // since 3.1
     public static EnumValues construct(SerializationConfig config, AnnotatedClass enumClass) {
         if (config.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
             return constructFromToString(config, enumClass);

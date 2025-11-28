@@ -1,5 +1,7 @@
 package tools.jackson.databind.util;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 
 import tools.jackson.core.SerializableString;
@@ -47,7 +49,21 @@ public class EnumValuesToWrite
                 enumNamingStrategy, enumConstants, explicitNames);
     }
 
-    public SerializableString fromName(MapperConfig<?> config, Enum<?> en) {
+    @SuppressWarnings("unchecked")
+    public Class<Enum<?>> enumClass() {
+        Class<?> cls = _annotatedClass.getRawType();
+        return (Class<Enum<?>>) cls;
+    }
+
+    public List<Enum<?>> enums() {
+        return Arrays.asList(_enumConstants);
+    }
+
+    public SerializableString enumValueFromName(MapperConfig<?> config, Enum<?> en) {
+        return allEnumValuesFromName(config)[en.ordinal()];
+    }
+
+    public SerializableString[] allEnumValuesFromName(MapperConfig<?> config) {
         SerializableString[] strs;
         if (config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)) {
             if ((strs = _enumNamesLC) == null) {
@@ -57,30 +73,46 @@ public class EnumValuesToWrite
             }
         } else {
             if ((strs = _enumNames) == null) {
-                _enumNamesLC = strs = _fetch(config,
+                _enumNames = strs = _fetch(config,
                         e -> _nameWithStrategy(config, e),
                         false);
             }
         }
-        return strs[en.ordinal()];
+        return strs;
     }
 
-    public SerializableString fromToString(MapperConfig<?> config, Enum<?> en) {
+    public SerializableString enumValueFromToString(MapperConfig<?> config, Enum<?> en) {
+        return allEnumValuesFromToString(config)[en.ordinal()];
+    }
+
+    public SerializableString[] allEnumValuesFromToString(MapperConfig<?> config) {
         SerializableString[] strs;
         if (config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)) {
             if ((strs = _enumToStringsLC) == null) {
-                _enumToStringsLC = strs = _fetch(config, Enum::toString, true);
+                _enumToStringsLC = strs = _fetch(config,
+                        e -> _toStringWithStrategy(config, e),
+                        true);
             }
         } else {
             if ((strs = _enumToStrings) == null) {
-                _enumToStrings = strs = _fetch(config, Enum::toString, false);
+                _enumToStrings = strs = _fetch(config,
+                        e -> _toStringWithStrategy(config, e),
+                        false);
             }
         }
-        return strs[en.ordinal()];
+        return strs;
     }
 
     private String _nameWithStrategy(MapperConfig<?> config, Enum<?> en) {
         String str = en.name();
+        if (_enumNamingStrategy != null) {
+            str = _enumNamingStrategy.convertEnumToExternalName(config, _annotatedClass, str);
+        }
+        return str;
+    }
+
+    private String _toStringWithStrategy(MapperConfig<?> config, Enum<?> en) {
+        String str = en.toString();
         if (_enumNamingStrategy != null) {
             str = _enumNamingStrategy.convertEnumToExternalName(config, _annotatedClass, str);
         }

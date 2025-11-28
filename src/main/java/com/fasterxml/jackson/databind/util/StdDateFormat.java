@@ -49,11 +49,15 @@ public class StdDateFormat
 
     protected final static Pattern PATTERN_PLAIN = Pattern.compile(PATTERN_PLAIN_STR);
 
+    // [databind#5429]: Extended year format pattern (allows 4+ digit years with
+    // optional +/- prefix)
+    protected final static String PATTERN_YEAR_STR = "(?:[+-]?\\d{4,})";
+
     protected final static Pattern PATTERN_ISO8601;
     static {
         Pattern p = null;
         try {
-            p = Pattern.compile(PATTERN_PLAIN_STR
+            p = Pattern.compile(PATTERN_YEAR_STR + "[-]\\d\\d[-]\\d\\d"
                     +"[T]\\d\\d[:]\\d\\d(?:[:]\\d\\d)?" // hours, minutes, optional seconds
                     +"(\\.\\d+)?" // optional second fractions
                     +"(Z|[+-]\\d\\d(?:[:]?\\d\\d)?)?" // optional timeoffset/Z
@@ -607,13 +611,25 @@ public class StdDateFormat
      */
     protected boolean looksLikeISO8601(String dateStr)
     {
-        if (dateStr.length() >= 7 // really need 10, but...
-            && Character.isDigit(dateStr.charAt(0))
-            && Character.isDigit(dateStr.charAt(3))
-            && dateStr.charAt(4) == '-'
-            && Character.isDigit(dateStr.charAt(5))
-            ) {
-            return true;
+        if (dateStr.length() >= 7) { // really need 10, but...
+            final char firstChar = dateStr.charAt(0);
+            // [databind#5429]: Support extended year format with +/- prefix
+            if (firstChar == '+' || firstChar == '-') {
+                // Extended year format: "+YYYYY-MM-DD..." or "-YYYYY-MM-DD..."
+                // Look for the hyphen that separates year from month
+                int yearEndIndex = dateStr.indexOf('-', 1);
+                if (yearEndIndex > 0 && yearEndIndex < dateStr.length() - 1) {
+                    // Check if we have digits for the year and month parts look reasonable
+                    return Character.isDigit(dateStr.charAt(1))
+                        && Character.isDigit(dateStr.charAt(yearEndIndex + 1));
+                }
+            } else if (Character.isDigit(firstChar)
+                && Character.isDigit(dateStr.charAt(3))
+                && dateStr.charAt(4) == '-'
+                && Character.isDigit(dateStr.charAt(5))) {
+                // Standard 4-digit year format
+                return true;
+            }
         }
         return false;
     }
@@ -670,8 +686,46 @@ public class StdDateFormat
         } else {
             Matcher m = PATTERN_ISO8601.matcher(dateStr);
             if (m.matches()) {
-                // Important! START with optional time zone; otherwise Calendar will explode
+                // [databind#5429]: Handle extended year format (years with 5+ digits and +/- prefix)
+                // Find where the year ends (look for first '-' which separates year from month)
+                int yearStart = 0;
+                int yearEnd = dateStr.indexOf('-');
 
+                // Handle negative years (e.g., "-292269054-12-02...")
+                if (yearEnd == 0) {
+                    // First char is '-', so find the second '-'
+                    yearEnd = dateStr.indexOf('-', 1);
+                }
+
+                int year;
+                if (yearEnd <= 4) {
+                    // Standard 4-digit year
+                    year = _parse4D(dateStr, 0);
+                } else {
+                    // Extended year format: parse the full year value
+                    year = Integer.parseInt(dateStr.substring(yearStart, yearEnd));
+                }
+
+                // Calculate offset for remaining fields based on actual year length
+                int offset = yearEnd - 4; // how many extra chars beyond standard 4-digit year
+
+                int month = _parse2D(dateStr, 5 + offset)-1;
+                int day = _parse2D(dateStr, 8 + offset);
+
+                // So: standard is 10 chars for date, then `T`
+                int hour = _parse2D(dateStr, 11 + offset);
+                int minute = _parse2D(dateStr, 14 + offset);
+
+                // Seconds are actually optional... so
+                int seconds;
+                int secondsPos = 16 + offset;
+                if ((totalLen > secondsPos) && dateStr.charAt(secondsPos) == ':') {
+                    seconds = _parse2D(dateStr, 17 + offset);
+                } else {
+                    seconds = 0;
+                }
+
+                // Important! START with optional time zone; otherwise Calendar will explode
                 int start = m.start(2);
                 int end = m.end(2);
                 int len = end-start;
@@ -691,21 +745,6 @@ public class StdDateFormat
                     cal.set(Calendar.DST_OFFSET, 0);
                 }
 
-                int year = _parse4D(dateStr, 0);
-                int month = _parse2D(dateStr, 5)-1;
-                int day = _parse2D(dateStr, 8);
-
-                // So: 10 chars for date, then `T`, so starts at 11
-                int hour = _parse2D(dateStr, 11);
-                int minute = _parse2D(dateStr, 14);
-
-                // Seconds are actually optional... so
-                int seconds;
-                if ((totalLen > 16) && dateStr.charAt(16) == ':') {
-                    seconds = _parse2D(dateStr, 17);
-                } else {
-                    seconds = 0;
-                }
                 cal.set(year, month, day, hour, minute, seconds);
 
                 // Optional milliseconds

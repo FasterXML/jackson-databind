@@ -24,6 +24,8 @@ public class DateRoundtrip5429Test extends DatabindTestUtil
         Date parsed = MAPPER.readValue(json, Date.class);
 
         assertEquals(original.getTime(), parsed.getTime());
+        // but also check actual serialization
+        assertEquals(q("+292278994-08-17T07:12:55.807+00:00"), json);
     }
 
     @Test
@@ -33,5 +35,7 @@ public class DateRoundtrip5429Test extends DatabindTestUtil
         Date parsed = MAPPER.readValue(json, Date.class);
 
         assertEquals(original.getTime(), parsed.getTime());
+        // but also check actual serialization
+        assertEquals(q("-292269054-12-02T16:47:04.192+00:00"), json);
     }
 }

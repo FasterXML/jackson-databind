@@ -27,6 +27,8 @@ import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.Converter;
 
+import static com.fasterxml.jackson.annotation.JsonFormat.DEFAULT_RADIX;
+
 /**
  * Base class for common deserializers. Contains shared
  * base functionality for dealing with primitive values, such

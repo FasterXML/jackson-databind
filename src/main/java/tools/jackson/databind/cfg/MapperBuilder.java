@@ -946,6 +946,20 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
+     * Method for configured default radix to use for serialization/deserialization of integral types as strings.
+     *
+     * @param radix Default radix to use on integral properties
+     *
+     * @return This builder instance to allow call chaining
+     *
+     * @since 3.1
+     */
+    public B defaultRadix(int radix) {
+        _configOverrides.setDefaultRadix(radix);
+        return _this();
+    }
+
+    /**
      * Method for changing currently default settings for handling of `null` values during
      * deserialization, regarding whether they are set as-is, ignored completely, or possible
      * transformed into "empty" value of the target type (if any).

@@ -53,6 +53,14 @@ public class ConfigOverrides
 
     protected Boolean _defaultLeniency;
 
+    /**
+     * Global default radix to apply to an integral type outputted as string. This has the lowest precedence out of all
+     * other methods of enforcing an alternative radix.
+     *
+     * @since 3.1
+     */
+    protected int _defaultRadix;
+
     /*
     /**********************************************************************
     /* Life cycle
@@ -64,20 +72,32 @@ public class ConfigOverrides
                 INCLUDE_DEFAULT,
                 JsonSetter.Value.empty(),
                 DEFAULT_VISIBILITY_CHECKER,
-                null, null
+                null, null, JsonFormat.DEFAULT_RADIX
         );
     }
 
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
-            JsonInclude.Value defIncl, JsonSetter.Value defSetter,
-            VisibilityChecker defVisibility,
-            Boolean defMergeable, Boolean defLeniency) {
+                              JsonInclude.Value defIncl, JsonSetter.Value defSetter,
+                              VisibilityChecker defVisibility,
+                              Boolean defMergeable, Boolean defLeniency, int defRadix) {
         _overrides = overrides;
         _defaultInclusion = defIncl;
         _defaultNullHandling = defSetter;
         _visibilityChecker = defVisibility;
         _defaultMergeable = defMergeable;
         _defaultLeniency = defLeniency;
+        _defaultRadix = defRadix;
+    }
+
+    @Deprecated
+    /*
+     * @deprecated since 3.1
+     */
+    protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
+            JsonInclude.Value defIncl, JsonSetter.Value defSetter,
+            VisibilityChecker defVisibility,
+            Boolean defMergeable, Boolean defLeniency) {
+        this(overrides, defIncl, defSetter, defVisibility, defMergeable, defLeniency, JsonFormat.DEFAULT_RADIX);
     }
 
     @Override
@@ -176,6 +196,14 @@ public class ConfigOverrides
         return _visibilityChecker;
     }
 
+
+    /**
+     * @since 3.1
+     */
+    public int getDefaultRadix() {
+        return _defaultRadix;
+    }
+
     /**
      * Alternate accessor needed due to complexities of Record
      * auto-discovery: needs to obey custom overrides but also
@@ -219,6 +247,14 @@ public class ConfigOverrides
 
     public ConfigOverrides setDefaultVisibility(VisibilityChecker v) {
         _visibilityChecker = v;
+        return this;
+    }
+
+    /**
+     * @since 3.1
+     */
+    public ConfigOverrides setDefaultRadix(int v) {
+        this._defaultRadix = v;
         return this;
     }
 

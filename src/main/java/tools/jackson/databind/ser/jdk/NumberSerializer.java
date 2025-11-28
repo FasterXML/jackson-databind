@@ -16,6 +16,8 @@ import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.ser.std.ToStringSerializer;
 import tools.jackson.databind.ser.std.ToStringSerializerBase;
 
+import static com.fasterxml.jackson.annotation.JsonFormat.DEFAULT_RADIX;
+
 /**
  * As a fallback, we may need to use this serializer for other
  * types of {@link Number}s: both custom types and "big" numbers
@@ -58,7 +60,7 @@ public class NumberSerializer
                 if (((Class<?>) handledType()) == BigDecimal.class) {
                     return bigDecimalAsStringSerializer();
                 }
-                return ToStringSerializer.instance;
+                return NumberSerializer.createStringSerializer(prov, format, _isInt);
             default:
             }
         }
@@ -103,6 +105,28 @@ public class NumberSerializer
                 /*JsonNumberFormatVisitor v2 =*/ visitor.expectNumberFormat(typeHint);
             }
         }
+    }
+
+    /**
+     * Method used to create a string serializer for a number. If the number is integer, and configuration is set properly,
+     * we create an alternative radix serializer {@link NumberToStringWithRadixSerializer}.
+     *
+     * @since 3.1
+     */
+    public static ToStringSerializerBase createStringSerializer(SerializationContext ctxt, JsonFormat.Value format, boolean isInt) {
+        if (isInt && isSerializeWithRadixOverride(format)) {
+            int radix = format.getRadix();
+            return new NumberToStringWithRadixSerializer(radix);
+        }
+        return ToStringSerializer.instance;
+    }
+
+    /**
+     * Check if we have a proper {@link JsonFormat} annotation for serializing a number
+     * using an alternative radix specified in the annotation.
+     */
+    private static boolean isSerializeWithRadixOverride(JsonFormat.Value format) {
+        return format.hasNonDefaultRadix();
     }
 
     /**

@@ -598,6 +598,13 @@ public class BeanDeserializer
                     continue;
                 }
                 value = _deserializeWithErrorWrapping(p, ctxt, creatorProp);
+
+                // [databind#4690] For Record types, always assign to handle duplicates (last value wins)
+                if (_beanType.isRecordType()) {
+                    buffer.assignParameter(creatorProp, value);
+                    continue;
+                }
+
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, value)) {
                     p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT

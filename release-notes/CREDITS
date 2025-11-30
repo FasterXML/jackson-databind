@@ -112,6 +112,8 @@ Fouad Almalki (@Eng-Fouad)
  * Contributed fix for #5416: Annotations on an interface that's part of a JDK proxy are not honored
    with Jackson 3
   [3.0.3]
+ * Contributed fix for 5442: Make `JsonMapper/ObjectMapper` fully proxyable by CGLIB
+  [3.1.0]
 
 Oliver Drotbohm (@odrotbohm)
  * Requested #1196: Add opt-in error collection for deserialization

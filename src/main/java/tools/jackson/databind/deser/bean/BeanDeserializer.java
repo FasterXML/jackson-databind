@@ -1051,6 +1051,14 @@ public class BeanDeserializer
             if (buffer.readIdProperty(propName) && creatorProp == null) {
                 continue;
             }
+
+            // Things marked as ignorable should not be passed to any setter
+            // [databind#4629] Need to check for ignored properties BEFORE checking
+            // for Creator properties.
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
+                continue;
+            }
             if (creatorProp != null) {
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
@@ -1110,11 +1118,6 @@ public class BeanDeserializer
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
                 buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
-                continue;
-            }
-            // Things marked as ignorable should not be passed to any setter
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
             // 29-Nov-2016, tatu: probably should try to avoid sending content

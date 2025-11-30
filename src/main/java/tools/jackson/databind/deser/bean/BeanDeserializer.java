@@ -586,7 +586,6 @@ public class BeanDeserializer
 
             // Creator property?
             if (creatorProp != null) {
-                Object value;
                 if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
@@ -597,34 +596,11 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-                value = _deserializeWithErrorWrapping(p, ctxt, creatorProp);
                 // Last creator property to set?
-                if (buffer.assignParameter(creatorProp, value)) {
-                    p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT
-                    Object bean;
-                    try {
-                        bean = creator.build(ctxt, buffer);
-                    } catch (Exception e) {
-                        bean = wrapInstantiationProblem(ctxt, e);
-                    }
-                    // [databind#631]: Assign current value, to be accessible by custom serializers
-                    p.assignCurrentValue(bean);
-                    // [databind#4938] Since 2.19, allow returning `null` from creator,
-                    //  but if so, need to skip all possibly relevant content
-                    if (bean == null) {
-                        _handleNullFromPropsBasedCreator(p, ctxt, unknown, referrings);
-                        return null;
-                    }
-
-                    if (bean.getClass() != _beanType.getRawClass()) {
-                        return handlePolymorphic(p, ctxt, bean, unknown);
-                    }
-                    if (unknown != null) { // nope, just extra unknown stuff...
-                        bean = handleUnknownProperties(ctxt, bean, unknown);
-                    }
-                    // or just clean?
-                    return deserialize(p, ctxt, bean);
-                }
+                // [databind#4690] cannot quit early as optimization any more
+                // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
+                buffer.assignParameter(creatorProp,
+                        _deserializeWithErrorWrapping(p, ctxt, creatorProp));
                 continue;
             }
             // regular property? needs buffering
@@ -1051,6 +1027,14 @@ public class BeanDeserializer
             if (buffer.readIdProperty(propName) && creatorProp == null) {
                 continue;
             }
+
+            // Things marked as ignorable should not be passed to any setter
+            // [databind#4629] Need to check for ignored properties BEFORE checking
+            // for Creator properties.
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
+                continue;
+            }
             if (creatorProp != null) {
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
@@ -1110,11 +1094,6 @@ public class BeanDeserializer
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
                 buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
-                continue;
-            }
-            // Things marked as ignorable should not be passed to any setter
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
             // 29-Nov-2016, tatu: probably should try to avoid sending content

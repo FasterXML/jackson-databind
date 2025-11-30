@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+// [databind#5424] UnKnownProperty in 2.13.3 and 2.18.5 (with property names like "uPhone", "uName")
 public class IPhoneStyleNameDeserialization5424Test
     extends DatabindTestUtil
 {

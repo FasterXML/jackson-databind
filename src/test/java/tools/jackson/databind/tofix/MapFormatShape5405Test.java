@@ -75,7 +75,7 @@ public class MapFormatShape5405Test extends DatabindTestUtil
     public void testSerializeAsPOJOViaProperty() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean5405Container(1,0,3));
-        assertEquals(a2q("{'a':{'extra':13,'empty':false},'c':{'empty':false,'value':3}}"),
+        assertEquals(a2q("{'a':{'extra':13,'empty':false},'c':{'extra':13,'empty':false}}"),
                 result);
     }
 

@@ -1,3 +1,4 @@
+
 Project: jackson-databind 
 Versions: 3.x (for earlier see VERSION-2.x)
 
@@ -10,6 +11,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1196: Add opt-in error collection for deserialization
  (requested by @odrotbohm)
  (contributed by @sri-adarsh-kumar)
+#1980: Add method `remove(JsonPointer)` in `ContainerNode`
+ (fix by @cowtowncoder, w/ Claude code)
+#4629: `@JsonIncludeProperties` and `@JsonIgnoreProperties` ignored when
+  deserializing Records
+ (reported by Sim Y-T)
+ (fix contributed by @JacksonJang)
 #5350: Add `DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES` for
   selecting `null` vs "empty/absent" value when deserializing missing `Optional` value
 #5361: Fix Maven SBOM publishing (worked in 3.0.0-rc4 but not in rc5 or later)
@@ -17,6 +24,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   fractional negative timestamps incorrectly
 #5413: Add/support forward reference resolution for array values
  (contributed by Hélios G)
+5442: Make `JsonMapper/ObjectMapper` fully proxyable by CGLIB
+ (fix contributed by Fouad A)
 
 3.0.3 (not yet released)
 

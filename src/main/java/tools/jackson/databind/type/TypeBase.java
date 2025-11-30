@@ -62,7 +62,7 @@ public abstract class TypeBase
     {
         String str = _canonicalName;
         if (str == null) {
-            str = buildCanonicalName();
+            _canonicalName = str = buildCanonicalName();
         }
         return str;
     }

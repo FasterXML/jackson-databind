@@ -575,12 +575,14 @@ public class BeanDeserializer
             if (buffer.readIdProperty(propName) && creatorProp == null) {
                 continue;
             }
-            // [databind#1891]: possible fix
-            /*
-            if (_ignorableProps != null && _ignorableProps.contains(propName)){
+
+            // [databind#4629] Need to check for ignored properties BEFORE checking for Creator properties.
+            // Records (and other creator-based types) will have a valid 'creatorProp', so if we don't
+            // check for ignore first, the ignore configuration will be bypassed.
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
-            */
 
             // Creator property?
             if (creatorProp != null) {
@@ -660,11 +662,7 @@ public class BeanDeserializer
                     continue;
                 }
             }
-            // Things marked as ignorable should not be passed to any setter
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, handledType(), propName);
-                continue;
-            }
+
             // "any property"?
             if (_anySetter != null) {
                 try {

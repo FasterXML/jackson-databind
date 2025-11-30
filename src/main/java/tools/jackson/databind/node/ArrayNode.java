@@ -60,6 +60,12 @@ public class ArrayNode
         return get(ptr.getMatchingIndex());
     }
 
+    @Override // @since 3.1
+    protected JsonNode _removeAt(JsonPointer ptr) {
+        JsonNode n = remove(ptr.getMatchingIndex());
+        return (n == null) ? missingNode() : n;
+    }
+
     @Override
     protected String _valueDesc() {
         return "[...(" + _children.size() + " elements)]";

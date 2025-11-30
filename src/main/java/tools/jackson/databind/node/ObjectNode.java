@@ -56,6 +56,12 @@ public class ObjectNode
         return get(ptr.getMatchingProperty());
     }
 
+    @Override // @since 3.1
+    protected JsonNode _removeAt(JsonPointer ptr) {
+        JsonNode n = remove(ptr.getMatchingProperty());
+        return (n == null) ? missingNode() : n;
+    }
+
     @Override
     protected String _valueDesc() {
         return "{...(" + _children.size() + " properties}]";
@@ -447,7 +453,6 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      * Method that can be called to serialize this node and
      * all of its descendants using specified JSON generator.
      */
-    @SuppressWarnings("deprecation")
     @Override
     public void serialize(JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
@@ -479,7 +484,6 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         g.writeEndObject();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void serializeWithType(JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)

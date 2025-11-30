@@ -142,7 +142,7 @@ public class EnumResolver implements java.io.Serializable
         
         // finally, build
         // from last to first, so that in case of duplicate values, first wins
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        HashMap<String, Enum<?>> map = new HashMap<>();
         for (int i = enumConstants.length; --i >= 0; ) {
             Enum<?> enumValue = enumConstants[i];
             String name = names[i];
@@ -250,7 +250,7 @@ public class EnumResolver implements java.io.Serializable
         final Enum<?> defaultEnum = _enumDefault(config, annotatedClass, enumConstants);
         
         // build
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        HashMap<String, Enum<?>> map = new HashMap<>();
         // from last to first, so that in case of duplicate values, first wins
         for (int i = enumConstants.length; --i >= 0; ) {
             Enum<?> en = enumConstants[i];
@@ -327,11 +327,13 @@ public class EnumResolver implements java.io.Serializable
     }
 
     private final Enum<?> _findEnumIgnoreCase(final String key) {
-        return _enumsById.entrySet().stream()
-                .filter(e -> e.getKey().equalsIgnoreCase(key))
-                .map(e -> e.getValue())
-                .findFirst()
-                .orElseGet(null);
+        // potential hot-spot, do not use streams:
+        for (Map.Entry<String, Enum<?>> entry : _enumsById.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(key)) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     public Enum<?> getEnum(int index) {

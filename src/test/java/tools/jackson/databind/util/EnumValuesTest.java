@@ -14,6 +14,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@Deprecated // @since 3.1 along with EnumValues type itself
 public class EnumValuesTest extends DatabindTestUtil
 {
     enum ABC {

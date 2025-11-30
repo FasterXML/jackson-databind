@@ -24,6 +24,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   fractional negative timestamps incorrectly
 #5413: Add/support forward reference resolution for array values
  (contributed by Hélios G)
+5442: Make `JsonMapper/ObjectMapper` fully proxyable by CGLIB
+ (fix contributed by Fouad A)
 
 3.0.3 (not yet released)
 

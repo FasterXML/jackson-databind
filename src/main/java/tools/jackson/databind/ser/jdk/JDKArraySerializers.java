@@ -682,7 +682,7 @@ public class JDKArraySerializers
         {
             // First: "pack" the floats into bytes
             final int vectorLen = value.length;
-            final byte[] b = new byte[vectorLen << 2];
+            final byte[] b = new byte[vectorLen * 4];
             for (int i = 0, out = 0; i < vectorLen; i++) {
                 final int floatBits = Float.floatToIntBits(value[i]);
                 b[out++] = (byte) (floatBits >> 24);
@@ -759,7 +759,7 @@ public class JDKArraySerializers
         {
             // First: "pack" the floats into bytes
             final int vectorLen = value.length;
-            final byte[] b = new byte[vectorLen << 3];
+            final byte[] b = new byte[vectorLen * 8];
             for (int i = 0, out = 0; i < vectorLen; i++) {
                 long bits = Double.doubleToLongBits(value[i]);
                 final int hi = (int) (bits >> 32);

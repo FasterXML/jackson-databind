@@ -13,9 +13,16 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (contributed by @sri-adarsh-kumar)
 #1980: Add method `remove(JsonPointer)` in `ContainerNode`
  (fix by @cowtowncoder, w/ Claude code)
+#3964: Deserialization issue: MismatchedInputException, Bean not
+  yet resolved
+ (reported by @detomarco)
 #4629: `@JsonIncludeProperties` and `@JsonIgnoreProperties` ignored when
   deserializing Records
  (reported by Sim Y-T)
+ (fix contributed by @JacksonJang)
+#4690: InvalidDefinitionException "No fallback setter/field defined for
+  creator property" when deserializing JSON with dup property to single-property Record
+ (reported by @sseelmann)
  (fix contributed by @JacksonJang)
 #5350: Add `DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES` for
   selecting `null` vs "empty/absent" value when deserializing missing `Optional` value

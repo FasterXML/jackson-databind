@@ -586,7 +586,6 @@ public class BeanDeserializer
 
             // Creator property?
             if (creatorProp != null) {
-                Object value;
                 if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
@@ -597,41 +596,11 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-                value = _deserializeWithErrorWrapping(p, ctxt, creatorProp);
-
-                // [databind#4690] For Record types, always assign to handle duplicates (last value wins)
-                if (_beanType.isRecordType()) {
-                    buffer.assignParameter(creatorProp, value);
-                    continue;
-                }
-
+                Object value = _deserializeWithErrorWrapping(p, ctxt, creatorProp);
                 // Last creator property to set?
-                if (buffer.assignParameter(creatorProp, value)) {
-                    p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT
-                    Object bean;
-                    try {
-                        bean = creator.build(ctxt, buffer);
-                    } catch (Exception e) {
-                        bean = wrapInstantiationProblem(ctxt, e);
-                    }
-                    // [databind#631]: Assign current value, to be accessible by custom serializers
-                    p.assignCurrentValue(bean);
-                    // [databind#4938] Since 2.19, allow returning `null` from creator,
-                    //  but if so, need to skip all possibly relevant content
-                    if (bean == null) {
-                        _handleNullFromPropsBasedCreator(p, ctxt, unknown, referrings);
-                        return null;
-                    }
-
-                    if (bean.getClass() != _beanType.getRawClass()) {
-                        return handlePolymorphic(p, ctxt, bean, unknown);
-                    }
-                    if (unknown != null) { // nope, just extra unknown stuff...
-                        bean = handleUnknownProperties(ctxt, bean, unknown);
-                    }
-                    // or just clean?
-                    return deserialize(p, ctxt, bean);
-                }
+                // [databind#4690] cannot quit early as optimization any more
+                // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
+                buffer.assignParameter(creatorProp, value);
                 continue;
             }
             // regular property? needs buffering

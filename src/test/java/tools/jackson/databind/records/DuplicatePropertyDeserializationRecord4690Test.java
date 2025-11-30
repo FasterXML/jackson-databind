@@ -2,6 +2,8 @@ package tools.jackson.databind.records;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -15,10 +17,11 @@ public class DuplicatePropertyDeserializationRecord4690Test
 {
     record MyRecord(String first) { }
 
-    static class MyClass {
+    static class MyPojo {
         private String first;
 
-        MyClass(String first) {}
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        MyPojo(String first) { this.first = first; }
 
         public void setFirst(String first) {
             this.first = first;
@@ -46,8 +49,6 @@ public class DuplicatePropertyDeserializationRecord4690Test
         final String json = a2q("{'first':'value','second':'test1','first':'value2'}");
 
         MyRecord result = mapper.readValue(json, MyRecord.class);
-
-        assertNotNull(result);
         assertEquals("value2", result.first());
     }
 
@@ -55,10 +56,7 @@ public class DuplicatePropertyDeserializationRecord4690Test
     void testDuplicatePropertyClassDeserialization() throws Exception {
         final String json = a2q("{'first':'value','second':'test1','first':'value2'}");
 
-        MyClass result = mapper.readValue(json, MyClass.class);
-
-        assertNotNull(result);
+        MyPojo result = mapper.readValue(json, MyPojo.class);
         assertEquals("value2", result.getFirst());
     }
-
 }

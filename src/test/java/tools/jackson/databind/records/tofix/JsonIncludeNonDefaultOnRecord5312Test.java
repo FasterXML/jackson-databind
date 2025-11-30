@@ -7,13 +7,10 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.cfg.MutableConfigOverride;
 import tools.jackson.databind.json.JsonMapper;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-
-import java.util.Map;
 
 // [databind#5312] Include.NON_DEFAULT regression for objects with @JsonValue
 public class JsonIncludeNonDefaultOnRecord5312Test

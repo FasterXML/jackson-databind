@@ -4696,7 +4696,7 @@ public class ObjectMapper
         // [databind#5368]: Optimize case where fromValue is already a TokenBuffer
         // TokenBuffer has no read state, so safe to reuse directly via asParser()
         TokenBuffer buf;
-        if (fromValue != null && fromValue.getClass() == TokenBuffer.class) {
+        if (fromValue instanceof TokenBuffer) {
             // Already a TokenBuffer, reuse it directly
             buf = (TokenBuffer) fromValue;
         } else {

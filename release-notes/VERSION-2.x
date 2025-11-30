@@ -28,6 +28,8 @@ Project: jackson-databind
  (fix by @cowtowncoder, w/ Claude code)
 #5413: Add/support forward reference resolution for array values
  (contributed by Hélios G)
+#5429: Formatting and Parsing of Large ISO-8601 Dates is inconsistent
+ (reported by @DavTurns)
 
 2.20.2 (not yet released)
 

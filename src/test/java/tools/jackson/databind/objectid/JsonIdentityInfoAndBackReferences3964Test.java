@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.objectid;
 
 import java.util.List;
 
@@ -8,15 +8,13 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#3964] MismatchedInputException, Bean not yet resolved
-class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil {
+class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
+{
     /**
      * Fails : Original test
      */
@@ -206,9 +204,8 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil {
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     /**
-     * Fails : Original test
+     * Original test: used to fail
      */
-    @JacksonTestFailureExpected
     @Test
     void original() throws Exception {
         String json = "{" +
@@ -227,21 +224,14 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil {
                 "              ]\n" +
                 "            }";
 
-        try {
-            Tree tree = MAPPER.readValue(json, Tree.class);
-            // should reach here and pass... but throws Exception and fails
-            assertEquals(tree, tree.fruits.get(0).tree);
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot resolve ObjectId forward reference using property 'animal'");
-            verifyException(e, "Bean not yet resolved");
-            fail("Should not reach");
-        }
+        Tree tree = MAPPER.readValue(json, Tree.class);
+        // should reach here and pass... but throws Exception and fails
+        assertEquals(tree, tree.fruits.get(0).tree);
     }
 
     /**
-     * Fails : Lean version that fails and Without getters and setters
+     * Lean version that used to fail, and Without getters and setters
      */
-    @JacksonTestFailureExpected
     @Test
     void leanWithoutGetterAndSetters() throws Exception {
         String json = a2q("{" +
@@ -260,15 +250,9 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil {
                 "              ]" +
                 "            }");
 
-        try {
-            Animal animal = MAPPER.readValue(json, Animal.class);
-            // should reach here and pass... but throws Exception and fails
-            assertEquals(animal, animal.cats.get(0).animal);
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot resolve ObjectId forward reference using property 'animal'");
-            verifyException(e, "Bean not yet resolved");
-            fail("Should not reach");
-        }
+        Animal animal = MAPPER.readValue(json, Animal.class);
+        // should reach here and pass... but throws Exception and fails
+        assertEquals(animal, animal.cats.get(0).animal);
     }
 
     /**

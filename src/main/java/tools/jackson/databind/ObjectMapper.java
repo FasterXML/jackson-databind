@@ -1022,7 +1022,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public final <T> T readValue(JsonParser p, ResolvedType valueType) throws JacksonException
+    public <T> T readValue(JsonParser p, ResolvedType valueType) throws JacksonException
     {
         _assertNotNull("p", p);
         return (T) _readValue(_deserializationContext(p), p, (JavaType) valueType);

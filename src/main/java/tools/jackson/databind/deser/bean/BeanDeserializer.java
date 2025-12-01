@@ -1261,24 +1261,10 @@ public class BeanDeserializer
                 //   since it is not the bean
                 if (!ext.handlePropertyValue(p, ctxt, propName, null)) {
                     // Last creator property to set?
-                    if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
-                        t = p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT
-                        Object bean;
-                        try {
-                            bean = creator.build(ctxt, buffer);
-                        } catch (Exception e) {
-                            throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
-                        }
-                        if (bean.getClass() != _beanType.getRawClass()) {
-                            // !!! 08-Jul-2011, tatu: Could theoretically support; but for now
-                            //   it's too complicated, so bail out
-                            return ctxt.reportBadDefinition(_beanType, String.format(
-                                    "Cannot create polymorphic instances with external type ids (%s -> %s)",
-                                    _beanType, bean.getClass()));
-                        }
-                        // 19-Feb-2021, tatu: [databind#3045] Better delegate
-                        return _deserializeWithExternalTypeId(p, ctxt, bean, ext);
-                    }
+                    // [databind#4690] cannot quit early as optimization any more
+                    // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
+                    buffer.assignParameter(creatorProp,
+                            _deserializeWithErrorWrapping(p, ctxt, creatorProp));
                 }
                 continue;
             }

@@ -1,4 +1,4 @@
-package tools.jackson.databind.format;
+package tools.jackson.databind.tofix;
 
 import java.util.*;
 
@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -68,17 +69,21 @@ public class MapFormatShape5405Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    // [databind#5045]: property overrides for @JsonFormat.shape won't work for Maps
+    // 30-Nov-2025, tatu: Something about caching is the issue: if "b" commented out,
+    //    override appears to work; with "b" not
+    @JacksonTestFailureExpected
     @Test
-    public void testSerializeAsPOJOViaProperty() throws Exception
+    public void serializeAsPOJOViaProperty() throws Exception
     {
-        String result = MAPPER.writeValueAsString(new Bean5405Container(1,0,3));
+        String result = MAPPER.writeValueAsString(new Bean5405Container(1,2,3));
         assertEquals(a2q(
-                "{'a':{'extra':13,'empty':false},'c':{'extra':13,'empty':false}}"),
+                "{'a':{'extra':13,'empty':false},'b':{'value':2},'c':{'extra':13,'empty':false}}"),
                 result);
     }
 
     @Test
-    public void testSerializeNaturalViaOverride() throws Exception
+    public void serializeNaturalViaOverride() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean5405Override(123));
         assertEquals(a2q("{'stuff':{'value':123}}"),

@@ -1044,49 +1044,11 @@ public class BeanDeserializer
                 }
 
                 // Last creator property to set?
-                if (buffer.assignParameter(creatorProp,
-                        _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
-                    t = p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT
-                    Object bean;
-                    try {
-                        bean = creator.build(ctxt, buffer);
-                    } catch (Exception e) {
-                        bean = wrapInstantiationProblem(ctxt, e);
-                    }
-                    // [databind#631]: Assign current value, to be accessible by custom serializers
-                    p.assignCurrentValue(bean);
-                    // [databind#4938] Since 2.19, allow returning `null` from creator,
-                    //  but if so, need to skip all possibly relevant content
-                    if (bean == null) {
-                        // 13-Mar-2025, tatu: We don't have "referrings" here for some reason...
-                        //   Nor "unknown" since unwrapping makes it impossible to tell unwrapped
-                        //   and unknown apart
-                        _handleNullFromPropsBasedCreator(p, ctxt, null, null);
-                        return null;
-                    }
+                // [databind#4690] cannot quit early as optimization any more
+                // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
+                buffer.assignParameter(creatorProp,
+                        _deserializeWithErrorWrapping(p, ctxt, creatorProp));
 
-                    // if so, need to copy all remaining tokens into buffer
-                    while (t == JsonToken.PROPERTY_NAME) {
-                        // NOTE: do NOT skip name as it needs to be copied; `copyCurrentStructure` does that
-                        tokens.copyCurrentStructure(p);
-                        t = p.nextToken();
-                    }
-                    // 28-Aug-2018, tatu: Let's add sanity check here, easier to catch off-by-some
-                    //    problems if we maintain invariants
-                    if (t != JsonToken.END_OBJECT) {
-                        ctxt.reportWrongTokenException(this, JsonToken.END_OBJECT,
-                                "Attempted to unwrap '%s' value",
-                                handledType().getName());
-                    }
-                    tokens.writeEndObject();
-                    if (bean.getClass() != _beanType.getRawClass()) {
-                        // !!! 08-Jul-2011, tatu: Could probably support; but for now
-                        //   it's too complicated, so bail out
-                        return ctxt.reportInputMismatch(creatorProp,
-                                "Cannot create polymorphic instances with unwrapped values");
-                    }
-                    return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
-                }
                 continue;
             }
             // regular property? needs buffering
@@ -1118,6 +1080,8 @@ public class BeanDeserializer
             }
         }
 
+        tokens.writeEndObject();
+
         // We could still have some not-yet-set creator properties that are unwrapped.
         // These have to be processed last, because 'tokens' contains all properties
         // that remain after regular deserialization.
@@ -1130,14 +1094,19 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(ctxt, e);
         }
+        p.assignCurrentValue(bean);
+
         // [databind#4938] Since 2.19, allow returning `null` from creator,
         //  but if so, need to skip all possibly relevant content
         if (bean == null) {
             // no "referrings" here either:
-            _handleNullFromPropsBasedCreator(null, ctxt, null, null);
+            _handleNullFromPropsBasedCreator(p, ctxt, null, null);
             return null;
         }
-
+        if (bean.getClass() != _beanType.getRawClass()) {
+            return ctxt.reportInputMismatch(_beanType,
+                    "Cannot create polymorphic instances with unwrapped values");
+        }
         return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
     }
 

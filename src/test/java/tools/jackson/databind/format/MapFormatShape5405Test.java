@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.format;
 
 import java.util.*;
 
@@ -61,9 +61,9 @@ public class MapFormatShape5405Test extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -72,7 +72,8 @@ public class MapFormatShape5405Test extends DatabindTestUtil
     public void testSerializeAsPOJOViaProperty() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean5405Container(1,0,3));
-        assertEquals(a2q("{'a':{'extra':13,'empty':false},'c':{'extra':13,'empty':false}}"),
+        assertEquals(a2q(
+                "{'a':{'extra':13,'empty':false},'c':{'extra':13,'empty':false}}"),
                 result);
     }
 

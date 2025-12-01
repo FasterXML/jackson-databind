@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -67,10 +66,8 @@ public class MapFormatShape5405Test extends DatabindTestUtil
     /**********************************************************
      */
 
-    final private ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
-    // Can't yet use per-property overrides at all, see [databind#5405]
-    @JacksonTestFailureExpected
     @Test
     public void testSerializeAsPOJOViaProperty() throws Exception
     {

@@ -276,6 +276,9 @@ public class CreatorProperty
 
     //  public boolean isInjectionOnly() { return false; }
 
+    @Override // @since 3.1
+    public boolean isCreatorProperty() { return true; }
+
     /*
     /**********************************************************************
     /* Overridden methods, other

@@ -695,6 +695,13 @@ public abstract class SerializationContext
         ValueSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _createAndCachePropertySerializer(valueType, property);
+        } else if (property != null) {
+            // [databind#5405]: property-level @JsonFormat overrides must be applied even with cached serializers
+            JsonFormat.Value overrides = property.findFormatOverrides(_config);
+            if (overrides != null && !overrides.equals(JsonFormat.Value.empty())) {
+                BeanDescription.Supplier beanDescRef = lazyIntrospectBeanDescription(valueType);
+                ser = _checkShapeShifting(valueType, beanDescRef, property, ser);
+            }
         }
         return handlePrimaryContextualization(ser, property);
     }

@@ -7,6 +7,7 @@ import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.deser.BeanDeserializerBuilder;
+import tools.jackson.databind.deser.CreatorProperty;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.UnresolvedForwardReference;
@@ -570,43 +571,54 @@ public class BeanDeserializer
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
-            final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
-            // Object Id property?
-            if (buffer.readIdProperty(propName) && creatorProp == null) {
-                continue;
-            }
 
-            // [databind#4629] Need to check for ignored properties BEFORE checking for Creator properties.
-            // Records (and other creator-based types) will have a valid 'creatorProp', so if we don't
-            // check for ignore first, the ignore configuration will be bypassed.
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, handledType(), propName);
-                continue;
-            }
-
-            // Creator property?
-            if (creatorProp != null) {
-                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
-                    p.skipChildren();
+            int ix = _propNameMatcher.matchName(propName);
+            if (ix < 0) { // no such property
+                // Object Id property?
+                if (buffer.readIdProperty(propName)) {
                     continue;
                 }
-                // [databind#1381]: if useInput=FALSE, skip deserialization from input
-                if (creatorProp.isInjectionOnly()) {
-                    // Skip the input value, will be injected later in PropertyValueBuffer
-                    p.skipChildren();
+            } else {
+                SettableBeanProperty prop = _propsByIndex[ix];
+                final SettableBeanProperty creatorProp = (prop instanceof CreatorProperty cprop)
+                        ? cprop : null;
+                // Object Id property?
+                if (buffer.readIdProperty(propName) && creatorProp == null) {
                     continue;
                 }
-                // Last creator property to set?
-                // [databind#4690] cannot quit early as optimization any more
-                // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
-                buffer.assignParameter(creatorProp,
-                        _deserializeWithErrorWrapping(p, ctxt, creatorProp));
-                continue;
-            }
-            // regular property? needs buffering
+    
+                // [databind#4629] Need to check for ignored properties BEFORE checking for Creator properties.
+                // Records (and other creator-based types) will have a valid 'creatorProp', so if we don't
+                // check for ignore first, the ignore configuration will be bypassed.
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                    handleIgnoredProperty(p, ctxt, handledType(), propName);
+                    continue;
+                }
+    
+                // Creator property?
+                if (creatorProp != null) {
+                    if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                        p.skipChildren();
+                        continue;
+                    }
+                    // [databind#1381]: if useInput=FALSE, skip deserialization from input
+                    if (creatorProp.isInjectionOnly()) {
+                        // Skip the input value, will be injected later in PropertyValueBuffer
+                        p.skipChildren();
+                        continue;
+                    }
+                    // Last creator property to set?
+                    // [databind#4690] cannot quit early as optimization any more
+                    // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
+                    buffer.assignParameter(creatorProp,
+                            _deserializeWithErrorWrapping(p, ctxt, creatorProp));
+                    continue;
+                }
+                // regular property? needs buffering
+            /*
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
-                SettableBeanProperty prop = _propsByIndex[ix];
+            */
                 // [databind#3724]: Special handling because Records' ignored creator props
                 // weren't removed (to help in creating constructor-backed PropertyCreator)
                 // so they ended up in _beanProperties, unlike POJO (whose ignored
@@ -639,7 +651,7 @@ public class BeanDeserializer
                 }
             }
 
-            // "any property"?
+            // Not "real" property but maybe "any property"?
             if (_anySetter != null) {
                 try {
                     // [databind#4639] Since 2.18.1 AnySetter might not part of the creator, but just some field.

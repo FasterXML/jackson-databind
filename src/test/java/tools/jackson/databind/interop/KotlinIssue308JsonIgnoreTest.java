@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.interop;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
@@ -41,7 +40,6 @@ public class KotlinIssue308JsonIgnoreTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    //@JacksonTestFailureExpected
     @Test
     public void testJsonIgnoreWithJsonPropertyUnpacker() throws Exception
     {

@@ -41,14 +41,14 @@ public class KotlinIssue308JsonIgnoreTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
+    //@JacksonTestFailureExpected
     @Test
     public void testJsonIgnoreWithJsonPropertyUnpacker() throws Exception
     {
         TestDto dto = MAPPER.readValue("{\"id\":12345}", TestDto.class);
 
         assertNotNull(dto);
-        assertEquals(Integer.valueOf(12345), dto.cityId);
         assertNull(dto.id);
+        assertEquals(Integer.valueOf(12345), dto.cityId);
     }
 }

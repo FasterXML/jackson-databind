@@ -1195,6 +1195,13 @@ public class POJOPropertyBuilder
         ;
     }
 
+    /**
+     * @since 3.1
+     */
+    public boolean hasIgnoredField() {
+        return _anyIgnorals(_fields);
+    }
+
     private <T> boolean _anyIgnorals(Linked<T> n)
     {
         for (; n != null; n = n.next) {

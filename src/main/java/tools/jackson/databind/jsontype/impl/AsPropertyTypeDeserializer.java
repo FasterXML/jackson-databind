@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype.impl;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import tools.jackson.core.JacksonException;
@@ -32,12 +33,12 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     protected final boolean _strictTypeIdHandling;
 
     protected final String _msgForMissingId = (_property == null)
-            ? String.format("missing type id property '%s'", _typePropertyName)
-            : String.format("missing type id property '%s' (for POJO property '%s')", _typePropertyName, _property.getName());
+        ? String.format("missing type id property '%s'", _typePropertyName)
+        : String.format("missing type id property '%s' (for POJO property '%s')", _typePropertyName, _property.getName());
 
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
-            String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
-            As inclusion, boolean strictTypeIdHandling)
+                                      String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
+                                      As inclusion, boolean strictTypeIdHandling)
     {
         super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
         _inclusion = inclusion;
@@ -169,8 +170,12 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         // genuine, or faked for "dont fail on bad type id")
         ValueDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
         if (deser == null) {
-            JavaType t = _strictTypeIdHandling
-                    ? _handleMissingTypeId(ctxt, priorFailureMsg) : _baseType;
+            boolean strictTypeIdHandling = isStrictTypeIdHandlingForProperty();
+
+            JavaType t = strictTypeIdHandling
+                ? _handleMissingTypeId(ctxt, priorFailureMsg)
+                : _baseType;
+
             if (t == null) {
                 // 09-Mar-2017, tatu: Is this the right thing to do?
                 return null;
@@ -203,6 +208,17 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         return deserializeTypedFromObject(p, ctxt);
     }
 
+    // [databind#1654]: Determine whether strict type-id handling should apply for this property.
+    private boolean isStrictTypeIdHandlingForProperty() {
+        if (!_strictTypeIdHandling) {
+            return false;
+        }
+        if (_property == null) {
+            return true;
+        }
+        JsonTypeInfo typeInfo = _property.getAnnotation(JsonTypeInfo.class);
+        return typeInfo == null || typeInfo.use() != JsonTypeInfo.Id.NONE;
+    }
     // These are fine from base class:
     //public Object deserializeTypedFromArray(JsonParser p, DeserializationContext ctxt)
     //public Object deserializeTypedFromScalar(JsonParser p, DeserializationContext ctxt)

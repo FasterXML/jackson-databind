@@ -3,6 +3,7 @@ package tools.jackson.databind.deser.impl;
 import java.util.*;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.bean.BeanPropertyMap;
@@ -303,13 +304,13 @@ public class ExternalTypeHandler
 
             final SettableBeanProperty prop = extProp.getProperty();
             // also: if it's creator prop, fill in
-            if (prop.getCreatorIndex() >= 0) {
+            if (prop.isCreatorProperty()) {
                 buffer.assignParameter(prop, values[i]);
 
                 // [databind#999] And maybe there's creator property for type id too?
                 SettableBeanProperty typeProp = extProp.getTypeProperty();
                 // for now, should only be needed for creator properties, too
-                if ((typeProp != null) && (typeProp.getCreatorIndex() >= 0)) {
+                if (typeProp != null && typeProp.isCreatorProperty()) {
                     // 31-May-2018, tatu: [databind#1328] if id is NOT plain `String`, need to
                     //    apply deserializer... fun fun.
                     final Object v;
@@ -329,7 +330,7 @@ public class ExternalTypeHandler
         // third: assign non-creator properties
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = _properties[i].getProperty();
-            if (prop.getCreatorIndex() < 0) {
+            if (!prop.isCreatorProperty()) {
                 prop.set(ctxt, bean, values[i]);
             }
         }

@@ -354,8 +354,6 @@ public abstract class SettableBeanProperty
 
     /**
      * Whether this property requires merging of values (read-then-write)
-     *
-     * @since 2.20
      */
     public boolean isMerging() {
         // Most are not merging so default to this implementation
@@ -487,6 +485,11 @@ public abstract class SettableBeanProperty
      *    to bind from input.
      */
     public boolean isInjectionOnly() { return false; } // overridden by CreatorProperty
+
+    /**
+     * Since 3.1
+     */
+    public boolean isCreatorProperty() { return false; } // overridden by CreatorProperty
 
     /*
     /**********************************************************************
@@ -777,6 +780,9 @@ public abstract class SettableBeanProperty
 
         @Override
         public boolean isInjectionOnly() { return delegate.isInjectionOnly(); }
+
+        @Override
+        public boolean isCreatorProperty() { return delegate.isCreatorProperty(); }
 
         @Override
         public AnnotatedMember getMember() {

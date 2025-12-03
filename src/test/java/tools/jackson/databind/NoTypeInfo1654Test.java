@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind;
 
 import java.util.*;
 
@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.JsonParser;
-import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
@@ -84,17 +83,16 @@ class NoTypeInfo1654Test extends DatabindTestUtil {
                 new Value1654(3),
                 new Value1654(7)
         );
-        assertEquals(a2q("{'values':[{'x':3},{'x': 7}] }"),
+        assertEquals(a2q("{'values':[{'x':3},{'x': 7}]}"),
                 MAPPER.writeValueAsString(cont));
     }
 
     // [databind#1654]
-    @JacksonTestFailureExpected
     @Test
     void noTypeInfoOverrideDeser() throws Exception {
         // and then actual failing case
         final String noTypeJson = a2q(
-                "{'values':[{'x':3},{'x': 7}] }"
+                "{'values':[{'x':3},{'x': 7}]}"
         );
         Value1654UntypedContainer unResult = MAPPER.readValue(noTypeJson, Value1654UntypedContainer.class);
         assertEquals(2, unResult.values.size());

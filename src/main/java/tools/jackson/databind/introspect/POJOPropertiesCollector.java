@@ -348,13 +348,9 @@ public class POJOPropertiesCollector
      */
     public JsonFormat.Value getFormatOverrides() {
         if (_formatOverrides == null) {
-            JsonFormat.Value format = null;
-
             // Let's check both per-type defaults and annotations;
             // per-type defaults having higher precedence, so start with annotations
-            if (_annotationIntrospector != null) {
-                format = _annotationIntrospector.findFormat(_config, _classDef);
-            }
+            JsonFormat.Value format = _annotationIntrospector.findFormat(_config, _classDef);
             JsonFormat.Value v = _config.getDefaultPropertyFormat(_type.getRawClass());
             if (v != null) {
                 if (format == null) {
@@ -948,8 +944,7 @@ ctor.creator()));
                 }
             }
             // Second: injectable also suffices
-            if ((_annotationIntrospector != null)
-                    && _annotationIntrospector.findInjectableValue(_config, ctor.param(0)) != null) {
+            if (_annotationIntrospector.findInjectableValue(_config, ctor.param(0)) != null) {
                 return true;
             }
             return false;
@@ -1019,8 +1014,7 @@ ctor.creator()));
             }
         } else {
             // First things first: if only param has Injectable, must be Props-based
-            if ((_annotationIntrospector != null)
-                    && _annotationIntrospector.findInjectableValue(_config, ctor.param(0)) != null) {
+            if (_annotationIntrospector.findInjectableValue(_config, ctor.param(0)) != null) {
                 // props-based, continue
             } else {
                 // may have explicit preference

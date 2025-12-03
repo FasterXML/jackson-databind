@@ -551,7 +551,7 @@ public abstract class BeanDeserializerBase
                         unwrapped = new UnwrappedPropertyHandler();
                     }
 
-                    if (prop instanceof CreatorProperty) {
+                    if (prop.isCreatorProperty()) {
                         unwrapped.addCreatorProperty(prop);
                     } else {
                         unwrapped.addProperty(prop);

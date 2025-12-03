@@ -807,6 +807,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * <li>{@link DateTimeFeature}s</li>
      * <li>{@link DeserializationFeature}s</li>
      * <li>{@link EnumFeature}s</li>
+     * <li>{@link JsonNodeFeature}s</li>
      * <li>{@link MapperFeature}s</li>
      * <li>{@link SerializationFeature}s</li>
      *  </ul>
@@ -824,6 +825,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                .enable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
                 .enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
                 .disable(MapperFeature.DETECT_PARAMETER_NAMES) // [databind#5314]
                 .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)

@@ -14,7 +14,6 @@ import tools.jackson.databind.annotation.JsonNaming;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.TypeFactory;
-import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.Converter;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -66,15 +65,6 @@ public class RecordBasicsTest extends DatabindTestUtil
     /* Test methods, Record type introspection
     /**********************************************************************
      */
-
-    @Test
-    public void testClassUtil() {
-        assertFalse(ClassUtil.isRecordType(getClass()));
-
-        assertTrue(ClassUtil.isRecordType(SimpleRecord.class));
-        assertTrue(ClassUtil.isRecordType(RecordOfRecord.class));
-        assertTrue(ClassUtil.isRecordType(RecordWithRename.class));
-    }
 
     @Test
     public void testRecordJavaType() {

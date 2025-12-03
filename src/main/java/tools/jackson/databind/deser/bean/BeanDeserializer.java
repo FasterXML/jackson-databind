@@ -590,7 +590,7 @@ public class BeanDeserializer
                     continue;
                 }
                 // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records (and other creator-based types) will have a valid 'creatorProp', so if we don't
+                // Records will have a valid 'creatorProp', so if we don't
                 // check for ignore first, the ignore configuration will be bypassed.
                 if (isRecord && IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                     handleIgnoredProperty(p, ctxt, handledType(), propName);
@@ -1038,7 +1038,7 @@ public class BeanDeserializer
                     continue;
                 }
                 // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records (and other creator-based types) will have a valid 'creatorProp', so if we don't
+                // Records will have a valid 'creatorProp', so if we don't
                 // check for ignore first, the ignore configuration will be bypassed.
                 if (isRecord && IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                     handleIgnoredProperty(p, ctxt, handledType(), propName);

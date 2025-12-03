@@ -11,6 +11,7 @@ import tools.jackson.databind.ObjectMapper;
 import static org.junit.jupiter.api.Assertions.*;
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
+// From https://github.com/FasterXML/jackson-module-kotlin/issues/308
 /**
  * Test for verifying that {@link JsonIgnore} on a field combined with
  * {@link JsonProperty} on a private setter method works correctly.
@@ -21,12 +22,12 @@ public class KotlinIssue308JsonIgnoreTest
     static class TestDto
     {
         @JsonIgnore
-        Long id;
+        Integer id;
 
         Integer cityId;
 
         @JsonCreator
-        public TestDto(Long id, Integer cityId) {
+        public TestDto(Integer id, Integer cityId) {
             this.id = id;
             this.cityId = cityId;
         }

@@ -564,23 +564,16 @@ public class BeanDeserializer
             : creator.startBuilding(p, ctxt, _objectIdReader);
         TokenBuffer unknown = null;
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-
         JsonToken t = p.currentToken();
         List<BeanReferring> referrings = null;
+        final boolean isRecord = _beanType.isRecordType();
+
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             // Object Id property?
             if (buffer.readIdProperty(propName) && creatorProp == null) {
-                continue;
-            }
-
-            // [databind#4629] Need to check for ignored properties BEFORE checking for Creator properties.
-            // Records (and other creator-based types) will have a valid 'creatorProp', so if we don't
-            // check for ignore first, the ignore configuration will be bypassed.
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
 
@@ -596,6 +589,13 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
+                // [databind#4629] Need to check for ignored properties for Creator properties since
+                // Records will have a valid 'creatorProp', so if we don't
+                // check for ignore first, the ignore configuration will be bypassed.
+                if (isRecord && IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                    handleIgnoredProperty(p, ctxt, handledType(), propName);
+                    continue;
+                }
                 // Last creator property to set?
                 // [databind#4690] cannot quit early as optimization any more
                 // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
@@ -603,6 +603,7 @@ public class BeanDeserializer
                         _deserializeWithErrorWrapping(p, ctxt, creatorProp));
                 continue;
             }
+
             // regular property? needs buffering
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
@@ -1017,6 +1018,7 @@ public class BeanDeserializer
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
 
+        final boolean isRecord = _beanType.isRecordType();
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
@@ -1028,13 +1030,6 @@ public class BeanDeserializer
                 continue;
             }
 
-            // Things marked as ignorable should not be passed to any setter
-            // [databind#4629] Need to check for ignored properties BEFORE checking
-            // for Creator properties.
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, handledType(), propName);
-                continue;
-            }
             if (creatorProp != null) {
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
@@ -1042,7 +1037,13 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-
+                // [databind#4629] Need to check for ignored properties for Creator properties since
+                // Records will have a valid 'creatorProp', so if we don't
+                // check for ignore first, the ignore configuration will be bypassed.
+                if (isRecord && IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                    handleIgnoredProperty(p, ctxt, handledType(), propName);
+                    continue;
+                }
                 // Last creator property to set?
                 // [databind#4690] cannot quit early as optimization any more
                 // if (buffer.assignParameter(creatorProp, value)) { ... build ... }

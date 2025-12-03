@@ -2,20 +2,25 @@ package tools.jackson.databind.ser.enums;
 
 import java.util.*;
 
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EnumAsMapKeyTest extends DatabindTestUtil
+@TestMethodOrder(MethodOrderer.MethodName.class)
+public class EnumAsMapKeySerializationTest extends DatabindTestUtil
 {
     static class MapBean {
         public Map<ABCEnum,Integer> map = new HashMap<>();
@@ -92,6 +97,65 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
         }
     }
 
+    // [databind#2457]
+    enum MyEnum2457 {
+        A,
+        B() {
+            // just to ensure subclass construction
+            @Override
+            public void foo() { }
+        };
+
+        // needed to force subclassing
+        public void foo() { }
+
+        @Override
+        public String toString() { return name() + " as string"; }
+    }
+
+    // [databind#2457]
+    enum MyEnum2457Base {
+        @JsonProperty("a_base")
+        A,
+        @JsonProperty("b_base")
+        B() {
+            // just to ensure subclass construction
+            @Override
+            public void foo() { }
+        },
+        C;
+        
+        // needed to force sub-classing
+        public void foo() { }
+        
+        @Override
+        public String toString() { return name() + " as string"; }
+    }
+
+    // [databind#2457]
+    enum MyEnum2457Mixin {
+        @JsonProperty("a_mixin")
+        A,
+        @JsonProperty("b_mixin")
+        B() {
+            // just to ensure subclass construction
+            @Override
+            public void foo() { }
+        };
+
+        // needed to force sub=classing
+        public void foo() { }
+
+        @Override
+        public String toString() { return name() + " as string"; }
+    }
+
+    // [databind#5432]
+    enum Color5432 {
+        @JsonProperty("red")
+        RED
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -99,7 +163,8 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
      */
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING).build();
+            .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+            .build();
 
     @Test
     public void testMapWithEnumKeys() throws Exception
@@ -196,5 +261,86 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
                 MAPPER.writer()
                     .with(EnumFeature.WRITE_ENUMS_USING_INDEX)
                     .writeValueAsString(input));
+    }
+
+    // [databind#2457]
+    @Test
+    public void testCustomEnumAsRootMapKey() throws Exception
+    {
+        final Map<MyEnum2457, String> map = new LinkedHashMap<>();
+        map.put(MyEnum2457.A, "1");
+        map.put(MyEnum2457.B, "2");
+        assertEquals(a2q("{'A':'1','B':'2'}"),
+                MAPPER.writer()
+                        .without(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                        .writeValueAsString(map));
+
+        // But should be able to override
+        assertEquals(a2q("{'"+MyEnum2457.A.toString()+"':'1','"+MyEnum2457.B.toString()+"':'2'}"),
+                MAPPER.writer()
+                    .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                    .writeValueAsString(map));
+    }
+
+    /**
+     * @see #testCustomEnumAsRootMapKey
+     */
+    // [databind#2457]
+    @Test
+    public void testCustomEnumAsRootMapKeyMixin() throws Exception
+    {
+        ObjectMapper mixinMapper = JsonMapper.builder()
+                .addMixIn(MyEnum2457Base.class, MyEnum2457Mixin.class)
+                .build();
+        final Map<MyEnum2457Base, String> map = new LinkedHashMap<>();
+        map.put(MyEnum2457Base.A, "1");
+        map.put(MyEnum2457Base.B, "2");
+        map.put(MyEnum2457Base.C, "3");
+        assertEquals(a2q("{'a_mixin':'1','b_mixin':'2','C':'3'}"),
+                mixinMapper.writer()
+                        .without(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                        .writeValueAsString(map));
+
+        // But should be able to override
+        assertEquals(a2q("{'a_mixin':'1','b_mixin':'2','"
+                +MyEnum2457Base.C.toString()+"':'3'}"
+                ),
+                mixinMapper.writer()
+                        .with(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                        .writeValueAsString(map));
+    }
+
+    // [databind#5432]
+    @Test
+    void enumKeyShouldSerializeUsingJsonPropertyAndToString() throws Exception
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                .build();
+
+        // Sanity check first
+        // assertEquals(q("red"), mapper.writeValueAsString(Color5432.RED));
+
+        // Then actual test
+        Map<Color5432, String> map = Collections.singletonMap(Color5432.RED, "#ff0000");
+        String json = mapper.writeValueAsString(map);
+        assertEquals("{\"red\":\"#ff0000\"}", json);
+    }
+
+    // [databind#5432]
+    @Test
+    void enumKeyShouldSerializeUsingJsonPropertyAndName() throws Exception
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                .build();
+
+        // Sanity check first
+        assertEquals(q("red"), mapper.writeValueAsString(Color5432.RED));
+
+        // Then actual test
+        Map<Color5432, String> map = Collections.singletonMap(Color5432.RED, "#ff0000");
+        String json = mapper.writeValueAsString(map);
+        assertEquals("{\"red\":\"#ff0000\"}", json);
     }
 }

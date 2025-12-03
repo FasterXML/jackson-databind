@@ -939,7 +939,7 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * Finds the explicitly defined name of the given set of {@code Enum} values, if any.
+     * Finds the explicitly defined names, if any, of the given set of {@code Enum} values.
      * The method overwrites entries in the incoming {@code names} array with the explicit
      * names found, if any, leaving other entries unmodified.
      *
@@ -947,9 +947,9 @@ public abstract class AnnotationIntrospector
      * @param annotatedClass the annotated class for which to find the explicit names
      * @param enumValues the set of {@code Enum} values to find the explicit names for
      * @param names the matching declared names of enumeration values (with indexes matching
-     *              {@code enumValues} entries)
+     *              {@code enumValues} entries); modified as necessary
      *
-     * @return an array of names to use (possibly {@code names} passed as argument)
+     * @return an array of names to use (usually {@code names} passed as argument)
      *
      * @since 2.16
      */

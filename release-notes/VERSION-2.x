@@ -19,10 +19,21 @@ Project: jackson-databind
   customizability
  (contributed by @wrongwrong)
 #5361: Fix Maven SBOM publishing
+#5368: Optimize performance of `ObjectMapper.convertValue()` when `TokenBuffer`
+  passed as `fromValue`
+ (requested by @qsLI)
+#5398: `@JsonProperty.value` + `@JsonIgnore` on setter does not work
+  anymore since 2.18.4
+ (reported by @victor-noel-pfx)
+ (fix by @cowtowncoder, w/ Claude code)
+#5413: Add/support forward reference resolution for array values
+ (contributed by Hélios G)
+#5429: Formatting and Parsing of Large ISO-8601 Dates is inconsistent
+ (reported by @DavTurns)
 
 2.20.2 (not yet released)
 
-#5393: `@JsonAnyGetter property gets included in generated schema since 2.19.0`
+#5393: `@JsonAnyGetter` property gets included in generated schema since 2.19.0
  (reported by @victor-noel-pfx)
  (fix by Joo-Hyuk K)
 

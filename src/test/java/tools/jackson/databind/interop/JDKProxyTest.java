@@ -4,16 +4,16 @@ import java.lang.reflect.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// mostly for [Issue#57]
-public class TestJDKProxy extends DatabindTestUtil
+// For [databind#57] and [databind#5416]
+public class JDKProxyTest extends DatabindTestUtil
 {
-    final ObjectMapper MAPPER = new ObjectMapper();
-
     public interface IPlanet {
         String getName();
         String setName(String s);
@@ -34,11 +34,22 @@ public class TestJDKProxy extends DatabindTestUtil
         }
     }
 
+    // [databind#5416]
+    // IMPORTANT! Must be "public" for problem to occur
+    public interface Example5416 {
+        String getValue();
+
+        @JsonIgnore
+        String getIgnoredValue();
+    }
+
     /*
-    /********************************************************
+    /**********************************************************************
     /* Test methods
-    /********************************************************
+    /**********************************************************************
      */
+
+    final private ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSimple() throws Exception
@@ -52,13 +63,26 @@ public class TestJDKProxy extends DatabindTestUtil
         assertEquals("Foo", output.getName());
     }
 
+    // [databind#5416]
+    @Test
+    void testProxyAnnotations5416() throws Exception {
+        Object proxied = Proxy.newProxyInstance(getClass().getClassLoader(),
+                new Class[] { Example5416.class }, (proxy, method, methodArgs) -> {
+             return method.getName();
+        });
+
+        assertEquals(a2q("{'value':'getValue'}"),
+                MAPPER.writeValueAsString(proxied));
+    }
+
     /*
     /********************************************************
     /* Helper methods
     /********************************************************
      */
 
-    public static <T> T getProxy(Class<T> type, Object obj) {
+    public static <T> T getProxy(Class<T> type, Object obj)
+    {
         class ProxyUtil implements InvocationHandler {
             Object _obj;
             public ProxyUtil(Object o) {

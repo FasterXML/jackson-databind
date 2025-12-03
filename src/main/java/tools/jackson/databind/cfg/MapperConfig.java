@@ -156,11 +156,15 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *
      * @param src Text to represent
      *
-     * @return Optimized text object constructed
+     * @return Optimized text object constructed, if {@code src} not {@code null};
+     *    {@code null} otherwise
      */
     public SerializableString compileString(String src) {
         // 20-Jan-2014, tatu: For now we will just construct it directly but in distant
         //   future might want to allow overriding somehow?
+        if (src == null) {
+            return null;
+        }
         return new SerializedString(src);
     }
 

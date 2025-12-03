@@ -143,6 +143,11 @@ public enum SerializationFeature implements ConfigFeature
      * objects reachable from the root object. Put another way, only one
      * call will be made for each 'writeValue' call.
      *<p>
+     * NOTE: This feature does not control closing of the underlying
+     * {@link java.io.OutputStream} or {@link java.io.Writer}.
+     * Stream closing is handled by the streaming layer and can instead be configured
+     * via {@link tools.jackson.core.StreamWriteFeature#AUTO_CLOSE_TARGET}.
+     *<p>
      * NOTE: in Jackson 2.x this used to only apply to {@link java.io.Closeable}s,
      * but now it also applies to {@link java.lang.AutoCloseable}s as well (as
      * of Jackson 3.0).
@@ -195,9 +200,9 @@ public enum SerializationFeature implements ConfigFeature
      * construction of serializers and property handlers.
      *<p>
      * NOTE: Since 2.8 there are better mechanism for specifying filtering; specifically
-     *   using {@link com.fasterxml.jackson.annotation.JsonInclude} or configuration overrides.
-     *  This feature was deprecated from 2.8 through to 2.20 but no longer deprecated
-     *  since 2.21 / 3.0.
+     * using {@link com.fasterxml.jackson.annotation.JsonInclude} or configuration overrides.
+     * This feature was deprecated from 2.8 through to 2.20 but no longer deprecated
+     * since 2.21 / 3.0.
      *<p>
      * Feature is enabled by default.
      */

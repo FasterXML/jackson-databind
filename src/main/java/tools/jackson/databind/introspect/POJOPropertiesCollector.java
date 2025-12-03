@@ -348,13 +348,9 @@ public class POJOPropertiesCollector
      */
     public JsonFormat.Value getFormatOverrides() {
         if (_formatOverrides == null) {
-            JsonFormat.Value format = null;
-
             // Let's check both per-type defaults and annotations;
             // per-type defaults having higher precedence, so start with annotations
-            if (_annotationIntrospector != null) {
-                format = _annotationIntrospector.findFormat(_config, _classDef);
-            }
+            JsonFormat.Value format = _annotationIntrospector.findFormat(_config, _classDef);
             JsonFormat.Value v = _config.getDefaultPropertyFormat(_type.getRawClass());
             if (v != null) {
                 if (format == null) {
@@ -948,8 +944,7 @@ ctor.creator()));
                 }
             }
             // Second: injectable also suffices
-            if ((_annotationIntrospector != null)
-                    && _annotationIntrospector.findInjectableValue(_config, ctor.param(0)) != null) {
+            if (_annotationIntrospector.findInjectableValue(_config, ctor.param(0)) != null) {
                 return true;
             }
             return false;
@@ -1019,8 +1014,7 @@ ctor.creator()));
             }
         } else {
             // First things first: if only param has Injectable, must be Props-based
-            if ((_annotationIntrospector != null)
-                    && _annotationIntrospector.findInjectableValue(_config, ctor.param(0)) != null) {
+            if (_annotationIntrospector.findInjectableValue(_config, ctor.param(0)) != null) {
                 // props-based, continue
             } else {
                 // may have explicit preference
@@ -1514,13 +1508,19 @@ ctor.creator()));
             POJOPropertyBuilder prop = entry.getValue();
 
             // 10-Apr-2025: [databind#4628] skip properties that are marked to be ignored
-            // TODO: we are using implicit name, is that ok?
+            // 19-Nov-2025: [databind#5398] BUT do not skip if property has explicit names
+            //   on accessors that are NOT ignored (e.g., @JsonProperty on getter but @JsonIgnore on setter).
+            //   NOTE: For Records we need to be more conservative as constructor parameters may have
+            //   both annotations but generated accessors don't always inherit @JsonIgnore
             if (_ignoredPropertyNames != null && _ignoredPropertyNames.contains(prop.getName())) {
-                continue;
+                // For Records: always skip (safer due to annotation inheritance issues)
+                // For regular classes: only skip if NO explicit names on non-ignored accessors
+                if (isRecordType() || !prop.anyExplicitsWithoutIgnoral()) {
+                    continue;
+                }
             }
 
             Collection<PropertyName> l = prop.findExplicitNames();
-
             // no explicit names? Implicit one is fine as is
             if (l.isEmpty()) {
                 continue;

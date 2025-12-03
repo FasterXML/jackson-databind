@@ -80,6 +80,9 @@ public abstract class AnnotatedMember
 
     @Override
     public Stream<Annotation> annotations() {
+        if (_annotations == null) {
+            return Stream.empty();
+        }
         return _annotations.values();
     }
 

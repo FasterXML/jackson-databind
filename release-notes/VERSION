@@ -37,7 +37,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
   to MapperBuilder#configureForJackson2 to closer match Jackson 2 behavior
  (contributed by @nrayburn-tech)
 
-3.0.3 (not yet released)
+3.0.3 (28-Nov-2025)
 
 #5393: `@JsonAnyGetter` property gets included in generated schema
  (reported by @victor-noel-pfx)

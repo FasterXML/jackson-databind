@@ -21,12 +21,12 @@ public class KotlinIssue308JsonIgnoreTest
     static class TestDto
     {
         @JsonIgnore
-        Long id;
+        Integer id;
 
         Integer cityId;
 
         @JsonCreator
-        public TestDto(Long id, Integer cityId) {
+        public TestDto(Integer id, Integer cityId) {
             this.id = id;
             this.cityId = cityId;
         }
@@ -45,7 +45,7 @@ public class KotlinIssue308JsonIgnoreTest
         TestDto dto = MAPPER.readValue("{\"id\":12345}", TestDto.class);
 
         assertNotNull(dto);
-        assertNull(dto.id);
         assertEquals(Integer.valueOf(12345), dto.cityId);
+        assertNull(dto.id);
     }
 }

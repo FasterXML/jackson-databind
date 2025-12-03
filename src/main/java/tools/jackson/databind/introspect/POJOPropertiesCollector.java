@@ -1085,11 +1085,7 @@ ctor.creator()));
                 }
                 prop = (implName == null)
                         ? _property(props, explName) : _property(props, implName);
-                // [databind#308]: If property has an ignored field and this parameter
-                //   has no explicit annotation, mark it as ignored to allow explicit
-                //   setters/getters to override the ignored field
-                boolean ignored = !hasExplicit && prop.hasIgnoredField();
-                prop.addCtor(param, hasExplicit ? explName : implName, hasExplicit, true, ignored);
+                prop.addCtor(param, hasExplicit ? explName : implName, hasExplicit, true, false);
             }
             creatorProps.add(prop);
         }
@@ -1211,9 +1207,12 @@ ctor.creator()));
         // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
         implName = _checkRenameByField(implName);
         boolean ignore = _annotationIntrospector.hasIgnoreMarker(_config, m);
-        // [databind#5184]: Use explicit name for property lookup if available
-        //    to allow @JsonProperty on getter to override @JsonIgnore on field
-        String propName = (nameExplicit && pn.hasSimpleName()) ? pn.getSimpleName() : implName;
+        // [databind#308]: If getter has explicit name AND no implicit name (non-standard naming),
+        //    use explicit name for property lookup to allow it to override ignored field
+        String propName = implName;
+        if (nameExplicit && pn.hasSimpleName() && (implName == null || implName.equals(m.getName()))) {
+            propName = pn.getSimpleName();
+        }
         _property(props, propName).addGetter(m, pn, nameExplicit, visible, ignore);
     }
 
@@ -1253,9 +1252,12 @@ ctor.creator()));
         // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
         implName = _checkRenameByField(implName);
         boolean ignore = _annotationIntrospector.hasIgnoreMarker(_config, m);
-        // [databind#5184]: Use explicit name for property lookup if available
-        //    to allow @JsonProperty on setter to override @JsonIgnore on field
-        String propName = (nameExplicit && pn.hasSimpleName()) ? pn.getSimpleName() : implName;
+        // [databind#308]: If setter has explicit name AND no implicit name (non-standard naming),
+        //    use explicit name for property lookup to allow it to override ignored field
+        String propName = implName;
+        if (nameExplicit && pn.hasSimpleName() && (implName == null || implName.equals(m.getName()))) {
+            propName = pn.getSimpleName();
+        }
         _property(props, propName).addSetter(m, pn, nameExplicit, visible, ignore);
     }
 

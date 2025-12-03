@@ -71,6 +71,14 @@ public class POJOPropertyBuilder
      */
     protected transient AnnotationIntrospector.ReferenceProperty _referenceInfo;
 
+    /**
+     * Flag to track if this property had an ignored field (before it was removed).
+     * Used for [databind#308] to mark creator parameters as ignorable.
+     *
+     * @since 3.1
+     */
+    protected boolean _hadIgnoredField;
+
     public POJOPropertyBuilder(MapperConfig<?> config, AnnotationIntrospector ai,
             boolean forSerialization, PropertyName internalName) {
         this(config, ai, forSerialization, internalName, internalName);
@@ -97,6 +105,7 @@ public class POJOPropertyBuilder
         _getters = src._getters;
         _setters = src._setters;
         _forSerialization = src._forSerialization;
+        _hadIgnoredField = src._hadIgnoredField;
     }
 
     /*
@@ -949,6 +958,10 @@ public class POJOPropertyBuilder
      */
     public void removeIgnored()
     {
+        // [databind#308]: Track if we had an ignored field before removing it
+        if (_anyIgnorals(_fields)) {
+            _hadIgnoredField = true;
+        }
         _fields = _removeIgnored(_fields);
         _getters = _removeIgnored(_getters);
         _setters = _removeIgnored(_setters);
@@ -1200,6 +1213,16 @@ public class POJOPropertyBuilder
      */
     public boolean hasIgnoredField() {
         return _anyIgnorals(_fields);
+    }
+
+    /**
+     * Returns true if this property had an ignored field (which has since been removed).
+     * Used for [databind#308] to mark creator parameters as ignorable.
+     *
+     * @since 3.1
+     */
+    public boolean hadIgnoredField() {
+        return _hadIgnoredField;
     }
 
     private <T> boolean _anyIgnorals(Linked<T> n)

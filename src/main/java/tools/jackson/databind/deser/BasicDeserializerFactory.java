@@ -499,6 +499,15 @@ public abstract class BasicDeserializerFactory
                 }
             }
             properties[i] = constructCreatorProperty(ctxt, beanDescRef, name, i, param, injectId);
+            // [databind#308]: Mark creator property as ignorable if property had ignored field
+            //   and has explicit setter - this prevents it from being populated from JSON
+            BeanPropertyDefinition propDef = candidate.propertyDef(i);
+            if (propDef != null && propDef instanceof POJOPropertyBuilder) {
+                POJOPropertyBuilder builder = (POJOPropertyBuilder) propDef;
+                if (builder.hadIgnoredField() && builder.hasSetter()) {
+                    properties[i].markAsIgnorable();
+                }
+            }
         }
         creators.addPropertyCreator(candidate.creator(), true, properties);
     }

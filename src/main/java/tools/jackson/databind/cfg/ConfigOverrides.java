@@ -54,12 +54,9 @@ public class ConfigOverrides
     protected Boolean _defaultLeniency;
 
     /**
-     * Global default radix to apply to an integral type outputted as string. This has the lowest precedence out of all
-     * other methods of enforcing an alternative radix.
-     *
      * @since 3.1
      */
-    protected int _defaultRadix;
+    protected JsonFormat.Value _defaultFormat;
 
     /*
     /**********************************************************************
@@ -72,21 +69,21 @@ public class ConfigOverrides
                 INCLUDE_DEFAULT,
                 JsonSetter.Value.empty(),
                 DEFAULT_VISIBILITY_CHECKER,
-                null, null, JsonFormat.DEFAULT_RADIX
+                null, null, JsonFormat.Value.empty()
         );
     }
 
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
                               JsonInclude.Value defIncl, JsonSetter.Value defSetter,
                               VisibilityChecker defVisibility,
-                              Boolean defMergeable, Boolean defLeniency, int defRadix) {
+                              Boolean defMergeable, Boolean defLeniency, JsonFormat.Value defFormat) {
         _overrides = overrides;
         _defaultInclusion = defIncl;
         _defaultNullHandling = defSetter;
         _visibilityChecker = defVisibility;
         _defaultMergeable = defMergeable;
         _defaultLeniency = defLeniency;
-        _defaultRadix = defRadix;
+        _defaultFormat = defFormat;
     }
 
     @Deprecated
@@ -97,7 +94,7 @@ public class ConfigOverrides
             JsonInclude.Value defIncl, JsonSetter.Value defSetter,
             VisibilityChecker defVisibility,
             Boolean defMergeable, Boolean defLeniency) {
-        this(overrides, defIncl, defSetter, defVisibility, defMergeable, defLeniency, JsonFormat.DEFAULT_RADIX);
+        this(overrides, defIncl, defSetter, defVisibility, defMergeable, defLeniency, JsonFormat.Value.empty());
     }
 
     @Override
@@ -114,7 +111,7 @@ public class ConfigOverrides
         }
         return new ConfigOverrides(newOverrides,
                 _defaultInclusion, _defaultNullHandling, _visibilityChecker,
-                _defaultMergeable, _defaultLeniency);
+                _defaultMergeable, _defaultLeniency, _defaultFormat);
     }
 
     /*
@@ -200,8 +197,8 @@ public class ConfigOverrides
     /**
      * @since 3.1
      */
-    public int getDefaultRadix() {
-        return _defaultRadix;
+    public JsonFormat.Value getDefaultFormat() {
+        return _defaultFormat;
     }
 
     /**
@@ -253,8 +250,8 @@ public class ConfigOverrides
     /**
      * @since 3.1
      */
-    public ConfigOverrides setDefaultRadix(int v) {
-        this._defaultRadix = v;
+    public ConfigOverrides setDefaultFormat(JsonFormat.Value format) {
+        this._defaultFormat = format;
         return this;
     }
 

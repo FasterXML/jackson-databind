@@ -6,7 +6,6 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import java.math.BigInteger;
-import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -107,6 +106,26 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
         ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(int.class,
                         o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING).withRadix(HEX_RADIX)))
+                .build();
+        IntWrapper intialIntWrapper = new IntWrapper(10);
+        String expectedJson = "{'value':'a'}";
+
+        String json = mapper.writeValueAsString(intialIntWrapper);
+
+        assertEquals(a2q(expectedJson), json);
+
+        IntWrapper readBackIntWrapper = mapper.readValue(a2q(expectedJson), IntWrapper.class);
+
+        assertNotNull(readBackIntWrapper);
+        assertEquals(intialIntWrapper.value, readBackIntWrapper.value);
+
+    }
+
+    @Test
+    void testIntSerializedAsHexStringWithDefaultRadix()
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultFormat(JsonFormat.Value.forRadix(HEX_RADIX).withShape(JsonFormat.Shape.STRING))
                 .build();
         IntWrapper intialIntWrapper = new IntWrapper(10);
         String expectedJson = "{'value':'a'}";

@@ -388,12 +388,12 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
 
 
     /**
-     * Accessor for default radix to apply to integral types when serializing them as string.
-     * The radix obtained from this accessor should have the lowest precedence.
+     * Accessor for default format to apply for serialization.
+     * The format obtained from this accessor should have the lowest precedence.
      *
      * @since 3.1
      */
-    public abstract int getDefaultRadix();
+    public abstract JsonFormat.Value getDefaultFormat();
 
     /**
      * Accessor for default format settings to use for serialization (and, to a degree

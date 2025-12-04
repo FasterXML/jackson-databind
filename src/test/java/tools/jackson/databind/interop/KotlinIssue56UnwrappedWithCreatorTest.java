@@ -36,6 +36,8 @@ public class KotlinIssue56UnwrappedWithCreatorTest
             return widgetReferenceId;
         }
 
+        // IMPORTANT! Need to annotate accessor too
+        @JsonUnwrapped
         public TestGallery getGallery() {
             return gallery;
         }

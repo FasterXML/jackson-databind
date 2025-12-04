@@ -1054,33 +1054,38 @@ ctor.creator()));
             final PropertyName explName = ctor.explicitName(i);
             PropertyName implName = ctor.implicitName(i);
             final boolean hasExplicit = (explName != null);
-            final POJOPropertyBuilder prop;
+            final boolean hasImplicit = (implName != null);
 
-            //  neither implicit nor explicit name?
-            if (!hasExplicit && (implName == null)) {
-                boolean isUnwrapping = _annotationIntrospector.findUnwrappingNameTransformer(_config, param) != null;
-
-                if (isUnwrapping) {
+            // First: check "Unwrapped" unless explicit name
+            if (!hasExplicit) {
+                var unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, param);
+                if (unwrapper != null) {
                     // If unwrapping, can use regardless of name; we will use a placeholder name
                     // anyway to try to avoid name conflicts.
                     PropertyName name = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
-                    prop = _property(props, name);
+                    final POJOPropertyBuilder prop = _property(props, name);
                     prop.addCtor(param, name, false, true, false);
-                } else {
+                    creatorProps.add(prop);
+                    continue;
+                }
+                if (!hasImplicit) {
                     // Without name, cannot make use of this creator parameter -- may or may not
                     // be a problem, verified at a later point.
-                    prop = null;
+                    creatorProps.add(null);
+                    continue;
                 }
-            } else {
-                // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
-                if (implName != null) {
-                    String n = _checkRenameByField(implName.getSimpleName());
-                    implName = PropertyName.construct(n);
-                }
-                prop = (implName == null)
-                        ? _property(props, explName) : _property(props, implName);
-                prop.addCtor(param, hasExplicit ? explName : implName, hasExplicit, true, false);
             }
+
+            // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
+            final POJOPropertyBuilder prop;
+            if (hasImplicit) {
+                String n = _checkRenameByField(implName.getSimpleName());
+                implName = PropertyName.construct(n);
+                prop = _property(props, implName);
+            } else {
+                prop = _property(props, explName);
+            }
+            prop.addCtor(param, hasExplicit ? explName : implName, hasExplicit, true, false);
             creatorProps.add(prop);
         }
         ctor.assignPropertyDefs(creatorProps);

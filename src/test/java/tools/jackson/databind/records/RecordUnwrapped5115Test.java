@@ -1,11 +1,11 @@
-package tools.jackson.databind.records.tofix;
+package tools.jackson.databind.records;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -62,7 +62,6 @@ public class RecordUnwrapped5115Test
         assertEquals(input, output);
     }
 
-    @JacksonTestFailureExpected
     @Test
     void unwrappedRecordShouldRoundTrip() throws Exception
     {

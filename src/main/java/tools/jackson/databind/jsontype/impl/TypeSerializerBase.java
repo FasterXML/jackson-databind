@@ -44,6 +44,16 @@ public abstract class TypeSerializerBase extends TypeSerializer
             WritableTypeId idMetadata) throws JacksonException
     {
         _generateTypeId(ctxt, idMetadata);
+
+        // [databind#1654]: If the property overrides type info with @JsonTypeInfo(use = NONE),
+        // skip writing a type id for this property.
+        if (_property != null) {
+            JsonTypeInfo typeInfo = _property.getAnnotation(JsonTypeInfo.class);
+            if (typeInfo != null && typeInfo.use() == JsonTypeInfo.Id.NONE) {
+                idMetadata.id = null;
+            }
+        }
+
         // 16-Jan-2022, tatu: As per [databind#3373], skip for null typeId.
         //    And return "null" to avoid matching "writeTypeSuffix" as well.
         // 15-Jun-2024, tatu: [databind#4407] Not so fast! Output wrappers

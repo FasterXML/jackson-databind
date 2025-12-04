@@ -1201,10 +1201,14 @@ ctor.creator()));
         // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
         implName = _checkRenameByField(implName);
         boolean ignore = _annotationIntrospector.hasIgnoreMarker(_config, m);
-        // [databind#5184]: For Records, prevent "get"-prefix methods with @JsonIgnore
-        // from incorrectly affecting Record component fields. For example, if method is
-        // "getValue()" with @JsonIgnore and there's a record component "value", the method
-        // should not cause the field to be ignored since the actual accessor is "value()".
+        // 03-Dec-2025, tatu: [databind#5184]: Not the cleanest fix but here goes...
+        //  (why not clean? Ideally accessor reconciliation solved the issue, not
+        //  special case rule like done here)
+        // For Records, prevent "get"-prefix methods with @JsonIgnore from incorrectly
+        // affecting Record component fields (and thereby Creator parameters).
+        // For example, if getter method is "getValue()" with @JsonIgnore and there's a
+        // record component "value", the method should not cause the field to be ignored since
+        // the actual accessor is "value()".
         // We check: is this a Record, does the method name NOT match the derived property name
         // (indicating prefix was stripped), does the property already exist (from a record field),
         // and does this method have @JsonIgnore?

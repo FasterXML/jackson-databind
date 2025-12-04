@@ -1,4 +1,4 @@
-package tools.jackson.databind.records.tofix;
+package tools.jackson.databind.records;
 
 import java.util.Optional;
 
@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -44,7 +43,7 @@ public class RecordWithJsonIgnoredMethod5184Test
 
     private static final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
+    // [databind#5184]
     @Test
     void should_deserialize_json_to_test_data() throws Exception {
         String json = """

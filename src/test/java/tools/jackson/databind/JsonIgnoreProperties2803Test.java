@@ -1,11 +1,10 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

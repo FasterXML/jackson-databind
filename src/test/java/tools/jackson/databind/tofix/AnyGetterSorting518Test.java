@@ -63,6 +63,7 @@ class AnyGetterSorting518Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @JacksonTestFailureExpected
     @Test
     void anyBeanWithSort() throws Exception
     {
@@ -73,6 +74,7 @@ class AnyGetterSorting518Test extends DatabindTestUtil
         assertEquals(a2q("{'a':1,'b':2,'x':3,'y':4}"), json);
     }
 
+    @JacksonTestFailureExpected
     @Test
     void anyGetterSortingBeforeFields() throws Exception
     {

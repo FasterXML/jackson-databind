@@ -1,16 +1,18 @@
-package tools.jackson.databind;
+package tools.jackson.databind.deser;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-// 04-Sep-2024, tatu: Passes on 3.0 somehow; fails on 2.18
-class JsonIgnoreProperties2803Test extends DatabindTestUtil {
+// 04-Sep-2024, tatu: Passes on 3.0 but fails on 2.18+
+class JsonIgnoreProperties2803Test extends DatabindTestUtil
+{
     // [databind#2803]
     static class Building2803 {
         @JsonIgnoreProperties({"something"})

@@ -84,7 +84,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil {
                 new Value1654(3),
                 new Value1654(7)
         );
-        assertEquals(a2q("{'values':[{'x':3},{'x': 7}] }"),
+        assertEquals(a2q("{'values':[{'x':3},{'x':7}]}"),
                 MAPPER.writeValueAsString(cont));
     }
 
@@ -94,7 +94,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil {
     void noTypeInfoOverrideDeser() throws Exception {
         // and then actual failing case
         final String noTypeJson = a2q(
-                "{'values':[{'x':3},{'x': 7}] }"
+                "{'values':[{'x':3},{'x':7}]}"
         );
         Value1654UntypedContainer unResult = MAPPER.readValue(noTypeJson, Value1654UntypedContainer.class);
         assertEquals(2, unResult.values.size());

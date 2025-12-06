@@ -6,6 +6,7 @@ import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.jsontype.TypeIdResolver;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Special {@link TypeDeserializer} implementation used to explicitly
@@ -22,23 +23,27 @@ import tools.jackson.databind.jsontype.TypeIdResolver;
 public class NoOpTypeDeserializer extends TypeDeserializer
 {
     private final JavaType _baseType;
-    private final ValueDeserializer<Object> _deserializer;
+    private final BeanProperty _property;
 
-    public NoOpTypeDeserializer(JavaType baseType, ValueDeserializer<Object> deser) {
+    // Dynamically constructed deserializer
+    private volatile ValueDeserializer<Object> _deserializer;
+
+    private NoOpTypeDeserializer(JavaType baseType, BeanProperty prop) {
         _baseType = baseType;
-        _deserializer = deser;
+        _property = prop;
     }
 
-    public NoOpTypeDeserializer withDeserializer(ValueDeserializer<Object> deser) {
-        if (_deserializer == deser) {
-            return this;
-        }
-        return new NoOpTypeDeserializer(_baseType, deser);
+    public static NoOpTypeDeserializer forBaseType(DeserializationContext ctxt,
+            JavaType baseType) {
+        return new NoOpTypeDeserializer(baseType, null);
     }
 
     @Override
     public TypeDeserializer forProperty(BeanProperty prop) {
-        return this;
+        if (_property == prop) {
+            return this;
+        }
+        return new NoOpTypeDeserializer(_baseType, prop);
     }
 
     @Override
@@ -63,34 +68,30 @@ public class NoOpTypeDeserializer extends TypeDeserializer
     }
 
     @Override
-    public Object deserializeTypedFromObject(JsonParser p,
-            DeserializationContext ctxt) throws JacksonException
+    public Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
-        // Just deserialize without type info
         return _deserialize(p, ctxt);
     }
 
     @Override
-    public Object deserializeTypedFromArray(JsonParser p,
-            DeserializationContext ctxt) throws JacksonException
+    public Object deserializeTypedFromArray(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
-        // Just deserialize without type info
         return _deserialize(p, ctxt);
     }
 
     @Override
-    public Object deserializeTypedFromScalar(JsonParser p,
-            DeserializationContext ctxt) throws JacksonException
+    public Object deserializeTypedFromScalar(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
-        // Just deserialize without type info
         return _deserialize(p, ctxt);
     }
 
     @Override
-    public Object deserializeTypedFromAny(JsonParser p,
-            DeserializationContext ctxt) throws JacksonException
+    public Object deserializeTypedFromAny(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
-        // Just deserialize without type info
         return _deserialize(p, ctxt);
     }
 
@@ -99,14 +100,16 @@ public class NoOpTypeDeserializer extends TypeDeserializer
     {
         ValueDeserializer<Object> deser = _deserializer;
 
-        // Find deserializer for the base type (this will find custom deserializers
-        // registered for this type, including those from @JsonDeserialize annotations)
+        // Find deserializer for the base type, given property (if any).
+        // This will find custom deserializers registered for this type,
+        // including those from @JsonDeserialize annotations)
         if (deser == null) {
-            deser = ctxt.findContextualValueDeserializer(_baseType, null);
+            deser = ctxt.findContextualValueDeserializer(_baseType, _property);
             if (deser == null) {
                 ctxt.reportBadDefinition(_baseType,
-                        "Cannot find deserializer for type " + _baseType);
+                        "Cannot find deserializer for type " +ClassUtil.getTypeDescription(_baseType));
             }
+            _deserializer = deser;
         }
         return deser.deserialize(p, ctxt);
     }

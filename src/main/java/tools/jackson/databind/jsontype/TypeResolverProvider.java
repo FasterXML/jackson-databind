@@ -197,7 +197,7 @@ public class TypeResolverProvider
         }
         // [databind#1654]: Explicit `@JsonTypeInfo(Id.NONE)` should block class-level type info
         if (b == NO_RESOLVER) {
-            return new NoOpTypeDeserializer(contentType, null);
+            return NoOpTypeDeserializer.forBaseType(ctxt, contentType);
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config,
                 accessor, contentType);

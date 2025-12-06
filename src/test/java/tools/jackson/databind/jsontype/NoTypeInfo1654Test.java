@@ -13,14 +13,13 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class NoTypeInfo1654Test extends DatabindTestUtil {
-
+class NoTypeInfo1654Test extends DatabindTestUtil
+{
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     static class Value1654 {
         public int x;
 
-        protected Value1654() {
-        }
+        protected Value1654() { }
 
         public Value1654(int x) {
             this.x = x;
@@ -30,8 +29,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil {
     static class Value1654TypedContainer {
         public List<Value1654> values;
 
-        protected Value1654TypedContainer() {
-        }
+        protected Value1654TypedContainer() { }
 
         public Value1654TypedContainer(Value1654... v) {
             values = Arrays.asList(v);

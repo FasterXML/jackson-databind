@@ -22,21 +22,15 @@ import tools.jackson.databind.jsontype.TypeIdResolver;
 public class NoOpTypeDeserializer extends TypeDeserializer
 {
     private final JavaType _baseType;
-    private final ValueDeserializer<Object> _defaultDeserializer;
+    private final ValueDeserializer<Object> _deserializer;
 
-    public NoOpTypeDeserializer(JavaType baseType) {
+    public NoOpTypeDeserializer(JavaType baseType, ValueDeserializer<Object> deser) {
         _baseType = baseType;
-        _defaultDeserializer = null;
+        _deserializer = deser;
     }
 
-    private NoOpTypeDeserializer(JavaType baseType,
-            ValueDeserializer<Object> defaultDeserializer) {
-        _baseType = baseType;
-        _defaultDeserializer = defaultDeserializer;
-    }
-
-    public NoOpTypeDeserializer withDefaultImpl(ValueDeserializer<Object> deser) {
-        if (_defaultDeserializer == deser) {
+    public NoOpTypeDeserializer withDeserializer(ValueDeserializer<Object> deser) {
+        if (_deserializer == deser) {
             return this;
         }
         return new NoOpTypeDeserializer(_baseType, deser);
@@ -49,7 +43,8 @@ public class NoOpTypeDeserializer extends TypeDeserializer
 
     @Override
     public JsonTypeInfo.As getTypeInclusion() {
-        return JsonTypeInfo.As.PROPERTY;
+        // No proper value but need to return something
+        return JsonTypeInfo.As.EXISTING_PROPERTY;
     }
 
     @Override
@@ -102,15 +97,16 @@ public class NoOpTypeDeserializer extends TypeDeserializer
     protected Object _deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        if (_defaultDeserializer != null) {
-            return _defaultDeserializer.deserialize(p, ctxt);
-        }
+        ValueDeserializer<Object> deser = _deserializer;
+
         // Find deserializer for the base type (this will find custom deserializers
         // registered for this type, including those from @JsonDeserialize annotations)
-        ValueDeserializer<Object> deser = ctxt.findContextualValueDeserializer(_baseType, null);
         if (deser == null) {
-            ctxt.reportBadDefinition(_baseType,
-                    "Cannot find deserializer for type " + _baseType);
+            deser = ctxt.findContextualValueDeserializer(_baseType, null);
+            if (deser == null) {
+                ctxt.reportBadDefinition(_baseType,
+                        "Cannot find deserializer for type " + _baseType);
+            }
         }
         return deser.deserialize(p, ctxt);
     }

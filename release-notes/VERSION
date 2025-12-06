@@ -11,6 +11,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1196: Add opt-in error collection for deserialization
  (requested by @odrotbohm)
  (contributed by @sri-adarsh-kumar)
+#1654: @JsonDeserialize(contentUsing=...) is ignored if content
+  type is determined by @JsonTypeInfo
+ (reported by @pdegoeje)
 #1980: Add method `remove(JsonPointer)` in `ContainerNode`
  (fix by @cowtowncoder, w/ Claude code)
 #3964: Deserialization issue: MismatchedInputException, Bean not

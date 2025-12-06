@@ -38,7 +38,8 @@ public class NoOpTypeSerializer extends TypeSerializer
 
     @Override
     public JsonTypeInfo.As getTypeInclusion() {
-        return JsonTypeInfo.As.PROPERTY;
+        // No proper one to use but must return something:
+        return JsonTypeInfo.As.EXISTING_PROPERTY;
     }
 
     @Override
@@ -62,7 +63,8 @@ public class NoOpTypeSerializer extends TypeSerializer
         } else if (typeId.valueShape == JsonToken.START_ARRAY) {
             g.writeStartArray();
         }
-        // Mark as "already written" to prevent suffix from trying to close
+        // 1. Start marker (part of value) was written but
+        // 2. No value wrapper was written.
         typeId.wrapperWritten = false;
         return typeId;
     }
@@ -72,7 +74,7 @@ public class NoOpTypeSerializer extends TypeSerializer
             SerializationContext ctxt, WritableTypeId typeId)
         throws JacksonException
     {
-        // Write the value end token if needed, but NO type information
+        // Write the value end token if needed, but no wrapper to close
         if (typeId.valueShape == JsonToken.START_OBJECT) {
             g.writeEndObject();
         } else if (typeId.valueShape == JsonToken.START_ARRAY) {

@@ -9,6 +9,8 @@ import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.Annotated;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.jsontype.impl.NoOpTypeDeserializer;
+import tools.jackson.databind.jsontype.impl.NoOpTypeSerializer;
 import tools.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 
 /**
@@ -172,7 +174,7 @@ public class TypeResolverProvider
         }
         // [databind#1654]: Explicit `@JsonTypeInfo(Id.NONE)` should block class-level type info
         if (b == NO_RESOLVER) {
-            return tools.jackson.databind.jsontype.impl.NoOpTypeSerializer.instance();
+            return NoOpTypeSerializer.instance();
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
                 config, accessor, contentType);
@@ -195,7 +197,7 @@ public class TypeResolverProvider
         }
         // [databind#1654]: Explicit `@JsonTypeInfo(Id.NONE)` should block class-level type info
         if (b == NO_RESOLVER) {
-            return new tools.jackson.databind.jsontype.impl.NoOpTypeDeserializer(contentType);
+            return new NoOpTypeDeserializer(contentType, null);
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config,
                 accessor, contentType);

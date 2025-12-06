@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.jsontype;
 
 import java.util.*;
 
@@ -10,7 +10,6 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -77,7 +76,6 @@ class NoTypeInfo1654Test extends DatabindTestUtil {
     }
 
     // [databind#1654]
-    @JacksonTestFailureExpected
     @Test
     void noTypeInfoOverrideSer() throws Exception {
         Value1654UntypedContainer cont = new Value1654UntypedContainer(
@@ -89,7 +87,6 @@ class NoTypeInfo1654Test extends DatabindTestUtil {
     }
 
     // [databind#1654]
-    @JacksonTestFailureExpected
     @Test
     void noTypeInfoOverrideDeser() throws Exception {
         // and then actual failing case

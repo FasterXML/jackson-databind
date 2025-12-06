@@ -37,7 +37,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil
     }
 
     static class Value1654UntypedContainer {
-        @JsonDeserialize(contentUsing = Value1654Deserializer.class)
+        //@JsonDeserialize(contentUsing = Value1654Deserializer.class)
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public List<Value1654> values;
 
@@ -49,6 +49,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil
         }
     }
 
+    /*
     static class Value1654Deserializer extends ValueDeserializer<Value1654> {
         @Override
         public Value1654 deserialize(JsonParser p, DeserializationContext ctxt) {
@@ -57,26 +58,30 @@ class NoTypeInfo1654Test extends DatabindTestUtil
             return new Value1654(13);
         }
     }
+    */
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // [databind#1654]
+    // [databind#1654]: no override, default polymorphic type id
     @Test
-    void noTypeElementOverride() throws Exception {
-        // egular typed case
+    void withoutNoTypeElementOverrideSerAndDeser() throws Exception {
+        // regular typed case
         String json = MAPPER.writeValueAsString(new Value1654TypedContainer(
                 new Value1654(1),
-                new Value1654(2),
-                new Value1654(3)
+                new Value1654(2)
         ));
+        String typeId = Value1654.class.getName();
+        typeId = "'@type':'" + typeId.substring(typeId.lastIndexOf('.') + 1) + "'";
+        assertEquals(a2q("{'values':[{"+typeId+",'x':1},{"+typeId+",'x':2}]}"), json);
+
         Value1654TypedContainer result = MAPPER.readValue(json, Value1654TypedContainer.class);
-        assertEquals(3, result.values.size());
+        assertEquals(2, result.values.size());
         assertEquals(2, result.values.get(1).x);
     }
 
-    // [databind#1654]
+    // [databind#1654]: override, no polymorphic type id
     @Test
-    void noTypeInfoOverrideSer() throws Exception {
+    void withNoTypeInfoOverrideSer() throws Exception {
         Value1654UntypedContainer cont = new Value1654UntypedContainer(
                 new Value1654(3),
                 new Value1654(7)
@@ -87,7 +92,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil
 
     // [databind#1654]
     @Test
-    void noTypeInfoOverrideDeser() throws Exception {
+    void withNoTypeInfoOverrideDeser() throws Exception {
         // and then actual failing case
         final String noTypeJson = a2q(
                 "{'values':[{'x':3},{'x':7}]}"

@@ -52,6 +52,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil
     static class Value1654Deserializer extends ValueDeserializer<Value1654> {
         @Override
         public Value1654 deserialize(JsonParser p, DeserializationContext ctxt) {
+            //JsonNode n = ctxt.readTree(p);
             p.skipChildren();
             return new Value1654(13);
         }

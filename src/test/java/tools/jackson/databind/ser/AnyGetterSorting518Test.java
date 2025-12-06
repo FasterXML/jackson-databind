@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.ser;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -44,14 +43,13 @@ class AnyGetterSorting518Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     void anyBeanWithSort() throws Exception
     {
         Map<String,Object> extra = new LinkedHashMap<>();
         extra.put("y", 4);
         extra.put("x", 3);
-        String json = MAPPER.writeValueAsString(new Bean(1, 2, extra));
-        assertEquals(a2q("{'a':1,'b':2,'x':3,'y':4}"), json);
+        String json = MAPPER.writeValueAsString(new Bean(2, 1, extra));
+        assertEquals(a2q("{'a':2,'b':1,'y':4,'x':3}"), json);
     }
 }

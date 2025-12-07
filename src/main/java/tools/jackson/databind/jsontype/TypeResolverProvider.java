@@ -117,6 +117,8 @@ public class TypeResolverProvider
         }
         // [databind#1654]: Explicit `@JsonTypeInfo(Id.NONE)` should block class-level type info
         if (b == NO_RESOLVER) {
+            // 07-Dec-2025, tatu: Should we actually do this? (No test coverage yet)
+            //return NoOpTypeSerializer.instance();
             return null;
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
@@ -141,6 +143,9 @@ public class TypeResolverProvider
         }
         // [databind#1654]: Explicit `@JsonTypeInfo(Id.NONE)` should block class-level type info
         if (b == NO_RESOLVER) {
+            // 07-Dec-2025, tatu: Should we actually do this? (No test coverage yet)
+            //return NoOpTypeDeserializer.forBaseType(ctxt, baseType);
+
             return null;
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config,

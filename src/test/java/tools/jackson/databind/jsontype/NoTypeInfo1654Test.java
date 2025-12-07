@@ -6,10 +6,13 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,14 +51,15 @@ class NoTypeInfo1654Test extends DatabindTestUtil
         }
     }
 
-    static class Value1654UsingDeserializerUntypedContainer {
+    static class Value1654UsingCustomSerDeserUntypedContainer {
         @JsonDeserialize(contentUsing = Value1654Deserializer.class)
+        @JsonSerialize(contentUsing = Value1654Serializer.class)
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public List<Value1654> values;
 
-        protected Value1654UsingDeserializerUntypedContainer() { }
+        protected Value1654UsingCustomSerDeserUntypedContainer() { }
 
-        public Value1654UsingDeserializerUntypedContainer(Value1654... v) {
+        public Value1654UsingCustomSerDeserUntypedContainer(Value1654... v) {
             values = Arrays.asList(v);
         }
     }
@@ -68,6 +72,17 @@ class NoTypeInfo1654Test extends DatabindTestUtil
                 ctxt.reportInputMismatch(Value1654.class, "Bad JSON input (no 'v'): " + n);
             }
             return new Value1654(n.path("v").intValue());
+        }
+    }
+
+
+    static class Value1654Serializer extends ValueSerializer<Value1654> {
+        @Override
+        public void serialize(Value1654 value, JsonGenerator gen, SerializationContext ctxt)
+                throws JacksonException {
+            gen.writeStartObject(value);
+            gen.writeNumberProperty("v", value.x);
+            gen.writeEndObject();
         }
     }
 
@@ -90,9 +105,9 @@ class NoTypeInfo1654Test extends DatabindTestUtil
         assertEquals(2, result.values.get(1).x);
     }
 
-    // [databind#1654]: override, no polymorphic type id
+    // [databind#1654]: override, no polymorphic type id, serialization
     @Test
-    void withNoTypeInfoOverrideSer() throws Exception {
+    void withNoTypeInfoDefaultSer() throws Exception {
         Value1654UntypedContainer cont = new Value1654UntypedContainer(
                 new Value1654(3),
                 new Value1654(7)
@@ -101,28 +116,41 @@ class NoTypeInfo1654Test extends DatabindTestUtil
                 MAPPER.writeValueAsString(cont));
     }
 
-    // [databind#1654]
+    // [databind#1654]: override, no polymorphic type id, deserialization
     @Test
-    void withNoTypeInfoDeser() throws Exception {
-        // and then actual failing case
+    void withNoTypeInfoDefaultDeser() throws Exception {
         final String noTypeJson = a2q(
                 "{'values':[{'x':3},{'x':7}]}"
         );
-        Value1654UntypedContainer unResult = MAPPER.readValue(noTypeJson, Value1654UntypedContainer.class);
+        Value1654UntypedContainer unResult = MAPPER.readValue(noTypeJson,
+                Value1654UntypedContainer.class);
         assertEquals(2, unResult.values.size());
         assertEquals(7, unResult.values.get(1).x);
     }
 
-    // [databind#1654]
+    // [databind#1654]: override, no polymorphic type id, custom serialization
+    @Test
+    void withNoTypeInfoOverrideSer() throws Exception {
+        Value1654UntypedContainer cont = new Value1654UntypedContainer(
+                new Value1654(1),
+                new Value1654(2)
+        );
+        assertEquals(a2q("{'values':[{'v':1},{'v':2}]}"),
+                MAPPER.writeValueAsString(cont));
+    }
+
+    // [databind#1654]: override, no polymorphic type id, custom deserialization
     @Test
     void withNoTypeInfoOverrideDeser() throws Exception {
         // and then actual failing case
         final String noTypeJson = a2q(
                 "{'values':[{'v':3},{'v':7}]}"
         );
-        Value1654UsingDeserializerUntypedContainer unResult = MAPPER.readValue(noTypeJson, Value1654UsingDeserializerUntypedContainer.class);
+        Value1654UsingCustomSerDeserUntypedContainer unResult = MAPPER.readValue(noTypeJson,
+                Value1654UsingCustomSerDeserUntypedContainer.class);
         assertEquals(2, unResult.values.size());
         assertEquals(3, unResult.values.get(0).x);
         assertEquals(7, unResult.values.get(1).x);
     }
+
 }

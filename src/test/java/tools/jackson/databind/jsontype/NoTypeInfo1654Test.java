@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -41,8 +41,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public List<Value1654> values;
 
-        protected Value1654UntypedContainer() {
-        }
+        protected Value1654UntypedContainer() { }
 
         public Value1654UntypedContainer(Value1654... v) {
             values = Arrays.asList(v);
@@ -54,8 +53,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public List<Value1654> values;
 
-        protected Value1654UsingDeserializerUntypedContainer() {
-        }
+        protected Value1654UsingDeserializerUntypedContainer() { }
 
         public Value1654UsingDeserializerUntypedContainer(Value1654... v) {
             values = Arrays.asList(v);
@@ -65,9 +63,11 @@ class NoTypeInfo1654Test extends DatabindTestUtil
     static class Value1654Deserializer extends ValueDeserializer<Value1654> {
         @Override
         public Value1654 deserialize(JsonParser p, DeserializationContext ctxt) {
-            //JsonNode n = ctxt.readTree(p);
-            p.skipChildren();
-            return new Value1654(13);
+            JsonNode n = ctxt.readTree(p);
+            if (!n.has("v")) {
+                ctxt.reportInputMismatch(Value1654.class, "Bad JSON input (no 'v'): " + n);
+            }
+            return new Value1654(n.path("v").intValue());
         }
     }
 
@@ -118,11 +118,11 @@ class NoTypeInfo1654Test extends DatabindTestUtil
     void withNoTypeInfoOverrideDeser() throws Exception {
         // and then actual failing case
         final String noTypeJson = a2q(
-                "{'values':[{'x':3},{'x':7}]}"
+                "{'values':[{'v':3},{'v':7}]}"
         );
         Value1654UsingDeserializerUntypedContainer unResult = MAPPER.readValue(noTypeJson, Value1654UsingDeserializerUntypedContainer.class);
         assertEquals(2, unResult.values.size());
-        assertEquals(13, unResult.values.get(0).x);
-        assertEquals(13, unResult.values.get(1).x);
+        assertEquals(3, unResult.values.get(0).x);
+        assertEquals(7, unResult.values.get(1).x);
     }
 }

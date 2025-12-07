@@ -766,14 +766,11 @@ public abstract class BasicDeserializerFactory
         ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
 
-        TypeDeserializer contentTypeDeser = null;
-        if (contentDeser == null) {
-            // Then optional type info: if type has been resolved, we may already know type deserializer:
-            contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
-            // but if not, may still be possible to find:
-            if (contentTypeDeser == null) {
-                contentTypeDeser = ctxt.findTypeDeserializer(contentType);
-            }
+        // Then optional type info: if type has been resolved, we may already know type deserializer:
+        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
+        // but if not, may still be possible to find:
+        if (contentTypeDeser == null) {
+            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
         }
 
         // 23-Nov-2010, tatu: Custom deserializer?

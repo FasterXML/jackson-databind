@@ -24,6 +24,7 @@ import tools.jackson.databind.ext.jdk8.OptionalIntDeserializer;
 import tools.jackson.databind.ext.jdk8.OptionalLongDeserializer;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.jsontype.TypeResolverBuilder;
 import tools.jackson.databind.type.*;
 import tools.jackson.databind.util.*;
 
@@ -765,12 +766,16 @@ public abstract class BasicDeserializerFactory
         ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
 
-        // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (contentTypeDeser == null) {
-            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
+        TypeDeserializer contentTypeDeser = null;
+        if (contentDeser == null) {
+            // Then optional type info: if type has been resolved, we may already know type deserializer:
+            contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
+            // but if not, may still be possible to find:
+            if (contentTypeDeser == null) {
+                contentTypeDeser = ctxt.findTypeDeserializer(contentType);
+            }
         }
+
         // 23-Nov-2010, tatu: Custom deserializer?
         ValueDeserializer<?> deser = _findCustomCollectionDeserializer(type,
                 config, beanDescRef, contentTypeDeser, contentDeser);

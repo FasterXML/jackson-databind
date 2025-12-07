@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
@@ -49,7 +50,19 @@ class NoTypeInfo1654Test extends DatabindTestUtil
         }
     }
 
-    /*
+    static class Value1654UsingDeserializerUntypedContainer {
+        @JsonDeserialize(contentUsing = Value1654Deserializer.class)
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
+        public List<Value1654> values;
+
+        protected Value1654UsingDeserializerUntypedContainer() {
+        }
+
+        public Value1654UsingDeserializerUntypedContainer(Value1654... v) {
+            values = Arrays.asList(v);
+        }
+    }
+
     static class Value1654Deserializer extends ValueDeserializer<Value1654> {
         @Override
         public Value1654 deserialize(JsonParser p, DeserializationContext ctxt) {
@@ -58,7 +71,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil
             return new Value1654(13);
         }
     }
-    */
+
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -92,7 +105,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil
 
     // [databind#1654]
     @Test
-    void withNoTypeInfoOverrideDeser() throws Exception {
+    void withNoTypeInfoDeser() throws Exception {
         // and then actual failing case
         final String noTypeJson = a2q(
                 "{'values':[{'x':3},{'x':7}]}"
@@ -100,5 +113,18 @@ class NoTypeInfo1654Test extends DatabindTestUtil
         Value1654UntypedContainer unResult = MAPPER.readValue(noTypeJson, Value1654UntypedContainer.class);
         assertEquals(2, unResult.values.size());
         assertEquals(7, unResult.values.get(1).x);
+    }
+
+    // [databind#1654]
+    @Test
+    void withNoTypeInfoOverrideDeser() throws Exception {
+        // and then actual failing case
+        final String noTypeJson = a2q(
+                "{'values':[{'x':3},{'x':7}]}"
+        );
+        Value1654UsingDeserializerUntypedContainer unResult = MAPPER.readValue(noTypeJson, Value1654UsingDeserializerUntypedContainer.class);
+        assertEquals(2, unResult.values.size());
+        assertEquals(13, unResult.values.get(0).x);
+        assertEquals(13, unResult.values.get(1).x);
     }
 }

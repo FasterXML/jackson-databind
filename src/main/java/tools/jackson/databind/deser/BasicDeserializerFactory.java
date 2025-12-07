@@ -24,6 +24,7 @@ import tools.jackson.databind.ext.jdk8.OptionalIntDeserializer;
 import tools.jackson.databind.ext.jdk8.OptionalLongDeserializer;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.jsontype.impl.NoOpTypeDeserializer;
 import tools.jackson.databind.type.*;
 import tools.jackson.databind.util.*;
 
@@ -767,8 +768,12 @@ public abstract class BasicDeserializerFactory
 
         // Then optional type info: if type has been resolved, we may already know type deserializer:
         TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (contentTypeDeser == null) {
+        // [databind#1654]: @JsonTypeInfo(use = Id.NONE) should not apply type deserializer
+        // when custom content deserializer is specified via @JsonDeserialize(contentUsing = ...)
+        if (contentTypeDeser instanceof NoOpTypeDeserializer) {
+            contentTypeDeser = null;
+        } else if (contentTypeDeser == null) {
+            // but if not, may still be possible to find:
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
         }
         // 23-Nov-2010, tatu: Custom deserializer?

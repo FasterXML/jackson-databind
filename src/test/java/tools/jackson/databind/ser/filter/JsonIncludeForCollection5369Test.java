@@ -3,6 +3,7 @@ package tools.jackson.databind.ser.filter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import java.util.ArrayList;
@@ -134,7 +135,9 @@ public class JsonIncludeForCollection5369Test
     /**********************************************************
      */
 
-    final private ObjectMapper MAPPER = jsonMapperBuilder().build();
+    final private ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+            .build();
 
     @Test
     public void testCustomFilterWithList() throws Exception {

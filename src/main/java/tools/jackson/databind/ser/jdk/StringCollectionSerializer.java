@@ -84,7 +84,9 @@ public class StringCollectionSerializer
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if ((_suppressableValue != null) || _suppressNulls) {
+                if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                    && ((_suppressableValue != null) || _suppressNulls)
+                ) {
                     serializeFilteredContents(value, g, provider);
                 } else {
                     serializeContents(value, g, provider);
@@ -93,7 +95,9 @@ public class StringCollectionSerializer
             }
         }
         g.writeStartArray(value, len);
-        if ((_suppressableValue != null) || _suppressNulls) {
+        if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+            && ((_suppressableValue != null) || _suppressNulls)
+        ) {
             serializeFilteredContents(value, g, provider);
         } else {
             serializeContents(value, g, provider);
@@ -117,14 +121,16 @@ public class StringCollectionSerializer
             SerializationContext ctxt)
         throws JacksonException
     {
-        serializeContentsImpl(value, g, ctxt, false);
+        serializeContentsImpl(value, g, ctxt,
+            false);
     }
 
     private final void serializeFilteredContents(Collection<String> value, JsonGenerator g,
              SerializationContext ctxt)
             throws JacksonException
     {
-        serializeContentsImpl(value, g, ctxt, true);
+        serializeContentsImpl(value, g, ctxt,
+                ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
     private final void serializeContentsImpl(Collection<String> value, JsonGenerator g,

@@ -90,7 +90,9 @@ public final class IndexedListSerializer
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if ((_suppressableValue != null) || _suppressNulls) {
+                if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                    && ((_suppressableValue != null) || _suppressNulls)
+                ) {
                     serializeFilteredContents(value, gen, provider);
                 } else {
                     serializeContents(value, gen, provider);
@@ -99,7 +101,9 @@ public final class IndexedListSerializer
             }
         }
         gen.writeStartArray(value, len);
-        if ((_suppressableValue != null) || _suppressNulls) {
+        if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+            && ((_suppressableValue != null) || _suppressNulls)
+        ) {
             serializeFilteredContents(value, gen, provider);
         } else {
             serializeContents(value, gen, provider);
@@ -111,14 +115,16 @@ public final class IndexedListSerializer
     public void serializeContents(Object value0, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
-        serializeContentsImpl(value0, g, ctxt, false);
+        serializeContentsImpl(value0, g, ctxt,
+            false);
     }
 
     @Override
     public void serializeFilteredContents(Object value, JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
-        serializeContentsImpl(value, g, provider, true);
+        serializeContentsImpl(value, g, provider,
+            provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
     private void serializeContentsImpl(Object value0, JsonGenerator g, SerializationContext ctxt, boolean filtered)
@@ -182,14 +188,16 @@ public final class IndexedListSerializer
             ValueSerializer<Object> ser)
         throws JacksonException
     {
-        serializeContentsUsingImpl(value, jgen, ctxt, ser, false);
+        serializeContentsUsingImpl(value, jgen, ctxt, ser,
+            false);
     }
 
     private void serializeFilteredContentsUsing(List<?> value, JsonGenerator jgen, SerializationContext ctxt,
                                                 ValueSerializer<Object> ser)
         throws JacksonException
     {
-        serializeContentsUsingImpl(value, jgen, ctxt, ser, true);
+        serializeContentsUsingImpl(value, jgen, ctxt, ser,
+                ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
     private void serializeContentsUsingImpl(List<?> value, JsonGenerator jgen, SerializationContext ctxt,
@@ -230,13 +238,15 @@ public final class IndexedListSerializer
     public void serializeTypedContents(List<?> value, JsonGenerator jgen, SerializationContext ctxt)
             throws JacksonException
     {
-        serializeTypedContentsImpl(value, jgen, ctxt, false);
+        serializeTypedContentsImpl(value, jgen, ctxt,
+            false);
     }
 
     public void serializeFilteredTypedContents(List<?> value, JsonGenerator jgen, SerializationContext ctxt)
             throws JacksonException
     {
-        serializeTypedContentsImpl(value, jgen, ctxt, true);
+        serializeTypedContentsImpl(value, jgen, ctxt,
+            ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
     private void serializeTypedContentsImpl(List<?> value, JsonGenerator jgen, SerializationContext ctxt, boolean filtered)

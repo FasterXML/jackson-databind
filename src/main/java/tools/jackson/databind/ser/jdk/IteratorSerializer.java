@@ -90,7 +90,9 @@ public class IteratorSerializer
         }
         */
         gen.writeStartArray(value);
-        if ((_suppressableValue != null) || _suppressNulls) {
+        if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+            && ((_suppressableValue != null) || _suppressNulls)
+        ) {
             serializeFilteredContents(value, gen, provider);
         } else {
             serializeContents(value, gen, provider);
@@ -103,14 +105,16 @@ public class IteratorSerializer
             SerializationContext ctxt)
         throws JacksonException
     {
-        serializeContentsImpl(value, g, ctxt, false);
+        serializeContentsImpl(value, g, ctxt,
+            false);
     }
 
     @Override
     protected void serializeFilteredContents(Iterator<?> value, JsonGenerator g,
             SerializationContext ctxt) throws JacksonException
     {
-        serializeContentsImpl(value, g, ctxt, true);
+        serializeContentsImpl(value, g, ctxt,
+            ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
     private void serializeContentsImpl(Iterator<?> value, JsonGenerator g,
@@ -154,13 +158,15 @@ public class IteratorSerializer
             SerializationContext ctxt)
         throws JacksonException
     {
-        _serializeDynamicContentsImpl(value, g, ctxt, false);
+        _serializeDynamicContentsImpl(value, g, ctxt,
+            false);
     }
 
     protected void _serializeFilteredDynamicContents(Iterator<?> value, JsonGenerator g,
          SerializationContext ctxt) throws JacksonException
     {
-        _serializeDynamicContentsImpl(value, g, ctxt, true);
+        _serializeDynamicContentsImpl(value, g, ctxt,
+            ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
     private void _serializeDynamicContentsImpl(Iterator<?> value, JsonGenerator g,

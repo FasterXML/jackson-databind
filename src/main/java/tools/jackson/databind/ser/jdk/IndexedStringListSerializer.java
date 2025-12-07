@@ -80,7 +80,9 @@ public final class IndexedStringListSerializer
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if ((_suppressableValue != null) || _suppressNulls) {
+                if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                    && ((_suppressableValue != null) || _suppressNulls)
+                ) {
                     serializeFilteredContents(value, g, provider, 1);
                 } else {
                     serializeContents(value, g, provider, 1);
@@ -89,7 +91,9 @@ public final class IndexedStringListSerializer
             }
         }
         g.writeStartArray(value, len);
-        if ((_suppressableValue != null) || _suppressNulls) {
+        if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+            && ((_suppressableValue != null) || _suppressNulls)
+        ) {
             serializeFilteredContents(value, g, provider, len);
         } else {
             serializeContents(value, g, provider, len);
@@ -112,13 +116,15 @@ public final class IndexedStringListSerializer
     private final void serializeContents(List<String> value, JsonGenerator g,
             SerializationContext provider, int len) throws JacksonException
     {
-        serializeContentsImpl(value, g, provider, len, false);
+        serializeContentsImpl(value, g, provider, len,
+            false);
     }
 
     private final void serializeFilteredContents(List<String> value, JsonGenerator g,
             SerializationContext provider, int len) throws JacksonException
     {
-        serializeContentsImpl(value, g, provider, len, true);
+        serializeContentsImpl(value, g, provider, len,
+                provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
     private final void serializeContentsImpl(List<String> value, JsonGenerator g,

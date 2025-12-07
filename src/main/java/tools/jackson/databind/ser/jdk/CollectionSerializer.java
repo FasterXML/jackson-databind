@@ -116,7 +116,9 @@ public class CollectionSerializer
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if ((_suppressableValue != null) || _suppressNulls) {
+                if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                    && ((_suppressableValue != null) || _suppressNulls)
+                ) {
                     serializeFilteredContents(value, g, provider);
                 } else {
                     serializeContents(value, g, provider);
@@ -125,7 +127,9 @@ public class CollectionSerializer
             }
         }
         g.writeStartArray(value, len);
-        if ((_suppressableValue != null) || _suppressNulls) {
+        if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+            && ((_suppressableValue != null) || _suppressNulls)
+        ) {
             serializeFilteredContents(value, g, provider);
         } else {
             serializeContents(value, g, provider);
@@ -136,13 +140,15 @@ public class CollectionSerializer
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator g, SerializationContext ctxt)
     {
-        serializeContentsImpl(value, g, ctxt, false);
+        serializeContentsImpl(value, g, ctxt,
+            false);
     }
 
     @Override
     protected void serializeFilteredContents(Collection<?> value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
     {
-        serializeContentsImpl(value, g, ctxt, true);
+        serializeContentsImpl(value, g, ctxt,
+            ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
     private void serializeContentsImpl(Collection<?> value, JsonGenerator g, SerializationContext ctxt, boolean filtered) throws JacksonException
@@ -207,13 +213,15 @@ public class CollectionSerializer
             ValueSerializer<Object> ser)
         throws JacksonException
     {
-        serializeContentsUsingImpl(value, g, ctxt, ser, false);
+        serializeContentsUsingImpl(value, g, ctxt, ser,
+                false);
     }
 
     private void serializeFilteredContentsUsing(Collection<?> value, JsonGenerator g, SerializationContext ctxt,
             ValueSerializer<Object> ser) throws JacksonException
     {
-        serializeContentsUsingImpl(value, g, ctxt, ser, true);
+        serializeContentsUsingImpl(value, g, ctxt, ser,
+                ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
     private void serializeContentsUsingImpl(Collection<?> value, JsonGenerator g, SerializationContext ctxt,

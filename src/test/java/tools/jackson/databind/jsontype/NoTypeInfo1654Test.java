@@ -38,7 +38,6 @@ class NoTypeInfo1654Test extends DatabindTestUtil
     }
 
     static class Value1654UntypedContainer {
-        //@JsonDeserialize(contentUsing = Value1654Deserializer.class)
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public List<Value1654> values;
 
@@ -71,7 +70,6 @@ class NoTypeInfo1654Test extends DatabindTestUtil
             return new Value1654(13);
         }
     }
-
 
     private final ObjectMapper MAPPER = newJsonMapper();
 

@@ -9,6 +9,8 @@ import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.Annotated;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.jsontype.impl.NoOpTypeDeserializer;
+import tools.jackson.databind.jsontype.impl.NoOpTypeSerializer;
 import tools.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 
 /**
@@ -113,6 +115,12 @@ public class TypeResolverProvider
         if (b == null) {
             return findTypeSerializer(ctxt, baseType, ctxt.introspectClassAnnotations(baseType));
         }
+        // [databind#1654]: Explicit `@JsonTypeInfo(Id.NONE)` should block class-level type info
+        if (b == NO_RESOLVER) {
+            // 07-Dec-2025, tatu: Should we actually do this? (No test coverage yet)
+            //return NoOpTypeSerializer.instance();
+            return null;
+        }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
                 config, accessor, baseType);
         // 10-Jun-2015, tatu: Since not created for Bean Property, no need for post-processing
@@ -132,6 +140,13 @@ public class TypeResolverProvider
         // No annotation on property? Then base it on actual type (and further, default typing if need be)
         if (b == null) {
             return findTypeDeserializer(ctxt, baseType, ctxt.introspectClassAnnotations(baseType));
+        }
+        // [databind#1654]: Explicit `@JsonTypeInfo(Id.NONE)` should block class-level type info
+        if (b == NO_RESOLVER) {
+            // 07-Dec-2025, tatu: Should we actually do this? (No test coverage yet)
+            //return NoOpTypeDeserializer.forBaseType(ctxt, baseType);
+
+            return null;
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config,
                     accessor, baseType);
@@ -162,6 +177,10 @@ public class TypeResolverProvider
             return findTypeSerializer(ctxt, contentType,
                     ctxt.introspectClassAnnotations(contentType.getRawClass()));
         }
+        // [databind#1654]: Explicit `@JsonTypeInfo(Id.NONE)` should block class-level type info
+        if (b == NO_RESOLVER) {
+            return NoOpTypeSerializer.instance();
+        }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
                 config, accessor, contentType);
         return b.buildTypeSerializer(ctxt, contentType, subtypes);
@@ -180,6 +199,10 @@ public class TypeResolverProvider
         TypeResolverBuilder<?> b = _findTypeResolver(config, accessor, containerType);
         if (b == null) {
             return findTypeDeserializer(ctxt, contentType, ctxt.introspectClassAnnotations(contentType));
+        }
+        // [databind#1654]: Explicit `@JsonTypeInfo(Id.NONE)` should block class-level type info
+        if (b == NO_RESOLVER) {
+            return NoOpTypeDeserializer.forBaseType(ctxt, contentType);
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config,
                 accessor, contentType);

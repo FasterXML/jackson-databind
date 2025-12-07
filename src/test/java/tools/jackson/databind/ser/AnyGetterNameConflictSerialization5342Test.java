@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.ser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -50,7 +49,6 @@ public class AnyGetterNameConflictSerialization5342Test
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     public void anyGetter5342()
         throws Exception

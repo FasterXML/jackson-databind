@@ -388,11 +388,35 @@ public class BeanSerializerFactory
             int anyGetterIndex = -1;
             for (int i = 0; i < props.size(); i++) {
                 BeanPropertyWriter prop = props.get(i);
-                // Either any-getter as field...
-                if (Objects.equals(prop.getName(), anyGetter.getName())
-                    // or as method
-                    || Objects.equals(prop.getMember().getMember(), anyGetter.getMember()))
-                {
+                AnnotatedMember propMember = prop.getMember();
+                if (propMember == null) {
+                    continue;
+                }
+
+                boolean matches = false;
+                // [databind#5342]: Match only when the BeanPropertyWriter uses the same underlying member
+                // (method or field) as the @JsonAnyGetter accessor.
+                if (Objects.equals(propMember.getMember(), anyGetter.getMember())) {
+                    matches = true;
+                } else if (anyGetter instanceof AnnotatedField
+                        && propMember instanceof AnnotatedMethod) {
+                    String anyName = anyGetter.getName();
+                    String mName = propMember.getName();
+                    String capitalized = "";
+
+                    if (anyName.isEmpty()) {
+                        capitalized = anyName;
+                    } else if (anyName.length() == 1) {
+                        capitalized = anyName.toUpperCase(Locale.ROOT);
+                    } else {
+                        capitalized = Character.toUpperCase(anyName.charAt(0)) + anyName.substring(1);
+                    }
+                    if (mName.equals("get" + capitalized) || mName.equals("is" + capitalized)) {
+                        matches = true;
+                    }
+                }
+
+                if (matches) {
                     anyGetterProp = prop;
                     anyGetterIndex = i;
                     break;

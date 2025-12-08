@@ -11,6 +11,7 @@ import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.jsontype.impl.NoOpTypeSerializer;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
 import tools.jackson.databind.ser.std.AsArraySerializerBase;
 import tools.jackson.databind.ser.std.StdContainerSerializer;
@@ -170,6 +171,8 @@ public class CollectionSerializer
                         provider.defaultSerializeNullValue(g);
                     } else {
                         if (typeSer == null) {
+                            ser.serialize(elem, g, provider);
+                        } else if (typeSer instanceof NoOpTypeSerializer) {
                             ser.serialize(elem, g, provider);
                         } else {
                             ser.serializeWithType(elem, g, provider, typeSer);

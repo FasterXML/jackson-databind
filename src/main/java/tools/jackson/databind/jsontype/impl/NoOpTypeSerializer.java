@@ -38,8 +38,7 @@ public class NoOpTypeSerializer extends TypeSerializer
 
     @Override
     public JsonTypeInfo.As getTypeInclusion() {
-        // No proper one to use but must return something:
-        return JsonTypeInfo.As.EXISTING_PROPERTY;
+        return JsonTypeInfo.As.NOTHING;
     }
 
     @Override
@@ -49,6 +48,8 @@ public class NoOpTypeSerializer extends TypeSerializer
 
     @Override
     public TypeIdResolver getTypeIdResolver() {
+        // 07-Dec-2025, tatu: [databind#1654] Important! Indicates
+        //   that no actual Type Id handled.
         return null;
     }
 

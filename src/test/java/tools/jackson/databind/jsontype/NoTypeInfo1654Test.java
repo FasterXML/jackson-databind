@@ -64,6 +64,19 @@ class NoTypeInfo1654Test extends DatabindTestUtil
         }
     }
 
+    static class SingleValue1654UsingCustomSerDeserUntyped {
+        @JsonDeserialize(using = Value1654Deserializer.class)
+        @JsonSerialize(using = Value1654Serializer.class)
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
+        public Value1654 value;
+
+        protected SingleValue1654UsingCustomSerDeserUntyped() { }
+
+        public SingleValue1654UsingCustomSerDeserUntyped(Value1654 v) {
+            value = v;
+        }
+    }
+
     static class Value1654Deserializer extends ValueDeserializer<Value1654> {
         @Override
         public Value1654 deserialize(JsonParser p, DeserializationContext ctxt) {
@@ -142,7 +155,6 @@ class NoTypeInfo1654Test extends DatabindTestUtil
     // [databind#1654]: override, no polymorphic type id, custom deserialization
     @Test
     void withNoTypeInfoOverrideDeser() throws Exception {
-        // and then actual failing case
         final String noTypeJson = a2q(
                 "{'values':[{'v':3},{'v':7}]}"
         );
@@ -153,4 +165,23 @@ class NoTypeInfo1654Test extends DatabindTestUtil
         assertEquals(7, unResult.values.get(1).x);
     }
 
+    // // And then validation for individual value, not in Container
+
+    // override, no polymorphic type id, custom serialization
+    @Test
+    void singleWithNoTypeInfoOverrideSer() throws Exception {
+        SingleValue1654UsingCustomSerDeserUntyped wrapper = new SingleValue1654UsingCustomSerDeserUntyped(
+                new Value1654(42));
+        assertEquals(a2q("{'value':{'v':42}}"),
+                MAPPER.writeValueAsString(wrapper));
+    }
+
+    // override, no polymorphic type id, custom deserialization
+    @Test
+    void singleWithNoTypeInfoOverrideDeser() throws Exception {
+        String noTypeJson = a2q("{'value':{'v':42}}");
+        SingleValue1654UsingCustomSerDeserUntyped result = MAPPER.readValue(noTypeJson,
+                SingleValue1654UsingCustomSerDeserUntyped.class);
+        assertEquals(42,result.value.x);
+    }
 }

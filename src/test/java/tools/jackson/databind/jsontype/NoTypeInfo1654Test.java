@@ -131,7 +131,7 @@ class NoTypeInfo1654Test extends DatabindTestUtil
     // [databind#1654]: override, no polymorphic type id, custom serialization
     @Test
     void withNoTypeInfoOverrideSer() throws Exception {
-        Value1654UntypedContainer cont = new Value1654UntypedContainer(
+        Value1654UsingCustomSerDeserUntypedContainer cont = new Value1654UsingCustomSerDeserUntypedContainer(
                 new Value1654(1),
                 new Value1654(2)
         );

@@ -48,8 +48,6 @@ public class NoOpTypeSerializer extends TypeSerializer
 
     @Override
     public TypeIdResolver getTypeIdResolver() {
-        // 07-Dec-2025, tatu: [databind#1654] Important! Indicates
-        //   that no actual Type Id handled.
         return null;
     }
 

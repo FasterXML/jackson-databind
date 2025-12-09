@@ -12,16 +12,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 /**
- * Unit tests for {@link JsonDeserializeAs} annotation.
+ * Unit tests for new {@link JsonDeserializeAs} annotation.
  *
  * @since 2.21
  */
 public class JsonDeserializeAsTest
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Annotated root classes for @JsonDeserializeAs
-    /**********************************************************
+    /**********************************************************************
      */
 
     @JsonDeserializeAs(RootInterfaceImpl.class)
@@ -39,15 +39,14 @@ public class JsonDeserializeAsTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Annotated helper classes for @JsonDeserializeAs#value
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /* Class for testing valid {@link JsonDeserializeAs} annotation
-     * with 'value' parameter to define concrete class to deserialize to
-     */
-    final static class CollectionHolder
+    // Class for testing valid {@link JsonDeserializeAs} annotation
+    // with 'value' parameter to define concrete class to deserialize to
+    static class CollectionHolder
     {
         Collection<String> _strings;
 
@@ -61,10 +60,9 @@ public class JsonDeserializeAsTest
         }
     }
 
-    /* Another class for testing valid {@link JsonDeserializeAs} annotation
-     * with 'value' parameter to define concrete class to deserialize to
-     */
-    final static class MapHolder
+    // Another class for testing valid {@link JsonDeserializeAs} annotation
+    // with 'value' parameter to define concrete class to deserialize to
+    static class MapHolder
     {
         // Let's also coerce numbers into Strings here
         Map<String,String> _data;
@@ -79,10 +77,9 @@ public class JsonDeserializeAsTest
         }
     }
 
-    /* Another class for testing valid {@link JsonDeserializeAs} annotation
-     * with 'value' parameter, but with array
-     */
-    final static class ArrayHolder
+    // Another class for testing valid {@link JsonDeserializeAs} annotation
+    // with 'value' parameter, but with array
+    static class ArrayHolder
     {
         String[] _strings;
 
@@ -95,19 +92,19 @@ public class JsonDeserializeAsTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Annotated helper classes for @JsonDeserializeAs#keys
-    /**********************************************************
+    /**********************************************************************
      */
 
-    final static class StringWrapper
+    static class StringWrapper
     {
         final String _string;
 
         public StringWrapper(String s) { _string = s; }
     }
 
-    final static class MapKeyHolder
+    static class MapKeyHolder
     {
         Map<Object, String> _map;
 
@@ -120,12 +117,12 @@ public class JsonDeserializeAsTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Annotated helper classes for @JsonDeserializeAs#content
-    /**********************************************************
+    /**********************************************************************
      */
 
-    final static class ListContentHolder
+    static class ListContentHolder
     {
         List<?> _list;
 
@@ -135,7 +132,7 @@ public class JsonDeserializeAsTest
         }
     }
 
-    final static class ArrayContentHolder
+    static class ArrayContentHolder
     {
         Object[] _data;
 
@@ -146,7 +143,7 @@ public class JsonDeserializeAsTest
         }
     }
 
-    final static class MapContentHolder
+    static class MapContentHolder
     {
         Map<Object,Object> _map;
 
@@ -260,7 +257,7 @@ public class JsonDeserializeAsTest
     public void testOverrideArrayContents() throws Exception
     {
         ArrayContentHolder result = MAPPER.readValue("{ \"data\" : [ 1, 2, 3 ] }",
-                                                ArrayContentHolder.class);
+                ArrayContentHolder.class);
         Object[] data = result._data;
         assertEquals(3, data.length);
         assertEquals(Long[].class, data.getClass());
@@ -273,7 +270,7 @@ public class JsonDeserializeAsTest
     public void testOverrideMapContents() throws Exception
     {
         MapContentHolder result = MAPPER.readValue("{ \"map\" : { \"a\" : 9 } }",
-                                                MapContentHolder.class);
+                MapContentHolder.class);
         Map<Object,Object> map = result._map;
         assertEquals(1, map.size());
         Object ob = map.values().iterator().next();

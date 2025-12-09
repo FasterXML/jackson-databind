@@ -50,8 +50,8 @@ public class JacksonAnnotationIntrospector
     @SuppressWarnings("unchecked")
     private final static Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_DESER = (Class<? extends Annotation>[])
             new Class<?>[] {
-        JsonDeserialize.class,
-        JsonDeserializeAs.class, // since 2.21
+        JsonDeserialize.class, // databind-specific
+        JsonDeserializeAs.class, // since 2.21 to replace @JsonDeserialize.as
         JsonView.class,
         JsonFormat.class,
         JsonTypeInfo.class,

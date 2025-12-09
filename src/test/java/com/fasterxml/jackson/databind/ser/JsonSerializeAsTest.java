@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -75,36 +74,36 @@ public class JsonSerializeAsTest extends DatabindTestUtil
     /**********************************************************************
      */
 
-    interface Bean1178Base {
+    interface Bean5476Base {
         public int getA();
     }
 
     @JsonPropertyOrder({"a","b"})
-    static abstract class Bean1178Abstract implements Bean1178Base {
+    static abstract class Bean5476Abstract implements Bean5476Base {
         @Override
         public int getA() { return 1; }
 
         public int getB() { return 2; }
     }
 
-    static class Bean1178Impl extends Bean1178Abstract {
+    static class Bean5476Impl extends Bean5476Abstract {
         public int getC() { return 3; }
     }
 
-    static class Bean1178Wrapper {
-        @JsonSerializeAs(content=Bean1178Abstract.class)
-        public List<Bean1178Base> values;
-        public Bean1178Wrapper(int count) {
-            values = new ArrayList<Bean1178Base>();
+    static class Bean5476Wrapper {
+        @JsonSerializeAs(content=Bean5476Abstract.class)
+        public List<Bean5476Base> values;
+        public Bean5476Wrapper(int count) {
+            values = new ArrayList<Bean5476Base>();
             for (int i = 0; i < count; ++i) {
-                values.add(new Bean1178Impl());
+                values.add(new Bean5476Impl());
             }
         }
     }
 
-    static class Bean1178Holder {
-        @JsonSerializeAs(Bean1178Abstract.class)
-        public Bean1178Base value = new Bean1178Impl();
+    static class Bean5476Holder {
+        @JsonSerializeAs(Bean5476Abstract.class)
+        public Bean5476Base value = new Bean5476Impl();
     }
 
     /*
@@ -146,45 +145,45 @@ public class JsonSerializeAsTest extends DatabindTestUtil
     private final ObjectWriter WRITER = objectWriter();
 
     @Test
-    public void testSerializeAsInClass() throws IOException {
+    public void testSerializeAsInClass() throws Exception {
         assertEquals("{\"foo\":42}", WRITER.writeValueAsString(new FooImpl()));
     }
 
     @Test
-    public void testSerializeAsForArrayProp() throws IOException {
+    public void testSerializeAsForArrayProp() throws Exception {
         assertEquals("{\"foos\":[{\"foo\":42}]}",
                 WRITER.writeValueAsString(new Fooables()));
     }
 
     @Test
-    public void testSerializeAsForSimpleProp() throws IOException {
+    public void testSerializeAsForSimpleProp() throws Exception {
         assertEquals("{\"foo\":{\"foo\":42}}",
                 WRITER.writeValueAsString(new FooableWrapper()));
     }
 
     @Test
-    public void testSerializeWithFieldAnno() throws IOException {
+    public void testSerializeWithFieldAnno() throws Exception {
         assertEquals("{\"foo\":{\"foo\":42}}",
                 WRITER.writeValueAsString(new FooableWithFieldWrapper()));
     }
 
-    // Test for content parameter (similar to [databind#1178])
+    // Test for content parameter
     @Test
-    public void testSpecializedContentAs() throws IOException {
+    public void testSpecializedContentAs() throws Exception {
         assertEquals(a2q("{'values':[{'a':1,'b':2}]}"),
-                WRITER.writeValueAsString(new Bean1178Wrapper(1)));
+                WRITER.writeValueAsString(new Bean5476Wrapper(1)));
     }
 
-    // Test for value parameter (similar to [databind#1231])
+    // Test for value parameter
     @Test
-    public void testSpecializedAsIntermediate() throws IOException {
+    public void testSpecializedAsIntermediate() throws Exception {
         assertEquals(a2q("{'value':{'a':1,'b':2}}"),
-                WRITER.writeValueAsString(new Bean1178Holder()));
+                WRITER.writeValueAsString(new Bean5476Holder()));
     }
 
     // Test for key parameter
     @Test
-    public void testSpecializedKeyAs() throws IOException {
+    public void testSpecializedKeyAs() throws Exception {
         String json = WRITER.writeValueAsString(new MapKeyWrapper());
         // Map key serialization depends on how MapKeyAbstract is serialized
         // Since it has only getId(), we expect the key to be serialized as just that property

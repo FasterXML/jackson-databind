@@ -9,6 +9,13 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 -
 
+3.0.4 (not yet released)
+
+#5481: JsonMapper.Builder.modules(...) ignores changes after build() due to
+  internal saveState
+ (reported by @libetl)
+ (fix by @cowtowncoder, w/ Claude code)
+
 3.0.3 (28-Nov-2025)
 
 #5368: Optimize performance of `ObjectMapper.convertValue()` when `TokenBuffer`

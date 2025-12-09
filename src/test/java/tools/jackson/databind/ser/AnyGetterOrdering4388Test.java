@@ -140,9 +140,9 @@ public class AnyGetterOrdering4388Test extends DatabindTestUtil
         }
     }
 
-    @JsonPropertyOrder({ "firstProperty", "secondProperties", "thirdProperty", "forthProperty" })
+    @JsonPropertyOrder({ "firstProperty", "secondProperties", "thirdProperty", "fourthProperty" })
     static class PrivateAnyGetterPojo {
-        public int firstProperty = 1, forthProperty = 4, thirdProperty = 3;
+        public int firstProperty = 1, fourthProperty = 4, thirdProperty = 3;
 
         @JsonAnyGetter
         private Map<String, Object> secondProperties = new HashMap<>();
@@ -157,7 +157,7 @@ public class AnyGetterOrdering4388Test extends DatabindTestUtil
         }
     }
 
-    @JsonPropertyOrder({ "firstProperty", "secondProperties", "thirdProperty", "forthProperty" })
+    @JsonPropertyOrder({ "firstProperty", "secondProperties", "thirdProperty", "fourthProperty" })
     static class PrivateAnyGetterPojoSorted extends PrivateAnyGetterPojo {
         public Map<String, Object> getSecondProperties() {
             return super.secondProperties;
@@ -338,7 +338,7 @@ public class AnyGetterOrdering4388Test extends DatabindTestUtil
         assertEquals(a2q("{" +
                 "'firstProperty':1," +
                 "'thirdProperty':3," +
-                "'forthProperty':4," +
+                "'fourthProperty':4," +
                 "'secondProperty':2}"), // private accesor, wont' work here
             json);
     }
@@ -353,7 +353,7 @@ public class AnyGetterOrdering4388Test extends DatabindTestUtil
                 "'firstProperty':1," +
                 "'secondProperty':2," + // private accesor, wont' work here
                 "'thirdProperty':3," +
-                "'forthProperty':4}"),
+                "'fourthProperty':4}"),
             json);
     }
 

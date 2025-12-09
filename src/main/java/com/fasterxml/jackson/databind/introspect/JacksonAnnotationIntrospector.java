@@ -51,6 +51,7 @@ public class JacksonAnnotationIntrospector
     private final static Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_DESER = (Class<? extends Annotation>[])
             new Class<?>[] {
         JsonDeserialize.class,
+        JsonDeserializeAs.class, // since 2.21
         JsonView.class,
         JsonFormat.class,
         JsonTypeInfo.class,
@@ -1295,9 +1296,14 @@ public class JacksonAnnotationIntrospector
         final TypeFactory tf = config.getTypeFactory();
 
         final JsonDeserialize jsonDeser = _findAnnotation(a, JsonDeserialize.class);
+        final JsonDeserializeAs jsonDeserAs = _findAnnotation(a, JsonDeserializeAs.class);
 
         // Ok: start by refining the main type itself; common to all types
-        final Class<?> valueClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.as());
+        Class<?> valueClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.as());
+        // 06-Dec-2024, tatu: [databind#5475] Also check @JsonDeserializeAs
+        if (valueClass == null && jsonDeserAs != null) {
+            valueClass = _classIfExplicit(jsonDeserAs.value(), Void.class);
+        }
         if ((valueClass != null) && !type.hasRawClass(valueClass)
                 && !_primitiveAndWrapper(type, valueClass)) {
             try {
@@ -1313,7 +1319,11 @@ public class JacksonAnnotationIntrospector
         // First, key type (for Maps, Map-like types):
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
-            final Class<?> keyClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.keyAs());
+            Class<?> keyClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.keyAs());
+            // 06-Dec-2024, tatu: [databind#5475] Also check @JsonDeserializeAs
+            if (keyClass == null && jsonDeserAs != null) {
+                keyClass = _classIfExplicit(jsonDeserAs.keys(), Void.class);
+            }
             if ((keyClass != null)
                     && !_primitiveAndWrapper(keyType, keyClass)) {
                 try {
@@ -1329,7 +1339,11 @@ public class JacksonAnnotationIntrospector
         JavaType contentType = type.getContentType();
         if (contentType != null) { // collection[like], map[like], array, reference
             // And then value types for all containers:
-            final Class<?> contentClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.contentAs());
+            Class<?> contentClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.contentAs());
+            // 06-Dec-2024, tatu: [databind#5475] Also check @JsonDeserializeAs
+            if (contentClass == null && jsonDeserAs != null) {
+                contentClass = _classIfExplicit(jsonDeserAs.content(), Void.class);
+            }
             if ((contentClass != null)
                     && !_primitiveAndWrapper(contentType, contentClass)) {
                 try {

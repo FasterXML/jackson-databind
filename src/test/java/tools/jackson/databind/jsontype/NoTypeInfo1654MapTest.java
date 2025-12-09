@@ -103,6 +103,12 @@ class NoTypeInfo1654MapTest extends DatabindTestUtil
         }
     }
 
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1654]: no override, default polymorphic type id for Map values

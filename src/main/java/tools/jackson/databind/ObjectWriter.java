@@ -54,7 +54,7 @@ public class ObjectWriter
      * Factory used for constructing per-call {@link SerializationContext}s.
      *<p>
      * Note: while serializers are only exposed {@link SerializationContext},
-     * mappers and readers need to access additional API defined by
+     * writers need to access additional API defined by
      * {@link SerializationContextExt}
      */
     protected final SerializationContexts _serializationContexts;
@@ -80,7 +80,7 @@ public class ObjectWriter
      * We may pre-fetch serializer if root type
      * is known (has been explicitly declared), and if so, reuse it afterwards.
      * This allows avoiding further serializer lookups and increases
-     * performance a bit on cases where readers are reused.
+     * performance a bit on cases where writers are reused.
      */
     protected final Prefetch _prefetch;
 
@@ -367,7 +367,7 @@ public class ObjectWriter
      * as the root type for serialization, instead of runtime dynamic
      * type of the root object itself.
      *<p>
-     * Note that method does NOT change state of this reader, but
+     * Note that the method does NOT change the state of this writer, but
      * rather construct and returns a newly configured instance.
      */
     public ObjectWriter forType(JavaType rootType) {
@@ -403,7 +403,7 @@ public class ObjectWriter
      * use specified date format for serializing dates; or if null passed, one
      * that will serialize dates as numeric timestamps.
      *<p>
-     * Note that the method does NOT change state of this reader, but
+     * Note that the method does NOT change the state of this writer, but
      * rather construct and returns a newly configured instance.
      */
     public ObjectWriter with(DateFormat df) {
@@ -442,7 +442,7 @@ public class ObjectWriter
      * specifies what root name to use for "root element wrapping".
      * See {@link SerializationConfig#withRootName(String)} for details.
      *<p>
-     * Note that method does NOT change state of this reader, but
+     * Note that the method does NOT change the state of this writer, but
      * rather construct and returns a newly configured instance.
      *
      * @param rootName Root name to use, if non-empty; `null` for "use defaults",
@@ -472,7 +472,7 @@ public class ObjectWriter
      * Method that will construct a new instance that uses specific format schema
      * for serialization.
      *<p>
-     * Note that method does NOT change state of this reader, but
+     * Note that the method does NOT change the state of this writer, but
      * rather construct and returns a newly configured instance.
      */
     public ObjectWriter with(FormatSchema schema) {
@@ -485,7 +485,7 @@ public class ObjectWriter
      * serialization view for serialization (with null basically disables
      * view processing)
      *<p>
-     * Note that the method does NOT change state of this reader, but
+     * Note that the method does NOT change the state of this writer, but
      * rather construct and returns a newly configured instance.
      */
     public ObjectWriter withView(Class<?> view) {
@@ -1279,7 +1279,7 @@ public class ObjectWriter
          * We may pre-fetch serializer if {@link #rootType}
          * is known, and if so, reuse it afterwards.
          * This allows avoiding further serializer lookups and increases
-         * performance a bit on cases where readers are reused.
+         * performance a bit on cases where writers are reused.
          */
         private final ValueSerializer<Object> valueSerializer;
 

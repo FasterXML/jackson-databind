@@ -1037,6 +1037,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B removeAllModules() {
         _modules = null;
+        // [databind#5481]: invalidate cached state when modules are modified
+        _savedState = null;
         return _this();
     }
 
@@ -1068,6 +1070,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             _modules.putIfAbsent(dep.getRegistrationId(), dep);
         }
         _modules.put(moduleId, module);
+        // [databind#5481]: invalidate cached state when modules are modified
+        _savedState = null;
         return _this();
     }
 

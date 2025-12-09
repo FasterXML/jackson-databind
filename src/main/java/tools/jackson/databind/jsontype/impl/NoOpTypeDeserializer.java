@@ -48,8 +48,7 @@ public class NoOpTypeDeserializer extends TypeDeserializer
 
     @Override
     public JsonTypeInfo.As getTypeInclusion() {
-        // No proper value but need to return something
-        return JsonTypeInfo.As.EXISTING_PROPERTY;
+        return JsonTypeInfo.As.NOTHING;
     }
 
     @Override

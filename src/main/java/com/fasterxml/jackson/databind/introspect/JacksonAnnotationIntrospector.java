@@ -51,7 +51,7 @@ public class JacksonAnnotationIntrospector
     private final static Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_DESER = (Class<? extends Annotation>[])
             new Class<?>[] {
         JsonDeserialize.class, // databind-specific
-        JsonDeserializeAs.class, // since 2.21 to replace @JsonDeserialize.as
+        JsonDeserializeAs.class, // since 2.21 alias (and eventual replacement) for `@JsonDeserialize.as`
         JsonView.class,
         JsonFormat.class,
         JsonTypeInfo.class,
@@ -1300,7 +1300,7 @@ public class JacksonAnnotationIntrospector
 
         // Ok: start by refining the main type itself; common to all types
         Class<?> valueClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.as());
-        // 06-Dec-2024, tatu: [databind#5475] Also check @JsonDeserializeAs
+        // 09-Dec-2025, tatu: [databind#5475] Also check @JsonDeserializeAs
         if (valueClass == null && jsonDeserAs != null) {
             valueClass = _classIfExplicit(jsonDeserAs.value(), Void.class);
         }
@@ -1320,7 +1320,7 @@ public class JacksonAnnotationIntrospector
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
             Class<?> keyClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.keyAs());
-            // 06-Dec-2024, tatu: [databind#5475] Also check @JsonDeserializeAs
+            // 09-Dec-2025, tatu: [databind#5475] Also check @JsonDeserializeAs
             if (keyClass == null && jsonDeserAs != null) {
                 keyClass = _classIfExplicit(jsonDeserAs.keys(), Void.class);
             }
@@ -1340,7 +1340,7 @@ public class JacksonAnnotationIntrospector
         if (contentType != null) { // collection[like], map[like], array, reference
             // And then value types for all containers:
             Class<?> contentClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.contentAs());
-            // 06-Dec-2024, tatu: [databind#5475] Also check @JsonDeserializeAs
+            // 09-Dec-2025, tatu: [databind#5475] Also check @JsonDeserializeAs
             if (contentClass == null && jsonDeserAs != null) {
                 contentClass = _classIfExplicit(jsonDeserAs.content(), Void.class);
             }

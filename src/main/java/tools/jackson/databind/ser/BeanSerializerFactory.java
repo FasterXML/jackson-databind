@@ -402,6 +402,8 @@ public class BeanSerializerFactory
             if (anyGetterIndex < 0) {
                 final String anyName = anyGetter.getName();
                 for (int i = 0; i < propCount; i++) {
+                    // 08-Dec-2025, tatu: Alas, we don't know if names are explicit
+                    //   or implicit (could differentiate if we did)
                     if (Objects.equals(anyName, props.get(i).getName())) {
                         anyGetterIndex = i;
                         break;

@@ -1118,11 +1118,7 @@ factory.toString()));
         @SuppressWarnings("unchecked")
         ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
-        // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
-        if (contentTypeDeser == null) { // or if not, may be able to find:
-            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
-        }
+        final TypeDeserializer contentTypeDeser = _findContentTypeDeserializer(ctxt, contentType);
         ValueDeserializer<?> deser = _findCustomReferenceDeserializer(type, config, beanDescRef,
                 contentTypeDeser, contentDeser);
 

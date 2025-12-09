@@ -384,11 +384,10 @@ public class BeanSerializerFactory
                     anyGetter, PropertyMetadata.STD_OPTIONAL);
 
             // Check if there is an accessor exposed for the anyGetter.
-            // First: by physical accessor (same Getter method or Field)
             final int propCount = props.size();
             int anyGetterIndex = -1;
-            // [databind#5342]: First match only when the BeanPropertyWriter uses the same
-            // underlying member (method or field) as the @JsonAnyGetter accessor.
+
+            // First: by physical accessor (same Getter method or Field)
             for (int i = 0; i < propCount; i++) {
                 AnnotatedMember propMember = props.get(i).getMember();
                 if (propMember != null) {

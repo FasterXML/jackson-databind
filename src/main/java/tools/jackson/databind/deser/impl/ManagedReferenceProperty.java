@@ -81,17 +81,6 @@ public final class ManagedReferenceProperty
         return delegate.setAndReturn(ctxt, instance, value);
 	}
 
-    /**
-     * Inject back reference into value without setting forward reference.
-     * Used for creator properties where forward reference is already set via constructor.
-     *
-     * @since 3.0
-     */
-    public void injectBackReference(DeserializationContext ctxt, Object bean, Object value)
-    {
-        _setBackReference(ctxt, bean, value);
-    }
-
     /*
     /**********************************************************************
     /* Helper classes

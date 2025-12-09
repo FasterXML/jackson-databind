@@ -682,7 +682,7 @@ public class BeanDeserializer
             if (prop instanceof ManagedReferenceProperty managedProp) {
                 Object value = buffer.getParameter(ctxt, prop);
                 if (value != null) {
-                    managedProp.injectBackReference(ctxt, bean, value);
+                    managedProp.set(ctxt, bean, value);
                 }
             }
         }

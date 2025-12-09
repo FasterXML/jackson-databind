@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Test for Map values with {@code @JsonTypeInfo(use = Id.NONE)} override,
  * extending issue #1654 coverage to Map types.
  */
-class NoTypeInfoMap1654Test extends DatabindTestUtil
+class NoTypeInfo1654MapTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     static class Value1654 {

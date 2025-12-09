@@ -17,7 +17,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class NoTypeInfo1654Test extends DatabindTestUtil
+class NoTypeInfoCollection1654Test extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     static class Value1654 {

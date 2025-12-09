@@ -30,6 +30,8 @@ Project: jackson-databind
  (contributed by Hélios G)
 #5429: Formatting and Parsing of Large ISO-8601 Dates is inconsistent
  (reported by @DavTurns)
+#5475: Support `@JsonDeserializeAs` annotation
+ (implemented by @cowtowncoder, w/ Claude code)
 
 2.20.2 (not yet released)
 

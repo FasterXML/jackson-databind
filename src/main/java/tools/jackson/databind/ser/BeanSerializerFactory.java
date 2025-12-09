@@ -324,7 +324,7 @@ public class BeanSerializerFactory
         // First: any detectable (auto-detect, annotations) properties to serialize?
         List<BeanPropertyWriter> props = findBeanProperties(ctxt, beanDescRef, builder);
         if (props == null) {
-            props = new ArrayList<BeanPropertyWriter>();
+            props = new ArrayList<>();
         } else {
             props = removeOverlappingTypeIds(ctxt, beanDescRef, builder, props);
         }

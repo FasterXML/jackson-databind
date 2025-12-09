@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
@@ -252,6 +253,13 @@ public abstract class ValueSerializer<T>
             TypeSerializer typeSer)
         throws JacksonException
     {
+        // 07-Dec-2025, tatu: [databind#1654] Check for "no-op" type serializer
+        //   indirectly
+        if (typeSer.getTypeInclusion() == As.NOTHING) {
+            serialize(value, gen, ctxt);
+            return;
+        }
+
         Class<?> clz = handledType();
         if (clz == null) {
             clz = value.getClass();

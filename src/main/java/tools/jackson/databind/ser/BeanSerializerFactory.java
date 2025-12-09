@@ -386,32 +386,32 @@ public class BeanSerializerFactory
             // Check if there is an accessor exposed for the anyGetter.
             // First: by physical accessor (same Getter method or Field)
             final int propCount = props.size();
-            int ix = -1;
+            int anyGetterIndex = -1;
             // [databind#5342]: First match only when the BeanPropertyWriter uses the same
             // underlying member (method or field) as the @JsonAnyGetter accessor.
             for (int i = 0; i < propCount; i++) {
                 AnnotatedMember propMember = props.get(i).getMember();
                 if (propMember != null) {
                     if (Objects.equals(propMember.getMember(), anyGetter.getMember())) {
-                        ix = i;
+                        anyGetterIndex = i;
                         break;
                     }
                 }
             }
             // If that doesn't work, try match by logical property name
-            if (ix < 0) {
+            if (anyGetterIndex < 0) {
                 final String anyName = anyGetter.getName();
                 for (int i = 0; i < propCount; i++) {
                     if (Objects.equals(anyName, props.get(i).getName())) {
-                        ix = i;
+                        anyGetterIndex = i;
                         break;
                     }
                 }
             }
-            if (ix >= 0) {
-                BeanPropertyWriter anyGetterProp = props.get(ix);
+            if (anyGetterIndex >= 0) {
+                BeanPropertyWriter anyGetterProp = props.get(anyGetterIndex);
                 // There is prop already in place, just need to replace it
-                props.set(ix, new AnyGetterWriter(anyGetterProp, anyProp, anyGetter, anySer));
+                props.set(anyGetterIndex, new AnyGetterWriter(anyGetterProp, anyProp, anyGetter, anySer));
             } else {
                 // Otherwise just add it at the end, but won't be sorted...
                 // This is case where JsonAnyGetter is private/protected,

@@ -1316,7 +1316,7 @@ public class JacksonAnnotationIntrospector
         Class<?> valueClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.as());
         // 09-Dec-2025, tatu: [databind#5475] Also check @JsonDeserializeAs
         if (valueClass == null && jsonDeserAs != null) {
-            valueClass = _classIfExplicit(jsonDeserAs.value(), Void.class);
+            valueClass = _classIfExplicit(jsonDeserAs.value());
         }
         if ((valueClass != null) && !type.hasRawClass(valueClass)
                 && !_primitiveAndWrapper(type, valueClass)) {

@@ -32,6 +32,8 @@ Project: jackson-databind
  (reported by @DavTurns)
 #5475: Support `@JsonDeserializeAs` annotation
  (implemented by @cowtowncoder, w/ Claude code)
+#5476: Support `@JsonSerializeAs` annotation
+ (implemented by @cowtowncoder, w/ Claude code)
 
 2.20.2 (not yet released)
 

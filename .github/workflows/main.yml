@@ -117,7 +117,7 @@ jobs:
         COMMENT_ID=$(gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | select(.body | contains("<!-- jacoco-coverage-comment -->")) | .id' | head -1)
 
         if [ -n "$COMMENT_ID" ]; then
-          gh api -X DELETE "repos/${{ github.repository }}/issues/comments/$COMMENT_ID"
+          gh api -X DELETE "repos/${{ github.repository }}/issues/comments/$COMMENT_ID" || true
         fi
 
         # Post new comment

@@ -353,48 +353,6 @@ final class UntypedObjectDeserializerNR
         }
         return p.getDoubleValue();
     }
-    
-    // NOTE: copied from above (alas, no easy way to share/reuse)
-    // @since 2.12 (wrt [databind#2733]
-    protected Object _mapObjectWithDups(JsonParser p, DeserializationContext ctxt,
-            final Map<String, Object> result, String initialKey,
-            Object oldValue, Object newValue, String nextKey)
-        throws JacksonException
-    {
-        final boolean squashDups = ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES);
-
-        if (squashDups) {
-            _squashDups(result, initialKey, oldValue, newValue);
-        }
-
-        while (nextKey != null) {
-            p.nextToken();
-            newValue = deserialize(p, ctxt);
-            oldValue = result.put(nextKey, newValue);
-            if ((oldValue != null) && squashDups) {
-                _squashDups(result, nextKey, oldValue, newValue);
-            }
-            nextKey = p.nextName();
-        }
-
-        return result;
-    }
-
-    // NOTE: copied from above (alas, no easy way to share/reuse)
-    @SuppressWarnings("unchecked")
-    private void _squashDups(final Map<String, Object> result, String key,
-            Object oldValue, Object newValue)
-    {
-        if (oldValue instanceof List<?>) {
-            ((List<Object>) oldValue).add(newValue);
-            result.put(key, oldValue);
-        } else {
-            ArrayList<Object> l = new ArrayList<>();
-            l.add(oldValue);
-            l.add(newValue);
-            result.put(key, l);
-        }
-    }
 
     /*
     /**********************************************************************

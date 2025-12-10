@@ -24,13 +24,15 @@ public class UntypedObjectWithDupsTest extends DatabindTestUtil
     private final String DOC_WITH_DUPS = a2q(
             "{'hello': 'world',\n"
             + "'lists' : 1,\n"
-            + "'lists' : 2,\n"
+            + "'lists' : 2.5,\n"
             + "'lists' : {\n"
             + "  'inner' : 'internal',\n"
             + "  'time' : 123\n"
             + "},\n"
-            + "'lists' : 3,\n"
-            + "'single' : 'one'\n"
+            + "'lists' : true,\n"
+            + "'single' : 'one',\n"
+            + "'lists' : false,\n"
+            + "'lists' : null\n"
             + "}");
 
     // Testing the baseline non-merging behavior
@@ -84,7 +86,7 @@ public class UntypedObjectWithDupsTest extends DatabindTestUtil
 
         String json = JSON_MAPPER.writeValueAsString(value);
         assertEquals(a2q(
-"{'hello':'world','lists':3,'single':'one'}"),
+"{'hello':'world','lists':null,'single':'one'}"),
                 json);
     }
 
@@ -94,8 +96,8 @@ public class UntypedObjectWithDupsTest extends DatabindTestUtil
     private void _verifyDupsAreMerged(Class<?> cls) throws Exception
     {
         assertEquals(a2q(
-"{'hello':'world','lists':[1,2,"
-+"{'inner':'internal','time':123},3],'single':'one'}"),
+"{'hello':'world','lists':[1,2.5,"
++"{'inner':'internal','time':123},true,false,null],'single':'one'}"),
                 _readWriteDupDoc(DOC_WITH_DUPS, cls));
     }
 

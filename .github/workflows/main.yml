@@ -82,6 +82,7 @@ jobs:
         generate-summary: true
     - name: Add coverage comment to PR
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
+      continue-on-error: true
       run: |
         # Convert decimal to percentage and round to 1 decimal place
         COVERAGE=$(awk -v cov="${{ steps.jacoco.outputs.coverage }}" 'BEGIN { printf "%.1f", cov * 100 }')
@@ -120,7 +121,7 @@ jobs:
           gh api -X DELETE "repos/${{ github.repository }}/issues/comments/$COMMENT_ID" || true
         fi
 
-        # Post new comment
+        # Post new comment (may fail for PRs from forks due to permissions)
         gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT_BODY"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

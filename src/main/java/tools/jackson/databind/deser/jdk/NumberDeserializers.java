@@ -159,13 +159,14 @@ public class NumberDeserializers
             return AccessPattern.CONSTANT;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public final T getNullValue(DeserializationContext ctxt) {
             // 01-Mar-2017, tatu: Alas, not all paths lead to `_coerceNull()`, as `SettableBeanProperty`
             //    short-circuits `null` handling. Hence need this check as well.
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-                ctxt.reportInputMismatch(this,
-                        "Cannot map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                return (T) ctxt.handleNullForPrimitives(handledType(), this, "Cannot map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                        // Fix
                         ClassUtil.classNameOf(handledType()));
             }
             return _nullValue;

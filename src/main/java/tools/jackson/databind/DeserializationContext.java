@@ -1355,6 +1355,45 @@ public abstract class DeserializationContext
     }
 
     /**
+     * Method that deserializers should call if they encounter a null value and
+     * target value type is a Primitive type.
+     *
+     * Default implementation will try to call {@link DeserializationContext#reportInputMismatch(Class, String, Object...)},
+     * which by default would throw {@link MismatchedInputException}
+     *
+     * @param targetClass Type of property into which incoming String should be converted
+     * @param deser Type of {@link ValueDeserializer} calling this method.
+     * @param msg Error message template caller wants to use if exception is to be thrown
+     * @param msgArgs Optional arguments to use for message, if any
+     *
+     * @throws JacksonException To indicate unrecoverable problem, usually based on <code>msg</code>
+     */
+    public Object handleNullForPrimitives(Class<?> targetClass,
+                                          ValueDeserializer<?> deser, String msg, Object... msgArgs)
+            throws JacksonException
+
+    {
+        // but if not handled, just throw exception
+        msg = _format(msg, msgArgs);
+        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        while (h != null) {
+            // Can bail out if it's handled
+            Object instance = h.value().handleNullForPrimitives(this, deser, msg);
+            if (instance != DeserializationProblemHandler.NOT_HANDLED) {
+                // Sanity check for broken handlers, otherwise nasty to debug:
+                if (_isCompatible(targetClass, instance)) {
+                    return instance;
+                }
+                return reportInputMismatch(deser,
+                        "Cannot map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)");
+            }
+            h = h.next();
+        }
+        return reportInputMismatch(deser,
+                "Cannot map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)");
+    }
+
+    /**
      * Method that deserializers should call if they encounter a numeric value
      * that cannot be converted to target property type, in cases where some
      * numeric values could be acceptable (either with different settings,

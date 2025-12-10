@@ -1638,8 +1638,9 @@ inputDesc, _coercedTypeDesc(targetType));
         throws DatabindException
     {
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            ctxt.reportInputMismatch(this,
-"Cannot coerce `null` to %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
+            ctxt.handleNullForPrimitives(handledType(),
+                    this,
+                    "Cannot coerce `null` to %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
                     _coercedTypeDesc());
         }
     }

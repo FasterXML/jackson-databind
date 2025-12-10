@@ -7,6 +7,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.TypeIdResolver;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * This is the class that can be registered (via
@@ -216,6 +217,38 @@ public abstract class DeserializationProblemHandler
     public Object handleUnexpectedToken(DeserializationContext ctxt,
             JavaType targetType, JsonToken t, JsonParser p,
             String failureMsg)
+        throws JacksonException
+    {
+        return NOT_HANDLED;
+    }
+
+    /**
+     * Method that deserializers should call if the {@code null} value is encountered and
+     * need to deserialize as a Primitive types (e.g. int, long etc...)  that is, type of token that deserializer
+     * cannot handle). This could occur, for example, if a Number deserializer
+     * encounter {@link JsonToken#START_ARRAY} instead of
+     * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
+     *<ul>
+     * <li>Indicate it does not know what to do by returning {@link #NOT_HANDLED}
+     *  </li>
+     * <li>Throw a {@link JacksonException} to indicate specific fail message (instead of
+     *    standard exception caller would throw
+     *  </li>
+     * <li>Handle content to match (by consuming or skipping it), and return actual
+     *    instantiated value (of type <code>targetType</code>) to use as replacement;
+     *    value may be `null` as well as expected target type.
+     *  </li>
+     * </ul>
+     *
+     * @param failureMsg Message that will be used by caller
+     *    to indicate type of failure unless handler produces value to use
+     *
+     * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
+     *    what to do (and exception may be thrown), or value to use (possibly
+     *    <code>null</code>
+     */
+    public Object handleNullForPrimitives(DeserializationContext ctxt,
+              ValueDeserializer<?> deser, String failureMsg)
         throws JacksonException
     {
         return NOT_HANDLED;

@@ -1384,13 +1384,11 @@ public abstract class DeserializationContext
                 if (_isCompatible(targetClass, instance)) {
                     return instance;
                 }
-                return reportInputMismatch(deser,
-                        "Cannot map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)");
+                return reportInputMismatch(deser, msg);
             }
             h = h.next();
         }
-        return reportInputMismatch(deser,
-                "Cannot map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)");
+        return reportInputMismatch(deser, msg);
     }
 
     /**

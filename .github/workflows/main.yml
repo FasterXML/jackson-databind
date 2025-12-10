@@ -74,7 +74,7 @@ jobs:
     - name: Generate coverage summary
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
       id: jacoco
-      uses: cicirello/jacoco-badge-generator@v2.12.0
+      uses: cicirello/jacoco-badge-generator@v2.12.1
       with:
         jacoco-csv-file: target/site/jacoco/jacoco.csv
         generate-coverage-badge: false
@@ -83,32 +83,26 @@ jobs:
     - name: Add coverage comment to PR
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
       run: |
-        COVERAGE=${{ steps.jacoco.outputs.coverage }}
-        BRANCHES=${{ steps.jacoco.outputs.branches }}
+        # Convert decimal to percentage and round to 1 decimal place
+        COVERAGE=$(awk -v cov="${{ steps.jacoco.outputs.coverage }}" 'BEGIN { printf "%.1f", cov * 100 }')
+        BRANCHES=$(awk -v br="${{ steps.jacoco.outputs.branches }}" 'BEGIN { printf "%.1f", br * 100 }')
 
-        # Determine color for coverage badge
-        if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
-          COV_COLOR="brightgreen"
-        elif (( $(echo "$COVERAGE >= 60" | bc -l) )); then
-          COV_COLOR="green"
-        elif (( $(echo "$COVERAGE >= 40" | bc -l) )); then
-          COV_COLOR="yellow"
-        else
-          COV_COLOR="red"
-        fi
+        # Determine color for coverage badge using awk (more portable than bc)
+        COV_COLOR=$(awk -v cov="$COVERAGE" 'BEGIN {
+          if (cov >= 80) print "brightgreen"
+          else if (cov >= 60) print "green"
+          else if (cov >= 40) print "yellow"
+          else print "red"
+        }')
 
-        # Determine color for branches badge
-        if (( $(echo "$BRANCHES >= 80" | bc -l) )); then
-          BR_COLOR="brightgreen"
-        elif (( $(echo "$BRANCHES >= 60" | bc -l) )); then
-          BR_COLOR="green"
-        elif (( $(echo "$BRANCHES >= 40" | bc -l) )); then
-          BR_COLOR="yellow"
-        else
-          BR_COLOR="red"
-        fi
+        BR_COLOR=$(awk -v br="$BRANCHES" 'BEGIN {
+          if (br >= 80) print "brightgreen"
+          else if (br >= 60) print "green"
+          else if (br >= 40) print "yellow"
+          else print "red"
+        }')
 
-        gh pr comment ${{ github.event.pull_request.number }} --body "## :test_tube: Code Coverage Report
+        COMMENT_BODY="## :test_tube: Code Coverage Report
 
         | Metric | Coverage |
         |--------|----------|
@@ -116,7 +110,18 @@ jobs:
         | **Branches** | ![branches](https://img.shields.io/badge/branches-${BRANCHES}%25-${BR_COLOR}) **${BRANCHES}%** |
 
         > Coverage data generated from JaCoCo test results
-        "
+
+        <!-- jacoco-coverage-comment -->"
+
+        # Find and delete existing coverage comment
+        COMMENT_ID=$(gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | select(.body | contains("<!-- jacoco-coverage-comment -->")) | .id' | head -1)
+
+        if [ -n "$COMMENT_ID" ]; then
+          gh api -X DELETE "repos/${{ github.repository }}/issues/comments/$COMMENT_ID"
+        fi
+
+        # Post new comment
+        gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT_BODY"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

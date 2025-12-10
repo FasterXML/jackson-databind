@@ -186,11 +186,7 @@ public class ObjectMapper
      */
 
     /**
-     * Factory used for constructing per-call {@link SerializationContext}s.
-     *<p>
-     * Note: while serializers are only exposed {@link SerializationContext},
-     * mappers and readers need to access additional API defined by
-     * {@link SerializationContextExt}
+     * Factory used for constructing per-call {@link SerializationContext} instances.
      */
     protected final SerializationContexts _serializationContexts;
 
@@ -207,7 +203,7 @@ public class ObjectMapper
      */
 
     /**
-     * Factory used for constructing per-call {@link DeserializationContext}s.
+     * Factory used for constructing per-call {@link DeserializationContext} instances.
      */
     protected final DeserializationContexts _deserializationContexts;
 

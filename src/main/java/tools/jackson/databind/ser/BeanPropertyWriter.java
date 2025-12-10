@@ -839,8 +839,6 @@ public class BeanPropertyWriter
     }
 
     class GetterHolder extends UnreflectHandleSupplier {
-        private static final long serialVersionUID = 1L;
-
         public GetterHolder() {
             super(methodType(Object.class, Object.class));
         }

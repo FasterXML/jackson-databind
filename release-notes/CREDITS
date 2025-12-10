@@ -127,7 +127,15 @@ Oliver Drotbohm (@odrotbohm)
  * Contributed fix for #4629: `@JsonIncludeProperties` and `@JsonIgnoreProperties`
   ignored when deserializing Records
   [3.1.0]
-  
+ * Contributed fix for #5115: `@JsonUnwrapped` Record deserialization can't handle
+  name collision
+  [3.1.0]
+
+Viktor Szathmáry (@phraktle)
+ * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
+ (reported by Viktor S)
+  [3.1.0]
+
 Hélios Gilles (@RoiSoleil)
  * Contributed #5413: Add/support forward reference resolution for array values
   [3.1.0]

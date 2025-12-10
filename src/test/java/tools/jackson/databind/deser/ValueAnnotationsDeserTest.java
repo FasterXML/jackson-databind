@@ -4,7 +4,10 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonDeserializeAs;
+
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
@@ -19,11 +22,12 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
  * annotations that define actual type (Class) to use for
  * deserialization.
  */
+@SuppressWarnings("serial")
 public class ValueAnnotationsDeserTest
 {
     /*
     /**********************************************************
-    /* Annotated root classes for @JsonDeserialize#as
+    /* Annotated root classes for @JsonDeserialize#as / #using
     /**********************************************************
      */
 
@@ -48,7 +52,12 @@ public class ValueAnnotationsDeserTest
         public String getA();
     }
 
-    static class RootInterfaceImpl implements RootInterface {
+    @JsonDeserializeAs(value=RootInterfaceImpl.class)
+    interface RootInterface2 {
+        public String getA();
+    }
+
+    static class RootInterfaceImpl implements RootInterface, RootInterface2 {
         public String a;
 
         public RootInterfaceImpl() { }
@@ -57,13 +66,17 @@ public class ValueAnnotationsDeserTest
         public String getA() { return a; }
     }
 
-    @SuppressWarnings("serial")
     @JsonDeserialize(contentAs=RootStringImpl.class)
     static class RootMap extends HashMap<String,RootStringImpl> { }
 
-    @SuppressWarnings("serial")
+    @JsonDeserializeAs(content=RootStringImpl.class)
+    static class RootMap2 extends HashMap<String,RootStringImpl> { }
+
     @JsonDeserialize(contentAs=RootStringImpl.class)
     static class RootList extends LinkedList<RootStringImpl> { }
+
+    @JsonDeserializeAs(content=RootStringImpl.class)
+    static class RootList2 extends LinkedList<RootStringImpl> { }
 
     static class RootStringDeserializer
         extends StdDeserializer<RootString>
@@ -170,11 +183,23 @@ public class ValueAnnotationsDeserTest
         }
     }
 
+    final static class MapKeyHolder2
+    {
+        Map<Object, String> _map;
+
+        @JsonDeserializeAs(keys=StringWrapper.class)
+        public void setMap(Map<Object,String> m)
+        {
+            // type should be ok, but no need to cast here (won't matter)
+            _map = m;
+        }
+    }
+
     final static class BrokenMapKeyHolder
     {
         // Invalid: Integer not a sub-class of String
         @JsonDeserialize(keyAs=Integer.class)
-            public void setStrings(Map<String,String> m) { }
+        public void setStrings(Map<String,String> m) { }
     }
 
     /*
@@ -304,9 +329,17 @@ public class ValueAnnotationsDeserTest
      */
 
     @Test
-    public void testRootInterfaceAs() throws Exception
+    public void testRootInterfaceAsOld() throws Exception
     {
         RootInterface value = MAPPER.readValue("{\"a\":\"abc\" }", RootInterface.class);
+        assertTrue(value instanceof RootInterfaceImpl);
+        assertEquals("abc", value.getA());
+    }
+
+    @Test
+    public void testRootInterfaceAsNew() throws Exception
+    {
+        RootInterface2 value = MAPPER.readValue("{\"a\":\"abc\" }", RootInterface2.class);
         assertTrue(value instanceof RootInterfaceImpl);
         assertEquals("abc", value.getA());
     }
@@ -320,7 +353,7 @@ public class ValueAnnotationsDeserTest
     }
 
     @Test
-    public void testRootListAs() throws Exception
+    public void testRootListAsOld() throws Exception
     {
         RootMap value = MAPPER.readValue("{\"a\":\"b\"}", RootMap.class);
         assertEquals(1, value.size());
@@ -330,9 +363,29 @@ public class ValueAnnotationsDeserTest
     }
 
     @Test
-    public void testRootMapAs() throws Exception
+    public void testRootListAsNew() throws Exception
+    {
+        RootMap2 value = MAPPER.readValue("{\"a\":\"b\"}", RootMap2.class);
+        assertEquals(1, value.size());
+        Object v2 = value.get("a");
+        assertEquals(RootStringImpl.class, v2.getClass());
+        assertEquals("b", ((RootString) v2).contents());
+    }
+
+    @Test
+    public void testRootMapAsOld() throws Exception
     {
         RootList value = MAPPER.readValue("[ \"c\" ]", RootList.class);
+        assertEquals(1, value.size());
+        Object v2 = value.get(0);
+        assertEquals(RootStringImpl.class, v2.getClass());
+        assertEquals("c", ((RootString) v2).contents());
+    }
+
+    @Test
+    public void testRootMapAsNew() throws Exception
+    {
+        RootList2 value = MAPPER.readValue("[ \"c\" ]", RootList2.class);
         assertEquals(1, value.size());
         Object v2 = value.get(0);
         assertEquals(RootStringImpl.class, v2.getClass());
@@ -347,9 +400,25 @@ public class ValueAnnotationsDeserTest
 
     @SuppressWarnings("unchecked")
     @Test
-	public void testOverrideKeyClassValid() throws Exception
+	public void testOverrideKeyClassValidOld() throws Exception
     {
         MapKeyHolder result = MAPPER.readValue("{ \"map\" : { \"xxx\" : \"yyy\" } }", MapKeyHolder.class);
+        Map<StringWrapper, String> map = (Map<StringWrapper,String>)(Map<?,?>)result._map;
+        assertEquals(1, map.size());
+        Map.Entry<StringWrapper, String> en = map.entrySet().iterator().next();
+
+        StringWrapper key = en.getKey();
+        assertEquals(StringWrapper.class, key.getClass());
+        assertEquals("xxx", key._string);
+        assertEquals("yyy", en.getValue());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOverrideKeyClassValidNew() throws Exception
+    {
+        MapKeyHolder2 result = MAPPER.readValue("{ \"map\" : { \"xxx\" : \"yyy\" } }",
+                MapKeyHolder2.class);
         Map<StringWrapper, String> map = (Map<StringWrapper,String>)(Map<?,?>)result._map;
         assertEquals(1, map.size());
         Map.Entry<StringWrapper, String> en = map.entrySet().iterator().next();

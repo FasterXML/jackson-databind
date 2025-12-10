@@ -274,8 +274,8 @@ public class BeanDeserializerFactory
         addObjectIdReader(ctxt, beanDescRef, builder);
 
         // managed/back reference fields/setters need special handling... first part
-        // [databind#2686]: targetType For Builder pattern, this method is not using.
-        // So this value is null.
+        // [databind#2686]: Pass null for non-Builder deserialization (only Builder-based
+        // deserialization needs the target type for back-reference resolution)
         addBackReferenceProperties(ctxt, beanDescRef, builder, null);
         addInjectables(ctxt, beanDescRef, builder);
 
@@ -785,8 +785,8 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 } else {
                     if (targetType != null) {
                         ctxt.reportBadTypeDefinition(beanDescRef,
-                                "Cannot find back-reference field '%s' in target type '%s' for Builder-based deserialization",
-                                refProp.getName(), targetType.getRawClass().getName());
+                                "Cannot find back-reference field '%s' in target type %s for Builder-based deserialization: ensure the field exists in the target class, not just the Builder",
+                                refProp.getName(), ClassUtil.nameOf(targetType.getRawClass()));
                     } else {
                         ctxt.reportBadTypeDefinition(beanDescRef,
                                 "Cannot resolve back-reference property '%s'",

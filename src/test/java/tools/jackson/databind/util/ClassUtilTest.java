@@ -311,7 +311,6 @@ public class ClassUtilTest extends DatabindTestUtil
         gen.close();
     }
 
-    @SuppressWarnings("serial")
     @Test
     public void testExceptionMessage() {
         DatabindException jacksonException = new DatabindException("A message") {
@@ -339,5 +338,46 @@ public class ClassUtilTest extends DatabindTestUtil
         assertTrue(version > 0);
 
         assertEquals((version >= 17), ClassUtil.isJDK17OrAbove());
+    }
+
+    @Test
+    public void testQuotedOr()
+    {
+        assertEquals("\"test\"", ClassUtil.quotedOr("test", "default"));
+        assertEquals("default", ClassUtil.quotedOr(null, "default"));
+        assertEquals("\"42\"", ClassUtil.quotedOr(42, "N/A"));
+    }
+
+    @Test
+    public void testNonNullString()
+    {
+        assertEquals("test", ClassUtil.nonNullString("test"));
+        assertEquals("", ClassUtil.nonNullString(null));
+        assertEquals("", ClassUtil.nonNullString(""));
+    }
+
+    @Test
+    public void testHasEnclosingMethod()
+    {
+        class LocalClass { }
+        assertTrue(ClassUtil.hasEnclosingMethod(LocalClass.class));
+        assertFalse(ClassUtil.hasEnclosingMethod(String.class));
+        assertFalse(ClassUtil.hasEnclosingMethod(getClass()));
+    }
+
+    @Test
+    public void testBackticked()
+    {
+        assertEquals("`test`", ClassUtil.backticked("test"));
+        assertEquals("[null]", ClassUtil.backticked(null));
+        assertEquals("``", ClassUtil.backticked(""));
+    }
+
+    @Test
+    public void testApostrophed()
+    {
+        assertEquals("'test'", ClassUtil.apostrophed("test"));
+        assertEquals("[null]", ClassUtil.apostrophed(null));
+        assertEquals("''", ClassUtil.apostrophed(""));
     }
 }

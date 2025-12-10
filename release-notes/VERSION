@@ -46,6 +46,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5456: Additional configuration (`JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES`: true)
   to MapperBuilder#configureForJackson2 to closer match Jackson 2 behavior
  (contributed by @nrayburn-tech)
+#5475: Support `@JsonDeserializeAs` annotation
+ (implemented by @cowtowncoder, w/ Claude code)
 
 3.0.3 (28-Nov-2025)
 

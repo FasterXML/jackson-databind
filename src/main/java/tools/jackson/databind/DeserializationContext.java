@@ -1361,8 +1361,8 @@ public abstract class DeserializationContext
      * Default implementation will try to call {@link DeserializationContext#reportInputMismatch(Class, String, Object...)},
      * which by default would throw {@link MismatchedInputException}
      *
-     * @param targetClass Type of property into which incoming String should be converted
-     * @param deser Type of {@link ValueDeserializer} calling this method.
+     * @param targetClass Primitive type into which incoming {@code null} value should be converted to
+     * @param deser Type of {@link ValueDeserializer} calling this method
      * @param msg Error message template caller wants to use if exception is to be thrown
      *
      * @throws JacksonException To indicate unrecoverable problem, usually based on <code>msg</code>

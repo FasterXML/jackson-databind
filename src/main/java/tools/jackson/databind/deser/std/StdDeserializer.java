@@ -1640,8 +1640,8 @@ inputDesc, _coercedTypeDesc(targetType));
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
             ctxt.handleNullForPrimitives(handledType(),
                     this,
-                    "Cannot coerce `null` to %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
-                    _coercedTypeDesc());
+                    String.format("Cannot coerce `null` to %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
+                            _coercedTypeDesc()));
         }
     }
 

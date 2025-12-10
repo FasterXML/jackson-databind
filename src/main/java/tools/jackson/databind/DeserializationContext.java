@@ -1364,17 +1364,15 @@ public abstract class DeserializationContext
      * @param targetClass Type of property into which incoming String should be converted
      * @param deser Type of {@link ValueDeserializer} calling this method.
      * @param msg Error message template caller wants to use if exception is to be thrown
-     * @param msgArgs Optional arguments to use for message, if any
      *
      * @throws JacksonException To indicate unrecoverable problem, usually based on <code>msg</code>
      */
     public Object handleNullForPrimitives(Class<?> targetClass,
-                                          ValueDeserializer<?> deser, String msg, Object... msgArgs)
+                                          ValueDeserializer<?> deser, String msg)
             throws JacksonException
 
     {
         // but if not handled, just throw exception
-        msg = _format(msg, msgArgs);
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             // Can bail out if it's handled

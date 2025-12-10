@@ -11,6 +11,7 @@ on:
     - "release-notes/*"
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   build:
@@ -60,9 +61,9 @@ jobs:
         CI_DEPLOY_PASSWORD: ${{ secrets.CENTRAL_DEPLOY_PASSWORD }}
         # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       run: ./mvnw -B -q -ff -DskipTests -ntp source:jar deploy
-    - name: Generate code coverage 
-      if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
-      run: ./mvnw -B -q -ff -ntp test
+    - name: Generate code coverage
+      if: ${{ matrix.release_build }}
+      run: ./mvnw -B -q -ff -ntp test jacoco:report
     - name: Publish code coverage
       if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
       uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
@@ -70,6 +71,59 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./target/site/jacoco/jacoco.xml
         flags: unittests
+    - name: Generate coverage summary
+      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
+      id: jacoco
+      uses: cicirello/jacoco-badge-generator@v2.12.1
+      with:
+        jacoco-csv-file: target/site/jacoco/jacoco.csv
+        generate-coverage-badge: false
+        generate-branches-badge: false
+        generate-summary: true
+    - name: Add coverage comment to PR
+      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
+      run: |
+        # Convert decimal to percentage and round to 1 decimal place
+        COVERAGE=$(awk -v cov="${{ steps.jacoco.outputs.coverage }}" 'BEGIN { printf "%.1f", cov * 100 }')
+        BRANCHES=$(awk -v br="${{ steps.jacoco.outputs.branches }}" 'BEGIN { printf "%.1f", br * 100 }')
+
+        # Determine color for coverage badge using awk (more portable than bc)
+        COV_COLOR=$(awk -v cov="$COVERAGE" 'BEGIN {
+          if (cov >= 80) print "brightgreen"
+          else if (cov >= 60) print "green"
+          else if (cov >= 40) print "yellow"
+          else print "red"
+        }')
+
+        BR_COLOR=$(awk -v br="$BRANCHES" 'BEGIN {
+          if (br >= 80) print "brightgreen"
+          else if (br >= 60) print "green"
+          else if (br >= 40) print "yellow"
+          else print "red"
+        }')
+
+        COMMENT_BODY="## :test_tube: Code Coverage Report
+
+        | Metric | Coverage |
+        |--------|----------|
+        | **Instructions** | ![coverage](https://img.shields.io/badge/coverage-${COVERAGE}%25-${COV_COLOR}) **${COVERAGE}%** |
+        | **Branches** | ![branches](https://img.shields.io/badge/branches-${BRANCHES}%25-${BR_COLOR}) **${BRANCHES}%** |
+
+        > Coverage data generated from JaCoCo test results
+
+        <!-- jacoco-coverage-comment -->"
+
+        # Find and delete existing coverage comment
+        COMMENT_ID=$(gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | select(.body | contains("<!-- jacoco-coverage-comment -->")) | .id' | head -1)
+
+        if [ -n "$COMMENT_ID" ]; then
+          gh api -X DELETE "repos/${{ github.repository }}/issues/comments/$COMMENT_ID"
+        fi
+
+        # Post new comment
+        gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT_BODY"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   trigger-dep-build-v2:
     name: Trigger v2 dep builds

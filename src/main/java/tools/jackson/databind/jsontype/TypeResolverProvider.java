@@ -119,6 +119,7 @@ public class TypeResolverProvider
         if (b == NO_RESOLVER) {
             // 07-Dec-2025, tatu: Should we actually do this? (No test coverage yet)
             //return NoOpTypeSerializer.instance();
+
             return null;
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(

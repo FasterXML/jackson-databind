@@ -12,10 +12,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import tools.jackson.core.*;
+import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.type.TypeReference;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -131,7 +134,7 @@ public class UntypedDeserializationTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final JsonMapper MAPPER = newJsonMapper();
 
     @SuppressWarnings("unchecked")
     @Test
@@ -437,7 +440,7 @@ public class UntypedDeserializationTest
         map.put("a", 42);
 
         ObjectReader r = customMapper.readerFor(Object.class).withValueToUpdate(map);
-        Object result = r.readValue(a2q("{'b' : 'value', 'c' : 111222333444, 'enabled':true}"));
+        Object result = r.readValue(a2q("{'b': 'value', 'c': 111222333444, 'enabled': true}"));
         assertSame(map, result);
         assertEquals(4, map.size());
         assertEquals("VALUE", map.get("b"));
@@ -474,7 +477,7 @@ public class UntypedDeserializationTest
         // works fine as node
         JsonNode deserialized = mapper.readTree(serialized);
         assertEquals(VALUE, deserialized.get("timestamp").asLong());
-        // and actually should work in Maps too
+        // and actually should work for Maps too
         Map<?,?> deserMap = mapper.readValue(serialized, Map.class);
         Number n = (Number) deserMap.get("timestamp");
         assertNotNull(n);
@@ -555,5 +558,197 @@ public class UntypedDeserializationTest
 
         WrappedPolymorphicUntyped result = rDefault.readValue(json);
         assertEquals(SHORT, result.value);
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, additional coverage
+    /**********************************************************
+     */
+
+    @Test
+    public void testEmptyArrayAndObject() throws Exception
+    {
+        // Empty array
+        Object result = MAPPER.readValue("[]", Object.class);
+        assertNotNull(result);
+        assertTrue(result instanceof List);
+        assertEquals(0, ((List<?>) result).size());
+
+        // Empty object
+        result = MAPPER.readValue("{}", Object.class);
+        assertNotNull(result);
+        assertTrue(result instanceof Map);
+        assertEquals(0, ((Map<?,?>) result).size());
+    }
+
+    @Test
+    public void testSingleElementArrayAndObject() throws Exception
+    {
+        // Single element array
+        Object result = MAPPER.readValue("[42]", Object.class);
+        assertNotNull(result);
+        assertTrue(result instanceof List);
+        List<?> list = (List<?>) result;
+        assertEquals(1, list.size());
+        assertEquals(Integer.valueOf(42), list.get(0));
+
+        // Single property object
+        result = MAPPER.readValue("{\"key\":\"value\"}", Object.class);
+        assertNotNull(result);
+        assertTrue(result instanceof Map);
+        Map<?,?> map = (Map<?,?>) result;
+        assertEquals(1, map.size());
+        assertEquals("value", map.get("key"));
+    }
+
+    @Test
+    public void testFloatDeserializationWithBigDecimal() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .build();
+
+        Object result = mapper.readValue("3.14159", Object.class);
+        assertNotNull(result);
+        assertTrue(result instanceof BigDecimal);
+        assertEquals(new BigDecimal("3.14159"), result);
+    }
+
+    @Test
+    public void testFloatTypesFloat32AndFloat64() throws Exception
+    {
+        // Test Float (32-bit)
+        Object result = MAPPER.readValue("1.5", Object.class);
+        assertTrue(result instanceof Double);
+        result = MAPPER.readValue("2.718281828", Object.class);
+        assertTrue(result instanceof Double);
+    }
+
+    @Test
+    public void testNaNHandling() throws Exception
+    {
+        // NaN values should be handled specially
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
+                .build();
+
+        Object result = mapper.readValue("NaN", Object.class);
+        assertTrue(result instanceof Double);
+        assertTrue(((Double) result).isNaN());
+    }
+
+    @Test
+    public void testNullInDifferentContexts() throws Exception
+    {
+        // Null as root value
+        Object result = MAPPER.readValue("null", Object.class);
+        assertNull(result);
+
+        // Null in array
+        List<?> list = (List<?>) MAPPER.readValue("[null, 1, null]", Object.class);
+        assertEquals(3, list.size());
+        assertNull(list.get(0));
+        assertEquals(Integer.valueOf(1), list.get(1));
+        assertNull(list.get(2));
+
+        // Null in object
+        Map<?,?> map = (Map<?,?>) MAPPER.readValue("{\"a\":null,\"b\":2}", Object.class);
+        assertEquals(2, map.size());
+        assertTrue(map.containsKey("a"));
+        assertNull(map.get("a"));
+        assertEquals(Integer.valueOf(2), map.get("b"));
+    }
+
+    @Test
+    public void testBigIntegerCoercion() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)
+                .build();
+
+        Object result = mapper.readValue("12345678901234567890", Object.class);
+        assertNotNull(result);
+        assertTrue(result instanceof BigInteger);
+        assertEquals(new BigInteger("12345678901234567890"), result);
+    }
+
+    @Test
+    public void testLargeArray() throws Exception
+    {
+        // Test array with more than 2 elements to trigger ObjectBuffer usage
+        StringBuilder json = new StringBuilder("[");
+        for (int i = 0; i < 100; i++) {
+            if (i > 0) json.append(",");
+            json.append(i);
+        }
+        json.append("]");
+
+        List<?> result = (List<?>) MAPPER.readValue(json.toString(), Object.class);
+        assertEquals(100, result.size());
+        assertEquals(Integer.valueOf(0), result.get(0));
+        assertEquals(Integer.valueOf(99), result.get(99));
+    }
+
+    @Test
+    public void testLargeObject() throws Exception
+    {
+        // Test object with more than 2 properties
+        StringBuilder json = new StringBuilder("{");
+        for (int i = 0; i < 50; i++) {
+            if (i > 0) json.append(",");
+            json.append("\"key").append(i).append("\":").append(i);
+        }
+        json.append("}");
+
+        Map<?,?> result = (Map<?,?>) MAPPER.readValue(json.toString(), Object.class);
+        assertEquals(50, result.size());
+        assertEquals(Integer.valueOf(0), result.get("key0"));
+        assertEquals(Integer.valueOf(49), result.get("key49"));
+    }
+
+    @Test
+    public void testMixedTypesInArray() throws Exception
+    {
+        String json = "[1, \"text\", true, null, 3.14, {\"nested\":\"object\"}, [1,2,3]]";
+        List<?> result = (List<?>) MAPPER.readValue(json, Object.class);
+
+        assertEquals(7, result.size());
+        assertEquals(Integer.valueOf(1), result.get(0));
+        assertEquals("text", result.get(1));
+        assertEquals(Boolean.TRUE, result.get(2));
+        assertNull(result.get(3));
+        assertEquals(Double.valueOf(3.14), result.get(4));
+        assertTrue(result.get(5) instanceof Map);
+        assertTrue(result.get(6) instanceof List);
+    }
+
+    @Test
+    public void testDeeplyNestedStructures() throws Exception
+    {
+        String json = "{\"level1\":{\"level2\":{\"level3\":{\"level4\":{\"value\":\"deep\"}}}}}";
+        Map<?,?> result = (Map<?,?>) MAPPER.readValue(json, Object.class);
+
+        Map<?,?> level1 = (Map<?,?>) result.get("level1");
+        Map<?,?> level2 = (Map<?,?>) level1.get("level2");
+        Map<?,?> level3 = (Map<?,?>) level2.get("level3");
+        Map<?,?> level4 = (Map<?,?>) level3.get("level4");
+        assertEquals("deep", level4.get("value"));
+    }
+
+    @Test
+    public void testObjectWithArraysAndObjects() throws Exception
+    {
+        String json = "{\"numbers\":[1,2,3],\"nested\":{\"flag\":true},\"text\":\"hello\"}";
+        Map<?,?> result = (Map<?,?>) MAPPER.readValue(json, Object.class);
+
+        assertEquals(3, result.size());
+        List<?> numbers = (List<?>) result.get("numbers");
+        assertEquals(3, numbers.size());
+
+        Map<?,?> nested = (Map<?,?>) result.get("nested");
+        assertEquals(Boolean.TRUE, nested.get("flag"));
+
+        assertEquals("hello", result.get("text"));
     }
 }

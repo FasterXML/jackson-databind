@@ -24,6 +24,7 @@ import tools.jackson.databind.ext.jdk8.OptionalIntDeserializer;
 import tools.jackson.databind.ext.jdk8.OptionalLongDeserializer;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.jsontype.impl.NoOpTypeDeserializer;
 import tools.jackson.databind.type.*;
 import tools.jackson.databind.util.*;
 
@@ -721,17 +722,14 @@ public abstract class BasicDeserializerFactory
             ArrayType type, BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
-        JavaType elemType = type.getContentType();
+        final JavaType elemType = type.getContentType();
 
         // Very first thing: is deserializer hard-coded for elements?
         @SuppressWarnings("unchecked")
-        ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) elemType.getValueHandler();
+        final ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) elemType.getValueHandler();
         // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer elemTypeDeser = (TypeDeserializer) elemType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (elemTypeDeser == null) {
-            elemTypeDeser = ctxt.findTypeDeserializer(elemType);
-        }
+        final TypeDeserializer elemTypeDeser = _findContentTypeDeserializer(ctxt, elemType);
+
         // 23-Nov-2010, tatu: Custom array deserializer?
         ValueDeserializer<?>  deser = _findCustomArrayDeserializer(type,
                 config, beanDescRef, elemTypeDeser, contentDeser);
@@ -767,17 +765,11 @@ public abstract class BasicDeserializerFactory
     public ValueDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
             CollectionType type, BeanDescription.Supplier beanDescRef)
     {
-        JavaType contentType = type.getContentType();
-        // Very first thing: is deserializer hard-coded for elements?
-        ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
+        final JavaType contentType = type.getContentType();
+        final ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
+        final TypeDeserializer contentTypeDeser = _findContentTypeDeserializer(ctxt, contentType);
         final DeserializationConfig config = ctxt.getConfig();
 
-        // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (contentTypeDeser == null) {
-            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
-        }
         // 23-Nov-2010, tatu: Custom deserializer?
         ValueDeserializer<?> deser = _findCustomCollectionDeserializer(type,
                 config, beanDescRef, contentTypeDeser, contentDeser);
@@ -860,18 +852,13 @@ public abstract class BasicDeserializerFactory
     public ValueDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
             CollectionLikeType type, BeanDescription.Supplier beanDescRef)
     {
-        JavaType contentType = type.getContentType();
+        final JavaType contentType = type.getContentType();
         // Very first thing: is deserializer hard-coded for elements?
         @SuppressWarnings("unchecked")
         ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
+        final TypeDeserializer contentTypeDeser = _findContentTypeDeserializer(ctxt, contentType);
 
-        // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer contentTypeDeser = (TypeDeserializer)contentType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (contentTypeDeser == null) {
-            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
-        }
         ValueDeserializer<?> deser = _findCustomCollectionLikeDeserializer(type, config, beanDescRef,
                 contentTypeDeser, contentDeser);
         if (deser != null) {
@@ -896,8 +883,8 @@ public abstract class BasicDeserializerFactory
             MapType type, BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
-        JavaType keyType = type.getKeyType();
-        JavaType contentType = type.getContentType();
+        final JavaType keyType = type.getKeyType();
+        final JavaType contentType = type.getContentType();
 
         // First: is there annotation-specified deserializer for values?
         @SuppressWarnings("unchecked")
@@ -906,11 +893,7 @@ public abstract class BasicDeserializerFactory
         // Ok: need a key deserializer (null indicates 'default' here)
         KeyDeserializer keyDes = (KeyDeserializer) keyType.getValueHandler();
         // Then optional type info; either attached to type, or resolved separately:
-        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (contentTypeDeser == null) {
-            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
-        }
+        final TypeDeserializer contentTypeDeser = _findContentTypeDeserializer(ctxt, contentType);
 
         // 23-Nov-2010, tatu: Custom deserializer?
         ValueDeserializer<?> deser = _findCustomMapDeserializer(type, config, beanDescRef,
@@ -1014,8 +997,8 @@ public abstract class BasicDeserializerFactory
     public ValueDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
             MapLikeType type, BeanDescription.Supplier beanDescRef)
     {
-        JavaType keyType = type.getKeyType();
-        JavaType contentType = type.getContentType();
+        final JavaType keyType = type.getKeyType();
+        final JavaType contentType = type.getContentType();
         final DeserializationConfig config = ctxt.getConfig();
 
         // First: is there annotation-specified deserializer for values?
@@ -1030,11 +1013,7 @@ public abstract class BasicDeserializerFactory
         }
         */
         // Then optional type info; either attached to type, or resolve separately:
-        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (contentTypeDeser == null) {
-            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
-        }
+        final TypeDeserializer contentTypeDeser = _findContentTypeDeserializer(ctxt, contentType);
         ValueDeserializer<?> deser = _findCustomMapLikeDeserializer(type, config,
                 beanDescRef, keyDes, contentTypeDeser, contentDeser);
         if (deser != null) {
@@ -1146,11 +1125,7 @@ factory.toString()));
         @SuppressWarnings("unchecked")
         ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
-        // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
-        if (contentTypeDeser == null) { // or if not, may be able to find:
-            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
-        }
+        final TypeDeserializer contentTypeDeser = _findContentTypeDeserializer(ctxt, contentType);
         ValueDeserializer<?> deser = _findCustomReferenceDeserializer(type, config, beanDescRef,
                 contentTypeDeser, contentDeser);
 
@@ -1745,6 +1720,24 @@ factory.toString()));
         return false;
     }
 
+    // @since 3.1
+    protected TypeDeserializer _findContentTypeDeserializer(DeserializationContext ctxt,
+            JavaType contentType)
+    {
+        // Then optional type info: if type has been resolved, we may already know type deserializer:
+        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
+        // [databind#1654]: @JsonTypeInfo(use = Id.NONE) should not apply type deserializer
+        // when custom content deserializer is specified via @JsonDeserialize(contentUsing = ...)
+        if (contentTypeDeser instanceof NoOpTypeDeserializer) {
+            return null;
+        }
+        if (contentTypeDeser == null) {
+            // but if not, may still be possible to find:
+            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
+        }
+        return contentTypeDeser;
+    }
+    
     /*
     /**********************************************************************
     /* Helper classes

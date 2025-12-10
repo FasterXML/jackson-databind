@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests for verifying various issues with custom serializers.
  */
-@SuppressWarnings("serial")
 public class CustomSerializersTest extends DatabindTestUtil
 {
     static class ElementSerializer extends StdSerializer<Element>

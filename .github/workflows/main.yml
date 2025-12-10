@@ -11,6 +11,7 @@ on:
     - "release-notes/*"
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   build:
@@ -60,9 +61,9 @@ jobs:
         CI_DEPLOY_PASSWORD: ${{ secrets.CENTRAL_DEPLOY_PASSWORD }}
         # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       run: ./mvnw -B -q -ff -DskipTests -ntp source:jar deploy
-    - name: Generate code coverage 
-      if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
-      run: ./mvnw -B -q -ff -ntp test
+    - name: Generate code coverage
+      if: ${{ matrix.release_build }}
+      run: ./mvnw -B -q -ff -ntp test jacoco:report
     - name: Publish code coverage
       if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
       uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
@@ -70,6 +71,16 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./target/site/jacoco/jacoco.xml
         flags: unittests
+    - name: Add coverage to PR
+      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
+      uses: madrapps/jacoco-report@db72e7e7c897b9e6f5ed01380c9b7fb3ed397d5f # v1.7.1
+      with:
+        paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: 60
+        min-coverage-changed-files: 70
+        title: 'Code Coverage Report'
+        update-comment: true
 
   trigger-dep-build-v2:
     name: Trigger v2 dep builds

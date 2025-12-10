@@ -31,7 +31,6 @@ class UnwrappedWithUnknown650Test extends DatabindTestUtil {
         final String JSON = "{'field': 'value', 'bad':'bad value'}";
         try {
             mapper.readValue(a2q(JSON), A.class);
-            fail("Exception was not thrown on unknown property");
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized property");
         }

@@ -23,6 +23,7 @@ import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
@@ -523,6 +524,10 @@ public class UntypedDeserializationTest
         for (int i = 0; i < 100; ++i) {
             assertEquals(Integer.valueOf(i), obs[i]);
         }
+
+        // Finally, true polymorphism
+        w = rDefault.readValue(a2q("{'value': ['java.util.Date', 123]}"));
+        assertThat(w.value).isInstanceOf(java.util.Date.class);
     }
 
     @Test

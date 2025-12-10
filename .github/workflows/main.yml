@@ -73,7 +73,7 @@ jobs:
         flags: unittests
     - name: Add coverage to PR
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      uses: madrapps/jacoco-report@db72e7e7c897b9e6f5ed01380c9b7fb3ed397d5f # v1.7.1
+      uses: madrapps/jacoco-report@v1.7.2
       with:
         paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
         token: ${{ secrets.GITHUB_TOKEN }}

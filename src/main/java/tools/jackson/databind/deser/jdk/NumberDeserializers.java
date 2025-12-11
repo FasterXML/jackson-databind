@@ -167,7 +167,8 @@ public class NumberDeserializers
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
                 return (T) ctxt.handleNullForPrimitives(handledType(), this,
                         String.format("Cannot map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                                ClassUtil.classNameOf(handledType())));
+                                ClassUtil.classNameOf(handledType()))
+                );
             }
             return _nullValue;
         }

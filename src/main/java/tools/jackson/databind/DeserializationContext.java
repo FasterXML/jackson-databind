@@ -1376,7 +1376,7 @@ public abstract class DeserializationContext
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             // Can bail out if it's handled
-            Object instance = h.value().handleNullForPrimitives(this, deser, msg);
+            Object instance = h.value().handleNullForPrimitives(this, targetClass, deser, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
                 if (_isCompatible(targetClass, instance)) {

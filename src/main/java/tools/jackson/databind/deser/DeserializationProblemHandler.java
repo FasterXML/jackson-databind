@@ -240,15 +240,19 @@ public abstract class DeserializationProblemHandler
      *  </li>
      * </ul>
      *
-     * @param failureMsg Message that will be used by caller
-     *    to indicate type of failure unless handler produces value to use
+     * @param ctxt
+     * @param targetType Target type to deserialize into
+     * @param deser Target deserializer that attempted to deserialize {@code null} value in question
+     * @param failureMsg Message that will be used by caller to indicate type of failure unless
+     *                   handler produces value to use
+     *
      *
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>
      */
     public Object handleNullForPrimitives(DeserializationContext ctxt,
-              ValueDeserializer<?> deser, String failureMsg)
+              Class<?> targetType, ValueDeserializer<?> deser, String failureMsg)
         throws JacksonException
     {
         return NOT_HANDLED;

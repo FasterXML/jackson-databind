@@ -26,10 +26,11 @@ public class DeserializationProblemHandler5469Test
     static class ProblemHandler5469 extends DeserializationProblemHandler
     {
         @Override
-        public Object handleNullForPrimitives(DeserializationContext ctxt, ValueDeserializer<?> deser, String failureMsg) throws JacksonException {
+        public Object handleNullForPrimitives(DeserializationContext ctxt, Class<?> targetType, ValueDeserializer<?> deser, String failureMsg) throws JacksonException {
             hitCount++;
             return 5469L;
         }
+
     }
 
     @Test

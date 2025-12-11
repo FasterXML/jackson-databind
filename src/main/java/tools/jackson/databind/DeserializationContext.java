@@ -1370,7 +1370,6 @@ public abstract class DeserializationContext
     public Object handleNullForPrimitives(Class<?> targetClass,
                                           ValueDeserializer<?> deser, String msg)
             throws JacksonException
-
     {
         // but if not handled, just throw exception
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
@@ -1383,9 +1382,10 @@ public abstract class DeserializationContext
                     return instance;
                 }
                 // In case our problem handler providing incompatible value,
-                throw InvalidFormatException.from(_parser,
-                        String.format("Cannot deserialize value of type %s from number %s: %s",
-                                targetClass, ClassUtil.getClassDescription(instance), msg)
+                throw new InvalidFormatException(_parser,
+                        String.format("Cannot deserialize value of type %s from type %s",
+                                targetClass, ClassUtil.getClassDescription(instance)),
+                                  instance, targetClass
                 );
             }
             h = h.next();

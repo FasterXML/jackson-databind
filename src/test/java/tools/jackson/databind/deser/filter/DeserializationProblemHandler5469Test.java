@@ -3,44 +3,58 @@ package tools.jackson.databind.deser.filter;
 import org.junit.jupiter.api.Test;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
+import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 // For [databind#5469] Add callback to signal null for primitive in DeserializationProblemHandler
 public class DeserializationProblemHandler5469Test
     extends DatabindTestUtil
 {
-    private static int hitCount = 0;
+
     static class Person5469 {
         public String id;
         public String name;
         public long age;
     }
 
+    private static int hitCountFirst = 0;
     static class ProblemHandler5469 extends DeserializationProblemHandler
     {
         @Override
         public Object handleNullForPrimitives(DeserializationContext ctxt, Class<?> targetType,
               ValueDeserializer<?> deser, JsonParser p, String failureMsg
         ) throws JacksonException {
-            hitCount++;
+            hitCountFirst++;
             return 5469L;
         }
 
     }
 
+    private static int hitCountSecond = 0;
+    static class MoreProblemHandler5469 extends DeserializationProblemHandler
+    {
+        @Override
+        public Object handleNullForPrimitives(DeserializationContext ctxt, Class<?> targetType,
+                                              ValueDeserializer<?> deser, JsonParser p, String failureMsg
+        ) throws JacksonException {
+            hitCountFirst++;
+            return "THIS  IS AN ERROR";
+        }
+
+    }
+
+    // SUCCESS Test when problem handler was implemented as required.
     @Test
-    public void testIssue5469()
-            throws Exception
+    public void testIssue5469HappyCase()
+        throws Exception
     {
         // Given
-        assertEquals(0, hitCount);
+        assertEquals(0, hitCountFirst);
         ObjectMapper mapper = JsonMapper.builder()
                 .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .addHandler(new ProblemHandler5469())
@@ -59,6 +73,30 @@ public class DeserializationProblemHandler5469Test
         // We get the MAGIC NUMBER as age
         assertEquals(5469L, person.age);
         // Sanity check, we hit the code path as we wanted
-        assertEquals(1, hitCount);
+        assertEquals(1, hitCountFirst);
+    }
+
+    // FAIL! Test when problem handler was implemented WRONG
+    @Test
+    public void testIssue5469BadImpl()
+        throws Exception
+    {
+        // Given
+        assertEquals(0, hitCountFirst);
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .addHandler(new MoreProblemHandler5469())
+                .build();
+
+        // When
+        try {
+            mapper.readValue("{\"id\":  \"12ab\", \"name\": \"Bob\", " +
+                    // Input is NULL, to cause problme
+                    "\"age\": null}", Person5469.class);
+            fail("Should not reach here.");
+        } catch (InvalidFormatException e) {
+            // Then
+            verifyException(e, "Cannot deserialize value of type long from type `java.lang.String`");
+        }
     }
 }

@@ -71,6 +71,22 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./target/site/jacoco/jacoco.xml
         flags: unittests
+    - name: Upload coverage report as artifact
+      if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: jacoco-report
+        path: target/site/jacoco/jacoco.csv
+        retention-days: 30
+    - name: Download base branch coverage
+      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
+      uses: dawidd6/action-download-artifact@v6
+      continue-on-error: true
+      with:
+        workflow: main.yml
+        branch: ${{ github.event.pull_request.base.ref }}
+        name: jacoco-report
+        path: base-coverage/
     - name: Generate coverage summary
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
       id: jacoco
@@ -88,6 +104,51 @@ jobs:
         COVERAGE=$(awk -v cov="${{ steps.jacoco.outputs.coverage }}" 'BEGIN { printf "%.1f", cov * 100 }')
         BRANCHES=$(awk -v br="${{ steps.jacoco.outputs.branches }}" 'BEGIN { printf "%.1f", br * 100 }')
 
+        # Check if base coverage artifact was downloaded
+        if [ -f "base-coverage/jacoco.csv" ]; then
+          echo "Found base branch coverage from artifact"
+          BASE_CSV="base-coverage/jacoco.csv"
+
+          # Parse base branch coverage
+          BASE_COVERAGE=$(awk -F',' 'NR>1 && $1=="Jackson-databind" {
+            missed=$4; covered=$5;
+            if (missed + covered > 0) printf "%.1f", (covered * 100.0) / (missed + covered)
+          }' "$BASE_CSV" | head -1)
+          BASE_BRANCHES=$(awk -F',' 'NR>1 && $1=="Jackson-databind" {
+            missed=$6; covered=$7;
+            if (missed + covered > 0) printf "%.1f", (covered * 100.0) / (missed + covered)
+          }' "$BASE_CSV" | head -1)
+
+          if [ -n "$BASE_COVERAGE" ] && [ -n "$BASE_BRANCHES" ]; then
+            # Calculate deltas
+            COV_DELTA=$(awk -v curr="$COVERAGE" -v base="$BASE_COVERAGE" 'BEGIN { printf "%.1f", curr - base }')
+            BR_DELTA=$(awk -v curr="$BRANCHES" -v base="$BASE_BRANCHES" 'BEGIN { printf "%.1f", curr - base }')
+
+            # Format delta strings with + or - signs
+            if awk -v delta="$COV_DELTA" 'BEGIN { exit (delta >= 0) ? 0 : 1 }'; then
+              COV_DELTA_STR="+${COV_DELTA}%"
+              COV_DELTA_EMOJI="📈"
+            else
+              COV_DELTA_STR="${COV_DELTA}%"
+              COV_DELTA_EMOJI="📉"
+            fi
+
+            if awk -v delta="$BR_DELTA" 'BEGIN { exit (delta >= 0) ? 0 : 1 }'; then
+              BR_DELTA_STR="+${BR_DELTA}%"
+              BR_DELTA_EMOJI="📈"
+            else
+              BR_DELTA_STR="${BR_DELTA}%"
+              BR_DELTA_EMOJI="📉"
+            fi
+
+            HAS_DELTA=true
+          else
+            HAS_DELTA=false
+          fi
+        else
+          HAS_DELTA=false
+        fi
+
         # Determine color for coverage badge using awk (more portable than bc)
         COV_COLOR=$(awk -v cov="$COVERAGE" 'BEGIN {
           if (cov >= 80) print "brightgreen"
@@ -103,12 +164,22 @@ jobs:
           else print "red"
         }')
 
-        COMMENT_BODY="## :test_tube: Code Coverage Report
-
-        | Metric | Coverage |
+        # Build coverage table with or without deltas
+        if [ "$HAS_DELTA" = "true" ]; then
+          COVERAGE_TABLE="| Metric | Coverage | Change |
+        |--------|----------|--------|
+        | **Instructions** | ![coverage](https://img.shields.io/badge/coverage-${COVERAGE}%25-${COV_COLOR}) **${COVERAGE}%** | ${COV_DELTA_EMOJI} **${COV_DELTA_STR}** |
+        | **Branches** | ![branches](https://img.shields.io/badge/branches-${BRANCHES}%25-${BR_COLOR}) **${BRANCHES}%** | ${BR_DELTA_EMOJI} **${BR_DELTA_STR}** |"
+        else
+          COVERAGE_TABLE="| Metric | Coverage |
         |--------|----------|
         | **Instructions** | ![coverage](https://img.shields.io/badge/coverage-${COVERAGE}%25-${COV_COLOR}) **${COVERAGE}%** |
-        | **Branches** | ![branches](https://img.shields.io/badge/branches-${BRANCHES}%25-${BR_COLOR}) **${BRANCHES}%** |
+        | **Branches** | ![branches](https://img.shields.io/badge/branches-${BRANCHES}%25-${BR_COLOR}) **${BRANCHES}%** |"
+        fi
+
+        COMMENT_BODY="## :test_tube: Code Coverage Report
+
+        $COVERAGE_TABLE
 
         > Coverage data generated from JaCoCo test results
 

@@ -936,7 +936,7 @@ public class BeanDeserializer
             }
         }
         tokens.writeEndObject();
-        _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
+        _unwrappedPropertyHandler.processUnwrapped(ctxt, bean, tokens);
         return bean;
     }
 
@@ -1000,7 +1000,7 @@ public class BeanDeserializer
             }
         }
         tokens.writeEndObject();
-        _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
+        _unwrappedPropertyHandler.processUnwrapped(ctxt, bean, tokens);
         return bean;
     }
 
@@ -1108,7 +1108,7 @@ public class BeanDeserializer
             return ctxt.reportInputMismatch(_beanType,
                     "Cannot create polymorphic instances with unwrapped values");
         }
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
+        return _unwrappedPropertyHandler.processUnwrapped(ctxt, bean, tokens);
     }
 
     /*

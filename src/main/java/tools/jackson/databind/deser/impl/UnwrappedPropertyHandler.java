@@ -90,7 +90,7 @@ public class UnwrappedPropertyHandler
     }
 
     @SuppressWarnings("resource")
-    public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
+    public Object processUnwrapped(DeserializationContext ctxt,
             Object bean, TokenBuffer buffered)
     {
         for (SettableBeanProperty prop : _properties) {

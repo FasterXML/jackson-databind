@@ -96,9 +96,8 @@ jobs:
         generate-coverage-badge: false
         generate-branches-badge: false
         generate-summary: true
-    - name: Add coverage comment to PR
+    - name: Generate coverage comment
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      continue-on-error: true
       run: |
         # Helper functions
         parse_coverage() {
@@ -175,17 +174,17 @@ jobs:
 
         <!-- jacoco-coverage-comment -->"
 
-        # Find and delete existing coverage comment
-        COMMENT_ID=$(gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | select(.body | contains("<!-- jacoco-coverage-comment -->")) | .id' | head -1)
-
-        if [ -n "$COMMENT_ID" ]; then
-          gh api -X DELETE "repos/${{ github.repository }}/issues/comments/$COMMENT_ID" || true
-        fi
-
-        # Post new comment (may fail for PRs from forks due to permissions)
-        gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT_BODY"
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Save comment for the workflow_run
+        mkdir -p pr-comment
+        echo "${{ github.event.pull_request.number }}" > pr-comment/pr-number.txt
+        echo "$COMMENT_BODY" > pr-comment/comment-body.txt
+    - name: Upload PR comment
+      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: pr-comment
+        path: pr-comment/
+        retention-days: 1
 
   trigger-dep-build-v2:
     name: Trigger v2 dep builds

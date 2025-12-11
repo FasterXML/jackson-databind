@@ -100,69 +100,59 @@ jobs:
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
       continue-on-error: true
       run: |
+        # Helper functions
+        parse_coverage() {
+          local csv_file=$1 col_missed=$2 col_covered=$3
+          awk -F',' -v m="$col_missed" -v c="$col_covered" \
+            'NR>1 && $1=="Jackson-databind" {
+              missed=$m; covered=$c;
+              if (missed + covered > 0) printf "%.1f", (covered * 100.0) / (missed + covered)
+            }' "$csv_file" | head -1
+        }
+
+        format_delta() {
+          local delta=$1
+          if awk -v d="$delta" 'BEGIN { exit (d >= 0) ? 0 : 1 }'; then
+            echo "+${delta}%|📈"
+          else
+            echo "${delta}%|📉"
+          fi
+        }
+
+        get_color() {
+          awk -v v="$1" 'BEGIN {
+            if (v >= 80) print "brightgreen"
+            else if (v >= 60) print "green"
+            else if (v >= 40) print "yellow"
+            else print "red"
+          }'
+        }
+
         # Convert decimal to percentage and round to 1 decimal place
         COVERAGE=$(awk -v cov="${{ steps.jacoco.outputs.coverage }}" 'BEGIN { printf "%.1f", cov * 100 }')
         BRANCHES=$(awk -v br="${{ steps.jacoco.outputs.branches }}" 'BEGIN { printf "%.1f", br * 100 }')
 
-        # Check if base coverage artifact was downloaded
+        # Check if base coverage artifact was downloaded and calculate deltas
+        HAS_DELTA=false
         if [ -f "base-coverage/jacoco.csv" ]; then
           echo "Found base branch coverage from artifact"
-          BASE_CSV="base-coverage/jacoco.csv"
-
-          # Parse base branch coverage
-          BASE_COVERAGE=$(awk -F',' 'NR>1 && $1=="Jackson-databind" {
-            missed=$4; covered=$5;
-            if (missed + covered > 0) printf "%.1f", (covered * 100.0) / (missed + covered)
-          }' "$BASE_CSV" | head -1)
-          BASE_BRANCHES=$(awk -F',' 'NR>1 && $1=="Jackson-databind" {
-            missed=$6; covered=$7;
-            if (missed + covered > 0) printf "%.1f", (covered * 100.0) / (missed + covered)
-          }' "$BASE_CSV" | head -1)
+          BASE_COVERAGE=$(parse_coverage "base-coverage/jacoco.csv" 4 5)
+          BASE_BRANCHES=$(parse_coverage "base-coverage/jacoco.csv" 6 7)
 
           if [ -n "$BASE_COVERAGE" ] && [ -n "$BASE_BRANCHES" ]; then
-            # Calculate deltas
             COV_DELTA=$(awk -v curr="$COVERAGE" -v base="$BASE_COVERAGE" 'BEGIN { printf "%.1f", curr - base }')
             BR_DELTA=$(awk -v curr="$BRANCHES" -v base="$BASE_BRANCHES" 'BEGIN { printf "%.1f", curr - base }')
 
-            # Format delta strings with + or - signs
-            if awk -v delta="$COV_DELTA" 'BEGIN { exit (delta >= 0) ? 0 : 1 }'; then
-              COV_DELTA_STR="+${COV_DELTA}%"
-              COV_DELTA_EMOJI="📈"
-            else
-              COV_DELTA_STR="${COV_DELTA}%"
-              COV_DELTA_EMOJI="📉"
-            fi
-
-            if awk -v delta="$BR_DELTA" 'BEGIN { exit (delta >= 0) ? 0 : 1 }'; then
-              BR_DELTA_STR="+${BR_DELTA}%"
-              BR_DELTA_EMOJI="📈"
-            else
-              BR_DELTA_STR="${BR_DELTA}%"
-              BR_DELTA_EMOJI="📉"
-            fi
+            IFS='|' read -r COV_DELTA_STR COV_DELTA_EMOJI <<< "$(format_delta "$COV_DELTA")"
+            IFS='|' read -r BR_DELTA_STR BR_DELTA_EMOJI <<< "$(format_delta "$BR_DELTA")"
 
             HAS_DELTA=true
-          else
-            HAS_DELTA=false
           fi
-        else
-          HAS_DELTA=false
         fi
 
-        # Determine color for coverage badge using awk (more portable than bc)
-        COV_COLOR=$(awk -v cov="$COVERAGE" 'BEGIN {
-          if (cov >= 80) print "brightgreen"
-          else if (cov >= 60) print "green"
-          else if (cov >= 40) print "yellow"
-          else print "red"
-        }')
-
-        BR_COLOR=$(awk -v br="$BRANCHES" 'BEGIN {
-          if (br >= 80) print "brightgreen"
-          else if (br >= 60) print "green"
-          else if (br >= 40) print "yellow"
-          else print "red"
-        }')
+        # Determine badge colors
+        COV_COLOR=$(get_color "$COVERAGE")
+        BR_COLOR=$(get_color "$BRANCHES")
 
         # Build coverage table with or without deltas
         if [ "$HAS_DELTA" = "true" ]; then

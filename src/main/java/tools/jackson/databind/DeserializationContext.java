@@ -1376,13 +1376,17 @@ public abstract class DeserializationContext
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             // Can bail out if it's handled
-            Object instance = h.value().handleNullForPrimitives(this, targetClass, deser, msg);
+            Object instance = h.value().handleNullForPrimitives(this, targetClass, deser, _parser, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
                 if (_isCompatible(targetClass, instance)) {
                     return instance;
                 }
-                return reportInputMismatch(deser, msg);
+                // In case our problem handler providing incompatible value,
+                throw InvalidFormatException.from(_parser,
+                        String.format("Cannot deserialize value of type %s from number %s: %s",
+                                targetClass, ClassUtil.getClassDescription(instance), msg)
+                );
             }
             h = h.next();
         }

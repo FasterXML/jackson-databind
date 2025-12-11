@@ -103,10 +103,14 @@ jobs:
         parse_coverage() {
           local csv_file=$1 col_missed=$2 col_covered=$3
           awk -F',' -v m="$col_missed" -v c="$col_covered" \
-            'NR>1 && $1=="Jackson-databind" {
-              missed=$m; covered=$c;
-              if (missed + covered > 0) printf "%.1f", (covered * 100.0) / (missed + covered)
-            }' "$csv_file" | head -1
+            'NR>1 && $1=="jackson-databind" {
+              total_missed += $m;
+              total_covered += $c;
+            }
+            END {
+              if (total_missed + total_covered > 0)
+                printf "%.1f", (total_covered * 100.0) / (total_missed + total_covered)
+            }' "$csv_file"
         }
 
         format_delta() {

@@ -26,7 +26,7 @@ jobs:
         COMMENT_BODY=$(cat pr-comment/comment-body.txt)
 
         # Find and delete existing comment
-        COMMENT_ID=$(gh pr view $PR_NUMBER --json comments \
+        COMMENT_ID=$(gh pr view $PR_NUMBER --repo ${{ github.repository }} --json comments \
           --jq '.comments[] | select(.body | contains("<!-- jacoco-coverage-comment -->")) | .id' | head -1)
 
         if [ -n "$COMMENT_ID" ]; then
@@ -34,6 +34,6 @@ jobs:
         fi
 
         # Post new comment
-        gh pr comment $PR_NUMBER --body "$COMMENT_BODY"
+        gh pr comment $PR_NUMBER --repo ${{ github.repository }} --body "$COMMENT_BODY"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

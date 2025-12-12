@@ -1,11 +1,12 @@
 package tools.jackson.databind.deser.impl;
 
+import java.io.IOException;
 import java.util.*;
 
 import tools.jackson.core.*;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.PropertyName;
+import tools.jackson.databind.*;
 import tools.jackson.databind.deser.SettableBeanProperty;
+import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
@@ -108,5 +109,30 @@ public class UnwrappedPropertyHandler
      */
     public static PropertyName creatorParamName(int index) {
         return new PropertyName(JSON_UNWRAPPED_NAME_PREFIX + index);
+    }
+
+    /**
+     * Collect property names from unwrapped beans for {@code ACCEPT_EMPTY_UNWRAPPED_AS_NULL} feature.
+     *
+     * @since 3.1
+     */
+    public Set<String> collectUnwrappedPropertyNames() {
+        Set<String> names = new HashSet<>();
+        for (SettableBeanProperty prop : this._properties) {
+            ValueDeserializer<Object> deser = prop.getValueDeserializer();
+            if (deser instanceof BeanDeserializerBase beanDeser) {
+                Iterator<SettableBeanProperty> it = beanDeser.properties();
+                while (it.hasNext()) {
+                    names.add(it.next().getName());
+                }
+            }
+        }
+        return names;
+    }
+
+    public void setAllPropertiesToNull(DeserializationContext ctxt, Object bean) throws JacksonException {
+        for (SettableBeanProperty prop : _properties) {
+            prop.set(ctxt, bean, null);
+        }
     }
 }

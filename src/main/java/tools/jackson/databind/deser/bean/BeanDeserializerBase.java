@@ -161,6 +161,12 @@ public abstract class BeanDeserializerBase
      */
     protected final Map<String, SettableBeanProperty> _backRefs;
 
+    /**
+     * Property names belonging to unwrapped properties.
+     * @since 3.1
+     */
+    protected Set<String> _unwrappedPropertyNames;
+
     /*
     /**********************************************************************
     /* Related handlers
@@ -284,6 +290,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _unwrappedPropertyNames = src._unwrappedPropertyNames;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -350,6 +357,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _unwrappedPropertyNames = src._unwrappedPropertyNames;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -394,6 +402,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _unwrappedPropertyNames = src._unwrappedPropertyNames;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -429,6 +438,7 @@ public abstract class BeanDeserializerBase
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
+        _unwrappedPropertyNames = src._unwrappedPropertyNames;
         _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
@@ -638,6 +648,11 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         _unwrappedPropertyHandler = unwrapped;
         if (unwrapped != null) { // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
+
+            // [databind#1709]: Collect unwrapped property names
+            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_UNWRAPPED_AS_NULL)) {
+                _unwrappedPropertyNames = _collectUnwrappedPropertyNames();
+            }
         }
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
@@ -1888,5 +1903,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             ClassUtil.throwIfRTE(t);
         }
         return ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
+    }
+
+    // [databind#1709]: Collect @JsonUnwrapped through handler
+    private Set<String> _collectUnwrappedPropertyNames() {
+        Set<String> names = _unwrappedPropertyHandler.collectUnwrappedPropertyNames();
+        return names.isEmpty() ? Collections.emptySet() : names;
     }
 }

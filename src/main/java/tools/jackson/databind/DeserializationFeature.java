@@ -418,6 +418,19 @@ public enum DeserializationFeature implements ConfigFeature
     ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT(false),
 
     /**
+     * Feature that determines whether a POJO property annotated with
+     * {@link com.fasterxml.jackson.annotation.JsonUnwrapped} should remain {@code null}
+     * if no corresponding unwrapped values are present in the input.
+     * If enabled, an unwrapped property is only instantiated when at least one
+     * matching property is encountered; if disabled, an empty instance may be created.
+     * <p>
+     * Feature is disabled by default.
+     *
+     * @since 3.1
+     */
+    ACCEPT_EMPTY_UNWRAPPED_AS_NULL(false),
+
+    /**
      * Feature that determines whether coercion from JSON floating point
      * number (anything with command (`.`) or exponent portion (`e` / `E'))
      * to an expected integral number (`int`, `long`, `java.lang.Integer`, `java.lang.Long`,

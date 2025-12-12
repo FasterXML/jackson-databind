@@ -887,6 +887,10 @@ public class BeanDeserializer
         }
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
+        final Set<String> unwrappedPropertyNames  = _unwrappedPropertyNames;
+        // [databind#1709]: true if any unwrapped property has non-null value
+        boolean hasNonNullUnwrappedContent = false;
+
         for (int ix = p.currentNameMatch(_propNameMatcher); ; ix = p.nextNameMatch(_propNameMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();
@@ -915,6 +919,15 @@ public class BeanDeserializer
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
+
+            // [databind#1709]: Track non-null unwrapped property
+            if (unwrappedPropertyNames != null
+                    && propName != null && unwrappedPropertyNames.contains(propName)) {
+                if (p.currentToken() != JsonToken.VALUE_NULL) {
+                    hasNonNullUnwrappedContent = true;
+                }
+            }
+
             // 29-Nov-2016, tatu: probably should try to avoid sending content
             //    both to any setter AND buffer... but, for now, the only thing
             //    we can do.
@@ -936,7 +949,14 @@ public class BeanDeserializer
             }
         }
         tokens.writeEndObject();
-        _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
+
+        // [databind#1709] :Skip processUnwrapped if empty, keeping unwrapped properties null
+        if (unwrappedPropertyNames != null && !hasNonNullUnwrappedContent) {
+            _unwrappedPropertyHandler.setAllPropertiesToNull(ctxt, bean);
+        } else {
+            _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
+        }
+
         return bean;
     }
 

@@ -33,7 +33,15 @@ jobs:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
     - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-    - name: Set up JDK
+    - name: Set up JDK (for PRs)
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+      with:
+        distribution: 'temurin'
+        java-version: ${{ matrix.java_version }}
+        cache: 'maven'
+    - name: Set up JDK with deployment credentials (for pushes)
+      if: ${{ github.event_name != 'pull_request' }}
       uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
       with:
         distribution: 'temurin'
@@ -143,8 +151,8 @@ jobs:
           BASE_BRANCHES=$(parse_coverage "base-coverage/jacoco.csv" 6 7)
 
           if [ -n "$BASE_COVERAGE" ] && [ -n "$BASE_BRANCHES" ]; then
-            COV_DELTA=$(awk -v curr="$COVERAGE" -v base="$BASE_COVERAGE" 'BEGIN { printf "%.1f", curr - base }')
-            BR_DELTA=$(awk -v curr="$BRANCHES" -v base="$BASE_BRANCHES" 'BEGIN { printf "%.1f", curr - base }')
+            COV_DELTA=$(awk -v curr="$COVERAGE" -v base="$BASE_COVERAGE" 'BEGIN { printf "%.3f", curr - base }')
+            BR_DELTA=$(awk -v curr="$BRANCHES" -v base="$BASE_BRANCHES" 'BEGIN { printf "%.3f", curr - base }')
 
             IFS='|' read -r COV_DELTA_STR COV_DELTA_EMOJI <<< "$(format_delta "$COV_DELTA")"
             IFS='|' read -r BR_DELTA_STR BR_DELTA_EMOJI <<< "$(format_delta "$BR_DELTA")"

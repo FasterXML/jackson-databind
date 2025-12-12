@@ -10,13 +10,14 @@ import tools.jackson.databind.ser.SerializerFactory;
 
 /**
  * Factory/builder class that replaces Jackson 2.x concept of "blueprint" instance
- * of {@link tools.jackson.databind.SerializationContext}. It will be constructed and configured during
- * {@link ObjectMapper} building phase, and will be called once per {@code writeValue}
- * call to construct actual stateful {@link tools.jackson.databind.SerializationContext} to use during
- * serialization.
+ * of {@link tools.jackson.databind.SerializationContext}. It will be constructed
+ * and configured during {@link ObjectMapper} building phase,
+ * and will be called once per {@code writeValue} call to construct actual stateful
+ * {@link tools.jackson.databind.SerializationContext} to use during serialization.
  *<p>
  * Note that since this object has to be serializable (to allow JDK serialization of
- * mapper instances), {@link tools.jackson.databind.SerializationContext} need not be serializable any more.
+ * mapper instances), {@link tools.jackson.databind.SerializationContext}
+ * need not be serializable any more.
  *
  * @since 3.0
  */

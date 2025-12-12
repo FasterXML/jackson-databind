@@ -11,6 +11,7 @@ on:
     - "release-notes/*"
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   build:
@@ -60,9 +61,9 @@ jobs:
         CI_DEPLOY_PASSWORD: ${{ secrets.CENTRAL_DEPLOY_PASSWORD }}
         # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       run: ./mvnw -B -q -ff -DskipTests -ntp source:jar deploy
-    - name: Generate code coverage 
-      if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
-      run: ./mvnw -B -q -ff -ntp test
+    - name: Generate code coverage
+      if: ${{ matrix.release_build }}
+      run: ./mvnw -B -q -ff -ntp test jacoco:report
     - name: Publish code coverage
       if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
       uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
@@ -70,6 +71,124 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./target/site/jacoco/jacoco.xml
         flags: unittests
+    - name: Upload coverage report as artifact
+      if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: jacoco-report
+        path: target/site/jacoco/jacoco.csv
+        retention-days: 30
+    - name: Download base branch coverage
+      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
+      uses: dawidd6/action-download-artifact@v6
+      continue-on-error: true
+      with:
+        workflow: main.yml
+        branch: ${{ github.event.pull_request.base.ref }}
+        name: jacoco-report
+        path: base-coverage/
+    - name: Generate coverage summary
+      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
+      id: jacoco
+      uses: cicirello/jacoco-badge-generator@v2.12.1
+      with:
+        jacoco-csv-file: target/site/jacoco/jacoco.csv
+        generate-coverage-badge: false
+        generate-branches-badge: false
+        generate-summary: true
+    - name: Generate coverage comment
+      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
+      run: |
+        # Helper functions
+        parse_coverage() {
+          local csv_file=$1 col_missed=$2 col_covered=$3
+          awk -F',' -v m="$col_missed" -v c="$col_covered" \
+            'NR>1 && $1=="jackson-databind" {
+              total_missed += $m;
+              total_covered += $c;
+            }
+            END {
+              if (total_missed + total_covered > 0)
+                printf "%.1f", (total_covered * 100.0) / (total_missed + total_covered)
+            }' "$csv_file"
+        }
+
+        format_delta() {
+          local delta=$1
+          if awk -v d="$delta" 'BEGIN { exit (d >= 0) ? 0 : 1 }'; then
+            echo "+${delta}%|📈"
+          else
+            echo "${delta}%|📉"
+          fi
+        }
+
+        get_color() {
+          awk -v v="$1" 'BEGIN {
+            if (v >= 80) print "brightgreen"
+            else if (v >= 60) print "green"
+            else if (v >= 40) print "yellow"
+            else print "red"
+          }'
+        }
+
+        # Convert decimal to percentage and round to 1 decimal place
+        COVERAGE=$(awk -v cov="${{ steps.jacoco.outputs.coverage }}" 'BEGIN { printf "%.1f", cov * 100 }')
+        BRANCHES=$(awk -v br="${{ steps.jacoco.outputs.branches }}" 'BEGIN { printf "%.1f", br * 100 }')
+
+        # Check if base coverage artifact was downloaded and calculate deltas
+        HAS_DELTA=false
+        if [ -f "base-coverage/jacoco.csv" ]; then
+          echo "Found base branch coverage from artifact"
+          BASE_COVERAGE=$(parse_coverage "base-coverage/jacoco.csv" 4 5)
+          BASE_BRANCHES=$(parse_coverage "base-coverage/jacoco.csv" 6 7)
+
+          if [ -n "$BASE_COVERAGE" ] && [ -n "$BASE_BRANCHES" ]; then
+            COV_DELTA=$(awk -v curr="$COVERAGE" -v base="$BASE_COVERAGE" 'BEGIN { printf "%.1f", curr - base }')
+            BR_DELTA=$(awk -v curr="$BRANCHES" -v base="$BASE_BRANCHES" 'BEGIN { printf "%.1f", curr - base }')
+
+            IFS='|' read -r COV_DELTA_STR COV_DELTA_EMOJI <<< "$(format_delta "$COV_DELTA")"
+            IFS='|' read -r BR_DELTA_STR BR_DELTA_EMOJI <<< "$(format_delta "$BR_DELTA")"
+
+            HAS_DELTA=true
+          fi
+        fi
+
+        # Determine badge colors
+        COV_COLOR=$(get_color "$COVERAGE")
+        BR_COLOR=$(get_color "$BRANCHES")
+
+        # Build coverage table with or without deltas
+        if [ "$HAS_DELTA" = "true" ]; then
+          COVERAGE_TABLE="| Metric | Coverage | Change |
+        |--------|----------|--------|
+        | **Instructions** | ![coverage](https://img.shields.io/badge/coverage-${COVERAGE}%25-${COV_COLOR}) **${COVERAGE}%** | ${COV_DELTA_EMOJI} **${COV_DELTA_STR}** |
+        | **Branches** | ![branches](https://img.shields.io/badge/branches-${BRANCHES}%25-${BR_COLOR}) **${BRANCHES}%** | ${BR_DELTA_EMOJI} **${BR_DELTA_STR}** |"
+        else
+          COVERAGE_TABLE="| Metric | Coverage |
+        |--------|----------|
+        | **Instructions** | ![coverage](https://img.shields.io/badge/coverage-${COVERAGE}%25-${COV_COLOR}) **${COVERAGE}%** |
+        | **Branches** | ![branches](https://img.shields.io/badge/branches-${BRANCHES}%25-${BR_COLOR}) **${BRANCHES}%** |"
+        fi
+
+        COMMENT_BODY="## :test_tube: Code Coverage Report
+
+        $COVERAGE_TABLE
+
+        > Coverage data generated from JaCoCo test results
+
+        <!-- jacoco-coverage-comment -->"
+
+        # Save comment for the workflow_run
+        mkdir -p pr-comment
+        echo "${{ github.event.pull_request.number }}" > pr-comment/pr-number.txt
+        echo "$COMMENT_BODY" > pr-comment/comment-body.txt
+    - name: Upload PR comment
+      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: pr-comment
+        path: pr-comment/
+        retention-days: 1
 
   trigger-dep-build-v2:
     name: Trigger v2 dep builds

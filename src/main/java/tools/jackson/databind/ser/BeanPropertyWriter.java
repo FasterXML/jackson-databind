@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -840,8 +839,6 @@ public class BeanPropertyWriter
     }
 
     class GetterHolder extends UnreflectHandleSupplier {
-        private static final long serialVersionUID = 1L;
-
         public GetterHolder() {
             super(methodType(Object.class, Object.class));
         }

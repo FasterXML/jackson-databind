@@ -143,8 +143,8 @@ jobs:
           BASE_BRANCHES=$(parse_coverage "base-coverage/jacoco.csv" 6 7)
 
           if [ -n "$BASE_COVERAGE" ] && [ -n "$BASE_BRANCHES" ]; then
-            COV_DELTA=$(awk -v curr="$COVERAGE" -v base="$BASE_COVERAGE" 'BEGIN { printf "%.1f", curr - base }')
-            BR_DELTA=$(awk -v curr="$BRANCHES" -v base="$BASE_BRANCHES" 'BEGIN { printf "%.1f", curr - base }')
+            COV_DELTA=$(awk -v curr="$COVERAGE" -v base="$BASE_COVERAGE" 'BEGIN { printf "%.3f", curr - base }')
+            BR_DELTA=$(awk -v curr="$BRANCHES" -v base="$BASE_BRANCHES" 'BEGIN { printf "%.3f", curr - base }')
 
             IFS='|' read -r COV_DELTA_STR COV_DELTA_EMOJI <<< "$(format_delta "$COV_DELTA")"
             IFS='|' read -r BR_DELTA_STR BR_DELTA_EMOJI <<< "$(format_delta "$BR_DELTA")"

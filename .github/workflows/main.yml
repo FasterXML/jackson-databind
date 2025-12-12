@@ -33,18 +33,20 @@ jobs:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
     - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-    - name: Set up JDK
+    - name: Set up JDK (for PRs)
+      if: ${{ github.event_name == 'pull_request' }}
       uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
-    - name: Set up Maven deployment credentials
+    - name: Set up JDK with deployment credentials (for pushes)
       if: ${{ github.event_name != 'pull_request' }}
       uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
+        cache: 'maven'
         server-id: central-snapshots
         server-username: CI_DEPLOY_USERNAME
         server-password: CI_DEPLOY_PASSWORD

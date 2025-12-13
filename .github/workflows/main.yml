@@ -33,15 +33,15 @@ jobs:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
     - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-    - name: Set up JDK (for PRs)
-      if: ${{ github.event_name == 'pull_request' }}
+    - name: Set up JDK (without deployment credentials)
+      if: ${{ github.event_name == 'pull_request' || github.repository != 'FasterXML/jackson-databind' }}
       uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
-    - name: Set up JDK with deployment credentials (for pushes)
-      if: ${{ github.event_name != 'pull_request' }}
+    - name: Set up JDK with deployment credentials
+      if: ${{ github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
       uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
       with:
         distribution: 'temurin'
@@ -63,7 +63,7 @@ jobs:
       if: ${{ matrix.release_build }}
       run: ./mvnw -B -q -ff -ntp -DskipTests animal-sniffer:check
     - name: Deploy snapshot
-      if: ${{ matrix.release_build && github.event_name != 'pull_request' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
+      if: ${{ matrix.release_build && github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
       env:
         CI_DEPLOY_USERNAME: ${{ secrets.CENTRAL_DEPLOY_USERNAME }}
         CI_DEPLOY_PASSWORD: ${{ secrets.CENTRAL_DEPLOY_PASSWORD }}
@@ -73,14 +73,14 @@ jobs:
       if: ${{ matrix.release_build }}
       run: ./mvnw -B -q -ff -ntp test jacoco:report
     - name: Publish code coverage
-      if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
+      if: ${{ matrix.release_build && github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
       uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./target/site/jacoco/jacoco.xml
         flags: unittests
     - name: Upload coverage report as artifact
-      if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
+      if: ${{ matrix.release_build && github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
       uses: actions/upload-artifact@v4
       with:
         name: jacoco-report
@@ -201,8 +201,8 @@ jobs:
   trigger-dep-build-v2:
     name: Trigger v2 dep builds
     needs: [build]
-    # Only for pushes to 2.x (next 2.x being developed) branch
-    if: ${{ github.event_name == 'push' && github.ref_name == '2.x' }}
+    # Only for pushes to 2.x (next 2.x being developed) branch on main repository
+    if: ${{ github.event_name == 'push' && github.ref_name == '2.x' && github.repository == 'FasterXML/jackson-databind' }}
     uses: ./.github/workflows/trigger_dep_builds_v2.yml
     secrets:
       token: ${{ secrets.REPO_DISPATCH }}
@@ -210,8 +210,8 @@ jobs:
   trigger-dep-build-v3:
     name: Trigger v3 dep builds
     needs: [build]
-    # Only for pushes to 3.x branch
-    if: ${{ github.event_name == 'push' && github.ref_name == '3.x' }}
+    # Only for pushes to 3.x branch on main repository
+    if: ${{ github.event_name == 'push' && github.ref_name == '3.x' && github.repository == 'FasterXML/jackson-databind' }}
     uses: ./.github/workflows/trigger_dep_builds_v3.yml
     secrets:
       token: ${{ secrets.REPO_DISPATCH }}

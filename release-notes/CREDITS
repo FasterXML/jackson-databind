@@ -125,10 +125,13 @@ Oliver Drotbohm (@odrotbohm)
 
 @JacksonJang
  * Contributed fix for #4629: `@JsonIncludeProperties` and `@JsonIgnoreProperties`
-  ignored when deserializing Records
+   ignored when deserializing Records
   [3.1.0]
  * Contributed fix for #5115: `@JsonUnwrapped` Record deserialization can't handle
-  name collision
+   name collision
+  [3.1.0]
+ * Contributed fix for #5405: `@JsonFormat(shape = Shape.POJO)` does not work for
+   `java.util.Map` serialization via property annotation
   [3.1.0]
 
 Viktor Szathmáry (@phraktle)

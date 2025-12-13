@@ -695,6 +695,10 @@ public abstract class SerializationContext
         ValueSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _createAndCachePropertySerializer(valueType, property);
+        } else if (property != null) {
+            BeanDescription.Supplier beanDescRef = lazyIntrospectBeanDescription(valueType);
+            // [databind#5405]: property-level @JsonFormat must be honored even with cached serializers
+            ser = _checkShapeShifting(valueType, beanDescRef, property, ser);
         }
         return handlePrimaryContextualization(ser, property);
     }
@@ -705,13 +709,25 @@ public abstract class SerializationContext
     public ValueSerializer<Object> findPrimaryPropertySerializer(Class<?> rawType,
             BeanProperty property)
     {
+        boolean checkShape = (property != null);
+        JavaType fullType = null;
+
         ValueSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
-            JavaType fullType = _config.constructType(rawType);
+            fullType = _config.constructType(rawType);
             ser = _serializerCache.untypedValueSerializer(fullType);
             if (ser == null) {
+                checkShape = false; // because next call does it
                 ser = _createAndCachePropertySerializer(rawType, fullType, property);
             }
+        }
+        if (checkShape) {
+            if (fullType == null) {
+                fullType = _config.constructType(rawType);
+            }
+            BeanDescription.Supplier beanDescRef = lazyIntrospectBeanDescription(fullType);
+            // [databind#5405]: property-level @JsonFormat must be honored even with cached serializers
+            ser = _checkShapeShifting(fullType, beanDescRef, property, ser);
         }
         return handlePrimaryContextualization(ser, property);
     }
@@ -1041,7 +1057,7 @@ public abstract class SerializationContext
             BeanDescription.Supplier beanDescRef, BeanProperty prop, ValueSerializer<?> ser)
     {
         JsonFormat.Value overrides = prop.findFormatOverrides(_config);
-        if (overrides != null) {
+        if (overrides != null && overrides != JsonFormat.Value.empty()) {
             // First: it may be completely fine to use serializer, despite some overrides
             ValueSerializer<?> ser2 = ser.withFormatOverrides(_config, overrides);
             if (ser2 != null) {

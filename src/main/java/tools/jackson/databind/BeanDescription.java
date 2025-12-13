@@ -198,14 +198,22 @@ public abstract class BeanDescription
      */
     public abstract AnnotatedMember findJsonValueAccessor();
 
+    /**
+     * Method used to locate the Method or Field of introspected class that
+     * is annotated with {@link com.fasterxml.jackson.annotation.JsonAnyGetter}
+     * (or equivalent annotation).
+     * If no such {@code AnnotatedMember} exists {@code null} is returned.
+     * If more than one are found, an exception is thrown.
+     */
     public abstract AnnotatedMember findAnyGetter();
 
     /**
      * Method used to locate a mutator (settable field, or 2-argument set method)
      * of introspected class that
-     * implements {@link com.fasterxml.jackson.annotation.JsonAnySetter}.
-     * If no such mutator exists null is returned. If more than one are found,
-     * an exception is thrown.
+     * is annotated with {@link com.fasterxml.jackson.annotation.JsonAnySetter}
+     * (or equivalent annotation).
+     * If no such mutator exists {@code null} is returned.
+     * If more than one are found an exception is thrown.
      * Additional checks are also made to see that method signature
      * is acceptable: needs to take 2 arguments, first one String or
      * Object; second any can be any type.

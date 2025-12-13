@@ -270,8 +270,7 @@ public class DecimalNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof DecimalNode) {
-            DecimalNode otherNode = (DecimalNode) o;
+        if (o instanceof DecimalNode otherNode) {
             return otherNode._value.equals(_value);
         }
         return false;

@@ -1018,7 +1018,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public final <T> T readValue(JsonParser p, ResolvedType valueType) throws JacksonException
+    public <T> T readValue(JsonParser p, ResolvedType valueType) throws JacksonException
     {
         _assertNotNull("p", p);
         return (T) _readValue(_deserializationContext(p), p, (JavaType) valueType);
@@ -1274,8 +1274,8 @@ public class ObjectMapper
         // 20-Apr-2016, tatu: Another thing: for VALUE_EMBEDDED_OBJECT, assume similar
         //    short-cut coercion
         if (tt == JsonToken.VALUE_EMBEDDED_OBJECT) {
-            if (n instanceof POJONode) {
-                Object ob = ((POJONode) n).getPojo();
+            if (n instanceof POJONode pNode) {
+                Object ob = pNode.getPojo();
                 if ((ob == null) || valueType.isInstance(ob)) {
                     return (T) ob;
                 }
@@ -1308,8 +1308,8 @@ public class ObjectMapper
         }
         final JsonToken tt = n.asToken();
         if (tt == JsonToken.VALUE_EMBEDDED_OBJECT) {
-            if (n instanceof POJONode) {
-                Object ob = ((POJONode) n).getPojo();
+            if (n instanceof POJONode pNode) {
+                Object ob = pNode.getPojo();
                 if ((ob == null) || valueType.isTypeOrSuperTypeOf(ob.getClass())) {
                     return (T) ob;
                 }

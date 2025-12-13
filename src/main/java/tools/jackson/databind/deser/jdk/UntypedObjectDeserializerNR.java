@@ -144,14 +144,11 @@ final class UntypedObjectDeserializerNR
             }
             break;
         case JsonTokenId.ID_START_ARRAY:
-            {
-                JsonToken t = p.nextToken(); // to get to FIELD_NAME or END_OBJECT
+            if (intoValue instanceof Collection<?>) {
+                JsonToken t = p.nextToken(); // to get to END_OBJECT
                 if (t == JsonToken.END_ARRAY) {
                     return intoValue;
                 }
-            }
-
-            if (intoValue instanceof Collection<?>) {
                 Collection<Object> c = (Collection<Object>) intoValue;
                 // NOTE: merge for arrays/Collections means append, can't merge contents
                 do {
@@ -161,6 +158,7 @@ final class UntypedObjectDeserializerNR
             }
             // 21-Apr-2017, tatu: Should we try to support merging of Object[] values too?
             //    ... maybe future improvement
+
             break;
         }
         // Easiest handling for the rest, delegate. Only (?) question: how about nulls?
@@ -354,48 +352,6 @@ final class UntypedObjectDeserializerNR
             return p.getFloatValue();
         }
         return p.getDoubleValue();
-    }
-    
-    // NOTE: copied from above (alas, no easy way to share/reuse)
-    // @since 2.12 (wrt [databind#2733]
-    protected Object _mapObjectWithDups(JsonParser p, DeserializationContext ctxt,
-            final Map<String, Object> result, String initialKey,
-            Object oldValue, Object newValue, String nextKey)
-        throws JacksonException
-    {
-        final boolean squashDups = ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES);
-
-        if (squashDups) {
-            _squashDups(result, initialKey, oldValue, newValue);
-        }
-
-        while (nextKey != null) {
-            p.nextToken();
-            newValue = deserialize(p, ctxt);
-            oldValue = result.put(nextKey, newValue);
-            if ((oldValue != null) && squashDups) {
-                _squashDups(result, nextKey, oldValue, newValue);
-            }
-            nextKey = p.nextName();
-        }
-
-        return result;
-    }
-
-    // NOTE: copied from above (alas, no easy way to share/reuse)
-    @SuppressWarnings("unchecked")
-    private void _squashDups(final Map<String, Object> result, String key,
-            Object oldValue, Object newValue)
-    {
-        if (oldValue instanceof List<?>) {
-            ((List<Object>) oldValue).add(newValue);
-            result.put(key, oldValue);
-        } else {
-            ArrayList<Object> l = new ArrayList<>();
-            l.add(oldValue);
-            l.add(newValue);
-            result.put(key, l);
-        }
     }
 
     /*

@@ -373,14 +373,16 @@ public class VisibilityChecker
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof VisibilityChecker)) return false;
-        VisibilityChecker other = (VisibilityChecker) o;
-        return _fieldMinLevel == other._fieldMinLevel
-                && _getterMinLevel == other._getterMinLevel
-                && _isGetterMinLevel == other._isGetterMinLevel
-                && _setterMinLevel == other._setterMinLevel
-                &&  _creatorMinLevel== other._creatorMinLevel
-                &&  _scalarConstructorMinLevel == other._scalarConstructorMinLevel
-                ;
+        if (o instanceof VisibilityChecker other) {
+            return _fieldMinLevel == other._fieldMinLevel
+                    && _getterMinLevel == other._getterMinLevel
+                    && _isGetterMinLevel == other._isGetterMinLevel
+                    && _setterMinLevel == other._setterMinLevel
+                    &&  _creatorMinLevel== other._creatorMinLevel
+                    &&  _scalarConstructorMinLevel == other._scalarConstructorMinLevel
+                    ;
+        } else {
+            return false;
+        }
     }
 }

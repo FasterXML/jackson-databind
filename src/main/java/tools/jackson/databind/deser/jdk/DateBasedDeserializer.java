@@ -115,8 +115,8 @@ public abstract class DateBasedDeserializer<T>
                     // otherwise need to clone,
                     df = (DateFormat) df.clone();
                     df.setLenient(lenient);
-                    if (df instanceof SimpleDateFormat) {
-                        ((SimpleDateFormat) df).toPattern();
+                    if (df instanceof SimpleDateFormat sdf) {
+                        sdf.toPattern();
                     }
                 }
                 if (pattern == null) {

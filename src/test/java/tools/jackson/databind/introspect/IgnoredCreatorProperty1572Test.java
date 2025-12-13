@@ -39,10 +39,9 @@ public class IgnoredCreatorProperty1572Test extends DatabindTestUtil
 
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
-            if (member instanceof AnnotatedParameter) {
+            if (member instanceof AnnotatedParameter param) {
                 // A placeholder for legitimate property name detection
                 // such as what the JDK8 module provides
-                AnnotatedParameter param = (AnnotatedParameter) member;
                 switch (param.getIndex()) {
                 case 0:
                     return "innerTest";

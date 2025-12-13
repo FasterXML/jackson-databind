@@ -485,8 +485,8 @@ public abstract class BaseJsonNode
     {
         // Degenerate case of using with "empty" path; ok if ObjectNode
         if (ptr.matches()) {
-            if (this instanceof ObjectNode) {
-                return (ObjectNode) this;
+            if (this instanceof ObjectNode objectNode) {
+                return objectNode;
             }
             _reportWrongNodeType("Can only call `withObject()` with empty JSON Pointer on `ObjectNode`, not %s",
                     ClassUtil.nameOf(getClass()));
@@ -551,8 +551,8 @@ public abstract class BaseJsonNode
     {
         // Degenerate case of using with "empty" path; ok if ArrayNode
         if (ptr.matches()) {
-            if (this instanceof ArrayNode) {
-                return (ArrayNode) this;
+            if (this instanceof ArrayNode arrayNode) {
+                return arrayNode;
             }
             _reportWrongNodeType("Can only call `withArray()` with empty JSON Pointer on `ArrayNode`, not %s",
                     ClassUtil.nameOf(getClass()));

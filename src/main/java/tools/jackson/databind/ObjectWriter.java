@@ -1328,9 +1328,9 @@ public class ObjectWriter
                 try {
                     ValueSerializer<Object> ser = ctxt.findTypedValueSerializer(newType, true);
                     // Important: for polymorphic types, "unwrap"...
-                    if (ser instanceof TypeWrappedSerializer) {
+                    if (ser instanceof TypeWrappedSerializer typeWrappedSerializer) {
                         return new Prefetch(newType, null,
-                                ((TypeWrappedSerializer) ser).typeSerializer());
+                                typeWrappedSerializer.typeSerializer());
                     }
                     return new Prefetch(newType, ser, null);
                 } catch (JacksonException e) {

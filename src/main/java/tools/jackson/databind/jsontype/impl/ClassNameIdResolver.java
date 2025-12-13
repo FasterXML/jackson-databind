@@ -73,8 +73,8 @@ public class ClassNameIdResolver
     protected JavaType _typeFromId(DatabindContext ctxt, String id) throws JacksonException
     {
         DeserializationContext deserializationContext = null;
-        if (ctxt instanceof DeserializationContext) {
-            deserializationContext = (DeserializationContext) ctxt;
+        if (ctxt instanceof DeserializationContext dContext) {
+            deserializationContext = dContext;
         }
         if ((_allowedSubtypes != null) && (deserializationContext != null)
                 && deserializationContext.isEnabled(
@@ -108,12 +108,12 @@ public class ClassNameIdResolver
             // Enum sets and maps are problematic since we MUST know type of
             // contained enums, to be able to deserialize.
             // In addition, EnumSet is not a concrete type either
-            if (value instanceof EnumSet<?>) { // Regular- and JumboEnumSet...
-                Class<?> enumClass = ClassUtil.findEnumType((EnumSet<?>) value);
+            if (value instanceof EnumSet<?> enumSet) { // Regular- and JumboEnumSet...
+                Class<?> enumClass = ClassUtil.findEnumType(enumSet);
                 // not optimal: but EnumSet is not a customizable type so this is sort of ok
                str = ctxt.getTypeFactory().constructCollectionType(EnumSet.class, enumClass).toCanonical();
-            } else if (value instanceof EnumMap<?,?>) {
-                Class<?> enumClass = ClassUtil.findEnumType((EnumMap<?,?>) value);
+            } else if (value instanceof EnumMap<?,?> enumMap) {
+                Class<?> enumClass = ClassUtil.findEnumType(enumMap);
                 Class<?> valueClass = Object.class;
                 // not optimal: but EnumMap is not a customizable type so this is sort of ok
                 str = ctxt.getTypeFactory().constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();

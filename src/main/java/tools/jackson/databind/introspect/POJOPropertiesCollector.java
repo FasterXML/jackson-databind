@@ -348,13 +348,9 @@ public class POJOPropertiesCollector
      */
     public JsonFormat.Value getFormatOverrides() {
         if (_formatOverrides == null) {
-            JsonFormat.Value format = null;
-
             // Let's check both per-type defaults and annotations;
             // per-type defaults having higher precedence, so start with annotations
-            if (_annotationIntrospector != null) {
-                format = _annotationIntrospector.findFormat(_config, _classDef);
-            }
+            JsonFormat.Value format = _annotationIntrospector.findFormat(_config, _classDef);
             JsonFormat.Value v = _config.getDefaultPropertyFormat(_type.getRawClass());
             if (v != null) {
                 if (format == null) {
@@ -948,8 +944,7 @@ ctor.creator()));
                 }
             }
             // Second: injectable also suffices
-            if ((_annotationIntrospector != null)
-                    && _annotationIntrospector.findInjectableValue(_config, ctor.param(0)) != null) {
+            if (_annotationIntrospector.findInjectableValue(_config, ctor.param(0)) != null) {
                 return true;
             }
             return false;
@@ -1019,8 +1014,7 @@ ctor.creator()));
             }
         } else {
             // First things first: if only param has Injectable, must be Props-based
-            if ((_annotationIntrospector != null)
-                    && _annotationIntrospector.findInjectableValue(_config, ctor.param(0)) != null) {
+            if (_annotationIntrospector.findInjectableValue(_config, ctor.param(0)) != null) {
                 // props-based, continue
             } else {
                 // may have explicit preference
@@ -1060,33 +1054,38 @@ ctor.creator()));
             final PropertyName explName = ctor.explicitName(i);
             PropertyName implName = ctor.implicitName(i);
             final boolean hasExplicit = (explName != null);
-            final POJOPropertyBuilder prop;
+            final boolean hasImplicit = (implName != null);
 
-            //  neither implicit nor explicit name?
-            if (!hasExplicit && (implName == null)) {
-                boolean isUnwrapping = _annotationIntrospector.findUnwrappingNameTransformer(_config, param) != null;
-
-                if (isUnwrapping) {
+            // First: check "Unwrapped" unless explicit name
+            if (!hasExplicit) {
+                var unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, param);
+                if (unwrapper != null) {
                     // If unwrapping, can use regardless of name; we will use a placeholder name
                     // anyway to try to avoid name conflicts.
                     PropertyName name = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
-                    prop = _property(props, name);
+                    final POJOPropertyBuilder prop = _property(props, name);
                     prop.addCtor(param, name, false, true, false);
-                } else {
+                    creatorProps.add(prop);
+                    continue;
+                }
+                if (!hasImplicit) {
                     // Without name, cannot make use of this creator parameter -- may or may not
                     // be a problem, verified at a later point.
-                    prop = null;
+                    creatorProps.add(null);
+                    continue;
                 }
-            } else {
-                // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
-                if (implName != null) {
-                    String n = _checkRenameByField(implName.getSimpleName());
-                    implName = PropertyName.construct(n);
-                }
-                prop = (implName == null)
-                        ? _property(props, explName) : _property(props, implName);
-                prop.addCtor(param, hasExplicit ? explName : implName, hasExplicit, true, false);
             }
+
+            // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
+            final POJOPropertyBuilder prop;
+            if (hasImplicit) {
+                String n = _checkRenameByField(implName.getSimpleName());
+                implName = PropertyName.construct(n);
+                prop = _property(props, implName);
+            } else {
+                prop = _property(props, explName);
+            }
+            prop.addCtor(param, hasExplicit ? explName : implName, hasExplicit, true, false);
             creatorProps.add(prop);
         }
         ctor.assignPropertyDefs(creatorProps);
@@ -1207,6 +1206,24 @@ ctor.creator()));
         // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
         implName = _checkRenameByField(implName);
         boolean ignore = _annotationIntrospector.hasIgnoreMarker(_config, m);
+        // 03-Dec-2025, tatu: [databind#5184]: Not the cleanest fix but here goes...
+        //  (why not clean? Ideally accessor reconciliation solved the issue, not
+        //  special case rule like done here)
+        // For Records, prevent "get"-prefix methods with @JsonIgnore from incorrectly
+        // affecting Record component fields (and thereby Creator parameters).
+        // For example, if getter method is "getValue()" with @JsonIgnore and there's a
+        // record component "value", the method should not cause the field to be ignored since
+        // the actual accessor is "value()".
+        // We check: is this a Record, does the method name NOT match the derived property name
+        // (indicating prefix was stripped), does the property already exist (from a record field),
+        // and does this method have @JsonIgnore?
+        if (_isRecordType && !nameExplicit && ignore && !implName.equals(m.getName())) {
+            POJOPropertyBuilder prop = props.get(implName);
+            if (prop != null && prop.hasField()) {
+                // Skip adding this getter to avoid its @JsonIgnore affecting the record field
+                return;
+            }
+        }
         _property(props, implName).addGetter(m, pn, nameExplicit, visible, ignore);
     }
 

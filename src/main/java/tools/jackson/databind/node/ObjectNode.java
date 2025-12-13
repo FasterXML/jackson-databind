@@ -56,6 +56,12 @@ public class ObjectNode
         return get(ptr.getMatchingProperty());
     }
 
+    @Override // @since 3.1
+    protected JsonNode _removeAt(JsonPointer ptr) {
+        JsonNode n = remove(ptr.getMatchingProperty());
+        return (n == null) ? missingNode() : n;
+    }
+
     @Override
     protected String _valueDesc() {
         return "{...(" + _children.size() + " properties}]";
@@ -138,8 +144,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ObjectNode found = baseNode._withObject(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -163,8 +169,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ArrayNode found = ((BaseJsonNode) n)._withArray(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ArrayNode found = baseNode._withArray(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -328,25 +334,24 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     @Override
     public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
     {
-        if (!(o instanceof ObjectNode)) {
-            return false;
-        }
-        ObjectNode other = (ObjectNode) o;
-        Map<String, JsonNode> m1 = _children;
-        Map<String, JsonNode> m2 = other._children;
+        if (o instanceof ObjectNode other) {
+            Map<String, JsonNode> m1 = _children;
+            Map<String, JsonNode> m2 = other._children;
 
-        final int len = m1.size();
-        if (m2.size() != len) {
-            return false;
-        }
-
-        for (Map.Entry<String, JsonNode> entry : m1.entrySet()) {
-            JsonNode v2 = m2.get(entry.getKey());
-            if ((v2 == null) || !entry.getValue().equals(comparator, v2)) {
+            final int len = m1.size();
+            if (m2.size() != len) {
                 return false;
             }
+
+            for (Map.Entry<String, JsonNode> entry : m1.entrySet()) {
+                JsonNode v2 = m2.get(entry.getKey());
+                if ((v2 == null) || !entry.getValue().equals(comparator, v2)) {
+                    return false;
+                }
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 
     /*
@@ -448,7 +453,6 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      * Method that can be called to serialize this node and
      * all of its descendants using specified JSON generator.
      */
-    @SuppressWarnings("deprecation")
     @Override
     public void serialize(JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
@@ -480,7 +484,6 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         g.writeEndObject();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void serializeWithType(JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
@@ -1030,8 +1033,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof ObjectNode) {
-            return _childrenEqual((ObjectNode) o);
+        if (o instanceof ObjectNode objectNode) {
+            return _childrenEqual(objectNode);
         }
         return false;
     }

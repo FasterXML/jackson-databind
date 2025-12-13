@@ -1045,7 +1045,7 @@ public abstract class SerializationContext
             BeanDescription.Supplier beanDescRef, BeanProperty prop, ValueSerializer<?> ser)
     {
         JsonFormat.Value overrides = prop.findFormatOverrides(_config);
-        if (overrides != null) {
+        if (overrides != null && overrides != JsonFormat.Value.empty()) {
             // First: it may be completely fine to use serializer, despite some overrides
             ValueSerializer<?> ser2 = ser.withFormatOverrides(_config, overrides);
             if (ser2 != null) {

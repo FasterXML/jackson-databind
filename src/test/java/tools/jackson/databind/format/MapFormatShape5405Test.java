@@ -81,13 +81,14 @@ public class MapFormatShape5405Test extends DatabindTestUtil
     }
 
     // [databind#5405]:
-    // 01-Dec-2025, JacksonJang: In this case, the @JsonFormat(shape = POJO) override behaves correctly even with b included.
+    // 01-Dec-2025, JacksonJang: In this case, the @JsonFormat(shape = POJO) override
+    // behaves correctly even with b included.
     @Test
     public void serializeAsPOJOViaFullProperty() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean5405Container(1,2,3));
         assertEquals(a2q(
-                        "{'a':{'extra':13,'empty':false},'b':{'value':2},'c':{'extra':13,'empty':false}}"),
+                "{'a':{'extra':13,'empty':false},'b':{'value':2},'c':{'extra':13,'empty':false}}"),
                 result);
     }
 

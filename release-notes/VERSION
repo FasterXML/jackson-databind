@@ -16,9 +16,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.4 (not yet released)
 
-#5481: JsonMapper.Builder.modules(...) ignores changes after build() due to
-  internal saveState
- (reported by @libetl)
 #1196: Add opt-in error collection for deserialization
  (requested by @odrotbohm)
  (contributed by @sri-adarsh-kumar)

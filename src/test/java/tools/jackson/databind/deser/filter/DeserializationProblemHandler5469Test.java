@@ -42,7 +42,7 @@ public class DeserializationProblemHandler5469Test
         public Object handleNullForPrimitives(DeserializationContext ctxt, Class<?> targetType,
                                               ValueDeserializer<?> deser, JsonParser p, String failureMsg
         ) throws JacksonException {
-            hitCountFirst++;
+            hitCountSecond++;
             return "THIS  IS AN ERROR";
         }
 
@@ -82,7 +82,7 @@ public class DeserializationProblemHandler5469Test
         throws Exception
     {
         // Given
-        assertEquals(0, hitCountFirst);
+        assertEquals(0, hitCountSecond);
         ObjectMapper mapper = JsonMapper.builder()
                 .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .addHandler(new MoreProblemHandler5469())
@@ -93,6 +93,8 @@ public class DeserializationProblemHandler5469Test
             mapper.readValue("{\"id\":  \"12ab\", \"name\": \"Bob\", " +
                     // Input is NULL, to cause problme
                     "\"age\": null}", Person5469.class);
+            // Sanity check, we hit the code path as we wanted
+            assertEquals(1, hitCountSecond);
             fail("Should not reach here.");
         } catch (InvalidFormatException e) {
             // Then

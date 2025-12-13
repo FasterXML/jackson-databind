@@ -1383,8 +1383,8 @@ public abstract class DeserializationContext
                 }
                 // In case our problem handler providing incompatible value,
                 throw new InvalidFormatException(_parser,
-                        String.format("Cannot deserialize value of type %s from type %s",
-                                targetClass, ClassUtil.getClassDescription(instance)),
+                        String.format("Registered DeserializationProblemHandler.handleNullForPrimitives() failed deserialize value of type %s from type %s",
+                                ClassUtil.nameOf(targetClass), ClassUtil.getClassDescription(instance)),
                                   instance, targetClass
                 );
             }

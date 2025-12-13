@@ -98,7 +98,7 @@ public class DeserializationProblemHandler5469Test
             fail("Should not reach here.");
         } catch (InvalidFormatException e) {
             // Then
-            verifyException(e, "Cannot deserialize value of type long from type `java.lang.String`");
+            verifyException(e, "Registered DeserializationProblemHandler.handleNullForPrimitives() failed deserialize value of type `long` from type `java.lang.String`");
         }
     }
 }

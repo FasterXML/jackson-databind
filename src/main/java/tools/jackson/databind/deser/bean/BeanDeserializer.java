@@ -678,11 +678,13 @@ public class BeanDeserializer
         }
 
         // [databind#1516]: Inject back references for managed reference creator properties
-        for (SettableBeanProperty prop : creator.properties()) {
-            if (prop instanceof ManagedReferenceProperty managedProp) {
-                Object value = buffer.getParameter(ctxt, prop);
-                if (value != null) {
-                    managedProp.set(ctxt, bean, value);
+        if (creator.hasManagedReferenceProperties()) {
+            for (SettableBeanProperty prop : creator.properties()) {
+                if (prop instanceof ManagedReferenceProperty managedProp) {
+                    Object value = buffer.getParameter(ctxt, prop);
+                    if (value != null) {
+                        managedProp.set(ctxt, bean, value);
+                    }
                 }
             }
         }

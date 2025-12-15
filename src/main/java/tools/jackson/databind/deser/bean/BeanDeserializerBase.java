@@ -848,6 +848,14 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
         if (oir != null && oir != _objectIdReader) {
             contextual = contextual.withObjectIdReader(oir);
         }
+
+        // [databind#1622]:
+        if (_propertyBasedCreator == null && _valueInstantiator.canCreateFromObjectWith()) {
+            SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+            _propertyBasedCreator = PropertyBasedCreator.construct(
+                    ctxt, _valueInstantiator, creatorProps, _beanProperties);
+        }
+
         // And possibly add more properties to ignore
         if (accessor != null) {
             contextual = _handleByNameInclusion(ctxt, intr, contextual, accessor);

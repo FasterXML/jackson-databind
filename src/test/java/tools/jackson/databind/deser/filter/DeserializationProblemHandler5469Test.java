@@ -89,7 +89,7 @@ public class DeserializationProblemHandler5469Test
         // When
         try {
             mapper.readValue("{\"id\":  \"12ab\", \"name\": \"Bob\", " +
-                    // Input is NULL, to cause problme
+                    // Input is NULL, to cause problem
                     "\"age\": null}", Person5469.class);
             // Sanity check, we hit the code path as we wanted
             assertEquals(1, hitCountSecond);

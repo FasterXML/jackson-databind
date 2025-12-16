@@ -8,14 +8,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.1.0 (not yet released)
 
-#5469 : Add callback to signal null for primitive in DeserializationProblemHandler
- (reported by @jnizet)
- (fixed by Joo-Hyuk K)
-
--
-
-3.0.4 (not yet released)
-
 #1196: Add opt-in error collection for deserialization
  (requested by @odrotbohm)
  (contributed by @sri-adarsh-kumar)
@@ -57,8 +49,18 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5456: Additional configuration (`JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES`: true)
   to MapperBuilder#configureForJackson2 to closer match Jackson 2 behavior
  (contributed by @nrayburn-tech)
+#5469 : Add callback to signal null for primitive in DeserializationProblemHandler
+ (reported by @jnizet)
+ (fixed by Joo-Hyuk K)
 #5475: Support `@JsonDeserializeAs` annotation
  (implemented by @cowtowncoder, w/ Claude code)
+
+3.0.4 (not yet released)
+
+#5481: JsonMapper.Builder.modules(...) ignores changes after build() due to
+  internal saveState
+ (reported by @libetl)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.0.3 (28-Nov-2025)
 

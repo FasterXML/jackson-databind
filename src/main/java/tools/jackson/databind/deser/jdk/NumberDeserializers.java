@@ -166,8 +166,8 @@ public class NumberDeserializers
             //    short-circuits `null` handling. Hence need this check as well.
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
                 return (T) ctxt.handleNullForPrimitives(handledType(), this,
-                        String.format("Cannot map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                                ClassUtil.classNameOf(handledType()))
+                        String.format("Cannot map `null` into type %s (set `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to 'false' to allow)",
+                                ClassUtil.nameOf(handledType()))
                 );
             }
             return _nullValue;
@@ -478,7 +478,8 @@ public class NumberDeserializers
                         "value outside valid Character range (0x0000 - 0xFFFF)");
             case JsonTokenId.ID_NULL:
                 if (_primitive) {
-                    _verifyNullForPrimitive(ctxt);
+                    char c = (char) _verifyNullForPrimitive(ctxt, p, '\0');
+                    return c;
                 }
                 return (Character) getNullValue(ctxt);
             case JsonTokenId.ID_START_ARRAY:

@@ -1344,7 +1344,7 @@ public abstract class DeserializationContext
                     return instance;
                 }
                 throw weirdStringException(value, targetClass, String.format(
-                        "DeserializationProblemHandler.handleWeirdStringValue() for type %s returned value of type %s",
+"`DeserializationProblemHandler.handleWeirdStringValue()` for type %s returned value of type %s",
                         ClassUtil.getClassDescription(targetClass),
                         ClassUtil.getClassDescription(instance)
                 ));
@@ -1352,45 +1352,6 @@ public abstract class DeserializationContext
             h = h.next();
         }
         throw weirdStringException(value, targetClass, msg);
-    }
-
-    /**
-     * Method that deserializers should call if they encounter a null value and
-     * target value type is a Primitive type.
-     *
-     * Default implementation will try to call {@link DeserializationContext#reportInputMismatch(Class, String, Object...)},
-     * which by default would throw {@link MismatchedInputException}
-     *
-     * @param targetClass Primitive type into which incoming {@code null} value should be converted to
-     * @param deser Type of {@link ValueDeserializer} calling this method
-     * @param msg Error message template caller wants to use if exception is to be thrown
-     *
-     * @throws JacksonException To indicate unrecoverable problem, usually based on <code>msg</code>
-     */
-    public Object handleNullForPrimitives(Class<?> targetClass,
-                                          ValueDeserializer<?> deser, String msg)
-            throws JacksonException
-    {
-        // but if not handled, just throw exception
-        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
-        while (h != null) {
-            // Can bail out if it's handled
-            Object instance = h.value().handleNullForPrimitives(this, targetClass, deser, _parser, msg);
-            if (instance != DeserializationProblemHandler.NOT_HANDLED) {
-                // Sanity check for broken handlers, otherwise nasty to debug:
-                if (_isCompatible(targetClass, instance)) {
-                    return instance;
-                }
-                // In case our problem handler providing incompatible value,
-                throw new InvalidFormatException(_parser,
-                        String.format("Registered DeserializationProblemHandler.handleNullForPrimitives() failed deserialize value of type %s from type %s",
-                                ClassUtil.nameOf(targetClass), ClassUtil.getClassDescription(instance)),
-                                  instance, targetClass
-                );
-            }
-            h = h.next();
-        }
-        return reportInputMismatch(deser, msg);
     }
 
     /**
@@ -1426,7 +1387,7 @@ public abstract class DeserializationContext
                     return key;
                 }
                 throw weirdNumberException(value, targetClass, _format(
-                        "DeserializationProblemHandler.handleWeirdNumberValue() for type %s returned value of type %s",
+"`DeserializationProblemHandler.handleWeirdNumberValue()` for type %s returned value of type %s",
                         ClassUtil.getClassDescription(targetClass),
                         ClassUtil.getClassDescription(key)
                 ));
@@ -1451,7 +1412,7 @@ public abstract class DeserializationContext
                     return goodValue;
                 }
                 throw DatabindException.from(p, _format(
-"DeserializationProblemHandler.handleWeirdNativeValue() for type %s returned value of type %s",
+"`DeserializationProblemHandler.handleWeirdNativeValue()` for type %s returned value of type %s",
                     ClassUtil.getClassDescription(targetType),
                     ClassUtil.getClassDescription(goodValue)
                 ));
@@ -1460,6 +1421,46 @@ public abstract class DeserializationContext
         throw weirdNativeValueException(badValue, raw);
     }
 
+    /**
+     * Method that deserializers should call if they encounter a null value and
+     * target value type is a Primitive type.
+     *
+     * Default implementation will try to call {@link DeserializationContext#reportInputMismatch(Class, String, Object...)},
+     * which by default would throw {@link MismatchedInputException}
+     *
+     * @param targetClass Primitive type into which incoming {@code null} value should be converted to
+     * @param deser Type of {@link ValueDeserializer} calling this method
+     * @param msg Error message template caller wants to use if exception is to be thrown
+     *
+     * @throws JacksonException To indicate unrecoverable problem, usually based on <code>msg</code>
+     *
+     * @since 3.1
+     */
+    public Object handleNullForPrimitives(Class<?> targetClass,
+            ValueDeserializer<?> deser, String msg)
+        throws JacksonException
+    {
+        // but if not handled, just throw exception
+        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        while (h != null) {
+            // Can bail out if it's handled
+            Object instance = h.value().handleNullForPrimitives(this, targetClass, deser, _parser, msg);
+            if (instance != DeserializationProblemHandler.NOT_HANDLED) {
+                // Sanity check for broken handlers, otherwise nasty to debug:
+                if (_isCompatible(targetClass, instance)) {
+                    return instance;
+                }
+                // In case our problem handler providing incompatible value,
+                throw new InvalidFormatException(_parser,
+String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for type %s returned value of type %s",
+                                ClassUtil.nameOf(targetClass), ClassUtil.getClassDescription(instance)),
+                                  instance, targetClass
+                        );
+            }
+            h = h.next();
+        }
+        return reportInputMismatch(deser, msg);
+    }
     /**
      * Method that deserializers should call if they fail to instantiate value
      * due to lack of viable instantiator (usually creator, that is, constructor

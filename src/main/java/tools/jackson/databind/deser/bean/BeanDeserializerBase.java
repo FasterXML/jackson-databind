@@ -1711,7 +1711,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             Object beanOrClass, String propName)
         throws JacksonException
     {
-        if (_ignoreAllUnknown) {
+        // [databind#650]: When unknown properties are encountered and
+        // FAIL_ON_UNKNOWN_PROPERTIES is enabled, throw an error instead of skipping
+        if (_ignoreAllUnknown && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
             p.skipChildren();
             return;
         }

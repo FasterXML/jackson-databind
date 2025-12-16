@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.deser;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +8,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -23,7 +22,6 @@ class UnwrappedWithUnknown650Test extends DatabindTestUtil {
     }
 
 
-    @JacksonTestFailureExpected
     @Test
     void failOnUnknownPropertyUnwrapped() throws Exception {
         final ObjectMapper mapper = JsonMapper.builder()
@@ -32,7 +30,7 @@ class UnwrappedWithUnknown650Test extends DatabindTestUtil {
 
         final String JSON = "{'field': 'value', 'bad':'bad value'}";
         try {
-            mapper.readValue(a2q(JSON), A.class);
+            A a = mapper.readValue(a2q(JSON), A.class);
             fail("Exception was not thrown on unknown property");
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized property");

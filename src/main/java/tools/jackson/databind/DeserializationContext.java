@@ -1429,22 +1429,26 @@ public abstract class DeserializationContext
      * which by default would throw {@link MismatchedInputException}
      *
      * @param targetClass Primitive type into which incoming {@code null} value should be converted to
+     * @param p Parser that points to the {@code null} read
      * @param deser Type of {@link ValueDeserializer} calling this method
-     * @param msg Error message template caller wants to use if exception is to be thrown
+     * @param msgTemplate Error message template caller wants to use if exception is to be thrown
+     * @param msgArgs Arguments for {@code msgTemplate} (if any)
      *
      * @throws JacksonException To indicate unrecoverable problem, usually based on <code>msg</code>
      *
      * @since 3.1
      */
     public Object handleNullForPrimitives(Class<?> targetClass,
-            ValueDeserializer<?> deser, String msg)
+            JsonParser p, ValueDeserializer<?> deser,
+            String msgTemplate, Object... msgArgs)
         throws JacksonException
     {
         // but if not handled, just throw exception
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        String msg = _format(msgTemplate, msgArgs);
         while (h != null) {
             // Can bail out if it's handled
-            Object instance = h.value().handleNullForPrimitives(this, targetClass, deser, _parser, msg);
+            Object instance = h.value().handleNullForPrimitives(this, targetClass, p, deser, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
                 if (_isCompatible(targetClass, instance)) {
@@ -1453,8 +1457,8 @@ public abstract class DeserializationContext
                 // In case our problem handler providing incompatible value,
                 throw new InvalidFormatException(_parser,
 String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for type %s returned value of type %s",
-                                ClassUtil.nameOf(targetClass), ClassUtil.getClassDescription(instance)),
-                                  instance, targetClass
+                    ClassUtil.nameOf(targetClass), ClassUtil.getClassDescription(instance)),
+                    instance, targetClass
                         );
             }
             h = h.next();
@@ -1472,7 +1476,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
      * @param instClass Type that was to be instantiated
      * @param valueInst (optional) Value instantiator to be used, if any; null if type does not
      *    use one for instantiation (custom deserialiers don't; standard POJO deserializer does)
-     * @param p Parser that points to the JSON value to decode
+     * @param p Parser that points to the input value to decode
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
      */
@@ -1496,7 +1500,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
                     return instance;
                 }
                 reportBadDefinition(constructType(instClass), String.format(
-"DeserializationProblemHandler.handleMissingInstantiator() for type %s returned value of type %s",
+"`DeserializationProblemHandler.handleMissingInstantiator()` for type %s returned value of type %s",
                     ClassUtil.getClassDescription(instClass),
                     ClassUtil.getClassDescription((instance)
                 )));

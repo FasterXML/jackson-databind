@@ -27,12 +27,11 @@ public class DeserializationProblemHandler5469Test
     {
         @Override
         public Object handleNullForPrimitives(DeserializationContext ctxt, Class<?> targetType,
-              ValueDeserializer<?> deser, JsonParser p, String failureMsg
+                JsonParser p, ValueDeserializer<?> deser, String failureMsg
         ) throws JacksonException {
             hitCountFirst++;
             return 5469L;
         }
-
     }
 
     private static int hitCountSecond = 0;
@@ -40,12 +39,11 @@ public class DeserializationProblemHandler5469Test
     {
         @Override
         public Object handleNullForPrimitives(DeserializationContext ctxt, Class<?> targetType,
-                                              ValueDeserializer<?> deser, JsonParser p, String failureMsg
+                JsonParser p, ValueDeserializer<?> deser,  String failureMsg
         ) throws JacksonException {
             hitCountSecond++;
             return "THIS  IS AN ERROR";
         }
-
     }
 
     // SUCCESS Test when problem handler was implemented as required.

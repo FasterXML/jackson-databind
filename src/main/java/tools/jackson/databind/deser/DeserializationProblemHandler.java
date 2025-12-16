@@ -7,7 +7,6 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.TypeIdResolver;
-import tools.jackson.databind.util.ClassUtil;
 
 /**
  * This is the class that can be registered (via
@@ -242,8 +241,8 @@ public abstract class DeserializationProblemHandler
      *
      * @param ctxt
      * @param targetType Target type to deserialize into
-     * @param deser Target deserializer that attempted to deserialize {@code null} value in question
      * @param p JsonParser used
+     * @param deser Target deserializer that attempted to deserialize {@code null} value in question
      * @param failureMsg Message that will be used by caller to indicate type of failure unless
      *                   handler produces value to use
      *
@@ -253,7 +252,7 @@ public abstract class DeserializationProblemHandler
      *    <code>null</code>
      */
     public Object handleNullForPrimitives(DeserializationContext ctxt,
-              Class<?> targetType, ValueDeserializer<?> deser, JsonParser p, String failureMsg)
+              Class<?> targetType, JsonParser p, ValueDeserializer<?> deser, String failureMsg)
         throws JacksonException
     {
         return NOT_HANDLED;

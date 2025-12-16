@@ -1626,10 +1626,10 @@ inputDesc, _coercedTypeDesc(targetType));
         throws DatabindException
     {
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            return ctxt.handleNullForPrimitives(handledType(),
+            return ctxt.handleNullForPrimitives(handledType(), p,
                     this,
-                    String.format("Cannot coerce `null` to %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
-                            _coercedTypeDesc()));
+"Cannot coerce `null` to %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
+                        _coercedTypeDesc());
         }
         return defaultValue;
     }

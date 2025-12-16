@@ -1424,9 +1424,10 @@ public abstract class DeserializationContext
     /**
      * Method that deserializers should call if they encounter a null value and
      * target value type is a Primitive type.
-     *
-     * Default implementation will try to call {@link DeserializationContext#reportInputMismatch(Class, String, Object...)},
-     * which by default would throw {@link MismatchedInputException}
+     * Default implementation will try to call {@link DeserializationProblemHandler#handleNullForPrimitives}
+     * on configured handlers, if any, to allow for recovery; if recovery does not
+     * succeed, will call {@link #reportInputMismatch} with given message,
+     * which will throw {@link MismatchedInputException}.
      *
      * @param targetClass Primitive type into which incoming {@code null} value should be converted to
      * @param p Parser that points to the {@code null} read

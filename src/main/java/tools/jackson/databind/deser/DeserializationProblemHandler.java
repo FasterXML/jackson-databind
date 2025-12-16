@@ -222,29 +222,28 @@ public abstract class DeserializationProblemHandler
     }
 
     /**
-     * Method that deserializers should call if the {@code null} value is encountered and
-     * need to deserialize as a Primitive types (e.g. int, long etc...)  that is, type of token that deserializer
-     * cannot handle). This could occur, for example, if a Number deserializer
-     * encounter {@link JsonToken#START_ARRAY} instead of
-     * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
+     * Method that deserializers should call if the {@code null} value is encountered when
+     * deserializing a Java primitive types ({@code int}, {@code long} etc) and
+     * {@link DeserializationFeature#FAIL_ON_NULL_FOR_PRIMITIVES} is enabled.
+     * Handler needs to do one of:
      *<ul>
      * <li>Indicate it does not know what to do by returning {@link #NOT_HANDLED}
      *  </li>
      * <li>Throw a {@link JacksonException} to indicate specific fail message (instead of
-     *    standard exception caller would throw
+     *    standard exception caller would throw)
      *  </li>
      * <li>Handle content to match (by consuming or skipping it), and return actual
-     *    instantiated value (of type <code>targetType</code>) to use as replacement;
-     *    value may be `null` as well as expected target type.
+     *    instantiated value (of type {@code targetType}) to use as replacement;
+     *    (of expected target type). NOTE: handler <b>SHOULD NOT</b> return {@code null}.
      *  </li>
      * </ul>
      *
-     * @param ctxt
+     * @param ctxt Deserialization context
      * @param targetType Target type to deserialize into
-     * @param p JsonParser used
-     * @param deser Target deserializer that attempted to deserialize {@code null} value in question
+     * @param p JsonParser used to read {@code null} input token
+     * @param deser Target deserializer that attempted to deserialize {@code null} target value
      * @param failureMsg Message that will be used by caller to indicate type of failure unless
-     *                   handler produces value to use
+     *           handler produces a value to use
      *
      *
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know

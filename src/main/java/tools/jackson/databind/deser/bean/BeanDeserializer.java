@@ -579,6 +579,12 @@ public class BeanDeserializer
 
             // Creator property?
             if (creatorProp != null) {
+                // [databind#2438]: Creator property is set only using the first value
+                //  when duplicate fields are present.
+                if (!isRecord && buffer.hasParameter(creatorProp)) {
+                    p.skipChildren();
+                    continue;
+                }
                 if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;

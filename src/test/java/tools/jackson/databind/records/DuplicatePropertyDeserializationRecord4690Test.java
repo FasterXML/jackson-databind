@@ -57,6 +57,6 @@ public class DuplicatePropertyDeserializationRecord4690Test
         final String json = a2q("{'first':'value','second':'test1','first':'value2'}");
 
         MyPojo result = mapper.readValue(json, MyPojo.class);
-        assertEquals("value2", result.getFirst());
+        assertEquals("value", result.getFirst());
     }
 }

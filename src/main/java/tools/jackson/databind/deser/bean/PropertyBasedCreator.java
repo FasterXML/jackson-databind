@@ -120,9 +120,7 @@ public final class PropertyBasedCreator
 
             // [databind#1516]: detect whether any ManagedReferenceProperty exists
             // so we can avoid iterating over all properties when none are present
-            if (!hasManagedRef && (prop instanceof ManagedReferenceProperty)) {
-                hasManagedRef = true;
-            }
+            hasManagedRef |= prop instanceof ManagedReferenceProperty;
         }
 
         _injectablePropIndexes = injectablePropIndexes;

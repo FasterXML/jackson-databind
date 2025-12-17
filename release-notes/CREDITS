@@ -124,6 +124,9 @@ Oliver Drotbohm (@odrotbohm)
   [3.1.0]
 
 @JacksonJang
+ * Contributed fix for #1516: Problem with multi-argument Creator with
+   `@JsonBackReference` property
+  [3.1.0]
  * Contributed fix for #4629: `@JsonIncludeProperties` and `@JsonIgnoreProperties`
    ignored when deserializing Records
   [3.1.0]

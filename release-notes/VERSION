@@ -11,6 +11,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1196: Add opt-in error collection for deserialization
  (requested by @odrotbohm)
  (contributed by @sri-adarsh-kumar)
+#1516: Problem with multi-argument Creator with `@JsonBackReference` property
+ (reported by @sarahlikesglitter)
+ (fix by @JacksonJang)
 #1654: @JsonDeserialize(contentUsing=...) is ignored if content
   type is determined by @JsonTypeInfo
  (reported by @pdegoeje)

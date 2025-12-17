@@ -15,8 +15,8 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// [databind#1516]
-public class KotlinGithub129Test extends DatabindTestUtil
+// For [databind#1516], https://github.com/FasterXML/jackson-module-kotlin/issues/129
+public class Kotlin129ManagedReferenceTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 

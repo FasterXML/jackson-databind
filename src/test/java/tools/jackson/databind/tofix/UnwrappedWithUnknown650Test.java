@@ -10,6 +10,7 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class UnwrappedWithUnknown650Test extends DatabindTestUtil {
@@ -22,20 +23,27 @@ class UnwrappedWithUnknown650Test extends DatabindTestUtil {
         public String field;
     }
 
-
+    private final ObjectMapper MAPPER = JsonMapper.builder()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
+    
     @JacksonTestFailureExpected
     @Test
     void failOnUnknownPropertyUnwrapped() throws Exception {
-        final ObjectMapper mapper = JsonMapper.builder()
-                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .build();
 
-        final String JSON = "{'field': 'value', 'bad':'bad value'}";
+        final String JSON = "{'field': 'value', 'bad': 'bad value'}";
         try {
-            mapper.readValue(a2q(JSON), A.class);
+            MAPPER.readValue(a2q(JSON), A.class);
             fail("Exception was not thrown on unknown property");
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized property");
         }
+    }
+
+    // Passing case, regular usage
+    @Test
+    void worksOnRegularPropertyUnwrapped() throws Exception {
+        A value = MAPPER.readValue(a2q("{'field': 'value'}"), A.class);
+        assertEquals("value", value.b.field);
     }
 }

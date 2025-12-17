@@ -2,6 +2,7 @@ package tools.jackson.databind.deser;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import tools.jackson.databind.*;
@@ -12,8 +13,15 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class UnwrappedWithUnknown650Test extends DatabindTestUtil {
+class UnwrappedWithUnknown650Test extends DatabindTestUtil
+{
     static class A {
+        @JsonUnwrapped
+        public B b;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class AWithUnknownsOk {
         @JsonUnwrapped
         public B b;
     }
@@ -25,7 +33,7 @@ class UnwrappedWithUnknown650Test extends DatabindTestUtil {
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
-    
+
     @Test
     void failOnUnknownPropertyUnwrapped() throws Exception {
         final String json = a2q("{'field': 'value', 'bad': 'bad value'}");
@@ -35,6 +43,13 @@ class UnwrappedWithUnknown650Test extends DatabindTestUtil {
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized property");
         }
+    }
+
+    @Test
+    void workOnUnknownWithAnnotation() throws Exception {
+        final String json = a2q("{'field': 'value', 'bad': 'bad value'}");
+        AWithUnknownsOk a = MAPPER.readValue(json, AWithUnknownsOk.class);
+        assertEquals("value", a.b.field);
     }
 
     // Passing case, regular usage

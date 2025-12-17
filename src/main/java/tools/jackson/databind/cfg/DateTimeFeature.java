@@ -108,8 +108,8 @@ public enum DateTimeFeature implements DatatypeFeature
     /**
      * Feature that determines whether Date (and date/time) values
      * (and Date-based things like {@link java.util.Calendar}s) are to be
-     * serialized as numeric time stamps (true; the default),
-     * or as something else (usually textual representation).
+     * serialized as numeric time stamps (true),
+     * or as textual representation (false; the default).
      * If textual representation is used, the actual format depends on configuration
      * settings including possible per-property use of {@code @JsonFormat} annotation,
      * globally configured {@link java.text.DateFormat}.

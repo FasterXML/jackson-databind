@@ -1091,7 +1091,6 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         return status.booleanValue();
     }
 
-    // @since 2.8.11
     protected void _validateSubType(DeserializationContext ctxt, JavaType type,
             BeanDescription.Supplier beanDescRef)
     {
@@ -1104,9 +1103,9 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
      * @since 3.1
      */
     protected SettableBeanProperty constructBuilderBackRefProperty(DeserializationContext ctxt,
-            JavaType targetType, BeanPropertyDefinition builderRefProp)
+            JavaType builtType, BeanPropertyDefinition builderRefProp)
     {
-        BeanDescription.Supplier targetDescRef = ctxt.lazyIntrospectBeanDescription(targetType);
+        BeanDescription.Supplier targetDescRef = ctxt.lazyIntrospectBeanDescription(builtType);
         BeanDescription targetDesc = targetDescRef.get();
 
         // find back reference with same field

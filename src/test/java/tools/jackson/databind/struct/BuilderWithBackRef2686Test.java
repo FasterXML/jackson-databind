@@ -1,6 +1,4 @@
-package tools.jackson.databind.tofix;
-
-import java.beans.ConstructorProperties;
+package tools.jackson.databind.struct;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,15 +9,13 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-// [databind#2686]: Not sure if this can ever be solved as
-//  setter/builder is on Builder class, but it is called after
-//  building completes, i.e. on wrong class.
-
-class BuilderWithBackRef2686Test extends DatabindTestUtil {
+// [databind#2686]: Back References for Builder-based POJOs
+class BuilderWithBackRef2686Test extends DatabindTestUtil
+{
     // [databind#2686]
     public static class Container {
         Content forward;
@@ -52,7 +48,6 @@ class BuilderWithBackRef2686Test extends DatabindTestUtil {
 
         private String contentValue;
 
-        @ConstructorProperties({"back", "contentValue"})
         public Content(Container back, String contentValue) {
             this.back = back;
             this.contentValue = contentValue;
@@ -91,7 +86,6 @@ class BuilderWithBackRef2686Test extends DatabindTestUtil {
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     void buildWithBackRefs2686() throws Exception {
         Container container = new Container();
@@ -100,8 +94,10 @@ class BuilderWithBackRef2686Test extends DatabindTestUtil {
         container.forward = content;
 
         String json = MAPPER.writeValueAsString(container);
-        Container result = MAPPER.readValue(json, Container.class); // Exception here
+        Container result = MAPPER.readValue(json, Container.class);
 
         assertNotNull(result);
+        assertNotNull(result.getForward());
+        assertEquals("contentValue", result.getForward().getContentValue());
     }
 }

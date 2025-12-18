@@ -603,6 +603,13 @@ public abstract class BasicDeserializerFactory
         SettableBeanProperty prop = CreatorProperty.construct(name, type, property.getWrapperName(),
                 typeDeser, beanDescRef.getClassAnnotations(), param, index, injectable,
                 metadata);
+        // [databind#1516]: Handle @JsonManagedReference for creator properties
+        if (intr != null) {
+            AnnotationIntrospector.ReferenceProperty ref = intr.findReferenceType(config, param);
+            if (ref != null && ref.isManagedReference()) {
+                prop.setManagedReferenceName(ref.getName());
+            }
+        }
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
         if (deser == null) {
             deser = (ValueDeserializer<?>) type.getValueHandler();

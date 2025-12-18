@@ -737,10 +737,13 @@ ClassUtil.name(propName)));
     /**
      * Method that will find if bean has any managed- or back-reference properties,
      * and if so add them to bean, to be linked during resolution phase.
+     *
+     * @param builtType Non-{@code null} for Builder-based POJOs, indicating type
+     *    of POJO (not Builder); {@code null} for regular POJOs
      */
     protected void addBackReferenceProperties(DeserializationContext ctxt,
-            BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder builder,
-            JavaType targetType)
+            BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder deserBuilder,
+            JavaType builtType)
     {
         // and then back references, not necessarily found as regular properties
         List<BeanPropertyDefinition> refProps = beanDescRef.get().findBackReferences();
@@ -770,29 +773,28 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 String refName = refProp.findReferenceName();
                 SettableBeanProperty backRefProp;
 
-                if (targetType != null) {
+                if (builtType != null) {
                     // [databind#2686]: Handle Builder
                     backRefProp = constructBuilderBackRefProperty(ctxt,
-                            targetType, refProp);
+                            builtType, refProp);
                 } else {
                     // normal
                     backRefProp = constructSettableProperty(ctxt,
                             beanDescRef, refProp, refProp.getPrimaryType());
                 }
 
-                if (backRefProp != null) {
-                    builder.addBackReferenceProperty(refName, backRefProp);
-                } else {
-                    if (targetType != null) {
+                if (backRefProp == null) {
+                    if (builtType != null) {
                         ctxt.reportBadTypeDefinition(beanDescRef,
                                 "Cannot find back-reference field '%s' in target type %s for Builder-based deserialization: ensure the field exists in the target class, not just the Builder",
-                                refProp.getName(), ClassUtil.nameOf(targetType.getRawClass()));
+                                refProp.getName(), ClassUtil.nameOf(builtType.getRawClass()));
                     } else {
                         ctxt.reportBadTypeDefinition(beanDescRef,
                                 "Cannot resolve back-reference property '%s'",
                                 refProp.getName());
                     }
                 }
+                deserBuilder.addBackReferenceProperty(refName, backRefProp);
             }
         }
     }

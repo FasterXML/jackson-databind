@@ -20,6 +20,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, @JacksonJang)
 #1980: Add method `remove(JsonPointer)` in `ContainerNode`
  (fix by @cowtowncoder, w/ Claude code)
+#2686: `@JsonBackReference` does not work with a builder
+ (reported by @janrieke)
+ (fix by @JacksonJang)
 #3964: Deserialization issue: MismatchedInputException, Bean not
   yet resolved
  (reported by @detomarco)

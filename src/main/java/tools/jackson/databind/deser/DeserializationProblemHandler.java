@@ -222,6 +222,42 @@ public abstract class DeserializationProblemHandler
     }
 
     /**
+     * Method that deserializers should call if the {@code null} value is encountered when
+     * deserializing a Java primitive types ({@code int}, {@code long} etc) and
+     * {@link DeserializationFeature#FAIL_ON_NULL_FOR_PRIMITIVES} is enabled.
+     * Handler needs to do one of:
+     *<ul>
+     * <li>Indicate it does not know what to do by returning {@link #NOT_HANDLED}
+     *  </li>
+     * <li>Throw a {@link JacksonException} to indicate specific fail message (instead of
+     *    standard exception caller would throw)
+     *  </li>
+     * <li>Handle content to match (by consuming or skipping it), and return actual
+     *    instantiated value (of type {@code targetType}) to use as replacement;
+     *    (of expected target type). NOTE: handler <b>SHOULD NOT</b> return {@code null}.
+     *  </li>
+     * </ul>
+     *
+     * @param ctxt Deserialization context
+     * @param targetType Target type to deserialize into
+     * @param p JsonParser used to read {@code null} input token
+     * @param deser Target deserializer that attempted to deserialize {@code null} target value
+     * @param failureMsg Message that will be used by caller to indicate type of failure unless
+     *           handler produces a value to use
+     *
+     *
+     * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
+     *    what to do (and exception may be thrown), or value to use (possibly
+     *    <code>null</code>
+     */
+    public Object handleNullForPrimitives(DeserializationContext ctxt,
+              Class<?> targetType, JsonParser p, ValueDeserializer<?> deser, String failureMsg)
+        throws JacksonException
+    {
+        return NOT_HANDLED;
+    }
+
+    /**
      * Method called when instance creation for a type fails due to an exception.
      * Handler may choose to do one of following things:
      *<ul>

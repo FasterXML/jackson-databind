@@ -1136,6 +1136,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         // noraml
         if (_beanProperties.findDefinition(propertyName) != null) {
             return true;
+        }
         // [databind#3277]: Check unwrapped properties for nested unwrapping using a prefix.
         if (_unwrappedPropertyHandler != null) {
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propertyName)) {

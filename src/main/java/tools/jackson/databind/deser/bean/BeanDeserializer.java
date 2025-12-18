@@ -920,9 +920,11 @@ public class BeanDeserializer
             //    we can do.
             // how about any setter? We'll get copies but...
             if (_anySetter == null) {
-                // but... others should be passed to unwrapped property deserializers
-                tokens.writeName(propName);
-                tokens.copyCurrentStructure(p);
+                if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                    tokens.writeName(propName);
+                    tokens.copyCurrentStructure(p);
+                    continue;
+                }
                 handleUnknownVanilla(p, ctxt, bean, propName);
                 continue;
             }

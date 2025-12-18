@@ -923,6 +923,7 @@ public class BeanDeserializer
                 // but... others should be passed to unwrapped property deserializers
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+                handleUnknownVanilla(p, ctxt, bean, propName);
                 continue;
             }
             // Need to copy to a separate buffer first

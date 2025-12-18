@@ -1133,7 +1133,17 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     public boolean hasProperty(String propertyName) {
-        return _beanProperties.findDefinition(propertyName) != null;
+        // noraml
+        if (_beanProperties.findDefinition(propertyName) != null) {
+            return true;
+        // [databind#3277]: Check unwrapped properties for nested unwrapping using a prefix.
+        if (_unwrappedPropertyHandler != null) {
+            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propertyName)) {
+                return true;
+            }
+        }
+        // [databind#3277]: AnySetter can handle any property
+        return _anySetter != null;
     }
 
     public boolean hasViews() {
@@ -1711,9 +1721,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             Object beanOrClass, String propName)
         throws JacksonException
     {
-        // [databind#650]: When unknown properties are encountered and
-        // FAIL_ON_UNKNOWN_PROPERTIES is enabled, throw an error instead of skipping
-        if (_ignoreAllUnknown && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+        if (_ignoreAllUnknown) {
             p.skipChildren();
             return;
         }

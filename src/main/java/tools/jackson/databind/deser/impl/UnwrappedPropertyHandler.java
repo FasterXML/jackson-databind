@@ -5,7 +5,9 @@ import java.util.*;
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.PropertyName;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.SettableBeanProperty;
+import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
@@ -108,5 +110,40 @@ public class UnwrappedPropertyHandler
      */
     public static PropertyName creatorParamName(int index) {
         return new PropertyName(JSON_UNWRAPPED_NAME_PREFIX + index);
+    }
+
+    /**
+     * Method that checks if properties have the property name.
+     *
+     * @since 3.1
+     */
+    public boolean hasUnwrappedProperty(String propName) {
+        for (SettableBeanProperty prop : _properties) {
+            if (_deserializerHasProperty(prop, propName)) {
+                return true;
+            }
+        }
+        for (SettableBeanProperty prop : _creatorProperties) {
+            if (_deserializerHasProperty(prop, propName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     *  Helper method used when BeanProperty's ValueDeserializer has the property name.
+     *
+     * @since 3.1
+     */
+    private boolean _deserializerHasProperty(SettableBeanProperty prop, String propName) {
+        if (prop == null) {
+            return false;
+        }
+        ValueDeserializer<?> deser = prop.getValueDeserializer();
+        if (deser instanceof BeanDeserializerBase bd) {
+            return bd.hasProperty(propName);
+        }
+        return false;
     }
 }

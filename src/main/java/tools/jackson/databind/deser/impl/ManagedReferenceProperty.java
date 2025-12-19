@@ -76,31 +76,52 @@ public final class ManagedReferenceProperty
     @Override
     public Object setAndReturn(DeserializationContext ctxt, Object instance, Object value)
     {
-        // 04-Feb-2014, tatu: As per [#390], it may be necessary to switch the
-        //   ordering of forward/backward references, and start with back ref.
-        if (value != null) {
-            if (_isContainer) { // ok, this gets ugly... but has to do for now
-                if (value instanceof Object[]) {
-                    for (Object ob : (Object[]) value) {
-                        if (ob != null) { _backProperty.set(ctxt, ob, instance); }
-                    }
-                } else if (value instanceof Collection<?>) {
-                    for (Object ob : (Collection<?>) value) {
-                        if (ob != null) { _backProperty.set(ctxt, ob, instance); }
-                    }
-                } else if (value instanceof Map<?,?>) {
-                    for (Object ob : ((Map<?,?>) value).values()) {
-                        if (ob != null) { _backProperty.set(ctxt, ob, instance); }
-                    }
-                } else {
-                    throw new IllegalStateException("Unsupported container type ("+value.getClass().getName()
-                            +") when resolving reference '"+_referenceName+"'");
-                }
-            } else {
-                _backProperty.set(ctxt, value, instance);
-            }
-        }
+        _setBackReference(ctxt, instance, value);
         // and then the forward reference itself
         return delegate.setAndReturn(ctxt, instance, value);
 	}
+
+    /*
+    /**********************************************************************
+    /* Helper methods
+    /**********************************************************************
+     */
+
+    /**
+     * Helper method to inject back reference into value(s).
+     */
+    private void _setBackReference(DeserializationContext ctxt, Object instance, Object value)
+    {
+        if (value == null) {
+            return;
+        }
+        // 04-Feb-2014, tatu: As per [#390], it may be necessary to switch the
+        //   ordering of forward/backward references, and start with back ref.
+        if (_isContainer) { // ok, this gets ugly... but has to do for now
+            if (value instanceof Object[]) {
+                for (Object ob : (Object[]) value) {
+                    if (ob != null) {
+                        _backProperty.set(ctxt, ob, instance);
+                    }
+                }
+            } else if (value instanceof Collection<?>) {
+                for (Object ob : (Collection<?>) value) {
+                    if (ob != null) {
+                        _backProperty.set(ctxt, ob, instance);
+                    }
+                }
+            } else if (value instanceof Map<?,?>) {
+                for (Object ob : ((Map<?,?>) value).values()) {
+                    if (ob != null) {
+                        _backProperty.set(ctxt, ob, instance);
+                    }
+                }
+            } else {
+                throw new IllegalStateException("Unsupported container type (" + value.getClass().getName()
+                        + ") when resolving reference '" + _referenceName + "'");
+            }
+        } else {
+            _backProperty.set(ctxt, value, instance);
+        }
+    }
 }

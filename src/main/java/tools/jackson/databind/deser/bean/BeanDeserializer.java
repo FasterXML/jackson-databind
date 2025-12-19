@@ -10,10 +10,7 @@ import tools.jackson.databind.deser.BeanDeserializerBuilder;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.UnresolvedForwardReference;
-import tools.jackson.databind.deser.impl.ExternalTypeHandler;
-import tools.jackson.databind.deser.impl.MethodProperty;
-import tools.jackson.databind.deser.impl.ObjectIdReader;
-import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
+import tools.jackson.databind.deser.impl.*;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
@@ -679,6 +676,19 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(ctxt, e);
         }
+
+        // [databind#1516]: Inject back references for managed reference creator properties
+        if (creator.hasManagedReferenceProperties()) {
+            for (SettableBeanProperty prop : creator.properties()) {
+                if (prop instanceof ManagedReferenceProperty managedProp) {
+                    Object value = buffer.getParameter(ctxt, prop);
+                    if (value != null) {
+                        managedProp.set(ctxt, bean, value);
+                    }
+                }
+            }
+        }
+
         p.assignCurrentValue(bean);
         // [databind#4938] Since 2.19, allow returning `null` from creator,
         //  but if so, need to skip all possibly relevant content

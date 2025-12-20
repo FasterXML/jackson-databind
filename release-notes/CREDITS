@@ -115,16 +115,16 @@ Fouad Almalki (@Eng-Fouad)
  * Contributed fix for 5442: Make `JsonMapper/ObjectMapper` fully proxyable by CGLIB
   [3.1.0]
 
-Oliver Drotbohm (@odrotbohm)
- * Requested #1196: Add opt-in error collection for deserialization
-  [3.1.0]
-
-@sri-adarsh-kumar
- * Contributed #1196: Add opt-in error collection for deserialization
+Konstantin Labun (@kulabun)
+ * Reported #650: `@JsonUnwrapped` prevents checks for
+  `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
   [3.1.0]
 
 @JacksonJang
- * Contributed fix for #1516: Problem with multi-argument Creator with
+* Contributed fix for #650: `@JsonUnwrapped` prevents checks for
+  `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
+  [3.1.0]
+* Contributed fix for #1516: Problem with multi-argument Creator with
    `@JsonBackReference` property
   [3.1.0]
  * Contributed fix for #2686: `@JsonBackReference` does not work with a builder
@@ -137,6 +137,14 @@ Oliver Drotbohm (@odrotbohm)
   [3.1.0]
  * Contributed fix for #5405: `@JsonFormat(shape = Shape.POJO)` does not work for
    `java.util.Map` serialization via property annotation
+  [3.1.0]
+
+Oliver Drotbohm (@odrotbohm)
+ * Requested #1196: Add opt-in error collection for deserialization
+  [3.1.0]
+
+@sri-adarsh-kumar
+ * Contributed #1196: Add opt-in error collection for deserialization
   [3.1.0]
 
 Viktor Szathmáry (@phraktle)

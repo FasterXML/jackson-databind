@@ -8,6 +8,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.1.0 (not yet released)
 
+#650: `@JsonUnwrapped` prevents checks for
+  `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
+ (reported by Konstantin L)
+ (fix by @JacksonJang)
 #1196: Add opt-in error collection for deserialization
  (requested by @odrotbohm)
  (contributed by @sri-adarsh-kumar)

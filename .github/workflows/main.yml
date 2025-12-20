@@ -117,7 +117,7 @@ jobs:
             }
             END {
               if (total_missed + total_covered > 0)
-                printf "%.1f", (total_covered * 100.0) / (total_missed + total_covered)
+                printf "%.2f", (total_covered * 100.0) / (total_missed + total_covered)
             }' "$csv_file"
         }
 
@@ -140,8 +140,8 @@ jobs:
         }
 
         # Convert decimal to percentage and round to 1 decimal place
-        COVERAGE=$(awk -v cov="${{ steps.jacoco.outputs.coverage }}" 'BEGIN { printf "%.1f", cov * 100 }')
-        BRANCHES=$(awk -v br="${{ steps.jacoco.outputs.branches }}" 'BEGIN { printf "%.1f", br * 100 }')
+        COVERAGE=$(awk -v cov="${{ steps.jacoco.outputs.coverage }}" 'BEGIN { printf "%.2f", cov * 100 }')
+        BRANCHES=$(awk -v br="${{ steps.jacoco.outputs.branches }}" 'BEGIN { printf "%.2f", br * 100 }')
 
         # Check if base coverage artifact was downloaded and calculate deltas
         HAS_DELTA=false

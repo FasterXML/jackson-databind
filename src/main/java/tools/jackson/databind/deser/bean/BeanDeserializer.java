@@ -10,10 +10,8 @@ import tools.jackson.databind.deser.BeanDeserializerBuilder;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.UnresolvedForwardReference;
-import tools.jackson.databind.deser.impl.ExternalTypeHandler;
-import tools.jackson.databind.deser.impl.MethodProperty;
-import tools.jackson.databind.deser.impl.ObjectIdReader;
-import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
+import tools.jackson.databind.deser.impl.*;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
@@ -679,6 +677,19 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(ctxt, e);
         }
+
+        // [databind#1516]: Inject back references for managed reference creator properties
+        if (creator.hasManagedReferenceProperties()) {
+            for (SettableBeanProperty prop : creator.properties()) {
+                if (prop instanceof ManagedReferenceProperty managedProp) {
+                    Object value = buffer.getParameter(ctxt, prop);
+                    if (value != null) {
+                        managedProp.set(ctxt, bean, value);
+                    }
+                }
+            }
+        }
+
         p.assignCurrentValue(bean);
         // [databind#4938] Since 2.19, allow returning `null` from creator,
         //  but if so, need to skip all possibly relevant content
@@ -918,11 +929,15 @@ public class BeanDeserializer
             // 29-Nov-2016, tatu: probably should try to avoid sending content
             //    both to any setter AND buffer... but, for now, the only thing
             //    we can do.
-            // how about any setter? We'll get copies but...
-            if (_anySetter == null) {
-                // but... others should be passed to unwrapped property deserializers
+            // 19-Dec-2025: [databind#650] We can now distinguish the cases
+            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+                continue;
+            }
+            // how about any setter? We'll get copies but...
+            if (_anySetter == null) {
+                handleUnknownVanilla(p, ctxt, bean, propName);
                 continue;
             }
             // Need to copy to a separate buffer first
@@ -982,11 +997,12 @@ public class BeanDeserializer
             // 29-Nov-2016, tatu: probably should try to avoid sending content
             //    both to any setter AND buffer... but, for now, the only thing
             //    we can do.
-            // how about any setter? We'll get copies but...
-            if (_anySetter == null) {
-                // but... others should be passed to unwrapped property deserializers
+            // 19-Dec-2025: [databind#650] We can now distinguish the cases
+            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+            } else if (_anySetter == null) {
+                handleUnknownVanilla(p, ctxt, bean, propName);
             } else {
                 // Need to copy to a separate buffer first
                 TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
@@ -1062,11 +1078,22 @@ public class BeanDeserializer
             // 29-Nov-2016, tatu: probably should try to avoid sending content
             //    both to any setter AND buffer... but, for now, the only thing
             //    we can do.
-            // how about any setter? We'll get copies but...
-            if (_anySetter == null) {
-                // but... others should be passed to unwrapped property deserializers
+            // 19-Dec-2025: [databind#650] We can now distinguish the cases
+            // but... others should be passed to unwrapped property deserializers
+            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+            } else if (_anySetter == null) {
+                // [databind#650]: priority: @JsonIgnoreProperties > FAIL_ON_UNKNOWN_PROPERTIES
+                if (_ignoreAllUnknown) {
+                    p.skipChildren();
+                } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                    handleIgnoredProperty(p, ctxt, handledType(), propName);
+                } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+                    throw UnrecognizedPropertyException.from(p, handledType(), propName, getKnownPropertyNames());
+                } else {
+                    p.skipChildren();
+                }
             } else {
                 // Need to copy to a separate buffer first
                 TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);

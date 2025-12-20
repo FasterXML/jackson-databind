@@ -108,19 +108,19 @@ public enum DateTimeFeature implements DatatypeFeature
     /**
      * Feature that determines whether Date (and date/time) values
      * (and Date-based things like {@link java.util.Calendar}s) are to be
-     * serialized as numeric time stamps (true; the default),
-     * or as something else (usually textual representation).
+     * serialized as numeric time stamps ({@code true}),
+     * or as textual representation ({@code false}).
      * If textual representation is used, the actual format depends on configuration
-     * settings including possible per-property use of {@code @JsonFormat} annotation,
-     * globally configured {@link java.text.DateFormat}.
+     * settings including global defaults and possible per-type and/or per-property
+     * {@code @JsonFormat} annotation overrides.
      *<p>
      * For "classic" JDK date types ({@link java.util.Date}, {@link java.util.Calendar})
      * the default formatting is provided by {@link tools.jackson.databind.util.StdDateFormat},
      * and corresponds to format String of "yyyy-MM-dd'T'HH:mm:ss.SSSX"
      * (see {@link java.text.DateFormat} for details of format Strings).
-     * Whether this feature affects handling of other date-related
-     * types depend on handlers of those types, although ideally they
-     * should use this feature
+     * For Java 8 ({@code java.time.*}) and Joda Date-time textual format
+     * configuration differs, but this feature is still used as global
+     * default when choosing between numeric time stamps and textual representation.
      *<p>
      * Note: whether {@link java.util.Map} keys are serialized as Strings
      * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS} instead of

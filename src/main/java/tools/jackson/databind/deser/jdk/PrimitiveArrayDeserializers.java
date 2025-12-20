@@ -282,8 +282,9 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
-                        _verifyNullForPrimitive(ctxt);
-                        str = "\0";
+                        char value = (char) _verifyNullForPrimitive(ctxt, p, '\0');
+                        sb.append(value);
+                        continue;
                     } else {
                         CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                         str = cs.toString();
@@ -382,8 +383,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
-                        _verifyNullForPrimitive(ctxt);
-                        value = false;
+                        value = (boolean) _verifyNullForPrimitive(ctxt, p, false);
                     } else {
                         value = _parseBooleanPrimitive(p, ctxt);
                     }
@@ -497,8 +497,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                                 _nuller.getNullValue(ctxt);
                                 continue;
                             }
-                            _verifyNullForPrimitive(ctxt);
-                            value = (byte) 0;
+                            value = (byte) _verifyNullForPrimitive(ctxt, p, (byte) 0);
                         } else {
                             value = _parseBytePrimitive(p, ctxt);
                         }
@@ -525,14 +524,13 @@ public abstract class PrimitiveArrayDeserializers<T>
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 value = p.getByteValue(); // note: may throw due to overflow
             } else {
-                // should probably accept nulls as 'false'
+                // should we accept nulls as null for byte[], or { 0 } ?
                 if (t == JsonToken.VALUE_NULL) {
                     if (_nuller != null) {
                         _nuller.getNullValue(ctxt);
                         return (byte[]) getEmptyValue(ctxt);
                     }
-                    _verifyNullForPrimitive(ctxt);
-                    return null;
+                    value = (byte) _verifyNullForPrimitive(ctxt, p, (byte) 0);
                 }
                 Number n = (Number) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                 value = n.byteValue();
@@ -589,8 +587,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
-                        _verifyNullForPrimitive(ctxt);
-                        value = (short) 0;
+                        value = (short) _verifyNullForPrimitive(ctxt, p, (short) 0);
                     } else {
                         value = _parseShortPrimitive(p, ctxt);
                     }
@@ -666,8 +663,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
-                        _verifyNullForPrimitive(ctxt);
-                        value = 0;
+                        value = (int) _verifyNullForPrimitive(ctxt, p, 0);
                     } else {
                         value = _parseIntPrimitive(p, ctxt);
                     }
@@ -743,8 +739,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
-                        _verifyNullForPrimitive(ctxt);
-                        value = 0L;
+                        value = (long) _verifyNullForPrimitive(ctxt, p, 0L);
                     } else {
                         value = _parseLongPrimitive(p, ctxt);
                     }

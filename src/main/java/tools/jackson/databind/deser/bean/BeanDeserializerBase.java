@@ -1136,7 +1136,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     public boolean hasProperty(String propertyName) {
-        // noraml
+        // normal properties
         if (_beanProperties.findDefinition(propertyName) != null) {
             return true;
         }

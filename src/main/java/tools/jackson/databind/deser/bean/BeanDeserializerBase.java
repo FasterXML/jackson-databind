@@ -1184,7 +1184,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
 
     @Override
     public Collection<Object> getKnownPropertyNames() {
-        ArrayList<Object> names = new ArrayList<Object>();
+        ArrayList<Object> names = new ArrayList<>();
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());
         }
@@ -1201,6 +1201,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
 
     /**
      * Method to collect all property names including nested unwrapped properties
+     *
+     * @param names (not null) Set to add property names to; for both regular
+     *   and "any" properties.
+     *
+     * @since 3.1
      */
     public void collectAllPropertyNamesTo(Set<String> names) {
         for (SettableBeanProperty prop : _beanProperties) {
@@ -1249,7 +1254,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
 
     public SettableBeanProperty findProperty(PropertyName propertyName)
     {
-        // TODO: start matching full name?
         return findProperty(propertyName.getSimpleName());
     }
 
@@ -1257,6 +1261,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * Accessor for finding the property with given name, if POJO
      * has one. Name used is the external name, i.e. name used
      * in external data representation (JSON).
+     *<p>
+     * NOTE: does NOT match "unwrapped" properties POJO contains (if any).
      */
     protected SettableBeanProperty findProperty(String propertyName)
     {

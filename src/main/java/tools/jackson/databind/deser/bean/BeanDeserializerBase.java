@@ -1135,19 +1135,33 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return _objectIdReader;
     }
 
+    /**
+     * Accessor for checking if the POJO handled by this deserializer has given
+     *    physical property (regular or unwrapped, not including
+     *    "any properties".
+     *
+     * @param propertyName Property to check
+     *
+     * @return True if the POJO handled by this deserializer has given
+     *    physical property (regular or unwrapped); not including
+     *    "any properties"
+     */
     public boolean hasProperty(String propertyName) {
         // normal properties
         if (_beanProperties.findDefinition(propertyName) != null) {
             return true;
         }
-        // [databind#3277]: Check unwrapped properties for nested unwrapping using a prefix.
+        // 19-Dec-2025: [databind#650] Check unwrapped properties too.
         if (_unwrappedPropertyHandler != null) {
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propertyName)) {
                 return true;
             }
         }
-        // [databind#3277]: AnySetter can handle any property
-        return _anySetter != null;
+        // 19-Dec-2025: [databind#650] but should "any-setter" be considered too?
+        // if (_anySetter != null) {
+        //     return true;
+        // }
+        return false;
     }
 
     public boolean hasViews() {

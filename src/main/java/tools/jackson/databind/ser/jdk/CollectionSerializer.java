@@ -108,31 +108,32 @@ public class CollectionSerializer
      */
 
     @Override
-    public final void serialize(Collection<?> value, JsonGenerator g, SerializationContext provider)
+    public final void serialize(Collection<?> value, JsonGenerator g,
+            SerializationContext ctxt)
         throws JacksonException
     {
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
-                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
                     && ((_suppressableValue != null) || _suppressNulls)
                 ) {
-                    serializeFilteredContents(value, g, provider);
+                    serializeFilteredContents(value, g, ctxt);
                 } else {
-                    serializeContents(value, g, provider);
+                    serializeContents(value, g, ctxt);
                 }
                 return;
             }
         }
         g.writeStartArray(value, len);
-        if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+        if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
             && ((_suppressableValue != null) || _suppressNulls)
         ) {
-            serializeFilteredContents(value, g, provider);
+            serializeFilteredContents(value, g, ctxt);
         } else {
-            serializeContents(value, g, provider);
+            serializeContents(value, g, ctxt);
         }
         g.writeEndArray();
     }
@@ -140,18 +141,20 @@ public class CollectionSerializer
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator g, SerializationContext ctxt)
     {
-        serializeContentsImpl(value, g, ctxt,
-            false);
+        serializeContentsImpl(value, g, ctxt, false);
     }
 
     @Override
-    protected void serializeFilteredContents(Collection<?> value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
+    protected void serializeFilteredContents(Collection<?> value, JsonGenerator g,
+            SerializationContext ctxt)
+        throws JacksonException
     {
         serializeContentsImpl(value, g, ctxt,
             ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
-    private void serializeContentsImpl(Collection<?> value, JsonGenerator g, SerializationContext ctxt, boolean filtered) throws JacksonException
+    private void serializeContentsImpl(Collection<?> value, JsonGenerator g, SerializationContext ctxt, boolean filtered)
+        throws JacksonException
     {
         if (_elementSerializer != null) {
             if (filtered) {
@@ -209,8 +212,8 @@ public class CollectionSerializer
         }
     }
 
-    public void serializeContentsUsing(Collection<?> value, JsonGenerator g, SerializationContext ctxt,
-            ValueSerializer<Object> ser)
+    public void serializeContentsUsing(Collection<?> value, JsonGenerator g,
+            SerializationContext ctxt, ValueSerializer<Object> ser)
         throws JacksonException
     {
         serializeContentsUsingImpl(value, g, ctxt, ser,

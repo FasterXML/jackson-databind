@@ -73,37 +73,38 @@ public final class IndexedStringListSerializer
 
     @Override
     public void serialize(List<String> value, JsonGenerator g,
-            SerializationContext provider) throws JacksonException
+            SerializationContext ctxt)
+        throws JacksonException
     {
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
-                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
                     && ((_suppressableValue != null) || _suppressNulls)
                 ) {
-                    serializeFilteredContents(value, g, provider, 1);
+                    serializeFilteredContents(value, g, ctxt, 1);
                 } else {
-                    serializeContents(value, g, provider, 1);
+                    serializeContents(value, g, ctxt, 1);
                 }
                 return;
             }
         }
         g.writeStartArray(value, len);
-        if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+        if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
             && ((_suppressableValue != null) || _suppressNulls)
         ) {
-            serializeFilteredContents(value, g, provider, len);
+            serializeFilteredContents(value, g, ctxt, len);
         } else {
-            serializeContents(value, g, provider, len);
+            serializeContents(value, g, ctxt, len);
         }
         g.writeEndArray();
     }
 
     @Override
-    public void serializeWithType(List<String> value, JsonGenerator g, SerializationContext ctxt,
-            TypeSerializer typeSer)
+    public void serializeWithType(List<String> value, JsonGenerator g,
+            SerializationContext ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
@@ -114,9 +115,10 @@ public final class IndexedStringListSerializer
     }
 
     private final void serializeContents(List<String> value, JsonGenerator g,
-            SerializationContext provider, int len) throws JacksonException
+            SerializationContext ctxt, int len)
+        throws JacksonException
     {
-        serializeContentsImpl(value, g, provider, len,
+        serializeContentsImpl(value, g, ctxt, len,
             false);
     }
 
@@ -128,7 +130,8 @@ public final class IndexedStringListSerializer
     }
 
     private final void serializeContentsImpl(List<String> value, JsonGenerator g,
-             SerializationContext provider, int len, boolean filtered) throws JacksonException
+             SerializationContext ctxt, int len, boolean filtered)
+         throws JacksonException
     {
         int i = 0;
         try {
@@ -138,17 +141,17 @@ public final class IndexedStringListSerializer
                     if (filtered && _suppressNulls) {
                         continue;
                     }
-                    provider.defaultSerializeNullValue(g);
+                    ctxt.defaultSerializeNullValue(g);
                 } else {
                     // Check if this element should be suppressed (only in filtered mode)
-                    if (filtered && !_shouldSerializeElement(str, null, provider)) {
+                    if (filtered && !_shouldSerializeElement(str, null, ctxt)) {
                         continue;
                     }
                     g.writeString(str);
                 }
             }
         } catch (Exception e) {
-            wrapAndThrow(provider, e, value, i);
+            wrapAndThrow(ctxt, e, value, i);
         }
     }
 }

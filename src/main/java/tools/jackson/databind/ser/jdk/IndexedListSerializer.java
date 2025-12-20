@@ -81,34 +81,35 @@ public final class IndexedListSerializer
     }
 
     @Override
-    public final void serialize(Object value0, JsonGenerator gen, SerializationContext provider)
+    public final void serialize(Object value0, JsonGenerator g,
+            SerializationContext ctxt)
         throws JacksonException
     {
         final List<?> value = (List<?>) value0;
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
-                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
                     && ((_suppressableValue != null) || _suppressNulls)
                 ) {
-                    serializeFilteredContents(value, gen, provider);
+                    serializeFilteredContents(value, g, ctxt);
                 } else {
-                    serializeContents(value, gen, provider);
+                    serializeContents(value, g, ctxt);
                 }
                 return;
             }
         }
-        gen.writeStartArray(value, len);
-        if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+        g.writeStartArray(value, len);
+        if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
             && ((_suppressableValue != null) || _suppressNulls)
         ) {
-            serializeFilteredContents(value, gen, provider);
+            serializeFilteredContents(value, g, ctxt);
         } else {
-            serializeContents(value, gen, provider);
+            serializeContents(value, g, ctxt);
         }
-        gen.writeEndArray();
+        g.writeEndArray();
     }
 
     @Override
@@ -184,24 +185,23 @@ public final class IndexedListSerializer
         }
     }
 
-    public void serializeContentsUsing(List<?> value, JsonGenerator jgen, SerializationContext ctxt,
-            ValueSerializer<Object> ser)
+    public void serializeContentsUsing(List<?> value, JsonGenerator g,
+            SerializationContext ctxt, ValueSerializer<Object> ser)
         throws JacksonException
     {
-        serializeContentsUsingImpl(value, jgen, ctxt, ser,
-            false);
+        serializeContentsUsingImpl(value, g, ctxt, ser, false);
     }
 
-    private void serializeFilteredContentsUsing(List<?> value, JsonGenerator jgen, SerializationContext ctxt,
-                                                ValueSerializer<Object> ser)
+    private void serializeFilteredContentsUsing(List<?> value, JsonGenerator g,
+            SerializationContext ctxt, ValueSerializer<Object> ser)
         throws JacksonException
     {
-        serializeContentsUsingImpl(value, jgen, ctxt, ser,
+        serializeContentsUsingImpl(value, g, ctxt, ser,
                 ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
-    private void serializeContentsUsingImpl(List<?> value, JsonGenerator jgen, SerializationContext ctxt,
-                                            ValueSerializer<Object> ser, boolean filtered)
+    private void serializeContentsUsingImpl(List<?> value, JsonGenerator g,
+            SerializationContext ctxt, ValueSerializer<Object> ser, boolean filtered)
         throws JacksonException
     {
         final int len = value.size();
@@ -216,16 +216,16 @@ public final class IndexedListSerializer
                     if (filtered && _suppressNulls) {
                         continue;
                     }
-                    ctxt.defaultSerializeNullValue(jgen);
+                    ctxt.defaultSerializeNullValue(g);
                 } else {
                     // Check if this element should be suppressed (only in filtered mode)
                     if (filtered && !_shouldSerializeElement(elem, ser, ctxt)) {
                         continue;
                     }
                     if (typeSer == null) {
-                        ser.serialize(elem, jgen, ctxt);
+                        ser.serialize(elem, g, ctxt);
                     } else {
-                        ser.serializeWithType(elem, jgen, ctxt, typeSer);
+                        ser.serializeWithType(elem, g, ctxt, typeSer);
                     }
                 }
             } catch (Exception e) {
@@ -235,21 +235,23 @@ public final class IndexedListSerializer
         }
     }
 
-    public void serializeTypedContents(List<?> value, JsonGenerator jgen, SerializationContext ctxt)
-            throws JacksonException
+    public void serializeTypedContents(List<?> value, JsonGenerator g,
+            SerializationContext ctxt)
+        throws JacksonException
     {
-        serializeTypedContentsImpl(value, jgen, ctxt,
-            false);
+        serializeTypedContentsImpl(value, g, ctxt, false);
     }
 
-    public void serializeFilteredTypedContents(List<?> value, JsonGenerator jgen, SerializationContext ctxt)
-            throws JacksonException
+    public void serializeFilteredTypedContents(List<?> value, JsonGenerator g,
+            SerializationContext ctxt)
+        throws JacksonException
     {
-        serializeTypedContentsImpl(value, jgen, ctxt,
+        serializeTypedContentsImpl(value, g, ctxt,
             ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
-    private void serializeTypedContentsImpl(List<?> value, JsonGenerator jgen, SerializationContext ctxt, boolean filtered)
+    private void serializeTypedContentsImpl(List<?> value, JsonGenerator g,
+            SerializationContext ctxt, boolean filtered)
         throws JacksonException
     {
         final int len = value.size();
@@ -266,7 +268,7 @@ public final class IndexedListSerializer
                     if (filtered && _suppressNulls) {
                         continue;
                     }
-                    ctxt.defaultSerializeNullValue(jgen);
+                    ctxt.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
                     ValueSerializer<Object> serializer = serializers.serializerFor(cc);
@@ -283,7 +285,7 @@ public final class IndexedListSerializer
                     if (filtered && !_shouldSerializeElement(elem, serializer, ctxt)) {
                         continue;
                     }
-                    serializer.serializeWithType(elem, jgen, ctxt, typeSer);
+                    serializer.serializeWithType(elem, g, ctxt, typeSer);
                 }
             }
         } catch (Exception e) {

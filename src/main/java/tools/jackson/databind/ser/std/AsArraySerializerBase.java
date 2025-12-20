@@ -309,15 +309,15 @@ public abstract class AsArraySerializerBase<T>
     // variant that passes size of array to output, which is helpful with some data formats
     /*
     @Override
-    public void serialize(T value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException
+    public void serialize(T value, JsonGenerator ggen, SerializationContext ctxt) throws JacksonException
     {
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 && hasSingleElement(value)) {
-            serializeContents(value, gen, ctxt);
+            serializeContents(value, g, ctxt);
             return;
         }
         gen.writeStartArray(value);
-        serializeContents(value, gen, ctxt);
+        serializeContents(value, g, ctxt);
         gen.writeEndArray();
     }
     */
@@ -335,7 +335,8 @@ public abstract class AsArraySerializerBase<T>
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
-    protected abstract void serializeContents(T value, JsonGenerator gen, SerializationContext provider)
+    protected abstract void serializeContents(T value, JsonGenerator g,
+            SerializationContext ctxt)
         throws JacksonException;
 
     /**

@@ -95,31 +95,31 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
 
     @SuppressWarnings("unchecked")
     @Override
-    public ValueSerializer<?> createContextual(SerializationContext serializers,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
         ValueSerializer<?> ser = null;
 
         if (property != null) {
-            final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
+            final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                ser = serializers.serializerInstance(m,
-                        intr.findContentSerializer(serializers.getConfig(), m));
+                ser = ctxt.serializerInstance(m,
+                        intr.findContentSerializer(ctxt.getConfig(), m));
             }
         }
         Boolean unwrapSingle = null;
-        JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         if (format != null) {
             unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         }
         // [databind#124]: May have a content converter
-        ser = findContextualConvertingSerializer(serializers, property, ser);
+        ser = findContextualConvertingSerializer(ctxt, property, ser);
         if (ser == null) {
-            ser = serializers.findContentValueSerializer(String.class, property);
+            ser = ctxt.findContentValueSerializer(String.class, property);
         }
         // Handle content inclusion (similar to MapSerializer lines 560-609)
-        JsonInclude.Value inclV = findIncludeOverrides(serializers, property, List.class);
+        JsonInclude.Value inclV = findIncludeOverrides(ctxt, property, List.class);
         Object valueToSuppress = _suppressableValue;
         boolean suppressNulls = _suppressNulls;
 
@@ -128,7 +128,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
             if (incl != JsonInclude.Include.USE_DEFAULTS) {
                 switch (incl) {
                     case NON_DEFAULT:
-                        valueToSuppress = BeanUtil.getDefaultValue(serializers.constructType(String.class));
+                        valueToSuppress = BeanUtil.getDefaultValue(ctxt.constructType(String.class));
                         suppressNulls = true;
                         if (valueToSuppress != null) {
                             if (valueToSuppress.getClass().isArray()) {
@@ -145,11 +145,11 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
                         valueToSuppress = MARKER_FOR_EMPTY;
                         break;
                     case CUSTOM:
-                        valueToSuppress = serializers.includeFilterInstance(null, inclV.getContentFilter());
+                        valueToSuppress = ctxt.includeFilterInstance(null, inclV.getContentFilter());
                         if (valueToSuppress == null) {
                             suppressNulls = true;
                         } else {
-                            suppressNulls = serializers.includeFilterSuppressNulls(valueToSuppress);
+                            suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
                         }
                         break;
                     case NON_NULL:
@@ -177,7 +177,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         }
         // otherwise...
         // note: will never have TypeSerializer, because Strings are "natural" type
-        return new CollectionSerializer(serializers.constructType(String.class),
+        return new CollectionSerializer(ctxt.constructType(String.class),
                 true, /*TypeSerializer*/ null, (ValueSerializer<Object>) ser);
     }
 
@@ -207,7 +207,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     // just to make sure it gets implemented:
     @Override
     public abstract void serializeWithType(T value, JsonGenerator g,
-            SerializationContext provider, TypeSerializer typeSer) throws JacksonException;
+            SerializationContext ctxt, TypeSerializer typeSer) throws JacksonException;
 
     /**
      * Common utility method for checking if an element should be filtered/suppressed

@@ -63,7 +63,7 @@ public class IteratorSerializer
      */
 
     @Override
-    public boolean isEmpty(SerializationContext prov, Iterator<?> value) {
+    public boolean isEmpty(SerializationContext ctxt, Iterator<?> value) {
         return !value.hasNext();
     }
 
@@ -74,30 +74,30 @@ public class IteratorSerializer
     }
 
     @Override
-    public final void serialize(Iterator<?> value, JsonGenerator gen,
-            SerializationContext provider)
+    public final void serialize(Iterator<?> value, JsonGenerator g,
+            SerializationContext ctxt)
         throws JacksonException
     {
         // 02-Dec-2016, tatu: As per comments above, can't determine single element so...
         /*
         if (((_unwrapSingle == null) &&
-                provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                 || (_unwrapSingle == Boolean.TRUE)) {
             if (hasSingleElement(value)) {
-                serializeContents(value, gen, provider);
+                serializeContents(value, g, ctxt);
                 return;
             }
         }
         */
-        gen.writeStartArray(value);
-        if (provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+        g.writeStartArray(value);
+        if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
             && ((_suppressableValue != null) || _suppressNulls)
         ) {
-            serializeFilteredContents(value, gen, provider);
+            serializeFilteredContents(value, g, ctxt);
         } else {
-            serializeContents(value, gen, provider);
+            serializeContents(value, g, ctxt);
         }
-        gen.writeEndArray();
+        g.writeEndArray();
     }
 
     @Override
@@ -105,8 +105,7 @@ public class IteratorSerializer
             SerializationContext ctxt)
         throws JacksonException
     {
-        serializeContentsImpl(value, g, ctxt,
-            false);
+        serializeContentsImpl(value, g, ctxt, false);
     }
 
     @Override

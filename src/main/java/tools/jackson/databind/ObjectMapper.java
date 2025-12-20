@@ -2812,7 +2812,7 @@ public class ObjectMapper
 
     protected final void _assertNotNull(String paramName, Object src) {
         if (src == null){
-            throw new IllegalArgumentException(String.format("argument \"%s\" is null", paramName));
+            throw new IllegalArgumentException("argument \"" + paramName + "\" is null");
         }
     }
 }

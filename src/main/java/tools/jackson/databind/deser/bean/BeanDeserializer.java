@@ -929,13 +929,14 @@ public class BeanDeserializer
             // 29-Nov-2016, tatu: probably should try to avoid sending content
             //    both to any setter AND buffer... but, for now, the only thing
             //    we can do.
+            // 19-Dec-2025: [databind#650] We can now distinguish the cases
+            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                tokens.writeName(propName);
+                tokens.copyCurrentStructure(p);
+                continue;
+            }
             // how about any setter? We'll get copies but...
             if (_anySetter == null) {
-                if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
-                    tokens.writeName(propName);
-                    tokens.copyCurrentStructure(p);
-                    continue;
-                }
                 handleUnknownVanilla(p, ctxt, bean, propName);
                 continue;
             }

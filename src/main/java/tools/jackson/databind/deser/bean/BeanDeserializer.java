@@ -11,6 +11,7 @@ import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.UnresolvedForwardReference;
 import tools.jackson.databind.deser.impl.*;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
@@ -930,6 +931,7 @@ public class BeanDeserializer
             //    we can do.
             // how about any setter? We'll get copies but...
             if (_anySetter == null) {
+
                 if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                     tokens.writeName(propName);
                     tokens.copyCurrentStructure(p);
@@ -998,8 +1000,11 @@ public class BeanDeserializer
             // how about any setter? We'll get copies but...
             if (_anySetter == null) {
                 // but... others should be passed to unwrapped property deserializers
-                tokens.writeName(propName);
-                tokens.copyCurrentStructure(p);
+                if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                    tokens.writeName(propName);
+                    tokens.copyCurrentStructure(p);
+                }
+                handleUnknownVanilla(p, ctxt, bean, propName);
             } else {
                 // Need to copy to a separate buffer first
                 TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
@@ -1078,8 +1083,21 @@ public class BeanDeserializer
             // how about any setter? We'll get copies but...
             if (_anySetter == null) {
                 // but... others should be passed to unwrapped property deserializers
-                tokens.writeName(propName);
-                tokens.copyCurrentStructure(p);
+                if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                    tokens.writeName(propName);
+                    tokens.copyCurrentStructure(p);
+                } else {
+                    // [databind#650]: priority: @JsonIgnoreProperties > FAIL_ON_UNKNOWN_PROPERTIES
+                    if (_ignoreAllUnknown) {
+                        p.skipChildren();
+                    } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                        handleIgnoredProperty(p, ctxt, handledType(), propName);
+                    } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+                        throw UnrecognizedPropertyException.from(p, handledType(), propName, getKnownPropertyNames());
+                    } else {
+                        p.skipChildren();
+                    }
+                }
             } else {
                 // Need to copy to a separate buffer first
                 TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);

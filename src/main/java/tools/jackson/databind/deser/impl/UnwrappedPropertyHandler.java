@@ -30,15 +30,41 @@ public class UnwrappedPropertyHandler
     protected final List<SettableBeanProperty> _creatorProperties;
     protected final List<SettableBeanProperty> _properties;
 
+    /**
+     * Set of all nested property names from unwrapped deserializers.
+     */
+    protected final Set<String> _nestedPropertyNames;
+
+    /**
+     * Flag indicating whether any unwrapped deserializer has an AnySetter,
+     * which means it can handle any property name.
+     */
+    protected final boolean _hasNestedAnySetter;
+
     public UnwrappedPropertyHandler()  {
         _creatorProperties = new ArrayList<>();
         _properties = new ArrayList<>();
+        _nestedPropertyNames = new HashSet<>();
+        _hasNestedAnySetter = false;
     }
 
     protected UnwrappedPropertyHandler(List<SettableBeanProperty> creatorProps,
-            List<SettableBeanProperty> props) {
+            List<SettableBeanProperty> props,
+            Set<String> nestedPropertyNames,
+            boolean hasNestedAnySetter) {
         _creatorProperties = creatorProps;
         _properties = props;
+        _nestedPropertyNames = nestedPropertyNames;
+        _hasNestedAnySetter = hasNestedAnySetter;
+    }
+
+    /**
+     * Creates a new UnwrappedPropertyHandler with initialized nested property names cache.
+     */
+    public UnwrappedPropertyHandler initializedNestedPropertyNames() {
+        Set<String> nestedNames = new HashSet<>();
+        boolean hasAnySetter = _collectNestedPropertyNames(_properties, _creatorProperties, nestedNames);
+        return new UnwrappedPropertyHandler(_creatorProperties, _properties, nestedNames, hasAnySetter);
     }
 
     /**
@@ -55,10 +81,14 @@ public class UnwrappedPropertyHandler
     public UnwrappedPropertyHandler renameAll(DeserializationContext ctxt,
             NameTransformer transformer)
     {
-        return new UnwrappedPropertyHandler(
-                renameProperties(ctxt,_creatorProperties, transformer),
-                renameProperties(ctxt, _properties, transformer)
-        );
+        List<SettableBeanProperty> renamedCreatorProps = renameProperties(ctxt, _creatorProperties, transformer);
+        List<SettableBeanProperty> renamedProps = renameProperties(ctxt, _properties, transformer);
+
+        // Collect nested property names and check for AnySetter
+        Set<String> nestedNames = new HashSet<>();
+        boolean hasAnySetter = _collectNestedPropertyNames(renamedProps, renamedCreatorProps, nestedNames);
+
+        return new UnwrappedPropertyHandler(renamedCreatorProps, renamedProps, nestedNames, hasAnySetter);
     }
 
     private List<SettableBeanProperty> renameProperties(DeserializationContext ctxt,
@@ -113,36 +143,57 @@ public class UnwrappedPropertyHandler
     }
 
     /**
-     * Method that checks if properties have the property name.
-     *
-     * @since 3.1
+     * Method that checks if the given property name belongs to any unwrapped property.
+     * Also returns true if any nested deserializer has an AnySetter.
      */
     public boolean hasUnwrappedProperty(String propName) {
-        for (SettableBeanProperty prop : _properties) {
-            if (_deserializerHasProperty(prop, propName)) {
-                return true;
-            }
+        // If any nested deserializer has AnySetter, it can handle any property
+        if (_hasNestedAnySetter) {
+            return true;
         }
-        for (SettableBeanProperty prop : _creatorProperties) {
-            if (_deserializerHasProperty(prop, propName)) {
-                return true;
-            }
-        }
-        return false;
+        return _nestedPropertyNames.contains(propName);
     }
 
     /**
-     *  Helper method used when BeanProperty's ValueDeserializer has the property name.
-     *
-     * @since 3.1
+     * Collects all nested property names from unwrapped deserializers.
      */
-    private boolean _deserializerHasProperty(SettableBeanProperty prop, String propName) {
+    public void collectNestedPropertyNamesTo(Set<String> names) {
+        _collectNestedPropertyNames(_properties, _creatorProperties, names);
+    }
+
+    /**
+     * Helper method to collect nested property names and returns whether any deserializer has AnySetter.
+     */
+    private boolean _collectNestedPropertyNames(List<SettableBeanProperty> properties,
+            List<SettableBeanProperty> creatorProperties,
+            Set<String> names) {
+        boolean hasAnySetter = false;
+        for (SettableBeanProperty prop : properties) {
+            if (_collectDeserializerPropertyNames(prop, names)) {
+                hasAnySetter = true;
+            }
+        }
+        for (SettableBeanProperty prop : creatorProperties) {
+            if (_collectDeserializerPropertyNames(prop, names)) {
+                hasAnySetter = true;
+            }
+        }
+        return hasAnySetter;
+    }
+
+    /**
+     * Helper method to collect property names from a property's deserializer.
+     * Returns true if the deserializer has AnySetter.
+     */
+    private boolean _collectDeserializerPropertyNames(SettableBeanProperty prop, Set<String> names) {
         if (prop == null) {
             return false;
         }
         ValueDeserializer<?> deser = prop.getValueDeserializer();
         if (deser instanceof BeanDeserializerBase bd) {
-            return bd.hasProperty(propName);
+            // Recursively collect property names
+            bd.collectAllPropertyNamesTo(names);
+            return bd.hasAnySetter();
         }
         return false;
     }

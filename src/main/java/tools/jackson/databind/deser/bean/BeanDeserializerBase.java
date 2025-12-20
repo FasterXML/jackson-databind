@@ -635,9 +635,12 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
             _nonStandardCreation = true;
         }
 
-        _unwrappedPropertyHandler = unwrapped;
         if (unwrapped != null) { // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
+            // [databind#650]: Initialize nested property names cache for hasUnwrappedProperty()
+            _unwrappedPropertyHandler = unwrapped.initializedNestedPropertyNames();
+        } else {
+            _unwrappedPropertyHandler = null;
         }
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
@@ -1152,6 +1155,13 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     /**
+     * @since 3.1
+     */
+    public boolean hasAnySetter() {
+        return _anySetter != null;
+    }
+
+    /**
      * Accessor for checking number of deserialized properties.
      */
     public int getPropertyCount() {
@@ -1173,6 +1183,18 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         }
         */
         return names;
+    }
+
+    /**
+     * Method to collect all property names including nested unwrapped properties
+     */
+    public void collectAllPropertyNamesTo(Set<String> names) {
+        for (SettableBeanProperty prop : _beanProperties) {
+            names.add(prop.getName());
+        }
+        if (_unwrappedPropertyHandler != null) {
+            _unwrappedPropertyHandler.collectNestedPropertyNamesTo(names);
+        }
     }
 
     @Override

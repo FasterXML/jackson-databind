@@ -41,10 +41,11 @@ public class UnwrappedPropertyHandler
      */
     protected final boolean _hasNestedAnySetter;
 
-    public UnwrappedPropertyHandler()  {
+    public UnwrappedPropertyHandler() {
         _creatorProperties = new ArrayList<>();
         _properties = new ArrayList<>();
-        _nestedPropertyNames = new HashSet<>();
+        // placeholder: won't be modified in-place
+        _nestedPropertyNames = Collections.emptySet();
         _hasNestedAnySetter = false;
     }
 
@@ -60,6 +61,8 @@ public class UnwrappedPropertyHandler
 
     /**
      * Creates a new UnwrappedPropertyHandler with initialized nested property names cache.
+     *
+     * @since 3.1
      */
     public UnwrappedPropertyHandler initializedNestedPropertyNames() {
         Set<String> nestedNames = new HashSet<>();
@@ -144,7 +147,10 @@ public class UnwrappedPropertyHandler
 
     /**
      * Method that checks if the given property name belongs to any unwrapped property.
-     * Also returns true if any nested deserializer has an AnySetter.
+     *
+     * @return {@code true} if any nested deserializers has an "any-setter".
+     *
+     * @since 3.1
      */
     public boolean hasUnwrappedProperty(String propName) {
         // If any nested deserializer has AnySetter, it can handle any property
@@ -156,13 +162,19 @@ public class UnwrappedPropertyHandler
 
     /**
      * Collects all nested property names from unwrapped deserializers.
+     *
+     * @since 3.1
      */
     public void collectNestedPropertyNamesTo(Set<String> names) {
         _collectNestedPropertyNames(_properties, _creatorProperties, names);
     }
 
     /**
-     * Helper method to collect nested property names and returns whether any deserializer has AnySetter.
+     * Helper method to collect nested property names.
+     *
+     * @return {@code true} if any property deserializer has AnySetter.
+     *
+     * @since 3.1
      */
     private boolean _collectNestedPropertyNames(List<SettableBeanProperty> properties,
             List<SettableBeanProperty> creatorProperties,
@@ -183,17 +195,17 @@ public class UnwrappedPropertyHandler
 
     /**
      * Helper method to collect property names from a property's deserializer.
-     * Returns true if the deserializer has AnySetter.
+     *
+     * @return {@code true} if the property deserializer has AnySetter.
      */
     private boolean _collectDeserializerPropertyNames(SettableBeanProperty prop, Set<String> names) {
-        if (prop == null) {
-            return false;
-        }
-        ValueDeserializer<?> deser = prop.getValueDeserializer();
-        if (deser instanceof BeanDeserializerBase bd) {
-            // Recursively collect property names
-            bd.collectAllPropertyNamesTo(names);
-            return bd.hasAnySetter();
+        if (prop != null) {
+            ValueDeserializer<?> deser = prop.getValueDeserializer();
+            if (deser instanceof BeanDeserializerBase bd) {
+                // Recursively collect property names
+                bd.collectAllPropertyNamesTo(names);
+                return bd.hasAnySetter();
+            }
         }
         return false;
     }

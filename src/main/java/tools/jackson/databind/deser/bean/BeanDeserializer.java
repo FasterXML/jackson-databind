@@ -931,7 +931,7 @@ public class BeanDeserializer
             //    we can do.
             // how about any setter? We'll get copies but...
             if (_anySetter == null) {
-
+                // but do not add copies if we match an unwrapped property.
                 if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                     tokens.writeName(propName);
                     tokens.copyCurrentStructure(p);

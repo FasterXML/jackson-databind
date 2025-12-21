@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.struct;
 
 import java.beans.ConstructorProperties;
 
@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -75,7 +74,6 @@ class BackReference1516Test extends DatabindTestUtil {
                     "  'child': { 'id': 'def', 'name':'Bert' }\n" +
                     "}");
 
-    @JacksonTestFailureExpected
     @Test
     void withParentCreator() throws Exception {
         ParentWithCreator result = MAPPER.readValue(PARENT_CHILD_JSON,

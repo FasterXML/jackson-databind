@@ -89,25 +89,27 @@ public class CollectionSerializer
      */
 
     @Override
-    public final void serialize(Collection<?> value, JsonGenerator g, SerializationContext provider)
+    public final void serialize(Collection<?> value, JsonGenerator g,
+            SerializationContext ctxt)
         throws JacksonException
     {
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
-                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, provider);
+                serializeContents(value, g, ctxt);
                 return;
             }
         }
         g.writeStartArray(value, len);
-        serializeContents(value, g, provider);
+        serializeContents(value, g, ctxt);
         g.writeEndArray();
     }
 
     @Override
-    public void serializeContents(Collection<?> value, JsonGenerator g, SerializationContext ctxt)
+    public void serializeContents(Collection<?> value, JsonGenerator g,
+            SerializationContext ctxt)
         throws JacksonException
     {
         if (_elementSerializer != null) {
@@ -153,8 +155,8 @@ public class CollectionSerializer
         }
     }
 
-    public void serializeContentsUsing(Collection<?> value, JsonGenerator g, SerializationContext provider,
-            ValueSerializer<Object> ser)
+    public void serializeContentsUsing(Collection<?> value, JsonGenerator g,
+            SerializationContext ctxt, ValueSerializer<Object> ser)
         throws JacksonException
     {
         Iterator<?> it = value.iterator();
@@ -167,17 +169,17 @@ public class CollectionSerializer
                 Object elem = it.next();
                 try {
                     if (elem == null) {
-                        provider.defaultSerializeNullValue(g);
+                        ctxt.defaultSerializeNullValue(g);
                     } else {
                         if (typeSer == null) {
-                            ser.serialize(elem, g, provider);
+                            ser.serialize(elem, g, ctxt);
                         } else {
-                            ser.serializeWithType(elem, g, provider, typeSer);
+                            ser.serializeWithType(elem, g, ctxt, typeSer);
                         }
                     }
                     ++i;
                 } catch (Exception e) {
-                    wrapAndThrow(provider, e, value, i);
+                    wrapAndThrow(ctxt, e, value, i);
                 }
             } while (it.hasNext());
         }

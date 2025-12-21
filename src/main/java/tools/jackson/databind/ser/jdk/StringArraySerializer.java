@@ -75,7 +75,7 @@ public class StringArraySerializer
      */
 
     @Override
-    public ValueSerializer<?> createContextual(SerializationContext provider,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
         // 29-Sep-2012, tatu: Actually, we need to do much more contextual
@@ -85,24 +85,24 @@ public class StringArraySerializer
 
         // First: if we have a property, may have property-annotation overrides
         if (property != null) {
-            final AnnotationIntrospector ai = provider.getAnnotationIntrospector();
+            final AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                ser = provider.serializerInstance(m,
-                        ai.findContentSerializer(provider.getConfig(), m));
+                ser = ctxt.serializerInstance(m,
+                        ai.findContentSerializer(ctxt.getConfig(), m));
             }
         }
         // but since formats have both property overrides and global per-type defaults,
         // need to do that separately
-        Boolean unwrapSingle = findFormatFeature(provider, property, String[].class,
+        Boolean unwrapSingle = findFormatFeature(ctxt, property, String[].class,
                 JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         if (ser == null) {
             ser = _elementSerializer;
         }
         // May have a content converter
-        ser = findContextualConvertingSerializer(provider, property, ser);
+        ser = findContextualConvertingSerializer(ctxt, property, ser);
         if (ser == null) {
-            ser = provider.findContentValueSerializer(String.class, property);
+            ser = ctxt.findContentValueSerializer(String.class, property);
         }
         // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {
@@ -148,25 +148,25 @@ public class StringArraySerializer
      */
 
     @Override
-    public final void serialize(String[] value, JsonGenerator gen, SerializationContext provider)
+    public final void serialize(String[] value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         final int len = value.length;
         if (len == 1) {
             if (((_unwrapSingle == null) &&
-                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, gen, provider);
+                serializeContents(value, g, ctxt);
                 return;
             }
         }
-        gen.writeStartArray(value, len);
-        serializeContents(value, gen, provider);
-        gen.writeEndArray();
+        g.writeStartArray(value, len);
+        serializeContents(value, g, ctxt);
+        g.writeEndArray();
     }
 
     @Override
-    public void serializeContents(String[] value, JsonGenerator gen, SerializationContext provider)
+    public void serializeContents(String[] value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         final int len = value.length;
@@ -174,28 +174,29 @@ public class StringArraySerializer
             return;
         }
         if (_elementSerializer != null) {
-            serializeContentsSlow(value, gen, provider, _elementSerializer);
+            serializeContentsSlow(value, g, ctxt, _elementSerializer);
             return;
         }
         for (int i = 0; i < len; ++i) {
             String str = value[i];
             if (str == null) {
-                gen.writeNull();
+                g.writeNull();
             } else {
-                gen.writeString(value[i]);
+                g.writeString(value[i]);
             }
         }
     }
 
-    private void serializeContentsSlow(String[] value, JsonGenerator gen, SerializationContext provider, ValueSerializer<Object> ser)
+    private void serializeContentsSlow(String[] value, JsonGenerator g,
+            SerializationContext ctxt, ValueSerializer<Object> ser)
         throws JacksonException
     {
         for (int i = 0, len = value.length; i < len; ++i) {
             String str = value[i];
             if (str == null) {
-                provider.defaultSerializeNullValue(gen);
+                ctxt.defaultSerializeNullValue(g);
             } else {
-                ser.serialize(value[i], gen, provider);
+                ser.serialize(value[i], g, ctxt);
             }
         }
     }

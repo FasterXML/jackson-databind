@@ -486,7 +486,8 @@ public abstract class DatabindContext
             return "[N/A]";
         }
         // !!! should we quote it? (in case there are control chars, linefeeds)
-        return String.format("\"%s\"", _truncate(desc));
+        return "\"" + _truncate(desc) + "\"";
+//       return String.format("\"%s\"", _truncate(desc));
     }
 
     protected String _colonConcat(String msgBase, String extra) {

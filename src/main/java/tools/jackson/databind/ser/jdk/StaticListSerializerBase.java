@@ -50,28 +50,28 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
 
     @SuppressWarnings("unchecked")
     @Override
-    public ValueSerializer<?> createContextual(SerializationContext serializers,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
         ValueSerializer<?> ser = null;
 
         if (property != null) {
-            final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
+            final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                ser = serializers.serializerInstance(m,
-                        intr.findContentSerializer(serializers.getConfig(), m));
+                ser = ctxt.serializerInstance(m,
+                        intr.findContentSerializer(ctxt.getConfig(), m));
             }
         }
         Boolean unwrapSingle = null;
-        JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         if (format != null) {
             unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         }
         // [databind#124]: May have a content converter
-        ser = findContextualConvertingSerializer(serializers, property, ser);
+        ser = findContextualConvertingSerializer(ctxt, property, ser);
         if (ser == null) {
-            ser = serializers.findContentValueSerializer(String.class, property);
+            ser = ctxt.findContentValueSerializer(String.class, property);
         }
         // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {
@@ -82,7 +82,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         }
         // otherwise...
         // note: will never have TypeSerializer, because Strings are "natural" type
-        return new CollectionSerializer(serializers.constructType(String.class),
+        return new CollectionSerializer(ctxt.constructType(String.class),
                 true, /*TypeSerializer*/ null, (ValueSerializer<Object>) ser);
     }
 
@@ -112,5 +112,6 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     // just to make sure it gets implemented:
     @Override
     public abstract void serializeWithType(T value, JsonGenerator g,
-            SerializationContext provider, TypeSerializer typeSer) throws JacksonException;
+            SerializationContext ctxt, TypeSerializer typeSer)
+        throws JacksonException;
 }

@@ -43,7 +43,7 @@ public class IteratorSerializer
      */
 
     @Override
-    public boolean isEmpty(SerializationContext prov, Iterator<?> value) {
+    public boolean isEmpty(SerializationContext ctxt, Iterator<?> value) {
         return !value.hasNext();
     }
 
@@ -54,29 +54,29 @@ public class IteratorSerializer
     }
 
     @Override
-    public final void serialize(Iterator<?> value, JsonGenerator gen,
-            SerializationContext provider)
+    public final void serialize(Iterator<?> value, JsonGenerator g,
+            SerializationContext ctxt)
         throws JacksonException
     {
         // 02-Dec-2016, tatu: As per comments above, can't determine single element so...
         /*
         if (((_unwrapSingle == null) &&
-                provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                 || (_unwrapSingle == Boolean.TRUE)) {
             if (hasSingleElement(value)) {
-                serializeContents(value, gen, provider);
+                serializeContents(value, g, ctxt);
                 return;
             }
         }
         */
-        gen.writeStartArray(value);
-        serializeContents(value, gen, provider);
-        gen.writeEndArray();
+        g.writeStartArray(value);
+        serializeContents(value, g, ctxt);
+        g.writeEndArray();
     }
 
     @Override
     public void serializeContents(Iterator<?> value, JsonGenerator g,
-            SerializationContext provider)
+            SerializationContext ctxt)
         throws JacksonException
     {
         if (!value.hasNext()) {
@@ -84,18 +84,18 @@ public class IteratorSerializer
         }
         ValueSerializer<Object> serializer = _elementSerializer;
         if (serializer == null) {
-            _serializeDynamicContents(value, g, provider);
+            _serializeDynamicContents(value, g, ctxt);
             return;
         }
         final TypeSerializer typeSer = _valueTypeSerializer;
         do {
             Object elem = value.next();
             if (elem == null) {
-                provider.defaultSerializeNullValue(g);
+                ctxt.defaultSerializeNullValue(g);
             } else if (typeSer == null) {
-                serializer.serialize(elem, g, provider);
+                serializer.serialize(elem, g, ctxt);
             } else {
-                serializer.serializeWithType(elem, g, provider, typeSer);
+                serializer.serializeWithType(elem, g, ctxt, typeSer);
             }
         } while (value.hasNext());
     }

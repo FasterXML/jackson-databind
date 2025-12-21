@@ -238,8 +238,9 @@ public class ObjectArraySerializer
         }
     }
 
-    public void serializeContentsUsing(Object[] value, JsonGenerator g, SerializationContext provider,
-            ValueSerializer<Object> ser) throws JacksonException
+    public void serializeContentsUsing(Object[] value, JsonGenerator g,
+            SerializationContext ctxt, ValueSerializer<Object> ser)
+        throws JacksonException
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
@@ -250,17 +251,17 @@ public class ObjectArraySerializer
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
-                    provider.defaultSerializeNullValue(g);
+                    ctxt.defaultSerializeNullValue(g);
                     continue;
                 }
                 if (typeSer == null) {
-                    ser.serialize(elem, g, provider);
+                    ser.serialize(elem, g, ctxt);
                 } else {
-                    ser.serializeWithType(elem, g, provider, typeSer);
+                    ser.serializeWithType(elem, g, ctxt, typeSer);
                 }
             }
         } catch (Exception e) {
-            wrapAndThrow(provider, e, elem, i);
+            wrapAndThrow(ctxt, e, elem, i);
         }
     }
 

@@ -100,7 +100,8 @@ public class JsonIncludeForArray5369Test
      */
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+            // We need something like this. 
+            // .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_ARRAYS)
             .build();
 
     /*

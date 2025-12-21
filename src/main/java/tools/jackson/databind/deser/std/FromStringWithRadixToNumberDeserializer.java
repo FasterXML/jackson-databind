@@ -25,7 +25,7 @@ public class FromStringWithRadixToNumberDeserializer
     public Number deserialize(JsonParser p, DeserializationContext ctxt) {
         Class<?> handledType = handledType();
 
-        if (p.currentToken() != JsonToken.VALUE_STRING) {
+        if (!p.hasToken(JsonToken.VALUE_STRING)) {
             ctxt.reportInputMismatch(handledType,
                     "Read something other than string when deserializing a value using FromStringWithRadixToNumberDeserializer");
         }

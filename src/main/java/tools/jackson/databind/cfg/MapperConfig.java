@@ -388,8 +388,10 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
 
 
     /**
-     * Accessor for default format to apply for serialization.
-     * The format obtained from this accessor should have the lowest precedence.
+     * Accessor for global default format settings to apply for serialization and
+     * deserialization.
+     * The format obtained from this accessor should have the lowest precedence,
+     * overridable by per-type and/or per-property format overrides.
      *
      * @since 3.1
      */

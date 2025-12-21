@@ -949,16 +949,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
-     * Method for configuring default format to use for serialization/deserialization.
-     *
-     * @since 3.1
-     */
-    public B defaultFormat(JsonFormat.Value format) {
-        _configOverrides.setDefaultFormat(format);
-        return _this();
-    }
-
-    /**
      * Method for changing currently default settings for handling of `null` values during
      * deserialization, regarding whether they are set as-is, ignored completely, or possible
      * transformed into "empty" value of the target type (if any).
@@ -990,6 +980,16 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B defaultLeniency(Boolean b) {
         _configOverrides.setDefaultLeniency(b);
+        return _this();
+    }
+
+    /**
+     * Method for configuring default format settings to use for serialization and deserialization.
+     *
+     * @since 3.1
+     */
+    public B defaultFormat(JsonFormat.Value format) {
+        _configOverrides.setDefaultFormat(format);
         return _this();
     }
 

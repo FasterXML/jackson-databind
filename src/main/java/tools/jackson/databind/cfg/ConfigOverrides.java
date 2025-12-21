@@ -17,7 +17,7 @@ public class ConfigOverrides
     implements java.io.Serializable,
         Snapshottable<ConfigOverrides>
 {
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
     /**
      * Convenience value used as the default root setting.
@@ -74,9 +74,9 @@ public class ConfigOverrides
     }
 
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
-                              JsonInclude.Value defIncl, JsonSetter.Value defSetter,
-                              VisibilityChecker defVisibility,
-                              Boolean defMergeable, Boolean defLeniency, JsonFormat.Value defFormat) {
+            JsonInclude.Value defIncl, JsonSetter.Value defSetter,
+            VisibilityChecker defVisibility,
+            Boolean defMergeable, Boolean defLeniency, JsonFormat.Value defFormat) {
         _overrides = overrides;
         _defaultInclusion = defIncl;
         _defaultNullHandling = defSetter;
@@ -86,15 +86,16 @@ public class ConfigOverrides
         _defaultFormat = defFormat;
     }
 
-    @Deprecated
-    /*
+    /**
      * @deprecated since 3.1
      */
+    @Deprecated
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
             JsonInclude.Value defIncl, JsonSetter.Value defSetter,
             VisibilityChecker defVisibility,
             Boolean defMergeable, Boolean defLeniency) {
-        this(overrides, defIncl, defSetter, defVisibility, defMergeable, defLeniency, JsonFormat.Value.empty());
+        this(overrides, defIncl, defSetter, defVisibility, defMergeable, defLeniency,
+                JsonFormat.Value.empty());
     }
 
     @Override
@@ -145,8 +146,6 @@ public class ConfigOverrides
      * override (if any).
      *
      * @return Default format settings for type; never null.
-     *
-     * @since 2.10
      */
     public JsonFormat.Value findFormatDefaults(Class<?> type) {
         if (_overrides != null) {
@@ -193,14 +192,6 @@ public class ConfigOverrides
         return _visibilityChecker;
     }
 
-
-    /**
-     * @since 3.1
-     */
-    public JsonFormat.Value getDefaultFormat() {
-        return _defaultFormat;
-    }
-
     /**
      * Alternate accessor needed due to complexities of Record
      * auto-discovery: needs to obey custom overrides but also
@@ -214,6 +205,13 @@ public class ConfigOverrides
         return (DEFAULT_VISIBILITY_CHECKER.equals(_visibilityChecker))
                 ? DEFAULT_RECORD_VISIBILITY_CHECKER
                 : _visibilityChecker;
+    }
+
+    /**
+     * @since 3.1
+     */
+    public JsonFormat.Value getDefaultFormat() {
+        return _defaultFormat;
     }
 
     /*
@@ -247,16 +245,16 @@ public class ConfigOverrides
         return this;
     }
 
+    public ConfigOverrides setDefaultVisibility(JsonAutoDetect.Value vis) {
+        _visibilityChecker = VisibilityChecker.construct(vis);
+        return this;
+    }
+
     /**
      * @since 3.1
      */
     public ConfigOverrides setDefaultFormat(JsonFormat.Value format) {
-        this._defaultFormat = format;
-        return this;
-    }
-
-    public ConfigOverrides setDefaultVisibility(JsonAutoDetect.Value vis) {
-        _visibilityChecker = VisibilityChecker.construct(vis);
+        _defaultFormat = format;
         return this;
     }
 
@@ -274,6 +272,7 @@ public class ConfigOverrides
                 .append(", merge=").append(_defaultMergeable)
                 .append(", leniency=").append(_defaultLeniency)
                 .append(", visibility=").append(_visibilityChecker)
+                .append(", format=").append(_defaultFormat)
                 .append(", typed=")
                 ;
         if (_overrides == null) {
@@ -297,6 +296,6 @@ public class ConfigOverrides
      */
 
     protected Map<Class<?>, MutableConfigOverride> _newMap() {
-        return new HashMap<Class<?>, MutableConfigOverride>();
+        return new HashMap<>();
     }
 }

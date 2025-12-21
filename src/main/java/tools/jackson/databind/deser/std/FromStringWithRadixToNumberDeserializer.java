@@ -60,7 +60,8 @@ public class FromStringWithRadixToNumberDeserializer
             }
         } catch (IllegalArgumentException iae) {
             return (Number) ctxt.handleWeirdStringValue(handledType, text,
-                    "not a valid representation");
+                    "not a valid representation of %s value with radix %d",
+                    ClassUtil.nameOf(handledType), radix);
         }
         // Is this really true?
         return ctxt.reportInputMismatch(handledType,

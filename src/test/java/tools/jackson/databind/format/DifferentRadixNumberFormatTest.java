@@ -1,14 +1,17 @@
 package tools.jackson.databind.format;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.testutil.DatabindTestUtil;
-
 import java.math.BigInteger;
+
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
 
@@ -110,16 +113,23 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
                         o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING).withRadix(HEX_RADIX)))
                 .build();
         IntWrapper intialIntWrapper = new IntWrapper(10);
-        String expectedJson = "{'value':'a'}";
+        String expectedJson = a2q("{'value':'a'}");
 
         String json = mapper.writeValueAsString(intialIntWrapper);
 
-        assertEquals(a2q(expectedJson), json);
+        assertEquals(expectedJson, json);
 
-        IntWrapper readBackIntWrapper = mapper.readValue(a2q(expectedJson), IntWrapper.class);
-
-        assertNotNull(readBackIntWrapper);
+        IntWrapper readBackIntWrapper = mapper.readValue(expectedJson, IntWrapper.class);
         assertEquals(intialIntWrapper.value, readBackIntWrapper.value);
+
+        // And error case too:
+        try {
+            mapper.readValue(a2q("{'value':'XYZ'}"), IntWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot deserialize value of type `int` from String \"XYZ\"");
+            verifyException(e, "not a valid representation of `int` value with radix 16");
+        }
     }
 
     @Test
@@ -129,29 +139,38 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
                 .defaultFormat(JsonFormat.Value.forRadix(HEX_RADIX).withShape(JsonFormat.Shape.STRING))
                 .build();
         IntWrapper intialIntWrapper = new IntWrapper(10);
-        String expectedJson = "{'value':'a'}";
+        String expectedJson = a2q("{'value':'a'}");
 
         String json = mapper.writeValueAsString(intialIntWrapper);
 
-        assertEquals(a2q(expectedJson), json);
+        assertEquals(expectedJson, json);
 
-        IntWrapper readBackIntWrapper = mapper.readValue(a2q(expectedJson), IntWrapper.class);
+        IntWrapper readBackIntWrapper = mapper.readValue(expectedJson, IntWrapper.class);
 
         assertNotNull(readBackIntWrapper);
         assertEquals(intialIntWrapper.value, readBackIntWrapper.value);
+
+        // And error case too:
+        try {
+            mapper.readValue(a2q("{'value':'_x'}"), IntWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot deserialize value of type `int` from String \"_x\"");
+            verifyException(e, "not a valid representation of `int` value with radix 16");
+        }
     }
 
     @Test
     void testAnnotatedAccessorSerializedAsHexString()
     {
         AnnotatedMethodIntWrapper initialIntWrapper = new AnnotatedMethodIntWrapper(10);
-        String expectedJson = "{'value':'a'}";
+        String expectedJson = a2q("{'value':'a'}");
 
         String json = MAPPER.writeValueAsString(initialIntWrapper);
 
-        assertEquals(a2q(expectedJson), json);
+        assertEquals(expectedJson, json);
 
-        AnnotatedMethodIntWrapper readBackIntWrapper = MAPPER.readValue(a2q(expectedJson), AnnotatedMethodIntWrapper.class);
+        AnnotatedMethodIntWrapper readBackIntWrapper = MAPPER.readValue(expectedJson, AnnotatedMethodIntWrapper.class);
 
         assertNotNull(readBackIntWrapper);
         assertEquals(initialIntWrapper.value, readBackIntWrapper.value);

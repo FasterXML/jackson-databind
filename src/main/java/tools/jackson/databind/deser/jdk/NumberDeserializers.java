@@ -17,8 +17,6 @@ import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
 
-import static tools.jackson.databind.deser.std.RadixSerializerCreator.createRadixStringDeserializer;
-
 /**
  * Container class for deserializers that handle core JDK primitive
  * (and matching wrapper) types, as well as standard "big" numeric types.
@@ -270,7 +268,8 @@ public class NumberDeserializers
         @Override
         public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
         {
-            return createRadixStringDeserializer(this, ctxt, property);
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
         }
 
         protected Byte _parseByte(JsonParser p, DeserializationContext ctxt)
@@ -362,9 +361,11 @@ public class NumberDeserializers
          * @since 3.1
          */
         @Override
-        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
         {
-            return createRadixStringDeserializer(this, ctxt, property);
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
         }
 
         @Override
@@ -551,9 +552,11 @@ public class NumberDeserializers
          * @since 3.1
          */
         @Override
-        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
         {
-            return createRadixStringDeserializer(this, ctxt, property);
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
         }
 
         @Override
@@ -601,13 +604,17 @@ public class NumberDeserializers
          * @since 3.1
          */
         @Override
-        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
         {
-            return createRadixStringDeserializer(this, ctxt, property);
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
         }
 
         @Override
-        public Long deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        public Long deserialize(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
+        {
             if (p.isExpectedNumberIntToken()) {
                 return p.getLongValue();
             }
@@ -630,7 +637,8 @@ public class NumberDeserializers
         }
 
         @Override
-        public Float deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
+        public Float deserialize(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
         {
             if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
                 return p.getFloatValue();
@@ -980,9 +988,11 @@ public class NumberDeserializers
          * @since 3.1
          */
         @Override
-        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
         {
-            return createRadixStringDeserializer(this, ctxt, property);
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
         }
 
         @Override

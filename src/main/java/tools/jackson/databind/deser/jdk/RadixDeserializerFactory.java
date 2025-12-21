@@ -1,31 +1,28 @@
-package tools.jackson.databind.deser.std;
+package tools.jackson.databind.deser.jdk;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.DeserializationContext;
+
+import tools.jackson.databind.deser.std.FromStringWithRadixToNumberDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.deser.std.StdScalarDeserializer;
 
 /**
  * Factory class for {@link FromStringWithRadixToNumberDeserializer} for deserializers in {@link tools.jackson.databind.deser.jdk.NumberDeserializers}
  *
  * @since 3.1
  */
-public class RadixSerializerCreator
+public class RadixDeserializerFactory
 {
     public static StdDeserializer<? extends Number> createRadixStringDeserializer(
             StdScalarDeserializer<? extends  Number> initialDeser,
-            DeserializationContext ctxt, BeanProperty property)
+            JsonFormat.Value formatOverrides)
     {
-        JsonFormat.Value format = initialDeser.findFormatOverrides(ctxt, property, initialDeser.handledType());
-
-        if (format == null || format.getShape() != JsonFormat.Shape.STRING) {
-            return initialDeser;
+        if (formatOverrides != null && formatOverrides.getShape() == JsonFormat.Shape.STRING) {
+            if (isSerializeWithRadixOverride(formatOverrides)) {
+                int radix = formatOverrides.getRadix();
+                return new FromStringWithRadixToNumberDeserializer(initialDeser, radix);
+            }
         }
-
-        if (isSerializeWithRadixOverride(format)) {
-            int radix = format.getRadix();
-            return new FromStringWithRadixToNumberDeserializer(initialDeser, radix);
-        }
-
         return initialDeser;
     }
 

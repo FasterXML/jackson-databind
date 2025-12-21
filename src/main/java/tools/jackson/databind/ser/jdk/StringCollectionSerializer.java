@@ -62,19 +62,19 @@ public class StringCollectionSerializer
 
     @Override
     public void serialize(Collection<String> value, JsonGenerator g,
-            SerializationContext provider) throws JacksonException
+            SerializationContext ctxt) throws JacksonException
     {
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
-                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, provider);
+                serializeContents(value, g, ctxt);
                 return;
             }
         }
         g.writeStartArray(value, len);
-        serializeContents(value, g, provider);
+        serializeContents(value, g, ctxt);
         g.writeEndArray();
     }
 
@@ -91,7 +91,7 @@ public class StringCollectionSerializer
     }
 
     private final void serializeContents(Collection<String> value, JsonGenerator g,
-            SerializationContext provider)
+            SerializationContext ctxt)
         throws JacksonException
     {
         int i = 0;
@@ -99,14 +99,14 @@ public class StringCollectionSerializer
         try {
             for (String str : value) {
                 if (str == null) {
-                    provider.defaultSerializeNullValue(g);
+                    ctxt.defaultSerializeNullValue(g);
                 } else {
                     g.writeString(str);
                 }
                 ++i;
             }
         } catch (Exception e) {
-            wrapAndThrow(provider, e, value, i);
+            wrapAndThrow(ctxt, e, value, i);
         }
     }
 }

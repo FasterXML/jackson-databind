@@ -44,30 +44,30 @@ public class EnumSetSerializer
     }
 
     @Override
-    public final void serialize(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
-            SerializationContext provider)
+    public final void serialize(EnumSet<? extends Enum<?>> value, JsonGenerator g,
+            SerializationContext ctxt)
         throws JacksonException
     {
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null)
-                    && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    && ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, gen, provider);
+                serializeContents(value, g, ctxt);
                 return;
             }
         }
-        gen.writeStartArray(value, len);
-        serializeContents(value, gen, provider);
-        gen.writeEndArray();
+        g.writeStartArray(value, len);
+        serializeContents(value, g, ctxt);
+        g.writeEndArray();
     }
 
     @Override
-    public void serializeContents(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
+    public void serializeContents(EnumSet<? extends Enum<?>> value, JsonGenerator g,
             SerializationContext ctxt)
         throws JacksonException
     {
-        gen.assignCurrentValue(value);
+        g.assignCurrentValue(value);
         ValueSerializer<Object> enumSer = _elementSerializer;
         // Need to dynamically find instance serializer; unfortunately that seems
         // to be the only way to figure out type (no accessors to the enum class that set knows)
@@ -77,7 +77,7 @@ public class EnumSetSerializer
                 //   not bother with typed serializer variant here
                 enumSer = _findAndAddDynamic(ctxt, en.getDeclaringClass());
             }
-            enumSer.serialize(en, gen, ctxt);
+            enumSer.serialize(en, g, ctxt);
         }
     }
 }

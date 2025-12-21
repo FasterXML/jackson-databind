@@ -62,22 +62,23 @@ public final class IndexedListSerializer
     }
 
     @Override
-    public final void serialize(Object value0, JsonGenerator gen, SerializationContext provider)
+    public final void serialize(Object value0, JsonGenerator g,
+            SerializationContext ctxt)
         throws JacksonException
     {
         final List<?> value = (List<?>) value0;
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
-                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, gen, provider);
+                serializeContents(value, g, ctxt);
                 return;
             }
         }
-        gen.writeStartArray(value, len);
-        serializeContents(value, gen, provider);
-        gen.writeEndArray();
+        g.writeStartArray(value, len);
+        serializeContents(value, g, ctxt);
+        g.writeEndArray();
     }
 
     @Override
@@ -123,8 +124,8 @@ public final class IndexedListSerializer
         }
     }
 
-    public void serializeContentsUsing(List<?> value, JsonGenerator jgen, SerializationContext provider,
-            ValueSerializer<Object> ser)
+    public void serializeContentsUsing(List<?> value, JsonGenerator g,
+            SerializationContext ctxt, ValueSerializer<Object> ser)
         throws JacksonException
     {
         final int len = value.size();
@@ -136,15 +137,15 @@ public final class IndexedListSerializer
             Object elem = value.get(i);
             try {
                 if (elem == null) {
-                    provider.defaultSerializeNullValue(jgen);
+                    ctxt.defaultSerializeNullValue(g);
                 } else if (typeSer == null) {
-                    ser.serialize(elem, jgen, provider);
+                    ser.serialize(elem, g, ctxt);
                 } else {
-                    ser.serializeWithType(elem, jgen, provider, typeSer);
+                    ser.serializeWithType(elem, g, ctxt, typeSer);
                 }
             } catch (Exception e) {
                 // [JACKSON-55] Need to add reference information
-                wrapAndThrow(provider, e, value, i);
+                wrapAndThrow(ctxt, e, value, i);
             }
         }
     }

@@ -1,16 +1,14 @@
 package tools.jackson.databind.ser.filter;
 
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,13 +16,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class JsonIncludeForCollection5369Test
     extends DatabindTestUtil
 {
+    /*
+    /**********************************************************
+    /* POJOs + Filters (kept together)
+    /**********************************************************
+     */
+
+    // String "foo" filter
     static class FooFilter {
         @Override
         public boolean equals(Object other) {
-            if (other == null) { // do NOT filter out nulls
+            if (other == null) {
                 return false;
             }
-            // in fact, only filter out exact String "foo"
             return "foo".equals(other);
         }
     }
@@ -32,60 +36,175 @@ public class JsonIncludeForCollection5369Test
     static class FooListBean {
         @JsonInclude(content = JsonInclude.Include.CUSTOM,
                 contentFilter = FooFilter.class)
-        public List<String> items = new ArrayList<String>();
+        public List<String> items = new ArrayList<>();
 
-        public FooListBean add(String value) {
+        FooListBean add(String value) {
             items.add(value);
             return this;
         }
     }
 
-    // Test NON_NULL content inclusion
-    static class NonNullListBean {
-        @JsonInclude(content = JsonInclude.Include.NON_NULL)
-        public List<String> items = new ArrayList<String>();
-
-        public NonNullListBean add(String value) {
-            items.add(value);
-            return this;
-        }
-    }
-
-    // Test NON_EMPTY content inclusion
-    static class NonEmptyListBean {
-        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
-        public List<String> items = new ArrayList<String>();
-
-        public NonEmptyListBean add(String value) {
-            items.add(value);
-            return this;
-        }
-    }
-
-    // Test NON_DEFAULT content inclusion
-    static class NonDefaultListBean {
-        @JsonInclude(content = JsonInclude.Include.NON_DEFAULT)
-        public List<String> items = new ArrayList<String>();
-
-        public NonDefaultListBean add(String value) {
-            items.add(value);
-            return this;
-        }
-    }
-
-    // Test with different collection types
     static class FooSetBean {
         @JsonInclude(content = JsonInclude.Include.CUSTOM,
                 contentFilter = FooFilter.class)
-        public Set<String> items = new LinkedHashSet<String>();
+        public Set<String> items = new LinkedHashSet<>();
 
-        public FooSetBean add(String value) {
+        FooSetBean add(String value) {
             items.add(value);
             return this;
         }
     }
 
-    // Test with Integer values
+    // NON_NULL
+    static class NonNullListBean {
+        @JsonInclude(content = JsonInclude.Include.NON_NULL)
+        public List<String> items = new ArrayList<>();
+
+        NonNullListBean add(String value) {
+            items.add(value);
+            return this;
+        }
+    }
+
+    // NON_EMPTY
+    static class NonEmptyListBean {
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+        public List<String> items = new ArrayList<>();
+
+        NonEmptyListBean add(String value) {
+            items.add(value);
+            return this;
+        }
+    }
+
+    // NON_DEFAULT
+    static class NonDefaultListBean {
+        @JsonInclude(content = JsonInclude.Include.NON_DEFAULT)
+        public List<String> items = new ArrayList<>();
+
+        NonDefaultListBean add(String value) {
+            items.add(value);
+            return this;
+        }
+    }
+
+    // Integer = 42 filter
+    static class IntegerFilter {
+        @Override
+        public boolean equals(Object other) {
+            return Integer.valueOf(42).equals(other);
+        }
+    }
+
+    static class IntegerListPojo {
+        @JsonInclude(content = JsonInclude.Include.CUSTOM,
+                contentFilter = IntegerFilter.class)
+        public List<Integer> values = new ArrayList<>();
+
+        IntegerListPojo add(int v) {
+            values.add(v);
+            return this;
+        }
+    }
+
+    // Short = 7 filter
+    static class ShortFilter {
+        @Override
+        public boolean equals(Object other) {
+            return Short.valueOf((short) 7).equals(other);
+        }
+    }
+
+    static class ShortListPojo {
+        @JsonInclude(content = JsonInclude.Include.CUSTOM,
+                contentFilter = ShortFilter.class)
+        public List<Short> values = new ArrayList<>();
+
+        ShortListPojo add(short v) {
+            values.add(v);
+            return this;
+        }
+    }
+
+    // Byte = 9 filter
+    static class ByteFilter {
+        @Override
+        public boolean equals(Object other) {
+            return Byte.valueOf((byte) 9).equals(other);
+        }
+    }
+
+    static class ByteListPojo {
+        @JsonInclude(content = JsonInclude.Include.CUSTOM,
+                contentFilter = ByteFilter.class)
+        public List<Byte> values = new ArrayList<>();
+
+        ByteListPojo add(byte v) {
+            values.add(v);
+            return this;
+        }
+    }
+
+    // Long = 100 filter
+    static class LongFilter {
+        @Override
+        public boolean equals(Object other) {
+            return Long.valueOf(100L).equals(other);
+        }
+    }
+
+    static class LongListPojo {
+        @JsonInclude(content = JsonInclude.Include.CUSTOM,
+                contentFilter = LongFilter.class)
+        public List<Long> values = new ArrayList<>();
+
+        LongListPojo add(long v) {
+            values.add(v);
+            return this;
+        }
+    }
+
+    // Double = 1.25 filter
+    static class DoubleFilter {
+        @Override
+        public boolean equals(Object other) {
+            return Double.valueOf(1.25).equals(other);
+        }
+    }
+
+    static class DoubleListPojo {
+        @JsonInclude(content = JsonInclude.Include.CUSTOM,
+                contentFilter = DoubleFilter.class)
+        public List<Double> values = new ArrayList<>();
+
+        DoubleListPojo add(double v) {
+            values.add(v);
+            return this;
+        }
+    }
+
+    // Counting filter
+    static class CountingFooFilter {
+        static final AtomicInteger counter = new AtomicInteger();
+
+        @Override
+        public boolean equals(Object other) {
+            counter.incrementAndGet();
+            return "foo".equals(other);
+        }
+    }
+
+    static class CountingFooListBean {
+        @JsonInclude(content = JsonInclude.Include.CUSTOM,
+                contentFilter = CountingFooFilter.class)
+        public List<String> items = new ArrayList<>();
+
+        CountingFooListBean add(String value) {
+            items.add(value);
+            return this;
+        }
+    }
+
     static class NumberFilter {
         @Override
         public boolean equals(Object other) {
@@ -99,7 +218,7 @@ public class JsonIncludeForCollection5369Test
     static class NumberListBean {
         @JsonInclude(content = JsonInclude.Include.CUSTOM,
                 contentFilter = NumberFilter.class)
-        public List<Integer> numbers = new ArrayList<Integer>();
+        public List<Integer> numbers = new ArrayList<>();
 
         public NumberListBean add(Integer value) {
             numbers.add(value);
@@ -107,86 +226,110 @@ public class JsonIncludeForCollection5369Test
         }
     }
 
-    // Test counting filter behavior
-    static class CountingFooFilter {
-        public final static AtomicInteger counter = new AtomicInteger(0);
-
-        @Override
-        public boolean equals(Object other) {
-            counter.incrementAndGet();
-            return "foo".equals(other);
-        }
-    }
-
-    static class CountingFooListBean {
-        @JsonInclude(content = JsonInclude.Include.CUSTOM,
-                contentFilter = CountingFooFilter.class)
-        public List<String> items = new ArrayList<String>();
-
-        public CountingFooListBean add(String value) {
-            items.add(value);
-            return this;
-        }
-    }
-
     /*
     /**********************************************************
-    /* Test methods, success
+    /* Mapper
     /**********************************************************
      */
 
-    final private ObjectMapper MAPPER = jsonMapperBuilder()
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
             .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
             .build();
+
+    /*
+    /**********************************************************
+    /* Tests
+    /**********************************************************
+     */
 
     @Test
     public void testCustomFilterWithList() throws Exception {
         FooListBean input = new FooListBean()
-                .add("1")
-                .add("foo")
-                .add("2");
+                .add("1").add("foo").add("2");
 
-        assertEquals(a2q("{'items':['1','2']}"), MAPPER.writeValueAsString(input));
+        assertEquals(a2q("{'items':['1','2']}"),
+                MAPPER.writeValueAsString(input));
     }
 
     @Test
     public void testNonNullContentInclusion() throws Exception {
         NonNullListBean input = new NonNullListBean()
-                .add("1")
-                .add(null)
-                .add("2");
+                .add("1").add(null).add("2");
 
-        assertEquals(a2q("{'items':['1','2']}"), MAPPER.writeValueAsString(input));
+        assertEquals(a2q("{'items':['1','2']}"),
+                MAPPER.writeValueAsString(input));
     }
 
     @Test
     public void testNonEmptyContentInclusion() throws Exception {
         NonEmptyListBean input = new NonEmptyListBean()
-                .add("1")
-                .add("")
-                .add("2");
+                .add("1").add("").add("2");
 
-        assertEquals(a2q("{'items':['1','2']}"), MAPPER.writeValueAsString(input));
+        assertEquals(a2q("{'items':['1','2']}"),
+                MAPPER.writeValueAsString(input));
     }
 
     @Test
     public void testNonDefaultContentInclusion() throws Exception {
         NonDefaultListBean input = new NonDefaultListBean()
-                .add("1")
-                .add(null) // null is default for String
-                .add("2");
+                .add("1").add(null).add("2");
 
-        assertEquals(a2q("{'items':['1','2']}"), MAPPER.writeValueAsString(input));
+        assertEquals(a2q("{'items':['1','2']}"),
+                MAPPER.writeValueAsString(input));
     }
 
     @Test
     public void testCustomFilterWithSet() throws Exception {
         FooSetBean input = new FooSetBean()
-                .add("1")
-                .add("foo")
-                .add("2");
+                .add("1").add("foo").add("2");
 
-        assertEquals(a2q("{'items':['1','2']}"), MAPPER.writeValueAsString(input));
+        assertEquals(a2q("{'items':['1','2']}"),
+                MAPPER.writeValueAsString(input));
+    }
+
+    @Test
+    public void testCustomFilterWithIntegerList() throws Exception {
+        IntegerListPojo input = new IntegerListPojo()
+                .add(1).add(42).add(2);
+
+        assertEquals(a2q("{'values':[1,2]}"),
+                MAPPER.writeValueAsString(input));
+    }
+
+    @Test
+    public void testCustomFilterWithShortList() throws Exception {
+        ShortListPojo input = new ShortListPojo()
+                .add((short) 1).add((short) 7).add((short) 2);
+
+        assertEquals(a2q("{'values':[1,2]}"),
+                MAPPER.writeValueAsString(input));
+    }
+
+    @Test
+    public void testCustomFilterWithByteList() throws Exception {
+        ByteListPojo input = new ByteListPojo()
+                .add((byte) 1).add((byte) 9).add((byte) 2);
+
+        assertEquals(a2q("{'values':[1,2]}"),
+                MAPPER.writeValueAsString(input));
+    }
+
+    @Test
+    public void testCustomFilterWithDoubleList() throws Exception {
+        DoubleListPojo input = new DoubleListPojo()
+                .add(0.5).add(1.25).add(2.5);
+
+        assertEquals(a2q("{'values':[0.5,2.5]}"),
+                MAPPER.writeValueAsString(input));
+    }
+
+    @Test
+    public void testCustomFilterWithLongList() throws Exception {
+        LongListPojo input = new LongListPojo()
+                .add(10L).add(100L).add(20L);
+
+        assertEquals(a2q("{'values':[10,20]}"),
+                MAPPER.writeValueAsString(input));
     }
 
     @Test
@@ -196,13 +339,20 @@ public class JsonIncludeForCollection5369Test
                 .add(42)
                 .add(3);
 
-        assertEquals(a2q("{'numbers':[1,3]}"), MAPPER.writeValueAsString(input));
+        assertEquals(
+                a2q("{'numbers':[1,3]}"),
+                MAPPER.writeValueAsString(input)
+        );
     }
 
     @Test
     public void testEmptyListWithCustomFilter() throws Exception {
         FooListBean input = new FooListBean();
-        assertEquals(a2q("{'items':[]}"), MAPPER.writeValueAsString(input));
+
+        assertEquals(
+                a2q("{'items':[]}"),
+                MAPPER.writeValueAsString(input)
+        );
     }
 
     @Test
@@ -212,7 +362,10 @@ public class JsonIncludeForCollection5369Test
                 .add("foo")
                 .add("foo");
 
-        assertEquals(a2q("{'items':[]}"), MAPPER.writeValueAsString(input));
+        assertEquals(
+                a2q("{'items':[]}"),
+                MAPPER.writeValueAsString(input)
+        );
     }
 
     @Test
@@ -225,8 +378,10 @@ public class JsonIncludeForCollection5369Test
                 .add(null);
 
         // Custom filter should not filter nulls (based on FooFilter.equals implementation)
-        assertEquals(a2q("{'items':['1',null,'2',null]}"), MAPPER.writeValueAsString(input));
+        assertEquals(
+                a2q("{'items':['1',null,'2',null]}"),
+                MAPPER.writeValueAsString(input)
+        );
     }
-
 
 }

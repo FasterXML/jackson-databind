@@ -1,10 +1,11 @@
 package tools.jackson.databind.deser.std;
 
+import java.math.BigInteger;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
-
-import java.math.BigInteger;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Deserializer used for a string that represents a number in specific radix (base).
@@ -12,11 +13,11 @@ import java.math.BigInteger;
  * @since 3.1
  */
 public class FromStringWithRadixToNumberDeserializer
-        extends StdDeserializer<Number>
+    extends StdScalarDeserializer<Number>
 {
     private final int radix;
 
-    public FromStringWithRadixToNumberDeserializer(StdDeserializer<?> src, int radix) {
+    public FromStringWithRadixToNumberDeserializer(StdScalarDeserializer<?> src, int radix) {
         super(src);
         this.radix = radix;
     }
@@ -27,23 +28,41 @@ public class FromStringWithRadixToNumberDeserializer
 
         if (!p.hasToken(JsonToken.VALUE_STRING)) {
             ctxt.reportInputMismatch(handledType,
-                    "Read something other than string when deserializing a value using FromStringWithRadixToNumberDeserializer");
+                    "Need String when deserializing a value using `FromStringWithRadixToNumberDeserializer` (radix: %d)",
+                    radix);
         }
 
         String text = p.getString();
 
-        if (handledType.equals(BigInteger.class)) {
-            return new BigInteger(text, radix);
-        } else if (handledType.equals(byte.class) || handledType.equals(Byte.class)) {
-            return Byte.parseByte(text, radix);
-        } else if (handledType.equals(short.class) || handledType.equals(Short.class)) {
-            return Short.parseShort(text, radix);
-        } else if (handledType.equals(int.class) || handledType.equals(Integer.class)) {
-            return Integer.parseInt(text, radix);
-        } else if (handledType.equals(long.class) || handledType.equals(Long.class)) {
-            return Long.parseLong(text, radix);
+        // First, DoS check
+        p.streamReadConstraints().validateIntegerLength(text.length());
+
+        try {
+            if (handledType.equals(BigInteger.class)) {
+                return new BigInteger(text, radix);
+            }
+            // Map from wrappers to primitive
+            Class<?> primitiveType = ClassUtil.primitiveType(handledType);
+
+            // start with more likely types
+            if (primitiveType == long.class) {
+                return Long.parseLong(text, radix);
+            }
+            if (primitiveType == int.class) {
+                return Integer.parseInt(text, radix);
+            }
+            if (primitiveType == short.class) {
+                return Short.parseShort(text, radix);
+            }
+            if (primitiveType == byte.class) {
+                return Byte.parseByte(text, radix);
+            }
+        } catch (IllegalArgumentException iae) {
+            return (Number) ctxt.handleWeirdStringValue(handledType, text,
+                    "not a valid representation");            
         }
+        // Is this really true?
         return ctxt.reportInputMismatch(handledType,
-                    "Trying to deserialize a non-whole number with NumberToStringWithRadixSerializer");
+                "Trying to deserialize a non-whole number with `NumberToStringWithRadixSerializer`");
     }
 }

@@ -4,14 +4,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 
-import static com.fasterxml.jackson.annotation.JsonFormat.DEFAULT_RADIX;
-
 /**
  * Factory class for {@link FromStringWithRadixToNumberDeserializer} for deserializers in {@link tools.jackson.databind.deser.jdk.NumberDeserializers}
- * @since 3.1
  *
+ * @since 3.1
  */
-public class RadixSerializerCreator {
+public class RadixSerializerCreator
+{
     public static StdDeserializer<? extends Number> createRadixStringDeserializer(
             StdScalarDeserializer<? extends  Number> initialDeser,
             DeserializationContext ctxt, BeanProperty property)

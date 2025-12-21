@@ -14,7 +14,7 @@ import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ObjectIdWithBuilder1496Test extends DatabindTestUtil {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")

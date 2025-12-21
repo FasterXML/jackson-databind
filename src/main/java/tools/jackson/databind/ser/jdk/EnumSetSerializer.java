@@ -14,7 +14,7 @@ public class EnumSetSerializer
         super(EnumSet.class, elemType, true, null, null);
     }
 
-    @Deprecated // since 3.1.0
+    @Deprecated // since 3.1
     public EnumSetSerializer(EnumSetSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
@@ -22,7 +22,7 @@ public class EnumSetSerializer
     }
 
     /**
-     * @since 3.1.0
+     * @since 3.1
      */
     public EnumSetSerializer(EnumSetSerializer src,
              TypeSerializer vts, ValueSerializer<?> valueSerializer,
@@ -37,6 +37,7 @@ public class EnumSetSerializer
         return this;
     }
 
+    @Deprecated // @since 3.1
     @Override
     protected EnumSetSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,

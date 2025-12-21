@@ -24,7 +24,7 @@ import tools.jackson.databind.util.BeanUtil;
 public abstract class StaticListSerializerBase<T extends Collection<?>>
     extends StdSerializer<T>
 {
-    // since 3.1.0
+    // since 3.1
     public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
 
     /**
@@ -38,13 +38,15 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
      * Value that indicates suppression mechanism to use for
      * content values (elements of container), if any; null
      * for no filtering.
-     * @since 3.1.0
+     *
+     * @since 3.1
      */
     protected final Object _suppressableValue;
 
     /**
      * Flag that indicates whether nulls should be suppressed.
-     * @since 3.1.0
+     *
+     * @since 3.1
      */
     protected final boolean _suppressNulls;
 
@@ -55,14 +57,14 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         _suppressNulls = false;
     }
 
-    @Deprecated // since 3.1.0
+    @Deprecated // since 3.1
     protected StaticListSerializerBase(StaticListSerializerBase<?> src,
             Boolean unwrapSingle) {
         this(src, unwrapSingle, src._suppressableValue, src._suppressNulls);
     }
 
     /**
-     * @since 3.1.0
+     * @since 3.1
      */
     protected StaticListSerializerBase(StaticListSerializerBase<?> src,
             Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
@@ -72,14 +74,14 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         _suppressNulls = suppressNulls;
     }
 
-    @Deprecated // since 3.1.0
+    @Deprecated // since 3.1
     public abstract ValueSerializer<?> _withResolved(BeanProperty prop,
             Boolean unwrapSingle);
 
     /**
      * To support `@JsonInclude`.
      * Default implementation fallback to {@link StaticListSerializerBase#_withResolved(BeanProperty, Boolean, Object, boolean)}
-     * @since 3.1.0
+     * @since 3.1
      */
     public ValueSerializer<?> _withResolved(BeanProperty prop,
             Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls

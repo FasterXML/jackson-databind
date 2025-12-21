@@ -33,7 +33,7 @@ public class StringCollectionSerializer
         super(Collection.class);
     }
 
-    @Deprecated // since 3.1.0
+    @Deprecated // since 3.1
     protected StringCollectionSerializer(StringCollectionSerializer src,
             Boolean unwrapSingle)
     {
@@ -41,7 +41,7 @@ public class StringCollectionSerializer
     }
 
     /**
-     * @since 3.1.0p
+     * @since 3.1
      */
     protected StringCollectionSerializer(StringCollectionSerializer src,
              Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls)
@@ -49,6 +49,7 @@ public class StringCollectionSerializer
         super(src, unwrapSingle, suppressableValue, suppressNulls);
     }
 
+    @Deprecated // @since 3.1
     @Override
     public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
         return new StringCollectionSerializer(this, unwrapSingle, null, false);

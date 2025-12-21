@@ -33,20 +33,21 @@ public final class IndexedStringListSerializer
         super(List.class);
     }
 
-    @Deprecated // since 3.1.0
+    @Deprecated // since 3.1
     public IndexedStringListSerializer(IndexedStringListSerializer src,
             Boolean unwrapSingle) {
         this(src, unwrapSingle, src._suppressableValue, src._suppressNulls);
     }
 
     /**
-     * @since 3.1.0
+     * @since 3.1
      */
     public IndexedStringListSerializer(IndexedStringListSerializer src,
            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
         super(src, unwrapSingle, suppressableValue, suppressNulls);
     }
 
+    @Deprecated // @since 3.1
     @Override
     public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
         return new IndexedStringListSerializer(this, unwrapSingle, null, false);

@@ -32,13 +32,15 @@ public abstract class AsArraySerializerBase<T>
      * Value that indicates suppression mechanism to use for
      * content values (elements of container), if any; null
      * for no filtering.
-     * @since 3.1.0
+     *
+     * @since 3.1
      */
     protected final Object _suppressableValue;
 
     /**
      * Flag that indicates whether nulls should be suppressed.
-     * @since 3.1.0
+     *
+     * @since 3.1
      */
     protected final boolean _suppressNulls;
 
@@ -94,8 +96,7 @@ public abstract class AsArraySerializerBase<T>
         _suppressNulls = false;
     }
 
-    @Deprecated // since 3.1.0
-    @SuppressWarnings("unchecked")
+    @Deprecated // since 3.1
     protected AsArraySerializerBase(Class<?> cls, JavaType elementType, boolean staticTyping,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle, BeanProperty property)
@@ -106,7 +107,7 @@ public abstract class AsArraySerializerBase<T>
     /**
      * General purpose constructor. Use contextual constructors, if possible.
      *
-     * @since 3.1.0
+     * @since 3.1
      */
     @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(Class<?> cls, JavaType elementType, boolean staticTyping,
@@ -125,7 +126,7 @@ public abstract class AsArraySerializerBase<T>
         _suppressNulls = suppressNulls;
     }
 
-    @Deprecated // since 3.1.0
+    @Deprecated // since 3.1
     @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(AsArraySerializerBase<?> src,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
@@ -142,7 +143,7 @@ public abstract class AsArraySerializerBase<T>
     }
 
     /**
-     * @since 3.1.0
+     * @since 3.1
      */
     @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(AsArraySerializerBase<?> src,
@@ -160,7 +161,7 @@ public abstract class AsArraySerializerBase<T>
         _suppressNulls = suppressNulls;
     }
 
-    @Deprecated // since 3.1.0
+    @Deprecated // since 3.1
     protected abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle);
@@ -343,7 +344,7 @@ public abstract class AsArraySerializerBase<T>
      * Support `@JsonInclude`
      * Will fallback to {@link AsArraySerializerBase#serializeContents(Object, JsonGenerator, SerializationContext)} for backward compatibility.
      *
-     * @since 3.1.0
+     * @since 3.1
      */
     protected void serializeFilteredContents(T value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
@@ -376,7 +377,7 @@ public abstract class AsArraySerializerBase<T>
      * @param provider Serializer provider
      * @return true if element should be serialized, false if suppressed
      *
-     * @since 3.1.0
+     * @since 3.1
      */
     protected final boolean _shouldSerializeElement(Object elem, ValueSerializer<Object> serializer,
         SerializationContext provider) throws JacksonException

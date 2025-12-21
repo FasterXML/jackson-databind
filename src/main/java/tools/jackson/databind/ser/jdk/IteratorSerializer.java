@@ -18,7 +18,7 @@ public class IteratorSerializer
         super(Iterator.class, elemType, staticTyping, vts, null);
     }
 
-    @Deprecated // since 3.1.0
+    @Deprecated // since 3.1
     public IteratorSerializer(IteratorSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
@@ -26,7 +26,7 @@ public class IteratorSerializer
     }
 
     /**
-     * @since 3.1.0
+     * @since 3.1
      */
     public IteratorSerializer(IteratorSerializer src,
               TypeSerializer vts, ValueSerializer<?> valueSerializer,
@@ -37,9 +37,11 @@ public class IteratorSerializer
 
     @Override
     protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new IteratorSerializer(this, vts, _elementSerializer, _unwrapSingle, _property);
+        return new IteratorSerializer(this, vts, _elementSerializer, _unwrapSingle, _property,
+                _suppressableValue, _suppressNulls);
     }
 
+    @Deprecated // @since 3.1
     @Override
     public IteratorSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,

@@ -47,7 +47,7 @@ public class CollectionSerializer
         _maybeEnumSet = elemType.isEnumType() || elemType.isJavaLangObject();
     }
 
-    @Deprecated // since 3.1.0
+    @Deprecated // since 3.1
     protected CollectionSerializer(CollectionSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
@@ -55,7 +55,7 @@ public class CollectionSerializer
     }
 
     /**
-     * @since 3.1.0
+     * @since 3.1
      */
     protected CollectionSerializer(CollectionSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
@@ -67,9 +67,11 @@ public class CollectionSerializer
 
     @Override
     protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new CollectionSerializer(this, vts, _elementSerializer, _unwrapSingle, _property);
+        return new CollectionSerializer(this, vts, _elementSerializer, _unwrapSingle, _property,
+                _suppressableValue, _suppressNulls);
     }
 
+    @Deprecated // @since 3.1
     @Override
     protected CollectionSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
@@ -77,7 +79,7 @@ public class CollectionSerializer
         return withResolved(property, vts, elementSerializer, unwrapSingle, null, false);
     }
 
-    // @since 3.1.0
+    // @since 3.1
     @Override
     protected CollectionSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,

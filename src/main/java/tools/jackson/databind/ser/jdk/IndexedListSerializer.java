@@ -26,7 +26,7 @@ public final class IndexedListSerializer
         super(List.class, elemType, staticTyping, vts, valueSerializer);
     }
 
-    @Deprecated // since 3.1.0
+    @Deprecated // since 3.1
     public IndexedListSerializer(IndexedListSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
@@ -34,7 +34,7 @@ public final class IndexedListSerializer
     }
 
     /**
-     * @since 3.1.0
+     * @since 3.1
      */
     public IndexedListSerializer(IndexedListSerializer src,
              TypeSerializer vts, ValueSerializer<?> valueSerializer, Boolean unwrapSingle,
@@ -45,9 +45,12 @@ public final class IndexedListSerializer
     @Override
     protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new IndexedListSerializer(this,
-                vts, _elementSerializer, _unwrapSingle, _property);
+                vts, _elementSerializer, _unwrapSingle, _property,
+                _suppressableValue, _suppressNulls);
+                
     }
 
+    @Deprecated // @since 3.1
     @Override
     public IndexedListSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
@@ -62,7 +65,6 @@ public final class IndexedListSerializer
         return new IndexedListSerializer(this, vts, elementSerializer, unwrapSingle, property,
                 suppressableValue, suppressNulls);
     }
-
 
     /*
     /**********************************************************************

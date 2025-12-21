@@ -63,7 +63,7 @@ public class StringNode
     protected String _valueDesc() {
         String s = _value;
         if (s.length() > 100) {
-             return String.format("\"%s\"[...]", s.substring(0, 100));
+             return "\"" + s.substring(0, 100) + "\"[...]";
         }
         return "\""+_value+"\"";
     }

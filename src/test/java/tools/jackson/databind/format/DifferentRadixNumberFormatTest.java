@@ -15,21 +15,21 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
     private static final int HEX_RADIX = 16;
     private static final int BINARY_RADIX = 2;
 
-    private static class IntegerWrapper {
+    static class IntegerWrapper {
         public Integer value;
 
         public IntegerWrapper() {}
         public IntegerWrapper(Integer v) { value = v; }
     }
 
-    private static class IntWrapper {
+    static class IntWrapper {
         public int value;
 
         public IntWrapper() {}
         public IntWrapper(int v) { value = v; }
     }
 
-    private static class AnnotatedMethodIntWrapper {
+    static class AnnotatedMethodIntWrapper {
         private int value;
 
         public AnnotatedMethodIntWrapper() {
@@ -44,7 +44,7 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
         }
     }
 
-    private static class IncorrectlyAnnotatedMethodIntWrapper {
+    static class IncorrectlyAnnotatedMethodIntWrapper {
         private int value;
 
         public IncorrectlyAnnotatedMethodIntWrapper() {
@@ -59,7 +59,7 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
         }
     }
 
-    private static class AllIntegralTypeWrapper {
+    static class AllIntegralTypeWrapper {
         @JsonFormat(shape = JsonFormat.Shape.STRING, radix = BINARY_RADIX)
         public byte byteValue;
         @JsonFormat(shape = JsonFormat.Shape.STRING, radix = BINARY_RADIX)
@@ -100,6 +100,8 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
         }
     }
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     @Test
     void testIntSerializedAsHexString()
     {
@@ -118,7 +120,6 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
 
         assertNotNull(readBackIntWrapper);
         assertEquals(intialIntWrapper.value, readBackIntWrapper.value);
-
     }
 
     @Test
@@ -138,21 +139,19 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
 
         assertNotNull(readBackIntWrapper);
         assertEquals(intialIntWrapper.value, readBackIntWrapper.value);
-
     }
 
     @Test
     void testAnnotatedAccessorSerializedAsHexString()
     {
-        ObjectMapper mapper = newJsonMapper();
         AnnotatedMethodIntWrapper initialIntWrapper = new AnnotatedMethodIntWrapper(10);
         String expectedJson = "{'value':'a'}";
 
-        String json = mapper.writeValueAsString(initialIntWrapper);
+        String json = MAPPER.writeValueAsString(initialIntWrapper);
 
         assertEquals(a2q(expectedJson), json);
 
-        AnnotatedMethodIntWrapper readBackIntWrapper = mapper.readValue(a2q(expectedJson), AnnotatedMethodIntWrapper.class);
+        AnnotatedMethodIntWrapper readBackIntWrapper = MAPPER.readValue(a2q(expectedJson), AnnotatedMethodIntWrapper.class);
 
         assertNotNull(readBackIntWrapper);
         assertEquals(initialIntWrapper.value, readBackIntWrapper.value);
@@ -161,13 +160,8 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
     @Test
     void testAnnotatedAccessorWithoutRadixDoesNotThrow()
     {
-        ObjectMapper mapper = newJsonMapper();
         IncorrectlyAnnotatedMethodIntWrapper initialIntWrapper = new IncorrectlyAnnotatedMethodIntWrapper(10);
-        String expectedJson = "{'value':'10'}";
-
-        String json = mapper.writeValueAsString(initialIntWrapper);
-
-        assertEquals(a2q(expectedJson), json);
+        assertEquals(a2q("{'value':'10'}"), MAPPER.writeValueAsString(initialIntWrapper));
     }
 
     @Test
@@ -193,16 +187,14 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
     @Test
     void testAllIntegralTypesGetSerializedAsBinary()
     {
-        ObjectMapper mapper = newJsonMapper();
         AllIntegralTypeWrapper initialIntegralTypeWrapper = new AllIntegralTypeWrapper((byte) 1,
                 (byte) 2, (short) 3, (short) 4, 5, 6, 7L, 8L, new BigInteger("9"));
-        String expectedJson = "{'byteValue':'1','ByteValue':'10','shortValue':'11','ShortValue':'100','intValue':'101','IntegerValue':'110','longValue':'111','LongValue':'1000','bigInteger':'1001'}";
+        String expectedJson = a2q("{'byteValue':'1','ByteValue':'10','shortValue':'11','ShortValue':'100','intValue':'101','IntegerValue':'110','longValue':'111','LongValue':'1000','bigInteger':'1001'}");
 
-        String json = mapper.writeValueAsString(initialIntegralTypeWrapper);
+        assertEquals(expectedJson, MAPPER.writeValueAsString(initialIntegralTypeWrapper));
 
-        assertEquals(a2q(expectedJson), json);
-
-        AllIntegralTypeWrapper readbackIntegralTypeWrapper = mapper.readValue(a2q(expectedJson), AllIntegralTypeWrapper.class);
+        AllIntegralTypeWrapper readbackIntegralTypeWrapper = MAPPER.readValue(expectedJson,
+                AllIntegralTypeWrapper.class);
 
         assertNotNull(readbackIntegralTypeWrapper);
         assertEquals(initialIntegralTypeWrapper.byteValue, readbackIntegralTypeWrapper.byteValue);

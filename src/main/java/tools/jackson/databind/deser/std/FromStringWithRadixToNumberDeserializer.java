@@ -12,7 +12,8 @@ import java.math.BigInteger;
  * @since 3.1
  */
 public class FromStringWithRadixToNumberDeserializer
-        extends StdDeserializer<Number> {
+        extends StdDeserializer<Number>
+{
     private final int radix;
 
     public FromStringWithRadixToNumberDeserializer(StdDeserializer<?> src, int radix) {
@@ -26,7 +27,7 @@ public class FromStringWithRadixToNumberDeserializer
 
         if (p.currentToken() != JsonToken.VALUE_STRING) {
             ctxt.reportInputMismatch(handledType,
-                    "Read something other than string when deserializing a value using FromStringWithRadixToNumberDeserializer.");
+                    "Read something other than string when deserializing a value using FromStringWithRadixToNumberDeserializer");
         }
 
         String text = p.getString();
@@ -41,12 +42,8 @@ public class FromStringWithRadixToNumberDeserializer
             return Integer.parseInt(text, radix);
         } else if (handledType.equals(long.class) || handledType.equals(Long.class)) {
             return Long.parseLong(text, radix);
-        } else {
-            ctxt.reportInputMismatch(handledType,
-                    "Trying to deserialize a non-whole number with NumberToStringWithRadixSerializer");
-            return null;//should not reach here
         }
+        return ctxt.reportInputMismatch(handledType,
+                    "Trying to deserialize a non-whole number with NumberToStringWithRadixSerializer");
     }
-
-
 }

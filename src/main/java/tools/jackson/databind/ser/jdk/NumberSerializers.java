@@ -13,7 +13,6 @@ import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
-import tools.jackson.databind.ser.std.ToStringSerializer;
 
 /**
  * Container class for serializers used for handling standard JDK-provided

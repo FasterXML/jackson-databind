@@ -16,8 +16,6 @@ import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.ser.std.ToStringSerializer;
 import tools.jackson.databind.ser.std.ToStringSerializerBase;
 
-import static com.fasterxml.jackson.annotation.JsonFormat.DEFAULT_RADIX;
-
 /**
  * As a fallback, we may need to use this serializer for other
  * types of {@link Number}s: both custom types and "big" numbers

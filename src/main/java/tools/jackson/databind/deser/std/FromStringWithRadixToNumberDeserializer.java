@@ -26,6 +26,7 @@ public class FromStringWithRadixToNumberDeserializer
     public Number deserialize(JsonParser p, DeserializationContext ctxt) {
         Class<?> handledType = handledType();
 
+        // Should we allow (Integer) numbers? At least with "lenient" format settings?
         if (!p.hasToken(JsonToken.VALUE_STRING)) {
             ctxt.reportInputMismatch(handledType,
                     "Need String when deserializing a value using `FromStringWithRadixToNumberDeserializer` (radix: %d)",
@@ -59,7 +60,7 @@ public class FromStringWithRadixToNumberDeserializer
             }
         } catch (IllegalArgumentException iae) {
             return (Number) ctxt.handleWeirdStringValue(handledType, text,
-                    "not a valid representation");            
+                    "not a valid representation");
         }
         // Is this really true?
         return ctxt.reportInputMismatch(handledType,

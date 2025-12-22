@@ -53,9 +53,6 @@ public class OffsetTimeDeserializer extends JSR310DateTimeDeserializerBase<Offse
         _readTimestampsAsNanosOverride = null;
     }
 
-    /**
-     * Since 2.11
-     */
     protected OffsetTimeDeserializer(OffsetTimeDeserializer base, Boolean leniency) {
         super(base, leniency);
         _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
@@ -128,7 +125,7 @@ public class OffsetTimeDeserializer extends JSR310DateTimeDeserializerBase<Offse
                 throw ctxt.wrongTokenException(p, handledType(), JsonToken.START_ARRAY,
                         "Expected array or string");
             }
-        } else {
+        } else { // is START_ARRAY
             JsonToken t = p.nextToken();
             if (t != JsonToken.VALUE_NUMBER_INT) {
                 if (t == JsonToken.END_ARRAY) {
@@ -140,9 +137,10 @@ public class OffsetTimeDeserializer extends JSR310DateTimeDeserializerBase<Offse
                     if (p.nextToken() != JsonToken.END_ARRAY) {
                         handleMissingEndArrayForSingle(p, ctxt);
                     }
+                    // Possible truncation handled by `deserialize()` call above
                     return parsed;
                 }
-                ctxt.reportInputMismatch(handledType(),
+                result = ctxt.reportInputMismatch(handledType(),
                         "Unexpected token (%s) within Array, expected VALUE_NUMBER_INT",
                         t);
             }
@@ -153,10 +151,12 @@ public class OffsetTimeDeserializer extends JSR310DateTimeDeserializerBase<Offse
                 if (t == JsonToken.END_ARRAY) {
                     return null;
                 }
-                if (t != JsonToken.VALUE_NUMBER_INT) {
-                    _reportWrongToken(ctxt, JsonToken.VALUE_NUMBER_INT, "minutes");
+                if (t == JsonToken.VALUE_NUMBER_INT) {
+                    minute = p.getIntValue();
+                } else {
+                    result = _reportWrongToken(ctxt, JsonToken.VALUE_NUMBER_INT, "minutes");
+                    // unlikely to recover here?
                 }
-                minute = p.getIntValue();
             }
             int partialSecond = 0;
             int second = 0;

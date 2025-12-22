@@ -283,7 +283,7 @@ public class InstantDeserializer<T extends Temporal>
                 }
                 // fall through
             default:
-                return _handleUnexpectedToken(ctxt, p, JsonToken.VALUE_STRING,
+                result = _handleUnexpectedToken(ctxt, p, JsonToken.VALUE_STRING,
                         JsonToken.VALUE_NUMBER_INT, JsonToken.VALUE_NUMBER_FLOAT);
         }
 
@@ -298,12 +298,12 @@ public class InstantDeserializer<T extends Temporal>
     @SuppressWarnings("unchecked")
     protected T _truncateToMillis(T value) {
         // Handle concrete types that support truncation
-        if (value instanceof java.time.Instant) {
-            return (T) ((java.time.Instant) value).truncatedTo(ChronoUnit.MILLIS);
-        } else if (value instanceof java.time.OffsetDateTime) {
-            return (T) ((java.time.OffsetDateTime) value).truncatedTo(ChronoUnit.MILLIS);
-        } else if (value instanceof java.time.ZonedDateTime) {
-            return (T) ((java.time.ZonedDateTime) value).truncatedTo(ChronoUnit.MILLIS);
+        if (value instanceof java.time.Instant inst) {
+            return (T) inst.truncatedTo(ChronoUnit.MILLIS);
+        } else if (value instanceof java.time.OffsetDateTime odt) {
+            return (T) odt.truncatedTo(ChronoUnit.MILLIS);
+        } else if (value instanceof java.time.ZonedDateTime zdt) {
+            return (T) zdt.truncatedTo(ChronoUnit.MILLIS);
         }
         // Return as-is if type doesn't support truncation
         return value;

@@ -116,7 +116,7 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
             if (str != null) {
                 result = _fromString(p, ctxt, str);
             } else {
-                return _handleUnexpectedToken(ctxt, p, "Expected array or string.");
+                result = _handleUnexpectedToken(ctxt, p, "Expected array or string.");
             }
         } else if (p.isExpectedStartArrayToken()) {
             JsonToken t = p.nextToken();
@@ -129,6 +129,7 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
                 if (p.nextToken() != JsonToken.END_ARRAY) {
                     handleMissingEndArrayForSingle(p, ctxt);
                 }
+                // Already truncated if need be by `deserialize()`
                 return parsed;
             }
             if (t == JsonToken.VALUE_NUMBER_INT) {
@@ -158,10 +159,9 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
                     }
                 }
             } else {
-                ctxt.reportInputMismatch(handledType(),
+                result = ctxt.reportInputMismatch(handledType(),
                         "Unexpected token (%s) within Array, expected VALUE_NUMBER_INT",
                         t);
-                return null; // Unreachable but satisfies compiler
             }
         } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
             result = (LocalTime) p.getEmbeddedObject();
@@ -169,7 +169,7 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
             _throwNoNumericTimestampNeedTimeZone(p, ctxt);
             return null; // Unreachable but satisfies compiler
         } else {
-            return _handleUnexpectedToken(ctxt, p, "Expected array or string.");
+            result = _handleUnexpectedToken(ctxt, p, "Expected array or string.");
         }
 
         // Apply millisecond truncation if enabled

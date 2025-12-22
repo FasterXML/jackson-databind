@@ -110,11 +110,12 @@ public class LocalDateTimeDeserializer
             if (str != null) {
                 result = _fromString(p, ctxt, str);
             } else {
-                return _handleUnexpectedToken(ctxt, p, "Expected array or string");
+                result = _handleUnexpectedToken(ctxt, p, "Expected array or string");
             }
         } else if (p.isExpectedStartArrayToken()) {
             JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {
+                // 22-Dec-2025, tatu: Has been like this but seems inconsistent?
                 return null;
             }
             if ((t == JsonToken.VALUE_STRING || t == JsonToken.VALUE_EMBEDDED_OBJECT)
@@ -123,6 +124,7 @@ public class LocalDateTimeDeserializer
                 if (p.nextToken() != JsonToken.END_ARRAY) {
                     handleMissingEndArrayForSingle(p, ctxt);
                 }
+                // Since we got it via `deserialize()`, possible truncation already applied
                 return parsed;
             }
             if (t == JsonToken.VALUE_NUMBER_INT) {
@@ -152,10 +154,9 @@ public class LocalDateTimeDeserializer
                     }
                 }
             } else {
-                ctxt.reportInputMismatch(handledType(),
+                result = ctxt.reportInputMismatch(handledType(),
                         "Unexpected token (%s) within Array, expected VALUE_NUMBER_INT",
                         t);
-                return null; // Unreachable but satisfies compiler
             }
         } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
             result = (LocalDateTime) p.getEmbeddedObject();
@@ -163,7 +164,7 @@ public class LocalDateTimeDeserializer
             _throwNoNumericTimestampNeedTimeZone(p, ctxt);
             return null; // Unreachable but satisfies compiler
         } else {
-            return _handleUnexpectedToken(ctxt, p, "Expected array or string");
+            result = _handleUnexpectedToken(ctxt, p, "Expected array or string");
         }
 
         // Apply millisecond truncation if enabled

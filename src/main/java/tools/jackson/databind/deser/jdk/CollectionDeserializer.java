@@ -13,6 +13,7 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
+import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
@@ -172,13 +173,8 @@ _containerType,
         //   comes down to "List vs Collection" I suppose... for now, pass Collection
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        if (unwrapSingle == null) {
-            tools.jackson.databind.introspect.AnnotatedClass ac = ctxt.introspectClassAnnotations(_containerType);
-            JsonFormat.Value format = ctxt.getAnnotationIntrospector().findFormat(ctxt.getConfig(), ac);
-            if (format != null) {
-                unwrapSingle = format.getFeature(JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-            }
-        }
+        unwrapSingle = findFormatFeatureOrClassFallback(ctxt, _containerType, unwrapSingle,
+            JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // also, often value deserializer is resolved here:
         ValueDeserializer<?> valueDeser = _valueDeserializer;
 
@@ -601,5 +597,19 @@ _containerType,
         public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value) throws JacksonException {
             _parent.resolveForwardReference(ctxt, id, value);
         }
+    }
+
+    public static Boolean findFormatFeatureOrClassFallback(DeserializationContext ctxt,
+        JavaType type, Boolean unwrapSingle, JsonFormat.Feature feature)
+    {
+        if (unwrapSingle != null) {
+            return unwrapSingle;
+        }
+        AnnotatedClass ac = ctxt.introspectClassAnnotations(type);
+        JsonFormat.Value format = ctxt.getAnnotationIntrospector().findFormat(ctxt.getConfig(), ac);
+        if (format != null) {
+            return format.getFeature(feature);
+        }
+        return null;
     }
 }

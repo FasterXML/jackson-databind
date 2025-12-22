@@ -599,7 +599,7 @@ _containerType,
         }
     }
 
-    public static Boolean findFormatFeatureOrClassFallback(DeserializationContext ctxt,
+    static Boolean findFormatFeatureOrClassFallback(DeserializationContext ctxt,
         JavaType type, Boolean unwrapSingle, JsonFormat.Feature feature)
     {
         if (unwrapSingle != null) {

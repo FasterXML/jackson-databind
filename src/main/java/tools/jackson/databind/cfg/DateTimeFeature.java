@@ -227,17 +227,17 @@ public enum DateTimeFeature implements DatatypeFeature
 
     /**
      * Feature that determines whether time values with nanosecond precision
-     * should have their nanoseconds truncated to milliseconds AFTER deserialization,
+     * should have their nanoseconds truncated to milliseconds <b>after</b> deserialization,
      * before returning the value to the caller.
      * <p>
-     * When enabled, any java.time type with nanosecond precision
+     * When enabled, all {@code java.time} types with nanosecond precision
      * ({@link java.time.Instant}, {@link java.time.LocalDateTime}, {@link java.time.LocalTime},
      * {@link java.time.OffsetDateTime}, {@link java.time.OffsetTime}, {@link java.time.ZonedDateTime},
      * {@link java.time.Duration}) will have nanoseconds beyond millisecond precision cleared
      * (nanoseconds 0-999,999,999 will become 0-999,000,000 in multiples of 1,000,000).
      * <p>
      * This feature works independently of {@link #READ_DATE_TIMESTAMPS_AS_NANOSECONDS}
-     * and affects ALL deserialization paths (numeric timestamps AND textual ISO-8601 strings).
+     * and affects all deserialization paths (numeric timestamps AND textual ISO-8601 strings).
      * <p>
      * Feature is disabled by default to preserve full nanosecond precision.
      *
@@ -247,16 +247,16 @@ public enum DateTimeFeature implements DatatypeFeature
 
     /**
      * Feature that determines whether time values with nanosecond precision
-     * should have their nanoseconds truncated to milliseconds BEFORE serialization.
+     * should have their nanoseconds truncated to milliseconds <b>before</b> serialization.
      * <p>
-     * When enabled, any java.time type with nanosecond precision
+     * When enabled, all {@code java.time} types with nanosecond precision
      * ({@link java.time.Instant}, {@link java.time.LocalDateTime}, {@link java.time.LocalTime},
      * {@link java.time.OffsetDateTime}, {@link java.time.OffsetTime}, {@link java.time.ZonedDateTime},
      * {@link java.time.Duration}) will have nanoseconds beyond millisecond precision cleared
      * before serialization (nanoseconds 0-999,999,999 will become 0-999,000,000 in multiples of 1,000,000).
      * <p>
      * This feature works independently of {@link #WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}
-     * and affects ALL serialization paths (numeric timestamps AND textual ISO-8601 strings).
+     * and affects all serialization paths (numeric timestamps AND textual ISO-8601 strings).
      * <p>
      * Feature is disabled by default to preserve full nanosecond precision.
      *
@@ -282,8 +282,10 @@ public enum DateTimeFeature implements DatatypeFeature
 
     @Override
     public boolean enabledByDefault() { return _enabledByDefault; }
+
     @Override
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
+
     @Override
     public int getMask() { return _mask; }
 

@@ -35,7 +35,7 @@ import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 import tools.jackson.databind.ext.javatime.util.DurationUnitConverter;
 
 /**
- * Deserializer for Java 8 temporal {@link Duration}s.
+ * Deserializer for {@code java.time} temporal {@link Duration}s.
  */
 public class DurationDeserializer extends JSR310DeserializerBase<Duration>
 {
@@ -55,8 +55,6 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
 
     /**
      * Flag for <code>JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS</code>
-     *
-     * @since 2.16
      */
     protected final Boolean _readTimestampsAsNanosOverride;
 
@@ -66,27 +64,18 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
         _readTimestampsAsNanosOverride = null;
     }
 
-    /**
-     * @since 2.11
-     */
     protected DurationDeserializer(DurationDeserializer base, Boolean leniency) {
         super(base, leniency);
         _durationUnitConverter = base._durationUnitConverter;
         _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
     }
 
-    /**
-     * @since 2.12
-     */
     protected DurationDeserializer(DurationDeserializer base, DurationUnitConverter converter) {
         super(base, base._isLenient);
         _durationUnitConverter = converter;
         _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
     }
 
-    /**
-     * @since 2.16
-     */
     protected DurationDeserializer(DurationDeserializer base,
         Boolean leniency,
         DurationUnitConverter converter,
@@ -176,7 +165,7 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
                 }
                 // fall through
             default:
-                return _handleUnexpectedToken(context, parser, JsonToken.VALUE_STRING,
+                result = _handleUnexpectedToken(context, parser, JsonToken.VALUE_STRING,
                         JsonToken.VALUE_NUMBER_INT, JsonToken.VALUE_NUMBER_FLOAT);
         }
 

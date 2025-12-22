@@ -19,6 +19,7 @@ package tools.jackson.databind.ext.javatime.ser;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.JacksonException;
@@ -116,6 +117,11 @@ public class DurationSerializer extends JSR310FormattedSerializerBase<Duration>
     public void serialize(Duration duration, JsonGenerator generator, SerializationContext ctxt)
         throws JacksonException
     {
+        // Apply millisecond truncation if enabled
+        if (ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_WRITE)) {
+            duration = duration.truncatedTo(ChronoUnit.MILLIS);
+        }
+
         if (useTimestamp(ctxt)) {
             // 03-Aug-2022, tatu: As per [modules-java8#224] need to consider
             //     Pattern first, and only then nano-seconds/millis difference

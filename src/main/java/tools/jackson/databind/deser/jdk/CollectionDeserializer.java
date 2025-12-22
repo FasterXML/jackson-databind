@@ -172,6 +172,13 @@ _containerType,
         //   comes down to "List vs Collection" I suppose... for now, pass Collection
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        if (unwrapSingle == null) {
+            tools.jackson.databind.introspect.AnnotatedClass ac = ctxt.introspectClassAnnotations(_containerType);
+            JsonFormat.Value format = ctxt.getAnnotationIntrospector().findFormat(ctxt.getConfig(), ac);
+            if (format != null) {
+                unwrapSingle = format.getFeature(JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+            }
+        }
         // also, often value deserializer is resolved here:
         ValueDeserializer<?> valueDeser = _valueDeserializer;
 

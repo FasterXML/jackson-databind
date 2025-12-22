@@ -545,7 +545,7 @@ public final class ClassUtil
         if (str == null) {
             return forNull;
         }
-        return String.format("\"%s\"", str);
+        return "\"" + str + "\"";
     }
 
     /*

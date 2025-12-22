@@ -8,6 +8,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.1.0 (not yet released)
 
+#221: Support alternate radixes when writing numeric values as strings
+ (requested by Christopher C)
+ (implementation by Davyd F)
 #650: `@JsonUnwrapped` prevents checks for
   `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
  (reported by Konstantin L)

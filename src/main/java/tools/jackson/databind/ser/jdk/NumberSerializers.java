@@ -13,7 +13,6 @@ import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
-import tools.jackson.databind.ser.std.ToStringSerializer;
 
 /**
  * Container class for serializers used for handling standard JDK-provided
@@ -94,7 +93,7 @@ public class NumberSerializers {
                     if (((Class<?>) handledType()) == BigDecimal.class) {
                         return NumberSerializer.bigDecimalAsStringSerializer();
                     }
-                    return ToStringSerializer.instance;
+                    return NumberSerializer.createStringSerializer(prov, format, _isInt);
                 default:
                 }
             }

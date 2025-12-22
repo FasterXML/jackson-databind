@@ -136,11 +136,6 @@ public abstract class InstantSerializerBase<T extends Temporal>
 
     protected String formatValue(T value, SerializationContext ctxt)
     {
-        // Apply millisecond truncation if enabled
-        if (ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_WRITE)) {
-            value = _truncateToMillis(value);
-        }
-
         DateTimeFormatter formatter = (_formatter == null) ? defaultFormat :_formatter;
         if (formatter != null) {
             if (formatter.getZone() == null) { // timezone set if annotated on property
@@ -160,12 +155,12 @@ public abstract class InstantSerializerBase<T extends Temporal>
     @SuppressWarnings("unchecked")
     protected T _truncateToMillis(T value) {
         // Handle concrete types that support truncation
-        if (value instanceof java.time.Instant) {
-            return (T) ((java.time.Instant) value).truncatedTo(ChronoUnit.MILLIS);
-        } else if (value instanceof java.time.OffsetDateTime) {
-            return (T) ((java.time.OffsetDateTime) value).truncatedTo(ChronoUnit.MILLIS);
-        } else if (value instanceof java.time.ZonedDateTime) {
-            return (T) ((java.time.ZonedDateTime) value).truncatedTo(ChronoUnit.MILLIS);
+        if (value instanceof java.time.Instant inst) {
+            return (T) inst.truncatedTo(ChronoUnit.MILLIS);
+        } else if (value instanceof java.time.OffsetDateTime odt) {
+            return (T) odt.truncatedTo(ChronoUnit.MILLIS);
+        } else if (value instanceof java.time.ZonedDateTime zdt) {
+            return (T) zdt.truncatedTo(ChronoUnit.MILLIS);
         }
         // Return as-is if type doesn't support truncation
         return value;

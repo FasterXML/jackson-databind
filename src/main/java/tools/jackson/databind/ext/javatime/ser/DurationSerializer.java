@@ -55,11 +55,10 @@ public class DurationSerializer extends JSR310FormattedSerializerBase<Duration>
      * Only available when {@link SerializationFeature#WRITE_DURATIONS_AS_TIMESTAMPS} is enabled
      * and {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS} is not enabled
      * since the duration converters do not support fractions
-     * @since 2.12
      */
     private DurationUnitConverter _durationUnitConverter;
 
-    protected DurationSerializer() { // was private before 2.12
+    protected DurationSerializer() {
         super(Duration.class);
     }
 
@@ -88,7 +87,6 @@ public class DurationSerializer extends JSR310FormattedSerializerBase<Duration>
         return new DurationSerializer(this, converter);
     }
 
-    // @since 2.10
     @Override
     protected DateTimeFeature getTimestampsFeature() {
         return DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
@@ -101,14 +99,14 @@ public class DurationSerializer extends JSR310FormattedSerializerBase<Duration>
         JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         if (format != null && format.hasPattern()) {
             final String pattern = format.getPattern();
-            DurationUnitConverter p = DurationUnitConverter.from(pattern);
-            if (p == null) {
+            DurationUnitConverter conv = DurationUnitConverter.from(pattern);
+            if (conv == null) {
                 ctxt.reportBadDefinition(handledType(),
                         String.format(
                                 "Bad 'pattern' definition (\"%s\") for `Duration`: expected one of [%s]",
                                 pattern, DurationUnitConverter.descForAllowed()));
             }
-            ser = ser.withConverter(p);
+            ser = ser.withConverter(conv);
         }
         return ser;
     }

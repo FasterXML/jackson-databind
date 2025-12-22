@@ -35,11 +35,11 @@ import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import tools.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import tools.jackson.databind.jsontype.TypeSerializer;
+
 /**
  * Serializer for Java 8 temporal {@link LocalTime}s.
  *
  * @author Nick Williams
- * @since 2.2
  */
 public class LocalTimeSerializer extends JSR310FormattedSerializerBase<LocalTime>
 {

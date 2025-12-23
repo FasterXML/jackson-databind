@@ -654,6 +654,8 @@ public class BuilderBasedDeserializer
         }
 
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+        boolean hasUnwrappedContent = false;
+
         for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();
@@ -682,6 +684,9 @@ public class BuilderBasedDeserializer
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
+            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                hasUnwrappedContent = true;
+            }
             // but... others should be passed to unwrapped property deserializers
             tokens.writeName(propName);
             tokens.copyCurrentStructure(p);
@@ -696,7 +701,7 @@ public class BuilderBasedDeserializer
             }
         }
         tokens.writeEndObject();
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
+        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
     }
 
     protected Object deserializeWithUnwrapped(JsonParser p,
@@ -704,6 +709,8 @@ public class BuilderBasedDeserializer
         throws JacksonException
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+        boolean hasUnwrappedContent = false;
+
         for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();
@@ -731,6 +738,9 @@ public class BuilderBasedDeserializer
                 handleIgnoredProperty(p, ctxt, builder, propName);
                 continue;
             }
+            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                hasUnwrappedContent = true;
+            }
             // but... others should be passed to unwrapped property deserializers
             tokens.writeName(propName);
             tokens.copyCurrentStructure(p);
@@ -740,7 +750,7 @@ public class BuilderBasedDeserializer
             }
         }
         tokens.writeEndObject();
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens);
+        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
     }
 
     @SuppressWarnings("resource")
@@ -754,6 +764,7 @@ public class BuilderBasedDeserializer
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
 
+        boolean hasUnwrappedContent = false;
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
@@ -799,6 +810,9 @@ public class BuilderBasedDeserializer
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
+            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                hasUnwrappedContent = true;
+            }
             tokens.writeName(propName);
             tokens.copyCurrentStructure(p);
             // "any property"?
@@ -816,7 +830,7 @@ public class BuilderBasedDeserializer
             return wrapInstantiationProblem(ctxt, e);
 
         }
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens);
+        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
     }
 
     /*

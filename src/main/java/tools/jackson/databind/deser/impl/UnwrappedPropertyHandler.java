@@ -4,6 +4,7 @@ import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.SettableBeanProperty;
@@ -125,12 +126,30 @@ public class UnwrappedPropertyHandler
     }
 
     @SuppressWarnings("resource")
+    @Deprecated
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
             Object bean, TokenBuffer buffered)
     {
         for (SettableBeanProperty prop : _properties) {
             JsonParser p = buffered.asParserOnFirstToken(ctxt);
             prop.deserializeAndSet(p, ctxt, bean);
+        }
+        return bean;
+    }
+
+    @SuppressWarnings("resource")
+    public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
+                                   Object bean, TokenBuffer buffered, boolean hasUnwrappedContent)
+    {
+        // [databind#1709]: Only set to null if USE_NULL_FOR_EMPTY_UNWRAPPED is enabled
+        if (ctxt.isEnabled(DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED)
+                && !_nestedPropertyNames.isEmpty() && !hasUnwrappedContent) {
+            this.setAllPropertiesToNull(ctxt, bean);
+        } else {
+            for (SettableBeanProperty prop : _properties) {
+                JsonParser p = buffered.asParserOnFirstToken(ctxt);
+                prop.deserializeAndSet(p, ctxt, bean);
+            }
         }
         return bean;
     }
@@ -167,6 +186,17 @@ public class UnwrappedPropertyHandler
      */
     public void collectNestedPropertyNamesTo(Set<String> names) {
         _collectNestedPropertyNames(_properties, _creatorProperties, names);
+    }
+
+    /**
+     * Method that sets all properties of the given bean to {@code null}.
+     *
+     * @since 3.1
+     */
+    public void setAllPropertiesToNull(DeserializationContext ctxt, Object bean) throws JacksonException {
+        for (SettableBeanProperty prop : _properties) {
+            prop.set(ctxt, bean, null);
+        }
     }
 
     /**

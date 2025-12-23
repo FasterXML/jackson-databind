@@ -1,4 +1,4 @@
-package tools.jackson.databind.struct;
+package tools.jackson.databind.tofix;
 
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +38,10 @@ public class UnwrappedWithCreator1497Test extends DatabindTestUtil
         }
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            // Need to disable since may get missing/nulls
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build();
 
     @JacksonTestFailureExpected
     @Test

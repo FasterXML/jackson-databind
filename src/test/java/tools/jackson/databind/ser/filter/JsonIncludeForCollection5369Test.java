@@ -400,10 +400,8 @@ public class JsonIncludeForCollection5369Test
         ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Collection.class,
                         o -> o.setInclude(JsonInclude.Value.construct(
-                                JsonInclude.Include.USE_DEFAULTS,
-                                JsonInclude.Include.CUSTOM,
-                                FooFilter.class,
-                                null)))
+                                JsonInclude.Include.USE_DEFAULTS, JsonInclude.Include.CUSTOM,
+                                null, FooFilter.class)))
                 .build();
 
         SimpleListBean input = new SimpleListBean()
@@ -423,10 +421,8 @@ public class JsonIncludeForCollection5369Test
         ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(List.class,
                         o -> o.setInclude(JsonInclude.Value.construct(
-                                JsonInclude.Include.USE_DEFAULTS,
-                                JsonInclude.Include.CUSTOM,
-                                FooFilter.class,
-                                null)))
+                                JsonInclude.Include.USE_DEFAULTS, JsonInclude.Include.CUSTOM,
+                                null, FooFilter.class)))
                 .build();
 
         SimpleListBean input = new SimpleListBean()

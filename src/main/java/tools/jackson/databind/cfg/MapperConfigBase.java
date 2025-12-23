@@ -568,6 +568,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return def.withOverrides(v);
     }
 
+    @Override // @since 3.1
+    public JsonFormat.Value getDefaultFormat() {
+        return _configOverrides.getDefaultFormat();
+    }
+
     @Override
     public final JsonFormat.Value getDefaultPropertyFormat(Class<?> type) {
         return _configOverrides.findFormatDefaults(type);

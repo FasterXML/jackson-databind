@@ -17,7 +17,7 @@ public class ConfigOverrides
     implements java.io.Serializable,
         Snapshottable<ConfigOverrides>
 {
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
     /**
      * Convenience value used as the default root setting.
@@ -53,6 +53,11 @@ public class ConfigOverrides
 
     protected Boolean _defaultLeniency;
 
+    /**
+     * @since 3.1
+     */
+    protected JsonFormat.Value _defaultFormat;
+
     /*
     /**********************************************************************
     /* Life cycle
@@ -64,20 +69,33 @@ public class ConfigOverrides
                 INCLUDE_DEFAULT,
                 JsonSetter.Value.empty(),
                 DEFAULT_VISIBILITY_CHECKER,
-                null, null
+                null, null, JsonFormat.Value.empty()
         );
     }
 
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
             JsonInclude.Value defIncl, JsonSetter.Value defSetter,
             VisibilityChecker defVisibility,
-            Boolean defMergeable, Boolean defLeniency) {
+            Boolean defMergeable, Boolean defLeniency, JsonFormat.Value defFormat) {
         _overrides = overrides;
         _defaultInclusion = defIncl;
         _defaultNullHandling = defSetter;
         _visibilityChecker = defVisibility;
         _defaultMergeable = defMergeable;
         _defaultLeniency = defLeniency;
+        _defaultFormat = defFormat;
+    }
+
+    /**
+     * @deprecated since 3.1
+     */
+    @Deprecated
+    protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
+            JsonInclude.Value defIncl, JsonSetter.Value defSetter,
+            VisibilityChecker defVisibility,
+            Boolean defMergeable, Boolean defLeniency) {
+        this(overrides, defIncl, defSetter, defVisibility, defMergeable, defLeniency,
+                JsonFormat.Value.empty());
     }
 
     @Override
@@ -94,7 +112,7 @@ public class ConfigOverrides
         }
         return new ConfigOverrides(newOverrides,
                 _defaultInclusion, _defaultNullHandling, _visibilityChecker,
-                _defaultMergeable, _defaultLeniency);
+                _defaultMergeable, _defaultLeniency, _defaultFormat);
     }
 
     /*
@@ -128,26 +146,22 @@ public class ConfigOverrides
      * override (if any).
      *
      * @return Default format settings for type; never null.
-     *
-     * @since 2.10
      */
     public JsonFormat.Value findFormatDefaults(Class<?> type) {
+        JsonFormat.Value format = _defaultFormat;
+        if (_defaultLeniency != null) {
+            format = format.withLenient(_defaultLeniency);
+        }
         if (_overrides != null) {
             ConfigOverride override = _overrides.get(type);
             if (override != null) {
-                JsonFormat.Value format = override.getFormat();
-                if (format != null) {
-                    if (!format.hasLenient()) {
-                        return format.withLenient(_defaultLeniency);
-                    }
-                    return format;
+                JsonFormat.Value formatOverride = override.getFormat();
+                if (formatOverride != null) {
+                    format = format.withOverrides(formatOverride);
                 }
             }
         }
-        if (_defaultLeniency == null) {
-            return JsonFormat.Value.empty();
-        }
-        return JsonFormat.Value.forLeniency(_defaultLeniency);
+        return format;
     }
 
     /*
@@ -191,6 +205,17 @@ public class ConfigOverrides
                 : _visibilityChecker;
     }
 
+    /**
+     * Accessor for the global default {@code JsonFormat.Value} settings,
+     * not including possible per-type overrides (if you want to apply
+     * overrides, call {@link #findFormatDefaults} instead).
+     *
+     * @since 3.1
+     */
+    public JsonFormat.Value getDefaultFormat() {
+        return _defaultFormat;
+    }
+
     /*
     /**********************************************************************
     /* Global defaults mutators
@@ -227,6 +252,14 @@ public class ConfigOverrides
         return this;
     }
 
+    /**
+     * @since 3.1
+     */
+    public ConfigOverrides setDefaultFormat(JsonFormat.Value format) {
+        _defaultFormat = format;
+        return this;
+    }
+
     /*
     /**********************************************************************
     /* Standard methods (for diagnostics)
@@ -241,6 +274,7 @@ public class ConfigOverrides
                 .append(", merge=").append(_defaultMergeable)
                 .append(", leniency=").append(_defaultLeniency)
                 .append(", visibility=").append(_visibilityChecker)
+                .append(", format=").append(_defaultFormat)
                 .append(", typed=")
                 ;
         if (_overrides == null) {
@@ -264,6 +298,6 @@ public class ConfigOverrides
      */
 
     protected Map<Class<?>, MutableConfigOverride> _newMap() {
-        return new HashMap<Class<?>, MutableConfigOverride>();
+        return new HashMap<>();
     }
 }

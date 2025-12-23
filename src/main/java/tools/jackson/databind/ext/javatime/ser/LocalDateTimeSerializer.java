@@ -19,6 +19,7 @@ package tools.jackson.databind.ext.javatime.ser;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.JacksonException;
@@ -26,6 +27,7 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.jsontype.TypeSerializer;
 
 /**
@@ -64,6 +66,11 @@ public class LocalDateTimeSerializer extends JSR310FormattedSerializerBase<Local
     public void serialize(LocalDateTime value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
+        // Apply millisecond truncation if enabled
+        if (ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_WRITE)) {
+            value = value.truncatedTo(ChronoUnit.MILLIS);
+        }
+
         if (useTimestamp(ctxt)) {
             g.writeStartArray();
             _serializeAsArrayContents(value, g, ctxt);
@@ -82,6 +89,11 @@ public class LocalDateTimeSerializer extends JSR310FormattedSerializerBase<Local
             TypeSerializer typeSer)
         throws JacksonException
     {
+        // Apply millisecond truncation if enabled
+        if (ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_WRITE)) {
+            value = value.truncatedTo(ChronoUnit.MILLIS);
+        }
+
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, serializationShape(ctxt)));
         // need to write out to avoid double-writing array markers

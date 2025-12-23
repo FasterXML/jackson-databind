@@ -1,4 +1,4 @@
-package tools.jackson.databind.struct;
+package tools.jackson.databind.tofix;
 
 import org.junit.jupiter.api.Test;
 

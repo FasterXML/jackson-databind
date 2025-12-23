@@ -73,6 +73,21 @@ public final class StringCollectionDeserializer
         _delegateDeserializer = (ValueDeserializer<Object>) delegateDeser;
     }
 
+    /**
+     * Factory method called by {@code BasicDeserializerFactory} to create
+     * an instance
+     *
+     * @since 3.1
+     */
+    public static StringCollectionDeserializer create(JavaType collectionType,
+            BeanDescription.Supplier beanDescRef,
+            ValueDeserializer<Object> valueDeser, ValueInstantiator valueInstantiator)
+    {
+        // !!! TODO: make use of `beanDescRef` wrt annotations (as necessary)
+        return new StringCollectionDeserializer(collectionType,
+                valueDeser, valueInstantiator);
+    }
+    
     protected StringCollectionDeserializer withResolved(ValueDeserializer<?> delegateDeser,
             ValueDeserializer<?> valueDeser,
             NullValueProvider nuller, Boolean unwrapSingle)

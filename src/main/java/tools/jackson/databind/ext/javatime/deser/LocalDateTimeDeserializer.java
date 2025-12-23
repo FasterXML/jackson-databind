@@ -20,6 +20,7 @@ import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -97,20 +98,24 @@ public class LocalDateTimeDeserializer
     public LocalDateTime deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
+        LocalDateTime result;
+
         if (p.hasTokenId(JsonTokenId.ID_STRING)) {
-            return _fromString(p, ctxt, p.getString());
+            result = _fromString(p, ctxt, p.getString());
         }
         // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
-        if (p.isExpectedStartObjectToken()) {
+        else if (p.isExpectedStartObjectToken()) {
             final String str = ctxt.extractScalarFromObject(p, this, handledType());
             // 17-May-2025, tatu: [databind#4656] need to check for `null`
             if (str != null) {
-                return _fromString(p, ctxt, str);
+                result = _fromString(p, ctxt, str);
+            } else {
+                result = _handleUnexpectedToken(ctxt, p, "Expected array or string");
             }
-            // fall through
         } else if (p.isExpectedStartArrayToken()) {
             JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {
+                // 22-Dec-2025, tatu: Has been like this but seems inconsistent?
                 return null;
             }
             if ((t == JsonToken.VALUE_STRING || t == JsonToken.VALUE_EMBEDDED_OBJECT)
@@ -119,11 +124,10 @@ public class LocalDateTimeDeserializer
                 if (p.nextToken() != JsonToken.END_ARRAY) {
                     handleMissingEndArrayForSingle(p, ctxt);
                 }
-                return parsed;            
+                // Since we got it via `deserialize()`, possible truncation already applied
+                return parsed;
             }
             if (t == JsonToken.VALUE_NUMBER_INT) {
-                LocalDateTime result;
-
                 int year = p.getIntValue();
                 int month = p.nextIntValue(-1);
                 int day = p.nextIntValue(-1);
@@ -149,17 +153,26 @@ public class LocalDateTimeDeserializer
                         result = LocalDateTime.of(year, month, day, hour, minute, second, partialSecond);
                     }
                 }
-                return result;
+            } else {
+                result = ctxt.reportInputMismatch(handledType(),
+                        "Unexpected token (%s) within Array, expected VALUE_NUMBER_INT",
+                        t);
             }
-            ctxt.reportInputMismatch(handledType(),
-                    "Unexpected token (%s) within Array, expected VALUE_NUMBER_INT",
-                    t);
         } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
-            return (LocalDateTime) p.getEmbeddedObject();
+            result = (LocalDateTime) p.getEmbeddedObject();
         } else if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
             _throwNoNumericTimestampNeedTimeZone(p, ctxt);
+            return null; // Unreachable but satisfies compiler
+        } else {
+            result = _handleUnexpectedToken(ctxt, p, "Expected array or string");
         }
-        return _handleUnexpectedToken(ctxt, p, "Expected array or string");
+
+        // Apply millisecond truncation if enabled
+        if (result != null && ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_READ)) {
+            result = result.truncatedTo(ChronoUnit.MILLIS);
+        }
+
+        return result;
     }
 
     protected boolean shouldReadTimestampsAsNanoseconds(DeserializationContext context) {

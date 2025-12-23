@@ -19,6 +19,7 @@ package tools.jackson.databind.ext.javatime.deser;
 import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -34,7 +35,7 @@ import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 import tools.jackson.databind.ext.javatime.util.DurationUnitConverter;
 
 /**
- * Deserializer for Java 8 temporal {@link Duration}s.
+ * Deserializer for {@code java.time} temporal {@link Duration}s.
  */
 public class DurationDeserializer extends JSR310DeserializerBase<Duration>
 {
@@ -54,8 +55,6 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
 
     /**
      * Flag for <code>JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS</code>
-     *
-     * @since 2.16
      */
     protected final Boolean _readTimestampsAsNanosOverride;
 
@@ -65,27 +64,18 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
         _readTimestampsAsNanosOverride = null;
     }
 
-    /**
-     * @since 2.11
-     */
     protected DurationDeserializer(DurationDeserializer base, Boolean leniency) {
         super(base, leniency);
         _durationUnitConverter = base._durationUnitConverter;
         _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
     }
 
-    /**
-     * @since 2.12
-     */
     protected DurationDeserializer(DurationDeserializer base, DurationUnitConverter converter) {
         super(base, base._isLenient);
         _durationUnitConverter = converter;
         _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
     }
 
-    /**
-     * @since 2.16
-     */
     protected DurationDeserializer(DurationDeserializer base,
         Boolean leniency,
         DurationUnitConverter converter,
@@ -143,33 +133,48 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
     public Duration deserialize(JsonParser parser, DeserializationContext context)
         throws JacksonException
     {
+        Duration result;
         switch (parser.currentTokenId())
         {
             case JsonTokenId.ID_NUMBER_FLOAT:
                 BigDecimal value = parser.getDecimalValue();
                 // [modules-java8#337] since 2.19, Duration does not need negative adjustment
-                return DecimalUtils.extractSecondsAndNanos(value, Duration::ofSeconds, false);
+                result = DecimalUtils.extractSecondsAndNanos(value, Duration::ofSeconds, false);
+                break;
             case JsonTokenId.ID_NUMBER_INT:
-                return _fromTimestamp(context, parser.getLongValue());
+                result = _fromTimestamp(context, parser.getLongValue());
+                break;
             case JsonTokenId.ID_STRING:
-                return _fromString(parser, context, parser.getString());
+                result = _fromString(parser, context, parser.getString());
+                break;
             case JsonTokenId.ID_EMBEDDED_OBJECT:
                 // 20-Apr-2016, tatu: Related to [databind#1208], can try supporting embedded
                 //    values quite easily
-                return (Duration) parser.getEmbeddedObject();
+                result = (Duration) parser.getEmbeddedObject();
+                break;
             case JsonTokenId.ID_START_ARRAY:
-                return _deserializeFromArray(parser, context);
+                result = _deserializeFromArray(parser, context);
+                break;
             // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
             case JsonTokenId.ID_START_OBJECT:
                 String str = context.extractScalarFromObject(parser, this, handledType());
                 // 17-May-2025, tatu: [databind#4656] need to check for `null`
                 if (str != null) {
-                    return _fromString(parser, context, str);
+                    result = _fromString(parser, context, str);
+                    break;
                 }
                 // fall through
+            default:
+                result = _handleUnexpectedToken(context, parser, JsonToken.VALUE_STRING,
+                        JsonToken.VALUE_NUMBER_INT, JsonToken.VALUE_NUMBER_FLOAT);
         }
-        return _handleUnexpectedToken(context, parser, JsonToken.VALUE_STRING,
-                JsonToken.VALUE_NUMBER_INT, JsonToken.VALUE_NUMBER_FLOAT);
+
+        // Apply millisecond truncation if enabled
+        if (result != null && context.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_READ)) {
+            result = result.truncatedTo(ChronoUnit.MILLIS);
+        }
+
+        return result;
     }
 
     protected Duration _fromString(JsonParser parser, DeserializationContext ctxt,

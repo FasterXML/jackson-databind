@@ -48,7 +48,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
         @JsonCreator
         public POJO562WithAnnotationOnBothCtorParamAndField(@JsonProperty("a") String a,
-                                                            @JsonAnySetter Map<String, Object> leftovers
+                @JsonAnySetter Map<String, Object> leftovers
         ) {
             this.a = a;
             stuffFromConstructor = leftovers;
@@ -64,7 +64,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
         @JsonCreator
         public POJO562WithField(@JsonProperty("a") String a,
-            @JsonAnySetter Map<String, Object> leftovers
+                @JsonAnySetter Map<String, Object> leftovers
         ) {
             this.a = a;
             stuff = leftovers;
@@ -78,7 +78,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
         @JsonCreator
         public PojoWithNodeAnySetter(@JsonProperty("a") String a,
-            @JsonAnySetter JsonNode leftovers
+                @JsonAnySetter JsonNode leftovers
         ) {
             this.a = a;
             anySetterNode = leftovers;
@@ -89,8 +89,8 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
     {
         @JsonCreator
         public MultipleAny562(@JsonProperty("a") String a,
-            @JsonAnySetter Map<String, Object> leftovers,
-            @JsonAnySetter Map<String, Object> leftovers2) {
+                @JsonAnySetter Map<String, Object> leftovers,
+                @JsonAnySetter Map<String, Object> leftovers2) {
             throw new Error("Should never get here!");
         }
     }
@@ -102,7 +102,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
         @JsonCreator
         public PojoWithDisabled(@JsonProperty("a") String a,
-            @JsonAnySetter(enabled = false) Map<String, Object> leftovers
+                @JsonAnySetter(enabled = false) Map<String, Object> leftovers
         ) {
             this.a = a;
             stuff = leftovers;

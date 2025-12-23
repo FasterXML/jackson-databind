@@ -19,6 +19,7 @@ package tools.jackson.databind.ext.javatime.deser;
 import java.math.BigDecimal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Objects;
@@ -251,32 +252,61 @@ public class InstantDeserializer<T extends Temporal>
     {
         //NOTE: Timestamps contain no timezone info, and are always in configured TZ. Only
         //string values have to be adjusted to the configured TZ.
+        T result;
         switch (p.currentTokenId())
         {
             case JsonTokenId.ID_NUMBER_FLOAT:
-                return _fromDecimal(ctxt, p.getDecimalValue());
+                result = _fromDecimal(ctxt, p.getDecimalValue());
+                break;
             case JsonTokenId.ID_NUMBER_INT:
-                return _fromLong(ctxt, p.getLongValue());
+                result = _fromLong(ctxt, p.getLongValue());
+                break;
             case JsonTokenId.ID_STRING:
-                return _fromString(p, ctxt, p.getString());
+                result = _fromString(p, ctxt, p.getString());
+                break;
             case JsonTokenId.ID_EMBEDDED_OBJECT:
                 // 20-Apr-2016, tatu: Related to [databind#1208], can try supporting embedded
                 //    values quite easily
-                return (T) p.getEmbeddedObject();
+                result = (T) p.getEmbeddedObject();
+                break;
 
             case JsonTokenId.ID_START_ARRAY:
-                return _deserializeFromArray(p, ctxt);
+                result = _deserializeFromArray(p, ctxt);
+                break;
             // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
             case JsonTokenId.ID_START_OBJECT:
                 final String str = ctxt.extractScalarFromObject(p, this, handledType());
                 // 17-May-2025, tatu: [databind#4656] need to check for `null`
                 if (str != null) {
-                    return _fromString(p, ctxt, str);
+                    result = _fromString(p, ctxt, str);
+                    break;
                 }
                 // fall through
+            default:
+                result = _handleUnexpectedToken(ctxt, p, JsonToken.VALUE_STRING,
+                        JsonToken.VALUE_NUMBER_INT, JsonToken.VALUE_NUMBER_FLOAT);
         }
-        return _handleUnexpectedToken(ctxt, p, JsonToken.VALUE_STRING,
-                JsonToken.VALUE_NUMBER_INT, JsonToken.VALUE_NUMBER_FLOAT);
+
+        // Apply millisecond truncation if enabled
+        if (result != null && ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_READ)) {
+            result = _truncateToMillis(result);
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected T _truncateToMillis(T value) {
+        // Handle concrete types that support truncation
+        if (value instanceof java.time.Instant inst) {
+            return (T) inst.truncatedTo(ChronoUnit.MILLIS);
+        } else if (value instanceof java.time.OffsetDateTime odt) {
+            return (T) odt.truncatedTo(ChronoUnit.MILLIS);
+        } else if (value instanceof java.time.ZonedDateTime zdt) {
+            return (T) zdt.truncatedTo(ChronoUnit.MILLIS);
+        }
+        // Return as-is if type doesn't support truncation
+        return value;
     }
 
     protected boolean shouldAdjustToContextTimezone(DeserializationContext context) {

@@ -394,14 +394,12 @@ public class JsonIncludeForCollection5369Test
         );
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void testContentIncludeOverrideForCollection() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .withConfigOverride(Collection.class,
-                        o -> o.setInclude(JsonInclude.Value.construct(
-                                JsonInclude.Include.USE_DEFAULTS, JsonInclude.Include.CUSTOM,
-                                null, FooFilter.class)))
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                .withConfigOverride(List.class,
+                        o -> o.setInclude(JsonInclude.Value.empty().withContentFilter(FooFilter.class)))
                 .build();
 
         SimpleListBean input = new SimpleListBean()
@@ -415,14 +413,12 @@ public class JsonIncludeForCollection5369Test
         );
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void testContentIncludeOverrideForList() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
                 .withConfigOverride(List.class,
-                        o -> o.setInclude(JsonInclude.Value.construct(
-                                JsonInclude.Include.USE_DEFAULTS, JsonInclude.Include.CUSTOM,
-                                null, FooFilter.class)))
+                        o -> o.setInclude(JsonInclude.Value.empty().withContentFilter(FooFilter.class)))
                 .build();
 
         SimpleListBean input = new SimpleListBean()

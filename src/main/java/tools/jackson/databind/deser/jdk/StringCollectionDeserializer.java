@@ -16,6 +16,7 @@ import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 import tools.jackson.databind.introspect.AnnotatedWithParams;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.Annotations;
 
 /**
  * Specifically optimized version for {@link java.util.Collection}s
@@ -47,6 +48,12 @@ public final class StringCollectionDeserializer
      */
     private final ValueDeserializer<Object> _delegateDeserializer;
 
+    /**
+     * Annotations defined on the actual Collection class; retained to avoid
+     * re-introspection overhead during {@link #createContextual} calls.
+     */
+    protected transient final Annotations _classAnnotations;
+
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
     /*
@@ -55,22 +62,23 @@ public final class StringCollectionDeserializer
     /**********************************************************************
      */
 
-    public StringCollectionDeserializer(JavaType collectionType,
-            ValueDeserializer<?> valueDeser, ValueInstantiator valueInstantiator)
+    public StringCollectionDeserializer(JavaType collectionType, ValueDeserializer<?> valueDeser,
+            ValueInstantiator valueInstantiator, Annotations annotations)
     {
-        this(collectionType, valueInstantiator, null, valueDeser, valueDeser, null);
+        this(collectionType, valueInstantiator, null, valueDeser, valueDeser, null, annotations);
     }
 
     @SuppressWarnings("unchecked")
     protected StringCollectionDeserializer(JavaType collectionType,
             ValueInstantiator valueInstantiator, ValueDeserializer<?> delegateDeser,
             ValueDeserializer<?> valueDeser,
-            NullValueProvider nuller, Boolean unwrapSingle)
+            NullValueProvider nuller, Boolean unwrapSingle, Annotations annotations)
     {
         super(collectionType, nuller, unwrapSingle);
         _valueDeserializer = (ValueDeserializer<String>) valueDeser;
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = (ValueDeserializer<Object>) delegateDeser;
+        _classAnnotations = annotations;
     }
 
     /**
@@ -83,11 +91,10 @@ public final class StringCollectionDeserializer
             BeanDescription.Supplier beanDescRef,
             ValueDeserializer<Object> valueDeser, ValueInstantiator valueInstantiator)
     {
-        // !!! TODO: make use of `beanDescRef` wrt annotations (as necessary)
         return new StringCollectionDeserializer(collectionType,
-                valueDeser, valueInstantiator);
+                valueDeser, valueInstantiator, beanDescRef.getClassAnnotations());
     }
-    
+
     protected StringCollectionDeserializer withResolved(ValueDeserializer<?> delegateDeser,
             ValueDeserializer<?> valueDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
@@ -97,7 +104,7 @@ public final class StringCollectionDeserializer
             return this;
         }
         return new StringCollectionDeserializer(_containerType, _valueInstantiator,
-                delegateDeser, valueDeser, nuller, unwrapSingle);
+                delegateDeser, valueDeser, nuller, unwrapSingle, _classAnnotations);
     }
 
     @Override
@@ -151,13 +158,28 @@ public final class StringCollectionDeserializer
         //   comes down to "List vs Collection" I suppose... for now, pass Collection
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        unwrapSingle = CollectionDeserializer.findFormatFeatureOrClassFallback(ctxt, _containerType,
-            unwrapSingle, JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        unwrapSingle = findFormatFeatureOrClassFallback(unwrapSingle,
+                JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDeser);
         if (isDefaultDeserializer(valueDeser)) {
             valueDeser = null;
         }
         return withResolved(delegate, valueDeser, nuller, unwrapSingle);
+    }
+
+    private Boolean findFormatFeatureOrClassFallback(Boolean unwrapSingle,
+        JsonFormat.Feature feature)
+    {
+        if (unwrapSingle != null) {
+            return unwrapSingle;
+        }
+        if(_classAnnotations != null){
+            JsonFormat formatAnnotation = _classAnnotations.get(JsonFormat.class);
+            if (formatAnnotation != null) {
+                return JsonFormat.Value.from(formatAnnotation).getFeature(feature);
+            }
+        }
+        return null;
     }
 
     /*

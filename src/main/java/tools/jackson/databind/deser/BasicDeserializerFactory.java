@@ -811,7 +811,7 @@ public abstract class BasicDeserializerFactory
                 if (!inst.canCreateUsingDefault()) {
                     // [databind#161]: No default constructor for ArrayBlockingQueue...
                     if (type.hasRawClass(ArrayBlockingQueue.class)) {
-                        return new ArrayBlockingQueueDeserializer(type, contentDeser, contentTypeDeser, inst);
+                        return new ArrayBlockingQueueDeserializer(type, contentDeser, contentTypeDeser, inst, beanDescRef.getClassAnnotations());
                     }
                     // 10-Jan-2017, tatu: `java.util.Collections` types need help:
                     deser = JavaUtilCollectionsDeserializers.findForCollection(ctxt, type);

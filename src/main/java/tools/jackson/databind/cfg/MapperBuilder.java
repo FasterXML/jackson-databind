@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -979,6 +980,16 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B defaultLeniency(Boolean b) {
         _configOverrides.setDefaultLeniency(b);
+        return _this();
+    }
+
+    /**
+     * Method for configuring default format settings to use for serialization and deserialization.
+     *
+     * @since 3.1
+     */
+    public B defaultFormat(JsonFormat.Value format) {
+        _configOverrides.setDefaultFormat(format);
         return _this();
     }
 

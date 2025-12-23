@@ -61,8 +61,6 @@ abstract class JSR310FormattedSerializerBase<T>
     /**
      * Lazily constructed {@code JavaType} representing type
      * {@code List<Integer>}.
-     *
-     * @since 2.10
      */
     protected transient volatile JavaType _integerListType;
     
@@ -78,16 +76,6 @@ abstract class JSR310FormattedSerializerBase<T>
         _shape = null;
         _formatter = formatter;
     }
-
-    /*
-    
-    protected JSR310FormattedSerializerBase(JSR310FormattedSerializerBase<?> base,
-            DateTimeFormatter dtf,
-            Boolean useTimestamp, JsonFormat.Shape shape)
-    {
-        this(base, dtf, useTimestamp, null, shape);
-    }
-    */
 
     protected JSR310FormattedSerializerBase(JSR310FormattedSerializerBase<?> base,
             DateTimeFormatter dtf,
@@ -184,8 +172,6 @@ abstract class JSR310FormattedSerializerBase<T>
      *<p>
      * Note that this feature is just the baseline setting and may be overridden on per-type
      * or per-property basis.
-     *
-     * @since 2.10
      */
     protected DateTimeFeature getTimestampsFeature() {
         return DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS;
@@ -236,7 +222,9 @@ abstract class JSR310FormattedSerializerBase<T>
     }
 
     // modules-java8#189: to be overridden by other formatters using this as base class
-    protected DateTimeFormatter _useDateTimeFormatter(SerializationContext ctxt, JsonFormat.Value format) {
+    protected DateTimeFormatter _useDateTimeFormatter(SerializationContext ctxt,
+            JsonFormat.Value format)
+    {
         DateTimeFormatter dtf;
         final String pattern = format.getPattern();
         final Locale locale = format.hasLocale() ? format.getLocale() : ctxt.getLocale();

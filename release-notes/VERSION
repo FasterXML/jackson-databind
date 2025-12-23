@@ -70,6 +70,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fixed by Joo-Hyuk K)
 #5475: Support `@JsonDeserializeAs` annotation
  (implemented by @cowtowncoder, w/ Claude code)
+#5519: Add 2 new `JavaTimeFeature`s: (`TRUNCATE_TO_MSECS_ON_WRITE`,
+  `TRUNCATE_TO_MSECS_ON_READ`) for truncating `java.time` values before serialization,
+  after deserialization
+ (implemented by @cowtowncoder, w/ Claude code)
 
 3.0.4 (not yet released)
 

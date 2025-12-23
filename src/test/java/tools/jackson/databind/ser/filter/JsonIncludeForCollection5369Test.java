@@ -9,6 +9,7 @@ import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -226,6 +227,15 @@ public class JsonIncludeForCollection5369Test
         }
     }
 
+    static class SimpleListBean {
+        public List<String> values = new ArrayList<>();
+
+        SimpleListBean add(String v) {
+            values.add(v);
+            return this;
+        }
+    }
+
     /*
     /**********************************************************
     /* Mapper
@@ -381,6 +391,52 @@ public class JsonIncludeForCollection5369Test
         assertEquals(
                 a2q("{'items':['1',null,'2',null]}"),
                 MAPPER.writeValueAsString(input)
+        );
+    }
+
+    @JacksonTestFailureExpected
+    @Test
+    public void testContentIncludeOverrideForCollection() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Collection.class,
+                        o -> o.setInclude(JsonInclude.Value.construct(
+                                JsonInclude.Include.USE_DEFAULTS,
+                                JsonInclude.Include.CUSTOM,
+                                FooFilter.class,
+                                null)))
+                .build();
+
+        SimpleListBean input = new SimpleListBean()
+                .add("1")
+                .add("foo")
+                .add("2");
+
+        assertEquals(
+                a2q("{'values':['1','2']}"),
+                mapper.writeValueAsString(input)
+        );
+    }
+
+    @JacksonTestFailureExpected
+    @Test
+    public void testContentIncludeOverrideForList() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(List.class,
+                        o -> o.setInclude(JsonInclude.Value.construct(
+                                JsonInclude.Include.USE_DEFAULTS,
+                                JsonInclude.Include.CUSTOM,
+                                FooFilter.class,
+                                null)))
+                .build();
+
+        SimpleListBean input = new SimpleListBean()
+                .add("1")
+                .add("foo")
+                .add("2");
+
+        assertEquals(
+                a2q("{'values':['1','2']}"),
+                mapper.writeValueAsString(input)
         );
     }
 

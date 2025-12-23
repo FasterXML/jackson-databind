@@ -74,8 +74,6 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         _suppressNulls = suppressNulls;
     }
 
-    // Being used by the new _withResolved(BeanProperty, Boolean, Object, boolean) method as fallback
-    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated // since 3.1
     public abstract ValueSerializer<?> _withResolved(BeanProperty prop,
             Boolean unwrapSingle);
@@ -85,6 +83,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
      * Default implementation fallback to {@link StaticListSerializerBase#_withResolved(BeanProperty, Boolean, Object, boolean)}
      * @since 3.1
      */
+    @SuppressWarnings("deprecation")
     public ValueSerializer<?> _withResolved(BeanProperty prop,
             Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls
     ) {

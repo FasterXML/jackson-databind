@@ -74,7 +74,7 @@ public abstract class AsArraySerializerBase<T>
     protected AsArraySerializerBase(Class<?> cls, JavaType elementType, boolean staticTyping,
             TypeSerializer vts, ValueSerializer<?> elementSerializer)
     {
-        this(cls, elementType, staticTyping, vts, elementSerializer, null, null);
+        this(cls, elementType, staticTyping, vts, elementSerializer, null, null, null, false);
     }
 
     /**

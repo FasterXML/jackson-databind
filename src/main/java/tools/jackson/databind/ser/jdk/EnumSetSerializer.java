@@ -86,6 +86,8 @@ public class EnumSetSerializer
             SerializationContext ctxt)
         throws JacksonException
     {
+        final boolean needsFiltering = ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                && ((_suppressableValue != null) || _suppressNulls);
         g.assignCurrentValue(value);
         ValueSerializer<Object> enumSer = _elementSerializer;
         // Need to dynamically find instance serializer; unfortunately that seems
@@ -95,6 +97,10 @@ public class EnumSetSerializer
                 // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
                 //   not bother with typed serializer variant here
                 enumSer = _findAndAddDynamic(ctxt, en.getDeclaringClass());
+            }
+            // [databind#5369] Support @JsonInclude in Collection
+            if (needsFiltering && !_shouldSerializeElement(en, enumSer, ctxt)) {
+                continue;
             }
             enumSer.serialize(en, g, ctxt);
         }

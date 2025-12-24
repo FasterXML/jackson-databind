@@ -226,14 +226,38 @@ public class JsonIncludeForCollection5369Test
         }
     }
 
-    static class SimpleListBean {
+    static class SimpleList5369Bean {
         public List<String> values = new ArrayList<>();
 
-        SimpleListBean add(String v) {
+        SimpleList5369Bean add(String v) {
             values.add(v);
             return this;
         }
     }
+
+    enum Test5369Enum {
+        A, FOO, B
+    }
+
+    static class FooEnum5369Filter {
+        @Override
+        public boolean equals(Object other) {
+            return Test5369Enum.FOO.equals(other);
+        }
+    }
+
+    static class EnumSet5369Bean {
+        @JsonInclude(
+                content = JsonInclude.Include.CUSTOM,
+                contentFilter = FooEnum5369Filter.class
+        )
+        public EnumSet<Test5369Enum> values;
+
+        EnumSet5369Bean(EnumSet<Test5369Enum> v) {
+            values = v;
+        }
+    }
+
 
     /*
     /**********************************************************
@@ -401,7 +425,7 @@ public class JsonIncludeForCollection5369Test
                         o -> o.setInclude(JsonInclude.Value.empty().withContentFilter(FooFilter.class)))
                 .build();
 
-        SimpleListBean input = new SimpleListBean()
+        SimpleList5369Bean input = new SimpleList5369Bean()
                 .add("1")
                 .add("foo")
                 .add("2");
@@ -420,13 +444,32 @@ public class JsonIncludeForCollection5369Test
                         o -> o.setInclude(JsonInclude.Value.empty().withContentFilter(FooFilter.class)))
                 .build();
 
-        SimpleListBean input = new SimpleListBean()
+        SimpleList5369Bean input = new SimpleList5369Bean()
                 .add("1")
                 .add("foo")
                 .add("2");
 
         assertEquals(
                 a2q("{'values':['1','2']}"),
+                mapper.writeValueAsString(input)
+        );
+    }
+
+    @Test
+    public void testEnumSetWithContentFilter() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                .build();
+
+        EnumSet5369Bean input = new EnumSet5369Bean(
+                EnumSet.of(Test5369Enum.A, Test5369Enum.FOO, Test5369Enum.B)
+        );
+
+        // EXPECTED if content filtering worked:
+        //   FOO should be filtered out
+        assertEquals(
+                a2q("{'values':['A','B']}"),
                 mapper.writeValueAsString(input)
         );
     }

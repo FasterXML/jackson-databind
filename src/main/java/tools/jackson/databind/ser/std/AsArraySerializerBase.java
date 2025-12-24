@@ -346,10 +346,11 @@ public abstract class AsArraySerializerBase<T>
      *
      * @since 3.1
      */
-    protected void serializeFilteredContents(T value, JsonGenerator g, SerializationContext provider)
-            throws JacksonException
+    protected void serializeFilteredContents(T value, JsonGenerator g,
+            SerializationContext ctxt)
+        throws JacksonException
     {
-        serializeContents(value, g, provider);
+        serializeContents(value, g, ctxt);
     }
 
     @Override

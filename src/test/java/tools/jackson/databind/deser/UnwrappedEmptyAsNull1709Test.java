@@ -83,7 +83,7 @@ public class UnwrappedEmptyAsNull1709Test extends DatabindTestUtil
     */
 
     @Test
-    public void testEmptyUnwrappedCreatesInstance2() throws Exception {
+    public void testEmptyUnwrappedAsNullWhenDisabled() throws Exception {
         String json = a2q("{'name':'test'}");
         Container result = MAPPER2.readValue(json, Container.class);
         assertNotNull(result);
@@ -94,7 +94,7 @@ public class UnwrappedEmptyAsNull1709Test extends DatabindTestUtil
     }
 
     @Test
-    public void testEmptyJsonCreatesUnwrappedInstance2() throws Exception {
+    public void testEmptyJsonEmptyUnwrappedAsNullWhenDisabled() throws Exception {
         Container result = MAPPER2.readValue("{}", Container.class);
         assertNotNull(result);
         assertNull(result.name);
@@ -104,7 +104,7 @@ public class UnwrappedEmptyAsNull1709Test extends DatabindTestUtil
     }
 
     @Test
-    public void testNonNullUnwrappedPreserved2() throws Exception {
+    public void testNonNullUnwrappedPreservedWhenDisabled() throws Exception {
         String json = a2q("{'name':'test','s':'value'}");
         Container result = MAPPER2.readValue(json, Container.class);
         assertNotNull(result);
@@ -114,7 +114,7 @@ public class UnwrappedEmptyAsNull1709Test extends DatabindTestUtil
     }
 
     @Test
-    public void testPartialNonNullUnwrappedPreserved2() throws Exception {
+    public void testPartialNonNullUnwrappedPreservedWhenDisabled() throws Exception {
         String json = a2q("{'s':'value'}");
         Container result = MAPPER2.readValue(json, Container.class);
         assertNull(result.u.n);

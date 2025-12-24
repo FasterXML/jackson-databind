@@ -258,6 +258,44 @@ public class JsonIncludeForCollection5369Test
         }
     }
 
+    static class Iterable5369 implements Iterable<Integer>
+    {
+        private final List<Integer> values;
+
+        public Iterable5369(Integer... ints) {
+            values = Arrays.asList(ints);
+        }
+
+        @Override
+        public Iterator<Integer> iterator() {
+            return values.iterator();
+        }
+    }
+
+    static class BeanWithIterableIncludeNonNull
+    {
+        @JsonInclude(content = JsonInclude.Include.NON_NULL)
+        public Iterable<Integer> values =
+                new Iterable5369(1);
+    }
+
+    static class IntegerOnly5369Filter {
+        @Override
+        public boolean equals(Object other) {
+            return !Integer.valueOf(5369)
+                    .equals(other);
+        }
+    }
+
+    static class BeanWithIterableCustomInclude
+    {
+        @JsonInclude(
+            content = JsonInclude.Include.CUSTOM,
+            contentFilter = IntegerOnly5369Filter.class
+        )
+        public Iterable<Integer> values =
+                new Iterable5369(1);
+    }
 
     /*
     /**********************************************************
@@ -472,6 +510,34 @@ public class JsonIncludeForCollection5369Test
                 a2q("{'values':['A','B']}"),
                 mapper.writeValueAsString(input)
         );
+    }
+
+    @Test
+    public void testIterableWithContentFilteringForNulls() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                .build();
+        BeanWithIterableIncludeNonNull pojo = new BeanWithIterableIncludeNonNull();
+        pojo.values = new Iterable5369(1, null, 2, null, 3);
+
+        String json = mapper.writeValueAsString(pojo);
+
+        assertEquals("{\"values\":[1,2,3]}", json);
+    }
+
+    @Test
+    public void testIterableWithContentFilteringMagicNumbewr() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                .build();
+        BeanWithIterableCustomInclude pojo = new BeanWithIterableCustomInclude();
+        pojo.values = new Iterable5369(1, null, 2, 3, 5369);
+
+        String json = mapper.writeValueAsString(pojo);
+
+        assertEquals("{\"values\":[5369]}", json);
     }
 
 }

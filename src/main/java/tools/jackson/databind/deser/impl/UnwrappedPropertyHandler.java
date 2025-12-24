@@ -137,14 +137,17 @@ public class UnwrappedPropertyHandler
         return bean;
     }
 
+    /**
+     * @since 3.1
+     */
     @SuppressWarnings("resource")
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
                                    Object bean, TokenBuffer buffered, boolean hasUnwrappedContent)
     {
-        // [databind#1709]: Only set to null if USE_NULL_FOR_EMPTY_UNWRAPPED is enabled
+        // [databind#1709]: Skip deserialization if no unwrapped content.
         if (ctxt.isEnabled(DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED)
                 && !_nestedPropertyNames.isEmpty() && !hasUnwrappedContent) {
-            this.setAllPropertiesToNull(ctxt, bean);
+            return bean;
         } else {
             for (SettableBeanProperty prop : _properties) {
                 JsonParser p = buffered.asParserOnFirstToken(ctxt);
@@ -186,17 +189,6 @@ public class UnwrappedPropertyHandler
      */
     public void collectNestedPropertyNamesTo(Set<String> names) {
         _collectNestedPropertyNames(_properties, _creatorProperties, names);
-    }
-
-    /**
-     * Method that sets all properties of the given bean to {@code null}.
-     *
-     * @since 3.1
-     */
-    public void setAllPropertiesToNull(DeserializationContext ctxt, Object bean) throws JacksonException {
-        for (SettableBeanProperty prop : _properties) {
-            prop.set(ctxt, bean, null);
-        }
     }
 
     /**

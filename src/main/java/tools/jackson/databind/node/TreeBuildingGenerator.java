@@ -203,7 +203,7 @@ public class TreeBuildingGenerator
     @Override
     public JsonGenerator writeEndArray() {
         if (!_tokenWriteContext.inArray()) {
-            _reportError("Current context not Array but "+_tokenWriteContext.typeDesc());
+           throw _constructWriteException("Current context not Array but "+_tokenWriteContext.typeDesc());
         }
         _tokenWriteContext = _tokenWriteContext.getParent();
         return this;
@@ -229,7 +229,7 @@ public class TreeBuildingGenerator
     @Override
     public JsonGenerator writeEndObject() {
         if (!_tokenWriteContext.inObject()) {
-            _reportError("Current context not Object but "+_tokenWriteContext.typeDesc());
+            throw _constructWriteException("Current context not Object but "+_tokenWriteContext.typeDesc());
         }
         _tokenWriteContext = _tokenWriteContext.getParent();
         return this;
@@ -405,7 +405,9 @@ public class TreeBuildingGenerator
 
     @Override
     public JsonGenerator writeNumber(String encodedValue) {
-        return writeString(encodedValue);
+        // 23-Dec-2025, tatu: [databind#5528] Should fail
+        throw _constructWriteException("`%s` does not support `writeNumber(String)`, must write Numbers as typed",
+                getClass().getName());
     }
 
     @Override
@@ -471,8 +473,7 @@ public class TreeBuildingGenerator
         // 12-Jan-2021, tatu: Should we try to preserve the variant? Depends a
         //   lot on whether this during read (no need to retain probably) or
         //   write (probably important)
-        byte[] copy = Arrays.copyOfRange(data, offset, offset + len);
-        return writePOJO(copy);
+        return writePOJO(Arrays.copyOfRange(data, offset, offset + len));
     }
 
     /**

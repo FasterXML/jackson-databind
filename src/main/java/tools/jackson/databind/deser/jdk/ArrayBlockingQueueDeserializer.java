@@ -8,6 +8,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.ValueInstantiator;
+import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.Annotations;
 
@@ -28,9 +29,9 @@ public class ArrayBlockingQueueDeserializer
      public ArrayBlockingQueueDeserializer(JavaType containerType,
             ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator,
-            Annotations annotations)
+            AnnotatedClass classInfo)
     {
-        super(containerType, valueDeser, valueTypeDeser, valueInstantiator, annotations);
+        super(containerType, valueDeser, valueTypeDeser, valueInstantiator, classInfo);
     }
 
     /**
@@ -41,10 +42,10 @@ public class ArrayBlockingQueueDeserializer
             ValueInstantiator valueInstantiator,
             ValueDeserializer<Object> delegateDeser,
             NullValueProvider nuller, Boolean unwrapSingle,
-            Annotations annotations)
+            AnnotatedClass classInfo)
     {
         super(containerType, valueDeser, valueTypeDeser, valueInstantiator, delegateDeser,
-                nuller, unwrapSingle, annotations);
+                nuller, unwrapSingle, classInfo);
     }
 
     /**
@@ -68,7 +69,7 @@ public class ArrayBlockingQueueDeserializer
                 (ValueDeserializer<Object>) vd, vtd,
                 _valueInstantiator, (ValueDeserializer<Object>) dd,
                 nuller, unwrapSingle,
-                _classAnnotations);
+                _classInfo);
     }
 
     /*

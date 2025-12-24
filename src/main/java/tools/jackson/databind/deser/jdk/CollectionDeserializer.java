@@ -13,9 +13,9 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
+import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
-import tools.jackson.databind.util.Annotations;
 import tools.jackson.databind.util.ClassUtil;
 
 /**
@@ -58,7 +58,7 @@ public class CollectionDeserializer
      * Annotations defined on the actual Collection class; retained to avoid
      * re-introspection overhead during {@link #createContextual} calls.
      */
-    protected transient final Annotations _classAnnotations;
+    protected transient final AnnotatedClass _classInfo;
 
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
@@ -75,9 +75,9 @@ public class CollectionDeserializer
     public CollectionDeserializer(JavaType collectionType,
             ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator,
-            Annotations annotations)
+            AnnotatedClass classInfo)
     {
-        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null, null, null, annotations);
+        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null, null, null, classInfo);
     }
 
     /**
@@ -86,14 +86,14 @@ public class CollectionDeserializer
     protected CollectionDeserializer(JavaType collectionType,
             ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator, ValueDeserializer<Object> delegateDeser,
-            NullValueProvider nuller, Boolean unwrapSingle, Annotations classAnnotations)
+            NullValueProvider nuller, Boolean unwrapSingle, AnnotatedClass classInfo)
     {
         super(collectionType, nuller, unwrapSingle);
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = delegateDeser;
-        _classAnnotations = classAnnotations;
+        _classInfo = classInfo;
     }
 
     /**
@@ -107,7 +107,7 @@ public class CollectionDeserializer
         _valueTypeDeserializer = src._valueTypeDeserializer;
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
-        _classAnnotations = src._classAnnotations;
+        _classInfo = src._classInfo;
     }
 
     /**
@@ -122,7 +122,7 @@ public class CollectionDeserializer
             TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
     {
         return new CollectionDeserializer(collectionType, valueDeser, valueTypeDeser,
-                valueInstantiator, beanDescRef.getClassAnnotations());
+                valueInstantiator, beanDescRef.getClassInfo());
     }
 
     /**
@@ -136,7 +136,7 @@ public class CollectionDeserializer
         return new CollectionDeserializer(_containerType,
                 (ValueDeserializer<Object>) vd, vtd,
                 _valueInstantiator, (ValueDeserializer<Object>) dd,
-                nuller, unwrapSingle, _classAnnotations);
+                nuller, unwrapSingle, _classInfo);
     }
 
     // Important: do NOT cache if polymorphic values
@@ -197,7 +197,7 @@ _containerType,
         //   comes down to "List vs Collection" I suppose... for now, pass Collection
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        unwrapSingle = findFormatFeatureOrClassFallback(unwrapSingle,
+        unwrapSingle = findFormatFeatureOrClassFallback(ctxt, unwrapSingle,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // also, often value deserializer is resolved here:
         ValueDeserializer<?> valueDeser = _valueDeserializer;
@@ -228,16 +228,17 @@ _containerType,
         return this;
     }
 
-    protected Boolean findFormatFeatureOrClassFallback(Boolean unwrapSingle,
-        JsonFormat.Feature feature)
+    protected Boolean findFormatFeatureOrClassFallback(DeserializationContext ctxt,
+        Boolean unwrapSingle, JsonFormat.Feature feature)
     {
         if (unwrapSingle != null) {
             return unwrapSingle;
         }
-        if(_classAnnotations != null){
-            JsonFormat formatAnnotation = _classAnnotations.get(JsonFormat.class);
-            if (formatAnnotation != null) {
-                return JsonFormat.Value.from(formatAnnotation).getFeature(feature);
+        if(_classInfo != null){
+            JsonFormat.Value format = ctxt.getAnnotationIntrospector()
+                .findFormat(ctxt.getConfig(), _classInfo);
+            if (format != null) {
+                return format.getFeature(feature);
             }
         }
         return null;

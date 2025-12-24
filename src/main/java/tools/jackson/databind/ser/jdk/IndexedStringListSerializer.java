@@ -59,7 +59,8 @@ public final class IndexedStringListSerializer
         return new IndexedStringListSerializer(this, unwrapSingle, suppressableValue, suppressNulls);
     }
 
-    @Override protected JsonNode contentSchema() { return createSchemaNode("string", true); }
+    @Override
+    protected JsonNode contentSchema() { return createSchemaNode("string", true); }
 
     @Override
     protected void acceptContentVisitor(JsonArrayFormatVisitor visitor) {
@@ -78,27 +79,26 @@ public final class IndexedStringListSerializer
         throws JacksonException
     {
         final int len = value.size();
+        final boolean needsFiltering = ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                && ((_suppressableValue != null) || _suppressNulls);
         if (len == 1) {
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
-                    && ((_suppressableValue != null) || _suppressNulls)
-                ) {
-                    serializeFilteredContents(value, g, ctxt, 1);
+                if (needsFiltering) {
+                    serializeContentsFiltered(value, g, ctxt, 1);
+
                 } else {
-                    serializeContents(value, g, ctxt, 1);
+                    serializeContentsNonFiltered(value, g, ctxt, 1);
                 }
                 return;
             }
         }
         g.writeStartArray(value, len);
-        if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
-            && ((_suppressableValue != null) || _suppressNulls)
-        ) {
-            serializeFilteredContents(value, g, ctxt, len);
+        if (needsFiltering) {
+            serializeContentsFiltered(value, g, ctxt, len);
         } else {
-            serializeContents(value, g, ctxt, len);
+            serializeContentsNonFiltered(value, g, ctxt, len);
         }
         g.writeEndArray();
     }
@@ -111,27 +111,18 @@ public final class IndexedStringListSerializer
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         g.assignCurrentValue(value);
-        serializeContents(value, g, ctxt, value.size());
+        final boolean needsFiltering = ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                && ((_suppressableValue != null) || _suppressNulls);
+        if (needsFiltering) {
+            serializeContentsFiltered(value, g, ctxt, value.size());
+        } else {
+            serializeContentsNonFiltered(value, g, ctxt, value.size());
+        }
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
-    private final void serializeContents(List<String> value, JsonGenerator g,
-            SerializationContext ctxt, int len)
-        throws JacksonException
-    {
-        serializeContentsImpl(value, g, ctxt, len,
-            false);
-    }
-
-    private final void serializeFilteredContents(List<String> value, JsonGenerator g,
-            SerializationContext provider, int len) throws JacksonException
-    {
-        serializeContentsImpl(value, g, provider, len,
-                provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
-    }
-
-    private final void serializeContentsImpl(List<String> value, JsonGenerator g,
-             SerializationContext ctxt, int len, boolean filtered)
+    private final void serializeContentsNonFiltered(List<String> value, JsonGenerator g,
+             SerializationContext ctxt, int len)
          throws JacksonException
     {
         int i = 0;
@@ -139,15 +130,8 @@ public final class IndexedStringListSerializer
             for (; i < len; ++i) {
                 String str = value.get(i);
                 if (str == null) {
-                    if (filtered && _suppressNulls) {
-                        continue;
-                    }
                     ctxt.defaultSerializeNullValue(g);
                 } else {
-                    // Check if this element should be suppressed (only in filtered mode)
-                    if (filtered && !_shouldSerializeElement(str, null, ctxt)) {
-                        continue;
-                    }
                     g.writeString(str);
                 }
             }
@@ -155,4 +139,31 @@ public final class IndexedStringListSerializer
             wrapAndThrow(ctxt, e, value, i);
         }
     }
+
+    private final void serializeContentsFiltered(List<String> value, JsonGenerator g,
+            SerializationContext ctxt, int len)
+        throws JacksonException
+   {
+       int i = 0;
+       try {
+           for (; i < len; ++i) {
+               String str = value.get(i);
+               if (str == null) {
+                   if (_suppressNulls) {
+                       continue;
+                   }
+                   ctxt.defaultSerializeNullValue(g);
+               } else {
+                   // Check if this element should be suppressed (only in filtered mode)
+                   if (!_shouldSerializeElement(str, null, ctxt)) {
+                       continue;
+                   }
+                   g.writeString(str);
+               }
+           }
+       } catch (Exception e) {
+           wrapAndThrow(ctxt, e, value, i);
+       }
+   }
+
 }

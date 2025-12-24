@@ -29,6 +29,16 @@ public class UnwrappedEmptyAsNull1709Test extends DatabindTestUtil
             .enable(DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED)
             .build();
 
+    private final ObjectMapper MAPPER2 = jsonMapperBuilder()
+            .disable(DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED)
+            .build();
+
+    /*
+    /**********************************************************************
+    /* Tests with USE_NULL_FOR_EMPTY_UNWRAPPED enabled
+    /**********************************************************************
+    */
+
     @Test
     public void testEmptyUnwrappedAsNull() throws Exception {
         String json = a2q("{'name':'test'}");
@@ -63,6 +73,50 @@ public class UnwrappedEmptyAsNull1709Test extends DatabindTestUtil
         assertNotNull(result);
         assertNotNull(result.u);
         assertEquals("value", result.u.s);
+        assertNull(result.u.n);
+    }
+
+    /*
+    /**********************************************************************
+    /* Tests with USE_NULL_FOR_EMPTY_UNWRAPPED disabled
+    /**********************************************************************
+    */
+
+    @Test
+    public void testEmptyUnwrappedCreatesInstance2() throws Exception {
+        String json = a2q("{'name':'test'}");
+        Container result = MAPPER2.readValue(json, Container.class);
+        assertNotNull(result);
+        assertEquals("test", result.name);
+        assertNotNull(result.u);
+        assertNull(result.u.s);
+        assertNull(result.u.n);
+    }
+
+    @Test
+    public void testEmptyJsonCreatesUnwrappedInstance2() throws Exception {
+        Container result = MAPPER2.readValue("{}", Container.class);
+        assertNotNull(result);
+        assertNull(result.name);
+        assertNotNull(result.u);
+        assertNull(result.u.s);
+        assertNull(result.u.n);
+    }
+
+    @Test
+    public void testNonNullUnwrappedPreserved2() throws Exception {
+        String json = a2q("{'name':'test','s':'value'}");
+        Container result = MAPPER2.readValue(json, Container.class);
+        assertNotNull(result);
+        assertEquals("test", result.name);
+        assertNotNull(result.u);
+        assertEquals("value", result.u.s);
+    }
+
+    @Test
+    public void testPartialNonNullUnwrappedPreserved2() throws Exception {
+        String json = a2q("{'s':'value'}");
+        Container result = MAPPER2.readValue(json, Container.class);
         assertNull(result.u.n);
     }
 }

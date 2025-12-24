@@ -26,7 +26,7 @@ public abstract class AsArraySerializerBase<T>
 
     protected final boolean _staticTyping;
 
-    public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
+    protected final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
 
     /**
      * Value that indicates suppression mechanism to use for
@@ -388,12 +388,13 @@ public abstract class AsArraySerializerBase<T>
         if (_suppressableValue == MARKER_FOR_EMPTY) {
             if (serializer != null) {
                 return !serializer.isEmpty(provider, elem);
-            } else {
-                // For strings and primitives, check emptiness directly
-                return elem instanceof String ? !((String) elem).isEmpty() : true;
             }
-        } else {
-            return !_suppressableValue.equals(elem);
+            // For strings and primitives, check emptiness directly
+            if (elem instanceof String str) {
+                return !str.isEmpty();
+            }
+            return true;
         }
+        return !_suppressableValue.equals(elem);
     }
 }

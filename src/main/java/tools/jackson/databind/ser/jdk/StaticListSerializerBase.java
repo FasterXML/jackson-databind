@@ -25,7 +25,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     extends StdSerializer<T>
 {
     // since 3.1
-    public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
+    protected final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
 
     /**
      * Setting for specific local override for "unwrap single element arrays":
@@ -222,7 +222,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
      * @param ctxt {@link SerializationContext}
      * @return true if element should be serialized, false if suppressed
      *
-     * @since 2.21
+     * @since 3.1
      */
     protected final boolean _shouldSerializeElement(Object elem, ValueSerializer<Object> serializer,
         SerializationContext ctxt) throws JacksonException
@@ -233,12 +233,13 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         if (_suppressableValue == MARKER_FOR_EMPTY) {
             if (serializer != null) {
                 return !serializer.isEmpty(ctxt, elem);
-            } else {
-                // For strings and primitives, check emptiness directly
-                return elem instanceof String ? !((String) elem).isEmpty() : true;
             }
-        } else {
-            return !_suppressableValue.equals(elem);
+            // For strings and primitives, check emptiness directly
+            if (elem instanceof String str) {
+                return !str.isEmpty();
+            }
+            return true;
         }
+        return !_suppressableValue.equals(elem);
     }
 }

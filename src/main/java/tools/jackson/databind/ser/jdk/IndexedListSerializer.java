@@ -116,37 +116,35 @@ public final class IndexedListSerializer
     public void serializeContents(Object value0, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
-        serializeContentsImpl(value0, g, ctxt, false);
+        final List<?> value = (List<?>) value0;
+        if (_elementSerializer != null) {
+            serializeContentsUsingImpl(value, g, ctxt, _elementSerializer, false);
+        } else if (_valueTypeSerializer != null) {
+            serializeTypedContentsImpl(value, g, ctxt, false);
+        } else {
+            serializeContentsImpl(value, g, ctxt, false);
+        }
     }
 
     @Override
-    public void serializeFilteredContents(Object value, JsonGenerator g, SerializationContext provider)
+    public void serializeFilteredContents(Object value0, JsonGenerator g,
+            SerializationContext ctxt)
         throws JacksonException
-    {
-        serializeContentsImpl(value, g, provider,
-            provider.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
-    }
-
-    private void serializeContentsImpl(Object value0, JsonGenerator g, SerializationContext ctxt, boolean filtered)
-            throws JacksonException
     {
         final List<?> value = (List<?>) value0;
         if (_elementSerializer != null) {
-            if (filtered) {
-                serializeFilteredContentsUsing(value, g, ctxt, _elementSerializer);
-            } else {
-                serializeContentsUsing(value, g, ctxt, _elementSerializer);
-            }
-            return;
+            serializeContentsUsingImpl(value, g, ctxt, _elementSerializer, true);
+        } else if (_valueTypeSerializer != null) {
+            serializeTypedContentsImpl(value, g, ctxt, true);
+        } else {
+            serializeContentsImpl(value, g, ctxt, true);
         }
-        if (_valueTypeSerializer != null) {
-            if (filtered) {
-                serializeFilteredTypedContents(value, g, ctxt);
-            } else {
-                serializeTypedContents(value, g, ctxt);
-            }
-            return;
-        }
+    }
+
+    private void serializeContentsImpl(List<?> value, JsonGenerator g,
+            SerializationContext ctxt, boolean filtered)
+        throws JacksonException
+    {
         final int len = value.size();
         if (len == 0) {
             return;
@@ -164,7 +162,6 @@ public final class IndexedListSerializer
                     Class<?> cc = elem.getClass();
                     ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
                     if (serializer == null) {
-                        // To fix [JACKSON-508]
                         if (_elementType.hasGenericTypes()) {
                             serializer = _findAndAddDynamic(ctxt,
                                     ctxt.constructSpecializedType(_elementType, cc));
@@ -184,23 +181,9 @@ public final class IndexedListSerializer
         }
     }
 
-    public void serializeContentsUsing(List<?> value, JsonGenerator g,
-            SerializationContext ctxt, ValueSerializer<Object> ser)
-        throws JacksonException
-    {
-        serializeContentsUsingImpl(value, g, ctxt, ser, false);
-    }
-
-    private void serializeFilteredContentsUsing(List<?> value, JsonGenerator g,
-            SerializationContext ctxt, ValueSerializer<Object> ser)
-        throws JacksonException
-    {
-        serializeContentsUsingImpl(value, g, ctxt, ser,
-                ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
-    }
-
     private void serializeContentsUsingImpl(List<?> value, JsonGenerator g,
-            SerializationContext ctxt, ValueSerializer<Object> ser, boolean filtered)
+            SerializationContext ctxt, ValueSerializer<Object> ser,
+            boolean filtered)
         throws JacksonException
     {
         final int len = value.size();
@@ -228,25 +211,9 @@ public final class IndexedListSerializer
                     }
                 }
             } catch (Exception e) {
-                // [JACKSON-55] Need to add reference information
                 wrapAndThrow(ctxt, e, value, i);
             }
         }
-    }
-
-    public void serializeTypedContents(List<?> value, JsonGenerator g,
-            SerializationContext ctxt)
-        throws JacksonException
-    {
-        serializeTypedContentsImpl(value, g, ctxt, false);
-    }
-
-    public void serializeFilteredTypedContents(List<?> value, JsonGenerator g,
-            SerializationContext ctxt)
-        throws JacksonException
-    {
-        serializeTypedContentsImpl(value, g, ctxt,
-            ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
     }
 
     private void serializeTypedContentsImpl(List<?> value, JsonGenerator g,

@@ -9,7 +9,6 @@ import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

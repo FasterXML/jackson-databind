@@ -149,8 +149,7 @@ public class CollectionSerializer
             SerializationContext ctxt)
         throws JacksonException
     {
-        serializeContentsImpl(value, g, ctxt,
-            ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
+        serializeContentsImpl(value, g, ctxt, true);
     }
 
     private void serializeContentsImpl(Collection<?> value, JsonGenerator g,
@@ -217,15 +216,13 @@ public class CollectionSerializer
             SerializationContext ctxt, ValueSerializer<Object> ser)
         throws JacksonException
     {
-        serializeContentsUsingImpl(value, g, ctxt, ser,
-                false);
+        serializeContentsUsingImpl(value, g, ctxt, ser, false);
     }
 
     private void serializeFilteredContentsUsing(Collection<?> value, JsonGenerator g, SerializationContext ctxt,
             ValueSerializer<Object> ser) throws JacksonException
     {
-        serializeContentsUsingImpl(value, g, ctxt, ser,
-                ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
+        serializeContentsUsingImpl(value, g, ctxt, ser, true);
     }
 
     private void serializeContentsUsingImpl(Collection<?> value, JsonGenerator g, SerializationContext ctxt,

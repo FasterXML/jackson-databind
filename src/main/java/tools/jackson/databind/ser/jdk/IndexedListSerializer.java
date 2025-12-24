@@ -88,14 +88,14 @@ public final class IndexedListSerializer
         throws JacksonException
     {
         final List<?> value = (List<?>) value0;
+        final boolean needsFiltering = ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                && ((_suppressableValue != null) || _suppressNulls);
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
-                    && ((_suppressableValue != null) || _suppressNulls)
-                ) {
+                if (needsFiltering) {
                     serializeFilteredContents(value, g, ctxt);
                 } else {
                     serializeContents(value, g, ctxt);
@@ -104,9 +104,7 @@ public final class IndexedListSerializer
             }
         }
         g.writeStartArray(value, len);
-        if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
-            && ((_suppressableValue != null) || _suppressNulls)
-        ) {
+        if (needsFiltering) {
             serializeFilteredContents(value, g, ctxt);
         } else {
             serializeContents(value, g, ctxt);
@@ -118,8 +116,7 @@ public final class IndexedListSerializer
     public void serializeContents(Object value0, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
-        serializeContentsImpl(value0, g, ctxt,
-            false);
+        serializeContentsImpl(value0, g, ctxt, false);
     }
 
     @Override

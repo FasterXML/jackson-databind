@@ -262,6 +262,17 @@ public class NumberDeserializers
             return _parseByte(p, ctxt);
         }
 
+
+        /**
+         * @since 3.1
+         */
+        @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        {
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
+        }
+
         protected Byte _parseByte(JsonParser p, DeserializationContext ctxt)
                 throws JacksonException
         {
@@ -345,6 +356,17 @@ public class NumberDeserializers
         public ShortDeserializer(Class<Short> cls, Short nvl)
         {
             super(cls, LogicalType.Integer, nvl, (short)0);
+        }
+
+        /**
+         * @since 3.1
+         */
+        @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
+        {
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
         }
 
         @Override
@@ -528,6 +550,17 @@ public class NumberDeserializers
         @Override
         public boolean isCachable() { return true; }
 
+        /**
+         * @since 3.1
+         */
+        @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
+        {
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
+        }
+
         @Override
         public Integer deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
             if (p.isExpectedNumberIntToken()) {
@@ -569,8 +602,21 @@ public class NumberDeserializers
         @Override
         public boolean isCachable() { return true; }
 
+        /**
+         * @since 3.1
+         */
         @Override
-        public Long deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
+        {
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
+        }
+
+        @Override
+        public Long deserialize(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
+        {
             if (p.isExpectedNumberIntToken()) {
                 return p.getLongValue();
             }
@@ -593,7 +639,8 @@ public class NumberDeserializers
         }
 
         @Override
-        public Float deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
+        public Float deserialize(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
         {
             if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
                 return p.getFloatValue();
@@ -937,6 +984,17 @@ public class NumberDeserializers
         @Override
         public final LogicalType logicalType() {
             return LogicalType.Integer;
+        }
+
+        /**
+         * @since 3.1
+         */
+        @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
+        {
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
         }
 
         @Override

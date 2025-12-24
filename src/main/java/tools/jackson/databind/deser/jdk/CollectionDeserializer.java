@@ -101,6 +101,22 @@ public class CollectionDeserializer
     }
 
     /**
+     * Factory method called by {@code BasicDeserializerFactory} to create
+     * an instance
+     *
+     * @since 3.1
+     */
+    public static CollectionDeserializer create(JavaType collectionType,
+            BeanDescription.Supplier beanDescRef,
+            ValueDeserializer<Object> valueDeser,
+            TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
+    {
+        // !!! TODO: make use of `beanDescRef` wrt annotations (as necessary)
+        return new CollectionDeserializer(collectionType,
+                valueDeser, valueTypeDeser, valueInstantiator);
+    }
+
+    /**
      * Fluent-factory method call to construct contextual instance.
      */
     @SuppressWarnings("unchecked")

@@ -4,6 +4,7 @@ import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.sym.PropertyNameMatcher;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.deser.BeanDeserializerBuilder;
@@ -11,6 +12,7 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.impl.ExternalTypeHandler;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.AnnotatedMethod;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
@@ -82,10 +84,11 @@ public class BuilderBasedDeserializer
                 ignorableProps, ignoreAllUnknown, includableProps, hasViews);
         _targetType = targetType;
         _buildMethod = builder.getBuildMethod();
-        // 05-Mar-2012, tatu: Cannot really make Object Ids work with builders, not yet anyway
+        // 05-Mar-2012, tatu: Object Ids  not supported with builders, not yet anyway
         if (_objectIdReader != null) {
-            throw new IllegalArgumentException("Cannot use Object Id with Builder-based deserialization (type "
-                    +beanDescRef.getType()+")");
+            String msg = "Cannot use Object Id with Builder-based deserialization (type "
+                    +ClassUtil.getTypeDescription(beanDescRef.getType())+")";
+            throw InvalidDefinitionException.from((JsonParser)null, msg, beanDescRef.getType());
         }
     }
 

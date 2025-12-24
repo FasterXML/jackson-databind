@@ -1,6 +1,5 @@
 package tools.jackson.databind.node;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonPointer;

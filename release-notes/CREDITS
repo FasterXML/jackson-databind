@@ -115,6 +115,16 @@ Fouad Almalki (@Eng-Fouad)
  * Contributed fix for 5442: Make `JsonMapper/ObjectMapper` fully proxyable by CGLIB
   [3.1.0]
 
+Christopher Currie (@christophercurrie)
+
+* Requested #221: Support alternate radixes when writing numeric values as strings
+  [3.1.0]
+
+Davyd Fridman (@tiger9800)
+
+* Implemented #221: Support alternate radixes when writing numeric values as strings
+  [3.1.0]
+
 Konstantin Labun (@kulabun)
  * Reported #650: `@JsonUnwrapped` prevents checks for
   `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`

@@ -31,43 +31,47 @@ public class UnwrappedPropertyHandler
     protected final List<SettableBeanProperty> _properties;
 
     /**
-     * Set of all nested property names from unwrapped deserializers.
+     * Set of all unwrapped property names from unwrapped deserializers.
+     *
+     * @since 3.1
      */
-    protected final Set<String> _nestedPropertyNames;
+    protected final Set<String> _unwrappedPropertyNames;
 
     /**
-     * Flag indicating whether any unwrapped deserializer has an AnySetter,
-     * which means it can handle any property name.
+     * Flag that indicates if any of the unwrapped value deserializers
+     * has an "any setter" (see {@link com.fasterxml.jackson.annotation.JsonAnySetter})
+     *
+     * @since 3.1
      */
-    protected final boolean _hasNestedAnySetter;
+    protected final boolean _hasUnwrappedAnySetter;
 
     public UnwrappedPropertyHandler() {
         _creatorProperties = new ArrayList<>();
         _properties = new ArrayList<>();
         // placeholder: won't be modified in-place
-        _nestedPropertyNames = Collections.emptySet();
-        _hasNestedAnySetter = false;
+        _unwrappedPropertyNames = Collections.emptySet();
+        _hasUnwrappedAnySetter = false;
     }
 
     protected UnwrappedPropertyHandler(List<SettableBeanProperty> creatorProps,
             List<SettableBeanProperty> props,
-            Set<String> nestedPropertyNames,
-            boolean hasNestedAnySetter) {
+            Set<String> unwrappedPropertyNames,
+            boolean hasUnwrappedAnySetter) {
         _creatorProperties = creatorProps;
         _properties = props;
-        _nestedPropertyNames = nestedPropertyNames;
-        _hasNestedAnySetter = hasNestedAnySetter;
+        _unwrappedPropertyNames = unwrappedPropertyNames;
+        _hasUnwrappedAnySetter = hasUnwrappedAnySetter;
     }
 
     /**
-     * Creates a new UnwrappedPropertyHandler with initialized nested property names cache.
+     * Creates a new UnwrappedPropertyHandler with initialized unwrapped property names cache.
      *
      * @since 3.1
      */
-    public UnwrappedPropertyHandler initializedNestedPropertyNames() {
-        Set<String> nestedNames = new HashSet<>();
-        boolean hasAnySetter = _collectNestedPropertyNames(_properties, _creatorProperties, nestedNames);
-        return new UnwrappedPropertyHandler(_creatorProperties, _properties, nestedNames, hasAnySetter);
+    public UnwrappedPropertyHandler initializeUnwrappedPropertyNames() {
+        Set<String> unwrappedNames = new HashSet<>();
+        boolean hasAnySetter = _collectUnwrappedPropertyNames(_properties, _creatorProperties, unwrappedNames);
+        return new UnwrappedPropertyHandler(_creatorProperties, _properties, unwrappedNames, hasAnySetter);
     }
 
     /**
@@ -87,11 +91,11 @@ public class UnwrappedPropertyHandler
         List<SettableBeanProperty> renamedCreatorProps = renameProperties(ctxt, _creatorProperties, transformer);
         List<SettableBeanProperty> renamedProps = renameProperties(ctxt, _properties, transformer);
 
-        // Collect nested property names and check for AnySetter
-        Set<String> nestedNames = new HashSet<>();
-        boolean hasAnySetter = _collectNestedPropertyNames(renamedProps, renamedCreatorProps, nestedNames);
+        // Collect unwrapped property names and check for AnySetter
+        Set<String> names = new HashSet<>();
+        boolean hasAnySetter = _collectUnwrappedPropertyNames(renamedProps, renamedCreatorProps, names);
 
-        return new UnwrappedPropertyHandler(renamedCreatorProps, renamedProps, nestedNames, hasAnySetter);
+        return new UnwrappedPropertyHandler(renamedCreatorProps, renamedProps, names, hasAnySetter);
     }
 
     private List<SettableBeanProperty> renameProperties(DeserializationContext ctxt,
@@ -137,7 +141,7 @@ public class UnwrappedPropertyHandler
 
     /**
      * Generates a placeholder name for creator properties that don't have a name,
-     * but are marked with `@JsonWrapped` annotation.
+     * but are marked with `@JsonUnwrapped` annotation.
      *
      * @since 2.19
      */
@@ -148,35 +152,36 @@ public class UnwrappedPropertyHandler
     /**
      * Method that checks if the given property name belongs to any unwrapped property.
      *
-     * @return {@code true} if any nested deserializers has an "any-setter".
+     * @param propName Property name to check
+     * @return {@code true} if name is recognized by an unwrapped deserializer
+     *    (or if any of them has "any setter")
      *
      * @since 3.1
      */
     public boolean hasUnwrappedProperty(String propName) {
-        // If any nested deserializer has AnySetter, it can handle any property
-        if (_hasNestedAnySetter) {
+        if (_hasUnwrappedAnySetter) {
             return true;
         }
-        return _nestedPropertyNames.contains(propName);
+        return _unwrappedPropertyNames.contains(propName);
     }
 
     /**
-     * Collects all nested property names from unwrapped deserializers.
+     * Method for collecting property names recognized by unwrapped deserializers.
      *
      * @since 3.1
      */
-    public void collectNestedPropertyNamesTo(Set<String> names) {
-        _collectNestedPropertyNames(_properties, _creatorProperties, names);
+    public void collectUnwrappedPropertyNamesTo(Set<String> names) {
+        _collectUnwrappedPropertyNames(_properties, _creatorProperties, names);
     }
 
     /**
-     * Helper method to collect nested property names.
+     * Helper method to collect unwrapped property names.
      *
      * @return {@code true} if any property deserializer has AnySetter.
      *
      * @since 3.1
      */
-    private boolean _collectNestedPropertyNames(List<SettableBeanProperty> properties,
+    private boolean _collectUnwrappedPropertyNames(List<SettableBeanProperty> properties,
             List<SettableBeanProperty> creatorProperties,
             Set<String> names) {
         boolean hasAnySetter = false;

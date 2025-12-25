@@ -137,7 +137,7 @@ public class UnwrappedPropertyHandler
 
     /**
      * Generates a placeholder name for creator properties that don't have a name,
-     * but are marked with `@JsonWrapped` annotation.
+     * but are marked with `@JsonUnwrapped` annotation.
      *
      * @since 2.19
      */

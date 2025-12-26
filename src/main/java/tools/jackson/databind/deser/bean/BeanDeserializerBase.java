@@ -637,8 +637,8 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
 
         if (unwrapped != null) { // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
-            // [databind#650]: Initialize nested property names cache for hasUnwrappedProperty()
-            _unwrappedPropertyHandler = unwrapped.initializedNestedPropertyNames();
+            // [databind#650]: Initialize unwrapped property names for hasUnwrappedProperty()
+            _unwrappedPropertyHandler = unwrapped.initializeUnwrappedPropertyNames();
         } else {
             _unwrappedPropertyHandler = null;
         }
@@ -1212,7 +1212,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             names.add(prop.getName());
         }
         if (_unwrappedPropertyHandler != null) {
-            _unwrappedPropertyHandler.collectNestedPropertyNamesTo(names);
+            _unwrappedPropertyHandler.collectUnwrappedPropertyNamesTo(names);
         }
     }
 

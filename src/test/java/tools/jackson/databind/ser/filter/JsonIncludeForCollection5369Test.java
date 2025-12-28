@@ -527,7 +527,7 @@ public class JsonIncludeForCollection5369Test
     }
 
     @Test
-    public void testIterableWithContentFilteringMagicNumbewr() throws Exception
+    public void testIterableWithContentFilteringMagicNumber() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)

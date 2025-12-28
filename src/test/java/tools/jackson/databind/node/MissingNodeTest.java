@@ -21,6 +21,7 @@ public class MissingNodeTest extends NodeTestBase
         // exception in 3.0:
         //assertEquals("", n.asString());
         assertEquals("default", n.asString("default"));
+        assertEquals("default", n.asStringOr("default"));
         assertStandardEquals(n);
         // 10-Dec-2018, tatu: With 2.10, should serialize same as via ObjectMapper/ObjectWriter
         // 10-Dec-2019, tatu: Surprise! No, this is not how it worked in 2.9, nor does it make
@@ -30,9 +31,13 @@ public class MissingNodeTest extends NodeTestBase
         assertNodeNumbersForNonNumeric(n);
 
         assertTrue(n.asBoolean(true));
+        assertTrue(n.asBooleanOr(true));
         assertEquals(4, n.asInt(4));
+        assertEquals(4, n.asIntOr(4));
         assertEquals(5L, n.asLong(5));
+        assertEquals(5L, n.asLongOr(5));
         assertEquals(0.25, n.asDouble(0.25));
+        assertEquals(0.25, n.asDoubleOr(0.25));
     }
 
     /**

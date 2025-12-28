@@ -211,7 +211,14 @@ public class JsonNodeDecimalValueTest
     public void asDecimalFromMiscOther()
     {
         // "null" becomes "0.0"
-        _assertAsDecimal(BigDecimal.ZERO, NODES.nullNode());
+        NullNode fromNode = NODES.nullNode();
+        // main accessor
+        assertEquals(BigDecimal.ZERO, fromNode.asDecimal());
+
+        // but also defaulting
+        assertEquals(BigDecimal.ZERO, fromNode.asDecimal(BD_DEFAULT));
+        assertEquals(BD_DEFAULT, fromNode.asDecimalOr(BD_DEFAULT));
+        assertEquals(BigDecimal.ZERO, fromNode.asDecimalOpt().get());
 
         // but "missing" still fails
         _assertFailAsDecimalForNonNumber(NODES.missingNode());
@@ -236,6 +243,7 @@ public class JsonNodeDecimalValueTest
 
         // but also defaulting
         assertEquals(expected, fromNode.asDecimal(BD_DEFAULT));
+        assertEquals(expected, fromNode.asDecimalOr(BD_DEFAULT));
         assertEquals(expected, fromNode.asDecimalOpt().get());
     }
 
@@ -282,6 +290,7 @@ public class JsonNodeDecimalValueTest
 
         // Verify default value handling
         assertEquals(BD_DEFAULT, node.asDecimal(BD_DEFAULT));
+        assertEquals(BD_DEFAULT, node.asDecimalOr(BD_DEFAULT));
         assertEquals(Optional.empty(), node.asDecimalOpt());
     }
 
@@ -296,6 +305,7 @@ public class JsonNodeDecimalValueTest
 
         // Verify default value handling
         assertEquals(BD_DEFAULT, node.asDecimal(BD_DEFAULT));
+        assertEquals(BD_DEFAULT, node.asDecimalOr(BD_DEFAULT));
         assertEquals(Optional.empty(), node.asDecimalOpt());
     }
     

@@ -55,8 +55,18 @@ public class NullNode
     }
 
     @Override
+    public boolean asBooleanOr(boolean defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
     protected String _asString() {
         return "";
+    }
+
+    @Override
+    public String asStringOr(String defaultValue) {
+        return defaultValue;
     }
 
     // Explicit overrides for all overloads for documentation purposes
@@ -91,6 +101,11 @@ public class NullNode
     }
 
     @Override
+    public short asShortOr(short defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
     public Optional<Short> asShortOpt() {
         return Optional.of((short) 0);
     }
@@ -108,6 +123,11 @@ public class NullNode
     }
 
     @Override
+    public int asIntOr(int defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
     public OptionalInt asIntOpt() {
         return OptionalInt.of(0);
     }
@@ -119,6 +139,11 @@ public class NullNode
 
     @Override
     public long asLong(long defaultValue) { return 0L; }
+
+    @Override
+    public long asLongOr(long defaultValue) {
+        return defaultValue;
+    }
 
     @Override
     public OptionalLong asLongOpt() {
@@ -135,6 +160,11 @@ public class NullNode
     @Override
     public BigInteger asBigInteger(BigInteger defaultValue) {
         return asBigInteger();
+    }
+
+    @Override
+    public BigInteger asBigIntegerOr(BigInteger defaultValue) {
+        return defaultValue;
     }
 
     @Override
@@ -155,6 +185,11 @@ public class NullNode
     }
 
     @Override
+    public float asFloatOr(float defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
     public Optional<Float> asFloatOpt() {
         return Optional.of(asFloat());
     }
@@ -172,6 +207,11 @@ public class NullNode
     }
 
     @Override
+    public double asDoubleOr(double defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
     public OptionalDouble asDoubleOpt() {
         return OptionalDouble.of(asDouble());
     }
@@ -186,6 +226,11 @@ public class NullNode
     @Override
     public BigDecimal asDecimal(BigDecimal defaultValue) {
         return asDecimal();
+    }
+
+    @Override
+    public BigDecimal asDecimalOr(BigDecimal defaultValue) {
+        return defaultValue;
     }
 
     @Override

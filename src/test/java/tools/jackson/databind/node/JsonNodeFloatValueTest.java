@@ -235,7 +235,13 @@ public class JsonNodeFloatValueTest
     public void asFloatFromMiscOther()
     {
         // Null node converts to 0.0f; missing fails
-        _assertAsFloat((float) 0, NODES.nullNode());
+        NullNode node = NODES.nullNode();
+        assertEquals((float) 0, node.asFloat());
+
+        // and defaults
+        assertEquals((float) 0, node.asFloat(-9999.5f));
+        assertEquals(-9999.5f, node.asFloatOr(-9999.5f));
+        assertEquals((float) 0, node.asFloatOpt().get());
         _assertAsFloatFailForNonNumber(NODES.missingNode());
     }
 
@@ -279,6 +285,7 @@ public class JsonNodeFloatValueTest
 
         // and defaults
         assertEquals(expected, node.asFloat(-9999.5f));
+        assertEquals(expected, node.asFloatOr(-9999.5f));
         assertEquals(expected, node.asFloatOpt().get());
     }
 
@@ -292,6 +299,7 @@ public class JsonNodeFloatValueTest
                 .contains("value not in 32-bit `float` range");
 
         assertEquals(-2.25f, node.asFloat(-2.25f));
+        assertEquals(-2.25f, node.asFloatOr(-2.25f));
         assertEquals(Optional.empty(), node.asFloatOpt());
     }
 
@@ -309,6 +317,7 @@ public class JsonNodeFloatValueTest
                 .contains(extraMatch);
 
         assertEquals(1.5f, node.asFloat(1.5f));
+        assertEquals(1.5f, node.asFloatOr(1.5f));
         assertEquals(Optional.empty(), node.asFloatOpt());
     }
 

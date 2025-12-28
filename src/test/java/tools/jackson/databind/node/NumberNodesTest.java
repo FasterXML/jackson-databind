@@ -94,6 +94,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals("1", n.asString());
         // 2.4
         assertEquals("1", n.asString("foo"));
+        assertEquals("1", n.asStringOr("foo"));
 
         assertNodeNumbers(n, 1, 1.0);
 

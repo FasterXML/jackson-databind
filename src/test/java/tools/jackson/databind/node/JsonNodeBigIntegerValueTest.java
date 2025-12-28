@@ -188,7 +188,13 @@ public class JsonNodeBigIntegerValueTest
     public void asBigIntegerFromMiscOther()
     {
         // NullNode becomes 0, not fail
-        _assertAsBigInteger(BigInteger.ZERO, NODES.nullNode());
+        NullNode node = NODES.nullNode();
+        assertEquals(BigInteger.ZERO, node.asBigInteger());
+
+        // and then defaulting
+        assertEquals(BigInteger.ZERO, node.asBigInteger(BigInteger.valueOf(9999999L)));
+        assertEquals(BigInteger.valueOf(9999999L), node.asBigIntegerOr(BigInteger.valueOf(9999999L)));
+        assertEquals(BigInteger.ZERO, node.asBigIntegerOpt().get());
 
         // But MissingNode still fails
         _assertAsBigIntegerFailForNonNumber(NODES.missingNode());
@@ -249,6 +255,7 @@ public class JsonNodeBigIntegerValueTest
 
         // and then defaulting
         assertEquals(expected, node.asBigInteger(BigInteger.valueOf(9999999L)));
+        assertEquals(expected, node.asBigIntegerOr(BigInteger.valueOf(9999999L)));
         assertEquals(expected, node.asBigIntegerOpt().get());
     }
 
@@ -265,6 +272,7 @@ public class JsonNodeBigIntegerValueTest
 
         // Verify default value handling
         assertEquals(BigInteger.ONE, node.asBigInteger(BigInteger.ONE));
+        assertEquals(BigInteger.ONE, node.asBigIntegerOr(BigInteger.ONE));
         assertFalse(node.asBigIntegerOpt().isPresent());
     }
 }

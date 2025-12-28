@@ -233,7 +233,13 @@ public class JsonNodeDoubleValueTest
     public void asDoubleFromMiscOther()
     {
         // Null node converts to 0.0d; missing fails
-        _assertAsDouble((double) 0, NODES.nullNode());
+        NullNode node = NODES.nullNode();
+        assertEquals(0d, node.asDouble());
+
+        // and defaults
+        assertEquals(0d, node.asDouble(-9999.5));
+        assertEquals(-9999.5d, node.asDoubleOr(-9999.5));
+        assertEquals(0d, node.asDoubleOpt().getAsDouble());
 
         _assertAsDoubleFailForNonNumber(NODES.missingNode());
     }
@@ -277,6 +283,7 @@ public class JsonNodeDoubleValueTest
 
         // and defaults
         assertEquals(expected, node.asDouble(-9999.5));
+        assertEquals(expected, node.asDoubleOr(-9999.5));
         assertEquals(expected, node.asDoubleOpt().getAsDouble());
     }
 
@@ -290,6 +297,7 @@ public class JsonNodeDoubleValueTest
             .contains("value not in 64-bit `double` range");
 
         assertEquals(-2.25d, node.asDouble(-2.25d));
+        assertEquals(-2.25d, node.asDoubleOr(-2.25d));
         assertEquals(OptionalDouble.empty(), node.asDoubleOpt());
     }
 
@@ -307,6 +315,7 @@ public class JsonNodeDoubleValueTest
             .contains(extraMatch);
 
         assertEquals(1.5d, node.asDouble(1.5d));
+        assertEquals(1.5d, node.asDoubleOr(1.5d));
         assertEquals(OptionalDouble.empty(), node.asDoubleOpt());
     }
 

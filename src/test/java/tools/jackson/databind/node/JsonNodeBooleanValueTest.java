@@ -136,7 +136,11 @@ public class JsonNodeBooleanValueTest
     public void asBooleanFromNonNumberMisc()
     {
         // Null ok
-        _assertFalseFromAsBoolean(NODES.nullNode());
+        NullNode n = NODES.nullNode();
+        assertEquals(false, n.asBoolean());
+        assertEquals(false, n.asBoolean(true));
+        assertEquals(true, n.asBooleanOr(true));
+        assertEquals(false, n.asBooleanOpt().get());
         // And POJO node with Boolean:
         _assertFalseFromAsBoolean(NODES.pojoNode(Boolean.FALSE));
         _assertTrueFromAsBoolean(NODES.pojoNode(Boolean.TRUE));
@@ -162,12 +166,14 @@ public class JsonNodeBooleanValueTest
     private void _assertFalseFromAsBoolean(JsonNode n) {
         assertEquals(false, n.asBoolean());
         assertEquals(false, n.asBoolean(true));
+        assertEquals(false, n.asBooleanOr(true));
         assertEquals(false, n.asBooleanOpt().get());
     }
 
     private void _assertTrueFromAsBoolean(JsonNode n) {
         assertEquals(true, n.asBoolean());
         assertEquals(true, n.asBoolean(false));
+        assertEquals(true, n.asBooleanOr(false));
         assertEquals(true, n.asBooleanOpt().get());
     }
     
@@ -195,7 +201,9 @@ public class JsonNodeBooleanValueTest
 
         // But also check defaulting
         assertFalse(node.asBoolean(false));
+        assertFalse(node.asBooleanOr(false));
         assertTrue(node.asBoolean(true));
+        assertTrue(node.asBooleanOr(true));
         assertFalse(node.asBooleanOpt().isPresent());
     }
 }

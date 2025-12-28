@@ -616,6 +616,15 @@ public abstract class JsonNode
     public abstract String asString(String defaultValue);
 
     /**
+     * Similar to {@link #asString(String)}, but instead of coercing {@code null}
+     * it returns the {@code defaultValue}.
+     * This is the drop-in replacement for the Jackson 2 {@link #asString(String)}.
+     */
+    public String asStringOr(String defaultValue) {
+        return asString(defaultValue);
+    }
+
+    /**
      * Similar to {@link #asString()}, but instead of throwing an exception for
      * non-coercible values, will return {@code Optional.empty()}.
      */
@@ -706,6 +715,15 @@ public abstract class JsonNode
      * non-coercible values, will return specified default value.
      */
     public abstract boolean asBoolean(boolean defaultValue);
+
+    /**
+     * Similar to {@link #asBoolean(boolean)}, but instead of coercing {@code null}
+     * it returns the {@code defaultValue}.
+     * This is the drop-in replacement for the Jackson 2 {@link #asBoolean(boolean)}.
+     */
+    public boolean asBooleanOr(boolean defaultValue) {
+        return asBoolean(defaultValue);
+    }
 
     /**
      * Similar to {@link #asBoolean()}, but instead of throwing an exception for
@@ -804,6 +822,15 @@ public abstract class JsonNode
     public abstract short asShort(short defaultValue);
 
     /**
+     * Similar to {@link #asShort(short)}, but instead of coercing {@code null}
+     * it returns the {@code defaultValue}.
+     * This is the drop-in replacement for the Jackson 2 {@link #asShort(short)}.
+     */
+    public short asShortOr(short defaultValue) {
+        return asShort(defaultValue);
+    }
+
+    /**
      * Method similar to {@link #asShort()}, but that will return
      * ({@code Optional.empty()}) if this node cannot
      * be coerced to {@code short}.
@@ -890,6 +917,15 @@ public abstract class JsonNode
      *   {@code defaultValue} otherwise
      */
     public abstract int asInt(int defaultValue);
+
+    /**
+     * Similar to {@link #asInt(int)}, but instead of coercing {@code null}
+     * it returns the {@code defaultValue}.
+     * This is the drop-in replacement for the Jackson 2 {@link #asInt(int)}.
+     */
+    public int asIntOr(int defaultValue) {
+        return asInt(defaultValue);
+    }
 
     /**
      * Method similar to {@link #asInt()}, but that will return
@@ -981,6 +1017,15 @@ public abstract class JsonNode
     public abstract long asLong(long defaultValue);
 
     /**
+     * Similar to {@link #asLong(long)}, but instead of coercing {@code null}
+     * it returns the {@code defaultValue}.
+     * This is the drop-in replacement for the Jackson 2 {@link #asLong(long)}.
+     */
+    public long asLongOr(long defaultValue) {
+        return asLong(defaultValue);
+    }
+
+    /**
      * Method similar to {@link #asLong()}, but that will return
      * ({@code OptionalLong.empty()}) if this node cannot
      * be coerced to {@code long}.
@@ -1066,6 +1111,15 @@ public abstract class JsonNode
     public abstract BigInteger asBigInteger(BigInteger defaultValue);
 
     /**
+     * Similar to {@link #asBigInteger(BigInteger)}, but instead of coercing {@code null}
+     * it returns the {@code defaultValue}.
+     * This is the drop-in replacement for the Jackson 2 {@link #asBigInteger(BigInteger)}.
+     */
+    public BigInteger asBigIntegerOr(BigInteger defaultValue) {
+        return asBigInteger(defaultValue);
+    }
+
+    /**
      * Method similar to {@link #bigIntegerValue()}, but that will return empty
      * ({@code Optional.empty()}) if this node cannot
      * be converted to Java {@code BigInteger}.
@@ -1144,6 +1198,15 @@ public abstract class JsonNode
      * if possible to accurately represent; {@code defaultValue} otherwise
      */
     public abstract float asFloat(float defaultValue);
+
+    /**
+     * Similar to {@link #asFloat(float)}, but instead of coercing {@code null}
+     * it returns the {@code defaultValue}.
+     * This is the drop-in replacement for the Jackson 2 {@link #asFloat(float)}.
+     */
+    public float asFloatOr(float defaultValue) {
+        return asFloat(defaultValue);
+    }
 
     /**
      * Method similar to {@link #asFloat()}, but that will return
@@ -1227,6 +1290,15 @@ public abstract class JsonNode
     public abstract double asDouble(double defaultValue);
 
     /**
+     * Similar to {@link #asDouble(double)}, but instead of coercing {@code null}
+     * it returns the {@code defaultValue}.
+     * This is the drop-in replacement for the Jackson 2 {@link #asDouble(double)}.
+     */
+    public double asDoubleOr(double defaultValue) {
+        return asDouble(defaultValue);
+    }
+
+    /**
      * Method similar to {@link #asDouble()}, but that will return
      * ({@code OptionalDouble.empty()}) if this node cannot
      * be coerced to {@code double}.
@@ -1308,6 +1380,15 @@ public abstract class JsonNode
      * if possible to accurately represent; {@code defaultValue} otherwise
      */
     public abstract BigDecimal asDecimal(BigDecimal defaultValue);
+
+    /**
+     * Similar to {@link #asDecimal(BigDecimal)}, but instead of coercing {@code null}
+     * it returns the {@code defaultValue}.
+     * This is the drop-in replacement for the Jackson 2 {@link #asDecimal(BigDecimal)}.
+     */
+    public BigDecimal asDecimalOr(BigDecimal defaultValue) {
+        return asDecimal(defaultValue);
+    }
 
     /**
      * Method similar to {@link #asDecimal()}, but that will return empty

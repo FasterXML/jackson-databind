@@ -301,7 +301,14 @@ public class JsonNodeIntValueTest
     public void asIntFromMiscOther()
     {
         // NullNode -> 0 but "missing" still fails
-        _assertAsInt(0, NODES.nullNode());
+        NullNode node = NODES.nullNode();
+        assertEquals(0, node.asInt());
+
+        // and defaulting
+
+        assertEquals(0, node.asInt(999_999));
+        assertEquals(999_999, node.asIntOr(999_999));
+        assertEquals(0, node.asIntOpt().getAsInt());
 
         _assertAsIntFailForNonNumber(NODES.missingNode());
     }
@@ -381,6 +388,7 @@ public class JsonNodeIntValueTest
         // and defaulting
 
         assertEquals(expected, node.asInt(999_999));
+        assertEquals(expected, node.asIntOr(999_999));
         assertEquals(expected, node.asIntOpt().getAsInt());
     }
 
@@ -395,6 +403,7 @@ public class JsonNodeIntValueTest
 
         // assert defaulting
         assertEquals(99, node.asInt(99));
+        assertEquals(99, node.asIntOr(99));
         assertEquals(OptionalInt.empty(), node.asIntOpt());
     }
 
@@ -413,6 +422,7 @@ public class JsonNodeIntValueTest
 
         // assert defaulting
         assertEquals(99, node.asInt(99));
+        assertEquals(99, node.asIntOr(99));
         assertEquals(OptionalInt.empty(), node.asIntOpt());
     }
 
@@ -427,6 +437,7 @@ public class JsonNodeIntValueTest
 
         // Verify default value handling
         assertEquals(1, node.asInt(1));
+        assertEquals(1, node.asIntOr(1));
         assertFalse(node.asIntOpt().isPresent());
     }
 

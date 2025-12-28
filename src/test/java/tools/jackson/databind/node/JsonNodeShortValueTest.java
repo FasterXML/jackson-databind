@@ -282,7 +282,12 @@ public class JsonNodeShortValueTest
     public void asIntFromMiscOther()
     {
         // NullNode -> 0 but "missing" still fails
-        _assertAsShort((short) 0, NODES.nullNode());
+        NullNode node = NODES.nullNode();
+        assertEquals((short) 0, node.asShort());
+        // and defaulting
+        assertEquals((short) 0, node.asShort((short) 99));
+        assertEquals(99, node.asShortOr((short) 99));
+        assertEquals((short) 0, node.asShortOpt().get());
 
         _assertAsShortFailForNonNumber(NODES.missingNode());
     }
@@ -346,6 +351,7 @@ public class JsonNodeShortValueTest
 
         // and defaulting
         assertEquals(expected, node.asShort((short) 99));
+        assertEquals(expected, node.asShortOr((short) 99));
         assertEquals(expected, node.asShortOpt().get());
     }
 
@@ -360,6 +366,7 @@ public class JsonNodeShortValueTest
 
         // assert defaulting
         assertEquals(99, node.asShort((short) 99));
+        assertEquals(99, node.asShortOr((short) 99));
         assertFalse(node.asShortOpt().isPresent());
     }
 
@@ -378,6 +385,7 @@ public class JsonNodeShortValueTest
 
         // assert defaulting
         assertEquals(99, node.asShort((short) 99));
+        assertEquals(99, node.asShortOr((short) 99));
         assertFalse(node.asShortOpt().isPresent());
     }
 
@@ -392,6 +400,7 @@ public class JsonNodeShortValueTest
 
         // Verify default value handling
         assertEquals(99, node.asShort((short) 99));
+        assertEquals(99, node.asShortOr((short) 99));
         assertFalse(node.asShortOpt().isPresent());
     }
 

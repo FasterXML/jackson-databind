@@ -296,7 +296,13 @@ public class JsonNodeLongValueTest
     public void asLongFromMiscOther()
     {
         // NullNode works, Missing fails
-        _assertAsLong(0L, NODES.nullNode());
+        NullNode node = NODES.nullNode();
+        assertEquals(0L, node.asLong());
+
+        // But also fallbacks
+        assertEquals(0L, node.asLong(999999L));
+        assertEquals(999999L, node.asLongOr(999999L));
+        assertEquals(0L, node.asLongOpt().getAsLong());
 
         _assertAsLongFailForNonNumber(NODES.missingNode());
     }
@@ -376,6 +382,7 @@ public class JsonNodeLongValueTest
 
         // But also fallbacks
         assertEquals(expected, node.asLong(999999L));
+        assertEquals(expected, node.asLongOr(999999L));
         assertEquals(expected, node.asLongOpt().getAsLong());
     }
 
@@ -390,6 +397,7 @@ public class JsonNodeLongValueTest
 
         // Verify default value handling
         assertEquals(1L, node.asLong(1L));
+        assertEquals(1L, node.asLongOr(1L));
         assertFalse(node.asLongOpt().isPresent());
     }
 
@@ -408,6 +416,7 @@ public class JsonNodeLongValueTest
 
         // Verify default value handling
         assertEquals(1L, node.asLong(1L));
+        assertEquals(1L, node.asLongOr(1L));
         assertFalse(node.asLongOpt().isPresent());
     }
 
@@ -422,6 +431,7 @@ public class JsonNodeLongValueTest
 
         // Verify default value handling
         assertEquals(1L, node.asLong(1L));
+        assertEquals(1L, node.asLongOr(1L));
         assertFalse(node.asLongOpt().isPresent());
     }
     

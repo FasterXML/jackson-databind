@@ -123,7 +123,13 @@ public class JsonNodeStringValueTest
     @Test
     public void asStringFromNonNumberMisc()
     {
-        _assertAsStringSuccess("", NODES.nullNode());
+        NullNode node = NODES.nullNode();
+        assertEquals("", node.asString());
+
+        // But also fallbacks
+        assertEquals("", node.asString("fallback"));
+        assertEquals("fallback", node.asStringOr("fallback"));
+        assertEquals("", node.asStringOpt().get());
 
         _assertAsStringFailForNonString(NODES.missingNode());
     }
@@ -148,6 +154,7 @@ public class JsonNodeStringValueTest
 
         // But also fallbacks
         assertEquals(expected, node.asString("fallback"));
+        assertEquals(expected, node.asStringOr("fallback"));
         assertEquals(expected, node.asStringOpt().get());
     }
 
@@ -161,6 +168,7 @@ public class JsonNodeStringValueTest
 
         // But also check defaulting
         assertEquals("foo", node.asString("foo"));
+        assertEquals("foo", node.asStringOr("foo"));
         assertFalse(node.asStringOpt().isPresent());
     }
 }

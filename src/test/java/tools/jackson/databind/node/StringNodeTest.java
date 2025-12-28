@@ -36,9 +36,13 @@ public class StringNodeTest extends NodeTestBase
         assertEquals("", empty.asString());
 
         assertTrue(StringNode.valueOf("true").asBoolean(true));
+        assertTrue(StringNode.valueOf("true").asBooleanOr(true));
         assertTrue(StringNode.valueOf("true").asBoolean(false));
+        assertTrue(StringNode.valueOf("true").asBooleanOr(false));
         assertFalse(StringNode.valueOf("false").asBoolean(true));
+        assertFalse(StringNode.valueOf("false").asBooleanOr(true));
         assertFalse(StringNode.valueOf("false").asBoolean(false));
+        assertFalse(StringNode.valueOf("false").asBooleanOr(false));
 
         assertNonContainerStreamMethods(n);
     }

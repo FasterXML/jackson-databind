@@ -46,6 +46,14 @@ public class BeanSerializerBuilder
     protected BeanPropertyWriter[] _filteredProperties;
 
     /**
+     * Ordered properties when {@link com.fasterxml.jackson.annotation.JsonPropertyOrder}
+     * specifies ordering for {@link com.fasterxml.jackson.annotation.JsonUnwrapped} inner properties.
+     *
+     * @since 3.1
+     */
+    protected List<Object> _orderedProps;
+
+    /**
      * Writer used for "any getter" properties, if any.
      */
     protected AnyGetterWriter _anyGetter;
@@ -87,6 +95,7 @@ public class BeanSerializerBuilder
         _config = src._config;
         _properties = src._properties;
         _filteredProperties = src._filteredProperties;
+        _orderedProps = src._orderedProps;
         _anyGetter = src._anyGetter;
         _filterId = src._filterId;
         _typeId = src._typeId;
@@ -213,12 +222,12 @@ _properties.size(), _filteredProperties.length));
         }
         ValueSerializer<?> ser = UnrolledBeanSerializer.tryConstruct(
                 _beanDescRef.getType(), this,
-                    properties, _filteredProperties);
+                    properties, _filteredProperties, _orderedProps);
         if (ser != null) {
             return ser;
         }
         return new BeanSerializer(_beanDescRef.getType(), this,
-                properties, _filteredProperties);
+                properties, _filteredProperties, _orderedProps);
     }
 
     /**

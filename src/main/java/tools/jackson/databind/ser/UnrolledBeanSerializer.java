@@ -1,6 +1,7 @@
 package tools.jackson.databind.ser;
 
 import java.util.Set;
+import java.util.List;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -51,9 +52,9 @@ public class UnrolledBeanSerializer
      * @param properties Property writers used for actual serialization
      */
     public UnrolledBeanSerializer(JavaType type, BeanSerializerBuilder builder,
-            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties)
+            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties, List<Object> orderedProps)
     {
-        super(type, builder, properties, filteredProperties);
+        super(type, builder, properties, filteredProperties, orderedProps);
         _propCount = _props.length;
         _calcUnrolled();
     }
@@ -90,13 +91,13 @@ public class UnrolledBeanSerializer
      * created.
      */
     public static UnrolledBeanSerializer tryConstruct(JavaType type, BeanSerializerBuilder builder,
-            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties)
+            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties, List<Object> orderedProps)
     {
         if ((properties.length > MAX_PROPS)
                 || (builder.getFilterId() != null)) {
             return null;
         }
-        return new UnrolledBeanSerializer(type, builder, properties, filteredProperties);
+        return new UnrolledBeanSerializer(type, builder, properties, filteredProperties, orderedProps);
     }
 
     /*
@@ -168,6 +169,14 @@ public class UnrolledBeanSerializer
     {
         // NOTE! We have ensured that "JSON Filter" and "Object Id" cases
         // always use "vanilla" BeanSerializer, so no need to check here
+
+        // [databind#1670]: use ordered props for proper interleaving of unwrapped properties
+        if (!_orderedProps.isEmpty()) {
+            gen.writeStartObject(bean);
+            _serializePropertiesOrdered(bean, gen, provider, _orderedProps);
+            gen.writeEndObject();
+            return;
+        }
 
         BeanPropertyWriter[] fProps = _filteredProps;
         if ((fProps != null) && (provider.getActiveView() != null)) {

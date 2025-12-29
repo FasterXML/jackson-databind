@@ -80,6 +80,14 @@ public abstract class BeanSerializerBase
      */
     final protected JsonFormat.Shape _serializationShape;
 
+    /**
+     * Ordered properties when {@link com.fasterxml.jackson.annotation.JsonPropertyOrder}
+     * specifies ordering for {@link com.fasterxml.jackson.annotation.JsonUnwrapped} inner properties.
+     *
+     * @since 3.1
+     */
+    final protected List<Object> _orderedProps;
+
     /*
     /**********************************************************************
     /* Life-cycle: constructors
@@ -94,12 +102,13 @@ public abstract class BeanSerializerBase
      * @param builder Builder for accessing other collected information
      */
     protected BeanSerializerBase(JavaType type, BeanSerializerBuilder builder,
-            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties)
+                BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties, List<Object> orderedProps)
     {
         super(type);
         _beanType = type;
         _props = properties;
         _filteredProps = filteredProperties;
+        _orderedProps = (orderedProps == null) ? new ArrayList<>() : orderedProps;
         if (builder == null) { // mostly for testing
             // 20-Sep-2019, tatu: Actually not just that but also "dummy" serializer for
             //     case of no bean properties, too
@@ -137,6 +146,7 @@ public abstract class BeanSerializerBase
         _objectIdWriter = src._objectIdWriter;
         _propertyFilterId = src._propertyFilterId;
         _serializationShape = src._serializationShape;
+        _orderedProps = src._orderedProps;
     }
 
     protected BeanSerializerBase(BeanSerializerBase src,
@@ -157,6 +167,7 @@ public abstract class BeanSerializerBase
         _objectIdWriter = objectIdWriter;
         _propertyFilterId = filterId;
         _serializationShape = src._serializationShape;
+        _orderedProps = src._orderedProps;
     }
 
     protected BeanSerializerBase(BeanSerializerBase src, Set<String> toIgnore, Set<String> toInclude)
@@ -189,6 +200,7 @@ public abstract class BeanSerializerBase
         _objectIdWriter = src._objectIdWriter;
         _propertyFilterId = src._propertyFilterId;
         _serializationShape = src._serializationShape;
+        _orderedProps = src._orderedProps;
     }
 
     /**
@@ -270,6 +282,7 @@ public abstract class BeanSerializerBase
     @Override
     public void resolve(SerializationContext provider)
     {
+        boolean hasUnwrapping = false;
         int filteredCount = (_filteredProps == null) ? 0 : _filteredProps.length;
         for (int i = 0, len = _props.length; i < len; ++i) {
             BeanPropertyWriter prop = _props[i];
@@ -344,6 +357,93 @@ public abstract class BeanSerializerBase
             if (prop instanceof AnyGetterWriter anyGetterWriter) {
                 anyGetterWriter.resolve(provider);
             }
+            // [databind#1670]: check to have @JsonUnwrapped
+            if (prop.isUnwrapping()) {
+                hasUnwrapping = true;
+            }
+        }
+
+        // [databind#1670]: re-order properties if @JsonPropertyOrder specifies
+        // order that includes unwrapped property names
+        _reorderPropertiesWithUnwrapped(hasUnwrapping, provider);
+    }
+
+    /**
+     * Helper method to reorder properties when {@code @JsonPropertyOrder} includes
+     * names from {@code @JsonUnwrapped} properties.
+     *
+     * @since 3.1
+     */
+    protected void _reorderPropertiesWithUnwrapped(boolean hasUnwrapping, SerializationContext ctxt)
+    {
+        if (_props.length <= 1 || !hasUnwrapping) {
+            return;
+        }
+
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr == null) {
+            return;
+        }
+        final String[] propertyOrder = intr.findSerializationPropertyOrder(
+                ctxt.getConfig(), ctxt.introspectBeanDescription(_beanType).getClassInfo());
+        if (propertyOrder == null || propertyOrder.length == 0) {
+            return;
+        }
+        // let's start re-order
+        _reorderProperties(propertyOrder, ctxt);
+    }
+
+    /**
+     * Method for reordering properties based on {@link com.fasterxml.jackson.annotation.JsonPropertyOrder},
+     * expanding {@link com.fasterxml.jackson.annotation.JsonUnwrapped} into inner properties.
+     *
+     * @since 3.1
+     */
+    protected void _reorderProperties(String[] order, SerializationContext ctxt)
+    {
+        final List<String> orderList = Arrays.asList(order);
+
+        // value : BeanPropertyWriter or Object[] (if unwrapped property)
+        List<Map.Entry<Integer, Object>> entries = new ArrayList<>();
+
+        for (BeanPropertyWriter prop : _props) {
+            int propIdx = orderList.indexOf(prop.getName());
+            if (propIdx < 0) {
+                propIdx = _props.length;
+            }
+
+            if (!prop.isUnwrapping()) {
+                // normal(not unwrapping property)
+                entries.add(Map.entry(propIdx, prop));
+                continue;
+            }
+
+            // need to resolve serializer for unwrapped
+            if (!prop.hasSerializer()) {
+                ValueSerializer<Object> ser = ctxt.findPrimaryPropertySerializer(prop.getType(), prop);
+                if (ser != null) {
+                    prop.assignSerializer(ser);
+                }
+            }
+
+            ValueSerializer<Object> ser = prop.getSerializer();
+            if (ser instanceof BeanSerializerBase bser) {
+                for (PropertyWriter pw : (Iterable<PropertyWriter>) bser::properties) {
+                    if (pw instanceof BeanPropertyWriter inner) {
+                        int idx = orderList.indexOf(inner.getName());
+                        if (idx < 0) {
+                            idx = propIdx;
+                        }
+                        entries.add(Map.entry(idx, new Object[]{prop, inner}));
+                    }
+                }
+            }
+
+        }
+        // key asc
+        entries.sort(Comparator.comparingInt(Map.Entry::getKey));
+        for (Map.Entry<Integer, Object> e : entries) {
+            _orderedProps.add(e.getValue());
         }
     }
 
@@ -841,6 +941,37 @@ public abstract class BeanSerializerBase
         }
     }
 
+    /**
+     * Method for serializing properties when {@link com.fasterxml.jackson.annotation.JsonPropertyOrder}
+     * includes {@link com.fasterxml.jackson.annotation.JsonUnwrapped} inner properties.
+     *
+     * @since 3.1
+     */
+    protected void _serializePropertiesOrdered(Object bean, JsonGenerator gen,
+                                               SerializationContext provider, List<Object> props) throws JacksonException
+    {
+        try {
+            for (Object entry : props) {
+                if (entry instanceof BeanPropertyWriter prop) {
+                    prop.serializeAsProperty(bean, gen, provider);
+                } else if (entry instanceof Object[] arr) {
+                    // arr = {parentUnwrappedProp, innerProp}
+                    BeanPropertyWriter unwrappedProp = (BeanPropertyWriter) arr[0];
+                    BeanPropertyWriter innerProp = (BeanPropertyWriter) arr[1];
+                    Object unwrappedValue = unwrappedProp.get(bean);
+                    if (unwrappedValue != null) {
+                        innerProp.serializeAsProperty(unwrappedValue, gen, provider);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            wrapAndThrow(provider, e, bean, "[ordered]");
+        } catch (StackOverflowError e) {
+            throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
+                    .prependPath(bean, "[ordered]");
+        }
+    }
+
     /*
     /**********************************************************************
     /* Field serialization methods, 2.x
@@ -897,8 +1028,10 @@ public abstract class BeanSerializerBase
     protected void _serializeProperties(Object bean, JsonGenerator g, SerializationContext provider)
         throws JacksonException
     {
-        // NOTE: only called from places where FilterId (JsonView) already checked.
-        if (_filteredProps != null && provider.getActiveView() != null) {
+        if (!_orderedProps.isEmpty()) {
+            _serializePropertiesOrdered(bean, g, provider, _orderedProps);
+        } else if (_filteredProps != null && provider.getActiveView() != null) {
+            // NOTE: only called from places where FilterId (JsonView) already checked.
             _serializePropertiesMaybeView(bean, g, provider, _filteredProps);
         } else {
             _serializePropertiesNoView(bean, g, provider, _props);

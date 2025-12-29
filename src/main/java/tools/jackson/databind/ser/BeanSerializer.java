@@ -1,6 +1,7 @@
 package tools.jackson.databind.ser;
 
 import java.util.Set;
+import java.util.List;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -40,9 +41,9 @@ public class BeanSerializer
      * @param properties Property writers used for actual serialization
      */
     public BeanSerializer(JavaType type, BeanSerializerBuilder builder,
-            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties)
+            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties, List<Object> _orderedProps)
     {
-        super(type, builder, properties, filteredProperties);
+        super(type, builder, properties, filteredProperties, _orderedProps);
     }
 
     /**
@@ -85,7 +86,7 @@ public class BeanSerializer
      */
     public static BeanSerializer createDummy(JavaType forType, BeanSerializerBuilder builder)
     {
-        return new BeanSerializer(forType, builder, NO_PROPS, null);
+        return new BeanSerializer(forType, builder, NO_PROPS, null, null);
     }
 
     @Override
